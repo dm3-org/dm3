@@ -1,2 +1,2 @@
 # ens-mail
-ENs Mail
+ENS Mail
