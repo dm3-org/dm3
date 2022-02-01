@@ -3,6 +3,20 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
+        "@fortawesome/fontawesome-free": "^5.15.4",
+        "@metamask/detect-provider": "^1.2.0",
+        "axios": "^0.25.0",
+        "bootstrap": "^5.1.3",
+        "ethers": "^5.5.4",
+        "prettier": "^2.5.1",
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "react-scripts": "5.0.0",
+        "typescript": "^4.4.2",
+        "uuid": "^8.3.2",
+        "web-vitals": "^2.1.0"
+    },
+    "devDependencies": {
         "@testing-library/jest-dom": "^5.14.1",
         "@testing-library/react": "^12.0.0",
         "@testing-library/user-event": "^13.2.1",
@@ -10,22 +24,20 @@
         "@types/node": "^16.7.13",
         "@types/react": "^17.0.20",
         "@types/react-dom": "^17.0.9",
-        "prettier": "^2.5.1",
-        "react": "^17.0.2",
-        "react-dom": "^17.0.2",
-        "react-scripts": "5.0.0",
-        "typescript": "^4.4.2",
-        "web-vitals": "^2.1.0"
-    },
-    "devDependencies": {
+        "@types/uuid": "^8.3.4",
+        "@types/cors": "^2.8.12",
+        "cors": "^2.8.5",
         "eslint": "^8.8.0",
         "eslint-config-prettier": "^8.3.0",
         "eslint-plugin-prettier": "^4.0.0",
+        "express": "^4.17.2",
         "husky": "^7.0.0",
-        "lint-staged": "^12.3.2"
+        "lint-staged": "^12.3.2",
+        "ts-node": "^10.4.0"
     },
     "scripts": {
         "start": "react-scripts start",
+        "start:test-backend": " yarn ts-node --project test-backend/tsconfig.json test-backend/TestBackend.ts",
         "build": "react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
