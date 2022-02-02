@@ -13,3 +13,17 @@ export async function requestAccounts(
 ): Promise<string> {
     return (await provider.send('eth_requestAccounts', []))[0];
 }
+
+export async function lookupAddress(
+    provider: ethers.providers.JsonRpcProvider,
+    accountAddress: string,
+): Promise<string | null> {
+    return provider.lookupAddress(accountAddress);
+}
+
+export async function resolveName(
+    provider: ethers.providers.JsonRpcProvider,
+    name: string,
+): Promise<string | null> {
+    return provider.resolveName(name);
+}

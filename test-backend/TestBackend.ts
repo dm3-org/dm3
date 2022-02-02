@@ -3,6 +3,7 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import cors from 'cors';
 import { getSessionToken } from '../src/lib/Web3Provider';
+import { checkToken, Session } from './BackendLib';
 
 const app = express();
 app.use(express.json());
@@ -15,14 +16,8 @@ app.use(
     }),
 );
 
-interface Session {
-    account: string;
-    challenge?: string;
-    token?: string;
-    ttl?: undefined;
-}
-
 const sessions = new Map<string, Session>();
+const contacts = new Map<string, Set<string>>();
 
 app.post('/requestSignInChallenge', (req, res) => {
     const account = ethers.utils.getAddress(req.body.account);
@@ -50,6 +45,40 @@ app.post('/submitSignedChallenge', (req, res) => {
     } else {
         res.status(401).send('sign in failed');
         console.log(`Failed to set session key for ${account}`);
+    }
+});
+
+app.post('/addContact/:accountAddress', (req, res) => {
+    const account = ethers.utils.getAddress(req.params.accountAddress);
+    if (checkToken(sessions, account, req.body.token)) {
+        const accountContacts: Set<string> = (
+            contacts.has(account) ? contacts.get(account) : new Set<string>()
+        ) as Set<string>;
+        accountContacts.add(req.body.contactAddress);
+
+        if (!contacts.has(account)) {
+            contacts.set(account, accountContacts);
+        }
+        console.log(
+            `Added ${req.body.contactAddress} to the contact list of ${account}`,
+        );
+        res.send('OK');
+    } else {
+        res.status(401).send('Token check failed)');
+    }
+});
+
+app.post('/getContacts/:accountAddress', (req, res) => {
+    const account = ethers.utils.getAddress(req.params.accountAddress);
+
+    if (checkToken(sessions, account, req.body.token)) {
+        const accountContacts = contacts.has(account)
+            ? Array.from(contacts.get(account) as Set<string>)
+            : [];
+
+        res.send({ contacts: accountContacts });
+    } else {
+        res.status(401).send('Token check failed');
     }
 });
 

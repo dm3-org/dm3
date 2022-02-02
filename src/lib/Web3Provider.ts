@@ -1,7 +1,8 @@
 import { ethers } from 'ethers';
+
 import { log } from './log';
 
-export enum ConnecteionState {
+export enum ConnectionState {
     CheckingProvider,
     NoProvider,
     SignInReady,
@@ -13,9 +14,16 @@ export enum ConnecteionState {
     SignedIn,
 }
 
+export interface ApiConnection {
+    connectionState: ConnectionState;
+    account?: string;
+    sessionToken?: string;
+    provider?: ethers.providers.JsonRpcProvider;
+}
+
 export async function getWeb3Provider(provider: unknown): Promise<{
     provider?: ethers.providers.Web3Provider;
-    connectionState: ConnecteionState;
+    connectionState: ConnectionState;
 }> {
     return provider
         ? {
@@ -24,10 +32,10 @@ export async function getWeb3Provider(provider: unknown): Promise<{
                       | ethers.providers.ExternalProvider
                       | ethers.providers.JsonRpcFetchFunc,
               ),
-              connectionState: ConnecteionState.AccountConntectReady,
+              connectionState: ConnectionState.AccountConntectReady,
           }
         : {
-              connectionState: ConnecteionState.NoProvider,
+              connectionState: ConnectionState.NoProvider,
           };
 }
 
@@ -38,16 +46,16 @@ export async function connectAccount(
     ) => Promise<string>,
 ): Promise<{
     account?: string;
-    connectionState: ConnecteionState;
+    connectionState: ConnectionState;
 }> {
     try {
         return {
             account: await requestAccounts(provider),
-            connectionState: ConnecteionState.SignInReady,
+            connectionState: ConnectionState.SignInReady,
         };
     } catch (e) {
         return {
-            connectionState: ConnecteionState.AccountConnectionRejected,
+            connectionState: ConnectionState.AccountConnectionRejected,
         };
     }
 }
@@ -66,7 +74,7 @@ export async function signIn(
         signature: string,
     ) => Promise<void>,
 ): Promise<{
-    connectionState: ConnecteionState;
+    connectionState: ConnectionState;
     sessionToken?: string;
 }> {
     try {
@@ -78,16 +86,60 @@ export async function signIn(
         submitSignedChallenge(challenge, signature);
 
         return {
-            connectionState: ConnecteionState.SignedIn,
+            connectionState: ConnectionState.SignedIn,
             sessionToken: getSessionToken(signature),
         };
     } catch (e) {
         return {
-            connectionState: ConnecteionState.SignInFailed,
+            connectionState: ConnectionState.SignInFailed,
         };
     }
 }
 
 export function getSessionToken(signature: string) {
     return ethers.utils.keccak256(signature);
+}
+
+export function getAccountDisplayName(
+    accountAddress: string | undefined,
+    ensNames: Map<string, string>,
+): string {
+    if (!accountAddress) {
+        return '';
+    }
+    if (ensNames.get(accountAddress)) {
+        return ensNames.get(accountAddress) as string;
+    }
+    return accountAddress.length > 10
+        ? accountAddress.substring(0, 4) +
+              '...' +
+              accountAddress.substring(accountAddress.length - 4)
+        : accountAddress;
+}
+
+export async function addContact(
+    apiConnection: ApiConnection,
+    input: string,
+    resolveName: (
+        provider: ethers.providers.JsonRpcProvider,
+        input: string,
+    ) => Promise<string | null>,
+    addContactAPI: (
+        apiConnection: ApiConnection,
+        contactAddress: string,
+    ) => Promise<string>,
+) {
+    if (ethers.utils.isAddress(input)) {
+        await addContactAPI(apiConnection, input);
+    } else {
+        const address = await resolveName(
+            apiConnection.provider as ethers.providers.JsonRpcProvider,
+            input,
+        );
+        if (address) {
+            addContactAPI(apiConnection, address);
+        } else {
+            throw Error(`Couldn't resolve name`);
+        }
+    }
 }
