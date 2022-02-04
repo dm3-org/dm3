@@ -4,7 +4,7 @@ export async function prersonalSign(
     provider: ethers.providers.JsonRpcProvider,
     account: string,
     message: string,
-) {
+): Promise<any> {
     return await provider.send('personal_sign', [account, message]);
 }
 

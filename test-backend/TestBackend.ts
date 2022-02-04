@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import cors from 'cors';
 import { getSessionToken } from '../src/lib/Web3Provider';
 import { checkToken, Session } from './BackendLib';
+import { Envelop, Message } from '../src/lib/Messaging';
 
 const app = express();
 app.use(express.json());
@@ -18,8 +19,10 @@ app.use(
 
 const sessions = new Map<string, Session>();
 const contacts = new Map<string, Set<string>>();
+const messages = new Map<string, Map<string, Message[]>>();
 
 app.post('/requestSignInChallenge', (req, res) => {
+    console.log('[requestSignInChallenge]');
     const account = ethers.utils.getAddress(req.body.account);
     const session = sessions.has(account)
         ? (sessions.get(account) as Session)
@@ -30,6 +33,7 @@ app.post('/requestSignInChallenge', (req, res) => {
 });
 
 app.post('/submitSignedChallenge', (req, res) => {
+    console.log('[submitSignedChallenge]');
     const account = ethers.utils.recoverAddress(
         ethers.utils.hashMessage(req.body.challenge),
         req.body.signature,
@@ -49,6 +53,7 @@ app.post('/submitSignedChallenge', (req, res) => {
 });
 
 app.post('/addContact/:accountAddress', (req, res) => {
+    console.log('[addContact]');
     const account = ethers.utils.getAddress(req.params.accountAddress);
     if (checkToken(sessions, account, req.body.token)) {
         const accountContacts: Set<string> = (
@@ -69,6 +74,7 @@ app.post('/addContact/:accountAddress', (req, res) => {
 });
 
 app.post('/getContacts/:accountAddress', (req, res) => {
+    console.log('[getContacts]');
     const account = ethers.utils.getAddress(req.params.accountAddress);
 
     if (checkToken(sessions, account, req.body.token)) {
@@ -79,6 +85,56 @@ app.post('/getContacts/:accountAddress', (req, res) => {
         res.send({ contacts: accountContacts });
     } else {
         res.status(401).send('Token check failed');
+    }
+});
+
+app.post('/submitMessage/:accountAddress', (req, res) => {
+    console.log(`[submitMessage]`);
+    const account = ethers.utils.getAddress(req.params.accountAddress);
+    const contact = ethers.utils.getAddress(
+        (JSON.parse(req.body.envelop.message) as Message).to,
+    );
+
+    if (checkToken(sessions, account, req.body.token)) {
+        const accountMessages = (
+            messages.has(account)
+                ? messages.get(account)
+                : new Map<string, any[]>()
+        ) as Map<string, any[]>;
+
+        const accountContactMessages = (
+            accountMessages.has(contact) ? accountMessages.get(contact) : []
+        ) as Message[];
+
+        accountContactMessages.push(req.body.message);
+
+        if (!accountMessages.has(contact)) {
+            accountMessages.set(contact, accountContactMessages);
+        }
+
+        if (!messages.has(account)) {
+            messages.set(account, accountMessages);
+        }
+
+        res.send('OK');
+    } else {
+        res.status(401).send('Token check failed)');
+    }
+});
+
+app.post('/getMessages/:accountAddress', (req, res) => {
+    console.log(`[submitMessage]`);
+    const account = ethers.utils.getAddress(req.params.accountAddress);
+    const contact = ethers.utils.getAddress(req.body.contact);
+
+    if (checkToken(sessions, account, req.body.token)) {
+        res.send({
+            messages: messages.get(account)?.has(contact)
+                ? (messages.get(account) as Map<string, Message[]>).get(contact)
+                : [],
+        });
+    } else {
+        res.status(401).send('Token check failed)');
     }
 });
 

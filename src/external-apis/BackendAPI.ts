@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Envelop, Message } from '../lib/Messaging';
 import { ApiConnection } from '../lib/Web3Provider';
 
 export async function submitSignedChallenge(
@@ -24,15 +25,13 @@ export async function requestChallenge(account: string): Promise<string> {
 export async function addContact(
     apiConnection: ApiConnection,
     contactAddress: string,
-): Promise<string> {
-    return (
-        await axios.post(
-            ((process.env.REACT_APP_BACKEND as string) +
-                '/addContact/' +
-                apiConnection.account) as string,
-            { contactAddress, token: apiConnection.sessionToken },
-        )
-    ).data.challenge;
+): Promise<void> {
+    await axios.post(
+        ((process.env.REACT_APP_BACKEND as string) +
+            '/addContact/' +
+            apiConnection.account) as string,
+        { contactAddress, token: apiConnection.sessionToken },
+    );
 }
 
 export async function getContacts(
@@ -47,4 +46,30 @@ export async function getContacts(
             { token },
         )
     ).data.contacts;
+}
+
+export async function submitMessage(
+    apiConnection: ApiConnection,
+    envelop: Envelop,
+): Promise<void> {
+    await axios.post(
+        ((process.env.REACT_APP_BACKEND as string) +
+            '/submitMessage/' +
+            apiConnection.account) as string,
+        { envelop, token: apiConnection.sessionToken },
+    );
+}
+
+export async function getMessages(
+    apiConnection: ApiConnection,
+    contact: string,
+): Promise<Envelop[]> {
+    return (
+        await axios.post(
+            ((process.env.REACT_APP_BACKEND as string) +
+                '/getMessages/' +
+                apiConnection.account) as string,
+            { contact, token: apiConnection.sessionToken },
+        )
+    ).data.messages;
 }

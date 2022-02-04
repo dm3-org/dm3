@@ -8,6 +8,7 @@ import { getAccountDisplayName } from './lib/Web3Provider';
 interface ContactListProps {
     ensNames: Map<string, string>;
     contacts: string[];
+    selectContact: (contactAddress: string) => void;
 }
 
 function ContactList(props: ContactListProps) {
@@ -16,7 +17,7 @@ function ContactList(props: ContactListProps) {
             type="button"
             className="list-group-item list-group-item-action "
             key={contact}
-            onClick={() => {}}
+            onClick={() => props.selectContact(contact)}
         >
             {getAccountDisplayName(contact, props.ensNames)}
         </button>

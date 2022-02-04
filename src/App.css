@@ -5,3 +5,61 @@
 .push-end {
   float: right
 }
+
+.start-chat {
+  font-size: 1.5rem;
+  border-radius: 2px;
+  border: 1px dashed #00000020;
+  padding: 1rem;
+  height: 200px;
+  color: #6c757d;
+
+}
+
+.rcw-widget-container {
+  position:  relative !important;
+
+}
+
+.row-space {
+  margin-top: 2rem !important;
+}
+
+.rcw-picker-btn {
+  display: none;
+}
+
+.rcw-new-message {
+
+  width: calc(100% - 20px) !important;
+}
+
+.rcw-message {
+  margin-bottom: 0px !important;
+  margin-top: 0px !important;
+}
+
+.message-state {
+
+  margin-bottom: 15px;
+}
+
+.rcw-send {
+  margin-bottom: 5px;
+}
+
+
+.own-account {
+  color: grey;
+}
+
+
+
+.rcw-client .rcw-message-text {
+  max-width: none !important;
+  margin-left: 3rem !important;
+}
+
+.msg-container {
+  min-width: 630px;
+}
