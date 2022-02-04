@@ -132,8 +132,7 @@ test('add a contact', async () => {
             { connectionState: ConnectionState.SignedIn },
             '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
             async (provider: JsonRpcProvider, input: string) => input,
-            async (apiConnection: ApiConnection, contactAddress: string) =>
-                contactAddress,
+            async (apiConnection: ApiConnection, contactAddress: string) => {},
         ),
     ).resolves;
 });

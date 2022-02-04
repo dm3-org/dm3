@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
+import 'react-chat-widget/lib/styles.css';
 import {
     ApiConnection,
     ConnectionState,
@@ -16,6 +17,8 @@ import ContactList from './ContactList';
 import AddContactForm from './AddContactForm';
 import { lookupAddress } from './external-apis/InjectedWeb3API';
 import { ethers } from 'ethers';
+import Chat from './Chat';
+import { isWidgetOpened, toggleWidget } from 'react-chat-widget';
 
 function App() {
     const [apiConnection, setApiConnection] = useState<ApiConnection>({
@@ -26,6 +29,9 @@ function App() {
     );
 
     const [contacts, setContacts] = useState<string[] | undefined>();
+    const [selectedContact, setSelectedContact] = useState<
+        string | undefined
+    >();
 
     const changeApiConnection = (newApiConnection: Partial<ApiConnection>) => {
         if (newApiConnection.connectionState) {
@@ -96,6 +102,14 @@ function App() {
         setEnsNames(new Map(ensNames));
     };
 
+    const selectContact = async (contactAddress: string) => {
+        if (!isWidgetOpened()) {
+            toggleWidget();
+        }
+
+        setSelectedContact(contactAddress);
+    };
+
     useEffect(() => {
         if (!apiConnection.provider) {
             createWeb3Provider();
@@ -132,34 +146,48 @@ function App() {
                 {apiConnection.account &&
                     apiConnection.connectionState ===
                         ConnectionState.SignedIn && (
-                        <div className="col-md-4">
-                            <div className="row">
-                                <div className="col-12 text-center">
-                                    <AccountNameHeader
-                                        account={apiConnection.account}
-                                        ensNames={ensNames}
-                                    />
-                                </div>
-                            </div>
-                            <div className="row row-space">
-                                <div className="col-12 text-center">
-                                    <AddContactForm
-                                        apiConnection={apiConnection}
-                                        requestContacts={requestContacts}
-                                    />
-                                </div>
-                            </div>
-                            {contacts && (
+                        <>
+                            <div className="col-md-4">
                                 <div className="row">
                                     <div className="col-12 text-center">
-                                        <ContactList
+                                        <AccountNameHeader
+                                            account={apiConnection.account}
                                             ensNames={ensNames}
-                                            contacts={contacts}
                                         />
                                     </div>
                                 </div>
-                            )}
-                        </div>
+                                <div className="row row-space">
+                                    <div className="col-12 text-center">
+                                        <AddContactForm
+                                            apiConnection={apiConnection}
+                                            requestContacts={requestContacts}
+                                        />
+                                    </div>
+                                </div>
+                                {contacts && (
+                                    <div className="row">
+                                        <div className="col-12 text-center">
+                                            <ContactList
+                                                ensNames={ensNames}
+                                                contacts={contacts}
+                                                selectContact={selectContact}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="col-md-8">
+                                <Chat
+                                    hasContacts={
+                                        contacts !== undefined &&
+                                        contacts.length > 0
+                                    }
+                                    selectedAccount={selectedContact}
+                                    ensNames={ensNames}
+                                    apiConnection={apiConnection}
+                                />
+                            </div>
+                        </>
                     )}
             </div>
         </div>

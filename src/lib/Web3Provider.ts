@@ -127,7 +127,7 @@ export async function addContact(
     addContactAPI: (
         apiConnection: ApiConnection,
         contactAddress: string,
-    ) => Promise<string>,
+    ) => Promise<void>,
 ) {
     if (ethers.utils.isAddress(input)) {
         await addContactAPI(apiConnection, input);
