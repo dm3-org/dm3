@@ -1,8 +1,10 @@
 import { ethers } from 'ethers';
+import { checkSignature } from '../external-apis/InjectedWeb3API';
 import { ApiConnection } from './Web3Provider';
 
 export interface Message {
     to: string;
+    from: string;
     timestamp: number;
     message: string;
 }
@@ -18,9 +20,14 @@ export enum MessageState {
     Send,
 }
 
-export function createMessage(to: string, message: string): Message {
+export function createMessage(
+    to: string,
+    from: string,
+    message: string,
+): Message {
     return {
         to,
+        from,
         timestamp: new Date().getTime(),
         message,
     };
@@ -51,4 +58,21 @@ export async function submitMessage(
     };
 
     await submitMessageApi(apiConnection, envelop);
+}
+
+export async function getMessages(
+    apiConnection: ApiConnection,
+    contact: string,
+    getMessagesApi: (
+        apiConnection: ApiConnection,
+        contact: string,
+    ) => Promise<Envelop[]>,
+): Promise<Envelop[]> {
+    return (await getMessagesApi(apiConnection, contact)).filter((envelop) =>
+        checkSignature(
+            envelop.message,
+            (JSON.parse(envelop.message) as Message).from,
+            envelop.signature,
+        ),
+    );
 }
