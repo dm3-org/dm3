@@ -5,6 +5,9 @@ import cors from 'cors';
 import { getSessionToken } from '../src/lib/Web3Provider';
 import { checkToken, Session } from './BackendLib';
 import { Envelop, Message } from '../src/lib/Messaging';
+import { Server } from 'socket.io';
+import http from 'http';
+import { getConversationId, incomingMessage } from './Messaging';
 
 const app = express();
 app.use(express.json());
@@ -17,9 +20,17 @@ app.use(
     }),
 );
 
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST'],
+    },
+});
+
 const sessions = new Map<string, Session>();
 const contacts = new Map<string, Set<string>>();
-const messages = new Map<string, Map<string, Message[]>>();
+const messages = new Map<string, Envelop[]>();
 
 app.post('/requestSignInChallenge', (req, res) => {
     console.log('[requestSignInChallenge]');
@@ -42,13 +53,14 @@ app.post('/submitSignedChallenge', (req, res) => {
     if (session && session?.challenge === req.body.challenge) {
         session.token = getSessionToken(req.body.signature);
         res.send('signed in');
-        console.log(req.body.signature);
         console.log(
-            `Session key for ${account} set to ${sessions.get(account)?.token}`,
+            `- Session key for ${account} set to ${
+                sessions.get(account)?.token
+            }`,
         );
     } else {
         res.status(401).send('sign in failed');
-        console.log(`Failed to set session key for ${account}`);
+        console.log(`- Failed to set session key for ${account}`);
     }
 });
 
@@ -88,54 +100,60 @@ app.post('/getContacts/:accountAddress', (req, res) => {
     }
 });
 
-app.post('/submitMessage/:accountAddress', (req, res) => {
-    console.log(`[submitMessage]`);
-    const account = ethers.utils.getAddress(req.params.accountAddress);
-    const contact = ethers.utils.getAddress(
-        (JSON.parse(req.body.envelop.message) as Message).to,
-    );
-
-    if (checkToken(sessions, account, req.body.token)) {
-        const accountMessages = (
-            messages.has(account)
-                ? messages.get(account)
-                : new Map<string, any[]>()
-        ) as Map<string, any[]>;
-
-        const accountContactMessages = (
-            accountMessages.has(contact) ? accountMessages.get(contact) : []
-        ) as Message[];
-
-        accountContactMessages.push(req.body.message);
-
-        if (!accountMessages.has(contact)) {
-            accountMessages.set(contact, accountContactMessages);
-        }
-
-        if (!messages.has(account)) {
-            messages.set(account, accountMessages);
-        }
-
-        res.send('OK');
-    } else {
-        res.status(401).send('Token check failed)');
-    }
-});
-
 app.post('/getMessages/:accountAddress', (req, res) => {
-    console.log(`[submitMessage]`);
+    console.log(`[getMessages]`);
     const account = ethers.utils.getAddress(req.params.accountAddress);
     const contact = ethers.utils.getAddress(req.body.contact);
+    const conversationId = getConversationId(contact, account);
+    console.log(`- Conversations id: ${conversationId}`);
 
     if (checkToken(sessions, account, req.body.token)) {
+        const receivedMessages = messages.has(conversationId)
+            ? messages.get(conversationId)
+            : ([] as Envelop[]);
+        console.log(`- ${receivedMessages?.length} messages`);
         res.send({
-            messages: messages.get(account)?.has(contact)
-                ? (messages.get(account) as Map<string, Message[]>).get(contact)
-                : [],
+            messages: receivedMessages,
         });
     } else {
         res.status(401).send('Token check failed)');
     }
 });
 
-app.listen(3003);
+io.use((socket, next) => {
+    const account = ethers.utils.getAddress(
+        socket.handshake.auth.account as string,
+    );
+
+    if (!checkToken(sessions, account, socket.handshake.auth.token as string)) {
+        console.log(`[WS] Account ${account}: REJECTED`);
+        return next(new Error('invalid username'));
+    }
+    const session = sessions.get(account) as Session;
+    session.socketId = socket.id;
+    console.log(`[WS] Account ${account}: CONNECTED`);
+    //socket.username = socket.handshake.auth.account as string;
+    next();
+});
+
+io.on('connection', (socket) => {
+    console.log('[WS] a user connected');
+    socket.on('disconnect', () => {
+        console.log('[WS] user disconnected');
+    });
+    socket.on('disconnect', () => {
+        console.log('[WS] user disconnected');
+    });
+    socket.on('submitMessage', (data) => {
+        console.log('[WS] incoming message');
+        try {
+            incomingMessage(data, sessions, messages, socket);
+        } catch (e) {
+            console.error(e);
+        }
+    });
+});
+
+server.listen(3003, () => {
+    console.log('[Server] listening');
+});

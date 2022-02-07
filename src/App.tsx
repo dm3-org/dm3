@@ -19,6 +19,8 @@ import { lookupAddress } from './external-apis/InjectedWeb3API';
 import { ethers } from 'ethers';
 import Chat from './Chat';
 import { isWidgetOpened, toggleWidget } from 'react-chat-widget';
+import socketIOClient from 'socket.io-client';
+import { Envelop } from './lib/Messaging';
 
 function App() {
     const [apiConnection, setApiConnection] = useState<ApiConnection>({
@@ -32,6 +34,31 @@ function App() {
     const [selectedContact, setSelectedContact] = useState<
         string | undefined
     >();
+
+    const [newMessages, setNewMessages] = useState<Envelop[]>([]);
+
+    useEffect(() => {
+        if (
+            apiConnection.connectionState === ConnectionState.SignedIn &&
+            !apiConnection.socket
+        ) {
+            const socket = socketIOClient(
+                process.env.REACT_APP_BACKEND as string,
+                { autoConnect: false },
+            );
+            socket.auth = {
+                account: apiConnection.account,
+                token: apiConnection.sessionToken,
+            };
+            socket.connect();
+            socket.on('message', (envelop: Envelop) => {
+                log('New messages');
+
+                setNewMessages((oldMessages) => oldMessages.concat(envelop));
+            });
+            changeApiConnection({ socket });
+        }
+    }, [apiConnection.connectionState, apiConnection.socket]);
 
     const changeApiConnection = (newApiConnection: Partial<ApiConnection>) => {
         if (newApiConnection.connectionState) {
@@ -54,6 +81,10 @@ function App() {
 
         if (newApiConnection.provider) {
             log(`Provider set`);
+        }
+
+        if (newApiConnection.provider) {
+            log(`Socket set`);
         }
 
         setApiConnection({ ...apiConnection, ...newApiConnection });
@@ -171,6 +202,7 @@ function App() {
                                                 ensNames={ensNames}
                                                 contacts={contacts}
                                                 selectContact={selectContact}
+                                                newMessages={newMessages}
                                             />
                                         </div>
                                     </div>
@@ -185,6 +217,8 @@ function App() {
                                     selectedAccount={selectedContact}
                                     ensNames={ensNames}
                                     apiConnection={apiConnection}
+                                    newMessages={newMessages}
+                                    setNewMessages={setNewMessages}
                                 />
                             </div>
                         </>

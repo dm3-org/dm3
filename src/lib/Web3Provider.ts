@@ -1,4 +1,6 @@
 import { ethers } from 'ethers';
+import { Socket } from 'socket.io-client';
+import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 
 import { log } from './log';
 
@@ -19,6 +21,7 @@ export interface ApiConnection {
     account?: string;
     sessionToken?: string;
     provider?: ethers.providers.JsonRpcProvider;
+    socket?: Socket<DefaultEventsMap, DefaultEventsMap>;
 }
 
 export async function getWeb3Provider(provider: unknown): Promise<{

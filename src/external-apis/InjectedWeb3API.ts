@@ -27,3 +27,18 @@ export async function resolveName(
 ): Promise<string | null> {
     return provider.resolveName(name);
 }
+
+export function checkSignature(
+    message: string,
+    account: string,
+    signature: string,
+): boolean {
+    return (
+        ethers.utils.getAddress(
+            ethers.utils.recoverAddress(
+                ethers.utils.hashMessage(message),
+                signature,
+            ),
+        ) === ethers.utils.getAddress(account)
+    );
+}
