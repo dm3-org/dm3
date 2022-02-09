@@ -32,7 +32,7 @@ function ContactList(props: ContactListProps) {
             >
                 {getAccountDisplayName(contact, props.ensNames)}{' '}
                 {unreadMessages > 0 && (
-                    <span className="badge bg-secondary push-end">
+                    <span className="badge bg-secondary push-end messages-badge">
                         {unreadMessages}
                     </span>
                 )}

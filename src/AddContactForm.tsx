@@ -3,7 +3,7 @@ import './App.css';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import { addContact, ApiConnection } from './lib/Web3Provider';
+import { addContact, ApiConnection, ConnectionState } from './lib/Web3Provider';
 import { addContact as addContactApi } from './external-apis/BackendAPI';
 import { resolveName } from './external-apis/InjectedWeb3API';
 
@@ -36,11 +36,11 @@ function AddContactForm(props: AddContactFormProps) {
         }
     };
 
-    return (
-        <div className="input-group mb-3">
+    return props.apiConnection.connectionState === ConnectionState.SignedIn ? (
+        <form className="input-group" onSubmit={(e) => e.preventDefault()}>
             <input
                 type="text"
-                className="form-control"
+                className="form-control contact-input "
                 placeholder="Address or ENS name"
                 aria-label="Address or ENS name"
                 value={accountToAdd}
@@ -48,15 +48,15 @@ function AddContactForm(props: AddContactFormProps) {
             />
             <button
                 className={`btn btn-${
-                    errorIndication ? 'danger' : 'outline-secondary '
+                    errorIndication ? 'danger' : 'secondary '
                 }`}
-                type="button"
+                type="submit"
                 onClick={add}
             >
                 Add
             </button>
-        </div>
-    );
+        </form>
+    ) : null;
 }
 
 export default AddContactForm;

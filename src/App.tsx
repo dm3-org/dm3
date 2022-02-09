@@ -5,6 +5,7 @@ import {
     ApiConnection,
     ConnectionState,
     getWeb3Provider,
+    signIn,
 } from './lib/Web3Provider';
 import { log } from './lib/log';
 import detectEthereumProvider from '@metamask/detect-provider';
@@ -21,6 +22,10 @@ import Chat from './Chat';
 import { isWidgetOpened, toggleWidget } from 'react-chat-widget';
 import socketIOClient from 'socket.io-client';
 import { Envelop } from './lib/Messaging';
+import Icon from './Icon';
+import ChatHeader from './ChatHeader';
+import Start from './Start';
+import SignInHelp from './SignInHelp';
 
 function App() {
     const [apiConnection, setApiConnection] = useState<ApiConnection>({
@@ -155,74 +160,110 @@ function App() {
 
     return (
         <div className="container">
-            <div className="row row-space">
-                {apiConnection.connectionState ===
-                    ConnectionState.NoProvider && (
-                    <div className="col-md-12 text-center">
-                        No Ethereum provider detected.
-                    </div>
-                )}
-
-                {apiConnection.provider &&
-                    showSignIn(apiConnection.connectionState) && (
+            <div className="row main-content-row">
+                <div className="col-12 h-100">
+                    {apiConnection.connectionState ===
+                        ConnectionState.NoProvider && (
                         <div className="col-md-12 text-center">
-                            <SignIn
-                                apiConnection={apiConnection}
-                                changeApiConnection={changeApiConnection}
-                                setEnsNames={setEnsNames}
-                                ensNames={ensNames}
-                            />
+                            No Ethereum provider detected.
                         </div>
                     )}
-                {apiConnection.account &&
-                    apiConnection.connectionState ===
-                        ConnectionState.SignedIn && (
-                        <>
-                            <div className="col-md-4">
-                                <div className="row">
-                                    <div className="col-12 text-center">
-                                        <AccountNameHeader
-                                            account={apiConnection.account}
-                                            ensNames={ensNames}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="row row-space">
-                                    <div className="col-12 text-center">
-                                        <AddContactForm
-                                            apiConnection={apiConnection}
-                                            requestContacts={requestContacts}
-                                        />
-                                    </div>
-                                </div>
-                                {contacts && (
-                                    <div className="row">
-                                        <div className="col-12 text-center">
-                                            <ContactList
-                                                ensNames={ensNames}
-                                                contacts={contacts}
-                                                selectContact={selectContact}
-                                                newMessages={newMessages}
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                            <div className="col-md-8">
-                                <Chat
-                                    hasContacts={
-                                        contacts !== undefined &&
-                                        contacts.length > 0
-                                    }
-                                    selectedAccount={selectedContact}
+
+                    <div className="row header-row">
+                        <div
+                            className={
+                                `account-name-container col-4 text-center` +
+                                ` d-flex justify-content-center align-items-center`
+                            }
+                        >
+                            {apiConnection.account && (
+                                <AccountNameHeader
+                                    account={apiConnection.account}
                                     ensNames={ensNames}
-                                    apiConnection={apiConnection}
-                                    newMessages={newMessages}
-                                    setNewMessages={setNewMessages}
                                 />
+                            )}
+                        </div>
+                        <div
+                            className={
+                                `col-8 text-center chat-header account-name-container` +
+                                ` d-flex justify-content-center align-items-center`
+                            }
+                        >
+                            {selectedContact && (
+                                <ChatHeader
+                                    account={selectedContact}
+                                    ensNames={ensNames}
+                                />
+                            )}
+                        </div>
+                    </div>
+                    <div className="row body-row">
+                        <div className="col-md-4">
+                            <div className="row">
+                                <div className="col-12 text-center contact-list-container">
+                                    <AddContactForm
+                                        apiConnection={apiConnection}
+                                        requestContacts={requestContacts}
+                                    />
+                                </div>
                             </div>
-                        </>
-                    )}
+                            {contacts && (
+                                <div className="row">
+                                    <div className="col-12 text-center contact-list-container">
+                                        <ContactList
+                                            ensNames={ensNames}
+                                            contacts={contacts}
+                                            selectContact={selectContact}
+                                            newMessages={newMessages}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                            {showSignIn(apiConnection.connectionState) && (
+                                <SignIn
+                                    apiConnection={apiConnection}
+                                    changeApiConnection={changeApiConnection}
+                                    setEnsNames={setEnsNames}
+                                    ensNames={ensNames}
+                                />
+                            )}
+                        </div>
+                        <div className="col-md-8 content-container h-100">
+                            {!selectedContact && (
+                                <div className="start-chat">
+                                    {apiConnection.provider &&
+                                        showSignIn(
+                                            apiConnection.connectionState,
+                                        ) && (
+                                            <div className="col-md-12 text-center">
+                                                <SignInHelp />
+                                            </div>
+                                        )}
+                                    {apiConnection.connectionState ===
+                                        ConnectionState.SignedIn && (
+                                        <Start contacts={contacts} />
+                                    )}
+                                </div>
+                            )}
+
+                            {apiConnection.connectionState ===
+                                ConnectionState.SignedIn &&
+                                selectedContact && (
+                                    <Chat
+                                        hasContacts={
+                                            contacts !== undefined &&
+                                            contacts.length > 0
+                                        }
+                                        selectedAccount={selectedContact}
+                                        ensNames={ensNames}
+                                        apiConnection={apiConnection}
+                                        newMessages={newMessages}
+                                        setNewMessages={setNewMessages}
+                                    />
+                                )}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );
