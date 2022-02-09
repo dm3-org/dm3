@@ -168,19 +168,8 @@ function Chat(props: ChatProps) {
     };
 
     return (
-        <>
-            {!props.selectedAccount ? (
-                <div className="start-chat d-flex align-items-center">
-                    <div className="w-100 text-center">
-                        <Icon iconClass="fas fa-arrow-left" />{' '}
-                        <strong>
-                            {props.hasContacts
-                                ? 'Select a contact to start'
-                                : 'Add a contact to start'}
-                        </strong>
-                    </div>
-                </div>
-            ) : (
+        <div className="row widget-container">
+            <div className="col-12 h-100">
                 <Widget
                     emojis={false}
                     launcher={() => null}
@@ -196,8 +185,8 @@ function Chat(props: ChatProps) {
                             : ''
                     }`}
                 />
-            )}
-        </>
+            </div>
+        </div>
     );
 }
 

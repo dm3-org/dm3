@@ -131,60 +131,66 @@ function SignIn(props: SignInProps) {
     };
 
     return (
-        <div className="row">
-            <div className="col-md-6">
-                <button
-                    onClick={connect}
-                    type="button"
-                    className={`btn btn-${
-                        props.apiConnection.connectionState ===
-                        ConnectionState.AccountConnectionRejected
-                            ? 'danger'
-                            : 'primary'
-                    } btn-lg w-100`}
-                    disabled={
-                        !(
-                            props.apiConnection.connectionState ===
-                                ConnectionState.AccountConntectReady ||
-                            props.apiConnection.connectionState ===
+        <div className="row d-flex justify-content-center ">
+            <div className="col-md-12 row-space">
+                <div className="row">
+                    <div className="col-md-12">
+                        <button
+                            onClick={connect}
+                            type="button"
+                            className={`btn btn-${
+                                props.apiConnection.connectionState ===
                                 ConnectionState.AccountConnectionRejected
-                        )
-                    }
-                >
-                    1. Connect Account
-                    <span className="push-end">
-                        {getConnectionIconClass(
-                            props.apiConnection.connectionState,
-                        )}
-                    </span>
-                </button>
-            </div>
-            <div className="col-md-6">
-                <button
-                    onClick={requestSignIn}
-                    type="button"
-                    className={`btn btn-${
-                        props.apiConnection.connectionState ===
-                        ConnectionState.SignInFailed
-                            ? 'danger'
-                            : 'primary'
-                    } btn-lg w-100`}
-                    disabled={
-                        !(
-                            props.apiConnection.connectionState ===
-                                ConnectionState.SignInReady ||
-                            props.apiConnection.connectionState ===
+                                    ? 'danger'
+                                    : 'primary'
+                            } btn-lg w-100`}
+                            disabled={
+                                !(
+                                    props.apiConnection.connectionState ===
+                                        ConnectionState.AccountConntectReady ||
+                                    props.apiConnection.connectionState ===
+                                        ConnectionState.AccountConnectionRejected
+                                )
+                            }
+                        >
+                            Connect Account
+                            <span className="push-end">
+                                {getConnectionIconClass(
+                                    props.apiConnection.connectionState,
+                                )}
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                <div className="row row-space">
+                    <div className="col-md-12">
+                        <button
+                            onClick={requestSignIn}
+                            type="button"
+                            className={`btn btn-${
+                                props.apiConnection.connectionState ===
                                 ConnectionState.SignInFailed
-                        )
-                    }
-                >
-                    2. Sign In
-                    <span className="push-end">
-                        {getSignInIconClass(
-                            props.apiConnection.connectionState,
-                        )}
-                    </span>
-                </button>
+                                    ? 'danger'
+                                    : 'primary'
+                            } btn-lg w-100`}
+                            disabled={
+                                !(
+                                    props.apiConnection.connectionState ===
+                                        ConnectionState.SignInReady ||
+                                    props.apiConnection.connectionState ===
+                                        ConnectionState.SignInFailed
+                                )
+                            }
+                        >
+                            Sign In
+                            <span className="push-end">
+                                {getSignInIconClass(
+                                    props.apiConnection.connectionState,
+                                )}
+                            </span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );

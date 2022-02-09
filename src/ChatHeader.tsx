@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import { getAccountDisplayName } from './lib/Web3Provider';
 
-interface AccountNameHeaderProps {
+interface ChatHeaderProps {
     account: string;
     ensNames: Map<string, string>;
 }
 
-function AccountNameHeader(props: AccountNameHeaderProps) {
+function ChatHeader(props: ChatHeaderProps) {
     return (
         <div className="account-name">
             {getAccountDisplayName(props.account, props.ensNames)}
@@ -15,4 +15,4 @@ function AccountNameHeader(props: AccountNameHeaderProps) {
     );
 }
 
-export default AccountNameHeader;
+export default ChatHeader;
