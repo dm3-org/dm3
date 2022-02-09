@@ -120,6 +120,18 @@ app.post('/getMessages/:accountAddress', (req, res) => {
     }
 });
 
+app.post('/submitPublicKey/:accountAddress', (req, res) => {
+    console.log(`[submitPublicKey] Public key: ${req.body.publicKey}`);
+    const account = ethers.utils.getAddress(req.params.accountAddress);
+
+    if (checkToken(sessions, account, req.body.token)) {
+        (sessions.get(account) as Session).publicKey = req.body.publicKey;
+        res.send('submitted');
+    } else {
+        res.status(401).send('Token check failed)');
+    }
+});
+
 io.use((socket, next) => {
     const account = ethers.utils.getAddress(
         socket.handshake.auth.account as string,

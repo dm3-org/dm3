@@ -1,7 +1,35 @@
-.row-space {
-  margin-top: 1rem !important;
+.circle-char {
+
+  width: 38px;
+  height: 38px;
+  margin-right: 1rem;
+
+  background-color: #b8b8b8;
+
+  color: #fff;
+  text-align: center;
+}
+.arrow-left {
+  
+  width: 0; 
+  height: 0; 
+  border-top: 1.2rem solid transparent;
+  border-bottom: 1.2rem solid transparent; 
+  
+  border-right:1.2rem solid #b8b8b8; 
 }
 
+.sign-in-help {
+  margin-top: 2.8rem !important;
+}
+
+.publish-help {
+  margin-top: 4.6rem;
+}
+
+.row-space-2 {
+  margin-top: 4rem !important;
+}
 .push-end {
   float: right
 }
@@ -12,7 +40,7 @@
   padding: 1rem;
   padding-top: 2px;
   height: 200px;
-  color: #6c757d;
+  color: #b8b8b8;
 
 }
 
@@ -136,8 +164,8 @@ html, body {
 
 .account-name {
   height: fit-content;
-  font-size: 1.5rem;
-
+  font-size: 2rem;
+  font-weight: 200;
 }
 
 .account-name-container {
@@ -175,4 +203,8 @@ html, body {
 
 .messages-badge {
   border-radius: 2px !important;
+}
+
+.add-pub-key {
+  margin-top: 6rem !important;
 }

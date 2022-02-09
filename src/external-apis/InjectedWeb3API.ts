@@ -5,7 +5,14 @@ export async function prersonalSign(
     account: string,
     message: string,
 ): Promise<any> {
-    return await provider.send('personal_sign', [account, message]);
+    return provider.send('personal_sign', [account, message]);
+}
+
+export async function getEncryptionPublicKey(
+    provider: ethers.providers.JsonRpcProvider,
+    account: string,
+): Promise<string> {
+    return provider.send('eth_getEncryptionPublicKey', [account]);
 }
 
 export async function requestAccounts(

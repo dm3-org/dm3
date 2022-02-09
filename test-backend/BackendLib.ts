@@ -6,6 +6,7 @@ export interface Session {
     token?: string;
     ttl?: undefined;
     socketId?: string;
+    publicKey?: string;
 }
 
 export function checkToken(
