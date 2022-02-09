@@ -5,7 +5,6 @@ import {
     ApiConnection,
     ConnectionState,
     getWeb3Provider,
-    signIn,
 } from './lib/Web3Provider';
 import { log } from './lib/log';
 import detectEthereumProvider from '@metamask/detect-provider';
@@ -22,10 +21,11 @@ import Chat from './Chat';
 import { isWidgetOpened, toggleWidget } from 'react-chat-widget';
 import socketIOClient from 'socket.io-client';
 import { Envelop } from './lib/Messaging';
-import Icon from './Icon';
 import ChatHeader from './ChatHeader';
 import Start from './Start';
 import SignInHelp from './SignInHelp';
+import AddPubKeyView from './AddPubKeyView';
+import AddPubKeyHelper from './AddPubKeyHelper';
 
 function App() {
     const [apiConnection, setApiConnection] = useState<ApiConnection>({
@@ -90,6 +90,10 @@ function App() {
 
         if (newApiConnection.provider) {
             log(`Socket set`);
+        }
+
+        if (newApiConnection.encryptionPublicKey) {
+            log(`Encryption public key set`);
         }
 
         setApiConnection({ ...apiConnection, ...newApiConnection });
@@ -195,6 +199,15 @@ function App() {
                                     ensNames={ensNames}
                                 />
                             )}
+                            {apiConnection.connectionState !==
+                                ConnectionState.SignedIn && (
+                                <div className="account-name">
+                                    {apiConnection.connectionState ===
+                                    ConnectionState.KeyCreation
+                                        ? 'Add Public Key'
+                                        : 'ENS Mail'}
+                                </div>
+                            )}
                         </div>
                     </div>
                     <div className="row body-row">
@@ -207,17 +220,38 @@ function App() {
                                     />
                                 </div>
                             </div>
-                            {contacts && (
-                                <div className="row">
-                                    <div className="col-12 text-center contact-list-container">
-                                        <ContactList
-                                            ensNames={ensNames}
-                                            contacts={contacts}
-                                            selectContact={selectContact}
-                                            newMessages={newMessages}
-                                        />
+                            {contacts &&
+                                apiConnection.connectionState ===
+                                    ConnectionState.SignedIn && (
+                                    <div className="row">
+                                        <div className="col-12 text-center contact-list-container">
+                                            <ContactList
+                                                ensNames={ensNames}
+                                                contacts={contacts}
+                                                selectContact={selectContact}
+                                                newMessages={newMessages}
+                                            />
+                                        </div>
                                     </div>
-                                </div>
+                                )}
+                            {apiConnection.connectionState ===
+                                ConnectionState.KeyCreation && (
+                                <AddPubKeyView
+                                    apiConnection={apiConnection}
+                                    setEncryptionPublicKey={(
+                                        encryptionPublicKey: string,
+                                    ) =>
+                                        changeApiConnection({
+                                            encryptionPublicKey,
+                                        })
+                                    }
+                                    switchToSignedIn={() =>
+                                        changeApiConnection({
+                                            connectionState:
+                                                ConnectionState.SignedIn,
+                                        })
+                                    }
+                                />
                             )}
                             {showSignIn(apiConnection.connectionState) && (
                                 <SignIn
@@ -241,7 +275,18 @@ function App() {
                                         )}
                                     {apiConnection.connectionState ===
                                         ConnectionState.SignedIn && (
-                                        <Start contacts={contacts} />
+                                        <Start
+                                            contacts={contacts}
+                                            apiConnection={apiConnection}
+                                            changeApiConnection={
+                                                changeApiConnection
+                                            }
+                                        />
+                                    )}
+
+                                    {apiConnection.connectionState ===
+                                        ConnectionState.KeyCreation && (
+                                        <AddPubKeyHelper />
                                     )}
                                 </div>
                             )}

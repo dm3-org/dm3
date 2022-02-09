@@ -13,6 +13,18 @@ export async function submitSignedChallenge(
     );
 }
 
+export async function submitPublicKey(
+    apiConnection: ApiConnection,
+    publicKey: string,
+): Promise<void> {
+    await axios.post(
+        ((process.env.REACT_APP_BACKEND as string) +
+            '/submitPublicKey/' +
+            apiConnection.account) as string,
+        { publicKey, token: apiConnection.sessionToken },
+    );
+}
+
 export async function requestChallenge(account: string): Promise<string> {
     return (
         await axios.post(

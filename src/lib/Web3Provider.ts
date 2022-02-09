@@ -14,6 +14,7 @@ export enum ConnectionState {
     AccountConnectionRejected,
     SignInFailed,
     SignedIn,
+    KeyCreation,
 }
 
 export interface ApiConnection {
@@ -22,6 +23,7 @@ export interface ApiConnection {
     sessionToken?: string;
     provider?: ethers.providers.JsonRpcProvider;
     socket?: Socket<DefaultEventsMap, DefaultEventsMap>;
+    encryptionPublicKey?: string;
 }
 
 export async function getWeb3Provider(provider: unknown): Promise<{
@@ -145,4 +147,27 @@ export async function addContact(
             throw Error(`Couldn't resolve name`);
         }
     }
+}
+
+export async function createEncryptionPublicKey(
+    apiConnection: ApiConnection,
+    getEncryptionPublicKey: (
+        provider: ethers.providers.JsonRpcProvider,
+        account: string,
+    ) => Promise<string>,
+): Promise<string> {
+    return getEncryptionPublicKey(
+        apiConnection.provider as ethers.providers.JsonRpcProvider,
+        apiConnection.account as string,
+    );
+}
+export async function submitPublicKey(
+    apiConnection: ApiConnection,
+    publicKey: string,
+    submitPublicKeyApi: (
+        apiConnection: ApiConnection,
+        publicKey: string,
+    ) => Promise<void>,
+): Promise<void> {
+    submitPublicKeyApi(apiConnection, publicKey);
 }

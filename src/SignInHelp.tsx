@@ -4,14 +4,16 @@ import Icon from './Icon';
 function SignInHelp() {
     return (
         <div className="row d-flex justify-content-center row-space text-start">
-            <p>
-                <Icon iconClass="fas fa-arrow-left" />{' '}
-                <strong>1. Connect an Ethereum account</strong>
-            </p>
-            <p className="row-space">
-                <Icon iconClass="fas fa-arrow-left" />{' '}
-                <strong>2. Sign in to proof your account ownership</strong>
-            </p>
+            <div className="d-flex justify-content-start">
+                <div className="arrow-left h-100" />
+                <div className="circle-char text-center">1</div>
+                <div>Connect an Ethereum account</div>
+            </div>
+            <div className="sign-in-help d-flex justify-content-start">
+                <div className="arrow-left h-100" />
+                <div className="circle-char text-center">2</div>
+                <div>Sign in to proof your account ownership</div>
+            </div>
         </div>
     );
 }

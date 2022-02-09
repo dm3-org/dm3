@@ -1,7 +1,11 @@
+import AddPubKey from './AddPubKey';
 import Icon from './Icon';
+import { ApiConnection } from './lib/Web3Provider';
 
 interface StartProps {
     contacts: string[] | undefined;
+    apiConnection: ApiConnection;
+    changeApiConnection: (apiConnection: Partial<ApiConnection>) => void;
 }
 
 function Start(props: StartProps) {
@@ -16,9 +20,12 @@ function Start(props: StartProps) {
             <Icon iconClass="fas fa-arrow-left" />{' '}
             <strong>
                 {props.contacts !== undefined && props.contacts.length > 0
-                    ? 'Select a contact to start'
+                    ? 'Select a contact to start messaging'
                     : 'Add a contact to start'}
             </strong>
+            {!props.apiConnection.encryptionPublicKey && (
+                <AddPubKey changeApiConnection={props.changeApiConnection} />
+            )}
         </div>
     );
 }
