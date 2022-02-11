@@ -4,6 +4,7 @@ import 'react-chat-widget/lib/styles.css';
 import {
     ApiConnection,
     ConnectionState,
+    Account,
     getWeb3Provider,
 } from './lib/Web3Provider';
 import { log } from './lib/log';
@@ -35,9 +36,9 @@ function App() {
         new Map<string, string>(),
     );
 
-    const [contacts, setContacts] = useState<string[] | undefined>();
+    const [contacts, setContacts] = useState<Account[] | undefined>();
     const [selectedContact, setSelectedContact] = useState<
-        string | undefined
+        Account | undefined
     >();
 
     const [newMessages, setNewMessages] = useState<Envelop[]>([]);
@@ -92,10 +93,6 @@ function App() {
             log(`Socket set`);
         }
 
-        if (newApiConnection.encryptionPublicKey) {
-            log(`Encryption public key set`);
-        }
-
         setApiConnection({ ...apiConnection, ...newApiConnection });
     };
 
@@ -117,19 +114,20 @@ function App() {
     };
 
     const requestContacts = async (connection: ApiConnection) => {
-        const retrievedContacts = await await getContacts(
-            apiConnection.account as string,
+        const retrievedContacts = await getContacts(
+            (apiConnection.account as Account).address,
             apiConnection.sessionToken as string,
         );
+
         setContacts(retrievedContacts);
 
         (
             await Promise.all(
                 retrievedContacts.map(async (contact) => ({
-                    address: contact,
+                    address: contact.address,
                     ens: await lookupAddress(
                         connection.provider as ethers.providers.JsonRpcProvider,
-                        contact,
+                        contact.address,
                     ),
                 })),
             )
@@ -142,7 +140,7 @@ function App() {
         setEnsNames(new Map(ensNames));
     };
 
-    const selectContact = async (contactAddress: string) => {
+    const selectContact = async (contactAddress: Account) => {
         if (!isWidgetOpened()) {
             toggleWidget();
         }
@@ -184,6 +182,8 @@ function App() {
                                 <AccountNameHeader
                                     account={apiConnection.account}
                                     ensNames={ensNames}
+                                    apiConnection={apiConnection}
+                                    changeApiConnection={changeApiConnection}
                                 />
                             )}
                         </div>
@@ -242,7 +242,12 @@ function App() {
                                         encryptionPublicKey: string,
                                     ) =>
                                         changeApiConnection({
-                                            encryptionPublicKey,
+                                            account: {
+                                                address: (
+                                                    apiConnection.account as Account
+                                                ).address,
+                                                publicKey: encryptionPublicKey,
+                                            },
                                         })
                                     }
                                     switchToSignedIn={() =>
@@ -299,7 +304,7 @@ function App() {
                                             contacts !== undefined &&
                                             contacts.length > 0
                                         }
-                                        selectedAccount={selectedContact}
+                                        contact={selectedContact}
                                         ensNames={ensNames}
                                         apiConnection={apiConnection}
                                         newMessages={newMessages}

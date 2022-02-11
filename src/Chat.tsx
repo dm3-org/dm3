@@ -6,7 +6,7 @@ import {
     renderCustomComponent,
     Widget,
 } from 'react-chat-widget';
-import Icon from './Icon';
+
 import {
     createMessage,
     Envelop,
@@ -15,7 +15,11 @@ import {
     MessageState,
     submitMessage,
 } from './lib/Messaging';
-import { ApiConnection, getAccountDisplayName } from './lib/Web3Provider';
+import {
+    Account,
+    ApiConnection,
+    getAccountDisplayName,
+} from './lib/Web3Provider';
 import {
     submitMessage as submitMessageApi,
     getMessages as getMessagesApi,
@@ -24,14 +28,15 @@ import { prersonalSign } from './external-apis/InjectedWeb3API';
 import MessageStateView from './MessageStateView';
 import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
+import { encryptSafely } from './lib/Encryption';
 
 interface ChatProps {
     hasContacts: boolean;
-    selectedAccount: string | undefined;
     ensNames: Map<string, string>;
     apiConnection: ApiConnection;
     newMessages: Envelop[];
     setNewMessages: (messages: Envelop[]) => void;
+    contact: Account;
 }
 
 function Chat(props: ChatProps) {
@@ -44,9 +49,9 @@ function Chat(props: ChatProps) {
             const message = JSON.parse(newEnvelop.message) as Message;
 
             if (
-                props.selectedAccount &&
+                props.contact &&
                 ethers.utils.getAddress(message.from) ===
-                    ethers.utils.getAddress(props.selectedAccount as string)
+                    ethers.utils.getAddress(props.contact.address)
             ) {
                 handleMessages([newEnvelop]);
 
@@ -75,7 +80,7 @@ function Chat(props: ChatProps) {
         handleMessages(
             await getMessages(
                 props.apiConnection,
-                props.selectedAccount as string,
+                props.contact.address,
                 getMessagesApi,
             ),
         );
@@ -87,7 +92,10 @@ function Chat(props: ChatProps) {
             .map((envelop) => JSON.parse(envelop.message) as Message)
             .sort((a, b) => a.timestamp - b.timestamp)
             .forEach((message) => {
-                if (message.from === (props.apiConnection.account as string)) {
+                if (
+                    message.from ===
+                    ((props.apiConnection.account as Account).address as string)
+                ) {
                     addUserMessage(
                         message.message,
                         message.timestamp.toString(),
@@ -114,7 +122,8 @@ function Chat(props: ChatProps) {
                             }
                             time={message.timestamp}
                             ownMessage={
-                                message.from === props.apiConnection.account
+                                message.from ===
+                                (props.apiConnection.account as Account).address
                                     ? true
                                     : false
                             }
@@ -126,19 +135,19 @@ function Chat(props: ChatProps) {
     };
 
     useEffect(() => {
-        if (props.selectedAccount) {
+        if (props.contact) {
             dropMessages();
             getPastMessages();
         }
-    }, [props.selectedAccount]);
+    }, [props.contact]);
 
-    const handleNewUserMessage = async (message: any) => {
+    const handleNewUserMessage = async (message: string) => {
         deleteMessages(1);
         addUserMessage(message);
 
         const messageData = createMessage(
-            props.selectedAccount as string,
-            props.apiConnection.account as string,
+            props.contact.address,
+            (props.apiConnection.account as Account).address,
             message,
         );
         const messageId = messageData.timestamp.toString();
@@ -147,9 +156,13 @@ function Chat(props: ChatProps) {
 
         submitMessage(
             props.apiConnection,
+            props.contact,
             messageData,
             submitMessageApi,
             prersonalSign,
+            props.contact.publicKey && props.apiConnection.account?.publicKey
+                ? true
+                : false,
         ).then(() => {
             messageStates.set(messageId, MessageState.Signed);
             setMessageStates(new Map(messageStates));
@@ -177,9 +190,9 @@ function Chat(props: ChatProps) {
                     handleNewUserMessage={handleNewUserMessage}
                     showTimeStamp={false}
                     title={`${
-                        props.selectedAccount
+                        props.contact
                             ? getAccountDisplayName(
-                                  props.selectedAccount,
+                                  props.contact.address,
                                   props.ensNames,
                               )
                             : ''

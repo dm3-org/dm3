@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import cors from 'cors';
 import { getSessionToken } from '../src/lib/Web3Provider';
 import { checkToken, Session } from './BackendLib';
-import { Envelop, Message } from '../src/lib/Messaging';
+import { EncryptionEnvelop, Envelop, Message } from '../src/lib/Messaging';
 import { Server } from 'socket.io';
 import http from 'http';
 import { getConversationId, incomingMessage } from './Messaging';
@@ -30,7 +30,7 @@ const io = new Server(server, {
 
 const sessions = new Map<string, Session>();
 const contacts = new Map<string, Set<string>>();
-const messages = new Map<string, Envelop[]>();
+const messages = new Map<string, (EncryptionEnvelop | Envelop)[]>();
 
 app.post('/requestSignInChallenge', (req, res) => {
     console.log('[requestSignInChallenge]');
@@ -94,7 +94,14 @@ app.post('/getContacts/:accountAddress', (req, res) => {
             ? Array.from(contacts.get(account) as Set<string>)
             : [];
 
-        res.send({ contacts: accountContacts });
+        res.send(
+            accountContacts.map((address) => ({
+                publicKey: sessions.has(address)
+                    ? (sessions.get(address) as Session).publicKey
+                    : undefined,
+                address,
+            })),
+        );
     } else {
         res.status(401).send('Token check failed');
     }
@@ -132,9 +139,20 @@ app.post('/submitPublicKey/:accountAddress', (req, res) => {
     }
 });
 
+app.get('/publicKey/:accountAddress', (req, res) => {
+    console.log(`[GET publicKey] Public key: ${req.params.accountAddress}`);
+    const account = ethers.utils.getAddress(req.params.accountAddress);
+
+    if (sessions.get(account)?.publicKey) {
+        res.send({ publicKey: sessions.get(account)?.publicKey });
+    } else {
+        res.send({});
+    }
+});
+
 io.use((socket, next) => {
     const account = ethers.utils.getAddress(
-        socket.handshake.auth.account as string,
+        socket.handshake.auth.account.address as string,
     );
 
     if (!checkToken(sessions, account, socket.handshake.auth.token as string)) {

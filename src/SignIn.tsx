@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import './App.css';
 import {
+    Account,
     ApiConnection,
     connectAccount,
     ConnectionState,
@@ -15,6 +16,7 @@ import {
     requestAccounts,
 } from './external-apis/InjectedWeb3API';
 import {
+    getPublicKey,
     requestChallenge,
     submitSignedChallenge,
 } from './external-apis/BackendAPI';
@@ -49,7 +51,10 @@ function SignIn(props: SignInProps) {
 
         if (accountConnection.account) {
             props.changeApiConnection({
-                account: accountConnection.account,
+                account: {
+                    address: accountConnection.account,
+                    publicKey: await getPublicKey(accountConnection.account),
+                },
                 connectionState: accountConnection.connectionState,
             });
 
@@ -79,7 +84,7 @@ function SignIn(props: SignInProps) {
 
         const singInRequest = await signIn(
             props.apiConnection.provider as ethers.providers.JsonRpcProvider,
-            props.apiConnection.account as string,
+            (props.apiConnection.account as Account).address,
             requestChallenge,
             prersonalSign,
             submitSignedChallenge,

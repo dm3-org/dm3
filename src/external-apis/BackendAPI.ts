@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { log } from '../lib/log';
-import { Envelop, Message } from '../lib/Messaging';
-import { ApiConnection } from '../lib/Web3Provider';
+import { EncryptionEnvelop, Envelop, Message } from '../lib/Messaging';
+import { ApiConnection, Account } from '../lib/Web3Provider';
 
 export async function submitSignedChallenge(
     challenge: string,
@@ -18,9 +18,9 @@ export async function submitPublicKey(
     publicKey: string,
 ): Promise<void> {
     await axios.post(
-        ((process.env.REACT_APP_BACKEND as string) +
+        (process.env.REACT_APP_BACKEND as string) +
             '/submitPublicKey/' +
-            apiConnection.account) as string,
+            (apiConnection.account as Account).address,
         { publicKey, token: apiConnection.sessionToken },
     );
 }
@@ -40,9 +40,9 @@ export async function addContact(
     contactAddress: string,
 ): Promise<void> {
     await axios.post(
-        ((process.env.REACT_APP_BACKEND as string) +
+        (process.env.REACT_APP_BACKEND as string) +
             '/addContact/' +
-            apiConnection.account) as string,
+            (apiConnection.account as Account).address,
         { contactAddress, token: apiConnection.sessionToken },
     );
 }
@@ -50,7 +50,7 @@ export async function addContact(
 export async function getContacts(
     account: string,
     token: string,
-): Promise<string[]> {
+): Promise<Account[]> {
     return (
         await axios.post(
             (process.env.REACT_APP_BACKEND as string) +
@@ -58,12 +58,12 @@ export async function getContacts(
                 account,
             { token },
         )
-    ).data.contacts;
+    ).data;
 }
 
 export async function submitMessage(
     apiConnection: ApiConnection,
-    envelop: Envelop,
+    envelop: Envelop | EncryptionEnvelop,
 ): Promise<void> {
     if (apiConnection.socket) {
         log(`Submitting message`);
@@ -80,10 +80,20 @@ export async function getMessages(
 ): Promise<Envelop[]> {
     return (
         await axios.post(
-            ((process.env.REACT_APP_BACKEND as string) +
+            (process.env.REACT_APP_BACKEND as string) +
                 '/getMessages/' +
-                apiConnection.account) as string,
+                (apiConnection.account as Account).address,
             { contact, token: apiConnection.sessionToken },
         )
     ).data.messages;
+}
+
+export async function getPublicKey(
+    contact: string,
+): Promise<string | undefined> {
+    return (
+        await axios.get(
+            (process.env.REACT_APP_BACKEND as string) + '/publicKey/' + contact,
+        )
+    ).data.publicKey;
 }

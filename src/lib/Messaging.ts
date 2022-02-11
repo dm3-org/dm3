@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import { checkSignature } from '../external-apis/InjectedWeb3API';
-import { ApiConnection } from './Web3Provider';
+import { encryptSafely, EthEncryptedData } from './Encryption';
+import { Account, ApiConnection } from './Web3Provider';
 
 export interface Message {
     to: string;
@@ -12,6 +13,13 @@ export interface Message {
 export interface Envelop {
     message: string;
     signature: string;
+}
+
+export interface EncryptionEnvelop {
+    encryptionVersion: 'x25519-xsalsa20-poly1305';
+    data: EthEncryptedData;
+    to: string;
+    from: string;
 }
 
 export enum MessageState {
@@ -35,27 +43,42 @@ export function createMessage(
 
 export async function submitMessage(
     apiConnection: ApiConnection,
+    to: Account,
     message: Message,
     submitMessageApi: (
         apiConnection: ApiConnection,
-        envelop: Envelop,
+        envelop: Envelop | EncryptionEnvelop,
     ) => Promise<void>,
     prersonalSign: (
         provider: ethers.providers.JsonRpcProvider,
         account: string,
         message: string,
     ) => Promise<any>,
+    encrypt?: boolean,
 ): Promise<void> {
     const seralizedMessage = JSON.stringify(message);
 
-    const envelop: Envelop = {
+    let envelop: Envelop | EncryptionEnvelop = {
         message: seralizedMessage,
         signature: await prersonalSign(
             apiConnection.provider as ethers.providers.JsonRpcProvider,
-            apiConnection.account as string,
+            (apiConnection.account as Account).address,
             seralizedMessage,
         ),
     };
+
+    if (encrypt) {
+        envelop = {
+            data: encryptSafely({
+                publicKey: to.publicKey as string,
+                data: message,
+                version: 'x25519-xsalsa20-poly1305',
+            }),
+            to: to.address,
+            from: (apiConnection.account as Account).address,
+            encryptionVersion: 'x25519-xsalsa20-poly1305',
+        };
+    }
 
     await submitMessageApi(apiConnection, envelop);
 }

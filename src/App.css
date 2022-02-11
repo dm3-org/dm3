@@ -9,6 +9,17 @@
   color: #fff;
   text-align: center;
 }
+
+.header-lock {
+  color: #b8b8b8;
+  font-size: 1.5rem;
+  
+}
+
+.header-open-lock {
+  cursor: pointer;
+}
+
 .arrow-left {
   
   width: 0; 
@@ -199,7 +210,14 @@ html, body {
 .contact-input {
   border-color: #6c757d !important;
   border-left: solid #6c757d 1px!important;
+  
 }
+
+/* .contact-input-btn {
+  background-color: #b8b8b8 !important;
+  border-top-color: #b8b8b8 !important;
+  border-bottom-color: #b8b8b8 !important;
+} */
 
 .messages-badge {
   border-radius: 2px !important;
