@@ -47,7 +47,7 @@ function AddContactForm(props: AddContactFormProps) {
                 onInput={onInput}
             />
             <button
-                className={`btn btn-${
+                className={`contact-input-btn btn btn-${
                     errorIndication ? 'danger' : 'secondary '
                 }`}
                 type="submit"

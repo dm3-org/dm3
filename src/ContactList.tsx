@@ -3,14 +3,14 @@ import './App.css';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import { getAccountDisplayName } from './lib/Web3Provider';
+import { Account, getAccountDisplayName } from './lib/Web3Provider';
 import { Envelop, Message } from './lib/Messaging';
 import { ethers } from 'ethers';
 
 interface ContactListProps {
     ensNames: Map<string, string>;
-    contacts: string[];
-    selectContact: (contactAddress: string) => void;
+    contacts: Account[];
+    selectContact: (contactAddress: Account) => void;
     newMessages: Envelop[];
 }
 
@@ -20,17 +20,17 @@ function ContactList(props: ContactListProps) {
             (envelop) =>
                 ethers.utils.getAddress(
                     (JSON.parse(envelop.message) as Message).from,
-                ) === ethers.utils.getAddress(contact),
+                ) === ethers.utils.getAddress(contact.address),
         ).length;
 
         return (
             <button
                 type="button"
                 className="list-group-item list-group-item-action text-start"
-                key={contact}
+                key={contact.address}
                 onClick={() => props.selectContact(contact)}
             >
-                {getAccountDisplayName(contact, props.ensNames)}{' '}
+                {getAccountDisplayName(contact.address, props.ensNames)}{' '}
                 {unreadMessages > 0 && (
                     <span className="badge bg-secondary push-end messages-badge">
                         {unreadMessages}

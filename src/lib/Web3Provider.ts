@@ -4,6 +4,11 @@ import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 
 import { log } from './log';
 
+export interface Account {
+    address: string;
+    publicKey?: string;
+}
+
 export enum ConnectionState {
     CheckingProvider,
     NoProvider,
@@ -19,11 +24,10 @@ export enum ConnectionState {
 
 export interface ApiConnection {
     connectionState: ConnectionState;
-    account?: string;
+    account?: Account;
     sessionToken?: string;
     provider?: ethers.providers.JsonRpcProvider;
     socket?: Socket<DefaultEventsMap, DefaultEventsMap>;
-    encryptionPublicKey?: string;
 }
 
 export async function getWeb3Provider(provider: unknown): Promise<{
@@ -158,7 +162,7 @@ export async function createEncryptionPublicKey(
 ): Promise<string> {
     return getEncryptionPublicKey(
         apiConnection.provider as ethers.providers.JsonRpcProvider,
-        apiConnection.account as string,
+        (apiConnection.account as Account).address,
     );
 }
 export async function submitPublicKey(
