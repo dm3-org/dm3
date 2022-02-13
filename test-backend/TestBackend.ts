@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import cors from 'cors';
-import { getSessionToken } from '../src/lib/Web3Provider';
+import { getSessionToken, Keys } from '../src/lib/Web3Provider';
 import { checkToken, Session } from './BackendLib';
 import { EncryptionEnvelop, Envelop, Message } from '../src/lib/Messaging';
 import { Server } from 'socket.io';
@@ -96,9 +96,14 @@ app.post('/getContacts/:accountAddress', (req, res) => {
 
         res.send(
             accountContacts.map((address) => ({
-                publicKey: sessions.has(address)
-                    ? (sessions.get(address) as Session).publicKey
-                    : undefined,
+                publicKey:
+                    sessions.has(address) &&
+                    (sessions.get(address) as Session).encryptedKeys
+                        ? (
+                              (sessions.get(address) as Session)
+                                  .encryptedKeys as Keys
+                          ).publicMessagingKey
+                        : undefined,
                 address,
             })),
         );
@@ -127,12 +132,12 @@ app.post('/getMessages/:accountAddress', (req, res) => {
     }
 });
 
-app.post('/submitPublicKey/:accountAddress', (req, res) => {
-    console.log(`[submitPublicKey] Public key: ${req.body.publicKey}`);
+app.post('/submitKeys/:accountAddress', (req, res) => {
+    console.log(`[submitKeys] Public key: ${req.body.keys.publicMessagingKey}`);
     const account = ethers.utils.getAddress(req.params.accountAddress);
 
     if (checkToken(sessions, account, req.body.token)) {
-        (sessions.get(account) as Session).publicKey = req.body.publicKey;
+        (sessions.get(account) as Session).encryptedKeys = req.body.keys;
         res.send('submitted');
     } else {
         res.status(401).send('Token check failed)');
@@ -143,10 +148,23 @@ app.get('/publicKey/:accountAddress', (req, res) => {
     console.log(`[GET publicKey] Public key: ${req.params.accountAddress}`);
     const account = ethers.utils.getAddress(req.params.accountAddress);
 
-    if (sessions.get(account)?.publicKey) {
-        res.send({ publicKey: sessions.get(account)?.publicKey });
+    if (sessions.get(account)?.encryptedKeys) {
+        res.send({
+            publicKey: sessions.get(account)?.encryptedKeys?.publicMessagingKey,
+        });
     } else {
         res.send({});
+    }
+});
+
+app.post('/getKeys/:accountAddress', (req, res) => {
+    console.log(`[getKeys] Account address: ${req.params.accountAddress}`);
+    const account = ethers.utils.getAddress(req.params.accountAddress);
+
+    if (checkToken(sessions, account, req.body.token)) {
+        res.send({ keys: sessions.get(account)?.encryptedKeys });
+    } else {
+        res.status(401).send('Token check failed)');
     }
 });
 

@@ -23,7 +23,7 @@ function Start(props: StartProps) {
                     ? 'Select a contact to start messaging'
                     : 'Add a contact to start'}
             </strong>
-            {!props.apiConnection.account?.publicKey && (
+            {!props.apiConnection.account?.keys && (
                 <AddPubKey changeApiConnection={props.changeApiConnection} />
             )}
         </div>

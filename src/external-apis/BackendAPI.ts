@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { log } from '../lib/log';
 import { EncryptionEnvelop, Envelop, Message } from '../lib/Messaging';
-import { ApiConnection, Account } from '../lib/Web3Provider';
+import { ApiConnection, Account, Keys } from '../lib/Web3Provider';
 
 export async function submitSignedChallenge(
     challenge: string,
@@ -13,15 +13,15 @@ export async function submitSignedChallenge(
     );
 }
 
-export async function submitPublicKey(
+export async function submitKeys(
     apiConnection: ApiConnection,
-    publicKey: string,
+    encryptedKeys: Keys,
 ): Promise<void> {
     await axios.post(
         (process.env.REACT_APP_BACKEND as string) +
-            '/submitPublicKey/' +
+            '/submitKeys/' +
             (apiConnection.account as Account).address,
-        { publicKey, token: apiConnection.sessionToken },
+        { keys: encryptedKeys, token: apiConnection.sessionToken },
     );
 }
 
@@ -96,4 +96,18 @@ export async function getPublicKey(
             (process.env.REACT_APP_BACKEND as string) + '/publicKey/' + contact,
         )
     ).data.publicKey;
+}
+
+export async function getKeys(
+    accountAddress: string,
+    sessionToken: string,
+): Promise<Keys | undefined> {
+    return (
+        await axios.post(
+            (process.env.REACT_APP_BACKEND as string) +
+                '/getKeys/' +
+                accountAddress,
+            { token: sessionToken },
+        )
+    ).data.keys;
 }

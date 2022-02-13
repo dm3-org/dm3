@@ -10,12 +10,13 @@ import {
 import { ethers } from 'ethers';
 import Icon from './Icon';
 import { log } from './lib/log';
-import { lookupAddress } from './external-apis/InjectedWeb3API';
+import { decrypt, lookupAddress } from './external-apis/InjectedWeb3API';
 import {
     prersonalSign,
     requestAccounts,
 } from './external-apis/InjectedWeb3API';
 import {
+    getKeys,
     getPublicKey,
     requestChallenge,
     submitSignedChallenge,
@@ -53,7 +54,6 @@ function SignIn(props: SignInProps) {
             props.changeApiConnection({
                 account: {
                     address: accountConnection.account,
-                    publicKey: await getPublicKey(accountConnection.account),
                 },
                 connectionState: accountConnection.connectionState,
             });
@@ -92,7 +92,28 @@ function SignIn(props: SignInProps) {
 
         if (singInRequest.sessionToken) {
             log(`Setting session token: ${singInRequest.sessionToken}`);
+            let keys = await getKeys(
+                props.apiConnection.account?.address as string,
+                singInRequest.sessionToken,
+            );
+            if (keys) {
+                keys = {
+                    ...keys,
+                    privateMessagingKey: JSON.parse(
+                        await decrypt(
+                            props.apiConnection
+                                .provider as ethers.providers.JsonRpcProvider,
+                            keys.privateMessagingKey as string,
+                            props.apiConnection.account?.address as string,
+                        ),
+                    ).data,
+                };
+            }
             props.changeApiConnection({
+                account: {
+                    address: props.apiConnection.account?.address as string,
+                    keys,
+                },
                 sessionToken: singInRequest.sessionToken,
                 connectionState: singInRequest.connectionState,
             });

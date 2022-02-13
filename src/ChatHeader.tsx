@@ -12,7 +12,7 @@ function ChatHeader(props: ChatHeaderProps) {
     return (
         <div className="account-name w-100">
             {getAccountDisplayName(props.account.address, props.ensNames)}
-            {props.account.publicKey ? (
+            {props.account.keys?.publicMessagingKey ? (
                 <span className="push-end header-lock ">
                     <Icon iconClass="fas fa-lock align-bottom" />
                 </span>

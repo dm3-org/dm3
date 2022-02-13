@@ -17,7 +17,7 @@ export interface Envelop {
 
 export interface EncryptionEnvelop {
     encryptionVersion: 'x25519-xsalsa20-poly1305';
-    data: EthEncryptedData;
+    data: string;
     to: string;
     from: string;
 }
@@ -69,11 +69,17 @@ export async function submitMessage(
 
     if (encrypt) {
         envelop = {
-            data: encryptSafely({
-                publicKey: to.publicKey as string,
-                data: message,
-                version: 'x25519-xsalsa20-poly1305',
-            }),
+            data: ethers.utils.hexlify(
+                ethers.utils.toUtf8Bytes(
+                    JSON.stringify(
+                        encryptSafely({
+                            publicKey: to.keys?.publicMessagingKey as string,
+                            data: envelop,
+                            version: 'x25519-xsalsa20-poly1305',
+                        }),
+                    ),
+                ),
+            ),
             to: to.address,
             from: (apiConnection.account as Account).address,
             encryptionVersion: 'x25519-xsalsa20-poly1305',
@@ -89,13 +95,15 @@ export async function getMessages(
     getMessagesApi: (
         apiConnection: ApiConnection,
         contact: string,
-    ) => Promise<Envelop[]>,
-): Promise<Envelop[]> {
+    ) => Promise<(Envelop | EncryptionEnvelop)[]>,
+): Promise<(Envelop | EncryptionEnvelop)[]> {
     return (await getMessagesApi(apiConnection, contact)).filter((envelop) =>
-        checkSignature(
-            envelop.message,
-            (JSON.parse(envelop.message) as Message).from,
-            envelop.signature,
-        ),
+        (envelop as EncryptionEnvelop).encryptionVersion
+            ? true
+            : checkSignature(
+                  (envelop as Envelop).message,
+                  (JSON.parse((envelop as Envelop).message) as Message).from,
+                  (envelop as Envelop).signature,
+              ),
     );
 }

@@ -8,11 +8,19 @@ export async function prersonalSign(
     return provider.send('personal_sign', [account, message]);
 }
 
-export async function getEncryptionPublicKey(
+export async function getPublicKey(
     provider: ethers.providers.JsonRpcProvider,
     account: string,
 ): Promise<string> {
     return provider.send('eth_getEncryptionPublicKey', [account]);
+}
+
+export async function decrypt(
+    provider: ethers.providers.JsonRpcProvider,
+    encryptedData: string,
+    account: string,
+): Promise<string> {
+    return provider.send('eth_decrypt', [encryptedData, account]);
 }
 
 export async function requestAccounts(
