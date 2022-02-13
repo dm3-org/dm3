@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { Keys } from '../src/lib/Web3Provider';
 
 export interface Session {
     account: string;
@@ -6,7 +7,7 @@ export interface Session {
     token?: string;
     ttl?: undefined;
     socketId?: string;
-    publicKey?: string;
+    encryptedKeys?: Keys;
 }
 
 export function checkToken(

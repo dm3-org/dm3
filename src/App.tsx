@@ -6,6 +6,7 @@ import {
     ConnectionState,
     Account,
     getWeb3Provider,
+    Keys,
 } from './lib/Web3Provider';
 import { log } from './lib/log';
 import detectEthereumProvider from '@metamask/detect-provider';
@@ -82,7 +83,7 @@ function App() {
         }
 
         if (newApiConnection.account) {
-            log(`Account: ${newApiConnection.account}`);
+            log(`Account: ${newApiConnection.account.address}`);
         }
 
         if (newApiConnection.provider) {
@@ -238,15 +239,13 @@ function App() {
                                 ConnectionState.KeyCreation && (
                                 <AddPubKeyView
                                     apiConnection={apiConnection}
-                                    setEncryptionPublicKey={(
-                                        encryptionPublicKey: string,
-                                    ) =>
+                                    setPublicKey={(keys: Keys) =>
                                         changeApiConnection({
                                             account: {
                                                 address: (
                                                     apiConnection.account as Account
                                                 ).address,
-                                                publicKey: encryptionPublicKey,
+                                                keys,
                                             },
                                         })
                                     }

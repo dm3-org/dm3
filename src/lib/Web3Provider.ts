@@ -1,12 +1,26 @@
 import { ethers } from 'ethers';
 import { Socket } from 'socket.io-client';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
+import { box, randomBytes } from 'tweetnacl';
+import {
+    decodeUTF8,
+    encodeUTF8,
+    encodeBase64,
+    decodeBase64,
+} from 'tweetnacl-util';
+import { encryptSafely } from './Encryption';
 
 import { log } from './log';
 
+export interface Keys {
+    publicKey?: string;
+    publicMessagingKey?: string;
+    privateMessagingKey?: string;
+}
+
 export interface Account {
     address: string;
-    publicKey?: string;
+    keys?: Keys;
 }
 
 export enum ConnectionState {
@@ -153,25 +167,53 @@ export async function addContact(
     }
 }
 
-export async function createEncryptionPublicKey(
+export async function createPublicKey(
     apiConnection: ApiConnection,
-    getEncryptionPublicKey: (
+    getPublicKey: (
         provider: ethers.providers.JsonRpcProvider,
         account: string,
     ) => Promise<string>,
 ): Promise<string> {
-    return getEncryptionPublicKey(
+    return getPublicKey(
         apiConnection.provider as ethers.providers.JsonRpcProvider,
         (apiConnection.account as Account).address,
     );
 }
-export async function submitPublicKey(
+
+export function createMessagingKeyPair(): {
+    publicKey: string;
+    privateKey: string;
+} {
+    const keypair = box.keyPair();
+    return {
+        publicKey: encodeBase64(keypair.publicKey),
+        privateKey: encodeBase64(keypair.secretKey),
+    };
+}
+
+export async function submitKeys(
     apiConnection: ApiConnection,
-    publicKey: string,
-    submitPublicKeyApi: (
+    keys: Keys,
+    submitKeysApi: (
         apiConnection: ApiConnection,
-        publicKey: string,
+        encryptedKeys: Keys,
     ) => Promise<void>,
 ): Promise<void> {
-    submitPublicKeyApi(apiConnection, publicKey);
+    const encryptedPrivateKey = ethers.utils.hexlify(
+        ethers.utils.toUtf8Bytes(
+            JSON.stringify(
+                encryptSafely({
+                    publicKey: keys.publicKey as string,
+                    data: keys.privateMessagingKey,
+                    version: 'x25519-xsalsa20-poly1305',
+                }),
+            ),
+        ),
+    );
+
+    submitKeysApi(apiConnection, {
+        privateMessagingKey: encryptedPrivateKey,
+        publicMessagingKey: keys.publicMessagingKey,
+        publicKey: keys.publicKey,
+    });
 }

@@ -1,19 +1,21 @@
 import { useState } from 'react';
 import AddPubKey from './AddPubKey';
 
-import { getEncryptionPublicKey } from './external-apis/InjectedWeb3API';
+import { getPublicKey } from './external-apis/InjectedWeb3API';
 
-import { submitPublicKey as submitPublicKeyApi } from './external-apis/BackendAPI';
+import { submitKeys as submitPublicKeyApi } from './external-apis/BackendAPI';
 import Icon from './Icon';
 import {
     ApiConnection,
-    createEncryptionPublicKey,
-    submitPublicKey,
+    createMessagingKeyPair,
+    createPublicKey,
+    Keys,
+    submitKeys,
 } from './lib/Web3Provider';
 
 interface AddPubKeyViewProps {
     apiConnection: ApiConnection;
-    setEncryptionPublicKey: (pubKey: string) => void;
+    setPublicKey: (keys: Keys) => void;
     switchToSignedIn: () => void;
 }
 
@@ -71,16 +73,19 @@ function AddPubKeyView(props: AddPubKeyViewProps) {
     const createPubKey = async () => {
         setPubKeyState(PubKeyState.WaitingForKeyCreation);
         try {
-            const pubKey = await createEncryptionPublicKey(
-                props.apiConnection,
-                getEncryptionPublicKey,
-            );
-            await submitPublicKey(
-                props.apiConnection,
-                pubKey,
-                submitPublicKeyApi,
-            );
-            props.setEncryptionPublicKey(pubKey);
+            const messagingKeyPair = createMessagingKeyPair();
+
+            const keys: Keys = {
+                publicMessagingKey: messagingKeyPair.publicKey,
+                privateMessagingKey: messagingKeyPair.privateKey,
+                publicKey: await createPublicKey(
+                    props.apiConnection,
+                    getPublicKey,
+                ),
+            };
+
+            await submitKeys(props.apiConnection, keys, submitPublicKeyApi);
+            props.setPublicKey(keys);
             setPubKeyState(PubKeyState.KeyCreated);
         } catch (e) {
             setPubKeyState(PubKeyState.KeyCreationFailed);

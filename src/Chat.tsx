@@ -9,6 +9,7 @@ import {
 
 import {
     createMessage,
+    EncryptionEnvelop,
     Envelop,
     getMessages,
     Message,
@@ -24,7 +25,7 @@ import {
     submitMessage as submitMessageApi,
     getMessages as getMessagesApi,
 } from './external-apis/BackendAPI';
-import { prersonalSign } from './external-apis/InjectedWeb3API';
+import { decrypt, prersonalSign } from './external-apis/InjectedWeb3API';
 import MessageStateView from './MessageStateView';
 import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
@@ -86,8 +87,25 @@ function Chat(props: ChatProps) {
         );
     };
 
-    const handleMessages = async (envelops: Envelop[]) => {
-        envelops
+    const handleMessages = async (
+        envelops: (Envelop | EncryptionEnvelop)[],
+    ) => {
+        const decryptedEnvelops = await Promise.all(
+            envelops.map(async (envelop) =>
+                (envelop as EncryptionEnvelop).encryptionVersion
+                    ? (JSON.parse(
+                          await decrypt(
+                              props.apiConnection
+                                  .provider as ethers.providers.JsonRpcProvider,
+                              (envelop as EncryptionEnvelop).data,
+                              (props.apiConnection.account as Account).address,
+                          ),
+                      ).data as Envelop)
+                    : (envelop as Envelop),
+            ),
+        );
+
+        decryptedEnvelops
 
             .map((envelop) => JSON.parse(envelop.message) as Message)
             .sort((a, b) => a.timestamp - b.timestamp)
@@ -160,7 +178,8 @@ function Chat(props: ChatProps) {
             messageData,
             submitMessageApi,
             prersonalSign,
-            props.contact.publicKey && props.apiConnection.account?.publicKey
+            props.contact.keys?.publicMessagingKey &&
+                props.apiConnection.account?.keys?.publicMessagingKey
                 ? true
                 : false,
         ).then(() => {

@@ -24,7 +24,7 @@ function AccountNameHeader(props: AccountNameHeaderProps) {
                 props.apiConnection.connectionState ===
                     ConnectionState.KeyCreation) && (
                 <>
-                    {props.account.publicKey ? (
+                    {props.account.keys?.publicMessagingKey ? (
                         <span className="push-end header-lock ">
                             <Icon iconClass="fas fa-lock align-bottom" />
                         </span>
