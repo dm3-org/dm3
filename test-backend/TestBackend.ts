@@ -96,15 +96,17 @@ app.post('/getContacts/:accountAddress', (req, res) => {
 
         res.send(
             accountContacts.map((address) => ({
-                publicKey:
-                    sessions.has(address) &&
-                    (sessions.get(address) as Session).encryptedKeys
-                        ? (
-                              (sessions.get(address) as Session)
-                                  .encryptedKeys as Keys
-                          ).publicMessagingKey
-                        : undefined,
                 address,
+                keys: {
+                    publicMessagingKey:
+                        sessions.has(address) &&
+                        (sessions.get(address) as Session).encryptedKeys
+                            ? (
+                                  (sessions.get(address) as Session)
+                                      .encryptedKeys as Keys
+                              ).publicMessagingKey
+                            : undefined,
+                },
             })),
         );
     } else {
