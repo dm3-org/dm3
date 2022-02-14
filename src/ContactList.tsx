@@ -6,20 +6,22 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { Account, getAccountDisplayName } from './lib/Web3Provider';
 import { Envelop, Message } from './lib/Messaging';
 import { ethers } from 'ethers';
+import { EnvelopContainer } from './Chat';
 
 interface ContactListProps {
     ensNames: Map<string, string>;
     contacts: Account[];
     selectContact: (contactAddress: Account) => void;
-    newMessages: Envelop[];
+    newMessages: EnvelopContainer[];
 }
 
 function ContactList(props: ContactListProps) {
     const contactsList = props.contacts.map((contact) => {
         const unreadMessages = props.newMessages.filter(
-            (envelop) =>
+            (envelopContainer) =>
                 ethers.utils.getAddress(
-                    (JSON.parse(envelop.message) as Message).from,
+                    (JSON.parse(envelopContainer.envelop.message) as Message)
+                        .from,
                 ) === ethers.utils.getAddress(contact.address),
         ).length;
 

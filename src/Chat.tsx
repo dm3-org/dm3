@@ -29,15 +29,20 @@ import { decrypt, prersonalSign } from './external-apis/InjectedWeb3API';
 import MessageStateView from './MessageStateView';
 import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
-import { encryptSafely } from './lib/Encryption';
+import { decryptMessage, EthEncryptedData } from './lib/Encryption';
 
 interface ChatProps {
     hasContacts: boolean;
     ensNames: Map<string, string>;
     apiConnection: ApiConnection;
-    newMessages: Envelop[];
-    setNewMessages: (messages: Envelop[]) => void;
+    newMessages: EnvelopContainer[];
+    setNewMessages: (messages: EnvelopContainer[]) => void;
     contact: Account;
+}
+
+export interface EnvelopContainer {
+    envelop: Envelop;
+    encrypted: boolean;
 }
 
 function Chat(props: ChatProps) {
@@ -46,7 +51,8 @@ function Chat(props: ChatProps) {
     >(new Map<string, MessageState>());
 
     const removeReadMessages = () => {
-        props.newMessages.forEach((newEnvelop) => {
+        props.newMessages.forEach((newEnvelopContainer) => {
+            const newEnvelop = newEnvelopContainer.envelop;
             const message = JSON.parse(newEnvelop.message) as Message;
 
             if (
@@ -54,17 +60,20 @@ function Chat(props: ChatProps) {
                 ethers.utils.getAddress(message.from) ===
                     ethers.utils.getAddress(props.contact.address)
             ) {
-                handleMessages([newEnvelop]);
+                handleMessages([newEnvelop], newEnvelopContainer.encrypted);
 
                 if (
                     props.newMessages.find(
-                        (envelop) => envelop.signature === newEnvelop.signature,
+                        (envelopContainer) =>
+                            envelopContainer.envelop.signature ===
+                            newEnvelop.signature,
                     )
                 ) {
                     props.setNewMessages(
                         props.newMessages.filter(
-                            (envelop) =>
-                                envelop.signature !== newEnvelop.signature,
+                            (envelopContainer) =>
+                                envelopContainer.envelop.signature !==
+                                newEnvelop.signature,
                         ),
                     );
                 }
@@ -89,44 +98,54 @@ function Chat(props: ChatProps) {
 
     const handleMessages = async (
         envelops: (Envelop | EncryptionEnvelop)[],
-    ) => {
+        allEncrypted?: boolean,
+    ): Promise<Envelop[]> => {
         const decryptedEnvelops = await Promise.all(
-            envelops.map(async (envelop) =>
-                (envelop as EncryptionEnvelop).encryptionVersion
-                    ? (JSON.parse(
-                          await decrypt(
-                              props.apiConnection
-                                  .provider as ethers.providers.JsonRpcProvider,
-                              (envelop as EncryptionEnvelop).data,
-                              (props.apiConnection.account as Account).address,
-                          ),
-                      ).data as Envelop)
+            envelops.map(async (envelop) => ({
+                envelop: (envelop as EncryptionEnvelop).encryptionVersion
+                    ? ((await decryptMessage(
+                          props.apiConnection,
+                          (envelop as EncryptionEnvelop).from ===
+                              (props.apiConnection.account?.address as string)
+                              ? (envelop as EncryptionEnvelop).selfData
+                              : (envelop as EncryptionEnvelop).data,
+                      )) as Envelop)
                     : (envelop as Envelop),
-            ),
+                encrypted:
+                    (envelop as EncryptionEnvelop).encryptionVersion ||
+                    allEncrypted
+                        ? true
+                        : false,
+            })),
         );
 
         decryptedEnvelops
 
-            .map((envelop) => JSON.parse(envelop.message) as Message)
-            .sort((a, b) => a.timestamp - b.timestamp)
-            .forEach((message) => {
+            .map((envelopContainer) => ({
+                message: JSON.parse(
+                    envelopContainer.envelop.message,
+                ) as Message,
+                encrypted: envelopContainer.encrypted,
+            }))
+            .sort((a, b) => a.message.timestamp - b.message.timestamp)
+            .forEach((messageContainer) => {
                 if (
-                    message.from ===
+                    messageContainer.message.from ===
                     ((props.apiConnection.account as Account).address as string)
                 ) {
                     addUserMessage(
-                        message.message,
-                        message.timestamp.toString(),
+                        messageContainer.message.message,
+                        messageContainer.message.timestamp.toString(),
                     );
                 } else {
                     addResponseMessage(
-                        message.message,
-                        message.timestamp.toString(),
+                        messageContainer.message.message,
+                        messageContainer.message.timestamp.toString(),
                     );
                 }
 
                 messageStates.set(
-                    message.timestamp.toString(),
+                    messageContainer.message.timestamp.toString(),
                     MessageState.Signed,
                 );
                 setMessageStates(new Map(messageStates));
@@ -135,21 +154,26 @@ function Chat(props: ChatProps) {
                         <MessageStateView
                             messageState={
                                 messageStates.get(
-                                    message.timestamp.toString(),
+                                    messageContainer.message.timestamp.toString(),
                                 ) as MessageState
                             }
-                            time={message.timestamp}
+                            time={messageContainer.message.timestamp}
                             ownMessage={
-                                message.from ===
+                                messageContainer.message.from ===
                                 (props.apiConnection.account as Account).address
                                     ? true
                                     : false
                             }
+                            encrypted={messageContainer.encrypted}
                         />
                     ),
                     {},
                 );
             });
+
+        return decryptedEnvelops.map(
+            (envelopContainer) => envelopContainer.envelop,
+        );
     };
 
     useEffect(() => {
@@ -162,6 +186,12 @@ function Chat(props: ChatProps) {
     const handleNewUserMessage = async (message: string) => {
         deleteMessages(1);
         addUserMessage(message);
+
+        const encrypted =
+            props.contact.keys?.publicMessagingKey &&
+            props.apiConnection.account?.keys?.publicMessagingKey
+                ? true
+                : false;
 
         const messageData = createMessage(
             props.contact.address,
@@ -178,21 +208,18 @@ function Chat(props: ChatProps) {
             messageData,
             submitMessageApi,
             prersonalSign,
-            props.contact.keys?.publicMessagingKey &&
-                props.apiConnection.account?.keys?.publicMessagingKey
-                ? true
-                : false,
+            encrypted,
         ).then(() => {
             messageStates.set(messageId, MessageState.Signed);
             setMessageStates(new Map(messageStates));
         });
-
         renderCustomComponent(
             () => (
                 <MessageStateView
                     messageState={messageStates.get(messageId) as MessageState}
                     time={messageData.timestamp}
                     ownMessage={true}
+                    encrypted={encrypted}
                 />
             ),
             {},

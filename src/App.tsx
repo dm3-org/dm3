@@ -19,15 +19,16 @@ import ContactList from './ContactList';
 import AddContactForm from './AddContactForm';
 import { lookupAddress } from './external-apis/InjectedWeb3API';
 import { ethers } from 'ethers';
-import Chat from './Chat';
+import Chat, { EnvelopContainer } from './Chat';
 import { isWidgetOpened, toggleWidget } from 'react-chat-widget';
 import socketIOClient from 'socket.io-client';
-import { Envelop } from './lib/Messaging';
+import { EncryptionEnvelop, Envelop } from './lib/Messaging';
 import ChatHeader from './ChatHeader';
 import Start from './Start';
 import SignInHelp from './SignInHelp';
 import AddPubKeyView from './AddPubKeyView';
 import AddPubKeyHelper from './AddPubKeyHelper';
+import { decryptMessage } from './lib/Encryption';
 
 function App() {
     const [apiConnection, setApiConnection] = useState<ApiConnection>({
@@ -42,7 +43,7 @@ function App() {
         Account | undefined
     >();
 
-    const [newMessages, setNewMessages] = useState<Envelop[]>([]);
+    const [newMessages, setNewMessages] = useState<EnvelopContainer[]>([]);
 
     useEffect(() => {
         if (
@@ -58,11 +59,31 @@ function App() {
                 token: apiConnection.sessionToken,
             };
             socket.connect();
-            socket.on('message', (envelop: Envelop) => {
-                log('New messages');
+            socket.on(
+                'message',
+                async (envelop: Envelop | EncryptionEnvelop) => {
+                    log('New messages');
 
-                setNewMessages((oldMessages) => oldMessages.concat(envelop));
-            });
+                    const innerEnvelop = (
+                        (envelop as EncryptionEnvelop).encryptionVersion
+                            ? await decryptMessage(
+                                  apiConnection,
+                                  (envelop as EncryptionEnvelop).data,
+                              )
+                            : envelop
+                    ) as Envelop;
+
+                    setNewMessages((oldMessages) =>
+                        oldMessages.concat({
+                            envelop: innerEnvelop,
+                            encrypted: (envelop as EncryptionEnvelop)
+                                .encryptionVersion
+                                ? true
+                                : false,
+                        }),
+                    );
+                },
+            );
             changeApiConnection({ socket });
         }
     }, [apiConnection.connectionState, apiConnection.socket]);
@@ -194,12 +215,14 @@ function App() {
                                 ` d-flex justify-content-center align-items-center`
                             }
                         >
-                            {selectedContact && (
-                                <ChatHeader
-                                    account={selectedContact}
-                                    ensNames={ensNames}
-                                />
-                            )}
+                            {selectedContact &&
+                                apiConnection.connectionState ===
+                                    ConnectionState.SignedIn && (
+                                    <ChatHeader
+                                        account={selectedContact}
+                                        ensNames={ensNames}
+                                    />
+                                )}
                             {apiConnection.connectionState !==
                                 ConnectionState.SignedIn && (
                                 <div className="account-name">

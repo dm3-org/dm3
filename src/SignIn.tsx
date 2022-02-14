@@ -17,7 +17,6 @@ import {
 } from './external-apis/InjectedWeb3API';
 import {
     getKeys,
-    getPublicKey,
     requestChallenge,
     submitSignedChallenge,
 } from './external-apis/BackendAPI';

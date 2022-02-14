@@ -18,6 +18,7 @@ export interface Envelop {
 export interface EncryptionEnvelop {
     encryptionVersion: 'x25519-xsalsa20-poly1305';
     data: string;
+    selfData: string;
     to: string;
     from: string;
 }
@@ -74,6 +75,18 @@ export async function submitMessage(
                     JSON.stringify(
                         encryptSafely({
                             publicKey: to.keys?.publicMessagingKey as string,
+                            data: envelop,
+                            version: 'x25519-xsalsa20-poly1305',
+                        }),
+                    ),
+                ),
+            ),
+            selfData: ethers.utils.hexlify(
+                ethers.utils.toUtf8Bytes(
+                    JSON.stringify(
+                        encryptSafely({
+                            publicKey: apiConnection.account?.keys
+                                ?.publicMessagingKey as string,
                             data: envelop,
                             version: 'x25519-xsalsa20-poly1305',
                         }),

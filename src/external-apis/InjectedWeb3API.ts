@@ -1,4 +1,6 @@
 import { ethers } from 'ethers';
+import { decryptSafely, EthEncryptedData } from '../lib/Encryption';
+import { Account, ApiConnection, Keys } from '../lib/Web3Provider';
 
 export async function prersonalSign(
     provider: ethers.providers.JsonRpcProvider,
@@ -13,6 +15,17 @@ export async function getPublicKey(
     account: string,
 ): Promise<string> {
     return provider.send('eth_getEncryptionPublicKey', [account]);
+}
+
+export async function decryptMessage(
+    apiConnection: ApiConnection,
+    encryptedData: EthEncryptedData,
+): Promise<string> {
+    return decryptSafely({
+        encryptedData,
+        privateKey: ((apiConnection.account as Account).keys as Keys)
+            .privateMessagingKey as string,
+    });
 }
 
 export async function decrypt(

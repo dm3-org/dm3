@@ -5,6 +5,7 @@ interface MessageStateViewProps {
     messageState: MessageState;
     time: number;
     ownMessage: boolean;
+    encrypted: boolean;
 }
 
 function MessageStateView(props: MessageStateViewProps) {
@@ -18,7 +19,10 @@ function MessageStateView(props: MessageStateViewProps) {
             {props.messageState === MessageState.Created ? (
                 <Icon iconClass="fas fa-spinner fa-spin" />
             ) : (
-                <Icon iconClass="fas fa-signature" />
+                <>
+                    <Icon iconClass="fas fa-signature" />{' '}
+                    {props.encrypted && <Icon iconClass="fas fa-lock" />}
+                </>
             )}
         </div>
     );
