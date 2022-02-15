@@ -27,6 +27,7 @@ export enum MessageState {
     Created,
     Signed,
     Send,
+    FailedToSend,
 }
 
 export function createMessage(
