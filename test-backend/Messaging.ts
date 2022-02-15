@@ -18,6 +18,7 @@ export function incomingMessage(
     sessions: Map<string, Session>,
     messages: Map<string, (Envelop | EncryptionEnvelop)[]>,
     socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>,
+    contacts: Map<string, Set<string>>,
 ) {
     const account = (data.envelop as EncryptionEnvelop).encryptionVersion
         ? ethers.utils.getAddress((data.envelop as EncryptionEnvelop).from)
@@ -28,6 +29,7 @@ export function incomingMessage(
         : JSON.parse((data.envelop as Envelop).message).to;
     const conversationId = getConversationId(account, contact);
     console.log(`- Conversations id: ${conversationId}`);
+    addContact(contacts, contact, account);
 
     if (checkToken(sessions, account, data.token)) {
         const conversation = (
@@ -48,4 +50,20 @@ export function incomingMessage(
     } else {
         throw Error('Token check failed');
     }
+}
+
+export function addContact(
+    contacts: Map<string, Set<string>>,
+    account: string,
+    contact: string,
+) {
+    const accountContacts: Set<string> = (
+        contacts.has(account) ? contacts.get(account) : new Set<string>()
+    ) as Set<string>;
+    accountContacts.add(contact);
+
+    if (!contacts.has(account)) {
+        contacts.set(account, accountContacts);
+    }
+    console.log(`- Added ${contact} to the contact list of ${account}`);
 }
