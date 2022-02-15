@@ -77,11 +77,18 @@ test('should be able to sign in', async () => {
                 '0x74fd2771eec3c8aff07752885583e549bcc0fb8838ca383aa5d6147901dd' +
                 '05716afcf169de14c5e5665ecf989434e767d6d236afa965fc348759c9516344e9791c',
             async (challenge: string, signature: string) => {},
+            async (accountAddress: string, sessionToken: string) => undefined,
+            async (
+                provider: JsonRpcProvider,
+                encryptedData: string,
+                account: string,
+            ) => '',
         ),
     ).toStrictEqual({
         connectionState: ConnectionState.SignedIn,
         sessionToken:
             '0xa4f3883eff8d4b11a3e958c40bb451e34de040af75aee13c1f5fc7caafd157d5',
+        keys: undefined,
     });
 });
 
@@ -102,6 +109,12 @@ test('should be able to handle a failed sign in', async () => {
                 throw Error();
             },
             async (challenge: string, signature: string) => {},
+            async (accountAddress: string, sessionToken: string) => undefined,
+            async (
+                provider: JsonRpcProvider,
+                encryptedData: string,
+                account: string,
+            ) => '',
         ),
     ).toStrictEqual({
         connectionState: ConnectionState.SignInFailed,
