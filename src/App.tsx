@@ -21,14 +21,15 @@ import { lookupAddress } from './external-apis/InjectedWeb3API';
 import { ethers } from 'ethers';
 import Chat, { EnvelopContainer } from './Chat';
 import { isWidgetOpened, toggleWidget } from 'react-chat-widget';
-import socketIOClient from 'socket.io-client';
-import { EncryptionEnvelop, Envelop } from './lib/Messaging';
+import socketIOClient, { Socket } from 'socket.io-client';
+import { EncryptionEnvelop, Envelop, Message } from './lib/Messaging';
 import ChatHeader from './ChatHeader';
 import Start from './Start';
 import SignInHelp from './SignInHelp';
 import AddPubKeyView from './AddPubKeyView';
 import AddPubKeyHelper from './AddPubKeyHelper';
 import { decryptMessage } from './lib/Encryption';
+import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 
 function App() {
     const [apiConnection, setApiConnection] = useState<ApiConnection>({
@@ -36,6 +37,9 @@ function App() {
     });
     const [ensNames, setEnsNames] = useState<Map<string, string>>(
         new Map<string, string>(),
+    );
+    const [messageCounter, setMessageCounter] = useState<Map<string, number>>(
+        new Map<string, number>(),
     );
 
     const [contacts, setContacts] = useState<Account[] | undefined>();
@@ -71,6 +75,50 @@ function App() {
         setEnsNames(new Map(ensNames));
     };
 
+    const handleNewMessage = async (
+        envelop: EncryptionEnvelop | Envelop,
+        contact: Account | undefined,
+    ) => {
+        log('New messages');
+
+        await requestContacts(apiConnection);
+
+        const innerEnvelop = (
+            (envelop as EncryptionEnvelop).encryptionVersion
+                ? await decryptMessage(
+                      apiConnection,
+                      (envelop as EncryptionEnvelop).data,
+                  )
+                : envelop
+        ) as Envelop;
+
+        const from = ethers.utils.getAddress(
+            (JSON.parse(innerEnvelop.message) as Message).from,
+        );
+
+        if (contact && from === ethers.utils.getAddress(contact.address)) {
+            setNewMessages((oldMessages) =>
+                oldMessages.concat({
+                    envelop: innerEnvelop,
+                    encrypted: (envelop as EncryptionEnvelop).encryptionVersion
+                        ? true
+                        : false,
+                }),
+            );
+        } else {
+            setMessageCounter(
+                new Map(
+                    messageCounter.set(
+                        from,
+                        messageCounter.has(from)
+                            ? (messageCounter.get(from) as number) + 1
+                            : 1,
+                    ),
+                ),
+            );
+        }
+    };
+
     useEffect(() => {
         if (
             apiConnection.connectionState === ConnectionState.SignedIn &&
@@ -85,34 +133,24 @@ function App() {
                 token: apiConnection.sessionToken,
             };
             socket.connect();
-            socket.on(
-                'message',
-                async (envelop: Envelop | EncryptionEnvelop) => {
-                    log('New messages');
-                    await requestContacts(apiConnection);
-                    const innerEnvelop = (
-                        (envelop as EncryptionEnvelop).encryptionVersion
-                            ? await decryptMessage(
-                                  apiConnection,
-                                  (envelop as EncryptionEnvelop).data,
-                              )
-                            : envelop
-                    ) as Envelop;
-
-                    setNewMessages((oldMessages) =>
-                        oldMessages.concat({
-                            envelop: innerEnvelop,
-                            encrypted: (envelop as EncryptionEnvelop)
-                                .encryptionVersion
-                                ? true
-                                : false,
-                        }),
-                    );
-                },
-            );
+            socket.on('message', (envelop: Envelop | EncryptionEnvelop) => {
+                handleNewMessage(envelop, selectedContact);
+            });
             changeApiConnection({ socket });
         }
     }, [apiConnection.connectionState, apiConnection.socket]);
+
+    useEffect(() => {
+        if (selectedContact && apiConnection.socket) {
+            apiConnection.socket.removeListener('message');
+            apiConnection.socket.on(
+                'message',
+                (envelop: Envelop | EncryptionEnvelop) => {
+                    handleNewMessage(envelop, selectedContact);
+                },
+            );
+        }
+    }, [selectedContact]);
 
     const changeApiConnection = (newApiConnection: Partial<ApiConnection>) => {
         if (newApiConnection.connectionState) {
@@ -180,6 +218,19 @@ function App() {
             requestContacts(apiConnection);
         }
     }, [apiConnection.sessionToken]);
+
+    useEffect(() => {
+        if (selectedContact) {
+            setMessageCounter(
+                new Map(
+                    messageCounter.set(
+                        ethers.utils.getAddress(selectedContact.address),
+                        0,
+                    ),
+                ),
+            );
+        }
+    }, [selectedContact]);
 
     return (
         <div className="container">
@@ -252,7 +303,7 @@ function App() {
                                                 ensNames={ensNames}
                                                 contacts={contacts}
                                                 selectContact={selectContact}
-                                                newMessages={newMessages}
+                                                messageCounter={messageCounter}
                                             />
                                         </div>
                                     </div>

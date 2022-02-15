@@ -68,8 +68,9 @@
 .rcw-messages-container {
   height: 100% !important;
   max-height: calc(100% - 95px) !important;
+  padding-top: 3px !important;
 
-  padding-top: 0px !important
+
   
 }
 

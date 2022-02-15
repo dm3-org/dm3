@@ -57,13 +57,20 @@ export function addContact(
     account: string,
     contact: string,
 ) {
-    const accountContacts: Set<string> = (
-        contacts.has(account) ? contacts.get(account) : new Set<string>()
-    ) as Set<string>;
-    accountContacts.add(contact);
+    const formattedAccount = ethers.utils.getAddress(account);
+    const formattedContact = ethers.utils.getAddress(contact);
 
-    if (!contacts.has(account)) {
-        contacts.set(account, accountContacts);
+    const accountContacts: Set<string> = (
+        contacts.has(formattedAccount)
+            ? contacts.get(formattedAccount)
+            : new Set<string>()
+    ) as Set<string>;
+    accountContacts.add(formattedContact);
+
+    if (!contacts.has(formattedAccount)) {
+        contacts.set(formattedAccount, accountContacts);
     }
-    console.log(`- Added ${contact} to the contact list of ${account}`);
+    console.log(
+        `- Added ${formattedContact} to the contact list of ${formattedAccount}`,
+    );
 }
