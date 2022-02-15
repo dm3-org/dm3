@@ -9,7 +9,7 @@ function AddPubKeyHelper() {
             >
                 <div className="arrow-left h-100" />
                 <div className="circle-char text-center">1</div>
-                <div>Get your encryption public key</div>
+                <div>Create your encryption public key</div>
             </div>
             <div className={`w-100 publish-help d-flex justify-content-start`}>
                 <div className="arrow-left h-100" />

@@ -232,6 +232,8 @@ function App() {
         }
     }, [selectedContact]);
 
+    console.log(ConnectionState[apiConnection.connectionState]);
+
     return (
         <div className="container">
             <div className="row main-content-row">
@@ -278,7 +280,7 @@ function App() {
                                 <div className="account-name">
                                     {apiConnection.connectionState ===
                                     ConnectionState.KeyCreation
-                                        ? 'Add Public Key'
+                                        ? 'Create Public Key'
                                         : 'ENS Mail'}
                                 </div>
                             )}
@@ -340,7 +342,9 @@ function App() {
                             )}
                         </div>
                         <div className="col-md-8 content-container h-100">
-                            {!selectedContact && (
+                            {(!selectedContact ||
+                                apiConnection.connectionState ===
+                                    ConnectionState.KeyCreation) && (
                                 <div className="start-chat">
                                     {apiConnection.provider &&
                                         showSignIn(
