@@ -7,7 +7,7 @@ import { checkToken, Session } from './BackendLib';
 import { EncryptionEnvelop, Envelop, Message } from '../src/lib/Messaging';
 import { Server } from 'socket.io';
 import http from 'http';
-import { getConversationId, incomingMessage } from './Messaging';
+import { addContact, getConversationId, incomingMessage } from './Messaging';
 
 const app = express();
 app.use(express.json());
@@ -68,17 +68,8 @@ app.post('/addContact/:accountAddress', (req, res) => {
     console.log('[addContact]');
     const account = ethers.utils.getAddress(req.params.accountAddress);
     if (checkToken(sessions, account, req.body.token)) {
-        const accountContacts: Set<string> = (
-            contacts.has(account) ? contacts.get(account) : new Set<string>()
-        ) as Set<string>;
-        accountContacts.add(req.body.contactAddress);
+        addContact(contacts, account, req.body.contactAddress);
 
-        if (!contacts.has(account)) {
-            contacts.set(account, accountContacts);
-        }
-        console.log(
-            `Added ${req.body.contactAddress} to the contact list of ${account}`,
-        );
         res.send('OK');
     } else {
         res.status(401).send('Token check failed)');
@@ -197,7 +188,7 @@ io.on('connection', (socket) => {
     socket.on('submitMessage', (data) => {
         console.log('[WS] incoming message');
         try {
-            incomingMessage(data, sessions, messages, socket);
+            incomingMessage(data, sessions, messages, socket, contacts);
         } catch (e) {
             console.error(e);
         }

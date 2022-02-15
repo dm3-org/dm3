@@ -44,6 +44,32 @@ function App() {
     >();
 
     const [newMessages, setNewMessages] = useState<EnvelopContainer[]>([]);
+    const requestContacts = async (connection: ApiConnection) => {
+        const retrievedContacts = await getContacts(
+            (apiConnection.account as Account).address,
+            apiConnection.sessionToken as string,
+        );
+
+        setContacts(retrievedContacts);
+
+        (
+            await Promise.all(
+                retrievedContacts.map(async (contact) => ({
+                    address: contact.address,
+                    ens: await lookupAddress(
+                        connection.provider as ethers.providers.JsonRpcProvider,
+                        contact.address,
+                    ),
+                })),
+            )
+        )
+            .filter((lookup) => lookup.ens !== null)
+            .forEach((lookup) =>
+                ensNames.set(lookup.address, lookup.ens as string),
+            );
+
+        setEnsNames(new Map(ensNames));
+    };
 
     useEffect(() => {
         if (
@@ -63,7 +89,7 @@ function App() {
                 'message',
                 async (envelop: Envelop | EncryptionEnvelop) => {
                     log('New messages');
-
+                    await requestContacts(apiConnection);
                     const innerEnvelop = (
                         (envelop as EncryptionEnvelop).encryptionVersion
                             ? await decryptMessage(
@@ -133,33 +159,6 @@ function App() {
                 connectionState: web3Provider.connectionState,
             });
         }
-    };
-
-    const requestContacts = async (connection: ApiConnection) => {
-        const retrievedContacts = await getContacts(
-            (apiConnection.account as Account).address,
-            apiConnection.sessionToken as string,
-        );
-
-        setContacts(retrievedContacts);
-
-        (
-            await Promise.all(
-                retrievedContacts.map(async (contact) => ({
-                    address: contact.address,
-                    ens: await lookupAddress(
-                        connection.provider as ethers.providers.JsonRpcProvider,
-                        contact.address,
-                    ),
-                })),
-            )
-        )
-            .filter((lookup) => lookup.ens !== null)
-            .forEach((lookup) =>
-                ensNames.set(lookup.address, lookup.ens as string),
-            );
-
-        setEnsNames(new Map(ensNames));
     };
 
     const selectContact = async (contactAddress: Account) => {
