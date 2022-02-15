@@ -87,31 +87,17 @@ function SignIn(props: SignInProps) {
             requestChallenge,
             prersonalSign,
             submitSignedChallenge,
+            getKeys,
+            decrypt,
         );
 
         if (singInRequest.sessionToken) {
             log(`Setting session token: ${singInRequest.sessionToken}`);
-            let keys = await getKeys(
-                props.apiConnection.account?.address as string,
-                singInRequest.sessionToken,
-            );
-            if (keys) {
-                keys = {
-                    ...keys,
-                    privateMessagingKey: JSON.parse(
-                        await decrypt(
-                            props.apiConnection
-                                .provider as ethers.providers.JsonRpcProvider,
-                            keys.privateMessagingKey as string,
-                            props.apiConnection.account?.address as string,
-                        ),
-                    ).data,
-                };
-            }
+
             props.changeApiConnection({
                 account: {
                     address: props.apiConnection.account?.address as string,
-                    keys,
+                    keys: singInRequest.keys,
                 },
                 sessionToken: singInRequest.sessionToken,
                 connectionState: singInRequest.connectionState,

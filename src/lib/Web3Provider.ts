@@ -96,9 +96,19 @@ export async function signIn(
         challenge: string,
         signature: string,
     ) => Promise<void>,
+    getKeys: (
+        accountAddress: string,
+        sessionToken: string,
+    ) => Promise<Keys | undefined>,
+    decrypt: (
+        provider: ethers.providers.JsonRpcProvider,
+        encryptedData: string,
+        account: string,
+    ) => Promise<string>,
 ): Promise<{
     connectionState: ConnectionState;
     sessionToken?: string;
+    keys?: Keys;
 }> {
     try {
         const challenge = await requestChallenge(account);
@@ -107,12 +117,29 @@ export async function signIn(
 
         const signature = await personalSign(provider, account, challenge);
         submitSignedChallenge(challenge, signature);
+        const sessionToken = getSessionToken(signature);
+        let keys = await getKeys(account, sessionToken);
+
+        if (keys) {
+            keys = {
+                ...keys,
+                privateMessagingKey: JSON.parse(
+                    await decrypt(
+                        provider,
+                        keys.privateMessagingKey as string,
+                        account,
+                    ),
+                ).data,
+            };
+        }
 
         return {
             connectionState: ConnectionState.SignedIn,
-            sessionToken: getSessionToken(signature),
+            sessionToken,
+            keys,
         };
     } catch (e) {
+        console.log(e);
         return {
             connectionState: ConnectionState.SignInFailed,
         };
