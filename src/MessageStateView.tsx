@@ -9,6 +9,7 @@ interface MessageStateViewProps {
 }
 
 function MessageStateView(props: MessageStateViewProps) {
+    console.log(props.messageState);
     return (
         <div
             className={`w-100 rcw-timestamp ${
@@ -16,13 +17,17 @@ function MessageStateView(props: MessageStateViewProps) {
             } message-state`}
         >
             {new Date(props.time).toLocaleTimeString()}{' '}
-            {props.messageState === MessageState.Created ? (
+            {props.messageState === MessageState.Created && (
                 <Icon iconClass="fas fa-spinner fa-spin" />
-            ) : (
+            )}
+            {props.messageState === MessageState.Send && (
                 <>
                     <Icon iconClass="fas fa-signature" />{' '}
                     {props.encrypted && <Icon iconClass="fas fa-lock" />}
                 </>
+            )}
+            {props.messageState === MessageState.FailedToSend && (
+                <Icon iconClass="fas fa-exclamation-circle error-indication" />
             )}
         </div>
     );

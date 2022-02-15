@@ -146,7 +146,7 @@ function Chat(props: ChatProps) {
 
                 messageStates.set(
                     messageContainer.message.timestamp.toString(),
-                    MessageState.Signed,
+                    MessageState.Send,
                 );
                 setMessageStates(new Map(messageStates));
                 renderCustomComponent(
@@ -209,10 +209,15 @@ function Chat(props: ChatProps) {
             submitMessageApi,
             prersonalSign,
             encrypted,
-        ).then(() => {
-            messageStates.set(messageId, MessageState.Signed);
-            setMessageStates(new Map(messageStates));
-        });
+        )
+            .then(() => {
+                messageStates.set(messageId, MessageState.Send);
+                setMessageStates(new Map(messageStates));
+            })
+            .catch(() => {
+                messageStates.set(messageId, MessageState.FailedToSend);
+                setMessageStates(new Map(messageStates));
+            });
         renderCustomComponent(
             () => (
                 <MessageStateView

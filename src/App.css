@@ -226,3 +226,7 @@ html, body {
 .add-pub-key {
   margin-top: 6rem !important;
 }
+
+.error-indication {
+  color: red;
+}
