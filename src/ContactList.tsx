@@ -12,18 +12,14 @@ interface ContactListProps {
     ensNames: Map<string, string>;
     contacts: Account[];
     selectContact: (contactAddress: Account) => void;
-    newMessages: EnvelopContainer[];
+    messageCounter: Map<string, number>;
 }
 
 function ContactList(props: ContactListProps) {
     const contactsList = props.contacts.map((contact) => {
-        const unreadMessages = props.newMessages.filter(
-            (envelopContainer) =>
-                ethers.utils.getAddress(
-                    (JSON.parse(envelopContainer.envelop.message) as Message)
-                        .from,
-                ) === ethers.utils.getAddress(contact.address),
-        ).length;
+        const unreadMessages = props.messageCounter.has(contact.address)
+            ? (props.messageCounter.get(contact.address) as number)
+            : 0;
 
         return (
             <button

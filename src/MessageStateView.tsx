@@ -9,7 +9,6 @@ interface MessageStateViewProps {
 }
 
 function MessageStateView(props: MessageStateViewProps) {
-    console.log(props.messageState);
     return (
         <div
             className={`w-100 rcw-timestamp ${
