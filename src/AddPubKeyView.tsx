@@ -110,7 +110,7 @@ function AddPubKeyView(props: AddPubKeyViewProps) {
                         )
                     }
                 >
-                    Add Public Key
+                    Create Public Key
                     <span className="push-end">
                         {getGetKeyIconClass(pubKeyState)}
                     </span>

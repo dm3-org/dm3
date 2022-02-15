@@ -25,7 +25,7 @@ function AddPubKey(props: AddPubKeyProps) {
                         })
                     }
                 >
-                    Get Public Key
+                    Create Public Key
                 </button>
             </div>
         </div>
