@@ -1,7 +1,12 @@
 import axios from 'axios';
 import { log } from '../lib/log';
 import { EncryptionEnvelop, Envelop, Message } from '../lib/Messaging';
-import { ApiConnection, Account, Keys } from '../lib/Web3Provider';
+import {
+    ApiConnection,
+    Account,
+    Keys,
+    EncryptedKeys,
+} from '../lib/Web3Provider';
 
 export async function submitSignedChallenge(
     challenge: string,
@@ -14,25 +19,28 @@ export async function submitSignedChallenge(
 }
 
 export async function submitKeys(
-    apiConnection: ApiConnection,
+    accountAddress: string,
     encryptedKeys: Keys,
+    token: string,
 ): Promise<void> {
     await axios.post(
         (process.env.REACT_APP_BACKEND as string) +
             '/submitKeys/' +
-            (apiConnection.account as Account).address,
-        { keys: encryptedKeys, token: apiConnection.sessionToken },
+            accountAddress,
+        { keys: encryptedKeys, token },
     );
 }
 
-export async function requestChallenge(account: string): Promise<string> {
+export async function requestChallenge(
+    account: string,
+): Promise<{ challenge: string; hasEncryptionKey: boolean }> {
     return (
         await axios.post(
             (process.env.REACT_APP_BACKEND as string) +
                 '/requestSignInChallenge',
             { account },
         )
-    ).data.challenge;
+    ).data;
 }
 
 export async function addContact(
@@ -88,20 +96,22 @@ export async function getMessages(
     ).data.messages;
 }
 
-export async function getPublicKey(
+export async function getPublicKeys(
     contact: string,
-): Promise<string | undefined> {
+): Promise<Partial<Keys> | undefined> {
     return (
         await axios.get(
-            (process.env.REACT_APP_BACKEND as string) + '/publicKey/' + contact,
+            (process.env.REACT_APP_BACKEND as string) +
+                '/getPublicKeys/' +
+                contact,
         )
-    ).data.publicKey;
+    ).data;
 }
 
 export async function getKeys(
     accountAddress: string,
     sessionToken: string,
-): Promise<Keys | undefined> {
+): Promise<EncryptedKeys | undefined> {
     return (
         await axios.post(
             (process.env.REACT_APP_BACKEND as string) +

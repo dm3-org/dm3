@@ -10,8 +10,9 @@ import {
     createMessagingKeyPair,
     createPublicKey,
     Keys,
-    submitKeys,
+    submitEncryptedKeys,
 } from './lib/Web3Provider';
+import { ethers } from 'ethers';
 
 interface AddPubKeyViewProps {
     apiConnection: ApiConnection;
@@ -73,18 +74,24 @@ function AddPubKeyView(props: AddPubKeyViewProps) {
     const createPubKey = async () => {
         setPubKeyState(PubKeyState.WaitingForKeyCreation);
         try {
-            const messagingKeyPair = createMessagingKeyPair();
+            const keyPair = createMessagingKeyPair();
 
             const keys: Keys = {
-                publicMessagingKey: messagingKeyPair.publicKey,
-                privateMessagingKey: messagingKeyPair.privateKey,
+                ...keyPair,
                 publicKey: await createPublicKey(
-                    props.apiConnection,
+                    props.apiConnection
+                        .provider as ethers.providers.JsonRpcProvider,
+                    props.apiConnection.account?.address as string,
                     getPublicKey,
                 ),
             };
 
-            await submitKeys(props.apiConnection, keys, submitPublicKeyApi);
+            await submitEncryptedKeys(
+                props.apiConnection.account?.address as string,
+                props.apiConnection.sessionToken as string,
+                keys,
+                submitPublicKeyApi,
+            );
             props.setPublicKey(keys);
             setPubKeyState(PubKeyState.KeyCreated);
         } catch (e) {

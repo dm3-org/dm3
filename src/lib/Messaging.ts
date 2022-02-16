@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
-import { checkSignature } from '../external-apis/InjectedWeb3API';
+
 import { encryptSafely, EthEncryptedData } from './Encryption';
-import { Account, ApiConnection } from './Web3Provider';
+import { Account, ApiConnection, Keys } from './Web3Provider';
 
 export interface Message {
     to: string;
@@ -51,21 +51,16 @@ export async function submitMessage(
         apiConnection: ApiConnection,
         envelop: Envelop | EncryptionEnvelop,
     ) => Promise<void>,
-    prersonalSign: (
-        provider: ethers.providers.JsonRpcProvider,
-        account: string,
-        message: string,
-    ) => Promise<any>,
+    signWithEncryptionKey: (message: string, keys: Keys) => string,
     encrypt?: boolean,
 ): Promise<void> {
     const seralizedMessage = JSON.stringify(message);
 
     let envelop: Envelop | EncryptionEnvelop = {
         message: seralizedMessage,
-        signature: await prersonalSign(
-            apiConnection.provider as ethers.providers.JsonRpcProvider,
-            (apiConnection.account as Account).address,
+        signature: signWithEncryptionKey(
             seralizedMessage,
+            apiConnection.account?.keys as Keys,
         ),
     };
 
@@ -111,13 +106,5 @@ export async function getMessages(
         contact: string,
     ) => Promise<(Envelop | EncryptionEnvelop)[]>,
 ): Promise<(Envelop | EncryptionEnvelop)[]> {
-    return (await getMessagesApi(apiConnection, contact)).filter((envelop) =>
-        (envelop as EncryptionEnvelop).encryptionVersion
-            ? true
-            : checkSignature(
-                  (envelop as Envelop).message,
-                  (JSON.parse((envelop as Envelop).message) as Message).from,
-                  (envelop as Envelop).signature,
-              ),
-    );
+    return await getMessagesApi(apiConnection, contact);
 }

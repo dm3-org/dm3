@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import cors from 'cors';
-import { getSessionToken, Keys } from '../src/lib/Web3Provider';
+import { getSessionToken, EncryptedKeys } from '../src/lib/Web3Provider';
 import { checkToken, Session } from './BackendLib';
 import { EncryptionEnvelop, Envelop, Message } from '../src/lib/Messaging';
 import { Server } from 'socket.io';
@@ -40,7 +40,10 @@ app.post('/requestSignInChallenge', (req, res) => {
         : { account };
     session.challenge = `ENS Mail Sign In ${uuidv4()}`;
     sessions.set(account, session);
-    res.send({ challenge: session.challenge });
+    res.send({
+        challenge: session.challenge,
+        hasEncryptionKey: session.encryptedKeys ? true : false,
+    });
 });
 
 app.post('/submitSignedChallenge', (req, res) => {
@@ -94,8 +97,16 @@ app.post('/getContacts/:accountAddress', (req, res) => {
                         (sessions.get(address) as Session).encryptedKeys
                             ? (
                                   (sessions.get(address) as Session)
-                                      .encryptedKeys as Keys
+                                      .encryptedKeys as EncryptedKeys
                               ).publicMessagingKey
+                            : undefined,
+                    publicSigningKey:
+                        sessions.has(address) &&
+                        (sessions.get(address) as Session).encryptedKeys
+                            ? (
+                                  (sessions.get(address) as Session)
+                                      .encryptedKeys as EncryptedKeys
+                              ).publicSigningKey
                             : undefined,
                 },
             })),
@@ -137,13 +148,16 @@ app.post('/submitKeys/:accountAddress', (req, res) => {
     }
 });
 
-app.get('/publicKey/:accountAddress', (req, res) => {
+app.get('/getPublicKeys/:accountAddress', (req, res) => {
     console.log(`[GET publicKey] Public key: ${req.params.accountAddress}`);
     const account = ethers.utils.getAddress(req.params.accountAddress);
 
     if (sessions.get(account)?.encryptedKeys) {
         res.send({
-            publicKey: sessions.get(account)?.encryptedKeys?.publicMessagingKey,
+            publicMessagingKey:
+                sessions.get(account)?.encryptedKeys?.publicMessagingKey,
+            publicSigningKey:
+                sessions.get(account)?.encryptedKeys?.publicSigningKey,
         });
     } else {
         res.send({});

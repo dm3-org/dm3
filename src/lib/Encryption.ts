@@ -6,6 +6,7 @@ import * as naclUtil from 'tweetnacl-util';
 import { Buffer } from 'buffer';
 import { ApiConnection, Account, Keys } from './Web3Provider';
 import { ethers } from 'ethers';
+import { box, randomBytes } from 'tweetnacl';
 
 export interface EthEncryptedData {
     version: string;
@@ -239,4 +240,27 @@ export async function decryptMessage(
         privateKey: ((apiConnection.account as Account).keys as Keys)
             .privateMessagingKey as string,
     });
+}
+
+export function checkSignature(
+    message: string,
+    fromAccount: Account,
+    signature: string,
+): boolean {
+    return fromAccount.keys?.publicSigningKey
+        ? nacl.sign.detached.verify(
+              ethers.utils.toUtf8Bytes(message),
+              ethers.utils.arrayify(signature),
+              nacl_decodeHex(fromAccount.keys?.publicSigningKey as string),
+          )
+        : false;
+}
+
+export function signWithEncryptionKey(message: string, keys: Keys): string {
+    return ethers.utils.hexlify(
+        nacl.sign.detached(
+            ethers.utils.toUtf8Bytes(message),
+            naclUtil.decodeBase64(keys.privateSigningKey as string),
+        ),
+    );
 }
