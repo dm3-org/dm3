@@ -21,9 +21,7 @@
         "tweetnacl-util": "^0.15.1",
         "typescript": "^4.4.2",
         "uuid": "^8.3.2",
-        "web-vitals": "^2.1.0"
-    },
-    "devDependencies": {
+        "web-vitals": "^2.1.0",
         "@testing-library/jest-dom": "^5.14.1",
         "@testing-library/react": "^12.0.0",
         "@testing-library/user-event": "^13.2.1",
@@ -42,9 +40,10 @@
         "lint-staged": "^12.3.2",
         "ts-node": "^10.4.0"
     },
+    "devDependencies": {},
     "scripts": {
-        "start": "react-scripts start",
-        "start:test-backend": " yarn ts-node --project test-backend/tsconfig.json test-backend/TestBackend.ts",
+        "start:dev": "react-scripts start",
+        "start": " yarn ts-node --project test-backend/tsconfig.json test-backend/TestBackend.ts",
         "build": "react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",

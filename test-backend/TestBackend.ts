@@ -8,29 +8,33 @@ import { EncryptionEnvelop, Envelop, Message } from '../src/lib/Messaging';
 import { Server } from 'socket.io';
 import http from 'http';
 import { addContact, getConversationId, incomingMessage } from './Messaging';
+import path from 'path';
 
 const app = express();
 app.use(express.json());
-app.use(
-    cors({
-        origin: '*',
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-        preflightContinue: false,
-        optionsSuccessStatus: 204,
-    }),
-);
+// app.use(
+//     cors({
+//         origin: '*',
+//         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+//         preflightContinue: false,
+//         optionsSuccessStatus: 204,
+//     }),
+// );
 
 const server = http.createServer(app);
 const io = new Server(server, {
-    cors: {
-        origin: '*',
-        methods: ['GET', 'POST'],
-    },
+    // cors: {
+    //     origin: '*',
+    //     methods: ['GET', 'POST'],
+    // },
 });
 
 const sessions = new Map<string, Session>();
 const contacts = new Map<string, Set<string>>();
 const messages = new Map<string, (EncryptionEnvelop | Envelop)[]>();
+
+app.use(express.static(path.join(__dirname, '../build')));
+const port = process.env.PORT || '8080';
 
 app.post('/requestSignInChallenge', (req, res) => {
     console.log('[requestSignInChallenge]');
@@ -209,6 +213,6 @@ io.on('connection', (socket) => {
     });
 });
 
-server.listen(3003, () => {
+server.listen(port, () => {
     console.log('[Server] listening');
 });
