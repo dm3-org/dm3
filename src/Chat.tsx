@@ -20,16 +20,23 @@ import {
     Account,
     ApiConnection,
     getAccountDisplayName,
+    Keys,
 } from './lib/Web3Provider';
 import {
     submitMessage as submitMessageApi,
     getMessages as getMessagesApi,
+    getPublicKeys,
 } from './external-apis/BackendAPI';
 import { decrypt, prersonalSign } from './external-apis/InjectedWeb3API';
 import MessageStateView from './MessageStateView';
 import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
-import { decryptMessage, EthEncryptedData } from './lib/Encryption';
+import {
+    checkSignature,
+    decryptMessage,
+    EthEncryptedData,
+    signWithEncryptionKey,
+} from './lib/Encryption';
 
 interface ChatProps {
     hasContacts: boolean;
@@ -120,7 +127,21 @@ function Chat(props: ChatProps) {
         );
 
         decryptedEnvelops
-
+            .filter((envelopContainer) =>
+                checkSignature(
+                    envelopContainer.envelop.message,
+                    ethers.utils.getAddress(
+                        (
+                            JSON.parse(
+                                envelopContainer.envelop.message,
+                            ) as Message
+                        ).from,
+                    ) === ethers.utils.getAddress(props.contact.address)
+                        ? props.contact
+                        : (props.apiConnection.account as Account),
+                    envelopContainer.envelop.signature,
+                ),
+            )
             .map((envelopContainer) => ({
                 message: JSON.parse(
                     envelopContainer.envelop.message,
@@ -207,7 +228,7 @@ function Chat(props: ChatProps) {
             props.contact,
             messageData,
             submitMessageApi,
-            prersonalSign,
+            signWithEncryptionKey,
             encrypted,
         )
             .then(() => {

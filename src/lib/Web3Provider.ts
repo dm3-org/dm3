@@ -1,13 +1,14 @@
 import { ethers } from 'ethers';
 import { Socket } from 'socket.io-client';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
-import { box, randomBytes } from 'tweetnacl';
+import nacl from 'tweetnacl';
 import {
     decodeUTF8,
     encodeUTF8,
     encodeBase64,
     decodeBase64,
 } from 'tweetnacl-util';
+import { getPublicKey } from '../external-apis/InjectedWeb3API';
 import { encryptSafely } from './Encryption';
 
 import { log } from './log';
@@ -16,6 +17,21 @@ export interface Keys {
     publicKey?: string;
     publicMessagingKey?: string;
     privateMessagingKey?: string;
+    publicSigningKey?: string;
+    privateSigningKey?: string;
+}
+
+export interface EncryptedKeys {
+    publicKey?: string;
+    publicMessagingKey?: string;
+
+    publicSigningKey?: string;
+    encryptedPrivateKeys: string;
+}
+
+export interface PrivateKeys {
+    privateMessagingKey: string;
+    privateSigningKey: string;
 }
 
 export interface Account {
@@ -86,7 +102,9 @@ export async function connectAccount(
 export async function signIn(
     provider: ethers.providers.JsonRpcProvider,
     account: string,
-    requestChallenge: (account: string) => Promise<string>,
+    requestChallenge: (
+        account: string,
+    ) => Promise<{ challenge: string; hasEncryptionKey: boolean }>,
     personalSign: (
         provider: ethers.providers.JsonRpcProvider,
         account: string,
@@ -99,37 +117,85 @@ export async function signIn(
     getKeys: (
         accountAddress: string,
         sessionToken: string,
-    ) => Promise<Keys | undefined>,
+    ) => Promise<EncryptedKeys | undefined>,
     decrypt: (
         provider: ethers.providers.JsonRpcProvider,
         encryptedData: string,
         account: string,
     ) => Promise<string>,
+    submitPublicKeyApi: (
+        accountAddress: string,
+        encryptedKeys: Keys,
+        token: string,
+    ) => Promise<void>,
+    submitEncryptedKeys: (
+        accountAddress: string,
+        sessionToken: string,
+        keys: Keys,
+        submitKeysApi: (
+            accountAddress: string,
+            encryptedKeys: EncryptedKeys,
+            token: string,
+        ) => Promise<void>,
+    ) => Promise<void>,
 ): Promise<{
     connectionState: ConnectionState;
     sessionToken?: string;
     keys?: Keys;
 }> {
     try {
-        const challenge = await requestChallenge(account);
+        const challengeResponse = await requestChallenge(account);
 
-        log(`Sign in challenge: ${challenge}`);
+        log(`Sign in challenge: ${challengeResponse.challenge}`);
 
-        const signature = await personalSign(provider, account, challenge);
-        submitSignedChallenge(challenge, signature);
+        const signature = await personalSign(
+            provider,
+            account,
+            challengeResponse.challenge,
+        );
+        await submitSignedChallenge(challengeResponse.challenge, signature);
         const sessionToken = getSessionToken(signature);
-        let keys = await getKeys(account, sessionToken);
 
-        if (keys) {
+        let keys: Keys | undefined;
+
+        if (!challengeResponse.hasEncryptionKey) {
+            const keyPair = createMessagingKeyPair();
+
             keys = {
-                ...keys,
-                privateMessagingKey: JSON.parse(
+                ...keyPair,
+                publicKey: await createPublicKey(
+                    provider,
+                    account,
+
+                    getPublicKey,
+                ),
+            };
+
+            await submitEncryptedKeys(
+                account,
+                sessionToken,
+                keys,
+                submitPublicKeyApi,
+            );
+        } else {
+            const encryptedKeys: EncryptedKeys = (await getKeys(
+                account,
+                sessionToken,
+            )) as EncryptedKeys;
+            const decryptedPrivateKeys: PrivateKeys = JSON.parse(
+                JSON.parse(
                     await decrypt(
                         provider,
-                        keys.privateMessagingKey as string,
+                        encryptedKeys.encryptedPrivateKeys,
                         account,
                     ),
                 ).data,
+            );
+            keys = {
+                ...decryptedPrivateKeys,
+                publicKey: encryptedKeys.publicKey,
+                publicMessagingKey: encryptedKeys.publicMessagingKey,
+                publicSigningKey: encryptedKeys.publicSigningKey,
             };
         }
 
@@ -139,7 +205,6 @@ export async function signIn(
             keys,
         };
     } catch (e) {
-        console.log(e);
         return {
             connectionState: ConnectionState.SignInFailed,
         };
@@ -195,52 +260,62 @@ export async function addContact(
 }
 
 export async function createPublicKey(
-    apiConnection: ApiConnection,
+    provider: ethers.providers.JsonRpcProvider,
+    accountAddress: string,
     getPublicKey: (
         provider: ethers.providers.JsonRpcProvider,
         account: string,
     ) => Promise<string>,
 ): Promise<string> {
-    return getPublicKey(
-        apiConnection.provider as ethers.providers.JsonRpcProvider,
-        (apiConnection.account as Account).address,
-    );
+    return getPublicKey(provider, accountAddress);
 }
 
-export function createMessagingKeyPair(): {
-    publicKey: string;
-    privateKey: string;
-} {
-    const keypair = box.keyPair();
+export function createMessagingKeyPair(): Partial<Keys> {
+    const encryptionKeyPair = nacl.box.keyPair();
+    const signingKeyPair = nacl.sign.keyPair();
     return {
-        publicKey: encodeBase64(keypair.publicKey),
-        privateKey: encodeBase64(keypair.secretKey),
+        publicMessagingKey: encodeBase64(encryptionKeyPair.publicKey),
+        privateMessagingKey: encodeBase64(encryptionKeyPair.secretKey),
+        publicSigningKey: encodeBase64(signingKeyPair.publicKey),
+        privateSigningKey: encodeBase64(signingKeyPair.secretKey),
     };
 }
 
-export async function submitKeys(
-    apiConnection: ApiConnection,
+export async function submitEncryptedKeys(
+    accountAddress: string,
+    sessionToken: string,
     keys: Keys,
     submitKeysApi: (
-        apiConnection: ApiConnection,
-        encryptedKeys: Keys,
+        accountAddress: string,
+        encryptedKeys: EncryptedKeys,
+        token: string,
     ) => Promise<void>,
 ): Promise<void> {
-    const encryptedPrivateKey = ethers.utils.hexlify(
+    const keysToEncrypt: PrivateKeys = {
+        privateMessagingKey: keys.privateMessagingKey as string,
+        privateSigningKey: keys.privateSigningKey as string,
+    };
+
+    const encryptedKeys = ethers.utils.hexlify(
         ethers.utils.toUtf8Bytes(
             JSON.stringify(
                 encryptSafely({
                     publicKey: keys.publicKey as string,
-                    data: keys.privateMessagingKey,
+                    data: JSON.stringify(keysToEncrypt),
                     version: 'x25519-xsalsa20-poly1305',
                 }),
             ),
         ),
     );
 
-    submitKeysApi(apiConnection, {
-        privateMessagingKey: encryptedPrivateKey,
-        publicMessagingKey: keys.publicMessagingKey,
-        publicKey: keys.publicKey,
-    });
+    submitKeysApi(
+        accountAddress,
+        {
+            encryptedPrivateKeys: encryptedKeys,
+            publicMessagingKey: keys.publicMessagingKey,
+            publicSigningKey: keys.publicSigningKey,
+            publicKey: keys.publicKey,
+        },
+        sessionToken,
+    );
 }

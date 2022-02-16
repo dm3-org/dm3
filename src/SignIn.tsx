@@ -6,6 +6,7 @@ import {
     connectAccount,
     ConnectionState,
     signIn,
+    submitEncryptedKeys,
 } from './lib/Web3Provider';
 import { ethers } from 'ethers';
 import Icon from './Icon';
@@ -18,6 +19,7 @@ import {
 import {
     getKeys,
     requestChallenge,
+    submitKeys,
     submitSignedChallenge,
 } from './external-apis/BackendAPI';
 
@@ -89,6 +91,8 @@ function SignIn(props: SignInProps) {
             submitSignedChallenge,
             getKeys,
             decrypt,
+            submitKeys,
+            submitEncryptedKeys,
         );
 
         if (singInRequest.sessionToken) {

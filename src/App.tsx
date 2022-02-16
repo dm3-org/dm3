@@ -56,6 +56,24 @@ function App() {
 
         setContacts(retrievedContacts);
 
+        if (
+            selectedContact &&
+            !selectedContact?.keys?.publicMessagingKey &&
+            retrievedContacts.find(
+                (contact) =>
+                    ethers.utils.getAddress(contact.address) ===
+                    ethers.utils.getAddress(selectedContact.address),
+            )?.keys
+        ) {
+            setSelectedContact(
+                retrievedContacts.find(
+                    (contact) =>
+                        ethers.utils.getAddress(contact.address) ===
+                        ethers.utils.getAddress(selectedContact.address),
+                ),
+            );
+        }
+
         (
             await Promise.all(
                 retrievedContacts.map(async (contact) => ({
@@ -81,8 +99,6 @@ function App() {
     ) => {
         log('New messages');
 
-        await requestContacts(apiConnection);
-
         const innerEnvelop = (
             (envelop as EncryptionEnvelop).encryptionVersion
                 ? await decryptMessage(
@@ -96,7 +112,16 @@ function App() {
             (JSON.parse(innerEnvelop.message) as Message).from,
         );
 
-        if (contact && from === ethers.utils.getAddress(contact.address)) {
+        if (
+            !contacts?.find(
+                (contact) => ethers.utils.getAddress(contact.address) === from,
+            )?.keys?.publicMessagingKey
+        ) {
+            await requestContacts(apiConnection);
+        } else if (
+            contact &&
+            from === ethers.utils.getAddress(contact.address)
+        ) {
             setNewMessages((oldMessages) =>
                 oldMessages.concat({
                     envelop: innerEnvelop,
@@ -105,7 +130,9 @@ function App() {
                         : false,
                 }),
             );
-        } else {
+        }
+
+        if (!contact || from !== ethers.utils.getAddress(contact.address)) {
             setMessageCounter(
                 new Map(
                     messageCounter.set(
@@ -231,8 +258,6 @@ function App() {
             );
         }
     }, [selectedContact]);
-
-    console.log(ConnectionState[apiConnection.connectionState]);
 
     return (
         <div className="container">
