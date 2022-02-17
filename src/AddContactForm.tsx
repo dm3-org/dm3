@@ -1,15 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import './App.css';
-
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import { addContact, ApiConnection, ConnectionState } from './lib/Web3Provider';
-import { addContact as addContactApi } from './external-apis/BackendAPI';
-import { resolveName } from './external-apis/InjectedWeb3API';
+import * as Lib from './lib';
 
 interface AddContactFormProps {
-    apiConnection: ApiConnection;
-    requestContacts: (apiConnection: ApiConnection) => Promise<void>;
+    apiConnection: Lib.ApiConnection;
+    requestContacts: (apiConnection: Lib.ApiConnection) => Promise<void>;
 }
 
 function AddContactForm(props: AddContactFormProps) {
@@ -23,12 +20,7 @@ function AddContactForm(props: AddContactFormProps) {
 
     const add = async () => {
         try {
-            await addContact(
-                props.apiConnection,
-                accountToAdd,
-                resolveName,
-                addContactApi,
-            );
+            await Lib.addContact(props.apiConnection, accountToAdd);
             await props.requestContacts(props.apiConnection);
             setAccountToAdd('');
         } catch (e) {
@@ -36,7 +28,8 @@ function AddContactForm(props: AddContactFormProps) {
         }
     };
 
-    return props.apiConnection.connectionState === ConnectionState.SignedIn ? (
+    return props.apiConnection.connectionState ===
+        Lib.ConnectionState.SignedIn ? (
         <form className="input-group" onSubmit={(e) => e.preventDefault()}>
             <input
                 type="text"

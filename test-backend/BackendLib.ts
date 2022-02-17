@@ -1,5 +1,5 @@
-import { ethers } from 'ethers';
 import { Keys } from '../src/lib/Web3Provider';
+import * as Lib from '../src/lib';
 
 export interface Session {
     account: string;
@@ -15,7 +15,7 @@ export function checkToken(
     accountAddress: string,
     token: string,
 ): boolean {
-    const account = ethers.utils.getAddress(accountAddress);
+    const account = Lib.formatAddress(accountAddress);
     const session = sessions.get(account);
     const passed = session && session?.token === token;
     console.log(

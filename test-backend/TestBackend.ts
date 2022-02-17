@@ -1,44 +1,30 @@
 import { ethers } from 'ethers';
 import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import cors from 'cors';
-import { getSessionToken, EncryptedKeys } from '../src/lib/Web3Provider';
+
 import { checkToken, Session } from './BackendLib';
-import { EncryptionEnvelop, Envelop, Message } from '../src/lib/Messaging';
 import { Server } from 'socket.io';
 import http from 'http';
 import { addContact, getConversationId, incomingMessage } from './Messaging';
 import path from 'path';
+import * as Lib from '../src/lib';
 
 const app = express();
 app.use(express.json());
-// app.use(
-//     cors({
-//         origin: '*',
-//         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-//         preflightContinue: false,
-//         optionsSuccessStatus: 204,
-//     }),
-// );
 
 const server = http.createServer(app);
-const io = new Server(server, {
-    // cors: {
-    //     origin: '*',
-    //     methods: ['GET', 'POST'],
-    // },
-});
+const io = new Server(server);
 
 const sessions = new Map<string, Session>();
 const contacts = new Map<string, Set<string>>();
-const messages = new Map<string, (EncryptionEnvelop | Envelop)[]>();
+const messages = new Map<string, (Lib.EncryptionEnvelop | Lib.Envelop)[]>();
 
 app.use(express.static(path.join(__dirname, '../build')));
 const port = process.env.PORT || '8080';
 
 app.post('/requestSignInChallenge', (req, res) => {
     console.log('[requestSignInChallenge]');
-    const account = ethers.utils.getAddress(req.body.account);
+    const account = Lib.formatAddress(req.body.account);
     const session = sessions.has(account)
         ? (sessions.get(account) as Session)
         : { account };
@@ -58,7 +44,7 @@ app.post('/submitSignedChallenge', (req, res) => {
     );
     const session = sessions.get(account);
     if (session && session?.challenge === req.body.challenge) {
-        session.token = getSessionToken(req.body.signature);
+        session.token = Lib.getSessionToken(req.body.signature);
         res.send('signed in');
         console.log(
             `- Session key for ${account} set to ${
@@ -73,7 +59,7 @@ app.post('/submitSignedChallenge', (req, res) => {
 
 app.post('/addContact/:accountAddress', (req, res) => {
     console.log('[addContact]');
-    const account = ethers.utils.getAddress(req.params.accountAddress);
+    const account = Lib.formatAddress(req.params.accountAddress);
     if (checkToken(sessions, account, req.body.token)) {
         addContact(contacts, account, req.body.contactAddress);
 
@@ -85,7 +71,7 @@ app.post('/addContact/:accountAddress', (req, res) => {
 
 app.post('/getContacts/:accountAddress', (req, res) => {
     console.log('[getContacts]');
-    const account = ethers.utils.getAddress(req.params.accountAddress);
+    const account = Lib.formatAddress(req.params.accountAddress);
 
     if (checkToken(sessions, account, req.body.token)) {
         const accountContacts = contacts.has(account)
@@ -101,7 +87,7 @@ app.post('/getContacts/:accountAddress', (req, res) => {
                         (sessions.get(address) as Session).encryptedKeys
                             ? (
                                   (sessions.get(address) as Session)
-                                      .encryptedKeys as EncryptedKeys
+                                      .encryptedKeys as Lib.EncryptedKeys
                               ).publicMessagingKey
                             : undefined,
                     publicSigningKey:
@@ -109,7 +95,7 @@ app.post('/getContacts/:accountAddress', (req, res) => {
                         (sessions.get(address) as Session).encryptedKeys
                             ? (
                                   (sessions.get(address) as Session)
-                                      .encryptedKeys as EncryptedKeys
+                                      .encryptedKeys as Lib.EncryptedKeys
                               ).publicSigningKey
                             : undefined,
                 },
@@ -122,15 +108,15 @@ app.post('/getContacts/:accountAddress', (req, res) => {
 
 app.post('/getMessages/:accountAddress', (req, res) => {
     console.log(`[getMessages]`);
-    const account = ethers.utils.getAddress(req.params.accountAddress);
-    const contact = ethers.utils.getAddress(req.body.contact);
+    const account = Lib.formatAddress(req.params.accountAddress);
+    const contact = Lib.formatAddress(req.body.contact);
     const conversationId = getConversationId(contact, account);
     console.log(`- Conversations id: ${conversationId}`);
 
     if (checkToken(sessions, account, req.body.token)) {
         const receivedMessages = messages.has(conversationId)
             ? messages.get(conversationId)
-            : ([] as Envelop[]);
+            : ([] as Lib.Envelop[]);
         console.log(`- ${receivedMessages?.length} messages`);
         res.send({
             messages: receivedMessages,
@@ -142,7 +128,7 @@ app.post('/getMessages/:accountAddress', (req, res) => {
 
 app.post('/submitKeys/:accountAddress', (req, res) => {
     console.log(`[submitKeys] Public key: ${req.body.keys.publicMessagingKey}`);
-    const account = ethers.utils.getAddress(req.params.accountAddress);
+    const account = Lib.formatAddress(req.params.accountAddress);
 
     if (checkToken(sessions, account, req.body.token)) {
         (sessions.get(account) as Session).encryptedKeys = req.body.keys;
@@ -154,7 +140,7 @@ app.post('/submitKeys/:accountAddress', (req, res) => {
 
 app.get('/getPublicKeys/:accountAddress', (req, res) => {
     console.log(`[GET publicKey] Public key: ${req.params.accountAddress}`);
-    const account = ethers.utils.getAddress(req.params.accountAddress);
+    const account = Lib.formatAddress(req.params.accountAddress);
 
     if (sessions.get(account)?.encryptedKeys) {
         res.send({
@@ -170,7 +156,7 @@ app.get('/getPublicKeys/:accountAddress', (req, res) => {
 
 app.post('/getKeys/:accountAddress', (req, res) => {
     console.log(`[getKeys] Account address: ${req.params.accountAddress}`);
-    const account = ethers.utils.getAddress(req.params.accountAddress);
+    const account = Lib.formatAddress(req.params.accountAddress);
 
     if (checkToken(sessions, account, req.body.token)) {
         res.send({ keys: sessions.get(account)?.encryptedKeys });
@@ -180,7 +166,7 @@ app.post('/getKeys/:accountAddress', (req, res) => {
 });
 
 io.use((socket, next) => {
-    const account = ethers.utils.getAddress(
+    const account = Lib.formatAddress(
         socket.handshake.auth.account.address as string,
     );
 

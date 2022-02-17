@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import { decryptSafely, EthEncryptedData } from '../lib/Encryption';
-import { Account, ApiConnection, Keys } from '../lib/Web3Provider';
+import { decryptSafely, EthEncryptedData } from '../Encryption';
+import { Account, ApiConnection, Keys } from '../Web3Provider';
 
 export async function prersonalSign(
     provider: ethers.providers.JsonRpcProvider,
@@ -56,17 +56,21 @@ export async function resolveName(
     return provider.resolveName(name);
 }
 
-// export function checkSignature(
-//     message: string,
-//     account: string,
-//     signature: string,
-// ): boolean {
-//     return (
-//         Lib.formatAddress(
-//             ethers.utils.recoverAddress(
-//                 ethers.utils.hashMessage(message),
-//                 signature,
-//             ),
-//         ) === Lib.formatAddress(account)
-//     );
-// }
+export function formatAddress(address: string) {
+    return ethers.utils.getAddress(address);
+}
+
+export function checkSignature(
+    message: string,
+    account: string,
+    signature: string,
+): boolean {
+    return (
+        formatAddress(
+            ethers.utils.recoverAddress(
+                ethers.utils.hashMessage(message),
+                signature,
+            ),
+        ) === formatAddress(account)
+    );
+}

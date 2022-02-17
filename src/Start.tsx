@@ -1,11 +1,10 @@
-import AddPubKey from './AddPubKey';
 import Icon from './Icon';
-import { ApiConnection, Account } from './lib/Web3Provider';
+import * as Lib from './lib';
 
 interface StartProps {
-    contacts: Account[] | undefined;
-    apiConnection: ApiConnection;
-    changeApiConnection: (apiConnection: Partial<ApiConnection>) => void;
+    contacts: Lib.Account[] | undefined;
+    apiConnection: Lib.ApiConnection;
+    changeApiConnection: (apiConnection: Partial<Lib.ApiConnection>) => void;
 }
 
 function Start(props: StartProps) {
@@ -23,9 +22,6 @@ function Start(props: StartProps) {
                     ? 'Select a contact to start messaging'
                     : 'Add a contact to start'}
             </strong>
-            {!props.apiConnection.account?.keys && (
-                <AddPubKey changeApiConnection={props.changeApiConnection} />
-            )}
         </div>
     );
 }

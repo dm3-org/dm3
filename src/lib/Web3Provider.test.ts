@@ -1,13 +1,11 @@
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { ethers } from 'ethers';
-import { addContact, ApiConnection, EncryptedKeys, Keys } from './Web3Provider';
+import { addContact, ApiConnection } from './Web3Provider';
 import {
     connectAccount,
     ConnectionState,
     getAccountDisplayName,
-    getSessionToken,
     getWeb3Provider,
-    signIn,
 } from './Web3Provider';
 
 test('handels no web3 provider correctly', async () => {
@@ -46,108 +44,6 @@ test('should set correct state if account connection failed', async () => {
         }),
     ).toStrictEqual({
         connectionState: ConnectionState.AccountConnectionRejected,
-    });
-});
-
-test('getSessionToken', async () => {
-    expect(
-        getSessionToken(
-            '0x74fd2771eec3c8aff07752885583e549bcc0fb8838ca383aa5d6147901dd0571' +
-                '6afcf169de14c5e5665ecf989434e767d6d236afa965fc348759c9516344e9791c',
-        ),
-    ).toStrictEqual(
-        '0xa4f3883eff8d4b11a3e958c40bb451e34de040af75aee13c1f5fc7caafd157d5',
-    );
-});
-
-test('should be able to sign in', async () => {
-    const provider = new ethers.providers.Web3Provider(async () => null);
-    const result = await signIn(
-        provider,
-        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-        async (account: string) => ({
-            challenge: 'ENS Mail Sign In ce8eae00-1aae-43e5-ba06-95c981fde58f',
-            hasEncryptionKey: false,
-        }),
-        async (provider: JsonRpcProvider, account: string, challenge: string) =>
-            '0x74fd2771eec3c8aff07752885583e549bcc0fb8838ca383aa5d6147901dd' +
-            '05716afcf169de14c5e5665ecf989434e767d6d236afa965fc348759c9516344e9791c',
-        async (challenge: string, signature: string) => {},
-        async (accountAddress: string, sessionToken: string) => undefined,
-        async (
-            provider: JsonRpcProvider,
-            encryptedData: string,
-            account: string,
-        ) => '',
-        async (
-            accountAddress: string,
-            encryptedKeys: Keys,
-            token: string,
-        ) => {},
-        async (
-            accountAddress: string,
-            sessionToken: string,
-            keys: Keys,
-            submitKeysApi: (
-                accountAddress: string,
-                encryptedKeys: EncryptedKeys,
-                token: string,
-            ) => Promise<void>,
-        ) => {},
-    );
-    expect(result.keys).toBeTruthy();
-    delete result.keys;
-    expect(result).toStrictEqual({
-        connectionState: ConnectionState.SignedIn,
-        sessionToken:
-            '0xa4f3883eff8d4b11a3e958c40bb451e34de040af75aee13c1f5fc7caafd157d5',
-    });
-});
-
-test('should be able to handle a failed sign in', async () => {
-    const provider = new ethers.providers.Web3Provider(async () => null);
-
-    expect(
-        await signIn(
-            provider,
-            '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-            async (account: string) => ({
-                challenge:
-                    'ENS Mail Sign In ce8eae00-1aae-43e5-ba06-95c981fde58f',
-                hasEncryptionKey: true,
-            }),
-            async (
-                provider: JsonRpcProvider,
-                account: string,
-                challenge: string,
-            ) => {
-                throw Error();
-            },
-            async (challenge: string, signature: string) => {},
-            async (accountAddress: string, sessionToken: string) => undefined,
-            async (
-                provider: JsonRpcProvider,
-                encryptedData: string,
-                account: string,
-            ) => '',
-            async (
-                accountAddress: string,
-                encryptedKeys: any,
-                token: string,
-            ) => {},
-            async (
-                accountAddress: string,
-                sessionToken: string,
-                keys: Keys,
-                submitKeysApi: (
-                    accountAddress: string,
-                    encryptedKeys: EncryptedKeys,
-                    token: string,
-                ) => Promise<void>,
-            ) => {},
-        ),
-    ).toStrictEqual({
-        connectionState: ConnectionState.SignInFailed,
     });
 });
 

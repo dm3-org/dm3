@@ -1,12 +1,7 @@
 import axios from 'axios';
-import { log } from '../lib/log';
-import { EncryptionEnvelop, Envelop, Message } from '../lib/Messaging';
-import {
-    ApiConnection,
-    Account,
-    Keys,
-    EncryptedKeys,
-} from '../lib/Web3Provider';
+import { log } from '../log';
+import { EncryptionEnvelop, Envelop, Message } from '../Messaging';
+import { ApiConnection, Account, Keys, EncryptedKeys } from '../Web3Provider';
 
 export async function submitSignedChallenge(
     challenge: string,

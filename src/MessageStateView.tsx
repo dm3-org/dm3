@@ -1,8 +1,8 @@
 import Icon from './Icon';
-import { MessageState } from './lib/Messaging';
+import * as Lib from './lib';
 
 interface MessageStateViewProps {
-    messageState: MessageState;
+    messageState: Lib.MessageState;
     time: number;
     ownMessage: boolean;
     encrypted: boolean;
@@ -16,16 +16,16 @@ function MessageStateView(props: MessageStateViewProps) {
             } message-state`}
         >
             {new Date(props.time).toLocaleTimeString()}{' '}
-            {props.messageState === MessageState.Created && (
+            {props.messageState === Lib.MessageState.Created && (
                 <Icon iconClass="fas fa-spinner fa-spin" />
             )}
-            {props.messageState === MessageState.Send && (
+            {props.messageState === Lib.MessageState.Send && (
                 <>
                     <Icon iconClass="fas fa-signature" />{' '}
                     {props.encrypted && <Icon iconClass="fas fa-lock" />}
                 </>
             )}
-            {props.messageState === MessageState.FailedToSend && (
+            {props.messageState === Lib.MessageState.FailedToSend && (
                 <Icon iconClass="fas fa-exclamation-circle error-indication" />
             )}
         </div>
