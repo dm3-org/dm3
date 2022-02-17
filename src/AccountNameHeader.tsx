@@ -1,28 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import Icon from './Icon';
-import {
-    Account,
-    ApiConnection,
-    ConnectionState,
-    getAccountDisplayName,
-} from './lib/Web3Provider';
+import * as Lib from './lib';
 
 interface AccountNameHeaderProps {
-    account: Account;
+    account: Lib.Account;
     ensNames: Map<string, string>;
-    apiConnection: ApiConnection;
-    changeApiConnection: (apiConnection: Partial<ApiConnection>) => void;
+    apiConnection: Lib.ApiConnection;
+    changeApiConnection: (apiConnection: Partial<Lib.ApiConnection>) => void;
 }
 
 function AccountNameHeader(props: AccountNameHeaderProps) {
     return (
         <div className="account-name w-100 ">
-            {getAccountDisplayName(props.account.address, props.ensNames)}
+            {Lib.getAccountDisplayName(props.account.address, props.ensNames)}
             {(props.apiConnection.connectionState ===
-                ConnectionState.SignedIn ||
+                Lib.ConnectionState.SignedIn ||
                 props.apiConnection.connectionState ===
-                    ConnectionState.KeyCreation) && (
+                    Lib.ConnectionState.KeyCreation) && (
                 <>
                     {props.account.keys?.publicMessagingKey ? (
                         <span className="push-end header-lock ">
@@ -34,7 +29,7 @@ function AccountNameHeader(props: AccountNameHeaderProps) {
                             onClick={() =>
                                 props.changeApiConnection({
                                     connectionState:
-                                        ConnectionState.KeyCreation,
+                                        Lib.ConnectionState.KeyCreation,
                                 })
                             }
                         >

@@ -1,5 +1,4 @@
 import './App.css';
-import Icon from './Icon';
 
 function SignInHelp() {
     return (

@@ -1,54 +1,34 @@
 import React, { useEffect } from 'react';
 import './App.css';
-import {
-    Account,
-    ApiConnection,
-    connectAccount,
-    ConnectionState,
-    signIn,
-    submitEncryptedKeys,
-} from './lib/Web3Provider';
 import { ethers } from 'ethers';
 import Icon from './Icon';
-import { log } from './lib/log';
-import { decrypt, lookupAddress } from './external-apis/InjectedWeb3API';
-import {
-    prersonalSign,
-    requestAccounts,
-} from './external-apis/InjectedWeb3API';
-import {
-    getKeys,
-    requestChallenge,
-    submitKeys,
-    submitSignedChallenge,
-} from './external-apis/BackendAPI';
+import * as Lib from './lib';
 
 interface SignInProps {
-    apiConnection: ApiConnection;
-    changeApiConnection: (newApiConnection: Partial<ApiConnection>) => void;
+    apiConnection: Lib.ApiConnection;
+    changeApiConnection: (newApiConnection: Partial<Lib.ApiConnection>) => void;
     setEnsNames: (ensNames: Map<string, string>) => void;
     ensNames: Map<string, string>;
 }
 
-export function showSignIn(connectionState: ConnectionState): boolean {
+export function showSignIn(connectionState: Lib.ConnectionState): boolean {
     return (
-        connectionState === ConnectionState.AccountConntectReady ||
-        connectionState === ConnectionState.SignInReady ||
-        connectionState === ConnectionState.WaitingForAccountConntection ||
-        connectionState === ConnectionState.WaitingForSignIn ||
-        connectionState === ConnectionState.AccountConnectionRejected ||
-        connectionState === ConnectionState.SignInFailed
+        connectionState === Lib.ConnectionState.AccountConntectReady ||
+        connectionState === Lib.ConnectionState.SignInReady ||
+        connectionState === Lib.ConnectionState.WaitingForAccountConntection ||
+        connectionState === Lib.ConnectionState.WaitingForSignIn ||
+        connectionState === Lib.ConnectionState.AccountConnectionRejected ||
+        connectionState === Lib.ConnectionState.SignInFailed
     );
 }
 
 function SignIn(props: SignInProps) {
     const connect = async () => {
         props.changeApiConnection({
-            connectionState: ConnectionState.WaitingForAccountConntection,
+            connectionState: Lib.ConnectionState.WaitingForAccountConntection,
         });
-        const accountConnection = await connectAccount(
+        const accountConnection = await Lib.connectAccount(
             props.apiConnection.provider as ethers.providers.JsonRpcProvider,
-            requestAccounts,
         );
 
         if (accountConnection.account) {
@@ -59,7 +39,7 @@ function SignIn(props: SignInProps) {
                 connectionState: accountConnection.connectionState,
             });
 
-            const ensName = await lookupAddress(
+            const ensName = await Lib.lookupAddress(
                 props.apiConnection
                     .provider as ethers.providers.JsonRpcProvider,
                 accountConnection.account,
@@ -80,23 +60,16 @@ function SignIn(props: SignInProps) {
 
     const requestSignIn = async () => {
         props.changeApiConnection({
-            connectionState: ConnectionState.WaitingForSignIn,
+            connectionState: Lib.ConnectionState.WaitingForSignIn,
         });
 
-        const singInRequest = await signIn(
+        const singInRequest = await Lib.signIn(
             props.apiConnection.provider as ethers.providers.JsonRpcProvider,
-            (props.apiConnection.account as Account).address,
-            requestChallenge,
-            prersonalSign,
-            submitSignedChallenge,
-            getKeys,
-            decrypt,
-            submitKeys,
-            submitEncryptedKeys,
+            (props.apiConnection.account as Lib.Account).address,
         );
 
         if (singInRequest.sessionToken) {
-            log(`Setting session token: ${singInRequest.sessionToken}`);
+            Lib.log(`Setting session token: ${singInRequest.sessionToken}`);
 
             props.changeApiConnection({
                 account: {
@@ -113,18 +86,18 @@ function SignIn(props: SignInProps) {
         }
     };
 
-    const getConnectionIconClass = (connectionState: ConnectionState) => {
+    const getConnectionIconClass = (connectionState: Lib.ConnectionState) => {
         switch (connectionState) {
-            case ConnectionState.AccountConnectionRejected:
+            case Lib.ConnectionState.AccountConnectionRejected:
                 return <Icon iconClass="fas fa-exclamation-circle" />;
 
-            case ConnectionState.WaitingForAccountConntection:
+            case Lib.ConnectionState.WaitingForAccountConntection:
                 return <Icon iconClass="fas fa-spinner fa-spin" />;
 
-            case ConnectionState.SignInFailed:
-            case ConnectionState.SignedIn:
-            case ConnectionState.WaitingForSignIn:
-            case ConnectionState.SignInReady:
+            case Lib.ConnectionState.SignInFailed:
+            case Lib.ConnectionState.SignedIn:
+            case Lib.ConnectionState.WaitingForSignIn:
+            case Lib.ConnectionState.SignInReady:
                 return <Icon iconClass="fas fa-check-circle" />;
 
             default:
@@ -132,13 +105,13 @@ function SignIn(props: SignInProps) {
         }
     };
 
-    const getSignInIconClass = (connectionState: ConnectionState) => {
+    const getSignInIconClass = (connectionState: Lib.ConnectionState) => {
         switch (connectionState) {
-            case ConnectionState.SignInFailed:
+            case Lib.ConnectionState.SignInFailed:
                 return <Icon iconClass="fas fa-exclamation-circle" />;
-            case ConnectionState.SignedIn:
+            case Lib.ConnectionState.SignedIn:
                 return <Icon iconClass="fas fa-check-circle" />;
-            case ConnectionState.WaitingForSignIn:
+            case Lib.ConnectionState.WaitingForSignIn:
                 return <Icon iconClass="fas fa-spinner fa-spin" />;
             default:
                 return null;
@@ -155,16 +128,18 @@ function SignIn(props: SignInProps) {
                             type="button"
                             className={`btn btn-${
                                 props.apiConnection.connectionState ===
-                                ConnectionState.AccountConnectionRejected
+                                Lib.ConnectionState.AccountConnectionRejected
                                     ? 'danger'
                                     : 'primary'
                             } btn-lg w-100`}
                             disabled={
                                 !(
                                     props.apiConnection.connectionState ===
-                                        ConnectionState.AccountConntectReady ||
+                                        Lib.ConnectionState
+                                            .AccountConntectReady ||
                                     props.apiConnection.connectionState ===
-                                        ConnectionState.AccountConnectionRejected
+                                        Lib.ConnectionState
+                                            .AccountConnectionRejected
                                 )
                             }
                         >
@@ -184,16 +159,16 @@ function SignIn(props: SignInProps) {
                             type="button"
                             className={`btn btn-${
                                 props.apiConnection.connectionState ===
-                                ConnectionState.SignInFailed
+                                Lib.ConnectionState.SignInFailed
                                     ? 'danger'
                                     : 'primary'
                             } btn-lg w-100`}
                             disabled={
                                 !(
                                     props.apiConnection.connectionState ===
-                                        ConnectionState.SignInReady ||
+                                        Lib.ConnectionState.SignInReady ||
                                     props.apiConnection.connectionState ===
-                                        ConnectionState.SignInFailed
+                                        Lib.ConnectionState.SignInFailed
                                 )
                             }
                         >

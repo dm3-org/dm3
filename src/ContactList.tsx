@@ -1,17 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
-
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import { Account, getAccountDisplayName } from './lib/Web3Provider';
-import { Envelop, Message } from './lib/Messaging';
-import { ethers } from 'ethers';
-import { EnvelopContainer } from './Chat';
+import * as Lib from './lib';
 
 interface ContactListProps {
     ensNames: Map<string, string>;
-    contacts: Account[];
-    selectContact: (contactAddress: Account) => void;
+    contacts: Lib.Account[];
+    selectContact: (contactAddress: Lib.Account) => void;
     messageCounter: Map<string, number>;
 }
 
@@ -28,7 +24,7 @@ function ContactList(props: ContactListProps) {
                 key={contact.address}
                 onClick={() => props.selectContact(contact)}
             >
-                {getAccountDisplayName(contact.address, props.ensNames)}{' '}
+                {Lib.getAccountDisplayName(contact.address, props.ensNames)}{' '}
                 {unreadMessages > 0 && (
                     <span className="badge bg-secondary push-end messages-badge">
                         {unreadMessages}

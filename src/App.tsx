@@ -1,39 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import 'react-chat-widget/lib/styles.css';
-import {
-    ApiConnection,
-    ConnectionState,
-    Account,
-    getWeb3Provider,
-    Keys,
-} from './lib/Web3Provider';
-import { log } from './lib/log';
 import detectEthereumProvider from '@metamask/detect-provider';
 import SignIn, { showSignIn } from './SignIn';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import AccountNameHeader from './AccountNameHeader';
-import { getContacts } from './external-apis/BackendAPI';
 import ContactList from './ContactList';
 import AddContactForm from './AddContactForm';
-import { lookupAddress } from './external-apis/InjectedWeb3API';
 import { ethers } from 'ethers';
 import Chat, { EnvelopContainer } from './Chat';
 import { isWidgetOpened, toggleWidget } from 'react-chat-widget';
-import socketIOClient, { Socket } from 'socket.io-client';
-import { EncryptionEnvelop, Envelop, Message } from './lib/Messaging';
+import socketIOClient from 'socket.io-client';
 import ChatHeader from './ChatHeader';
 import Start from './Start';
 import SignInHelp from './SignInHelp';
-import AddPubKeyView from './AddPubKeyView';
-import AddPubKeyHelper from './AddPubKeyHelper';
-import { decryptMessage } from './lib/Encryption';
-import { DefaultEventsMap } from 'socket.io/dist/typed-events';
+import * as Lib from './lib';
 
 function App() {
-    const [apiConnection, setApiConnection] = useState<ApiConnection>({
-        connectionState: ConnectionState.CheckingProvider,
+    const [apiConnection, setApiConnection] = useState<Lib.ApiConnection>({
+        connectionState: Lib.ConnectionState.CheckingProvider,
     });
     const [ensNames, setEnsNames] = useState<Map<string, string>>(
         new Map<string, string>(),
@@ -42,15 +28,15 @@ function App() {
         new Map<string, number>(),
     );
 
-    const [contacts, setContacts] = useState<Account[] | undefined>();
+    const [contacts, setContacts] = useState<Lib.Account[] | undefined>();
     const [selectedContact, setSelectedContact] = useState<
-        Account | undefined
+        Lib.Account | undefined
     >();
 
     const [newMessages, setNewMessages] = useState<EnvelopContainer[]>([]);
-    const requestContacts = async (connection: ApiConnection) => {
-        const retrievedContacts = await getContacts(
-            (apiConnection.account as Account).address,
+    const requestContacts = async (connection: Lib.ApiConnection) => {
+        const retrievedContacts = await Lib.getContacts(
+            (apiConnection.account as Lib.Account).address,
             apiConnection.sessionToken as string,
         );
 
@@ -61,15 +47,15 @@ function App() {
             !selectedContact?.keys?.publicMessagingKey &&
             retrievedContacts.find(
                 (contact) =>
-                    ethers.utils.getAddress(contact.address) ===
-                    ethers.utils.getAddress(selectedContact.address),
+                    Lib.formatAddress(contact.address) ===
+                    Lib.formatAddress(selectedContact.address),
             )?.keys
         ) {
             setSelectedContact(
                 retrievedContacts.find(
                     (contact) =>
-                        ethers.utils.getAddress(contact.address) ===
-                        ethers.utils.getAddress(selectedContact.address),
+                        Lib.formatAddress(contact.address) ===
+                        Lib.formatAddress(selectedContact.address),
                 ),
             );
         }
@@ -78,7 +64,7 @@ function App() {
             await Promise.all(
                 retrievedContacts.map(async (contact) => ({
                     address: contact.address,
-                    ens: await lookupAddress(
+                    ens: await Lib.lookupAddress(
                         connection.provider as ethers.providers.JsonRpcProvider,
                         contact.address,
                     ),
@@ -94,45 +80,43 @@ function App() {
     };
 
     const handleNewMessage = async (
-        envelop: EncryptionEnvelop | Envelop,
-        contact: Account | undefined,
+        envelop: Lib.EncryptionEnvelop | Lib.Envelop,
+        contact: Lib.Account | undefined,
     ) => {
-        log('New messages');
+        Lib.log('New messages');
 
         const innerEnvelop = (
-            (envelop as EncryptionEnvelop).encryptionVersion
-                ? await decryptMessage(
+            (envelop as Lib.EncryptionEnvelop).encryptionVersion
+                ? await Lib.decryptMessage(
                       apiConnection,
-                      (envelop as EncryptionEnvelop).data,
+                      (envelop as Lib.EncryptionEnvelop).data,
                   )
                 : envelop
-        ) as Envelop;
+        ) as Lib.Envelop;
 
-        const from = ethers.utils.getAddress(
-            (JSON.parse(innerEnvelop.message) as Message).from,
+        const from = Lib.formatAddress(
+            (JSON.parse(innerEnvelop.message) as Lib.Message).from,
         );
 
         if (
             !contacts?.find(
-                (contact) => ethers.utils.getAddress(contact.address) === from,
+                (contact) => Lib.formatAddress(contact.address) === from,
             )?.keys?.publicMessagingKey
         ) {
             await requestContacts(apiConnection);
-        } else if (
-            contact &&
-            from === ethers.utils.getAddress(contact.address)
-        ) {
+        } else if (contact && from === Lib.formatAddress(contact.address)) {
             setNewMessages((oldMessages) =>
                 oldMessages.concat({
                     envelop: innerEnvelop,
-                    encrypted: (envelop as EncryptionEnvelop).encryptionVersion
+                    encrypted: (envelop as Lib.EncryptionEnvelop)
+                        .encryptionVersion
                         ? true
                         : false,
                 }),
             );
         }
 
-        if (!contact || from !== ethers.utils.getAddress(contact.address)) {
+        if (!contact || from !== Lib.formatAddress(contact.address)) {
             setMessageCounter(
                 new Map(
                     messageCounter.set(
@@ -148,7 +132,7 @@ function App() {
 
     useEffect(() => {
         if (
-            apiConnection.connectionState === ConnectionState.SignedIn &&
+            apiConnection.connectionState === Lib.ConnectionState.SignedIn &&
             !apiConnection.socket
         ) {
             const socket = socketIOClient(
@@ -160,9 +144,12 @@ function App() {
                 token: apiConnection.sessionToken,
             };
             socket.connect();
-            socket.on('message', (envelop: Envelop | EncryptionEnvelop) => {
-                handleNewMessage(envelop, selectedContact);
-            });
+            socket.on(
+                'message',
+                (envelop: Lib.Envelop | Lib.EncryptionEnvelop) => {
+                    handleNewMessage(envelop, selectedContact);
+                },
+            );
             changeApiConnection({ socket });
         }
     }, [apiConnection.connectionState, apiConnection.socket]);
@@ -172,45 +159,47 @@ function App() {
             apiConnection.socket.removeListener('message');
             apiConnection.socket.on(
                 'message',
-                (envelop: Envelop | EncryptionEnvelop) => {
+                (envelop: Lib.Envelop | Lib.EncryptionEnvelop) => {
                     handleNewMessage(envelop, selectedContact);
                 },
             );
         }
     }, [selectedContact]);
 
-    const changeApiConnection = (newApiConnection: Partial<ApiConnection>) => {
+    const changeApiConnection = (
+        newApiConnection: Partial<Lib.ApiConnection>,
+    ) => {
         if (newApiConnection.connectionState) {
-            log(
+            Lib.log(
                 `Changing state from ${
-                    ConnectionState[apiConnection.connectionState]
-                } to ${ConnectionState[newApiConnection.connectionState]}`,
+                    Lib.ConnectionState[apiConnection.connectionState]
+                } to ${Lib.ConnectionState[newApiConnection.connectionState]}`,
             );
         }
 
         if (newApiConnection.sessionToken) {
-            log(
+            Lib.log(
                 `Retrieved new session token: ${newApiConnection.sessionToken}`,
             );
         }
 
         if (newApiConnection.account) {
-            log(`Account: ${newApiConnection.account.address}`);
+            Lib.log(`Account: ${newApiConnection.account.address}`);
         }
 
         if (newApiConnection.provider) {
-            log(`Provider set`);
+            Lib.log(`Provider set`);
         }
 
         if (newApiConnection.provider) {
-            log(`Socket set`);
+            Lib.log(`Socket set`);
         }
 
         setApiConnection({ ...apiConnection, ...newApiConnection });
     };
 
     const createWeb3Provider = async () => {
-        const web3Provider = await getWeb3Provider(
+        const web3Provider = await Lib.getWeb3Provider(
             await detectEthereumProvider(),
         );
 
@@ -226,7 +215,7 @@ function App() {
         }
     };
 
-    const selectContact = async (contactAddress: Account) => {
+    const selectContact = async (contactAddress: Lib.Account) => {
         if (!isWidgetOpened()) {
             toggleWidget();
         }
@@ -251,7 +240,7 @@ function App() {
             setMessageCounter(
                 new Map(
                     messageCounter.set(
-                        ethers.utils.getAddress(selectedContact.address),
+                        Lib.formatAddress(selectedContact.address),
                         0,
                     ),
                 ),
@@ -264,7 +253,7 @@ function App() {
             <div className="row main-content-row">
                 <div className="col-12 h-100">
                     {apiConnection.connectionState ===
-                        ConnectionState.NoProvider && (
+                        Lib.ConnectionState.NoProvider && (
                         <div className="col-md-12 text-center">
                             No Ethereum provider detected.
                         </div>
@@ -294,17 +283,17 @@ function App() {
                         >
                             {selectedContact &&
                                 apiConnection.connectionState ===
-                                    ConnectionState.SignedIn && (
+                                    Lib.ConnectionState.SignedIn && (
                                     <ChatHeader
                                         account={selectedContact}
                                         ensNames={ensNames}
                                     />
                                 )}
                             {apiConnection.connectionState !==
-                                ConnectionState.SignedIn && (
+                                Lib.ConnectionState.SignedIn && (
                                 <div className="account-name">
                                     {apiConnection.connectionState ===
-                                    ConnectionState.KeyCreation
+                                    Lib.ConnectionState.KeyCreation
                                         ? 'Create Public Key'
                                         : 'ENS Mail'}
                                 </div>
@@ -323,7 +312,7 @@ function App() {
                             </div>
                             {contacts &&
                                 apiConnection.connectionState ===
-                                    ConnectionState.SignedIn && (
+                                    Lib.ConnectionState.SignedIn && (
                                     <div className="row">
                                         <div className="col-12 text-center contact-list-container">
                                             <ContactList
@@ -335,28 +324,6 @@ function App() {
                                         </div>
                                     </div>
                                 )}
-                            {apiConnection.connectionState ===
-                                ConnectionState.KeyCreation && (
-                                <AddPubKeyView
-                                    apiConnection={apiConnection}
-                                    setPublicKey={(keys: Keys) =>
-                                        changeApiConnection({
-                                            account: {
-                                                address: (
-                                                    apiConnection.account as Account
-                                                ).address,
-                                                keys,
-                                            },
-                                        })
-                                    }
-                                    switchToSignedIn={() =>
-                                        changeApiConnection({
-                                            connectionState:
-                                                ConnectionState.SignedIn,
-                                        })
-                                    }
-                                />
-                            )}
                             {showSignIn(apiConnection.connectionState) && (
                                 <SignIn
                                     apiConnection={apiConnection}
@@ -369,7 +336,7 @@ function App() {
                         <div className="col-md-8 content-container h-100">
                             {(!selectedContact ||
                                 apiConnection.connectionState ===
-                                    ConnectionState.KeyCreation) && (
+                                    Lib.ConnectionState.KeyCreation) && (
                                 <div className="start-chat">
                                     {apiConnection.provider &&
                                         showSignIn(
@@ -380,7 +347,7 @@ function App() {
                                             </div>
                                         )}
                                     {apiConnection.connectionState ===
-                                        ConnectionState.SignedIn && (
+                                        Lib.ConnectionState.SignedIn && (
                                         <Start
                                             contacts={contacts}
                                             apiConnection={apiConnection}
@@ -389,16 +356,11 @@ function App() {
                                             }
                                         />
                                     )}
-
-                                    {apiConnection.connectionState ===
-                                        ConnectionState.KeyCreation && (
-                                        <AddPubKeyHelper />
-                                    )}
                                 </div>
                             )}
 
                             {apiConnection.connectionState ===
-                                ConnectionState.SignedIn &&
+                                Lib.ConnectionState.SignedIn &&
                                 selectedContact && (
                                     <Chat
                                         hasContacts={

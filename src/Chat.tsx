@@ -6,66 +6,38 @@ import {
     renderCustomComponent,
     Widget,
 } from 'react-chat-widget';
-
-import {
-    createMessage,
-    EncryptionEnvelop,
-    Envelop,
-    getMessages,
-    Message,
-    MessageState,
-    submitMessage,
-} from './lib/Messaging';
-import {
-    Account,
-    ApiConnection,
-    getAccountDisplayName,
-    Keys,
-} from './lib/Web3Provider';
-import {
-    submitMessage as submitMessageApi,
-    getMessages as getMessagesApi,
-    getPublicKeys,
-} from './external-apis/BackendAPI';
-import { decrypt, prersonalSign } from './external-apis/InjectedWeb3API';
 import MessageStateView from './MessageStateView';
 import { useEffect, useState } from 'react';
-import { ethers } from 'ethers';
-import {
-    checkSignature,
-    decryptMessage,
-    EthEncryptedData,
-    signWithEncryptionKey,
-} from './lib/Encryption';
+import * as Lib from './lib';
 
 interface ChatProps {
     hasContacts: boolean;
     ensNames: Map<string, string>;
-    apiConnection: ApiConnection;
+    apiConnection: Lib.ApiConnection;
     newMessages: EnvelopContainer[];
     setNewMessages: (messages: EnvelopContainer[]) => void;
-    contact: Account;
+    contact: Lib.Account;
 }
 
 export interface EnvelopContainer {
-    envelop: Envelop;
+    envelop: Lib.Envelop;
     encrypted: boolean;
 }
 
 function Chat(props: ChatProps) {
     const [messageStates, setMessageStates] = useState<
-        Map<string, MessageState>
-    >(new Map<string, MessageState>());
+        Map<string, Lib.MessageState>
+    >(new Map<string, Lib.MessageState>());
 
     const removeReadMessages = () => {
         props.newMessages.forEach((newEnvelopContainer) => {
             const newEnvelop = newEnvelopContainer.envelop;
-            const message = JSON.parse(newEnvelop.message) as Message;
+            const message = JSON.parse(newEnvelop.message) as Lib.Message;
 
             if (
                 props.contact &&
-                ethers.utils.getAddress(message.from) ===
-                    ethers.utils.getAddress(props.contact.address)
+                Lib.formatAddress(message.from) ===
+                    Lib.formatAddress(props.contact.address)
             ) {
                 handleMessages([newEnvelop], newEnvelopContainer.encrypted);
 
@@ -95,31 +67,27 @@ function Chat(props: ChatProps) {
     const getPastMessages = async () => {
         removeReadMessages();
         handleMessages(
-            await getMessages(
-                props.apiConnection,
-                props.contact.address,
-                getMessagesApi,
-            ),
+            await Lib.getMessages(props.apiConnection, props.contact.address),
         );
     };
 
     const handleMessages = async (
-        envelops: (Envelop | EncryptionEnvelop)[],
+        envelops: (Lib.Envelop | Lib.EncryptionEnvelop)[],
         allEncrypted?: boolean,
-    ): Promise<Envelop[]> => {
+    ): Promise<Lib.Envelop[]> => {
         const decryptedEnvelops = await Promise.all(
             envelops.map(async (envelop) => ({
-                envelop: (envelop as EncryptionEnvelop).encryptionVersion
-                    ? ((await decryptMessage(
+                envelop: (envelop as Lib.EncryptionEnvelop).encryptionVersion
+                    ? ((await Lib.decryptMessage(
                           props.apiConnection,
-                          (envelop as EncryptionEnvelop).from ===
+                          (envelop as Lib.EncryptionEnvelop).from ===
                               (props.apiConnection.account?.address as string)
-                              ? (envelop as EncryptionEnvelop).selfData
-                              : (envelop as EncryptionEnvelop).data,
-                      )) as Envelop)
-                    : (envelop as Envelop),
+                              ? (envelop as Lib.EncryptionEnvelop).selfData
+                              : (envelop as Lib.EncryptionEnvelop).data,
+                      )) as Lib.Envelop)
+                    : (envelop as Lib.Envelop),
                 encrypted:
-                    (envelop as EncryptionEnvelop).encryptionVersion ||
+                    (envelop as Lib.EncryptionEnvelop).encryptionVersion ||
                     allEncrypted
                         ? true
                         : false,
@@ -128,31 +96,32 @@ function Chat(props: ChatProps) {
 
         decryptedEnvelops
             .filter((envelopContainer) =>
-                checkSignature(
+                Lib.checkSignature(
                     envelopContainer.envelop.message,
-                    ethers.utils.getAddress(
+                    Lib.formatAddress(
                         (
                             JSON.parse(
                                 envelopContainer.envelop.message,
-                            ) as Message
+                            ) as Lib.Message
                         ).from,
-                    ) === ethers.utils.getAddress(props.contact.address)
+                    ) === Lib.formatAddress(props.contact.address)
                         ? props.contact
-                        : (props.apiConnection.account as Account),
+                        : (props.apiConnection.account as Lib.Account),
                     envelopContainer.envelop.signature,
                 ),
             )
             .map((envelopContainer) => ({
                 message: JSON.parse(
                     envelopContainer.envelop.message,
-                ) as Message,
+                ) as Lib.Message,
                 encrypted: envelopContainer.encrypted,
             }))
             .sort((a, b) => a.message.timestamp - b.message.timestamp)
             .forEach((messageContainer) => {
                 if (
                     messageContainer.message.from ===
-                    ((props.apiConnection.account as Account).address as string)
+                    ((props.apiConnection.account as Lib.Account)
+                        .address as string)
                 ) {
                     addUserMessage(
                         messageContainer.message.message,
@@ -167,7 +136,7 @@ function Chat(props: ChatProps) {
 
                 messageStates.set(
                     messageContainer.message.timestamp.toString(),
-                    MessageState.Send,
+                    Lib.MessageState.Send,
                 );
                 setMessageStates(new Map(messageStates));
                 renderCustomComponent(
@@ -176,12 +145,13 @@ function Chat(props: ChatProps) {
                             messageState={
                                 messageStates.get(
                                     messageContainer.message.timestamp.toString(),
-                                ) as MessageState
+                                ) as Lib.MessageState
                             }
                             time={messageContainer.message.timestamp}
                             ownMessage={
                                 messageContainer.message.from ===
-                                (props.apiConnection.account as Account).address
+                                (props.apiConnection.account as Lib.Account)
+                                    .address
                                     ? true
                                     : false
                             }
@@ -214,35 +184,35 @@ function Chat(props: ChatProps) {
                 ? true
                 : false;
 
-        const messageData = createMessage(
+        const messageData = Lib.createMessage(
             props.contact.address,
-            (props.apiConnection.account as Account).address,
+            (props.apiConnection.account as Lib.Account).address,
             message,
         );
         const messageId = messageData.timestamp.toString();
-        messageStates.set(messageId, MessageState.Created);
+        messageStates.set(messageId, Lib.MessageState.Created);
         setMessageStates(new Map(messageStates));
 
-        submitMessage(
+        Lib.submitMessage(
             props.apiConnection,
             props.contact,
             messageData,
-            submitMessageApi,
-            signWithEncryptionKey,
             encrypted,
         )
             .then(() => {
-                messageStates.set(messageId, MessageState.Send);
+                messageStates.set(messageId, Lib.MessageState.Send);
                 setMessageStates(new Map(messageStates));
             })
             .catch(() => {
-                messageStates.set(messageId, MessageState.FailedToSend);
+                messageStates.set(messageId, Lib.MessageState.FailedToSend);
                 setMessageStates(new Map(messageStates));
             });
         renderCustomComponent(
             () => (
                 <MessageStateView
-                    messageState={messageStates.get(messageId) as MessageState}
+                    messageState={
+                        messageStates.get(messageId) as Lib.MessageState
+                    }
                     time={messageData.timestamp}
                     ownMessage={true}
                     encrypted={encrypted}
@@ -263,7 +233,7 @@ function Chat(props: ChatProps) {
                     showTimeStamp={false}
                     title={`${
                         props.contact
-                            ? getAccountDisplayName(
+                            ? Lib.getAccountDisplayName(
                                   props.contact.address,
                                   props.ensNames,
                               )

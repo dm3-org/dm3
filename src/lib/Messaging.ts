@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 
-import { encryptSafely, EthEncryptedData } from './Encryption';
+import { EthEncryptedData } from './Encryption';
 import { Account, ApiConnection, Keys } from './Web3Provider';
 
 export interface Message {
@@ -34,11 +34,12 @@ export function createMessage(
     to: string,
     from: string,
     message: string,
+    getTimestamp: () => number,
 ): Message {
     return {
         to,
         from,
-        timestamp: new Date().getTime(),
+        timestamp: getTimestamp(),
         message,
     };
 }
@@ -52,6 +53,15 @@ export async function submitMessage(
         envelop: Envelop | EncryptionEnvelop,
     ) => Promise<void>,
     signWithEncryptionKey: (message: string, keys: Keys) => string,
+    encryptSafely: ({
+        publicKey,
+        data,
+        version,
+    }: {
+        publicKey: string;
+        data: unknown;
+        version: string;
+    }) => EthEncryptedData,
     encrypt?: boolean,
 ): Promise<void> {
     const seralizedMessage = JSON.stringify(message);
@@ -96,15 +106,4 @@ export async function submitMessage(
     }
 
     await submitMessageApi(apiConnection, envelop);
-}
-
-export async function getMessages(
-    apiConnection: ApiConnection,
-    contact: string,
-    getMessagesApi: (
-        apiConnection: ApiConnection,
-        contact: string,
-    ) => Promise<(Envelop | EncryptionEnvelop)[]>,
-): Promise<(Envelop | EncryptionEnvelop)[]> {
-    return await getMessagesApi(apiConnection, contact);
 }
