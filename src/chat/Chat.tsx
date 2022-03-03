@@ -8,7 +8,7 @@ import {
 } from 'react-chat-widget';
 import MessageStateView from './MessageStateView';
 import { useEffect, useState } from 'react';
-import * as Lib from './lib';
+import * as Lib from '../lib';
 
 interface ChatProps {
     hasContacts: boolean;

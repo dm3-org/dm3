@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import * as Lib from './lib';
+import * as Lib from '../lib';
 
 interface AddContactFormProps {
     apiConnection: Lib.ApiConnection;
