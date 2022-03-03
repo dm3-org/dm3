@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import './App.css';
-import Icon from './Icon';
-import * as Lib from './lib';
+import Icon from '../ui-shared/Icon';
+import * as Lib from '../lib';
 
 interface ChatHeaderProps {
     account: Lib.Account;

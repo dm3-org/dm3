@@ -1,5 +1,5 @@
-import Icon from './ui-shared/Icon';
-import * as Lib from './lib';
+import Icon from '../ui-shared/Icon';
+import * as Lib from '../lib';
 
 interface StartProps {
     contacts: Lib.Account[] | undefined;
