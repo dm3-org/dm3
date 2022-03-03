@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
-import './App.css';
 import { ethers } from 'ethers';
-import Icon from './Icon';
-import * as Lib from './lib';
+import Icon from '../ui-shared/Icon';
+import * as Lib from '../lib';
 
 interface SignInProps {
     apiConnection: Lib.ApiConnection;

@@ -2,19 +2,19 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import 'react-chat-widget/lib/styles.css';
 import detectEthereumProvider from '@metamask/detect-provider';
-import SignIn, { showSignIn } from './SignIn';
+import SignIn, { showSignIn } from './sign-in/SignIn';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import AccountNameHeader from './AccountNameHeader';
-import ContactList from './ContactList';
-import AddContactForm from './AddContactForm';
+import AccountNameHeader from './contacts/AccountNameHeader';
+import ContactList from './contacts/ContactList';
+import AddContactForm from './contacts/AddContactForm';
 import { ethers } from 'ethers';
-import Chat, { EnvelopContainer } from './Chat';
+import Chat, { EnvelopContainer } from './chat/Chat';
 import { isWidgetOpened, toggleWidget } from 'react-chat-widget';
 import socketIOClient from 'socket.io-client';
-import ChatHeader from './ChatHeader';
-import Start from './Start';
-import SignInHelp from './SignInHelp';
+import ChatHeader from './chat/ChatHeader';
+import Start from './chat/Start';
+import SignInHelp from './sign-in/SignInHelp';
 import * as Lib from './lib';
 
 function App() {
