@@ -3,6 +3,7 @@ import 'react-chat-widget/lib/styles.css';
 import AccountNameHeader from '../contacts/AccountNameHeader';
 import ChatHeader from '../chat/ChatHeader';
 import * as Lib from '../lib';
+import './Header.css';
 
 interface HeaderProps {
     apiConnection: {

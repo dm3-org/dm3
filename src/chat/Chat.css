@@ -1,0 +1,71 @@
+.rcw-widget-container {
+    position:  relative !important;
+    margin: 0px !important;
+    height: 100%;
+    max-height: 100%;
+  
+}
+  
+.rcw-messages-container {
+    height: 100% !important;
+    max-height: calc(100% - 95px) !important;
+    padding-top: 3px !important;
+
+}
+
+.rcw-picker-btn {
+    display: none;
+}
+  
+.rcw-new-message {
+    height: 100%;
+    width: calc(100% - 20px) !important;
+}
+  
+.rcw-message {
+    margin-bottom: 0px !important;
+    margin-top: 0px !important;
+}
+
+.rcw-header {
+    display: none !important;
+}
+  
+.rcw-send {
+    background-color: inherit !important;
+  
+}
+  
+.rcw-sender {
+    height: 100px !important;
+    border-radius: 0px !important;
+    background-color: rgb(250, 250, 250) !important;
+    /* display: none !important; */
+  
+}
+
+.rcw-client .rcw-message-text {
+    max-width: none !important;
+    margin-left: 3rem !important;
+}
+
+.rcw-conversation-container {
+    box-shadow: none !important;
+    border-radius: 0px !important;
+    max-height: 100%;
+    height: 100%;
+  
+}
+  
+.msg-container {
+    min-width: 630px;
+}
+
+.widget-container {
+    height: 100% !important;
+}
+
+.message-state {
+    margin-bottom: 15px;
+}
+  

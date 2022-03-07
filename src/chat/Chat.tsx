@@ -10,6 +10,7 @@ import MessageStateView from './MessageStateView';
 import { useEffect, useState } from 'react';
 import * as Lib from '../lib';
 import { getMessage } from '../lib/Messaging';
+import './Chat.css';
 
 interface ChatProps {
     hasContacts: boolean;
