@@ -2,6 +2,8 @@ import { ethers } from 'ethers';
 
 import { EthEncryptedData } from './Encryption';
 import { Account, ApiConnection, Keys } from './Web3Provider';
+import MessageSchema from '../schema.json';
+import Ajv from 'ajv';
 
 export interface Message {
     to: string;
@@ -42,6 +44,23 @@ export function createMessage(
         timestamp: getTimestamp(),
         message,
     };
+}
+
+export function getMessage(envelop: Envelop): Message {
+    const message = JSON.parse(envelop.message);
+    const ajv = new Ajv();
+    const validate = ajv.compile(MessageSchema);
+    if (!validate(message)) {
+        throw Error("Message doesn't fit schema");
+    }
+
+    return message;
+}
+
+export function isEncryptionEnvelop(
+    envelop: EncryptionEnvelop | Envelop,
+): envelop is EncryptionEnvelop {
+    return typeof (envelop as EncryptionEnvelop).encryptionVersion === 'string';
 }
 
 export async function submitMessage(

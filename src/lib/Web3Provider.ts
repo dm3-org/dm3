@@ -46,10 +46,10 @@ export enum ConnectionState {
 
 export interface ApiConnection {
     connectionState: ConnectionState;
-    account?: Account;
-    sessionToken?: string;
-    provider?: ethers.providers.JsonRpcProvider;
-    socket?: Socket<DefaultEventsMap, DefaultEventsMap>;
+    account: Account;
+    sessionToken: string;
+    provider: ethers.providers.JsonRpcProvider;
+    socket: Socket<DefaultEventsMap, DefaultEventsMap>;
 }
 
 export async function getWeb3Provider(provider: unknown): Promise<{
