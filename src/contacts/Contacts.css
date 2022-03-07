@@ -1,0 +1,19 @@
+.messages-badge {
+    border-radius: 2px !important;
+}
+
+.contact-input {
+    border-color: #6c757d !important;
+    border-left: solid #6c757d 1px!important;
+}
+
+.contact-list-container {
+    padding: 0px !important;
+    
+}
+  
+.contact-list-container * { 
+    border-radius: 0px !important; 
+    border-left: none !important; 
+    border-right: none !important;
+}

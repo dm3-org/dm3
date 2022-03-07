@@ -30,13 +30,7 @@
   border-right:1.2rem solid #b8b8b8; 
 }
 
-.sign-in-help {
-  margin-top: 2.8rem !important;
-}
 
-.publish-help {
-  margin-top: 4.6rem;
-}
 
 .row-space-2 {
   margin-top: 4rem !important;
@@ -55,92 +49,10 @@
 
 }
 
-
-
-.rcw-widget-container {
-  position:  relative !important;
-  margin: 0px !important;
-  height: 100%;
-  max-height: 100%;
-
-}
-
-.rcw-messages-container {
-  height: 100% !important;
-  max-height: calc(100% - 95px) !important;
-  padding-top: 3px !important;
-
-
-  
-}
-
 .row-space {
   margin-top: 2rem !important;
 }
 
-.rcw-picker-btn {
-  display: none;
-}
-
-.rcw-new-message {
-  height: 100%;
-  width: calc(100% - 20px) !important;
-}
-
-.rcw-message {
-  margin-bottom: 0px !important;
-  margin-top: 0px !important;
-}
-
-.message-state {
-
-  margin-bottom: 15px;
-}
-
-
-
-
-.own-account {
-  color: grey;
-}
-
-
-
-.rcw-client .rcw-message-text {
-  max-width: none !important;
-  margin-left: 3rem !important;
-}
-
-.msg-container {
-  min-width: 630px;
-}
-
-.rcw-conversation-container {
-  box-shadow: none !important;
-  border-radius: 0px !important;
-  max-height: 100%;
-  height: 100%;
-
-}
-
-
-
-.rcw-header {
-  display: none !important;
-}
-
-.rcw-send {
-  background-color: inherit !important;
-
-}
-
-.rcw-sender {
-  height: 100px !important;
-  border-radius: 0px !important;
-  background-color: rgb(250, 250, 250) !important;
-  /* display: none !important; */
-
-}
 
 .container {
   padding-top: 2rem;
@@ -180,52 +92,8 @@ html, body {
   font-weight: 200;
 }
 
-.account-name-container {
-  background-color: #fafafa;
-}
-
-.chat-header {
-  border-left: solid 1px rgb(207, 207, 207);
-  
-}
-
-.contact-list-container {
-  padding: 0px !important;
-  
-}
-
-.contact-list-container * { 
-  border-radius: 0px !important; 
-  border-left: none !important; 
-  border-right: none !important;
-}
-
-.widget-container {
-  height: 100% !important;
-}
-
 .start-space {
   margin-top: 2.5rem;
-}
-
-.contact-input {
-  border-color: #6c757d !important;
-  border-left: solid #6c757d 1px!important;
-  
-}
-
-/* .contact-input-btn {
-  background-color: #b8b8b8 !important;
-  border-top-color: #b8b8b8 !important;
-  border-bottom-color: #b8b8b8 !important;
-} */
-
-.messages-badge {
-  border-radius: 2px !important;
-}
-
-.add-pub-key {
-  margin-top: 6rem !important;
 }
 
 .error-indication {

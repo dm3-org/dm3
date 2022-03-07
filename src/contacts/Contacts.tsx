@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import ContactList from './ContactList';
 import AddContactForm from './AddContactForm';
 import * as Lib from '../lib';
+import './Contacts.css';
 
 interface ContactsProps {
     apiConnection: Lib.ApiConnection;
