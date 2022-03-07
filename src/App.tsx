@@ -2,21 +2,16 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import 'react-chat-widget/lib/styles.css';
 import detectEthereumProvider from '@metamask/detect-provider';
-import SignIn, { showSignIn } from './sign-in/SignIn';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import AccountNameHeader from './contacts/AccountNameHeader';
-import ContactList from './contacts/ContactList';
-import AddContactForm from './contacts/AddContactForm';
-import { ethers } from 'ethers';
-import Chat, { EnvelopContainer } from './chat/Chat';
-import { isWidgetOpened, toggleWidget } from 'react-chat-widget';
+import { EnvelopContainer } from './chat/Chat';
 import socketIOClient from 'socket.io-client';
-import ChatHeader from './chat/ChatHeader';
-import Start from './chat/Start';
-import SignInHelp from './sign-in/SignInHelp';
 import * as Lib from './lib';
 import { getMessage } from './lib/Messaging';
+import { requestContacts } from './ui-shared/RequestContacts';
+import Header from './header/Header';
+import LeftView from './LeftView';
+import RightView from './RightView';
 
 function App() {
     const [apiConnection, setApiConnection] = useState<
@@ -37,50 +32,16 @@ function App() {
     >();
 
     const [newMessages, setNewMessages] = useState<EnvelopContainer[]>([]);
-    const requestContacts = async (connection: Lib.ApiConnection) => {
-        const retrievedContacts = await Lib.getContacts(
-            (apiConnection.account as Lib.Account).address,
-            apiConnection.sessionToken as string,
+
+    const getContacts = () =>
+        requestContacts(
+            apiConnection as Lib.ApiConnection,
+            selectedContact,
+            setSelectedContact,
+            setContacts,
+            ensNames,
+            setEnsNames,
         );
-
-        setContacts(retrievedContacts);
-
-        if (
-            selectedContact &&
-            !selectedContact?.keys?.publicMessagingKey &&
-            retrievedContacts.find(
-                (contact) =>
-                    Lib.formatAddress(contact.address) ===
-                    Lib.formatAddress(selectedContact.address),
-            )?.keys
-        ) {
-            setSelectedContact(
-                retrievedContacts.find(
-                    (contact) =>
-                        Lib.formatAddress(contact.address) ===
-                        Lib.formatAddress(selectedContact.address),
-                ),
-            );
-        }
-
-        (
-            await Promise.all(
-                retrievedContacts.map(async (contact) => ({
-                    address: contact.address,
-                    ens: await Lib.lookupAddress(
-                        connection.provider as ethers.providers.JsonRpcProvider,
-                        contact.address,
-                    ),
-                })),
-            )
-        )
-            .filter((lookup) => lookup.ens !== null)
-            .forEach((lookup) =>
-                ensNames.set(lookup.address, lookup.ens as string),
-            );
-
-        setEnsNames(new Map(ensNames));
-    };
 
     const handleNewMessage = async (
         envelop: Lib.EncryptionEnvelop | Lib.Envelop,
@@ -89,7 +50,7 @@ function App() {
         Lib.log('New messages');
 
         const innerEnvelop = (
-            (envelop as Lib.EncryptionEnvelop).encryptionVersion
+            Lib.isEncryptionEnvelop(envelop)
                 ? await Lib.decryptMessage(
                       apiConnection as Lib.ApiConnection,
                       (envelop as Lib.EncryptionEnvelop).data,
@@ -104,7 +65,7 @@ function App() {
                 (contact) => Lib.formatAddress(contact.address) === from,
             )?.keys?.publicMessagingKey
         ) {
-            await requestContacts(apiConnection as Lib.ApiConnection);
+            await getContacts();
         } else if (contact && from === Lib.formatAddress(contact.address)) {
             setNewMessages((oldMessages) =>
                 oldMessages.concat({
@@ -216,25 +177,11 @@ function App() {
         }
     };
 
-    const selectContact = async (contactAddress: Lib.Account) => {
-        if (!isWidgetOpened()) {
-            toggleWidget();
-        }
-
-        setSelectedContact(contactAddress);
-    };
-
     useEffect(() => {
         if (!apiConnection.provider) {
             createWeb3Provider();
         }
     }, [apiConnection.provider]);
-
-    useEffect(() => {
-        if (!contacts && apiConnection.sessionToken) {
-            requestContacts(apiConnection as Lib.ApiConnection);
-        }
-    }, [apiConnection.sessionToken]);
 
     useEffect(() => {
         if (selectedContact) {
@@ -260,132 +207,33 @@ function App() {
                         </div>
                     )}
 
-                    <div className="row header-row">
-                        <div
-                            className={
-                                `account-name-container col-4 text-center` +
-                                ` d-flex justify-content-center align-items-center`
-                            }
-                        >
-                            {apiConnection.account && (
-                                <AccountNameHeader
-                                    account={apiConnection.account}
-                                    ensNames={ensNames}
-                                    apiConnection={
-                                        apiConnection as Lib.ApiConnection
-                                    }
-                                    changeApiConnection={changeApiConnection}
-                                />
-                            )}
-                        </div>
-                        <div
-                            className={
-                                `col-8 text-center chat-header account-name-container` +
-                                ` d-flex justify-content-center align-items-center`
-                            }
-                        >
-                            {selectedContact &&
-                                apiConnection.connectionState ===
-                                    Lib.ConnectionState.SignedIn && (
-                                    <ChatHeader
-                                        account={selectedContact}
-                                        ensNames={ensNames}
-                                    />
-                                )}
-                            {apiConnection.connectionState !==
-                                Lib.ConnectionState.SignedIn && (
-                                <div className="account-name">
-                                    {apiConnection.connectionState ===
-                                    Lib.ConnectionState.KeyCreation
-                                        ? 'Create Public Key'
-                                        : 'ENS Mail'}
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                    <Header
+                        apiConnection={apiConnection}
+                        changeApiConnection={changeApiConnection}
+                        ensNames={ensNames}
+                        selectedContact={selectedContact}
+                        contacts={contacts}
+                    />
                     <div className="row body-row">
-                        <div className="col-md-4">
-                            <div className="row">
-                                <div className="col-12 text-center contact-list-container">
-                                    <AddContactForm
-                                        apiConnection={
-                                            apiConnection as Lib.ApiConnection
-                                        }
-                                        requestContacts={requestContacts}
-                                    />
-                                </div>
-                            </div>
-                            {contacts &&
-                                apiConnection.connectionState ===
-                                    Lib.ConnectionState.SignedIn && (
-                                    <div className="row">
-                                        <div className="col-12 text-center contact-list-container">
-                                            <ContactList
-                                                ensNames={ensNames}
-                                                contacts={contacts}
-                                                selectContact={selectContact}
-                                                messageCounter={messageCounter}
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-                            {showSignIn(apiConnection.connectionState) && (
-                                <SignIn
-                                    apiConnection={
-                                        apiConnection as Lib.ApiConnection
-                                    }
-                                    changeApiConnection={changeApiConnection}
-                                    setEnsNames={setEnsNames}
-                                    ensNames={ensNames}
-                                />
-                            )}
-                        </div>
-                        <div className="col-md-8 content-container h-100">
-                            {(!selectedContact ||
-                                apiConnection.connectionState ===
-                                    Lib.ConnectionState.KeyCreation) && (
-                                <div className="start-chat">
-                                    {apiConnection.provider &&
-                                        showSignIn(
-                                            apiConnection.connectionState,
-                                        ) && (
-                                            <div className="col-md-12 text-center">
-                                                <SignInHelp />
-                                            </div>
-                                        )}
-                                    {apiConnection.connectionState ===
-                                        Lib.ConnectionState.SignedIn && (
-                                        <Start
-                                            contacts={contacts}
-                                            apiConnection={
-                                                apiConnection as Lib.ApiConnection
-                                            }
-                                            changeApiConnection={
-                                                changeApiConnection
-                                            }
-                                        />
-                                    )}
-                                </div>
-                            )}
-
-                            {apiConnection.connectionState ===
-                                Lib.ConnectionState.SignedIn &&
-                                selectedContact && (
-                                    <Chat
-                                        hasContacts={
-                                            contacts !== undefined &&
-                                            contacts.length > 0
-                                        }
-                                        contact={selectedContact}
-                                        ensNames={ensNames}
-                                        apiConnection={
-                                            apiConnection as Lib.ApiConnection
-                                        }
-                                        newMessages={newMessages}
-                                        setNewMessages={setNewMessages}
-                                    />
-                                )}
-                        </div>
+                        <LeftView
+                            apiConnection={apiConnection}
+                            changeApiConnection={changeApiConnection}
+                            ensNames={ensNames}
+                            selectedContact={selectedContact}
+                            contacts={contacts}
+                            getContacts={getContacts}
+                            setEnsNames={setEnsNames}
+                            setSelectedContact={setSelectedContact}
+                        />
+                        <RightView
+                            apiConnection={apiConnection}
+                            changeApiConnection={changeApiConnection}
+                            ensNames={ensNames}
+                            selectedContact={selectedContact}
+                            contacts={contacts}
+                            newMessages={newMessages}
+                            setNewMessages={setNewMessages}
+                        />
                     </div>
                 </div>
             </div>
