@@ -16,9 +16,12 @@ import ChatHeader from './chat/ChatHeader';
 import Start from './chat/Start';
 import SignInHelp from './sign-in/SignInHelp';
 import * as Lib from './lib';
+import { getMessage } from './lib/Messaging';
 
 function App() {
-    const [apiConnection, setApiConnection] = useState<Lib.ApiConnection>({
+    const [apiConnection, setApiConnection] = useState<
+        { connectionState: Lib.ConnectionState } & Partial<Lib.ApiConnection>
+    >({
         connectionState: Lib.ConnectionState.CheckingProvider,
     });
     const [ensNames, setEnsNames] = useState<Map<string, string>>(
@@ -88,22 +91,20 @@ function App() {
         const innerEnvelop = (
             (envelop as Lib.EncryptionEnvelop).encryptionVersion
                 ? await Lib.decryptMessage(
-                      apiConnection,
+                      apiConnection as Lib.ApiConnection,
                       (envelop as Lib.EncryptionEnvelop).data,
                   )
                 : envelop
         ) as Lib.Envelop;
 
-        const from = Lib.formatAddress(
-            (JSON.parse(innerEnvelop.message) as Lib.Message).from,
-        );
+        const from = Lib.formatAddress(getMessage(innerEnvelop).from);
 
         if (
             !contacts?.find(
                 (contact) => Lib.formatAddress(contact.address) === from,
             )?.keys?.publicMessagingKey
         ) {
-            await requestContacts(apiConnection);
+            await requestContacts(apiConnection as Lib.ApiConnection);
         } else if (contact && from === Lib.formatAddress(contact.address)) {
             setNewMessages((oldMessages) =>
                 oldMessages.concat({
@@ -231,7 +232,7 @@ function App() {
 
     useEffect(() => {
         if (!contacts && apiConnection.sessionToken) {
-            requestContacts(apiConnection);
+            requestContacts(apiConnection as Lib.ApiConnection);
         }
     }, [apiConnection.sessionToken]);
 
@@ -270,7 +271,9 @@ function App() {
                                 <AccountNameHeader
                                     account={apiConnection.account}
                                     ensNames={ensNames}
-                                    apiConnection={apiConnection}
+                                    apiConnection={
+                                        apiConnection as Lib.ApiConnection
+                                    }
                                     changeApiConnection={changeApiConnection}
                                 />
                             )}
@@ -305,7 +308,9 @@ function App() {
                             <div className="row">
                                 <div className="col-12 text-center contact-list-container">
                                     <AddContactForm
-                                        apiConnection={apiConnection}
+                                        apiConnection={
+                                            apiConnection as Lib.ApiConnection
+                                        }
                                         requestContacts={requestContacts}
                                     />
                                 </div>
@@ -326,7 +331,9 @@ function App() {
                                 )}
                             {showSignIn(apiConnection.connectionState) && (
                                 <SignIn
-                                    apiConnection={apiConnection}
+                                    apiConnection={
+                                        apiConnection as Lib.ApiConnection
+                                    }
                                     changeApiConnection={changeApiConnection}
                                     setEnsNames={setEnsNames}
                                     ensNames={ensNames}
@@ -350,7 +357,9 @@ function App() {
                                         Lib.ConnectionState.SignedIn && (
                                         <Start
                                             contacts={contacts}
-                                            apiConnection={apiConnection}
+                                            apiConnection={
+                                                apiConnection as Lib.ApiConnection
+                                            }
                                             changeApiConnection={
                                                 changeApiConnection
                                             }
@@ -369,7 +378,9 @@ function App() {
                                         }
                                         contact={selectedContact}
                                         ensNames={ensNames}
-                                        apiConnection={apiConnection}
+                                        apiConnection={
+                                            apiConnection as Lib.ApiConnection
+                                        }
                                         newMessages={newMessages}
                                         setNewMessages={setNewMessages}
                                     />

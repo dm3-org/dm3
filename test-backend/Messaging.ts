@@ -1,6 +1,7 @@
 import { Socket } from 'socket.io';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import * as Lib from '../src/lib';
+import { getMessage } from '../src/lib/Messaging';
 import { checkToken, Session } from './BackendLib';
 
 export function getConversationId(accountA: string, accountB: string): string {
@@ -16,13 +17,13 @@ export function incomingMessage(
     socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>,
     contacts: Map<string, Set<string>>,
 ) {
-    const account = (data.envelop as Lib.EncryptionEnvelop).encryptionVersion
-        ? Lib.formatAddress((data.envelop as Lib.EncryptionEnvelop).from)
-        : JSON.parse((data.envelop as Lib.Envelop).message).from;
+    const account = Lib.isEncryptionEnvelop(data.envelop)
+        ? Lib.formatAddress(data.envelop.from)
+        : getMessage(data.envelop as Lib.Envelop).from;
 
-    const contact = (data.envelop as Lib.EncryptionEnvelop).encryptionVersion
-        ? Lib.formatAddress((data.envelop as Lib.EncryptionEnvelop).to)
-        : JSON.parse((data.envelop as Lib.Envelop).message).to;
+    const contact = Lib.isEncryptionEnvelop(data.envelop)
+        ? Lib.formatAddress(data.envelop.to)
+        : getMessage(data.envelop as Lib.Envelop).to;
     const conversationId = getConversationId(account, contact);
     console.log(`- Conversations id: ${conversationId}`);
     addContact(contacts, contact, account);

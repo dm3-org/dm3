@@ -85,7 +85,7 @@ export async function getMessages(
         await axios.post(
             (process.env.REACT_APP_BACKEND as string) +
                 '/getMessages/' +
-                (apiConnection.account as Account).address,
+                apiConnection.account.address,
             { contact, token: apiConnection.sessionToken },
         )
     ).data.messages;

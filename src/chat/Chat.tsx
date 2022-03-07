@@ -9,6 +9,7 @@ import {
 import MessageStateView from './MessageStateView';
 import { useEffect, useState } from 'react';
 import * as Lib from '../lib';
+import { getMessage } from '../lib/Messaging';
 
 interface ChatProps {
     hasContacts: boolean;
@@ -32,7 +33,7 @@ function Chat(props: ChatProps) {
     const removeReadMessages = () => {
         props.newMessages.forEach((newEnvelopContainer) => {
             const newEnvelop = newEnvelopContainer.envelop;
-            const message = JSON.parse(newEnvelop.message) as Lib.Message;
+            const message = getMessage(newEnvelop);
 
             if (
                 props.contact &&
@@ -77,18 +78,16 @@ function Chat(props: ChatProps) {
     ): Promise<Lib.Envelop[]> => {
         const decryptedEnvelops = await Promise.all(
             envelops.map(async (envelop) => ({
-                envelop: (envelop as Lib.EncryptionEnvelop).encryptionVersion
+                envelop: Lib.isEncryptionEnvelop(envelop)
                     ? ((await Lib.decryptMessage(
                           props.apiConnection,
-                          (envelop as Lib.EncryptionEnvelop).from ===
-                              (props.apiConnection.account?.address as string)
-                              ? (envelop as Lib.EncryptionEnvelop).selfData
-                              : (envelop as Lib.EncryptionEnvelop).data,
+                          envelop.from === props.apiConnection.account.address
+                              ? envelop.selfData
+                              : envelop.data,
                       )) as Lib.Envelop)
-                    : (envelop as Lib.Envelop),
+                    : envelop,
                 encrypted:
-                    (envelop as Lib.EncryptionEnvelop).encryptionVersion ||
-                    allEncrypted
+                    Lib.isEncryptionEnvelop(envelop) || allEncrypted
                         ? true
                         : false,
             })),
@@ -99,29 +98,22 @@ function Chat(props: ChatProps) {
                 Lib.checkSignature(
                     envelopContainer.envelop.message,
                     Lib.formatAddress(
-                        (
-                            JSON.parse(
-                                envelopContainer.envelop.message,
-                            ) as Lib.Message
-                        ).from,
+                        getMessage(envelopContainer.envelop).from,
                     ) === Lib.formatAddress(props.contact.address)
                         ? props.contact
-                        : (props.apiConnection.account as Lib.Account),
+                        : props.apiConnection.account,
                     envelopContainer.envelop.signature,
                 ),
             )
             .map((envelopContainer) => ({
-                message: JSON.parse(
-                    envelopContainer.envelop.message,
-                ) as Lib.Message,
+                message: getMessage(envelopContainer.envelop),
                 encrypted: envelopContainer.encrypted,
             }))
             .sort((a, b) => a.message.timestamp - b.message.timestamp)
             .forEach((messageContainer) => {
                 if (
                     messageContainer.message.from ===
-                    ((props.apiConnection.account as Lib.Account)
-                        .address as string)
+                    props.apiConnection.account.address
                 ) {
                     addUserMessage(
                         messageContainer.message.message,
@@ -150,10 +142,7 @@ function Chat(props: ChatProps) {
                             time={messageContainer.message.timestamp}
                             ownMessage={
                                 messageContainer.message.from ===
-                                (props.apiConnection.account as Lib.Account)
-                                    .address
-                                    ? true
-                                    : false
+                                props.apiConnection.account.address
                             }
                             encrypted={messageContainer.encrypted}
                         />
@@ -186,7 +175,7 @@ function Chat(props: ChatProps) {
 
         const messageData = Lib.createMessage(
             props.contact.address,
-            (props.apiConnection.account as Lib.Account).address,
+            props.apiConnection.account.address,
             message,
         );
         const messageId = messageData.timestamp.toString();

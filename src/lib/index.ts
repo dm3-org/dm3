@@ -7,7 +7,7 @@ import * as Messaging from './Messaging';
 import * as Encryption from './Encryption';
 
 export { decryptMessage, checkSignature } from './Encryption';
-export { MessageState } from './Messaging';
+export { MessageState, isEncryptionEnvelop } from './Messaging';
 export type { Message, EncryptionEnvelop, Envelop } from './Messaging';
 export {
     ConnectionState,

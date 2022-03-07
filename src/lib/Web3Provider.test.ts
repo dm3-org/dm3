@@ -68,7 +68,10 @@ test('get correct account display name', async () => {
 test('add a contact', async () => {
     expect(
         addContact(
-            { connectionState: ConnectionState.SignedIn, socket: null as any },
+            {
+                connectionState: ConnectionState.SignedIn,
+                socket: null as any,
+            } as any,
             '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
             async (provider: JsonRpcProvider, input: string) => input,
             async (apiConnection: ApiConnection, contactAddress: string) => {},
@@ -80,7 +83,10 @@ test('handle add contact error', async () => {
     expect.assertions(1);
     await expect(
         addContact(
-            { connectionState: ConnectionState.SignedIn, socket: null as any },
+            {
+                connectionState: ConnectionState.SignedIn,
+                socket: null as any,
+            } as any,
             '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
             async (provider: JsonRpcProvider, input: string) => input,
             async (apiConnection: ApiConnection, contactAddress: string) => {
