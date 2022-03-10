@@ -2,7 +2,7 @@ import * as Lib from '../lib';
 import { ethers } from 'ethers';
 
 export async function requestContacts(
-    connection: Lib.ApiConnection,
+    connection: Lib.Connection,
     selectedContact: Lib.Account | undefined,
     setSelectedContact: (account: Lib.Account | undefined) => void,
     setContacts: (constacts: Lib.Account[]) => void,

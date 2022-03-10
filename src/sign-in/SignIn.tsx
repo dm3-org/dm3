@@ -4,8 +4,8 @@ import Icon from '../ui-shared/Icon';
 import * as Lib from '../lib';
 
 interface SignInProps {
-    apiConnection: Lib.ApiConnection;
-    changeApiConnection: (newApiConnection: Partial<Lib.ApiConnection>) => void;
+    connection: Lib.Connection;
+    changeConnection: (newConnection: Partial<Lib.Connection>) => void;
     setEnsNames: (ensNames: Map<string, string>) => void;
     ensNames: Map<string, string>;
 }
@@ -23,15 +23,15 @@ export function showSignIn(connectionState: Lib.ConnectionState): boolean {
 
 function SignIn(props: SignInProps) {
     const connect = async () => {
-        props.changeApiConnection({
+        props.changeConnection({
             connectionState: Lib.ConnectionState.WaitingForAccountConntection,
         });
         const accountConnection = await Lib.connectAccount(
-            props.apiConnection.provider as ethers.providers.JsonRpcProvider,
+            props.connection.provider as ethers.providers.JsonRpcProvider,
         );
 
         if (accountConnection.account) {
-            props.changeApiConnection({
+            props.changeConnection({
                 account: {
                     address: accountConnection.account,
                 },
@@ -39,8 +39,7 @@ function SignIn(props: SignInProps) {
             });
 
             const ensName = await Lib.lookupAddress(
-                props.apiConnection
-                    .provider as ethers.providers.JsonRpcProvider,
+                props.connection.provider as ethers.providers.JsonRpcProvider,
                 accountConnection.account,
             );
             if (ensName) {
@@ -51,35 +50,35 @@ function SignIn(props: SignInProps) {
                 );
             }
         } else {
-            props.changeApiConnection({
+            props.changeConnection({
                 connectionState: accountConnection.connectionState,
             });
         }
     };
 
     const requestSignIn = async () => {
-        props.changeApiConnection({
+        props.changeConnection({
             connectionState: Lib.ConnectionState.WaitingForSignIn,
         });
 
         const singInRequest = await Lib.signIn(
-            props.apiConnection.provider as ethers.providers.JsonRpcProvider,
-            (props.apiConnection.account as Lib.Account).address,
+            props.connection.provider as ethers.providers.JsonRpcProvider,
+            (props.connection.account as Lib.Account).address,
         );
 
         if (singInRequest.sessionToken) {
             Lib.log(`Setting session token: ${singInRequest.sessionToken}`);
 
-            props.changeApiConnection({
+            props.changeConnection({
                 account: {
-                    address: props.apiConnection.account?.address as string,
+                    address: props.connection.account?.address as string,
                     keys: singInRequest.keys,
                 },
                 sessionToken: singInRequest.sessionToken,
                 connectionState: singInRequest.connectionState,
             });
         } else {
-            props.changeApiConnection({
+            props.changeConnection({
                 connectionState: singInRequest.connectionState,
             });
         }
@@ -126,17 +125,17 @@ function SignIn(props: SignInProps) {
                             onClick={connect}
                             type="button"
                             className={`btn btn-${
-                                props.apiConnection.connectionState ===
+                                props.connection.connectionState ===
                                 Lib.ConnectionState.AccountConnectionRejected
                                     ? 'danger'
                                     : 'primary'
                             } btn-lg w-100`}
                             disabled={
                                 !(
-                                    props.apiConnection.connectionState ===
+                                    props.connection.connectionState ===
                                         Lib.ConnectionState
                                             .AccountConntectReady ||
-                                    props.apiConnection.connectionState ===
+                                    props.connection.connectionState ===
                                         Lib.ConnectionState
                                             .AccountConnectionRejected
                                 )
@@ -145,7 +144,7 @@ function SignIn(props: SignInProps) {
                             Connect Account
                             <span className="push-end">
                                 {getConnectionIconClass(
-                                    props.apiConnection.connectionState,
+                                    props.connection.connectionState,
                                 )}
                             </span>
                         </button>
@@ -157,16 +156,16 @@ function SignIn(props: SignInProps) {
                             onClick={requestSignIn}
                             type="button"
                             className={`btn btn-${
-                                props.apiConnection.connectionState ===
+                                props.connection.connectionState ===
                                 Lib.ConnectionState.SignInFailed
                                     ? 'danger'
                                     : 'primary'
                             } btn-lg w-100`}
                             disabled={
                                 !(
-                                    props.apiConnection.connectionState ===
+                                    props.connection.connectionState ===
                                         Lib.ConnectionState.SignInReady ||
-                                    props.apiConnection.connectionState ===
+                                    props.connection.connectionState ===
                                         Lib.ConnectionState.SignInFailed
                                 )
                             }
@@ -174,7 +173,7 @@ function SignIn(props: SignInProps) {
                             Sign In
                             <span className="push-end">
                                 {getSignInIconClass(
-                                    props.apiConnection.connectionState,
+                                    props.connection.connectionState,
                                 )}
                             </span>
                         </button>

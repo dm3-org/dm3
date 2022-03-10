@@ -6,13 +6,13 @@ import * as Lib from '../lib';
 import './Header.css';
 
 interface HeaderProps {
-    apiConnection: {
+    connection: {
         connectionState: Lib.ConnectionState;
-    } & Partial<Lib.ApiConnection>;
+    } & Partial<Lib.Connection>;
     ensNames: Map<string, string>;
     contacts?: Lib.Account[];
     selectedContact: Lib.Account | undefined;
-    changeApiConnection: (newApiConnection: Partial<Lib.ApiConnection>) => void;
+    changeConnection: (newConnection: Partial<Lib.Connection>) => void;
 }
 
 function Header(props: HeaderProps) {
@@ -24,12 +24,12 @@ function Header(props: HeaderProps) {
                     ` d-flex justify-content-center align-items-center`
                 }
             >
-                {props.apiConnection?.account && (
+                {props.connection?.account && (
                     <AccountNameHeader
-                        account={props.apiConnection.account}
+                        account={props.connection.account}
                         ensNames={props.ensNames}
-                        apiConnection={props.apiConnection as Lib.ApiConnection}
-                        changeApiConnection={props.changeApiConnection}
+                        connection={props.connection as Lib.Connection}
+                        changeConnection={props.changeConnection}
                     />
                 )}
             </div>
@@ -40,17 +40,17 @@ function Header(props: HeaderProps) {
                 }
             >
                 {props.selectedContact &&
-                    props.apiConnection?.connectionState ===
+                    props.connection?.connectionState ===
                         Lib.ConnectionState.SignedIn && (
                         <ChatHeader
                             account={props.selectedContact}
                             ensNames={props.ensNames}
                         />
                     )}
-                {props.apiConnection?.connectionState !==
+                {props.connection?.connectionState !==
                     Lib.ConnectionState.SignedIn && (
                     <div className="account-name">
-                        {props.apiConnection?.connectionState ===
+                        {props.connection?.connectionState ===
                         Lib.ConnectionState.KeyCreation
                             ? 'Create Public Key'
                             : 'ENS Mail'}

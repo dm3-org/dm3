@@ -6,15 +6,15 @@ import SignIn, { showSignIn } from './sign-in/SignIn';
 import { isWidgetOpened, toggleWidget } from 'react-chat-widget';
 
 interface LeftViewProps {
-    apiConnection: {
+    connection: {
         connectionState: Lib.ConnectionState;
-    } & Partial<Lib.ApiConnection>;
+    } & Partial<Lib.Connection>;
     ensNames: Map<string, string>;
     setEnsNames: (ensNames: Map<string, string>) => void;
     contacts?: Lib.Account[];
     selectedContact: Lib.Account | undefined;
     setSelectedContact: (contact: Lib.Account | undefined) => void;
-    changeApiConnection: (newApiConnection: Partial<Lib.ApiConnection>) => void;
+    changeConnection: (newConnection: Partial<Lib.Connection>) => void;
     getContacts: () => Promise<void>;
 }
 
@@ -30,7 +30,7 @@ function LeftView(props: LeftViewProps) {
     return (
         <div className="col-md-4">
             <Contacts
-                apiConnection={props.apiConnection as Lib.ApiConnection}
+                connection={props.connection as Lib.Connection}
                 ensNames={props.ensNames}
                 setEnsNames={props.setEnsNames}
                 getContacts={props.getContacts}
@@ -38,10 +38,10 @@ function LeftView(props: LeftViewProps) {
                 selectContact={selectContact}
                 selectedContact={props.selectedContact}
             />
-            {showSignIn(props.apiConnection.connectionState) && (
+            {showSignIn(props.connection.connectionState) && (
                 <SignIn
-                    apiConnection={props.apiConnection as Lib.ApiConnection}
-                    changeApiConnection={props.changeApiConnection}
+                    connection={props.connection as Lib.Connection}
+                    changeConnection={props.changeConnection}
                     setEnsNames={props.setEnsNames}
                     ensNames={props.ensNames}
                 />

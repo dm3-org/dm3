@@ -1,14 +1,7 @@
 import { Socket } from 'socket.io';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import * as Lib from '../src/lib';
-import { getMessage } from '../src/lib/Messaging';
 import { checkToken, Session } from './BackendLib';
-
-export function getConversationId(accountA: string, accountB: string): string {
-    return [Lib.formatAddress(accountA), Lib.formatAddress(accountB)]
-        .sort()
-        .join();
-}
 
 export function incomingMessage(
     data: { envelop: Lib.Envelop | Lib.EncryptionEnvelop; token: string },
@@ -16,15 +9,20 @@ export function incomingMessage(
     messages: Map<string, (Lib.Envelop | Lib.EncryptionEnvelop)[]>,
     socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>,
     contacts: Map<string, Set<string>>,
+    callback: (response: string) => void,
 ) {
-    const account = Lib.isEncryptionEnvelop(data.envelop)
-        ? Lib.formatAddress(data.envelop.from)
-        : getMessage(data.envelop as Lib.Envelop).from;
+    const account = Lib.formatAddress(
+        Lib.isEncryptionEnvelop(data.envelop)
+            ? Lib.formatAddress(data.envelop.from)
+            : (data.envelop as Lib.Envelop).message.from,
+    );
 
-    const contact = Lib.isEncryptionEnvelop(data.envelop)
-        ? Lib.formatAddress(data.envelop.to)
-        : getMessage(data.envelop as Lib.Envelop).to;
-    const conversationId = getConversationId(account, contact);
+    const contact = Lib.formatAddress(
+        Lib.isEncryptionEnvelop(data.envelop)
+            ? Lib.formatAddress(data.envelop.to)
+            : (data.envelop as Lib.Envelop).message.to,
+    );
+    const conversationId = Lib.getConversationId(account, contact);
     console.log(`- Conversations id: ${conversationId}`);
     addContact(contacts, contact, account);
 
@@ -43,7 +41,16 @@ export function incomingMessage(
         if (contactSession?.socketId) {
             console.log(`- Forwarding message to ${contact}`);
             socket.to(contactSession.socketId).emit('message', data.envelop);
+            console.log(contactSession.socketId);
         }
+
+        const selfSession = sessions.get(account);
+        if (selfSession?.socketId) {
+            console.log(`- Acknowledge incoming message for ${account}`);
+            socket.to(selfSession.socketId).emit('message', data.envelop);
+            console.log(selfSession.socketId);
+        }
+        callback('success');
     } else {
         throw Error('Token check failed');
     }

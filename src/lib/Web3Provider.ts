@@ -3,7 +3,9 @@ import { Socket } from 'socket.io-client';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import nacl from 'tweetnacl';
 import { encodeBase64 } from 'tweetnacl-util';
+import { MessageDB } from '.';
 import { encryptSafely } from './Encryption';
+import { log } from './log';
 
 export interface Keys {
     publicKey?: string;
@@ -44,12 +46,13 @@ export enum ConnectionState {
     KeyCreation,
 }
 
-export interface ApiConnection {
+export interface Connection {
     connectionState: ConnectionState;
     account: Account;
     sessionToken: string;
     provider: ethers.providers.JsonRpcProvider;
     socket: Socket<DefaultEventsMap, DefaultEventsMap>;
+    db: MessageDB;
 }
 
 export async function getWeb3Provider(provider: unknown): Promise<{
@@ -109,26 +112,26 @@ export function getAccountDisplayName(
 }
 
 export async function addContact(
-    apiConnection: ApiConnection,
+    connection: Connection,
     input: string,
     resolveName: (
         provider: ethers.providers.JsonRpcProvider,
         input: string,
     ) => Promise<string | null>,
     addContactAPI: (
-        apiConnection: ApiConnection,
+        connection: Connection,
         contactAddress: string,
     ) => Promise<void>,
 ) {
     if (ethers.utils.isAddress(input)) {
-        await addContactAPI(apiConnection, input);
+        await addContactAPI(connection, input);
     } else {
         const address = await resolveName(
-            apiConnection.provider as ethers.providers.JsonRpcProvider,
+            connection.provider as ethers.providers.JsonRpcProvider,
             input,
         );
         if (address) {
-            addContactAPI(apiConnection, address);
+            addContactAPI(connection, address);
         } else {
             throw Error(`Couldn't resolve name`);
         }
@@ -183,4 +186,34 @@ export async function submitEncryptedKeys(
         },
         sessionToken,
     );
+}
+
+export function logConnectionChange(newConnection: Partial<Connection>) {
+    if (newConnection.connectionState) {
+        log(
+            `Changing state from to ${
+                ConnectionState[newConnection.connectionState]
+            }`,
+        );
+    }
+
+    if (newConnection.sessionToken) {
+        log(`Retrieved new session token: ${newConnection.sessionToken}`);
+    }
+
+    if (newConnection.account) {
+        log(`Account: ${newConnection.account.address}`);
+    }
+
+    if (newConnection.provider) {
+        log(`Provider set`);
+    }
+
+    if (newConnection.provider) {
+        log(`Socket set`);
+    }
+
+    if (newConnection.db) {
+        log(`DB set`);
+    }
 }

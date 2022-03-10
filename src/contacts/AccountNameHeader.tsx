@@ -5,17 +5,17 @@ import * as Lib from '../lib';
 interface AccountNameHeaderProps {
     account: Lib.Account;
     ensNames: Map<string, string>;
-    apiConnection: Lib.ApiConnection;
-    changeApiConnection: (apiConnection: Partial<Lib.ApiConnection>) => void;
+    connection: Lib.Connection;
+    changeConnection: (connection: Partial<Lib.Connection>) => void;
 }
 
 function AccountNameHeader(props: AccountNameHeaderProps) {
     return (
         <div className="account-name w-100 ">
             {Lib.getAccountDisplayName(props.account.address, props.ensNames)}
-            {(props.apiConnection.connectionState ===
+            {(props.connection.connectionState ===
                 Lib.ConnectionState.SignedIn ||
-                props.apiConnection.connectionState ===
+                props.connection.connectionState ===
                     Lib.ConnectionState.KeyCreation) && (
                 <>
                     {props.account.keys?.publicMessagingKey ? (
@@ -26,7 +26,7 @@ function AccountNameHeader(props: AccountNameHeaderProps) {
                         <span
                             className=" push-end header-lock header-open-lock"
                             onClick={() =>
-                                props.changeApiConnection({
+                                props.changeConnection({
                                     connectionState:
                                         Lib.ConnectionState.KeyCreation,
                                 })

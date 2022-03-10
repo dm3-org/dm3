@@ -6,16 +6,20 @@ import * as BackendAPI from './external-apis/BackendAPI';
 import * as Messaging from './Messaging';
 import * as Encryption from './Encryption';
 
-export { decryptMessage, checkSignature } from './Encryption';
-export { MessageState, isEncryptionEnvelop } from './Messaging';
+export type { Account, Connection, EncryptedKeys } from './Web3Provider';
 export type { Message, EncryptionEnvelop, Envelop } from './Messaging';
+export type { MessageDB } from './Storage';
+
+export { createDB, getConversationId } from './Storage';
+export { decryptEnvelop, checkSignature } from './Encryption';
+export { MessageState, isEncryptionEnvelop } from './Messaging';
 export {
+    logConnectionChange,
     ConnectionState,
     getAccountDisplayName,
     getWeb3Provider,
 } from './Web3Provider';
-export type { Account, ApiConnection, EncryptedKeys } from './Web3Provider';
-export { getMessages, getContacts } from './external-apis/BackendAPI';
+export { getContacts, getNewMessages } from './external-apis/BackendAPI';
 export { lookupAddress, formatAddress } from './external-apis/InjectedWeb3API';
 export { log } from './log';
 export { getSessionToken } from './SignIn';
@@ -61,30 +65,43 @@ export async function signIn(
 }
 
 export async function submitMessage(
-    apiConnection: Web3Provider.ApiConnection,
+    connection: Web3Provider.Connection,
     to: Web3Provider.Account,
     message: Messaging.Message,
+    onSuccess: () => void,
     encrypt?: boolean,
 ): Promise<void> {
     return Messaging.submitMessage(
-        apiConnection,
+        connection,
         to,
         message,
         BackendAPI.submitMessage,
         Encryption.signWithEncryptionKey,
         Encryption.encryptSafely,
+        onSuccess,
         encrypt,
     );
 }
 
 export async function addContact(
-    apiConnection: Web3Provider.ApiConnection,
+    connection: Web3Provider.Connection,
     input: string,
 ) {
     return Web3Provider.addContact(
-        apiConnection,
+        connection,
         input,
         Web3Api.resolveName,
         BackendAPI.addContact,
+    );
+}
+
+export async function getMessages(
+    connection: Web3Provider.Connection,
+    contact: string,
+) {
+    return Messaging.getMessages(
+        connection,
+        contact,
+        BackendAPI.getNewMessages,
     );
 }

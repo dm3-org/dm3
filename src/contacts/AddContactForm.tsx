@@ -4,7 +4,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import * as Lib from '../lib';
 
 interface AddContactFormProps {
-    apiConnection: Lib.ApiConnection;
+    connection: Lib.Connection;
     requestContacts: () => Promise<void>;
 }
 
@@ -19,7 +19,7 @@ function AddContactForm(props: AddContactFormProps) {
 
     const add = async () => {
         try {
-            await Lib.addContact(props.apiConnection, accountToAdd);
+            await Lib.addContact(props.connection, accountToAdd);
             await props.requestContacts();
             setAccountToAdd('');
         } catch (e) {
@@ -27,8 +27,7 @@ function AddContactForm(props: AddContactFormProps) {
         }
     };
 
-    return props.apiConnection.connectionState ===
-        Lib.ConnectionState.SignedIn ? (
+    return props.connection.connectionState === Lib.ConnectionState.SignedIn ? (
         <form className="input-group" onSubmit={(e) => e.preventDefault()}>
             <input
                 type="text"
