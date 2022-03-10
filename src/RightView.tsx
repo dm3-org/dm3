@@ -8,13 +8,13 @@ import Chat, { EnvelopContainer } from './chat/Chat';
 import SignInHelp from './sign-in/SignInHelp';
 
 interface RightViewProps {
-    apiConnection: {
+    connection: {
         connectionState: Lib.ConnectionState;
-    } & Partial<Lib.ApiConnection>;
+    } & Partial<Lib.Connection>;
     ensNames: Map<string, string>;
     contacts?: Lib.Account[];
     selectedContact: Lib.Account | undefined;
-    changeApiConnection: (newApiConnection: Partial<Lib.ApiConnection>) => void;
+    changeConnection: (newConnection: Partial<Lib.Connection>) => void;
     newMessages: EnvelopContainer[];
     setNewMessages: (messages: EnvelopContainer[]) => void;
 }
@@ -22,30 +22,36 @@ interface RightViewProps {
 function RightView(props: RightViewProps) {
     return (
         <div className="col-md-8 content-container h-100">
+            {props.connection.connectionState ===
+                Lib.ConnectionState.NoProvider && (
+                <div className="col-md-12 text-center row-space">
+                    No Ethereum provider detected. Please install a plugin like
+                    MetaMask.
+                </div>
+            )}
+
             {(!props.selectedContact ||
-                props.apiConnection.connectionState ===
+                props.connection.connectionState ===
                     Lib.ConnectionState.KeyCreation) && (
                 <div className="start-chat">
-                    {props.apiConnection.provider &&
-                        showSignIn(props.apiConnection.connectionState) && (
+                    {props.connection.provider &&
+                        showSignIn(props.connection.connectionState) && (
                             <div className="col-md-12 text-center">
                                 <SignInHelp />
                             </div>
                         )}
-                    {props.apiConnection.connectionState ===
+                    {props.connection.connectionState ===
                         Lib.ConnectionState.SignedIn && (
                         <Start
                             contacts={props.contacts}
-                            apiConnection={
-                                props.apiConnection as Lib.ApiConnection
-                            }
-                            changeApiConnection={props.changeApiConnection}
+                            connection={props.connection as Lib.Connection}
+                            changeConnection={props.changeConnection}
                         />
                     )}
                 </div>
             )}
 
-            {props.apiConnection.connectionState ===
+            {props.connection.connectionState ===
                 Lib.ConnectionState.SignedIn &&
                 props.selectedContact && (
                     <Chat
@@ -55,7 +61,7 @@ function RightView(props: RightViewProps) {
                         }
                         contact={props.selectedContact}
                         ensNames={props.ensNames}
-                        apiConnection={props.apiConnection as Lib.ApiConnection}
+                        connection={props.connection as Lib.Connection}
                         newMessages={props.newMessages}
                         setNewMessages={props.setNewMessages}
                     />

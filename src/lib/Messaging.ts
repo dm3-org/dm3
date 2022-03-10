@@ -1,9 +1,11 @@
 import { ethers } from 'ethers';
-
-import { EthEncryptedData } from './Encryption';
-import { Account, ApiConnection, Keys } from './Web3Provider';
+import { decryptEnvelop, EthEncryptedData } from './Encryption';
+import { Account, Connection, Keys } from './Web3Provider';
 import MessageSchema from '../schema.json';
 import Ajv from 'ajv';
+import { getConversation, storeMessages } from './Storage';
+import { LogDescription } from 'ethers/lib/utils';
+import { log } from './log';
 
 export interface Message {
     to: string;
@@ -13,14 +15,16 @@ export interface Message {
 }
 
 export interface Envelop {
-    message: string;
+    message: Message;
     signature: string;
+    wasEncrypted?: boolean;
+    id?: string;
 }
 
 export interface EncryptionEnvelop {
     encryptionVersion: 'x25519-xsalsa20-poly1305';
-    data: string;
-    selfData: string;
+    toEncryptedData: string;
+    fromEncryptedData: string;
     to: string;
     from: string;
 }
@@ -46,15 +50,12 @@ export function createMessage(
     };
 }
 
-export function getMessage(envelop: Envelop): Message {
-    const message = JSON.parse(envelop.message);
+export function validateMessage(envelop: Envelop) {
     const ajv = new Ajv();
     const validate = ajv.compile(MessageSchema);
-    if (!validate(message)) {
+    if (!validate(envelop.message)) {
         throw Error("Message doesn't fit schema");
     }
-
-    return message;
 }
 
 export function isEncryptionEnvelop(
@@ -64,14 +65,16 @@ export function isEncryptionEnvelop(
 }
 
 export async function submitMessage(
-    apiConnection: ApiConnection,
+    connection: Connection,
     to: Account,
     message: Message,
     submitMessageApi: (
-        apiConnection: ApiConnection,
+        connection: Connection,
         envelop: Envelop | EncryptionEnvelop,
+        onSuccess: () => void,
+        onError: () => void,
     ) => Promise<void>,
-    signWithEncryptionKey: (message: string, keys: Keys) => string,
+    signWithEncryptionKey: (message: Message, keys: Keys) => string,
     encryptSafely: ({
         publicKey,
         data,
@@ -81,48 +84,98 @@ export async function submitMessage(
         data: unknown;
         version: string;
     }) => EthEncryptedData,
+    onSuccess: () => void,
     encrypt?: boolean,
 ): Promise<void> {
-    const seralizedMessage = JSON.stringify(message);
-
-    let envelop: Envelop | EncryptionEnvelop = {
-        message: seralizedMessage,
+    const innerEnvelop: Envelop = {
+        message,
         signature: signWithEncryptionKey(
-            seralizedMessage,
-            apiConnection.account?.keys as Keys,
+            message,
+            connection.account?.keys as Keys,
         ),
     };
 
+    const allOnSuccess = () => {
+        onSuccess();
+        storeMessages([innerEnvelop], connection);
+    };
+
     if (encrypt) {
-        envelop = {
-            data: ethers.utils.hexlify(
+        const envelop: EncryptionEnvelop = {
+            toEncryptedData: ethers.utils.hexlify(
                 ethers.utils.toUtf8Bytes(
                     JSON.stringify(
                         encryptSafely({
                             publicKey: to.keys?.publicMessagingKey as string,
-                            data: envelop,
+                            data: innerEnvelop,
                             version: 'x25519-xsalsa20-poly1305',
                         }),
                     ),
                 ),
             ),
-            selfData: ethers.utils.hexlify(
+            fromEncryptedData: ethers.utils.hexlify(
                 ethers.utils.toUtf8Bytes(
                     JSON.stringify(
                         encryptSafely({
-                            publicKey: apiConnection.account?.keys
+                            publicKey: connection.account?.keys
                                 ?.publicMessagingKey as string,
-                            data: envelop,
+                            data: innerEnvelop,
                             version: 'x25519-xsalsa20-poly1305',
                         }),
                     ),
                 ),
             ),
             to: to.address,
-            from: (apiConnection.account as Account).address,
+            from: (connection.account as Account).address,
             encryptionVersion: 'x25519-xsalsa20-poly1305',
         };
-    }
 
-    await submitMessageApi(apiConnection, envelop);
+        await submitMessageApi(connection, envelop, allOnSuccess, () =>
+            log('submit message error'),
+        );
+    } else {
+        await submitMessageApi(connection, innerEnvelop, allOnSuccess, () =>
+            log('submit message error'),
+        );
+    }
+}
+
+export function sortEnvelops(envelops: Envelop[]): Envelop[] {
+    return envelops.sort((a, b) => a.message.timestamp - b.message.timestamp);
+}
+
+export function getId(envelop: Envelop): string {
+    return ethers.utils.id(JSON.stringify(envelop.message));
+}
+
+function decryptMessages(
+    envelops: Envelop[],
+    connection: Connection,
+): Promise<Envelop[]> {
+    return Promise.all(
+        envelops.map(
+            async (envelop): Promise<Envelop> => ({
+                ...(isEncryptionEnvelop(envelop)
+                    ? (decryptEnvelop(connection, envelop) as Envelop)
+                    : envelop),
+                wasEncrypted: isEncryptionEnvelop(envelop) ? true : false,
+            }),
+        ),
+    );
+}
+
+export async function getMessages(
+    connection: Connection,
+    contact: string,
+    getNewMessages: (
+        connection: Connection,
+        contact: string,
+    ) => Promise<Envelop[]>,
+): Promise<Envelop[]> {
+    const envelops = await getNewMessages(connection, contact);
+    const decryptedEnvelops = await decryptMessages(envelops, connection);
+
+    storeMessages(decryptedEnvelops, connection);
+
+    return getConversation(contact, connection);
 }

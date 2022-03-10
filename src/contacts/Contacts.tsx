@@ -5,7 +5,7 @@ import * as Lib from '../lib';
 import './Contacts.css';
 
 interface ContactsProps {
-    apiConnection: Lib.ApiConnection;
+    connection: Lib.Connection;
     ensNames: Map<string, string>;
     setEnsNames: (ensNames: Map<string, string>) => void;
     contacts?: Lib.Account[];
@@ -33,23 +33,23 @@ function Contacts(props: ContactsProps) {
     }, [props.selectedContact]);
 
     useEffect(() => {
-        if (!props.contacts && props.apiConnection.sessionToken) {
+        if (!props.contacts && props.connection.sessionToken) {
             props.getContacts();
         }
-    }, [props.apiConnection.sessionToken]);
+    }, [props.connection.sessionToken]);
 
     return (
         <>
             <div className="row">
                 <div className="col-12 text-center contact-list-container">
                     <AddContactForm
-                        apiConnection={props.apiConnection}
+                        connection={props.connection}
                         requestContacts={props.getContacts}
                     />
                 </div>
             </div>
             {props.contacts &&
-                props.apiConnection.connectionState ===
+                props.connection.connectionState ===
                     Lib.ConnectionState.SignedIn && (
                     <div className="row">
                         <div className="col-12 text-center contact-list-container">

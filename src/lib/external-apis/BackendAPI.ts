@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { log } from '../log';
 import { EncryptionEnvelop, Envelop, Message } from '../Messaging';
-import { ApiConnection, Account, Keys, EncryptedKeys } from '../Web3Provider';
+import { Connection, Account, Keys, EncryptedKeys } from '../Web3Provider';
 
 export async function submitSignedChallenge(
     challenge: string,
@@ -39,14 +39,14 @@ export async function requestChallenge(
 }
 
 export async function addContact(
-    apiConnection: ApiConnection,
+    connection: Connection,
     contactAddress: string,
 ): Promise<void> {
     await axios.post(
         (process.env.REACT_APP_BACKEND as string) +
             '/addContact/' +
-            (apiConnection.account as Account).address,
-        { contactAddress, token: apiConnection.sessionToken },
+            (connection.account as Account).address,
+        { contactAddress, token: connection.sessionToken },
     );
 }
 
@@ -65,28 +65,40 @@ export async function getContacts(
 }
 
 export async function submitMessage(
-    apiConnection: ApiConnection,
+    connection: Connection,
     envelop: Envelop | EncryptionEnvelop,
+    onSuccess: () => void,
+    onError: () => void,
 ): Promise<void> {
-    if (apiConnection.socket) {
+    if (connection.socket) {
         log(`Submitting message`);
-        apiConnection.socket.emit('submitMessage', {
-            envelop,
-            token: apiConnection.sessionToken,
-        });
+        connection.socket.emit(
+            'submitMessage',
+            {
+                envelop,
+                token: connection.sessionToken,
+            },
+            (response: string) => {
+                if (response === 'success') {
+                    onSuccess();
+                } else {
+                    onError();
+                }
+            },
+        );
     }
 }
 
-export async function getMessages(
-    apiConnection: ApiConnection,
+export async function getNewMessages(
+    connection: Connection,
     contact: string,
 ): Promise<Envelop[]> {
     return (
         await axios.post(
             (process.env.REACT_APP_BACKEND as string) +
                 '/getMessages/' +
-                apiConnection.account.address,
-            { contact, token: apiConnection.sessionToken },
+                connection.account.address,
+            { contact, token: connection.sessionToken },
         )
     ).data.messages;
 }

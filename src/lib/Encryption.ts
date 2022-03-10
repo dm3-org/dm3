@@ -4,9 +4,10 @@ import * as nacl from 'tweetnacl';
 //@ts-ignore
 import * as naclUtil from 'tweetnacl-util';
 import { Buffer } from 'buffer';
-import { ApiConnection, Account, Keys } from './Web3Provider';
+import { Connection, Account, Keys } from './Web3Provider';
 import { ethers } from 'ethers';
-import { box, randomBytes } from 'tweetnacl';
+import { Envelop, Message } from './Messaging';
+import { EncryptionEnvelop } from '.';
 
 export interface EthEncryptedData {
     version: string;
@@ -209,7 +210,7 @@ export function decryptSafely({
 }: {
     encryptedData: EthEncryptedData;
     privateKey: string;
-}): string {
+}): unknown {
     if (isNullish(encryptedData)) {
         throw new Error('Missing encryptedData parameter');
     } else if (isNullish(privateKey)) {
@@ -231,35 +232,43 @@ function nacl_decodeHex(msgHex: string): Uint8Array {
     return naclUtil.decodeBase64(msgHex);
 }
 
-export async function decryptMessage(
-    apiConnection: ApiConnection,
-    encryptedData: string,
-): Promise<unknown> {
-    return decryptSafely({
-        encryptedData: JSON.parse(ethers.utils.toUtf8String(encryptedData)),
-        privateKey: ((apiConnection.account as Account).keys as Keys)
-            .privateMessagingKey as string,
-    });
+export function decryptEnvelop(
+    connection: Connection,
+    envelop: EncryptionEnvelop,
+): Envelop {
+    const encryptedData =
+        envelop.from === connection.account.address
+            ? envelop.fromEncryptedData
+            : envelop.toEncryptedData;
+
+    return {
+        ...(decryptSafely({
+            encryptedData: JSON.parse(ethers.utils.toUtf8String(encryptedData)),
+            privateKey: ((connection.account as Account).keys as Keys)
+                .privateMessagingKey as string,
+        }) as Envelop),
+        wasEncrypted: true,
+    };
 }
 
 export function checkSignature(
-    message: string,
+    message: Message,
     fromAccount: Account,
     signature: string,
 ): boolean {
     return fromAccount.keys?.publicSigningKey
         ? nacl.sign.detached.verify(
-              ethers.utils.toUtf8Bytes(message),
+              ethers.utils.toUtf8Bytes(JSON.stringify(message)),
               ethers.utils.arrayify(signature),
               nacl_decodeHex(fromAccount.keys?.publicSigningKey as string),
           )
         : false;
 }
 
-export function signWithEncryptionKey(message: string, keys: Keys): string {
+export function signWithEncryptionKey(message: Message, keys: Keys): string {
     return ethers.utils.hexlify(
         nacl.sign.detached(
-            ethers.utils.toUtf8Bytes(message),
+            ethers.utils.toUtf8Bytes(JSON.stringify(message)),
             naclUtil.decodeBase64(keys.privateSigningKey as string),
         ),
     );

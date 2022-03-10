@@ -5,15 +5,26 @@ import { v4 as uuidv4 } from 'uuid';
 import { checkToken, Session } from './BackendLib';
 import { Server } from 'socket.io';
 import http from 'http';
-import { addContact, getConversationId, incomingMessage } from './Messaging';
+import { addContact, incomingMessage } from './Messaging';
 import path from 'path';
 import * as Lib from '../src/lib';
+import cors from 'cors';
 
 const app = express();
 app.use(express.json());
 
 const server = http.createServer(app);
-const io = new Server(server);
+
+//TODO remove
+app.use(cors());
+const io = new Server(server, {
+    cors: {
+        origin: '*',
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+        preflightContinue: false,
+        optionsSuccessStatus: 204,
+    },
+});
 
 const sessions = new Map<string, Session>();
 const contacts = new Map<string, Set<string>>();
@@ -110,7 +121,7 @@ app.post('/getMessages/:accountAddress', (req, res) => {
     console.log(`[getMessages]`);
     const account = Lib.formatAddress(req.params.accountAddress);
     const contact = Lib.formatAddress(req.body.contact);
-    const conversationId = getConversationId(contact, account);
+    const conversationId = Lib.getConversationId(contact, account);
     console.log(`- Conversations id: ${conversationId}`);
 
     if (checkToken(sessions, account, req.body.token)) {
@@ -176,7 +187,7 @@ io.use((socket, next) => {
     }
     const session = sessions.get(account) as Session;
     session.socketId = socket.id;
-    console.log(`[WS] Account ${account}: CONNECTED`);
+    console.log(`[WS] Account ${account} with id ${socket.id}: CONNECTED`);
     //socket.username = socket.handshake.auth.account as string;
     next();
 });
@@ -189,10 +200,17 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('[WS] user disconnected');
     });
-    socket.on('submitMessage', (data) => {
+    socket.on('submitMessage', (data, callback) => {
         console.log('[WS] incoming message');
         try {
-            incomingMessage(data, sessions, messages, socket, contacts);
+            incomingMessage(
+                data,
+                sessions,
+                messages,
+                socket,
+                contacts,
+                callback,
+            );
         } catch (e) {
             console.error(e);
         }

@@ -7,15 +7,14 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { EnvelopContainer } from './chat/Chat';
 import socketIOClient from 'socket.io-client';
 import * as Lib from './lib';
-import { getMessage } from './lib/Messaging';
 import { requestContacts } from './ui-shared/RequestContacts';
 import Header from './header/Header';
 import LeftView from './LeftView';
 import RightView from './RightView';
 
 function App() {
-    const [apiConnection, setApiConnection] = useState<
-        { connectionState: Lib.ConnectionState } & Partial<Lib.ApiConnection>
+    const [connection, setConnection] = useState<
+        { connectionState: Lib.ConnectionState } & Partial<Lib.Connection>
     >({
         connectionState: Lib.ConnectionState.CheckingProvider,
     });
@@ -35,7 +34,7 @@ function App() {
 
     const getContacts = () =>
         requestContacts(
-            apiConnection as Lib.ApiConnection,
+            connection as Lib.Connection,
             selectedContact,
             setSelectedContact,
             setContacts,
@@ -51,14 +50,11 @@ function App() {
 
         const innerEnvelop = (
             Lib.isEncryptionEnvelop(envelop)
-                ? await Lib.decryptMessage(
-                      apiConnection as Lib.ApiConnection,
-                      (envelop as Lib.EncryptionEnvelop).data,
-                  )
+                ? Lib.decryptEnvelop(connection as Lib.Connection, envelop)
                 : envelop
         ) as Lib.Envelop;
 
-        const from = Lib.formatAddress(getMessage(innerEnvelop).from);
+        const from = Lib.formatAddress(innerEnvelop.message.from);
 
         if (
             !contacts?.find(
@@ -94,16 +90,16 @@ function App() {
 
     useEffect(() => {
         if (
-            apiConnection.connectionState === Lib.ConnectionState.SignedIn &&
-            !apiConnection.socket
+            connection.connectionState === Lib.ConnectionState.SignedIn &&
+            !connection.socket
         ) {
             const socket = socketIOClient(
                 process.env.REACT_APP_BACKEND as string,
                 { autoConnect: false },
             );
             socket.auth = {
-                account: apiConnection.account,
-                token: apiConnection.sessionToken,
+                account: connection.account,
+                token: connection.sessionToken,
             };
             socket.connect();
             socket.on(
@@ -112,14 +108,14 @@ function App() {
                     handleNewMessage(envelop, selectedContact);
                 },
             );
-            changeApiConnection({ socket });
+            changeConnection({ socket });
         }
-    }, [apiConnection.connectionState, apiConnection.socket]);
+    }, [connection.connectionState, connection.socket]);
 
     useEffect(() => {
-        if (selectedContact && apiConnection.socket) {
-            apiConnection.socket.removeListener('message');
-            apiConnection.socket.on(
+        if (selectedContact && connection.socket) {
+            connection.socket.removeListener('message');
+            connection.socket.on(
                 'message',
                 (envelop: Lib.Envelop | Lib.EncryptionEnvelop) => {
                     handleNewMessage(envelop, selectedContact);
@@ -128,36 +124,9 @@ function App() {
         }
     }, [selectedContact]);
 
-    const changeApiConnection = (
-        newApiConnection: Partial<Lib.ApiConnection>,
-    ) => {
-        if (newApiConnection.connectionState) {
-            Lib.log(
-                `Changing state from ${
-                    Lib.ConnectionState[apiConnection.connectionState]
-                } to ${Lib.ConnectionState[newApiConnection.connectionState]}`,
-            );
-        }
-
-        if (newApiConnection.sessionToken) {
-            Lib.log(
-                `Retrieved new session token: ${newApiConnection.sessionToken}`,
-            );
-        }
-
-        if (newApiConnection.account) {
-            Lib.log(`Account: ${newApiConnection.account.address}`);
-        }
-
-        if (newApiConnection.provider) {
-            Lib.log(`Provider set`);
-        }
-
-        if (newApiConnection.provider) {
-            Lib.log(`Socket set`);
-        }
-
-        setApiConnection({ ...apiConnection, ...newApiConnection });
+    const changeConnection = (newConnection: Partial<Lib.Connection>) => {
+        Lib.logConnectionChange(newConnection);
+        setConnection({ ...connection, ...newConnection });
     };
 
     const createWeb3Provider = async () => {
@@ -166,22 +135,28 @@ function App() {
         );
 
         if (web3Provider.provider) {
-            changeApiConnection({
+            changeConnection({
                 provider: web3Provider.provider,
                 connectionState: web3Provider.connectionState,
             });
         } else {
-            changeApiConnection({
+            changeConnection({
                 connectionState: web3Provider.connectionState,
             });
         }
     };
 
     useEffect(() => {
-        if (!apiConnection.provider) {
+        if (!connection.db) {
+            changeConnection({ db: Lib.createDB() });
+        }
+    }, [connection.db]);
+
+    useEffect(() => {
+        if (!connection.provider) {
             createWeb3Provider();
         }
-    }, [apiConnection.provider]);
+    }, [connection.provider]);
 
     useEffect(() => {
         if (selectedContact) {
@@ -200,24 +175,17 @@ function App() {
         <div className="container">
             <div className="row main-content-row">
                 <div className="col-12 h-100">
-                    {apiConnection.connectionState ===
-                        Lib.ConnectionState.NoProvider && (
-                        <div className="col-md-12 text-center">
-                            No Ethereum provider detected.
-                        </div>
-                    )}
-
                     <Header
-                        apiConnection={apiConnection}
-                        changeApiConnection={changeApiConnection}
+                        connection={connection}
+                        changeConnection={changeConnection}
                         ensNames={ensNames}
                         selectedContact={selectedContact}
                         contacts={contacts}
                     />
                     <div className="row body-row">
                         <LeftView
-                            apiConnection={apiConnection}
-                            changeApiConnection={changeApiConnection}
+                            connection={connection}
+                            changeConnection={changeConnection}
                             ensNames={ensNames}
                             selectedContact={selectedContact}
                             contacts={contacts}
@@ -226,8 +194,8 @@ function App() {
                             setSelectedContact={setSelectedContact}
                         />
                         <RightView
-                            apiConnection={apiConnection}
-                            changeApiConnection={changeApiConnection}
+                            connection={connection}
+                            changeConnection={changeConnection}
                             ensNames={ensNames}
                             selectedContact={selectedContact}
                             contacts={contacts}

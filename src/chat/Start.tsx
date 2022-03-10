@@ -3,8 +3,8 @@ import * as Lib from '../lib';
 
 interface StartProps {
     contacts: Lib.Account[] | undefined;
-    apiConnection: Lib.ApiConnection;
-    changeApiConnection: (apiConnection: Partial<Lib.ApiConnection>) => void;
+    connection: Lib.Connection;
+    changeConnection: (connection: Partial<Lib.Connection>) => void;
 }
 
 function Start(props: StartProps) {

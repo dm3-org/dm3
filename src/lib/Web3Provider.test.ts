@@ -1,6 +1,6 @@
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { ethers } from 'ethers';
-import { addContact, ApiConnection } from './Web3Provider';
+import { addContact, Connection } from './Web3Provider';
 import {
     connectAccount,
     ConnectionState,
@@ -74,7 +74,7 @@ test('add a contact', async () => {
             } as any,
             '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
             async (provider: JsonRpcProvider, input: string) => input,
-            async (apiConnection: ApiConnection, contactAddress: string) => {},
+            async (connection: Connection, contactAddress: string) => {},
         ),
     ).resolves;
 });
@@ -89,7 +89,7 @@ test('handle add contact error', async () => {
             } as any,
             '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
             async (provider: JsonRpcProvider, input: string) => input,
-            async (apiConnection: ApiConnection, contactAddress: string) => {
+            async (connection: Connection, contactAddress: string) => {
                 throw Error('err');
             },
         ),
