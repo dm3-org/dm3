@@ -117,66 +117,69 @@ function SignIn(props: SignInProps) {
     };
 
     return (
-        <div className="row d-flex justify-content-center ">
-            <div className="col-md-12 row-space">
-                <div className="row">
-                    <div className="col-md-12">
-                        <button
-                            onClick={connect}
-                            type="button"
-                            className={`btn btn-${
-                                props.connection.connectionState ===
-                                Lib.ConnectionState.AccountConnectionRejected
-                                    ? 'danger'
-                                    : 'primary'
-                            } btn-lg w-100`}
-                            disabled={
-                                !(
+        <div className="w-100">
+            <div className="row d-flex justify-content-center ">
+                <div className="col-md-12 row-space">
+                    <div className="row">
+                        <div className="col-md-12">
+                            <button
+                                onClick={connect}
+                                type="button"
+                                className={`btn btn-${
                                     props.connection.connectionState ===
-                                        Lib.ConnectionState
-                                            .AccountConntectReady ||
-                                    props.connection.connectionState ===
-                                        Lib.ConnectionState
-                                            .AccountConnectionRejected
-                                )
-                            }
-                        >
-                            Connect Account
-                            <span className="push-end">
-                                {getConnectionIconClass(
-                                    props.connection.connectionState,
-                                )}
-                            </span>
-                        </button>
+                                    Lib.ConnectionState
+                                        .AccountConnectionRejected
+                                        ? 'danger'
+                                        : 'primary'
+                                } btn-lg w-100`}
+                                disabled={
+                                    !(
+                                        props.connection.connectionState ===
+                                            Lib.ConnectionState
+                                                .AccountConntectReady ||
+                                        props.connection.connectionState ===
+                                            Lib.ConnectionState
+                                                .AccountConnectionRejected
+                                    )
+                                }
+                            >
+                                Connect Account
+                                <span className="push-end">
+                                    {getConnectionIconClass(
+                                        props.connection.connectionState,
+                                    )}
+                                </span>
+                            </button>
+                        </div>
                     </div>
-                </div>
-                <div className="row row-space">
-                    <div className="col-md-12">
-                        <button
-                            onClick={requestSignIn}
-                            type="button"
-                            className={`btn btn-${
-                                props.connection.connectionState ===
-                                Lib.ConnectionState.SignInFailed
-                                    ? 'danger'
-                                    : 'primary'
-                            } btn-lg w-100`}
-                            disabled={
-                                !(
+                    <div className="row row-space">
+                        <div className="col-md-12">
+                            <button
+                                onClick={requestSignIn}
+                                type="button"
+                                className={`btn btn-${
                                     props.connection.connectionState ===
-                                        Lib.ConnectionState.SignInReady ||
-                                    props.connection.connectionState ===
-                                        Lib.ConnectionState.SignInFailed
-                                )
-                            }
-                        >
-                            Sign In
-                            <span className="push-end">
-                                {getSignInIconClass(
-                                    props.connection.connectionState,
-                                )}
-                            </span>
-                        </button>
+                                    Lib.ConnectionState.SignInFailed
+                                        ? 'danger'
+                                        : 'primary'
+                                } btn-lg w-100`}
+                                disabled={
+                                    !(
+                                        props.connection.connectionState ===
+                                            Lib.ConnectionState.SignInReady ||
+                                        props.connection.connectionState ===
+                                            Lib.ConnectionState.SignInFailed
+                                    )
+                                }
+                            >
+                                Sign In
+                                <span className="push-end">
+                                    {getSignInIconClass(
+                                        props.connection.connectionState,
+                                    )}
+                                </span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

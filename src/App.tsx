@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import 'react-chat-widget/lib/styles.css';
 import detectEthereumProvider from '@metamask/detect-provider';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { EnvelopContainer } from './chat/Chat';
 import socketIOClient from 'socket.io-client';
 import * as Lib from './lib';
@@ -11,6 +9,7 @@ import { requestContacts } from './ui-shared/RequestContacts';
 import Header from './header/Header';
 import LeftView from './LeftView';
 import RightView from './RightView';
+import { useBeforeunload } from 'react-beforeunload';
 
 function App() {
     const [connection, setConnection] = useState<
@@ -31,6 +30,17 @@ function App() {
     >();
 
     const [newMessages, setNewMessages] = useState<EnvelopContainer[]>([]);
+
+    const [synced, setSynced] = useState<boolean>(false);
+
+    if (synced) {
+        useBeforeunload();
+    } else {
+        useBeforeunload(
+            () =>
+                "The app is out of sync with the database. You'll loose your new messages.",
+        );
+    }
 
     const getContacts = () =>
         requestContacts(
@@ -148,7 +158,7 @@ function App() {
 
     useEffect(() => {
         if (!connection.db) {
-            changeConnection({ db: Lib.createDB() });
+            changeConnection({ db: Lib.createDB(setSynced) });
         }
     }, [connection.db]);
 

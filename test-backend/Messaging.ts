@@ -48,7 +48,6 @@ export function incomingMessage(
         if (selfSession?.socketId) {
             console.log(`- Acknowledge incoming message for ${account}`);
             socket.to(selfSession.socketId).emit('message', data.envelop);
-            console.log(selfSession.socketId);
         }
         callback('success');
     } else {
