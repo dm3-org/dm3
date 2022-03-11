@@ -12,7 +12,11 @@ export type { MessageDB } from './Storage';
 
 export { createDB, getConversationId } from './Storage';
 export { decryptEnvelop, checkSignature } from './Encryption';
-export { MessageState, isEncryptionEnvelop } from './Messaging';
+export {
+    MessageState,
+    isEncryptionEnvelop,
+    getEnvelopMetaData,
+} from './Messaging';
 export {
     logConnectionChange,
     ConnectionState,
