@@ -1,14 +1,30 @@
-import { Account, formatAddress } from '.';
+import { formatAddress } from '.';
 import { Envelop, sortEnvelops, getId } from './Messaging';
 import { Connection } from './Web3Provider';
 
 export interface MessageDB {
     conversations: Map<string, Envelop[]>;
+    syncNotification?: (synced: boolean) => void;
+    synced: boolean;
 }
 
-export function createDB(): MessageDB {
+function setSyncedState(synced: boolean, db: MessageDB) {
+    db.synced = synced;
+    if (db.syncNotification) {
+        db.syncNotification(synced);
+    }
+}
+
+export function createDB(
+    syncNotification?: (synced: boolean) => void,
+): MessageDB {
+    if (syncNotification) {
+        syncNotification(true);
+    }
     return {
         conversations: new Map<string, Envelop[]>(),
+        synced: true,
+        syncNotification,
     };
 }
 
@@ -42,6 +58,7 @@ export function storeMessages(envelops: Envelop[], connection: Connection) {
 
         if (prevEnvelops.length === 0) {
             connection.db.conversations.set(conversationId, [envelop]);
+            setSyncedState(false, connection.db);
         } else if (
             prevEnvelops[prevEnvelops.length - 1].message.timestamp <
             envelop.message.timestamp
@@ -50,6 +67,7 @@ export function storeMessages(envelops: Envelop[], connection: Connection) {
                 ...prevEnvelops,
                 envelop,
             ]);
+            setSyncedState(false, connection.db);
         } else {
             const isNew = !prevEnvelops.find(
                 (prevEnvelop) => prevEnvelop.id === envelop.id,
@@ -59,6 +77,7 @@ export function storeMessages(envelops: Envelop[], connection: Connection) {
                     conversationId,
                     sortEnvelops([...prevEnvelops, envelop]),
                 );
+                setSyncedState(false, connection.db);
             }
         }
     }

@@ -128,9 +128,15 @@ app.post('/getMessages/:accountAddress', (req, res) => {
             messages.has(conversationId) ? messages.get(conversationId) : []
         ) as (Lib.EncryptionEnvelop | Lib.Envelop)[];
 
+        const forAccount = receivedMessages.filter(
+            (envelop) =>
+                Lib.formatAddress(Lib.getEnvelopMetaData(envelop).to) ===
+                account,
+        );
+
         console.log(`- ${receivedMessages?.length} messages`);
         res.send({
-            messages: receivedMessages,
+            messages: forAccount,
         });
 
         // remove deliverd messages

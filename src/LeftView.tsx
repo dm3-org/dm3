@@ -4,6 +4,7 @@ import * as Lib from './lib';
 import Contacts from './contacts/Contacts';
 import SignIn, { showSignIn } from './sign-in/SignIn';
 import { isWidgetOpened, toggleWidget } from 'react-chat-widget';
+import StorageView from './storage/StorageView';
 
 interface LeftViewProps {
     connection: {
@@ -28,7 +29,7 @@ function LeftView(props: LeftViewProps) {
     };
 
     return (
-        <div className="col-md-4">
+        <div className="col-md-4 d-flex align-items-end flex-column ">
             <Contacts
                 connection={props.connection as Lib.Connection}
                 ensNames={props.ensNames}
@@ -45,6 +46,10 @@ function LeftView(props: LeftViewProps) {
                     setEnsNames={props.setEnsNames}
                     ensNames={props.ensNames}
                 />
+            )}
+            {props.connection.connectionState ===
+                Lib.ConnectionState.SignedIn && (
+                <StorageView connection={props.connection as Lib.Connection} />
             )}
         </div>
     );

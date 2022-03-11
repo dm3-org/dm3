@@ -39,7 +39,7 @@ function Contacts(props: ContactsProps) {
     }, [props.connection.sessionToken]);
 
     return (
-        <>
+        <div className="w-100">
             <div className="row">
                 <div className="col-12 text-center contact-list-container">
                     <AddContactForm
@@ -62,7 +62,7 @@ function Contacts(props: ContactsProps) {
                         </div>
                     </div>
                 )}
-        </>
+        </div>
     );
 }
 
