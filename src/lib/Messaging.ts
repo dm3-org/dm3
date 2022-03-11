@@ -179,3 +179,18 @@ export async function getMessages(
 
     return getConversation(contact, connection);
 }
+
+export function getEnvelopMetaData(envelop: Envelop | EncryptionEnvelop): {
+    from: string;
+    to: string;
+} {
+    return isEncryptionEnvelop(envelop)
+        ? {
+              from: (envelop as EncryptionEnvelop).from,
+              to: (envelop as EncryptionEnvelop).to,
+          }
+        : {
+              from: (envelop as Envelop).message.from,
+              to: (envelop as Envelop).message.to,
+          };
+}

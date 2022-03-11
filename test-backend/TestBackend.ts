@@ -1,7 +1,6 @@
 import { ethers } from 'ethers';
 import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
-
 import { checkToken, Session } from './BackendLib';
 import { Server } from 'socket.io';
 import http from 'http';
@@ -125,13 +124,24 @@ app.post('/getMessages/:accountAddress', (req, res) => {
     console.log(`- Conversations id: ${conversationId}`);
 
     if (checkToken(sessions, account, req.body.token)) {
-        const receivedMessages = messages.has(conversationId)
-            ? messages.get(conversationId)
-            : ([] as Lib.Envelop[]);
+        const receivedMessages: (Lib.EncryptionEnvelop | Lib.Envelop)[] = (
+            messages.has(conversationId) ? messages.get(conversationId) : []
+        ) as (Lib.EncryptionEnvelop | Lib.Envelop)[];
+
         console.log(`- ${receivedMessages?.length} messages`);
         res.send({
             messages: receivedMessages,
         });
+
+        // remove deliverd messages
+        messages.set(
+            conversationId,
+            receivedMessages.filter(
+                (envelop) =>
+                    Lib.formatAddress(Lib.getEnvelopMetaData(envelop).to) !==
+                    account,
+            ),
+        );
     } else {
         res.status(401).send('Token check failed)');
     }
