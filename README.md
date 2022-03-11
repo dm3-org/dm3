@@ -1,5 +1,44 @@
 # ens-mail
 
+## Architecture 
+```mermaid
+graph TD
+    subgraph sg0[Alice]
+    id7[(Messages)]
+        id0(Dapp)
+        id10[Profile Data]
+        
+        
+    end
+    id0 --> id9[Chain]
+    
+    id0 --> id7
+    id0 --- id1[ENS Mail Home Delivery Service] 
+
+
+    id4[Bob] --- id1
+    id6[Max]-.-id2
+    id1 -.- id2[Other Delivery Service] 
+    id1 --- id3[Bridges] 
+   
+   
+
+    id1 --> id9
+    id2 --> id9
+    id9 ---> id10
+     
+
+   classDef green fill:#9f6,stroke:#333
+   classDef lightgreen fill:#eaffe0,stroke:#333
+   classDef orange fill:#f96,stroke:#333
+   class id0,id7,id8,id10,sg0 green
+   class id4,id6,sg0 lightgreen
+   class id1,id3 orange
+```
+**Profile Data**
+* Delivery Service URI
+* Public Key(s) 
+
 ## Initial Sign In
 ```mermaid
 flowchart TD
