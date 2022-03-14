@@ -26,8 +26,8 @@ const io = new Server(server, {
 });
 
 const sessions = new Map<string, Session>();
-const contacts = new Map<string, Set<string>>();
 const messages = new Map<string, (Lib.EncryptionEnvelop | Lib.Envelop)[]>();
+const pendingConversations = new Map<string, Set<string>>();
 
 app.use(express.static(path.join(__dirname, '../build')));
 const port = process.env.PORT || '8080';
@@ -42,7 +42,7 @@ app.post('/requestSignInChallenge', (req, res) => {
     sessions.set(account, session);
     res.send({
         challenge: session.challenge,
-        hasEncryptionKey: session.encryptedKeys ? true : false,
+        hasKeys: session.keys ? true : false,
     });
 });
 
@@ -64,55 +64,6 @@ app.post('/submitSignedChallenge', (req, res) => {
     } else {
         res.status(401).send('sign in failed');
         console.log(`- Failed to set session key for ${account}`);
-    }
-});
-
-app.post('/addContact/:accountAddress', (req, res) => {
-    console.log('[addContact]');
-    const account = Lib.formatAddress(req.params.accountAddress);
-    if (checkToken(sessions, account, req.body.token)) {
-        addContact(contacts, account, req.body.contactAddress);
-
-        res.send('OK');
-    } else {
-        res.status(401).send('Token check failed)');
-    }
-});
-
-app.post('/getContacts/:accountAddress', (req, res) => {
-    console.log('[getContacts]');
-    const account = Lib.formatAddress(req.params.accountAddress);
-
-    if (checkToken(sessions, account, req.body.token)) {
-        const accountContacts = contacts.has(account)
-            ? Array.from(contacts.get(account) as Set<string>)
-            : [];
-
-        res.send(
-            accountContacts.map((address) => ({
-                address,
-                keys: {
-                    publicMessagingKey:
-                        sessions.has(address) &&
-                        (sessions.get(address) as Session).encryptedKeys
-                            ? (
-                                  (sessions.get(address) as Session)
-                                      .encryptedKeys as Lib.EncryptedKeys
-                              ).publicMessagingKey
-                            : undefined,
-                    publicSigningKey:
-                        sessions.has(address) &&
-                        (sessions.get(address) as Session).encryptedKeys
-                            ? (
-                                  (sessions.get(address) as Session)
-                                      .encryptedKeys as Lib.EncryptedKeys
-                              ).publicSigningKey
-                            : undefined,
-                },
-            })),
-        );
-    } else {
-        res.status(401).send('Token check failed');
     }
 });
 
@@ -153,12 +104,32 @@ app.post('/getMessages/:accountAddress', (req, res) => {
     }
 });
 
+app.post('/getPendingConversations/:accountAddress', (req, res) => {
+    console.log(`[getPendingConversations]`);
+    const account = Lib.formatAddress(req.params.accountAddress);
+
+    console.log(`- Account: ${req.params.accountAddress}`);
+
+    if (checkToken(sessions, account, req.body.token)) {
+        const conversations = pendingConversations.get(account);
+        if (conversations) {
+            res.send(Array.from(conversations));
+        } else {
+            res.send([]);
+        }
+
+        pendingConversations.set(account, new Set<string>());
+    } else {
+        res.status(401).send('Token check failed)');
+    }
+});
+
 app.post('/submitKeys/:accountAddress', (req, res) => {
     console.log(`[submitKeys] Public key: ${req.body.keys.publicMessagingKey}`);
     const account = Lib.formatAddress(req.params.accountAddress);
 
     if (checkToken(sessions, account, req.body.token)) {
-        (sessions.get(account) as Session).encryptedKeys = req.body.keys;
+        (sessions.get(account) as Session).keys = req.body.keys;
         res.send('submitted');
     } else {
         res.status(401).send('Token check failed)');
@@ -169,12 +140,10 @@ app.get('/getPublicKeys/:accountAddress', (req, res) => {
     console.log(`[GET publicKey] Public key: ${req.params.accountAddress}`);
     const account = Lib.formatAddress(req.params.accountAddress);
 
-    if (sessions.get(account)?.encryptedKeys) {
+    if (sessions.get(account)?.keys) {
         res.send({
-            publicMessagingKey:
-                sessions.get(account)?.encryptedKeys?.publicMessagingKey,
-            publicSigningKey:
-                sessions.get(account)?.encryptedKeys?.publicSigningKey,
+            publicMessagingKey: sessions.get(account)?.keys?.publicMessagingKey,
+            publicSigningKey: sessions.get(account)?.keys?.publicSigningKey,
         });
     } else {
         res.send({});
@@ -186,7 +155,7 @@ app.post('/getKeys/:accountAddress', (req, res) => {
     const account = Lib.formatAddress(req.params.accountAddress);
 
     if (checkToken(sessions, account, req.body.token)) {
-        res.send({ keys: sessions.get(account)?.encryptedKeys });
+        res.send({ publicKeys: sessions.get(account)?.keys });
     } else {
         res.status(401).send('Token check failed)');
     }
@@ -223,8 +192,8 @@ io.on('connection', (socket) => {
                 data,
                 sessions,
                 messages,
+                pendingConversations,
                 socket,
-                contacts,
                 callback,
             );
         } catch (e) {

@@ -18,7 +18,7 @@ function AccountNameHeader(props: AccountNameHeaderProps) {
                 props.connection.connectionState ===
                     Lib.ConnectionState.KeyCreation) && (
                 <>
-                    {props.account.keys?.publicMessagingKey ? (
+                    {props.connection.db.keys?.publicMessagingKey ? (
                         <span className="push-end header-lock ">
                             <Icon iconClass="fas fa-lock align-bottom" />
                         </span>

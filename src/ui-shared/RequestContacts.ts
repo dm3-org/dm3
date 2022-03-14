@@ -10,7 +10,7 @@ export async function requestContacts(
     setEnsNames: (ensNames: Map<string, string>) => void,
 ) {
     const retrievedContacts = await Lib.getContacts(
-        (connection.account as Lib.Account).address,
+        connection,
         connection.sessionToken as string,
     );
 
@@ -18,12 +18,12 @@ export async function requestContacts(
 
     if (
         selectedContact &&
-        !selectedContact?.keys?.publicMessagingKey &&
+        !selectedContact?.publicKeys?.publicMessagingKey &&
         retrievedContacts.find(
             (contact: Lib.Account) =>
                 Lib.formatAddress(contact.address) ===
                 Lib.formatAddress(selectedContact.address),
-        )?.keys
+        )?.publicKeys
     ) {
         setSelectedContact(
             retrievedContacts.find(

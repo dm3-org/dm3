@@ -23,6 +23,7 @@ function AddContactForm(props: AddContactFormProps) {
             await props.requestContacts();
             setAccountToAdd('');
         } catch (e) {
+            console.log(e);
             setErrorIndication(true);
         }
     };

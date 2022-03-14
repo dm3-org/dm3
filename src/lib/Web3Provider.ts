@@ -1,37 +1,9 @@
 import { ethers } from 'ethers';
 import { Socket } from 'socket.io-client';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
-import nacl from 'tweetnacl';
-import { encodeBase64 } from 'tweetnacl-util';
-import { MessageDB } from '.';
-import { encryptSafely } from './Encryption';
+import { UserDB } from './Storage';
+import { Account } from './Account';
 import { log } from './log';
-
-export interface Keys {
-    publicKey?: string;
-    publicMessagingKey?: string;
-    privateMessagingKey?: string;
-    publicSigningKey?: string;
-    privateSigningKey?: string;
-}
-
-export interface EncryptedKeys {
-    publicKey?: string;
-    publicMessagingKey?: string;
-
-    publicSigningKey?: string;
-    encryptedPrivateKeys: string;
-}
-
-export interface PrivateKeys {
-    privateMessagingKey: string;
-    privateSigningKey: string;
-}
-
-export interface Account {
-    address: string;
-    keys?: Keys;
-}
 
 export enum ConnectionState {
     CheckingProvider,
@@ -52,7 +24,7 @@ export interface Connection {
     sessionToken: string;
     provider: ethers.providers.JsonRpcProvider;
     socket: Socket<DefaultEventsMap, DefaultEventsMap>;
-    db: MessageDB;
+    db: UserDB;
 }
 
 export async function getWeb3Provider(provider: unknown): Promise<{
@@ -92,100 +64,6 @@ export async function connectAccount(
             connectionState: ConnectionState.AccountConnectionRejected,
         };
     }
-}
-
-export function getAccountDisplayName(
-    accountAddress: string | undefined,
-    ensNames: Map<string, string>,
-): string {
-    if (!accountAddress) {
-        return '';
-    }
-    if (ensNames.get(accountAddress)) {
-        return ensNames.get(accountAddress) as string;
-    }
-    return accountAddress.length > 10
-        ? accountAddress.substring(0, 4) +
-              '...' +
-              accountAddress.substring(accountAddress.length - 4)
-        : accountAddress;
-}
-
-export async function addContact(
-    connection: Connection,
-    input: string,
-    resolveName: (
-        provider: ethers.providers.JsonRpcProvider,
-        input: string,
-    ) => Promise<string | null>,
-    addContactAPI: (
-        connection: Connection,
-        contactAddress: string,
-    ) => Promise<void>,
-) {
-    if (ethers.utils.isAddress(input)) {
-        await addContactAPI(connection, input);
-    } else {
-        const address = await resolveName(
-            connection.provider as ethers.providers.JsonRpcProvider,
-            input,
-        );
-        if (address) {
-            addContactAPI(connection, address);
-        } else {
-            throw Error(`Couldn't resolve name`);
-        }
-    }
-}
-
-export function createMessagingKeyPair(): Partial<Keys> {
-    const encryptionKeyPair = nacl.box.keyPair();
-    const signingKeyPair = nacl.sign.keyPair();
-    return {
-        publicMessagingKey: encodeBase64(encryptionKeyPair.publicKey),
-        privateMessagingKey: encodeBase64(encryptionKeyPair.secretKey),
-        publicSigningKey: encodeBase64(signingKeyPair.publicKey),
-        privateSigningKey: encodeBase64(signingKeyPair.secretKey),
-    };
-}
-
-export async function submitEncryptedKeys(
-    accountAddress: string,
-    sessionToken: string,
-    keys: Keys,
-    submitKeysApi: (
-        accountAddress: string,
-        encryptedKeys: EncryptedKeys,
-        token: string,
-    ) => Promise<void>,
-): Promise<void> {
-    const keysToEncrypt: PrivateKeys = {
-        privateMessagingKey: keys.privateMessagingKey as string,
-        privateSigningKey: keys.privateSigningKey as string,
-    };
-
-    const encryptedKeys = ethers.utils.hexlify(
-        ethers.utils.toUtf8Bytes(
-            JSON.stringify(
-                encryptSafely({
-                    publicKey: keys.publicKey as string,
-                    data: JSON.stringify(keysToEncrypt),
-                    version: 'x25519-xsalsa20-poly1305',
-                }),
-            ),
-        ),
-    );
-
-    submitKeysApi(
-        accountAddress,
-        {
-            encryptedPrivateKeys: encryptedKeys,
-            publicMessagingKey: keys.publicMessagingKey,
-            publicSigningKey: keys.publicSigningKey,
-            publicKey: keys.publicKey,
-        },
-        sessionToken,
-    );
 }
 
 export function logConnectionChange(newConnection: Partial<Connection>) {

@@ -4,7 +4,7 @@
 ```mermaid
 graph TD
     subgraph sg0[Alice]
-    id7[(Messages)]
+        id7[(UserDB)]
         id0(Dapp)
         id10[Profile Data]
         

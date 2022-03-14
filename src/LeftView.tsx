@@ -17,7 +17,7 @@ interface LeftViewProps {
     setSelectedContact: (contact: Lib.Account | undefined) => void;
     changeConnection: (newConnection: Partial<Lib.Connection>) => void;
     getContacts: () => Promise<void>;
-    setDataFile: (fileContent: string) => void;
+    setSynced: (isSynced: boolean) => void;
 }
 
 function LeftView(props: LeftViewProps) {
@@ -46,12 +46,15 @@ function LeftView(props: LeftViewProps) {
                     changeConnection={props.changeConnection}
                     setEnsNames={props.setEnsNames}
                     ensNames={props.ensNames}
-                    setDataFile={props.setDataFile}
+                    setSynced={props.setSynced}
                 />
             )}
             {props.connection.connectionState ===
                 Lib.ConnectionState.SignedIn && (
-                <StorageView connection={props.connection as Lib.Connection} />
+                <StorageView
+                    connection={props.connection as Lib.Connection}
+                    ensNames={props.ensNames}
+                />
             )}
         </div>
     );

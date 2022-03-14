@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { log } from '../log';
-import { EncryptionEnvelop, Envelop, Message } from '../Messaging';
-import { Connection, Account, Keys, EncryptedKeys } from '../Web3Provider';
+import { EncryptionEnvelop, Envelop } from '../Messaging';
+import { Connection } from '../Web3Provider';
+import { PublicKeys } from '../Account';
 
 export async function submitSignedChallenge(
     challenge: string,
@@ -15,51 +16,25 @@ export async function submitSignedChallenge(
 
 export async function submitKeys(
     accountAddress: string,
-    encryptedKeys: Keys,
+    keys: PublicKeys,
     token: string,
 ): Promise<void> {
     await axios.post(
         (process.env.REACT_APP_BACKEND as string) +
             '/submitKeys/' +
             accountAddress,
-        { keys: encryptedKeys, token },
+        { keys, token },
     );
 }
 
 export async function requestChallenge(
     account: string,
-): Promise<{ challenge: string; hasEncryptionKey: boolean }> {
+): Promise<{ challenge: string; hasKeys: boolean }> {
     return (
         await axios.post(
             (process.env.REACT_APP_BACKEND as string) +
                 '/requestSignInChallenge',
             { account },
-        )
-    ).data;
-}
-
-export async function addContact(
-    connection: Connection,
-    contactAddress: string,
-): Promise<void> {
-    await axios.post(
-        (process.env.REACT_APP_BACKEND as string) +
-            '/addContact/' +
-            (connection.account as Account).address,
-        { contactAddress, token: connection.sessionToken },
-    );
-}
-
-export async function getContacts(
-    account: string,
-    token: string,
-): Promise<Account[]> {
-    return (
-        await axios.post(
-            (process.env.REACT_APP_BACKEND as string) +
-                '/getContacts/' +
-                account,
-            { token },
         )
     ).data;
 }
@@ -103,9 +78,22 @@ export async function getNewMessages(
     ).data.messages;
 }
 
+export async function getPendingConversations(
+    connection: Connection,
+): Promise<string[]> {
+    return (
+        await axios.post(
+            (process.env.REACT_APP_BACKEND as string) +
+                '/getPendingConversations/' +
+                connection.account.address,
+            { token: connection.sessionToken },
+        )
+    ).data;
+}
+
 export async function getPublicKeys(
     contact: string,
-): Promise<Partial<Keys> | undefined> {
+): Promise<PublicKeys | undefined> {
     return (
         await axios.get(
             (process.env.REACT_APP_BACKEND as string) +
@@ -118,7 +106,7 @@ export async function getPublicKeys(
 export async function getKeys(
     accountAddress: string,
     sessionToken: string,
-): Promise<EncryptedKeys | undefined> {
+): Promise<PublicKeys | undefined> {
     return (
         await axios.post(
             (process.env.REACT_APP_BACKEND as string) +

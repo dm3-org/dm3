@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
+import { Keys } from '../Account';
 import { decryptSafely, EthEncryptedData } from '../Encryption';
-import { Account, Connection, Keys } from '../Web3Provider';
+import { Connection } from '../Web3Provider';
 
 export async function prersonalSign(
     provider: ethers.providers.JsonRpcProvider,
@@ -23,12 +24,11 @@ export async function decryptMessage(
 ): Promise<string> {
     return decryptSafely({
         encryptedData,
-        privateKey: ((connection.account as Account).keys as Keys)
-            .privateMessagingKey as string,
+        privateKey: (connection.db.keys as Keys).privateMessagingKey as string,
     }) as string;
 }
 
-export async function decrypt(
+export async function decryptUsingProvider(
     provider: ethers.providers.JsonRpcProvider,
     encryptedData: string,
     account: string,

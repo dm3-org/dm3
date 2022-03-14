@@ -12,9 +12,14 @@ import RightView from './RightView';
 import { useBeforeunload } from 'react-beforeunload';
 
 function App() {
+    const [synced, setSynced] = useState<boolean>(false);
     const [connection, setConnection] = useState<
-        { connectionState: Lib.ConnectionState } & Partial<Lib.Connection>
+        {
+            connectionState: Lib.ConnectionState;
+            db: Lib.UserDB;
+        } & Partial<Lib.Connection>
     >({
+        db: Lib.createDB(setSynced),
         connectionState: Lib.ConnectionState.CheckingProvider,
     });
     const [ensNames, setEnsNames] = useState<Map<string, string>>(
@@ -30,9 +35,6 @@ function App() {
     >();
 
     const [newMessages, setNewMessages] = useState<EnvelopContainer[]>([]);
-
-    const [synced, setSynced] = useState<boolean>(false);
-    const [dataFile, setDataFile] = useState<string | undefined>();
 
     if (synced) {
         useBeforeunload();
@@ -65,12 +67,14 @@ function App() {
                 : envelop
         ) as Lib.Envelop;
 
+        Lib.storeMessages([innerEnvelop], connection as Lib.Connection);
+
         const from = Lib.formatAddress(innerEnvelop.message.from);
 
         if (
             !contacts?.find(
                 (contact) => Lib.formatAddress(contact.address) === from,
-            )?.keys?.publicMessagingKey
+            )?.publicKeys?.publicMessagingKey
         ) {
             await getContacts();
         } else if (contact && from === Lib.formatAddress(contact.address)) {
@@ -158,25 +162,10 @@ function App() {
     };
 
     useEffect(() => {
-        if (!connection.db) {
-            changeConnection({ db: Lib.createDB(setSynced) });
-        }
-    }, [connection.db]);
-
-    useEffect(() => {
         if (!connection.provider) {
             createWeb3Provider();
         }
     }, [connection.provider]);
-
-    useEffect(() => {
-        if (
-            dataFile &&
-            connection.connectionState === Lib.ConnectionState.SignedIn
-        ) {
-            Lib.load(connection as Lib.Connection, JSON.parse(dataFile));
-        }
-    }, [connection.connectionState, dataFile]);
 
     useEffect(() => {
         if (selectedContact) {
@@ -212,7 +201,7 @@ function App() {
                             getContacts={getContacts}
                             setEnsNames={setEnsNames}
                             setSelectedContact={setSelectedContact}
-                            setDataFile={setDataFile}
+                            setSynced={setSynced}
                         />
                         <RightView
                             connection={connection}
