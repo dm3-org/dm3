@@ -8,6 +8,7 @@ interface SignInProps {
     changeConnection: (newConnection: Partial<Lib.Connection>) => void;
     setEnsNames: (ensNames: Map<string, string>) => void;
     ensNames: Map<string, string>;
+    setDataFile: (fileContent: string) => void;
 }
 
 export function showSignIn(connectionState: Lib.ConnectionState): boolean {
@@ -116,6 +117,19 @@ function SignIn(props: SignInProps) {
         }
     };
 
+    const upload = (event: any) => {
+        if (event.target.files[0]) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                if (e.target) {
+                    props.setDataFile(e.target?.result as string);
+                }
+            };
+            reader.readAsText(file);
+        }
+    };
+
     return (
         <div className="w-100">
             <div className="row d-flex justify-content-center ">
@@ -150,6 +164,23 @@ function SignIn(props: SignInProps) {
                                     )}
                                 </span>
                             </button>
+                        </div>
+                    </div>
+                    <div className="row row-space">
+                        <div className="col-md-12">
+                            <input
+                                type="file"
+                                className="form-control"
+                                onChange={(event) => upload(event)}
+                                disabled={
+                                    !(
+                                        props.connection.connectionState ===
+                                            Lib.ConnectionState.SignInReady ||
+                                        props.connection.connectionState ===
+                                            Lib.ConnectionState.SignInFailed
+                                    )
+                                }
+                            />
                         </div>
                     </div>
                     <div className="row row-space">

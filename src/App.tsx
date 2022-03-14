@@ -32,6 +32,7 @@ function App() {
     const [newMessages, setNewMessages] = useState<EnvelopContainer[]>([]);
 
     const [synced, setSynced] = useState<boolean>(false);
+    const [dataFile, setDataFile] = useState<string | undefined>();
 
     if (synced) {
         useBeforeunload();
@@ -169,6 +170,15 @@ function App() {
     }, [connection.provider]);
 
     useEffect(() => {
+        if (
+            dataFile &&
+            connection.connectionState === Lib.ConnectionState.SignedIn
+        ) {
+            Lib.load(connection as Lib.Connection, JSON.parse(dataFile));
+        }
+    }, [connection.connectionState, dataFile]);
+
+    useEffect(() => {
         if (selectedContact) {
             setMessageCounter(
                 new Map(
@@ -202,6 +212,7 @@ function App() {
                             getContacts={getContacts}
                             setEnsNames={setEnsNames}
                             setSelectedContact={setSelectedContact}
+                            setDataFile={setDataFile}
                         />
                         <RightView
                             connection={connection}

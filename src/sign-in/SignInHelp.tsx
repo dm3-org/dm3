@@ -8,9 +8,14 @@ function SignInHelp() {
                 <div className="circle-char text-center">1</div>
                 <div>Connect an Ethereum account</div>
             </div>
-            <div className="sign-in-help d-flex justify-content-start">
+            <div className="sign-in-help-1 d-flex justify-content-start">
                 <div className="arrow-left h-100" />
                 <div className="circle-char text-center">2</div>
+                <div>Optional: Load previous session data</div>
+            </div>
+            <div className="sign-in-help-2 d-flex justify-content-start">
+                <div className="arrow-left h-100" />
+                <div className="circle-char text-center">3</div>
                 <div>Sign in to proof your account ownership</div>
             </div>
         </div>
