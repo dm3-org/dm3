@@ -17,7 +17,7 @@ export interface Message {
 export interface Envelop {
     message: Message;
     signature: string;
-    wasEncrypted?: boolean;
+    wasEncrypted: boolean;
     id?: string;
 }
 
@@ -93,6 +93,7 @@ export async function submitMessage(
             message,
             connection.account?.keys as Keys,
         ),
+        wasEncrypted: encrypt ? true : false,
     };
 
     const allOnSuccess = () => {

@@ -10,7 +10,7 @@ export type { Account, Connection, EncryptedKeys } from './Web3Provider';
 export type { Message, EncryptionEnvelop, Envelop } from './Messaging';
 export type { MessageDB } from './Storage';
 
-export { createDB, getConversationId } from './Storage';
+export { createDB, getConversationId, sync, load } from './Storage';
 export { decryptEnvelop, checkSignature } from './Encryption';
 export {
     MessageState,
