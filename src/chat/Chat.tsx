@@ -143,8 +143,8 @@ function Chat(props: ChatProps) {
         addUserMessage(message);
 
         const encrypted =
-            props.contact.keys?.publicMessagingKey &&
-            props.connection.account?.keys?.publicMessagingKey
+            props.contact.publicKeys?.publicMessagingKey &&
+            props.connection.account?.publicKeys?.publicMessagingKey
                 ? true
                 : false;
 

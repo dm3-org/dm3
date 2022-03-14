@@ -1,10 +1,13 @@
-import { formatAddress } from '.';
-import { decryptSafely, encryptSafely, EthEncryptedData } from './Encryption';
+import { ethers } from 'ethers';
+import { formatAddress, PublicKeys } from '.';
+import { Keys } from './Account';
+import { encryptSafely, EthEncryptedData } from './Encryption';
+import { decryptUsingProvider } from './external-apis/InjectedWeb3API';
 import { Envelop, sortEnvelops, getId } from './Messaging';
 import { Connection } from './Web3Provider';
-
-export interface MessageDB {
+export interface UserDB {
     conversations: Map<string, Envelop[]>;
+    keys?: Keys;
     syncNotification?: (synced: boolean) => void;
     synced: boolean;
 }
@@ -29,22 +32,20 @@ function reviver(key: string, value: any) {
     return value;
 }
 
-function setSyncedState(synced: boolean, db: MessageDB) {
+function setSyncedState(synced: boolean, db: UserDB) {
     db.synced = synced;
     if (db.syncNotification) {
         db.syncNotification(synced);
     }
 }
 
-export function createDB(
-    syncNotification?: (synced: boolean) => void,
-): MessageDB {
-    if (syncNotification) {
-        syncNotification(true);
-    }
+export function createDB(syncNotification?: (synced: boolean) => void): UserDB {
+    // if (syncNotification) {
+    //     syncNotification(true);
+    // }
     return {
         conversations: new Map<string, Envelop[]>(),
-        synced: true,
+        synced: false,
         syncNotification,
     };
 }
@@ -110,17 +111,18 @@ export function sync(connection: Connection): {
 } {
     setSyncedState(true, connection.db);
 
-    if (!connection.account.keys?.publicMessagingKey) {
+    if (!connection.db.keys?.publicKey) {
         throw Error('No key to encrypt');
     }
 
     const payload = encryptSafely({
-        publicKey: connection.account.keys?.publicMessagingKey,
+        publicKey: connection.db.keys?.publicKey,
         data: JSON.stringify({
             conversations: JSON.stringify(
                 connection.db.conversations,
                 replacer,
             ),
+            keys: connection.db.keys,
         }),
         version: 'x25519-xsalsa20-poly1305',
     });
@@ -131,31 +133,57 @@ export function sync(connection: Connection): {
     };
 }
 
-export function load(
+export async function load(
     connection: Connection,
     data: {
         version: string;
         payload: EthEncryptedData;
     },
-) {
-    if (!connection.account.keys?.privateMessagingKey) {
-        throw Error('No key to encrypt');
-    }
+): Promise<PublicKeys> {
+    const decryptedPayload: { conversations: string; keys: Keys } = JSON.parse(
+        JSON.parse(
+            await decryptUsingProvider(
+                connection.provider,
+                ethers.utils.hexlify(
+                    ethers.utils.toUtf8Bytes(JSON.stringify(data.payload)),
+                ),
 
-    const decryptedPayload: { conversations: string } = JSON.parse(
-        decryptSafely({
-            encryptedData: data.payload,
-            privateKey: connection.account.keys.privateMessagingKey,
-        }) as string,
+                connection.account.address,
+            ),
+        ).data,
     );
 
     connection.db.conversations = JSON.parse(
         decryptedPayload.conversations,
         reviver,
     );
+
+    connection.db.keys = decryptedPayload.keys;
+
     setSyncedState(true, connection.db);
+    return {
+        publicKey: decryptedPayload.keys.publicKey,
+        publicMessagingKey: decryptedPayload.keys.publicMessagingKey,
+        publicSigningKey: decryptedPayload.keys.publicSigningKey,
+    };
 }
 
 export function getConversationId(accountA: string, accountB: string): string {
     return [formatAddress(accountA), formatAddress(accountB)].sort().join();
+}
+
+export function createEmptyConversation(
+    connection: Connection,
+    accountAddress: string,
+): boolean {
+    const conversationId = getConversationId(
+        connection.account.address,
+        accountAddress,
+    );
+    const isNewConversation = !connection.db.conversations.has(conversationId);
+    if (isNewConversation) {
+        connection.db.conversations.set(conversationId, []);
+    }
+
+    return isNewConversation;
 }

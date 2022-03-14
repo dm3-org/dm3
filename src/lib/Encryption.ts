@@ -4,10 +4,12 @@ import * as nacl from 'tweetnacl';
 //@ts-ignore
 import * as naclUtil from 'tweetnacl-util';
 import { Buffer } from 'buffer';
-import { Connection, Account, Keys } from './Web3Provider';
+import { Connection } from './Web3Provider';
 import { ethers } from 'ethers';
 import { Envelop, Message } from './Messaging';
-import { EncryptionEnvelop } from '.';
+import { Account, EncryptionEnvelop } from '.';
+import { log } from './log';
+import { Keys } from './Account';
 
 export interface EthEncryptedData {
     version: string;
@@ -244,7 +246,7 @@ export function decryptEnvelop(
     return {
         ...(decryptSafely({
             encryptedData: JSON.parse(ethers.utils.toUtf8String(encryptedData)),
-            privateKey: ((connection.account as Account).keys as Keys)
+            privateKey: (connection.db.keys as Keys)
                 .privateMessagingKey as string,
         }) as Envelop),
         wasEncrypted: true,
@@ -256,13 +258,20 @@ export function checkSignature(
     fromAccount: Account,
     signature: string,
 ): boolean {
-    return fromAccount.keys?.publicSigningKey
+    const isValid = fromAccount.publicKeys?.publicSigningKey
         ? nacl.sign.detached.verify(
               ethers.utils.toUtf8Bytes(JSON.stringify(message)),
               ethers.utils.arrayify(signature),
-              nacl_decodeHex(fromAccount.keys?.publicSigningKey as string),
+              nacl_decodeHex(
+                  fromAccount.publicKeys?.publicSigningKey as string,
+              ),
           )
         : false;
+
+    if (!isValid) {
+        log(`Signature check for ${fromAccount.address} failed.`);
+    }
+    return isValid;
 }
 
 export function signWithEncryptionKey(message: Message, keys: Keys): string {

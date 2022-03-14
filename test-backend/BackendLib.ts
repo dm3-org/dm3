@@ -1,4 +1,3 @@
-import { Keys } from '../src/lib/Web3Provider';
 import * as Lib from '../src/lib';
 
 export interface Session {
@@ -7,7 +6,7 @@ export interface Session {
     token?: string;
     ttl?: undefined;
     socketId?: string;
-    encryptedKeys?: Keys;
+    keys?: Partial<Lib.Keys>;
 }
 
 export function checkToken(

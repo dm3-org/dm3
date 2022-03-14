@@ -6,6 +6,7 @@ import './Storage.css';
 
 interface StorageViewProps {
     connection: Lib.Connection;
+    ensNames: Map<string, string>;
 }
 
 function StorageView(props: StorageViewProps) {
@@ -16,7 +17,11 @@ function StorageView(props: StorageViewProps) {
         });
 
         const a = document.createElement('a');
-        a.download = 'export.json';
+        a.download = `${Lib.getAccountDisplayName(
+            props.connection.account.address,
+            props.ensNames,
+            true,
+        )}-${Date.now()}.json`;
         a.href = window.URL.createObjectURL(blob);
         const clickEvt = new MouseEvent('click', {
             view: window,
@@ -25,22 +30,6 @@ function StorageView(props: StorageViewProps) {
         });
         a.dispatchEvent(clickEvt);
         a.remove();
-    };
-
-    const upload = (event: any) => {
-        if (event.target.files[0]) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                if (e.target) {
-                    Lib.load(
-                        props.connection,
-                        JSON.parse(e.target?.result as string),
-                    );
-                }
-            };
-            reader.readAsText(file);
-        }
     };
 
     return (

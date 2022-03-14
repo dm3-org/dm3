@@ -7,8 +7,8 @@ export function incomingMessage(
     data: { envelop: Lib.Envelop | Lib.EncryptionEnvelop; token: string },
     sessions: Map<string, Session>,
     messages: Map<string, (Lib.Envelop | Lib.EncryptionEnvelop)[]>,
+    pendingConversations: Map<string, Set<string>>,
     socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>,
-    contacts: Map<string, Set<string>>,
     callback: (response: string) => void,
 ) {
     const account = Lib.formatAddress(
@@ -24,7 +24,6 @@ export function incomingMessage(
     );
     const conversationId = Lib.getConversationId(account, contact);
     console.log(`- Conversations id: ${conversationId}`);
-    addContact(contacts, contact, account);
 
     if (checkToken(sessions, account, data.token)) {
         const conversation = (
@@ -49,6 +48,16 @@ export function incomingMessage(
             console.log(`- Acknowledge incoming message for ${account}`);
             socket.to(selfSession.socketId).emit('message', data.envelop);
         }
+
+        if (pendingConversations.has(contact)) {
+            const conversations = pendingConversations.get(
+                contact,
+            ) as Set<string>;
+            pendingConversations.set(contact, conversations.add(account));
+        } else {
+            pendingConversations.set(contact, new Set<string>([account]));
+        }
+
         callback('success');
     } else {
         throw Error('Token check failed');

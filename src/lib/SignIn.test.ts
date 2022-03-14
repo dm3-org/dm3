@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { getSessionToken, signIn } from './SignIn';
-import { createMessagingKeyPair } from './Web3Provider';
+import { createMessagingKeyPair } from './Account';
 import { ConnectionState } from './Web3Provider';
 
 test('getSessionToken', async () => {
@@ -17,18 +17,20 @@ test('getSessionToken', async () => {
 test('should be able to sign in', async () => {
     const provider = new ethers.providers.Web3Provider(async () => null);
     const result = await signIn(
-        provider,
-        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+        {
+            provider,
+            account: {
+                address: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            },
+            db: {},
+        } as any,
         async () => ({
             challenge: 'ENS Mail Sign In ce8eae00-1aae-43e5-ba06-95c981fde58f',
-            hasEncryptionKey: false,
+            hasKeys: false,
         }),
         async () =>
             '0x74fd2771eec3c8aff07752885583e549bcc0fb8838ca383aa5d6147901dd' +
             '05716afcf169de14c5e5665ecf989434e767d6d236afa965fc348759c9516344e9791c',
-        async () => {},
-        async () => undefined,
-        async () => '',
         async () => {},
         async () => {},
         createMessagingKeyPair,
@@ -48,19 +50,22 @@ test('should be able to handle a failed sign in', async () => {
 
     expect(
         await signIn(
-            provider,
-            '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            {
+                provider,
+                account: {
+                    address: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                },
+                db: {},
+            } as any,
+
             async () => ({
                 challenge:
                     'ENS Mail Sign In ce8eae00-1aae-43e5-ba06-95c981fde58f',
-                hasEncryptionKey: true,
+                hasKeys: true,
             }),
             async () => {
                 throw Error();
             },
-            async () => {},
-            async () => undefined,
-            async () => '',
             async () => {},
             async () => {},
             createMessagingKeyPair,

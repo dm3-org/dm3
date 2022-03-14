@@ -1,18 +1,15 @@
 import { ethers } from 'ethers';
+import { Connection } from '.';
 import { log } from './log';
-import {
-    ConnectionState,
-    EncryptedKeys,
-    Keys,
-    PrivateKeys,
-} from './Web3Provider';
+import { ConnectionState } from './Web3Provider';
+import { load } from './Storage';
+import { Account, Keys, PublicKeys } from './Account';
 
 export async function signIn(
-    provider: ethers.providers.JsonRpcProvider,
-    account: string,
+    connection: Partial<Connection>,
     requestChallenge: (
         account: string,
-    ) => Promise<{ challenge: string; hasEncryptionKey: boolean }>,
+    ) => Promise<{ challenge: string; hasKeys: boolean }>,
     personalSign: (
         provider: ethers.providers.JsonRpcProvider,
         account: string,
@@ -22,41 +19,26 @@ export async function signIn(
         challenge: string,
         signature: string,
     ) => Promise<void>,
-    getKeys: (
-        accountAddress: string,
-        sessionToken: string,
-    ) => Promise<EncryptedKeys | undefined>,
-    decrypt: (
-        provider: ethers.providers.JsonRpcProvider,
-        encryptedData: string,
-        account: string,
-    ) => Promise<string>,
     submitPublicKeyApi: (
         accountAddress: string,
-        encryptedKeys: Keys,
+        keys: PublicKeys,
         token: string,
     ) => Promise<void>,
-    submitEncryptedKeys: (
-        accountAddress: string,
-        sessionToken: string,
-        keys: Keys,
-        submitKeysApi: (
-            accountAddress: string,
-            encryptedKeys: EncryptedKeys,
-            token: string,
-        ) => Promise<void>,
-    ) => Promise<void>,
-    createMessagingKeyPair: () => Partial<Keys>,
+    createMessagingKeyPair: (encryptionPublicKey: string) => Keys,
     getPublicKey: (
         provider: ethers.providers.JsonRpcProvider,
         account: string,
     ) => Promise<string>,
+    dataFile?: string,
 ): Promise<{
     connectionState: ConnectionState;
     sessionToken?: string;
-    keys?: Keys;
+    keys?: PublicKeys;
 }> {
     try {
+        const provider =
+            connection.provider as ethers.providers.JsonRpcProvider;
+        const account = (connection.account as Account).address;
         const challengeResponse = await requestChallenge(account);
 
         log(`Sign in challenge: ${challengeResponse.challenge}`);
@@ -69,50 +51,41 @@ export async function signIn(
         await submitSignedChallenge(challengeResponse.challenge, signature);
         const sessionToken = getSessionToken(signature);
 
-        let keys: Keys | undefined;
+        let publicKeys: PublicKeys;
 
-        if (!challengeResponse.hasEncryptionKey) {
-            const keyPair = createMessagingKeyPair();
+        if (!dataFile) {
+            const encryptionPublicKey = await getPublicKey(provider, account);
+            const keyPair = createMessagingKeyPair(encryptionPublicKey);
 
-            keys = {
+            const keys = {
                 ...keyPair,
-                publicKey: await getPublicKey(provider, account),
+                publicKey: encryptionPublicKey,
             };
 
-            await submitEncryptedKeys(
-                account,
-                sessionToken,
-                keys,
-                submitPublicKeyApi,
-            );
-        } else {
-            const encryptedKeys: EncryptedKeys = (await getKeys(
-                account,
-                sessionToken,
-            )) as EncryptedKeys;
-            const decryptedPrivateKeys: PrivateKeys = JSON.parse(
-                JSON.parse(
-                    await decrypt(
-                        provider,
-                        encryptedKeys.encryptedPrivateKeys,
-                        account,
-                    ),
-                ).data,
-            );
-            keys = {
-                ...decryptedPrivateKeys,
-                publicKey: encryptedKeys.publicKey,
-                publicMessagingKey: encryptedKeys.publicMessagingKey,
-                publicSigningKey: encryptedKeys.publicSigningKey,
+            publicKeys = {
+                publicKey: encryptionPublicKey,
+                publicMessagingKey: keyPair.publicMessagingKey,
+                publicSigningKey: keyPair.publicSigningKey,
             };
+
+            await submitPublicKeyApi(account, publicKeys, sessionToken);
+
+            (connection as Connection).db.keys = keys;
+            (connection.account as Account).publicKeys = publicKeys;
+        } else {
+            publicKeys = await load(
+                connection as Connection,
+                JSON.parse(dataFile),
+            );
         }
 
         return {
             connectionState: ConnectionState.SignedIn,
             sessionToken,
-            keys,
+            keys: publicKeys,
         };
     } catch (e) {
+        console.log(e);
         return {
             connectionState: ConnectionState.SignInFailed,
         };

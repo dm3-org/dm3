@@ -1,14 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import Icon from '../ui-shared/Icon';
 import * as Lib from '../lib';
+import { decodeBase64 } from 'tweetnacl-util';
+import { createFalse } from 'typescript';
 
 interface SignInProps {
     connection: Lib.Connection;
     changeConnection: (newConnection: Partial<Lib.Connection>) => void;
     setEnsNames: (ensNames: Map<string, string>) => void;
     ensNames: Map<string, string>;
-    setDataFile: (fileContent: string) => void;
+    setSynced: (isSynced: boolean) => void;
 }
 
 export function showSignIn(connectionState: Lib.ConnectionState): boolean {
@@ -23,6 +25,8 @@ export function showSignIn(connectionState: Lib.ConnectionState): boolean {
 }
 
 function SignIn(props: SignInProps) {
+    const [dataFile, setDataFile] = useState<string | undefined>();
+
     const connect = async () => {
         props.changeConnection({
             connectionState: Lib.ConnectionState.WaitingForAccountConntection,
@@ -62,19 +66,25 @@ function SignIn(props: SignInProps) {
             connectionState: Lib.ConnectionState.WaitingForSignIn,
         });
 
-        const singInRequest = await Lib.signIn(
-            props.connection.provider as ethers.providers.JsonRpcProvider,
-            (props.connection.account as Lib.Account).address,
-        );
+        const singInRequest = await Lib.signIn(props.connection, dataFile);
 
         if (singInRequest.sessionToken) {
             Lib.log(`Setting session token: ${singInRequest.sessionToken}`);
 
+            const account: Lib.Account = {
+                address: props.connection.account?.address as string,
+            };
+
+            if (singInRequest.keys) {
+                account.publicKeys = {
+                    publicKey: singInRequest.keys?.publicKey,
+                    publicMessagingKey: singInRequest.keys?.publicMessagingKey,
+                    publicSigningKey: singInRequest.keys?.publicSigningKey,
+                };
+            }
+
             props.changeConnection({
-                account: {
-                    address: props.connection.account?.address as string,
-                    keys: singInRequest.keys,
-                },
+                account,
                 sessionToken: singInRequest.sessionToken,
                 connectionState: singInRequest.connectionState,
             });
@@ -123,7 +133,7 @@ function SignIn(props: SignInProps) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 if (e.target) {
-                    props.setDataFile(e.target?.result as string);
+                    setDataFile(e.target?.result as string);
                 }
             };
             reader.readAsText(file);

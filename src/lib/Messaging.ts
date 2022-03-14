@@ -1,11 +1,9 @@
 import { ethers } from 'ethers';
 import { decryptEnvelop, EthEncryptedData } from './Encryption';
-import { Account, Connection, Keys } from './Web3Provider';
-import MessageSchema from '../schema.json';
-import Ajv from 'ajv';
+import { Connection } from './Web3Provider';
 import { getConversation, storeMessages } from './Storage';
-import { LogDescription } from 'ethers/lib/utils';
 import { log } from './log';
+import { Account, Keys } from './Account';
 
 export interface Message {
     to: string;
@@ -50,14 +48,6 @@ export function createMessage(
     };
 }
 
-export function validateMessage(envelop: Envelop) {
-    const ajv = new Ajv();
-    const validate = ajv.compile(MessageSchema);
-    if (!validate(envelop.message)) {
-        throw Error("Message doesn't fit schema");
-    }
-}
-
 export function isEncryptionEnvelop(
     envelop: EncryptionEnvelop | Envelop,
 ): envelop is EncryptionEnvelop {
@@ -89,10 +79,7 @@ export async function submitMessage(
 ): Promise<void> {
     const innerEnvelop: Envelop = {
         message,
-        signature: signWithEncryptionKey(
-            message,
-            connection.account?.keys as Keys,
-        ),
+        signature: signWithEncryptionKey(message, connection.db?.keys as Keys),
         wasEncrypted: encrypt ? true : false,
     };
 
@@ -100,14 +87,14 @@ export async function submitMessage(
         onSuccess();
         storeMessages([innerEnvelop], connection);
     };
-
     if (encrypt) {
         const envelop: EncryptionEnvelop = {
             toEncryptedData: ethers.utils.hexlify(
                 ethers.utils.toUtf8Bytes(
                     JSON.stringify(
                         encryptSafely({
-                            publicKey: to.keys?.publicMessagingKey as string,
+                            publicKey: to.publicKeys
+                                ?.publicMessagingKey as string,
                             data: innerEnvelop,
                             version: 'x25519-xsalsa20-poly1305',
                         }),
@@ -118,7 +105,7 @@ export async function submitMessage(
                 ethers.utils.toUtf8Bytes(
                     JSON.stringify(
                         encryptSafely({
-                            publicKey: connection.account?.keys
+                            publicKey: connection.db?.keys
                                 ?.publicMessagingKey as string,
                             data: innerEnvelop,
                             version: 'x25519-xsalsa20-poly1305',
