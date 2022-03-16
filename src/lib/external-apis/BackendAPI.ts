@@ -4,26 +4,45 @@ import { EncryptionEnvelop, Envelop } from '../Messaging';
 import { Connection } from '../Web3Provider';
 import { PublicKeys } from '../Account';
 
+const DELIVERY_SERVICE =
+    (process.env.REACT_APP_BACKEND as string) + '/deliveryService';
+
+function createJsonRpcRequest(method: string, params: any, id = 1) {
+    return {
+        jsonrpc: '2.0',
+        method,
+        params,
+        id,
+    };
+}
+
 export async function submitSignedChallenge(
     challenge: string,
     signature: string,
 ) {
-    await axios.post(
-        (process.env.REACT_APP_BACKEND as string) + '/submitSignedChallenge',
-        { challenge, signature },
-    );
+    return (
+        await axios.post(
+            DELIVERY_SERVICE,
+            createJsonRpcRequest('submitSignedChallenge', {
+                challenge,
+                signature,
+            }),
+        )
+    ).data.result;
 }
 
-export async function submitKeys(
+export async function submitPublicKeys(
     accountAddress: string,
-    keys: PublicKeys,
+    publicKeys: PublicKeys,
     token: string,
 ): Promise<void> {
     await axios.post(
-        (process.env.REACT_APP_BACKEND as string) +
-            '/submitKeys/' +
-            accountAddress,
-        { keys, token },
+        DELIVERY_SERVICE,
+        createJsonRpcRequest('submitPublicKeys', {
+            accountAddress: accountAddress,
+            publicKeys,
+            token: token,
+        }),
     );
 }
 
@@ -32,11 +51,12 @@ export async function requestChallenge(
 ): Promise<{ challenge: string; hasKeys: boolean }> {
     return (
         await axios.post(
-            (process.env.REACT_APP_BACKEND as string) +
-                '/requestSignInChallenge',
-            { account },
+            DELIVERY_SERVICE,
+            createJsonRpcRequest('requestSignInChallenge', {
+                accountAddress: account,
+            }),
         )
-    ).data;
+    ).data.result;
 }
 
 export async function submitMessage(
@@ -66,16 +86,18 @@ export async function submitMessage(
 
 export async function getNewMessages(
     connection: Connection,
-    contact: string,
+    contactAddress: string,
 ): Promise<Envelop[]> {
     return (
         await axios.post(
-            (process.env.REACT_APP_BACKEND as string) +
-                '/getMessages/' +
-                connection.account.address,
-            { contact, token: connection.sessionToken },
+            DELIVERY_SERVICE,
+            createJsonRpcRequest('getMessages', {
+                accountAddress: connection.account.address,
+                contactAddress,
+                token: connection.sessionToken,
+            }),
         )
-    ).data.messages;
+    ).data.result.messages;
 }
 
 export async function getPendingConversations(
@@ -83,36 +105,24 @@ export async function getPendingConversations(
 ): Promise<string[]> {
     return (
         await axios.post(
-            (process.env.REACT_APP_BACKEND as string) +
-                '/getPendingConversations/' +
-                connection.account.address,
-            { token: connection.sessionToken },
+            DELIVERY_SERVICE,
+            createJsonRpcRequest('getPendingConversations', {
+                accountAddress: connection.account.address,
+                token: connection.sessionToken,
+            }),
         )
-    ).data;
+    ).data.result.pendingConversations;
 }
 
 export async function getPublicKeys(
     contact: string,
 ): Promise<PublicKeys | undefined> {
     return (
-        await axios.get(
-            (process.env.REACT_APP_BACKEND as string) +
-                '/getPublicKeys/' +
-                contact,
-        )
-    ).data;
-}
-
-export async function getKeys(
-    accountAddress: string,
-    sessionToken: string,
-): Promise<PublicKeys | undefined> {
-    return (
         await axios.post(
-            (process.env.REACT_APP_BACKEND as string) +
-                '/getKeys/' +
-                accountAddress,
-            { token: sessionToken },
+            DELIVERY_SERVICE,
+            createJsonRpcRequest('getPublicKeys', {
+                accountAddress: contact,
+            }),
         )
-    ).data.keys;
+    ).data.result;
 }

@@ -12,6 +12,8 @@ export type { Account, PublicKeys, Keys } from './Account';
 export type { Message, EncryptionEnvelop, Envelop } from './Messaging';
 export type { UserDB } from './Storage';
 
+export * as Delivery from './delivery';
+
 export {
     createDB,
     getConversationId,
@@ -73,7 +75,7 @@ export async function signIn(
         BackendAPI.requestChallenge,
         Web3Api.prersonalSign,
         BackendAPI.submitSignedChallenge,
-        BackendAPI.submitKeys,
+        BackendAPI.submitPublicKeys,
         Account.createMessagingKeyPair,
         Web3Api.getPublicKey,
         dataFile,
