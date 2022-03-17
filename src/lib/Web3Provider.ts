@@ -69,7 +69,7 @@ export async function connectAccount(
 export function logConnectionChange(newConnection: Partial<Connection>) {
     if (newConnection.connectionState) {
         log(
-            `Changing state from to ${
+            `Changing state to ${
                 ConnectionState[newConnection.connectionState]
             }`,
         );

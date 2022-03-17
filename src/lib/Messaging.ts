@@ -71,20 +71,20 @@ export async function submitMessage(
         data: unknown;
         version: string;
     }) => EthEncryptedData,
-    onSuccess: () => void,
     haltDelivery: boolean,
+    onSuccess?: () => void,
 ): Promise<void> {
+    log('Submitting message');
+
     const innerEnvelop: Envelop = {
         message,
         signature: signWithEncryptionKey(message, connection.db?.keys as Keys),
     };
 
     const allOnSuccess = () => {
-        onSuccess();
-        storeMessages(
-            [{ envelop: innerEnvelop, messageState: MessageState.Send }],
-            connection,
-        );
+        if (onSuccess) {
+            onSuccess();
+        }
     };
 
     if (haltDelivery) {
@@ -124,6 +124,10 @@ export async function submitMessage(
         };
         await submitMessageApi(connection, envelop, allOnSuccess, () =>
             log('submit message error'),
+        );
+        storeMessages(
+            [{ envelop: innerEnvelop, messageState: MessageState.Send }],
+            connection,
         );
     }
 }
