@@ -56,18 +56,20 @@ function App() {
         );
 
     const handleNewMessage = async (
-        envelop: Lib.EncryptionEnvelop | Lib.Envelop,
+        envelop: Lib.EncryptionEnvelop,
         contact: Lib.Account | undefined,
     ) => {
         Lib.log('New messages');
 
-        const innerEnvelop = (
-            Lib.isEncryptionEnvelop(envelop)
-                ? Lib.decryptEnvelop(connection as Lib.Connection, envelop)
-                : envelop
-        ) as Lib.Envelop;
+        const innerEnvelop = Lib.decryptEnvelop(
+            connection as Lib.Connection,
+            envelop,
+        );
 
-        Lib.storeMessages([innerEnvelop], connection as Lib.Connection);
+        Lib.storeMessages(
+            [{ envelop: innerEnvelop, messageState: Lib.MessageState.Send }],
+            connection as Lib.Connection,
+        );
 
         const from = Lib.formatAddress(innerEnvelop.message.from);
 
@@ -117,12 +119,9 @@ function App() {
                 token: connection.sessionToken,
             };
             socket.connect();
-            socket.on(
-                'message',
-                (envelop: Lib.Envelop | Lib.EncryptionEnvelop) => {
-                    handleNewMessage(envelop, selectedContact);
-                },
-            );
+            socket.on('message', (envelop: Lib.EncryptionEnvelop) => {
+                handleNewMessage(envelop, selectedContact);
+            });
             changeConnection({ socket });
         }
     }, [connection.connectionState, connection.socket]);
@@ -132,7 +131,7 @@ function App() {
             connection.socket.removeListener('message');
             connection.socket.on(
                 'message',
-                (envelop: Lib.Envelop | Lib.EncryptionEnvelop) => {
+                (envelop: Lib.EncryptionEnvelop) => {
                     handleNewMessage(envelop, selectedContact);
                 },
             );

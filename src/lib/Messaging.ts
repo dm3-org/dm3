@@ -1,7 +1,11 @@
 import { ethers } from 'ethers';
 import { decryptEnvelop, EthEncryptedData } from './Encryption';
 import { Connection } from './Web3Provider';
-import { getConversation, storeMessages } from './Storage';
+import {
+    getConversation,
+    StorageEnvelopContainer,
+    storeMessages,
+} from './Storage';
 import { log } from './log';
 import { Account, Keys } from './Account';
 
@@ -15,7 +19,6 @@ export interface Message {
 export interface Envelop {
     message: Message;
     signature: string;
-    wasEncrypted: boolean;
     id?: string;
 }
 
@@ -48,19 +51,13 @@ export function createMessage(
     };
 }
 
-export function isEncryptionEnvelop(
-    envelop: EncryptionEnvelop | Envelop,
-): envelop is EncryptionEnvelop {
-    return typeof (envelop as EncryptionEnvelop).encryptionVersion === 'string';
-}
-
 export async function submitMessage(
     connection: Connection,
     to: Account,
     message: Message,
     submitMessageApi: (
         connection: Connection,
-        envelop: Envelop | EncryptionEnvelop,
+        envelop: EncryptionEnvelop,
         onSuccess: () => void,
         onError: () => void,
     ) => Promise<void>,
@@ -75,19 +72,27 @@ export async function submitMessage(
         version: string;
     }) => EthEncryptedData,
     onSuccess: () => void,
-    encrypt?: boolean,
+    haltDelivery: boolean,
 ): Promise<void> {
     const innerEnvelop: Envelop = {
         message,
         signature: signWithEncryptionKey(message, connection.db?.keys as Keys),
-        wasEncrypted: encrypt ? true : false,
     };
 
     const allOnSuccess = () => {
         onSuccess();
-        storeMessages([innerEnvelop], connection);
+        storeMessages(
+            [{ envelop: innerEnvelop, messageState: MessageState.Send }],
+            connection,
+        );
     };
-    if (encrypt) {
+
+    if (haltDelivery) {
+        storeMessages(
+            [{ envelop: innerEnvelop, messageState: MessageState.Created }],
+            connection,
+        );
+    } else {
         const envelop: EncryptionEnvelop = {
             toEncryptedData: ethers.utils.hexlify(
                 ethers.utils.toUtf8Bytes(
@@ -117,19 +122,10 @@ export async function submitMessage(
             from: (connection.account as Account).address,
             encryptionVersion: 'x25519-xsalsa20-poly1305',
         };
-
         await submitMessageApi(connection, envelop, allOnSuccess, () =>
             log('submit message error'),
         );
-    } else {
-        await submitMessageApi(connection, innerEnvelop, allOnSuccess, () =>
-            log('submit message error'),
-        );
     }
-}
-
-export function sortEnvelops(envelops: Envelop[]): Envelop[] {
-    return envelops.sort((a, b) => a.message.timestamp - b.message.timestamp);
 }
 
 export function getId(envelop: Envelop): string {
@@ -137,17 +133,13 @@ export function getId(envelop: Envelop): string {
 }
 
 function decryptMessages(
-    envelops: Envelop[],
+    envelops: EncryptionEnvelop[],
     connection: Connection,
 ): Promise<Envelop[]> {
     return Promise.all(
         envelops.map(
-            async (envelop): Promise<Envelop> => ({
-                ...(isEncryptionEnvelop(envelop)
-                    ? (decryptEnvelop(connection, envelop) as Envelop)
-                    : envelop),
-                wasEncrypted: isEncryptionEnvelop(envelop) ? true : false,
-            }),
+            async (envelop): Promise<Envelop> =>
+                decryptEnvelop(connection, envelop),
         ),
     );
 }
@@ -158,27 +150,20 @@ export async function getMessages(
     getNewMessages: (
         connection: Connection,
         contact: string,
-    ) => Promise<Envelop[]>,
-): Promise<Envelop[]> {
+    ) => Promise<EncryptionEnvelop[]>,
+): Promise<StorageEnvelopContainer[]> {
     const envelops = await getNewMessages(connection, contact);
     const decryptedEnvelops = await decryptMessages(envelops, connection);
 
-    storeMessages(decryptedEnvelops, connection);
+    storeMessages(
+        decryptedEnvelops.map(
+            (envelop): StorageEnvelopContainer => ({
+                envelop: envelop,
+                messageState: MessageState.Send,
+            }),
+        ),
+        connection,
+    );
 
     return getConversation(contact, connection);
-}
-
-export function getEnvelopMetaData(envelop: Envelop | EncryptionEnvelop): {
-    from: string;
-    to: string;
-} {
-    return isEncryptionEnvelop(envelop)
-        ? {
-              from: (envelop as EncryptionEnvelop).from,
-              to: (envelop as EncryptionEnvelop).to,
-          }
-        : {
-              from: (envelop as Envelop).message.from,
-              to: (envelop as Envelop).message.to,
-          };
 }

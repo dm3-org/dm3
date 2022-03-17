@@ -5,7 +5,6 @@ interface MessageStateViewProps {
     messageState: Lib.MessageState;
     time: number;
     ownMessage: boolean;
-    encrypted: boolean;
 }
 
 function MessageStateView(props: MessageStateViewProps) {
@@ -22,7 +21,7 @@ function MessageStateView(props: MessageStateViewProps) {
             {props.messageState === Lib.MessageState.Send && (
                 <>
                     <Icon iconClass="fas fa-signature" />{' '}
-                    {props.encrypted && <Icon iconClass="fas fa-lock" />}
+                    <Icon iconClass="fas fa-lock" />
                 </>
             )}
             {props.messageState === Lib.MessageState.FailedToSend && (

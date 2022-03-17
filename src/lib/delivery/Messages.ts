@@ -1,35 +1,31 @@
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { log } from '../log';
-import {
-    EncryptionEnvelop,
-    Envelop,
-    getEnvelopMetaData,
-    isEncryptionEnvelop,
-} from '../Messaging';
+import { EncryptionEnvelop, Envelop } from '../Messaging';
 import { getConversationId } from '../Storage';
 import { checkToken, Session } from './Session';
 
 export function getMessages(
     sessions: Map<string, Session>,
-    messages: Map<string, (EncryptionEnvelop | Envelop)[]>,
+    messages: Map<string, EncryptionEnvelop[]>,
     accountAddress: string,
     contactAddress: string,
     token: string,
 ) {
     log(`[getMessages]`);
+
     const account = formatAddress(accountAddress);
     const contact = formatAddress(contactAddress);
     const conversationId = getConversationId(contact, account);
+
     log(`- Conversations id: ${conversationId}`);
 
     if (checkToken(sessions, account, token)) {
-        const receivedMessages: (EncryptionEnvelop | Envelop)[] = (
+        const receivedMessages: EncryptionEnvelop[] = (
             messages.has(conversationId) ? messages.get(conversationId) : []
-        ) as (EncryptionEnvelop | Envelop)[];
+        ) as EncryptionEnvelop[];
 
         const forAccount = receivedMessages.filter(
-            (envelop) =>
-                formatAddress(getEnvelopMetaData(envelop).to) === account,
+            (envelop) => formatAddress(envelop.to) === account,
         );
 
         log(`- ${receivedMessages?.length} messages`);
@@ -38,8 +34,7 @@ export function getMessages(
         messages.set(
             conversationId,
             receivedMessages.filter(
-                (envelop) =>
-                    formatAddress(getEnvelopMetaData(envelop).to) !== account,
+                (envelop) => formatAddress(envelop.to) !== account,
             ),
         );
         return {
@@ -75,23 +70,14 @@ export function getPendingConversations(
 }
 
 export function incomingMessage(
-    data: { envelop: Envelop | EncryptionEnvelop; token: string },
+    data: { envelop: EncryptionEnvelop; token: string },
     sessions: Map<string, Session>,
     messages: Map<string, (Envelop | EncryptionEnvelop)[]>,
     pendingConversations: Map<string, Set<string>>,
     send: (socketId: string, envelop: Envelop | EncryptionEnvelop) => void,
 ): string {
-    const account = formatAddress(
-        isEncryptionEnvelop(data.envelop)
-            ? formatAddress(data.envelop.from)
-            : (data.envelop as Envelop).message.from,
-    );
-
-    const contact = formatAddress(
-        isEncryptionEnvelop(data.envelop)
-            ? formatAddress(data.envelop.to)
-            : (data.envelop as Envelop).message.to,
-    );
+    const account = formatAddress(formatAddress(data.envelop.from));
+    const contact = formatAddress(formatAddress(data.envelop.to));
     const conversationId = getConversationId(account, contact);
     log(`- Conversations id: ${conversationId}`);
 
