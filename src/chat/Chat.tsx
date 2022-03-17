@@ -15,8 +15,6 @@ interface ChatProps {
     hasContacts: boolean;
     ensNames: Map<string, string>;
     connection: Lib.Connection;
-    newMessages: EnvelopContainer[];
-    setNewMessages: (messages: EnvelopContainer[]) => void;
     contact: Lib.Account;
 }
 
@@ -30,47 +28,11 @@ function Chat(props: ChatProps) {
         Map<string, Lib.MessageState>
     >(new Map<string, Lib.MessageState>());
 
-    const removeReadMessagesTag = () => {
-        props.newMessages.forEach((newEnvelopContainer) => {
-            const newEnvelop = newEnvelopContainer.envelop;
-
-            if (
-                props.contact &&
-                Lib.formatAddress(newEnvelop.message.from) ===
-                    Lib.formatAddress(props.contact.address)
-            ) {
-                handleMessages([
-                    {
-                        envelop: newEnvelop,
-                        messageState: Lib.MessageState.Send,
-                    },
-                ]);
-
-                if (
-                    props.newMessages.find(
-                        (envelopContainer) =>
-                            envelopContainer.envelop.signature ===
-                            newEnvelop.signature,
-                    )
-                ) {
-                    props.setNewMessages(
-                        props.newMessages.filter(
-                            (envelopContainer) =>
-                                envelopContainer.envelop.signature !==
-                                newEnvelop.signature,
-                        ),
-                    );
-                }
-            }
-        });
-    };
-
-    useEffect(() => {
-        removeReadMessagesTag();
-    }, [props.newMessages]);
+    const [messageContainers, setMessageContainers] = useState<
+        Lib.StorageEnvelopContainer[]
+    >([]);
 
     const getPastMessages = async () => {
-        removeReadMessagesTag();
         handleMessages(
             await Lib.getMessages(props.connection, props.contact.address),
         );
@@ -79,8 +41,8 @@ function Chat(props: ChatProps) {
     const handleMessages = async (
         containers: Lib.StorageEnvelopContainer[],
     ): Promise<void> => {
-        containers
-            .filter((container) =>
+        setMessageContainers(
+            containers.filter((container) =>
                 Lib.checkSignature(
                     container.envelop.message,
                     Lib.formatAddress(container.envelop.message.from) ===
@@ -89,58 +51,74 @@ function Chat(props: ChatProps) {
                         : props.connection.account,
                     container.envelop.signature,
                 ),
-            )
-            .forEach((container) => {
-                if (
-                    container.envelop.message.from ===
-                    props.connection.account.address
-                ) {
-                    addUserMessage(
-                        container.envelop.message.message,
-                        container.envelop.message.timestamp.toString(),
-                    );
-                } else {
-                    addResponseMessage(
-                        container.envelop.message.message,
-                        container.envelop.message.timestamp.toString(),
-                    );
-                }
-
-                messageStates.set(
-                    container.envelop.message.timestamp.toString(),
-                    container.messageState,
-                );
-                setMessageStates(new Map(messageStates));
-                renderCustomComponent(
-                    () => (
-                        <MessageStateView
-                            messageState={
-                                messageStates.get(
-                                    container.envelop.message.timestamp.toString(),
-                                ) as Lib.MessageState
-                            }
-                            time={container.envelop.message.timestamp}
-                            ownMessage={
-                                container.envelop.message.from ===
-                                props.connection.account.address
-                            }
-                        />
-                    ),
-                    {},
-                );
-            });
+            ),
+        );
     };
 
     useEffect(() => {
+        dropMessages();
+        messageContainers.forEach((container) => {
+            if (
+                container.envelop.message.from ===
+                props.connection.account.address
+            ) {
+                addUserMessage(
+                    container.envelop.message.message,
+                    container.envelop.message.timestamp.toString(),
+                );
+            } else {
+                addResponseMessage(
+                    container.envelop.message.message,
+                    container.envelop.message.timestamp.toString(),
+                );
+            }
+
+            messageStates.set(
+                container.envelop.message.timestamp.toString(),
+                container.messageState,
+            );
+            setMessageStates(new Map(messageStates));
+            renderCustomComponent(
+                () => (
+                    <MessageStateView
+                        messageState={
+                            messageStates.get(
+                                container.envelop.message.timestamp.toString(),
+                            ) as Lib.MessageState
+                        }
+                        time={container.envelop.message.timestamp}
+                        ownMessage={
+                            container.envelop.message.from ===
+                            props.connection.account.address
+                        }
+                    />
+                ),
+                {},
+            );
+        });
+    }, [messageContainers]);
+
+    useEffect(() => {
         if (props.contact) {
-            dropMessages();
             getPastMessages();
+            props.connection.db.contactNotification = () => {
+                handleMessages(
+                    Lib.getConversation(
+                        props.contact.address,
+                        props.connection,
+                    ),
+                );
+            };
         }
     }, [props.contact]);
 
+    useEffect(() => {
+        if (props.contact) {
+        }
+    }, [props.connection]);
+
     const handleNewUserMessage = async (message: string) => {
         deleteMessages(1);
-        addUserMessage(message);
 
         const haltDelivery =
             props.contact.publicKeys?.publicMessagingKey &&
@@ -161,28 +139,16 @@ function Chat(props: ChatProps) {
             props.connection,
             props.contact,
             messageData,
+            haltDelivery,
             () => {
                 messageStates.set(messageId, Lib.MessageState.Send);
                 setMessageStates(new Map(messageStates));
             },
-            haltDelivery,
         ).catch((e) => {
             Lib.log(e);
             messageStates.set(messageId, Lib.MessageState.FailedToSend);
             setMessageStates(new Map(messageStates));
         });
-        renderCustomComponent(
-            () => (
-                <MessageStateView
-                    messageState={
-                        messageStates.get(messageId) as Lib.MessageState
-                    }
-                    time={messageData.timestamp}
-                    ownMessage={true}
-                />
-            ),
-            {},
-        );
     };
 
     return (

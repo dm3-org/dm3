@@ -20,6 +20,7 @@ export {
     sync,
     load,
     storeMessages,
+    getConversation,
 } from './Storage';
 export { getAccountDisplayName } from './Account';
 export { decryptEnvelop, checkSignature } from './Encryption';
@@ -82,8 +83,8 @@ export async function submitMessage(
     connection: Web3Provider.Connection,
     to: Account.Account,
     message: Messaging.Message,
-    onSuccess: () => void,
     haltDelivery: boolean,
+    onSuccess?: () => void,
 ): Promise<void> {
     return Messaging.submitMessage(
         connection,
@@ -92,8 +93,8 @@ export async function submitMessage(
         BackendAPI.submitMessage,
         Encryption.signWithEncryptionKey,
         Encryption.encryptSafely,
-        onSuccess,
         haltDelivery,
+        onSuccess,
     );
 }
 

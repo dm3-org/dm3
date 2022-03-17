@@ -10,6 +10,7 @@ import Header from './header/Header';
 import LeftView from './LeftView';
 import RightView from './RightView';
 import { useBeforeunload } from 'react-beforeunload';
+import { isPropertySignature } from 'typescript';
 
 function App() {
     const [synced, setSynced] = useState<boolean>(false);
@@ -19,22 +20,17 @@ function App() {
             db: Lib.UserDB;
         } & Partial<Lib.Connection>
     >({
-        db: Lib.createDB(setSynced),
+        db: Lib.createDB([setSynced]),
         connectionState: Lib.ConnectionState.CheckingProvider,
     });
     const [ensNames, setEnsNames] = useState<Map<string, string>>(
         new Map<string, string>(),
-    );
-    const [messageCounter, setMessageCounter] = useState<Map<string, number>>(
-        new Map<string, number>(),
     );
 
     const [contacts, setContacts] = useState<Lib.Account[] | undefined>();
     const [selectedContact, setSelectedContact] = useState<
         Lib.Account | undefined
     >();
-
-    const [newMessages, setNewMessages] = useState<EnvelopContainer[]>([]);
 
     if (synced) {
         useBeforeunload();
@@ -79,29 +75,6 @@ function App() {
             )?.publicKeys?.publicMessagingKey
         ) {
             await getContacts();
-        } else if (contact && from === Lib.formatAddress(contact.address)) {
-            setNewMessages((oldMessages) =>
-                oldMessages.concat({
-                    envelop: innerEnvelop,
-                    encrypted: (envelop as Lib.EncryptionEnvelop)
-                        .encryptionVersion
-                        ? true
-                        : false,
-                }),
-            );
-        }
-
-        if (!contact || from !== Lib.formatAddress(contact.address)) {
-            setMessageCounter(
-                new Map(
-                    messageCounter.set(
-                        from,
-                        messageCounter.has(from)
-                            ? (messageCounter.get(from) as number) + 1
-                            : 1,
-                    ),
-                ),
-            );
         }
     };
 
@@ -166,19 +139,6 @@ function App() {
         }
     }, [connection.provider]);
 
-    useEffect(() => {
-        if (selectedContact) {
-            setMessageCounter(
-                new Map(
-                    messageCounter.set(
-                        Lib.formatAddress(selectedContact.address),
-                        0,
-                    ),
-                ),
-            );
-        }
-    }, [selectedContact]);
-
     return (
         <div className="container">
             <div className="row main-content-row">
@@ -208,8 +168,6 @@ function App() {
                             ensNames={ensNames}
                             selectedContact={selectedContact}
                             contacts={contacts}
-                            newMessages={newMessages}
-                            setNewMessages={setNewMessages}
                         />
                     </div>
                 </div>

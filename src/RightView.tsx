@@ -15,8 +15,6 @@ interface RightViewProps {
     contacts?: Lib.Account[];
     selectedContact: Lib.Account | undefined;
     changeConnection: (newConnection: Partial<Lib.Connection>) => void;
-    newMessages: EnvelopContainer[];
-    setNewMessages: (messages: EnvelopContainer[]) => void;
 }
 
 function RightView(props: RightViewProps) {
@@ -62,8 +60,6 @@ function RightView(props: RightViewProps) {
                         contact={props.selectedContact}
                         ensNames={props.ensNames}
                         connection={props.connection as Lib.Connection}
-                        newMessages={props.newMessages}
-                        setNewMessages={props.setNewMessages}
                     />
                 )}
         </div>

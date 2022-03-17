@@ -54,4 +54,21 @@ export async function requestContacts(
         );
 
     setEnsNames(new Map(ensNames));
+
+    retrievedContacts.forEach((contact) => {
+        Lib.getConversation(contact.address, connection)
+            .filter(
+                (message) =>
+                    message.messageState === Lib.MessageState.Created &&
+                    contact.publicKeys?.publicMessagingKey,
+            )
+            .forEach((message) => {
+                Lib.submitMessage(
+                    connection,
+                    contact,
+                    message.envelop.message,
+                    false,
+                );
+            });
+    });
 }

@@ -33,10 +33,14 @@ function Contacts(props: ContactsProps) {
     }, [props.selectedContact]);
 
     useEffect(() => {
-        if (!props.contacts && props.connection.sessionToken) {
+        if (
+            !props.contacts &&
+            props.connection.sessionToken &&
+            props.connection.socket
+        ) {
             props.getContacts();
         }
-    }, [props.connection.sessionToken]);
+    }, [props.connection.sessionToken, props.connection.socket]);
 
     return (
         <div className="w-100">

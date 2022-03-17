@@ -14,7 +14,8 @@ export interface StorageEnvelopContainer {
 export interface UserDB {
     conversations: Map<string, StorageEnvelopContainer[]>;
     keys?: Keys;
-    syncNotification?: (synced: boolean) => void;
+    syncNotifications: ((synced: boolean) => void)[];
+    contactNotification?: () => void;
     synced: boolean;
 }
 
@@ -38,18 +39,24 @@ function reviver(key: string, value: any) {
     return value;
 }
 
-function setSyncedState(synced: boolean, db: UserDB) {
-    db.synced = synced;
-    if (db.syncNotification) {
-        db.syncNotification(synced);
+function setSyncedState(synced: boolean, connection: Connection) {
+    connection.db.synced = synced;
+    connection.db.syncNotifications.forEach((notification) =>
+        notification(synced),
+    );
+
+    if (connection.db.contactNotification) {
+        connection.db.contactNotification();
     }
 }
 
-export function createDB(syncNotification?: (synced: boolean) => void): UserDB {
+export function createDB(
+    syncNotifications: ((synced: boolean) => void)[],
+): UserDB {
     return {
         conversations: new Map<string, StorageEnvelopContainer[]>(),
         synced: false,
-        syncNotification,
+        syncNotifications,
     };
 }
 
@@ -94,7 +101,7 @@ export function storeMessages(
 
         if (prevContainers.length === 0) {
             connection.db.conversations.set(conversationId, [container]);
-            setSyncedState(false, connection.db);
+            setSyncedState(false, connection);
         } else if (
             prevContainers[prevContainers.length - 1].envelop.message
                 .timestamp < container.envelop.message.timestamp
@@ -103,19 +110,18 @@ export function storeMessages(
                 ...prevContainers,
                 container,
             ]);
-            setSyncedState(false, connection.db);
+            setSyncedState(false, connection);
         } else {
-            const isNew = !prevContainers.find(
+            const otherContainer = prevContainers.filter(
                 (prevContainer) =>
-                    prevContainer.envelop.id === prevContainer.envelop.id,
+                    prevContainer.envelop.id !== container.envelop.id,
             );
-            if (isNew) {
-                connection.db.conversations.set(
-                    conversationId,
-                    sortEnvelops([...prevContainers, container]),
-                );
-                setSyncedState(false, connection.db);
-            }
+
+            connection.db.conversations.set(
+                conversationId,
+                sortEnvelops([...otherContainer, container]),
+            );
+            setSyncedState(false, connection);
         }
     }
 }
@@ -124,7 +130,7 @@ export function sync(connection: Connection): {
     version: string;
     payload: EthEncryptedData;
 } {
-    setSyncedState(true, connection.db);
+    setSyncedState(true, connection);
 
     if (!connection.db.keys?.publicKey) {
         throw Error('No key to encrypt');
@@ -175,7 +181,7 @@ export async function load(
 
     connection.db.keys = decryptedPayload.keys;
 
-    setSyncedState(true, connection.db);
+    setSyncedState(true, connection);
     return {
         publicKey: decryptedPayload.keys.publicKey,
         publicMessagingKey: decryptedPayload.keys.publicMessagingKey,
