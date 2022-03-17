@@ -249,7 +249,6 @@ export function decryptEnvelop(
             privateKey: (connection.db.keys as Keys)
                 .privateMessagingKey as string,
         }) as Envelop),
-        wasEncrypted: true,
     };
 }
 

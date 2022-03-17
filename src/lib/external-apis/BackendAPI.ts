@@ -87,7 +87,7 @@ export async function submitMessage(
 export async function getNewMessages(
     connection: Connection,
     contactAddress: string,
-): Promise<Envelop[]> {
+): Promise<EncryptionEnvelop[]> {
     return (
         await axios.post(
             DELIVERY_SERVICE,

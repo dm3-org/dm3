@@ -1,12 +1,18 @@
 import { ethers } from 'ethers';
-import { formatAddress, PublicKeys } from '.';
+import { formatAddress, MessageState, PublicKeys } from '.';
 import { Keys } from './Account';
 import { encryptSafely, EthEncryptedData } from './Encryption';
 import { decryptUsingProvider } from './external-apis/InjectedWeb3API';
-import { Envelop, sortEnvelops, getId } from './Messaging';
+import { Envelop, getId } from './Messaging';
 import { Connection } from './Web3Provider';
+
+export interface StorageEnvelopContainer {
+    messageState: MessageState;
+    envelop: Envelop;
+}
+
 export interface UserDB {
-    conversations: Map<string, Envelop[]>;
+    conversations: Map<string, StorageEnvelopContainer[]>;
     keys?: Keys;
     syncNotification?: (synced: boolean) => void;
     synced: boolean;
@@ -40,11 +46,8 @@ function setSyncedState(synced: boolean, db: UserDB) {
 }
 
 export function createDB(syncNotification?: (synced: boolean) => void): UserDB {
-    // if (syncNotification) {
-    //     syncNotification(true);
-    // }
     return {
-        conversations: new Map<string, Envelop[]>(),
+        conversations: new Map<string, StorageEnvelopContainer[]>(),
         synced: false,
         syncNotification,
     };
@@ -53,7 +56,7 @@ export function createDB(syncNotification?: (synced: boolean) => void): UserDB {
 export function getConversation(
     contact: string,
     connection: Connection,
-): Envelop[] {
+): StorageEnvelopContainer[] {
     const conversationId = getConversationId(
         contact,
         connection.account.address,
@@ -62,42 +65,54 @@ export function getConversation(
     return envelops ? envelops : [];
 }
 
-export function storeMessages(envelops: Envelop[], connection: Connection) {
-    for (let envelop of envelops) {
+export function sortEnvelops(
+    containers: StorageEnvelopContainer[],
+): StorageEnvelopContainer[] {
+    return containers.sort(
+        (a, b) => a.envelop.message.timestamp - b.envelop.message.timestamp,
+    );
+}
+
+export function storeMessages(
+    containers: StorageEnvelopContainer[],
+    connection: Connection,
+) {
+    for (let container of containers) {
         const contactAddress =
-            envelop.message.from === connection.account.address
-                ? envelop.message.to
-                : envelop.message.from;
+            container.envelop.message.from === connection.account.address
+                ? container.envelop.message.to
+                : container.envelop.message.from;
         const conversationId = getConversationId(
             contactAddress,
             connection.account.address,
         );
-        const prevEnvelops = getConversation(contactAddress, connection);
+        const prevContainers = getConversation(contactAddress, connection);
 
-        if (!envelop.id) {
-            envelop.id = getId(envelop);
+        if (!container.envelop.id) {
+            container.envelop.id = getId(container.envelop);
         }
 
-        if (prevEnvelops.length === 0) {
-            connection.db.conversations.set(conversationId, [envelop]);
+        if (prevContainers.length === 0) {
+            connection.db.conversations.set(conversationId, [container]);
             setSyncedState(false, connection.db);
         } else if (
-            prevEnvelops[prevEnvelops.length - 1].message.timestamp <
-            envelop.message.timestamp
+            prevContainers[prevContainers.length - 1].envelop.message
+                .timestamp < container.envelop.message.timestamp
         ) {
             connection.db.conversations.set(conversationId, [
-                ...prevEnvelops,
-                envelop,
+                ...prevContainers,
+                container,
             ]);
             setSyncedState(false, connection.db);
         } else {
-            const isNew = !prevEnvelops.find(
-                (prevEnvelop) => prevEnvelop.id === envelop.id,
+            const isNew = !prevContainers.find(
+                (prevContainer) =>
+                    prevContainer.envelop.id === prevContainer.envelop.id,
             );
             if (isNew) {
                 connection.db.conversations.set(
                     conversationId,
-                    sortEnvelops([...prevEnvelops, envelop]),
+                    sortEnvelops([...prevContainers, container]),
                 );
                 setSyncedState(false, connection.db);
             }

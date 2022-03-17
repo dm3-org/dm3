@@ -10,7 +10,7 @@ import * as Account from './Account';
 export type { Connection } from './Web3Provider';
 export type { Account, PublicKeys, Keys } from './Account';
 export type { Message, EncryptionEnvelop, Envelop } from './Messaging';
-export type { UserDB } from './Storage';
+export type { UserDB, StorageEnvelopContainer } from './Storage';
 
 export * as Delivery from './delivery';
 
@@ -23,11 +23,7 @@ export {
 } from './Storage';
 export { getAccountDisplayName } from './Account';
 export { decryptEnvelop, checkSignature } from './Encryption';
-export {
-    MessageState,
-    isEncryptionEnvelop,
-    getEnvelopMetaData,
-} from './Messaging';
+export { MessageState } from './Messaging';
 export {
     logConnectionChange,
     ConnectionState,
@@ -87,7 +83,7 @@ export async function submitMessage(
     to: Account.Account,
     message: Messaging.Message,
     onSuccess: () => void,
-    encrypt?: boolean,
+    haltDelivery: boolean,
 ): Promise<void> {
     return Messaging.submitMessage(
         connection,
@@ -97,7 +93,7 @@ export async function submitMessage(
         Encryption.signWithEncryptionKey,
         Encryption.encryptSafely,
         onSuccess,
-        encrypt,
+        haltDelivery,
     );
 }
 

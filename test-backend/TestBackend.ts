@@ -23,7 +23,9 @@ const io = new Server(server, {
 });
 
 const sessions = new Map<string, Lib.Delivery.Session>();
-const messages = new Map<string, (Lib.EncryptionEnvelop | Lib.Envelop)[]>();
+
+const messages = new Map<string, Lib.EncryptionEnvelop[]>();
+// Maps not registered accounts to accounts who send messages to the unregistered account
 const pendingConversations = new Map<string, Set<string>>();
 
 app.use(express.static(path.join(__dirname, '../build')));
