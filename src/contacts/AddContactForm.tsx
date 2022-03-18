@@ -5,7 +5,7 @@ import * as Lib from '../lib';
 
 interface AddContactFormProps {
     connection: Lib.Connection;
-    requestContacts: () => Promise<void>;
+    getContacts: (connection: Lib.Connection) => Promise<void>;
 }
 
 function AddContactForm(props: AddContactFormProps) {
@@ -20,7 +20,7 @@ function AddContactForm(props: AddContactFormProps) {
     const add = async () => {
         try {
             await Lib.addContact(props.connection, accountToAdd);
-            await props.requestContacts();
+            await props.getContacts(props.connection);
             setAccountToAdd('');
         } catch (e) {
             console.log(e);

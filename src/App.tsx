@@ -41,9 +41,9 @@ function App() {
         );
     }
 
-    const getContacts = () =>
+    const getContacts = (connection: Lib.Connection) =>
         requestContacts(
-            connection as Lib.Connection,
+            connection,
             selectedContact,
             setSelectedContact,
             setContacts,
@@ -74,7 +74,7 @@ function App() {
                 (contact) => Lib.formatAddress(contact.address) === from,
             )?.publicKeys?.publicMessagingKey
         ) {
-            await getContacts();
+            await getContacts(connection as Lib.Connection);
         }
     };
 
@@ -95,6 +95,9 @@ function App() {
             socket.on('message', (envelop: Lib.EncryptionEnvelop) => {
                 handleNewMessage(envelop, selectedContact);
             });
+            socket.on('joined', () => {
+                getContacts(connection as Lib.Connection);
+            });
             changeConnection({ socket });
         }
     }, [connection.connectionState, connection.socket]);
@@ -108,6 +111,10 @@ function App() {
                     handleNewMessage(envelop, selectedContact);
                 },
             );
+            connection.socket.removeListener('joined');
+            connection.socket.on('joined', () => {
+                getContacts(connection as Lib.Connection);
+            });
         }
     }, [selectedContact]);
 

@@ -7,6 +7,8 @@ export function submitPublicKeys(
     sessions: Map<string, Session>,
     accountAddress: string,
     publicKeys: PublicKeys,
+    pendingConversations: Map<string, Set<string>>,
+    send: (socketId: string) => void,
     token: string,
 ) {
     log(`[submitKeys] for account ${accountAddress}`);
@@ -14,6 +16,17 @@ export function submitPublicKeys(
 
     if (checkToken(sessions, account, token)) {
         (sessions.get(account) as Session).keys = publicKeys;
+        const pending = pendingConversations.get(account);
+        if (pending) {
+            pending.forEach((pendingEntry) => {
+                const contact = formatAddress(pendingEntry);
+                const contactSession = sessions.get(contact);
+                if (contactSession?.socketId) {
+                    log(`- Send join notification to ${contact}`);
+                    send(contactSession.socketId);
+                }
+            });
+        }
     } else {
         throw Error('Token check failed');
     }

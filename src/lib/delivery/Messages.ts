@@ -73,7 +73,6 @@ export function incomingMessage(
     data: { envelop: EncryptionEnvelop; token: string },
     sessions: Map<string, Session>,
     messages: Map<string, (Envelop | EncryptionEnvelop)[]>,
-    pendingConversations: Map<string, Set<string>>,
     send: (socketId: string, envelop: Envelop | EncryptionEnvelop) => void,
 ): string {
     const account = formatAddress(formatAddress(data.envelop.from));
@@ -104,6 +103,24 @@ export function incomingMessage(
             send(selfSession.socketId, data.envelop);
         }
 
+        return 'success';
+    } else {
+        throw Error('Token check failed');
+    }
+}
+
+export function createPendingEntry(
+    accountAddress: string,
+    contactAddress: string,
+    token: string,
+    sessions: Map<string, Session>,
+    pendingConversations: Map<string, Set<string>>,
+): string {
+    const account = formatAddress(accountAddress);
+    const contact = formatAddress(contactAddress);
+    log(`- Pending message from ${account} to ${contact}`);
+
+    if (checkToken(sessions, account, token)) {
         if (pendingConversations.has(contact)) {
             const conversations = pendingConversations.get(
                 contact,

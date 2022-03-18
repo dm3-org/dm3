@@ -93,6 +93,7 @@ export async function submitMessage(
         BackendAPI.submitMessage,
         Encryption.signWithEncryptionKey,
         Encryption.encryptSafely,
+        BackendAPI.createPendingEntry,
         haltDelivery,
         onSuccess,
     );
