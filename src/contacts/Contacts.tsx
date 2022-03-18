@@ -9,7 +9,7 @@ interface ContactsProps {
     ensNames: Map<string, string>;
     setEnsNames: (ensNames: Map<string, string>) => void;
     contacts?: Lib.Account[];
-    getContacts: () => Promise<void>;
+    getContacts: (connection: Lib.Connection) => Promise<void>;
     selectedContact: Lib.Account | undefined;
     selectContact: (account: Lib.Account) => void;
 }
@@ -21,7 +21,7 @@ function Contacts(props: ContactsProps) {
             props.connection.sessionToken &&
             props.connection.socket
         ) {
-            props.getContacts();
+            props.getContacts(props.connection);
         }
     }, [props.connection.sessionToken, props.connection.socket]);
 
@@ -31,7 +31,7 @@ function Contacts(props: ContactsProps) {
                 <div className="col-12 text-center contact-list-container">
                     <AddContactForm
                         connection={props.connection}
-                        requestContacts={props.getContacts}
+                        getContacts={props.getContacts}
                     />
                 </div>
             </div>

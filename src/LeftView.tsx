@@ -16,7 +16,7 @@ interface LeftViewProps {
     selectedContact: Lib.Account | undefined;
     setSelectedContact: (contact: Lib.Account | undefined) => void;
     changeConnection: (newConnection: Partial<Lib.Connection>) => void;
-    getContacts: () => Promise<void>;
+    getContacts: (connection: Lib.Connection) => Promise<void>;
     setSynced: (isSynced: boolean) => void;
 }
 

@@ -66,7 +66,6 @@ export async function submitMessage(
     onError: () => void,
 ): Promise<void> {
     if (connection.socket) {
-        log(`Submitting message`);
         connection.socket.emit(
             'submitMessage',
             {
@@ -75,12 +74,29 @@ export async function submitMessage(
             },
             (response: string) => {
                 if (response === 'success') {
+                    log(`- success`);
                     onSuccess();
                 } else {
+                    log(`- error`);
                     onError();
                 }
             },
         );
+    }
+}
+
+export async function createPendingEntry(
+    connection: Connection,
+    accountAddress: string,
+    contactAddress: string,
+): Promise<void> {
+    if (connection.socket) {
+        log(`Create pending entry`);
+        connection.socket.emit('pendingMessage', {
+            accountAddress,
+            contactAddress,
+            token: connection.sessionToken,
+        });
     }
 }
 

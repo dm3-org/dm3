@@ -1,5 +1,5 @@
 import express from 'express';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import http from 'http';
 import path from 'path';
 import * as Lib from '../src/lib';
@@ -105,6 +105,8 @@ const deliveryService = {
                 sessions,
                 args.accountAddress,
                 args.publicKeys,
+                pendingConversations,
+                (socketId: string) => io.sockets.to(socketId).emit('joined'),
                 args.token,
             );
             cb(null, newPendingConversations);
@@ -127,8 +129,8 @@ const deliveryService = {
         }
     },
 };
-const jaysonServer = new jayson.server(deliveryService);
 
+const jaysonServer = new jayson.server(deliveryService);
 app.post('/deliveryService', jaysonServer.middleware());
 
 io.use((socket, next) => {
@@ -143,38 +145,51 @@ io.use((socket, next) => {
             socket.handshake.auth.token as string,
         )
     ) {
-        console.log(`[WS] Account ${account}: REJECTED`);
+        Lib.log(`[WS] Account ${account}: REJECTED`);
         return next(new Error('invalid username'));
     }
     const session = sessions.get(account) as Lib.Delivery.Session;
     session.socketId = socket.id;
-    console.log(`[WS] Account ${account} with id ${socket.id}: CONNECTED`);
+    Lib.log(`[WS] Account ${account} with id ${socket.id}: CONNECTED`);
     //socket.username = socket.handshake.auth.account as string;
     next();
 });
 
 io.on('connection', (socket) => {
-    console.log('[WS] a user connected');
+    Lib.log('[WS] a user connected');
     socket.on('disconnect', () => {
-        console.log('[WS] user disconnected');
+        Lib.log('[WS] user disconnected');
     });
     socket.on('disconnect', () => {
-        console.log('[WS] user disconnected');
+        Lib.log('[WS] user disconnected');
     });
     socket.on('submitMessage', (data, callback) => {
-        console.log('[WS] incoming message');
+        Lib.log('[WS] incoming message');
         try {
             callback(
                 Lib.Delivery.incomingMessage(
                     data,
                     sessions,
                     messages,
-                    pendingConversations,
                     (
                         socketId: string,
                         envelop: Lib.Envelop | Lib.EncryptionEnvelop,
-                    ) => socket.to(socketId).emit('message', envelop),
+                    ) => io.sockets.to(socketId).emit('message', envelop),
                 ),
+            );
+        } catch (e) {
+            console.error(e);
+        }
+    });
+    socket.on('pendingMessage', (data) => {
+        Lib.log('[WS] pending message');
+        try {
+            Lib.Delivery.createPendingEntry(
+                data.accountAddress,
+                data.contactAddress,
+                data.token,
+                sessions,
+                pendingConversations,
             );
         } catch (e) {
             console.error(e);
@@ -183,5 +198,5 @@ io.on('connection', (socket) => {
 });
 
 server.listen(port, () => {
-    console.log('[Server] listening');
+    Lib.log('[Server] listening');
 });

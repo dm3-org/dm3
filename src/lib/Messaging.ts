@@ -72,6 +72,11 @@ export async function submitMessage(
         data: unknown;
         version: string;
     }) => EthEncryptedData,
+    createPendingEntry: (
+        connection: Connection,
+        accountAddress: string,
+        contactAddress: string,
+    ) => Promise<void>,
     haltDelivery: boolean,
     onSuccess?: (envelop: Envelop) => void,
 ): Promise<void> {
@@ -89,6 +94,12 @@ export async function submitMessage(
     };
 
     if (haltDelivery) {
+        log('- Halt delivery');
+        createPendingEntry(
+            connection,
+            innerEnvelop.message.from,
+            innerEnvelop.message.to,
+        );
         storeMessages(
             [{ envelop: innerEnvelop, messageState: MessageState.Created }],
             connection,
