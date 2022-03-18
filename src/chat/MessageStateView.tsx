@@ -18,7 +18,7 @@ function MessageStateView(props: MessageStateViewProps) {
             {props.messageState === Lib.MessageState.Created && (
                 <Icon iconClass="fas fa-spinner fa-spin" />
             )}
-            {props.messageState === Lib.MessageState.Send && (
+            {props.messageState === Lib.MessageState.Read && (
                 <>
                     <Icon iconClass="fas fa-signature" />{' '}
                     <Icon iconClass="fas fa-lock" />

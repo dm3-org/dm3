@@ -41,18 +41,34 @@ function Chat(props: ChatProps) {
     const handleMessages = async (
         containers: Lib.StorageEnvelopContainer[],
     ): Promise<void> => {
-        setMessageContainers(
-            containers.filter((container) =>
-                Lib.checkSignature(
-                    container.envelop.message,
-                    Lib.formatAddress(container.envelop.message.from) ===
-                        Lib.formatAddress(props.contact.address)
-                        ? props.contact
-                        : props.connection.account,
-                    container.envelop.signature,
-                ),
+        const checkedContainers = containers.filter((container) =>
+            Lib.checkSignature(
+                container.envelop.message,
+                Lib.formatAddress(container.envelop.message.from) ===
+                    Lib.formatAddress(props.contact.address)
+                    ? props.contact
+                    : props.connection.account,
+                container.envelop.signature,
             ),
         );
+
+        const newMessages = checkedContainers
+            .filter(
+                (conatier) => conatier.messageState === Lib.MessageState.Send,
+            )
+            .map((container) => ({
+                ...container,
+                messageState: Lib.MessageState.Read,
+            }));
+
+        const oldMessages = checkedContainers.filter(
+            (conatier) =>
+                conatier.messageState === Lib.MessageState.Read ||
+                conatier.messageState === Lib.MessageState.Created,
+        );
+
+        setMessageContainers(oldMessages);
+        Lib.storeMessages(newMessages, props.connection);
     };
 
     useEffect(() => {
