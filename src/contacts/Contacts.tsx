@@ -15,23 +15,6 @@ interface ContactsProps {
 }
 
 function Contacts(props: ContactsProps) {
-    const [messageCounter, setMessageCounter] = useState<Map<string, number>>(
-        new Map<string, number>(),
-    );
-
-    useEffect(() => {
-        if (props.selectedContact) {
-            setMessageCounter(
-                new Map(
-                    messageCounter.set(
-                        Lib.formatAddress(props.selectedContact.address),
-                        0,
-                    ),
-                ),
-            );
-        }
-    }, [props.selectedContact]);
-
     useEffect(() => {
         if (
             !props.contacts &&
@@ -61,7 +44,7 @@ function Contacts(props: ContactsProps) {
                                 ensNames={props.ensNames}
                                 contacts={props.contacts}
                                 selectContact={props.selectContact}
-                                messageCounter={messageCounter}
+                                connection={props.connection}
                             />
                         </div>
                     </div>

@@ -34,6 +34,7 @@ export enum MessageState {
     Created,
     Signed,
     Send,
+    Read,
     FailedToSend,
 }
 
@@ -72,7 +73,7 @@ export async function submitMessage(
         version: string;
     }) => EthEncryptedData,
     haltDelivery: boolean,
-    onSuccess?: () => void,
+    onSuccess?: (envelop: Envelop) => void,
 ): Promise<void> {
     log('Submitting message');
 
@@ -83,7 +84,7 @@ export async function submitMessage(
 
     const allOnSuccess = () => {
         if (onSuccess) {
-            onSuccess();
+            onSuccess(innerEnvelop);
         }
     };
 

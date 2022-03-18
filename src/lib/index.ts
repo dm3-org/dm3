@@ -84,7 +84,7 @@ export async function submitMessage(
     to: Account.Account,
     message: Messaging.Message,
     haltDelivery: boolean,
-    onSuccess?: () => void,
+    onSuccess?: (envelop: Messaging.Envelop) => void,
 ): Promise<void> {
     return Messaging.submitMessage(
         connection,
