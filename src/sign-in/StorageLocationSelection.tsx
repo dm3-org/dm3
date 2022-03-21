@@ -18,10 +18,19 @@ function StorageLocationSelection(props: StorageLocationSelectionProps) {
                     href="#"
                     className={
                         'list-group-item list-group-item-action' +
-                        (props.stroageLocation === key ? ' active' : '')
+                        (props.stroageLocation ===
+                        Lib.StorageLocation[
+                            key as keyof typeof Lib.StorageLocation
+                        ]
+                            ? ' active'
+                            : '')
                     }
                     onClick={() =>
-                        props.setStorageLocation(key as Lib.StorageLocation)
+                        props.setStorageLocation(
+                            Lib.StorageLocation[
+                                key as keyof typeof Lib.StorageLocation
+                            ] as Lib.StorageLocation,
+                        )
                     }
                     key={key}
                 >

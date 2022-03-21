@@ -6,7 +6,7 @@ import * as BackendAPI from './external-apis/BackendAPI';
 import * as Messaging from './messaging/Messaging';
 import * as Encryption from './encryption/Encryption';
 import * as Account from './account/Account';
-import * as Storage from './storage/Storage';
+import * as Storage from './storage';
 
 export type { Connection } from './web3-provider/Web3Provider';
 export type { Account, PublicKeys, Keys } from './account/Account';
@@ -15,7 +15,7 @@ export type {
     EncryptionEnvelop,
     Envelop,
 } from './messaging/Messaging';
-export type { UserDB, StorageEnvelopContainer } from './storage/Storage';
+export type { UserDB, StorageEnvelopContainer } from './storage';
 
 export * as Delivery from './delivery';
 
@@ -27,7 +27,10 @@ export {
     storeMessages,
     getConversation,
     StorageLocation,
-} from './storage/Storage';
+    web3Store,
+    web3Load,
+    setSyncedState,
+} from './storage';
 export { getAccountDisplayName, extractPublicKeys } from './account/Account';
 export { decryptEnvelop, checkSignature } from './encryption/Encryption';
 export { MessageState } from './messaging/Messaging';

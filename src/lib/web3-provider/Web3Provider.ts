@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { Socket } from 'socket.io-client';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
-import { UserDB } from '../storage/Storage';
+import { StorageLocation, UserDB } from '../storage/Storage';
 import { Account } from '../account/Account';
 import { log } from '../shared/log';
 
@@ -23,6 +23,8 @@ export interface Connection {
     account: Account;
     provider: ethers.providers.JsonRpcProvider;
     socket: Socket<DefaultEventsMap, DefaultEventsMap>;
+    storageToken?: string;
+    storageLocation: StorageLocation;
     db: UserDB;
 }
 
@@ -51,6 +53,14 @@ export function logConnectionChange(newConnection: Partial<Connection>) {
                 ConnectionState[newConnection.connectionState]
             }`,
         );
+    }
+
+    if (newConnection.storageToken) {
+        log(`Storage token set`);
+    }
+
+    if (newConnection.storageLocation) {
+        log(`Storage location set`);
     }
 
     if (newConnection.account) {
