@@ -18,6 +18,8 @@ interface LeftViewProps {
     changeConnection: (newConnection: Partial<Lib.Connection>) => void;
     getContacts: (connection: Lib.Connection) => Promise<void>;
     setSynced: (isSynced: boolean) => void;
+    existingAccount: boolean;
+    setExistingAccount: (exists: boolean) => void;
 }
 
 function LeftView(props: LeftViewProps) {
@@ -31,15 +33,18 @@ function LeftView(props: LeftViewProps) {
 
     return (
         <div className="col-md-4 d-flex align-items-end flex-column ">
-            <Contacts
-                connection={props.connection as Lib.Connection}
-                ensNames={props.ensNames}
-                setEnsNames={props.setEnsNames}
-                getContacts={props.getContacts}
-                contacts={props.contacts}
-                selectContact={selectContact}
-                selectedContact={props.selectedContact}
-            />
+            {props.connection.connectionState ===
+                Lib.ConnectionState.SignedIn && (
+                <Contacts
+                    connection={props.connection as Lib.Connection}
+                    ensNames={props.ensNames}
+                    setEnsNames={props.setEnsNames}
+                    getContacts={props.getContacts}
+                    contacts={props.contacts}
+                    selectContact={selectContact}
+                    selectedContact={props.selectedContact}
+                />
+            )}
             {showSignIn(props.connection.connectionState) && (
                 <SignIn
                     connection={props.connection as Lib.Connection}
@@ -47,6 +52,8 @@ function LeftView(props: LeftViewProps) {
                     setEnsNames={props.setEnsNames}
                     ensNames={props.ensNames}
                     setSynced={props.setSynced}
+                    existingAccount={props.existingAccount}
+                    setExistingAccount={props.setExistingAccount}
                 />
             )}
             {props.connection.connectionState ===

@@ -4,12 +4,11 @@ import * as nacl from 'tweetnacl';
 //@ts-ignore
 import * as naclUtil from 'tweetnacl-util';
 import { Buffer } from 'buffer';
-import { Connection } from './Web3Provider';
+import { Connection } from '../web3-provider/Web3Provider';
 import { ethers } from 'ethers';
-import { Envelop, Message } from './Messaging';
-import { Account, EncryptionEnvelop } from '.';
-import { log } from './log';
-import { Keys } from './Account';
+import { EncryptionEnvelop, Envelop, Message } from '../messaging/Messaging';
+import { log } from '../shared/log';
+import { Account, Keys } from '../account/Account';
 
 export interface EthEncryptedData {
     version: string;

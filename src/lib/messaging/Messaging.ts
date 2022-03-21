@@ -1,13 +1,13 @@
 import { ethers } from 'ethers';
-import { decryptEnvelop, EthEncryptedData } from './Encryption';
-import { Connection } from './Web3Provider';
+import { decryptEnvelop, EthEncryptedData } from '../encryption/Encryption';
+import { Connection } from '../web3-provider/Web3Provider';
 import {
     getConversation,
     StorageEnvelopContainer,
     storeMessages,
-} from './Storage';
-import { log } from './log';
-import { Account, Keys } from './Account';
+} from '../storage/Storage';
+import { log } from '../shared/log';
+import { Account, Keys } from '../account/Account';
 
 export interface Message {
     to: string;

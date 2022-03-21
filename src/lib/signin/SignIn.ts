@@ -1,9 +1,9 @@
 import { ethers } from 'ethers';
-import { Connection } from '.';
-import { log } from './log';
-import { ConnectionState } from './Web3Provider';
-import { load } from './Storage';
-import { Account, Keys, PublicKeys } from './Account';
+import { UserDB } from '../storage/Storage';
+import { log } from '../shared/log';
+import { createDB, load } from '../storage/Storage';
+import { Account, Keys, PublicKeys } from '../account/Account';
+import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
 
 export async function signIn(
     connection: Partial<Connection>,
@@ -29,11 +29,11 @@ export async function signIn(
         provider: ethers.providers.JsonRpcProvider,
         account: string,
     ) => Promise<string>,
+    syncNotifications: ((synced: boolean) => void)[],
     dataFile?: string,
 ): Promise<{
     connectionState: ConnectionState;
-    sessionToken?: string;
-    keys?: PublicKeys;
+    db?: UserDB;
 }> {
     try {
         const provider =
@@ -43,17 +43,18 @@ export async function signIn(
 
         log(`Sign in challenge: ${challengeResponse.challenge}`);
 
-        const signature = await personalSign(
-            provider,
-            account,
-            challengeResponse.challenge,
-        );
-        await submitSignedChallenge(challengeResponse.challenge, signature);
-        const sessionToken = getSessionToken(signature);
-
         let publicKeys: PublicKeys;
+        let deliveryServiceToken: string;
 
         if (!dataFile) {
+            const signature = await personalSign(
+                provider,
+                account,
+                challengeResponse.challenge,
+            );
+            await submitSignedChallenge(challengeResponse.challenge, signature);
+            deliveryServiceToken = getSessionToken(signature);
+
             const encryptionPublicKey = await getPublicKey(provider, account);
             const keyPair = createMessagingKeyPair(encryptionPublicKey);
 
@@ -68,22 +69,22 @@ export async function signIn(
                 publicSigningKey: keyPair.publicSigningKey,
             };
 
-            await submitPublicKeyApi(account, publicKeys, sessionToken);
+            await submitPublicKeyApi(account, publicKeys, deliveryServiceToken);
 
-            (connection as Connection).db.keys = keys;
-            (connection.account as Account).publicKeys = publicKeys;
+            return {
+                connectionState: ConnectionState.SignedIn,
+                db: createDB(keys, deliveryServiceToken, syncNotifications),
+            };
         } else {
-            publicKeys = await load(
-                connection as Connection,
-                JSON.parse(dataFile),
-            );
+            return {
+                connectionState: ConnectionState.SignedIn,
+                db: await load(
+                    connection as Connection,
+                    syncNotifications,
+                    JSON.parse(dataFile),
+                ),
+            };
         }
-
-        return {
-            connectionState: ConnectionState.SignedIn,
-            sessionToken,
-            keys: publicKeys,
-        };
     } catch (e) {
         console.log(e);
         return {

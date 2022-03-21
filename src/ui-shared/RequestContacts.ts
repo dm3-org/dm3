@@ -11,7 +11,7 @@ export async function requestContacts(
 ) {
     const retrievedContacts = await Lib.getContacts(
         connection,
-        connection.sessionToken as string,
+        connection.db.deliveryServiceToken as string,
     );
 
     setContacts(retrievedContacts);

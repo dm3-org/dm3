@@ -15,6 +15,7 @@ interface RightViewProps {
     contacts?: Lib.Account[];
     selectedContact: Lib.Account | undefined;
     changeConnection: (newConnection: Partial<Lib.Connection>) => void;
+    existingAccount: boolean;
 }
 
 function RightView(props: RightViewProps) {
@@ -35,7 +36,9 @@ function RightView(props: RightViewProps) {
                     {props.connection.provider &&
                         showSignIn(props.connection.connectionState) && (
                             <div className="col-md-12 text-center">
-                                <SignInHelp />
+                                <SignInHelp
+                                    existingAccount={props.existingAccount}
+                                />
                             </div>
                         )}
                     {props.connection.connectionState ===

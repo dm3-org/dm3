@@ -1,4 +1,4 @@
-import MessageSchema from '../schema.json';
+import MessageSchema from '../../schema.json';
 import { Envelop } from './Messaging';
 import Ajv from 'ajv';
 

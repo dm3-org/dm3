@@ -1,11 +1,11 @@
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { ethers } from 'ethers';
-import { Connection } from './Web3Provider';
 import {
-    connectAccount,
+    Connection,
     ConnectionState,
     getWeb3Provider,
-} from './Web3Provider';
+} from '../web3-provider/Web3Provider';
+import { connectAccount } from './Connect';
 
 test('handels no web3 provider correctly', async () => {
     expect(await getWeb3Provider(null)).toStrictEqual({
@@ -27,9 +27,11 @@ test('should be able to connect to an injected account', async () => {
             provider,
             async (provider: JsonRpcProvider) =>
                 '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            async () => undefined,
         ),
     ).toStrictEqual({
         account: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
         connectionState: ConnectionState.SignInReady,
+        existingAccount: false,
     });
 });

@@ -1,9 +1,9 @@
-import { Keys } from '../Account';
+import { Keys } from '../account/Account';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
-import { log } from '../log';
+import { log } from '../shared/log';
 import { v4 as uuidv4 } from 'uuid';
 import { ethers } from 'ethers';
-import { getSessionToken } from '../SignIn';
+import { getSessionToken } from '../signin/SignIn';
 
 export interface Session {
     account: string;

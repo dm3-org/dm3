@@ -1,6 +1,6 @@
 import { PublicKeys } from '..';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
-import { log } from '../log';
+import { log } from '../shared/log';
 import { checkToken, Session } from './Session';
 
 export function submitPublicKeys(

@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { getSessionToken, signIn } from './SignIn';
-import { createMessagingKeyPair } from './Account';
-import { ConnectionState } from './Web3Provider';
+import { createMessagingKeyPair } from '../account/Account';
+import { ConnectionState } from '../web3-provider/Web3Provider';
 
 test('getSessionToken', async () => {
     expect(
@@ -35,14 +35,13 @@ test('should be able to sign in', async () => {
         async () => {},
         createMessagingKeyPair,
         async () => '',
+        [],
     );
-    expect(result.keys).toBeTruthy();
-    delete result.keys;
-    expect(result).toStrictEqual({
-        connectionState: ConnectionState.SignedIn,
-        sessionToken:
-            '0xa4f3883eff8d4b11a3e958c40bb451e34de040af75aee13c1f5fc7caafd157d5',
-    });
+    expect(result.db?.keys).toBeTruthy();
+    expect(result.connectionState).toStrictEqual(ConnectionState.SignedIn);
+    expect(result.db?.deliveryServiceToken).toStrictEqual(
+        '0xa4f3883eff8d4b11a3e958c40bb451e34de040af75aee13c1f5fc7caafd157d5',
+    );
 });
 
 test('should be able to handle a failed sign in', async () => {
@@ -70,6 +69,7 @@ test('should be able to handle a failed sign in', async () => {
             async () => {},
             createMessagingKeyPair,
             async () => '',
+            [],
         ),
     ).toStrictEqual({
         connectionState: ConnectionState.SignInFailed,
