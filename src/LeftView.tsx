@@ -2,9 +2,10 @@ import React from 'react';
 import 'react-chat-widget/lib/styles.css';
 import * as Lib from './lib';
 import Contacts from './contacts/Contacts';
-import SignIn, { showSignIn } from './sign-in/SignIn';
+import SignIn from './sign-in/SignIn';
 import { isWidgetOpened, toggleWidget } from 'react-chat-widget';
 import StorageView from './storage/StorageView';
+import { showSignIn } from './sign-in/Phases';
 
 interface LeftViewProps {
     connection: {

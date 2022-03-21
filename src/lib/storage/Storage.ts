@@ -8,6 +8,11 @@ import {
 import { Envelop, getId, MessageState } from '../messaging/Messaging';
 import { Connection } from '../web3-provider/Web3Provider';
 
+export enum StorageLocation {
+    File = 'File',
+    Web3Storage = 'Web3 Storage',
+}
+
 export interface StorageEnvelopContainer {
     messageState: MessageState;
     envelop: Envelop;
