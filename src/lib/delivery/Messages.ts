@@ -37,6 +37,7 @@ export function getMessages(
                 (envelop) => formatAddress(envelop.to) !== account,
             ),
         );
+        log('- Messages removed after successful delivery');
         return {
             messages: forAccount,
         };
@@ -72,8 +73,8 @@ export function getPendingConversations(
 export function incomingMessage(
     data: { envelop: EncryptionEnvelop; token: string },
     sessions: Map<string, Session>,
-    messages: Map<string, (Envelop | EncryptionEnvelop)[]>,
-    send: (socketId: string, envelop: Envelop | EncryptionEnvelop) => void,
+    messages: Map<string, EncryptionEnvelop[]>,
+    send: (socketId: string, envelop: EncryptionEnvelop) => void,
 ): string {
     const account = formatAddress(formatAddress(data.envelop.from));
     const contact = formatAddress(formatAddress(data.envelop.to));
@@ -81,9 +82,9 @@ export function incomingMessage(
     log(`- Conversations id: ${conversationId}`);
 
     if (checkToken(sessions, account, data.token)) {
-        const conversation = (
-            messages.has(conversationId) ? messages.get(conversationId) : []
-        ) as (Envelop | EncryptionEnvelop)[];
+        const conversation = messages.has(conversationId)
+            ? (messages.get(conversationId) as EncryptionEnvelop[])
+            : [];
 
         conversation.push(data.envelop);
 
