@@ -171,10 +171,9 @@ io.on('connection', (socket) => {
                     data,
                     sessions,
                     messages,
-                    (
-                        socketId: string,
-                        envelop: Lib.Envelop | Lib.EncryptionEnvelop,
-                    ) => io.sockets.to(socketId).emit('message', envelop),
+                    (socketId: string, envelop: Lib.EncryptionEnvelop) => {
+                        io.sockets.to(socketId).emit('message', envelop);
+                    },
                 ),
             );
         } catch (e) {
