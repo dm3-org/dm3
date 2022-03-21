@@ -1,16 +1,21 @@
 import { ethers } from 'ethers';
 import * as Web3Api from './external-apis/InjectedWeb3API';
-import * as Web3Provider from './Web3Provider';
-import * as SignIn from './SignIn';
+import * as Web3Provider from './web3-provider/Web3Provider';
+import * as SignIn from './signin';
 import * as BackendAPI from './external-apis/BackendAPI';
-import * as Messaging from './Messaging';
-import * as Encryption from './Encryption';
-import * as Account from './Account';
+import * as Messaging from './messaging/Messaging';
+import * as Encryption from './encryption/Encryption';
+import * as Account from './account/Account';
+import * as Storage from './storage/Storage';
 
-export type { Connection } from './Web3Provider';
-export type { Account, PublicKeys, Keys } from './Account';
-export type { Message, EncryptionEnvelop, Envelop } from './Messaging';
-export type { UserDB, StorageEnvelopContainer } from './Storage';
+export type { Connection } from './web3-provider/Web3Provider';
+export type { Account, PublicKeys, Keys } from './account/Account';
+export type {
+    Message,
+    EncryptionEnvelop,
+    Envelop,
+} from './messaging/Messaging';
+export type { UserDB, StorageEnvelopContainer } from './storage/Storage';
 
 export * as Delivery from './delivery';
 
@@ -21,22 +26,26 @@ export {
     load,
     storeMessages,
     getConversation,
-} from './Storage';
-export { getAccountDisplayName } from './Account';
-export { decryptEnvelop, checkSignature } from './Encryption';
-export { MessageState } from './Messaging';
+} from './storage/Storage';
+export { getAccountDisplayName, extractPublicKeys } from './account/Account';
+export { decryptEnvelop, checkSignature } from './encryption/Encryption';
+export { MessageState } from './messaging/Messaging';
 export {
     logConnectionChange,
     ConnectionState,
     getWeb3Provider,
-} from './Web3Provider';
+} from './web3-provider/Web3Provider';
 export { getNewMessages } from './external-apis/BackendAPI';
 export { lookupAddress, formatAddress } from './external-apis/InjectedWeb3API';
-export { log } from './log';
-export { getSessionToken } from './SignIn';
+export { log } from './shared/log';
+export { getSessionToken } from './signin';
 
 export function connectAccount(provider: ethers.providers.JsonRpcProvider) {
-    return Web3Provider.connectAccount(provider, Web3Api.requestAccounts);
+    return SignIn.connectAccount(
+        provider,
+        Web3Api.requestAccounts,
+        BackendAPI.getPublicKeys,
+    );
 }
 
 export async function addContact(
@@ -61,11 +70,11 @@ export function createMessage(
 
 export async function signIn(
     connection: Partial<Web3Provider.Connection>,
+    syncNotifications: ((synced: boolean) => void)[],
     dataFile?: string,
 ): Promise<{
     connectionState: Web3Provider.ConnectionState;
-    sessionToken?: string;
-    keys?: Account.PublicKeys;
+    db?: Storage.UserDB;
 }> {
     return SignIn.signIn(
         connection,
@@ -75,6 +84,7 @@ export async function signIn(
         BackendAPI.submitPublicKeys,
         Account.createMessagingKeyPair,
         Web3Api.getPublicKey,
+        syncNotifications,
         dataFile,
     );
 }
@@ -112,11 +122,11 @@ export async function getMessages(
 
 export async function getContacts(
     connection: Web3Provider.Connection,
-    sessionToken: string,
+    deliveryServiceToken: string,
 ) {
     return Account.getContacts(
         connection,
-        sessionToken,
+        deliveryServiceToken,
         BackendAPI.getPublicKeys,
         BackendAPI.getPendingConversations,
         Web3Api.resolveName,

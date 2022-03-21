@@ -1,7 +1,4 @@
-import { JsonRpcProvider } from '@ethersproject/providers';
 import { getAccountDisplayName } from './Account';
-import { Connection } from './Web3Provider';
-import { ConnectionState } from './Web3Provider';
 
 test('get correct account display name', async () => {
     const ensNames = new Map();

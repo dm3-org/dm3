@@ -1,10 +1,9 @@
 import { ethers } from 'ethers';
-import { formatAddress } from './external-apis/InjectedWeb3API';
-import { Connection } from './Web3Provider';
+import { formatAddress } from '../external-apis/InjectedWeb3API';
+import { Connection } from '../web3-provider/Web3Provider';
 import nacl from 'tweetnacl';
 import { encodeBase64 } from 'tweetnacl-util';
-import { createEmptyConversation } from './Storage';
-import { getConversationId } from '.';
+import { createEmptyConversation, getConversationId } from '../storage/Storage';
 
 export interface Keys {
     publicKey: string;
@@ -33,7 +32,7 @@ export interface Account {
 
 export async function getContacts(
     connection: Connection,
-    sessionToken: string,
+    deliveryServiceToken: string,
     getPublicKeys: (contact: string) => Promise<PublicKeys | undefined>,
     getPendingConversations: (connection: Connection) => Promise<string[]>,
     resolveName: (
@@ -126,4 +125,12 @@ export async function addContact(
             throw Error(`Couldn't resolve name`);
         }
     }
+}
+
+export function extractPublicKeys(keys: Keys): PublicKeys {
+    return {
+        publicKey: keys.publicKey,
+        publicMessagingKey: keys.publicMessagingKey,
+        publicSigningKey: keys.publicSigningKey,
+    };
 }

@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import Icon from '../ui-shared/Icon';
 import * as Lib from '../lib';
-import { decodeBase64 } from 'tweetnacl-util';
-import { createFalse } from 'typescript';
 
 interface SignInProps {
     connection: Lib.Connection;
@@ -11,6 +9,8 @@ interface SignInProps {
     setEnsNames: (ensNames: Map<string, string>) => void;
     ensNames: Map<string, string>;
     setSynced: (isSynced: boolean) => void;
+    existingAccount: boolean;
+    setExistingAccount: (exists: boolean) => void;
 }
 
 export function showSignIn(connectionState: Lib.ConnectionState): boolean {
@@ -34,6 +34,8 @@ function SignIn(props: SignInProps) {
         const accountConnection = await Lib.connectAccount(
             props.connection.provider as ethers.providers.JsonRpcProvider,
         );
+
+        props.setExistingAccount(accountConnection.existingAccount);
 
         if (accountConnection.account) {
             props.changeConnection({
@@ -66,26 +68,24 @@ function SignIn(props: SignInProps) {
             connectionState: Lib.ConnectionState.WaitingForSignIn,
         });
 
-        const singInRequest = await Lib.signIn(props.connection, dataFile);
+        const singInRequest = await Lib.signIn(
+            props.connection,
+            [props.setSynced],
+            dataFile,
+        );
 
-        if (singInRequest.sessionToken) {
-            Lib.log(`Setting session token: ${singInRequest.sessionToken}`);
+        if (singInRequest.db) {
+            Lib.log(`Setting session token`);
 
             const account: Lib.Account = {
                 address: props.connection.account?.address as string,
             };
 
-            if (singInRequest.keys) {
-                account.publicKeys = {
-                    publicKey: singInRequest.keys?.publicKey,
-                    publicMessagingKey: singInRequest.keys?.publicMessagingKey,
-                    publicSigningKey: singInRequest.keys?.publicSigningKey,
-                };
-            }
+            account.publicKeys = Lib.extractPublicKeys(singInRequest.db.keys);
 
             props.changeConnection({
+                db: singInRequest.db,
                 account,
-                sessionToken: singInRequest.sessionToken,
                 connectionState: singInRequest.connectionState,
             });
         } else {
@@ -176,23 +176,17 @@ function SignIn(props: SignInProps) {
                             </button>
                         </div>
                     </div>
-                    <div className="row row-space">
-                        <div className="col-md-12">
-                            <input
-                                type="file"
-                                className="form-control"
-                                onChange={(event) => upload(event)}
-                                disabled={
-                                    !(
-                                        props.connection.connectionState ===
-                                            Lib.ConnectionState.SignInReady ||
-                                        props.connection.connectionState ===
-                                            Lib.ConnectionState.SignInFailed
-                                    )
-                                }
-                            />
+                    {props.existingAccount && (
+                        <div className="row row-space">
+                            <div className="col-md-12">
+                                <input
+                                    type="file"
+                                    className="form-control"
+                                    onChange={(event) => upload(event)}
+                                />
+                            </div>
                         </div>
-                    </div>
+                    )}
                     <div className="row row-space">
                         <div className="col-md-12">
                             <button
@@ -210,7 +204,8 @@ function SignIn(props: SignInProps) {
                                             Lib.ConnectionState.SignInReady ||
                                         props.connection.connectionState ===
                                             Lib.ConnectionState.SignInFailed
-                                    )
+                                    ) ||
+                                    (props.existingAccount && !dataFile)
                                 }
                             >
                                 Sign In

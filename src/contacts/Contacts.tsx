@@ -18,12 +18,12 @@ function Contacts(props: ContactsProps) {
     useEffect(() => {
         if (
             !props.contacts &&
-            props.connection.sessionToken &&
+            props.connection.db?.deliveryServiceToken &&
             props.connection.socket
         ) {
             props.getContacts(props.connection);
         }
-    }, [props.connection.sessionToken, props.connection.socket]);
+    }, [props.connection.db.deliveryServiceToken, props.connection.socket]);
 
     return (
         <div className="w-100">

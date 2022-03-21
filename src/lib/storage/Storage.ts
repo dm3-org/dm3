@@ -1,10 +1,12 @@
 import { ethers } from 'ethers';
-import { formatAddress, MessageState, PublicKeys } from '.';
-import { Keys } from './Account';
-import { encryptSafely, EthEncryptedData } from './Encryption';
-import { decryptUsingProvider } from './external-apis/InjectedWeb3API';
-import { Envelop, getId } from './Messaging';
-import { Connection } from './Web3Provider';
+import { Keys } from '../account/Account';
+import { encryptSafely, EthEncryptedData } from '../encryption/Encryption';
+import {
+    decryptUsingProvider,
+    formatAddress,
+} from '../external-apis/InjectedWeb3API';
+import { Envelop, getId, MessageState } from '../messaging/Messaging';
+import { Connection } from '../web3-provider/Web3Provider';
 
 export interface StorageEnvelopContainer {
     messageState: MessageState;
@@ -13,7 +15,8 @@ export interface StorageEnvelopContainer {
 
 export interface UserDB {
     conversations: Map<string, StorageEnvelopContainer[]>;
-    keys?: Keys;
+    deliveryServiceToken: string;
+    keys: Keys;
     syncNotifications: ((synced: boolean) => void)[];
     contactNotification?: () => void;
     synced: boolean;
@@ -51,12 +54,16 @@ function setSyncedState(synced: boolean, connection: Connection) {
 }
 
 export function createDB(
+    keys: Keys,
+    deliveryServiceToken: string,
     syncNotifications: ((synced: boolean) => void)[],
 ): UserDB {
     return {
         conversations: new Map<string, StorageEnvelopContainer[]>(),
         synced: false,
+        deliveryServiceToken,
         syncNotifications,
+        keys,
     };
 }
 
@@ -144,6 +151,7 @@ export function sync(connection: Connection): {
                 replacer,
             ),
             keys: connection.db.keys,
+            deliveryServiceToken: connection.db.deliveryServiceToken,
         }),
         version: 'x25519-xsalsa20-poly1305',
     });
@@ -156,12 +164,17 @@ export function sync(connection: Connection): {
 
 export async function load(
     connection: Connection,
+    syncNotifications: ((synced: boolean) => void)[],
     data: {
         version: string;
         payload: EthEncryptedData;
     },
-): Promise<PublicKeys> {
-    const decryptedPayload: { conversations: string; keys: Keys } = JSON.parse(
+): Promise<UserDB> {
+    const decryptedPayload: {
+        conversations: string;
+        keys: Keys;
+        deliveryServiceToken: string;
+    } = JSON.parse(
         JSON.parse(
             await decryptUsingProvider(
                 connection.provider,
@@ -173,19 +186,12 @@ export async function load(
             ),
         ).data,
     );
-
-    connection.db.conversations = JSON.parse(
-        decryptedPayload.conversations,
-        reviver,
-    );
-
-    connection.db.keys = decryptedPayload.keys;
-
-    setSyncedState(true, connection);
     return {
-        publicKey: decryptedPayload.keys.publicKey,
-        publicMessagingKey: decryptedPayload.keys.publicMessagingKey,
-        publicSigningKey: decryptedPayload.keys.publicSigningKey,
+        keys: decryptedPayload.keys,
+        syncNotifications,
+        deliveryServiceToken: decryptedPayload.deliveryServiceToken,
+        conversations: JSON.parse(decryptedPayload.conversations, reviver),
+        synced: true,
     };
 }
 

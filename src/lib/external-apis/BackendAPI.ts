@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { log } from '../log';
-import { EncryptionEnvelop, Envelop } from '../Messaging';
-import { Connection } from '../Web3Provider';
-import { PublicKeys } from '../Account';
+import { log } from '../shared/log';
+import { EncryptionEnvelop, Envelop } from '../messaging/Messaging';
+import { Connection } from '../web3-provider/Web3Provider';
+import { PublicKeys } from '../account/Account';
 
 const DELIVERY_SERVICE =
     (process.env.REACT_APP_BACKEND as string) + '/deliveryService';
@@ -70,7 +70,7 @@ export async function submitMessage(
             'submitMessage',
             {
                 envelop,
-                token: connection.sessionToken,
+                token: connection.db.deliveryServiceToken,
             },
             (response: string) => {
                 if (response === 'success') {
@@ -95,7 +95,7 @@ export async function createPendingEntry(
         connection.socket.emit('pendingMessage', {
             accountAddress,
             contactAddress,
-            token: connection.sessionToken,
+            token: connection.db.deliveryServiceToken,
         });
     }
 }
@@ -110,7 +110,7 @@ export async function getNewMessages(
             createJsonRpcRequest('getMessages', {
                 accountAddress: connection.account.address,
                 contactAddress,
-                token: connection.sessionToken,
+                token: connection.db.deliveryServiceToken,
             }),
         )
     ).data.result.messages;
@@ -124,7 +124,7 @@ export async function getPendingConversations(
             DELIVERY_SERVICE,
             createJsonRpcRequest('getPendingConversations', {
                 accountAddress: connection.account.address,
-                token: connection.sessionToken,
+                token: connection.db.deliveryServiceToken,
             }),
         )
     ).data.result.pendingConversations;

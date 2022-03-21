@@ -1,7 +1,7 @@
 import { formatAddress } from '../external-apis/InjectedWeb3API';
-import { log } from '../log';
-import { EncryptionEnvelop, Envelop } from '../Messaging';
-import { getConversationId } from '../Storage';
+import { log } from '../shared/log';
+import { EncryptionEnvelop } from '../messaging/Messaging';
+import { getConversationId } from '../storage/Storage';
 import { checkToken, Session } from './Session';
 
 export function getMessages(

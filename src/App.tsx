@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import 'react-chat-widget/lib/styles.css';
 import detectEthereumProvider from '@metamask/detect-provider';
-import { EnvelopContainer } from './chat/Chat';
 import socketIOClient from 'socket.io-client';
 import * as Lib from './lib';
 import { requestContacts } from './ui-shared/RequestContacts';
@@ -10,17 +9,15 @@ import Header from './header/Header';
 import LeftView from './LeftView';
 import RightView from './RightView';
 import { useBeforeunload } from 'react-beforeunload';
-import { isPropertySignature } from 'typescript';
 
 function App() {
+    const [existingAccount, setExistingAccount] = useState<boolean>(false);
     const [synced, setSynced] = useState<boolean>(false);
     const [connection, setConnection] = useState<
         {
             connectionState: Lib.ConnectionState;
-            db: Lib.UserDB;
         } & Partial<Lib.Connection>
     >({
-        db: Lib.createDB([setSynced]),
         connectionState: Lib.ConnectionState.CheckingProvider,
     });
     const [ensNames, setEnsNames] = useState<Map<string, string>>(
@@ -89,7 +86,7 @@ function App() {
             );
             socket.auth = {
                 account: connection.account,
-                token: connection.sessionToken,
+                token: (connection.db as Lib.UserDB).deliveryServiceToken,
             };
             socket.connect();
             socket.on('message', (envelop: Lib.EncryptionEnvelop) => {
@@ -168,6 +165,8 @@ function App() {
                             setEnsNames={setEnsNames}
                             setSelectedContact={setSelectedContact}
                             setSynced={setSynced}
+                            existingAccount={existingAccount}
+                            setExistingAccount={setExistingAccount}
                         />
                         <RightView
                             connection={connection}
@@ -175,6 +174,7 @@ function App() {
                             ensNames={ensNames}
                             selectedContact={selectedContact}
                             contacts={contacts}
+                            existingAccount={existingAccount}
                         />
                     </div>
                 </div>
