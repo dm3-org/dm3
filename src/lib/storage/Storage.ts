@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { web3Store } from '.';
 import { Keys } from '../account/Account';
 import { encryptSafely, EthEncryptedData } from '../encryption/Encryption';
 import {
@@ -47,7 +48,7 @@ function reviver(key: string, value: any) {
     return value;
 }
 
-function setSyncedState(synced: boolean, connection: Connection) {
+export function setSyncedState(synced: boolean, connection: Connection) {
     connection.db.synced = synced;
     connection.db.syncNotifications.forEach((notification) =>
         notification(synced),
@@ -96,6 +97,7 @@ export function storeMessages(
     containers: StorageEnvelopContainer[],
     connection: Connection,
 ) {
+    console.log(1);
     for (let container of containers) {
         const contactAddress =
             container.envelop.message.from === connection.account.address

@@ -4,6 +4,7 @@ import Icon from '../ui-shared/Icon';
 import * as Lib from '../lib';
 import StorageLocationSelection from './StorageLocationSelection';
 import { connectionPhase } from './Phases';
+import TokenInput from './TokenInput';
 
 interface SignInProps {
     connection: Lib.Connection;
@@ -17,6 +18,7 @@ interface SignInProps {
 
 function SignIn(props: SignInProps) {
     const [dataFile, setDataFile] = useState<string | undefined>();
+    const [token, setToken] = useState<string | undefined>();
     const [storageLocation, setStorageLocation] = useState<Lib.StorageLocation>(
         Lib.StorageLocation.File,
     );
@@ -62,10 +64,17 @@ function SignIn(props: SignInProps) {
             connectionState: Lib.ConnectionState.WaitingForSignIn,
         });
 
+        const data =
+            storageLocation === Lib.StorageLocation.Web3Storage
+                ? props.existingAccount
+                    ? await Lib.web3Load(token as string)
+                    : undefined
+                : dataFile;
+
         const singInRequest = await Lib.signIn(
             props.connection,
             [props.setSynced],
-            dataFile,
+            data,
         );
 
         if (singInRequest.db) {
@@ -78,6 +87,8 @@ function SignIn(props: SignInProps) {
             account.publicKeys = Lib.extractPublicKeys(singInRequest.db.keys);
 
             props.changeConnection({
+                storageToken: token,
+                storageLocation,
                 db: singInRequest.db,
                 account,
                 connectionState: singInRequest.connectionState,
@@ -170,23 +181,28 @@ function SignIn(props: SignInProps) {
                             </button>
                         </div>
                     </div>
-                    {props.existingAccount && (
-                        <div className="row row-space">
-                            <div className="col-md-12">
-                                <input
-                                    type="file"
-                                    className="form-control"
-                                    onChange={(event) => upload(event)}
-                                />
-                            </div>
-                        </div>
+
+                    {!connectionPhase(props.connection.connectionState) && (
+                        <StorageLocationSelection
+                            setStorageLocation={setStorageLocation}
+                            stroageLocation={storageLocation}
+                        />
                     )}
-                    {!props.existingAccount &&
-                        !connectionPhase(props.connection.connectionState) && (
-                            <StorageLocationSelection
-                                setStorageLocation={setStorageLocation}
-                                stroageLocation={storageLocation}
-                            />
+                    {props.existingAccount &&
+                        storageLocation === Lib.StorageLocation.File && (
+                            <div className="row row-space">
+                                <div className="col-md-12">
+                                    <input
+                                        type="file"
+                                        className="form-control"
+                                        onChange={(event) => upload(event)}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    {!connectionPhase(props.connection.connectionState) &&
+                        storageLocation === Lib.StorageLocation.Web3Storage && (
+                            <TokenInput setToken={setToken} token={token} />
                         )}
                     {!connectionPhase(props.connection.connectionState) && (
                         <div className="row row-space">
@@ -208,7 +224,14 @@ function SignIn(props: SignInProps) {
                                             props.connection.connectionState ===
                                                 Lib.ConnectionState.SignInFailed
                                         ) ||
-                                        (props.existingAccount && !dataFile)
+                                        (props.existingAccount &&
+                                            !dataFile &&
+                                            storageLocation ===
+                                                Lib.StorageLocation.File) ||
+                                        (props.existingAccount &&
+                                            !token &&
+                                            storageLocation ===
+                                                Lib.StorageLocation.Web3Storage)
                                     }
                                 >
                                     Sign In

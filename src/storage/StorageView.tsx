@@ -10,26 +10,41 @@ interface StorageViewProps {
 }
 
 function StorageView(props: StorageViewProps) {
-    const downloadDbFile = (e: any) => {
+    const sync = async (e: any) => {
         e.preventDefault();
-        const blob = new Blob([JSON.stringify(Lib.sync(props.connection))], {
-            type: 'text/json',
-        });
+        try {
+            if (
+                props.connection.storageLocation ===
+                Lib.StorageLocation.Web3Storage
+            ) {
+                await Lib.web3Store(props.connection);
+            } else {
+                const blob = new Blob(
+                    [JSON.stringify(Lib.sync(props.connection))],
+                    {
+                        type: 'text/json',
+                    },
+                );
 
-        const a = document.createElement('a');
-        a.download = `${Lib.getAccountDisplayName(
-            props.connection.account.address,
-            props.ensNames,
-            true,
-        )}-${Date.now()}.json`;
-        a.href = window.URL.createObjectURL(blob);
-        const clickEvt = new MouseEvent('click', {
-            view: window,
-            bubbles: true,
-            cancelable: true,
-        });
-        a.dispatchEvent(clickEvt);
-        a.remove();
+                const a = document.createElement('a');
+                a.download = `${Lib.getAccountDisplayName(
+                    props.connection.account.address,
+                    props.ensNames,
+                    true,
+                )}-${Date.now()}.json`;
+                a.href = window.URL.createObjectURL(blob);
+                const clickEvt = new MouseEvent('click', {
+                    view: window,
+                    bubbles: true,
+                    cancelable: true,
+                });
+                a.dispatchEvent(clickEvt);
+                a.remove();
+            }
+        } catch (e) {
+            Lib.log(e as string);
+            Lib.setSyncedState(false, props.connection);
+        }
     };
 
     return (
@@ -40,7 +55,7 @@ function StorageView(props: StorageViewProps) {
                         <div className="col-12">
                             <button
                                 type="button"
-                                onClick={downloadDbFile}
+                                onClick={sync}
                                 className={`w-100 btn btn-sm btn${
                                     props.connection.db.synced
                                         ? '-outline-secondary'
