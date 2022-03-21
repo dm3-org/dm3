@@ -26,6 +26,7 @@ export {
     load,
     storeMessages,
     getConversation,
+    StorageLocation,
 } from './storage/Storage';
 export { getAccountDisplayName, extractPublicKeys } from './account/Account';
 export { decryptEnvelop, checkSignature } from './encryption/Encryption';

@@ -1,11 +1,11 @@
 import React from 'react';
 import 'react-chat-widget/lib/styles.css';
 import * as Lib from './lib';
-import { showSignIn } from './sign-in/SignIn';
 
 import Start from './Start';
 import Chat, { EnvelopContainer } from './chat/Chat';
 import SignInHelp from './sign-in/SignInHelp';
+import { showSignIn } from './sign-in/Phases';
 
 interface RightViewProps {
     connection: {
@@ -38,6 +38,9 @@ function RightView(props: RightViewProps) {
                             <div className="col-md-12 text-center">
                                 <SignInHelp
                                     existingAccount={props.existingAccount}
+                                    connectionState={
+                                        props.connection.connectionState
+                                    }
                                 />
                             </div>
                         )}

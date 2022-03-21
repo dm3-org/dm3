@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ethers } from 'ethers';
 import Icon from '../ui-shared/Icon';
 import * as Lib from '../lib';
+import StorageLocationSelection from './StorageLocationSelection';
+import { connectionPhase } from './Phases';
 
 interface SignInProps {
     connection: Lib.Connection;
@@ -13,19 +15,11 @@ interface SignInProps {
     setExistingAccount: (exists: boolean) => void;
 }
 
-export function showSignIn(connectionState: Lib.ConnectionState): boolean {
-    return (
-        connectionState === Lib.ConnectionState.AccountConntectReady ||
-        connectionState === Lib.ConnectionState.SignInReady ||
-        connectionState === Lib.ConnectionState.WaitingForAccountConntection ||
-        connectionState === Lib.ConnectionState.WaitingForSignIn ||
-        connectionState === Lib.ConnectionState.AccountConnectionRejected ||
-        connectionState === Lib.ConnectionState.SignInFailed
-    );
-}
-
 function SignIn(props: SignInProps) {
     const [dataFile, setDataFile] = useState<string | undefined>();
+    const [storageLocation, setStorageLocation] = useState<Lib.StorageLocation>(
+        Lib.StorageLocation.File,
+    );
 
     const connect = async () => {
         props.changeConnection({
@@ -187,36 +181,46 @@ function SignIn(props: SignInProps) {
                             </div>
                         </div>
                     )}
-                    <div className="row row-space">
-                        <div className="col-md-12">
-                            <button
-                                onClick={requestSignIn}
-                                type="button"
-                                className={`btn btn-${
-                                    props.connection.connectionState ===
-                                    Lib.ConnectionState.SignInFailed
-                                        ? 'danger'
-                                        : 'primary'
-                                } btn-lg w-100`}
-                                disabled={
-                                    !(
+                    {!props.existingAccount &&
+                        !connectionPhase(props.connection.connectionState) && (
+                            <StorageLocationSelection
+                                setStorageLocation={setStorageLocation}
+                                stroageLocation={storageLocation}
+                            />
+                        )}
+                    {!connectionPhase(props.connection.connectionState) && (
+                        <div className="row row-space">
+                            <div className="col-md-12">
+                                <button
+                                    onClick={requestSignIn}
+                                    type="button"
+                                    className={`btn btn-${
                                         props.connection.connectionState ===
-                                            Lib.ConnectionState.SignInReady ||
-                                        props.connection.connectionState ===
-                                            Lib.ConnectionState.SignInFailed
-                                    ) ||
-                                    (props.existingAccount && !dataFile)
-                                }
-                            >
-                                Sign In
-                                <span className="push-end">
-                                    {getSignInIconClass(
-                                        props.connection.connectionState,
-                                    )}
-                                </span>
-                            </button>
+                                        Lib.ConnectionState.SignInFailed
+                                            ? 'danger'
+                                            : 'primary'
+                                    } btn-lg w-100`}
+                                    disabled={
+                                        !(
+                                            props.connection.connectionState ===
+                                                Lib.ConnectionState
+                                                    .SignInReady ||
+                                            props.connection.connectionState ===
+                                                Lib.ConnectionState.SignInFailed
+                                        ) ||
+                                        (props.existingAccount && !dataFile)
+                                    }
+                                >
+                                    Sign In
+                                    <span className="push-end">
+                                        {getSignInIconClass(
+                                            props.connection.connectionState,
+                                        )}
+                                    </span>
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>
