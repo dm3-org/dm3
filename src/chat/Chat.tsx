@@ -4,16 +4,18 @@ import {
     deleteMessages,
     dropMessages,
     renderCustomComponent,
+    isWidgetOpened,
+    toggleWidget,
     Widget,
 } from 'react-chat-widget';
 import MessageStateView from './MessageStateView';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import * as Lib from '../lib';
 import './Chat.css';
+import { GlobalContext } from '../GlobalContextProvider';
+import { UserDbType } from '../reducers/UserDB';
 
 interface ChatProps {
-    hasContacts: boolean;
-    ensNames: Map<string, string>;
     connection: Lib.Connection;
     contact: Lib.Account;
 }
@@ -24,6 +26,10 @@ export interface EnvelopContainer {
 }
 
 function Chat(props: ChatProps) {
+    const { state, dispatch } = useContext(GlobalContext);
+    if (!isWidgetOpened()) {
+        toggleWidget();
+    }
     const [messageStates, setMessageStates] = useState<
         Map<string, Lib.MessageState>
     >(new Map<string, Lib.MessageState>());
@@ -34,7 +40,21 @@ function Chat(props: ChatProps) {
 
     const getPastMessages = async () => {
         handleMessages(
-            await Lib.getMessages(props.connection, props.contact.address),
+            await Lib.getMessages(
+                state.connection,
+                props.contact.address,
+                state.userDb as Lib.UserDB,
+                (envelops) =>
+                    envelops.forEach((envelop) =>
+                        dispatch({
+                            type: UserDbType.addMessage,
+                            payload: {
+                                container: envelop,
+                                connection: state.connection,
+                            },
+                        }),
+                    ),
+            ),
         );
     };
 
@@ -47,7 +67,7 @@ function Chat(props: ChatProps) {
                 Lib.formatAddress(container.envelop.message.from) ===
                     Lib.formatAddress(props.contact.address)
                     ? props.contact
-                    : props.connection.account,
+                    : state.connection.account!,
                 container.envelop.signature,
             ),
         );
@@ -68,15 +88,33 @@ function Chat(props: ChatProps) {
         );
 
         setMessageContainers(oldMessages);
-        Lib.storeMessages(newMessages, props.connection);
+
+        if (!state.userDb) {
+            throw Error(
+                `[handleMessages] Couldn't handle new messages. User db not created.`,
+            );
+        }
+
+        if (newMessages.length > 0) {
+            newMessages.forEach((message) =>
+                dispatch({
+                    type: UserDbType.addMessage,
+                    payload: {
+                        container: message,
+                        connection: state.connection,
+                    },
+                }),
+            );
+        }
     };
 
     useEffect(() => {
         dropMessages();
+
         messageContainers.forEach((container) => {
             if (
                 container.envelop.message.from ===
-                props.connection.account.address
+                state.connection.account!.address
             ) {
                 addUserMessage(
                     container.envelop.message.message,
@@ -105,7 +143,7 @@ function Chat(props: ChatProps) {
                         time={container.envelop.message.timestamp}
                         ownMessage={
                             container.envelop.message.from ===
-                            props.connection.account.address
+                            state.connection.account!.address
                         }
                     />
                 ),
@@ -117,54 +155,70 @@ function Chat(props: ChatProps) {
     useEffect(() => {
         if (props.contact) {
             getPastMessages();
-            props.connection.db.contactNotification = () => {
-                handleMessages(
-                    Lib.getConversation(
-                        props.contact.address,
-                        props.connection,
-                    ),
-                );
-            };
         }
     }, [props.contact]);
 
     useEffect(() => {
-        if (props.contact) {
+        if (props.contact && state.userDb) {
+            handleMessages(
+                Lib.getConversation(
+                    props.contact.address,
+                    state.connection,
+                    state.userDb,
+                ),
+            );
         }
-    }, [props.connection]);
+    }, [state.userDb?.conversations]);
 
-    const handleNewUserMessage = async (message: string) => {
+    const handleNewUserMessage = async (
+        message: string,
+        userDb: Lib.UserDB,
+    ) => {
         deleteMessages(1);
 
         const haltDelivery =
             props.contact.publicKeys?.publicMessagingKey &&
-            props.connection.account?.publicKeys?.publicMessagingKey
+            state.connection.account?.publicKeys?.publicMessagingKey
                 ? false
                 : true;
 
         const messageData = Lib.createMessage(
             props.contact.address,
-            props.connection.account.address,
+            state.connection.account!.address,
             message,
         );
         const messageId = messageData.timestamp.toString();
         messageStates.set(messageId, Lib.MessageState.Created);
         setMessageStates(new Map(messageStates));
 
-        Lib.submitMessage(
-            props.connection,
-            props.contact,
-            messageData,
-            haltDelivery,
-            () => {
-                messageStates.set(messageId, Lib.MessageState.Send);
-                setMessageStates(new Map(messageStates));
-            },
-        ).catch((e) => {
-            Lib.log(e);
+        try {
+            const conversations = await Lib.submitMessage(
+                state.connection,
+                userDb,
+                props.contact,
+                messageData,
+                haltDelivery,
+                (envelops: Lib.StorageEnvelopContainer[]) =>
+                    envelops.forEach((envelop) =>
+                        dispatch({
+                            type: UserDbType.addMessage,
+                            payload: {
+                                container: envelop,
+                                connection: state.connection,
+                            },
+                        }),
+                    ),
+
+                () => {
+                    messageStates.set(messageId, Lib.MessageState.Send);
+                    setMessageStates(new Map(messageStates));
+                },
+            );
+        } catch (e) {
+            Lib.log(e as string);
             messageStates.set(messageId, Lib.MessageState.FailedToSend);
             setMessageStates(new Map(messageStates));
-        });
+        }
     };
 
     return (
@@ -173,17 +227,13 @@ function Chat(props: ChatProps) {
                 <Widget
                     emojis={false}
                     launcher={() => null}
-                    subtitle={null}
-                    handleNewUserMessage={handleNewUserMessage}
+                    handleNewUserMessage={(message: string) =>
+                        handleNewUserMessage(
+                            message,
+                            state.userDb as Lib.UserDB,
+                        )
+                    }
                     showTimeStamp={false}
-                    title={`${
-                        props.contact
-                            ? Lib.getAccountDisplayName(
-                                  props.contact.address,
-                                  props.ensNames,
-                              )
-                            : ''
-                    }`}
                 />
             </div>
         </div>

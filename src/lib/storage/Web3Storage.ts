@@ -1,4 +1,5 @@
 import { Web3Storage, getFilesFromPath, Web3File } from 'web3.storage';
+import { UserDB } from '.';
 import { log } from '../shared/log';
 import { Connection } from '../web3-provider/Web3Provider';
 import { sync } from './Storage';
@@ -19,13 +20,13 @@ function readFileAsync(file: Blob): Promise<string> {
     });
 }
 
-export async function web3Store(connection: Connection) {
+export async function web3Store(connection: Connection, userDb: UserDB) {
     if (!connection.storageToken) {
         throw Error('No API token');
     }
 
     const client = new Web3Storage({ token: connection.storageToken });
-    const blob = new Blob([JSON.stringify(sync(connection))], {
+    const blob = new Blob([JSON.stringify(sync(connection, userDb))], {
         type: 'text/json',
     });
 

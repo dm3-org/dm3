@@ -1,13 +1,12 @@
 import './SignInHelp.css';
 import * as Lib from '../lib';
 import { connectionPhase } from './Phases';
+import { useContext } from 'react';
+import { GlobalContext } from '../GlobalContextProvider';
 
-interface SignInHelpProps {
-    existingAccount: boolean;
-    connectionState: Lib.ConnectionState;
-}
-
-function SignInHelp(props: SignInHelpProps) {
+function SignInHelp() {
+    const existingAccount = true;
+    const { state } = useContext(GlobalContext);
     return (
         <div className="row d-flex justify-content-center row-space text-start">
             <div className="d-flex justify-content-start sign-in-help">
@@ -15,21 +14,21 @@ function SignInHelp(props: SignInHelpProps) {
                 <div className="circle-char text-center">1</div>
                 <div>Connect an Ethereum account</div>
             </div>
-            {!connectionPhase(props.connectionState) && (
+            {!connectionPhase(state.connection.connectionState) && (
                 <>
-                    {props.existingAccount && (
+                    {existingAccount && (
                         <div className="sign-in-help-1 d-flex justify-content-start">
                             <div className="arrow-left h-100" />
                             <div className="circle-char text-center">2</div>
                             <div>
-                                {props.existingAccount
+                                {existingAccount
                                     ? 'Choose storage file'
                                     : 'Select storage location'}
                             </div>
                         </div>
                     )}
-                    {!props.existingAccount &&
-                        !connectionPhase(props.connectionState) && (
+                    {!existingAccount &&
+                        !connectionPhase(state.connection.connectionState) && (
                             <div className="sign-in-help-1 d-flex justify-content-start">
                                 <div className="arrow-left h-100" />
                                 <div className="circle-char text-center">2</div>
@@ -40,17 +39,17 @@ function SignInHelp(props: SignInHelpProps) {
                     <div
                         className=" d-flex justify-content-start"
                         style={
-                            connectionPhase(props.connectionState)
+                            connectionPhase(state.connection.connectionState)
                                 ? { marginTop: '2.8rem' }
-                                : props.existingAccount
+                                : existingAccount
                                 ? { marginTop: '2rem' }
                                 : { marginTop: '4.8rem' }
                         }
                     >
                         <div className="arrow-left h-100" />
                         <div className="circle-char text-center">
-                            {props.existingAccount ||
-                            !connectionPhase(props.connectionState)
+                            {existingAccount ||
+                            !connectionPhase(state.connection.connectionState)
                                 ? '3'
                                 : '2'}
                         </div>

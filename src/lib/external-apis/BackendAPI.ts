@@ -3,6 +3,7 @@ import { log } from '../shared/log';
 import { EncryptionEnvelop, Envelop } from '../messaging/Messaging';
 import { Connection } from '../web3-provider/Web3Provider';
 import { PublicKeys } from '../account/Account';
+import { UserDB } from '..';
 
 const DELIVERY_SERVICE =
     (process.env.REACT_APP_BACKEND as string) + '/deliveryService';
@@ -61,6 +62,7 @@ export async function requestChallenge(
 
 export async function submitMessage(
     connection: Connection,
+    userDb: UserDB,
     envelop: Envelop | EncryptionEnvelop,
     onSuccess: () => void,
     onError: () => void,
@@ -70,7 +72,7 @@ export async function submitMessage(
             'submitMessage',
             {
                 envelop,
-                token: connection.db.deliveryServiceToken,
+                token: userDb.deliveryServiceToken,
             },
             (response: string) => {
                 if (response === 'success') {
@@ -87,6 +89,7 @@ export async function submitMessage(
 
 export async function createPendingEntry(
     connection: Connection,
+    userDb: UserDB,
     accountAddress: string,
     contactAddress: string,
 ): Promise<void> {
@@ -95,22 +98,23 @@ export async function createPendingEntry(
         connection.socket.emit('pendingMessage', {
             accountAddress,
             contactAddress,
-            token: connection.db.deliveryServiceToken,
+            token: userDb.deliveryServiceToken,
         });
     }
 }
 
 export async function getNewMessages(
     connection: Connection,
+    userDb: UserDB,
     contactAddress: string,
 ): Promise<EncryptionEnvelop[]> {
     return (
         await axios.post(
             DELIVERY_SERVICE,
             createJsonRpcRequest('getMessages', {
-                accountAddress: connection.account.address,
+                accountAddress: connection.account!.address,
                 contactAddress,
-                token: connection.db.deliveryServiceToken,
+                token: userDb.deliveryServiceToken,
             }),
         )
     ).data.result.messages;
@@ -118,13 +122,14 @@ export async function getNewMessages(
 
 export async function getPendingConversations(
     connection: Connection,
+    userDb: UserDB,
 ): Promise<string[]> {
     return (
         await axios.post(
             DELIVERY_SERVICE,
             createJsonRpcRequest('getPendingConversations', {
-                accountAddress: connection.account.address,
-                token: connection.db.deliveryServiceToken,
+                accountAddress: connection.account!.address,
+                token: userDb.deliveryServiceToken,
             }),
         )
     ).data.result.pendingConversations;

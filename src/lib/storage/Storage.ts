@@ -1,5 +1,4 @@
 import { ethers } from 'ethers';
-import { web3Store } from '.';
 import { Keys } from '../account/Account';
 import { encryptSafely, EthEncryptedData } from '../encryption/Encryption';
 import {
@@ -21,11 +20,11 @@ export interface StorageEnvelopContainer {
 
 export interface UserDB {
     conversations: Map<string, StorageEnvelopContainer[]>;
+    conversationsCount: number;
     deliveryServiceToken: string;
     keys: Keys;
-    syncNotifications: ((synced: boolean) => void)[];
-    contactNotification?: () => void;
     synced: boolean;
+    syncingInProgress: boolean;
 }
 
 function replacer(key: string, value: any) {
@@ -48,40 +47,27 @@ function reviver(key: string, value: any) {
     return value;
 }
 
-export function setSyncedState(synced: boolean, connection: Connection) {
-    connection.db.synced = synced;
-    connection.db.syncNotifications.forEach((notification) =>
-        notification(synced),
-    );
-
-    if (connection.db.contactNotification) {
-        connection.db.contactNotification();
-    }
-}
-
-export function createDB(
-    keys: Keys,
-    deliveryServiceToken: string,
-    syncNotifications: ((synced: boolean) => void)[],
-): UserDB {
+export function createDB(keys: Keys, deliveryServiceToken: string): UserDB {
     return {
         conversations: new Map<string, StorageEnvelopContainer[]>(),
+        conversationsCount: 0,
         synced: false,
         deliveryServiceToken,
-        syncNotifications,
         keys,
+        syncingInProgress: false,
     };
 }
 
 export function getConversation(
     contact: string,
     connection: Connection,
+    db: UserDB,
 ): StorageEnvelopContainer[] {
     const conversationId = getConversationId(
         contact,
-        connection.account.address,
+        connection.account!.address,
     );
-    const envelops = connection.db.conversations.get(conversationId);
+    const envelops = db.conversations.get(conversationId);
     return envelops ? envelops : [];
 }
 
@@ -93,72 +79,47 @@ export function sortEnvelops(
     );
 }
 
-export function storeMessages(
-    containers: StorageEnvelopContainer[],
+// export function storeMessages(
+//     containers: StorageEnvelopContainer[],
+//     connection: Connection,
+//     db: UserDB,
+// ): {
+//     conversations: Map<string, StorageEnvelopContainer[]>;
+//     hasChanged: boolean;
+// } {
+//     let hasChanged = false;
+//     const conversations = new Map<string, StorageEnvelopContainer[]>(
+//         db.conversations,
+//     );
+
+//     for (let container of containers) {
+
+//     }
+
+//     return { conversations, hasChanged };
+// }
+
+export function sync(
     connection: Connection,
-) {
-    console.log(1);
-    for (let container of containers) {
-        const contactAddress =
-            container.envelop.message.from === connection.account.address
-                ? container.envelop.message.to
-                : container.envelop.message.from;
-        const conversationId = getConversationId(
-            contactAddress,
-            connection.account.address,
-        );
-        const prevContainers = getConversation(contactAddress, connection);
-
-        if (!container.envelop.id) {
-            container.envelop.id = getId(container.envelop);
-        }
-
-        if (prevContainers.length === 0) {
-            connection.db.conversations.set(conversationId, [container]);
-            setSyncedState(false, connection);
-        } else if (
-            prevContainers[prevContainers.length - 1].envelop.message
-                .timestamp < container.envelop.message.timestamp
-        ) {
-            connection.db.conversations.set(conversationId, [
-                ...prevContainers,
-                container,
-            ]);
-            setSyncedState(false, connection);
-        } else {
-            const otherContainer = prevContainers.filter(
-                (prevContainer) =>
-                    prevContainer.envelop.id !== container.envelop.id,
-            );
-
-            connection.db.conversations.set(
-                conversationId,
-                sortEnvelops([...otherContainer, container]),
-            );
-            setSyncedState(false, connection);
-        }
-    }
-}
-
-export function sync(connection: Connection): {
+    userDb: UserDB | undefined,
+): {
     version: string;
     payload: EthEncryptedData;
 } {
-    setSyncedState(true, connection);
+    if (!userDb) {
+        throw Error(`User db hasn't been create`);
+    }
 
-    if (!connection.db.keys?.publicKey) {
+    if (!userDb.keys?.publicKey) {
         throw Error('No key to encrypt');
     }
 
     const payload = encryptSafely({
-        publicKey: connection.db.keys?.publicKey,
+        publicKey: userDb.keys?.publicKey,
         data: JSON.stringify({
-            conversations: JSON.stringify(
-                connection.db.conversations,
-                replacer,
-            ),
-            keys: connection.db.keys,
-            deliveryServiceToken: connection.db.deliveryServiceToken,
+            conversations: JSON.stringify(userDb.conversations, replacer),
+            keys: userDb.keys,
+            deliveryServiceToken: userDb.deliveryServiceToken,
         }),
         version: 'x25519-xsalsa20-poly1305',
     });
@@ -171,7 +132,6 @@ export function sync(connection: Connection): {
 
 export async function load(
     connection: Connection,
-    syncNotifications: ((synced: boolean) => void)[],
     data: {
         version: string;
         payload: EthEncryptedData;
@@ -184,21 +144,28 @@ export async function load(
     } = JSON.parse(
         JSON.parse(
             await decryptUsingProvider(
-                connection.provider,
+                connection.provider!,
                 ethers.utils.hexlify(
                     ethers.utils.toUtf8Bytes(JSON.stringify(data.payload)),
                 ),
 
-                connection.account.address,
+                connection.account!.address,
             ),
         ).data,
     );
+
+    const conversations: Map<string, StorageEnvelopContainer[]> = JSON.parse(
+        decryptedPayload.conversations,
+        reviver,
+    );
+
     return {
         keys: decryptedPayload.keys,
-        syncNotifications,
         deliveryServiceToken: decryptedPayload.deliveryServiceToken,
-        conversations: JSON.parse(decryptedPayload.conversations, reviver),
+        conversations,
+        conversationsCount: conversations.keys.length,
         synced: true,
+        syncingInProgress: false,
     };
 }
 
@@ -209,14 +176,16 @@ export function getConversationId(accountA: string, accountB: string): string {
 export function createEmptyConversation(
     connection: Connection,
     accountAddress: string,
+    userDb: UserDB,
+    createEmptyConversationEntry: (id: string) => void,
 ): boolean {
     const conversationId = getConversationId(
-        connection.account.address,
+        connection.account!.address,
         accountAddress,
     );
-    const isNewConversation = !connection.db.conversations.has(conversationId);
+    const isNewConversation = !userDb.conversations.has(conversationId);
     if (isNewConversation) {
-        connection.db.conversations.set(conversationId, []);
+        createEmptyConversationEntry(conversationId);
     }
 
     return isNewConversation;

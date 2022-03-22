@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import * as Lib from '../lib';
+import { GlobalContext } from '../GlobalContextProvider';
+import { UserDbType } from '../reducers/UserDB';
 
 interface AddContactFormProps {
-    connection: Lib.Connection;
     getContacts: (connection: Lib.Connection) => Promise<void>;
 }
 
@@ -16,19 +17,29 @@ function AddContactForm(props: AddContactFormProps) {
         setAccountToAdd((event.target as any).value);
         setErrorIndication(false);
     };
+    const { state, dispatch } = useContext(GlobalContext);
 
     const add = async () => {
         try {
-            await Lib.addContact(props.connection, accountToAdd);
-            await props.getContacts(props.connection);
+            await Lib.addContact(
+                state.connection,
+                accountToAdd,
+                state.userDb as Lib.UserDB,
+                (id: string) =>
+                    dispatch({
+                        type: UserDbType.createEmptyConversation,
+                        payload: id,
+                    }),
+            );
+            await props.getContacts(state.connection);
             setAccountToAdd('');
         } catch (e) {
-            console.log(e);
+            Lib.log(e as string);
             setErrorIndication(true);
         }
     };
 
-    return props.connection.connectionState === Lib.ConnectionState.SignedIn ? (
+    return state.connection.connectionState === Lib.ConnectionState.SignedIn ? (
         <form className="input-group" onSubmit={(e) => e.preventDefault()}>
             <input
                 type="text"

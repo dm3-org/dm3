@@ -1,24 +1,21 @@
 import Icon from '../ui-shared/Icon';
-import * as Lib from '../lib';
+import { useContext } from 'react';
+import { GlobalContext } from '../GlobalContextProvider';
 
-interface StartProps {
-    contacts: Lib.Account[] | undefined;
-    connection: Lib.Connection;
-    changeConnection: (connection: Partial<Lib.Connection>) => void;
-}
-
-function Start(props: StartProps) {
+function Start() {
+    const { state } = useContext(GlobalContext);
     return (
         <div
             className={`w-100${
-                props.contacts && props.contacts.length > 0
+                state.accounts.contacts && state.accounts.contacts.length > 0
                     ? ' start-space'
                     : ''
             }`}
         >
             <Icon iconClass="fas fa-arrow-left" />{' '}
             <strong>
-                {props.contacts !== undefined && props.contacts.length > 0
+                {state.accounts.contacts !== undefined &&
+                state.accounts.contacts.length > 0
                     ? 'Select a contact to start messaging'
                     : 'Add a contact to start'}
             </strong>

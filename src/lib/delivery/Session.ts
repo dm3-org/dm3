@@ -65,8 +65,6 @@ export function checkToken(
     const account = formatAddress(accountAddress);
     const session = sessions.get(account);
     const passed = session && session?.token === token;
-    console.log(
-        `- Token check for ${account}: ${passed ? 'PASSED' : 'FAILED'}`,
-    );
+    log(`- Token check for ${account}: ${passed ? 'PASSED' : 'FAILED'}`);
     return passed ? true : false;
 }

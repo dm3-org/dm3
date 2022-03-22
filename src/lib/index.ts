@@ -7,6 +7,7 @@ import * as Messaging from './messaging/Messaging';
 import * as Encryption from './encryption/Encryption';
 import * as Account from './account/Account';
 import * as Storage from './storage';
+import { StorageEnvelopContainer, UserDB } from './storage';
 
 export type { Connection } from './web3-provider/Web3Provider';
 export type { Account, PublicKeys, Keys } from './account/Account';
@@ -24,21 +25,16 @@ export {
     getConversationId,
     sync,
     load,
-    storeMessages,
+    sortEnvelops,
     getConversation,
     StorageLocation,
     web3Store,
     web3Load,
-    setSyncedState,
 } from './storage';
 export { getAccountDisplayName, extractPublicKeys } from './account/Account';
 export { decryptEnvelop, checkSignature } from './encryption/Encryption';
 export { MessageState } from './messaging/Messaging';
-export {
-    logConnectionChange,
-    ConnectionState,
-    getWeb3Provider,
-} from './web3-provider/Web3Provider';
+export { ConnectionState, getWeb3Provider } from './web3-provider/Web3Provider';
 export { getNewMessages } from './external-apis/BackendAPI';
 export { lookupAddress, formatAddress } from './external-apis/InjectedWeb3API';
 export { log } from './shared/log';
@@ -55,8 +51,16 @@ export function connectAccount(provider: ethers.providers.JsonRpcProvider) {
 export async function addContact(
     connection: Web3Provider.Connection,
     accountInput: string,
+    userDb: UserDB,
+    createEmptyConversationEntry: (id: string) => void,
 ) {
-    return Account.addContact(connection, accountInput, Web3Api.resolveName);
+    return Account.addContact(
+        connection,
+        accountInput,
+        Web3Api.resolveName,
+        userDb,
+        createEmptyConversationEntry,
+    );
 }
 
 export function createMessage(
@@ -74,7 +78,6 @@ export function createMessage(
 
 export async function signIn(
     connection: Partial<Web3Provider.Connection>,
-    syncNotifications: ((synced: boolean) => void)[],
     dataFile?: string,
 ): Promise<{
     connectionState: Web3Provider.ConnectionState;
@@ -88,20 +91,22 @@ export async function signIn(
         BackendAPI.submitPublicKeys,
         Account.createMessagingKeyPair,
         Web3Api.getPublicKey,
-        syncNotifications,
         dataFile,
     );
 }
 
 export async function submitMessage(
     connection: Web3Provider.Connection,
+    userDb: UserDB,
     to: Account.Account,
     message: Messaging.Message,
     haltDelivery: boolean,
+    storeMessages: (envelops: StorageEnvelopContainer[]) => void,
     onSuccess?: (envelop: Messaging.Envelop) => void,
-): Promise<void> {
-    return Messaging.submitMessage(
+) {
+    Messaging.submitMessage(
         connection,
+        userDb,
         to,
         message,
         BackendAPI.submitMessage,
@@ -109,6 +114,7 @@ export async function submitMessage(
         Encryption.encryptSafely,
         BackendAPI.createPendingEntry,
         haltDelivery,
+        storeMessages,
         onSuccess,
     );
 }
@@ -116,17 +122,23 @@ export async function submitMessage(
 export async function getMessages(
     connection: Web3Provider.Connection,
     contact: string,
+    userDb: UserDB,
+    storeMessages: (envelops: StorageEnvelopContainer[]) => void,
 ) {
     return Messaging.getMessages(
         connection,
         contact,
         BackendAPI.getNewMessages,
+        storeMessages,
+        userDb,
     );
 }
 
 export async function getContacts(
     connection: Web3Provider.Connection,
     deliveryServiceToken: string,
+    userDb: UserDB,
+    createEmptyConversationEntry: (id: string) => void,
 ) {
     return Account.getContacts(
         connection,
@@ -134,5 +146,7 @@ export async function getContacts(
         BackendAPI.getPublicKeys,
         BackendAPI.getPendingConversations,
         Web3Api.resolveName,
+        userDb,
+        createEmptyConversationEntry,
     );
 }

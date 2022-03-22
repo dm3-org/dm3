@@ -20,12 +20,11 @@ export enum ConnectionState {
 
 export interface Connection {
     connectionState: ConnectionState;
-    account: Account;
-    provider: ethers.providers.JsonRpcProvider;
-    socket: Socket<DefaultEventsMap, DefaultEventsMap>;
+    account?: Account;
+    provider?: ethers.providers.JsonRpcProvider;
+    socket?: Socket<DefaultEventsMap, DefaultEventsMap>;
     storageToken?: string;
     storageLocation: StorageLocation;
-    db: UserDB;
 }
 
 export async function getWeb3Provider(provider: unknown): Promise<{
@@ -44,38 +43,4 @@ export async function getWeb3Provider(provider: unknown): Promise<{
         : {
               connectionState: ConnectionState.NoProvider,
           };
-}
-
-export function logConnectionChange(newConnection: Partial<Connection>) {
-    if (newConnection.connectionState) {
-        log(
-            `Changing state to ${
-                ConnectionState[newConnection.connectionState]
-            }`,
-        );
-    }
-
-    if (newConnection.storageToken) {
-        log(`Storage token set`);
-    }
-
-    if (newConnection.storageLocation) {
-        log(`Storage location set`);
-    }
-
-    if (newConnection.account) {
-        log(`Account: ${newConnection.account.address}`);
-    }
-
-    if (newConnection.provider) {
-        log(`Provider set`);
-    }
-
-    if (newConnection.provider) {
-        log(`Socket set`);
-    }
-
-    if (newConnection.db) {
-        log(`DB set`);
-    }
 }

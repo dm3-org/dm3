@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import './App.css';
 import 'react-chat-widget/lib/styles.css';
 import detectEthereumProvider from '@metamask/detect-provider';
@@ -9,27 +9,16 @@ import Header from './header/Header';
 import LeftView from './LeftView';
 import RightView from './RightView';
 import { useBeforeunload } from 'react-beforeunload';
+import { GlobalContext } from './GlobalContextProvider';
+import { EnsNameType } from './reducers/EnsNames';
+import { AccountsType } from './reducers/Accounts';
+import { UserDbType } from './reducers/UserDB';
+import { ConnectionType } from './reducers/Connection';
 
 function App() {
-    const [existingAccount, setExistingAccount] = useState<boolean>(false);
-    const [synced, setSynced] = useState<boolean>(false);
-    const [connection, setConnection] = useState<
-        {
-            connectionState: Lib.ConnectionState;
-        } & Partial<Lib.Connection>
-    >({
-        connectionState: Lib.ConnectionState.CheckingProvider,
-    });
-    const [ensNames, setEnsNames] = useState<Map<string, string>>(
-        new Map<string, string>(),
-    );
+    const { state, dispatch } = useContext(GlobalContext);
 
-    const [contacts, setContacts] = useState<Lib.Account[] | undefined>();
-    const [selectedContact, setSelectedContact] = useState<
-        Lib.Account | undefined
-    >();
-
-    if (synced) {
+    if (state.userDb?.synced) {
         useBeforeunload();
     } else {
         useBeforeunload(
@@ -38,87 +27,127 @@ function App() {
         );
     }
 
-    const getContacts = (connection: Lib.Connection) =>
-        requestContacts(
-            connection,
-            selectedContact,
-            setSelectedContact,
-            setContacts,
-            ensNames,
-            setEnsNames,
-        );
+    const getContacts = (connection: Lib.Connection) => {
+        if (!state.userDb) {
+            throw Error(
+                `[getContacts] Couldn't handle new messages. User db not created.`,
+            );
+        }
 
-    const handleNewMessage = async (
-        envelop: Lib.EncryptionEnvelop,
-        contact: Lib.Account | undefined,
-    ) => {
+        return requestContacts(
+            connection,
+            state.accounts.selectedContact,
+            (contact: Lib.Account | undefined) =>
+                dispatch({
+                    type: AccountsType.SetSelectedContact,
+                    payload: contact,
+                }),
+            (contacts: Lib.Account[]) =>
+                dispatch({ type: AccountsType.SetContacts, payload: contacts }),
+            (address: string, name: string) =>
+                dispatch({
+                    type: EnsNameType.AddEnsName,
+                    payload: {
+                        address,
+                        name,
+                    },
+                }),
+            state.userDb,
+            (id: string) =>
+                dispatch({
+                    type: UserDbType.createEmptyConversation,
+                    payload: id,
+                }),
+            (conversations) =>
+                conversations.forEach((conversation) =>
+                    dispatch({
+                        type: UserDbType.addMessage,
+                        payload: {
+                            container: conversation,
+                            connection: connection,
+                        },
+                    }),
+                ),
+        );
+    };
+
+    const handleNewMessage = async (envelop: Lib.EncryptionEnvelop) => {
         Lib.log('New messages');
 
         const innerEnvelop = Lib.decryptEnvelop(
-            connection as Lib.Connection,
+            state.connection as Lib.Connection,
+            state.userDb as Lib.UserDB,
             envelop,
         );
 
-        Lib.storeMessages(
-            [{ envelop: innerEnvelop, messageState: Lib.MessageState.Send }],
-            connection as Lib.Connection,
-        );
-
-        const from = Lib.formatAddress(innerEnvelop.message.from);
-
-        if (
-            !contacts?.find(
-                (contact) => Lib.formatAddress(contact.address) === from,
-            )?.publicKeys?.publicMessagingKey
-        ) {
-            await getContacts(connection as Lib.Connection);
+        if (!state.userDb) {
+            throw Error(
+                `[handleNewMessage] Couldn't handle new messages. User db not created.`,
+            );
         }
+
+        dispatch({
+            type: UserDbType.addMessage,
+            payload: {
+                container: {
+                    envelop: innerEnvelop,
+                    messageState: Lib.MessageState.Send,
+                },
+                connection: state.connection as Lib.Connection,
+            },
+        });
     };
 
     useEffect(() => {
         if (
-            connection.connectionState === Lib.ConnectionState.SignedIn &&
-            !connection.socket
+            state.connection.connectionState === Lib.ConnectionState.SignedIn &&
+            !state.connection.socket
         ) {
+            if (!state.userDb) {
+                throw Error(
+                    `Couldn't handle new messages. User db not created.`,
+                );
+            }
+
             const socket = socketIOClient(
                 process.env.REACT_APP_BACKEND as string,
                 { autoConnect: false },
             );
             socket.auth = {
-                account: connection.account,
-                token: (connection.db as Lib.UserDB).deliveryServiceToken,
+                account: state.connection.account,
+                token: state.userDb.deliveryServiceToken,
             };
             socket.connect();
             socket.on('message', (envelop: Lib.EncryptionEnvelop) => {
-                handleNewMessage(envelop, selectedContact);
+                handleNewMessage(envelop);
             });
             socket.on('joined', () => {
-                getContacts(connection as Lib.Connection);
+                getContacts(state.connection as Lib.Connection);
             });
-            changeConnection({ socket });
+            dispatch({ type: ConnectionType.ChangeSocket, payload: socket });
         }
-    }, [connection.connectionState, connection.socket]);
+    }, [state.connection.connectionState, state.connection.socket]);
 
     useEffect(() => {
-        if (selectedContact && connection.socket) {
-            connection.socket.removeListener('message');
-            connection.socket.on(
+        if (state.accounts.selectedContact && state.connection.socket) {
+            state.connection.socket.removeAllListeners();
+
+            state.connection.socket.on(
                 'message',
                 (envelop: Lib.EncryptionEnvelop) => {
-                    handleNewMessage(envelop, selectedContact);
+                    handleNewMessage(envelop);
                 },
             );
-            connection.socket.removeListener('joined');
-            connection.socket.on('joined', () => {
-                getContacts(connection as Lib.Connection);
+
+            state.connection.socket.on('joined', () => {
+                getContacts(state.connection as Lib.Connection);
             });
         }
-    }, [selectedContact]);
-
-    const changeConnection = (newConnection: Partial<Lib.Connection>) => {
-        Lib.logConnectionChange(newConnection);
-        setConnection({ ...connection, ...newConnection });
-    };
+    }, [
+        state.accounts.selectedContact,
+        state.accounts.selectedContact,
+        state.userDb?.conversations,
+    ]);
 
     const createWeb3Provider = async () => {
         const web3Provider = await Lib.getWeb3Provider(
@@ -126,56 +155,32 @@ function App() {
         );
 
         if (web3Provider.provider) {
-            changeConnection({
-                provider: web3Provider.provider,
-                connectionState: web3Provider.connectionState,
-            });
-        } else {
-            changeConnection({
-                connectionState: web3Provider.connectionState,
+            dispatch({
+                type: ConnectionType.ChangeProvider,
+                payload: web3Provider.provider,
             });
         }
+
+        dispatch({
+            type: ConnectionType.ChangeConnectionState,
+            payload: web3Provider.connectionState,
+        });
     };
 
     useEffect(() => {
-        if (!connection.provider) {
+        if (!state.connection.provider) {
             createWeb3Provider();
         }
-    }, [connection.provider]);
+    }, [state.connection.provider]);
 
     return (
         <div className="container">
             <div className="row main-content-row">
                 <div className="col-12 h-100">
-                    <Header
-                        connection={connection}
-                        changeConnection={changeConnection}
-                        ensNames={ensNames}
-                        selectedContact={selectedContact}
-                        contacts={contacts}
-                    />
+                    <Header />
                     <div className="row body-row">
-                        <LeftView
-                            connection={connection}
-                            changeConnection={changeConnection}
-                            ensNames={ensNames}
-                            selectedContact={selectedContact}
-                            contacts={contacts}
-                            getContacts={getContacts}
-                            setEnsNames={setEnsNames}
-                            setSelectedContact={setSelectedContact}
-                            setSynced={setSynced}
-                            existingAccount={existingAccount}
-                            setExistingAccount={setExistingAccount}
-                        />
-                        <RightView
-                            connection={connection}
-                            changeConnection={changeConnection}
-                            ensNames={ensNames}
-                            selectedContact={selectedContact}
-                            contacts={contacts}
-                            existingAccount={existingAccount}
-                        />
+                        <LeftView getContacts={getContacts} />
+                        <RightView />
                     </div>
                 </div>
             </div>

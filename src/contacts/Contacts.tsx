@@ -1,51 +1,51 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import ContactList from './ContactList';
 import AddContactForm from './AddContactForm';
 import * as Lib from '../lib';
 import './Contacts.css';
+import { GlobalContext } from '../GlobalContextProvider';
 
 interface ContactsProps {
-    connection: Lib.Connection;
-    ensNames: Map<string, string>;
-    setEnsNames: (ensNames: Map<string, string>) => void;
-    contacts?: Lib.Account[];
     getContacts: (connection: Lib.Connection) => Promise<void>;
-    selectedContact: Lib.Account | undefined;
-    selectContact: (account: Lib.Account) => void;
 }
 
 function Contacts(props: ContactsProps) {
+    const { state, dispatch } = useContext(GlobalContext);
     useEffect(() => {
         if (
-            !props.contacts &&
-            props.connection.db?.deliveryServiceToken &&
-            props.connection.socket
+            !state.accounts.contacts &&
+            state.userDb?.deliveryServiceToken &&
+            state.connection.socket
         ) {
-            props.getContacts(props.connection);
+            props.getContacts(state.connection);
         }
-    }, [props.connection.db.deliveryServiceToken, props.connection.socket]);
+    }, [state.userDb?.deliveryServiceToken, state.connection.socket]);
+
+    useEffect(() => {
+        if (state.userDb?.conversations) {
+            props.getContacts(state.connection);
+        }
+    }, [state.userDb?.conversationsCount]);
+
+    useEffect(() => {
+        if (state.userDb?.conversations) {
+            props.getContacts(state.connection);
+        }
+    }, []);
 
     return (
         <div className="w-100">
             <div className="row">
                 <div className="col-12 text-center contact-list-container">
-                    <AddContactForm
-                        connection={props.connection}
-                        getContacts={props.getContacts}
-                    />
+                    <AddContactForm getContacts={props.getContacts} />
                 </div>
             </div>
-            {props.contacts &&
-                props.connection.connectionState ===
+            {state.accounts.contacts &&
+                state.connection.connectionState ===
                     Lib.ConnectionState.SignedIn && (
                     <div className="row">
                         <div className="col-12 text-center contact-list-container">
-                            <ContactList
-                                ensNames={props.ensNames}
-                                contacts={props.contacts}
-                                selectContact={props.selectContact}
-                                connection={props.connection}
-                            />
+                            <ContactList connection={state.connection} />
                         </div>
                     </div>
                 )}

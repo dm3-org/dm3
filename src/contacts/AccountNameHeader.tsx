@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Icon from '../ui-shared/Icon';
 import * as Lib from '../lib';
+import { GlobalContext } from '../GlobalContextProvider';
+import { ConnectionType } from '../reducers/Connection';
 
 interface AccountNameHeaderProps {
     account: Lib.Account;
-    ensNames: Map<string, string>;
-    connection: Lib.Connection;
-    changeConnection: (connection: Partial<Lib.Connection>) => void;
 }
 
 function AccountNameHeader(props: AccountNameHeaderProps) {
+    const { state, dispatch } = useContext(GlobalContext);
     return (
         <div className="account-name w-100 ">
-            {Lib.getAccountDisplayName(props.account.address, props.ensNames)}
-            {(props.connection.connectionState ===
+            {Lib.getAccountDisplayName(props.account.address, state.ensNames)}
+            {(state.connection.connectionState ===
                 Lib.ConnectionState.SignedIn ||
-                props.connection.connectionState ===
+                state.connection.connectionState ===
                     Lib.ConnectionState.KeyCreation) && (
                 <>
-                    {props.connection.db.keys?.publicMessagingKey ? (
+                    {state.userDb?.keys?.publicMessagingKey ? (
                         <span className="push-end header-lock ">
                             <Icon iconClass="fas fa-lock align-bottom" />
                         </span>
@@ -26,9 +26,9 @@ function AccountNameHeader(props: AccountNameHeaderProps) {
                         <span
                             className=" push-end header-lock header-open-lock"
                             onClick={() =>
-                                props.changeConnection({
-                                    connectionState:
-                                        Lib.ConnectionState.KeyCreation,
+                                dispatch({
+                                    type: ConnectionType.ChangeConnectionState,
+                                    payload: Lib.ConnectionState.KeyCreation,
                                 })
                             }
                         >

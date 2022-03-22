@@ -29,7 +29,6 @@ export async function signIn(
         provider: ethers.providers.JsonRpcProvider,
         account: string,
     ) => Promise<string>,
-    syncNotifications: ((synced: boolean) => void)[],
     dataFile?: string,
 ): Promise<{
     connectionState: ConnectionState;
@@ -73,20 +72,16 @@ export async function signIn(
 
             return {
                 connectionState: ConnectionState.SignedIn,
-                db: createDB(keys, deliveryServiceToken, syncNotifications),
+                db: createDB(keys, deliveryServiceToken),
             };
         } else {
             return {
                 connectionState: ConnectionState.SignedIn,
-                db: await load(
-                    connection as Connection,
-                    syncNotifications,
-                    JSON.parse(dataFile),
-                ),
+                db: await load(connection as Connection, JSON.parse(dataFile)),
             };
         }
     } catch (e) {
-        console.log(e);
+        log(e as string);
         return {
             connectionState: ConnectionState.SignInFailed,
         };
