@@ -4,7 +4,7 @@ import { Connection } from '../web3-provider/Web3Provider';
 import {
     getConversation,
     StorageEnvelopContainer,
-    storeMessages,
+    UserDB,
 } from '../storage/Storage';
 import { log } from '../shared/log';
 import { Account, Keys } from '../account/Account';
@@ -54,10 +54,12 @@ export function createMessage(
 
 export async function submitMessage(
     connection: Connection,
+    userDb: UserDB,
     to: Account,
     message: Message,
     submitMessageApi: (
         connection: Connection,
+        userDb: UserDB,
         envelop: EncryptionEnvelop,
         onSuccess: () => void,
         onError: () => void,
@@ -74,17 +76,19 @@ export async function submitMessage(
     }) => EthEncryptedData,
     createPendingEntry: (
         connection: Connection,
+        userDb: UserDB,
         accountAddress: string,
         contactAddress: string,
     ) => Promise<void>,
     haltDelivery: boolean,
+    storeMessages: (envelops: StorageEnvelopContainer[]) => void,
     onSuccess?: (envelop: Envelop) => void,
-): Promise<void> {
+) {
     log('Submitting message');
 
     const innerEnvelop: Envelop = {
         message,
-        signature: signWithEncryptionKey(message, connection.db?.keys as Keys),
+        signature: signWithEncryptionKey(message, userDb?.keys as Keys),
     };
 
     const allOnSuccess = () => {
@@ -97,13 +101,13 @@ export async function submitMessage(
         log('- Halt delivery');
         createPendingEntry(
             connection,
+            userDb,
             innerEnvelop.message.from,
             innerEnvelop.message.to,
         );
-        storeMessages(
-            [{ envelop: innerEnvelop, messageState: MessageState.Created }],
-            connection,
-        );
+        storeMessages([
+            { envelop: innerEnvelop, messageState: MessageState.Created },
+        ]);
     } else {
         const envelop: EncryptionEnvelop = {
             toEncryptedData: ethers.utils.hexlify(
@@ -122,7 +126,7 @@ export async function submitMessage(
                 ethers.utils.toUtf8Bytes(
                     JSON.stringify(
                         encryptSafely({
-                            publicKey: connection.db?.keys
+                            publicKey: userDb?.keys
                                 ?.publicMessagingKey as string,
                             data: innerEnvelop,
                             version: 'x25519-xsalsa20-poly1305',
@@ -134,13 +138,13 @@ export async function submitMessage(
             from: (connection.account as Account).address,
             encryptionVersion: 'x25519-xsalsa20-poly1305',
         };
-        await submitMessageApi(connection, envelop, allOnSuccess, () =>
+        await submitMessageApi(connection, userDb, envelop, allOnSuccess, () =>
             log('submit message error'),
         );
-        storeMessages(
-            [{ envelop: innerEnvelop, messageState: MessageState.Send }],
-            connection,
-        );
+
+        storeMessages([
+            { envelop: innerEnvelop, messageState: MessageState.Send },
+        ]);
     }
 }
 
@@ -150,12 +154,13 @@ export function getId(envelop: Envelop): string {
 
 function decryptMessages(
     envelops: EncryptionEnvelop[],
+    userDb: UserDB,
     connection: Connection,
 ): Promise<Envelop[]> {
     return Promise.all(
         envelops.map(
             async (envelop): Promise<Envelop> =>
-                decryptEnvelop(connection, envelop),
+                decryptEnvelop(connection, userDb, envelop),
         ),
     );
 }
@@ -165,11 +170,18 @@ export async function getMessages(
     contact: string,
     getNewMessages: (
         connection: Connection,
+        userDb: UserDB,
         contact: string,
     ) => Promise<EncryptionEnvelop[]>,
+    storeMessages: (envelops: StorageEnvelopContainer[]) => void,
+    userDb: UserDB,
 ): Promise<StorageEnvelopContainer[]> {
-    const envelops = await getNewMessages(connection, contact);
-    const decryptedEnvelops = await decryptMessages(envelops, connection);
+    const envelops = await getNewMessages(connection, userDb, contact);
+    const decryptedEnvelops = await decryptMessages(
+        envelops,
+        userDb,
+        connection,
+    );
 
     storeMessages(
         decryptedEnvelops.map(
@@ -178,8 +190,7 @@ export async function getMessages(
                 messageState: MessageState.Send,
             }),
         ),
-        connection,
     );
 
-    return getConversation(contact, connection);
+    return getConversation(contact, connection, userDb);
 }

@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { UserDB } from '..';
 import { Keys } from '../account/Account';
 import { decryptSafely, EthEncryptedData } from '../encryption/Encryption';
 import { Connection } from '../web3-provider/Web3Provider';
@@ -19,12 +20,12 @@ export async function getPublicKey(
 }
 
 export async function decryptMessage(
-    connection: Connection,
+    userDb: UserDB,
     encryptedData: EthEncryptedData,
 ): Promise<string> {
     return decryptSafely({
         encryptedData,
-        privateKey: (connection.db.keys as Keys).privateMessagingKey as string,
+        privateKey: (userDb.keys as Keys).privateMessagingKey as string,
     }) as string;
 }
 

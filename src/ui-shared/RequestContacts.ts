@@ -6,12 +6,16 @@ export async function requestContacts(
     selectedContact: Lib.Account | undefined,
     setSelectedContact: (account: Lib.Account | undefined) => void,
     setContacts: (constacts: Lib.Account[]) => void,
-    ensNames: Map<string, string>,
-    setEnsNames: (ensNames: Map<string, string>) => void,
+    addEnsName: (address: string, name: string) => void,
+    userDb: Lib.UserDB,
+    createEmptyConversationEntry: (id: string) => void,
+    storeMessages: (envelops: Lib.StorageEnvelopContainer[]) => void,
 ) {
     const retrievedContacts = await Lib.getContacts(
         connection,
-        connection.db.deliveryServiceToken as string,
+        userDb.deliveryServiceToken as string,
+        userDb,
+        createEmptyConversationEntry,
     );
 
     setContacts(retrievedContacts);
@@ -50,24 +54,24 @@ export async function requestContacts(
                 lookup.ens !== null,
         )
         .forEach((lookup: { address: string; ens: string | null }) =>
-            ensNames.set(lookup.address, lookup.ens as string),
+            addEnsName(lookup.address, lookup.ens as string),
         );
 
-    setEnsNames(new Map(ensNames));
-
     retrievedContacts.forEach((contact) => {
-        Lib.getConversation(contact.address, connection)
+        Lib.getConversation(contact.address, connection, userDb)
             .filter(
                 (message) =>
                     message.messageState === Lib.MessageState.Created &&
                     contact.publicKeys?.publicMessagingKey,
             )
-            .forEach((message) => {
-                Lib.submitMessage(
+            .forEach(async (message) => {
+                await Lib.submitMessage(
                     connection,
+                    userDb,
                     contact,
                     message.envelop.message,
                     false,
+                    storeMessages,
                 );
             });
     });

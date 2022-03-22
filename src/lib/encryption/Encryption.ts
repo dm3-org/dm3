@@ -9,6 +9,7 @@ import { ethers } from 'ethers';
 import { EncryptionEnvelop, Envelop, Message } from '../messaging/Messaging';
 import { log } from '../shared/log';
 import { Account, Keys } from '../account/Account';
+import { UserDB } from '..';
 
 export interface EthEncryptedData {
     version: string;
@@ -235,18 +236,18 @@ function nacl_decodeHex(msgHex: string): Uint8Array {
 
 export function decryptEnvelop(
     connection: Connection,
+    userDb: UserDB,
     envelop: EncryptionEnvelop,
 ): Envelop {
     const encryptedData =
-        envelop.from === connection.account.address
+        envelop.from === connection.account!.address
             ? envelop.fromEncryptedData
             : envelop.toEncryptedData;
 
     return {
         ...(decryptSafely({
             encryptedData: JSON.parse(ethers.utils.toUtf8String(encryptedData)),
-            privateKey: (connection.db.keys as Keys)
-                .privateMessagingKey as string,
+            privateKey: (userDb.keys as Keys).privateMessagingKey as string,
         }) as Envelop),
     };
 }

@@ -35,7 +35,6 @@ test('should be able to sign in', async () => {
         async () => {},
         createMessagingKeyPair,
         async () => '',
-        [],
     );
     expect(result.db?.keys).toBeTruthy();
     expect(result.connectionState).toStrictEqual(ConnectionState.SignedIn);
@@ -69,7 +68,6 @@ test('should be able to handle a failed sign in', async () => {
             async () => {},
             createMessagingKeyPair,
             async () => '',
-            [],
         ),
     ).toStrictEqual({
         connectionState: ConnectionState.SignInFailed,

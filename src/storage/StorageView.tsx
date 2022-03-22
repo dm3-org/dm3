@@ -1,26 +1,33 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import 'react-chat-widget/lib/styles.css';
+import { GlobalContext } from '../GlobalContextProvider';
 import * as Lib from '../lib';
+import { UserDbType } from '../reducers/UserDB';
 import Icon from '../ui-shared/Icon';
 import './Storage.css';
 
 interface StorageViewProps {
     connection: Lib.Connection;
-    ensNames: Map<string, string>;
 }
 
 function StorageView(props: StorageViewProps) {
+    const { state, dispatch } = useContext(GlobalContext);
     const sync = async (e: any) => {
         e.preventDefault();
+        dispatch({ type: UserDbType.setSycingInProgress, payload: true });
         try {
             if (
-                props.connection.storageLocation ===
+                state.connection.storageLocation ===
                 Lib.StorageLocation.Web3Storage
             ) {
-                await Lib.web3Store(props.connection);
+                await Lib.web3Store(
+                    state.connection,
+                    state.userDb as Lib.UserDB,
+                );
+                dispatch({ type: UserDbType.setSynced, payload: true });
             } else {
                 const blob = new Blob(
-                    [JSON.stringify(Lib.sync(props.connection))],
+                    [JSON.stringify(Lib.sync(state.connection, state.userDb))],
                     {
                         type: 'text/json',
                     },
@@ -28,8 +35,8 @@ function StorageView(props: StorageViewProps) {
 
                 const a = document.createElement('a');
                 a.download = `${Lib.getAccountDisplayName(
-                    props.connection.account.address,
-                    props.ensNames,
+                    state.connection.account!.address,
+                    state.ensNames,
                     true,
                 )}-${Date.now()}.json`;
                 a.href = window.URL.createObjectURL(blob);
@@ -40,11 +47,12 @@ function StorageView(props: StorageViewProps) {
                 });
                 a.dispatchEvent(clickEvt);
                 a.remove();
+                dispatch({ type: UserDbType.setSynced, payload: true });
             }
         } catch (e) {
             Lib.log(e as string);
-            Lib.setSyncedState(false, props.connection);
         }
+        dispatch({ type: UserDbType.setSycingInProgress, payload: false });
     };
 
     return (
@@ -57,18 +65,24 @@ function StorageView(props: StorageViewProps) {
                                 type="button"
                                 onClick={sync}
                                 className={`w-100 btn btn-sm btn${
-                                    props.connection.db.synced
+                                    state.userDb?.synced
                                         ? '-outline-secondary'
                                         : '-primary'
                                 }`}
+                                disabled={state.userDb?.syncingInProgress}
                             >
-                                Save
+                                Save{' '}
+                                {state.userDb?.syncingInProgress && (
+                                    <span className="push-end">
+                                        <Icon iconClass="fas fa-spinner fa-spin" />
+                                    </span>
+                                )}
                             </button>
                         </div>
                     </div>
                 </div>
                 <div className="col-12 storage-view">
-                    {props.connection.db.synced ? (
+                    {state.userDb?.synced ? (
                         <span
                             className="badge bg-secondary text-dark outline-badge only-outline"
                             title="Data synced"
@@ -88,11 +102,13 @@ function StorageView(props: StorageViewProps) {
                     &nbsp;
                     <span
                         className="badge bg-secondary text-dark outline-badge only-outline"
-                        title={`chainId: ${props.connection.provider.network.chainId}`}
+                        title={`chainId: ${
+                            state.connection.provider!.network.chainId
+                        }`}
                     >
                         <Icon iconClass="fas fa-network-wired" />
                         &nbsp;&nbsp;
-                        {props.connection.provider.network.chainId}
+                        {state.connection.provider!.network.chainId}
                     </span>
                 </div>
             </div>

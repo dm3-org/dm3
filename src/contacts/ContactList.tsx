@@ -1,26 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import * as Lib from '../lib';
 import ContactListEntry from './ContractListEntry';
+import { GlobalContext } from '../GlobalContextProvider';
 
 interface ContactListProps {
-    ensNames: Map<string, string>;
-    contacts: Lib.Account[];
-    selectContact: (contactAddress: Lib.Account) => void;
     connection: Lib.Connection;
 }
 
 function ContactList(props: ContactListProps) {
-    const contactsList = props.contacts.map((contact) => (
-        <ContactListEntry
-            key={contact.address}
-            connection={props.connection}
-            contact={contact}
-            ensNames={props.ensNames}
-            selectContact={props.selectContact}
-        />
-    ));
+    const { state } = useContext(GlobalContext);
+    const contactsList = state.accounts.contacts
+        ? state.accounts.contacts.map((contact) => (
+              <ContactListEntry
+                  key={contact.address}
+                  connection={state.connection}
+                  contact={contact}
+              />
+          ))
+        : [];
 
     return <div className="list-group">{contactsList}</div>;
 }

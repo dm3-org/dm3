@@ -1,103 +1,113 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { ethers } from 'ethers';
 import Icon from '../ui-shared/Icon';
 import * as Lib from '../lib';
 import StorageLocationSelection from './StorageLocationSelection';
 import { connectionPhase } from './Phases';
 import TokenInput from './TokenInput';
+import { GlobalContext } from '../GlobalContextProvider';
+import { EnsNameType } from '../reducers/EnsNames';
+import { UserDbType } from '../reducers/UserDB';
+import { ConnectionType } from '../reducers/Connection';
 
-interface SignInProps {
-    connection: Lib.Connection;
-    changeConnection: (newConnection: Partial<Lib.Connection>) => void;
-    setEnsNames: (ensNames: Map<string, string>) => void;
-    ensNames: Map<string, string>;
-    setSynced: (isSynced: boolean) => void;
-    existingAccount: boolean;
-    setExistingAccount: (exists: boolean) => void;
-}
-
-function SignIn(props: SignInProps) {
+function SignIn() {
     const [dataFile, setDataFile] = useState<string | undefined>();
     const [token, setToken] = useState<string | undefined>();
     const [storageLocation, setStorageLocation] = useState<Lib.StorageLocation>(
         Lib.StorageLocation.File,
     );
+    const [existingAccount, setExistingAccount] = useState<boolean>(false);
+
+    const { state, dispatch } = useContext(GlobalContext);
 
     const connect = async () => {
-        props.changeConnection({
-            connectionState: Lib.ConnectionState.WaitingForAccountConntection,
+        dispatch({
+            type: ConnectionType.ChangeConnectionState,
+            payload: Lib.ConnectionState.WaitingForAccountConntection,
         });
+
         const accountConnection = await Lib.connectAccount(
-            props.connection.provider as ethers.providers.JsonRpcProvider,
+            state.connection.provider!,
         );
 
-        props.setExistingAccount(accountConnection.existingAccount);
+        setExistingAccount(accountConnection.existingAccount);
 
         if (accountConnection.account) {
-            props.changeConnection({
-                account: {
+            dispatch({
+                type: ConnectionType.ChangeAccount,
+                payload: {
                     address: accountConnection.account,
                 },
-                connectionState: accountConnection.connectionState,
+            });
+            dispatch({
+                type: ConnectionType.ChangeConnectionState,
+                payload: accountConnection.connectionState,
             });
 
             const ensName = await Lib.lookupAddress(
-                props.connection.provider as ethers.providers.JsonRpcProvider,
+                state.connection.provider as ethers.providers.JsonRpcProvider,
                 accountConnection.account,
             );
             if (ensName) {
-                props.setEnsNames(
-                    new Map(
-                        props.ensNames.set(accountConnection.account, ensName),
-                    ),
-                );
+                dispatch({
+                    type: EnsNameType.AddEnsName,
+                    payload: {
+                        address: accountConnection.account,
+                        name: ensName,
+                    },
+                });
             }
         } else {
-            props.changeConnection({
-                connectionState: accountConnection.connectionState,
+            dispatch({
+                type: ConnectionType.ChangeConnectionState,
+                payload: accountConnection.connectionState,
             });
         }
     };
 
     const requestSignIn = async () => {
-        props.changeConnection({
-            connectionState: Lib.ConnectionState.WaitingForSignIn,
+        dispatch({
+            type: ConnectionType.ChangeConnectionState,
+            payload: Lib.ConnectionState.WaitingForSignIn,
         });
 
         const data =
             storageLocation === Lib.StorageLocation.Web3Storage
-                ? props.existingAccount
+                ? existingAccount
                     ? await Lib.web3Load(token as string)
                     : undefined
                 : dataFile;
 
-        const singInRequest = await Lib.signIn(
-            props.connection,
-            [props.setSynced],
-            data,
-        );
+        const singInRequest = await Lib.signIn(state.connection, data);
 
         if (singInRequest.db) {
             Lib.log(`Setting session token`);
 
             const account: Lib.Account = {
-                address: props.connection.account?.address as string,
+                address: state.connection.account!.address,
             };
 
             account.publicKeys = Lib.extractPublicKeys(singInRequest.db.keys);
 
-            props.changeConnection({
-                storageToken: token,
-                storageLocation,
-                db: singInRequest.db,
-                account,
-                connectionState: singInRequest.connectionState,
+            dispatch({ type: ConnectionType.ChangeAccount, payload: account });
+            dispatch({
+                type: ConnectionType.ChangeStorageLocation,
+                payload: storageLocation,
             });
-        } else {
-            props.changeConnection({
-                connectionState: singInRequest.connectionState,
+            dispatch({
+                type: ConnectionType.ChangeStorageToken,
+                payload: token,
+            });
+            dispatch({ type: UserDbType.setDB, payload: singInRequest.db });
+            dispatch({
+                type: ConnectionType.ChangeConnectionState,
+                payload: singInRequest.connectionState,
             });
         }
+        dispatch({
+            type: ConnectionType.ChangeConnectionState,
+            payload: singInRequest.connectionState,
+        });
     };
 
     const getConnectionIconClass = (connectionState: Lib.ConnectionState) => {
@@ -155,7 +165,7 @@ function SignIn(props: SignInProps) {
                                 onClick={connect}
                                 type="button"
                                 className={`btn btn-${
-                                    props.connection.connectionState ===
+                                    state.connection.connectionState ===
                                     Lib.ConnectionState
                                         .AccountConnectionRejected
                                         ? 'danger'
@@ -163,10 +173,10 @@ function SignIn(props: SignInProps) {
                                 } btn-lg w-100`}
                                 disabled={
                                     !(
-                                        props.connection.connectionState ===
+                                        state.connection.connectionState ===
                                             Lib.ConnectionState
                                                 .AccountConntectReady ||
-                                        props.connection.connectionState ===
+                                        state.connection.connectionState ===
                                             Lib.ConnectionState
                                                 .AccountConnectionRejected
                                     )
@@ -175,20 +185,20 @@ function SignIn(props: SignInProps) {
                                 Connect Account
                                 <span className="push-end">
                                     {getConnectionIconClass(
-                                        props.connection.connectionState,
+                                        state.connection.connectionState,
                                     )}
                                 </span>
                             </button>
                         </div>
                     </div>
 
-                    {!connectionPhase(props.connection.connectionState) && (
+                    {!connectionPhase(state.connection.connectionState) && (
                         <StorageLocationSelection
                             setStorageLocation={setStorageLocation}
                             stroageLocation={storageLocation}
                         />
                     )}
-                    {props.existingAccount &&
+                    {existingAccount &&
                         storageLocation === Lib.StorageLocation.File && (
                             <div className="row row-space">
                                 <div className="col-md-12">
@@ -200,35 +210,35 @@ function SignIn(props: SignInProps) {
                                 </div>
                             </div>
                         )}
-                    {!connectionPhase(props.connection.connectionState) &&
+                    {!connectionPhase(state.connection.connectionState) &&
                         storageLocation === Lib.StorageLocation.Web3Storage && (
                             <TokenInput setToken={setToken} token={token} />
                         )}
-                    {!connectionPhase(props.connection.connectionState) && (
+                    {!connectionPhase(state.connection.connectionState) && (
                         <div className="row row-space">
                             <div className="col-md-12">
                                 <button
                                     onClick={requestSignIn}
                                     type="button"
                                     className={`btn btn-${
-                                        props.connection.connectionState ===
+                                        state.connection.connectionState ===
                                         Lib.ConnectionState.SignInFailed
                                             ? 'danger'
                                             : 'primary'
                                     } btn-lg w-100`}
                                     disabled={
                                         !(
-                                            props.connection.connectionState ===
+                                            state.connection.connectionState ===
                                                 Lib.ConnectionState
                                                     .SignInReady ||
-                                            props.connection.connectionState ===
+                                            state.connection.connectionState ===
                                                 Lib.ConnectionState.SignInFailed
                                         ) ||
-                                        (props.existingAccount &&
+                                        (existingAccount &&
                                             !dataFile &&
                                             storageLocation ===
                                                 Lib.StorageLocation.File) ||
-                                        (props.existingAccount &&
+                                        (existingAccount &&
                                             !token &&
                                             storageLocation ===
                                                 Lib.StorageLocation.Web3Storage)
@@ -237,7 +247,7 @@ function SignIn(props: SignInProps) {
                                     Sign In
                                     <span className="push-end">
                                         {getSignInIconClass(
-                                            props.connection.connectionState,
+                                            state.connection.connectionState,
                                         )}
                                     </span>
                                 </button>

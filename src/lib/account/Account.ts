@@ -3,7 +3,11 @@ import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { Connection } from '../web3-provider/Web3Provider';
 import nacl from 'tweetnacl';
 import { encodeBase64 } from 'tweetnacl-util';
-import { createEmptyConversation, getConversationId } from '../storage/Storage';
+import {
+    createEmptyConversation,
+    getConversationId,
+    UserDB,
+} from '../storage/Storage';
 
 export interface Keys {
     publicKey: string;
@@ -34,31 +38,45 @@ export async function getContacts(
     connection: Connection,
     deliveryServiceToken: string,
     getPublicKeys: (contact: string) => Promise<PublicKeys | undefined>,
-    getPendingConversations: (connection: Connection) => Promise<string[]>,
+    getPendingConversations: (
+        connection: Connection,
+        userDb: UserDB,
+    ) => Promise<string[]>,
     resolveName: (
         provider: ethers.providers.JsonRpcProvider,
         name: string,
     ) => Promise<string | null>,
+    userDb: UserDB,
+    createEmptyConversationEntry: (id: string) => void,
 ): Promise<Account[]> {
-    const pendingConversations = await getPendingConversations(connection);
+    const pendingConversations = await getPendingConversations(
+        connection,
+        userDb,
+    );
     Promise.all(
         pendingConversations.map(async (address) => {
             if (
-                !connection.db.conversations.has(
-                    getConversationId(connection.account.address, address),
+                !userDb.conversations.has(
+                    getConversationId(connection.account!.address, address),
                 )
             ) {
-                return await addContact(connection, address, resolveName);
+                return await addContact(
+                    connection,
+                    address,
+                    resolveName,
+                    userDb,
+                    createEmptyConversationEntry,
+                );
             }
             return;
         }),
     );
 
     return await Promise.all(
-        Array.from(connection.db.conversations.keys())
+        Array.from(userDb.conversations.keys())
             .map((conversationId) => conversationId.split(','))
             .map((addresses) =>
-                formatAddress(connection.account.address) ===
+                formatAddress(connection.account!.address) ===
                 formatAddress(addresses[0])
                     ? formatAddress(addresses[1])
                     : formatAddress(addresses[0]),
@@ -107,9 +125,18 @@ export async function addContact(
         provider: ethers.providers.JsonRpcProvider,
         name: string,
     ) => Promise<string | null>,
+    userDb: UserDB,
+    createEmptyConversationEntry: (id: string) => void,
 ) {
     if (ethers.utils.isAddress(accountInput)) {
-        if (!createEmptyConversation(connection, accountInput)) {
+        if (
+            !createEmptyConversation(
+                connection,
+                accountInput,
+                userDb,
+                createEmptyConversationEntry,
+            )
+        ) {
             throw Error('Contact exists already.');
         }
     } else {
@@ -118,7 +145,14 @@ export async function addContact(
             accountInput,
         );
         if (address) {
-            if (!createEmptyConversation(connection, address)) {
+            if (
+                !createEmptyConversation(
+                    connection,
+                    address,
+                    userDb,
+                    createEmptyConversationEntry,
+                )
+            ) {
                 throw Error('Contact exists already.');
             }
         } else {
