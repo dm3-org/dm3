@@ -1,4 +1,3 @@
-import './SignInHelp.css';
 import * as Lib from '../lib';
 
 interface StorageLocationSelectionProps {
@@ -13,30 +12,38 @@ function StorageLocationSelection(props: StorageLocationSelectionProps) {
 
     return (
         <div className="list-group row-space">
-            {keys.map((key) => (
-                <a
-                    href="#"
-                    className={
-                        'list-group-item list-group-item-action' +
-                        (props.stroageLocation ===
-                        Lib.StorageLocation[
-                            key as keyof typeof Lib.StorageLocation
-                        ]
-                            ? ' active'
-                            : '')
-                    }
-                    onClick={() =>
-                        props.setStorageLocation(
-                            Lib.StorageLocation[
-                                key as keyof typeof Lib.StorageLocation
-                            ] as Lib.StorageLocation,
-                        )
-                    }
-                    key={key}
-                >
-                    {Lib.StorageLocation[key]}
-                </a>
-            ))}
+            {keys.map((key) => {
+                const selected =
+                    props.stroageLocation ===
+                    Lib.StorageLocation[
+                        key as keyof typeof Lib.StorageLocation
+                    ];
+                return (
+                    <a
+                        href="#"
+                        className={'list-group-item list-group-item-action'}
+                        onClick={() =>
+                            props.setStorageLocation(
+                                Lib.StorageLocation[
+                                    key as keyof typeof Lib.StorageLocation
+                                ] as Lib.StorageLocation,
+                            )
+                        }
+                        key={key}
+                    >
+                        <input
+                            className="form-check-input"
+                            type="radio"
+                            name="flexRadioDefault"
+                            id="flexRadioDefault2"
+                            checked={selected}
+                            readOnly
+                        />
+                        &nbsp;&nbsp;
+                        {Lib.StorageLocation[key]}
+                    </a>
+                );
+            })}
         </div>
     );
 }

@@ -1,5 +1,3 @@
-import './SignInHelp.css';
-
 interface SignInHelpProps {
     setToken: (token: string) => void;
     token: string | undefined;

@@ -1,4 +1,5 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import './SignIn.css';
 import { ethers } from 'ethers';
 import Icon from '../ui-shared/Icon';
 import * as Lib from '../lib';
@@ -11,14 +12,47 @@ import { UserDbType } from '../reducers/UserDB';
 import { ConnectionType } from '../reducers/Connection';
 
 function SignIn() {
+    const getStorageLocation = () => {
+        const persistedStorageLocation = window.localStorage.getItem(
+            'StorageLocation',
+        ) as Lib.StorageLocation | null;
+        return persistedStorageLocation ?? Lib.StorageLocation.File;
+    };
+
     const [dataFile, setDataFile] = useState<string | undefined>();
     const [token, setToken] = useState<string | undefined>();
     const [storageLocation, setStorageLocation] = useState<Lib.StorageLocation>(
-        Lib.StorageLocation.File,
+        getStorageLocation(),
     );
+
     const [existingAccount, setExistingAccount] = useState<boolean>(false);
+    const [storeApiToken, setStoreApiToken] = useState<boolean>(true);
 
     const { state, dispatch } = useContext(GlobalContext);
+
+    const initToken = () => {
+        if (
+            existingAccount &&
+            storageLocation === Lib.StorageLocation.Web3Storage
+        ) {
+            setToken(window.localStorage.getItem('StorageToken') as string);
+        }
+    };
+
+    useEffect(() => {
+        initToken();
+    }, []);
+
+    useEffect(() => {
+        initToken();
+    }, [storageLocation, existingAccount]);
+
+    useEffect(() => {
+        if (existingAccount && !storeApiToken) {
+            setToken('');
+            window.localStorage.removeItem('StorageToken');
+        }
+    }, [storeApiToken]);
 
     const connect = async () => {
         dispatch({
@@ -88,6 +122,16 @@ function SignIn() {
             };
 
             account.publicKeys = Lib.extractPublicKeys(singInRequest.db.keys);
+
+            if (
+                token &&
+                storeApiToken &&
+                storageLocation === Lib.StorageLocation.Web3Storage
+            ) {
+                window.localStorage.setItem('StorageToken', token);
+            }
+
+            window.localStorage.setItem('StorageLocation', storageLocation);
 
             dispatch({ type: ConnectionType.ChangeAccount, payload: account });
             dispatch({
@@ -212,7 +256,37 @@ function SignIn() {
                         )}
                     {!connectionPhase(state.connection.connectionState) &&
                         storageLocation === Lib.StorageLocation.Web3Storage && (
-                            <TokenInput setToken={setToken} token={token} />
+                            <>
+                                {!(
+                                    existingAccount &&
+                                    token &&
+                                    storeApiToken
+                                ) && (
+                                    <TokenInput
+                                        setToken={setToken}
+                                        token={token}
+                                    />
+                                )}
+                                <div className="form-check row-space">
+                                    <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        value=""
+                                        checked={storeApiToken}
+                                        onChange={(event) =>
+                                            setStoreApiToken(
+                                                event.target.checked,
+                                            )
+                                        }
+                                    />
+                                    <label
+                                        className="form-check-label"
+                                        htmlFor="flexCheckDisabled"
+                                    >
+                                        Store API Token
+                                    </label>
+                                </div>
+                            </>
                         )}
                     {!connectionPhase(state.connection.connectionState) && (
                         <div className="row row-space">
@@ -238,8 +312,7 @@ function SignIn() {
                                             !dataFile &&
                                             storageLocation ===
                                                 Lib.StorageLocation.File) ||
-                                        (existingAccount &&
-                                            !token &&
+                                        (!token &&
                                             storageLocation ===
                                                 Lib.StorageLocation.Web3Storage)
                                     }
