@@ -5,6 +5,12 @@
     max-height: 100%;
   
 }
+
+.info-box {
+    margin: 1rem !important;
+    font-size: 1rem;
+    background-color: #fffaea !important;
+}
   
 .rcw-messages-container {
     height: 100% !important;

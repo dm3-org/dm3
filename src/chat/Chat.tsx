@@ -14,6 +14,7 @@ import * as Lib from '../lib';
 import './Chat.css';
 import { GlobalContext } from '../GlobalContextProvider';
 import { UserDbType } from '../reducers/UserDB';
+import InfoBox from './InfoBox';
 
 interface ChatProps {
     connection: Lib.Connection;
@@ -110,6 +111,19 @@ function Chat(props: ChatProps) {
 
     useEffect(() => {
         dropMessages();
+        if (!props.contact.publicKeys?.publicKey) {
+            renderCustomComponent(
+                () => (
+                    <InfoBox
+                        text={
+                            `This user hasn't created encryption keys yet.` +
+                            ` The messages will be sent as soon as the keys have been created.`
+                        }
+                    />
+                ),
+                {},
+            );
+        }
 
         messageContainers.forEach((container) => {
             if (
