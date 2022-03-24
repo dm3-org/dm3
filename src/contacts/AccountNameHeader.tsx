@@ -3,6 +3,7 @@ import Icon from '../ui-shared/Icon';
 import * as Lib from '../lib';
 import { GlobalContext } from '../GlobalContextProvider';
 import { ConnectionType } from '../reducers/Connection';
+import Avatar from '../ui-shared/Avatar';
 
 interface AccountNameHeaderProps {
     account: Lib.Account;
@@ -11,19 +12,27 @@ interface AccountNameHeaderProps {
 function AccountNameHeader(props: AccountNameHeaderProps) {
     const { state, dispatch } = useContext(GlobalContext);
     return (
-        <div className="account-name w-100 ">
-            {Lib.getAccountDisplayName(props.account.address, state.ensNames)}
+        <div className="account-name w-100 d-flex justify-content-between">
+            <div>
+                <Avatar contact={props.account} />
+            </div>
+            <div>
+                {Lib.getAccountDisplayName(
+                    props.account.address,
+                    state.ensNames,
+                )}
+            </div>
             {(state.connection.connectionState ===
                 Lib.ConnectionState.SignedIn ||
                 state.connection.connectionState ===
                     Lib.ConnectionState.KeyCreation) && (
                 <>
                     {state.userDb?.keys?.publicMessagingKey ? (
-                        <span className="push-end header-lock ">
+                        <div className="push-end header-lock ">
                             <Icon iconClass="fas fa-lock align-bottom" />
-                        </span>
+                        </div>
                     ) : (
-                        <span
+                        <div
                             className=" push-end header-lock header-open-lock"
                             onClick={() =>
                                 dispatch({
@@ -33,7 +42,7 @@ function AccountNameHeader(props: AccountNameHeaderProps) {
                             }
                         >
                             <Icon iconClass="fas fa-lock-open align-bottom" />
-                        </span>
+                        </div>
                     )}
                 </>
             )}

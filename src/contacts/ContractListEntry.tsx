@@ -4,6 +4,8 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import * as Lib from '../lib';
 import { GlobalContext } from '../GlobalContextProvider';
 import { AccountsType } from '../reducers/Accounts';
+import Avatar from '../ui-shared/Avatar';
+
 interface ContactListProps {
     contact: Lib.Account;
     connection: Lib.Connection;
@@ -28,6 +30,14 @@ function ContactListEntry(props: ContactListProps) {
         calcUnreadMessages();
     }, [props.contact, state.userDb?.conversations]);
 
+    const bla = async () => {
+        console.log(await state.connection.provider!.getAvatar('nick.eth'));
+    };
+
+    useEffect(() => {
+        bla();
+    }, []);
+
     return (
         <button
             type="button"
@@ -40,7 +50,12 @@ function ContactListEntry(props: ContactListProps) {
                 })
             }
         >
-            {Lib.getAccountDisplayName(props.contact.address, state.ensNames)}{' '}
+            <Avatar contact={props.contact} />
+            &nbsp;&nbsp;
+            {Lib.getAccountDisplayName(
+                props.contact.address,
+                state.ensNames,
+            )}{' '}
             {unreadMessages > 0 && (
                 <span className="badge bg-secondary push-end messages-badge">
                     {unreadMessages}
