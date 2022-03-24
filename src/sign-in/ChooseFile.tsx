@@ -41,7 +41,7 @@ function ChooseFile(props: ChooseFileProps) {
                 />
             </div>{' '}
             <div className="col-md-8 help-text">
-                Connect an Ethereum account
+                Choose ENS Mail storage file
             </div>
         </div>
     );
