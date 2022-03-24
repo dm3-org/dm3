@@ -14,6 +14,8 @@ import { EnsNameType } from './reducers/EnsNames';
 import { AccountsType } from './reducers/Accounts';
 import { UserDbType } from './reducers/UserDB';
 import { ConnectionType } from './reducers/Connection';
+import { showSignIn } from './sign-in/Phases';
+import SignIn from './sign-in/SignIn';
 
 function App() {
     const { state, dispatch } = useContext(GlobalContext);
@@ -179,8 +181,14 @@ function App() {
                 <div className="col-12 h-100">
                     <Header />
                     <div className="row body-row">
-                        <LeftView getContacts={getContacts} />
-                        <RightView />
+                        {showSignIn(state.connection.connectionState) ? (
+                            <SignIn />
+                        ) : (
+                            <>
+                                <LeftView getContacts={getContacts} />
+                                <RightView />
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

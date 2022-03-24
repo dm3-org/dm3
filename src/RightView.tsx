@@ -3,13 +3,11 @@ import 'react-chat-widget/lib/styles.css';
 import * as Lib from './lib';
 
 import Start from './Start';
-import Chat, { EnvelopContainer } from './chat/Chat';
-import SignInHelp from './sign-in/SignInHelp';
-import { showSignIn } from './sign-in/Phases';
+import Chat from './chat/Chat';
 import { GlobalContext } from './GlobalContextProvider';
 
 function RightView() {
-    const { state, dispatch } = useContext(GlobalContext);
+    const { state } = useContext(GlobalContext);
     return (
         <div className="col-md-8 content-container h-100">
             {state.connection.connectionState ===
@@ -24,12 +22,6 @@ function RightView() {
                 state.connection.connectionState ===
                     Lib.ConnectionState.KeyCreation) && (
                 <div className="start-chat">
-                    {state.connection.provider &&
-                        showSignIn(state.connection.connectionState) && (
-                            <div className="col-md-12 text-center">
-                                <SignInHelp />
-                            </div>
-                        )}
                     {state.connection.connectionState ===
                         Lib.ConnectionState.SignedIn && <Start />}
                 </div>
