@@ -1,4 +1,3 @@
-import './SignInHelp.css';
 import * as Lib from '../lib';
 import { connectionPhase } from './Phases';
 import { useContext } from 'react';
