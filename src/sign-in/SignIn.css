@@ -1,3 +1,9 @@
+.help-text {
+  padding-top: 0.3rem;
+  font-size: 1.2rem;
+  color: #b8b8b8;
+}
+
 .sign-in-help {
   margin-top: 0.2rem !important;
 }
