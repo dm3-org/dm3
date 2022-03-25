@@ -1,14 +1,16 @@
 import * as Lib from '../lib';
-import { Accounts, ActionMap } from './shared';
+import { AccountInfo, Accounts, ActionMap } from './shared';
 
 export enum AccountsType {
     SetSelectedContact = 'SET_SELECTED_CONTACT',
     SetContacts = 'SET_CONTACTS',
+    SetAccountInfoView = 'ACCOUNT_INFO_VIEW',
 }
 
 export type AccountsPayload = {
     [AccountsType.SetSelectedContact]: Lib.Account | undefined;
     [AccountsType.SetContacts]: Lib.Account[] | undefined;
+    [AccountsType.SetAccountInfoView]: AccountInfo;
 };
 
 export type AccountsActions =
@@ -30,6 +32,13 @@ export function accountsReducer(state: Accounts, action: AccountsActions) {
             return {
                 ...state,
                 contacts: action.payload,
+            };
+
+        case AccountsType.SetAccountInfoView:
+            Lib.log(`Set account info view ${action.payload}`);
+            return {
+                ...state,
+                accountInfoView: action.payload,
             };
 
         default:

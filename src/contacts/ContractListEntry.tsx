@@ -5,6 +5,7 @@ import * as Lib from '../lib';
 import { GlobalContext } from '../GlobalContextProvider';
 import { AccountsType } from '../reducers/Accounts';
 import Avatar from '../ui-shared/Avatar';
+import { AccountInfo } from '../reducers/shared';
 
 interface ContactListProps {
     contact: Lib.Account;
@@ -44,12 +45,16 @@ function ContactListEntry(props: ContactListProps) {
         <div
             className="list-group-item list-group-item-action contact-entry d-flex justify-content-between"
             key={props.contact.address}
-            onClick={() =>
+            onClick={() => {
                 dispatch({
                     type: AccountsType.SetSelectedContact,
                     payload: props.contact,
-                })
-            }
+                });
+                dispatch({
+                    type: AccountsType.SetAccountInfoView,
+                    payload: AccountInfo.None,
+                });
+            }}
         >
             <div className="d-flex">
                 <div className="align-self-center contact-entry-avatar">

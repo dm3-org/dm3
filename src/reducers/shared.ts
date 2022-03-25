@@ -14,6 +14,7 @@ export type ActionMap<M extends { [index: string]: any }> = {
 export type Accounts = {
     contacts: Lib.Account[] | undefined;
     selectedContact: Lib.Account | undefined;
+    accountInfoView: AccountInfo;
 };
 
 export type GlobalState = {
@@ -23,6 +24,12 @@ export type GlobalState = {
     userDb: Lib.UserDB | undefined;
 };
 
+export enum AccountInfo {
+    None,
+    Contact,
+    Account,
+}
+
 export const initialState: GlobalState = {
     connection: {
         connectionState: Lib.ConnectionState.CheckingProvider,
@@ -31,6 +38,7 @@ export const initialState: GlobalState = {
     accounts: {
         contacts: undefined,
         selectedContact: undefined,
+        accountInfoView: AccountInfo.None,
     },
     ensNames: new Map<string, string>(),
     userDb: undefined,
