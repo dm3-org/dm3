@@ -6,6 +6,7 @@ import './Avatar.css';
 
 interface AvatarProps {
     contact: Lib.Account;
+    large?: boolean;
 }
 
 function Avatar(props: AvatarProps) {
@@ -17,6 +18,8 @@ function Avatar(props: AvatarProps) {
         if (ensName) {
             const url = await state.connection.provider!.getAvatar(ensName!);
             setAvatar(url ?? undefined);
+        } else {
+            setAvatar(undefined);
         }
     };
 
@@ -25,10 +28,19 @@ function Avatar(props: AvatarProps) {
     }, [props.contact, state.ensNames]);
 
     if (avatar) {
-        return <img className="avatar" src={avatar} alt="Avatar" />;
+        return (
+            <img
+                className={'avatar' + (props.large ? ' avatar-large' : '')}
+                src={avatar}
+                alt="Avatar"
+            />
+        );
     } else {
         return (
-            <img className="avatar" src={makeBlockie(props.contact.address)} />
+            <img
+                className={'avatar' + (props.large ? ' avatar-large' : '')}
+                src={makeBlockie(props.contact.address)}
+            />
         );
     }
 }

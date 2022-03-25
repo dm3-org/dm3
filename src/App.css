@@ -49,10 +49,21 @@
 
 }
 
+.row-space-lg {
+  margin-top: 3rem !important;
+}
+
 .row-space {
   margin-top: 2rem !important;
 }
 
+.row-space-sm {
+  margin-top: 1rem !important;
+}
+
+.row-space-xs {
+  margin-top: 0.5rem !important;
+}
 
 .container {
   padding-top: 2rem;
@@ -98,4 +109,8 @@ html, body {
 
 .error-indication {
   color: red;
+}
+
+.account-header {
+  cursor: pointer;
 }

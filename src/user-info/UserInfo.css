@@ -1,0 +1,13 @@
+.user-info {
+    padding: 1rem !important
+}
+
+.address-info {
+    font-family: monospace;
+    font-size: 1rem;
+
+}
+
+.ens-records {
+    font-size: 1rem;
+}
