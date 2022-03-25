@@ -13,35 +13,36 @@ interface ContactListProps {
 
 function ContactListEntry(props: ContactListProps) {
     const [unreadMessages, setUnreadMessages] = useState<number>(0);
+    const [teaser, setTeaser] = useState<string | undefined>();
     const { state, dispatch } = useContext(GlobalContext);
     useEffect(() => {
+        const messages = Lib.getConversation(
+            props.contact.address,
+            state.connection,
+            state.userDb as Lib.UserDB,
+        );
         const calcUnreadMessages = () => {
             setUnreadMessages(
-                Lib.getConversation(
-                    props.contact.address,
-                    state.connection,
-                    state.userDb as Lib.UserDB,
-                ).filter(
+                messages.filter(
                     (container) =>
                         container.messageState === Lib.MessageState.Send,
                 ).length,
             );
         };
         calcUnreadMessages();
+
+        if (messages.length > 0) {
+            const message =
+                messages[messages.length - 1].envelop.message.message;
+            setTeaser(
+                message.slice(0, 25) + (message.length > 25 ? '...' : ''),
+            );
+        }
     }, [props.contact, state.userDb?.conversations]);
 
-    const bla = async () => {
-        console.log(await state.connection.provider!.getAvatar('nick.eth'));
-    };
-
-    useEffect(() => {
-        bla();
-    }, []);
-
     return (
-        <button
-            type="button"
-            className="list-group-item list-group-item-action text-start"
+        <div
+            className="list-group-item list-group-item-action contact-entry d-flex justify-content-between"
             key={props.contact.address}
             onClick={() =>
                 dispatch({
@@ -50,18 +51,32 @@ function ContactListEntry(props: ContactListProps) {
                 })
             }
         >
-            <Avatar contact={props.contact} />
-            &nbsp;&nbsp;
-            {Lib.getAccountDisplayName(
-                props.contact.address,
-                state.ensNames,
-            )}{' '}
-            {unreadMessages > 0 && (
-                <span className="badge bg-secondary push-end messages-badge">
-                    {unreadMessages}
-                </span>
-            )}
-        </button>
+            <div className="d-flex">
+                <div className="align-self-center contact-entry-avatar">
+                    <Avatar contact={props.contact} />
+                </div>
+            </div>
+            <div className="w-100 text-start contact-entry-center">
+                <div className="row">
+                    <div className="col-12">
+                        {Lib.getAccountDisplayName(
+                            props.contact.address,
+                            state.ensNames,
+                        )}
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-12 text-muted teaser">{teaser}</div>
+                </div>
+            </div>
+            <div className="">
+                {unreadMessages > 0 && (
+                    <span className="badge bg-secondary push-end messages-badge">
+                        {unreadMessages}
+                    </span>
+                )}
+            </div>
+        </div>
     );
 }
 

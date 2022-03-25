@@ -8,6 +8,22 @@ import { GlobalContext } from '../GlobalContextProvider';
 
 function Header() {
     const { state } = useContext(GlobalContext);
+
+    if (state.connection.connectionState !== Lib.ConnectionState.SignedIn) {
+        return (
+            <div className="row header-row">
+                <div
+                    className={
+                        `col-12 text-center chat-header account-name-container` +
+                        ` d-flex justify-content-center align-items-center`
+                    }
+                >
+                    <span className="account-name">ENS Mail</span>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="row header-row">
             <div

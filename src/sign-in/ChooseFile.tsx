@@ -33,14 +33,14 @@ function ChooseFile(props: ChooseFileProps) {
 
     return (
         <div className="row row-space">
-            <div className="col-md-4">
+            <div className="col-md-5">
                 <input
                     type="file"
                     className="form-control"
                     onChange={(event) => upload(event)}
                 />
             </div>{' '}
-            <div className="col-md-8 help-text">
+            <div className="col-md-7 help-text">
                 Choose ENS Mail storage file
             </div>
         </div>

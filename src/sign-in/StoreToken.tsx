@@ -21,7 +21,7 @@ function StoreToken(props: StoreTokenProps) {
 
     return (
         <div className="row row-space">
-            <div className="col-md-4">
+            <div className="col-md-5">
                 <div className="list-group">
                     <a
                         href="#"
@@ -41,8 +41,11 @@ function StoreToken(props: StoreTokenProps) {
                     </a>
                 </div>
             </div>{' '}
-            <div className="col-md-8 help-text">
+            <div className="col-md-7 help-text">
                 Keep API token in browser storage
+                <p className="explanation">
+                    Unchecking this box will delete the token.
+                </p>
             </div>
         </div>
     );

@@ -48,6 +48,12 @@ function AddContactForm(props: AddContactFormProps) {
                 aria-label="Address or ENS name"
                 value={accountToAdd}
                 onInput={onInput}
+                style={
+                    state.accounts.contacts &&
+                    state.accounts.contacts.length > 0
+                        ? { borderBottom: 'none' }
+                        : {}
+                }
             />
             <button
                 className={`contact-input-btn btn btn-${

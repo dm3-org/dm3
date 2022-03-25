@@ -12,8 +12,10 @@ function ChatHeader(props: ChatHeaderProps) {
     const { state, dispatch } = useContext(GlobalContext);
     return (
         <div className="account-name w-100 d-flex justify-content-between">
-            <div>
-                <Avatar contact={props.account} />
+            <div className="d-flex align-items-center">
+                <div className="d-flex contact-entry-avatar">
+                    <Avatar contact={props.account} />
+                </div>
             </div>
             <div>
                 {Lib.getAccountDisplayName(

@@ -3,6 +3,7 @@ import * as Lib from '../lib';
 import { GlobalContext } from '../GlobalContextProvider';
 import makeBlockie from 'ethereum-blockies-base64';
 import './Avatar.css';
+
 interface AvatarProps {
     contact: Lib.Account;
 }
