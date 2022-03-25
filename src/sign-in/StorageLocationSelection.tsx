@@ -1,3 +1,4 @@
+import { Linter } from 'eslint';
 import { useContext } from 'react';
 import { GlobalContext } from '../GlobalContextProvider';
 import * as Lib from '../lib';
@@ -18,9 +19,10 @@ function StorageLocationSelection(props: StorageLocationSelectionProps) {
     if (connectionPhase(state.connection.connectionState)) {
         return null;
     }
+
     return (
         <div className="row row-space">
-            <div className="col-md-4">
+            <div className="col-md-5">
                 <div className="list-group ">
                     {keys.map((key) => {
                         const selected =
@@ -58,7 +60,19 @@ function StorageLocationSelection(props: StorageLocationSelectionProps) {
                     })}
                 </div>
             </div>
-            <div className="col-md-8 help-text">Select storage location</div>
+            <div className="col-md-7 help-text">
+                Select storage location
+                <p className="explanation">
+                    {props.stroageLocation === Lib.StorageLocation.File &&
+                        'The messages and related data will be encrypted and stored on your local file system.' +
+                            ' Every time you sign in the file must be uploaded.'}
+                    {props.stroageLocation ===
+                        Lib.StorageLocation.Web3Storage &&
+                        'The messages and related data will be encrypted and stored ' +
+                            'using the decentral web3.storage service.' +
+                            ' web3.storage is based on the IPFS protocol and ensures redudancy.'}
+                </p>
+            </div>
         </div>
     );
 }

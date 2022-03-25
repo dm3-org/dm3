@@ -90,7 +90,7 @@ function SignInButton(props: SignInButtonProps) {
 
     return (
         <div className="row row-space">
-            <div className="col-md-4">
+            <div className="col-md-5">
                 <button
                     onClick={requestSignIn}
                     type="button"
@@ -122,7 +122,7 @@ function SignInButton(props: SignInButtonProps) {
                     </span>
                 </button>
             </div>
-            <div className="col-md-8 help-text"></div>
+            <div className="col-md-7 help-text"></div>
         </div>
     );
 }

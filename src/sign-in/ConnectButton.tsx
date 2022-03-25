@@ -81,7 +81,7 @@ function ConnectButton(props: ConnectButtonProps) {
 
     return (
         <div className="row">
-            <div className="col-md-4">
+            <div className="col-md-5">
                 <button
                     onClick={connect}
                     type="button"
@@ -108,8 +108,12 @@ function ConnectButton(props: ConnectButtonProps) {
                     </span>
                 </button>
             </div>
-            <div className="col-md-8 help-text">
+            <div className="col-md-7 help-text">
                 Connect an Ethereum account
+                <p className="explanation">
+                    The selected ethereum account will be used as your ENS Mail
+                    identity.
+                </p>
             </div>
         </div>
     );
