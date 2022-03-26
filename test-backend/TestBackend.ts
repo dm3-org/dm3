@@ -32,31 +32,6 @@ app.use(express.static(path.join(__dirname, '../build')));
 const port = process.env.PORT || '8080';
 
 const deliveryService = {
-    requestSignInChallenge: (
-        args: { accountAddress: string },
-        cb: (error: any, result?: any) => void,
-    ) =>
-        cb(
-            null,
-            Lib.Delivery.requestSignInChallenge(sessions, args.accountAddress),
-        ),
-
-    submitSignedChallenge: (
-        args: { challenge: string; signature: string },
-        cb: (error: any, result?: any) => void,
-    ) => {
-        try {
-            Lib.Delivery.submitSignedChallenge(
-                sessions,
-                args.challenge,
-                args.signature,
-            );
-            cb(null, 'signed in');
-        } catch (e) {
-            cb({ code: 500, message: e });
-        }
-    },
-
     getMessages: (
         args: { accountAddress: string; contactAddress: string; token: string },
         cb: (error: any, result?: any) => void,
@@ -95,21 +70,21 @@ const deliveryService = {
     submitPublicKeys: (
         args: {
             accountAddress: string;
-            token: string;
+            signature: string;
             publicKeys: Lib.PublicKeys;
         },
         cb: (error: any, result?: any) => void,
     ) => {
         try {
-            const newPendingConversations = Lib.Delivery.submitPublicKeys(
+            const token = Lib.Delivery.submitPublicKeys(
                 sessions,
                 args.accountAddress,
                 args.publicKeys,
+                args.signature,
                 pendingConversations,
                 (socketId: string) => io.sockets.to(socketId).emit('joined'),
-                args.token,
             );
-            cb(null, newPendingConversations);
+            cb(null, token);
         } catch (e) {
             cb({ code: 500, message: e });
         }
@@ -119,11 +94,11 @@ const deliveryService = {
         cb: (error: any, result?: any) => void,
     ) => {
         try {
-            const newPendingConversations = Lib.Delivery.getPublicKeys(
+            const publicKeys = Lib.Delivery.getPublicKeys(
                 sessions,
                 args.accountAddress,
             );
-            cb(null, newPendingConversations);
+            cb(null, publicKeys);
         } catch (e) {
             cb({ code: 500, message: e });
         }

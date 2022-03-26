@@ -17,44 +17,18 @@ function createJsonRpcRequest(method: string, params: any, id = 1) {
     };
 }
 
-export async function submitSignedChallenge(
-    challenge: string,
-    signature: string,
-) {
-    return (
-        await axios.post(
-            DELIVERY_SERVICE,
-            createJsonRpcRequest('submitSignedChallenge', {
-                challenge,
-                signature,
-            }),
-        )
-    ).data.result;
-}
-
 export async function submitPublicKeys(
     accountAddress: string,
     publicKeys: PublicKeys,
-    token: string,
-): Promise<void> {
-    await axios.post(
-        DELIVERY_SERVICE,
-        createJsonRpcRequest('submitPublicKeys', {
-            accountAddress: accountAddress,
-            publicKeys,
-            token: token,
-        }),
-    );
-}
-
-export async function requestChallenge(
-    account: string,
-): Promise<{ challenge: string; hasKeys: boolean }> {
+    signature: string,
+): Promise<string> {
     return (
         await axios.post(
             DELIVERY_SERVICE,
-            createJsonRpcRequest('requestSignInChallenge', {
-                accountAddress: account,
+            createJsonRpcRequest('submitPublicKeys', {
+                accountAddress: accountAddress,
+                publicKeys,
+                signature,
             }),
         )
     ).data.result;
@@ -137,7 +111,7 @@ export async function getPendingConversations(
 
 export async function getPublicKeys(
     contact: string,
-): Promise<PublicKeys | undefined> {
+): Promise<{ publicKeys: PublicKeys | undefined; signature: string }> {
     return (
         await axios.post(
             DELIVERY_SERVICE,

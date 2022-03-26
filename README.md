@@ -39,33 +39,6 @@ graph TD
 * Delivery Service URI
 * Public Key(s) 
 
-## Initial Sign In
-```mermaid
-flowchart TD
-    subgraph sg1[MetaMask interaction]
-    id1[Connect account] --> id2[Sign challenge]
-    id2 --> id3[Request encryption public key]
-    end
-    subgraph sg2[Dapp internal]
-    id3 --> id4[Create signature key pair]
-    id3 --> id5[Create encryption key pair]
-    id4 --> id6
-    id5 --> id6[Encrypt private keys using the MeatMask encryption public Key]
-    id6 --> id7[Store encrypted private keys]
-    id6 --> id8[Publish public keys]
-    end
-```
-
-## Sign In
-```mermaid
-flowchart TD
-    subgraph sg1[MetaMask interaction]
-    id1[Connect account] --> id2[Sign challenge]
-    id2 --> id3[Decrypt private keys]
-    end
-
-```
-
 ## Send Encrypted Message
 ```mermaid
 flowchart TD

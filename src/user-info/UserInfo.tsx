@@ -87,7 +87,7 @@ function UserInfo(props: UserInfoProps) {
                         <div className="col-1 text-center">
                             <Icon iconClass="fab fa-ethereum" />
                         </div>
-                        <div className="col-11 text-muted">
+                        <div className="col-11 text-muted info-value">
                             <a
                                 className="text-decoration-none text-muted"
                                 href={
@@ -105,7 +105,7 @@ function UserInfo(props: UserInfoProps) {
                             <div className="col-1  text-center">
                                 <Icon iconClass="far fa-envelope" />
                             </div>
-                            <div className="col-11 text-muted">
+                            <div className="col-11 text-muted info-value">
                                 <a
                                     className="text-decoration-none text-muted"
                                     href={'mailto://' + ensTextRecords?.email}
@@ -121,7 +121,7 @@ function UserInfo(props: UserInfoProps) {
                             <div className="col-1  text-center">
                                 <Icon iconClass="fas fa-link" />
                             </div>
-                            <div className="col-11 text-muted">
+                            <div className="col-11 text-muted info-value">
                                 <a
                                     className="text-decoration-none text-muted"
                                     href={ensTextRecords?.url}
@@ -137,7 +137,7 @@ function UserInfo(props: UserInfoProps) {
                             <div className="col-1  text-center">
                                 <Icon iconClass="fab fa-github" />
                             </div>
-                            <div className="col-11 text-muted">
+                            <div className="col-11 text-muted info-value">
                                 <a
                                     className="text-decoration-none text-muted"
                                     href={
@@ -156,7 +156,7 @@ function UserInfo(props: UserInfoProps) {
                             <div className="col-1  text-center">
                                 <Icon iconClass="fab fa-twitter" />
                             </div>
-                            <div className="col-11 text-muted">
+                            <div className="col-11 text-muted info-value">
                                 <a
                                     className="text-decoration-none text-muted"
                                     href={
@@ -175,7 +175,7 @@ function UserInfo(props: UserInfoProps) {
                             <div className="col-1  text-center">
                                 <Icon iconClass="fas fa-signature" />
                             </div>
-                            <div className="col-11 text-muted">
+                            <div className="col-11 text-muted info-value">
                                 {props.account.publicKeys?.publicSigningKey}
                             </div>
                         </div>
@@ -185,7 +185,7 @@ function UserInfo(props: UserInfoProps) {
                             <div className="col-1  text-center">
                                 <Icon iconClass="fas fa-lock" />
                             </div>
-                            <div className="col-11 text-muted">
+                            <div className="col-11 text-muted info-value">
                                 {props.account.publicKeys?.publicMessagingKey}
                             </div>
                         </div>

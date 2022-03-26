@@ -2,7 +2,6 @@ import { ethers } from 'ethers';
 import { UserDB } from '..';
 import { Keys } from '../account/Account';
 import { decryptSafely, EthEncryptedData } from '../encryption/Encryption';
-import { Connection } from '../web3-provider/Web3Provider';
 
 export async function prersonalSign(
     provider: ethers.providers.JsonRpcProvider,

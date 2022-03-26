@@ -7,24 +7,17 @@ import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
 
 export async function signIn(
     connection: Partial<Connection>,
-    requestChallenge: (
-        account: string,
-    ) => Promise<{ challenge: string; hasKeys: boolean }>,
     personalSign: (
         provider: ethers.providers.JsonRpcProvider,
         account: string,
         challenge: string,
     ) => Promise<string>,
-    submitSignedChallenge: (
-        challenge: string,
-        signature: string,
-    ) => Promise<void>,
     submitPublicKeyApi: (
         accountAddress: string,
         keys: PublicKeys,
-        token: string,
-    ) => Promise<void>,
-    createMessagingKeyPair: (encryptionPublicKey: string) => Keys,
+        signature: string,
+    ) => Promise<string>,
+    createKeyPairs: (encryptionPublicKey: string) => Keys,
     getPublicKey: (
         provider: ethers.providers.JsonRpcProvider,
         account: string,
@@ -38,24 +31,13 @@ export async function signIn(
         const provider =
             connection.provider as ethers.providers.JsonRpcProvider;
         const account = (connection.account as Account).address;
-        const challengeResponse = await requestChallenge(account);
-
-        log(`Sign in challenge: ${challengeResponse.challenge}`);
 
         let publicKeys: PublicKeys;
         let deliveryServiceToken: string;
 
         if (!dataFile) {
-            const signature = await personalSign(
-                provider,
-                account,
-                challengeResponse.challenge,
-            );
-            await submitSignedChallenge(challengeResponse.challenge, signature);
-            deliveryServiceToken = getSessionToken(signature);
-
             const encryptionPublicKey = await getPublicKey(provider, account);
-            const keyPair = createMessagingKeyPair(encryptionPublicKey);
+            const keyPair = createKeyPairs(encryptionPublicKey);
 
             const keys = {
                 ...keyPair,
@@ -68,7 +50,20 @@ export async function signIn(
                 publicSigningKey: keyPair.publicSigningKey,
             };
 
-            await submitPublicKeyApi(account, publicKeys, deliveryServiceToken);
+            const signature = await personalSign(
+                provider,
+                account,
+
+                publicKeys.publicKey +
+                    publicKeys.publicMessagingKey +
+                    publicKeys.publicSigningKey,
+            );
+
+            deliveryServiceToken = await submitPublicKeyApi(
+                account,
+                publicKeys,
+                signature,
+            );
 
             return {
                 connectionState: ConnectionState.SignedIn,

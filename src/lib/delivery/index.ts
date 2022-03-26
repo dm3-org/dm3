@@ -1,8 +1,4 @@
-export {
-    requestSignInChallenge,
-    submitSignedChallenge,
-    checkToken,
-} from './Session';
+export { checkToken } from './Session';
 export {
     getMessages,
     getPendingConversations,
