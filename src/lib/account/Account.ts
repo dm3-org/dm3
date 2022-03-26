@@ -37,7 +37,9 @@ export interface Account {
 export async function getContacts(
     connection: Connection,
     deliveryServiceToken: string,
-    getPublicKeys: (contact: string) => Promise<PublicKeys | undefined>,
+    getPublicKeys: (
+        contact: string,
+    ) => Promise<{ publicKeys: PublicKeys | undefined; signature: string }>,
     getPendingConversations: (
         connection: Connection,
         userDb: UserDB,
@@ -83,7 +85,7 @@ export async function getContacts(
             )
             .map(async (address) => ({
                 address,
-                publicKeys: await getPublicKeys(address),
+                publicKeys: (await getPublicKeys(address)).publicKeys,
             })),
     );
 }
@@ -106,7 +108,7 @@ export function getAccountDisplayName(
         : accountAddress;
 }
 
-export function createMessagingKeyPair(encryptionPublicKey: string): Keys {
+export function createKeyPairs(encryptionPublicKey: string): Keys {
     const encryptionKeyPair = nacl.box.keyPair();
     const signingKeyPair = nacl.sign.keyPair();
     return {

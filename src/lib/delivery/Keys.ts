@@ -1,21 +1,38 @@
+import { ethers } from 'ethers';
 import { PublicKeys } from '..';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { log } from '../shared/log';
-import { checkToken, Session } from './Session';
+import { Session } from './Session';
+import { v4 as uuidv4 } from 'uuid';
 
 export function submitPublicKeys(
     sessions: Map<string, Session>,
     accountAddress: string,
     publicKeys: PublicKeys,
+    signature: string,
     pendingConversations: Map<string, Set<string>>,
     send: (socketId: string) => void,
-    token: string,
-) {
+): string {
     log(`[submitKeys] for account ${accountAddress}`);
     const account = formatAddress(accountAddress);
 
-    if (checkToken(sessions, account, token)) {
-        (sessions.get(account) as Session).keys = publicKeys;
+    const recoveredAddress = ethers.utils.recoverAddress(
+        ethers.utils.hashMessage(
+            publicKeys.publicKey +
+                publicKeys.publicMessagingKey +
+                publicKeys.publicSigningKey,
+        ),
+        signature,
+    );
+
+    if (formatAddress(recoveredAddress) === account) {
+        const session = sessions.has(account)
+            ? (sessions.get(account) as Session)
+            : { account };
+        session.keys = publicKeys;
+        session.token = uuidv4();
+        session.pubKeySignature = signature;
+        sessions.set(account, session);
         const pending = pendingConversations.get(account);
         if (pending) {
             pending.forEach((pendingEntry) => {
@@ -27,23 +44,29 @@ export function submitPublicKeys(
                 }
             });
         }
+        return session.token;
     } else {
-        throw Error('Token check failed');
+        throw Error('Signature invalid.');
     }
 }
 
 export function getPublicKeys(
     sessions: Map<string, Session>,
     accountAddress: string,
-): Partial<PublicKeys> {
+): Partial<{ publicKeys: PublicKeys | undefined; signature: string }> {
     log(`[getPublicKeys] for account ${accountAddress}`);
     const account = formatAddress(accountAddress);
 
     if (sessions.get(account)?.keys) {
         return {
-            publicMessagingKey: sessions.get(account)?.keys?.publicMessagingKey,
-            publicSigningKey: sessions.get(account)?.keys?.publicSigningKey,
-            publicKey: sessions.get(account)?.keys?.publicKey,
+            publicKeys: {
+                publicMessagingKey:
+                    sessions.get(account)?.keys!.publicMessagingKey!,
+                publicSigningKey:
+                    sessions.get(account)?.keys!.publicSigningKey!,
+                publicKey: sessions.get(account)?.keys!.publicKey!,
+            },
+            signature: sessions.get(account)?.pubKeySignature,
         };
     } else {
         return {};

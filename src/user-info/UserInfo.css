@@ -11,3 +11,7 @@
 .ens-records {
     font-size: 1rem;
 }
+
+.info-value {
+    word-break: break-all;
+}

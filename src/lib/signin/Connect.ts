@@ -7,7 +7,9 @@ export async function connectAccount(
     requestAccounts: (
         provider: ethers.providers.JsonRpcProvider,
     ) => Promise<string>,
-    getPublicKeys: (contact: string) => Promise<PublicKeys | undefined>,
+    getPublicKeys: (
+        contact: string,
+    ) => Promise<{ publicKeys: PublicKeys | undefined; signature: string }>,
 ): Promise<{
     account?: string;
     connectionState: ConnectionState;
@@ -18,7 +20,7 @@ export async function connectAccount(
 
         return {
             account,
-            existingAccount: (await getPublicKeys(account))?.publicKey
+            existingAccount: (await getPublicKeys(account))?.publicKeys
                 ? true
                 : false,
             connectionState: ConnectionState.SignInReady,

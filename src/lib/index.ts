@@ -85,11 +85,9 @@ export async function signIn(
 }> {
     return SignIn.signIn(
         connection,
-        BackendAPI.requestChallenge,
         Web3Api.prersonalSign,
-        BackendAPI.submitSignedChallenge,
         BackendAPI.submitPublicKeys,
-        Account.createMessagingKeyPair,
+        Account.createKeyPairs,
         Web3Api.getPublicKey,
         dataFile,
     );

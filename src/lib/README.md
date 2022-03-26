@@ -1,4 +1,19 @@
-# getMessages
+# First Sign In
+```mermaid
+sequenceDiagram
+    UI->>+EnsMailLib: signIn()
+    EnsMailLib->>+MetaMask: eth_getEncryptionPublicKey
+    MetaMask-->>-EnsMailLib: encryptionPublicKey
+    EnsMailLib->>EnsMailLib: createKeyPairs()
+    EnsMailLib->>+MetaMask: personal_sign
+    MetaMask-->>-EnsMailLib: signature
+    EnsMailLib->>+ DeliveryService: POST submitPublicKeys()
+    DeliveryService->> DeliveryService: checkSignature()
+    DeliveryService-->>- EnsMailLib: token
+    EnsMailLib-->>-UI: Messages
+```
+
+# Retrieve Messages
 ```mermaid
 sequenceDiagram
     UI->>+MessagingHandler: getMessages()
