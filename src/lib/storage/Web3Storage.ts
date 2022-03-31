@@ -1,4 +1,4 @@
-import { Web3Storage, getFilesFromPath, Web3File } from 'web3.storage';
+import { Web3Storage, Web3File } from 'web3.storage';
 import { UserDB } from '.';
 import { log } from '../shared/log';
 import { Connection } from '../web3-provider/Web3Provider';
@@ -26,7 +26,7 @@ export async function web3Store(connection: Connection, userDb: UserDB) {
     }
 
     const client = new Web3Storage({ token: connection.storageToken });
-    const blob = new Blob([JSON.stringify(sync(connection, userDb))], {
+    const blob = new Blob([JSON.stringify(sync(userDb))], {
         type: 'text/json',
     });
 

@@ -17,7 +17,7 @@ export async function signIn(
         keys: PublicKeys,
         signature: string,
     ) => Promise<string>,
-    createKeyPairs: (encryptionPublicKey: string) => Keys,
+    createKeys: (encryptionPublicKey: string) => Keys,
     getPublicKey: (
         provider: ethers.providers.JsonRpcProvider,
         account: string,
@@ -37,7 +37,7 @@ export async function signIn(
 
         if (!dataFile) {
             const encryptionPublicKey = await getPublicKey(provider, account);
-            const keyPair = createKeyPairs(encryptionPublicKey);
+            const keyPair = createKeys(encryptionPublicKey);
 
             const keys = {
                 ...keyPair,

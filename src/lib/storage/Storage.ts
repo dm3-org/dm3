@@ -2,6 +2,10 @@ import { ethers } from 'ethers';
 import { Keys } from '../account/Account';
 import { encryptSafely, EthEncryptedData } from '../encryption/Encryption';
 import {
+    symmetricalDecrypt,
+    symmetricalEncrypt,
+} from '../encryption/SymmetricalEncryption';
+import {
     decryptUsingProvider,
     formatAddress,
 } from '../external-apis/InjectedWeb3API';
@@ -25,6 +29,12 @@ export interface UserDB {
     keys: Keys;
     synced: boolean;
     syncingInProgress: boolean;
+}
+
+export interface UserStorage {
+    version: string;
+    storageEncryptionKey: EthEncryptedData;
+    userStorage: string;
 }
 
 function replacer(key: string, value: any) {
@@ -79,33 +89,7 @@ export function sortEnvelops(
     );
 }
 
-// export function storeMessages(
-//     containers: StorageEnvelopContainer[],
-//     connection: Connection,
-//     db: UserDB,
-// ): {
-//     conversations: Map<string, StorageEnvelopContainer[]>;
-//     hasChanged: boolean;
-// } {
-//     let hasChanged = false;
-//     const conversations = new Map<string, StorageEnvelopContainer[]>(
-//         db.conversations,
-//     );
-
-//     for (let container of containers) {
-
-//     }
-
-//     return { conversations, hasChanged };
-// }
-
-export function sync(
-    connection: Connection,
-    userDb: UserDB | undefined,
-): {
-    version: string;
-    payload: EthEncryptedData;
-} {
+export function sync(userDb: UserDB | undefined): UserStorage {
     if (!userDb) {
         throw Error(`User db hasn't been create`);
     }
@@ -114,44 +98,42 @@ export function sync(
         throw Error('No key to encrypt');
     }
 
-    const payload = encryptSafely({
-        publicKey: userDb.keys?.publicKey,
-        data: JSON.stringify({
-            conversations: JSON.stringify(userDb.conversations, replacer),
-            keys: userDb.keys,
-            deliveryServiceToken: userDb.deliveryServiceToken,
-        }),
-        version: 'x25519-xsalsa20-poly1305',
-    });
-
     return {
         version: 'ens-mail-encryption-1',
-        payload,
+        storageEncryptionKey: encryptSafely({
+            publicKey: userDb.keys.publicKey,
+            data: userDb.keys.storageEncryptionKey,
+            version: 'x25519-xsalsa20-poly1305',
+        }),
+        userStorage: symmetricalEncrypt(
+            JSON.stringify({
+                conversations: JSON.stringify(userDb.conversations, replacer),
+                keys: userDb.keys,
+                deliveryServiceToken: userDb.deliveryServiceToken,
+            }),
+            userDb.keys.storageEncryptionKey,
+        ),
     };
 }
 
 export async function load(
     connection: Connection,
-    data: {
-        version: string;
-        payload: EthEncryptedData;
-    },
+    data: UserStorage,
 ): Promise<UserDB> {
-    const decryptedPayload: {
-        conversations: string;
-        keys: Keys;
-        deliveryServiceToken: string;
-    } = JSON.parse(
-        JSON.parse(
-            await decryptUsingProvider(
-                connection.provider!,
-                ethers.utils.hexlify(
-                    ethers.utils.toUtf8Bytes(JSON.stringify(data.payload)),
+    const storageEncryptionKey = JSON.parse(
+        await decryptUsingProvider(
+            connection.provider!,
+            ethers.utils.hexlify(
+                ethers.utils.toUtf8Bytes(
+                    JSON.stringify(data.storageEncryptionKey),
                 ),
-
-                connection.account!.address,
             ),
-        ).data,
+
+            connection.account!.address,
+        ),
+    ).data;
+    const decryptedPayload = JSON.parse(
+        symmetricalDecrypt(data.userStorage, storageEncryptionKey),
     );
 
     const conversations: Map<string, StorageEnvelopContainer[]> = JSON.parse(

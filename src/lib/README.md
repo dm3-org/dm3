@@ -4,7 +4,7 @@ sequenceDiagram
     UI->>+EnsMailLib: signIn()
     EnsMailLib->>+MetaMask: eth_getEncryptionPublicKey
     MetaMask-->>-EnsMailLib: encryptionPublicKey
-    EnsMailLib->>EnsMailLib: createKeyPairs()
+    EnsMailLib->>EnsMailLib: createKeys()
     EnsMailLib->>+MetaMask: personal_sign
     MetaMask-->>-EnsMailLib: signature
     EnsMailLib->>+ DeliveryService: POST submitPublicKeys()
