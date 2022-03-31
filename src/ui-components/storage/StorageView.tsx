@@ -25,7 +25,7 @@ function StorageView() {
                 dispatch({ type: UserDbType.setSynced, payload: true });
             } else {
                 const blob = new Blob(
-                    [JSON.stringify(Lib.sync(state.connection, state.userDb))],
+                    [JSON.stringify(Lib.sync(state.userDb))],
                     {
                         type: 'text/json',
                     },

@@ -8,6 +8,7 @@ import {
     getConversationId,
     UserDB,
 } from '../storage/Storage';
+import { generateSymmetricalKey } from '../encryption/SymmetricalEncryption';
 
 export interface Keys {
     publicKey: string;
@@ -15,6 +16,7 @@ export interface Keys {
     privateMessagingKey: string;
     publicSigningKey: string;
     privateSigningKey: string;
+    storageEncryptionKey: string;
 }
 
 export interface PublicKeys {
@@ -108,7 +110,7 @@ export function getAccountDisplayName(
         : accountAddress;
 }
 
-export function createKeyPairs(encryptionPublicKey: string): Keys {
+export function createKeys(encryptionPublicKey: string): Keys {
     const encryptionKeyPair = nacl.box.keyPair();
     const signingKeyPair = nacl.sign.keyPair();
     return {
@@ -117,6 +119,7 @@ export function createKeyPairs(encryptionPublicKey: string): Keys {
         privateMessagingKey: encodeBase64(encryptionKeyPair.secretKey),
         publicSigningKey: encodeBase64(signingKeyPair.publicKey),
         privateSigningKey: encodeBase64(signingKeyPair.secretKey),
+        storageEncryptionKey: generateSymmetricalKey(),
     };
 }
 

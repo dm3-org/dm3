@@ -87,7 +87,7 @@ export async function signIn(
         connection,
         Web3Api.prersonalSign,
         BackendAPI.submitPublicKeys,
-        Account.createKeyPairs,
+        Account.createKeys,
         Web3Api.getPublicKey,
         dataFile,
     );
