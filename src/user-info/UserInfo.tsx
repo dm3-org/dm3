@@ -6,6 +6,7 @@ import Icon from '../ui-shared/Icon';
 
 import Avatar from '../ui-shared/Avatar';
 import { AccountInfo } from '../reducers/shared';
+import { useAsync } from '../ui-shared/useAsync';
 
 interface UserInfoProps {
     account: Lib.Account;
@@ -27,38 +28,39 @@ function UserInfo(props: UserInfoProps) {
 
     const ensName = state.ensNames.get(props.account.address);
 
-    const getTextRecords = async () => {
-        if (ensName) {
+    const getTextRecords = async (): Promise<EnsTextRecords | undefined> => {
+        if (
+            (state.accounts.accountInfoView === AccountInfo.Account ||
+                state.accounts.accountInfoView === AccountInfo.Contact) &&
+            ensName
+        ) {
             const resolver = await state.connection.provider!.getResolver(
                 ensName!,
             );
-            if (resolver) {
-                setEnsTextRecords({
-                    email: await resolver.getText('email'),
-                    url: await resolver.getText('url'),
-                    twitter: await resolver.getText('com.twitter'),
-                    github: await resolver.getText('com.github'),
-                });
-            }
+            return resolver
+                ? {
+                      email: await resolver.getText('email'),
+                      url: await resolver.getText('url'),
+                      twitter: await resolver.getText('com.twitter'),
+                      github: await resolver.getText('com.github'),
+                  }
+                : undefined;
         } else {
-            setEnsTextRecords(undefined);
+            return;
         }
     };
 
-    useEffect(() => {
-        if (
-            state.accounts.accountInfoView === AccountInfo.Account ||
-            state.accounts.accountInfoView === AccountInfo.Contact
-        ) {
-            getTextRecords();
-        } else {
-            setEnsTextRecords(undefined);
-        }
-    }, [
-        state.accounts.selectedContact,
-        state.connection.account,
-        state.accounts.accountInfoView,
-    ]);
+    useAsync(
+        getTextRecords,
+        (data: unknown) => {
+            setEnsTextRecords(data as EnsTextRecords | undefined);
+        },
+        [
+            state.accounts.selectedContact,
+            state.connection.account,
+            state.accounts.accountInfoView,
+        ],
+    );
 
     return (
         <div className="user-info">
