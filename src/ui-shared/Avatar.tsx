@@ -3,6 +3,7 @@ import * as Lib from '../lib';
 import { GlobalContext } from '../GlobalContextProvider';
 import makeBlockie from 'ethereum-blockies-base64';
 import './Avatar.css';
+import { useAsync } from './useAsync';
 
 interface AvatarProps {
     contact: Lib.Account;
@@ -15,17 +16,22 @@ function Avatar(props: AvatarProps) {
 
     const getAvatar = async () => {
         const ensName = state.ensNames.get(props.contact.address);
-        if (ensName) {
-            const url = await state.connection.provider!.getAvatar(ensName!);
-            setAvatar(url ?? undefined);
-        } else {
-            setAvatar(undefined);
-        }
+        return ensName
+            ? await state.connection.provider!.getAvatar(ensName!)
+            : undefined;
     };
 
-    useEffect(() => {
-        getAvatar();
-    }, [props.contact, state.ensNames]);
+    useAsync(
+        getAvatar,
+        (avatarUrl: unknown) => {
+            setAvatar(avatarUrl as string | undefined);
+        },
+        [props.contact, state.ensNames],
+    );
+
+    // useEffect(() => {
+
+    // }, [props.contact, state.ensNames]);
 
     if (avatar) {
         return (
