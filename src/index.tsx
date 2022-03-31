@@ -2,11 +2,11 @@ import 'react-app-polyfill/stable';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+import App from './ui-components/App';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import GlobalContextProvider from './GlobalContextProvider';
+import GlobalContextProvider from './ui-components/GlobalContextProvider';
 
 ReactDOM.render(
     <React.StrictMode>
