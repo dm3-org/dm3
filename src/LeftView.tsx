@@ -18,7 +18,7 @@ function LeftView(props: LeftViewProps) {
                 Lib.ConnectionState.SignedIn && (
                 <>
                     <Contacts getContacts={props.getContacts} />
-                    <StorageView connection={state.connection} />
+                    <StorageView />
                 </>
             )}
         </div>

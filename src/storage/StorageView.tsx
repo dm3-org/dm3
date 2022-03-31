@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import 'react-chat-widget/lib/styles.css';
 import { GlobalContext } from '../GlobalContextProvider';
 import * as Lib from '../lib';
@@ -6,14 +6,12 @@ import { UserDbType } from '../reducers/UserDB';
 import Icon from '../ui-shared/Icon';
 import './Storage.css';
 
-interface StorageViewProps {
-    connection: Lib.Connection;
-}
-
-function StorageView(props: StorageViewProps) {
+function StorageView() {
     const { state, dispatch } = useContext(GlobalContext);
-    const sync = async (e: any) => {
-        e.preventDefault();
+    const sync = async (event?: any) => {
+        if (event) {
+            event.preventDefault();
+        }
         dispatch({ type: UserDbType.setSycingInProgress, payload: true });
         try {
             if (
@@ -54,6 +52,21 @@ function StorageView(props: StorageViewProps) {
         }
         dispatch({ type: UserDbType.setSycingInProgress, payload: false });
     };
+
+    useEffect(() => {
+        if (
+            state.connection.storageLocation === Lib.StorageLocation.Web3Storage
+        ) {
+            const autoSync = setInterval(() => {
+                if (state.userDb && !state.userDb.synced) {
+                    sync();
+                }
+            }, 10000);
+            return () => {
+                clearInterval(autoSync);
+            };
+        }
+    }, [state.connection.storageLocation, state.userDb, state.userDb?.synced]);
 
     return (
         <div className="mt-auto w-100 ">
