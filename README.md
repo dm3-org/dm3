@@ -34,15 +34,18 @@ subgraph w[Wallet e.g. Metamask]
 
   w -- decrypts --> sek
   subgraph us[Encrypted User Storage]
-    d["Data (e.g. messages)"]:::data
+    
     sk[Signing Private Key]:::pk
     mek[Message Encryptioin Private Key]:::pk
+    d["Data (e.g. messages)"]:::data
    end
-   subgraph r[Public Registry]
-    pd[Profile data]:::data
+   subgraph r[Public Registry Entry]
+    
     sk-.-pubSK[Signing Public Key]
     mek-.-pubMEK[Message Encryptioin Public Key]
+    pd[Profile data]:::data
    end
+   w-- signs / sends as tx-->r
    style r fill:#e0ffdb,stroke:#128c00
    classDef pk fill:#f2d0d0,stroke:#bc0000;
    classDef data fill:#e8e8e8,stroke:#939393;

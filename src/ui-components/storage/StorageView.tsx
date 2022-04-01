@@ -70,7 +70,15 @@ function StorageView() {
 
     return (
         <div className="mt-auto w-100 ">
-            <div className="row storage-view-container">
+            <div
+                className={`row storage-view-container ${
+                    !state.userDb?.synced &&
+                    state.connection.storageLocation ===
+                        Lib.StorageLocation.File
+                        ? ' not-synced'
+                        : ''
+                }`}
+            >
                 <div className="col-12 storage-view text-center export-data">
                     <div className="row">
                         <div className="col-12">
@@ -78,9 +86,11 @@ function StorageView() {
                                 type="button"
                                 onClick={sync}
                                 className={`w-100 btn btn-sm btn${
-                                    state.userDb?.synced
+                                    state.userDb?.synced ||
+                                    state.connection.storageLocation !==
+                                        Lib.StorageLocation.File
                                         ? '-outline-secondary'
-                                        : '-primary'
+                                        : '-light'
                                 }`}
                                 disabled={state.userDb?.syncingInProgress}
                             >
@@ -94,35 +104,16 @@ function StorageView() {
                         </div>
                     </div>
                 </div>
-                <div className="col-12 storage-view">
-                    {state.userDb?.synced ? (
-                        <span
-                            className="badge bg-secondary text-dark outline-badge only-outline"
-                            title="Data synced"
-                        >
-                            <Icon iconClass="fas fa-database" />
-                            &nbsp;&nbsp;synced
-                        </span>
-                    ) : (
-                        <span
-                            className="badge bg-secondary text-dark outline-badge only-outline"
-                            title="Data out of sync"
-                        >
-                            <Icon iconClass="fas fa-database" />
-                            &nbsp;&nbsp;out of sync
-                        </span>
-                    )}
-                    &nbsp;
-                    <span
-                        className="badge bg-secondary text-dark outline-badge only-outline"
-                        title={`chainId: ${
-                            state.connection.provider!.network.chainId
-                        }`}
-                    >
-                        <Icon iconClass="fas fa-network-wired" />
-                        &nbsp;&nbsp;
-                        {state.connection.provider!.network.chainId}
-                    </span>
+                <div className="col-12 storage-view-bottom">
+                    {!state.userDb?.synced &&
+                        state.connection.storageLocation ===
+                            Lib.StorageLocation.File && (
+                            <span className="alert-msg">
+                                <Icon iconClass="fas fa-exclamation-triangle" />
+                                &nbsp;&nbsp;Storage out of sync. New data could
+                                be lost.
+                            </span>
+                        )}
                 </div>
             </div>
         </div>
