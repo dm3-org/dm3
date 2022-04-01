@@ -12,7 +12,10 @@ function StorageView() {
         if (event) {
             event.preventDefault();
         }
-        dispatch({ type: UserDbType.setSycingInProgress, payload: true });
+        dispatch({
+            type: UserDbType.setSyncProcessState,
+            payload: Lib.SyncProcessState.Running,
+        });
         try {
             if (
                 state.connection.storageLocation ===
@@ -22,7 +25,12 @@ function StorageView() {
                     state.connection,
                     state.userDb as Lib.UserDB,
                 );
+
                 dispatch({ type: UserDbType.setSynced, payload: true });
+                dispatch({
+                    type: UserDbType.setSyncProcessState,
+                    payload: Lib.SyncProcessState.Idle,
+                });
             } else {
                 const blob = new Blob(
                     [JSON.stringify(Lib.sync(state.userDb))],
@@ -46,11 +54,18 @@ function StorageView() {
                 a.dispatchEvent(clickEvt);
                 a.remove();
                 dispatch({ type: UserDbType.setSynced, payload: true });
+                dispatch({
+                    type: UserDbType.setSyncProcessState,
+                    payload: Lib.SyncProcessState.Idle,
+                });
             }
         } catch (e) {
             Lib.log(e as string);
+            dispatch({
+                type: UserDbType.setSyncProcessState,
+                payload: Lib.SyncProcessState.Failed,
+            });
         }
-        dispatch({ type: UserDbType.setSycingInProgress, payload: false });
     };
 
     useEffect(() => {
@@ -68,15 +83,16 @@ function StorageView() {
         }
     }, [state.connection.storageLocation, state.userDb, state.userDb?.synced]);
 
+    const showAlert =
+        (!state.userDb?.synced &&
+            state.connection.storageLocation === Lib.StorageLocation.File) ||
+        state.userDb?.syncProcessState === Lib.SyncProcessState.Failed;
+
     return (
         <div className="mt-auto w-100 ">
             <div
                 className={`row storage-view-container ${
-                    !state.userDb?.synced &&
-                    state.connection.storageLocation ===
-                        Lib.StorageLocation.File
-                        ? ' not-synced'
-                        : ''
+                    showAlert ? ' not-synced' : ''
                 }`}
             >
                 <div className="col-12 storage-view text-center export-data">
@@ -86,16 +102,16 @@ function StorageView() {
                                 type="button"
                                 onClick={sync}
                                 className={`w-100 btn btn-sm btn${
-                                    state.userDb?.synced ||
-                                    state.connection.storageLocation !==
-                                        Lib.StorageLocation.File
-                                        ? '-outline-secondary'
-                                        : '-light'
+                                    !showAlert ? '-outline-secondary' : '-light'
                                 }`}
-                                disabled={state.userDb?.syncingInProgress}
+                                disabled={
+                                    state.userDb?.syncProcessState ===
+                                    Lib.SyncProcessState.Running
+                                }
                             >
                                 Save{' '}
-                                {state.userDb?.syncingInProgress && (
+                                {state.userDb?.syncProcessState ===
+                                    Lib.SyncProcessState.Running && (
                                     <span className="push-end">
                                         <Icon iconClass="fas fa-spinner fa-spin" />
                                     </span>
@@ -105,15 +121,16 @@ function StorageView() {
                     </div>
                 </div>
                 <div className="col-12 storage-view-bottom">
-                    {!state.userDb?.synced &&
-                        state.connection.storageLocation ===
-                            Lib.StorageLocation.File && (
-                            <span className="alert-msg">
-                                <Icon iconClass="fas fa-exclamation-triangle" />
-                                &nbsp;&nbsp;Storage out of sync. New data could
-                                be lost.
-                            </span>
-                        )}
+                    {showAlert && (
+                        <span className="alert-msg">
+                            <Icon iconClass="fas fa-exclamation-triangle" />
+                            &nbsp;&nbsp;
+                            {state.userDb?.syncProcessState ===
+                            Lib.SyncProcessState.Failed
+                                ? 'Sync failed.'
+                                : 'Storage out of sync. New data could be lost.'}
+                        </span>
+                    )}
                 </div>
             </div>
         </div>
