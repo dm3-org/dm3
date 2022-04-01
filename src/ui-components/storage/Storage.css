@@ -1,6 +1,38 @@
 .storage-view {
-    padding: 0.5rem ;
+   
+    padding: 20px !important;
+    padding-bottom: 0px !important;
+  
 }
+
+.storage-view-bottom {
+   
+    padding: 20px !important;
+    padding-bottom: 0px !important;
+    padding-top: 0px !important;
+  
+}
+
+
+.btn-white {
+    border-color: white;
+
+}
+
+.alert-msg {
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.info-msg {
+  
+    font-size: 0.8rem;
+    font-weight: 400;
+}
+
+
+
 
 .storage-view-container {
     background-color: #fafafa;
@@ -26,4 +58,8 @@
 
 .only-outline {
     background-color: rgba(0,0,0,0) !important;
+}
+
+.not-synced {
+    background-color: #dc3545;
 }
