@@ -9,12 +9,18 @@ import {
     decryptUsingProvider,
     formatAddress,
 } from '../external-apis/InjectedWeb3API';
-import { Envelop, getId, MessageState } from '../messaging/Messaging';
+import { Envelop, MessageState } from '../messaging/Messaging';
 import { Connection } from '../web3-provider/Web3Provider';
 
 export enum StorageLocation {
     File = 'File',
     Web3Storage = 'Web3 Storage',
+}
+
+export enum SyncProcessState {
+    Idle = 'IDLE',
+    Running = 'RUNNING',
+    Failed = 'FAILED',
 }
 
 export interface StorageEnvelopContainer {
@@ -28,7 +34,7 @@ export interface UserDB {
     deliveryServiceToken: string;
     keys: Keys;
     synced: boolean;
-    syncingInProgress: boolean;
+    syncProcessState: SyncProcessState;
 }
 
 export interface UserStorage {
@@ -64,7 +70,7 @@ export function createDB(keys: Keys, deliveryServiceToken: string): UserDB {
         synced: false,
         deliveryServiceToken,
         keys,
-        syncingInProgress: false,
+        syncProcessState: SyncProcessState.Idle,
     };
 }
 
@@ -147,7 +153,7 @@ export async function load(
         conversations,
         conversationsCount: conversations.keys.length,
         synced: true,
-        syncingInProgress: false,
+        syncProcessState: SyncProcessState.Idle,
     };
 }
 

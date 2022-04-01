@@ -30,6 +30,7 @@ export {
     StorageLocation,
     web3Store,
     web3Load,
+    SyncProcessState,
 } from './storage';
 export { getAccountDisplayName, extractPublicKeys } from './account/Account';
 export { decryptEnvelop, checkSignature } from './encryption/Encryption';

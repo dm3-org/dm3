@@ -7,7 +7,7 @@ export enum UserDbType {
     setDB = 'SET_DB',
     createEmptyConversation = 'CREATE_EMPTY_CONVERSATION',
     setSynced = 'SET_SYNCED',
-    setSycingInProgress = 'SET_SYNCING_IN_PROGRESS',
+    setSyncProcessState = 'SET_SYNC_PROCESS_STATE',
 }
 
 export type UserDbPayload = {
@@ -18,7 +18,7 @@ export type UserDbPayload = {
     [UserDbType.setDB]: Lib.UserDB;
     [UserDbType.createEmptyConversation]: string;
     [UserDbType.setSynced]: boolean;
-    [UserDbType.setSycingInProgress]: boolean;
+    [UserDbType.setSyncProcessState]: Lib.SyncProcessState;
 };
 
 export type UserDbActions =
@@ -123,15 +123,15 @@ export function userDbReducer(
                 synced: action.payload,
             };
 
-        case UserDbType.setSycingInProgress:
-            Lib.log(`Set syncing in progress to ${action.payload}`);
+        case UserDbType.setSyncProcessState:
+            Lib.log(`Set sync process state to ${action.payload}`);
             if (!state) {
                 throw Error(`UserDB hasn't been created.`);
             }
 
             return {
                 ...state,
-                syncingInProgress: action.payload,
+                syncProcessState: action.payload,
             };
 
         default:
