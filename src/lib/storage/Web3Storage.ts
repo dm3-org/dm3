@@ -3,8 +3,7 @@ import { UserDB } from '.';
 import { log } from '../shared/log';
 import { Connection } from '../web3-provider/Web3Provider';
 import { sync } from './Storage';
-
-const FILE_NAME = 'ensmail';
+import { FILE_NAME, getTimestamp } from './Utils';
 
 function readFileAsync(file: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -38,18 +37,6 @@ export async function web3Store(connection: Connection, userDb: UserDB) {
 export async function web3Load(token: string): Promise<string | undefined> {
     const client = new Web3Storage({ token });
     let newestFile: Web3File | undefined;
-
-    const getTimestamp = (file: Web3File): number | undefined => {
-        const parsedName = file.name.split('-');
-        try {
-            return parsedName.length === 2 && parsedName[0] === FILE_NAME
-                ? parseInt(parsedName[1].split('.')[0])
-                : undefined;
-        } catch (e) {
-            log(e as string);
-            return;
-        }
-    };
 
     for await (const upload of client.list()) {
         const res = await client.get(upload.cid);

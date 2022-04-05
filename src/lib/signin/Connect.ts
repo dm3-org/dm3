@@ -23,7 +23,7 @@ export async function connectAccount(
             existingAccount: (await getPublicKeys(account))?.publicKeys
                 ? true
                 : false,
-            connectionState: ConnectionState.SignInReady,
+            connectionState: ConnectionState.CollectingSignInData,
         };
     } catch (e) {
         return {

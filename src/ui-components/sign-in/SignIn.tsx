@@ -8,6 +8,8 @@ import ConnectButton from './ConnectButton';
 import ChooseFile from './ChooseFile';
 import StoreToken from './StoreToken';
 import SignInButton from './SignInButton';
+import GoogleConnect from './GoogleConnect';
+import { ConnectionType } from '../reducers/Connection';
 
 function SignIn() {
     const getStorageLocation = () => {
@@ -37,13 +39,79 @@ function SignIn() {
         }
     };
 
+    const checkState = () => {
+        const setSignInReady = () =>
+            dispatch({
+                type: ConnectionType.ChangeConnectionState,
+                payload: Lib.ConnectionState.SignInReady,
+            });
+
+        const setCollectingInfos = () =>
+            dispatch({
+                type: ConnectionType.ChangeConnectionState,
+                payload: Lib.ConnectionState.CollectingSignInData,
+            });
+
+        const isCollectingSignInData =
+            state.connection.connectionState ===
+            Lib.ConnectionState.CollectingSignInData;
+        const isSignInReady =
+            state.connection.connectionState ===
+            Lib.ConnectionState.SignInReady;
+
+        if (
+            storageLocation === Lib.StorageLocation.File &&
+            !existingAccount &&
+            isCollectingSignInData
+        ) {
+            setSignInReady();
+        } else if (
+            token &&
+            storageLocation === Lib.StorageLocation.Web3Storage &&
+            isCollectingSignInData
+        ) {
+            setSignInReady();
+        } else if (
+            storageLocation === Lib.StorageLocation.File &&
+            existingAccount &&
+            isCollectingSignInData &&
+            dataFile
+        ) {
+            setSignInReady();
+        }
+
+        if (
+            storageLocation === Lib.StorageLocation.File &&
+            existingAccount &&
+            isSignInReady
+        ) {
+            setCollectingInfos();
+        } else if (
+            !token &&
+            storageLocation === Lib.StorageLocation.Web3Storage &&
+            isSignInReady
+        ) {
+            setCollectingInfos();
+        } else if (
+            storageLocation === Lib.StorageLocation.File &&
+            existingAccount &&
+            isSignInReady &&
+            !dataFile
+        ) {
+            setCollectingInfos();
+        }
+    };
+
     useEffect(() => {
+        checkState();
         initToken();
     }, []);
 
     useEffect(() => {
         initToken();
     }, [storageLocation, existingAccount]);
+
+    useEffect(checkState, [storageLocation, existingAccount, token, dataFile]);
 
     useEffect(() => {
         if (existingAccount && !storeApiToken) {
@@ -62,7 +130,7 @@ function SignIn() {
                         setStorageLocation={setStorageLocation}
                         stroageLocation={storageLocation}
                     />
-
+                    <GoogleConnect storageLocation={storageLocation} />
                     <ChooseFile
                         existingAccount={existingAccount}
                         setDataFile={setDataFile}

@@ -15,6 +15,7 @@ import { Connection } from '../web3-provider/Web3Provider';
 export enum StorageLocation {
     File = 'File',
     Web3Storage = 'Web3 Storage',
+    GoogleDrive = 'Google Drive',
 }
 
 export enum SyncProcessState {

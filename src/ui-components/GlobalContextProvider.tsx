@@ -20,7 +20,7 @@ interface GlobalContextProviderProps {
     children: JSX.Element;
 }
 
-const mainReducer = (state: GlobalState, action: Actions) => ({
+const mainReducer = (state: GlobalState, action: Actions): GlobalState => ({
     connection: connectionReducer(
         state.connection,
         action as ConnectionActions,

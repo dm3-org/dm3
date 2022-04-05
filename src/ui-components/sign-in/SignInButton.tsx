@@ -23,12 +23,17 @@ function SignInButton(props: SignInButtonProps) {
             payload: Lib.ConnectionState.WaitingForSignIn,
         });
 
-        const data =
-            props.storageLocation === Lib.StorageLocation.Web3Storage
-                ? props.existingAccount
-                    ? await Lib.web3Load(props.token as string)
-                    : undefined
-                : props.dataFile;
+        let data = undefined;
+
+        if (props.storageLocation === Lib.StorageLocation.Web3Storage) {
+            data = props.existingAccount
+                ? await Lib.web3Load(props.token as string)
+                : undefined;
+        } else if (props.storageLocation === Lib.StorageLocation.GoogleDrive) {
+            data = props.existingAccount
+                ? await Lib.googleLoad((window as any).gapi)
+                : undefined;
+        }
 
         const singInRequest = await Lib.signIn(state.connection, data);
 
@@ -106,14 +111,7 @@ function SignInButton(props: SignInButtonProps) {
                                 Lib.ConnectionState.SignInReady ||
                             state.connection.connectionState ===
                                 Lib.ConnectionState.SignInFailed
-                        ) ||
-                        (props.existingAccount &&
-                            !props.dataFile &&
-                            props.storageLocation ===
-                                Lib.StorageLocation.File) ||
-                        (!props.token &&
-                            props.storageLocation ===
-                                Lib.StorageLocation.Web3Storage)
+                        )
                     }
                 >
                     Sign In

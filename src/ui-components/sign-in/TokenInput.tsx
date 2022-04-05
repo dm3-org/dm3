@@ -4,6 +4,7 @@ import * as Lib from '../../lib';
 import { connectionPhase } from './Phases';
 import { GlobalContext } from '../GlobalContextProvider';
 import Icon from '../ui-shared/Icon';
+import { ConnectionType } from '../reducers/Connection';
 
 interface TokenInputProps {
     storageLocation: Lib.StorageLocation;
@@ -14,7 +15,7 @@ interface TokenInputProps {
 }
 
 function TokenInput(props: TokenInputProps) {
-    const { state } = useContext(GlobalContext);
+    const { state, dispatch } = useContext(GlobalContext);
     if (
         connectionPhase(state.connection.connectionState) ||
         props.storageLocation !== Lib.StorageLocation.Web3Storage ||

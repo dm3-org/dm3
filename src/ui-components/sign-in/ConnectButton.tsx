@@ -71,6 +71,7 @@ function ConnectButton(props: ConnectButtonProps) {
             case Lib.ConnectionState.SignInFailed:
             case Lib.ConnectionState.SignedIn:
             case Lib.ConnectionState.WaitingForSignIn:
+            case Lib.ConnectionState.CollectingSignInData:
             case Lib.ConnectionState.SignInReady:
                 return <Icon iconClass="fas fa-check-circle" />;
 

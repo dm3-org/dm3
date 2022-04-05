@@ -31,6 +31,8 @@ export {
     web3Store,
     web3Load,
     SyncProcessState,
+    googleStore,
+    googleLoad,
 } from './storage';
 export { getAccountDisplayName, extractPublicKeys } from './account/Account';
 export { decryptEnvelop, checkSignature } from './encryption/Encryption';

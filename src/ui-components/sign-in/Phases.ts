@@ -4,6 +4,7 @@ export function showSignIn(connectionState: Lib.ConnectionState): boolean {
     return (
         connectionState === Lib.ConnectionState.AccountConntectReady ||
         connectionState === Lib.ConnectionState.SignInReady ||
+        connectionState === Lib.ConnectionState.CollectingSignInData ||
         connectionState === Lib.ConnectionState.WaitingForAccountConntection ||
         connectionState === Lib.ConnectionState.WaitingForSignIn ||
         connectionState === Lib.ConnectionState.AccountConnectionRejected ||
