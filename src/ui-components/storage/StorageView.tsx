@@ -19,6 +19,15 @@ function StorageView() {
         try {
             if (
                 state.connection.storageLocation ===
+                Lib.StorageLocation.GoogleDrive
+            ) {
+                await Lib.googleStore(
+                    (window as any).gapi,
+                    state.userDb as Lib.UserDB,
+                );
+                dispatch({ type: UserDbType.setSynced, payload: true });
+            } else if (
+                state.connection.storageLocation ===
                 Lib.StorageLocation.Web3Storage
             ) {
                 await Lib.web3Store(

@@ -8,6 +8,7 @@ import { log } from '../shared/log';
 export enum ConnectionState {
     CheckingProvider,
     NoProvider,
+    CollectingSignInData,
     SignInReady,
     AccountConntectReady,
     WaitingForAccountConntection,
