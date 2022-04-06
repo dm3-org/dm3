@@ -1,3 +1,5 @@
+import { Linter } from 'eslint';
+import { isLineBreak } from 'typescript';
 import { UserDB } from '.';
 import { log } from '../shared/log';
 import { sync } from './Storage';
@@ -67,9 +69,21 @@ export async function googleLoad(gapi: any): Promise<string | undefined> {
         })
     ).result.files;
 
+    log(`Google storage found ${files.length} data files`);
+
     if (files.length < 1) {
         throw Error('No ENS Mail data found on google drive');
     }
+
+    files
+        .filter((file: { id: string }, index: number) => index > 1)
+        .forEach((file: { id: string }) =>
+            gapi.client.drive.files
+                .delete({
+                    fileId: file.id,
+                })
+                .execute(),
+        );
 
     return JSON.stringify(
         (
