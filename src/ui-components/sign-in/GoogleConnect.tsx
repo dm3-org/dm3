@@ -1,8 +1,9 @@
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../GlobalContextProvider';
 import * as Lib from '../../lib';
 import { connectionPhase } from './Phases';
 import { ConnectionType } from '../reducers/Connection';
+import Icon from '../ui-shared/Icon';
 
 interface GoogleConnectProps {
     storageLocation: Lib.StorageLocation;
@@ -13,22 +14,40 @@ const DISCOVERY_DOCS = [
 ];
 const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
 
+enum GoogleAuthState {
+    Ready,
+    Pending,
+    Success,
+    Failed,
+}
+
 function GoogleConnect(props: GoogleConnectProps) {
     const { state, dispatch } = useContext(GlobalContext);
-    const handleAuthClick = (event?: any) => {
-        (window as any).gapi.auth2.getAuthInstance().signIn();
-    };
+
+    const [googleAuthState, setGoogleAuthState] = useState<GoogleAuthState>(
+        GoogleAuthState.Ready,
+    );
+
+    useEffect(() => {
+        setGoogleAuthState(GoogleAuthState.Ready);
+    }, [props.storageLocation]);
 
     const updateSigninStatus = (isSignedIn: boolean) => {
-        if (isSignedIn) {
-            if (props.storageLocation === Lib.StorageLocation.GoogleDrive) {
+        try {
+            if (
+                isSignedIn &&
+                props.storageLocation === Lib.StorageLocation.GoogleDrive
+            ) {
+                setGoogleAuthState(GoogleAuthState.Success);
                 dispatch({
                     type: ConnectionType.ChangeConnectionState,
                     payload: Lib.ConnectionState.SignInReady,
                 });
+            } else {
+                (window as any).gapi.auth2.getAuthInstance().signIn();
             }
-        } else {
-            handleAuthClick();
+        } catch (e) {
+            setGoogleAuthState(GoogleAuthState.Failed);
         }
     };
 
@@ -41,44 +60,67 @@ function GoogleConnect(props: GoogleConnectProps) {
                 scope: SCOPES,
             })
             .then(
-                function () {
-                    // Listen for sign-in state changes.
+                () => {
                     (window as any).gapi.auth2
                         .getAuthInstance()
                         .isSignedIn.listen(updateSigninStatus);
 
-                    // Handle the initial sign-in state.
                     updateSigninStatus(
                         (window as any).gapi.auth2
                             .getAuthInstance()
                             .isSignedIn.get(),
                     );
                 },
-                function (error: any) {
+                (error: any) => {
+                    setGoogleAuthState(GoogleAuthState.Failed);
                     console.log(error);
                 },
             );
     };
 
     const handleClientLoad = () => {
+        setGoogleAuthState(GoogleAuthState.Pending);
         (window as any).gapi.load('client:auth2', initClient);
     };
-    if (
-        connectionPhase(state.connection.connectionState) ||
-        props.storageLocation !== Lib.StorageLocation.GoogleDrive
-    ) {
-        return null;
-    }
 
-    return (
+    const getGoogleIconClass = (googleAuthState: GoogleAuthState) => {
+        switch (googleAuthState) {
+            case GoogleAuthState.Failed:
+                return <Icon iconClass="fas fa-exclamation-circle" />;
+
+            case GoogleAuthState.Pending:
+                return <Icon iconClass="fas fa-spinner fa-spin" />;
+
+            case GoogleAuthState.Success:
+                return <Icon iconClass="fas fa-check-circle" />;
+
+            case GoogleAuthState.Ready:
+            default:
+                return null;
+        }
+    };
+
+    return connectionPhase(state.connection.connectionState) ||
+        props.storageLocation !== Lib.StorageLocation.GoogleDrive ? null : (
         <div className="row row-space">
             <div className="col-md-5">
                 <button
                     onClick={() => handleClientLoad()}
                     type="button"
-                    className={`btn btn-primary btn-lg w-100`}
+                    className={`btn btn-${
+                        googleAuthState === GoogleAuthState.Failed
+                            ? 'danger'
+                            : 'primary'
+                    } btn-lg w-100`}
+                    disabled={
+                        googleAuthState === GoogleAuthState.Success ||
+                        googleAuthState === GoogleAuthState.Pending
+                    }
                 >
                     Connect Google Drive
+                    <span className="push-end">
+                        {getGoogleIconClass(googleAuthState)}
+                    </span>
                 </button>
             </div>
             <div className="col-md-7 help-text">
