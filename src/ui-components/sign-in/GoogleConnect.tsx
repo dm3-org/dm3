@@ -33,8 +33,6 @@ function GoogleConnect(props: GoogleConnectProps) {
     };
 
     const initClient = () => {
-        console.log(process.env.REACT_APP_GOOGLE_DRIVE_API_KEY);
-
         (window as any).gapi.client
             .init({
                 apiKey: process.env.REACT_APP_GOOGLE_DRIVE_API_KEY,

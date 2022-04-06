@@ -25,7 +25,6 @@ function StorageView() {
                     (window as any).gapi,
                     state.userDb as Lib.UserDB,
                 );
-                dispatch({ type: UserDbType.setSynced, payload: true });
             } else if (
                 state.connection.storageLocation ===
                 Lib.StorageLocation.Web3Storage
@@ -34,12 +33,6 @@ function StorageView() {
                     state.connection,
                     state.userDb as Lib.UserDB,
                 );
-
-                dispatch({ type: UserDbType.setSynced, payload: true });
-                dispatch({
-                    type: UserDbType.setSyncProcessState,
-                    payload: Lib.SyncProcessState.Idle,
-                });
             } else {
                 const blob = new Blob(
                     [JSON.stringify(Lib.sync(state.userDb))],
@@ -62,12 +55,12 @@ function StorageView() {
                 });
                 a.dispatchEvent(clickEvt);
                 a.remove();
-                dispatch({ type: UserDbType.setSynced, payload: true });
-                dispatch({
-                    type: UserDbType.setSyncProcessState,
-                    payload: Lib.SyncProcessState.Idle,
-                });
             }
+            dispatch({ type: UserDbType.setSynced, payload: true });
+            dispatch({
+                type: UserDbType.setSyncProcessState,
+                payload: Lib.SyncProcessState.Idle,
+            });
         } catch (e) {
             Lib.log(e as string);
             dispatch({
@@ -79,7 +72,9 @@ function StorageView() {
 
     useEffect(() => {
         if (
-            state.connection.storageLocation === Lib.StorageLocation.Web3Storage
+            state.connection.storageLocation ===
+                Lib.StorageLocation.Web3Storage ||
+            state.connection.storageLocation === Lib.StorageLocation.GoogleDrive
         ) {
             const autoSync = setInterval(() => {
                 if (state.userDb && !state.userDb.synced) {
@@ -91,6 +86,19 @@ function StorageView() {
             };
         }
     }, [state.connection.storageLocation, state.userDb, state.userDb?.synced]);
+
+    useEffect(() => {
+        if (
+            (state.connection.storageLocation ===
+                Lib.StorageLocation.Web3Storage ||
+                state.connection.storageLocation ===
+                    Lib.StorageLocation.GoogleDrive) &&
+            state.userDb &&
+            !state.userDb.synced
+        ) {
+            sync();
+        }
+    }, []);
 
     const showAlert =
         (!state.userDb?.synced &&
