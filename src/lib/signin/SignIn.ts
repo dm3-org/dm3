@@ -2,31 +2,17 @@ import { ethers } from 'ethers';
 import { UserDB } from '../storage/Storage';
 import { log } from '../shared/log';
 import { createDB, load } from '../storage/Storage';
-import {
-    Account,
-    Keys,
-    PublicKeys,
-    ProfileRegistryEntry,
-} from '../account/Account';
+import { Account, CreateKeys, ProfileRegistryEntry } from '../account/Account';
 import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
+import { SubmitProfileRegistryEntry } from '../external-apis/BackendAPI';
+import { GetPublicKey, PersonalSign } from '../external-apis/InjectedWeb3API';
 
 export async function signIn(
     connection: Partial<Connection>,
-    personalSign: (
-        provider: ethers.providers.JsonRpcProvider,
-        account: string,
-        challenge: string,
-    ) => Promise<string>,
-    submitProfileRegistryEntry: (
-        accountAddress: string,
-        profileRegistryEntry: ProfileRegistryEntry,
-        signature: string,
-    ) => Promise<string>,
-    createKeys: (encryptionPublicKey: string) => Keys,
-    getPublicKey: (
-        provider: ethers.providers.JsonRpcProvider,
-        account: string,
-    ) => Promise<string>,
+    personalSign: PersonalSign,
+    submitProfileRegistryEntry: SubmitProfileRegistryEntry,
+    createKeys: CreateKeys,
+    getPublicKey: GetPublicKey,
     dataFile?: string,
 ): Promise<{
     connectionState: ConnectionState;

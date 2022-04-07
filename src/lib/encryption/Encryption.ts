@@ -134,6 +134,7 @@ export function encryptSafely({
     const paddedMessage = JSON.stringify(dataWithPadding);
     return encrypt({ publicKey, data: paddedMessage, version });
 }
+export type EncryptSafely = typeof encryptSafely;
 
 /**
  * Decrypt a message.
@@ -281,3 +282,4 @@ export function signWithEncryptionKey(message: Message, keys: Keys): string {
         ),
     );
 }
+export type SignWithEncryptionKey = typeof signWithEncryptionKey;

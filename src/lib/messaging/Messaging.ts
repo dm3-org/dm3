@@ -1,5 +1,9 @@
 import { ethers } from 'ethers';
-import { decryptEnvelop, EthEncryptedData } from '../encryption/Encryption';
+import {
+    decryptEnvelop,
+    EncryptSafely,
+    SignWithEncryptionKey,
+} from '../encryption/Encryption';
 import { Connection } from '../web3-provider/Web3Provider';
 import {
     getConversation,
@@ -8,6 +12,11 @@ import {
 } from '../storage/Storage';
 import { log } from '../shared/log';
 import { Account, Keys } from '../account/Account';
+import {
+    CreatePendingEntry,
+    GetNewMessages,
+    SubmitMessage,
+} from '../external-apis/BackendAPI';
 
 export interface Message {
     to: string;
@@ -57,29 +66,10 @@ export async function submitMessage(
     userDb: UserDB,
     to: Account,
     message: Message,
-    submitMessageApi: (
-        connection: Connection,
-        userDb: UserDB,
-        envelop: EncryptionEnvelop,
-        onSuccess: () => void,
-        onError: () => void,
-    ) => Promise<void>,
-    signWithEncryptionKey: (message: Message, keys: Keys) => string,
-    encryptSafely: ({
-        publicKey,
-        data,
-        version,
-    }: {
-        publicKey: string;
-        data: unknown;
-        version: string;
-    }) => EthEncryptedData,
-    createPendingEntry: (
-        connection: Connection,
-        userDb: UserDB,
-        accountAddress: string,
-        contactAddress: string,
-    ) => Promise<void>,
+    submitMessageApi: SubmitMessage,
+    signWithEncryptionKey: SignWithEncryptionKey,
+    encryptSafely: EncryptSafely,
+    createPendingEntry: CreatePendingEntry,
     haltDelivery: boolean,
     storeMessages: (envelops: StorageEnvelopContainer[]) => void,
     onSuccess?: (envelop: Envelop) => void,
@@ -168,11 +158,7 @@ function decryptMessages(
 export async function getMessages(
     connection: Connection,
     contact: string,
-    getNewMessages: (
-        connection: Connection,
-        userDb: UserDB,
-        contact: string,
-    ) => Promise<EncryptionEnvelop[]>,
+    getNewMessages: GetNewMessages,
     storeMessages: (envelops: StorageEnvelopContainer[]) => void,
     userDb: UserDB,
 ): Promise<StorageEnvelopContainer[]> {
