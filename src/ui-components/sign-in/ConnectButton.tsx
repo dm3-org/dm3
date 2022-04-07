@@ -29,14 +29,14 @@ function ConnectButton(props: ConnectButtonProps) {
 
         if (accountConnection.account) {
             dispatch({
+                type: ConnectionType.ChangeConnectionState,
+                payload: accountConnection.connectionState,
+            });
+            dispatch({
                 type: ConnectionType.ChangeAccount,
                 payload: {
                     address: accountConnection.account,
                 },
-            });
-            dispatch({
-                type: ConnectionType.ChangeConnectionState,
-                payload: accountConnection.connectionState,
             });
 
             const ensName = await Lib.lookupAddress(

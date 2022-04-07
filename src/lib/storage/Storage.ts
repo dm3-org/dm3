@@ -1,5 +1,7 @@
 import { ethers } from 'ethers';
+import { libraryagent } from 'googleapis/build/src/apis/libraryagent';
 import { Keys } from '../account/Account';
+import { Acknoledgment } from '../delivery';
 import { encryptSafely, EthEncryptedData } from '../encryption/Encryption';
 import {
     symmetricalDecrypt,
@@ -10,6 +12,7 @@ import {
     formatAddress,
 } from '../external-apis/InjectedWeb3API';
 import { Envelop, MessageState } from '../messaging/Messaging';
+import { log } from '../shared/log';
 import { Connection } from '../web3-provider/Web3Provider';
 
 export enum StorageLocation {
@@ -27,6 +30,7 @@ export enum SyncProcessState {
 export interface StorageEnvelopContainer {
     messageState: MessageState;
     envelop: Envelop;
+    deliveryServiceIncommingTimestamp?: number;
 }
 
 export interface UserDB {
@@ -96,7 +100,10 @@ export function sortEnvelops(
     );
 }
 
-export function sync(userDb: UserDB | undefined): UserStorage {
+export function sync(userDb: UserDB | undefined): {
+    userStorage: UserStorage;
+    acknoledgments: Acknoledgment[];
+} {
     if (!userDb) {
         throw Error(`User db hasn't been create`);
     }
@@ -105,21 +112,57 @@ export function sync(userDb: UserDB | undefined): UserStorage {
         throw Error('No key to encrypt');
     }
 
+    const acknoledgments = Array.from(userDb.conversations.keys())
+        // get newest delivery service query timestamp
+        .map((key) =>
+            userDb.conversations
+                .get(key)
+                ?.filter((container) =>
+                    container.deliveryServiceIncommingTimestamp ? true : false,
+                )
+                .sort(
+                    (a, b) =>
+                        b.deliveryServiceIncommingTimestamp! -
+                        a.deliveryServiceIncommingTimestamp!,
+                ),
+        )
+        // create acknoledgments
+        .map(
+            (containers) =>
+                containers && containers.length > 0
+                    ? {
+                          contactAddress: containers[0]!.envelop.message.from,
+                          messageDeliveryServiceTimestamp:
+                              containers[0].deliveryServiceIncommingTimestamp!,
+                      }
+                    : null,
+            // remove null acknoledgments
+        )
+        .filter((acknoledgment) =>
+            acknoledgment ? true : false,
+        ) as Acknoledgment[];
+
     return {
-        version: 'ens-mail-encryption-1',
-        storageEncryptionKey: encryptSafely({
-            publicKey: userDb.keys.publicKey,
-            data: userDb.keys.storageEncryptionKey,
-            version: 'x25519-xsalsa20-poly1305',
-        }),
-        userStorage: symmetricalEncrypt(
-            JSON.stringify({
-                conversations: JSON.stringify(userDb.conversations, replacer),
-                keys: userDb.keys,
-                deliveryServiceToken: userDb.deliveryServiceToken,
+        userStorage: {
+            version: 'ens-mail-encryption-1',
+            storageEncryptionKey: encryptSafely({
+                publicKey: userDb.keys.publicKey,
+                data: userDb.keys.storageEncryptionKey,
+                version: 'x25519-xsalsa20-poly1305',
             }),
-            userDb.keys.storageEncryptionKey,
-        ),
+            userStorage: symmetricalEncrypt(
+                JSON.stringify({
+                    conversations: JSON.stringify(
+                        userDb.conversations,
+                        replacer,
+                    ),
+                    keys: userDb.keys,
+                    deliveryServiceToken: userDb.deliveryServiceToken,
+                }),
+                userDb.keys.storageEncryptionKey,
+            ),
+        },
+        acknoledgments,
     };
 }
 
@@ -127,6 +170,7 @@ export async function load(
     connection: Connection,
     data: UserStorage,
 ): Promise<UserDB> {
+    log('Loading user storage');
     const storageEncryptionKey = JSON.parse(
         await decryptUsingProvider(
             connection.provider!,

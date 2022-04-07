@@ -17,11 +17,12 @@ function StorageView() {
             payload: Lib.SyncProcessState.Running,
         });
         try {
+            let acknoledgments = [];
             if (
                 state.connection.storageLocation ===
                 Lib.StorageLocation.GoogleDrive
             ) {
-                await Lib.googleStore(
+                acknoledgments = await Lib.googleStore(
                     (window as any).gapi,
                     state.userDb as Lib.UserDB,
                 );
@@ -29,13 +30,15 @@ function StorageView() {
                 state.connection.storageLocation ===
                 Lib.StorageLocation.Web3Storage
             ) {
-                await Lib.web3Store(
+                acknoledgments = await Lib.web3Store(
                     state.connection,
                     state.userDb as Lib.UserDB,
                 );
             } else {
+                const syncResult = Lib.sync(state.userDb);
+                acknoledgments = syncResult.acknoledgments;
                 const blob = new Blob(
-                    [JSON.stringify(Lib.sync(state.userDb))],
+                    [JSON.stringify(syncResult.userStorage)],
                     {
                         type: 'text/json',
                     },
@@ -56,6 +59,15 @@ function StorageView() {
                 a.dispatchEvent(clickEvt);
                 a.remove();
             }
+
+            if (state.userDb && acknoledgments.length > 0) {
+                await Lib.syncAcknoledgment(
+                    state.connection,
+                    acknoledgments,
+                    state.userDb,
+                );
+            }
+
             dispatch({ type: UserDbType.setSynced, payload: true });
             dispatch({
                 type: UserDbType.setSyncProcessState,

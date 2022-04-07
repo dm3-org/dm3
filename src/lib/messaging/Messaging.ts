@@ -33,10 +33,10 @@ export interface Envelop {
 
 export interface EncryptionEnvelop {
     encryptionVersion: 'x25519-xsalsa20-poly1305';
-    toEncryptedData: string;
-    fromEncryptedData: string;
+    encryptedData: string;
     to: string;
     from: string;
+    deliveryServiceIncommingTimestamp?: number;
 }
 
 export enum MessageState {
@@ -100,23 +100,11 @@ export async function submitMessage(
         ]);
     } else {
         const envelop: EncryptionEnvelop = {
-            toEncryptedData: ethers.utils.hexlify(
+            encryptedData: ethers.utils.hexlify(
                 ethers.utils.toUtf8Bytes(
                     JSON.stringify(
                         encryptSafely({
                             publicKey: to.publicKeys
-                                ?.publicMessagingKey as string,
-                            data: innerEnvelop,
-                            version: 'x25519-xsalsa20-poly1305',
-                        }),
-                    ),
-                ),
-            ),
-            fromEncryptedData: ethers.utils.hexlify(
-                ethers.utils.toUtf8Bytes(
-                    JSON.stringify(
-                        encryptSafely({
-                            publicKey: userDb?.keys
                                 ?.publicMessagingKey as string,
                             data: innerEnvelop,
                             version: 'x25519-xsalsa20-poly1305',
@@ -135,6 +123,7 @@ export async function submitMessage(
         storeMessages([
             { envelop: innerEnvelop, messageState: MessageState.Send },
         ]);
+        log('- Message sent');
     }
 }
 
@@ -145,12 +134,11 @@ export function getId(envelop: Envelop): string {
 function decryptMessages(
     envelops: EncryptionEnvelop[],
     userDb: UserDB,
-    connection: Connection,
 ): Promise<Envelop[]> {
     return Promise.all(
         envelops.map(
             async (envelop): Promise<Envelop> =>
-                decryptEnvelop(connection, userDb, envelop),
+                decryptEnvelop(userDb, envelop),
         ),
     );
 }
@@ -162,21 +150,28 @@ export async function getMessages(
     storeMessages: (envelops: StorageEnvelopContainer[]) => void,
     userDb: UserDB,
 ): Promise<StorageEnvelopContainer[]> {
-    const envelops = await getNewMessages(connection, userDb, contact);
-    const decryptedEnvelops = await decryptMessages(
-        envelops,
-        userDb,
-        connection,
+    const envelops = await Promise.all(
+        (
+            await getNewMessages(connection, userDb, contact)
+        )
+            .filter((envelop) =>
+                envelop.deliveryServiceIncommingTimestamp ? true : false,
+            )
+            .map(async (envelop): Promise<StorageEnvelopContainer> => {
+                const decryptedEnvelop = await decryptMessages(
+                    [envelop],
+                    userDb,
+                );
+                return {
+                    envelop: decryptedEnvelop[0],
+                    messageState: MessageState.Send,
+                    deliveryServiceIncommingTimestamp:
+                        envelop.deliveryServiceIncommingTimestamp!,
+                };
+            }),
     );
 
-    storeMessages(
-        decryptedEnvelops.map(
-            (envelop): StorageEnvelopContainer => ({
-                envelop: envelop,
-                messageState: MessageState.Send,
-            }),
-        ),
-    );
+    storeMessages(envelops);
 
     return getConversation(contact, connection, userDb);
 }

@@ -236,18 +236,14 @@ function nacl_decodeHex(msgHex: string): Uint8Array {
 }
 
 export function decryptEnvelop(
-    connection: Connection,
     userDb: UserDB,
     envelop: EncryptionEnvelop,
 ): Envelop {
-    const encryptedData =
-        envelop.from === connection.account!.address
-            ? envelop.fromEncryptedData
-            : envelop.toEncryptedData;
-
     return {
         ...(decryptSafely({
-            encryptedData: JSON.parse(ethers.utils.toUtf8String(encryptedData)),
+            encryptedData: JSON.parse(
+                ethers.utils.toUtf8String(envelop.encryptedData),
+            ),
             privateKey: (userDb.keys as Keys).privateMessagingKey as string,
         }) as Envelop),
     };

@@ -24,7 +24,7 @@ const io = new Server(server, {
 
 const sessions = new Map<string, Lib.Delivery.Session>();
 
-const messages = new Map<string, Lib.EncryptionEnvelop[]>();
+let messages = new Map<string, Lib.EncryptionEnvelop[]>();
 // Maps not registered accounts to accounts who send messages to the unregistered account
 const pendingConversations = new Map<string, Set<string>>();
 
@@ -99,6 +99,28 @@ const deliveryService = {
                 args.accountAddress,
             );
             cb(null, publicKeys);
+        } catch (e) {
+            cb({ code: 500, message: e });
+        }
+    },
+
+    syncAcknoledgment: (
+        args: {
+            accountAddress: string;
+            token: string;
+            acknoledgments: Lib.Delivery.Acknoledgment[];
+        },
+        cb: (error: any, result?: any) => void,
+    ) => {
+        try {
+            messages = Lib.Delivery.handleSyncAcknoledgment(
+                args.accountAddress,
+                args.acknoledgments,
+                args.token,
+                sessions,
+                messages,
+            );
+            cb(null, 'success');
         } catch (e) {
             cb({ code: 500, message: e });
         }

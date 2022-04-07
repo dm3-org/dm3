@@ -206,7 +206,7 @@ function Chat(props: ChatProps) {
         setMessageStates(new Map(messageStates));
 
         try {
-            const conversations = await Lib.submitMessage(
+            await Lib.submitMessage(
                 state.connection,
                 userDb,
                 props.contact,

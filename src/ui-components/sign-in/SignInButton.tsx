@@ -23,7 +23,7 @@ function SignInButton(props: SignInButtonProps) {
             payload: Lib.ConnectionState.WaitingForSignIn,
         });
 
-        let data = undefined;
+        let data = props.dataFile;
 
         if (props.storageLocation === Lib.StorageLocation.Web3Storage) {
             data = props.existingAccount

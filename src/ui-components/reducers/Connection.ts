@@ -68,7 +68,7 @@ export function connectionReducer(
             };
 
         case ConnectionType.ChangeStorageToken:
-            Lib.log(`Set sorage toek`);
+            Lib.log(`Set sorage token`);
             return {
                 ...state,
                 storageToken: action.payload,

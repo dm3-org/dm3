@@ -36,14 +36,14 @@ export {
     web3Store,
     web3Load,
     SyncProcessState,
-    googleStore,
     googleLoad,
+    googleStore,
 } from './storage';
 export { getAccountDisplayName, extractPublicKeys } from './account/Account';
 export { decryptEnvelop, checkSignature } from './encryption/Encryption';
 export { MessageState } from './messaging/Messaging';
 export { ConnectionState, getWeb3Provider } from './web3-provider/Web3Provider';
-export { getNewMessages } from './external-apis/BackendAPI';
+export { getNewMessages, syncAcknoledgment } from './external-apis/BackendAPI';
 export { lookupAddress, formatAddress } from './external-apis/InjectedWeb3API';
 export { log } from './shared/log';
 export { getSessionToken } from './signin';
