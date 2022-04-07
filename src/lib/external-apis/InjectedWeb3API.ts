@@ -10,6 +10,7 @@ export async function prersonalSign(
 ): Promise<any> {
     return provider.send('personal_sign', [account, message]);
 }
+export type PersonalSign = typeof prersonalSign;
 
 export async function getPublicKey(
     provider: ethers.providers.JsonRpcProvider,
@@ -17,6 +18,7 @@ export async function getPublicKey(
 ): Promise<string> {
     return provider.send('eth_getEncryptionPublicKey', [account]);
 }
+export type GetPublicKey = typeof getPublicKey;
 
 export async function decryptMessage(
     userDb: UserDB,
@@ -41,6 +43,7 @@ export async function requestAccounts(
 ): Promise<string> {
     return (await provider.send('eth_requestAccounts', []))[0];
 }
+export type RequestAccounts = typeof requestAccounts;
 
 export async function lookupAddress(
     provider: ethers.providers.JsonRpcProvider,
@@ -55,6 +58,7 @@ export async function resolveName(
 ): Promise<string | null> {
     return provider.resolveName(name);
 }
+export type ResolveName = typeof resolveName;
 
 export function formatAddress(address: string) {
     return ethers.utils.getAddress(address);

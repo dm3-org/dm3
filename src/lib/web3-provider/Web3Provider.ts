@@ -1,9 +1,8 @@
 import { ethers } from 'ethers';
 import { Socket } from 'socket.io-client';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
-import { StorageLocation, UserDB } from '../storage/Storage';
+import { StorageLocation } from '../storage/Storage';
 import { Account } from '../account/Account';
-import { log } from '../shared/log';
 
 export enum ConnectionState {
     CheckingProvider,

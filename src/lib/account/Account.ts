@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { formatAddress } from '../external-apis/InjectedWeb3API';
+import { formatAddress, ResolveName } from '../external-apis/InjectedWeb3API';
 import { Connection } from '../web3-provider/Web3Provider';
 import nacl from 'tweetnacl';
 import { encodeBase64 } from 'tweetnacl-util';
@@ -9,6 +9,10 @@ import {
     UserDB,
 } from '../storage/Storage';
 import { generateSymmetricalKey } from '../encryption/SymmetricalEncryption';
+import {
+    GetPendingConversations,
+    GetProfileRegistryEntry,
+} from '../external-apis/BackendAPI';
 
 export interface Keys {
     publicKey: string;
@@ -43,20 +47,9 @@ export interface Account {
 export async function getContacts(
     connection: Connection,
     deliveryServiceToken: string,
-    getProfileRegistryEntry: (
-        contact: string,
-    ) => Promise<
-        | { profileRegistryEntry: ProfileRegistryEntry; signature: string }
-        | undefined
-    >,
-    getPendingConversations: (
-        connection: Connection,
-        userDb: UserDB,
-    ) => Promise<string[]>,
-    resolveName: (
-        provider: ethers.providers.JsonRpcProvider,
-        name: string,
-    ) => Promise<string | null>,
+    getProfileRegistryEntry: GetProfileRegistryEntry,
+    getPendingConversations: GetPendingConversations,
+    resolveName: ResolveName,
     userDb: UserDB,
     createEmptyConversationEntry: (id: string) => void,
 ): Promise<Account[]> {
@@ -131,14 +124,12 @@ export function createKeys(encryptionPublicKey: string): Keys {
         storageEncryptionKey: generateSymmetricalKey(),
     };
 }
+export type CreateKeys = typeof createKeys;
 
 export async function addContact(
     connection: Connection,
     accountInput: string,
-    resolveName: (
-        provider: ethers.providers.JsonRpcProvider,
-        name: string,
-    ) => Promise<string | null>,
+    resolveName: ResolveName,
     userDb: UserDB,
     createEmptyConversationEntry: (id: string) => void,
 ) {

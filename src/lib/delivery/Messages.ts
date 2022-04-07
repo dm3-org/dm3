@@ -69,6 +69,7 @@ export function getPendingConversations(
         throw Error('Token check failed');
     }
 }
+export type GetPendingConversations = typeof getPendingConversations;
 
 export function incomingMessage(
     data: { envelop: EncryptionEnvelop; token: string },

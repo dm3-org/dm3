@@ -2,9 +2,8 @@ import axios from 'axios';
 import { log } from '../shared/log';
 import { EncryptionEnvelop, Envelop } from '../messaging/Messaging';
 import { Connection } from '../web3-provider/Web3Provider';
-import { PublicKeys, ProfileRegistryEntry } from '../account/Account';
+import { ProfileRegistryEntry } from '../account/Account';
 import { UserDB } from '..';
-import { datacatalog } from 'googleapis/build/src/apis/datacatalog';
 
 const DELIVERY_SERVICE =
     (process.env.REACT_APP_BACKEND as string) + '/deliveryService';
@@ -39,6 +38,7 @@ export async function submitProfileRegistryEntry(
 
     return request.result;
 }
+export type SubmitProfileRegistryEntry = typeof submitProfileRegistryEntry;
 
 export async function submitMessage(
     connection: Connection,
@@ -66,6 +66,7 @@ export async function submitMessage(
         );
     }
 }
+export type SubmitMessage = typeof submitMessage;
 
 export async function createPendingEntry(
     connection: Connection,
@@ -82,6 +83,7 @@ export async function createPendingEntry(
         });
     }
 }
+export type CreatePendingEntry = typeof createPendingEntry;
 
 export async function getNewMessages(
     connection: Connection,
@@ -105,6 +107,7 @@ export async function getNewMessages(
 
     return request.result.messages;
 }
+export type GetNewMessages = typeof getNewMessages;
 
 export async function getPendingConversations(
     connection: Connection,
@@ -126,6 +129,7 @@ export async function getPendingConversations(
 
     return request.result.pendingConversations;
 }
+export type GetPendingConversations = typeof getPendingConversations;
 
 export async function getProfileRegistryEntry(
     contact: string,
@@ -148,3 +152,4 @@ export async function getProfileRegistryEntry(
 
     return request.result;
 }
+export type GetProfileRegistryEntry = typeof getProfileRegistryEntry;

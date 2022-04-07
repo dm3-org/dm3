@@ -1,18 +1,13 @@
 import { ethers } from 'ethers';
 import { ProfileRegistryEntry } from '../account/Account';
+import { GetProfileRegistryEntry } from '../external-apis/BackendAPI';
+import { RequestAccounts } from '../external-apis/InjectedWeb3API';
 import { ConnectionState } from '../web3-provider/Web3Provider';
 
 export async function connectAccount(
     provider: ethers.providers.JsonRpcProvider,
-    requestAccounts: (
-        provider: ethers.providers.JsonRpcProvider,
-    ) => Promise<string>,
-    getProfileRegistryEntry: (
-        contact: string,
-    ) => Promise<
-        | { profileRegistryEntry: ProfileRegistryEntry; signature: string }
-        | undefined
-    >,
+    requestAccounts: RequestAccounts,
+    getProfileRegistryEntry: GetProfileRegistryEntry,
 ): Promise<{
     account?: string;
     connectionState: ConnectionState;
