@@ -2,7 +2,12 @@ import { ethers } from 'ethers';
 import { UserDB } from '../storage/Storage';
 import { log } from '../shared/log';
 import { createDB, load } from '../storage/Storage';
-import { Account, Keys, PublicKeys } from '../account/Account';
+import {
+    Account,
+    Keys,
+    PublicKeys,
+    ProfileRegistryEntry,
+} from '../account/Account';
 import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
 
 export async function signIn(
@@ -12,9 +17,9 @@ export async function signIn(
         account: string,
         challenge: string,
     ) => Promise<string>,
-    submitPublicKeyApi: (
+    submitProfileRegistryEntry: (
         accountAddress: string,
-        keys: PublicKeys,
+        profileRegistryEntry: ProfileRegistryEntry,
         signature: string,
     ) => Promise<string>,
     createKeys: (encryptionPublicKey: string) => Keys,
@@ -32,7 +37,6 @@ export async function signIn(
             connection.provider as ethers.providers.JsonRpcProvider;
         const account = (connection.account as Account).address;
 
-        let publicKeys: PublicKeys;
         let deliveryServiceToken: string;
 
         if (!dataFile) {
@@ -44,24 +48,24 @@ export async function signIn(
                 publicKey: encryptionPublicKey,
             };
 
-            publicKeys = {
-                publicKey: encryptionPublicKey,
-                publicMessagingKey: keyPair.publicMessagingKey,
-                publicSigningKey: keyPair.publicSigningKey,
+            const profileRegistryEntry: ProfileRegistryEntry = {
+                publicKeys: {
+                    publicKey: encryptionPublicKey,
+                    publicMessagingKey: keyPair.publicMessagingKey,
+                    publicSigningKey: keyPair.publicSigningKey,
+                },
             };
 
             const signature = await personalSign(
                 provider,
                 account,
 
-                publicKeys.publicKey +
-                    publicKeys.publicMessagingKey +
-                    publicKeys.publicSigningKey,
+                JSON.stringify(profileRegistryEntry),
             );
 
-            deliveryServiceToken = await submitPublicKeyApi(
+            deliveryServiceToken = await submitProfileRegistryEntry(
                 account,
-                publicKeys,
+                profileRegistryEntry,
                 signature,
             );
 

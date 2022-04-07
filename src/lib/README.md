@@ -7,7 +7,7 @@ sequenceDiagram
     EnsMailLib->>EnsMailLib: createKeys()
     EnsMailLib->>+MetaMask: personal_sign
     MetaMask-->>-EnsMailLib: signature
-    EnsMailLib->>+ DeliveryService: POST submitPublicKeys()
+    EnsMailLib->>+ DeliveryService: POST submitProfileRegistryEntry()
     DeliveryService->> DeliveryService: checkSignature()
     DeliveryService-->>- EnsMailLib: token
     EnsMailLib-->>-UI: Messages

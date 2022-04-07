@@ -67,19 +67,19 @@ const deliveryService = {
             cb({ code: 500, message: e });
         }
     },
-    submitPublicKeys: (
+    submitProfileRegistryEntry: (
         args: {
             accountAddress: string;
             signature: string;
-            publicKeys: Lib.PublicKeys;
+            profileRegistryEntry: Lib.ProfileRegistryEntry;
         },
         cb: (error: any, result?: any) => void,
     ) => {
         try {
-            const token = Lib.Delivery.submitPublicKeys(
+            const token = Lib.Delivery.submitProfileRegistryEntry(
                 sessions,
                 args.accountAddress,
-                args.publicKeys,
+                args.profileRegistryEntry,
                 args.signature,
                 pendingConversations,
                 (socketId: string) => io.sockets.to(socketId).emit('joined'),
@@ -89,12 +89,12 @@ const deliveryService = {
             cb({ code: 500, message: e });
         }
     },
-    getPublicKeys: (
+    getProfileRegistryEntry: (
         args: { accountAddress: string; token: string; keys: Lib.PublicKeys },
         cb: (error: any, result?: any) => void,
     ) => {
         try {
-            const publicKeys = Lib.Delivery.getPublicKeys(
+            const publicKeys = Lib.Delivery.getProfileRegistryEntry(
                 sessions,
                 args.accountAddress,
             );

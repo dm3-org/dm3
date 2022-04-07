@@ -10,7 +10,12 @@ import * as Storage from './storage';
 import { StorageEnvelopContainer, UserDB } from './storage';
 
 export type { Connection } from './web3-provider/Web3Provider';
-export type { Account, PublicKeys, Keys } from './account/Account';
+export type {
+    Account,
+    PublicKeys,
+    Keys,
+    ProfileRegistryEntry,
+} from './account/Account';
 export type {
     Message,
     EncryptionEnvelop,
@@ -47,7 +52,7 @@ export function connectAccount(provider: ethers.providers.JsonRpcProvider) {
     return SignIn.connectAccount(
         provider,
         Web3Api.requestAccounts,
-        BackendAPI.getPublicKeys,
+        BackendAPI.getProfileRegistryEntry,
     );
 }
 
@@ -89,7 +94,7 @@ export async function signIn(
     return SignIn.signIn(
         connection,
         Web3Api.prersonalSign,
-        BackendAPI.submitPublicKeys,
+        BackendAPI.submitProfileRegistryEntry,
         Account.createKeys,
         Web3Api.getPublicKey,
         dataFile,
@@ -144,7 +149,7 @@ export async function getContacts(
     return Account.getContacts(
         connection,
         deliveryServiceToken,
-        BackendAPI.getPublicKeys,
+        BackendAPI.getProfileRegistryEntry,
         BackendAPI.getPendingConversations,
         Web3Api.resolveName,
         userDb,

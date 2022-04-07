@@ -8,8 +8,9 @@ import ConnectButton from './ConnectButton';
 import ChooseFile from './ChooseFile';
 import StoreToken from './StoreToken';
 import SignInButton from './SignInButton';
-import GoogleConnect from './GoogleConnect';
+import GoogleConnect, { GoogleAuthState } from './GoogleConnect';
 import { ConnectionType } from '../reducers/Connection';
+import { connect } from 'http2';
 
 function SignIn() {
     const getStorageLocation = () => {
@@ -23,6 +24,9 @@ function SignIn() {
     const [token, setToken] = useState<string | undefined>();
     const [storageLocation, setStorageLocation] = useState<Lib.StorageLocation>(
         getStorageLocation(),
+    );
+    const [googleAuthState, setGoogleAuthState] = useState<GoogleAuthState>(
+        GoogleAuthState.Ready,
     );
 
     const [existingAccount, setExistingAccount] = useState<boolean>(false);
@@ -99,6 +103,12 @@ function SignIn() {
             !dataFile
         ) {
             setCollectingInfos();
+        } else if (
+            storageLocation === Lib.StorageLocation.GoogleDrive &&
+            isSignInReady &&
+            googleAuthState !== GoogleAuthState.Success
+        ) {
+            setCollectingInfos();
         }
     };
 
@@ -111,7 +121,13 @@ function SignIn() {
         initToken();
     }, [storageLocation, existingAccount]);
 
-    useEffect(checkState, [storageLocation, existingAccount, token, dataFile]);
+    useEffect(checkState, [
+        storageLocation,
+        existingAccount,
+        token,
+        dataFile,
+        state.connection.account,
+    ]);
 
     useEffect(() => {
         if (existingAccount && !storeApiToken) {
@@ -130,7 +146,11 @@ function SignIn() {
                         setStorageLocation={setStorageLocation}
                         stroageLocation={storageLocation}
                     />
-                    <GoogleConnect storageLocation={storageLocation} />
+                    <GoogleConnect
+                        googleAuthState={googleAuthState}
+                        setGoogleAuthState={setGoogleAuthState}
+                        storageLocation={storageLocation}
+                    />
                     <ChooseFile
                         existingAccount={existingAccount}
                         setDataFile={setDataFile}

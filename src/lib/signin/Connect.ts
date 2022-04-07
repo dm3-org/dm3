@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { PublicKeys } from '../account/Account';
+import { ProfileRegistryEntry } from '../account/Account';
 import { ConnectionState } from '../web3-provider/Web3Provider';
 
 export async function connectAccount(
@@ -7,9 +7,12 @@ export async function connectAccount(
     requestAccounts: (
         provider: ethers.providers.JsonRpcProvider,
     ) => Promise<string>,
-    getPublicKeys: (
+    getProfileRegistryEntry: (
         contact: string,
-    ) => Promise<{ publicKeys: PublicKeys | undefined; signature: string }>,
+    ) => Promise<
+        | { profileRegistryEntry: ProfileRegistryEntry; signature: string }
+        | undefined
+    >,
 ): Promise<{
     account?: string;
     connectionState: ConnectionState;
@@ -17,10 +20,10 @@ export async function connectAccount(
 }> {
     try {
         const account = await requestAccounts(provider);
-
         return {
             account,
-            existingAccount: (await getPublicKeys(account))?.publicKeys
+            existingAccount: (await getProfileRegistryEntry(account))
+                ?.profileRegistryEntry.publicKeys
                 ? true
                 : false,
             connectionState: ConnectionState.CollectingSignInData,

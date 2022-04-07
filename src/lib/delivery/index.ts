@@ -6,4 +6,4 @@ export {
     createPendingEntry,
 } from './Messages';
 export type { Session } from './Session';
-export { submitPublicKeys, getPublicKeys } from './Keys';
+export { submitProfileRegistryEntry, getProfileRegistryEntry } from './Keys';
