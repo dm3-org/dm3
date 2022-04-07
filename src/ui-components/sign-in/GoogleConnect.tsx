@@ -7,6 +7,8 @@ import Icon from '../ui-shared/Icon';
 
 interface GoogleConnectProps {
     storageLocation: Lib.StorageLocation;
+    setGoogleAuthState: (authState: GoogleAuthState) => void;
+    googleAuthState: GoogleAuthState;
 }
 
 const DISCOVERY_DOCS = [
@@ -14,7 +16,7 @@ const DISCOVERY_DOCS = [
 ];
 const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
 
-enum GoogleAuthState {
+export enum GoogleAuthState {
     Ready,
     Pending,
     Success,
@@ -24,12 +26,8 @@ enum GoogleAuthState {
 function GoogleConnect(props: GoogleConnectProps) {
     const { state, dispatch } = useContext(GlobalContext);
 
-    const [googleAuthState, setGoogleAuthState] = useState<GoogleAuthState>(
-        GoogleAuthState.Ready,
-    );
-
     useEffect(() => {
-        setGoogleAuthState(GoogleAuthState.Ready);
+        props.setGoogleAuthState(GoogleAuthState.Ready);
     }, [props.storageLocation]);
 
     const updateSigninStatus = (isSignedIn: boolean) => {
@@ -38,7 +36,7 @@ function GoogleConnect(props: GoogleConnectProps) {
                 isSignedIn &&
                 props.storageLocation === Lib.StorageLocation.GoogleDrive
             ) {
-                setGoogleAuthState(GoogleAuthState.Success);
+                props.setGoogleAuthState(GoogleAuthState.Success);
                 dispatch({
                     type: ConnectionType.ChangeConnectionState,
                     payload: Lib.ConnectionState.SignInReady,
@@ -47,7 +45,7 @@ function GoogleConnect(props: GoogleConnectProps) {
                 (window as any).gapi.auth2.getAuthInstance().signIn();
             }
         } catch (e) {
-            setGoogleAuthState(GoogleAuthState.Failed);
+            props.setGoogleAuthState(GoogleAuthState.Failed);
         }
     };
 
@@ -72,14 +70,14 @@ function GoogleConnect(props: GoogleConnectProps) {
                     );
                 },
                 (error: any) => {
-                    setGoogleAuthState(GoogleAuthState.Failed);
+                    props.setGoogleAuthState(GoogleAuthState.Failed);
                     console.log(error);
                 },
             );
     };
 
     const handleClientLoad = () => {
-        setGoogleAuthState(GoogleAuthState.Pending);
+        props.setGoogleAuthState(GoogleAuthState.Pending);
         (window as any).gapi.load('client:auth2', initClient);
     };
 
@@ -108,18 +106,18 @@ function GoogleConnect(props: GoogleConnectProps) {
                     onClick={() => handleClientLoad()}
                     type="button"
                     className={`btn btn-${
-                        googleAuthState === GoogleAuthState.Failed
+                        props.googleAuthState === GoogleAuthState.Failed
                             ? 'danger'
                             : 'primary'
                     } btn-lg w-100`}
                     disabled={
-                        googleAuthState === GoogleAuthState.Success ||
-                        googleAuthState === GoogleAuthState.Pending
+                        props.googleAuthState === GoogleAuthState.Success ||
+                        props.googleAuthState === GoogleAuthState.Pending
                     }
                 >
                     Connect Google Drive
                     <span className="push-end">
-                        {getGoogleIconClass(googleAuthState)}
+                        {getGoogleIconClass(props.googleAuthState)}
                     </span>
                 </button>
             </div>

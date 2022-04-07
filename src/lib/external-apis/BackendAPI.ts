@@ -2,8 +2,9 @@ import axios from 'axios';
 import { log } from '../shared/log';
 import { EncryptionEnvelop, Envelop } from '../messaging/Messaging';
 import { Connection } from '../web3-provider/Web3Provider';
-import { PublicKeys } from '../account/Account';
+import { PublicKeys, ProfileRegistryEntry } from '../account/Account';
 import { UserDB } from '..';
+import { datacatalog } from 'googleapis/build/src/apis/datacatalog';
 
 const DELIVERY_SERVICE =
     (process.env.REACT_APP_BACKEND as string) + '/deliveryService';
@@ -17,21 +18,26 @@ function createJsonRpcRequest(method: string, params: any, id = 1) {
     };
 }
 
-export async function submitPublicKeys(
+export async function submitProfileRegistryEntry(
     accountAddress: string,
-    publicKeys: PublicKeys,
+    profileRegistryEntry: ProfileRegistryEntry,
     signature: string,
 ): Promise<string> {
-    return (
+    const request = (
         await axios.post(
             DELIVERY_SERVICE,
-            createJsonRpcRequest('submitPublicKeys', {
+            createJsonRpcRequest('submitProfileRegistryEntry', {
                 accountAddress: accountAddress,
-                publicKeys,
+                profileRegistryEntry,
                 signature,
             }),
         )
-    ).data.result;
+    ).data;
+    if (request.error) {
+        throw Error('submitProfileRegistryEntry failed.');
+    }
+
+    return request.result;
 }
 
 export async function submitMessage(
@@ -82,7 +88,7 @@ export async function getNewMessages(
     userDb: UserDB,
     contactAddress: string,
 ): Promise<EncryptionEnvelop[]> {
-    return (
+    const request = (
         await axios.post(
             DELIVERY_SERVICE,
             createJsonRpcRequest('getMessages', {
@@ -91,14 +97,20 @@ export async function getNewMessages(
                 token: userDb.deliveryServiceToken,
             }),
         )
-    ).data.result.messages;
+    ).data;
+
+    if (request.error) {
+        throw Error('getNewMessages failed.');
+    }
+
+    return request.result.messages;
 }
 
 export async function getPendingConversations(
     connection: Connection,
     userDb: UserDB,
 ): Promise<string[]> {
-    return (
+    const request = (
         await axios.post(
             DELIVERY_SERVICE,
             createJsonRpcRequest('getPendingConversations', {
@@ -106,18 +118,33 @@ export async function getPendingConversations(
                 token: userDb.deliveryServiceToken,
             }),
         )
-    ).data.result.pendingConversations;
+    ).data;
+
+    if (request.error) {
+        throw Error('getPendingConversations failed.');
+    }
+
+    return request.result.pendingConversations;
 }
 
-export async function getPublicKeys(
+export async function getProfileRegistryEntry(
     contact: string,
-): Promise<{ publicKeys: PublicKeys | undefined; signature: string }> {
-    return (
+): Promise<
+    | { profileRegistryEntry: ProfileRegistryEntry; signature: string }
+    | undefined
+> {
+    const request = (
         await axios.post(
             DELIVERY_SERVICE,
-            createJsonRpcRequest('getPublicKeys', {
+            createJsonRpcRequest('getProfileRegistryEntry', {
                 accountAddress: contact,
             }),
         )
-    ).data.result;
+    ).data;
+
+    if (request.error) {
+        throw Error('getProfileRegistryEntry failed.');
+    }
+
+    return request.result;
 }

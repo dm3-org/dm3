@@ -1,14 +1,14 @@
-import { PublicKeys } from '../account/Account';
+import { ProfileRegistryEntry } from '../account/Account';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { log } from '../shared/log';
 
 export interface Session {
     account: string;
-    pubKeySignature?: string;
-    token?: string;
+    profileRegistryEntrySignature: string;
+    token: string;
     ttl?: undefined;
     socketId?: string;
-    keys?: PublicKeys;
+    profileRegistryEntry: ProfileRegistryEntry;
 }
 
 export function checkToken(

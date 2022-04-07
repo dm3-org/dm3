@@ -19,6 +19,10 @@ export interface Keys {
     storageEncryptionKey: string;
 }
 
+export interface ProfileRegistryEntry {
+    publicKeys: PublicKeys;
+}
+
 export interface PublicKeys {
     publicKey: string;
     publicMessagingKey: string;
@@ -39,9 +43,12 @@ export interface Account {
 export async function getContacts(
     connection: Connection,
     deliveryServiceToken: string,
-    getPublicKeys: (
+    getProfileRegistryEntry: (
         contact: string,
-    ) => Promise<{ publicKeys: PublicKeys | undefined; signature: string }>,
+    ) => Promise<
+        | { profileRegistryEntry: ProfileRegistryEntry; signature: string }
+        | undefined
+    >,
     getPendingConversations: (
         connection: Connection,
         userDb: UserDB,
@@ -87,7 +94,9 @@ export async function getContacts(
             )
             .map(async (address) => ({
                 address,
-                publicKeys: (await getPublicKeys(address)).publicKeys,
+                publicKeys: (
+                    await getProfileRegistryEntry(address)
+                )?.profileRegistryEntry.publicKeys,
             })),
     );
 }

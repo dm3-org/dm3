@@ -4,11 +4,12 @@ import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { log } from '../shared/log';
 import { Session } from './Session';
 import { v4 as uuidv4 } from 'uuid';
+import { ProfileRegistryEntry } from '../account/Account';
 
-export function submitPublicKeys(
+export function submitProfileRegistryEntry(
     sessions: Map<string, Session>,
     accountAddress: string,
-    publicKeys: PublicKeys,
+    profileRegistryEntry: ProfileRegistryEntry,
     signature: string,
     pendingConversations: Map<string, Set<string>>,
     send: (socketId: string) => void,
@@ -17,21 +18,19 @@ export function submitPublicKeys(
     const account = formatAddress(accountAddress);
 
     const recoveredAddress = ethers.utils.recoverAddress(
-        ethers.utils.hashMessage(
-            publicKeys.publicKey +
-                publicKeys.publicMessagingKey +
-                publicKeys.publicSigningKey,
-        ),
+        ethers.utils.hashMessage(JSON.stringify(profileRegistryEntry)),
         signature,
     );
 
     if (formatAddress(recoveredAddress) === account) {
-        const session = sessions.has(account)
-            ? (sessions.get(account) as Session)
-            : { account };
-        session.keys = publicKeys;
-        session.token = uuidv4();
-        session.pubKeySignature = signature;
+        const session: Session = {
+            ...(sessions.has(account) ? sessions.get(account)! : {}),
+            account,
+            profileRegistryEntry: profileRegistryEntry,
+            token: uuidv4(),
+            profileRegistryEntrySignature: signature,
+        };
+
         sessions.set(account, session);
         const pending = pendingConversations.get(account);
         if (pending) {
@@ -46,29 +45,26 @@ export function submitPublicKeys(
         }
         return session.token;
     } else {
+        log(`- Invalid signature`);
         throw Error('Signature invalid.');
     }
 }
 
-export function getPublicKeys(
+export function getProfileRegistryEntry(
     sessions: Map<string, Session>,
     accountAddress: string,
-): Partial<{ publicKeys: PublicKeys | undefined; signature: string }> {
-    log(`[getPublicKeys] for account ${accountAddress}`);
+):
+    | { profileRegistryEntry: ProfileRegistryEntry; signature: string }
+    | undefined {
+    log(`[getProfileRegistryEntry] for account ${accountAddress}`);
     const account = formatAddress(accountAddress);
-
-    if (sessions.get(account)?.keys) {
+    const session = sessions.get(account);
+    if (session) {
         return {
-            publicKeys: {
-                publicMessagingKey:
-                    sessions.get(account)?.keys!.publicMessagingKey!,
-                publicSigningKey:
-                    sessions.get(account)?.keys!.publicSigningKey!,
-                publicKey: sessions.get(account)?.keys!.publicKey!,
-            },
-            signature: sessions.get(account)?.pubKeySignature,
+            profileRegistryEntry: session.profileRegistryEntry,
+            signature: session.profileRegistryEntrySignature,
         };
     } else {
-        return {};
+        return;
     }
 }
