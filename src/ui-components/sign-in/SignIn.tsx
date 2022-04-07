@@ -10,7 +10,6 @@ import StoreToken from './StoreToken';
 import SignInButton from './SignInButton';
 import GoogleConnect, { GoogleAuthState } from './GoogleConnect';
 import { ConnectionType } from '../reducers/Connection';
-import { connect } from 'http2';
 
 function SignIn() {
     const getStorageLocation = () => {

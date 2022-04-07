@@ -4,6 +4,7 @@ import { EncryptionEnvelop, Envelop } from '../messaging/Messaging';
 import { Connection } from '../web3-provider/Web3Provider';
 import { ProfileRegistryEntry } from '../account/Account';
 import { UserDB } from '..';
+import { Acknoledgment } from '../delivery';
 
 const DELIVERY_SERVICE =
     (process.env.REACT_APP_BACKEND as string) + '/deliveryService';
@@ -67,6 +68,27 @@ export async function submitMessage(
     }
 }
 export type SubmitMessage = typeof submitMessage;
+
+export async function syncAcknoledgment(
+    connection: Connection,
+    acknoledgments: Acknoledgment[],
+    userDb: UserDB,
+): Promise<void> {
+    const request = (
+        await axios.post(
+            DELIVERY_SERVICE,
+            createJsonRpcRequest('syncAcknoledgment', {
+                accountAddress: connection.account!.address,
+                token: userDb.deliveryServiceToken,
+                acknoledgments,
+            }),
+        )
+    ).data;
+    if (request.error) {
+        throw Error('syncAcknoledgment failed.');
+    }
+}
+export type SyncAcknoledgment = typeof syncAcknoledgment;
 
 export async function createPendingEntry(
     connection: Connection,

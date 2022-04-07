@@ -1,15 +1,18 @@
 import { Linter } from 'eslint';
 import { isLineBreak } from 'typescript';
 import { UserDB } from '.';
+import { Acknoledgment } from '../delivery';
+import { SyncAcknoledgment } from '../external-apis/BackendAPI';
 import { log } from '../shared/log';
-import { sync } from './Storage';
+import { Connection } from '../web3-provider/Web3Provider';
+import { sync, UserStorage } from './Storage';
 
 const FILE_NAME = 'ensmail';
 
 async function createGoogleDriveFile(
     gapi: any,
     name: string,
-    data: any,
+    data: UserStorage,
 ): Promise<any> {
     const boundary = '-------34253452654745673245345';
     const delimiter = '\r\n--' + boundary + '\r\n';
@@ -45,18 +48,24 @@ async function createGoogleDriveFile(
     });
 }
 
-export async function googleStore(gapi: any, userDb: UserDB): Promise<any> {
+export async function googleStore(
+    gapi: any,
+    userDb: UserDB,
+): Promise<Acknoledgment[]> {
     if (!gapi) {
         throw Error('No google api object');
     }
 
     log('Sync with google drive');
 
-    return createGoogleDriveFile(
+    const syncResult = sync(userDb);
+    await createGoogleDriveFile(
         gapi,
         FILE_NAME + '-' + new Date().getTime() + '.json',
-        sync(userDb),
+        syncResult.userStorage,
     );
+
+    return syncResult.acknoledgments;
 }
 
 export async function googleLoad(gapi: any): Promise<string | undefined> {

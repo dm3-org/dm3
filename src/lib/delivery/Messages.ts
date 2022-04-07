@@ -4,6 +4,11 @@ import { EncryptionEnvelop } from '../messaging/Messaging';
 import { getConversationId } from '../storage/Storage';
 import { checkToken, Session } from './Session';
 
+export interface Acknoledgment {
+    contactAddress: string;
+    messageDeliveryServiceTimestamp: number;
+}
+
 export function getMessages(
     sessions: Map<string, Session>,
     messages: Map<string, EncryptionEnvelop[]>,
@@ -30,14 +35,6 @@ export function getMessages(
 
         log(`- ${receivedMessages?.length} messages`);
 
-        // remove deliverd messages
-        messages.set(
-            conversationId,
-            receivedMessages.filter(
-                (envelop) => formatAddress(envelop.to) !== account,
-            ),
-        );
-        log('- Messages removed after successful delivery');
         return {
             messages: forAccount,
         };
@@ -77,6 +74,10 @@ export function incomingMessage(
     messages: Map<string, EncryptionEnvelop[]>,
     send: (socketId: string, envelop: EncryptionEnvelop) => void,
 ): string {
+    const envelop = {
+        ...data.envelop,
+        deliveryServiceIncommingTimestamp: new Date().getTime(),
+    };
     const account = formatAddress(formatAddress(data.envelop.from));
     const contact = formatAddress(formatAddress(data.envelop.to));
     const conversationId = getConversationId(account, contact);
@@ -87,7 +88,7 @@ export function incomingMessage(
             ? (messages.get(conversationId) as EncryptionEnvelop[])
             : [];
 
-        conversation.push(data.envelop);
+        conversation.push(envelop);
 
         if (!messages.has(conversationId)) {
             messages.set(conversationId, conversation);
@@ -96,13 +97,7 @@ export function incomingMessage(
         const contactSession = sessions.get(contact);
         if (contactSession?.socketId) {
             log(`- Forwarding message to ${contact}`);
-            send(contactSession.socketId, data.envelop);
-        }
-
-        const selfSession = sessions.get(account);
-        if (selfSession?.socketId) {
-            log(`- Acknowledge incoming message for ${account}`);
-            send(selfSession.socketId, data.envelop);
+            send(contactSession.socketId, envelop);
         }
 
         return 'success';
@@ -133,6 +128,49 @@ export function createPendingEntry(
         }
 
         return 'success';
+    } else {
+        throw Error('Token check failed');
+    }
+}
+
+export function handleSyncAcknoledgment(
+    accountAddress: string,
+    acknoledgments: Acknoledgment[],
+    token: string,
+    sessions: Map<string, Session>,
+    messages: Map<string, EncryptionEnvelop[]>,
+): Map<string, EncryptionEnvelop[]> {
+    log('[handleSyncAcknoledgment]');
+    const account = formatAddress(accountAddress);
+
+    const newMessages = new Map<string, EncryptionEnvelop[]>(messages);
+
+    if (checkToken(sessions, account, token)) {
+        for (const acknoledgment of acknoledgments) {
+            const contact = formatAddress(acknoledgment.contactAddress);
+            const conversationId = getConversationId(account, contact);
+            log(`- Handling acknoledgment for conversation ${conversationId}`);
+            const conversation = newMessages.get(conversationId);
+
+            if (conversation) {
+                //remove all messages smaller or equal than timestamp and addressed to the account address
+                const messagesToKeep = conversation.filter(
+                    (envelop) =>
+                        envelop.deliveryServiceIncommingTimestamp! >
+                            acknoledgment.messageDeliveryServiceTimestamp ||
+                        formatAddress(envelop.from) === accountAddress,
+                );
+
+                newMessages.set(conversationId, messagesToKeep);
+                log(
+                    `- Removing ${
+                        conversation.length - messagesToKeep.length
+                    } messages`,
+                );
+            }
+        }
+
+        return newMessages;
     } else {
         throw Error('Token check failed');
     }

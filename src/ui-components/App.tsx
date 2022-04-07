@@ -77,7 +77,6 @@ function App() {
         Lib.log('New messages');
 
         const innerEnvelop = Lib.decryptEnvelop(
-            state.connection as Lib.Connection,
             state.userDb as Lib.UserDB,
             envelop,
         );
@@ -88,12 +87,18 @@ function App() {
             );
         }
 
+        if (!envelop.deliveryServiceIncommingTimestamp) {
+            throw Error(`[handleNewMessage] No delivery service timestamp`);
+        }
+
         dispatch({
             type: UserDbType.addMessage,
             payload: {
                 container: {
                     envelop: innerEnvelop,
                     messageState: Lib.MessageState.Send,
+                    deliveryServiceIncommingTimestamp:
+                        envelop.deliveryServiceIncommingTimestamp,
                 },
                 connection: state.connection as Lib.Connection,
             },
