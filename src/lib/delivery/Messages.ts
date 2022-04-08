@@ -9,6 +9,7 @@ export interface Acknoledgment {
     messageDeliveryServiceTimestamp: number;
 }
 
+// fetch new messages
 export function getMessages(
     sessions: Map<string, Session>,
     messages: Map<string, EncryptionEnvelop[]>,
@@ -43,37 +44,14 @@ export function getMessages(
     }
 }
 
-export function getPendingConversations(
-    sessions: Map<string, Session>,
-    pendingConversations: Map<string, Set<string>>,
-    accountAddress: string,
-    token: string,
-) {
-    log(`[getPendingConversations]`);
-    const account = formatAddress(accountAddress);
-
-    log(`- Account: ${accountAddress}`);
-
-    if (checkToken(sessions, account, token)) {
-        const conversations = pendingConversations.get(account);
-        pendingConversations.set(account, new Set<string>());
-        if (conversations) {
-            return { pendingConversations: Array.from(conversations) };
-        } else {
-            return { pendingConversations: [] };
-        }
-    } else {
-        throw Error('Token check failed');
-    }
-}
-export type GetPendingConversations = typeof getPendingConversations;
-
+// buffer message until delivery and sync acknoledgment
 export function incomingMessage(
     data: { envelop: EncryptionEnvelop; token: string },
     sessions: Map<string, Session>,
     messages: Map<string, EncryptionEnvelop[]>,
     send: (socketId: string, envelop: EncryptionEnvelop) => void,
-): string {
+): Map<string, EncryptionEnvelop[]> {
+    log('[incoming message]');
     const envelop = {
         ...data.envelop,
         deliveryServiceIncommingTimestamp: new Date().getTime(),
@@ -84,14 +62,15 @@ export function incomingMessage(
     log(`- Conversations id: ${conversationId}`);
 
     if (checkToken(sessions, account, data.token)) {
-        const conversation = messages.has(conversationId)
-            ? (messages.get(conversationId) as EncryptionEnvelop[])
+        const newMessages = new Map<string, EncryptionEnvelop[]>(messages);
+        const conversation = newMessages.has(conversationId)
+            ? (newMessages.get(conversationId) as EncryptionEnvelop[])
             : [];
 
         conversation.push(envelop);
 
-        if (!messages.has(conversationId)) {
-            messages.set(conversationId, conversation);
+        if (!newMessages.has(conversationId)) {
+            newMessages.set(conversationId, conversation);
         }
 
         const contactSession = sessions.get(contact);
@@ -100,39 +79,85 @@ export function incomingMessage(
             send(contactSession.socketId, envelop);
         }
 
-        return 'success';
+        return newMessages;
     } else {
         throw Error('Token check failed');
     }
 }
 
+// provide a new user with the addresses of accounts which tried to send messages to them
+export function getPendingConversations(
+    sessions: Map<string, Session>,
+    pendingConversations: Map<string, Set<string>>,
+    accountAddress: string,
+    token: string,
+): {
+    pendingConversations: Map<string, Set<string>>;
+    pendingConversationsForAccount: string[];
+} {
+    log(`[getPendingConversations]`);
+    const account = formatAddress(accountAddress);
+
+    log(`- Account: ${accountAddress}`);
+
+    if (checkToken(sessions, account, token)) {
+        const newPendingConversations = new Map<string, Set<string>>(
+            pendingConversations,
+        );
+        const conversations = newPendingConversations.get(account);
+        newPendingConversations.set(account, new Set<string>());
+        if (conversations) {
+            return {
+                pendingConversations: newPendingConversations,
+                pendingConversationsForAccount: Array.from(conversations),
+            };
+        } else {
+            return {
+                pendingConversations: newPendingConversations,
+                pendingConversationsForAccount: [],
+            };
+        }
+    } else {
+        throw Error('Token check failed');
+    }
+}
+export type GetPendingConversations = typeof getPendingConversations;
+
+// create an entry that is used to notify a new user
+// that there are already pending messages adderssed to them
 export function createPendingEntry(
     accountAddress: string,
     contactAddress: string,
     token: string,
     sessions: Map<string, Session>,
     pendingConversations: Map<string, Set<string>>,
-): string {
+): Map<string, Set<string>> {
+    log('[createPendingEntry] pending message');
     const account = formatAddress(accountAddress);
     const contact = formatAddress(contactAddress);
     log(`- Pending message from ${account} to ${contact}`);
 
     if (checkToken(sessions, account, token)) {
+        const newPendingConversations = new Map<string, Set<string>>(
+            pendingConversations,
+        );
         if (pendingConversations.has(contact)) {
             const conversations = pendingConversations.get(
                 contact,
             ) as Set<string>;
-            pendingConversations.set(contact, conversations.add(account));
+            newPendingConversations.set(contact, conversations.add(account));
         } else {
-            pendingConversations.set(contact, new Set<string>([account]));
+            newPendingConversations.set(contact, new Set<string>([account]));
         }
 
-        return 'success';
+        return newPendingConversations;
     } else {
         throw Error('Token check failed');
     }
 }
 
+// delete messages sent before and equal the specified timestamp
+// after an acknoledgment that the user stored the messages
 export function handleSyncAcknoledgment(
     accountAddress: string,
     acknoledgments: Acknoledgment[],
@@ -143,9 +168,8 @@ export function handleSyncAcknoledgment(
     log('[handleSyncAcknoledgment]');
     const account = formatAddress(accountAddress);
 
-    const newMessages = new Map<string, EncryptionEnvelop[]>(messages);
-
     if (checkToken(sessions, account, token)) {
+        const newMessages = new Map<string, EncryptionEnvelop[]>(messages);
         for (const acknoledgment of acknoledgments) {
             const contact = formatAddress(acknoledgment.contactAddress);
             const conversationId = getConversationId(account, contact);
