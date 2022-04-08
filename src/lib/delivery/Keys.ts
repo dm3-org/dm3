@@ -4,7 +4,10 @@ import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { log } from '../shared/log';
 import { Session } from './Session';
 import { v4 as uuidv4 } from 'uuid';
-import { ProfileRegistryEntry } from '../account/Account';
+import {
+    checkProfileRegistryEntry,
+    ProfileRegistryEntry,
+} from '../account/Account';
 
 export function submitProfileRegistryEntry(
     sessions: Map<string, Session>,
@@ -17,14 +20,12 @@ export function submitProfileRegistryEntry(
     log(`[submitKeys] for account ${accountAddress}`);
     const account = formatAddress(accountAddress);
 
-    const recoveredAddress = ethers.utils.recoverAddress(
-        ethers.utils.hashMessage(JSON.stringify(profileRegistryEntry)),
-        signature,
-    );
+    if (checkProfileRegistryEntry(profileRegistryEntry, signature, account)) {
+        if (sessions.has(account)) {
+            throw Error('Profile exists already');
+        }
 
-    if (formatAddress(recoveredAddress) === account) {
         const session: Session = {
-            ...(sessions.has(account) ? sessions.get(account)! : {}),
             account,
             profileRegistryEntry: profileRegistryEntry,
             token: uuidv4(),

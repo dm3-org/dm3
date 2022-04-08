@@ -76,7 +76,7 @@ export async function getContacts(
         }),
     );
 
-    return await Promise.all(
+    const uncheckedProfiles = await Promise.all(
         Array.from(userDb.conversations.keys())
             .map((conversationId) => conversationId.split(','))
             .map((addresses) =>
@@ -85,13 +85,34 @@ export async function getContacts(
                     ? formatAddress(addresses[1])
                     : formatAddress(addresses[0]),
             )
-            .map(async (address) => ({
-                address,
-                publicKeys: (
-                    await getProfileRegistryEntry(address)
-                )?.profileRegistryEntry.publicKeys,
-            })),
+            .map(async (address) => {
+                const profile = await getProfileRegistryEntry(address);
+                return {
+                    signature: profile?.signature,
+                    address,
+                    profile: profile?.profileRegistryEntry,
+                };
+            }),
     );
+
+    // accept if account has a profile and a valid signature
+    // accept if there is no profile and no signature
+    return uncheckedProfiles
+        .filter(
+            (uncheckedProfile) =>
+                (uncheckedProfile.profile &&
+                    uncheckedProfile.signature &&
+                    checkProfileRegistryEntry(
+                        uncheckedProfile.profile,
+                        uncheckedProfile.signature,
+                        uncheckedProfile.address,
+                    )) ||
+                (!uncheckedProfile.profile && !uncheckedProfile.signature),
+        )
+        .map((profile) => ({
+            address: profile.address,
+            publicKeys: profile.profile?.publicKeys,
+        }));
 }
 
 export function getAccountDisplayName(
@@ -172,4 +193,23 @@ export function extractPublicKeys(keys: Keys): PublicKeys {
         publicMessagingKey: keys.publicMessagingKey,
         publicSigningKey: keys.publicSigningKey,
     };
+}
+
+export function checkProfileRegistryEntry(
+    profileRegistryEntry: ProfileRegistryEntry,
+    signature: string,
+    accountAddress: string,
+): boolean {
+    return (
+        ethers.utils.recoverAddress(
+            ethers.utils.hashMessage(JSON.stringify(profileRegistryEntry)),
+            signature,
+        ) === formatAddress(accountAddress)
+    );
+}
+function profilecheckProfileRegistryEntry(profile: {
+    profileRegistryEntry: ProfileRegistryEntry;
+    signature: string;
+}): unknown {
+    throw new Error('Function not implemented.');
 }

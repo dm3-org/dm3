@@ -1,4 +1,9 @@
-import { getAccountDisplayName } from './Account';
+import { ethers } from 'ethers';
+import {
+    checkProfileRegistryEntry,
+    getAccountDisplayName,
+    ProfileRegistryEntry,
+} from './Account';
 
 test('get correct account display name', async () => {
     const ensNames = new Map();
@@ -16,4 +21,42 @@ test('get correct account display name', async () => {
             ensNames,
         ),
     ).toStrictEqual('0x25...8292');
+});
+
+test('checkProfileRegistryEntry should accept a correct signature ', async () => {
+    const profileRegistryEntry: ProfileRegistryEntry = {
+        publicKeys: {
+            publicKey: '1',
+            publicMessagingKey: '2',
+            publicSigningKey: '3',
+        },
+    };
+
+    const wallet = ethers.Wallet.createRandom();
+    const sig = await wallet.signMessage(JSON.stringify(profileRegistryEntry));
+
+    expect(
+        checkProfileRegistryEntry(profileRegistryEntry, sig, wallet.address),
+    ).toStrictEqual(true);
+});
+
+test('checkProfileRegistryEntry should reject an invalid signature ', async () => {
+    const profileRegistryEntry: ProfileRegistryEntry = {
+        publicKeys: {
+            publicKey: '1',
+            publicMessagingKey: '2',
+            publicSigningKey: '3',
+        },
+    };
+
+    const wallet = ethers.Wallet.createRandom();
+    const sig = await wallet.signMessage(
+        JSON.stringify({
+            publicKeys: { ...profileRegistryEntry.publicKeys, publicKey: '4' },
+        }),
+    );
+
+    expect(
+        checkProfileRegistryEntry(profileRegistryEntry, sig, wallet.address),
+    ).toStrictEqual(false);
 });
