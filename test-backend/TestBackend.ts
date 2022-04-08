@@ -26,7 +26,7 @@ const sessions = new Map<string, Lib.Delivery.Session>();
 
 let messages = new Map<string, Lib.EncryptionEnvelop[]>();
 // Maps not registered accounts to accounts who send messages to the unregistered account
-const pendingConversations = new Map<string, Set<string>>();
+let pendingConversations = new Map<string, Set<string>>();
 
 app.use(express.static(path.join(__dirname, '../build')));
 const port = process.env.PORT || '8080';
@@ -55,14 +55,16 @@ const deliveryService = {
         cb: (error: any, result?: any) => void,
     ) => {
         try {
-            const newPendingConversations =
-                Lib.Delivery.getPendingConversations(
-                    sessions,
-                    pendingConversations,
-                    args.accountAddress,
-                    args.token,
-                );
-            cb(null, newPendingConversations);
+            const response = Lib.Delivery.getPendingConversations(
+                sessions,
+                pendingConversations,
+                args.accountAddress,
+                args.token,
+            );
+            pendingConversations = response.pendingConversations;
+            cb(null, {
+                pendingConversations: response.pendingConversationsForAccount,
+            });
         } catch (e) {
             cb({ code: 500, message: e });
         }
@@ -161,26 +163,23 @@ io.on('connection', (socket) => {
         Lib.log('[WS] user disconnected');
     });
     socket.on('submitMessage', (data, callback) => {
-        Lib.log('[WS] incoming message');
         try {
-            callback(
-                Lib.Delivery.incomingMessage(
-                    data,
-                    sessions,
-                    messages,
-                    (socketId: string, envelop: Lib.EncryptionEnvelop) => {
-                        io.sockets.to(socketId).emit('message', envelop);
-                    },
-                ),
-            );
+            (messages = Lib.Delivery.incomingMessage(
+                data,
+                sessions,
+                messages,
+                (socketId: string, envelop: Lib.EncryptionEnvelop) => {
+                    io.sockets.to(socketId).emit('message', envelop);
+                },
+            )),
+                callback('success');
         } catch (e) {
             console.error(e);
         }
     });
     socket.on('pendingMessage', (data) => {
-        Lib.log('[WS] pending message');
         try {
-            Lib.Delivery.createPendingEntry(
+            pendingConversations = Lib.Delivery.createPendingEntry(
                 data.accountAddress,
                 data.contactAddress,
                 data.token,
