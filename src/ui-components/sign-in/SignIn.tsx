@@ -10,6 +10,7 @@ import StoreToken from './StoreToken';
 import SignInButton from './SignInButton';
 import GoogleConnect, { GoogleAuthState } from './GoogleConnect';
 import { ConnectionType } from '../reducers/Connection';
+import localforage from 'localforage';
 
 function SignIn() {
     const getStorageLocation = () => {
@@ -42,7 +43,7 @@ function SignIn() {
         }
     };
 
-    const checkState = () => {
+    const checkState = async () => {
         const setSignInReady = () =>
             dispatch({
                 type: ConnectionType.ChangeConnectionState,
@@ -54,6 +55,12 @@ function SignIn() {
                 type: ConnectionType.ChangeConnectionState,
                 payload: Lib.ConnectionState.CollectingSignInData,
             });
+
+        const browserDataFile = state.connection.account
+            ? await localforage.getItem(
+                  Lib.getBrowserStorageKey(state.connection.account.address),
+              )
+            : null;
 
         const isCollectingSignInData =
             state.connection.connectionState ===
@@ -78,7 +85,7 @@ function SignIn() {
             storageLocation === Lib.StorageLocation.File &&
             existingAccount &&
             isCollectingSignInData &&
-            dataFile
+            (dataFile || browserDataFile)
         ) {
             setSignInReady();
         }
@@ -93,13 +100,6 @@ function SignIn() {
             !token &&
             storageLocation === Lib.StorageLocation.Web3Storage &&
             isSignInReady
-        ) {
-            setCollectingInfos();
-        } else if (
-            storageLocation === Lib.StorageLocation.File &&
-            existingAccount &&
-            isSignInReady &&
-            !dataFile
         ) {
             setCollectingInfos();
         } else if (
@@ -120,7 +120,9 @@ function SignIn() {
         initToken();
     }, [storageLocation, existingAccount]);
 
-    useEffect(checkState, [
+    useEffect(() => {
+        checkState();
+    }, [
         storageLocation,
         existingAccount,
         token,

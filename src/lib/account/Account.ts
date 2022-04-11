@@ -207,9 +207,10 @@ export function checkProfileRegistryEntry(
         ) === formatAddress(accountAddress)
     );
 }
-function profilecheckProfileRegistryEntry(profile: {
-    profileRegistryEntry: ProfileRegistryEntry;
-    signature: string;
-}): unknown {
-    throw new Error('Function not implemented.');
+
+export function getBrowserStorageKey(accountAddress: string) {
+    if (!accountAddress) {
+        throw Error('No address provided');
+    }
+    return 'userStorageSnapshot' + formatAddress(accountAddress);
 }

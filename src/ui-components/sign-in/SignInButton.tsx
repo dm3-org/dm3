@@ -5,6 +5,8 @@ import { GlobalContext } from '../GlobalContextProvider';
 import { ConnectionType } from '../reducers/Connection';
 import { UserDbType } from '../reducers/UserDB';
 import Icon from '../ui-shared/Icon';
+import localforage from 'localforage';
+import { UserStorage } from '../../lib/storage';
 
 interface SignInButtonProps {
     storageLocation: Lib.StorageLocation;
@@ -35,14 +37,22 @@ function SignInButton(props: SignInButtonProps) {
                 : undefined;
         }
 
-        const singInRequest = await Lib.signIn(state.connection, data);
+        const account: Lib.Account = {
+            address: state.connection.account!.address,
+        };
+
+        const browserDataFile = await localforage.getItem(
+            Lib.getBrowserStorageKey(account.address),
+        );
+
+        const singInRequest = await Lib.signIn(
+            state.connection,
+            browserDataFile as UserStorage | undefined,
+            data,
+        );
 
         if (singInRequest.db) {
             Lib.log(`Setting session token`);
-
-            const account: Lib.Account = {
-                address: state.connection.account!.address,
-            };
 
             account.publicKeys = Lib.extractPublicKeys(singInRequest.db.keys);
 

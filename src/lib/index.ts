@@ -7,7 +7,7 @@ import * as Messaging from './messaging/Messaging';
 import * as Encryption from './encryption/Encryption';
 import * as Account from './account/Account';
 import * as Storage from './storage';
-import { StorageEnvelopContainer, UserDB } from './storage';
+import { StorageEnvelopContainer, UserDB, UserStorage } from './storage';
 
 export type { Connection } from './web3-provider/Web3Provider';
 export type {
@@ -38,8 +38,13 @@ export {
     SyncProcessState,
     googleLoad,
     googleStore,
+    createTimestamp,
 } from './storage';
-export { getAccountDisplayName, extractPublicKeys } from './account/Account';
+export {
+    getAccountDisplayName,
+    extractPublicKeys,
+    getBrowserStorageKey,
+} from './account/Account';
 export { decryptEnvelop, checkSignature } from './encryption/Encryption';
 export { MessageState } from './messaging/Messaging';
 export { ConnectionState, getWeb3Provider } from './web3-provider/Web3Provider';
@@ -86,7 +91,8 @@ export function createMessage(
 
 export async function signIn(
     connection: Partial<Web3Provider.Connection>,
-    dataFile?: string,
+    browserDataFile: UserStorage | undefined,
+    externalDataFile: string | undefined,
 ): Promise<{
     connectionState: Web3Provider.ConnectionState;
     db?: Storage.UserDB;
@@ -97,7 +103,8 @@ export async function signIn(
         BackendAPI.submitProfileRegistryEntry,
         Account.createKeys,
         Web3Api.getPublicKey,
-        dataFile,
+        browserDataFile,
+        externalDataFile,
     );
 }
 

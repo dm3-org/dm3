@@ -5,6 +5,7 @@ import * as Lib from '../../lib';
 import { UserDbType } from '../reducers/UserDB';
 import Icon from '../ui-shared/Icon';
 import './Storage.css';
+import localforage from 'localforage';
 
 function StorageView() {
     const { state, dispatch } = useContext(GlobalContext);
@@ -90,6 +91,9 @@ function StorageView() {
         ) {
             const autoSync = setInterval(() => {
                 if (state.userDb && !state.userDb.synced) {
+                    Lib.log(
+                        `Auto create user storage external snapshot at timestamp ${state.userDb?.lastChangeTimestamp}`,
+                    );
                     sync();
                 }
             }, 10000);
@@ -108,9 +112,22 @@ function StorageView() {
             state.userDb &&
             !state.userDb.synced
         ) {
+            Lib.log(
+                `Create user storage external snapshot at timestamp ${state.userDb?.lastChangeTimestamp}`,
+            );
             sync();
         }
     }, []);
+
+    useEffect(() => {
+        Lib.log(
+            `Create user storage browser snapshot at timestamp ${state.userDb?.lastChangeTimestamp}`,
+        );
+        localforage.setItem(
+            Lib.getBrowserStorageKey(state.connection.account!.address),
+            Lib.sync(state.userDb).userStorage,
+        );
+    }, [state.userDb?.lastChangeTimestamp]);
 
     const showAlert =
         (!state.userDb?.synced &&
@@ -129,7 +146,13 @@ function StorageView() {
                         <div className="col-12">
                             <button
                                 type="button"
-                                onClick={sync}
+                                onClick={() => {
+                                    Lib.log(
+                                        `Manually create user storage external snapshot` +
+                                            ` at timestamp ${state.userDb?.lastChangeTimestamp}`,
+                                    );
+                                    sync();
+                                }}
                                 className={`w-100 btn btn-sm btn${
                                     !showAlert ? '-outline-secondary' : '-light'
                                 }`}

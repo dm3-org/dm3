@@ -14,6 +14,7 @@ import {
 import { Envelop, MessageState } from '../messaging/Messaging';
 import { log } from '../shared/log';
 import { Connection } from '../web3-provider/Web3Provider';
+import { createTimestamp } from './Utils';
 
 export enum StorageLocation {
     File = 'File',
@@ -40,12 +41,20 @@ export interface UserDB {
     keys: Keys;
     synced: boolean;
     syncProcessState: SyncProcessState;
+    lastChangeTimestamp: number;
 }
 
 export interface UserStorage {
     version: string;
     storageEncryptionKey: EthEncryptedData;
-    userStorage: string;
+    payload: string;
+}
+
+interface UserStoragePayload {
+    conversations: string;
+    keys: Keys;
+    deliveryServiceToken: string;
+    lastChangeTimestamp: number;
 }
 
 function replacer(key: string, value: any) {
@@ -76,6 +85,7 @@ export function createDB(keys: Keys, deliveryServiceToken: string): UserDB {
         deliveryServiceToken,
         keys,
         syncProcessState: SyncProcessState.Idle,
+        lastChangeTimestamp: createTimestamp(),
     };
 }
 
@@ -100,16 +110,21 @@ export function sortEnvelops(
     );
 }
 
+function prepareUserStoragePayload(userDb: UserDB): UserStoragePayload {
+    return {
+        conversations: JSON.stringify(userDb.conversations, replacer),
+        keys: userDb.keys,
+        deliveryServiceToken: userDb.deliveryServiceToken,
+        lastChangeTimestamp: userDb.lastChangeTimestamp,
+    };
+}
+
 export function sync(userDb: UserDB | undefined): {
     userStorage: UserStorage;
     acknoledgments: Acknoledgment[];
 } {
     if (!userDb) {
         throw Error(`User db hasn't been create`);
-    }
-
-    if (!userDb.keys?.publicKey) {
-        throw Error('No key to encrypt');
     }
 
     const acknoledgments = Array.from(userDb.conversations.keys())
@@ -150,15 +165,8 @@ export function sync(userDb: UserDB | undefined): {
                 data: userDb.keys.storageEncryptionKey,
                 version: 'x25519-xsalsa20-poly1305',
             }),
-            userStorage: symmetricalEncrypt(
-                JSON.stringify({
-                    conversations: JSON.stringify(
-                        userDb.conversations,
-                        replacer,
-                    ),
-                    keys: userDb.keys,
-                    deliveryServiceToken: userDb.deliveryServiceToken,
-                }),
+            payload: symmetricalEncrypt(
+                JSON.stringify(prepareUserStoragePayload(userDb)),
                 userDb.keys.storageEncryptionKey,
             ),
         },
@@ -169,22 +177,25 @@ export function sync(userDb: UserDB | undefined): {
 export async function load(
     connection: Connection,
     data: UserStorage,
+    key?: string,
 ): Promise<UserDB> {
     log('Loading user storage');
-    const storageEncryptionKey = JSON.parse(
-        await decryptUsingProvider(
-            connection.provider!,
-            ethers.utils.hexlify(
-                ethers.utils.toUtf8Bytes(
-                    JSON.stringify(data.storageEncryptionKey),
-                ),
-            ),
+    const storageEncryptionKey = key
+        ? key
+        : JSON.parse(
+              await decryptUsingProvider(
+                  connection.provider!,
+                  ethers.utils.hexlify(
+                      ethers.utils.toUtf8Bytes(
+                          JSON.stringify(data.storageEncryptionKey),
+                      ),
+                  ),
 
-            connection.account!.address,
-        ),
-    ).data;
-    const decryptedPayload = JSON.parse(
-        symmetricalDecrypt(data.userStorage, storageEncryptionKey),
+                  connection.account!.address,
+              ),
+          ).data;
+    const decryptedPayload: UserStoragePayload = JSON.parse(
+        symmetricalDecrypt(data.payload, storageEncryptionKey),
     );
 
     const conversations: Map<string, StorageEnvelopContainer[]> = JSON.parse(
@@ -199,6 +210,7 @@ export async function load(
         conversationsCount: conversations.keys.length,
         synced: true,
         syncProcessState: SyncProcessState.Idle,
+        lastChangeTimestamp: decryptedPayload.lastChangeTimestamp,
     };
 }
 
