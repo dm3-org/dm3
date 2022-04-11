@@ -13,3 +13,7 @@ export function getTimestamp(file: { name: string }): number | undefined {
         return;
     }
 }
+
+export function createTimestamp(): number {
+    return new Date().getTime();
+}

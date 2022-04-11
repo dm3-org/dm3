@@ -7,6 +7,7 @@ import { GlobalContext } from '../GlobalContextProvider';
 import { EnsNameType } from '../reducers/EnsNames';
 
 import { ConnectionType } from '../reducers/Connection';
+import localforage from 'localforage';
 
 interface ConnectButtonProps {
     setExistingAccount: (exists: boolean) => void;
@@ -26,6 +27,11 @@ function ConnectButton(props: ConnectButtonProps) {
         );
 
         props.setExistingAccount(accountConnection.existingAccount);
+        if (accountConnection.account && !accountConnection.existingAccount) {
+            await localforage.removeItem(
+                Lib.getBrowserStorageKey(accountConnection.account),
+            );
+        }
 
         if (accountConnection.account) {
             dispatch({

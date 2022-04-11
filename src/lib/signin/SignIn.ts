@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { UserDB } from '../storage/Storage';
+import { UserDB, UserStorage } from '../storage/Storage';
 import { log } from '../shared/log';
 import { createDB, load } from '../storage/Storage';
 import { Account, CreateKeys, ProfileRegistryEntry } from '../account/Account';
@@ -13,7 +13,8 @@ export async function signIn(
     submitProfileRegistryEntry: SubmitProfileRegistryEntry,
     createKeys: CreateKeys,
     getPublicKey: GetPublicKey,
-    dataFile?: string,
+    browserDataFile: UserStorage | undefined,
+    externalDataFile: string | undefined,
 ): Promise<{
     connectionState: ConnectionState;
     db?: UserDB;
@@ -25,7 +26,7 @@ export async function signIn(
 
         let deliveryServiceToken: string;
 
-        if (!dataFile) {
+        if (!externalDataFile && !browserDataFile) {
             const encryptionPublicKey = await getPublicKey(provider, account);
             const keyPair = createKeys(encryptionPublicKey);
 
@@ -60,10 +61,38 @@ export async function signIn(
                 db: createDB(keys, deliveryServiceToken),
             };
         } else {
-            return {
-                connectionState: ConnectionState.SignedIn,
-                db: await load(connection as Connection, JSON.parse(dataFile)),
-            };
+            const externalData = externalDataFile
+                ? await load(
+                      connection as Connection,
+                      JSON.parse(externalDataFile),
+                  )
+                : null;
+
+            const dataFromBrowser = browserDataFile
+                ? await load(
+                      connection as Connection,
+                      browserDataFile,
+                      externalData?.keys.storageEncryptionKey,
+                  )
+                : null;
+
+            if (externalData && dataFromBrowser) {
+                return {
+                    connectionState: ConnectionState.SignedIn,
+                    db:
+                        externalData.lastChangeTimestamp >=
+                        dataFromBrowser.lastChangeTimestamp
+                            ? externalData
+                            : dataFromBrowser,
+                };
+            } else {
+                return {
+                    connectionState: ConnectionState.SignedIn,
+                    db: externalData
+                        ? externalData
+                        : (dataFromBrowser as UserDB),
+                };
+            }
         }
     } catch (e) {
         log(e as string);
