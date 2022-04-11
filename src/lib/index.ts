@@ -149,13 +149,11 @@ export async function getMessages(
 
 export async function getContacts(
     connection: Web3Provider.Connection,
-    deliveryServiceToken: string,
     userDb: UserDB,
     createEmptyConversationEntry: (id: string) => void,
 ) {
     return Account.getContacts(
         connection,
-        deliveryServiceToken,
         BackendAPI.getProfileRegistryEntry,
         BackendAPI.getPendingConversations,
         Web3Api.resolveName,

@@ -13,7 +13,6 @@ export async function requestContacts(
 ) {
     const retrievedContacts = await Lib.getContacts(
         connection,
-        userDb.deliveryServiceToken as string,
         userDb,
         createEmptyConversationEntry,
     );
