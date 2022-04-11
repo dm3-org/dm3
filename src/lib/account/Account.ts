@@ -46,7 +46,6 @@ export interface Account {
 
 export async function getContacts(
     connection: Connection,
-    deliveryServiceToken: string,
     getProfileRegistryEntry: GetProfileRegistryEntry,
     getPendingConversations: GetPendingConversations,
     resolveName: ResolveName,
