@@ -1,17 +1,31 @@
+
+.storage-view-container {
+    background-color: #fafafa;
+
+    height: 3rem;
+}
 .storage-view {
    
-    padding: 20px !important;
-    padding-bottom: 0px !important;
+    padding: 10px !important;
+
   
 }
 
+.sync-state {
+    font-size: 0.8rem;
+}
+
+.no-border {
+    border-style: none !important;
+}
+/* 
 .storage-view-bottom {
    
     padding: 20px !important;
     padding-bottom: 0px !important;
     padding-top: 0px !important;
   
-}
+} 
 
 
 .btn-white {
@@ -34,11 +48,6 @@
 
 
 
-.storage-view-container {
-    background-color: #fafafa;
-    /* border-top: solid 1px rgba(0, 0, 0, 0.125); */
-    height: 95px;
-}
 
 .brand {
     color: #6c757d;
@@ -58,3 +67,4 @@
 .not-synced {
     background-color: #dc3545;
 }
+*/

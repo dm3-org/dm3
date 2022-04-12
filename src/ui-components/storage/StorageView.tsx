@@ -141,48 +141,58 @@ function StorageView() {
                     showAlert ? ' not-synced' : ''
                 }`}
             >
-                <div className="col-12 storage-view text-center export-data">
-                    <div className="row">
-                        <div className="col-12">
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    Lib.log(
-                                        `Manually create user storage external snapshot` +
-                                            ` at timestamp ${state.userDb?.lastChangeTimestamp}`,
-                                    );
-                                    sync();
-                                }}
-                                className={`w-100 btn btn-sm btn${
-                                    !showAlert ? '-outline-secondary' : '-light'
-                                }`}
-                                disabled={
-                                    state.userDb?.syncProcessState ===
-                                    Lib.SyncProcessState.Running
-                                }
-                            >
-                                Save{' '}
-                                {state.userDb?.syncProcessState ===
-                                    Lib.SyncProcessState.Running && (
-                                    <span className="push-end">
-                                        <Icon iconClass="fas fa-spinner fa-spin" />
-                                    </span>
-                                )}
-                            </button>
+                <div className="col-12 storage-view text-center d-flex justify-content-between ">
+                    <div className="text-muted d-flex">
+                        <div className="align-self-center sync-state">
+                            {state.userDb?.synced ? (
+                                <>
+                                    Last sync:{' '}
+                                    {new Date(
+                                        state.userDb!.lastChangeTimestamp,
+                                    ).toLocaleString()}
+                                </>
+                            ) : (
+                                <>Not in sync with storage</>
+                            )}
                         </div>
                     </div>
-                </div>
-                <div className="col-12 storage-view-bottom">
-                    {showAlert && (
-                        <span className="alert-msg">
-                            <Icon iconClass="fas fa-exclamation-triangle" />
-                            &nbsp;&nbsp;
+                    <div>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                Lib.log(
+                                    `Manually create user storage external snapshot` +
+                                        ` at timestamp ${state.userDb?.lastChangeTimestamp}`,
+                                );
+                                sync();
+                            }}
+                            className={`btn btn-sm btn-${
+                                state.userDb?.synced
+                                    ? 'outline-secondary'
+                                    : 'secondary'
+                            } no-border`}
+                            disabled={
+                                state.userDb?.syncProcessState ===
+                                Lib.SyncProcessState.Running
+                            }
+                        >
                             {state.userDb?.syncProcessState ===
-                            Lib.SyncProcessState.Failed
-                                ? 'Sync failed.'
-                                : 'Storage out of sync. New data could be lost.'}
-                        </span>
-                    )}
+                            Lib.SyncProcessState.Running ? (
+                                <span className="push-end">
+                                    <Icon iconClass="fas fa-sync fa-spin" />
+                                </span>
+                            ) : (
+                                <>
+                                    {state.connection.storageLocation ===
+                                    Lib.StorageLocation.File ? (
+                                        <Icon iconClass="fas fa-download" />
+                                    ) : (
+                                        <Icon iconClass="fas fa-sync" />
+                                    )}
+                                </>
+                            )}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
