@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import './UserInfo.css';
 import { GlobalContext } from '../GlobalContextProvider';
 import * as Lib from '../../lib';
@@ -7,6 +7,7 @@ import Icon from '../ui-shared/Icon';
 import Avatar from '../ui-shared/Avatar';
 import { AccountInfo } from '../reducers/shared';
 import { useAsync } from '../ui-shared/useAsync';
+import StateButton, { ButtonState } from '../ui-shared/StateButton';
 
 interface UserInfoProps {
     account: Lib.Account;
@@ -21,6 +22,9 @@ interface EnsTextRecords {
 
 function UserInfo(props: UserInfoProps) {
     const { state, dispatch } = useContext(GlobalContext);
+    const [publishButtonState, setPublishButtonState] = useState<ButtonState>(
+        ButtonState.Idel,
+    );
 
     const [ensTextRecords, setEnsTextRecords] = useState<
         EnsTextRecords | undefined
@@ -32,19 +36,13 @@ function UserInfo(props: UserInfoProps) {
         if (
             (state.accounts.accountInfoView === AccountInfo.Account ||
                 state.accounts.accountInfoView === AccountInfo.Contact) &&
-            ensName
+            ensName &&
+            state.connection.provider
         ) {
-            const resolver = await state.connection.provider!.getResolver(
-                ensName!,
+            return Lib.getDefaultEnsTextRecord(
+                state.connection.provider,
+                ensName,
             );
-            return resolver
-                ? {
-                      email: await resolver.getText('email'),
-                      url: await resolver.getText('url'),
-                      twitter: await resolver.getText('com.twitter'),
-                      github: await resolver.getText('com.github'),
-                  }
-                : undefined;
         } else {
             return;
         }
@@ -62,6 +60,29 @@ function UserInfo(props: UserInfoProps) {
         ],
     );
 
+    const publishProfileOnchain = async () => {
+        setPublishButtonState(ButtonState.Loading);
+        try {
+            const tx = await Lib.publishProfileOnchain(
+                state.connection,
+                (process.env.REACT_APP_BACKEND as string) +
+                    '/profile/' +
+                    state.connection.account!.address,
+            );
+
+            if (tx) {
+                const response = await Lib.executeTransaction(tx);
+                await response.wait();
+                setPublishButtonState(ButtonState.Success);
+            } else {
+                throw Error('Error creating publish transaction');
+            }
+        } catch (e) {
+            Lib.log(e as string);
+            setPublishButtonState(ButtonState.Failed);
+        }
+    };
+
     return (
         <div className="user-info">
             <div className="row row-space-sm">
@@ -77,11 +98,6 @@ function UserInfo(props: UserInfoProps) {
                     )}
                 </div>
             </div>
-            {/* <div className="row row-space-xs">
-                <div className="col text-center address-info">
-                    {props.account.address}
-                </div>
-            </div> */}
 
             <div className="row row-space d-flex justify-content-center ens-records">
                 <div className="col-8">
@@ -213,12 +229,12 @@ function UserInfo(props: UserInfoProps) {
                     {state.accounts.accountInfoView === AccountInfo.Account && (
                         <div className="row row-space ">
                             <div className="col-12 text-muted">
-                                <button
-                                    type="button"
-                                    className={`w-100 btn btn-lg btn-primary`}
-                                >
-                                    Publish Public Keys
-                                </button>
+                                <StateButton
+                                    btnState={publishButtonState}
+                                    btnType="primary"
+                                    onClick={publishProfileOnchain}
+                                    text={'Publish Public Keys'}
+                                />
                             </div>
                         </div>
                     )}

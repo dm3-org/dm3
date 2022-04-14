@@ -14,7 +14,9 @@ import {
     getAccountDisplayName,
     getBrowserStorageKey,
     getContacts,
+    getProfileRegistryEntry,
     ProfileRegistryEntry,
+    publishProfileOnchain,
 } from './Account';
 
 test('get correct account display name', async () => {
@@ -45,10 +47,18 @@ test('checkProfileRegistryEntry should accept a correct signature ', async () =>
     };
 
     const wallet = ethers.Wallet.createRandom();
-    const sig = await wallet.signMessage(JSON.stringify(profileRegistryEntry));
+    const signature = await wallet.signMessage(
+        JSON.stringify(profileRegistryEntry),
+    );
 
     expect(
-        checkProfileRegistryEntry(profileRegistryEntry, sig, wallet.address),
+        checkProfileRegistryEntry(
+            {
+                profileRegistryEntry,
+                signature,
+            },
+            wallet.address,
+        ),
     ).toStrictEqual(true);
 });
 
@@ -62,14 +72,17 @@ test('checkProfileRegistryEntry should reject an invalid signature ', async () =
     };
 
     const wallet = ethers.Wallet.createRandom();
-    const sig = await wallet.signMessage(
+    const signature = await wallet.signMessage(
         JSON.stringify({
             publicKeys: { ...profileRegistryEntry.publicKeys, publicKey: '4' },
         }),
     );
 
     expect(
-        checkProfileRegistryEntry(profileRegistryEntry, sig, wallet.address),
+        checkProfileRegistryEntry(
+            { profileRegistryEntry, signature },
+            wallet.address,
+        ),
     ).toStrictEqual(false);
 });
 
@@ -80,6 +93,7 @@ test('getContacts ', async () => {
         account: {
             address: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
         },
+        provider: {} as any,
     };
     const userDb: UserDB = {
         conversations: new Map<string, StorageEnvelopContainer[]>(),
@@ -239,9 +253,12 @@ test('Should accept a valid profile signature', async () => {
     };
     expect(
         checkProfileRegistryEntry(
-            profileRegistryEntry,
-            '0xaa927647cf7c73363d9c157f113f1c1754307aae79d886dc4cfa7bcb77b4dfc16cb' +
-                '50e808708085009ee782046891d8b85966a1a7482c5c0c42f73c7210cf7da1c',
+            {
+                profileRegistryEntry,
+                signature:
+                    '0xaa927647cf7c73363d9c157f113f1c1754307aae79d886dc4cfa7bcb77b4dfc16cb' +
+                    '50e808708085009ee782046891d8b85966a1a7482c5c0c42f73c7210cf7da1c',
+            },
             '0x8101b0729eb9708a344c820fce80f12a90a7c1fa',
         ),
     ).toStrictEqual(true);
@@ -257,10 +274,140 @@ test('Should reject an invalid profile signature', async () => {
     };
     expect(
         checkProfileRegistryEntry(
-            profileRegistryEntry,
-            '0xaa927647cf7c73363d9c157f113f1c1754307aae79d886dc4cfa7bcb77b4dfc1' +
-                '6cb50e808708085009ee782046891d8b85966a1a7482c5c0c42f73c7210cf7da1b',
+            {
+                profileRegistryEntry,
+                signature:
+                    '0xaa927647cf7c73363d9c157f113f1c1754307aae79d886dc4cfa7bcb77b4dfc1' +
+                    '6cb50e808708085009ee782046891d8b85966a1a7482c5c0c42f73c7210cf7da1b',
+            },
             '0x8101b0729eb9708a344c820fce80f12a90a7c1fa',
         ),
     ).toStrictEqual(false);
+});
+
+test('Should get profile registry entry from chain', async () => {
+    const signedProfileRegistryEntry = {
+        profileRegistryEntry: {
+            publicKeys: {
+                publicKey: 'RXqfW5bqr44s26iDgAgf0SCDzLIsLko4vSwiAxm5W30=',
+                publicMessagingKey:
+                    'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
+                publicSigningKey:
+                    '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
+            },
+        },
+        signature:
+            '0xaa927647cf7c73363d9c157f113f1c1754307aae79d886dc4cfa7bcb77b4dfc1' +
+            '6cb50e808708085009ee782046891d8b85966a1a7482c5c0c42f73c7210cf7da1b',
+    };
+
+    expect.assertions(1);
+    await expect(
+        getProfileRegistryEntry(
+            { provider: {} } as any,
+            '0x8101b0729eb9708a344c820fce80f12a90a7c1fa',
+            async () => undefined,
+            async () => 'http://123',
+
+            async (uri) =>
+                uri === 'http://123' ? signedProfileRegistryEntry : undefined,
+        ),
+    ).resolves.toStrictEqual(signedProfileRegistryEntry);
+});
+
+test('Should get profile registry entry from backend', async () => {
+    const signedProfileRegistryEntry = {
+        profileRegistryEntry: {
+            publicKeys: {
+                publicKey: 'RXqfW5bqr44s26iDgAgf0SCDzLIsLko4vSwiAxm5W30=',
+                publicMessagingKey:
+                    'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
+                publicSigningKey:
+                    '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
+            },
+        },
+        signature:
+            '0xaa927647cf7c73363d9c157f113f1c1754307aae79d886dc4cfa7bcb77b4dfc1' +
+            '6cb50e808708085009ee782046891d8b85966a1a7482c5c0c42f73c7210cf7da1b',
+    };
+
+    expect.assertions(1);
+    await expect(
+        getProfileRegistryEntry(
+            { provider: {} } as any,
+            '0x8101b0729eb9708a344c820fce80f12a90a7c1fa',
+            async () => signedProfileRegistryEntry,
+            async () => undefined,
+
+            async () => undefined,
+        ),
+    ).resolves.toStrictEqual(signedProfileRegistryEntry);
+});
+
+test('Should prioritize onchain over offchain ', async () => {
+    const signedProfileRegistryEntry = {
+        profileRegistryEntry: {
+            publicKeys: {
+                publicKey: 'RXqfW5bqr44s26iDgAgf0SCDzLIsLko4vSwiAxm5W30=',
+                publicMessagingKey:
+                    'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
+                publicSigningKey:
+                    '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
+            },
+        },
+        signature:
+            '0xaa927647cf7c73363d9c157f113f1c1754307aae79d886dc4cfa7bcb77b4dfc1' +
+            '6cb50e808708085009ee782046891d8b85966a1a7482c5c0c42f73c7210cf7da1b',
+    };
+
+    const signedProfileRegistryEntry2 = {
+        ...signedProfileRegistryEntry,
+        signature: '1',
+    };
+
+    expect.assertions(1);
+    await expect(
+        getProfileRegistryEntry(
+            { provider: {} } as any,
+            '0x8101b0729eb9708a344c820fce80f12a90a7c1fa',
+            async () => signedProfileRegistryEntry2,
+            async () => 'http://123',
+
+            async (uri) =>
+                uri === 'http://123' ? signedProfileRegistryEntry : undefined,
+        ),
+    ).resolves.toStrictEqual(signedProfileRegistryEntry);
+});
+
+test('publishProfileOnchain', async () => {
+    const connection: Connection = {
+        connectionState: ConnectionState.SignedIn,
+        storageLocation: StorageLocation.File,
+        account: {
+            address: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+        },
+        provider: {} as any,
+    };
+
+    expect.assertions(2);
+
+    const tx = await publishProfileOnchain(
+        connection,
+        'http://bla',
+        async () => '0x1',
+        () => {
+            return { address: '0x2' } as any;
+        },
+        () => {
+            return { setText: () => 'success' } as any;
+        },
+    );
+
+    expect(tx?.args).toStrictEqual([
+        '0xca7a0eadca1ba3745db7065063294b717422bd1c70995cba8f5adcd094fdae1d',
+        'eth.mail',
+        'http://bla',
+    ]);
+
+    expect(tx?.method()).toStrictEqual('success');
 });

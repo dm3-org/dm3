@@ -8,6 +8,7 @@ import { EnsNameType } from '../reducers/EnsNames';
 
 import { ConnectionType } from '../reducers/Connection';
 import localforage from 'localforage';
+import StateButton, { ButtonState } from '../ui-shared/StateButton';
 
 interface ConnectButtonProps {
     setExistingAccount: (exists: boolean) => void;
@@ -66,38 +67,36 @@ function ConnectButton(props: ConnectButtonProps) {
         }
     };
 
-    const getConnectionIconClass = (connectionState: Lib.ConnectionState) => {
+    const getButtonState = (
+        connectionState: Lib.ConnectionState,
+    ): ButtonState => {
         switch (connectionState) {
             case Lib.ConnectionState.AccountConnectionRejected:
-                return <Icon iconClass="fas fa-exclamation-circle" />;
+                return ButtonState.Failed;
 
             case Lib.ConnectionState.WaitingForAccountConntection:
-                return <Icon iconClass="fas fa-spinner fa-spin" />;
+                return ButtonState.Loading;
 
             case Lib.ConnectionState.SignInFailed:
             case Lib.ConnectionState.SignedIn:
             case Lib.ConnectionState.WaitingForSignIn:
             case Lib.ConnectionState.CollectingSignInData:
             case Lib.ConnectionState.SignInReady:
-                return <Icon iconClass="fas fa-check-circle" />;
+                return ButtonState.Success;
 
             default:
-                return null;
+                return ButtonState.Idel;
         }
     };
 
     return (
         <div className="row">
             <div className="col-md-5">
-                <button
+                <StateButton
+                    text={'Connect Account'}
+                    btnState={getButtonState(state.connection.connectionState)}
+                    btnType="primary"
                     onClick={connect}
-                    type="button"
-                    className={`btn btn-${
-                        state.connection.connectionState ===
-                        Lib.ConnectionState.AccountConnectionRejected
-                            ? 'danger'
-                            : 'primary'
-                    } btn-lg w-100`}
                     disabled={
                         !(
                             state.connection.connectionState ===
@@ -106,14 +105,7 @@ function ConnectButton(props: ConnectButtonProps) {
                                 Lib.ConnectionState.AccountConnectionRejected
                         )
                     }
-                >
-                    Connect Account
-                    <span className="push-end">
-                        {getConnectionIconClass(
-                            state.connection.connectionState,
-                        )}
-                    </span>
-                </button>
+                />
             </div>
             <div className="col-md-7 help-text">
                 Connect an Ethereum account

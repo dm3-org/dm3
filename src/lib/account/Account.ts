@@ -1,5 +1,13 @@
 import { ethers } from 'ethers';
-import { formatAddress, ResolveName } from '../external-apis/InjectedWeb3API';
+import {
+    ExecuteTransaction,
+    formatAddress,
+    GetConractInstance,
+    GetEnsTextRecord,
+    GetResolver,
+    LookupAddress,
+    ResolveName,
+} from '../external-apis/InjectedWeb3API';
 import { Connection } from '../web3-provider/Web3Provider';
 import nacl from 'tweetnacl';
 import { encodeBase64 } from 'tweetnacl-util';
@@ -11,8 +19,10 @@ import {
 import { generateSymmetricalKey } from '../encryption/SymmetricalEncryption';
 import {
     GetPendingConversations,
-    GetProfileRegistryEntry,
+    GetProfileRegistryEntryOffChain,
 } from '../external-apis/BackendAPI';
+import { GetProfileRegistryEntry } from '..';
+import { log } from '../shared/log';
 
 export interface Keys {
     publicKey: string;
@@ -25,6 +35,11 @@ export interface Keys {
 
 export interface ProfileRegistryEntry {
     publicKeys: PublicKeys;
+}
+
+export interface SignedProfileRegistryEntry {
+    profileRegistryEntry: ProfileRegistryEntry;
+    signature: string;
 }
 
 export interface PublicKeys {
@@ -52,6 +67,9 @@ export async function getContacts(
     userDb: UserDB,
     createEmptyConversationEntry: (id: string) => void,
 ): Promise<Account[]> {
+    if (!connection.provider) {
+        throw Error('No provider');
+    }
     const pendingConversations = await getPendingConversations(
         connection,
         userDb,
@@ -85,11 +103,13 @@ export async function getContacts(
                     : formatAddress(addresses[0]),
             )
             .map(async (address) => {
-                const profile = await getProfileRegistryEntry(address);
-                return {
-                    signature: profile?.signature,
+                const profile = await getProfileRegistryEntry(
+                    connection.provider!,
                     address,
-                    profile: profile?.profileRegistryEntry,
+                );
+                return {
+                    address,
+                    profile: profile,
                 };
             }),
     );
@@ -100,17 +120,16 @@ export async function getContacts(
         .filter(
             (uncheckedProfile) =>
                 (uncheckedProfile.profile &&
-                    uncheckedProfile.signature &&
                     checkProfileRegistryEntry(
                         uncheckedProfile.profile,
-                        uncheckedProfile.signature,
                         uncheckedProfile.address,
                     )) ||
-                (!uncheckedProfile.profile && !uncheckedProfile.signature),
+                !uncheckedProfile.profile,
         )
-        .map((profile) => ({
-            address: profile.address,
-            publicKeys: profile.profile?.publicKeys,
+        .map((profileContainer) => ({
+            address: profileContainer.address,
+            publicKeys:
+                profileContainer.profile?.profileRegistryEntry.publicKeys,
         }));
 }
 
@@ -195,14 +214,15 @@ export function extractPublicKeys(keys: Keys): PublicKeys {
 }
 
 export function checkProfileRegistryEntry(
-    profileRegistryEntry: ProfileRegistryEntry,
-    signature: string,
+    signedProfileRegistryEntry: SignedProfileRegistryEntry,
     accountAddress: string,
 ): boolean {
     return (
         ethers.utils.recoverAddress(
-            ethers.utils.hashMessage(JSON.stringify(profileRegistryEntry)),
-            signature,
+            ethers.utils.hashMessage(
+                JSON.stringify(signedProfileRegistryEntry.profileRegistryEntry),
+            ),
+            signedProfileRegistryEntry.signature,
         ) === formatAddress(accountAddress)
     );
 }
@@ -212,4 +232,67 @@ export function getBrowserStorageKey(accountAddress: string) {
         throw Error('No address provided');
     }
     return 'userStorageSnapshot' + formatAddress(accountAddress);
+}
+
+export async function getProfileRegistryEntry(
+    provider: ethers.providers.JsonRpcProvider,
+    contact: string,
+    getProfileOffChain: GetProfileRegistryEntryOffChain,
+    getEnsTextRecord: GetEnsTextRecord,
+    getRessource: (
+        uri: string,
+    ) => Promise<SignedProfileRegistryEntry | undefined>,
+): Promise<SignedProfileRegistryEntry | undefined> {
+    log(`[getProfileRegistryEntry]`);
+    const uri = await getEnsTextRecord(provider, contact, 'eth.mail');
+
+    if (uri) {
+        log(`- Onchain uri ${uri}`);
+        return getRessource(uri);
+    } else {
+        log(`- Offchain`);
+        return getProfileOffChain(contact);
+    }
+}
+
+export async function publishProfileOnchain(
+    connection: Connection,
+    uri: string,
+    lookupAddress: LookupAddress,
+    getResolver: GetResolver,
+    getConractInstance: GetConractInstance,
+) {
+    if (!connection.provider) {
+        throw Error('No provider');
+    }
+    if (!connection.account) {
+        throw Error('No account');
+    }
+    const ensName = await lookupAddress(
+        connection.provider,
+        connection.account.address,
+    );
+    if (ensName === null) {
+        return;
+    }
+
+    const ethersResolver = await getResolver(connection.provider, ensName);
+    if (ethersResolver === null) {
+        return;
+    }
+
+    const node = ethers.utils.namehash(ensName);
+
+    const resolver = getConractInstance(
+        ethersResolver.address,
+        [
+            'function setText(bytes32 node, string calldata key, string calldata value) external',
+        ],
+        connection.provider,
+    );
+
+    return {
+        method: resolver.setText,
+        args: [node, 'eth.mail', uri],
+    };
 }

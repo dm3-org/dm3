@@ -4,6 +4,7 @@ import * as Lib from '../../lib';
 import { connectionPhase } from './Phases';
 import { ConnectionType } from '../reducers/Connection';
 import Icon from '../ui-shared/Icon';
+import StateButton, { ButtonState } from '../ui-shared/StateButton';
 
 interface GoogleConnectProps {
     storageLocation: Lib.StorageLocation;
@@ -81,20 +82,20 @@ function GoogleConnect(props: GoogleConnectProps) {
         (window as any).gapi.load('client:auth2', initClient);
     };
 
-    const getGoogleIconClass = (googleAuthState: GoogleAuthState) => {
+    const getButtonState = (googleAuthState: GoogleAuthState) => {
         switch (googleAuthState) {
             case GoogleAuthState.Failed:
-                return <Icon iconClass="fas fa-exclamation-circle" />;
+                return ButtonState.Failed;
 
             case GoogleAuthState.Pending:
-                return <Icon iconClass="fas fa-spinner fa-spin" />;
+                return ButtonState.Loading;
 
             case GoogleAuthState.Success:
-                return <Icon iconClass="fas fa-check-circle" />;
+                return ButtonState.Success;
 
             case GoogleAuthState.Ready:
             default:
-                return null;
+                return ButtonState.Idel;
         }
     };
 
@@ -102,24 +103,12 @@ function GoogleConnect(props: GoogleConnectProps) {
         props.storageLocation !== Lib.StorageLocation.GoogleDrive ? null : (
         <div className="row row-space">
             <div className="col-md-5">
-                <button
-                    onClick={() => handleClientLoad()}
-                    type="button"
-                    className={`btn btn-${
-                        props.googleAuthState === GoogleAuthState.Failed
-                            ? 'danger'
-                            : 'primary'
-                    } btn-lg w-100`}
-                    disabled={
-                        props.googleAuthState === GoogleAuthState.Success ||
-                        props.googleAuthState === GoogleAuthState.Pending
-                    }
-                >
-                    Connect Google Drive
-                    <span className="push-end">
-                        {getGoogleIconClass(props.googleAuthState)}
-                    </span>
-                </button>
+                <StateButton
+                    btnState={getButtonState(props.googleAuthState)}
+                    btnType="primary"
+                    onClick={handleClientLoad}
+                    text={'Connect Google Drive'}
+                />
             </div>
             <div className="col-md-7 help-text">
                 Connect to Google Drive

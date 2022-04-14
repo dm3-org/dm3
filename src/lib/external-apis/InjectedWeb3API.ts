@@ -3,6 +3,11 @@ import { UserDB } from '..';
 import { Keys } from '../account/Account';
 import { decryptSafely, EthEncryptedData } from '../encryption/Encryption';
 
+export interface Executable {
+    method: (...args: any[]) => Promise<ethers.providers.TransactionResponse>;
+    args: any[];
+}
+
 export async function prersonalSign(
     provider: ethers.providers.JsonRpcProvider,
     account: string,
@@ -51,6 +56,7 @@ export async function lookupAddress(
 ): Promise<string | null> {
     return provider.lookupAddress(accountAddress);
 }
+export type LookupAddress = typeof lookupAddress;
 
 export async function resolveName(
     provider: ethers.providers.JsonRpcProvider,
@@ -78,3 +84,68 @@ export function checkSignature(
         ) === formatAddress(account)
     );
 }
+
+export async function getEnsTextRecord(
+    provider: ethers.providers.JsonRpcProvider,
+    accountAddress: string,
+    recordKey: string,
+) {
+    const ensName = await provider.lookupAddress(accountAddress);
+    if (ensName === null) {
+        return;
+    }
+
+    const resolver = await provider.getResolver(ensName);
+    if (resolver === null) {
+        return;
+    }
+
+    return await resolver.getText(recordKey);
+}
+export type GetEnsTextRecord = typeof getEnsTextRecord;
+
+export async function getResolver(
+    provider: ethers.providers.JsonRpcProvider,
+    ensName: string,
+) {
+    return provider.getResolver(ensName);
+}
+export type GetResolver = typeof getResolver;
+
+export async function getDefaultEnsTextRecord(
+    provider: ethers.providers.JsonRpcProvider,
+    ensName: string,
+) {
+    const resolver = await provider.getResolver(ensName);
+
+    if (!resolver) {
+        throw Error(`No resolver for ${ensName}`);
+    }
+    return {
+        email: await resolver.getText('email'),
+        url: await resolver.getText('url'),
+        twitter: await resolver.getText('com.twitter'),
+        github: await resolver.getText('com.github'),
+    };
+}
+export type GetDefaultEnsTextRecord = typeof getDefaultEnsTextRecord;
+
+export async function executeTransaction(tx: Executable) {
+    return tx.method(...tx.args);
+}
+export type ExecuteTransaction = typeof executeTransaction;
+
+export function getConractInstance(
+    address: string,
+    fragements: string[],
+    provider: ethers.providers.JsonRpcProvider,
+) {
+    const resovlerInterface = new ethers.utils.Interface(fragements);
+
+    return new ethers.Contract(
+        address,
+        resovlerInterface,
+        provider.getSigner(),
+    );
+}
+export type GetConractInstance = typeof getConractInstance;

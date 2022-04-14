@@ -7,6 +7,7 @@ import { UserDbType } from '../reducers/UserDB';
 import Icon from '../ui-shared/Icon';
 import localforage from 'localforage';
 import { UserStorage } from '../../lib/storage';
+import StateButton, { ButtonState } from '../ui-shared/StateButton';
 
 interface SignInButtonProps {
     storageLocation: Lib.StorageLocation;
@@ -90,45 +91,28 @@ function SignInButton(props: SignInButtonProps) {
         });
     };
 
-    const getSignInIconClass = (connectionState: Lib.ConnectionState) => {
+    const getButtonState = (connectionState: Lib.ConnectionState) => {
         switch (connectionState) {
             case Lib.ConnectionState.SignInFailed:
-                return <Icon iconClass="fas fa-exclamation-circle" />;
+                return ButtonState.Failed;
             case Lib.ConnectionState.SignedIn:
-                return <Icon iconClass="fas fa-check-circle" />;
+                return ButtonState.Success;
             case Lib.ConnectionState.WaitingForSignIn:
-                return <Icon iconClass="fas fa-spinner fa-spin" />;
+                return ButtonState.Loading;
             default:
-                return null;
+                return ButtonState.Idel;
         }
     };
 
     return (
         <div className="row row-space">
             <div className="col-md-5">
-                <button
+                <StateButton
+                    btnState={getButtonState(state.connection.connectionState)}
+                    btnType="primary"
                     onClick={requestSignIn}
-                    type="button"
-                    className={`btn btn-${
-                        state.connection.connectionState ===
-                        Lib.ConnectionState.SignInFailed
-                            ? 'danger'
-                            : 'primary'
-                    } btn-lg w-100`}
-                    disabled={
-                        !(
-                            state.connection.connectionState ===
-                                Lib.ConnectionState.SignInReady ||
-                            state.connection.connectionState ===
-                                Lib.ConnectionState.SignInFailed
-                        )
-                    }
-                >
-                    Sign In
-                    <span className="push-end">
-                        {getSignInIconClass(state.connection.connectionState)}
-                    </span>
-                </button>
+                    text={'Sign In'}
+                />
             </div>
             <div className="col-md-7 help-text"></div>
         </div>
