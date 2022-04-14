@@ -12,14 +12,17 @@ import { Session } from './Session';
 const sessions = new Map<string, Session>();
 sessions.set('0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855', {
     account: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-    profileRegistryEntry: {
-        publicKeys: {
-            publicKey: '',
-            publicMessagingKey: '',
-            publicSigningKey: '',
+    signedProfileRegistryEntry: {
+        profileRegistryEntry: {
+            publicKeys: {
+                publicKey: '',
+                publicMessagingKey: '',
+                publicSigningKey: '',
+            },
         },
+        signature: '',
     },
-    profileRegistryEntrySignature: '',
+
     token: '123',
 });
 

@@ -1,14 +1,13 @@
-import { ProfileRegistryEntry } from '../account/Account';
+import { SignedProfileRegistryEntry } from '../account/Account';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { log } from '../shared/log';
 
 export interface Session {
     account: string;
-    profileRegistryEntrySignature: string;
+    signedProfileRegistryEntry: SignedProfileRegistryEntry;
     token: string;
     ttl?: undefined;
     socketId?: string;
-    profileRegistryEntry: ProfileRegistryEntry;
 }
 
 export function checkToken(

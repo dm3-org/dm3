@@ -2,7 +2,7 @@ import axios from 'axios';
 import { log } from '../shared/log';
 import { EncryptionEnvelop, Envelop } from '../messaging/Messaging';
 import { Connection } from '../web3-provider/Web3Provider';
-import { ProfileRegistryEntry } from '../account/Account';
+import { SignedProfileRegistryEntry } from '../account/Account';
 import { UserDB } from '..';
 import { Acknoledgment } from '../delivery';
 
@@ -20,16 +20,14 @@ function createJsonRpcRequest(method: string, params: any, id = 1) {
 
 export async function submitProfileRegistryEntry(
     accountAddress: string,
-    profileRegistryEntry: ProfileRegistryEntry,
-    signature: string,
+    signedProfileRegistryEntry: SignedProfileRegistryEntry,
 ): Promise<string> {
     const request = (
         await axios.post(
             DELIVERY_SERVICE,
             createJsonRpcRequest('submitProfileRegistryEntry', {
                 accountAddress: accountAddress,
-                profileRegistryEntry,
-                signature,
+                signedProfileRegistryEntry,
             }),
         )
     ).data;
@@ -153,12 +151,9 @@ export async function getPendingConversations(
 }
 export type GetPendingConversations = typeof getPendingConversations;
 
-export async function getProfileRegistryEntry(
+export async function getProfileRegistryEntryOffChain(
     contact: string,
-): Promise<
-    | { profileRegistryEntry: ProfileRegistryEntry; signature: string }
-    | undefined
-> {
+): Promise<SignedProfileRegistryEntry | undefined> {
     const request = (
         await axios.post(
             DELIVERY_SERVICE,
@@ -174,4 +169,5 @@ export async function getProfileRegistryEntry(
 
     return request.result;
 }
-export type GetProfileRegistryEntry = typeof getProfileRegistryEntry;
+export type GetProfileRegistryEntryOffChain =
+    typeof getProfileRegistryEntryOffChain;

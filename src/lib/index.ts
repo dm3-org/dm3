@@ -8,6 +8,7 @@ import * as Encryption from './encryption/Encryption';
 import * as Account from './account/Account';
 import * as Storage from './storage';
 import { StorageEnvelopContainer, UserDB, UserStorage } from './storage';
+import axios from 'axios';
 
 export type { Connection } from './web3-provider/Web3Provider';
 export type {
@@ -15,6 +16,7 @@ export type {
     PublicKeys,
     Keys,
     ProfileRegistryEntry,
+    SignedProfileRegistryEntry,
 } from './account/Account';
 export type {
     Message,
@@ -49,18 +51,50 @@ export { decryptEnvelop, checkSignature } from './encryption/Encryption';
 export { MessageState } from './messaging/Messaging';
 export { ConnectionState, getWeb3Provider } from './web3-provider/Web3Provider';
 export { getNewMessages, syncAcknoledgment } from './external-apis/BackendAPI';
-export { lookupAddress, formatAddress } from './external-apis/InjectedWeb3API';
+export {
+    lookupAddress,
+    formatAddress,
+    getDefaultEnsTextRecord,
+    executeTransaction,
+} from './external-apis/InjectedWeb3API';
 export { log } from './shared/log';
 export { getSessionToken } from './signin';
+
+function getProfileRegistryEntry(
+    provider: ethers.providers.JsonRpcProvider,
+    contact: string,
+): Promise<Account.SignedProfileRegistryEntry | undefined> {
+    return Account.getProfileRegistryEntry(
+        provider,
+        contact,
+        BackendAPI.getProfileRegistryEntryOffChain,
+        Web3Api.getEnsTextRecord,
+        async (uri) => (await axios.get(uri)).data,
+    );
+}
+
+export type GetProfileRegistryEntry = typeof getProfileRegistryEntry;
 
 export function connectAccount(provider: ethers.providers.JsonRpcProvider) {
     return SignIn.connectAccount(
         provider,
         Web3Api.requestAccounts,
-        BackendAPI.getProfileRegistryEntry,
+        getProfileRegistryEntry,
     );
 }
 
+export function publishProfileOnchain(
+    conection: Web3Provider.Connection,
+    uri: string,
+) {
+    return Account.publishProfileOnchain(
+        conection,
+        uri,
+        Web3Api.lookupAddress,
+        Web3Api.getResolver,
+        Web3Api.getConractInstance,
+    );
+}
 export async function addContact(
     connection: Web3Provider.Connection,
     accountInput: string,
@@ -154,7 +188,7 @@ export async function getContacts(
 ) {
     return Account.getContacts(
         connection,
-        BackendAPI.getProfileRegistryEntry,
+        getProfileRegistryEntry,
         BackendAPI.getPendingConversations,
         Web3Api.resolveName,
         userDb,

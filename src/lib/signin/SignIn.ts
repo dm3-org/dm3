@@ -46,15 +46,13 @@ export async function signIn(
             const signature = await personalSign(
                 provider,
                 account,
-
                 JSON.stringify(profileRegistryEntry),
             );
 
-            deliveryServiceToken = await submitProfileRegistryEntry(
-                account,
+            deliveryServiceToken = await submitProfileRegistryEntry(account, {
                 profileRegistryEntry,
                 signature,
-            );
+            });
 
             return {
                 connectionState: ConnectionState.SignedIn,

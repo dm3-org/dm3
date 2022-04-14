@@ -1,10 +1,6 @@
 import { ethers } from 'ethers';
-import { check } from 'prettier';
-import {
-    checkProfileRegistryEntry,
-    ProfileRegistryEntry,
-} from '../account/Account';
-import { GetProfileRegistryEntry } from '../external-apis/BackendAPI';
+import { GetProfileRegistryEntry } from '..';
+import { checkProfileRegistryEntry } from '../account/Account';
 import { RequestAccounts } from '../external-apis/InjectedWeb3API';
 import { ConnectionState } from '../web3-provider/Web3Provider';
 
@@ -19,15 +15,8 @@ export async function connectAccount(
 }> {
     try {
         const account = await requestAccounts(provider);
-        const profile = await getProfileRegistryEntry(account);
-        if (
-            profile &&
-            !checkProfileRegistryEntry(
-                profile?.profileRegistryEntry,
-                profile?.signature,
-                account,
-            )
-        ) {
+        const profile = await getProfileRegistryEntry(provider, account);
+        if (profile && !checkProfileRegistryEntry(profile, account)) {
             throw Error('Profile signature is invalid');
         }
         return {

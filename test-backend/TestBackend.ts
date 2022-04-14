@@ -72,8 +72,7 @@ const deliveryService = {
     submitProfileRegistryEntry: (
         args: {
             accountAddress: string;
-            signature: string;
-            profileRegistryEntry: Lib.ProfileRegistryEntry;
+            signedProfileRegistryEntry: Lib.SignedProfileRegistryEntry;
         },
         cb: (error: any, result?: any) => void,
     ) => {
@@ -81,8 +80,7 @@ const deliveryService = {
             const token = Lib.Delivery.submitProfileRegistryEntry(
                 sessions,
                 args.accountAddress,
-                args.profileRegistryEntry,
-                args.signature,
+                args.signedProfileRegistryEntry,
                 pendingConversations,
                 (socketId: string) => io.sockets.to(socketId).emit('joined'),
             );
@@ -131,6 +129,12 @@ const deliveryService = {
 
 const jaysonServer = new jayson.server(deliveryService);
 app.post('/deliveryService', jaysonServer.middleware());
+
+app.get('/profile/:address', (req, res) => {
+    res.json(
+        Lib.Delivery.getProfileRegistryEntry(sessions, req.params.address),
+    );
+});
 
 io.use((socket, next) => {
     const account = Lib.formatAddress(
