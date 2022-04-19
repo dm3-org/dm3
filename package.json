@@ -53,8 +53,8 @@
     "scripts": {
         "start:dev": "react-scripts start",
         "start": " yarn ts-node --project test-backend/tsconfig.json test-backend/TestBackend.ts",
-        "build:schema": "yarn ts-json-schema-generator -f tsconfig.json --path src/lib/Messaging.ts --type Message -o src/schema.json",
-        "build": "react-scripts build && yarn build:schema",
+        "build:schema": "yarn ts-json-schema-generator -f tsconfig.json --path src/lib/Messaging.ts --type Message -o src/schema.json --no-type-check",
+        "build": "yarn build:schema && react-scripts build",
         "test": "react-scripts test --coverage --watchAll",
         "eject": "react-scripts eject",
         "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
