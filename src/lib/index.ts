@@ -23,6 +23,7 @@ export type {
     EncryptionEnvelop,
     Envelop,
 } from './messaging/Messaging';
+export type { PublicEnvelop, PublicMessage } from './messaging/PublicMessaging';
 export type { UserDB, StorageEnvelopContainer } from './storage';
 
 export * as Delivery from './delivery';
@@ -49,6 +50,7 @@ export {
 } from './account/Account';
 export { decryptEnvelop, checkSignature } from './encryption/Encryption';
 export { MessageState } from './messaging/Messaging';
+export { getId } from './messaging/Utils';
 export { ConnectionState, getWeb3Provider } from './web3-provider/Web3Provider';
 export { getNewMessages, syncAcknoledgment } from './external-apis/BackendAPI';
 export {
@@ -157,7 +159,7 @@ export async function submitMessage(
         to,
         message,
         BackendAPI.submitMessage,
-        Encryption.signWithEncryptionKey,
+        Encryption.signWithSignatureKey,
         Encryption.encryptSafely,
         BackendAPI.createPendingEntry,
         haltDelivery,

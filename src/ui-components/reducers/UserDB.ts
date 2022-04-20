@@ -1,5 +1,4 @@
 import * as Lib from '../../lib';
-import { getId } from '../../lib/messaging/Messaging';
 import { ActionMap } from './shared';
 
 export enum UserDbType {
@@ -60,7 +59,7 @@ export function userDbReducer(
             );
 
             if (!container.envelop.id) {
-                container.envelop.id = getId(container.envelop);
+                container.envelop.id = Lib.getId(container.envelop);
             }
 
             if (prevContainers.length === 0) {

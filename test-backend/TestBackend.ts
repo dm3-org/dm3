@@ -28,6 +28,11 @@ let messages = new Map<string, Lib.EncryptionEnvelop[]>();
 // Maps not registered accounts to accounts who send messages to the unregistered account
 let pendingConversations = new Map<string, Set<string>>();
 
+// Maps accounts to the last uri pointing to the last public message from this account
+let messageHeads = new Map<string, string>();
+
+let publicMessages = new Map<string, Lib.PublicEnvelop>();
+
 app.use(express.static(path.join(__dirname, '../build')));
 const port = process.env.PORT || '8080';
 
@@ -176,6 +181,20 @@ io.on('connection', (socket) => {
                     io.sockets.to(socketId).emit('message', envelop);
                 },
             )),
+                callback('success');
+        } catch (e) {
+            console.error(e);
+        }
+    });
+    socket.on('submitPublicMessage', (data, callback) => {
+        try {
+            ({ messageHeads, publicMessages } =
+                Lib.Delivery.incomingPublicMessage(
+                    data,
+                    sessions,
+                    messageHeads,
+                    publicMessages,
+                )),
                 callback('success');
         } catch (e) {
             console.error(e);

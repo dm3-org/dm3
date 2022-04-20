@@ -55,7 +55,7 @@
         "start": " yarn ts-node --project test-backend/tsconfig.json test-backend/TestBackend.ts",
         "build:schema": "yarn ts-json-schema-generator -f tsconfig.json --path src/lib/Messaging.ts --type Message -o src/schema.json --no-type-check",
         "build": "yarn build:schema && react-scripts build",
-        "test": "react-scripts test --coverage --watchAll",
+        "test": "react-scripts test --coverage --watchAll ",
         "eject": "react-scripts eject",
         "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
         "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
@@ -84,6 +84,11 @@
         "*.{js,ts,tsx,json}": [
             "prettier --write",
             "eslint --fix"
+        ]
+    },
+    "jest": {
+        "collectCoverageFrom": [
+            "src/lib/**/*.{js,jsx,ts,tsx}"
         ]
     }
 }

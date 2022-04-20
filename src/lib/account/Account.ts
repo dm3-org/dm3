@@ -1,6 +1,5 @@
 import { ethers } from 'ethers';
 import {
-    ExecuteTransaction,
     formatAddress,
     GetConractInstance,
     GetEnsTextRecord,
@@ -35,6 +34,7 @@ export interface Keys {
 
 export interface ProfileRegistryEntry {
     publicKeys: PublicKeys;
+    headTrackerUri?: string;
 }
 
 export interface SignedProfileRegistryEntry {

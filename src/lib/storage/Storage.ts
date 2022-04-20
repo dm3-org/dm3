@@ -1,5 +1,4 @@
 import { ethers } from 'ethers';
-import { libraryagent } from 'googleapis/build/src/apis/libraryagent';
 import { Keys } from '../account/Account';
 import { Acknoledgment } from '../delivery';
 import { encryptSafely, EthEncryptedData } from '../encryption/Encryption';
