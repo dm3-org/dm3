@@ -4,12 +4,13 @@ import * as nacl from 'tweetnacl';
 //@ts-ignore
 import * as naclUtil from 'tweetnacl-util';
 import { Buffer } from 'buffer';
-import { Connection } from '../web3-provider/Web3Provider';
 import { ethers } from 'ethers';
 import { EncryptionEnvelop, Envelop, Message } from '../messaging/Messaging';
 import { log } from '../shared/log';
-import { Account, Keys } from '../account/Account';
-import { UserDB } from '..';
+import { Keys } from '../account/Account';
+import { PublicMessage } from '../messaging/PublicMessaging';
+import { formatAddress } from '../external-apis/InjectedWeb3API';
+import { UserDB } from '../storage/Storage';
 
 export interface EthEncryptedData {
     version: string;
@@ -250,27 +251,32 @@ export function decryptEnvelop(
 }
 
 export function checkSignature(
-    message: Message,
-    fromAccount: Account,
+    message: Message | PublicMessage,
+    publicSigningKey: string,
+    accountAddress: string,
     signature: string,
 ): boolean {
-    const isValid = fromAccount.publicKeys?.publicSigningKey
-        ? nacl.sign.detached.verify(
-              ethers.utils.toUtf8Bytes(JSON.stringify(message)),
-              ethers.utils.arrayify(signature),
-              nacl_decodeHex(
-                  fromAccount.publicKeys?.publicSigningKey as string,
-              ),
-          )
-        : false;
+    const isValid = nacl.sign.detached.verify(
+        ethers.utils.toUtf8Bytes(JSON.stringify(message)),
+        ethers.utils.arrayify(signature),
+        nacl_decodeHex(publicSigningKey),
+    );
 
     if (!isValid) {
-        log(`Signature check for ${fromAccount.address} failed.`);
+        log(`Signature check for ${accountAddress} failed.`);
     }
-    return isValid;
+
+    if (formatAddress(accountAddress) !== formatAddress(message.from)) {
+        return false;
+    } else {
+        return isValid;
+    }
 }
 
-export function signWithEncryptionKey(message: Message, keys: Keys): string {
+export function signWithSignatureKey(
+    message: Message | PublicMessage,
+    keys: Keys,
+): string {
     return ethers.utils.hexlify(
         nacl.sign.detached(
             ethers.utils.toUtf8Bytes(JSON.stringify(message)),
@@ -278,4 +284,4 @@ export function signWithEncryptionKey(message: Message, keys: Keys): string {
         ),
     );
 }
-export type SignWithEncryptionKey = typeof signWithEncryptionKey;
+export type SignWithSignatureKey = typeof signWithSignatureKey;

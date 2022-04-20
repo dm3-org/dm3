@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import {
     decryptEnvelop,
     EncryptSafely,
-    SignWithEncryptionKey,
+    SignWithSignatureKey,
 } from '../encryption/Encryption';
 import { Connection } from '../web3-provider/Web3Provider';
 import {
@@ -67,7 +67,7 @@ export async function submitMessage(
     to: Account,
     message: Message,
     submitMessageApi: SubmitMessage,
-    signWithEncryptionKey: SignWithEncryptionKey,
+    signWithSignatureKey: SignWithSignatureKey,
     encryptSafely: EncryptSafely,
     createPendingEntry: CreatePendingEntry,
     haltDelivery: boolean,
@@ -78,7 +78,7 @@ export async function submitMessage(
 
     const innerEnvelop: Envelop = {
         message,
-        signature: signWithEncryptionKey(message, userDb?.keys as Keys),
+        signature: signWithSignatureKey(message, userDb?.keys as Keys),
     };
 
     const allOnSuccess = () => {
@@ -125,10 +125,6 @@ export async function submitMessage(
         ]);
         log('- Message sent');
     }
-}
-
-export function getId(envelop: Envelop): string {
-    return ethers.utils.id(JSON.stringify(envelop.message));
 }
 
 function decryptMessages(

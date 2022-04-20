@@ -6,6 +6,7 @@ export interface Session {
     account: string;
     signedProfileRegistryEntry: SignedProfileRegistryEntry;
     token: string;
+    publicMessageHeadUri?: string;
     ttl?: undefined;
     socketId?: string;
 }

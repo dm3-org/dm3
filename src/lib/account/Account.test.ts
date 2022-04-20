@@ -19,6 +19,15 @@ import {
     publishProfileOnchain,
 } from './Account';
 
+const connection: Connection = {
+    connectionState: ConnectionState.SignedIn,
+    storageLocation: StorageLocation.File,
+    account: {
+        address: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+    },
+    provider: {} as any,
+};
+
 test('get correct account display name', async () => {
     const ensNames = new Map();
     ensNames.set('0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855', 'test1');
@@ -35,6 +44,12 @@ test('get correct account display name', async () => {
             ensNames,
         ),
     ).toStrictEqual('0x25...8292');
+});
+
+test('get correct account display name if account is undefined', async () => {
+    const ensNames = new Map();
+    ensNames.set('0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855', 'test1');
+    expect(getAccountDisplayName(undefined, ensNames)).toStrictEqual('');
 });
 
 test('checkProfileRegistryEntry should accept a correct signature ', async () => {
@@ -87,14 +102,6 @@ test('checkProfileRegistryEntry should reject an invalid signature ', async () =
 });
 
 test('getContacts ', async () => {
-    const connection: Connection = {
-        connectionState: ConnectionState.SignedIn,
-        storageLocation: StorageLocation.File,
-        account: {
-            address: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-        },
-        provider: {} as any,
-    };
     const userDb: UserDB = {
         conversations: new Map<string, StorageEnvelopContainer[]>(),
         conversationsCount: 0,
@@ -134,15 +141,21 @@ test('getContacts ', async () => {
     ]);
 });
 
-test('Should create an empty conversation for a new contact ', (done) => {
-    const connection: Connection = {
-        connectionState: ConnectionState.SignedIn,
-        storageLocation: StorageLocation.File,
-        account: {
-            address: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-        },
-    };
+test('getContacts should throw if provider is undefined', async () => {
+    expect.assertions(1);
+    await expect(
+        getContacts(
+            { ...connection, provider: undefined },
+            async () => undefined,
+            async () => [],
+            async () => '',
+            {} as any,
+            () => {},
+        ),
+    ).rejects.toEqual(Error('No provider'));
+});
 
+test('Should create an empty conversation for a new contact ', (done) => {
     const userDb: UserDB = {
         conversations: new Map<string, StorageEnvelopContainer[]>(),
         conversationsCount: 0,
@@ -175,14 +188,6 @@ test('Should create an empty conversation for a new contact ', (done) => {
 });
 
 test('Should reject to add a contact if the contact was already added', async () => {
-    const connection: Connection = {
-        connectionState: ConnectionState.SignedIn,
-        storageLocation: StorageLocation.File,
-        account: {
-            address: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-        },
-    };
-
     const userDb: UserDB = {
         conversations: new Map<string, StorageEnvelopContainer[]>(),
         conversationsCount: 0,
@@ -380,15 +385,6 @@ test('Should prioritize onchain over offchain ', async () => {
 });
 
 test('publishProfileOnchain', async () => {
-    const connection: Connection = {
-        connectionState: ConnectionState.SignedIn,
-        storageLocation: StorageLocation.File,
-        account: {
-            address: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-        },
-        provider: {} as any,
-    };
-
     expect.assertions(2);
 
     const tx = await publishProfileOnchain(
@@ -410,4 +406,22 @@ test('publishProfileOnchain', async () => {
     ]);
 
     expect(tx?.method()).toStrictEqual('success');
+});
+
+test('publishProfileOnchain should throw', async () => {
+    expect.assertions(1);
+
+    await expect(
+        publishProfileOnchain(
+            { ...connection, provider: undefined },
+            'http://bla',
+            async () => '0x1',
+            () => {
+                return { address: '0x2' } as any;
+            },
+            () => {
+                return { setText: () => 'success' } as any;
+            },
+        ),
+    ).rejects.toEqual(Error('No provider'));
 });

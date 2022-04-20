@@ -62,16 +62,22 @@ function Chat(props: ChatProps) {
     const handleMessages = async (
         containers: Lib.StorageEnvelopContainer[],
     ): Promise<void> => {
-        const checkedContainers = containers.filter((container) =>
-            Lib.checkSignature(
-                container.envelop.message,
+        const checkedContainers = containers.filter((container) => {
+            const account =
                 Lib.formatAddress(container.envelop.message.from) ===
-                    Lib.formatAddress(props.contact.address)
+                Lib.formatAddress(props.contact.address)
                     ? props.contact
-                    : state.connection.account!,
-                container.envelop.signature,
-            ),
-        );
+                    : state.connection.account!;
+
+            return account.publicKeys?.publicSigningKey
+                ? Lib.checkSignature(
+                      container.envelop.message,
+                      account.publicKeys!.publicSigningKey,
+                      account.address,
+                      container.envelop.signature,
+                  )
+                : false;
+        });
 
         const newMessages = checkedContainers
             .filter(
