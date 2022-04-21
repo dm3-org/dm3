@@ -58,7 +58,7 @@ function ContactListEntry(props: ContactListProps) {
         >
             <div className="d-flex">
                 <div className="align-self-center contact-entry-avatar">
-                    <Avatar contact={props.contact} />
+                    <Avatar accountAddress={props.contact.address} />
                 </div>
             </div>
             <div className="w-100 text-start contact-entry-center">

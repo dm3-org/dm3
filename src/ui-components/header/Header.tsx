@@ -42,19 +42,9 @@ function Header() {
                     ` d-flex justify-content-center align-items-center`
                 }
             >
-                {state.accounts.selectedContact &&
-                    state.connection?.connectionState ===
-                        Lib.ConnectionState.SignedIn && (
-                        <ChatHeader account={state.accounts.selectedContact} />
-                    )}
-                {state.connection?.connectionState !==
+                {state.connection?.connectionState ===
                     Lib.ConnectionState.SignedIn && (
-                    <div className="account-name">
-                        {state.connection?.connectionState ===
-                        Lib.ConnectionState.KeyCreation
-                            ? 'Create Public Key'
-                            : 'ENS Mail'}
-                    </div>
+                    <ChatHeader account={state.accounts.selectedContact} />
                 )}
             </div>
         </div>

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import * as Lib from '../../lib';
@@ -39,11 +39,21 @@ function AddContactForm(props: AddContactFormProps) {
         }
     };
 
+    if (!state.uiState.showAddContact) {
+        return null;
+    }
+
     return state.connection.connectionState === Lib.ConnectionState.SignedIn ? (
-        <form className="input-group" onSubmit={(e) => e.preventDefault()}>
+        <form
+            className="form-floating"
+            onSubmit={(e) => {
+                e.preventDefault();
+            }}
+        >
             <input
+                id="inputEl"
                 type="text"
-                className="form-control contact-input "
+                className="form-control account-input"
                 placeholder="Address or ENS name"
                 aria-label="Address or ENS name"
                 value={accountToAdd}
@@ -55,9 +65,12 @@ function AddContactForm(props: AddContactFormProps) {
                         : {}
                 }
             />
+            <label htmlFor="inputEl" className="text-muted">
+                Address or ENS name
+            </label>
             <button
-                className={`contact-input-btn btn btn-${
-                    errorIndication ? 'danger' : 'secondary '
+                className={`w-100 btn btn-${
+                    errorIndication ? 'danger' : 'primary '
                 }`}
                 type="submit"
                 onClick={add}

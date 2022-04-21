@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import './SignIn.css';
 import { ethers } from 'ethers';
-import Icon from '../ui-shared/Icon';
 import * as Lib from '../../lib';
 import { GlobalContext } from '../GlobalContextProvider';
 import { EnsNameType } from '../reducers/EnsNames';
@@ -93,7 +92,7 @@ function ConnectButton(props: ConnectButtonProps) {
         <div className="row">
             <div className="col-md-5">
                 <StateButton
-                    text={'Connect Account'}
+                    content={<>Connect Account</>}
                     btnState={getButtonState(state.connection.connectionState)}
                     btnType="primary"
                     onClick={connect}

@@ -16,6 +16,7 @@
 
 .contact-entry {
     cursor: pointer;
+    border-top-style: none;
 }
 
 .contact-entry-center {
@@ -34,3 +35,6 @@
     padding-left: 1rem;
 }
 
+.account-input {
+    border-top-style: none;
+}

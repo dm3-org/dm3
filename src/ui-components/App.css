@@ -39,16 +39,6 @@
   float: right
 }
 
-.start-chat {
-  font-size: 1.5rem;
-
-  padding: 1rem;
-  padding-top: 2px;
-  height: 200px;
-  color: #b8b8b8;
-
-}
-
 .row-space-lg {
   margin-top: 3rem !important;
 }
@@ -89,19 +79,12 @@ html, body {
   height: 100%;
 }
 
-.header-row {
-  height: 10%;
-}
+
 
 .body-row {
-  height: 90%;
+  height: 85%;
 }
 
-.account-name {
-  height: fit-content;
-  font-size: 2rem;
-  font-weight: 200;
-}
 
 .start-space {
   margin-top: 2.5rem;
@@ -111,6 +94,3 @@ html, body {
   color: red;
 }
 
-.account-header {
-  cursor: pointer;
-}

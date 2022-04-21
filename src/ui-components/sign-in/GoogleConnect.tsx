@@ -107,7 +107,7 @@ function GoogleConnect(props: GoogleConnectProps) {
                     btnState={getButtonState(props.googleAuthState)}
                     btnType="primary"
                     onClick={handleClientLoad}
-                    text={'Connect Google Drive'}
+                    content={<>Connect Google Drive</>}
                 />
             </div>
             <div className="col-md-7 help-text">

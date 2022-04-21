@@ -15,7 +15,6 @@ export enum ConnectionState {
     AccountConnectionRejected,
     SignInFailed,
     SignedIn,
-    KeyCreation,
 }
 
 export interface Connection {

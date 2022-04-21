@@ -5,9 +5,14 @@ import makeBlockie from 'ethereum-blockies-base64';
 import './Avatar.css';
 import { useAsync } from './useAsync';
 
+export enum SpecialSize {
+    Md,
+    Lg,
+}
+
 interface AvatarProps {
-    contact: Lib.Account;
-    large?: boolean;
+    accountAddress: string;
+    specialSize?: SpecialSize;
 }
 
 function Avatar(props: AvatarProps) {
@@ -15,7 +20,7 @@ function Avatar(props: AvatarProps) {
     const { state } = useContext(GlobalContext);
 
     const getAvatar = async () => {
-        const ensName = state.ensNames.get(props.contact.address);
+        const ensName = state.ensNames.get(props.accountAddress);
         return ensName
             ? await state.connection.provider!.getAvatar(ensName!)
             : undefined;
@@ -26,29 +31,52 @@ function Avatar(props: AvatarProps) {
         (avatarUrl: unknown) => {
             setAvatar(avatarUrl as string | undefined);
         },
-        [props.contact, state.ensNames],
+        [props.accountAddress, state.ensNames],
     );
 
     // useEffect(() => {
 
     // }, [props.contact, state.ensNames]);
 
-    if (avatar) {
-        return (
-            <img
-                className={'avatar' + (props.large ? ' avatar-large' : '')}
-                src={avatar}
-                alt="Avatar"
-            />
-        );
-    } else {
-        return (
-            <img
-                className={'avatar' + (props.large ? ' avatar-large' : '')}
-                src={makeBlockie(props.contact.address)}
-            />
-        );
+    if (!props.accountAddress) {
+        return null;
     }
+
+    const style = (specialSize: SpecialSize | undefined) => {
+        switch (specialSize as SpecialSize) {
+            case SpecialSize.Lg:
+                return {
+                    borderRadius: '0.5rem',
+                    height: '10rem',
+                };
+            case SpecialSize.Md:
+                return {
+                    borderRadius: '0.5rem',
+                    height: '3.5rem',
+                };
+            default:
+                return {
+                    borderRadius: '0.5rem',
+                    height: '2.5rem',
+                };
+        }
+    };
+
+    return avatar ? (
+        <img
+            className={'avatar'}
+            src={avatar}
+            style={style(props.specialSize)}
+            alt="Avatar"
+        />
+    ) : (
+        <img
+            className={'avatar'}
+            style={style(props.specialSize)}
+            src={makeBlockie(props.accountAddress)}
+            alt="Avatar"
+        />
+    );
 }
 
 export default Avatar;

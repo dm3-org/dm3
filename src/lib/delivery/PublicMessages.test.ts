@@ -1,19 +1,21 @@
+import { checkSignature } from '../encryption/Encryption';
+import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { PublicEnvelop } from '../messaging/PublicMessaging';
 import { getPublicMessageHead, incomingPublicMessage } from './PublicMessages';
 import { Session } from './Session';
 
 const sessions = new Map<string, Session>();
-sessions.set('0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855', {
-    account: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+sessions.set(formatAddress('0xe5c8b5b8b7e7a43a3c7629f1f06db9c1362d1b27'), {
+    account: formatAddress('0xe5c8b5b8b7e7a43a3c7629f1f06db9c1362d1b27'),
     signedProfileRegistryEntry: {
         profileRegistryEntry: {
             publicKeys: {
+                publicKey: 'OSD5VDMHaOl/uLSWceXq9pVYhXeLbzcZ7H9ySwpHTlQ=',
                 publicMessagingKey:
-                    'm2VPbWEpbe6uzwyEaCeez0b1p1fchg9zBL5gFVgHrVk=',
+                    'xKMMimDOd8Hq61WWz7qaq9Sw9tt+FzMS3uztIpz/pxg=',
 
                 publicSigningKey:
-                    '8E5IihGIfzZUDbLRIzFtOGSX3dqD3QsPNi5uKjmm7d0=',
-                publicKey: '',
+                    'zvmqxxkUAfKGzFrLXqIKrFzopO4ddYVho3xHeqVO8dU=',
             },
         },
         signature: '',
@@ -55,15 +57,14 @@ test('Should handle an incoming public message', async () => {
 
     const envelop = {
         message: {
-            from: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-            timestamp: 0,
-            message: 'test text',
-            previousMessageUri: 'http://123',
+            from: '0xe5c8b5b8b7e7a43a3c7629f1f06db9c1362d1b27',
+            timestamp: 1650568239735,
+            message: 'test',
+            userFeedManifest: { previousMessageUris: [] },
         },
         signature:
-            '0x3e31b36854a5df1a0f45294cff069eb68396dcc5f0854b74cb5' +
-            '1fd53731cd1fdf2ab97da060e38334704f0304fc1eca8c5bc3dd15' +
-            '67b275eb4cbb228f8891c05',
+            '0x09fca305409010aab58fcf8b8e3f33b66c551f7f689583e42ae34a0c36ca1775' +
+            '07e38d8d30d2f512527ec5bfefe3ffba81a658f3c5420402d1c5101d0027c900',
     };
 
     const newState = incomingPublicMessage(
@@ -76,17 +77,17 @@ test('Should handle an incoming public message', async () => {
         publicMessages,
     );
 
-    console.log(newState.publicMessages);
-
     expect(
-        newState.messageHeads.get('0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855'),
+        newState.messageHeads.get(
+            formatAddress('0xe5c8b5b8b7e7a43a3c7629f1f06db9c1362d1b27'),
+        ),
     ).toStrictEqual(
-        '0x5cbbd6007b3b9006e307efce60043120d5720ead02a3df9c41dc2c8f4faa7a23',
+        'http://localhost:8080/publicMessage/0x19f9cf72ea6fd81ccd66e42544fed6e7e58d8dfb610ec35906bda29647fa8aa5',
     );
 
     expect(
         newState.publicMessages.get(
-            '0x5cbbd6007b3b9006e307efce60043120d5720ead02a3df9c41dc2c8f4faa7a23',
+            'http://localhost:8080/publicMessage/0x19f9cf72ea6fd81ccd66e42544fed6e7e58d8dfb610ec35906bda29647fa8aa5',
         ),
     ).toStrictEqual(envelop);
 });
@@ -97,15 +98,14 @@ test('Should reject an request with an invalid token', async () => {
 
     const envelop = {
         message: {
-            from: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-            timestamp: 0,
-            message: 'test text',
-            previousMessageUri: 'http://123',
+            from: '0xe5c8b5b8b7e7a43a3c7629f1f06db9c1362d1b27',
+            timestamp: 1650568239735,
+            message: 'test',
+            userFeedManifest: { previousMessageUris: [] },
         },
         signature:
-            '0x3e31b36854a5df1a0f45294cff069eb68396dcc5f0854b74cb5' +
-            '1fd53731cd1fdf2ab97da060e38334704f0304fc1eca8c5bc3dd15' +
-            '67b275eb4cbb228f8891c05',
+            '0x09fca305409010aab58fcf8b8e3f33b66c551f7f689583e42ae34a0c36ca1775' +
+            '07e38d8d30d2f512527ec5bfefe3ffba81a658f3c5420402d1c5101d0027c900',
     };
 
     expect(() =>
@@ -127,15 +127,14 @@ test('Should reject an request with an invalid signature', async () => {
 
     const envelop = {
         message: {
-            from: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-            timestamp: 0,
-            message: 'test text',
-            previousMessageUri: 'http://123',
+            from: '0xe5c8b5b8b7e7a43a3c7629f1f06db9c1362d1b27',
+            timestamp: 1650568239735,
+            message: 'test',
+            userFeedManifest: { previousMessageUris: [] },
         },
         signature:
-            '0x3e31b36854a5df1a0f45294cff069eb68396dcc5f0854b74cb5' +
-            '1fd53731cd1fdf2ab97da060e38334704f0304fc1eca8c5bc3dd15' +
-            '67b275eb4cbb228f8891c04',
+            '0x09fca305409010aab58fcf8b8e3f33b66c551f7f689583e42ae34a0c36ca1775' +
+            '07e38d8d30d2f512527ec5bfefe3ffba81a658f3c5420402d1c5101d0027c901',
     };
 
     expect(() =>

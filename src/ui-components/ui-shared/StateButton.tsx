@@ -2,11 +2,12 @@ import React, { useContext } from 'react';
 import Icon from '../ui-shared/Icon';
 
 interface StateButtonProps {
-    text: string;
+    content: JSX.Element;
     disabled?: boolean;
     onClick: () => void;
     btnType: 'primary' | 'secondary';
     btnState: ButtonState;
+    className?: string;
 }
 
 export enum ButtonState {
@@ -51,14 +52,14 @@ function StateButton(props: StateButtonProps) {
             type="button"
             className={`btn btn-${
                 props.btnState === ButtonState.Failed ? 'danger' : props.btnType
-            } btn-lg w-100`}
+            } btn-lg w-100 ${props.className ? props.className : ''}`}
             disabled={
                 props.disabled !== undefined
                     ? props.disabled
                     : isDisabled(props.btnState)
             }
         >
-            {props.text}
+            {props.content}
             {props.btnState !== ButtonState.Idel && (
                 <span className="push-end">{getIcon(props.btnState)}</span>
             )}
