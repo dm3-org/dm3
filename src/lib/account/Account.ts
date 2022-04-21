@@ -244,6 +244,7 @@ export async function getProfileRegistryEntry(
     ) => Promise<SignedProfileRegistryEntry | undefined>,
 ): Promise<SignedProfileRegistryEntry | undefined> {
     log(`[getProfileRegistryEntry]`);
+
     const uri = await getEnsTextRecord(provider, contact, 'eth.mail');
 
     if (uri) {

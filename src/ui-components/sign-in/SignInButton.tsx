@@ -111,7 +111,7 @@ function SignInButton(props: SignInButtonProps) {
                     btnState={getButtonState(state.connection.connectionState)}
                     btnType="primary"
                     onClick={requestSignIn}
-                    text={'Sign In'}
+                    content={<>Sign In</>}
                 />
             </div>
             <div className="col-md-7 help-text"></div>

@@ -72,27 +72,27 @@ export async function submitPublicMessage(
     connection: Connection,
     userDb: UserDB,
     envelop: PublicEnvelop,
-    onSuccess: () => void,
-    onError: () => void,
 ): Promise<void> {
-    if (connection.socket) {
-        connection.socket.emit(
-            'submitPublicMessage',
-            {
-                envelop,
-                token: userDb.deliveryServiceToken,
-            },
-            (response: string) => {
-                if (response === 'success') {
-                    log(`- success`);
-                    onSuccess();
-                } else {
-                    log(`- error`);
-                    onError();
-                }
-            },
-        );
-    }
+    return new Promise((resolve, reject) => {
+        if (connection.socket) {
+            connection.socket.emit(
+                'submitPublicMessage',
+                {
+                    envelop,
+                    token: userDb.deliveryServiceToken,
+                },
+                (response: string) => {
+                    if (response === 'success') {
+                        log(`- success`);
+                        resolve();
+                    } else {
+                        log(`- error`);
+                        reject();
+                    }
+                },
+            );
+        }
+    });
 }
 
 export async function syncAcknoledgment(
@@ -199,3 +199,30 @@ export async function getProfileRegistryEntryOffChain(
 }
 export type GetProfileRegistryEntryOffChain =
     typeof getProfileRegistryEntryOffChain;
+
+export async function getPublicMessageHead(
+    accountAddress: string,
+): Promise<string | undefined> {
+    const request = (
+        await axios.post(
+            DELIVERY_SERVICE,
+            createJsonRpcRequest('getPublicMessageHead', {
+                accountAddress: accountAddress,
+            }),
+        )
+    ).data;
+
+    if (request.error) {
+        throw Error('getPublicMessageHead failed.');
+    }
+
+    return request.result;
+}
+export type GetPublicMessageHead = typeof getPublicMessageHead;
+
+export async function getPublicMessage(
+    url: string,
+): Promise<PublicEnvelop | undefined> {
+    return (await axios.get(url)).data as PublicEnvelop | undefined;
+}
+export type GetPublicMessage = typeof getPublicMessage;

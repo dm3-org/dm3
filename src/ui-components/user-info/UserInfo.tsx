@@ -4,7 +4,7 @@ import { GlobalContext } from '../GlobalContextProvider';
 import * as Lib from '../../lib';
 import Icon from '../ui-shared/Icon';
 
-import Avatar from '../ui-shared/Avatar';
+import Avatar, { SpecialSize } from '../ui-shared/Avatar';
 import { AccountInfo } from '../reducers/shared';
 import { useAsync } from '../ui-shared/useAsync';
 import StateButton, { ButtonState } from '../ui-shared/StateButton';
@@ -87,7 +87,10 @@ function UserInfo(props: UserInfoProps) {
         <div className="user-info">
             <div className="row row-space-sm">
                 <div className="col text-center">
-                    <Avatar contact={props.account} large={true} />
+                    <Avatar
+                        accountAddress={props.account.address}
+                        specialSize={SpecialSize.Lg}
+                    />
                 </div>
             </div>
             <div className="row row-space-sm">
@@ -233,7 +236,7 @@ function UserInfo(props: UserInfoProps) {
                                     btnState={publishButtonState}
                                     btnType="primary"
                                     onClick={publishProfileOnchain}
-                                    text={'Publish Public Keys'}
+                                    content={<>Publish Public Keys</>}
                                 />
                             </div>
                         </div>

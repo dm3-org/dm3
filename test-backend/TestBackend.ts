@@ -130,6 +130,22 @@ const deliveryService = {
             cb({ code: 500, message: e });
         }
     },
+    getPublicMessageHead: (
+        args: {
+            accountAddress: string;
+        },
+        cb: (error: any, result?: any) => void,
+    ) => {
+        try {
+            const messageHead = Lib.Delivery.getPublicMessageHead(
+                messageHeads,
+                args.accountAddress,
+            );
+            cb(null, messageHead);
+        } catch (e) {
+            cb({ code: 500, message: e });
+        }
+    },
 };
 
 const jaysonServer = new jayson.server(deliveryService);
@@ -139,6 +155,12 @@ app.get('/profile/:address', (req, res) => {
     res.json(
         Lib.Delivery.getProfileRegistryEntry(sessions, req.params.address),
     );
+});
+
+app.get('/publicMessage/:id', (req, res) => {
+    Lib.log(`[GET] /publicMessage/${req.params.id}`);
+    const fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+    res.json(publicMessages.get(fullUrl));
 });
 
 io.use((socket, next) => {

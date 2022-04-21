@@ -1,4 +1,5 @@
 import * as Lib from '../../lib';
+import { SelectedRightView, UiState } from './UiState';
 
 export type ActionMap<M extends { [index: string]: any }> = {
     [Key in keyof M]: M[Key] extends undefined
@@ -22,6 +23,7 @@ export type GlobalState = {
     accounts: Accounts;
     ensNames: Map<string, string>;
     userDb: Lib.UserDB | undefined;
+    uiState: UiState;
 };
 
 export enum AccountInfo {
@@ -42,4 +44,8 @@ export const initialState: GlobalState = {
     },
     ensNames: new Map<string, string>(),
     userDb: undefined,
+    uiState: {
+        showAddContact: false,
+        selectedRightView: SelectedRightView.MainFeed,
+    },
 };

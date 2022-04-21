@@ -11,7 +11,7 @@ export function getPublicMessageHead(
     messageHeads: Map<string, string>,
     accountAddress: string,
 ) {
-    const headUrl = messageHeads.get(accountAddress);
+    const headUrl = messageHeads.get(formatAddress(accountAddress));
     log(
         `[getPublicMessages] ${accountAddress} last post was ${
             headUrl ? headUrl : 'none'
@@ -51,10 +51,12 @@ export function incomingPublicMessage(
         throw Error('Signature check failed');
     }
 
+    const urlPrefix = 'http://localhost:8080/publicMessage/';
+
     const newMessageHeads = new Map<string, string>(messageHeads);
-    newMessageHeads.set(account, getId(data.envelop));
+    newMessageHeads.set(account, urlPrefix + getId(data.envelop));
     const newPublicMessages = new Map<string, PublicEnvelop>(publicMessages);
-    newPublicMessages.set(getId(data.envelop), data.envelop);
+    newPublicMessages.set(urlPrefix + getId(data.envelop), data.envelop);
 
     return {
         messageHeads: newMessageHeads,

@@ -5,13 +5,13 @@ import {
     UserDB,
 } from '../storage/Storage';
 import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
-import { createMessage } from './PublicMessaging';
+import { createPublicMessage } from './PublicMessaging';
 
 const connection: Connection = {
     connectionState: ConnectionState.SignedIn,
     storageLocation: StorageLocation.File,
     account: {
-        address: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+        address: '0xe5c8b5b8b7e7a43a3c7629f1f06db9c1362d1b27',
     },
 };
 
@@ -20,15 +20,13 @@ const userDb: UserDB = {
     conversationsCount: 0,
     deliveryServiceToken: '',
     keys: {
-        publicMessagingKey: 'm2VPbWEpbe6uzwyEaCeez0b1p1fchg9zBL5gFVgHrVk=',
-        privateMessagingKey: 'jyWKuUgG7+3nQw/f69iKJaIIm8WHT+cf1ZKmESISYk4=',
-        publicSigningKey: '8E5IihGIfzZUDbLRIzFtOGSX3dqD3QsPNi5uKjmm7d0=',
+        publicKey: 'OSD5VDMHaOl/uLSWceXq9pVYhXeLbzcZ7H9ySwpHTlQ=',
+        publicMessagingKey: 'xKMMimDOd8Hq61WWz7qaq9Sw9tt+FzMS3uztIpz/pxg=',
+        privateMessagingKey: 'OCWOA5JPHAb+0cw1qD3PJPhFpC6y7yXofnKApJHDqZo=',
+        publicSigningKey: 'zvmqxxkUAfKGzFrLXqIKrFzopO4ddYVho3xHeqVO8dU=',
         privateSigningKey:
-            'L/QNgb9rpAShmT+feiI8tDhzR+0L1n4b+1XyvmQ9mUPwTkiKEYh/NlQNstEjMW04ZJfd2oPdCw82Lm4qOabt3Q==',
-
-        publicKey: '',
-
-        storageEncryptionKey: '',
+            'OPLrggb2P1a4/qjgv0GW33gQqW41G7G+i1fgbVD1gEvO+arHGRQB8obMWsteogqsXOik7h11hWGjfEd6pU7x1Q==',
+        storageEncryptionKey: '3iJShtu+7DooPflK8A8NpytQETPqR5HxQjRZplM4NUg=',
     },
     lastChangeTimestamp: 0,
     syncProcessState: SyncProcessState.Idle,
@@ -37,34 +35,36 @@ const userDb: UserDB = {
 
 test('Should create a public message', async () => {
     expect(
-        await createMessage(
-            'test text',
+        await createPublicMessage(
+            'test',
             connection,
             userDb,
-            async () => 'http://123',
-            () => 0,
+            async () => undefined,
+            async () => undefined,
+            () => 1650568239735,
         ),
     ).toStrictEqual({
         message: {
-            from: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-            timestamp: 0,
-            message: 'test text',
-            previousMessageUri: 'http://123',
+            from: '0xe5c8b5b8b7e7a43a3c7629f1f06db9c1362d1b27',
+            timestamp: 1650568239735,
+            message: 'test',
+            userFeedManifest: { previousMessageUris: [] },
         },
         signature:
-            '0x3e31b36854a5df1a0f45294cff069eb68396dcc5f0854b74cb5' +
-            '1fd53731cd1fdf2ab97da060e38334704f0304fc1eca8c5bc3dd1567b275eb4cbb228f8891c05',
+            '0x09fca305409010aab58fcf8b8e3f33b66c551f7f689583e42ae34a0c36ca1775' +
+            '07e38d8d30d2f512527ec5bfefe3ffba81a658f3c5420402d1c5101d0027c900',
     });
 });
 
 test('createMessage should throw if account is undefined', async () => {
     expect.assertions(1);
     await expect(
-        createMessage(
+        createPublicMessage(
             'test text',
             { ...connection, account: undefined },
             userDb,
-            async () => 'http://123',
+            async () => undefined,
+            async () => undefined,
             () => 0,
         ),
     ).rejects.toEqual(Error('No account'));

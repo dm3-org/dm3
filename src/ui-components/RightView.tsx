@@ -2,37 +2,33 @@ import React, { useContext, useEffect, useState } from 'react';
 import 'react-chat-widget/lib/styles.css';
 import * as Lib from '../lib';
 
-import Start from './Start';
 import Chat from './chat/Chat';
+import Feed from './feed/Feed';
 import { GlobalContext } from './GlobalContextProvider';
 import { AccountInfo } from './reducers/shared';
+import { SelectedRightView, UiStateType } from './reducers/UiState';
 import UserInfo from './user-info/UserInfo';
 
-enum SelectedRightView {
-    Error,
-    Start,
-    Chat,
-    UserInfo,
-}
-
 function RightView() {
-    const { state } = useContext(GlobalContext);
-
-    const [selectedRightView, setSelectedRightView] =
-        useState<SelectedRightView>(SelectedRightView.Start);
+    const { state, dispatch } = useContext(GlobalContext);
 
     useEffect(() => {
         switch (state.connection.connectionState) {
             case Lib.ConnectionState.SignedIn:
-                setSelectedRightView(
-                    state.accounts.selectedContact
+                dispatch({
+                    type: UiStateType.SetSelectedRightView,
+                    payload: state.accounts.selectedContact
                         ? SelectedRightView.Chat
-                        : SelectedRightView.Start,
-                );
+                        : SelectedRightView.MainFeed,
+                });
+
                 break;
             case Lib.ConnectionState.NoProvider:
             default:
-                setSelectedRightView(SelectedRightView.Error);
+                dispatch({
+                    type: UiStateType.SetSelectedRightView,
+                    payload: SelectedRightView.Error,
+                });
         }
     }, [state.connection.connectionState, state.accounts.selectedContact]);
 
@@ -40,25 +36,28 @@ function RightView() {
         switch (state.accounts.accountInfoView) {
             case AccountInfo.Contact:
             case AccountInfo.Account:
-                setSelectedRightView(SelectedRightView.UserInfo);
+                dispatch({
+                    type: UiStateType.SetSelectedRightView,
+                    payload: SelectedRightView.UserInfo,
+                });
                 break;
             case AccountInfo.None:
             default:
-                setSelectedRightView(
-                    state.accounts.selectedContact
+                dispatch({
+                    type: UiStateType.SetSelectedRightView,
+                    payload: state.accounts.selectedContact
                         ? SelectedRightView.Chat
-                        : SelectedRightView.Start,
-                );
+                        : SelectedRightView.MainFeed,
+                });
         }
     }, [state.accounts.accountInfoView]);
 
-    switch (selectedRightView) {
-        case SelectedRightView.Start:
+    switch (state.uiState.selectedRightView) {
+        case SelectedRightView.MainFeed:
             return (
                 <div className="col-md-8 content-container h-100">
-                    <div className="start-chat">
-                        <Start />
-                    </div>
+                    {state.connection.connectionState ===
+                        Lib.ConnectionState.SignedIn && <Feed />}
                 </div>
             );
 
