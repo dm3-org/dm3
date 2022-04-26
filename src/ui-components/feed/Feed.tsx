@@ -8,7 +8,11 @@ import FeedMessageElement from './FeedMessageElement';
 import FeedTxElement from './FeedTxElement';
 import { FeedType } from '../reducers/Feed';
 
-function Feed() {
+interface FeedProps {
+    accounts: Lib.Account[];
+}
+
+function Feed(props: FeedProps) {
     const { state, dispatch } = useContext(GlobalContext);
     const [messageText, setMessageText] = useState<string | undefined>();
     const [submitState, setSubmitState] = useState<ButtonState>(
@@ -45,7 +49,7 @@ function Feed() {
             payload: await Lib.getNewFeedElements(
                 state.feed,
                 state.connection,
-                state.accounts.contacts ? state.accounts.contacts : [],
+                props.accounts,
             ),
         });
     };
@@ -58,49 +62,81 @@ function Feed() {
         createFeed();
     }, []);
 
-    const feedElements = state.feed.map((element) =>
-        (element as Lib.PublicEnvelop).message ? (
-            <FeedMessageElement
-                envelop={element as Lib.PublicEnvelop}
-                key={Lib.getId(element as Lib.PublicEnvelop)}
-            />
-        ) : (
-            <FeedTxElement
-                txContainer={element as Lib.TxContainer}
-                key={(element as Lib.TxContainer).tx.hash}
-            />
-        ),
+    const feedElements = state.feed
+        .filter((element) => {
+            if ((element as Lib.PublicEnvelop).message) {
+                const message = (element as Lib.PublicEnvelop).message;
+                return props.accounts.find(
+                    (account) =>
+                        Lib.formatAddress(account.address) ===
+                        Lib.formatAddress(message.from),
+                )
+                    ? true
+                    : false;
+            } else {
+                const tx = (element as Lib.TxContainer).tx;
+                return props.accounts.find(
+                    (account) =>
+                        Lib.formatAddress(account.address) ===
+                            Lib.formatAddress(tx.from) ||
+                        (tx.to &&
+                            Lib.formatAddress(account.address) ===
+                                Lib.formatAddress(tx.to)),
+                )
+                    ? true
+                    : false;
+            }
+        })
+        .map((element) =>
+            (element as Lib.PublicEnvelop).message ? (
+                <FeedMessageElement
+                    envelop={element as Lib.PublicEnvelop}
+                    key={Lib.getId(element as Lib.PublicEnvelop)}
+                />
+            ) : (
+                <FeedTxElement
+                    txContainer={element as Lib.TxContainer}
+                    key={(element as Lib.TxContainer).tx.hash}
+                />
+            ),
+        );
+
+    const messageForm = (
+        <div className="container-fluid p-0">
+            <div className="row">
+                <div className="col-10 pe-0">
+                    <textarea
+                        onInput={(e) => {
+                            setSubmitState(ButtonState.Idel);
+                            setMessageText((e.target as any).value);
+                        }}
+                        className="form-control public-message-text"
+                        placeholder="Leave a comment here"
+                        disabled={submitState === ButtonState.Loading}
+                    />
+                </div>
+                <div className="col-2 ps-0">
+                    <StateButton
+                        content={<Icon iconClass="fas fa-paper-plane " />}
+                        btnState={ButtonState.Idel}
+                        btnType="primary"
+                        onClick={submitPublicMessage}
+                        disabled={!messageText}
+                        className="h-100 public-message-btn"
+                    />
+                </div>
+            </div>
+        </div>
     );
 
     return (
         <div
             className={`feed w-100 h-100 d-flex align-items-stretch flex-column`}
         >
-            <div className="container-fluid p-0">
-                <div className="row">
-                    <div className="col-10 pe-0">
-                        <textarea
-                            onInput={(e) => {
-                                setSubmitState(ButtonState.Idel);
-                                setMessageText((e.target as any).value);
-                            }}
-                            className="form-control public-message-text"
-                            placeholder="Leave a comment here"
-                            disabled={submitState === ButtonState.Loading}
-                        />
-                    </div>
-                    <div className="col-2 ps-0">
-                        <StateButton
-                            content={<Icon iconClass="fas fa-paper-plane " />}
-                            btnState={ButtonState.Idel}
-                            btnType="primary"
-                            onClick={submitPublicMessage}
-                            disabled={!messageText}
-                            className="h-100 public-message-btn"
-                        />
-                    </div>
-                </div>
-            </div>
+            {props.accounts.find(
+                (account) =>
+                    account.address === state.connection.account?.address,
+            ) && messageForm}
             <div className=" overflow-auto container-fluid ">
                 {feedElements}
             </div>

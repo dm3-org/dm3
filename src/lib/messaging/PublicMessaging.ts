@@ -91,10 +91,7 @@ export async function getNewFeedElements(
         getFeedElementId(element),
     );
 
-    const addresses = [
-        ...contacts.map((account) => account.address),
-        ...(connection.account ? [connection.account.address] : []),
-    ];
+    const addresses = [...contacts.map((account) => account.address)];
 
     const heads = (
         await Promise.all(addresses.map((address) => getHead(address)))

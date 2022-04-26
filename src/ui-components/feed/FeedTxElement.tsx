@@ -15,8 +15,8 @@ function FeedTxElement(props: FeedTxElementProps) {
     const time = new Date(props.txContainer.timestamp);
 
     return (
-        <div className="mt-4 row">
-            <div className="ms-2">
+        <div className="mt-4 ">
+            <div className="ms-2 ">
                 <div className="row">
                     <div className="col-12">
                         <strong>

@@ -57,7 +57,16 @@ function RightView() {
             return (
                 <div className="col-md-8 content-container h-100">
                     {state.connection.connectionState ===
-                        Lib.ConnectionState.SignedIn && <Feed />}
+                        Lib.ConnectionState.SignedIn && (
+                        <Feed
+                            accounts={[
+                                state.connection.account!,
+                                ...(state.accounts.contacts
+                                    ? state.accounts.contacts
+                                    : []),
+                            ]}
+                        />
+                    )}
                 </div>
             );
 
@@ -82,6 +91,14 @@ function RightView() {
                                 : state.accounts.selectedContact!
                         }
                     />
+                </div>
+            );
+        case SelectedRightView.UserPublicFeed:
+            return (
+                <div className="col-md-8 content-container h-100">
+                    {state.accounts.selectedContact && (
+                        <Feed accounts={[state.accounts.selectedContact]} />
+                    )}
                 </div>
             );
 
