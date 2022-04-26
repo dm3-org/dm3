@@ -5,13 +5,15 @@ import { AccountsActions, accountsReducer } from './reducers/Accounts';
 import { GlobalState, initialState } from './reducers/shared';
 import { UserDbActions, userDbReducer } from './reducers/UserDB';
 import { UiStateActions, uiStateReducer } from './reducers/UiState';
+import { FeedActions, feedReducer } from './reducers/Feed';
 
 type Actions =
     | ConnectionActions
     | EnsNamesActions
     | AccountsActions
     | UserDbActions
-    | UiStateActions;
+    | UiStateActions
+    | FeedActions;
 
 export const GlobalContext = React.createContext<{
     state: GlobalState;
@@ -31,6 +33,7 @@ const mainReducer = (state: GlobalState, action: Actions): GlobalState => ({
     accounts: accountsReducer(state.accounts, action as AccountsActions),
     userDb: userDbReducer(state.userDb, action as UserDbActions),
     uiState: uiStateReducer(state.uiState, action as UiStateActions),
+    feed: feedReducer(state.feed, action as FeedActions),
 });
 
 function GlobalContextProvider(props: GlobalContextProviderProps) {

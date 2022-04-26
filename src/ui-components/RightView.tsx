@@ -4,7 +4,6 @@ import * as Lib from '../lib';
 
 import Chat from './chat/Chat';
 import Feed from './feed/Feed';
-import FeedContextProvider from './feed/FeedContextProvider';
 import { GlobalContext } from './GlobalContextProvider';
 import { AccountInfo } from './reducers/shared';
 import { SelectedRightView, UiStateType } from './reducers/UiState';
@@ -58,7 +57,7 @@ function RightView() {
             return (
                 <div className="col-md-8 content-container h-100">
                     {state.connection.connectionState ===
-                        Lib.ConnectionState.SignedIn && <FeedContextProvider />}
+                        Lib.ConnectionState.SignedIn && <Feed />}
                 </div>
             );
 
