@@ -1,4 +1,4 @@
-import { checkSignature, signWithSignatureKey } from '../encryption/Encryption';
+import { signWithSignatureKey } from '../encryption/Encryption';
 import { Connection } from '../web3-provider/Web3Provider';
 import { UserDB } from '../storage/Storage';
 import { log } from '../shared/log';
@@ -10,11 +10,14 @@ import {
 import { GetTransactions } from '../external-apis/Etherscan';
 
 import { ethers } from 'ethers';
+import { getId } from './Utils';
 
 export type TxContainer = {
     timestamp: number;
     tx: ethers.providers.TransactionResponse;
 };
+
+export type FeedElment = PublicEnvelop | TxContainer;
 
 export interface UserFeedManifest {
     previousMessageUris: string[];
@@ -72,7 +75,8 @@ export async function createPublicMessage(
     };
 }
 
-export async function getFeed(
+export async function getNewFeedElements(
+    existingFeedElements: FeedElment[],
     connection: Connection,
     contacts: Account[],
     getHead: GetPublicMessageHead,
@@ -83,6 +87,10 @@ export async function getFeed(
         throw Error('No Provider');
     }
 
+    const existingIds = existingFeedElements.map((element) =>
+        getFeedElementId(element),
+    );
+
     const addresses = [
         ...contacts.map((account) => account.address),
         ...(connection.account ? [connection.account.address] : []),
@@ -90,7 +98,11 @@ export async function getFeed(
 
     const heads = (
         await Promise.all(addresses.map((address) => getHead(address)))
-    ).filter((head) => (head ? true : false));
+    )
+        .filter((head) => (head ? true : false))
+        .filter((head) =>
+            existingIds.find((id) => id === head) ? false : true,
+        );
 
     const headMessages = (
         await Promise.all(heads.map((head) => getPublicMessage(head!)))
@@ -118,6 +130,9 @@ export async function getFeed(
         .filter((tx) => tx.status === '1')
         .map((tx) => tx.result)
         .flat()
+        .filter((tx) =>
+            existingIds.find((id) => id === tx.hash) ? false : true,
+        )
         .map((tx) => ({
             hash: tx.hash,
             timestamp: parseInt(tx.timeStamp) * 1000,
@@ -133,17 +148,21 @@ export async function getFeed(
     const compare = (
         a: TxContainer | PublicEnvelop,
         b: TxContainer | PublicEnvelop,
-    ) => {
-        const aTimestamp = (a as PublicEnvelop).message
-            ? (a as PublicEnvelop).message.timestamp
-            : (a as TxContainer).timestamp;
-        const bTimestamp = (b as PublicEnvelop).message
-            ? (b as PublicEnvelop).message.timestamp
-            : (b as TxContainer).timestamp;
-        return bTimestamp - aTimestamp;
-    };
+    ) => getFeedElementTimestamp(b) - getFeedElementTimestamp(a);
 
     return [...headMessages, ...nonHeadMessages, ...txs].sort((a, b) =>
         compare(a!, b!),
-    );
+    ) as FeedElment[];
+}
+
+export function getFeedElementTimestamp(feedElement: FeedElment) {
+    return (feedElement as PublicEnvelop).message
+        ? (feedElement as PublicEnvelop).message.timestamp
+        : (feedElement as TxContainer).timestamp;
+}
+
+export function getFeedElementId(feedElement: FeedElment): string {
+    return (feedElement as PublicEnvelop).message
+        ? getId(feedElement as PublicEnvelop)
+        : (feedElement as TxContainer).tx.hash;
 }

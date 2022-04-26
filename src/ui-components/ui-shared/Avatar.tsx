@@ -6,6 +6,7 @@ import './Avatar.css';
 import { useAsync } from './useAsync';
 
 export enum SpecialSize {
+    Xs,
     Md,
     Lg,
 }
@@ -53,6 +54,11 @@ function Avatar(props: AvatarProps) {
                 return {
                     borderRadius: '0.5rem',
                     height: '3.5rem',
+                };
+            case SpecialSize.Xs:
+                return {
+                    borderRadius: '0.1rem',
+                    height: '1rem',
                 };
             default:
                 return {

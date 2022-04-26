@@ -1,24 +1,19 @@
-import { Linter } from 'eslint';
 import { useContext, useEffect, useState } from 'react';
 import './Feed.css';
 import * as Lib from '../../lib';
 import { GlobalContext } from '../GlobalContextProvider';
-import Avatar from '../ui-shared/Avatar';
 import Icon from '../ui-shared/Icon';
 import StateButton, { ButtonState } from '../ui-shared/StateButton';
-import FeedElement from './FeedMessageElement';
-import { ethers } from 'ethers';
 import FeedMessageElement from './FeedMessageElement';
 import FeedTxElement from './FeedTxElement';
+import { FeedContext, FeedType } from './FeedContextProvider';
 
 function Feed() {
     const { state, dispatch } = useContext(GlobalContext);
+    const feedContext = useContext(FeedContext);
     const [messageText, setMessageText] = useState<string | undefined>();
     const [submitState, setSubmitState] = useState<ButtonState>(
         ButtonState.Idel,
-    );
-    const [feed, setFeed] = useState<(Lib.PublicEnvelop | Lib.TxContainer)[]>(
-        [],
     );
 
     const submitPublicMessage = async () => {
@@ -46,17 +41,14 @@ function Feed() {
     };
 
     const createFeed = async () => {
-        setFeed(
-            (
-                await Lib.getFeed(
-                    state.connection,
-                    state.accounts.contacts ? state.accounts.contacts : [],
-                )
-            ).filter((element) => (element ? true : false)) as (
-                | Lib.PublicEnvelop
-                | Lib.TxContainer
-            )[],
-        );
+        feedContext.dispatch({
+            type: FeedType.AddFeedElements,
+            payload: await Lib.getNewFeedElements(
+                feedContext.state,
+                state.connection,
+                state.accounts.contacts ? state.accounts.contacts : [],
+            ),
+        });
     };
 
     useEffect(() => {
@@ -67,7 +59,7 @@ function Feed() {
         createFeed();
     }, []);
 
-    const feedElements = feed.map((element) =>
+    const feedElements = feedContext.state.map((element) =>
         (element as Lib.PublicEnvelop).message ? (
             <FeedMessageElement
                 envelop={element as Lib.PublicEnvelop}
