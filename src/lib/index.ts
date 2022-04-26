@@ -11,7 +11,6 @@ import * as Storage from './storage';
 import * as EtherscanApi from './external-apis/Etherscan';
 import {
     createTimestamp,
-    getTimestamp,
     StorageEnvelopContainer,
     UserDB,
     UserStorage,
@@ -35,6 +34,7 @@ export type {
     PublicEnvelop,
     PublicMessage,
     TxContainer,
+    FeedElment,
 } from './messaging/PublicMessaging';
 export type { UserDB, StorageEnvelopContainer } from './storage';
 export type { GetTransactions } from './external-apis/Etherscan';
@@ -65,6 +65,10 @@ export {
 } from './account/Account';
 export { decryptEnvelop, checkSignature } from './encryption/Encryption';
 export { MessageState } from './messaging/Messaging';
+export {
+    getFeedElementId,
+    getFeedElementTimestamp,
+} from './messaging/PublicMessaging';
 export { getId } from './messaging/Utils';
 export { ConnectionState, getWeb3Provider } from './web3-provider/Web3Provider';
 export {
@@ -232,11 +236,13 @@ export async function createPublicMessage(
     );
 }
 
-export async function getFeed(
+export async function getNewFeedElements(
+    existingFeedElements: PublicMessaging.FeedElment[],
     connection: Web3Provider.Connection,
     contacts: Account.Account[],
 ) {
-    return PublicMessaging.getFeed(
+    return PublicMessaging.getNewFeedElements(
+        existingFeedElements,
         connection,
         contacts,
         BackendAPI.getPublicMessageHead,
