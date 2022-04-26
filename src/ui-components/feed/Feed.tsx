@@ -6,11 +6,10 @@ import Icon from '../ui-shared/Icon';
 import StateButton, { ButtonState } from '../ui-shared/StateButton';
 import FeedMessageElement from './FeedMessageElement';
 import FeedTxElement from './FeedTxElement';
-import { FeedContext, FeedType } from './FeedContextProvider';
+import { FeedType } from '../reducers/Feed';
 
 function Feed() {
     const { state, dispatch } = useContext(GlobalContext);
-    const feedContext = useContext(FeedContext);
     const [messageText, setMessageText] = useState<string | undefined>();
     const [submitState, setSubmitState] = useState<ButtonState>(
         ButtonState.Idel,
@@ -41,10 +40,10 @@ function Feed() {
     };
 
     const createFeed = async () => {
-        feedContext.dispatch({
+        dispatch({
             type: FeedType.AddFeedElements,
             payload: await Lib.getNewFeedElements(
-                feedContext.state,
+                state.feed,
                 state.connection,
                 state.accounts.contacts ? state.accounts.contacts : [],
             ),
@@ -59,7 +58,7 @@ function Feed() {
         createFeed();
     }, []);
 
-    const feedElements = feedContext.state.map((element) =>
+    const feedElements = state.feed.map((element) =>
         (element as Lib.PublicEnvelop).message ? (
             <FeedMessageElement
                 envelop={element as Lib.PublicEnvelop}

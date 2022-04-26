@@ -1,7 +1,5 @@
-import React, { Dispatch } from 'react';
 import * as Lib from '../../lib';
 import { ActionMap } from '../reducers/shared';
-import Feed from './Feed';
 
 export enum FeedType {
     AddFeedElements = 'ADD_FEED_ELEMENTS',
@@ -39,20 +37,3 @@ export function feedReducer(
             return state;
     }
 }
-
-export const FeedContext = React.createContext<{
-    state: Lib.FeedElment[];
-    dispatch: Dispatch<FeedActions>;
-}>({ state: [], dispatch: () => null });
-
-function FeedContextProvider() {
-    const [state, dispatch] = React.useReducer(feedReducer, []);
-
-    return (
-        <FeedContext.Provider value={{ state, dispatch }}>
-            <Feed />
-        </FeedContext.Provider>
-    );
-}
-
-export default FeedContextProvider;

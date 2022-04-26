@@ -24,6 +24,7 @@ export type GlobalState = {
     ensNames: Map<string, string>;
     userDb: Lib.UserDB | undefined;
     uiState: UiState;
+    feed: Lib.FeedElment[];
 };
 
 export enum AccountInfo {
@@ -48,4 +49,5 @@ export const initialState: GlobalState = {
         showAddContact: false,
         selectedRightView: SelectedRightView.MainFeed,
     },
+    feed: [],
 };
