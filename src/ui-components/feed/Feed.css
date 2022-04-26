@@ -7,3 +7,10 @@
     border-radius: 0px;
   
 }
+
+.tx-indicator {
+    background-color: #dfdfdf;
+    padding-left: 0.3rem;
+    padding-right: 0.3rem;
+    color: #000;
+}

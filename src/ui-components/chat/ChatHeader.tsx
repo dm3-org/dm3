@@ -5,7 +5,8 @@ import { GlobalContext } from '../GlobalContextProvider';
 import Avatar from '../ui-shared/Avatar';
 import { AccountsType } from '../reducers/Accounts';
 import { AccountInfo } from '../reducers/shared';
-import { SelectedRightView } from '../reducers/UiState';
+import { SelectedRightView, UiStateType } from '../reducers/UiState';
+import RightView from '../RightView';
 
 interface ChatHeaderProps {
     account: Lib.Account | undefined;
@@ -69,7 +70,18 @@ function ChatHeader(props: ChatHeaderProps) {
                         <div className="col-6 d-flex">
                             <button
                                 type="button"
-                                className="btn btn-secondary w-100 "
+                                className={`btn btn-${
+                                    state.uiState.selectedRightView ===
+                                    SelectedRightView.Chat
+                                        ? ''
+                                        : 'outline-'
+                                }secondary w-100`}
+                                onClick={() =>
+                                    dispatch({
+                                        type: UiStateType.SetSelectedRightView,
+                                        payload: SelectedRightView.Chat,
+                                    })
+                                }
                             >
                                 Messages
                             </button>
@@ -77,7 +89,19 @@ function ChatHeader(props: ChatHeaderProps) {
                         <div className="col-6 d-flex">
                             <button
                                 type="button"
-                                className={`btn btn-outline-secondary w-100 show-add-btn`}
+                                onClick={() =>
+                                    dispatch({
+                                        type: UiStateType.SetSelectedRightView,
+                                        payload:
+                                            SelectedRightView.UserPublicFeed,
+                                    })
+                                }
+                                className={`btn btn${
+                                    state.uiState.selectedRightView ===
+                                    SelectedRightView.UserPublicFeed
+                                        ? ''
+                                        : 'outline-'
+                                }-secondary w-100 show-add-btn`}
                             >
                                 Public User Feed
                             </button>

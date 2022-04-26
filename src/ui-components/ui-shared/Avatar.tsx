@@ -57,7 +57,7 @@ function Avatar(props: AvatarProps) {
                 };
             case SpecialSize.Xs:
                 return {
-                    borderRadius: '0.1rem',
+                    borderRadius: '0.2rem',
                     height: '1rem',
                 };
             default:

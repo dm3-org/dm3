@@ -6,6 +6,7 @@ export enum SelectedRightView {
     MainFeed,
     Chat,
     UserInfo,
+    UserPublicFeed,
 }
 
 export interface UiState {
