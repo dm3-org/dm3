@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import 'react-chat-widget/lib/styles.css';
 import * as Lib from '../lib';
 

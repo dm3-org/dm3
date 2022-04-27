@@ -14,9 +14,28 @@ function FeedTxElement(props: FeedTxElementProps) {
     const { state, dispatch } = useContext(GlobalContext);
     const time = new Date(props.txContainer.timestamp);
 
+    const openUrl = (url: string) => {
+        const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+        if (newWindow) {
+            newWindow.opener = null;
+        }
+    };
+
+    let utf8Data: string | null = null;
+    try {
+        utf8Data = ethers.utils.toUtf8String(
+            ethers.utils.arrayify(props.txContainer.tx.data),
+        );
+    } catch (e) {}
+
     return (
-        <div className="mt-4 ">
-            <div className="ms-2 ">
+        <div
+            className="mt-3 feed-element feed-element-tx"
+            onClick={() =>
+                openUrl(`https://etherscan.io/tx/${props.txContainer.tx.hash}`)
+            }
+        >
+            <div className="p-2 ps-3 ">
                 <div className="row">
                     <div className="col-12">
                         <strong>
@@ -49,7 +68,11 @@ function FeedTxElement(props: FeedTxElementProps) {
                     </div>
                 </div>
                 <div className="row">
-                    <div className="col-12 small text-muted">
+                    <div
+                        className={`col-12 small ${
+                            utf8Data ? '' : 'text-muted'
+                        }`}
+                    >
                         {!props.txContainer.tx.value.eq(
                             ethers.BigNumber.from(0),
                         ) && (
@@ -65,7 +88,8 @@ function FeedTxElement(props: FeedTxElementProps) {
                             !props.txContainer.tx.value.eq(
                                 ethers.BigNumber.from(0),
                             ) && <>&nbsp;&nbsp;&nbsp;</>}
-                        {props.txContainer.tx.data.length >= 10 && (
+                        {utf8Data}
+                        {!utf8Data && props.txContainer.tx.data.length >= 10 && (
                             <>
                                 <Icon iconClass="fas fa-code" />{' '}
                                 {props.txContainer.tx.data.slice(0, 10)}
