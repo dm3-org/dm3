@@ -14,3 +14,16 @@
     padding-right: 0.3rem;
     color: #000;
 }
+
+.feed-element:hover {
+    background-color: #f0f0f0;
+    border-radius: 4px;
+}
+
+.feed-element-tx {
+    cursor: pointer;
+}
+
+.contact-name:hover {
+    cursor: pointer;
+}
