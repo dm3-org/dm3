@@ -1,4 +1,4 @@
-import { signWithSignatureKey } from '../encryption/Encryption';
+import { checkSignature, signWithSignatureKey } from '../encryption/Encryption';
 import { Connection } from '../web3-provider/Web3Provider';
 import { UserDB } from '../storage/Storage';
 import { log } from '../shared/log';
@@ -44,7 +44,6 @@ export async function createPublicMessage(
     getHead: GetPublicMessageHead,
     getPublicMessage: GetPublicMessage,
     getTimestamp: () => number,
-    getAbi: GetAbi,
 ): Promise<PublicEnvelop> {
     log('Create public message');
 
@@ -75,6 +74,27 @@ export async function createPublicMessage(
         message,
         signature: signWithSignatureKey(message, userDb?.keys as Keys),
     };
+}
+
+function filterValidSignature(
+    publicEnvelops: PublicEnvelop[],
+    contacts: Account[],
+) {
+    return publicEnvelops.filter((envelop) => {
+        const account = contacts.find(
+            (contact) =>
+                formatAddress(contact.address) ===
+                formatAddress(envelop.message.from),
+        );
+        return account && account.publicKeys?.publicSigningKey
+            ? checkSignature(
+                  envelop.message,
+                  account.publicKeys?.publicSigningKey,
+                  account.address,
+                  envelop.signature,
+              )
+            : false;
+    });
 }
 
 export async function getNewFeedElements(
@@ -172,9 +192,13 @@ export async function getNewFeedElements(
     ) => getFeedElementTimestamp(b) - getFeedElementTimestamp(a);
 
     return {
-        feedElemements: [...headMessages, ...nonHeadMessages, ...txs].sort(
-            (a, b) => compare(a!, b!),
-        ) as FeedElment[],
+        feedElemements: [
+            ...filterValidSignature(
+                [...headMessages, ...nonHeadMessages] as PublicEnvelop[],
+                contacts,
+            ),
+            ...txs,
+        ].sort((a, b) => compare(a!, b!)) as FeedElment[],
         newAbis: newAbis,
     };
 }

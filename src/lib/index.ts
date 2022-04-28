@@ -233,7 +233,6 @@ export async function createPublicMessage(
         BackendAPI.getPublicMessageHead,
         BackendAPI.getPublicMessage,
         createTimestamp,
-        EtherscanApi.getAbi,
     );
 }
 
