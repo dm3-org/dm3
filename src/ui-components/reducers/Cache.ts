@@ -25,8 +25,12 @@ export type CacheActions =
 export function cacheReducer(state: Cache, action: CacheActions): Cache {
     switch (action.type) {
         case CacheType.AddEnsName:
+            if (state.ensNames.has(action.payload.address)) {
+                return state;
+            }
+
             Lib.log(
-                `New ens name ${action.payload.name} for ${action.payload.address}`,
+                `[Cache] New ens name ${action.payload.name} for ${action.payload.address}`,
             );
             const ensNames = new Map<string, string>(state.ensNames);
             ensNames.set(action.payload.address, action.payload.name);
@@ -36,8 +40,12 @@ export function cacheReducer(state: Cache, action: CacheActions): Cache {
             };
 
         case CacheType.AddAvatarUrl:
+            if (state.avatarUrls.has(action.payload.address)) {
+                return state;
+            }
+
             Lib.log(
-                `Add avatar url ${action.payload.url} for ${action.payload.address}`,
+                `[Cache] Add avatar url ${action.payload.url} for ${action.payload.address}`,
             );
 
             const avatarUrls = new Map<string, string>(state.avatarUrls);
@@ -48,16 +56,14 @@ export function cacheReducer(state: Cache, action: CacheActions): Cache {
             };
 
         case CacheType.AddAbis:
-            Lib.log(`Add ABIs`);
-
             const abis = new Map<string, string>(state.abis);
 
             action.payload.forEach((abiContainer) => {
                 const address = Lib.formatAddress(abiContainer.address);
                 if (state.abis.has(address)) {
-                    Lib.log(`- ABI for ${address} already in cache`);
+                    Lib.log(`[Cache] ABI for ${address} already in cache`);
                 } else {
-                    Lib.log(`- Adding ABI for ${address}`);
+                    Lib.log(`[Cache] Adding ABI for ${address}`);
                     abis.set(address, abiContainer.abi);
                 }
             });

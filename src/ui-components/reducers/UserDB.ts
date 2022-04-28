@@ -30,7 +30,6 @@ export function userDbReducer(
     const lastChangeTimestamp = Lib.createTimestamp();
     switch (action.type) {
         case UserDbType.addMessage:
-            Lib.log(`Add message (timestamp: ${lastChangeTimestamp})`);
             if (!state) {
                 throw Error(`UserDB hasn't been created.`);
             }
@@ -86,28 +85,36 @@ export function userDbReducer(
                 );
                 hasChanged = true;
             }
-            return {
-                ...state,
-                conversations: newConversations,
-                conversationsCount: Array.from(newConversations.keys()).length,
-                synced: !hasChanged,
-                lastChangeTimestamp,
-            };
+
+            if (!hasChanged) {
+                return state;
+            } else {
+                Lib.log(`[DB] Add message (timestamp: ${lastChangeTimestamp})`);
+                return {
+                    ...state,
+                    conversations: newConversations,
+                    conversationsCount: Array.from(newConversations.keys())
+                        .length,
+                    synced: !hasChanged,
+                    lastChangeTimestamp,
+                };
+            }
 
         case UserDbType.setDB:
-            Lib.log(`Set db (timestamp: ${lastChangeTimestamp})`);
+            Lib.log(`[DB] Set db (timestamp: ${lastChangeTimestamp})`);
             return {
                 ...action.payload,
                 lastChangeTimestamp,
             };
 
         case UserDbType.createEmptyConversation:
-            Lib.log(
-                `Create empty conversation (timestamp: ${lastChangeTimestamp})`,
-            );
             if (!state) {
                 throw Error(`UserDB hasn't been created.`);
             }
+            Lib.log(
+                `[DB] Create empty conversation (timestamp: ${lastChangeTimestamp})`,
+            );
+
             const conversations = new Map(state.conversations);
             conversations.set(action.payload, []);
 
@@ -120,32 +127,40 @@ export function userDbReducer(
             };
 
         case UserDbType.setSynced:
-            Lib.log(
-                `Set synced to ${action.payload} (timestamp: ${lastChangeTimestamp})`,
-            );
             if (!state) {
                 throw Error(`UserDB hasn't been created.`);
             }
+            if (state.synced === action.payload) {
+                return state;
+            } else {
+                Lib.log(
+                    `[DB] Set synced to ${action.payload} (timestamp: ${lastChangeTimestamp})`,
+                );
 
-            return {
-                ...state,
-                synced: action.payload,
-                lastChangeTimestamp,
-            };
+                return {
+                    ...state,
+                    synced: action.payload,
+                    lastChangeTimestamp,
+                };
+            }
 
         case UserDbType.setSyncProcessState:
-            Lib.log(
-                `Set sync process state to ${action.payload} (timestamp: ${lastChangeTimestamp}) `,
-            );
             if (!state) {
                 throw Error(`UserDB hasn't been created.`);
             }
+            if (state.syncProcessState === action.payload) {
+                return state;
+            } else {
+                Lib.log(
+                    `[DB] Set sync process state to ${action.payload} (timestamp: ${lastChangeTimestamp}) `,
+                );
 
-            return {
-                ...state,
-                syncProcessState: action.payload,
-                lastChangeTimestamp,
-            };
+                return {
+                    ...state,
+                    syncProcessState: action.payload,
+                    lastChangeTimestamp,
+                };
+            }
 
         default:
             return state;

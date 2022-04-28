@@ -31,48 +31,63 @@ export function connectionReducer(
 ): Lib.Connection {
     switch (action.type) {
         case ConnectionType.ChangeConnectionState:
-            Lib.log(
-                `New connection state ${Lib.ConnectionState[action.payload]}`,
-            );
-            return {
-                ...state,
-                connectionState: action.payload,
-            };
+            if (state.connectionState === action.payload) {
+                return state;
+            } else {
+                Lib.log(
+                    `[Connection] New connection state ${
+                        Lib.ConnectionState[action.payload]
+                    }`,
+                );
+                return {
+                    ...state,
+                    connectionState: action.payload,
+                };
+            }
         case ConnectionType.ChangeSocket:
-            Lib.log(`New socket`);
+            Lib.log(`[Connection] New socket`);
             return {
                 ...state,
                 socket: action.payload,
             };
 
         case ConnectionType.ChangeAccount:
-            Lib.log(`Set account ${action.payload.address}`);
+            Lib.log(`[Connection] Set account ${action.payload.address}`);
             return {
                 ...state,
                 account: action.payload,
             };
 
         case ConnectionType.ChangeStorageLocation:
-            Lib.log(`Set storage location to ${action.payload}`);
+            if (state.storageLocation === action.payload) {
+                return state;
+            } else {
+                Lib.log(
+                    `[Connection] Set storage location to ${action.payload}`,
+                );
 
-            return {
-                ...state,
-                storageLocation: action.payload,
-            };
-
+                return {
+                    ...state,
+                    storageLocation: action.payload,
+                };
+            }
         case ConnectionType.ChangeProvider:
-            Lib.log(`Set provider`);
+            Lib.log(`[Connection] Set provider`);
             return {
                 ...state,
                 provider: action.payload,
             };
 
         case ConnectionType.ChangeStorageToken:
-            Lib.log(`Set sorage token`);
-            return {
-                ...state,
-                storageToken: action.payload,
-            };
+            if (state.storageToken === action.payload) {
+                return state;
+            } else {
+                Lib.log(`[Connection] Set sorage token`);
+                return {
+                    ...state,
+                    storageToken: action.payload,
+                };
+            }
 
         default:
             return state;

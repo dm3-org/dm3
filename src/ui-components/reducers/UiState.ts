@@ -33,18 +33,26 @@ export function uiStateReducer(
 ): UiState {
     switch (action.type) {
         case UiStateType.SetShowAddContact:
-            Lib.log(`Set show add contact form ${action.payload}`);
-            return {
-                ...state,
-                showAddContact: action.payload,
-            };
+            if (state.showAddContact === action.payload) {
+                return state;
+            } else {
+                Lib.log(`[UI] Set show add contact form ${action.payload}`);
+                return {
+                    ...state,
+                    showAddContact: action.payload,
+                };
+            }
 
         case UiStateType.SetSelectedRightView:
-            Lib.log(`Change right view to ${action.payload}`);
-            return {
-                ...state,
-                selectedRightView: action.payload,
-            };
+            if (state.selectedRightView === action.payload) {
+                return state;
+            } else {
+                Lib.log(`[UI] Change right view to ${action.payload}`);
+                return {
+                    ...state,
+                    selectedRightView: action.payload,
+                };
+            }
 
         default:
             return state;
