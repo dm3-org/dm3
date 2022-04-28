@@ -27,3 +27,9 @@
 .contact-name:hover {
     cursor: pointer;
 }
+
+.tx-type {
+    background-color: #dfdfdf !important;
+    color: #6c757d!important;
+
+}

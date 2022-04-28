@@ -7,10 +7,11 @@ import {
     GetPublicMessage,
     GetPublicMessageHead,
 } from '../external-apis/BackendAPI';
-import { GetTransactions } from '../external-apis/Etherscan';
+import { getAbi, GetAbi, GetTransactions } from '../external-apis/Etherscan';
 
 import { ethers } from 'ethers';
 import { getId } from './Utils';
+import { formatAddress } from '../external-apis/InjectedWeb3API';
 
 export type TxContainer = {
     timestamp: number;
@@ -43,6 +44,7 @@ export async function createPublicMessage(
     getHead: GetPublicMessageHead,
     getPublicMessage: GetPublicMessage,
     getTimestamp: () => number,
+    getAbi: GetAbi,
 ): Promise<PublicEnvelop> {
     log('Create public message');
 
@@ -79,6 +81,7 @@ export async function getNewFeedElements(
     existingFeedElements: FeedElment[],
     connection: Connection,
     contacts: Account[],
+    abis: Map<string, string>,
     getHead: GetPublicMessageHead,
     getPublicMessage: GetPublicMessage,
     getTransactions: GetTransactions,
@@ -142,14 +145,38 @@ export async function getNewFeedElements(
         })),
     );
 
+    const newAbis = (
+        await Promise.all(
+            txs
+                .filter(
+                    (txContainer) =>
+                        txContainer.tx.to &&
+                        txContainer.tx.data.length >= 10 &&
+                        !abis.has(formatAddress(txContainer.tx.to)),
+                )
+                .map(async (txContainer) => ({
+                    abiResponse: await getAbi(txContainer.tx.to!),
+                    address: txContainer.tx.to!,
+                })),
+        )
+    )
+        .filter((abiContainer) => abiContainer.abiResponse.status === '1')
+        .map((abiContainer) => ({
+            abi: abiContainer.abiResponse.result,
+            address: abiContainer.address,
+        }));
+
     const compare = (
         a: TxContainer | PublicEnvelop,
         b: TxContainer | PublicEnvelop,
     ) => getFeedElementTimestamp(b) - getFeedElementTimestamp(a);
 
-    return [...headMessages, ...nonHeadMessages, ...txs].sort((a, b) =>
-        compare(a!, b!),
-    ) as FeedElment[];
+    return {
+        feedElemements: [...headMessages, ...nonHeadMessages, ...txs].sort(
+            (a, b) => compare(a!, b!),
+        ) as FeedElment[],
+        newAbis: newAbis,
+    };
 }
 
 export function getFeedElementTimestamp(feedElement: FeedElment) {

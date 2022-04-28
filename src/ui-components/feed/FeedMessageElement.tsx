@@ -65,7 +65,7 @@ function FeedMessageElement(props: FeedMessageElementProps) {
                                 >
                                     {Lib.getAccountDisplayName(
                                         props.envelop.message.from,
-                                        state.ensNames,
+                                        state.cache.ensNames,
                                     )}
                                 </strong>{' '}
                                 <span className="text-muted small">

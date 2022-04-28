@@ -24,3 +24,20 @@ export async function getTransactions(accountAddress: string): Promise<{
     return request;
 }
 export type GetTransactions = typeof getTransactions;
+
+export async function getAbi(accountAddress: string): Promise<{
+    status: string;
+    result: string;
+}> {
+    const requestUrl =
+        `https://api.etherscan.io/api` +
+        `?module=contract` +
+        `&action=getabi` +
+        `&address=${accountAddress}` +
+        `&apikey=${process.env.REACT_APP_ETHERSCAN_API_KEY}`;
+
+    const request = (await axios.get(requestUrl)).data;
+
+    return request;
+}
+export type GetAbi = typeof getAbi;

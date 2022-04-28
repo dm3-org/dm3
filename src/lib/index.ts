@@ -233,6 +233,7 @@ export async function createPublicMessage(
         BackendAPI.getPublicMessageHead,
         BackendAPI.getPublicMessage,
         createTimestamp,
+        EtherscanApi.getAbi,
     );
 }
 
@@ -240,11 +241,13 @@ export async function getNewFeedElements(
     existingFeedElements: PublicMessaging.FeedElment[],
     connection: Web3Provider.Connection,
     contacts: Account.Account[],
+    abis: Map<string, string>,
 ) {
     return PublicMessaging.getNewFeedElements(
         existingFeedElements,
         connection,
         contacts,
+        abis,
         BackendAPI.getPublicMessageHead,
         BackendAPI.getPublicMessage,
         EtherscanApi.getTransactions,

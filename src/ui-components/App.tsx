@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
 import './App.css';
 import 'react-chat-widget/lib/styles.css';
 import detectEthereumProvider from '@metamask/detect-provider';
@@ -10,12 +10,12 @@ import LeftView from './LeftView';
 import RightView from './RightView';
 import { useBeforeunload } from 'react-beforeunload';
 import { GlobalContext } from './GlobalContextProvider';
-import { EnsNameType } from './reducers/EnsNames';
 import { AccountsType } from './reducers/Accounts';
 import { UserDbType } from './reducers/UserDB';
 import { ConnectionType } from './reducers/Connection';
 import { showSignIn } from './sign-in/Phases';
 import SignIn from './sign-in/SignIn';
+import { CacheType } from './reducers/Cache';
 
 function App() {
     const { state, dispatch } = useContext(GlobalContext);
@@ -48,7 +48,7 @@ function App() {
                 dispatch({ type: AccountsType.SetContacts, payload: contacts }),
             (address: string, name: string) =>
                 dispatch({
-                    type: EnsNameType.AddEnsName,
+                    type: CacheType.AddEnsName,
                     payload: {
                         address,
                         name,

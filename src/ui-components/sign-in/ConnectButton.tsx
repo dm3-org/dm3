@@ -3,11 +3,11 @@ import './SignIn.css';
 import { ethers } from 'ethers';
 import * as Lib from '../../lib';
 import { GlobalContext } from '../GlobalContextProvider';
-import { EnsNameType } from '../reducers/EnsNames';
 
 import { ConnectionType } from '../reducers/Connection';
 import localforage from 'localforage';
 import StateButton, { ButtonState } from '../ui-shared/StateButton';
+import { CacheType } from '../reducers/Cache';
 
 interface ConnectButtonProps {
     setExistingAccount: (exists: boolean) => void;
@@ -51,7 +51,7 @@ function ConnectButton(props: ConnectButtonProps) {
             );
             if (ensName) {
                 dispatch({
-                    type: EnsNameType.AddEnsName,
+                    type: CacheType.AddEnsName,
                     payload: {
                         address: accountConnection.account,
                         name: ensName,

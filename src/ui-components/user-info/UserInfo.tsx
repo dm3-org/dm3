@@ -30,7 +30,7 @@ function UserInfo(props: UserInfoProps) {
         EnsTextRecords | undefined
     >();
 
-    const ensName = state.ensNames.get(props.account.address);
+    const ensName = state.cache.ensNames.get(props.account.address);
 
     const getTextRecords = async (): Promise<EnsTextRecords | undefined> => {
         if (
@@ -97,7 +97,7 @@ function UserInfo(props: UserInfoProps) {
                 <div className="col text-center account-name">
                     {Lib.getAccountDisplayName(
                         props.account.address,
-                        state.ensNames,
+                        state.cache.ensNames,
                     )}
                 </div>
             </div>
