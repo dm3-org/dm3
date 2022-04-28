@@ -4,16 +4,19 @@ import { ActionMap, GlobalState } from './shared';
 export interface Cache {
     ensNames: Map<string, string>;
     abis: Map<string, string>;
+    avatarUrls: Map<string, string>;
 }
 
 export enum CacheType {
     AddEnsName = 'ADD_ENS_NAME',
     AddAbis = 'ADD_ABIS',
+    AddAvatarUrl = 'ADD_AVATAR_URL',
 }
 
 export type CachePayload = {
     [CacheType.AddEnsName]: { address: string; name: string };
     [CacheType.AddAbis]: { address: string; abi: string }[];
+    [CacheType.AddAvatarUrl]: { address: string; url: string };
 };
 
 export type CacheActions =
@@ -30,6 +33,18 @@ export function cacheReducer(state: Cache, action: CacheActions): Cache {
             return {
                 ...state,
                 ensNames,
+            };
+
+        case CacheType.AddAvatarUrl:
+            Lib.log(
+                `Add avatar url ${action.payload.url} for ${action.payload.address}`,
+            );
+
+            const avatarUrls = new Map<string, string>(state.avatarUrls);
+            avatarUrls.set(action.payload.address, action.payload.url);
+            return {
+                ...state,
+                avatarUrls,
             };
 
         case CacheType.AddAbis:

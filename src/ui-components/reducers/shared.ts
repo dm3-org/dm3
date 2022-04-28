@@ -47,6 +47,7 @@ export const initialState: GlobalState = {
     cache: {
         ensNames: new Map<string, string>(),
         abis: new Map<string, string>(),
+        avatarUrls: new Map<string, string>(),
     },
     userDb: undefined,
     uiState: {
