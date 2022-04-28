@@ -1,15 +1,15 @@
 import React, { Dispatch } from 'react';
 import { ConnectionActions, connectionReducer } from './reducers/Connection';
-import { EnsNamesActions, ensNamesReducer } from './reducers/EnsNames';
 import { AccountsActions, accountsReducer } from './reducers/Accounts';
 import { GlobalState, initialState } from './reducers/shared';
 import { UserDbActions, userDbReducer } from './reducers/UserDB';
 import { UiStateActions, uiStateReducer } from './reducers/UiState';
 import { FeedActions, feedReducer } from './reducers/Feed';
+import { CacheActions, cacheReducer } from './reducers/Cache';
 
 type Actions =
     | ConnectionActions
-    | EnsNamesActions
+    | CacheActions
     | AccountsActions
     | UserDbActions
     | UiStateActions
@@ -29,7 +29,7 @@ const mainReducer = (state: GlobalState, action: Actions): GlobalState => ({
         state.connection,
         action as ConnectionActions,
     ),
-    ensNames: ensNamesReducer(state.ensNames, action as EnsNamesActions),
+    cache: cacheReducer(state.cache, action as CacheActions),
     accounts: accountsReducer(state.accounts, action as AccountsActions),
     userDb: userDbReducer(state.userDb, action as UserDbActions),
     uiState: uiStateReducer(state.uiState, action as UiStateActions),

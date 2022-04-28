@@ -28,6 +28,30 @@ function FeedTxElement(props: FeedTxElementProps) {
         );
     } catch (e) {}
 
+    let txName: string | null = null;
+
+    try {
+        if (
+            !utf8Data &&
+            props.txContainer.tx.data.length >= 10 &&
+            props.txContainer.tx.to &&
+            state.cache.abis.has(Lib.formatAddress(props.txContainer.tx.to))
+        ) {
+            const contractInterface = new ethers.utils.Interface(
+                state.cache.abis.get(
+                    Lib.formatAddress(props.txContainer.tx.to!),
+                )!,
+            );
+
+            txName = contractInterface.parseTransaction({
+                data: props.txContainer.tx.data,
+                value: props.txContainer.tx.value,
+            }).name;
+        }
+    } catch (e) {
+        console.log(e);
+    }
+
     return (
         <div
             className="mt-3 feed-element feed-element-tx"
@@ -45,7 +69,7 @@ function FeedTxElement(props: FeedTxElementProps) {
                             />{' '}
                             {Lib.getAccountDisplayName(
                                 props.txContainer.tx.from,
-                                state.ensNames,
+                                state.cache.ensNames,
                             )}{' '}
                             <Icon iconClass="fas fa-arrow-right text-muted" />{' '}
                             <Avatar
@@ -58,16 +82,44 @@ function FeedTxElement(props: FeedTxElementProps) {
                             />{' '}
                             {Lib.getAccountDisplayName(
                                 props.txContainer.tx.to,
-                                state.ensNames,
+                                state.cache.ensNames,
                             )}
                         </strong>{' '}
+                        {!utf8Data && props.txContainer.tx.data.length < 10 && (
+                            <>
+                                &nbsp;
+                                <span className="badge bg-secondary tx-type">
+                                    <Icon iconClass="fas fa-coins" />
+                                </span>
+                                &nbsp;&nbsp;
+                            </>
+                        )}
+                        {utf8Data && (
+                            <>
+                                &nbsp;
+                                <span className="badge bg-secondary  tx-type">
+                                    <Icon iconClass="fas fa-envelope" />
+                                </span>
+                                &nbsp;&nbsp;
+                            </>
+                        )}
+                        {!utf8Data && props.txContainer.tx.data.length >= 10 && (
+                            <>
+                                &nbsp;
+                                <span className="badge bg-secondary  tx-type">
+                                    <Icon iconClass="fas fa-file-code" />
+                                    {txName && <>&nbsp;&nbsp;{txName} </>}
+                                </span>
+                                &nbsp;&nbsp;
+                            </>
+                        )}
                         <span className="text-muted small">
                             {time.toLocaleDateString()}{' '}
                             {time.toLocaleTimeString()}
                         </span>
                     </div>
                 </div>
-                <div className="row">
+                <div className="row mt-1">
                     <div
                         className={`col-12 small ${
                             utf8Data ? '' : 'text-muted'

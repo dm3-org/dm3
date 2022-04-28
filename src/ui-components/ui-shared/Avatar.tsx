@@ -21,7 +21,7 @@ function Avatar(props: AvatarProps) {
     const { state } = useContext(GlobalContext);
 
     const getAvatar = async () => {
-        const ensName = state.ensNames.get(props.accountAddress);
+        const ensName = state.cache.ensNames.get(props.accountAddress);
         return ensName
             ? await state.connection.provider!.getAvatar(ensName!)
             : undefined;
@@ -32,7 +32,7 @@ function Avatar(props: AvatarProps) {
         (avatarUrl: unknown) => {
             setAvatar(avatarUrl as string | undefined);
         },
-        [props.accountAddress, state.ensNames],
+        [props.accountAddress, state.cache.ensNames],
     );
 
     // useEffect(() => {
@@ -58,7 +58,7 @@ function Avatar(props: AvatarProps) {
             case SpecialSize.Xs:
                 return {
                     borderRadius: '0.2rem',
-                    height: '1rem',
+                    height: '1.3rem',
                 };
             default:
                 return {

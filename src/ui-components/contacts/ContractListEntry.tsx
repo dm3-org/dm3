@@ -66,7 +66,7 @@ function ContactListEntry(props: ContactListProps) {
                     <div className="col-12">
                         {Lib.getAccountDisplayName(
                             props.contact.address,
-                            state.ensNames,
+                            state.cache.ensNames,
                         )}
                     </div>
                 </div>

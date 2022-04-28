@@ -1,4 +1,5 @@
 import * as Lib from '../../lib';
+import { Cache } from './Cache';
 import { SelectedRightView, UiState } from './UiState';
 
 export type ActionMap<M extends { [index: string]: any }> = {
@@ -21,7 +22,7 @@ export type Accounts = {
 export type GlobalState = {
     connection: Lib.Connection;
     accounts: Accounts;
-    ensNames: Map<string, string>;
+    cache: Cache;
     userDb: Lib.UserDB | undefined;
     uiState: UiState;
     feed: Lib.FeedElment[];
@@ -43,7 +44,10 @@ export const initialState: GlobalState = {
         selectedContact: undefined,
         accountInfoView: AccountInfo.None,
     },
-    ensNames: new Map<string, string>(),
+    cache: {
+        ensNames: new Map<string, string>(),
+        abis: new Map<string, string>(),
+    },
     userDb: undefined,
     uiState: {
         showAddContact: false,

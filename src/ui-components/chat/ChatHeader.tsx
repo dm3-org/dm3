@@ -47,7 +47,7 @@ function ChatHeader(props: ChatHeaderProps) {
                             <div>
                                 {Lib.getAccountDisplayName(
                                     props.account.address,
-                                    state.ensNames,
+                                    state.cache.ensNames,
                                 )}
                             </div>
                             {props.account.publicKeys?.publicMessagingKey ? (

@@ -55,7 +55,7 @@ function AccountNameHeader(props: AccountNameHeaderProps) {
                         <div className="w-100 text-start account-name-text">
                             {Lib.getAccountDisplayName(
                                 props.account.address,
-                                state.ensNames,
+                                state.cache.ensNames,
                             )}
                         </div>
                     </div>

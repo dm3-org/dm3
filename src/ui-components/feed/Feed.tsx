@@ -7,6 +7,7 @@ import StateButton, { ButtonState } from '../ui-shared/StateButton';
 import FeedMessageElement from './FeedMessageElement';
 import FeedTxElement from './FeedTxElement';
 import { FeedType } from '../reducers/Feed';
+import { CacheType } from '../reducers/Cache';
 
 interface FeedProps {
     accounts: Lib.Account[];
@@ -44,13 +45,20 @@ function Feed(props: FeedProps) {
     };
 
     const createFeed = async () => {
+        const feedData = await Lib.getNewFeedElements(
+            state.feed,
+            state.connection,
+            props.accounts,
+            state.cache.abis,
+        );
+
         dispatch({
             type: FeedType.AddFeedElements,
-            payload: await Lib.getNewFeedElements(
-                state.feed,
-                state.connection,
-                props.accounts,
-            ),
+            payload: feedData.feedElemements,
+        });
+        dispatch({
+            type: CacheType.AddAbis,
+            payload: feedData.newAbis,
         });
     };
 
