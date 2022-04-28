@@ -48,9 +48,7 @@ function FeedTxElement(props: FeedTxElementProps) {
                 value: props.txContainer.tx.value,
             }).name;
         }
-    } catch (e) {
-        console.log(e);
-    }
+    } catch (e) {}
 
     return (
         <div

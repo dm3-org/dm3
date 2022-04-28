@@ -1,9 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
-import * as Lib from '../../lib';
 import { GlobalContext } from '../GlobalContextProvider';
 import makeBlockie from 'ethereum-blockies-base64';
 import './Avatar.css';
 import { useAsync } from './useAsync';
+import * as Lib from '../../lib';
+import { CacheType } from '../reducers/Cache';
 
 export enum SpecialSize {
     Xs,
@@ -18,13 +19,34 @@ interface AvatarProps {
 
 function Avatar(props: AvatarProps) {
     const [avatar, setAvatar] = useState<string | undefined>();
-    const { state } = useContext(GlobalContext);
+    const { state, dispatch } = useContext(GlobalContext);
 
     const getAvatar = async () => {
-        const ensName = state.cache.ensNames.get(props.accountAddress);
-        return ensName
-            ? await state.connection.provider!.getAvatar(ensName!)
-            : undefined;
+        const address = Lib.formatAddress(props.accountAddress);
+
+        let url = state.cache.avatarUrls.get(address);
+
+        if (url) {
+            return url;
+        }
+
+        const ensName = state.cache.ensNames.get(address);
+
+        if (ensName) {
+            const urlResponse = await state.connection.provider!.getAvatar(
+                ensName!,
+            );
+
+            if (urlResponse) {
+                dispatch({
+                    type: CacheType.AddAvatarUrl,
+                    payload: { address, url: urlResponse },
+                });
+                return url;
+            }
+        }
+
+        return undefined;
     };
 
     useAsync(
@@ -32,12 +54,8 @@ function Avatar(props: AvatarProps) {
         (avatarUrl: unknown) => {
             setAvatar(avatarUrl as string | undefined);
         },
-        [props.accountAddress, state.cache.ensNames],
+        [props.accountAddress, state.cache.ensNames, state.cache.avatarUrls],
     );
-
-    // useEffect(() => {
-
-    // }, [props.contact, state.ensNames]);
 
     if (!props.accountAddress) {
         return null;
