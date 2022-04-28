@@ -26,12 +26,17 @@ export function feedReducer(
                     ? false
                     : true,
             );
-            Lib.log(`Add ${newElements.length} feed elements`);
-            return [...state, ...newElements].sort(
-                (a, b) =>
-                    Lib.getFeedElementTimestamp(b) -
-                    Lib.getFeedElementTimestamp(a),
-            );
+
+            if (newElements.length === 0) {
+                return state;
+            } else {
+                Lib.log(`[Feed] Add ${newElements.length} feed elements`);
+                return [...state, ...newElements].sort(
+                    (a, b) =>
+                        Lib.getFeedElementTimestamp(b) -
+                        Lib.getFeedElementTimestamp(a),
+                );
+            }
 
         default:
             return state;

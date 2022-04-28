@@ -19,15 +19,24 @@ export type AccountsActions =
 export function accountsReducer(state: Accounts, action: AccountsActions) {
     switch (action.type) {
         case AccountsType.SetSelectedContact:
-            Lib.log(`Set selected account to ${action.payload?.address}`);
-            return {
-                ...state,
-                selectedContact: action.payload,
-            };
+            if (state.selectedContact === action.payload?.address) {
+                return state;
+            } else {
+                Lib.log(
+                    `[Accounts] Set selected account to ${action.payload?.address}`,
+                );
+
+                return {
+                    ...state,
+                    selectedContact: action.payload,
+                };
+            }
 
         case AccountsType.SetContacts:
             Lib.log(
-                `Set ${action.payload ? action.payload.length : '0'} contacts`,
+                `[Accounts] Set ${
+                    action.payload ? action.payload.length : '0'
+                } contacts`,
             );
             return {
                 ...state,
@@ -35,11 +44,15 @@ export function accountsReducer(state: Accounts, action: AccountsActions) {
             };
 
         case AccountsType.SetAccountInfoView:
-            Lib.log(`Set account info view ${action.payload}`);
-            return {
-                ...state,
-                accountInfoView: action.payload,
-            };
+            if (state.accountInfoView === action.payload) {
+                return state;
+            } else {
+                Lib.log(`[Accounts] Set account info view ${action.payload}`);
+                return {
+                    ...state,
+                    accountInfoView: action.payload,
+                };
+            }
 
         default:
             return state;

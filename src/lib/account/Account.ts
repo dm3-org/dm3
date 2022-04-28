@@ -243,15 +243,13 @@ export async function getProfileRegistryEntry(
         uri: string,
     ) => Promise<SignedProfileRegistryEntry | undefined>,
 ): Promise<SignedProfileRegistryEntry | undefined> {
-    log(`[getProfileRegistryEntry]`);
-
     const uri = await getEnsTextRecord(provider, contact, 'eth.mail');
 
     if (uri) {
-        log(`- Onchain uri ${uri}`);
+        log(`[getProfileRegistryEntry] Onchain uri ${uri}`);
         return getRessource(uri);
     } else {
-        log(`- Offchain`);
+        log(`[getProfileRegistryEntry] Offchain`);
         return getProfileOffChain(contact);
     }
 }
