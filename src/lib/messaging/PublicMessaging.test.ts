@@ -42,7 +42,6 @@ test('Should create a public message', async () => {
             async () => undefined,
             async () => undefined,
             () => 1650568239735,
-            async () => null as any,
         ),
     ).toStrictEqual({
         message: {
@@ -67,7 +66,6 @@ test('createMessage should throw if account is undefined', async () => {
             async () => undefined,
             async () => undefined,
             () => 0,
-            async () => null as any,
         ),
     ).rejects.toEqual(Error('No account'));
 });
