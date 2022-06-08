@@ -31,8 +31,6 @@ let pendingConversations = new Map<string, Set<string>>();
 // Maps accounts to the last uri pointing to the last public message from this account
 let messageHeads = new Map<string, string>();
 
-let publicMessages = new Map<string, Lib.PublicEnvelop>();
-
 app.use(express.static(path.join(__dirname, '../build')));
 const port = process.env.PORT || '8080';
 
@@ -130,22 +128,6 @@ const deliveryService = {
             cb({ code: 500, message: e });
         }
     },
-    getPublicMessageHead: (
-        args: {
-            accountAddress: string;
-        },
-        cb: (error: any, result?: any) => void,
-    ) => {
-        try {
-            const messageHead = Lib.Delivery.getPublicMessageHead(
-                messageHeads,
-                args.accountAddress,
-            );
-            cb(null, messageHead);
-        } catch (e) {
-            cb({ code: 500, message: e });
-        }
-    },
 };
 
 const jaysonServer = new jayson.server(deliveryService);
@@ -155,12 +137,6 @@ app.get('/profile/:address', (req, res) => {
     res.json(
         Lib.Delivery.getProfileRegistryEntry(sessions, req.params.address),
     );
-});
-
-app.get('/publicMessage/:id', (req, res) => {
-    Lib.log(`[GET] /publicMessage/${req.params.id}`);
-    const fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
-    res.json(publicMessages.get(fullUrl));
 });
 
 io.use((socket, next) => {
@@ -208,20 +184,7 @@ io.on('connection', (socket) => {
             console.error(e);
         }
     });
-    socket.on('submitPublicMessage', (data, callback) => {
-        try {
-            ({ messageHeads, publicMessages } =
-                Lib.Delivery.incomingPublicMessage(
-                    data,
-                    sessions,
-                    messageHeads,
-                    publicMessages,
-                )),
-                callback('success');
-        } catch (e) {
-            console.error(e);
-        }
-    });
+
     socket.on('pendingMessage', (data) => {
         try {
             pendingConversations = Lib.Delivery.createPendingEntry(

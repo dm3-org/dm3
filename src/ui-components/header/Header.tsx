@@ -25,11 +25,11 @@ function Header() {
     }
 
     return (
-        <div className="row header-row">
+        <div className="row header-row ">
             <div
                 className={
                     `account-name-container col-4 text-center` +
-                    ` d-flex justify-content-center align-items-center`
+                    ` d-flex justify-content-center align-items-center pe-0`
                 }
             >
                 {state.connection?.account && (

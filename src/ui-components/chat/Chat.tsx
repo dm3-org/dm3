@@ -117,7 +117,7 @@ function Chat(props: ChatProps) {
 
     useEffect(() => {
         dropMessages();
-        if (!props.contact.publicKeys?.publicKey) {
+        if (!props.contact?.publicKeys?.publicKey) {
             renderCustomComponent(
                 () => (
                     <InfoBox

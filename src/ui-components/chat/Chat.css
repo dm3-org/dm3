@@ -46,6 +46,10 @@
     height: 100px !important;
     border-radius: 0px !important;
     background-color: rgb(250, 250, 250) !important;
+    border-top-style: solid;
+    border-top-width: 1px;
+    border-top-color: rgba(0,0,0,0.125);
+
     /* display: none !important; */
   
 }

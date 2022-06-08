@@ -25,7 +25,6 @@ export type GlobalState = {
     cache: Cache;
     userDb: Lib.UserDB | undefined;
     uiState: UiState;
-    feed: Lib.FeedElment[];
 };
 
 export enum AccountInfo {
@@ -52,7 +51,6 @@ export const initialState: GlobalState = {
     userDb: undefined,
     uiState: {
         showAddContact: false,
-        selectedRightView: SelectedRightView.MainFeed,
+        selectedRightView: SelectedRightView.Chat,
     },
-    feed: [],
 };

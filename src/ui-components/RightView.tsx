@@ -3,7 +3,6 @@ import 'react-chat-widget/lib/styles.css';
 import * as Lib from '../lib';
 
 import Chat from './chat/Chat';
-import Feed from './feed/Feed';
 import { GlobalContext } from './GlobalContextProvider';
 import { AccountInfo } from './reducers/shared';
 import { SelectedRightView, UiStateType } from './reducers/UiState';
@@ -17,9 +16,7 @@ function RightView() {
             case Lib.ConnectionState.SignedIn:
                 dispatch({
                     type: UiStateType.SetSelectedRightView,
-                    payload: state.accounts.selectedContact
-                        ? SelectedRightView.Chat
-                        : SelectedRightView.MainFeed,
+                    payload: SelectedRightView.Chat,
                 });
 
                 break;
@@ -45,38 +42,21 @@ function RightView() {
             default:
                 dispatch({
                     type: UiStateType.SetSelectedRightView,
-                    payload: state.accounts.selectedContact
-                        ? SelectedRightView.Chat
-                        : SelectedRightView.MainFeed,
+                    payload: SelectedRightView.Chat,
                 });
         }
     }, [state.accounts.accountInfoView]);
 
     switch (state.uiState.selectedRightView) {
-        case SelectedRightView.MainFeed:
-            return (
-                <div className="col-md-8 content-container h-100">
-                    {state.connection.connectionState ===
-                        Lib.ConnectionState.SignedIn && (
-                        <Feed
-                            accounts={[
-                                state.connection.account!,
-                                ...(state.accounts.contacts
-                                    ? state.accounts.contacts
-                                    : []),
-                            ]}
-                        />
-                    )}
-                </div>
-            );
-
         case SelectedRightView.Chat:
             return (
                 <div className="col-md-8 content-container h-100">
-                    <Chat
-                        contact={state.accounts.selectedContact!}
-                        connection={state.connection}
-                    />
+                    {state.accounts.selectedContact && (
+                        <Chat
+                            contact={state.accounts.selectedContact!}
+                            connection={state.connection}
+                        />
+                    )}
                 </div>
             );
 
@@ -91,14 +71,6 @@ function RightView() {
                                 : state.accounts.selectedContact!
                         }
                     />
-                </div>
-            );
-        case SelectedRightView.UserPublicFeed:
-            return (
-                <div className="col-md-8 content-container h-100">
-                    {state.accounts.selectedContact && (
-                        <Feed accounts={[state.accounts.selectedContact]} />
-                    )}
                 </div>
             );
 

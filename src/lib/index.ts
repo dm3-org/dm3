@@ -4,7 +4,6 @@ import * as Web3Provider from './web3-provider/Web3Provider';
 import * as SignIn from './signin';
 import * as BackendAPI from './external-apis/BackendAPI';
 import * as Messaging from './messaging/Messaging';
-import * as PublicMessaging from './messaging/PublicMessaging';
 import * as Encryption from './encryption/Encryption';
 import * as Account from './account/Account';
 import * as Storage from './storage';
@@ -30,12 +29,7 @@ export type {
     EncryptionEnvelop,
     Envelop,
 } from './messaging/Messaging';
-export type {
-    PublicEnvelop,
-    PublicMessage,
-    TxContainer,
-    FeedElment,
-} from './messaging/PublicMessaging';
+
 export type { UserDB, StorageEnvelopContainer } from './storage';
 export type { GetTransactions } from './external-apis/Etherscan';
 
@@ -65,17 +59,10 @@ export {
 } from './account/Account';
 export { decryptEnvelop, checkSignature } from './encryption/Encryption';
 export { MessageState } from './messaging/Messaging';
-export {
-    getFeedElementId,
-    getFeedElementTimestamp,
-} from './messaging/PublicMessaging';
+
 export { getId } from './messaging/Utils';
 export { ConnectionState, getWeb3Provider } from './web3-provider/Web3Provider';
-export {
-    getNewMessages,
-    syncAcknoledgment,
-    submitPublicMessage,
-} from './external-apis/BackendAPI';
+export { getNewMessages, syncAcknoledgment } from './external-apis/BackendAPI';
 export {
     lookupAddress,
     formatAddress,
@@ -218,37 +205,5 @@ export async function getContacts(
         Web3Api.resolveName,
         userDb,
         createEmptyConversationEntry,
-    );
-}
-
-export async function createPublicMessage(
-    messageText: string,
-    connection: Web3Provider.Connection,
-    userDb: Storage.UserDB,
-) {
-    return PublicMessaging.createPublicMessage(
-        messageText,
-        connection,
-        userDb,
-        BackendAPI.getPublicMessageHead,
-        BackendAPI.getPublicMessage,
-        createTimestamp,
-    );
-}
-
-export async function getNewFeedElements(
-    existingFeedElements: PublicMessaging.FeedElment[],
-    connection: Web3Provider.Connection,
-    contacts: Account.Account[],
-    abis: Map<string, string>,
-) {
-    return PublicMessaging.getNewFeedElements(
-        existingFeedElements,
-        connection,
-        contacts,
-        abis,
-        BackendAPI.getPublicMessageHead,
-        BackendAPI.getPublicMessage,
-        EtherscanApi.getTransactions,
     );
 }

@@ -1,7 +1,9 @@
 
 .storage-view-container {
     background-color: #fafafa;
-
+    border-top-color: rgba(0,0,0,0.125);
+    border-top-style: solid;
+    border-top-width: 1px;
     height: 3rem;
 }
 .storage-view {
