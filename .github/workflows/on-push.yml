@@ -34,7 +34,8 @@ jobs:
           with:
             registry-url: 'https://npm.pkg.github.com'
             node-version: 16.13.2
-
+        - name: Lib Package
+          run: cd packages/ens-mail-lib
         - name: Install
           run: yarn install
           env:
