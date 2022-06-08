@@ -5,6 +5,7 @@ module.exports = {
         sourceType: 'module', // Allows for the use of imports
     },
     extends: ['prettier'],
+    ignorePatterns: ['package.json', '**/dist/**/*.js'],
     rules: {
         'max-len': ['error', { code: 120 }],
     },
