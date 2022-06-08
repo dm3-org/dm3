@@ -8,7 +8,6 @@ import { ethers } from 'ethers';
 import { EncryptionEnvelop, Envelop, Message } from '../messaging/Messaging';
 import { log } from '../shared/log';
 import { Keys } from '../account/Account';
-import { PublicMessage } from '../messaging/PublicMessaging';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { UserDB } from '../storage/Storage';
 
@@ -251,7 +250,7 @@ export function decryptEnvelop(
 }
 
 export function checkSignature(
-    message: Message | PublicMessage,
+    message: Message,
     publicSigningKey: string,
     accountAddress: string,
     signature: string,
@@ -273,10 +272,7 @@ export function checkSignature(
     }
 }
 
-export function signWithSignatureKey(
-    message: Message | PublicMessage,
-    keys: Keys,
-): string {
+export function signWithSignatureKey(message: Message, keys: Keys): string {
     return ethers.utils.hexlify(
         nacl.sign.detached(
             ethers.utils.toUtf8Bytes(JSON.stringify(message)),

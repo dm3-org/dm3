@@ -5,7 +5,6 @@ import { Connection } from '../web3-provider/Web3Provider';
 import { SignedProfileRegistryEntry } from '../account/Account';
 import { UserDB } from '..';
 import { Acknoledgment } from '../delivery';
-import { PublicEnvelop } from '../messaging/PublicMessaging';
 
 const DELIVERY_SERVICE =
     (process.env.REACT_APP_BACKEND as string) + '/deliveryService';
@@ -67,33 +66,6 @@ export async function submitMessage(
     }
 }
 export type SubmitMessage = typeof submitMessage;
-
-export async function submitPublicMessage(
-    connection: Connection,
-    userDb: UserDB,
-    envelop: PublicEnvelop,
-): Promise<void> {
-    return new Promise((resolve, reject) => {
-        if (connection.socket) {
-            connection.socket.emit(
-                'submitPublicMessage',
-                {
-                    envelop,
-                    token: userDb.deliveryServiceToken,
-                },
-                (response: string) => {
-                    if (response === 'success') {
-                        log(`- success`);
-                        resolve();
-                    } else {
-                        log(`- error`);
-                        reject();
-                    }
-                },
-            );
-        }
-    });
-}
 
 export async function syncAcknoledgment(
     connection: Connection,
@@ -219,10 +191,3 @@ export async function getPublicMessageHead(
     return request.result;
 }
 export type GetPublicMessageHead = typeof getPublicMessageHead;
-
-export async function getPublicMessage(
-    url: string,
-): Promise<PublicEnvelop | undefined> {
-    return (await axios.get(url)).data as PublicEnvelop | undefined;
-}
-export type GetPublicMessage = typeof getPublicMessage;

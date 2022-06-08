@@ -3,10 +3,8 @@ import * as Lib from '../../lib';
 
 export enum SelectedRightView {
     Error,
-    MainFeed,
     Chat,
     UserInfo,
-    UserPublicFeed,
 }
 
 export interface UiState {

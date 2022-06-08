@@ -19,13 +19,14 @@ function ChatHeader(props: ChatHeaderProps) {
         return (
             <div className="account-name w-100   text-center">Account Info</div>
         );
-    } else if (state.uiState.selectedRightView === SelectedRightView.MainFeed) {
-        return (
-            <div className="account-name w-100   text-center">Main Feed</div>
-        );
     } else if (props.account) {
         return (
-            <div className="account-name w-100 d-flex justify-content-between account-header h-100 d-flex flex-column">
+            <div
+                className={
+                    'account-name w-100 d-flex justify-content-between' +
+                    ' account-header h-100 d-flex flex-column'
+                }
+            >
                 <div
                     className="w-100 mt-2"
                     onClick={() =>
@@ -36,7 +37,7 @@ function ChatHeader(props: ChatHeaderProps) {
                     }
                 >
                     <div className="row w-100">
-                        <div className="col-12 d-flex justify-content-between">
+                        <div className="col-12 d-flex justify-content-between  pe-0">
                             <div className="d-flex align-items-center">
                                 <div className="d-flex contact-entry-avatar">
                                     <Avatar
@@ -65,7 +66,7 @@ function ChatHeader(props: ChatHeaderProps) {
                         </div>
                     </div>
                 </div>
-                <div className="mt-auto w-100">
+                {/* <div className="mt-auto w-100">
                     <div className="row header-buttons">
                         <div className="col-6 d-flex">
                             <button
@@ -107,7 +108,7 @@ function ChatHeader(props: ChatHeaderProps) {
                             </button>
                         </div>
                     </div>
-                </div>
+                </div> */}
             </div>
         );
     } else {

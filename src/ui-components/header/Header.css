@@ -8,5 +8,8 @@
 }
   
 .header-row {
-    height: 15%;
+    height: 10%;
+    border-bottom-color: rgba(0, 0, 0, 0.125) ;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
   }
