@@ -1,0 +1,100 @@
+.messages-badge {
+    border-radius: 2px !important;
+    background-color: #DFE3EB !important;
+    color: #000
+}
+
+
+
+.contact-list-container {
+    padding: 0px !important;
+}
+  
+.contact-list-container * { 
+    border-radius: 0px; 
+    border-left: none ; 
+    border-right: none ;
+}
+
+.contact-entry {
+    cursor: pointer;
+    color: #ffffff;
+    background-color: #263f66;
+    border-bottom-style: none;
+    border-top-style: none;
+    border-bottom-width: 2px;
+    border-top-color: white;
+    border-top-width: 2px;
+    
+}
+
+.contact-entry {
+    color: #ffffffd5;
+}
+
+.contact-entry .text-muted {
+    color: #bdbdbd!important;
+}
+
+.contact-entry:hover {
+    background-color: #2d4870;
+    color: #ffffffd5
+}
+
+.contact-entry-center {
+    padding-left: 0.5rem;
+}
+
+.contact-entry-avatar {
+    height: fit-content;
+}
+
+.teaser {
+    font-size: 0.8rem;
+}
+
+
+.account-input {
+    border-top-style: none;
+    background-color: #E0E5EA;
+}
+
+.account-input:focus {
+    border-top-style: none;
+    background-color: #E0E5EA;
+}
+
+.contacts {
+    background-color: #263f66;
+}
+
+.contract-entry-selected {
+    background-color: #3173d5 !important;
+}
+
+.add-btn {
+    background-color: #3173D5 !important;
+    color: #fff !important;
+    border-style: none !important;
+
+
+  
+}
+
+.add-contact-form {
+    /* border-left: solid #263f66 2px;
+    border-right: solid #263f66 2px; */
+    border-bottom: solid #263f66 2px;
+}
+
+.add-contact-error-label {
+    color: #fff !important
+}
+
+.add-contact-label {
+    color: #5E6164 !important
+}
+
+.add-contact-error {
+    background-color: #c2606a !important;
+}

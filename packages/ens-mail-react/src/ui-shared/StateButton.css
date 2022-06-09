@@ -1,0 +1,29 @@
+.state-btn {
+    border-radius: 18px;
+    background-color: #273E66;
+    color: #DCE1E7;
+    border-color: #DCE1E7;
+    border-style: solid;
+}
+
+.state-btn:hover {
+    background-color: #9DB1D1;
+    border-color: #fff;
+
+}
+
+.state-btn:disabled {
+
+    background-color: #273E66;
+    color: #DCE1E7;
+    border-color: #DCE1E7;
+ 
+}
+
+.state-btn:disabled:hover {
+
+    background-color: #273E66;
+    color: #DCE1E7;
+    border-color: #DCE1E7;
+ 
+}

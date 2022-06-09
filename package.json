@@ -1,10 +1,17 @@
 {
     "private": true,
-    "workspaces": [
-        "packages/ens-mail-lib",
-        "packages/ens-mail-backend",
-        "packages/ens-mail-react"
-    ],
+    "workspaces": {
+        "packages": [
+            "packages/ens-mail-lib",
+            "packages/ens-mail-backend",
+            "packages/ens-mail-react",
+            "packages/ens-mail-web"
+        ],
+        "nohoist": [
+            "**/react",
+            "**/react-dom"
+        ]
+    },
     "devDependencies": {
         "eslint": "^8.17.0",
         "eslint-config-prettier": "^8.5.0",
