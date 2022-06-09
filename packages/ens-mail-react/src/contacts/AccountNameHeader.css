@@ -1,0 +1,24 @@
+.account-header-text {
+    cursor: pointer;
+   
+  }
+  .account-name {
+    height: fit-content;
+    font-size: 2rem;
+    font-weight: 400;
+
+  }
+
+
+
+
+.header-buttons > div {
+    padding: 0px !important
+}
+
+.show-add-btn {
+
+    height: 40px;
+    width: 40px !important;
+    border-radius: 100% !important;
+}

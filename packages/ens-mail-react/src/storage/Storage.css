@@ -1,0 +1,68 @@
+
+.storage-view-container {
+    background-color: #263f66;
+
+
+}
+.storage-view {
+   
+    padding: 10px !important;
+
+  
+}
+
+.sync-state {
+    font-size: 0.8rem;
+}
+
+
+/* 
+.storage-view-bottom {
+   
+    padding: 20px !important;
+    padding-bottom: 0px !important;
+    padding-top: 0px !important;
+  
+} 
+
+
+.btn-white {
+    border-color: white;
+
+}
+
+.alert-msg {
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.info-msg {
+  
+    font-size: 0.8rem;
+    font-weight: 400;
+}
+
+
+
+
+
+.brand {
+    color: #6c757d;
+    font-weight: 300;
+    font-size: 1.2rem;
+}
+
+.export-data {
+    padding-top: 0.5rem;
+    padding-bottom: 0rem;
+}
+
+.only-outline {
+    background-color: rgba(0,0,0,0) !important;
+}
+
+.not-synced {
+    background-color: #dc3545;
+}
+*/

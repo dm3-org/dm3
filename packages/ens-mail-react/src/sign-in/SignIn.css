@@ -1,0 +1,56 @@
+.help-text {
+  font-size: 1.2rem;
+  color: #DCE1E7;
+}
+
+.sign-in-help {
+  margin-top: 0.2rem !important;
+}
+
+.sign-in-help-1 {
+    margin-top: 2.5rem !important;
+  }
+.sign-in-help-2 {
+    margin-top: 2.2rem !important;
+}
+
+.store-token {
+  margin-top: 0.5rem;
+}
+
+.explanation {
+  font-size: 0.8rem;
+}
+
+.sign-in {
+  padding-left: 1rem;
+}
+
+.storage-item {
+  background-color: #273C66;
+  color: #DCE1E7 !important;
+  border-style: none;
+  border-radius: 8px !important;
+  margin-bottom: 0.5rem;
+}
+
+.storage-item:focus {
+  background-color: #9DB1D1;
+
+  color: #fff !important;
+}
+
+.storage-item-selected {
+  background-color: #9DB1D1;
+
+  color: #fff !important;
+}
+
+
+.storage-item:hover {
+  background-color: #9DB1D1;
+
+  color: #fff !important;
+
+}
+
