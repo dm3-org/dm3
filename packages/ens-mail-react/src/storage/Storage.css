@@ -1,6 +1,6 @@
 
 .storage-view-container {
-    background-color: #263f66;
+    background-color: var(--mainDark);;
 
 
 }

@@ -1,5 +1,5 @@
 .start-btn {
-    background-color: #273E66;
+    background-color: var(--mainDark);
     color: #DBDFE5 !important;
     font-size: 30px;
     border: solid #DBDFE5 2px !important;
@@ -15,7 +15,7 @@
 
 .start-btn:hover {
     background-color: #DBDFE5;
-    color: #273E66 !important;
-    border: solid #273E66 2px !important;
+    color: var(--main) !important;
+    border: solid var(--main) 2px !important;
 
 }

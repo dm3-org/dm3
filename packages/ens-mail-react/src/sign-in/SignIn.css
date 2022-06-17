@@ -27,7 +27,7 @@
 }
 
 .storage-item {
-  background-color: #273C66;
+  background-color: var(--mainDark);
   color: #DCE1E7 !important;
   border-style: none;
   border-radius: 8px !important;
