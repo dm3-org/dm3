@@ -19,12 +19,10 @@ import { UiStateType } from './reducers/UiState';
 import Start from './start/Start';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import { Config } from './utils/Config';
 
 interface EnsMailProps {
-    defaultContact?: string;
-    showContacts?: boolean;
-    inline?: boolean;
-    defaultStorageLocation?: Lib.StorageLocation;
+    config: Config;
 }
 
 function EnsMail(props: EnsMailProps) {
@@ -40,7 +38,10 @@ function EnsMail(props: EnsMailProps) {
     }
 
     useEffect(() => {
-        if (props.showContacts === false && state.accounts.selectedContact) {
+        if (
+            props.config.showContacts === false &&
+            state.accounts.selectedContact
+        ) {
             dispatch({
                 type: UiStateType.SetMaxLeftView,
                 payload: false,
@@ -89,7 +90,7 @@ function EnsMail(props: EnsMailProps) {
                         },
                     }),
                 ),
-            props.defaultContact,
+            props.config.defaultContact,
         );
     };
 
@@ -201,7 +202,7 @@ function EnsMail(props: EnsMailProps) {
     }, [state.connection.provider]);
 
     const mainContent = (
-        <div className="row main-content-row">
+        <div className="row main-content-row" style={props.config.style}>
             <div className="col-12 h-100">
                 {/* <Header /> */}
                 <div className="row h-100">
@@ -218,7 +219,7 @@ function EnsMail(props: EnsMailProps) {
         </div>
     );
 
-    return props.inline ? (
+    return props.config.inline ? (
         mainContent
     ) : (
         <>

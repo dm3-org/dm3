@@ -1,7 +1,7 @@
 
   
 .header-row-left {
-    background-color: #263f66;
+    background-color: var(--mainDark);;
     color: #ffffffd5;
 
 

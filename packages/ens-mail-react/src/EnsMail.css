@@ -66,8 +66,8 @@ code {
   height: 100%;
   max-height: 100%;
   border-radius: 18px;
-  background-color: #273D66;
-  border: solid #6c757d 2px;
+  background-color: var(--mainDark);
+  border: solid var(--mainBorder) 2px;
 }
 
 .main-content-row-max {
@@ -137,12 +137,12 @@ html, body {
 }
 
 .left-btn.btn-secondary {
-  background-color: #9db2d1 !important;
+  background-color: var(--lightHighlight) !important;
 }
 
 
 .left-btn:hover {
-  background-color: #9db2d1 !important;
+  background-color: var(--lightHighlight)!important;
 }
 
 
@@ -194,4 +194,10 @@ html, body {
   backdrop-filter: blur(5px);
   background: rgba(168, 168, 168, 0.1);
   z-index: 1001;
+}
+
+.btn-outline-secondary {
+
+  border-color: var(--lightHighlight);
+  color: var(--lightHighlight);
 }

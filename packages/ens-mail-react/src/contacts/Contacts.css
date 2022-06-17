@@ -19,7 +19,7 @@
 .contact-entry {
     cursor: pointer;
     color: #ffffff;
-    background-color: #263f66;
+    background-color: var(--mainDark);;
     border-bottom-style: none;
     border-top-style: none;
     border-bottom-width: 2px;
@@ -65,7 +65,7 @@
 }
 
 .contacts {
-    background-color: #263f66;
+    background-color: var(--mainDark);;
 }
 
 .contract-entry-selected {
@@ -82,9 +82,9 @@
 }
 
 .add-contact-form {
-    /* border-left: solid #263f66 2px;
-    border-right: solid #263f66 2px; */
-    border-bottom: solid #263f66 2px;
+    /* border-left: solid var(--mainDark); 2px;
+    border-right: solid var(--mainDark); 2px; */
+    border-bottom: solid var(--mainDark) 2px;
 }
 
 .add-contact-error-label {
@@ -92,7 +92,7 @@
 }
 
 .add-contact-label {
-    color: #5E6164 !important
+    color: var(--lightHighlight) !important
 }
 
 .add-contact-error {

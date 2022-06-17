@@ -5,3 +5,9 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
+
+:root {
+    --mainDark: #263f66;
+    --lightHighlight: #5e6164;
+    --mainBorder: #5e6164;
+  }

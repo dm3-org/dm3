@@ -4,11 +4,16 @@ import EnsMail from './EnsMail';
 import './index.css';
 
 import GlobalContextProvider from './GlobalContextProvider';
+import { Config, getConfig } from './utils/Config';
 
-export default () => (
-    <div className="entry">
-        <GlobalContextProvider>
-            <EnsMail inline={false} />
-        </GlobalContextProvider>
-    </div>
-);
+function index(props: Partial<Config>) {
+    return (
+        <div className="entry">
+            <GlobalContextProvider>
+                <EnsMail config={getConfig(props)} />
+            </GlobalContextProvider>
+        </div>
+    );
+}
+
+export default index;
