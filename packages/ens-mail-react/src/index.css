@@ -11,3 +11,7 @@
     --lightHighlight: #5e6164;
     --mainBorder: #5e6164;
   }
+
+  .h-100 {
+      min-height: inherit;
+  }
