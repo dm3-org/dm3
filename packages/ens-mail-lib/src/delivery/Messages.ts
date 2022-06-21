@@ -10,9 +10,13 @@ export interface Acknoledgment {
 }
 
 // fetch new messages
-export function getMessages(
-    sessions: Map<string, Session>,
-    messages: Map<string, EncryptionEnvelop[]>,
+export async function getMessages(
+    getSession: (accountAddress: string) => Promise<Session | null>,
+    loadMessages: (
+        conversationId: string,
+        offset: number,
+        size: number,
+    ) => Promise<EncryptionEnvelop[]>,
     accountAddress: string,
     contactAddress: string,
     token: string,
@@ -25,10 +29,12 @@ export function getMessages(
 
     log(`- Conversations id: ${conversationId}`);
 
-    if (checkToken(sessions, account, token)) {
-        const receivedMessages: EncryptionEnvelop[] = (
-            messages.has(conversationId) ? messages.get(conversationId) : []
-        ) as EncryptionEnvelop[];
+    if (await checkToken(getSession, account, token)) {
+        const receivedMessages: EncryptionEnvelop[] = await loadMessages(
+            conversationId,
+            0,
+            50,
+        );
 
         const forAccount = receivedMessages.filter(
             (envelop) => formatAddress(envelop.to) === account,
@@ -45,12 +51,15 @@ export function getMessages(
 }
 
 // buffer message until delivery and sync acknoledgment
-export function incomingMessage(
+export async function incomingMessage(
     data: { envelop: EncryptionEnvelop; token: string },
-    sessions: Map<string, Session>,
-    messages: Map<string, EncryptionEnvelop[]>,
+    getSession: (accountAddress: string) => Promise<Session | null>,
+    storeNewMessage: (
+        conversationId: string,
+        envelop: EncryptionEnvelop,
+    ) => Promise<void>,
     send: (socketId: string, envelop: EncryptionEnvelop) => void,
-): Map<string, EncryptionEnvelop[]> {
+): Promise<void> {
     log('[incoming message]');
     const envelop = {
         ...data.envelop,
@@ -61,46 +70,34 @@ export function incomingMessage(
     const conversationId = getConversationId(account, contact);
     log(`- Conversations id: ${conversationId}`);
 
-    if (checkToken(sessions, account, data.token)) {
-        const newMessages = new Map<string, EncryptionEnvelop[]>(messages);
-        const conversation = newMessages.has(conversationId)
-            ? (newMessages.get(conversationId) as EncryptionEnvelop[])
-            : [];
-
-        conversation.push(envelop);
-
-        if (!newMessages.has(conversationId)) {
-            newMessages.set(conversationId, conversation);
-        }
-
-        const contactSession = sessions.get(contact);
+    if (await checkToken(getSession, account, data.token)) {
+        storeNewMessage(conversationId, envelop);
+        const contactSession = await getSession(contact);
         if (contactSession?.socketId) {
             log(`- Forwarding message to ${contact}`);
             send(contactSession.socketId, envelop);
         }
-
-        return newMessages;
     } else {
         throw Error('Token check failed');
     }
 }
 
 // provide a new user with the addresses of accounts which tried to send messages to them
-export function getPendingConversations(
-    sessions: Map<string, Session>,
+export async function getPendingConversations(
+    getSession: (accountAddress: string) => Promise<Session | null>,
     pendingConversations: Map<string, Set<string>>,
     accountAddress: string,
     token: string,
-): {
+): Promise<{
     pendingConversations: Map<string, Set<string>>;
     pendingConversationsForAccount: string[];
-} {
+}> {
     log(`[getPendingConversations]`);
     const account = formatAddress(accountAddress);
 
     log(`- Account: ${accountAddress}`);
 
-    if (checkToken(sessions, account, token)) {
+    if (await checkToken(getSession, account, token)) {
         const newPendingConversations = new Map<string, Set<string>>(
             pendingConversations,
         );
@@ -125,19 +122,19 @@ export type GetPendingConversations = typeof getPendingConversations;
 
 // create an entry that is used to notify a new user
 // that there are already pending messages adderssed to them
-export function createPendingEntry(
+export async function createPendingEntry(
     accountAddress: string,
     contactAddress: string,
     token: string,
-    sessions: Map<string, Session>,
+    getSession: (accountAddress: string) => Promise<Session | null>,
     pendingConversations: Map<string, Set<string>>,
-): Map<string, Set<string>> {
+): Promise<Map<string, Set<string>>> {
     log('[createPendingEntry] pending message');
     const account = formatAddress(accountAddress);
     const contact = formatAddress(contactAddress);
     log(`- Pending message from ${account} to ${contact}`);
 
-    if (checkToken(sessions, account, token)) {
+    if (await checkToken(getSession, account, token)) {
         const newPendingConversations = new Map<string, Set<string>>(
             pendingConversations,
         );
@@ -158,17 +155,17 @@ export function createPendingEntry(
 
 // delete messages sent before and equal the specified timestamp
 // after an acknoledgment that the user stored the messages
-export function handleSyncAcknoledgment(
+export async function handleSyncAcknoledgment(
     accountAddress: string,
     acknoledgments: Acknoledgment[],
     token: string,
-    sessions: Map<string, Session>,
+    getSession: (accountAddress: string) => Promise<Session | null>,
     messages: Map<string, EncryptionEnvelop[]>,
-): Map<string, EncryptionEnvelop[]> {
+): Promise<Map<string, EncryptionEnvelop[]>> {
     log('[handleSyncAcknoledgment]');
     const account = formatAddress(accountAddress);
 
-    if (checkToken(sessions, account, token)) {
+    if (await checkToken(getSession, account, token)) {
         const newMessages = new Map<string, EncryptionEnvelop[]>(messages);
         for (const acknoledgment of acknoledgments) {
             const contact = formatAddress(acknoledgment.contactAddress);

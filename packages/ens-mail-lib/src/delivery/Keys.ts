@@ -7,18 +7,19 @@ import {
     SignedProfileRegistryEntry,
 } from '../account/Account';
 
-export function submitProfileRegistryEntry(
-    sessions: Map<string, Session>,
+export async function submitProfileRegistryEntry(
+    getSession: (accountAddress: string) => Promise<Session | null>,
+    setSession: (accountAddress: string, session: Session) => Promise<void>,
     accountAddress: string,
     signedProfileRegistryEntry: SignedProfileRegistryEntry,
     pendingConversations: Map<string, Set<string>>,
     send: (socketId: string) => void,
-): string {
+): Promise<string> {
     log(`[submitKeys] for account ${accountAddress}`);
     const account = formatAddress(accountAddress);
 
     if (checkProfileRegistryEntry(signedProfileRegistryEntry, account)) {
-        if (sessions.has(account)) {
+        if (await getSession(account)) {
             throw Error('Profile exists already');
         }
 
@@ -28,17 +29,19 @@ export function submitProfileRegistryEntry(
             token: uuidv4(),
         };
 
-        sessions.set(account, session);
+        await setSession(account, session);
         const pending = pendingConversations.get(account);
         if (pending) {
-            pending.forEach((pendingEntry) => {
-                const contact = formatAddress(pendingEntry);
-                const contactSession = sessions.get(contact);
-                if (contactSession?.socketId) {
-                    log(`- Send join notification to ${contact}`);
-                    send(contactSession.socketId);
-                }
-            });
+            await Promise.all(
+                Array.from(pending).map(async (pendingEntry) => {
+                    const contact = formatAddress(pendingEntry);
+                    const contactSession = await getSession(contact);
+                    if (contactSession?.socketId) {
+                        log(`- Send join notification to ${contact}`);
+                        send(contactSession.socketId);
+                    }
+                }),
+            );
         }
         return session.token;
     } else {
@@ -47,13 +50,13 @@ export function submitProfileRegistryEntry(
     }
 }
 
-export function getProfileRegistryEntry(
-    sessions: Map<string, Session>,
+export async function getProfileRegistryEntry(
+    getSession: (accountAddress: string) => Promise<Session | null>,
     accountAddress: string,
-): SignedProfileRegistryEntry | undefined {
+): Promise<SignedProfileRegistryEntry | undefined> {
     log(`[getProfileRegistryEntry] for account ${accountAddress}`);
     const account = formatAddress(accountAddress);
-    const session = sessions.get(account);
+    const session = await getSession(account);
     if (session) {
         return session.signedProfileRegistryEntry;
     } else {
