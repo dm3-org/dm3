@@ -11,13 +11,14 @@ export interface Session {
     socketId?: string;
 }
 
-export function checkToken(
-    sessions: Map<string, Session>,
+export async function checkToken(
+    getSession: (accountAddress: string) => Promise<Session | null>,
     accountAddress: string,
     token: string,
-): boolean {
+): Promise<boolean> {
     const account = formatAddress(accountAddress);
-    const session = sessions.get(account);
+    const session = await getSession(account);
+
     const passed = session && session?.token === token;
     log(`- Token check for ${account}: ${passed ? 'PASSED' : 'FAILED'}`);
     return passed ? true : false;

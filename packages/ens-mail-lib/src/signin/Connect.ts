@@ -27,6 +27,7 @@ export async function connectAccount(
             connectionState: ConnectionState.CollectingSignInData,
         };
     } catch (e) {
+        console.error(e);
         return {
             existingAccount: false,
             connectionState: ConnectionState.AccountConnectionRejected,

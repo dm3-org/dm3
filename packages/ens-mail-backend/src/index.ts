@@ -5,6 +5,12 @@ import path from 'path';
 import * as Lib from 'ens-mail-lib';
 import cors from 'cors';
 import jayson from 'jayson';
+import {
+    RedisPrefix,
+    createRedisClient,
+    getSession,
+    setSession,
+} from './redis';
 
 const app = express();
 app.use(express.json());
@@ -22,24 +28,64 @@ const io = new Server(server, {
     },
 });
 
-const sessions = new Map<string, Lib.Delivery.Session>();
-
-let messages = new Map<string, Lib.EncryptionEnvelop[]>();
 // Maps not registered accounts to accounts who send messages to the unregistered account
 let pendingConversations = new Map<string, Set<string>>();
 
+let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
+
+(async () => {
+    redisClient = await createRedisClient();
+})();
+
+// TODO include standalone web app
 app.use(express.static(path.join(__dirname, '../build')));
 const port = process.env.PORT || '8080';
 
+const loadSession = async (accountAddress: string) => {
+    return redisClient ? getSession(accountAddress, redisClient) : null;
+};
+
+const storeSession = async (
+    accountAddress: string,
+    session: Lib.Delivery.Session,
+) => {
+    if (!redisClient) {
+        throw Error('redis client not connected');
+    }
+    return setSession(accountAddress, session, redisClient);
+};
+
 const deliveryService = {
-    getMessages: (
+    getMessages: async (
         args: { accountAddress: string; contactAddress: string; token: string },
         cb: (error: any, result?: any) => void,
     ) => {
         try {
-            const newMessages = Lib.Delivery.getMessages(
-                sessions,
-                messages,
+            const newMessages = await Lib.Delivery.getMessages(
+                loadSession,
+                async (
+                    conversationId: string,
+                    offset: number,
+                    size: number,
+                ) => {
+                    if (redisClient) {
+                        return (
+                            (await redisClient.exists(
+                                RedisPrefix.Conversation + conversationId,
+                            ))
+                                ? await redisClient.zRange(
+                                      RedisPrefix.Conversation + conversationId,
+                                      offset,
+                                      offset + size,
+                                      { REV: true },
+                                  )
+                                : []
+                        ).map((envelopString) => JSON.parse(envelopString));
+                    } else {
+                        throw Error('db not connected');
+                    }
+                },
+
                 args.accountAddress,
                 args.contactAddress,
                 args.token,
@@ -50,17 +96,20 @@ const deliveryService = {
         }
     },
 
-    getPendingConversations: (
+    getPendingConversations: async (
         args: { accountAddress: string; token: string },
         cb: (error: any, result?: any) => void,
     ) => {
         try {
-            const response = Lib.Delivery.getPendingConversations(
-                sessions,
+            const response = await Lib.Delivery.getPendingConversations(
+                loadSession,
                 pendingConversations,
                 args.accountAddress,
                 args.token,
             );
+            if (!response) {
+                throw Error('could not get pending conversations');
+            }
             pendingConversations = response.pendingConversations;
             cb(null, {
                 pendingConversations: response.pendingConversationsForAccount,
@@ -69,7 +118,7 @@ const deliveryService = {
             cb({ code: 500, message: e });
         }
     },
-    submitProfileRegistryEntry: (
+    submitProfileRegistryEntry: async (
         args: {
             accountAddress: string;
             signedProfileRegistryEntry: Lib.SignedProfileRegistryEntry;
@@ -77,8 +126,9 @@ const deliveryService = {
         cb: (error: any, result?: any) => void,
     ) => {
         try {
-            const token = Lib.Delivery.submitProfileRegistryEntry(
-                sessions,
+            const token = await Lib.Delivery.submitProfileRegistryEntry(
+                loadSession,
+                storeSession,
                 args.accountAddress,
                 args.signedProfileRegistryEntry,
                 pendingConversations,
@@ -89,15 +139,16 @@ const deliveryService = {
             cb({ code: 500, message: e });
         }
     },
-    getProfileRegistryEntry: (
+    getProfileRegistryEntry: async (
         args: { accountAddress: string; token: string; keys: Lib.PublicKeys },
         cb: (error: any, result?: any) => void,
     ) => {
         try {
-            const publicKeys = Lib.Delivery.getProfileRegistryEntry(
-                sessions,
+            const publicKeys = await Lib.Delivery.getProfileRegistryEntry(
+                loadSession,
                 args.accountAddress,
             );
+
             cb(null, publicKeys);
         } catch (e) {
             cb({ code: 500, message: e });
@@ -113,13 +164,7 @@ const deliveryService = {
         cb: (error: any, result?: any) => void,
     ) => {
         try {
-            messages = Lib.Delivery.handleSyncAcknoledgment(
-                args.accountAddress,
-                args.acknoledgments,
-                args.token,
-                sessions,
-                messages,
-            );
+            // TODO: What to do after storage sync? Delete from delivery service?
             cb(null, 'success');
         } catch (e) {
             cb({ code: 500, message: e });
@@ -132,27 +177,32 @@ app.post('/deliveryService', jaysonServer.middleware());
 
 app.get('/profile/:address', (req, res) => {
     res.json(
-        Lib.Delivery.getProfileRegistryEntry(sessions, req.params.address),
+        Lib.Delivery.getProfileRegistryEntry(loadSession, req.params.address),
     );
 });
 
-io.use((socket, next) => {
+io.use(async (socket, next) => {
     const account = Lib.formatAddress(
         socket.handshake.auth.account.address as string,
     );
 
     if (
-        !Lib.Delivery.checkToken(
-            sessions,
+        !(await Lib.Delivery.checkToken(
+            loadSession,
             account,
             socket.handshake.auth.token as string,
-        )
+        ))
     ) {
         Lib.log(`[WS] Account ${account}: REJECTED`);
         return next(new Error('invalid username'));
     }
-    const session = sessions.get(account) as Lib.Delivery.Session;
-    session.socketId = socket.id;
+    const session = await loadSession(account);
+    if (!session) {
+        throw Error('Could not get session');
+    }
+
+    await storeSession(account, { ...session, socketId: socket.id });
+
     Lib.log(`[WS] Account ${account} with id ${socket.id}: CONNECTED`);
     //socket.username = socket.handshake.auth.account as string;
     next();
@@ -166,29 +216,44 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         Lib.log('[WS] user disconnected');
     });
-    socket.on('submitMessage', (data, callback) => {
+    socket.on('submitMessage', async (data, callback) => {
         try {
-            (messages = Lib.Delivery.incomingMessage(
+            await Lib.Delivery.incomingMessage(
                 data,
-                sessions,
-                messages,
+                loadSession,
+                async (
+                    conversationId: string,
+                    envelop: Lib.EncryptionEnvelop,
+                ) => {
+                    if (redisClient) {
+                        await redisClient.zAdd(
+                            RedisPrefix.Conversation + conversationId,
+                            {
+                                score: new Date().getTime(),
+                                value: JSON.stringify(envelop),
+                            },
+                        );
+                    } else {
+                        throw Error('db not connected');
+                    }
+                },
                 (socketId: string, envelop: Lib.EncryptionEnvelop) => {
                     io.sockets.to(socketId).emit('message', envelop);
                 },
-            )),
+            ),
                 callback('success');
         } catch (e) {
             console.error(e);
         }
     });
 
-    socket.on('pendingMessage', (data) => {
+    socket.on('pendingMessage', async (data) => {
         try {
-            pendingConversations = Lib.Delivery.createPendingEntry(
+            pendingConversations = await Lib.Delivery.createPendingEntry(
                 data.accountAddress,
                 data.contactAddress,
                 data.token,
-                sessions,
+                loadSession,
                 pendingConversations,
             );
         } catch (e) {
