@@ -227,6 +227,19 @@ export function checkProfileRegistryEntry(
     );
 }
 
+export function checkStringSignature(
+    stringToCheck: string,
+    signature: string,
+    accountAddress: string,
+): boolean {
+    return (
+        ethers.utils.recoverAddress(
+            ethers.utils.hashMessage(stringToCheck),
+            signature,
+        ) === formatAddress(accountAddress)
+    );
+}
+
 export function getBrowserStorageKey(accountAddress: string) {
     if (!accountAddress) {
         throw Error('No address provided');

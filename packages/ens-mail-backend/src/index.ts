@@ -12,6 +12,10 @@ import {
     setSession,
 } from './redis';
 
+import Profiles from './profiles';
+import Auth from './auth';
+import Storage from './storage';
+
 const app = express();
 app.use(express.json());
 
@@ -19,6 +23,7 @@ const server = http.createServer(app);
 
 //TODO remove
 app.use(cors());
+
 const io = new Server(server, {
     cors: {
         origin: '*',
@@ -35,25 +40,26 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
 
 (async () => {
     redisClient = await createRedisClient();
+    app.locals.redisClient = redisClient;
+    app.locals.loadSession = async (accountAddress: string) => {
+        return redisClient ? getSession(accountAddress, redisClient) : null;
+    };
+    app.locals.storeSession = async (
+        accountAddress: string,
+        session: Lib.Delivery.Session,
+    ) => {
+        return redisClient
+            ? setSession(accountAddress, session, redisClient)
+            : null;
+    };
+    app.use('/profile', Profiles);
+    app.use('/storage', Storage);
+    app.use('/auth', Auth);
 })();
 
 // TODO include standalone web app
 app.use(express.static(path.join(__dirname, '../build')));
 const port = process.env.PORT || '8080';
-
-const loadSession = async (accountAddress: string) => {
-    return redisClient ? getSession(accountAddress, redisClient) : null;
-};
-
-const storeSession = async (
-    accountAddress: string,
-    session: Lib.Delivery.Session,
-) => {
-    if (!redisClient) {
-        throw Error('redis client not connected');
-    }
-    return setSession(accountAddress, session, redisClient);
-};
 
 const deliveryService = {
     getMessages: async (
@@ -62,7 +68,7 @@ const deliveryService = {
     ) => {
         try {
             const newMessages = await Lib.Delivery.getMessages(
-                loadSession,
+                app.locals.loadSession,
                 async (
                     conversationId: string,
                     offset: number,
@@ -102,7 +108,7 @@ const deliveryService = {
     ) => {
         try {
             const response = await Lib.Delivery.getPendingConversations(
-                loadSession,
+                app.locals.loadSession,
                 pendingConversations,
                 args.accountAddress,
                 args.token,
@@ -127,8 +133,8 @@ const deliveryService = {
     ) => {
         try {
             const token = await Lib.Delivery.submitProfileRegistryEntry(
-                loadSession,
-                storeSession,
+                app.locals.loadSession,
+                app.locals.storeSession,
                 args.accountAddress,
                 args.signedProfileRegistryEntry,
                 pendingConversations,
@@ -145,7 +151,7 @@ const deliveryService = {
     ) => {
         try {
             const publicKeys = await Lib.Delivery.getProfileRegistryEntry(
-                loadSession,
+                app.locals.loadSession,
                 args.accountAddress,
             );
 
@@ -175,12 +181,6 @@ const deliveryService = {
 const jaysonServer = new jayson.server(deliveryService);
 app.post('/deliveryService', jaysonServer.middleware());
 
-app.get('/profile/:address', (req, res) => {
-    res.json(
-        Lib.Delivery.getProfileRegistryEntry(loadSession, req.params.address),
-    );
-});
-
 io.use(async (socket, next) => {
     const account = Lib.formatAddress(
         socket.handshake.auth.account.address as string,
@@ -188,7 +188,7 @@ io.use(async (socket, next) => {
 
     if (
         !(await Lib.Delivery.checkToken(
-            loadSession,
+            app.locals.loadSession,
             account,
             socket.handshake.auth.token as string,
         ))
@@ -196,12 +196,12 @@ io.use(async (socket, next) => {
         Lib.log(`[WS] Account ${account}: REJECTED`);
         return next(new Error('invalid username'));
     }
-    const session = await loadSession(account);
+    const session = await app.locals.loadSession(account);
     if (!session) {
         throw Error('Could not get session');
     }
 
-    await storeSession(account, { ...session, socketId: socket.id });
+    await app.locals.storeSession(account, { ...session, socketId: socket.id });
 
     Lib.log(`[WS] Account ${account} with id ${socket.id}: CONNECTED`);
     //socket.username = socket.handshake.auth.account as string;
@@ -220,7 +220,7 @@ io.on('connection', (socket) => {
         try {
             await Lib.Delivery.incomingMessage(
                 data,
-                loadSession,
+                app.locals.loadSession,
                 async (
                     conversationId: string,
                     envelop: Lib.EncryptionEnvelop,
@@ -253,7 +253,7 @@ io.on('connection', (socket) => {
                 data.accountAddress,
                 data.contactAddress,
                 data.token,
-                loadSession,
+                app.locals.loadSession,
                 pendingConversations,
             );
         } catch (e) {

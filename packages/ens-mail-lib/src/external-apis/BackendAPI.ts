@@ -5,9 +5,11 @@ import { Connection } from '../web3-provider/Web3Provider';
 import { SignedProfileRegistryEntry } from '../account/Account';
 import { UserDB } from '..';
 import { Acknoledgment } from '../delivery';
+import { formatAddress } from './InjectedWeb3API';
 
 const DELIVERY_SERVICE =
     (process.env.REACT_APP_BACKEND as string) + '/deliveryService';
+const AUTH_SERVICE = (process.env.REACT_APP_BACKEND as string) + '/auth';
 
 function createJsonRpcRequest(method: string, params: any, id = 1) {
     return {
@@ -17,6 +19,24 @@ function createJsonRpcRequest(method: string, params: any, id = 1) {
         id,
     };
 }
+
+export async function getChallenge(accountAddress: string): Promise<string> {
+    return (await axios.get(AUTH_SERVICE + `/${formatAddress(accountAddress)}`))
+        .data.challenge;
+}
+export type GetChallenge = typeof getChallenge;
+
+export async function getNewToken(
+    accountAddress: string,
+    signature: string,
+): Promise<string> {
+    return (
+        await axios.post(AUTH_SERVICE + `/${formatAddress(accountAddress)}`, {
+            signature,
+        })
+    ).data.token;
+}
+export type GetNewToken = typeof getNewToken;
 
 export async function submitProfileRegistryEntry(
     accountAddress: string,

@@ -4,8 +4,32 @@ import { log } from '../shared/log';
 import { createDB, load } from '../storage/Storage';
 import { Account, CreateKeys, ProfileRegistryEntry } from '../account/Account';
 import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
-import { SubmitProfileRegistryEntry } from '../external-apis/BackendAPI';
+import {
+    GetChallenge,
+    GetNewToken,
+    SubmitProfileRegistryEntry,
+} from '../external-apis/BackendAPI';
 import { GetPublicKey, PersonalSign } from '../external-apis/InjectedWeb3API';
+
+export async function reAuth(
+    connection: Connection,
+    getChallenge: GetChallenge,
+    getNewToken: GetNewToken,
+    personalSign: PersonalSign,
+): Promise<string> {
+    if (!connection.account) {
+        throw Error('No account set');
+    }
+    const provider = connection.provider as ethers.providers.JsonRpcProvider;
+    const challenge = await getChallenge(connection.account.address);
+    const signature = await personalSign(
+        provider,
+        connection.account.address,
+        challenge,
+    );
+
+    return getNewToken(connection.account.address, signature);
+}
 
 export async function signIn(
     connection: Partial<Connection>,
@@ -15,6 +39,8 @@ export async function signIn(
     getPublicKey: GetPublicKey,
     browserDataFile: UserStorage | undefined,
     externalDataFile: string | undefined,
+    overwriteUserDb: Partial<UserDB>,
+    preLoadedKey?: string,
 ): Promise<{
     connectionState: ConnectionState;
     db?: UserDB;
@@ -56,13 +82,17 @@ export async function signIn(
 
             return {
                 connectionState: ConnectionState.SignedIn,
-                db: createDB(keys, deliveryServiceToken),
+                db: {
+                    ...createDB(keys, deliveryServiceToken),
+                    ...overwriteUserDb,
+                },
             };
         } else {
             const externalData = externalDataFile
                 ? await load(
                       connection as Connection,
                       JSON.parse(externalDataFile),
+                      preLoadedKey,
                   )
                 : null;
 
@@ -70,25 +100,32 @@ export async function signIn(
                 ? await load(
                       connection as Connection,
                       browserDataFile,
-                      externalData?.keys.storageEncryptionKey,
+                      preLoadedKey
+                          ? preLoadedKey
+                          : externalData?.keys.storageEncryptionKey,
                   )
                 : null;
 
             if (externalData && dataFromBrowser) {
                 return {
                     connectionState: ConnectionState.SignedIn,
-                    db:
-                        externalData.lastChangeTimestamp >=
+                    db: {
+                        ...(externalData.lastChangeTimestamp >=
                         dataFromBrowser.lastChangeTimestamp
                             ? externalData
-                            : dataFromBrowser,
+                            : dataFromBrowser),
+                        ...overwriteUserDb,
+                    },
                 };
             } else {
                 return {
                     connectionState: ConnectionState.SignedIn,
-                    db: externalData
-                        ? externalData
-                        : (dataFromBrowser as UserDB),
+                    db: {
+                        ...(externalData
+                            ? externalData
+                            : (dataFromBrowser as UserDB)),
+                        ...overwriteUserDb,
+                    },
                 };
             }
         }

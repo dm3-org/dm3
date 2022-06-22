@@ -19,6 +19,7 @@ export enum StorageLocation {
     File = 'File',
     Web3Storage = 'Web3 Storage',
     GoogleDrive = 'Google Drive',
+    EnsMailStorage = 'ENS Mail Storage',
 }
 
 export enum SyncProcessState {

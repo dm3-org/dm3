@@ -19,46 +19,61 @@ function StorageView() {
         });
         try {
             let acknoledgments = [];
-            if (
-                state.connection.storageLocation ===
-                Lib.StorageLocation.GoogleDrive
-            ) {
-                acknoledgments = await Lib.googleStore(
-                    (window as any).gapi,
-                    state.userDb as Lib.UserDB,
-                );
-            } else if (
-                state.connection.storageLocation ===
-                Lib.StorageLocation.Web3Storage
-            ) {
-                acknoledgments = await Lib.web3Store(
-                    state.connection,
-                    state.userDb as Lib.UserDB,
-                );
-            } else {
-                const syncResult = Lib.sync(state.userDb);
-                acknoledgments = syncResult.acknoledgments;
-                const blob = new Blob(
-                    [JSON.stringify(syncResult.userStorage)],
-                    {
-                        type: 'text/json',
-                    },
-                );
 
-                const a = document.createElement('a');
-                a.download = `${Lib.getAccountDisplayName(
-                    state.connection.account!.address,
-                    state.cache.ensNames,
-                    true,
-                )}-${Date.now()}.json`;
-                a.href = window.URL.createObjectURL(blob);
-                const clickEvt = new MouseEvent('click', {
-                    view: window,
-                    bubbles: true,
-                    cancelable: true,
-                });
-                a.dispatchEvent(clickEvt);
-                a.remove();
+            switch (state.connection.storageLocation) {
+                case Lib.StorageLocation.GoogleDrive:
+                    acknoledgments = await Lib.googleStore(
+                        (window as any).gapi,
+                        state.userDb as Lib.UserDB,
+                    );
+                    break;
+
+                case Lib.StorageLocation.Web3Storage:
+                    acknoledgments = await Lib.web3Store(
+                        state.connection,
+                        state.userDb as Lib.UserDB,
+                    );
+                    break;
+
+                case Lib.StorageLocation.EnsMailStorage:
+                    acknoledgments = await Lib.useEnsMailStorage(
+                        state.connection,
+                        state.userDb as Lib.UserDB,
+                    );
+                    break;
+
+                case Lib.StorageLocation.File:
+                default:
+                    if (state.userDb) {
+                        await Lib.useEnsMailStorage(
+                            state.connection,
+                            state.userDb,
+                        );
+                    }
+                    const syncResult = Lib.sync(state.userDb);
+                    acknoledgments = syncResult.acknoledgments;
+                    const blob = new Blob(
+                        [JSON.stringify(syncResult.userStorage)],
+                        {
+                            type: 'text/json',
+                        },
+                    );
+
+                    const a = document.createElement('a');
+                    a.download = `${Lib.getAccountDisplayName(
+                        state.connection.account!.address,
+                        state.cache.ensNames,
+                        true,
+                    )}-${Date.now()}.json`;
+                    a.href = window.URL.createObjectURL(blob);
+                    const clickEvt = new MouseEvent('click', {
+                        view: window,
+                        bubbles: true,
+                        cancelable: true,
+                    });
+                    a.dispatchEvent(clickEvt);
+                    a.remove();
+                    break;
             }
 
             if (state.userDb && acknoledgments.length > 0) {
@@ -87,7 +102,10 @@ function StorageView() {
         if (
             state.connection.storageLocation ===
                 Lib.StorageLocation.Web3Storage ||
-            state.connection.storageLocation === Lib.StorageLocation.GoogleDrive
+            state.connection.storageLocation ===
+                Lib.StorageLocation.GoogleDrive ||
+            state.connection.storageLocation ===
+                Lib.StorageLocation.EnsMailStorage
         ) {
             const autoSync = setInterval(() => {
                 if (state.userDb && !state.userDb.synced) {

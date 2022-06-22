@@ -23,6 +23,7 @@ node_modules
 build
 **/*/build
 
+
 # misc
 .DS_Store
 .env.local
@@ -38,3 +39,4 @@ schema.json
 
 
 **/*/dist
+**/*/*.rdb
