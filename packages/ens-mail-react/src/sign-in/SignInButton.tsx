@@ -4,7 +4,6 @@ import * as Lib from 'ens-mail-lib';
 import { GlobalContext } from '../GlobalContextProvider';
 import { ConnectionType } from '../reducers/Connection';
 import { UserDbType } from '../reducers/UserDB';
-import Icon from '../ui-shared/Icon';
 import localforage from 'localforage';
 import StateButton, { ButtonState } from '../ui-shared/StateButton';
 
@@ -27,28 +26,78 @@ function SignInButton(props: SignInButtonProps) {
 
         let data = props.dataFile;
 
-        if (props.storageLocation === Lib.StorageLocation.Web3Storage) {
-            data = props.existingAccount
-                ? await Lib.web3Load(props.token as string)
-                : undefined;
-        } else if (props.storageLocation === Lib.StorageLocation.GoogleDrive) {
-            data = props.existingAccount
-                ? await Lib.googleLoad((window as any).gapi)
-                : undefined;
-        }
-
         const account: Lib.Account = {
             address: state.connection.account!.address,
         };
 
-        const browserDataFile = await localforage.getItem(
+        let browserDataFile = await localforage.getItem(
             Lib.getBrowserStorageKey(account.address),
         );
+
+        let preLoadedKey: string | undefined;
+        let overwriteUserDb: Partial<Lib.UserDB> = {};
+
+        switch (props.storageLocation) {
+            case Lib.StorageLocation.Web3Storage:
+                data = props.existingAccount
+                    ? await Lib.web3Load(props.token as string)
+                    : undefined;
+                break;
+
+            case Lib.StorageLocation.GoogleDrive:
+                data = props.existingAccount
+                    ? await Lib.googleLoad((window as any).gapi)
+                    : undefined;
+                break;
+
+            case Lib.StorageLocation.EnsMailStorage:
+                if (browserDataFile) {
+                    const browserUserStorage = await Lib.load(
+                        state.connection,
+                        browserDataFile as Lib.UserStorage,
+                    );
+                    preLoadedKey = browserUserStorage.keys.storageEncryptionKey;
+
+                    try {
+                        data = props.existingAccount
+                            ? await Lib.getEnsMailStorage(
+                                  state.connection,
+                                  browserUserStorage.deliveryServiceToken,
+                              )
+                            : undefined;
+                    } catch (e) {
+                        if (
+                            (e as Error).message.includes(
+                                'Request failed with status code 401',
+                            )
+                        ) {
+                            const newToken = await Lib.reAuth(state.connection);
+                            data = props.existingAccount
+                                ? await Lib.getEnsMailStorage(
+                                      state.connection,
+                                      newToken,
+                                  )
+                                : undefined;
+                            overwriteUserDb = {
+                                deliveryServiceToken: newToken,
+                            };
+
+                            browserDataFile = undefined;
+                        } else {
+                            throw e;
+                        }
+                    }
+
+                    break;
+                }
+        }
 
         const singInRequest = await Lib.signIn(
             state.connection,
             browserDataFile as Lib.UserStorage | undefined,
             data,
+            overwriteUserDb,
+            preLoadedKey,
         );
 
         if (singInRequest.db) {

@@ -10,6 +10,7 @@ import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
 import {
     addContact,
     checkProfileRegistryEntry,
+    checkStringSignature,
     extractPublicKeys,
     getAccountDisplayName,
     getBrowserStorageKey,
@@ -245,6 +246,24 @@ test('getBrowserStorageKey', async () => {
         getBrowserStorageKey('0x25A643B6e52864d0eD816F1E43c0CF49C83B8292'),
     ).toStrictEqual(
         'userStorageSnapshot0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+    );
+});
+
+test('Should accept a valid signature of a string', async () => {
+    const wallet = ethers.Wallet.createRandom();
+    const sig = await wallet.signMessage('test');
+
+    expect(checkStringSignature('test', sig, wallet.address)).toStrictEqual(
+        true,
+    );
+});
+
+test('Should reject an invalid signature of a string', async () => {
+    const wallet = ethers.Wallet.createRandom();
+    const sig = await wallet.signMessage('test');
+
+    expect(checkStringSignature('test1', sig, wallet.address)).toStrictEqual(
+        false,
     );
 });
 

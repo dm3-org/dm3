@@ -88,6 +88,11 @@ function SignIn() {
             (dataFile || browserDataFile)
         ) {
             setSignInReady();
+        } else if (
+            storageLocation === Lib.StorageLocation.EnsMailStorage &&
+            isCollectingSignInData
+        ) {
+            setSignInReady();
         }
 
         if (
@@ -95,7 +100,7 @@ function SignIn() {
             existingAccount &&
             isSignInReady
         ) {
-            setCollectingInfos();
+            setSignInReady();
         } else if (
             !token &&
             storageLocation === Lib.StorageLocation.Web3Storage &&

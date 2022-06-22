@@ -9,6 +9,7 @@ export interface Session {
     publicMessageHeadUri?: string;
     ttl?: undefined;
     socketId?: string;
+    challenge?: string;
 }
 
 export async function checkToken(

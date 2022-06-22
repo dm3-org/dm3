@@ -46,11 +46,14 @@ export {
     googleLoad,
     googleStore,
     createTimestamp,
+    useEnsMailStorage,
+    getEnsMailStorage,
 } from './storage';
 export {
     getAccountDisplayName,
     extractPublicKeys,
     getBrowserStorageKey,
+    checkStringSignature,
 } from './account/Account';
 export { decryptEnvelop, checkSignature } from './encryption/Encryption';
 export { MessageState } from './messaging/Messaging';
@@ -134,6 +137,8 @@ export async function signIn(
     connection: Partial<Web3Provider.Connection>,
     browserDataFile: UserStorage | undefined,
     externalDataFile: string | undefined,
+    overwriteUserDb: Partial<UserDB>,
+    preLoadedKey?: string,
 ): Promise<{
     connectionState: Web3Provider.ConnectionState;
     db?: Storage.UserDB;
@@ -146,6 +151,8 @@ export async function signIn(
         Web3Api.getPublicKey,
         browserDataFile,
         externalDataFile,
+        overwriteUserDb,
+        preLoadedKey,
     );
 }
 
@@ -200,5 +207,14 @@ export async function getContacts(
         Web3Api.resolveName,
         userDb,
         createEmptyConversationEntry,
+    );
+}
+
+export async function reAuth(connection: Web3Provider.Connection) {
+    return SignIn.reAuth(
+        connection,
+        BackendAPI.getChallenge,
+        BackendAPI.getNewToken,
+        Web3Api.prersonalSign,
     );
 }
