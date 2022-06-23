@@ -127,7 +127,9 @@ export function sync(userDb: UserDB | undefined): {
         throw Error(`User db hasn't been create`);
     }
 
-    const acknoledgments = Array.from(userDb.conversations.keys())
+    const acknoledgments: Acknoledgment[] = Array.from(
+        userDb.conversations.keys(),
+    )
         // get newest delivery service query timestamp
         .map((key) =>
             userDb.conversations

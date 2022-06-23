@@ -54,5 +54,6 @@ export const initialState: GlobalState = {
         selectedRightView: SelectedRightView.Chat,
         maxLeftView: true,
         show: false,
+        lastMessagePull: 0,
     },
 };

@@ -91,6 +91,7 @@ export async function syncAcknoledgment(
     connection: Connection,
     acknoledgments: Acknoledgment[],
     userDb: UserDB,
+    lastMessagePull: number,
 ): Promise<void> {
     const request = (
         await axios.post(
@@ -99,6 +100,7 @@ export async function syncAcknoledgment(
                 accountAddress: connection.account!.address,
                 token: userDb.deliveryServiceToken,
                 acknoledgments,
+                lastMessagePull,
             }),
         )
     ).data;
