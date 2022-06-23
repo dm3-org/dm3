@@ -65,7 +65,8 @@
 }
 
 .contacts {
-    background-color: var(--mainDark);;
+    background-color: var(--mainDark);
+    height: 100px;
 }
 
 .contract-entry-selected {

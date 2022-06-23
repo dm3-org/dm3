@@ -34,7 +34,7 @@ function Contacts(props: ContactsProps) {
     }, []);
 
     return (
-        <div className="w-100 flex-grow-1 contacts">
+        <div className="w-100 flex-grow-1 contacts overflow-overlay">
             <div className="text-center contact-list-container">
                 <AddContactForm getContacts={props.getContacts} />
             </div>
