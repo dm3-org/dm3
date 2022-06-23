@@ -172,18 +172,19 @@ html, body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #eff1f4 !important;
+  background: #0000003f !important;
 
 
   background-clip: padding-box;
   border: 1px solid rgba(0, 0, 0, 0) !important;
+  border-radius: 0px !important;
 
 
 
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9198a3 !important;
+  background: #0000005f !important;
 }
 
 .filler {

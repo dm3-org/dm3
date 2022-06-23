@@ -17,17 +17,12 @@ import { UserDbType } from '../reducers/UserDB';
 import InfoBox from './InfoBox';
 import { UiStateType } from '../reducers/UiState';
 
-interface ChatProps {
-    connection: Lib.Connection;
-    contact: Lib.Account;
-}
-
 export interface EnvelopContainer {
     envelop: Lib.Envelop;
     encrypted: boolean;
 }
 
-function Chat(props: ChatProps) {
+function Chat() {
     const { state, dispatch } = useContext(GlobalContext);
     if (!isWidgetOpened()) {
         toggleWidget();
@@ -42,10 +37,13 @@ function Chat(props: ChatProps) {
 
     const getPastMessages = async () => {
         const lastMessagePull = new Date().getTime();
+        if (!state.accounts.selectedContact) {
+            throw Error('no contact selected');
+        }
         handleMessages(
             await Lib.getMessages(
                 state.connection,
-                props.contact.address,
+                state.accounts.selectedContact.address,
                 state.userDb as Lib.UserDB,
                 (envelops) =>
                     envelops.forEach((envelop) =>
@@ -69,10 +67,13 @@ function Chat(props: ChatProps) {
         containers: Lib.StorageEnvelopContainer[],
     ): Promise<void> => {
         const checkedContainers = containers.filter((container) => {
+            if (!state.accounts.selectedContact) {
+                throw Error('No selected contact');
+            }
             const account =
                 Lib.formatAddress(container.envelop.message.from) ===
-                Lib.formatAddress(props.contact.address)
-                    ? props.contact
+                Lib.formatAddress(state.accounts.selectedContact.address)
+                    ? state.accounts.selectedContact
                     : state.connection.account!;
 
             return account.publicKeys?.publicSigningKey
@@ -123,7 +124,7 @@ function Chat(props: ChatProps) {
 
     useEffect(() => {
         dropMessages();
-        if (!props.contact?.publicKeys?.publicKey) {
+        if (!state.accounts.selectedContact?.publicKeys?.publicKey) {
             renderCustomComponent(
                 () => (
                     <InfoBox
@@ -179,16 +180,18 @@ function Chat(props: ChatProps) {
     }, [messageContainers]);
 
     useEffect(() => {
-        if (props.contact) {
+        setMessageContainers([]);
+        setMessageStates(new Map<string, Lib.MessageState>());
+        if (state.accounts.selectedContact) {
             getPastMessages();
         }
-    }, [props.contact]);
+    }, [state.accounts.selectedContact]);
 
     useEffect(() => {
-        if (props.contact && state.userDb) {
+        if (state.accounts.selectedContact && state.userDb) {
             handleMessages(
                 Lib.getConversation(
-                    props.contact.address,
+                    state.accounts.selectedContact.address,
                     state.connection,
                     state.userDb,
                 ),
@@ -201,15 +204,18 @@ function Chat(props: ChatProps) {
         userDb: Lib.UserDB,
     ) => {
         deleteMessages(1);
+        if (!state.accounts.selectedContact) {
+            throw Error('no contact selected');
+        }
 
         const haltDelivery =
-            props.contact.publicKeys?.publicMessagingKey &&
+            state.accounts.selectedContact?.publicKeys?.publicMessagingKey &&
             state.connection.account?.publicKeys?.publicMessagingKey
                 ? false
                 : true;
 
         const messageData = Lib.createMessage(
-            props.contact.address,
+            state.accounts.selectedContact.address,
             state.connection.account!.address,
             message,
         );
@@ -221,7 +227,7 @@ function Chat(props: ChatProps) {
             await Lib.submitMessage(
                 state.connection,
                 userDb,
-                props.contact,
+                state.accounts.selectedContact,
                 messageData,
                 haltDelivery,
                 (envelops: Lib.StorageEnvelopContainer[]) =>

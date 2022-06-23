@@ -63,12 +63,7 @@ function RightView() {
                     } h-100 d-flex flex-column`}
                 >
                     <RightHeader />
-                    {state.accounts.selectedContact && (
-                        <Chat
-                            contact={state.accounts.selectedContact!}
-                            connection={state.connection}
-                        />
-                    )}
+                    {state.accounts.selectedContact && <Chat />}
                 </div>
             );
 
