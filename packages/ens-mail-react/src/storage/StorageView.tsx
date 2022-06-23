@@ -81,6 +81,7 @@ function StorageView() {
                     state.connection,
                     acknoledgments,
                     state.userDb,
+                    state.uiState.lastMessagePull,
                 );
             }
 

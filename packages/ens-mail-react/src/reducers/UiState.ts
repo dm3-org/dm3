@@ -13,6 +13,7 @@ export interface UiState {
     selectedRightView: SelectedRightView;
     maxLeftView: boolean;
     show: boolean;
+    lastMessagePull: number;
 }
 
 export enum UiStateType {
@@ -20,6 +21,7 @@ export enum UiStateType {
     SetSelectedRightView = 'SET_SELECTED_RIGHT_VIEW',
     SetMaxLeftView = 'SET_MAX_LEFT_VIEW',
     ToggleShow = 'ToggleShow',
+    SetLastMessagePull = 'SET_LAST_MESSAGE_PULL',
 }
 
 export type UiStatePayload = {
@@ -27,6 +29,7 @@ export type UiStatePayload = {
     [UiStateType.SetSelectedRightView]: SelectedRightView;
     [UiStateType.SetMaxLeftView]: boolean;
     [UiStateType.ToggleShow]: undefined;
+    [UiStateType.SetLastMessagePull]: number;
 };
 
 export type UiStateActions =
@@ -71,6 +74,13 @@ export function uiStateReducer(
             return {
                 ...state,
                 show: !state.show,
+            };
+
+        case UiStateType.SetLastMessagePull:
+            Lib.log(`[UI] set timestamp of last message pull`);
+            return {
+                ...state,
+                lastMessagePull: action.payload,
             };
 
         default:

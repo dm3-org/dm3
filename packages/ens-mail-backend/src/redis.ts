@@ -6,6 +6,7 @@ const endpointUrl = process.env.REDIS_ENDPOINT_URL || 'redis://127.0.0.1:6379';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
+    Sync = 'sync:',
     Session = 'session:',
     UserStorage = 'user.storage:',
 }

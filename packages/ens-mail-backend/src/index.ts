@@ -161,17 +161,78 @@ const deliveryService = {
         }
     },
 
-    syncAcknoledgment: (
+    syncAcknoledgment: async (
         args: {
             accountAddress: string;
             token: string;
             acknoledgments: Lib.Delivery.Acknoledgment[];
+            lastMessagePull: number;
         },
         cb: (error: any, result?: any) => void,
     ) => {
         try {
-            // TODO: What to do after storage sync? Delete from delivery service?
-            cb(null, 'success');
+            Lib.log(`[syncAcknoledgment]`);
+            const account = Lib.formatAddress(args.accountAddress);
+            if (
+                await Lib.Delivery.checkToken(
+                    app.locals.loadSession,
+                    account,
+                    args.token,
+                )
+            ) {
+                await Promise.all(
+                    args.acknoledgments.map(async (ack) => {
+                        const conversationId = Lib.getConversationId(
+                            account,
+                            ack.contactAddress,
+                        );
+
+                        if (redisClient) {
+                            const redisKey =
+                                RedisPrefix.Conversation +
+                                conversationId +
+                                ':sync';
+
+                            await redisClient.hSet(
+                                redisKey,
+                                account,
+                                args.lastMessagePull,
+                            );
+
+                            const syncTimestamps = Object.values(
+                                await redisClient.hGetAll(redisKey),
+                            );
+
+                            // TODO: check if both using this delivery service
+                            if (syncTimestamps.length === 2) {
+                                const lowestTimestamp =
+                                    parseInt(syncTimestamps[0]) >
+                                    parseInt(syncTimestamps[1])
+                                        ? parseInt(syncTimestamps[1])
+                                        : parseInt(syncTimestamps[0]);
+
+                                const deletedMessagesCounter =
+                                    await redisClient.zRemRangeByScore(
+                                        RedisPrefix.Conversation +
+                                            conversationId,
+                                        0,
+                                        lowestTimestamp,
+                                    );
+                                Lib.log(
+                                    `- Deleted ${deletedMessagesCounter} deliverd messages`,
+                                );
+                            }
+                        } else {
+                            throw Error('db not connected');
+                        }
+                    }),
+                );
+
+                // TODO: What to do after storage sync? Delete from delivery service?
+                cb(null, 'success');
+            } else {
+                cb({ code: 401, message: 'Token check failed' });
+            }
         } catch (e) {
             cb({ code: 500, message: e });
         }

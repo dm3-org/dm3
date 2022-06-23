@@ -15,6 +15,7 @@ import './Chat.css';
 import { GlobalContext } from '../GlobalContextProvider';
 import { UserDbType } from '../reducers/UserDB';
 import InfoBox from './InfoBox';
+import { UiStateType } from '../reducers/UiState';
 
 interface ChatProps {
     connection: Lib.Connection;
@@ -40,6 +41,7 @@ function Chat(props: ChatProps) {
     >([]);
 
     const getPastMessages = async () => {
+        const lastMessagePull = new Date().getTime();
         handleMessages(
             await Lib.getMessages(
                 state.connection,
@@ -57,6 +59,10 @@ function Chat(props: ChatProps) {
                     ),
             ),
         );
+        dispatch({
+            type: UiStateType.SetLastMessagePull,
+            payload: lastMessagePull,
+        });
     };
 
     const handleMessages = async (
