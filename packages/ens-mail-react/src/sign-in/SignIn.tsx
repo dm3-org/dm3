@@ -12,7 +12,11 @@ import GoogleConnect, { GoogleAuthState } from './GoogleConnect';
 import { ConnectionType } from '../reducers/Connection';
 import localforage from 'localforage';
 
-function SignIn() {
+interface SignInProps {
+    hideStorageSelection: boolean;
+}
+
+function SignIn(props: SignInProps) {
     const getStorageLocation = () => {
         const persistedStorageLocation = window.localStorage.getItem(
             'StorageLocation',
@@ -147,33 +151,36 @@ function SignIn() {
             <div className="row d-flex justify-content-center row-space sign-in ">
                 <div className="col-md-12">
                     <ConnectButton setExistingAccount={setExistingAccount} />
-
-                    <StorageLocationSelection
-                        setStorageLocation={setStorageLocation}
-                        stroageLocation={storageLocation}
-                    />
-                    <GoogleConnect
-                        googleAuthState={googleAuthState}
-                        setGoogleAuthState={setGoogleAuthState}
-                        storageLocation={storageLocation}
-                    />
-                    <ChooseFile
-                        existingAccount={existingAccount}
-                        setDataFile={setDataFile}
-                        storageLocation={storageLocation}
-                    />
-                    <TokenInput
-                        existingAccount={existingAccount}
-                        setToken={setToken}
-                        storageLocation={storageLocation}
-                        storeApiToken={storeApiToken}
-                        token={token}
-                    />
-                    <StoreToken
-                        setStoreApiToken={setStoreApiToken}
-                        storageLocation={storageLocation}
-                        storeApiToken={storeApiToken}
-                    />
+                    {!props.hideStorageSelection && (
+                        <>
+                            <StorageLocationSelection
+                                setStorageLocation={setStorageLocation}
+                                stroageLocation={storageLocation}
+                            />
+                            <GoogleConnect
+                                googleAuthState={googleAuthState}
+                                setGoogleAuthState={setGoogleAuthState}
+                                storageLocation={storageLocation}
+                            />
+                            <ChooseFile
+                                existingAccount={existingAccount}
+                                setDataFile={setDataFile}
+                                storageLocation={storageLocation}
+                            />
+                            <TokenInput
+                                existingAccount={existingAccount}
+                                setToken={setToken}
+                                storageLocation={storageLocation}
+                                storeApiToken={storeApiToken}
+                                token={token}
+                            />
+                            <StoreToken
+                                setStoreApiToken={setStoreApiToken}
+                                storageLocation={storageLocation}
+                                storeApiToken={storeApiToken}
+                            />
+                        </>
+                    )}
                     <SignInButton
                         dataFile={dataFile}
                         existingAccount={existingAccount}

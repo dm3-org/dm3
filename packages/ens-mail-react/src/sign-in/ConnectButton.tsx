@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import './SignIn.css';
 import { ethers } from 'ethers';
 import * as Lib from 'ens-mail-lib';
@@ -65,6 +65,15 @@ function ConnectButton(props: ConnectButtonProps) {
             });
         }
     };
+
+    useEffect(() => {
+        if (
+            state.connection.connectionState ===
+            Lib.ConnectionState.AccountConntectReady
+        ) {
+            connect();
+        }
+    }, [state.connection.connectionState]);
 
     const getButtonState = (
         connectionState: Lib.ConnectionState,
