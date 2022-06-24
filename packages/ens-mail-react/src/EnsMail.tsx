@@ -204,10 +204,13 @@ function EnsMail(props: EnsMailProps) {
     const mainContent = (
         <div className="row main-content-row" style={props.config.style}>
             <div className="col-12 h-100">
-                {/* <Header /> */}
                 <div className="row h-100">
                     {showSignIn(state.connection.connectionState) ? (
-                        <SignIn />
+                        <SignIn
+                            hideStorageSelection={
+                                props.config.hideStorageSelection
+                            }
+                        />
                     ) : (
                         <>
                             <LeftView getContacts={getContacts} />
