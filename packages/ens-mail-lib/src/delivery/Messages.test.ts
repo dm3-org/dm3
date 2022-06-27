@@ -5,7 +5,6 @@ import {
     createPendingEntry,
     getMessages,
     getPendingConversations,
-    handleSyncAcknoledgment,
     incomingMessage,
 } from './Messages';
 
@@ -30,96 +29,82 @@ const getSession = async (address: string) => {
         : null;
 };
 
-test('syncAcknoledgment', async () => {
-    const messages = new Map<string, EncryptionEnvelop[]>();
-    const conversationId = getConversationId(
-        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-        '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-    );
+// test('syncAcknoledgment', async () => {
+//     const messages = new Map<string, EncryptionEnvelop[]>();
+//     const conversationId = getConversationId(
+//         '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+//         '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+//     );
 
-    messages.set(conversationId, [
-        {
-            encryptedData: 'a',
-            encryptionVersion: 'x25519-xsalsa20-poly1305',
-            from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-            to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-            deliveryServiceIncommingTimestamp: 1,
-        },
-        {
-            encryptedData: 'b',
-            encryptionVersion: 'x25519-xsalsa20-poly1305',
-            to: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-            from: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-            deliveryServiceIncommingTimestamp: 1,
-        },
-        {
-            encryptedData: 'c',
-            encryptionVersion: 'x25519-xsalsa20-poly1305',
-            from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-            to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-            deliveryServiceIncommingTimestamp: 3,
-        },
-    ]);
+//     messages.set(conversationId, [
+//         {
+//             encryptedData: 'a',
+//             encryptionVersion: 'x25519-xsalsa20-poly1305',
+//             from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+//             to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+//             deliveryServiceIncommingTimestamp: 1,
+//         },
+//         {
+//             encryptedData: 'b',
+//             encryptionVersion: 'x25519-xsalsa20-poly1305',
+//             to: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+//             from: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+//             deliveryServiceIncommingTimestamp: 1,
+//         },
+//         {
+//             encryptedData: 'c',
+//             encryptionVersion: 'x25519-xsalsa20-poly1305',
+//             from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+//             to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+//             deliveryServiceIncommingTimestamp: 3,
+//         },
+//     ]);
 
-    const newMessages = await handleSyncAcknoledgment(
-        '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-        [
-            {
-                contactAddress: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-                messageDeliveryServiceTimestamp: 2,
-            },
-        ],
-        '123',
-        getSession,
-        messages,
-    );
+//     const newMessages = await handleSyncAcknoledgment(
+//         '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+//         [
+//             {
+//                 contactAddress: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+//                 messageDeliveryServiceTimestamp: 2,
+//             },
+//         ],
+//         '123',
+//         getSession,
+//         messages,
+//     );
 
-    expect(newMessages.get(conversationId)).toStrictEqual([
-        {
-            encryptedData: 'b',
-            encryptionVersion: 'x25519-xsalsa20-poly1305',
-            to: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-            from: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-            deliveryServiceIncommingTimestamp: 1,
-        },
-        {
-            encryptedData: 'c',
-            encryptionVersion: 'x25519-xsalsa20-poly1305',
-            from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-            to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-            deliveryServiceIncommingTimestamp: 3,
-        },
-    ]);
-});
+//     expect(newMessages.get(conversationId)).toStrictEqual([
+//         {
+//             encryptedData: 'b',
+//             encryptionVersion: 'x25519-xsalsa20-poly1305',
+//             to: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+//             from: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+//             deliveryServiceIncommingTimestamp: 1,
+//         },
+//         {
+//             encryptedData: 'c',
+//             encryptionVersion: 'x25519-xsalsa20-poly1305',
+//             from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+//             to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+//             deliveryServiceIncommingTimestamp: 3,
+//         },
+//     ]);
+// });
 
-test('syncAcknoledgment auth', async () => {
-    const messages = new Map<string, EncryptionEnvelop[]>();
-    expect.assertions(1);
+// test('syncAcknoledgment auth', async () => {
+//     const messages = new Map<string, EncryptionEnvelop[]>();
+//     expect.assertions(1);
 
-    await expect(() =>
-        handleSyncAcknoledgment(
-            '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-            [],
-            'abc',
-            getSession,
-            messages,
-        ),
-    ).rejects.toEqual(Error('Token check failed'));
-});
-
-test('getPendingConversations auth', async () => {
-    const pendingConversations = new Map<string, Set<string>>();
-
-    expect.assertions(1);
-    await expect(() =>
-        getPendingConversations(
-            getSession,
-            pendingConversations,
-            '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-            'abc',
-        ),
-    ).rejects.toEqual(Error('Token check failed'));
-});
+//     await expect(() =>
+//         handleSyncAcknoledgment(
+//             '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+//             [],
+//             'abc',
+//             getSession,
+//             messages,
+//         ),
+//     ).rejects.toEqual(Error('Token check failed'));
+// });
 
 test('getPendingConversations', async () => {
     const pendingConversations = new Map<string, Set<string>>();
@@ -128,10 +113,8 @@ test('getPendingConversations', async () => {
         new Set<string>(['0x25A643B6e52864d0eD816F1E43c0CF49C83B8292']),
     );
     const response = await getPendingConversations(
-        getSession,
         pendingConversations,
         '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-        '123',
     );
 
     expect(
@@ -252,21 +235,6 @@ test('incomingMessage', async () => {
     });
 });
 
-test('getMessages auth', async () => {
-    expect.assertions(1);
-    await expect(() =>
-        getMessages(
-            getSession,
-            async (conversationId: string, offset: number, size: number) => {
-                return [];
-            },
-            '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-            '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-            'abc',
-        ),
-    ).rejects.toEqual(Error('Token check failed'));
-});
-
 test('getMessages', async () => {
     const messages = new Map<string, EncryptionEnvelop[]>();
     const conversationIdToUse = getConversationId(
@@ -308,28 +276,24 @@ test('getMessages', async () => {
 
     expect(
         await getMessages(
-            getSession,
             loadMessages,
             '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
             '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-            '123',
         ),
-    ).toStrictEqual({
-        messages: [
-            {
-                encryptedData: 'a',
-                encryptionVersion: 'x25519-xsalsa20-poly1305',
-                from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-                to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-                deliveryServiceIncommingTimestamp: 1,
-            },
-            {
-                encryptedData: 'c',
-                encryptionVersion: 'x25519-xsalsa20-poly1305',
-                from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-                to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-                deliveryServiceIncommingTimestamp: 3,
-            },
-        ],
-    });
+    ).toStrictEqual([
+        {
+            encryptedData: 'a',
+            encryptionVersion: 'x25519-xsalsa20-poly1305',
+            from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+            deliveryServiceIncommingTimestamp: 1,
+        },
+        {
+            encryptedData: 'c',
+            encryptionVersion: 'x25519-xsalsa20-poly1305',
+            from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+            deliveryServiceIncommingTimestamp: 3,
+        },
+    ]);
 });
