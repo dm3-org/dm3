@@ -55,6 +55,7 @@ function EnsMail(props: EnsMailProps) {
                 `[getContacts] Couldn't handle new messages. User db not created.`,
             );
         }
+        Lib.log('[getContacts]');
 
         return requestContacts(
             connection,

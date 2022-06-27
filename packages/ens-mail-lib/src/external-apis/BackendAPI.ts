@@ -7,16 +7,15 @@ import { UserDB } from '..';
 import { Acknoledgment } from '../delivery';
 import { formatAddress } from './InjectedWeb3API';
 
-const DELIVERY_SERVICE =
-    (process.env.REACT_APP_BACKEND as string) + '/deliveryService';
+const PROFILE = (process.env.REACT_APP_BACKEND as string) + '/profile';
+const DELIVERY = (process.env.REACT_APP_BACKEND as string) + '/delivery';
 const AUTH_SERVICE = (process.env.REACT_APP_BACKEND as string) + '/auth';
 
-function createJsonRpcRequest(method: string, params: any, id = 1) {
+function getAxiosConfig(token: string) {
     return {
-        jsonrpc: '2.0',
-        method,
-        params,
-        id,
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
     };
 }
 
@@ -42,20 +41,12 @@ export async function submitProfileRegistryEntry(
     accountAddress: string,
     signedProfileRegistryEntry: SignedProfileRegistryEntry,
 ): Promise<string> {
-    const request = (
+    return (
         await axios.post(
-            DELIVERY_SERVICE,
-            createJsonRpcRequest('submitProfileRegistryEntry', {
-                accountAddress: accountAddress,
-                signedProfileRegistryEntry,
-            }),
+            `${PROFILE}/${accountAddress}`,
+            signedProfileRegistryEntry,
         )
     ).data;
-    if (request.error) {
-        throw Error('submitProfileRegistryEntry failed.');
-    }
-
-    return request.result;
 }
 export type SubmitProfileRegistryEntry = typeof submitProfileRegistryEntry;
 
@@ -93,20 +84,13 @@ export async function syncAcknoledgment(
     userDb: UserDB,
     lastMessagePull: number,
 ): Promise<void> {
-    const request = (
-        await axios.post(
-            DELIVERY_SERVICE,
-            createJsonRpcRequest('syncAcknoledgment', {
-                accountAddress: connection.account!.address,
-                token: userDb.deliveryServiceToken,
-                acknoledgments,
-                lastMessagePull,
-            }),
-        )
-    ).data;
-    if (request.error) {
-        throw Error('syncAcknoledgment failed.');
-    }
+    return axios.post(
+        `${DELIVERY}/messages/${
+            connection.account!.address
+        }/syncAcknoledgment/${lastMessagePull}`,
+        { acknoledgments },
+        getAxiosConfig(userDb.deliveryServiceToken),
+    );
 }
 export type SyncAcknoledgment = typeof syncAcknoledgment;
 
@@ -132,22 +116,14 @@ export async function getNewMessages(
     userDb: UserDB,
     contactAddress: string,
 ): Promise<EncryptionEnvelop[]> {
-    const request = (
-        await axios.post(
-            DELIVERY_SERVICE,
-            createJsonRpcRequest('getMessages', {
-                accountAddress: connection.account!.address,
-                contactAddress,
-                token: userDb.deliveryServiceToken,
-            }),
+    return (
+        await axios.get(
+            `${DELIVERY}/messages/${
+                connection.account!.address
+            }/contact/${contactAddress}`,
+            getAxiosConfig(userDb.deliveryServiceToken),
         )
     ).data;
-
-    if (request.error) {
-        throw Error('getNewMessages failed.');
-    }
-
-    return request.result.messages;
 }
 export type GetNewMessages = typeof getNewMessages;
 
@@ -155,61 +131,27 @@ export async function getPendingConversations(
     connection: Connection,
     userDb: UserDB,
 ): Promise<string[]> {
-    const request = (
-        await axios.post(
-            DELIVERY_SERVICE,
-            createJsonRpcRequest('getPendingConversations', {
-                accountAddress: connection.account!.address,
-                token: userDb.deliveryServiceToken,
-            }),
+    return (
+        await axios.get(
+            `${DELIVERY}/messages/${connection.account!.address}/pending`,
+            getAxiosConfig(userDb.deliveryServiceToken),
         )
     ).data;
-
-    if (request.error) {
-        throw Error('getPendingConversations failed.');
-    }
-
-    return request.result.pendingConversations;
 }
 export type GetPendingConversations = typeof getPendingConversations;
 
 export async function getProfileRegistryEntryOffChain(
     contact: string,
 ): Promise<SignedProfileRegistryEntry | undefined> {
-    const request = (
-        await axios.post(
-            DELIVERY_SERVICE,
-            createJsonRpcRequest('getProfileRegistryEntry', {
-                accountAddress: contact,
-            }),
-        )
-    ).data;
-
-    if (request.error) {
-        throw Error('getProfileRegistryEntry failed.');
+    try {
+        return (await axios.get(`${PROFILE}/${contact}`)).data;
+    } catch (e) {
+        if ((e as Error).message.includes('404')) {
+            return undefined;
+        } else {
+            throw Error('Unknown API error');
+        }
     }
-
-    return request.result;
 }
 export type GetProfileRegistryEntryOffChain =
     typeof getProfileRegistryEntryOffChain;
-
-export async function getPublicMessageHead(
-    accountAddress: string,
-): Promise<string | undefined> {
-    const request = (
-        await axios.post(
-            DELIVERY_SERVICE,
-            createJsonRpcRequest('getPublicMessageHead', {
-                accountAddress: accountAddress,
-            }),
-        )
-    ).data;
-
-    if (request.error) {
-        throw Error('getPublicMessageHead failed.');
-    }
-
-    return request.result;
-}
-export type GetPublicMessageHead = typeof getPublicMessageHead;

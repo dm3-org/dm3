@@ -4,7 +4,6 @@ export {
     getPendingConversations,
     incomingMessage,
     createPendingEntry,
-    handleSyncAcknoledgment,
 } from './Messages';
 export type { Acknoledgment } from './Messages';
 export type {} from './PublicMessages';

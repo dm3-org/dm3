@@ -74,6 +74,7 @@ export async function getContacts(
         connection,
         userDb,
     );
+
     Promise.all(
         pendingConversations.map(async (address) => {
             if (
