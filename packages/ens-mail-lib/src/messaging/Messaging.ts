@@ -87,14 +87,15 @@ export async function submitMessage(
         }
     };
 
+    await createPendingEntry(
+        connection,
+        userDb,
+        innerEnvelop.message.from,
+        innerEnvelop.message.to,
+    );
+
     if (haltDelivery) {
         log('- Halt delivery');
-        createPendingEntry(
-            connection,
-            userDb,
-            innerEnvelop.message.from,
-            innerEnvelop.message.to,
-        );
         storeMessages([
             { envelop: innerEnvelop, messageState: MessageState.Created },
         ]);
