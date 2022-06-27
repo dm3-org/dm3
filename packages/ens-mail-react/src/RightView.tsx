@@ -48,20 +48,23 @@ function RightView() {
         }
     }, [state.accounts.accountInfoView]);
 
-    if (!state.accounts.selectedContact) {
+    if (
+        !state.accounts.selectedContact &&
+        state.uiState.selectedRightView === SelectedRightView.Chat
+    ) {
         return null;
     }
+
+    const classes = `col-md-${
+        state.uiState.maxLeftView ? '8' : '12'
+    } content-container ${
+        state.uiState.maxLeftView ? '' : 'content-container-max'
+    } h-100 d-flex flex-column`;
 
     switch (state.uiState.selectedRightView) {
         case SelectedRightView.Chat:
             return (
-                <div
-                    className={`col-md-${
-                        state.uiState.maxLeftView ? '8' : '12'
-                    } content-container ${
-                        state.uiState.maxLeftView ? '' : 'content-container-max'
-                    } h-100 d-flex flex-column`}
-                >
+                <div className={classes}>
                     <RightHeader />
                     {state.accounts.selectedContact && <Chat />}
                 </div>
@@ -69,13 +72,7 @@ function RightView() {
 
         case SelectedRightView.UserInfo:
             return (
-                <div
-                    className={`col-md-${
-                        state.uiState.maxLeftView ? '8' : '12'
-                    } ${
-                        state.uiState.maxLeftView ? '' : 'content-container-max'
-                    } content-container h-100`}
-                >
+                <div className={classes}>
                     <RightHeader />
                     <UserInfo
                         account={

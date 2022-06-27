@@ -42,12 +42,12 @@ function AccountNameHeader(props: AccountNameHeaderProps) {
 
                         <div
                             className="account-header-text"
-                            onClick={() =>
+                            onClick={() => {
                                 dispatch({
                                     type: AccountsType.SetAccountInfoView,
                                     payload: AccountInfo.Account,
-                                })
-                            }
+                                });
+                            }}
                         >
                             {Lib.getAccountDisplayName(
                                 props.account.address,

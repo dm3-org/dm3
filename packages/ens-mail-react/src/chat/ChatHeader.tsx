@@ -59,9 +59,19 @@ function ChatHeader(props: ChatHeaderProps) {
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         dispatch({
+                                            type: UiStateType.SetSelectedRightView,
+                                            payload: SelectedRightView.Chat,
+                                        });
+                                        dispatch({
                                             type: AccountsType.SetAccountInfoView,
                                             payload: AccountInfo.None,
                                         });
+                                        if (!state.accounts.selectedContact) {
+                                            dispatch({
+                                                type: UiStateType.SetMaxLeftView,
+                                                payload: true,
+                                            });
+                                        }
                                     }}
                                 >
                                     <Icon iconClass="fas fa-times fa-lg" />

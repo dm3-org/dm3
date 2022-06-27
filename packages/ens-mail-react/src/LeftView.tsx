@@ -5,6 +5,7 @@ import Contacts from './contacts/Contacts';
 import StorageView from './storage/StorageView';
 import { GlobalContext } from './GlobalContextProvider';
 import LeftHeader from './header/LeftHeader';
+import { SelectedRightView } from './reducers/UiState';
 
 interface LeftViewProps {
     getContacts: (connection: Lib.Connection) => Promise<void>;
@@ -16,7 +17,10 @@ function LeftView(props: LeftViewProps) {
     return state.uiState.maxLeftView ? (
         <div
             className={`col-md-${
-                state.accounts.selectedContact ? '4' : '12'
+                state.accounts.selectedContact ||
+                state.uiState.selectedRightView === SelectedRightView.UserInfo
+                    ? '4'
+                    : '12'
             } pe-0 ps-0 d-flex align-items-start flex-column left-view`}
         >
             <LeftHeader />
