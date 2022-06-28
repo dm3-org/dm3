@@ -5,11 +5,7 @@ import * as Lib from 'ens-mail-lib';
 import ContactListEntry from './ContractListEntry';
 import { GlobalContext } from '../GlobalContextProvider';
 
-interface ContactListProps {
-    connection: Lib.Connection;
-}
-
-function ContactList(props: ContactListProps) {
+function ContactList() {
     const { state } = useContext(GlobalContext);
     const contactsList = state.accounts.contacts
         ? state.accounts.contacts.map((contact) => (

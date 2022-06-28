@@ -31,7 +31,6 @@ function AddContactForm(props: AddContactFormProps) {
                         payload: id,
                     }),
             );
-            await props.getContacts(state.connection);
             setAccountToAdd('');
         } catch (e) {
             Lib.log(e as string);
