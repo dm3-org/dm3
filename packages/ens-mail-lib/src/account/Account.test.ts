@@ -9,8 +9,10 @@ import {
 import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
 import {
     addContact,
+    checkProfileHash,
     checkProfileRegistryEntry,
     checkStringSignature,
+    createHashUrlParam,
     extractPublicKeys,
     getAccountDisplayName,
     getBrowserStorageKey,
@@ -51,6 +53,96 @@ test('get correct account display name if account is undefined', async () => {
     const ensNames = new Map();
     ensNames.set('0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855', 'test1');
     expect(getAccountDisplayName(undefined, ensNames)).toStrictEqual('');
+});
+
+test('createHashUrlParam should create the correct hash', async () => {
+    const signedProfile = {
+        profileRegistryEntry: {
+            publicKeys: {
+                publicKey: '1',
+                publicMessagingKey: '2',
+                publicSigningKey: '3',
+            },
+        },
+        signature:
+            '0x146a7db30fb512a5c0164ae90b9495cb7309832c40525f29c52ad56c86e3cb32' +
+            '48f9193dc67bf6038d802d143c22db43ce3e62971b20d3ddee93805d493bdb491c',
+    };
+
+    expect(createHashUrlParam(signedProfile)).toStrictEqual(
+        'ensmailHash=0x4b25d985691c2004e8a516a20e922c44237aa647009824be0d937a4b10dd01b3',
+    );
+});
+
+test('checkProfileHash should accept a correct hash ', async () => {
+    const profileRegistryEntry: ProfileRegistryEntry = {
+        publicKeys: {
+            publicKey: '1',
+            publicMessagingKey: '2',
+            publicSigningKey: '3',
+        },
+    };
+
+    const wallet = ethers.Wallet.createRandom();
+    const signature = await wallet.signMessage(
+        JSON.stringify(profileRegistryEntry),
+    );
+    const signedProfile = {
+        profileRegistryEntry,
+        signature,
+    };
+
+    const uri =
+        'http://test/test?ensmailHash=' +
+        ethers.utils.keccak256(
+            ethers.utils.toUtf8Bytes(JSON.stringify(signedProfile)),
+        );
+
+    expect(checkProfileHash(signedProfile, uri)).toStrictEqual(true);
+});
+
+test('checkProfileHash should reject  an invalid hash ', async () => {
+    const profileRegistryEntry: ProfileRegistryEntry = {
+        publicKeys: {
+            publicKey: '1',
+            publicMessagingKey: '2',
+            publicSigningKey: '3',
+        },
+    };
+
+    const wallet = ethers.Wallet.createRandom();
+    const signature = await wallet.signMessage(
+        JSON.stringify(profileRegistryEntry),
+    );
+    const signedProfile = {
+        profileRegistryEntry,
+        signature,
+    };
+
+    const uri = 'http://test/test?ensmailHash=123456';
+    expect(checkProfileHash(signedProfile, uri)).toStrictEqual(false);
+});
+
+test('checkProfileHash should reject an URI without hash', async () => {
+    const profileRegistryEntry: ProfileRegistryEntry = {
+        publicKeys: {
+            publicKey: '1',
+            publicMessagingKey: '2',
+            publicSigningKey: '3',
+        },
+    };
+
+    const wallet = ethers.Wallet.createRandom();
+    const signature = await wallet.signMessage(
+        JSON.stringify(profileRegistryEntry),
+    );
+    const signedProfile = {
+        profileRegistryEntry,
+        signature,
+    };
+
+    const uri = 'http://test/test';
+    expect(checkProfileHash(signedProfile, uri)).toStrictEqual(false);
 });
 
 test('checkProfileRegistryEntry should accept a correct signature ', async () => {
@@ -331,10 +423,14 @@ test('Should get profile registry entry from chain', async () => {
             { provider: {} } as any,
             '0x8101b0729eb9708a344c820fce80f12a90a7c1fa',
             async () => undefined,
-            async () => 'http://123',
+            async () =>
+                'http://123?' + createHashUrlParam(signedProfileRegistryEntry),
 
             async (uri) =>
-                uri === 'http://123' ? signedProfileRegistryEntry : undefined,
+                uri ===
+                'http://123?' + createHashUrlParam(signedProfileRegistryEntry)
+                    ? signedProfileRegistryEntry
+                    : undefined,
         ),
     ).resolves.toStrictEqual(signedProfileRegistryEntry);
 });
@@ -395,10 +491,14 @@ test('Should prioritize onchain over offchain ', async () => {
             { provider: {} } as any,
             '0x8101b0729eb9708a344c820fce80f12a90a7c1fa',
             async () => signedProfileRegistryEntry2,
-            async () => 'http://123',
+            async () =>
+                'http://123?' + createHashUrlParam(signedProfileRegistryEntry),
 
             async (uri) =>
-                uri === 'http://123' ? signedProfileRegistryEntry : undefined,
+                uri ===
+                'http://123?' + createHashUrlParam(signedProfileRegistryEntry)
+                    ? signedProfileRegistryEntry
+                    : undefined,
         ),
     ).resolves.toStrictEqual(signedProfileRegistryEntry);
 });
@@ -407,7 +507,10 @@ test('publishProfileOnchain', async () => {
     expect.assertions(2);
 
     const tx = await publishProfileOnchain(
-        connection,
+        {
+            ...connection,
+            account: { address: '0x8101b0729eb9708a344c820fce80f12a90a7c1fa' },
+        },
         'http://bla',
         async () => '0x1',
         () => {
@@ -416,12 +519,29 @@ test('publishProfileOnchain', async () => {
         () => {
             return { setText: () => 'success' } as any;
         },
+        async () => {
+            return {
+                profileRegistryEntry: {
+                    publicKeys: {
+                        publicKey:
+                            'RXqfW5bqr44s26iDgAgf0SCDzLIsLko4vSwiAxm5W30=',
+                        publicMessagingKey:
+                            'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
+                        publicSigningKey:
+                            '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
+                    },
+                },
+                signature:
+                    '0xaa927647cf7c73363d9c157f113f1c1754307aae79d886dc4cfa7bcb77b4dfc16cb' +
+                    '50e808708085009ee782046891d8b85966a1a7482c5c0c42f73c7210cf7da1c',
+            };
+        },
     );
 
     expect(tx?.args).toStrictEqual([
         '0xca7a0eadca1ba3745db7065063294b717422bd1c70995cba8f5adcd094fdae1d',
         'eth.mail',
-        'http://bla',
+        'http://bla?ensmailHash=0x74c674bc920d6da183e9fd0ad59ba2cdb27685f821c7dfcb04de62b34aaf022b',
     ]);
 
     expect(tx?.method()).toStrictEqual('success');
@@ -440,6 +560,9 @@ test('publishProfileOnchain should throw', async () => {
             },
             () => {
                 return { setText: () => 'success' } as any;
+            },
+            async () => {
+                return undefined;
             },
         ),
     ).rejects.toEqual(Error('No provider'));
