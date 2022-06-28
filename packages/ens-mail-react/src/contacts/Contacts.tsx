@@ -43,7 +43,7 @@ function Contacts(props: ContactsProps) {
                 state.connection.connectionState ===
                     Lib.ConnectionState.SignedIn && (
                     <div className="text-center contact-list-container">
-                        <ContactList connection={state.connection} />
+                        <ContactList />
                     </div>
                 )}
         </div>

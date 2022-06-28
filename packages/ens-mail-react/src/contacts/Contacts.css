@@ -67,6 +67,7 @@
 .contacts {
     background-color: var(--mainDark);
     height: 100px;
+    overflow: overlay;
 }
 
 .contract-entry-selected {
