@@ -103,6 +103,7 @@ export function publishProfileOnchain(
         Web3Api.lookupAddress,
         Web3Api.getResolver,
         Web3Api.getConractInstance,
+        BackendAPI.getProfileRegistryEntryOffChain,
     );
 }
 export async function addContact(

@@ -22,6 +22,7 @@ import {
 } from '../external-apis/BackendAPI';
 import { GetProfileRegistryEntry } from '..';
 import { log } from '../shared/log';
+import queryString from 'query-string';
 
 export interface Keys {
     publicKey: string;
@@ -34,7 +35,6 @@ export interface Keys {
 
 export interface ProfileRegistryEntry {
     publicKeys: PublicKeys;
-    headTrackerUri?: string;
 }
 
 export interface SignedProfileRegistryEntry {
@@ -261,11 +261,40 @@ export async function getProfileRegistryEntry(
 
     if (uri) {
         log(`[getProfileRegistryEntry] Onchain uri ${uri}`);
-        return getRessource(uri);
+        const profile = await getRessource(uri);
+
+        if (!profile) {
+            throw Error('Could not load profile');
+        }
+
+        if (!checkProfileHash(profile, uri)) {
+            throw Error('Profile hash check failed');
+        }
+        return profile;
     } else {
         log(`[getProfileRegistryEntry] Offchain`);
         return getProfileOffChain(contact);
     }
+}
+
+export function checkProfileHash(
+    profile: SignedProfileRegistryEntry,
+    uri: string,
+): boolean {
+    const parsedUri = queryString.parseUrl(uri);
+    return (
+        ethers.utils.keccak256(
+            ethers.utils.toUtf8Bytes(JSON.stringify(profile)),
+        ) === parsedUri.query.ensmailHash
+    );
+}
+
+export function createHashUrlParam(
+    profile: SignedProfileRegistryEntry,
+): string {
+    return `ensmailHash=${ethers.utils.keccak256(
+        ethers.utils.toUtf8Bytes(JSON.stringify(profile)),
+    )}`;
 }
 
 export async function publishProfileOnchain(
@@ -274,6 +303,7 @@ export async function publishProfileOnchain(
     lookupAddress: LookupAddress,
     getResolver: GetResolver,
     getConractInstance: GetConractInstance,
+    getProfileOffChain: GetProfileRegistryEntryOffChain,
 ) {
     if (!connection.provider) {
         throw Error('No provider');
@@ -304,8 +334,18 @@ export async function publishProfileOnchain(
         connection.provider,
     );
 
+    const ownProfile = await getProfileOffChain(connection.account.address);
+
+    if (!ownProfile) {
+        throw Error('could not load account profile');
+    }
+
+    if (!checkProfileRegistryEntry(ownProfile, connection.account.address)) {
+        throw Error('account profile check failed');
+    }
+
     return {
         method: resolver.setText,
-        args: [node, 'eth.mail', uri],
+        args: [node, 'eth.mail', uri + '?' + createHashUrlParam(ownProfile)],
     };
 }
