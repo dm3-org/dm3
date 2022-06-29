@@ -7,7 +7,6 @@ import Icon from '../ui-shared/Icon';
 
 interface TokenInputProps {
     storageLocation: Lib.StorageLocation;
-    existingAccount: boolean;
     token: string | undefined;
     setToken: (token: string | undefined) => void;
     storeApiToken: boolean;
@@ -18,7 +17,7 @@ function TokenInput(props: TokenInputProps) {
     if (
         connectionPhase(state.connection.connectionState) ||
         props.storageLocation !== Lib.StorageLocation.Web3Storage ||
-        (props.existingAccount && props.token && props.storeApiToken)
+        (state.uiState.proflieExists && props.token && props.storeApiToken)
     ) {
         return null;
     }

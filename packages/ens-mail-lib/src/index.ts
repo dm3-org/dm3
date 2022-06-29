@@ -73,6 +73,7 @@ export { getSessionToken } from './signin';
 function getProfileRegistryEntry(
     provider: ethers.providers.JsonRpcProvider,
     contact: string,
+    profileUrl?: string,
 ): Promise<Account.SignedProfileRegistryEntry | undefined> {
     return Account.getProfileRegistryEntry(
         provider,
@@ -80,6 +81,7 @@ function getProfileRegistryEntry(
         BackendAPI.getProfileRegistryEntryOffChain,
         Web3Api.getEnsTextRecord,
         async (uri) => (await axios.get(uri)).data,
+        profileUrl,
     );
 }
 

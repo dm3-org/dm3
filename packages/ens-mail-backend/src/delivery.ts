@@ -64,7 +64,9 @@ router.post(
     async (req, res) => {
         const account = Lib.formatAddress(req.params.address);
 
-        Lib.log(`[messages] Sync acknoledgment for ${account}`);
+        Lib.log(
+            `[messages] Sync acknoledgment for ${account} (pull timestamp: ${req.params.last_message_pull})`,
+        );
         await Promise.all(
             req.body.acknoledgments.map(
                 async (ack: Lib.Delivery.Acknoledgment) => {

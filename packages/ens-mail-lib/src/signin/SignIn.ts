@@ -100,9 +100,7 @@ export async function signIn(
                 ? await load(
                       connection as Connection,
                       browserDataFile,
-                      preLoadedKey
-                          ? preLoadedKey
-                          : externalData?.keys.storageEncryptionKey,
+                      preLoadedKey ?? externalData?.keys.storageEncryptionKey,
                   )
                 : null;
 

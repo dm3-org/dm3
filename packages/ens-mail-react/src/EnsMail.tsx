@@ -211,6 +211,9 @@ function EnsMail(props: EnsMailProps) {
                             hideStorageSelection={
                                 props.config.hideStorageSelection
                             }
+                            defaultStorageLocation={
+                                props.config.defaultStorageLocation
+                            }
                         />
                     ) : (
                         <>

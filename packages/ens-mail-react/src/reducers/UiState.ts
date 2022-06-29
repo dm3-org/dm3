@@ -14,6 +14,7 @@ export interface UiState {
     maxLeftView: boolean;
     show: boolean;
     lastMessagePull: number;
+    proflieExists: boolean;
 }
 
 export enum UiStateType {
@@ -22,6 +23,7 @@ export enum UiStateType {
     SetMaxLeftView = 'SET_MAX_LEFT_VIEW',
     ToggleShow = 'ToggleShow',
     SetLastMessagePull = 'SET_LAST_MESSAGE_PULL',
+    SetProfileExists = 'SET_PROFILE_EXISTS',
 }
 
 export type UiStatePayload = {
@@ -30,6 +32,7 @@ export type UiStatePayload = {
     [UiStateType.SetMaxLeftView]: boolean;
     [UiStateType.ToggleShow]: undefined;
     [UiStateType.SetLastMessagePull]: number;
+    [UiStateType.SetProfileExists]: boolean;
 };
 
 export type UiStateActions =
@@ -81,6 +84,13 @@ export function uiStateReducer(
             return {
                 ...state,
                 lastMessagePull: action.payload,
+            };
+
+        case UiStateType.SetProfileExists:
+            Lib.log(`[UI] set profile exists to ${action.payload}`);
+            return {
+                ...state,
+                proflieExists: action.payload,
             };
 
         default:

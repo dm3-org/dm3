@@ -140,7 +140,7 @@ function StorageView() {
 
     useEffect(() => {
         Lib.log(
-            `Create user storage browser snapshot at timestamp ${state.userDb?.lastChangeTimestamp}`,
+            `[DB/Browser] Create user storage browser snapshot at timestamp ${state.userDb?.lastChangeTimestamp}`,
         );
         localforage.setItem(
             Lib.getBrowserStorageKey(state.connection.account!.address),
