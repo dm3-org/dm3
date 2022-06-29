@@ -48,7 +48,9 @@ function ChatHeader(props: ChatHeaderProps) {
                                     )}
                                 </button>
                             </div>
-                            <div>Account Info</div>
+                            <div className="account-header-text">
+                                Account Info
+                            </div>
                             <div className="d-flex align-items-center">
                                 <button
                                     type="button"

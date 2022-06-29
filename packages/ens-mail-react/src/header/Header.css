@@ -9,7 +9,7 @@
   }
 
   .header-row-right {
-    background-color: #E0E5EB;
+    background-color: var(--mainLight);
 
 
     

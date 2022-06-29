@@ -56,7 +56,7 @@ code {
 .container {
   padding-top: 2rem;
   height: 80%;
-  
+  cursor: initial;
 }
 
 .main-content-row {
@@ -199,8 +199,16 @@ html, body {
   z-index: 1001;
 }
 
+.filler:hover {
+  cursor: pointer;
+}
+
 .btn-outline-secondary {
 
   border-color: var(--lightHighlight);
   color: var(--lightHighlight);
+}
+
+.right-btn {
+  background-color: ;
 }
