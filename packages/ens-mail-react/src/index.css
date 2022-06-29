@@ -8,9 +8,24 @@
 
 :root {
     --mainDark: #263f66;
+    --mainLight: #E0E5EB;
     --lightHighlight: #5e6164;
     --mainBorder: #5e6164;
   }
+
+  .right-button {
+      background-color: var(--mainLight);
+      color: var(--lightHighlight);
+      border-radius: 18px;
+    border-color: #DCE1E7;
+    border-style: solid;
+    line-height: normal;
+  }
+
+  .right-button:hover {
+    background-color: var(--mainDark);
+    color: white
+}
 
   .h-100 {
       min-height: inherit;

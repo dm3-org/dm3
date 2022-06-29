@@ -218,7 +218,7 @@ function UserInfo(props: UserInfoProps) {
                                     href={`https://app.ens.domains/name/${ensName}/details`}
                                     target="_blank"
                                     type="button"
-                                    className={`w-100 btn btn-lg btn-outline-secondary`}
+                                    className={`w-100 btn btn-lg btn-outline-secondary right-button`}
                                 >
                                     {state.accounts.accountInfoView ===
                                     AccountInfo.Account
@@ -237,6 +237,7 @@ function UserInfo(props: UserInfoProps) {
                                     btnType="primary"
                                     onClick={publishProfileOnchain}
                                     content={<>Publish Public Keys</>}
+                                    className="right-button"
                                 />
                             </div>
                         </div>

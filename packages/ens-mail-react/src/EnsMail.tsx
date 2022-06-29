@@ -231,8 +231,16 @@ function EnsMail(props: EnsMailProps) {
     ) : (
         <>
             {state.uiState.show && (
-                <div className="filler">
-                    <div className="container">{mainContent}</div>
+                <div
+                    className="filler"
+                    onClick={() => dispatch({ type: UiStateType.ToggleShow })}
+                >
+                    <div
+                        className="container"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {mainContent}
+                    </div>
                 </div>
             )}
             <Start />
