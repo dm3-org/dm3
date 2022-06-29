@@ -14,6 +14,7 @@ import localforage from 'localforage';
 
 interface SignInProps {
     hideStorageSelection: boolean;
+    defaultStorageLocation: Lib.StorageLocation | undefined;
 }
 
 function SignIn(props: SignInProps) {
@@ -21,7 +22,12 @@ function SignIn(props: SignInProps) {
         const persistedStorageLocation = window.localStorage.getItem(
             'StorageLocation',
         ) as Lib.StorageLocation | null;
-        return persistedStorageLocation ?? Lib.StorageLocation.File;
+
+        return (
+            persistedStorageLocation ??
+            props.defaultStorageLocation ??
+            Lib.StorageLocation.File
+        );
     };
 
     const [dataFile, setDataFile] = useState<string | undefined>();
@@ -33,14 +39,13 @@ function SignIn(props: SignInProps) {
         GoogleAuthState.Ready,
     );
 
-    const [existingAccount, setExistingAccount] = useState<boolean>(false);
     const [storeApiToken, setStoreApiToken] = useState<boolean>(true);
 
     const { state, dispatch } = useContext(GlobalContext);
 
     const initToken = () => {
         if (
-            existingAccount &&
+            state.uiState.proflieExists &&
             storageLocation === Lib.StorageLocation.Web3Storage
         ) {
             setToken(window.localStorage.getItem('StorageToken') as string);
@@ -75,7 +80,7 @@ function SignIn(props: SignInProps) {
 
         if (
             storageLocation === Lib.StorageLocation.File &&
-            !existingAccount &&
+            !state.uiState.proflieExists &&
             isCollectingSignInData
         ) {
             setSignInReady();
@@ -87,7 +92,7 @@ function SignIn(props: SignInProps) {
             setSignInReady();
         } else if (
             storageLocation === Lib.StorageLocation.File &&
-            existingAccount &&
+            state.uiState.proflieExists &&
             isCollectingSignInData &&
             (dataFile || browserDataFile)
         ) {
@@ -101,7 +106,7 @@ function SignIn(props: SignInProps) {
 
         if (
             storageLocation === Lib.StorageLocation.File &&
-            existingAccount &&
+            state.uiState.proflieExists &&
             isSignInReady
         ) {
             setSignInReady();
@@ -127,20 +132,20 @@ function SignIn(props: SignInProps) {
 
     useEffect(() => {
         initToken();
-    }, [storageLocation, existingAccount]);
+    }, [storageLocation, state.uiState.proflieExists]);
 
     useEffect(() => {
         checkState();
     }, [
         storageLocation,
-        existingAccount,
+        state.uiState.proflieExists,
         token,
         dataFile,
         state.connection.account,
     ]);
 
     useEffect(() => {
-        if (existingAccount && !storeApiToken) {
+        if (state.uiState.proflieExists && !storeApiToken) {
             setToken('');
             window.localStorage.removeItem('StorageToken');
         }
@@ -150,7 +155,7 @@ function SignIn(props: SignInProps) {
         <div className="w-100">
             <div className="row d-flex justify-content-center row-space sign-in ">
                 <div className="col-md-12">
-                    <ConnectButton setExistingAccount={setExistingAccount} />
+                    <ConnectButton />
                     {!props.hideStorageSelection && (
                         <>
                             <StorageLocationSelection
@@ -163,12 +168,10 @@ function SignIn(props: SignInProps) {
                                 storageLocation={storageLocation}
                             />
                             <ChooseFile
-                                existingAccount={existingAccount}
                                 setDataFile={setDataFile}
                                 storageLocation={storageLocation}
                             />
                             <TokenInput
-                                existingAccount={existingAccount}
                                 setToken={setToken}
                                 storageLocation={storageLocation}
                                 storeApiToken={storeApiToken}
@@ -183,7 +186,6 @@ function SignIn(props: SignInProps) {
                     )}
                     <SignInButton
                         dataFile={dataFile}
-                        existingAccount={existingAccount}
                         storageLocation={storageLocation}
                         storeApiToken={storeApiToken}
                         token={token}

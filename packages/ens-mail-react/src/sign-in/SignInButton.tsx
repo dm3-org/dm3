@@ -9,7 +9,6 @@ import StateButton, { ButtonState } from '../ui-shared/StateButton';
 
 interface SignInButtonProps {
     storageLocation: Lib.StorageLocation;
-    existingAccount: boolean;
     token: string | undefined;
     storeApiToken: boolean;
     dataFile: string | undefined;
@@ -30,39 +29,53 @@ function SignInButton(props: SignInButtonProps) {
             address: state.connection.account!.address,
         };
 
-        let browserDataFile = await localforage.getItem(
-            Lib.getBrowserStorageKey(account.address),
-        );
+        let browserDataFile: Lib.UserStorage | undefined | null = state.uiState
+            .proflieExists
+            ? await localforage.getItem(
+                  Lib.getBrowserStorageKey(account.address),
+              )
+            : null;
 
         let preLoadedKey: string | undefined;
         let overwriteUserDb: Partial<Lib.UserDB> = {};
 
-        switch (props.storageLocation) {
-            case Lib.StorageLocation.Web3Storage:
-                data = props.existingAccount
-                    ? await Lib.web3Load(props.token as string)
-                    : undefined;
-                break;
+        if (state.uiState.proflieExists) {
+            switch (props.storageLocation) {
+                case Lib.StorageLocation.Web3Storage:
+                    data = state.uiState.proflieExists
+                        ? await Lib.web3Load(props.token as string)
+                        : undefined;
+                    break;
 
-            case Lib.StorageLocation.GoogleDrive:
-                data = props.existingAccount
-                    ? await Lib.googleLoad((window as any).gapi)
-                    : undefined;
-                break;
+                case Lib.StorageLocation.GoogleDrive:
+                    data = state.uiState.proflieExists
+                        ? await Lib.googleLoad((window as any).gapi)
+                        : undefined;
+                    break;
 
-            case Lib.StorageLocation.EnsMailStorage:
-                if (browserDataFile) {
-                    const browserUserStorage = await Lib.load(
-                        state.connection,
-                        browserDataFile as Lib.UserStorage,
-                    );
-                    preLoadedKey = browserUserStorage.keys.storageEncryptionKey;
+                case Lib.StorageLocation.EnsMailStorage:
+                    let authToken;
+                    if (browserDataFile) {
+                        const browserUserStorage = await Lib.load(
+                            state.connection,
+                            browserDataFile,
+                        );
+                        preLoadedKey =
+                            browserUserStorage.keys.storageEncryptionKey;
+                        authToken = browserUserStorage.deliveryServiceToken;
+                    } else {
+                        authToken = await Lib.reAuth(state.connection);
+                        overwriteUserDb = {
+                            deliveryServiceToken: authToken,
+                        };
+                        browserDataFile = undefined;
+                    }
 
                     try {
-                        data = props.existingAccount
+                        data = state.uiState.proflieExists
                             ? await Lib.getEnsMailStorage(
                                   state.connection,
-                                  browserUserStorage.deliveryServiceToken,
+                                  authToken,
                               )
                             : undefined;
                     } catch (e) {
@@ -72,7 +85,7 @@ function SignInButton(props: SignInButtonProps) {
                             )
                         ) {
                             const newToken = await Lib.reAuth(state.connection);
-                            data = props.existingAccount
+                            data = state.uiState.proflieExists
                                 ? await Lib.getEnsMailStorage(
                                       state.connection,
                                       newToken,
@@ -89,54 +102,67 @@ function SignInButton(props: SignInButtonProps) {
                     }
 
                     break;
-                }
+            }
         }
 
-        const singInRequest = await Lib.signIn(
-            state.connection,
-            browserDataFile as Lib.UserStorage | undefined,
-            data,
-            overwriteUserDb,
-            preLoadedKey,
-        );
-
-        if (singInRequest.db) {
-            Lib.log(`Setting session token`);
-
-            account.publicKeys = Lib.extractPublicKeys(singInRequest.db.keys);
-
-            if (
-                props.token &&
-                props.storeApiToken &&
-                props.storageLocation === Lib.StorageLocation.Web3Storage
-            ) {
-                window.localStorage.setItem('StorageToken', props.token);
-            }
-
-            window.localStorage.setItem(
-                'StorageLocation',
-                props.storageLocation,
+        if (state.uiState.proflieExists && !browserDataFile && !data) {
+            dispatch({
+                type: ConnectionType.ChangeConnectionState,
+                payload: Lib.ConnectionState.SignInFailed,
+            });
+        } else {
+            const singInRequest = await Lib.signIn(
+                state.connection,
+                browserDataFile ? browserDataFile : undefined,
+                data,
+                overwriteUserDb,
+                preLoadedKey,
             );
 
-            dispatch({ type: ConnectionType.ChangeAccount, payload: account });
-            dispatch({
-                type: ConnectionType.ChangeStorageLocation,
-                payload: props.storageLocation,
-            });
-            dispatch({
-                type: ConnectionType.ChangeStorageToken,
-                payload: props.token,
-            });
-            dispatch({ type: UserDbType.setDB, payload: singInRequest.db });
+            if (singInRequest.db) {
+                Lib.log(`Setting session token`);
+
+                account.publicKeys = Lib.extractPublicKeys(
+                    singInRequest.db.keys,
+                );
+
+                if (
+                    props.token &&
+                    props.storeApiToken &&
+                    props.storageLocation === Lib.StorageLocation.Web3Storage
+                ) {
+                    window.localStorage.setItem('StorageToken', props.token);
+                }
+
+                window.localStorage.setItem(
+                    'StorageLocation',
+                    props.storageLocation,
+                );
+
+                dispatch({
+                    type: ConnectionType.ChangeAccount,
+                    payload: account,
+                });
+                dispatch({
+                    type: ConnectionType.ChangeStorageLocation,
+                    payload: props.storageLocation,
+                });
+                dispatch({
+                    type: ConnectionType.ChangeStorageToken,
+                    payload: props.token,
+                });
+                dispatch({ type: UserDbType.setDB, payload: singInRequest.db });
+
+                dispatch({
+                    type: ConnectionType.ChangeConnectionState,
+                    payload: singInRequest.connectionState,
+                });
+            }
             dispatch({
                 type: ConnectionType.ChangeConnectionState,
                 payload: singInRequest.connectionState,
             });
         }
-        dispatch({
-            type: ConnectionType.ChangeConnectionState,
-            payload: singInRequest.connectionState,
-        });
     };
 
     const getButtonState = (connectionState: Lib.ConnectionState) => {

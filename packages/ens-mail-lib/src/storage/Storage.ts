@@ -181,24 +181,36 @@ export async function load(
     data: UserStorage,
     key?: string,
 ): Promise<UserDB> {
-    log('Loading user storage');
-    const storageEncryptionKey = key
-        ? key
-        : JSON.parse(
-              await decryptUsingProvider(
-                  connection.provider!,
-                  ethers.utils.hexlify(
-                      ethers.utils.toUtf8Bytes(
-                          JSON.stringify(data.storageEncryptionKey),
-                      ),
-                  ),
+    log('[storage] Loading user storage');
 
-                  connection.account!.address,
-              ),
-          ).data;
-    const decryptedPayload: UserStoragePayload = JSON.parse(
-        symmetricalDecrypt(data.payload, storageEncryptionKey),
-    );
+    const decrypt = () =>
+        decryptUsingProvider(
+            connection.provider!,
+            ethers.utils.hexlify(
+                ethers.utils.toUtf8Bytes(
+                    JSON.stringify(data.storageEncryptionKey),
+                ),
+            ),
+
+            connection.account!.address,
+        );
+
+    let storageEncryptionKey = key ? key : JSON.parse(await decrypt()).data;
+    let decryptedPayload: UserStoragePayload;
+    try {
+        decryptedPayload = JSON.parse(
+            symmetricalDecrypt(data.payload, storageEncryptionKey),
+        );
+    } catch (e) {
+        if (key) {
+            storageEncryptionKey = JSON.parse(await decrypt()).data;
+            decryptedPayload = JSON.parse(
+                symmetricalDecrypt(data.payload, storageEncryptionKey),
+            );
+        } else {
+            throw e;
+        }
+    }
 
     const conversations: Map<string, StorageEnvelopContainer[]> = JSON.parse(
         decryptedPayload.conversations,

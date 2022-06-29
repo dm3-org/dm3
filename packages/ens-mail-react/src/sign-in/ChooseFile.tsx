@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import './SignIn.css';
 import * as Lib from 'ens-mail-lib';
+import { GlobalContext } from '../GlobalContextProvider';
 
 interface ChooseFileProps {
     storageLocation: Lib.StorageLocation;
-    existingAccount: boolean;
     setDataFile: (dataFile: string | undefined) => void;
 }
 
 function ChooseFile(props: ChooseFileProps) {
+    const { state } = useContext(GlobalContext);
     const upload = (event: any) => {
         if (event.target.files[0]) {
             const file = event.target.files[0];
@@ -24,7 +25,7 @@ function ChooseFile(props: ChooseFileProps) {
 
     if (
         !(
-            props.existingAccount &&
+            state.uiState.proflieExists &&
             props.storageLocation === Lib.StorageLocation.File
         )
     ) {

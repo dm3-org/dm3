@@ -142,9 +142,10 @@ export type GetPendingConversations = typeof getPendingConversations;
 
 export async function getProfileRegistryEntryOffChain(
     contact: string,
+    url?: string,
 ): Promise<SignedProfileRegistryEntry | undefined> {
     try {
-        return (await axios.get(`${PROFILE}/${contact}`)).data;
+        return (await axios.get(url ? url : `${PROFILE}/${contact}`)).data;
     } catch (e) {
         if ((e as Error).message.includes('404')) {
             return undefined;

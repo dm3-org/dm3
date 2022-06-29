@@ -6,6 +6,8 @@ import './index.css';
 import GlobalContextProvider from './GlobalContextProvider';
 import { Config, getConfig } from './utils/Config';
 
+export { StorageLocation } from 'ens-mail-lib';
+
 function index(props: Partial<Config>) {
     return (
         <div className="entry">

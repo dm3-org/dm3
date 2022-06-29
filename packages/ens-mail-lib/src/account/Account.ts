@@ -256,6 +256,7 @@ export async function getProfileRegistryEntry(
     getRessource: (
         uri: string,
     ) => Promise<SignedProfileRegistryEntry | undefined>,
+    profileUrl?: string,
 ): Promise<SignedProfileRegistryEntry | undefined> {
     const uri = await getEnsTextRecord(provider, contact, 'eth.mail');
 
@@ -273,7 +274,7 @@ export async function getProfileRegistryEntry(
         return profile;
     } else {
         log(`[getProfileRegistryEntry] Offchain`);
-        return getProfileOffChain(contact);
+        return getProfileOffChain(contact, profileUrl);
     }
 }
 

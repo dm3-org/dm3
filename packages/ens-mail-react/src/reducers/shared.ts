@@ -55,5 +55,6 @@ export const initialState: GlobalState = {
         maxLeftView: true,
         show: false,
         lastMessagePull: 0,
+        proflieExists: false,
     },
 };

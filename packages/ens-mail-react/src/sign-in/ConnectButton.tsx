@@ -8,12 +8,9 @@ import { ConnectionType } from '../reducers/Connection';
 import localforage from 'localforage';
 import StateButton, { ButtonState } from '../ui-shared/StateButton';
 import { CacheType } from '../reducers/Cache';
+import { UiStateType } from '../reducers/UiState';
 
-interface ConnectButtonProps {
-    setExistingAccount: (exists: boolean) => void;
-}
-
-function ConnectButton(props: ConnectButtonProps) {
+function ConnectButton() {
     const { state, dispatch } = useContext(GlobalContext);
 
     const connect = async () => {
@@ -26,7 +23,15 @@ function ConnectButton(props: ConnectButtonProps) {
             state.connection.provider!,
         );
 
-        props.setExistingAccount(accountConnection.existingAccount);
+        dispatch({
+            type: UiStateType.SetProfileExists,
+            payload: accountConnection.existingAccount,
+        });
+        Lib.log(
+            accountConnection.existingAccount
+                ? '[Connection] connected to existing profile'
+                : '[Connection] connected to new profile',
+        );
         if (accountConnection.account && !accountConnection.existingAccount) {
             await localforage.removeItem(
                 Lib.getBrowserStorageKey(accountConnection.account),
