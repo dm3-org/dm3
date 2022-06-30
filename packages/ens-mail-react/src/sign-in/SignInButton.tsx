@@ -194,6 +194,7 @@ function SignInButton(props: SignInButtonProps) {
                     btnType="primary"
                     onClick={requestSignIn}
                     content={<>Sign In</>}
+                    className="left-state-btn mb-4"
                 />
             </div>
             <div className="col-md-7 help-text"></div>

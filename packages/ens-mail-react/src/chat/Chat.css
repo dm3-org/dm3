@@ -81,12 +81,14 @@
     margin-left: 3rem !important;
     border-radius: 18px;
     border-bottom-right-radius: 0px ;
+    background-color: var(--mainColorLightSecondary);
 }
 
 .rcw-response .rcw-message-text {
 
     border-radius: 18px;
     border-bottom-left-radius: 0px ;
+    background-color: var(--mainLightSecondary);
 }
 
 
@@ -105,4 +107,5 @@
 
 .message-state {
     margin-bottom: 15px;
+    color: var(--lightHighlight);
 }

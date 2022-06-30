@@ -136,14 +136,39 @@ html, body {
   padding: 0px !important;
 }
 
+.left-state-btn {
+  border: none  !important;
+  border-radius: 12px;
+  background-color: var(--btnColorLeft);
+}
+
+.left-state-btn:hover {
+  border: none  !important;
+  background-color: var(--btnColorLeftSecondary);
+}
+
+.left-state-btn:disabled {
+  background-color: var(--btnColorLeftDisabled);
+
+}
+
+
+
 .left-btn.btn-secondary {
-  background-color: var(--lightHighlight) !important;
+  background-color: var(--btnColorLeftSecondary) !important;
 }
 
 
 .left-btn:hover {
-  background-color: var(--lightHighlight)!important;
+  background-color: var(--btnColorLeftSecondary)!important;
+
 }
+
+.left-btn:focus {
+  box-shadow: 0 0 0 0.25rem var(--btnColorLeftSecondaryFocus);
+
+}
+
 
 .left-view {
   min-height: inherit;
@@ -158,6 +183,21 @@ html, body {
   height: 40px !important;
   width: 40px !important;
   padding: 0px !important;
+}
+
+.right-state-button {
+  background-color: var(--mainLight);
+  color: var(--lightHighlight);
+  border-radius: 18px;
+
+  border-style: none;
+  line-height: normal;
+}
+
+.right-state-button:hover {
+  background-color: var(--mainLight);
+  color: var(--lightHighlight);
+  filter: brightness(103%);
 }
 
 ::-webkit-scrollbar-track {

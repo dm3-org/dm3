@@ -107,6 +107,7 @@ function GoogleConnect(props: GoogleConnectProps) {
                     btnType="primary"
                     onClick={handleClientLoad}
                     content={<>Connect Google Drive</>}
+                    className="left-state-btn"
                 />
             </div>
             <div className="col-md-7 help-text">

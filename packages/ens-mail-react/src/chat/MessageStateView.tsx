@@ -20,8 +20,7 @@ function MessageStateView(props: MessageStateViewProps) {
             )}
             {props.messageState === Lib.MessageState.Read && (
                 <>
-                    <Icon iconClass="fas fa-signature" />{' '}
-                    <Icon iconClass="fas fa-lock" />
+                    <Icon iconClass="fas fa-check" />
                 </>
             )}
             {props.messageState === Lib.MessageState.FailedToSend && (

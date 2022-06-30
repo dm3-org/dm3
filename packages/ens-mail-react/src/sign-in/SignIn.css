@@ -35,20 +35,20 @@
 }
 
 .storage-item:focus {
-  background-color: #9DB1D1;
+  background-color: var(--btnColorLeft);
 
   color: #fff !important;
 }
 
 .storage-item-selected {
-  background-color: #9DB1D1;
+  background-color: var(--btnColorLeft);
 
   color: #fff !important;
 }
 
 
 .storage-item:hover {
-  background-color: #9DB1D1;
+  background-color: var(--btnColorLeftSecondary);
 
   color: #fff !important;
 

@@ -1,8 +1,8 @@
 .start-btn {
-    background-color: var(--mainDark);
+    background-color: #00000000;
     color: #DBDFE5 !important;
     font-size: 30px;
-    border: solid #DBDFE5 2px !important;
+    border: none !important;
     border-radius: 100% !important;
     height: 60px !important;
     width: 60px !important;
@@ -13,9 +13,3 @@
     z-index: 1001;
 }
 
-.start-btn:hover {
-    background-color: #DBDFE5;
-    color: var(--main) !important;
-    border: solid var(--main) 2px !important;
-
-}

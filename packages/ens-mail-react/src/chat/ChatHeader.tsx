@@ -49,7 +49,12 @@ function ChatHeader(props: ChatHeaderProps) {
                                 </button>
                             </div>
                             <div className="account-header-text">
-                                Account Info
+                                {props.account
+                                    ? Lib.getAccountDisplayName(
+                                          props.account.address,
+                                          state.cache.ensNames,
+                                      )
+                                    : 'Account Info'}
                             </div>
                             <div className="d-flex align-items-center">
                                 <button

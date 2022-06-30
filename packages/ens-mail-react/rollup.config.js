@@ -1,7 +1,7 @@
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from 'rollup-plugin-typescript2';
 import postCSS from 'rollup-plugin-postcss';
-
+import url from '@rollup/plugin-url';
 import pkg from './package.json';
 
 export default {
@@ -18,6 +18,7 @@ export default {
     ],
     external: [...Object.keys(pkg.peerDependencies || {})],
     plugins: [
+        url(),
         commonjs(),
         typescript({
             sourceMap: true,
