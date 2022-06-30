@@ -21,14 +21,14 @@ export async function reAuth(
         throw Error('No account set');
     }
     const provider = connection.provider as ethers.providers.JsonRpcProvider;
-    const challenge = await getChallenge(connection.account.address);
+    const challenge = await getChallenge(connection.account);
     const signature = await personalSign(
         provider,
         connection.account.address,
         challenge,
     );
 
-    return getNewToken(connection.account.address, signature);
+    return getNewToken(connection.account, signature);
 }
 
 export async function signIn(
@@ -67,6 +67,7 @@ export async function signIn(
                     publicMessagingKey: keyPair.publicMessagingKey,
                     publicSigningKey: keyPair.publicSigningKey,
                 },
+                deliveryServiceUrl: connection.defaultServiceUrl!,
             };
 
             const signature = await personalSign(
@@ -75,10 +76,13 @@ export async function signIn(
                 JSON.stringify(profileRegistryEntry),
             );
 
-            deliveryServiceToken = await submitProfileRegistryEntry(account, {
-                profileRegistryEntry,
-                signature,
-            });
+            deliveryServiceToken = await submitProfileRegistryEntry(
+                { address: account, profile: profileRegistryEntry },
+                {
+                    profileRegistryEntry,
+                    signature,
+                },
+            );
 
             return {
                 connectionState: ConnectionState.SignedIn,

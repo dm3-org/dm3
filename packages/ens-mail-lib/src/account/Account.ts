@@ -35,6 +35,7 @@ export interface Keys {
 
 export interface ProfileRegistryEntry {
     publicKeys: PublicKeys;
+    deliveryServiceUrl: string;
 }
 
 export interface SignedProfileRegistryEntry {
@@ -45,7 +46,6 @@ export interface SignedProfileRegistryEntry {
 export interface PublicKeys {
     publicKey: string;
     publicMessagingKey: string;
-
     publicSigningKey: string;
 }
 
@@ -56,7 +56,7 @@ export interface PrivateKeys {
 
 export interface Account {
     address: string;
-    publicKeys?: PublicKeys;
+    profile?: ProfileRegistryEntry;
 }
 
 export async function getContacts(
@@ -105,7 +105,7 @@ export async function getContacts(
             )
             .map(async (address) => {
                 const profile = await getProfileRegistryEntry(
-                    connection.provider!,
+                    connection,
                     address,
                 );
                 return {
@@ -129,8 +129,7 @@ export async function getContacts(
         )
         .map((profileContainer) => ({
             address: profileContainer.address,
-            publicKeys:
-                profileContainer.profile?.profileRegistryEntry.publicKeys,
+            profile: profileContainer.profile?.profileRegistryEntry,
         }));
 }
 
@@ -249,7 +248,7 @@ export function getBrowserStorageKey(accountAddress: string) {
 }
 
 export async function getProfileRegistryEntry(
-    provider: ethers.providers.JsonRpcProvider,
+    connection: Connection,
     contact: string,
     getProfileOffChain: GetProfileRegistryEntryOffChain,
     getEnsTextRecord: GetEnsTextRecord,
@@ -258,7 +257,11 @@ export async function getProfileRegistryEntry(
     ) => Promise<SignedProfileRegistryEntry | undefined>,
     profileUrl?: string,
 ): Promise<SignedProfileRegistryEntry | undefined> {
-    const uri = await getEnsTextRecord(provider, contact, 'eth.mail');
+    const uri = await getEnsTextRecord(
+        connection.provider!,
+        contact,
+        'eth.mail',
+    );
 
     if (uri) {
         log(`[getProfileRegistryEntry] Onchain uri ${uri}`);
@@ -274,7 +277,7 @@ export async function getProfileRegistryEntry(
         return profile;
     } else {
         log(`[getProfileRegistryEntry] Offchain`);
-        return getProfileOffChain(contact, profileUrl);
+        return getProfileOffChain(connection.account, contact, profileUrl);
     }
 }
 
@@ -335,7 +338,10 @@ export async function publishProfileOnchain(
         connection.provider,
     );
 
-    const ownProfile = await getProfileOffChain(connection.account.address);
+    const ownProfile = await getProfileOffChain(
+        connection.account,
+        connection.account.address,
+    );
 
     if (!ownProfile) {
         throw Error('could not load account profile');

@@ -70,13 +70,13 @@ export {
 export { log } from './shared/log';
 export { getSessionToken } from './signin';
 
-function getProfileRegistryEntry(
-    provider: ethers.providers.JsonRpcProvider,
+export function getProfileRegistryEntry(
+    connection: Web3Provider.Connection,
     contact: string,
     profileUrl?: string,
 ): Promise<Account.SignedProfileRegistryEntry | undefined> {
     return Account.getProfileRegistryEntry(
-        provider,
+        connection,
         contact,
         BackendAPI.getProfileRegistryEntryOffChain,
         Web3Api.getEnsTextRecord,
@@ -87,20 +87,20 @@ function getProfileRegistryEntry(
 
 export type GetProfileRegistryEntry = typeof getProfileRegistryEntry;
 
-export function connectAccount(provider: ethers.providers.JsonRpcProvider) {
+export function connectAccount(connection: Web3Provider.Connection) {
     return SignIn.connectAccount(
-        provider,
+        connection,
         Web3Api.requestAccounts,
         getProfileRegistryEntry,
     );
 }
 
 export function publishProfileOnchain(
-    conection: Web3Provider.Connection,
+    connection: Web3Provider.Connection,
     uri: string,
 ) {
     return Account.publishProfileOnchain(
-        conection,
+        connection,
         uri,
         Web3Api.lookupAddress,
         Web3Api.getResolver,

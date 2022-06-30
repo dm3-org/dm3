@@ -20,6 +20,7 @@ const getSession = async (address: string) => {
                           publicMessagingKey: '',
                           publicSigningKey: '',
                       },
+                      deliveryServiceUrl: '',
                   },
                   signature: '',
               },

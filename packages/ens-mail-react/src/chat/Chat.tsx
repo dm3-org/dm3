@@ -76,10 +76,10 @@ function Chat() {
                     ? state.accounts.selectedContact
                     : state.connection.account!;
 
-            return account.publicKeys?.publicSigningKey
+            return account.profile?.publicKeys?.publicSigningKey
                 ? Lib.checkSignature(
                       container.envelop.message,
-                      account.publicKeys!.publicSigningKey,
+                      account.profile?.publicKeys!.publicSigningKey,
                       account.address,
                       container.envelop.signature,
                   )
@@ -124,7 +124,7 @@ function Chat() {
 
     useEffect(() => {
         dropMessages();
-        if (!state.accounts.selectedContact?.publicKeys?.publicKey) {
+        if (!state.accounts.selectedContact?.profile?.publicKeys.publicKey) {
             renderCustomComponent(
                 () => (
                     <InfoBox
@@ -209,8 +209,9 @@ function Chat() {
         }
 
         const haltDelivery =
-            state.accounts.selectedContact?.publicKeys?.publicMessagingKey &&
-            state.connection.account?.publicKeys?.publicMessagingKey
+            state.accounts.selectedContact?.profile?.publicKeys
+                .publicMessagingKey &&
+            state.connection.account?.profile?.publicKeys.publicMessagingKey
                 ? false
                 : true;
 

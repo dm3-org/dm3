@@ -19,9 +19,7 @@ function ConnectButton() {
             payload: Lib.ConnectionState.WaitingForAccountConntection,
         });
 
-        const accountConnection = await Lib.connectAccount(
-            state.connection.provider!,
-        );
+        const accountConnection = await Lib.connectAccount(state.connection);
 
         dispatch({
             type: UiStateType.SetProfileExists,
@@ -47,6 +45,7 @@ function ConnectButton() {
                 type: ConnectionType.ChangeAccount,
                 payload: {
                     address: accountConnection.account,
+                    profile: accountConnection.profile?.profileRegistryEntry,
                 },
             });
 

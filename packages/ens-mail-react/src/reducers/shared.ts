@@ -37,6 +37,7 @@ export const initialState: GlobalState = {
     connection: {
         connectionState: Lib.ConnectionState.CheckingProvider,
         storageLocation: Lib.StorageLocation.File,
+        defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
     },
     accounts: {
         contacts: undefined,
