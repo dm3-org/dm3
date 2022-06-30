@@ -9,23 +9,18 @@
 :root {
     --mainDark: #263f66;
     --mainLight: #E0E5EB;
+    --mainLightSecondary: #E0E5EB80;
     --lightHighlight: #5e6164;
     --mainBorder: #5e6164;
+    --mainColorLight: #3173D5;
+    --mainColorLightSecondary: #3173D530;
+    --btnColorLeftDisabled: #6d7f9c;
+    --btnColorLeft: #879dc0;
+    --btnColorLeftSecondary: #9DB1D1;
+    --btnColorLeftSecondaryFocus: #9DB1D140;
   }
 
-  .right-button {
-      background-color: var(--mainLight);
-      color: var(--lightHighlight);
-      border-radius: 18px;
-    border-color: #DCE1E7;
-    border-style: solid;
-    line-height: normal;
-  }
 
-  .right-button:hover {
-    background-color: var(--mainDark);
-    color: white
-}
 
   .h-100 {
       min-height: inherit;

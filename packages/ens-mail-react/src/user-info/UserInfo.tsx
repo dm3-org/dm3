@@ -89,167 +89,200 @@ function UserInfo(props: UserInfoProps) {
                 <div className="col text-center">
                     <Avatar
                         accountAddress={props.account.address}
-                        specialSize={SpecialSize.Lg}
+                        specialSize={SpecialSize.Md}
                     />
                 </div>
             </div>
-            <div className="row row-space-sm">
-                <div className="col text-center account-name">
-                    {Lib.getAccountDisplayName(
-                        props.account.address,
-                        state.cache.ensNames,
-                    )}
+
+            <div className="row mt-4 user-info-row ">
+                <div className="col-2 text-center">
+                    <button
+                        type="button"
+                        className="right-btn btn btn-outline-secondary w-100 show-add-btn align-self-center"
+                        disabled
+                    >
+                        <Icon iconClass="fab fa-ethereum" />
+                    </button>
+                </div>
+                <div className="col-10 text-muted info-value d-flex">
+                    <div className="align-self-center">
+                        <a
+                            className="text-decoration-none text-muted"
+                            href={
+                                'https://etherscan.io/address/' +
+                                props.account.address
+                            }
+                            target="_blank"
+                        >
+                            {props.account.address}
+                        </a>
+                    </div>
                 </div>
             </div>
-
-            <div className="row row-space d-flex justify-content-center ens-records">
-                <div className="col-8">
-                    <div className="row ">
-                        <div className="col-1 text-center">
-                            <Icon iconClass="fab fa-ethereum" />
+            {ensTextRecords?.email && (
+                <div className="row user-info-row ">
+                    <div className="col-2  text-center">
+                        <button
+                            type="button"
+                            className="right-btn btn btn-outline-secondary w-100 show-add-btn align-self-center"
+                            disabled
+                        >
+                            <Icon iconClass="far fa-envelope" />
+                        </button>
+                    </div>
+                    <div className="col-10 text-muted info-value d-flex">
+                        <div className="align-self-center">
+                            <a
+                                className="text-decoration-none text-muted"
+                                href={'mailto://' + ensTextRecords?.email}
+                                target="_blank"
+                            >
+                                {ensTextRecords?.email}
+                            </a>
                         </div>
-                        <div className="col-11 text-muted info-value">
+                    </div>
+                </div>
+            )}
+            {ensTextRecords?.url && (
+                <div className="row  user-info-row">
+                    <div className="col-2  text-center">
+                        <button
+                            type="button"
+                            className="right-btn btn btn-outline-secondary w-100 show-add-btn align-self-center"
+                            disabled
+                        >
+                            <Icon iconClass="fas fa-link" />
+                        </button>
+                    </div>
+                    <div className="col-10 text-muted info-value d-flex">
+                        <div className="align-self-center">
+                            <a
+                                className="text-decoration-none text-muted"
+                                href={ensTextRecords?.url}
+                                target="_blank"
+                            >
+                                {ensTextRecords?.url}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {ensTextRecords?.github && (
+                <div className="row user-info-row">
+                    <div className="col-2  text-center">
+                        <button
+                            type="button"
+                            className="right-btn btn btn-outline-secondary w-100 show-add-btn align-self-center"
+                            disabled
+                        >
+                            <Icon iconClass="fab fa-github" />
+                        </button>
+                    </div>
+                    <div className="col-10 text-muted info-value d-flex">
+                        <div className="align-self-center">
                             <a
                                 className="text-decoration-none text-muted"
                                 href={
-                                    'https://etherscan.io/address/' +
+                                    'https://github.com/' +
+                                    ensTextRecords?.github
+                                }
+                                target="_blank"
+                            >
+                                @{ensTextRecords?.github}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {ensTextRecords?.twitter && (
+                <div className="row user-info-row">
+                    <div className="col-2  text-center">
+                        <button
+                            type="button"
+                            className="right-btn btn btn-outline-secondary w-100 show-add-btn align-self-center"
+                            disabled
+                        >
+                            <Icon iconClass="fab fa-twitter" />
+                        </button>
+                    </div>
+                    <div className="col-10 text-muted info-value d-flex">
+                        <div className="align-self-center">
+                            <a
+                                className="text-decoration-none text-muted align-self-center"
+                                href={
+                                    'https://twitter.com/' +
+                                    ensTextRecords?.twitter
+                                }
+                                target="_blank"
+                            >
+                                @{ensTextRecords?.twitter}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {props.account.profile && (
+                <div className="row user-info-row">
+                    <div className="col-2  text-center">
+                        <button
+                            type="button"
+                            className="right-btn btn btn-outline-secondary w-100 show-add-btn align-self-center"
+                            disabled
+                        >
+                            <Icon iconClass="fas fa-lock" />
+                        </button>
+                    </div>
+                    <div className="col-10 text-muted info-value d-flex">
+                        <div className="align-self-center">
+                            <a
+                                className="text-decoration-none text-muted align-self-center"
+                                href={
+                                    props.account.profile.deliveryServiceUrl +
+                                    '/profile/' +
                                     props.account.address
                                 }
                                 target="_blank"
                             >
-                                {props.account.address}
+                                {props.account.profile.deliveryServiceUrl +
+                                    '/profile/' +
+                                    props.account.address}
                             </a>
                         </div>
                     </div>
-                    {ensTextRecords?.email && (
-                        <div className="row ">
-                            <div className="col-1  text-center">
-                                <Icon iconClass="far fa-envelope" />
-                            </div>
-                            <div className="col-11 text-muted info-value">
-                                <a
-                                    className="text-decoration-none text-muted"
-                                    href={'mailto://' + ensTextRecords?.email}
-                                    target="_blank"
-                                >
-                                    {ensTextRecords?.email}
-                                </a>
-                            </div>
-                        </div>
-                    )}
-                    {ensTextRecords?.url && (
-                        <div className="row ">
-                            <div className="col-1  text-center">
-                                <Icon iconClass="fas fa-link" />
-                            </div>
-                            <div className="col-11 text-muted info-value">
-                                <a
-                                    className="text-decoration-none text-muted"
-                                    href={ensTextRecords?.url}
-                                    target="_blank"
-                                >
-                                    {ensTextRecords?.url}
-                                </a>
-                            </div>
-                        </div>
-                    )}
-                    {ensTextRecords?.github && (
-                        <div className="row ">
-                            <div className="col-1  text-center">
-                                <Icon iconClass="fab fa-github" />
-                            </div>
-                            <div className="col-11 text-muted info-value">
-                                <a
-                                    className="text-decoration-none text-muted"
-                                    href={
-                                        'https://github.com/' +
-                                        ensTextRecords?.github
-                                    }
-                                    target="_blank"
-                                >
-                                    @{ensTextRecords?.github}
-                                </a>
-                            </div>
-                        </div>
-                    )}
-                    {ensTextRecords?.twitter && (
-                        <div className="row ">
-                            <div className="col-1  text-center">
-                                <Icon iconClass="fab fa-twitter" />
-                            </div>
-                            <div className="col-11 text-muted info-value">
-                                <a
-                                    className="text-decoration-none text-muted"
-                                    href={
-                                        'https://twitter.com/' +
-                                        ensTextRecords?.twitter
-                                    }
-                                    target="_blank"
-                                >
-                                    @{ensTextRecords?.twitter}
-                                </a>
-                            </div>
-                        </div>
-                    )}
-                    {props.account.profile?.publicKeys.publicSigningKey && (
-                        <div className="row ">
-                            <div className="col-1  text-center">
-                                <Icon iconClass="fas fa-signature" />
-                            </div>
-                            <div className="col-11 text-muted info-value">
-                                {
-                                    props.account.profile?.publicKeys
-                                        .publicSigningKey
-                                }
-                            </div>
-                        </div>
-                    )}
-                    {props.account.profile?.publicKeys.publicMessagingKey && (
-                        <div className="row ">
-                            <div className="col-1  text-center">
-                                <Icon iconClass="fas fa-lock" />
-                            </div>
-                            <div className="col-11 text-muted info-value">
-                                {
-                                    props.account.profile?.publicKeys
-                                        .publicMessagingKey
-                                }
-                            </div>
-                        </div>
-                    )}
-                    {ensName && (
-                        <div className="row row-space">
-                            <div className="col-12 text-muted">
-                                <a
-                                    href={`https://app.ens.domains/name/${ensName}/details`}
-                                    target="_blank"
-                                    type="button"
-                                    className={`w-100 btn btn-lg btn-outline-secondary right-button`}
-                                >
-                                    {state.accounts.accountInfoView ===
-                                    AccountInfo.Account
-                                        ? 'Edit'
-                                        : 'Show'}{' '}
-                                    ENS Info
-                                </a>
-                            </div>
-                        </div>
-                    )}
-                    {state.accounts.accountInfoView === AccountInfo.Account && (
-                        <div className="row row-space ">
-                            <div className="col-12 text-muted">
-                                <StateButton
-                                    btnState={publishButtonState}
-                                    btnType="primary"
-                                    onClick={publishProfileOnchain}
-                                    content={<>Publish Public Keys</>}
-                                    className="right-button"
-                                />
-                            </div>
-                        </div>
-                    )}
                 </div>
-            </div>
+            )}
+            {ensName && (
+                <div className="row row-space">
+                    <div className="col-12 text-muted">
+                        <a
+                            href={`https://app.ens.domains/name/${ensName}/details`}
+                            target="_blank"
+                            type="button"
+                            className={`w-100 btn btn-lg btn-outline-secondary right-state-button`}
+                        >
+                            {state.accounts.accountInfoView ===
+                            AccountInfo.Account
+                                ? 'Edit'
+                                : 'Show'}{' '}
+                            ENS Info
+                        </a>
+                    </div>
+                </div>
+            )}
+            {state.accounts.accountInfoView === AccountInfo.Account && (
+                <div className="row row-space ">
+                    <div className="col-12 text-muted">
+                        <StateButton
+                            btnState={publishButtonState}
+                            btnType="primary"
+                            onClick={publishProfileOnchain}
+                            content={<>Publish Public Keys</>}
+                            className="right-state-button"
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

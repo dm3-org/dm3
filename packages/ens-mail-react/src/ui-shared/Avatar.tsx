@@ -71,7 +71,7 @@ function Avatar(props: AvatarProps) {
             case SpecialSize.Md:
                 return {
                     borderRadius: '0.5rem',
-                    height: '3.5rem',
+                    height: '5rem',
                 };
             case SpecialSize.Xs:
                 return {

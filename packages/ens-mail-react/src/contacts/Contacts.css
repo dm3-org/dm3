@@ -71,11 +71,11 @@
 }
 
 .contract-entry-selected {
-    background-color: #3173d5 !important;
+    background-color: var(--mainColorLight) !important;
 }
 
 .add-btn {
-    background-color: #3173D5 !important;
+    background-color: var(--mainColorLight) !important;
     color: #fff !important;
     border-style: none !important;
 

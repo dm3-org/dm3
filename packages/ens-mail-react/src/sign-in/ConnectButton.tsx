@@ -117,6 +117,7 @@ function ConnectButton() {
                                 Lib.ConnectionState.AccountConnectionRejected
                         )
                     }
+                    className="left-state-btn"
                 />
             </div>
             <div className="col-md-7 help-text">

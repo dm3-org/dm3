@@ -12,6 +12,9 @@ import GoogleConnect, { GoogleAuthState } from './GoogleConnect';
 import { ConnectionType } from '../reducers/Connection';
 import localforage from 'localforage';
 
+import Logo from '../assets/ENS-Mail_Logo_blue-white.svg';
+import DarkLogo from '../logos/DarkLogo';
+
 interface SignInProps {
     hideStorageSelection: boolean;
     defaultStorageLocation: Lib.StorageLocation | undefined;
@@ -153,6 +156,11 @@ function SignIn(props: SignInProps) {
 
     return (
         <div className="w-100">
+            <div className="row d-flex justify-content-center row-space sign-in ">
+                <div className="col-md-12">
+                    <DarkLogo />
+                </div>
+            </div>
             <div className="row d-flex justify-content-center row-space sign-in ">
                 <div className="col-md-12">
                     <ConnectButton />

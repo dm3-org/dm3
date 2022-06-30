@@ -8,10 +8,17 @@
 
 }
 
-.ens-records {
-    font-size: 1rem;
-}
+
 
 .info-value {
     word-break: break-all;
+}
+
+.user-info-row {
+    background-color: var(--mainLightSecondary);
+    border-radius: 12px;
+    padding: 8px;
+    margin-right: 1rem;
+    margin-left: 1rem;
+    margin-bottom: 1rem;
 }
