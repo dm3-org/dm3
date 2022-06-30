@@ -100,12 +100,15 @@ export async function submitMessage(
             { envelop: innerEnvelop, messageState: MessageState.Created },
         ]);
     } else {
+        if (!to.profile) {
+            throw Error('Contact has no profile');
+        }
         const envelop: EncryptionEnvelop = {
             encryptedData: ethers.utils.hexlify(
                 ethers.utils.toUtf8Bytes(
                     JSON.stringify(
                         encryptSafely({
-                            publicKey: to.publicKeys
+                            publicKey: to.profile.publicKeys
                                 ?.publicMessagingKey as string,
                             data: innerEnvelop,
                             version: 'x25519-xsalsa20-poly1305',

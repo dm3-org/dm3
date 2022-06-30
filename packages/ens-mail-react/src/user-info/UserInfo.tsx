@@ -65,7 +65,7 @@ function UserInfo(props: UserInfoProps) {
         try {
             const tx = await Lib.publishProfileOnchain(
                 state.connection,
-                (process.env.REACT_APP_BACKEND as string) +
+                state.connection.defaultServiceUrl +
                     '/profile/' +
                     state.connection.account!.address,
             );
@@ -191,23 +191,29 @@ function UserInfo(props: UserInfoProps) {
                             </div>
                         </div>
                     )}
-                    {props.account.publicKeys?.publicSigningKey && (
+                    {props.account.profile?.publicKeys.publicSigningKey && (
                         <div className="row ">
                             <div className="col-1  text-center">
                                 <Icon iconClass="fas fa-signature" />
                             </div>
                             <div className="col-11 text-muted info-value">
-                                {props.account.publicKeys?.publicSigningKey}
+                                {
+                                    props.account.profile?.publicKeys
+                                        .publicSigningKey
+                                }
                             </div>
                         </div>
                     )}
-                    {props.account.publicKeys?.publicMessagingKey && (
+                    {props.account.profile?.publicKeys.publicMessagingKey && (
                         <div className="row ">
                             <div className="col-1  text-center">
                                 <Icon iconClass="fas fa-lock" />
                             </div>
                             <div className="col-11 text-muted info-value">
-                                {props.account.publicKeys?.publicMessagingKey}
+                                {
+                                    props.account.profile?.publicKeys
+                                        .publicMessagingKey
+                                }
                             </div>
                         </div>
                     )}

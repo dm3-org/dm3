@@ -38,6 +38,13 @@ function EnsMail(props: EnsMailProps) {
     }
 
     useEffect(() => {
+        dispatch({
+            type: ConnectionType.SetDefaultServiceUrl,
+            payload: props.config.defaultServiceUrl,
+        });
+    }, [props.config.defaultServiceUrl]);
+
+    useEffect(() => {
         if (
             props.config.showContacts === false &&
             state.accounts.selectedContact
@@ -138,8 +145,12 @@ function EnsMail(props: EnsMailProps) {
                 );
             }
 
+            if (!state.connection.account?.profile) {
+                throw Error('Could not get account profile');
+            }
+
             const socket = socketIOClient(
-                process.env.REACT_APP_BACKEND as string,
+                state.connection.account.profile.deliveryServiceUrl,
                 { autoConnect: false },
             );
             socket.auth = {

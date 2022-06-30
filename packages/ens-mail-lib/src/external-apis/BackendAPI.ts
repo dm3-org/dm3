@@ -2,14 +2,14 @@ import axios from 'axios';
 import { log } from '../shared/log';
 import { EncryptionEnvelop, Envelop } from '../messaging/Messaging';
 import { Connection } from '../web3-provider/Web3Provider';
-import { SignedProfileRegistryEntry } from '../account/Account';
+import { Account, SignedProfileRegistryEntry } from '../account/Account';
 import { UserDB } from '..';
 import { Acknoledgment } from '../delivery';
 import { formatAddress } from './InjectedWeb3API';
 
-const PROFILE = (process.env.REACT_APP_BACKEND as string) + '/profile';
-const DELIVERY = (process.env.REACT_APP_BACKEND as string) + '/delivery';
-const AUTH_SERVICE = (process.env.REACT_APP_BACKEND as string) + '/auth';
+const PROFILE = '/profile';
+const DELIVERY = '/delivery';
+const AUTH_SERVICE = '/auth';
 
 function getAxiosConfig(token: string) {
     return {
@@ -19,31 +19,56 @@ function getAxiosConfig(token: string) {
     };
 }
 
-export async function getChallenge(accountAddress: string): Promise<string> {
-    return (await axios.get(AUTH_SERVICE + `/${formatAddress(accountAddress)}`))
-        .data.challenge;
+function checkAccount(account: Account | undefined): Required<Account> {
+    if (!account) {
+        throw Error('No account');
+    }
+    if (!account.profile) {
+        throw Error('Account has no profile.');
+    }
+    return account as Required<Account>;
+}
+
+export async function getChallenge(account: Account): Promise<string> {
+    const checkedAccount = checkAccount(account);
+    return (
+        await axios.get(
+            checkedAccount.profile.deliveryServiceUrl +
+                AUTH_SERVICE +
+                `/${formatAddress(checkedAccount.address)}`,
+        )
+    ).data.challenge;
 }
 export type GetChallenge = typeof getChallenge;
 
 export async function getNewToken(
-    accountAddress: string,
+    account: Account,
     signature: string,
 ): Promise<string> {
+    const checkedAccount = checkAccount(account);
     return (
-        await axios.post(AUTH_SERVICE + `/${formatAddress(accountAddress)}`, {
-            signature,
-        })
+        await axios.post(
+            checkedAccount.profile.deliveryServiceUrl +
+                AUTH_SERVICE +
+                `/${formatAddress(checkedAccount.address)}`,
+            {
+                signature,
+            },
+        )
     ).data.token;
 }
 export type GetNewToken = typeof getNewToken;
 
 export async function submitProfileRegistryEntry(
-    accountAddress: string,
+    account: Account,
     signedProfileRegistryEntry: SignedProfileRegistryEntry,
 ): Promise<string> {
+    const checkedAccount = checkAccount(account);
     return (
         await axios.post(
-            `${PROFILE}/${accountAddress}`,
+            `${checkedAccount.profile.deliveryServiceUrl + PROFILE}/${
+                account.address
+            }`,
             signedProfileRegistryEntry,
         )
     ).data;
@@ -84,8 +109,9 @@ export async function syncAcknoledgment(
     userDb: UserDB,
     lastMessagePull: number,
 ): Promise<void> {
+    const checkedAccount = checkAccount(connection.account);
     return axios.post(
-        `${DELIVERY}/messages/${
+        `${checkedAccount.profile.deliveryServiceUrl + DELIVERY}/messages/${
             connection.account!.address
         }/syncAcknoledgment/${lastMessagePull}`,
         { acknoledgments },
@@ -116,9 +142,10 @@ export async function getNewMessages(
     userDb: UserDB,
     contactAddress: string,
 ): Promise<EncryptionEnvelop[]> {
+    const checkedAccount = checkAccount(connection.account);
     return (
         await axios.get(
-            `${DELIVERY}/messages/${
+            `${checkedAccount.profile.deliveryServiceUrl + DELIVERY}/messages/${
                 connection.account!.address
             }/contact/${contactAddress}`,
             getAxiosConfig(userDb.deliveryServiceToken),
@@ -131,9 +158,12 @@ export async function getPendingConversations(
     connection: Connection,
     userDb: UserDB,
 ): Promise<string[]> {
+    const checkedAccount = checkAccount(connection.account);
     return (
         await axios.get(
-            `${DELIVERY}/messages/${connection.account!.address}/pending`,
+            `${checkedAccount.profile.deliveryServiceUrl + DELIVERY}/messages/${
+                connection.account!.address
+            }/pending`,
             getAxiosConfig(userDb.deliveryServiceToken),
         )
     ).data;
@@ -141,11 +171,24 @@ export async function getPendingConversations(
 export type GetPendingConversations = typeof getPendingConversations;
 
 export async function getProfileRegistryEntryOffChain(
+    account: Account | undefined,
     contact: string,
     url?: string,
 ): Promise<SignedProfileRegistryEntry | undefined> {
+    if (!url) {
+        checkAccount(account);
+    }
     try {
-        return (await axios.get(url ? url : `${PROFILE}/${contact}`)).data;
+        return (
+            await axios.get(
+                url
+                    ? url
+                    : `${
+                          checkAccount(account).profile.deliveryServiceUrl +
+                          PROFILE
+                      }/${contact}`,
+            )
+        ).data;
     } catch (e) {
         if ((e as Error).message.includes('404')) {
             return undefined;

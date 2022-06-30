@@ -20,6 +20,7 @@ export default {
     plugins: [
         commonjs(),
         typescript({
+            sourceMap: true,
             typescript: require('typescript'),
         }),
         postCSS({

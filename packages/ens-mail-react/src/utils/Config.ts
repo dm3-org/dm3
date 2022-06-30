@@ -7,6 +7,7 @@ export interface Config {
     defaultStorageLocation: Lib.StorageLocation;
     hideStorageSelection: boolean;
     style: React.CSSProperties;
+    defaultServiceUrl: string;
 }
 
 const DefaultConfig: Config = {
@@ -15,6 +16,7 @@ const DefaultConfig: Config = {
     defaultStorageLocation: Lib.StorageLocation.File,
     hideStorageSelection: false,
     style: {},
+    defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
 };
 
 export function getConfig(overwrite: Partial<Config>): Config {

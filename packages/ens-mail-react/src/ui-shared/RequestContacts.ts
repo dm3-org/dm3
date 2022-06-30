@@ -43,12 +43,12 @@ export async function requestContacts(
 
     if (
         selectedContact &&
-        !selectedContact?.publicKeys?.publicMessagingKey &&
+        !selectedContact?.profile?.publicKeys?.publicMessagingKey &&
         retrievedContacts.find(
             (contact: Lib.Account) =>
                 Lib.formatAddress(contact.address) ===
                 Lib.formatAddress(selectedContact.address),
-        )?.publicKeys
+        )?.profile?.publicKeys
     ) {
         setSelectedContact(
             retrievedContacts.find(
@@ -91,7 +91,7 @@ export async function requestContacts(
             .filter(
                 (message) =>
                     message.messageState === Lib.MessageState.Created &&
-                    contact.publicKeys?.publicMessagingKey,
+                    contact.profile?.publicKeys?.publicMessagingKey,
             )
             .forEach(async (message) => {
                 await Lib.submitMessage(

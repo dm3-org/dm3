@@ -122,9 +122,15 @@ function SignInButton(props: SignInButtonProps) {
             if (singInRequest.db) {
                 Lib.log(`Setting session token`);
 
-                account.publicKeys = Lib.extractPublicKeys(
-                    singInRequest.db.keys,
-                );
+                account.profile = (
+                    await Lib.getProfileRegistryEntry(
+                        state.connection,
+                        account.address,
+                        state.connection.defaultServiceUrl +
+                            '/profile/' +
+                            account.address,
+                    )
+                )?.profileRegistryEntry;
 
                 if (
                     props.token &&

@@ -5,7 +5,7 @@ import { sync, UserStorage } from './Storage';
 import { log } from '../shared/log';
 import { Acknoledgment } from '../delivery';
 
-const STORAGE_SERVICE = (process.env.REACT_APP_BACKEND as string) + '/storage';
+const STORAGE_SERVICE = '/storage';
 
 function getAxiosConfig(token: string) {
     return {
@@ -22,7 +22,9 @@ export async function useEnsMailStorage(
     const syncResult = sync(userDb);
     log(`[ENS Mail Storage] Saving user storage`);
     await axios.post(
-        STORAGE_SERVICE + `/${connection.account?.address}`,
+        connection.account!.profile!.deliveryServiceUrl +
+            STORAGE_SERVICE +
+            `/${connection.account?.address}`,
         syncResult.userStorage,
         getAxiosConfig(userDb.deliveryServiceToken),
     );
@@ -36,7 +38,9 @@ export async function getEnsMailStorage(
     log(`[ENS Mail Storage] Get user storage`);
     return (
         await axios.get(
-            STORAGE_SERVICE + `/${connection.account?.address}`,
+            connection.account!.profile!.deliveryServiceUrl +
+                STORAGE_SERVICE +
+                `/${connection.account?.address}`,
             getAxiosConfig(token),
         )
     ).data;

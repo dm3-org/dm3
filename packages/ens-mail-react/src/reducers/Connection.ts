@@ -11,6 +11,7 @@ export enum ConnectionType {
     ChangeProvider = 'CHANGE_PROVIDER',
     ChangeStorageToken = 'CHANGE_STORAGE_TOKEN',
     ChangeStorageLocation = 'CHANGE_STORAGE_LOCATION',
+    SetDefaultServiceUrl = 'SET_DEFAULT_SERVICE_URL',
 }
 
 type ConnectionPayload = {
@@ -20,6 +21,7 @@ type ConnectionPayload = {
     [ConnectionType.ChangeProvider]: ethers.providers.JsonRpcProvider;
     [ConnectionType.ChangeStorageToken]: string | undefined;
     [ConnectionType.ChangeStorageLocation]: Lib.StorageLocation;
+    [ConnectionType.SetDefaultServiceUrl]: string;
 };
 
 export type ConnectionActions =
@@ -88,6 +90,13 @@ export function connectionReducer(
                     storageToken: action.payload,
                 };
             }
+
+        case ConnectionType.SetDefaultServiceUrl:
+            Lib.log(`[Connection] set default service url ${action.payload}`);
+            return {
+                ...state,
+                defaultServiceUrl: action.payload,
+            };
 
         default:
             return state;

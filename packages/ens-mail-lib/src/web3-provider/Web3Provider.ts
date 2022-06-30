@@ -24,6 +24,7 @@ export interface Connection {
     socket?: Socket<DefaultEventsMap, DefaultEventsMap>;
     storageToken?: string;
     storageLocation: StorageLocation;
+    defaultServiceUrl: string;
 }
 
 export async function getWeb3Provider(provider: unknown): Promise<{
