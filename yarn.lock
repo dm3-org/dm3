@@ -2903,6 +2903,13 @@
   dependencies:
     "@types/jest" "*"
 
+"@types/three@^0.141.0":
+  version "0.141.0"
+  resolved "https://registry.yarnpkg.com/@types/three/-/three-0.141.0.tgz#d9d81a54b28ebc2a56931dfd4d9c54d25c20d6c8"
+  integrity sha512-OJdKDgTPVBUgc+s74DYoy4aLznbFFC38Xm4ElmU1YwGNgR7GGFVvFCX7lpVgOsT6S1zSJtGdajTsOYE8/xY9nA==
+  dependencies:
+    "@types/webxr" "*"
+
 "@types/trusted-types@^2.0.2":
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/@types/trusted-types/-/trusted-types-2.0.2.tgz#fc25ad9943bcac11cceb8168db4f275e0e72e756"
@@ -2912,6 +2919,11 @@
   version "8.3.4"
   resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.3.4.tgz#bd86a43617df0594787d38b735f55c805becf1bc"
   integrity sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw==
+
+"@types/webxr@*":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@types/webxr/-/webxr-0.4.0.tgz#ad06c96a324293e0d5175d13dd5ded5931f90ba3"
+  integrity sha512-LQvrACV3Pj17GpkwHwXuTd733gfY+D7b9mKdrTmLdO7vo7P/o6209Qqtk63y/FCv/lspdmi0pWz6Qe/ull9kQg==
 
 "@types/ws@^7.4.4":
   version "7.4.7"
@@ -12240,6 +12252,11 @@ text-table@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==
+
+three@^0.142.0:
+  version "0.142.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.142.0.tgz#89e226a16221f212eb1d40f0786604b711f28aed"
+  integrity sha512-ESjPO+3geFr+ZUfVMpMnF/eVU2uJPOh0e2ZpMFqjNca1wApS9lJb7E4MjwGIczgt9iuKd8PEm6Pfgp2bJ92Xtg==
 
 throat@^6.0.1:
   version "6.0.1"

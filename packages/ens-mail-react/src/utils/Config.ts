@@ -8,6 +8,8 @@ export interface Config {
     hideStorageSelection: boolean;
     style: React.CSSProperties;
     defaultServiceUrl: string;
+    showAlways: boolean;
+    connectionStateChange?: (newState: Lib.ConnectionState) => void;
 }
 
 const DefaultConfig: Config = {
@@ -17,6 +19,8 @@ const DefaultConfig: Config = {
     hideStorageSelection: false,
     style: {},
     defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
+    showAlways: false,
+    connectionStateChange: undefined,
 };
 
 export function getConfig(overwrite: Partial<Config>): Config {

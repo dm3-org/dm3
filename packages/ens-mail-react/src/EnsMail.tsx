@@ -20,6 +20,7 @@ import Start from './start/Start';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { Config } from './utils/Config';
+import { copyFile } from 'fs';
 
 interface EnsMailProps {
     config: Config;
@@ -36,6 +37,14 @@ function EnsMail(props: EnsMailProps) {
                 "The app is out of sync with the database. You'll loose your new messages.",
         );
     }
+
+    useEffect(() => {
+        if (props.config.connectionStateChange) {
+            props.config.connectionStateChange(
+                state.connection.connectionState,
+            );
+        }
+    }, [state.connection.connectionState]);
 
     useEffect(() => {
         dispatch({
@@ -241,7 +250,7 @@ function EnsMail(props: EnsMailProps) {
         mainContent
     ) : (
         <>
-            {state.uiState.show && (
+            {(state.uiState.show || props.config.showAlways) && (
                 <div
                     className="filler"
                     onClick={() => dispatch({ type: UiStateType.ToggleShow })}
@@ -254,7 +263,7 @@ function EnsMail(props: EnsMailProps) {
                     </div>
                 </div>
             )}
-            <Start />
+            {!props.config.showAlways && <Start />}
         </>
     );
 }
