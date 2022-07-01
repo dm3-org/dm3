@@ -11,3 +11,27 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.filler {
+  backdrop-filter: blur(2px) !important
+}
+
+.main-content-row {
+  margin-top: 4rem !important;
+  border-style: none !important;
+  /* box-shadow: 0px 0px 2px  #999; */
+
+}
+
+.logo {
+  position: absolute;
+  filter: brightness(60%) ;
+  top: 1rem;
+  left: 1rem;
+  z-index: 9999;
+}
+.logo:hover {
+
+  filter: brightness(100%) ;
+
+}
