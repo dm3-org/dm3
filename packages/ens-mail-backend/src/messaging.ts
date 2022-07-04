@@ -1,7 +1,7 @@
 import { Socket } from 'socket.io';
 import { Express } from 'express';
 import * as Lib from 'ens-mail-lib';
-import { RedisPrefix } from './redis';
+import { addPending, RedisPrefix } from './redis';
 
 export function onConnection(app: Express) {
     return (socket: Socket) => {
@@ -46,15 +46,20 @@ export function onConnection(app: Express) {
         });
 
         socket.on('pendingMessage', async (data) => {
+            const account = Lib.formatAddress(data.accountAddress);
+            const contact = Lib.formatAddress(data.contactAddress);
             try {
-                app.locals.pendingConversations =
-                    await Lib.Delivery.createPendingEntry(
-                        data.accountAddress,
-                        data.contactAddress,
-                        data.token,
+                if (
+                    await Lib.Delivery.checkToken(
                         app.locals.loadSession,
-                        app.locals.pendingConversations,
-                    );
+                        account,
+                        data.token,
+                    )
+                ) {
+                    await addPending(account, contact, app.locals.redisClient);
+                } else {
+                    throw Error('Token check failed');
+                }
             } catch (e) {
                 console.error(e);
             }

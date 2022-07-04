@@ -66,7 +66,7 @@ export function generateBackground(
 
         const pMaterial = new THREE.PointsMaterial({
             color: 0xeeeeee,
-            size: 5,
+            size: 3,
             blending: THREE.AdditiveBlending,
             transparent: true,
             sizeAttenuation: false,

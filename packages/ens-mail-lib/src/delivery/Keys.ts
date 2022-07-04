@@ -60,7 +60,7 @@ export async function submitProfileRegistryEntry(
     setSession: (accountAddress: string, session: Session) => Promise<void>,
     accountAddress: string,
     signedProfileRegistryEntry: SignedProfileRegistryEntry,
-    pendingConversations: Map<string, Set<string>>,
+    getPendingConversations: (accountAddress: string) => Promise<string[]>,
     send: (socketId: string) => void,
 ): Promise<string> {
     log(`[submitKeys] for account ${accountAddress}`);
@@ -78,7 +78,7 @@ export async function submitProfileRegistryEntry(
         };
 
         await setSession(account, session);
-        const pending = pendingConversations.get(account);
+        const pending = await getPendingConversations(account);
         if (pending) {
             await Promise.all(
                 Array.from(pending).map(async (pendingEntry) => {

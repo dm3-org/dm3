@@ -13,7 +13,7 @@ code {
 }
 
 .filler {
-  backdrop-filter: blur(2px) !important
+  backdrop-filter: blur(1px) !important
 }
 
 .main-content-row {

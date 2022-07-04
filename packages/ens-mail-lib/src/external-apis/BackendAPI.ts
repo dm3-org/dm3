@@ -160,10 +160,11 @@ export async function getPendingConversations(
 ): Promise<string[]> {
     const checkedAccount = checkAccount(connection.account);
     return (
-        await axios.get(
+        await axios.post(
             `${checkedAccount.profile.deliveryServiceUrl + DELIVERY}/messages/${
                 connection.account!.address
             }/pending`,
+            {},
             getAxiosConfig(userDb.deliveryServiceToken),
         )
     ).data;

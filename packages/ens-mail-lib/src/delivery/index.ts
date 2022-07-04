@@ -1,10 +1,5 @@
 export { checkToken } from './Session';
-export {
-    getMessages,
-    getPendingConversations,
-    incomingMessage,
-    createPendingEntry,
-} from './Messages';
+export { getMessages, incomingMessage } from './Messages';
 export type { Acknoledgment } from './Messages';
 export type {} from './PublicMessages';
 export type { Session } from './Session';

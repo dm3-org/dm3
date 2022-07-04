@@ -1,6 +1,6 @@
 import * as Lib from 'ens-mail-lib';
 import express from 'express';
-import { RedisPrefix } from './redis';
+import { deletePending, getPending, RedisPrefix } from './redis';
 import { auth } from './utils';
 import cors from 'cors';
 
@@ -43,20 +43,13 @@ router.get('/messages/:address/contact/:contact_address', async (req, res) => {
     res.json(newMessages);
 });
 
-router.get('/messages/:address/pending', async (req, res) => {
+router.post('/messages/:address/pending', async (req, res) => {
     const account = Lib.formatAddress(req.params.address);
 
     Lib.log(`[messages] Getting pending conversations for ${account}`);
-
-    const response = await Lib.Delivery.getPendingConversations(
-        req.app.locals.pendingConversations,
-        account,
-    );
-    if (!response) {
-        throw Error('could not get pending conversations');
-    }
-    req.app.locals.pendingConversations = response.pendingConversations;
-    res.json(response.pendingConversationsForAccount);
+    const pending = await getPending(account, req.app.locals.redisClient);
+    await deletePending(account, req.app.locals.redisClient);
+    res.json(pending);
 });
 
 router.post(
