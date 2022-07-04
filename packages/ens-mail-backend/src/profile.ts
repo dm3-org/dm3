@@ -1,5 +1,7 @@
 import * as Lib from 'ens-mail-lib';
+
 import express from 'express';
+import { getPending } from './redis';
 
 const router = express.Router();
 
@@ -23,7 +25,8 @@ router.post('/:address', async (req, res) => {
             req.app.locals.storeSession,
             account,
             req.body,
-            req.app.locals.pendingConversations,
+            (accountAddress: string) =>
+                getPending(accountAddress, req.app.locals.redisClient),
             (socketId: string) =>
                 req.app.locals.io.sockets.to(socketId).emit('joined'),
         ),

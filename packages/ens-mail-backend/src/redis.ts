@@ -9,6 +9,7 @@ export enum RedisPrefix {
     Sync = 'sync:',
     Session = 'session:',
     UserStorage = 'user.storage:',
+    Pending = 'pending:',
 }
 
 export async function createRedisClient() {
@@ -58,5 +59,34 @@ export async function setUserStorage(
     await redisClient.set(
         RedisPrefix.UserStorage + Lib.formatAddress(accountAddress),
         JSON.stringify(data),
+    );
+}
+
+export async function addPending(
+    accountAddress: string,
+    contactAddress: string,
+    redisClient: Awaited<ReturnType<typeof createRedisClient>>,
+): Promise<void> {
+    await redisClient.sAdd(
+        RedisPrefix.Pending + Lib.formatAddress(contactAddress),
+        Lib.formatAddress(accountAddress),
+    );
+}
+
+export async function getPending(
+    accountAddress: string,
+    redisClient: Awaited<ReturnType<typeof createRedisClient>>,
+): Promise<string[]> {
+    return redisClient.sMembers(
+        RedisPrefix.Pending + Lib.formatAddress(accountAddress),
+    );
+}
+
+export async function deletePending(
+    accountAddress: string,
+    redisClient: Awaited<ReturnType<typeof createRedisClient>>,
+): Promise<void> {
+    await redisClient.del(
+        RedisPrefix.Pending + Lib.formatAddress(accountAddress),
     );
 }

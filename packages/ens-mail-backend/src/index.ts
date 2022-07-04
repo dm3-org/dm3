@@ -47,9 +47,6 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
     };
     app.locals.io = io;
 
-    // Maps not registered accounts to accounts who send messages to the unregistered account
-    app.locals.pendingConversations = new Map<string, Set<string>>();
-
     app.use('/profile', Profile);
     app.use('/storage', Storage);
     app.use('/auth', Auth);
