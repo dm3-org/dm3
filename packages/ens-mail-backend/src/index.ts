@@ -9,8 +9,9 @@ import Profile from './profile';
 import Auth from './auth';
 import Storage from './storage';
 import Delivery from './delivery';
-import { socketAuth } from './utils';
+import { errorHandler, logError, logRequest, socketAuth } from './utils';
 import { onConnection } from './messaging';
+import winston from 'winston';
 
 const app = express();
 app.use(express.json());
@@ -33,6 +34,10 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
         },
     });
 
+    app.locals.logger = winston.createLogger({
+        transports: [new winston.transports.Console()],
+    });
+
     app.locals.redisClient = redisClient;
     app.locals.loadSession = async (accountAddress: string) => {
         return redisClient ? getSession(accountAddress, redisClient) : null;
@@ -47,10 +52,13 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
     };
     app.locals.io = io;
 
+    app.use(logRequest);
     app.use('/profile', Profile);
     app.use('/storage', Storage);
     app.use('/auth', Auth);
     app.use('/delivery', Delivery);
+    app.use(logError);
+    app.use(errorHandler);
 
     io.use(socketAuth(app));
 

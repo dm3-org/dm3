@@ -33,7 +33,7 @@ export function generateBackground(
         showLines: true,
         minDistance: 150,
         limitConnections: true,
-        maxConnections: 5,
+        maxConnections: 3,
         particleCount: 300,
     };
 
@@ -168,9 +168,9 @@ export function generateBackground(
             // get the particle
             const particleData = particlesData[i];
 
-            particlePositions[i * 3] += particleData.velocity.x * 0.2;
-            particlePositions[i * 3 + 1] += particleData.velocity.y * 0.2;
-            particlePositions[i * 3 + 2] += particleData.velocity.z * 0.2;
+            particlePositions[i * 3] += particleData.velocity.x * 0.1;
+            particlePositions[i * 3 + 1] += particleData.velocity.y * 0.1;
+            particlePositions[i * 3 + 2] += particleData.velocity.z * 0.1;
 
             if (
                 particlePositions[i * 3 + 1] < -rHalf ||

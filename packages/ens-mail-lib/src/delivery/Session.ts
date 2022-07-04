@@ -1,6 +1,5 @@
 import { SignedProfileRegistryEntry } from '../account/Account';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
-import { log } from '../shared/log';
 
 export interface Session {
     account: string;
@@ -21,6 +20,6 @@ export async function checkToken(
     const session = await getSession(account);
 
     const passed = session && session?.token === token;
-    log(`- Token check for ${account}: ${passed ? 'PASSED' : 'FAILED'}`);
+
     return passed ? true : false;
 }

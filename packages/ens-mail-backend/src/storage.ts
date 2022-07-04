@@ -10,26 +10,32 @@ const router = express.Router();
 router.use(cors());
 router.param('address', auth);
 
-router.post('/:address', async (req, res) => {
-    const account = Lib.formatAddress(req.params.address);
-    Lib.log(`[storage] User storage saved for ${account}`);
+router.post('/:address', async (req, res, next) => {
+    try {
+        const account = Lib.formatAddress(req.params.address);
 
-    await setUserStorage(
-        account,
-        JSON.stringify(req.body),
-        req.app.locals.redisClient,
-    );
+        await setUserStorage(
+            account,
+            JSON.stringify(req.body),
+            req.app.locals.redisClient,
+        );
 
-    res.json({
-        timestamp: new Date().getTime(),
-    });
+        res.json({
+            timestamp: new Date().getTime(),
+        });
+    } catch (e) {
+        next(e);
+    }
 });
 
-router.get('/:address', async (req, res) => {
-    const account = Lib.formatAddress(req.params.address);
-    Lib.log(`[storage] Get user storage for ${account}`);
+router.get('/:address', async (req, res, next) => {
+    try {
+        const account = Lib.formatAddress(req.params.address);
 
-    res.json(await getUserStorage(account, req.app.locals.redisClient));
+        res.json(await getUserStorage(account, req.app.locals.redisClient));
+    } catch (e) {
+        next(e);
+    }
 });
 
 export default router;

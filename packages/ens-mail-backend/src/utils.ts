@@ -3,6 +3,7 @@ import { NextFunction, Response, Request } from 'express';
 import { Socket } from 'socket.io';
 import { ExtendedError } from 'socket.io/dist/namespace';
 import { Express } from 'express';
+import winston from 'winston';
 
 export async function auth(
     req: Request,
@@ -24,6 +25,11 @@ export async function auth(
     ) {
         next();
     } else {
+        req.app.locals.logger.warn({
+            method: 'AUTH',
+            error: 'Token check failed',
+            account,
+        });
         res.sendStatus(401);
     }
 }
@@ -36,6 +42,11 @@ export function socketAuth(app: Express) {
         const account = Lib.formatAddress(
             socket.handshake.auth.account.address as string,
         );
+        app.locals.logger.info({
+            method: 'WS CONNECT',
+            account,
+            socketId: socket.id,
+        });
 
         if (
             !(await Lib.Delivery.checkToken(
@@ -44,7 +55,6 @@ export function socketAuth(app: Express) {
                 socket.handshake.auth.token as string,
             ))
         ) {
-            Lib.log(`[WS] Account ${account}: REJECTED`);
             return next(new Error('invalid username'));
         }
         const session = await app.locals.loadSession(account);
@@ -57,7 +67,40 @@ export function socketAuth(app: Express) {
             socketId: socket.id,
         });
 
-        Lib.log(`[WS] Account ${account} with id ${socket.id}: CONNECTED`);
         next();
     };
+}
+
+export function logRequest(req: Request, res: Response, next: NextFunction) {
+    req.app.locals.logger.info({
+        method: req.method,
+        url: req.url,
+        timestamp: new Date().getTime(),
+    });
+    next();
+}
+
+export function logError(
+    error: Error,
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) {
+    req.app.locals.logger.error({
+        method: req.method,
+        url: req.url,
+        error: error.toString(),
+        timestamp: new Date().getTime(),
+    });
+    next();
+}
+
+export function errorHandler(
+    err: any,
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) {
+    res.status(500);
+    res.render('error', { error: err });
 }

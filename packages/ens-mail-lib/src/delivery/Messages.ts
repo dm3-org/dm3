@@ -1,5 +1,4 @@
 import { formatAddress } from '../external-apis/InjectedWeb3API';
-import { log } from '../shared/log';
 import { EncryptionEnvelop } from '../messaging/Messaging';
 import { getConversationId } from '../storage/Storage';
 import { checkToken, Session } from './Session';
@@ -19,13 +18,9 @@ export async function getMessages(
     accountAddress: string,
     contactAddress: string,
 ) {
-    log(`[getMessages]`);
-
     const account = formatAddress(accountAddress);
     const contact = formatAddress(contactAddress);
     const conversationId = getConversationId(contact, account);
-
-    log(`- Conversations id: ${conversationId}`);
 
     const receivedMessages: EncryptionEnvelop[] = await loadMessages(
         conversationId,
@@ -36,8 +31,6 @@ export async function getMessages(
     const messages = receivedMessages.filter(
         (envelop) => formatAddress(envelop.to) === account,
     );
-
-    log(`- ${receivedMessages?.length} messages`);
 
     return messages;
 }
@@ -52,7 +45,6 @@ export async function incomingMessage(
     ) => Promise<void>,
     send: (socketId: string, envelop: EncryptionEnvelop) => void,
 ): Promise<void> {
-    log('[incoming message]');
     const envelop = {
         ...data.envelop,
         deliveryServiceIncommingTimestamp: new Date().getTime(),
@@ -60,13 +52,11 @@ export async function incomingMessage(
     const account = formatAddress(formatAddress(data.envelop.from));
     const contact = formatAddress(formatAddress(data.envelop.to));
     const conversationId = getConversationId(account, contact);
-    log(`- Conversations id: ${conversationId}`);
 
     if (await checkToken(getSession, account, data.token)) {
         storeNewMessage(conversationId, envelop);
         const contactSession = await getSession(contact);
         if (contactSession?.socketId) {
-            log(`- Forwarding message to ${contact}`);
             send(contactSession.socketId, envelop);
         }
     } else {
