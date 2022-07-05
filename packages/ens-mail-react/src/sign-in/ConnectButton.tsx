@@ -10,7 +10,11 @@ import StateButton, { ButtonState } from '../ui-shared/StateButton';
 import { CacheType } from '../reducers/Cache';
 import { UiStateType } from '../reducers/UiState';
 
-function ConnectButton() {
+interface ConnectButtonProps {
+    miniSignIn: boolean;
+}
+
+function ConnectButton(props: ConnectButtonProps) {
     const { state, dispatch } = useContext(GlobalContext);
 
     const connect = async () => {
@@ -101,25 +105,33 @@ function ConnectButton() {
         }
     };
 
-    return (
+    const stateButton = (
+        <StateButton
+            content={<>{props.miniSignIn ? 'Connect' : 'Connect Account'}</>}
+            btnState={getButtonState(state.connection.connectionState)}
+            btnType="primary"
+            onClick={connect}
+            disabled={
+                !(
+                    state.connection.connectionState ===
+                        Lib.ConnectionState.AccountConntectReady ||
+                    state.connection.connectionState ===
+                        Lib.ConnectionState.AccountConnectionRejected
+                )
+            }
+            className={
+                props.miniSignIn
+                    ? 'left-state-btn miniSignInBtn'
+                    : 'left-state-btn'
+            }
+        />
+    );
+
+    return props.miniSignIn ? (
+        stateButton
+    ) : (
         <div className="row">
-            <div className="col-md-5">
-                <StateButton
-                    content={<>Connect Account</>}
-                    btnState={getButtonState(state.connection.connectionState)}
-                    btnType="primary"
-                    onClick={connect}
-                    disabled={
-                        !(
-                            state.connection.connectionState ===
-                                Lib.ConnectionState.AccountConntectReady ||
-                            state.connection.connectionState ===
-                                Lib.ConnectionState.AccountConnectionRejected
-                        )
-                    }
-                    className="left-state-btn"
-                />
-            </div>
+            <div className="col-md-5">{stateButton}</div>
             <div className="col-md-7 help-text">
                 Connect an Ethereum account
                 <p className="explanation">

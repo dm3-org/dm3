@@ -234,6 +234,7 @@ function EnsMail(props: EnsMailProps) {
                             defaultStorageLocation={
                                 props.config.defaultStorageLocation
                             }
+                            miniSignIn={props.config.miniSignIn}
                         />
                     ) : (
                         <>
