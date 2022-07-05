@@ -17,6 +17,7 @@ import DarkLogo from '../logos/DarkLogo';
 
 interface SignInProps {
     hideStorageSelection: boolean;
+    miniSignIn: boolean;
     defaultStorageLocation: Lib.StorageLocation | undefined;
 }
 
@@ -154,7 +155,31 @@ function SignIn(props: SignInProps) {
         }
     }, [storeApiToken]);
 
-    return (
+    return props.miniSignIn ? (
+        <div className="w-100  pt-4 pb-4">
+            <div className="row  sign-in">
+                <div className="col-md-12">
+                    <div className="d-flex">
+                        <div className="d-flex align-content-center me-auto ">
+                            <DarkLogo />
+                        </div>
+                        <div className="align-self-center">
+                            <ConnectButton miniSignIn={props.miniSignIn} />
+                        </div>
+                        <div className="ms-4 align-self-center me-2">
+                            <SignInButton
+                                dataFile={dataFile}
+                                storageLocation={storageLocation}
+                                storeApiToken={storeApiToken}
+                                token={token}
+                                miniSignIn={props.miniSignIn}
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    ) : (
         <div className="w-100">
             <div className="row d-flex justify-content-center row-space sign-in ">
                 <div className="col-md-12">
@@ -163,7 +188,7 @@ function SignIn(props: SignInProps) {
             </div>
             <div className="row d-flex justify-content-center row-space sign-in ">
                 <div className="col-md-12">
-                    <ConnectButton />
+                    <ConnectButton miniSignIn={props.miniSignIn} />
                     {!props.hideStorageSelection && (
                         <>
                             <StorageLocationSelection
@@ -197,6 +222,7 @@ function SignIn(props: SignInProps) {
                         storageLocation={storageLocation}
                         storeApiToken={storeApiToken}
                         token={token}
+                        miniSignIn={props.miniSignIn}
                     />
                 </div>
             </div>

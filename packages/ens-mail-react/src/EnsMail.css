@@ -62,7 +62,7 @@ code {
 .main-content-row {
  
   overflow: hidden;
-  min-height: 500px !important;
+  /* min-height: 500px !important; */
   height: 100%;
   max-height: 100%;
   border-radius: 18px;

@@ -12,6 +12,7 @@ interface SignInButtonProps {
     token: string | undefined;
     storeApiToken: boolean;
     dataFile: string | undefined;
+    miniSignIn: boolean;
 }
 
 function SignInButton(props: SignInButtonProps) {
@@ -186,17 +187,25 @@ function SignInButton(props: SignInButtonProps) {
         }
     };
 
-    return (
+    const stateButton = (
+        <StateButton
+            btnState={getButtonState(state.connection.connectionState)}
+            btnType="primary"
+            onClick={requestSignIn}
+            content={<>Sign In</>}
+            className={
+                props.miniSignIn
+                    ? 'left-state-btn miniSignInBtn'
+                    : 'left-state-btn mb-4'
+            }
+        />
+    );
+
+    return props.miniSignIn ? (
+        stateButton
+    ) : (
         <div className="row row-space">
-            <div className="col-md-5">
-                <StateButton
-                    btnState={getButtonState(state.connection.connectionState)}
-                    btnType="primary"
-                    onClick={requestSignIn}
-                    content={<>Sign In</>}
-                    className="left-state-btn mb-4"
-                />
-            </div>
+            <div className="col-md-5">{stateButton}</div>
             <div className="col-md-7 help-text"></div>
         </div>
     );

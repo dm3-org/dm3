@@ -9,6 +9,7 @@ export interface Config {
     style: React.CSSProperties;
     defaultServiceUrl: string;
     showAlways: boolean;
+    miniSignIn: boolean;
     connectionStateChange?: (newState: Lib.ConnectionState) => void;
 }
 
@@ -21,6 +22,7 @@ const DefaultConfig: Config = {
     defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
     showAlways: false,
     connectionStateChange: undefined,
+    miniSignIn: false,
 };
 
 export function getConfig(overwrite: Partial<Config>): Config {
