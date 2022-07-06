@@ -11,6 +11,7 @@ export interface Config {
     showAlways: boolean;
     miniSignIn: boolean;
     connectionStateChange?: (newState: Lib.ConnectionState) => void;
+    warnBeforeLeave: boolean;
 }
 
 const DefaultConfig: Config = {
@@ -23,6 +24,7 @@ const DefaultConfig: Config = {
     showAlways: false,
     connectionStateChange: undefined,
     miniSignIn: false,
+    warnBeforeLeave: false,
 };
 
 export function getConfig(overwrite: Partial<Config>): Config {

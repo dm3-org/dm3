@@ -20,7 +20,6 @@ import Start from './start/Start';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { Config } from './utils/Config';
-import { copyFile } from 'fs';
 
 interface EnsMailProps {
     config: Config;
@@ -29,9 +28,9 @@ interface EnsMailProps {
 function EnsMail(props: EnsMailProps) {
     const { state, dispatch } = useContext(GlobalContext);
 
-    if (state.userDb?.synced) {
+    if (state.userDb?.synced && props.config.warnBeforeLeave) {
         useBeforeunload();
-    } else {
+    } else if (props.config.warnBeforeLeave) {
         useBeforeunload(
             () =>
                 "The app is out of sync with the database. You'll loose your new messages.",

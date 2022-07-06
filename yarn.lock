@@ -2481,7 +2481,7 @@
     "@testing-library/dom" "^8.0.0"
     "@types/react-dom" "<18.0.0"
 
-"@testing-library/react@^13.3.0":
+"@testing-library/react@^13.0.0", "@testing-library/react@^13.3.0":
   version "13.3.0"
   resolved "https://registry.yarnpkg.com/@testing-library/react/-/react-13.3.0.tgz#bf298bfbc5589326bbcc8052b211f3bb097a97c5"
   integrity sha512-DB79aA426+deFgGSjnf5grczDPiL4taK3hFaa+M5q7q20Kcve9eQottOG5kZ74KEr55v0tU2CQormSSDK87zYQ==
@@ -2841,7 +2841,7 @@
     hoist-non-react-statics "^3.3.0"
     redux "^4.0.0"
 
-"@types/react@*", "@types/react@^18.0.13":
+"@types/react@*", "@types/react@^18.0.0", "@types/react@^18.0.13":
   version "18.0.14"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-18.0.14.tgz#e016616ffff51dba01b04945610fe3671fdbe06d"
   integrity sha512-x4gGuASSiWmo0xjDLpm5mPb52syZHJx02VKbqUKdLmKtAwIh63XClGsiTI1K6DO5q7ox4xAsQrU+Gl3+gGXF9Q==
@@ -11288,6 +11288,11 @@ reusify@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/reusify/-/reusify-1.0.4.tgz#90da382b1e126efc02146e90845a88db12925d76"
   integrity sha512-U9nH88a3fc/ekCF1l0/UP1IosiuIjyTh7hBvXVMHYgVcfGvt897Xguj2UOLDeI5BG2m7/uwyaLVT6fbtCwTyzw==
+
+reveal.js@^4.3.1:
+  version "4.3.1"
+  resolved "https://registry.yarnpkg.com/reveal.js/-/reveal.js-4.3.1.tgz#24a63300cff92cf5cbdd40a46f5d3699614d49ca"
+  integrity sha512-1kyEnWeUkaCdBdX//XXq9dtBK95ppvIlSwlHelrP8/wrX6LcsYp4HT9WTFoFEOUBfVqkm8C2aHQ367o+UKfcxw==
 
 rfdc@^1.3.0:
   version "1.3.0"
