@@ -9,7 +9,8 @@ import {
     GetNewToken,
     SubmitProfileRegistryEntry,
 } from '../external-apis/BackendAPI';
-import { GetPublicKey, PersonalSign } from '../external-apis/InjectedWeb3API';
+import { PersonalSign } from '../external-apis/InjectedWeb3API';
+import { GetSymmetricalKeyFromSignature } from '../encryption/SymmetricalEncryption';
 
 export async function reAuth(
     connection: Connection,
@@ -36,7 +37,7 @@ export async function signIn(
     personalSign: PersonalSign,
     submitProfileRegistryEntry: SubmitProfileRegistryEntry,
     createKeys: CreateKeys,
-    getPublicKey: GetPublicKey,
+    getSymmetricalKeyFromSignature: GetSymmetricalKeyFromSignature,
     browserDataFile: UserStorage | undefined,
     externalDataFile: string | undefined,
     overwriteUserDb: Partial<UserDB>,
@@ -53,19 +54,16 @@ export async function signIn(
         let deliveryServiceToken: string;
 
         if (!externalDataFile && !browserDataFile) {
-            const encryptionPublicKey = await getPublicKey(provider, account);
-            const keyPair = createKeys(encryptionPublicKey);
-
-            const keys = {
-                ...keyPair,
-                publicKey: encryptionPublicKey,
-            };
+            const keys = await createKeys(
+                connection,
+                personalSign,
+                getSymmetricalKeyFromSignature,
+            );
 
             const profileRegistryEntry: ProfileRegistryEntry = {
                 publicKeys: {
-                    publicKey: encryptionPublicKey,
-                    publicMessagingKey: keyPair.publicMessagingKey,
-                    publicSigningKey: keyPair.publicSigningKey,
+                    publicMessagingKey: keys.publicMessagingKey,
+                    publicSigningKey: keys.publicSigningKey,
                 },
                 deliveryServiceUrl: connection.defaultServiceUrl!,
             };
@@ -96,6 +94,8 @@ export async function signIn(
                 ? await load(
                       connection as Connection,
                       JSON.parse(externalDataFile),
+                      getSymmetricalKeyFromSignature,
+                      personalSign,
                       preLoadedKey,
                   )
                 : null;
@@ -104,6 +104,8 @@ export async function signIn(
                 ? await load(
                       connection as Connection,
                       browserDataFile,
+                      getSymmetricalKeyFromSignature,
+                      personalSign,
                       preLoadedKey ?? externalData?.keys.storageEncryptionKey,
                   )
                 : null;

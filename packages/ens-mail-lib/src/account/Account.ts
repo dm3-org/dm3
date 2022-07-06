@@ -5,6 +5,7 @@ import {
     GetEnsTextRecord,
     GetResolver,
     LookupAddress,
+    PersonalSign,
     ResolveName,
 } from '../external-apis/InjectedWeb3API';
 import { Connection } from '../web3-provider/Web3Provider';
@@ -15,7 +16,10 @@ import {
     getConversationId,
     UserDB,
 } from '../storage/Storage';
-import { generateSymmetricalKey } from '../encryption/SymmetricalEncryption';
+import {
+    generateSymmetricalKey,
+    GetSymmetricalKeyFromSignature,
+} from '../encryption/SymmetricalEncryption';
 import {
     GetPendingConversations,
     GetProfileRegistryEntryOffChain,
@@ -25,12 +29,12 @@ import { log } from '../shared/log';
 import queryString from 'query-string';
 
 export interface Keys {
-    publicKey: string;
     publicMessagingKey: string;
     privateMessagingKey: string;
     publicSigningKey: string;
     privateSigningKey: string;
     storageEncryptionKey: string;
+    storageEncryptionKeySalt: string;
 }
 
 export interface ProfileRegistryEntry {
@@ -44,7 +48,6 @@ export interface SignedProfileRegistryEntry {
 }
 
 export interface PublicKeys {
-    publicKey: string;
     publicMessagingKey: string;
     publicSigningKey: string;
 }
@@ -151,16 +154,24 @@ export function getAccountDisplayName(
         : accountAddress;
 }
 
-export function createKeys(encryptionPublicKey: string): Keys {
+export async function createKeys(
+    connection: Partial<Connection>,
+    personalSign: PersonalSign,
+    getSymmetricalKeyFromSignature: GetSymmetricalKeyFromSignature,
+): Promise<Keys> {
     const encryptionKeyPair = nacl.box.keyPair();
     const signingKeyPair = nacl.sign.keyPair();
+    const symmetricalKey = await getSymmetricalKeyFromSignature(
+        connection,
+        personalSign,
+    );
     return {
-        publicKey: encryptionPublicKey,
         publicMessagingKey: encodeBase64(encryptionKeyPair.publicKey),
         privateMessagingKey: encodeBase64(encryptionKeyPair.secretKey),
         publicSigningKey: encodeBase64(signingKeyPair.publicKey),
         privateSigningKey: encodeBase64(signingKeyPair.secretKey),
-        storageEncryptionKey: generateSymmetricalKey(),
+        storageEncryptionKey: symmetricalKey.symmetricalKey,
+        storageEncryptionKeySalt: symmetricalKey.symmetricalKeySalt,
     };
 }
 export type CreateKeys = typeof createKeys;
@@ -207,7 +218,6 @@ export async function addContact(
 
 export function extractPublicKeys(keys: Keys): PublicKeys {
     return {
-        publicKey: keys.publicKey,
         publicMessagingKey: keys.publicMessagingKey,
         publicSigningKey: keys.publicSigningKey,
     };

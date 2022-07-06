@@ -17,14 +17,6 @@ export async function prersonalSign(
 }
 export type PersonalSign = typeof prersonalSign;
 
-export async function getPublicKey(
-    provider: ethers.providers.JsonRpcProvider,
-    account: string,
-): Promise<string> {
-    return provider.send('eth_getEncryptionPublicKey', [account]);
-}
-export type GetPublicKey = typeof getPublicKey;
-
 export async function decryptMessage(
     userDb: UserDB,
     encryptedData: EthEncryptedData,
@@ -33,14 +25,6 @@ export async function decryptMessage(
         encryptedData,
         privateKey: (userDb.keys as Keys).privateMessagingKey as string,
     }) as string;
-}
-
-export async function decryptUsingProvider(
-    provider: ethers.providers.JsonRpcProvider,
-    encryptedData: string,
-    account: string,
-): Promise<string> {
-    return provider.send('eth_decrypt', [encryptedData, account]);
 }
 
 export async function requestAccounts(

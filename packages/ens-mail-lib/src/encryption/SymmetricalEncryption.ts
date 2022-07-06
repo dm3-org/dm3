@@ -1,5 +1,6 @@
 // From https://github.com/dchest/tweetnacl-js/wiki/Examples
 
+import { ethers } from 'ethers';
 import { secretbox, randomBytes } from 'tweetnacl';
 import {
     decodeUTF8,
@@ -7,9 +8,50 @@ import {
     encodeBase64,
     decodeBase64,
 } from 'tweetnacl-util';
+import { PersonalSign } from '../external-apis/InjectedWeb3API';
+import { Connection } from '../web3-provider/Web3Provider';
 
-export function generateSymmetricalKey() {
-    return encodeBase64(randomBytes(secretbox.keyLength));
+generateSymmetricalKey();
+
+export async function getSymmetricalKeyFromSignature(
+    connection: Partial<Connection>,
+    personalSign: PersonalSign,
+    salt?: string,
+): Promise<{
+    symmetricalKey: string;
+    symmetricalKeySalt: string;
+}> {
+    if (!connection.provider) {
+        throw Error('No provider');
+    }
+    if (!connection.account) {
+        throw Error('No account');
+    }
+    const symmetricalKeySalt =
+        salt ??
+        `Sign this to retrieve your ENS Mail encryption key.\n\nSalt:${encodeBase64(
+            randomBytes(secretbox.keyLength),
+        )}`;
+    const signature = await personalSign(
+        connection.provider,
+        connection.account.address,
+        symmetricalKeySalt,
+    );
+
+    return {
+        symmetricalKey: generateSymmetricalKey(
+            ethers.utils.arrayify(ethers.utils.keccak256(signature)),
+        ),
+        symmetricalKeySalt,
+    };
+}
+export type GetSymmetricalKeyFromSignature =
+    typeof getSymmetricalKeyFromSignature;
+
+export function generateSymmetricalKey(seed?: Uint8Array) {
+    return seed
+        ? encodeBase64(seed)
+        : encodeBase64(randomBytes(secretbox.keyLength));
 }
 
 function newNonce() {
