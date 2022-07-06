@@ -4,7 +4,7 @@ export interface Config {
     defaultContact?: string;
     showContacts: boolean;
     inline: boolean;
-    defaultStorageLocation: Lib.StorageLocation;
+    defaultStorageLocation?: Lib.StorageLocation;
     hideStorageSelection: boolean;
     style: React.CSSProperties;
     defaultServiceUrl: string;
@@ -17,7 +17,6 @@ export interface Config {
 const DefaultConfig: Config = {
     showContacts: true,
     inline: false,
-    defaultStorageLocation: Lib.StorageLocation.File,
     hideStorageSelection: false,
     style: {},
     defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
