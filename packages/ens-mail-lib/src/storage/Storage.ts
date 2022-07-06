@@ -1,15 +1,11 @@
-import { ethers } from 'ethers';
 import { Keys } from '../account/Account';
 import { Acknoledgment } from '../delivery';
-import { encryptSafely, EthEncryptedData } from '../encryption/Encryption';
 import {
+    GetSymmetricalKeyFromSignature,
     symmetricalDecrypt,
     symmetricalEncrypt,
 } from '../encryption/SymmetricalEncryption';
-import {
-    decryptUsingProvider,
-    formatAddress,
-} from '../external-apis/InjectedWeb3API';
+import { formatAddress, PersonalSign } from '../external-apis/InjectedWeb3API';
 import { Envelop, MessageState } from '../messaging/Messaging';
 import { log } from '../shared/log';
 import { Connection } from '../web3-provider/Web3Provider';
@@ -46,7 +42,7 @@ export interface UserDB {
 
 export interface UserStorage {
     version: string;
-    storageEncryptionKey: EthEncryptedData;
+    salt: string;
     payload: string;
 }
 
@@ -162,11 +158,7 @@ export function sync(userDb: UserDB | undefined): {
     return {
         userStorage: {
             version: 'ens-mail-encryption-1',
-            storageEncryptionKey: encryptSafely({
-                publicKey: userDb.keys.publicKey,
-                data: userDb.keys.storageEncryptionKey,
-                version: 'x25519-xsalsa20-poly1305',
-            }),
+            salt: userDb.keys.storageEncryptionKeySalt,
             payload: symmetricalEncrypt(
                 JSON.stringify(prepareUserStoragePayload(userDb)),
                 userDb.keys.storageEncryptionKey,
@@ -179,23 +171,21 @@ export function sync(userDb: UserDB | undefined): {
 export async function load(
     connection: Connection,
     data: UserStorage,
+    getSymmetricalKeyFromSignature: GetSymmetricalKeyFromSignature,
+    personalSign: PersonalSign,
     key?: string,
 ): Promise<UserDB> {
     log('[storage] Loading user storage');
 
-    const decrypt = () =>
-        decryptUsingProvider(
-            connection.provider!,
-            ethers.utils.hexlify(
-                ethers.utils.toUtf8Bytes(
-                    JSON.stringify(data.storageEncryptionKey),
-                ),
-            ),
-
-            connection.account!.address,
-        );
-
-    let storageEncryptionKey = key ? key : JSON.parse(await decrypt()).data;
+    let storageEncryptionKey =
+        key ??
+        (
+            await getSymmetricalKeyFromSignature(
+                connection,
+                personalSign,
+                data.salt,
+            )
+        ).symmetricalKey;
     let decryptedPayload: UserStoragePayload;
     try {
         decryptedPayload = JSON.parse(
@@ -203,7 +193,13 @@ export async function load(
         );
     } catch (e) {
         if (key) {
-            storageEncryptionKey = JSON.parse(await decrypt()).data;
+            storageEncryptionKey = (
+                await getSymmetricalKeyFromSignature(
+                    connection,
+                    personalSign,
+                    data.salt,
+                )
+            ).symmetricalKey;
             decryptedPayload = JSON.parse(
                 symmetricalDecrypt(data.payload, storageEncryptionKey),
             );

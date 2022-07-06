@@ -9,14 +9,12 @@ This document defines a protocol enabling decentral, open, and secure messaging 
 
 ## Terminology
 * **Ethereum Account Key**: The private key linked to an [Externally Owned Account](https://ethereum.org/en/whitepaper/#ethereum-accounts).
-* **Encryption Public Key**: The encryption public key associated with an Ethereum account key pair. This key is created using the MetaMask method [`eth_getEncryptionPublicKey`](https://docs.metamask.io/guide/rpc-api.html#unrestricted-methods)
 * **Message Encryption Key Pair**: The key pair used to encrypt/decrypt messages.
 * **Signing Key Pair**: The key pair used to sign/verify messages.
-* **Storage Encryption Key**: Synchronous key to encrypt the user storage.
+* **Storage Encryption Key**: Synchronous key to encrypt the user storage.  `keccak256(personalSignWithEthAccount(salt))`
 * **Delivery Service**: The service that buffers messages until they are delivered.
 * **Registry**: A decentral service (e.g. ENS) mapping Ethereum accounts to profile registry entry URLs (e.g. using text records). 
 * **Profile Registry Entry**: A resource containing properties linked to an Ethereum account that is using ENS Mail. E.g. public keys, the delivery service URL and spam filter configuration.
-
 
 ## Accounts & Keys
 ### Keys
@@ -28,17 +26,20 @@ subgraph w[Wallet e.g. Metamask]
     ea[Ethereum Account Private Key]:::pk
     
    end
-   w-- generates -->
-  epk[Encryption Public Key]-- encrypts -->sek[Storage Encryption Key]:::pk
-  sek-- encrypts / decrypts -->us
+   w-- signs salt -->
+  sek[Storage Encryption Key]:::pk
+  sek-- encrypts / decrypts -->eus
 
-  w -- decrypts --> sek
-  subgraph us[Encrypted User Storage]
+  subgraph us[User Storage]
+   
+    subgraph eus[Encrypted User Storage]
     
-    sk[Signing Private Key]:::pk
-    mek[Message Encryptioin Private Key]:::pk
-    d["Data (e.g. messages)"]:::data
+      sk[Signing Private Key]:::pk
+      mek[Message Encryptioin Private Key]:::pk
+      d["Data (e.g. messages)"]:::data
    end
+    Salt
+  end
    subgraph r[Public Registry Entry]
     
     sk-.-pubSK[Signing Public Key]
@@ -47,6 +48,7 @@ subgraph w[Wallet e.g. Metamask]
    end
    w-- signs / sends as tx-->r
    style r fill:#e0ffdb,stroke:#128c00
+   style us fill:#e0ffdb,stroke:#128c00
    classDef pk fill:#f2d0d0,stroke:#bc0000;
    classDef data fill:#e8e8e8,stroke:#939393;
    classDef reg fill:#e8e8e8,stroke:#939393;

@@ -1,10 +1,10 @@
-import { ethers } from 'ethers';
 import * as Web3Api from './external-apis/InjectedWeb3API';
 import * as Web3Provider from './web3-provider/Web3Provider';
 import * as SignIn from './signin';
 import * as BackendAPI from './external-apis/BackendAPI';
 import * as Messaging from './messaging/Messaging';
 import * as Encryption from './encryption/Encryption';
+import * as SymmetricalEncryption from './encryption/SymmetricalEncryption';
 import * as Account from './account/Account';
 import * as Storage from './storage';
 
@@ -36,7 +36,6 @@ export {
     createDB,
     getConversationId,
     sync,
-    load,
     sortEnvelops,
     getConversation,
     StorageLocation,
@@ -92,6 +91,20 @@ export function connectAccount(connection: Web3Provider.Connection) {
         connection,
         Web3Api.requestAccounts,
         getProfileRegistryEntry,
+    );
+}
+
+export function load(
+    connection: Web3Provider.Connection,
+    data: Storage.UserStorage,
+    key?: string,
+) {
+    return Storage.load(
+        connection,
+        data,
+        SymmetricalEncryption.getSymmetricalKeyFromSignature,
+        Web3Api.prersonalSign,
+        key,
     );
 }
 
@@ -151,7 +164,7 @@ export async function signIn(
         Web3Api.prersonalSign,
         BackendAPI.submitProfileRegistryEntry,
         Account.createKeys,
-        Web3Api.getPublicKey,
+        SymmetricalEncryption.getSymmetricalKeyFromSignature,
         browserDataFile,
         externalDataFile,
         overwriteUserDb,
