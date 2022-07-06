@@ -11,8 +11,6 @@ import SignInButton from './SignInButton';
 import GoogleConnect, { GoogleAuthState } from './GoogleConnect';
 import { ConnectionType } from '../reducers/Connection';
 import localforage from 'localforage';
-
-import Logo from '../assets/ENS-Mail_Logo_blue-white.svg';
 import DarkLogo from '../logos/DarkLogo';
 
 interface SignInProps {
@@ -28,8 +26,8 @@ function SignIn(props: SignInProps) {
         ) as Lib.StorageLocation | null;
 
         return (
-            persistedStorageLocation ??
             props.defaultStorageLocation ??
+            persistedStorageLocation ??
             Lib.StorageLocation.File
         );
     };

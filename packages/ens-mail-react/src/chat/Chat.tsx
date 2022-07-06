@@ -124,7 +124,10 @@ function Chat() {
 
     useEffect(() => {
         dropMessages();
-        if (!state.accounts.selectedContact?.profile?.publicKeys.publicKey) {
+        if (
+            !state.accounts.selectedContact?.profile?.publicKeys
+                .publicMessagingKey
+        ) {
             renderCustomComponent(
                 () => (
                     <InfoBox
