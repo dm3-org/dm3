@@ -15,6 +15,7 @@ export interface UiState {
     show: boolean;
     lastMessagePull: number;
     proflieExists: boolean;
+    browserStorageBackup: boolean;
 }
 
 export enum UiStateType {
@@ -24,6 +25,7 @@ export enum UiStateType {
     ToggleShow = 'ToggleShow',
     SetLastMessagePull = 'SET_LAST_MESSAGE_PULL',
     SetProfileExists = 'SET_PROFILE_EXISTS',
+    SetBrowserStorageBackup = 'SET_BROWSER_STORAGE_BACKUP',
 }
 
 export type UiStatePayload = {
@@ -33,6 +35,7 @@ export type UiStatePayload = {
     [UiStateType.ToggleShow]: undefined;
     [UiStateType.SetLastMessagePull]: number;
     [UiStateType.SetProfileExists]: boolean;
+    [UiStateType.SetBrowserStorageBackup]: boolean;
 };
 
 export type UiStateActions =
@@ -91,6 +94,15 @@ export function uiStateReducer(
             return {
                 ...state,
                 proflieExists: action.payload,
+            };
+
+        case UiStateType.SetBrowserStorageBackup:
+            Lib.log(
+                `[UI] set create browser storage backups to ${action.payload}`,
+            );
+            return {
+                ...state,
+                browserStorageBackup: action.payload,
             };
 
         default:

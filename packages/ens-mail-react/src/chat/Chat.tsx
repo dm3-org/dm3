@@ -16,6 +16,7 @@ import { GlobalContext } from '../GlobalContextProvider';
 import { UserDbType } from '../reducers/UserDB';
 import InfoBox from './InfoBox';
 import { UiStateType } from '../reducers/UiState';
+import StorageView from '../storage/StorageView';
 
 export interface EnvelopContainer {
     envelop: Lib.Envelop;
@@ -271,6 +272,7 @@ function Chat() {
                     }
                     showTimeStamp={false}
                 />
+                {!state.uiState.maxLeftView && <StorageView />}
             </div>
         </div>
     );

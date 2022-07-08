@@ -57,5 +57,6 @@ export const initialState: GlobalState = {
         show: false,
         lastMessagePull: 0,
         proflieExists: false,
+        browserStorageBackup: false,
     },
 };
