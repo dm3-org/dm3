@@ -53,6 +53,13 @@ function EnsMail(props: EnsMailProps) {
     }, [props.config.defaultServiceUrl]);
 
     useEffect(() => {
+        dispatch({
+            type: UiStateType.SetBrowserStorageBackup,
+            payload: props.config.browserStorageBackup,
+        });
+    }, [props.config.browserStorageBackup]);
+
+    useEffect(() => {
         if (
             props.config.showContacts === false &&
             state.accounts.selectedContact

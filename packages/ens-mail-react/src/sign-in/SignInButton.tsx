@@ -30,12 +30,12 @@ function SignInButton(props: SignInButtonProps) {
             address: state.connection.account!.address,
         };
 
-        let browserDataFile: Lib.UserStorage | undefined | null = state.uiState
-            .proflieExists
-            ? await localforage.getItem(
-                  Lib.getBrowserStorageKey(account.address),
-              )
-            : null;
+        let browserDataFile: Lib.UserStorage | undefined | null =
+            state.uiState.proflieExists && state.uiState.browserStorageBackup
+                ? await localforage.getItem(
+                      Lib.getBrowserStorageKey(account.address),
+                  )
+                : null;
 
         let preLoadedKey: string | undefined;
         let overwriteUserDb: Partial<Lib.UserDB> = {};

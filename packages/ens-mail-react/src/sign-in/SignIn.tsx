@@ -67,11 +67,14 @@ function SignIn(props: SignInProps) {
                 payload: Lib.ConnectionState.CollectingSignInData,
             });
 
-        const browserDataFile = state.connection.account
-            ? await localforage.getItem(
-                  Lib.getBrowserStorageKey(state.connection.account.address),
-              )
-            : null;
+        const browserDataFile =
+            state.connection.account && state.uiState.browserStorageBackup
+                ? await localforage.getItem(
+                      Lib.getBrowserStorageKey(
+                          state.connection.account.address,
+                      ),
+                  )
+                : null;
 
         const isCollectingSignInData =
             state.connection.connectionState ===
