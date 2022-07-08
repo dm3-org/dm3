@@ -122,30 +122,36 @@ function StorageView() {
         }
     }, [state.connection.storageLocation, state.userDb, state.userDb?.synced]);
 
-    useEffect(() => {
+    const autoSync = () => {
         if (
             (state.connection.storageLocation ===
                 Lib.StorageLocation.Web3Storage ||
+                state.connection.storageLocation ===
+                    Lib.StorageLocation.EnsMailStorage ||
                 state.connection.storageLocation ===
                     Lib.StorageLocation.GoogleDrive) &&
             state.userDb &&
             !state.userDb.synced
         ) {
             Lib.log(
-                `Create user storage external snapshot at timestamp ${state.userDb?.lastChangeTimestamp}`,
+                `[DB] Create user storage external snapshot at timestamp ${state.userDb?.lastChangeTimestamp}`,
             );
             sync();
         }
-    }, []);
+    };
+    useEffect(autoSync, []);
 
     useEffect(() => {
-        Lib.log(
-            `[DB/Browser] Create user storage browser snapshot at timestamp ${state.userDb?.lastChangeTimestamp}`,
-        );
-        localforage.setItem(
-            Lib.getBrowserStorageKey(state.connection.account!.address),
-            Lib.sync(state.userDb).userStorage,
-        );
+        if (state.uiState.browserStorageBackup) {
+            Lib.log(
+                `[DB/Browser] Create user storage browser snapshot at timestamp ${state.userDb?.lastChangeTimestamp}`,
+            );
+            localforage.setItem(
+                Lib.getBrowserStorageKey(state.connection.account!.address),
+                Lib.sync(state.userDb).userStorage,
+            );
+        }
+        autoSync();
     }, [state.userDb?.lastChangeTimestamp]);
 
     const showAlert =
@@ -153,7 +159,7 @@ function StorageView() {
             state.connection.storageLocation === Lib.StorageLocation.File) ||
         state.userDb?.syncProcessState === Lib.SyncProcessState.Failed;
 
-    return (
+    return state.uiState.maxLeftView ? (
         <div className="mt-auto w-100 ">
             <div
                 className={`storage-view-container bottom-left-radius ${
@@ -217,6 +223,8 @@ function StorageView() {
                 </div>
             </div>
         </div>
+    ) : (
+        <></>
     );
 }
 
