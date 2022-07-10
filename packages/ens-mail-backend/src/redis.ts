@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { createClient } from 'redis';
 import * as Lib from 'ens-mail-lib';
 
-const endpointUrl = process.env.REDIS_ENDPOINT_URL || 'redis://127.0.0.1:6379';
+const endpointUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -15,6 +15,10 @@ export enum RedisPrefix {
 export async function createRedisClient() {
     const client = createClient({
         url: endpointUrl,
+        socket: {
+            tls: true,
+            rejectUnauthorized: false,
+        },
     });
     await client.connect();
     return client;

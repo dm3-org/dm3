@@ -261,6 +261,7 @@ function Chat() {
     return (
         <div className="widget-container flex-grow-1">
             <div className="h-100">
+                {/* @ts-ignore */}
                 <Widget
                     emojis={false}
                     launcher={() => null}
@@ -272,6 +273,7 @@ function Chat() {
                     }
                     showTimeStamp={false}
                 />
+
                 {!state.uiState.maxLeftView && <StorageView />}
             </div>
         </div>
