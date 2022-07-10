@@ -33,7 +33,7 @@ export async function getChallenge(account: Account): Promise<string> {
     const checkedAccount = checkAccount(account);
     return (
         await axios.get(
-            checkedAccount.profile.deliveryServiceUrl +
+            (checkedAccount.profile.deliveryServiceUrl ?? '') +
                 AUTH_SERVICE +
                 `/${formatAddress(checkedAccount.address)}`,
         )
@@ -48,7 +48,7 @@ export async function getNewToken(
     const checkedAccount = checkAccount(account);
     return (
         await axios.post(
-            checkedAccount.profile.deliveryServiceUrl +
+            (checkedAccount.profile.deliveryServiceUrl ?? '') +
                 AUTH_SERVICE +
                 `/${formatAddress(checkedAccount.address)}`,
             {
@@ -66,7 +66,7 @@ export async function submitProfileRegistryEntry(
     const checkedAccount = checkAccount(account);
     return (
         await axios.post(
-            `${checkedAccount.profile.deliveryServiceUrl + PROFILE}/${
+            `${(checkedAccount.profile.deliveryServiceUrl ?? '') + PROFILE}/${
                 account.address
             }`,
             signedProfileRegistryEntry,
@@ -111,7 +111,9 @@ export async function syncAcknoledgment(
 ): Promise<void> {
     const checkedAccount = checkAccount(connection.account);
     return axios.post(
-        `${checkedAccount.profile.deliveryServiceUrl + DELIVERY}/messages/${
+        `${
+            (checkedAccount.profile.deliveryServiceUrl ?? '') + DELIVERY
+        }/messages/${
             connection.account!.address
         }/syncAcknoledgment/${lastMessagePull}`,
         { acknoledgments },
@@ -145,7 +147,9 @@ export async function getNewMessages(
     const checkedAccount = checkAccount(connection.account);
     return (
         await axios.get(
-            `${checkedAccount.profile.deliveryServiceUrl + DELIVERY}/messages/${
+            `${
+                (checkedAccount.profile.deliveryServiceUrl ?? '') + DELIVERY
+            }/messages/${
                 connection.account!.address
             }/contact/${contactAddress}`,
             getAxiosConfig(userDb.deliveryServiceToken),
@@ -161,9 +165,9 @@ export async function getPendingConversations(
     const checkedAccount = checkAccount(connection.account);
     return (
         await axios.post(
-            `${checkedAccount.profile.deliveryServiceUrl + DELIVERY}/messages/${
-                connection.account!.address
-            }/pending`,
+            `${
+                (checkedAccount.profile.deliveryServiceUrl ?? '') + DELIVERY
+            }/messages/${connection.account!.address}/pending`,
             {},
             getAxiosConfig(userDb.deliveryServiceToken),
         )
@@ -185,8 +189,8 @@ export async function getProfileRegistryEntryOffChain(
                 url
                     ? url
                     : `${
-                          checkAccount(account).profile.deliveryServiceUrl +
-                          PROFILE
+                          (checkAccount(account).profile.deliveryServiceUrl ??
+                              '') + PROFILE
                       }/${contact}`,
             )
         ).data;

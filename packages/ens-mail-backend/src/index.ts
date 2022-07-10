@@ -66,7 +66,7 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
 })();
 
 // TODO include standalone web app
-app.use(express.static(path.join(__dirname, '../build')));
+app.use(express.static(path.join(__dirname, '../../ens-mail-web/build')));
 const port = process.env.PORT || '8080';
 
 server.listen(port, () => {
