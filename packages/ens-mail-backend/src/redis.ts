@@ -13,12 +13,15 @@ export enum RedisPrefix {
 }
 
 export async function createRedisClient() {
-    const client = createClient({
-        url: endpointUrl,
+    const socketConf = {
         socket: {
             tls: true,
             rejectUnauthorized: false,
         },
+    };
+    const client = createClient({
+        url: endpointUrl,
+        ...(process.env.DEV_MODE === 'true' ? {} : socketConf),
     });
     await client.connect();
     return client;
