@@ -270,7 +270,7 @@ export async function getProfileRegistryEntry(
     const uri = await getEnsTextRecord(
         connection.provider!,
         contact,
-        'eth.mail',
+        'eth.ens-mail',
     );
 
     if (uri) {
@@ -363,6 +363,10 @@ export async function publishProfileOnchain(
 
     return {
         method: resolver.setText,
-        args: [node, 'eth.mail', uri + '?' + createHashUrlParam(ownProfile)],
+        args: [
+            node,
+            'eth.ens-mail',
+            uri + '?' + createHashUrlParam(ownProfile),
+        ],
     };
 }

@@ -538,7 +538,7 @@ test('publishProfileOnchain', async () => {
 
     expect(tx?.args).toStrictEqual([
         '0xca7a0eadca1ba3745db7065063294b717422bd1c70995cba8f5adcd094fdae1d',
-        'eth.mail',
+        'eth.ens-mail',
         'http://bla?ensmailHash=0xeb9089d6c59aa43b3abb489232dd926db6f8269589e875e60c9eeeab8ef2031d',
     ]);
 
