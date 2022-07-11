@@ -35,13 +35,20 @@ function StorageLocationSelection(props: StorageLocationSelectionProps) {
                                 className={`list-group-item list-group-item-action storage-item ${
                                     selected ? 'storage-item-selected' : ''
                                 }`}
-                                onClick={() =>
-                                    props.setStorageLocation(
-                                        Lib.StorageLocation[
+                                onClick={() => {
+                                    if (
+                                        (Lib.StorageLocation[
                                             key as keyof typeof Lib.StorageLocation
-                                        ] as Lib.StorageLocation,
-                                    )
-                                }
+                                        ] as Lib.StorageLocation) ===
+                                        Lib.StorageLocation.EnsMailStorage
+                                    ) {
+                                        props.setStorageLocation(
+                                            Lib.StorageLocation[
+                                                key as keyof typeof Lib.StorageLocation
+                                            ] as Lib.StorageLocation,
+                                        );
+                                    }
+                                }}
                                 key={key}
                             >
                                 <input
@@ -50,12 +57,26 @@ function StorageLocationSelection(props: StorageLocationSelectionProps) {
                                     name="flexRadioDefault"
                                     id="flexRadioDefault2"
                                     checked={selected}
+                                    disabled={
+                                        (Lib.StorageLocation[
+                                            key as keyof typeof Lib.StorageLocation
+                                        ] as Lib.StorageLocation) !==
+                                        Lib.StorageLocation.EnsMailStorage
+                                    }
                                     readOnly
                                 />
                                 &nbsp;&nbsp;
                                 {Lib.StorageLocation[key] === 'File'
                                     ? 'Browser / File Export'
-                                    : Lib.StorageLocation[key]}
+                                    : Lib.StorageLocation[key]}{' '}
+                                {(Lib.StorageLocation[
+                                    key as keyof typeof Lib.StorageLocation
+                                ] as Lib.StorageLocation) !==
+                                    Lib.StorageLocation.EnsMailStorage && (
+                                    <span className="badge bg-secondary">
+                                        coming soon
+                                    </span>
+                                )}
                             </a>
                         );
                     })}
@@ -72,6 +93,11 @@ function StorageLocationSelection(props: StorageLocationSelectionProps) {
                         'The messages and related data will be encrypted and stored ' +
                             'using the decentral web3.storage service.' +
                             ' web3.storage is based on the IPFS protocol and ensures redudancy.'}
+                    {props.stroageLocation ===
+                        Lib.StorageLocation.EnsMailStorage &&
+                        'The messages and related data will be encrypted and stored ' +
+                            'using the ENS Mail Storage Service.' +
+                            ' The data can only be decrypted by the owner of the related Ethereum Account Key.'}
                 </p>
             </div>
         </div>
