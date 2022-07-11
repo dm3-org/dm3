@@ -73,7 +73,7 @@ function StorageLocationSelection(props: StorageLocationSelectionProps) {
                                     key as keyof typeof Lib.StorageLocation
                                 ] as Lib.StorageLocation) !==
                                     Lib.StorageLocation.EnsMailStorage && (
-                                    <span className="badge bg-secondary">
+                                    <span className="badge bg-light text-dark">
                                         coming soon
                                     </span>
                                 )}

@@ -8,6 +8,7 @@ import { AccountInfo } from './reducers/shared';
 import { SelectedRightView, UiStateType } from './reducers/UiState';
 import UserInfo from './user-info/UserInfo';
 import RightHeader from './header/RightHeader';
+import DarkLogo from './logos/DarkLogo';
 
 function RightView() {
     const { state, dispatch } = useContext(GlobalContext);
@@ -88,15 +89,15 @@ function RightView() {
         case SelectedRightView.Error:
         default:
             return (
-                <div
-                    className={`col-md-${
-                        state.uiState.maxLeftView ? '8' : '12'
-                    } content-container h-100`}
-                >
-                    <RightHeader />
-                    <div className="col-md-12 text-center row-space">
-                        No Ethereum provider detected. Please install a plugin
-                        like MetaMask.
+                <div className={`row`}>
+                    <div className="col-md-12 text-center row-space d-flex flex-column">
+                        <div className="align-self-center mb-3">
+                            <DarkLogo />
+                        </div>
+                        <strong style={{ color: '#fff' }}>
+                            No Ethereum provider detected. Please install a
+                            plugin like MetaMask.
+                        </strong>
                     </div>
                 </div>
             );

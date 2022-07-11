@@ -181,13 +181,8 @@ function SignIn(props: SignInProps) {
             </div>
         </div>
     ) : (
-        <div className="w-100">
-            <div className="row d-flex justify-content-center row-space sign-in ">
-                <div className="col-md-12">
-                    <DarkLogo />
-                </div>
-            </div>
-            <div className="row d-flex justify-content-center row-space sign-in ">
+        <div className="w-100 d-flex flex-column">
+            <div className="row d-flex justify-content-center row-space sign-in me-2">
                 <div className="col-md-12">
                     <ConnectButton miniSignIn={props.miniSignIn} />
                     {!props.hideStorageSelection && (
@@ -226,6 +221,9 @@ function SignIn(props: SignInProps) {
                         miniSignIn={props.miniSignIn}
                     />
                 </div>
+            </div>
+            <div className="mt-auto mb-3 me-3 align-self-end">
+                <DarkLogo />
             </div>
         </div>
     );
