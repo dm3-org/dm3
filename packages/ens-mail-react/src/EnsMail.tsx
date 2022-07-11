@@ -71,6 +71,26 @@ function EnsMail(props: EnsMailProps) {
         }
     }, [state.accounts.selectedContact]);
 
+    useEffect(() => {
+        if (state.connection.provider) {
+            if (window.ethereum) {
+                (window.ethereum as any).on(
+                    'accountsChanged',
+                    (accounts: string[]) => {
+                        if (
+                            state.connection.account &&
+                            Lib.formatAddress(
+                                state.connection.account.address,
+                            ) !== Lib.formatAddress(accounts[0])
+                        ) {
+                            window.location.reload();
+                        }
+                    },
+                );
+            }
+        }
+    }, [state.connection.provider]);
+
     const getContacts = (connection: Lib.Connection) => {
         if (!state.userDb) {
             throw Error(

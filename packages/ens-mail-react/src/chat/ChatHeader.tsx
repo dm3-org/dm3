@@ -49,7 +49,9 @@ function ChatHeader(props: ChatHeaderProps) {
                                 </button>
                             </div>
                             <div className="account-header-text">
-                                {props.account
+                                {props.account &&
+                                state.accounts.accountInfoView ===
+                                    AccountInfo.Contact
                                     ? Lib.getAccountDisplayName(
                                           props.account.address,
                                           state.cache.ensNames,
