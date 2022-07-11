@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { createClient } from 'redis';
 import * as Lib from 'ens-mail-lib';
+import { Express } from 'express';
 
 const endpointUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 
@@ -12,7 +13,7 @@ export enum RedisPrefix {
     Pending = 'pending:',
 }
 
-export async function createRedisClient() {
+export async function createRedisClient(app: Express) {
     const socketConf = {
         socket: {
             tls: true,
@@ -22,6 +23,12 @@ export async function createRedisClient() {
     const client = createClient({
         url: endpointUrl,
         ...(process.env.DEV_MODE === 'true' ? {} : socketConf),
+    });
+    client.on('error', (error) => {
+        app.locals.logger.error({
+            method: 'REDIS CLIENT',
+            error,
+        });
     });
     await client.connect();
     return client;

@@ -24,7 +24,11 @@ app.use(cors());
 let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
 
 (async () => {
-    redisClient = await createRedisClient();
+    app.locals.logger = winston.createLogger({
+        transports: [new winston.transports.Console()],
+    });
+
+    redisClient = await createRedisClient(app);
     const io = new Server(server, {
         cors: {
             origin: '*',
@@ -32,10 +36,6 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
             preflightContinue: false,
             optionsSuccessStatus: 204,
         },
-    });
-
-    app.locals.logger = winston.createLogger({
-        transports: [new winston.transports.Console()],
     });
 
     app.locals.redisClient = redisClient;
