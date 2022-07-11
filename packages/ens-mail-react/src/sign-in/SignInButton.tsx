@@ -55,17 +55,15 @@ function SignInButton(props: SignInButtonProps) {
                     break;
 
                 case Lib.StorageLocation.EnsMailStorage:
-                    let authToken;
-                    if (browserDataFile) {
-                        const browserUserStorage = await Lib.load(
-                            state.connection,
-                            browserDataFile,
-                        );
-                        preLoadedKey =
-                            browserUserStorage.keys.storageEncryptionKey;
-                        authToken = browserUserStorage.deliveryServiceToken;
-                    } else {
+                    let authToken = (await localforage.getItem(
+                        'ENS_MAIL_AUTH_' + account.address,
+                    )) as string;
+                    if (!authToken) {
                         authToken = await Lib.reAuth(state.connection);
+                        await localforage.setItem(
+                            'ENS_MAIL_AUTH_' + account.address,
+                            authToken,
+                        );
                         overwriteUserDb = {
                             deliveryServiceToken: authToken,
                         };
@@ -86,6 +84,10 @@ function SignInButton(props: SignInButtonProps) {
                             )
                         ) {
                             const newToken = await Lib.reAuth(state.connection);
+                            await localforage.setItem(
+                                'ENS_MAIL_AUTH_' + account.address,
+                                newToken,
+                            );
                             data = state.uiState.proflieExists
                                 ? await Lib.getEnsMailStorage(
                                       state.connection,
