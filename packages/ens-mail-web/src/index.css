@@ -16,6 +16,7 @@ code {
 .filler {
   backdrop-filter: blur(1px) !important;
   background-color: #181818 !important;
+  cursor: initial !important;
 }
 
 .main-content-row {
@@ -31,6 +32,13 @@ code {
   top: 1rem;
   left: 1rem;
   z-index: 9999;
+  cursor: pointer;
+
+}
+
+.logo a {
+  text-decoration: none;
+  
 }
 .logo:hover {
 

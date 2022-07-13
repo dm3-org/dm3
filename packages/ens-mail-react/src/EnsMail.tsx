@@ -74,19 +74,12 @@ function EnsMail(props: EnsMailProps) {
     useEffect(() => {
         if (state.connection.provider) {
             if (window.ethereum) {
-                (window.ethereum as any).on(
-                    'accountsChanged',
-                    (accounts: string[]) => {
-                        if (
-                            state.connection.account &&
-                            Lib.formatAddress(
-                                state.connection.account.address,
-                            ) !== Lib.formatAddress(accounts[0])
-                        ) {
-                            window.location.reload();
-                        }
-                    },
-                );
+                (window.ethereum as any).on('accountsChanged', () => {
+                    window.location.reload();
+                });
+                (window.ethereum as any).on('chainChanged', () => {
+                    window.location.reload();
+                });
             }
         }
     }, [state.connection.provider]);

@@ -18,7 +18,17 @@ function App() {
                     setShowLogo(state === ConnectionState.SignedIn)
                 }
             />
-            <div className="logo">{showLogo && <DarkLogo.default />}</div>
+            <div className="logo">
+                {showLogo && (
+                    <a
+                        href="https://ensmail.com/"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        <DarkLogo.default />
+                    </a>
+                )}
+            </div>
         </>
     );
 }
