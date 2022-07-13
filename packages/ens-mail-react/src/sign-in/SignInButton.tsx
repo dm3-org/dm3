@@ -64,9 +64,7 @@ function SignInButton(props: SignInButtonProps) {
                             'ENS_MAIL_AUTH_' + account.address,
                             authToken,
                         );
-                        overwriteUserDb = {
-                            deliveryServiceToken: authToken,
-                        };
+
                         browserDataFile = undefined;
                     }
 
@@ -103,6 +101,9 @@ function SignInButton(props: SignInButtonProps) {
                             throw e;
                         }
                     }
+                    overwriteUserDb = {
+                        deliveryServiceToken: authToken,
+                    };
 
                     break;
             }

@@ -74,15 +74,6 @@ function ConnectButton(props: ConnectButtonProps) {
         }
     };
 
-    useEffect(() => {
-        if (
-            state.connection.connectionState ===
-            Lib.ConnectionState.AccountConntectReady
-        ) {
-            connect();
-        }
-    }, [state.connection.connectionState]);
-
     const getButtonState = (
         connectionState: Lib.ConnectionState,
     ): ButtonState => {
