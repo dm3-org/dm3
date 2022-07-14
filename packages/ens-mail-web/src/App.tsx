@@ -5,14 +5,13 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 //@ts-ignore
 import EnsMail, { DarkLogo, ConnectionState } from 'ens-mail-react';
 
-import { generateBackground } from './Background';
-
 function App() {
     const [showLogo, setShowLogo] = useState(false);
 
     return (
         <>
             <EnsMail
+                defaultContact="0x503402394c9c4CDF8CD0B29a050743726aFee921"
                 showAlways={true}
                 connectionStateChange={(state) =>
                     setShowLogo(state === ConnectionState.SignedIn)
