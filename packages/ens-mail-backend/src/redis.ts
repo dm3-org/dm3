@@ -22,7 +22,7 @@ export async function createRedisClient(app: Express) {
     };
     const client = createClient({
         url: endpointUrl,
-        ...(process.env.DEV_MODE === 'true' ? {} : socketConf),
+        ...(process.env.NODE_ENV == 'development' ? {} : socketConf),
     });
     client.on('error', (error) => {
         app.locals.logger.error({

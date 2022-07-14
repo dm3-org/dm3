@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction, Response, Request } from 'express';
 import { Server } from 'socket.io';
 import http from 'http';
 import path from 'path';
@@ -20,7 +20,6 @@ const server = http.createServer(app);
 
 //TODO remove
 app.use(cors());
-
 let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
 
 (async () => {
