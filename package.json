@@ -2,10 +2,10 @@
     "private": true,
     "workspaces": {
         "packages": [
-            "packages/ens-mail-lib",
-            "packages/ens-mail-backend",
-            "packages/ens-mail-react",
-            "packages/ens-mail-web"
+            "packages/lib",
+            "packages/backend",
+            "packages/react",
+            "packages/web"
         ],
         "nohoist": [
             "**/react",
@@ -27,16 +27,13 @@
         ]
     },
     "scripts": {
-        "build": "cd packages/ens-mail-lib/ && yarn build && cd ../ens-mail-react && yarn build && cd ../ens-mail-web && yarn build",
-        "start": "cd packages/ens-mail-backend && yarn start",
+        "build": "cd packages/lib/ && yarn build && cd ../react && yarn build && cd ../web && yarn build",
+        "start": "cd packages/backend && yarn start",
         "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
         "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
         "format:check": "prettier --check '*/**/*.{js,ts,tsx,json}'",
         "prepare": "husky install",
         "test": "./test-all.sh"
     },
-    "packageManager": "yarn@1.22.19",
-    "resolutions": {
-        "ens-app": "portal:/Users/heikoburkhardt/repos/ens-app2"
-    }
+    "packageManager": "yarn@1.22.19"
 }
