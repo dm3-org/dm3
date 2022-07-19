@@ -1,6 +1,12 @@
+# Packages
+* [ens-mail-react](packages/ens-mail-react): ENS Mail UI components 
+* [ens-mail-web](packages/ens-mail-web): ENS Mail web app
+* [ens-mail-backend](packages/ens-mail-backend): The delivery and storage service
+* [ens-mail-lib](packages/ens-mail-lib): Basic ENS Mail functionality
+
 # Protocol
 ## Simple Summary
-This document defines a protocol enabling decentral, open, and secure messaging based on established web3 services like ENS and IPFS.
+ENS Mail Protocol enables decentral, open, and secure messaging based on established web3 services like ENS and IPFS.
 
 ## Principles 
 * **Decentral**: An ENS Mail client must be realizable as a real decentral application and the messages must also be stored in a decentral way. 
