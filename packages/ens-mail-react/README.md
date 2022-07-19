@@ -1,4 +1,4 @@
-# ens-mail-web
+# ens-mail-react
 ## Getting Started
 
 ### Build
@@ -9,14 +9,10 @@ cd ../../ && yarn build
 
 
 ### Usage
-
-
-yarn: 
 ```
-yarn start
-```
+import EnsMail from 'ens-mail-react';
 
-npm: 
-```
-yarn start
+...
+
+<EnsMail />
 ```
