@@ -1,3 +1,3 @@
 #!/bin/sh
-cd packages/ens-mail-lib/
+cd packages/lib/
 yarn test --watchAll=false

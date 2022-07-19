@@ -1,8 +1,0 @@
-{
-    "short_name": "ENS Mail",
-    "name": "ENS Mail enables decentralized, open, and secure messaging using established web3 services",
-    "start_url": ".",
-    "display": "standalone",
-    "theme_color": "#000000",
-    "background_color": "#000000"
-}
