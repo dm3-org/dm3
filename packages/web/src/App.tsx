@@ -11,7 +11,7 @@ function App() {
     return (
         <>
             <DM3
-                defaultContact="0x503402394c9c4CDF8CD0B29a050743726aFee921"
+                defaultContact="0x3169be33e0d5d44ee4dccd39d7be47d6153bfd3a"
                 showAlways={true}
                 connectionStateChange={(state) =>
                     setShowLogo(state === ConnectionState.SignedIn)
