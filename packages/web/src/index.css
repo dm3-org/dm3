@@ -15,7 +15,7 @@ code {
 
 .filler {
   backdrop-filter: blur(1px) !important;
-  background-color: #181818 !important;
+  background-color: #f1f3f5 !important;
   cursor: initial !important;
 }
 
@@ -28,7 +28,7 @@ code {
 
 .logo {
   position: absolute;
-  filter: brightness(60%) ;
+  filter: brightness(100%) ;
   top: 1rem;
   left: 1rem;
   z-index: 9999;
@@ -42,6 +42,6 @@ code {
 }
 .logo:hover {
 
-  filter: brightness(100%) ;
+  filter: brightness(110%) ;
 
 }

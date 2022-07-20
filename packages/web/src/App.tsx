@@ -20,7 +20,39 @@ function App() {
             <div className="logo">
                 {showLogo && (
                     <a href="https://dm3.me/" target="_blank" rel="noreferrer">
-                        <DarkLogo.default />
+                        <div
+                            style={{
+                                fontSize: '35px',
+                                filter: 'brightness(90%)',
+                            }}
+                            className="d-flex"
+                        >
+                            <img
+                                src="./dm3_Signet_blue-gray.svg"
+                                width="50px"
+                            />
+                            <div className="align-self-center">
+                                <span
+                                    className="ms-3"
+                                    style={{
+                                        fontWeight: '600',
+                                        color: '#323332',
+                                        fontSize: '40px',
+                                    }}
+                                >
+                                    dm
+                                </span>
+                                <span
+                                    style={{
+                                        fontWeight: '400',
+                                        color: '#323332',
+                                        fontSize: '40px',
+                                    }}
+                                >
+                                    3
+                                </span>
+                            </div>
+                        </div>
                     </a>
                 )}
             </div>
