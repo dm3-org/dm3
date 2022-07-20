@@ -14,7 +14,7 @@ function MessageStateView(props: MessageStateViewProps) {
                 props.ownMessage ? 'text-end' : 'text-start'
             } message-state`}
         >
-            {new Date(props.time).toLocaleTimeString()}{' '}
+            {new Date(props.time).toLocaleString()}{' '}
             {props.messageState === Lib.MessageState.Created && (
                 <Icon iconClass="fas fa-spinner fa-spin" />
             )}

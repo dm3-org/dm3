@@ -19,7 +19,11 @@ function App() {
             />
             <div className="logo">
                 {showLogo && (
-                    <a href="https://dm3.me/" target="_blank" rel="noreferrer">
+                    <a
+                        href="https://dm3.network/"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
                         <div
                             style={{
                                 fontSize: '35px',
