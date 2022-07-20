@@ -20,8 +20,9 @@ function DarkLogo() {
                     className="ms-3"
                     style={{ fontWeight: '600', color: '#fff' }}
                 >
-                    dm3
+                    dm
                 </span>
+                <span style={{ fontWeight: '400', color: '#fff' }}>3</span>
             </div>
         </div>
     );
