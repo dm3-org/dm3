@@ -1,4 +1,4 @@
-import * as Lib from 'dm3-lib';
+import * as Lib from 'dm3-lib/dist.backend';
 import { NextFunction, Response, Request } from 'express';
 import { Socket } from 'socket.io';
 import { ExtendedError } from 'socket.io/dist/namespace';

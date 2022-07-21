@@ -2,7 +2,7 @@ import express, { NextFunction, Response, Request } from 'express';
 import { Server } from 'socket.io';
 import http from 'http';
 import path from 'path';
-import * as Lib from 'dm3-lib';
+import * as Lib from 'dm3-lib/dist.backend';
 import cors from 'cors';
 import { createRedisClient, getSession, setSession } from './redis';
 import Profile from './profile';

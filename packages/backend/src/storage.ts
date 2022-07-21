@@ -1,4 +1,4 @@
-import * as Lib from 'dm3-lib';
+import * as Lib from 'dm3-lib/dist.backend';
 import express from 'express';
 import { getUserStorage, setUserStorage } from './redis';
 import { auth } from './utils';
