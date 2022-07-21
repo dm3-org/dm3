@@ -27,7 +27,7 @@
         ]
     },
     "scripts": {
-        "build": "cd packages/lib/ && yarn build && cd ../react && yarn build && cd ../web && yarn build",
+        "build": "cd packages/lib/ && yarn build && cd ../react && yarn build && cd ../web && yarn build && cd ../backend && yarn build",
         "start": "cd packages/backend && yarn start",
         "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
         "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",

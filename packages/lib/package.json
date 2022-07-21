@@ -2,7 +2,18 @@
     "name": "dm3-lib",
     "version": "0.1.0",
     "main": "dist/index.js",
+    "module": "dist-backend/index.js",
     "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "require": "./dist/index.js"
+        },
+        "./dist.backend": {
+            "import": "./dist.backend/index.js",
+            "require": "./dist.backend/index.js"
+        }
+    },
     "dependencies": {
         "ajv": "^8.11.0",
         "axios": "^0.25.0",
@@ -29,7 +40,11 @@
     },
     "scripts": {
         "build:schema": "yarn ts-json-schema-generator -f tsconfig.json --path src/lib/Messaging.ts --type Message -o src/schema.json --no-type-check",
-        "build": "yarn build:schema && tsc --declaration",
+        "build": "yarn build:schema && tsc --declaration && tsc --declaration -p tsconfig.backend.json",
         "test": "jest --coverage"
-    }
+    },
+    "files": [
+        "dist",
+        "dist.browser"
+    ]
 }

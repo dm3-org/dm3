@@ -1,6 +1,6 @@
 import { Socket } from 'socket.io';
 import { Express } from 'express';
-import * as Lib from 'dm3-lib';
+import * as Lib from 'dm3-lib/dist.backend';
 import { addPending, RedisPrefix } from './redis';
 
 export function onConnection(app: Express) {

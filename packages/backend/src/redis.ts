@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { createClient } from 'redis';
-import * as Lib from 'dm3-lib';
+import * as Lib from 'dm3-lib/dist.backend';
 import { Express } from 'express';
 
 const endpointUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
