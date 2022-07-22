@@ -65,7 +65,7 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
 })();
 
 // TODO include standalone web app
-app.use(express.static(path.join(__dirname, '../../dm3-web/build')));
+app.use(express.static(path.join(__dirname, '../../web/build')));
 const port = process.env.PORT || '8080';
 
 server.listen(port, () => {
