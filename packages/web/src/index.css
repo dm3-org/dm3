@@ -19,8 +19,12 @@ code {
   cursor: initial !important;
 }
 
+
+.container {
+  margin-top: 2rem !important;
+}
 .main-content-row {
-  margin-top: 4rem !important;
+  
   border-style: none !important;
   /* box-shadow: 0px 0px 2px  #999; */
 

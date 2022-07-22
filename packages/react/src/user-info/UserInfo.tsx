@@ -277,7 +277,7 @@ function UserInfo(props: UserInfoProps) {
                             btnState={publishButtonState}
                             btnType="primary"
                             onClick={publishProfileOnchain}
-                            content={<>Publish Public Keys</>}
+                            content={<>Publish Profile</>}
                             className="right-state-button"
                         />
                     </div>

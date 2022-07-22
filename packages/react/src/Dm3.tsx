@@ -20,6 +20,8 @@ import Start from './start/Start';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { Config } from './utils/Config';
+import Arrow from './assets/arrow.svg';
+import Help from './ui-shared/Help';
 
 interface dm3Props {
     config: Config;
@@ -241,29 +243,41 @@ function dm3(props: dm3Props) {
         }
     }, [state.connection.provider]);
 
+    const showHelp =
+        state.connection.connectionState === Lib.ConnectionState.SignedIn &&
+        state.accounts.contacts &&
+        state.accounts.contacts.length <= 1 &&
+        state.uiState.maxLeftView;
     const mainContent = (
-        <div className="row main-content-row" style={props.config.style}>
-            <div className="col-12 h-100">
-                <div className="row h-100">
-                    {showSignIn(state.connection.connectionState) ? (
-                        <SignIn
-                            hideStorageSelection={
-                                props.config.hideStorageSelection
-                            }
-                            defaultStorageLocation={
-                                props.config.defaultStorageLocation
-                            }
-                            miniSignIn={props.config.miniSignIn}
-                        />
-                    ) : (
-                        <>
-                            <LeftView getContacts={getContacts} />
-                            <RightView />
-                        </>
-                    )}
+        <>
+            {showHelp && <Help />}
+
+            <div
+                className={`row main-content-row ${showHelp ? '' : 'mt-5'}`}
+                style={props.config.style}
+            >
+                <div className="col-12 h-100">
+                    <div className="row h-100">
+                        {showSignIn(state.connection.connectionState) ? (
+                            <SignIn
+                                hideStorageSelection={
+                                    props.config.hideStorageSelection
+                                }
+                                defaultStorageLocation={
+                                    props.config.defaultStorageLocation
+                                }
+                                miniSignIn={props.config.miniSignIn}
+                            />
+                        ) : (
+                            <>
+                                <LeftView getContacts={getContacts} />
+                                <RightView />
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 
     return props.config.inline ? (

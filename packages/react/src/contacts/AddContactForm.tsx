@@ -68,7 +68,7 @@ function AddContactForm(props: AddContactFormProps) {
             />
             <label
                 htmlFor="inputEl"
-                className={`${
+                className={`text-start ${
                     errorIndication
                         ? 'add-contact-error-label'
                         : 'add-contact-label'
