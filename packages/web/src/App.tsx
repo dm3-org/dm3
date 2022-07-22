@@ -37,9 +37,9 @@ function App() {
                             />
                             <div className="align-self-center">
                                 <span
-                                    className="ms-3"
+                                    className="ms-2"
                                     style={{
-                                        fontWeight: '600',
+                                        fontWeight: '650',
                                         color: '#323332',
                                         fontSize: '40px',
                                     }}
@@ -48,8 +48,8 @@ function App() {
                                 </span>
                                 <span
                                     style={{
-                                        fontWeight: '400',
-                                        color: '#323332',
+                                        fontWeight: '250',
+                                        color: '#5880de',
                                         fontSize: '40px',
                                     }}
                                 >
