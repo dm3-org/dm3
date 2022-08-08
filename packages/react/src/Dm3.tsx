@@ -247,7 +247,9 @@ function dm3(props: dm3Props) {
         state.connection.connectionState === Lib.ConnectionState.SignedIn &&
         state.accounts.contacts &&
         state.accounts.contacts.length <= 1 &&
-        state.uiState.maxLeftView;
+        state.uiState.maxLeftView &&
+        props.config.showHelp;
+
     const mainContent = (
         <>
             {showHelp && <Help />}
