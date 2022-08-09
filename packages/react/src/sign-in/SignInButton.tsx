@@ -81,19 +81,19 @@ function SignInButton(props: SignInButtonProps) {
                                 'Request failed with status code 401',
                             )
                         ) {
-                            const newToken = await Lib.reAuth(state.connection);
+                            authToken = await Lib.reAuth(state.connection);
                             await localforage.setItem(
                                 'ENS_MAIL_AUTH_' + account.address,
-                                newToken,
+                                authToken,
                             );
                             data = state.uiState.proflieExists
                                 ? await Lib.getDm3Storage(
                                       state.connection,
-                                      newToken,
+                                      authToken,
                                   )
                                 : undefined;
                             overwriteUserDb = {
-                                deliveryServiceToken: newToken,
+                                deliveryServiceToken: authToken,
                             };
 
                             browserDataFile = undefined;

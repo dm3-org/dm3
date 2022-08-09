@@ -20,7 +20,6 @@ import Start from './start/Start';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { Config } from './utils/Config';
-import Arrow from './assets/arrow.svg';
 import Help from './ui-shared/Help';
 
 interface dm3Props {
