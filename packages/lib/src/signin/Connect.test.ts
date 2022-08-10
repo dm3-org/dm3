@@ -9,7 +9,7 @@ import { connectAccount } from './Connect';
 
 test('handels no web3 provider correctly', async () => {
     expect(await getWeb3Provider(null)).toStrictEqual({
-        connectionState: ConnectionState.NoProvider,
+        connectionState: ConnectionState.ConnectionRejected,
     });
 });
 

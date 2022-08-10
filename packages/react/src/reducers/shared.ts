@@ -35,7 +35,7 @@ export enum AccountInfo {
 
 export const initialState: GlobalState = {
     connection: {
-        connectionState: Lib.ConnectionState.CheckingProvider,
+        connectionState: Lib.ConnectionState.AccountConntectReady,
         storageLocation: Lib.StorageLocation.dm3Storage,
         defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
     },

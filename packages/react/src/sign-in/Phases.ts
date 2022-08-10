@@ -7,7 +7,7 @@ export function showSignIn(connectionState: Lib.ConnectionState): boolean {
         connectionState === Lib.ConnectionState.CollectingSignInData ||
         connectionState === Lib.ConnectionState.WaitingForAccountConntection ||
         connectionState === Lib.ConnectionState.WaitingForSignIn ||
-        connectionState === Lib.ConnectionState.AccountConnectionRejected ||
+        connectionState === Lib.ConnectionState.ConnectionRejected ||
         connectionState === Lib.ConnectionState.SignInFailed
     );
 }
@@ -15,7 +15,7 @@ export function showSignIn(connectionState: Lib.ConnectionState): boolean {
 export function connectionPhase(connectionState: Lib.ConnectionState): boolean {
     return (
         connectionState === Lib.ConnectionState.WaitingForAccountConntection ||
-        connectionState === Lib.ConnectionState.AccountConnectionRejected ||
+        connectionState === Lib.ConnectionState.ConnectionRejected ||
         connectionState === Lib.ConnectionState.AccountConntectReady
     );
 }

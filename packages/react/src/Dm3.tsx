@@ -1,7 +1,6 @@
 import React, { useEffect, useContext } from 'react';
 import './Dm3.css';
 import 'react-chat-widget/lib/styles.css';
-import detectEthereumProvider from '@metamask/detect-provider';
 import socketIOClient from 'socket.io-client';
 import * as Lib from 'dm3-lib';
 import { requestContacts } from './ui-shared/RequestContacts';
@@ -217,30 +216,6 @@ function dm3(props: dm3Props) {
         state.accounts.selectedContact,
         state.userDb?.conversations,
     ]);
-
-    const createWeb3Provider = async () => {
-        const web3Provider = await Lib.getWeb3Provider(
-            await detectEthereumProvider(),
-        );
-
-        if (web3Provider.provider) {
-            dispatch({
-                type: ConnectionType.ChangeProvider,
-                payload: web3Provider.provider,
-            });
-        }
-
-        dispatch({
-            type: ConnectionType.ChangeConnectionState,
-            payload: web3Provider.connectionState,
-        });
-    };
-
-    useEffect(() => {
-        if (!state.connection.provider) {
-            createWeb3Provider();
-        }
-    }, [state.connection.provider]);
 
     const showHelp =
         state.connection.connectionState === Lib.ConnectionState.SignedIn &&

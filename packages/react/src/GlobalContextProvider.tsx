@@ -6,7 +6,7 @@ import { UserDbActions, userDbReducer } from './reducers/UserDB';
 import { UiStateActions, uiStateReducer } from './reducers/UiState';
 import { CacheActions, cacheReducer } from './reducers/Cache';
 
-type Actions =
+export type Actions =
     | ConnectionActions
     | CacheActions
     | AccountsActions

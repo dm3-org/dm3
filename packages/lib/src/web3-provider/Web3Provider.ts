@@ -5,14 +5,12 @@ import { StorageLocation } from '../storage/Storage';
 import { Account } from '../account/Account';
 
 export enum ConnectionState {
-    CheckingProvider,
-    NoProvider,
     CollectingSignInData,
     SignInReady,
     AccountConntectReady,
     WaitingForAccountConntection,
     WaitingForSignIn,
-    AccountConnectionRejected,
+    ConnectionRejected,
     SignInFailed,
     SignedIn,
 }
@@ -41,6 +39,6 @@ export async function getWeb3Provider(provider: unknown): Promise<{
               connectionState: ConnectionState.AccountConntectReady,
           }
         : {
-              connectionState: ConnectionState.NoProvider,
+              connectionState: ConnectionState.ConnectionRejected,
           };
 }

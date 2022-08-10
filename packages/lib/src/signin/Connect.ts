@@ -43,7 +43,7 @@ export async function connectAccount(
         console.error(e);
         return {
             existingAccount: false,
-            connectionState: ConnectionState.AccountConnectionRejected,
+            connectionState: ConnectionState.ConnectionRejected,
         };
     }
 }

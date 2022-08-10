@@ -22,7 +22,7 @@ function RightView() {
                 });
 
                 break;
-            case Lib.ConnectionState.NoProvider:
+            case Lib.ConnectionState.ConnectionRejected:
             default:
                 dispatch({
                     type: UiStateType.SetSelectedRightView,
