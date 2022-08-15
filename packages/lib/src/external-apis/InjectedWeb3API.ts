@@ -13,7 +13,7 @@ export async function prersonalSign(
     account: string,
     message: string,
 ): Promise<any> {
-    return provider.send('personal_sign', [account, message]);
+    return provider.send('personal_sign', [message, account]);
 }
 export type PersonalSign = typeof prersonalSign;
 

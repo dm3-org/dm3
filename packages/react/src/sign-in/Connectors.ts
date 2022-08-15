@@ -7,44 +7,73 @@ import localforage from 'localforage';
 import { CacheType } from '../reducers/Cache';
 import { ethers } from 'ethers';
 import detectEthereumProvider from '@metamask/detect-provider';
+import WalletConnectProvider from '@walletconnect/web3-provider';
+
+function handleNewProvider(
+    creationsResult: {
+        provider?: ethers.providers.Web3Provider | undefined;
+        connectionState: Lib.ConnectionState;
+    },
+    dispatch: React.Dispatch<Actions>,
+) {
+    if (creationsResult.provider) {
+        dispatch({
+            type: ConnectionType.ChangeProvider,
+            payload: creationsResult.provider,
+        });
+    }
+
+    dispatch({
+        type: ConnectionType.ChangeConnectionState,
+        payload: creationsResult.connectionState,
+    });
+
+    if (
+        creationsResult.connectionState !==
+        Lib.ConnectionState.AccountConntectReady
+    ) {
+        throw Error('Could not connect to MetaMask');
+    }
+}
 
 export async function getMetaMaskProvider(dispatch: React.Dispatch<Actions>) {
-    {
-        const web3Provider = await Lib.getWeb3Provider(
-            await detectEthereumProvider(),
-        );
+    const web3Provider = await Lib.getWeb3Provider(
+        await detectEthereumProvider(),
+    );
 
-        if (web3Provider.provider) {
-            dispatch({
-                type: ConnectionType.ChangeProvider,
-                payload: web3Provider.provider,
-            });
-        }
+    handleNewProvider(web3Provider, dispatch);
+}
 
-        dispatch({
-            type: ConnectionType.ChangeConnectionState,
-            payload: web3Provider.connectionState,
-        });
+export async function getWalletConnectProvider(
+    dispatch: React.Dispatch<Actions>,
+) {
+    const provider = new WalletConnectProvider({
+        rpc: {
+            //@ts-ignore
+            1: process.env.REACT_APP_RPC,
+        },
+    });
+    await provider.disconnect();
+    await provider.enable();
 
-        if (
-            web3Provider.connectionState !==
-            Lib.ConnectionState.AccountConntectReady
-        ) {
-            throw Error('Could not connect to MetaMask');
-        }
-    }
+    const web3Provider = await Lib.getWeb3Provider(provider);
+    handleNewProvider(web3Provider, dispatch);
 }
 
 export async function connectAccount(
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
+    preSetAccount?: string,
 ) {
     dispatch({
         type: ConnectionType.ChangeConnectionState,
         payload: Lib.ConnectionState.WaitingForAccountConntection,
     });
 
-    const accountConnection = await Lib.connectAccount(state.connection);
+    const accountConnection = await Lib.connectAccount(
+        state.connection,
+        preSetAccount,
+    );
 
     dispatch({
         type: UiStateType.SetProfileExists,

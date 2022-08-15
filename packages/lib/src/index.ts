@@ -86,11 +86,15 @@ export function getProfileRegistryEntry(
 
 export type GetProfileRegistryEntry = typeof getProfileRegistryEntry;
 
-export function connectAccount(connection: Web3Provider.Connection) {
+export function connectAccount(
+    connection: Web3Provider.Connection,
+    preSetAccount?: string,
+) {
     return SignIn.connectAccount(
         connection,
         Web3Api.requestAccounts,
         getProfileRegistryEntry,
+        preSetAccount,
     );
 }
 

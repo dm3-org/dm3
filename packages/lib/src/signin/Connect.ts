@@ -11,6 +11,7 @@ export async function connectAccount(
     connection: Connection,
     requestAccounts: RequestAccounts,
     getProfileRegistryEntry: GetProfileRegistryEntry,
+    preSetAccount: string | undefined,
 ): Promise<{
     account?: string;
     connectionState: ConnectionState;
@@ -22,7 +23,8 @@ export async function connectAccount(
     }
 
     try {
-        const account = await requestAccounts(connection.provider);
+        const account =
+            preSetAccount ?? (await requestAccounts(connection.provider));
         const profile = await getProfileRegistryEntry(
             connection,
             account,
