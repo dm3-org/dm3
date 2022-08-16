@@ -53,3 +53,8 @@ code {
 .main-content-row {
   filter: drop-shadow(0px 0px 5px rgb(0 0 0 / 0.4))
 }
+
+.legal {
+  font-size: 0.8rem !important;
+  text-decoration: none;
+}
