@@ -7,11 +7,11 @@ import { GlobalContext } from '../GlobalContextProvider';
 import ConnectButton from './ConnectButton';
 import ChooseFile from './ChooseFile';
 import StoreToken from './StoreToken';
-import SignInButton from './SignInButton';
 import GoogleConnect, { GoogleAuthState } from './GoogleConnect';
 import { ConnectionType } from '../reducers/Connection';
 import localforage from 'localforage';
 import DarkLogo from '../logos/DarkLogo';
+import { signIn } from './Connectors';
 
 interface SignInProps {
     hideStorageSelection: boolean;
@@ -55,10 +55,10 @@ function SignIn(props: SignInProps) {
     };
 
     const checkState = async () => {
-        const setSignInReady = () =>
+        const setAccountConntectReady = () =>
             dispatch({
                 type: ConnectionType.ChangeConnectionState,
-                payload: Lib.ConnectionState.SignInReady,
+                payload: Lib.ConnectionState.AccountConntectReady,
             });
 
         const setCollectingInfos = () =>
@@ -88,25 +88,25 @@ function SignIn(props: SignInProps) {
             !state.uiState.proflieExists &&
             isCollectingSignInData
         ) {
-            setSignInReady();
+            setAccountConntectReady();
         } else if (
             token &&
             storageLocation === Lib.StorageLocation.Web3Storage &&
             isCollectingSignInData
         ) {
-            setSignInReady();
+            setAccountConntectReady();
         } else if (
             storageLocation === Lib.StorageLocation.File &&
             state.uiState.proflieExists &&
             isCollectingSignInData &&
             (dataFile || browserDataFile)
         ) {
-            setSignInReady();
+            setAccountConntectReady();
         } else if (
             storageLocation === Lib.StorageLocation.dm3Storage &&
             isCollectingSignInData
         ) {
-            setSignInReady();
+            setAccountConntectReady();
         }
 
         if (
@@ -114,7 +114,7 @@ function SignIn(props: SignInProps) {
             state.uiState.proflieExists &&
             isSignInReady
         ) {
-            setSignInReady();
+            setAccountConntectReady();
         } else if (
             !token &&
             storageLocation === Lib.StorageLocation.Web3Storage &&
@@ -156,6 +156,21 @@ function SignIn(props: SignInProps) {
         }
     }, [storeApiToken]);
 
+    useEffect(() => {
+        if (
+            state.connection.connectionState === Lib.ConnectionState.SignInReady
+        ) {
+            signIn(
+                storageLocation,
+                token,
+                storeApiToken,
+                dataFile,
+                state,
+                dispatch,
+            );
+        }
+    }, [state.connection.connectionState]);
+
     return props.miniSignIn ? (
         <div className="w-100  pt-4 pb-4">
             <div className="row  sign-in">
@@ -164,17 +179,9 @@ function SignIn(props: SignInProps) {
                         <div className="d-flex align-content-center me-auto ">
                             <DarkLogo />
                         </div>
-                        <div className="align-self-center">
-                            <ConnectButton miniSignIn={props.miniSignIn} />
-                        </div>
+
                         <div className="ms-4 align-self-center me-2">
-                            <SignInButton
-                                dataFile={dataFile}
-                                storageLocation={storageLocation}
-                                storeApiToken={storeApiToken}
-                                token={token}
-                                miniSignIn={props.miniSignIn}
-                            />
+                            <ConnectButton miniSignIn={props.miniSignIn} />
                         </div>
                     </div>
                 </div>
@@ -184,7 +191,6 @@ function SignIn(props: SignInProps) {
         <div className="w-100 d-flex flex-column">
             <div className="row d-flex justify-content-center row-space sign-in me-2">
                 <div className="col-md-12">
-                    <ConnectButton miniSignIn={props.miniSignIn} />
                     {!props.hideStorageSelection && (
                         <>
                             <StorageLocationSelection
@@ -213,13 +219,7 @@ function SignIn(props: SignInProps) {
                             />
                         </>
                     )}
-                    <SignInButton
-                        dataFile={dataFile}
-                        storageLocation={storageLocation}
-                        storeApiToken={storeApiToken}
-                        token={token}
-                        miniSignIn={props.miniSignIn}
-                    />
+                    <ConnectButton miniSignIn={props.miniSignIn} />
                 </div>
             </div>
             <div className="mt-auto mb-3 me-3 align-self-end">

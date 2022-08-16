@@ -39,7 +39,7 @@ function GoogleConnect(props: GoogleConnectProps) {
                 props.setGoogleAuthState(GoogleAuthState.Success);
                 dispatch({
                     type: ConnectionType.ChangeConnectionState,
-                    payload: Lib.ConnectionState.SignInReady,
+                    payload: Lib.ConnectionState.AccountConntectReady,
                 });
             } else {
                 (window as any).gapi.auth2.getAuthInstance().signIn();

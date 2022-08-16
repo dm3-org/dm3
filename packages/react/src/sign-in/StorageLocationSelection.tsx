@@ -13,12 +13,6 @@ function StorageLocationSelection(props: StorageLocationSelectionProps) {
         Lib.StorageLocation,
     ) as (keyof typeof Lib.StorageLocation)[];
 
-    const { state } = useContext(GlobalContext);
-
-    if (connectionPhase(state.connection.connectionState)) {
-        return null;
-    }
-
     return (
         <div className="row row-space">
             <div className="col-md-5">
