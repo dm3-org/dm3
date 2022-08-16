@@ -38,7 +38,7 @@ export async function connectAccount(
             existingAccount: profile?.profileRegistryEntry.publicKeys
                 ? true
                 : false,
-            connectionState: ConnectionState.CollectingSignInData,
+            connectionState: ConnectionState.SignInReady,
             profile,
         };
     } catch (e) {

@@ -8,6 +8,7 @@ import { CacheType } from '../reducers/Cache';
 import { ethers } from 'ethers';
 import detectEthereumProvider from '@metamask/detect-provider';
 import WalletConnectProvider from '@walletconnect/web3-provider';
+import { UserDbType } from '../reducers/UserDB';
 
 function handleNewProvider(
     creationsResult: {
@@ -120,6 +121,164 @@ export async function connectAccount(
         dispatch({
             type: ConnectionType.ChangeConnectionState,
             payload: accountConnection.connectionState,
+        });
+    }
+}
+
+export async function signIn(
+    storageLocation: Lib.StorageLocation,
+    token: string | undefined,
+    storeApiToken: boolean,
+    dataFile: string | undefined,
+    state: GlobalState,
+    dispatch: React.Dispatch<Actions>,
+) {
+    dispatch({
+        type: ConnectionType.ChangeConnectionState,
+        payload: Lib.ConnectionState.WaitingForSignIn,
+    });
+
+    let data = dataFile;
+
+    const account: Lib.Account = {
+        address: state.connection.account!.address,
+    };
+
+    let browserDataFile: Lib.UserStorage | undefined | null =
+        state.uiState.proflieExists && state.uiState.browserStorageBackup
+            ? await localforage.getItem(
+                  Lib.getBrowserStorageKey(account.address),
+              )
+            : null;
+
+    let preLoadedKey: string | undefined;
+    let overwriteUserDb: Partial<Lib.UserDB> = {};
+
+    if (state.uiState.proflieExists) {
+        switch (storageLocation) {
+            case Lib.StorageLocation.Web3Storage:
+                data = state.uiState.proflieExists
+                    ? await Lib.web3Load(token as string)
+                    : undefined;
+                break;
+
+            case Lib.StorageLocation.GoogleDrive:
+                data = state.uiState.proflieExists
+                    ? await Lib.googleLoad((window as any).gapi)
+                    : undefined;
+                break;
+
+            case Lib.StorageLocation.dm3Storage:
+                let authToken = (await localforage.getItem(
+                    'ENS_MAIL_AUTH_' + account.address,
+                )) as string;
+                if (!authToken) {
+                    authToken = await Lib.reAuth(state.connection);
+                    await localforage.setItem(
+                        'ENS_MAIL_AUTH_' + account.address,
+                        authToken,
+                    );
+
+                    browserDataFile = undefined;
+                }
+
+                try {
+                    data = state.uiState.proflieExists
+                        ? await Lib.getDm3Storage(state.connection, authToken)
+                        : undefined;
+                } catch (e) {
+                    if (
+                        (e as Error).message.includes(
+                            'Request failed with status code 401',
+                        )
+                    ) {
+                        authToken = await Lib.reAuth(state.connection);
+                        await localforage.setItem(
+                            'ENS_MAIL_AUTH_' + account.address,
+                            authToken,
+                        );
+                        data = state.uiState.proflieExists
+                            ? await Lib.getDm3Storage(
+                                  state.connection,
+                                  authToken,
+                              )
+                            : undefined;
+                        overwriteUserDb = {
+                            deliveryServiceToken: authToken,
+                        };
+
+                        browserDataFile = undefined;
+                    } else {
+                        throw e;
+                    }
+                }
+                overwriteUserDb = {
+                    deliveryServiceToken: authToken,
+                };
+
+                break;
+        }
+    }
+
+    if (state.uiState.proflieExists && !browserDataFile && !data) {
+        dispatch({
+            type: ConnectionType.ChangeConnectionState,
+            payload: Lib.ConnectionState.SignInFailed,
+        });
+    } else {
+        const singInRequest = await Lib.signIn(
+            state.connection,
+            browserDataFile ? browserDataFile : undefined,
+            data,
+            overwriteUserDb,
+            preLoadedKey,
+        );
+
+        if (singInRequest.db) {
+            Lib.log(`Setting session token`);
+
+            account.profile = (
+                await Lib.getProfileRegistryEntry(
+                    state.connection,
+                    account.address,
+                    state.connection.defaultServiceUrl +
+                        '/profile/' +
+                        account.address,
+                )
+            )?.profileRegistryEntry;
+
+            if (
+                token &&
+                storeApiToken &&
+                storageLocation === Lib.StorageLocation.Web3Storage
+            ) {
+                window.localStorage.setItem('StorageToken', token);
+            }
+
+            window.localStorage.setItem('StorageLocation', storageLocation);
+
+            dispatch({
+                type: ConnectionType.ChangeAccount,
+                payload: account,
+            });
+            dispatch({
+                type: ConnectionType.ChangeStorageLocation,
+                payload: storageLocation,
+            });
+            dispatch({
+                type: ConnectionType.ChangeStorageToken,
+                payload: token,
+            });
+            dispatch({ type: UserDbType.setDB, payload: singInRequest.db });
+
+            dispatch({
+                type: ConnectionType.ChangeConnectionState,
+                payload: singInRequest.connectionState,
+            });
+        }
+        dispatch({
+            type: ConnectionType.ChangeConnectionState,
+            payload: singInRequest.connectionState,
         });
     }
 }

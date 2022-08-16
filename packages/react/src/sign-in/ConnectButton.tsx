@@ -49,31 +49,36 @@ function ConnectButton(props: ConnectButtonProps) {
         connectionState: Lib.ConnectionState,
     ): ButtonState => {
         switch (connectionState) {
+            case Lib.ConnectionState.SignInFailed:
             case Lib.ConnectionState.ConnectionRejected:
                 return ButtonState.Failed;
 
+            case Lib.ConnectionState.SignInReady:
+            case Lib.ConnectionState.WaitingForSignIn:
             case Lib.ConnectionState.WaitingForAccountConntection:
                 return ButtonState.Loading;
 
-            case Lib.ConnectionState.SignInFailed:
             case Lib.ConnectionState.SignedIn:
-            case Lib.ConnectionState.WaitingForSignIn:
-            case Lib.ConnectionState.CollectingSignInData:
-            case Lib.ConnectionState.SignInReady:
                 return ButtonState.Success;
 
+            case Lib.ConnectionState.AccountConntectReady:
+            case Lib.ConnectionState.CollectingSignInData:
             default:
                 return ButtonState.Idel;
         }
     };
 
-    const connectReady =
+    const buttonDisabled = !(
         state.connection.connectionState ===
-        Lib.ConnectionState.AccountConntectReady;
+            Lib.ConnectionState.AccountConntectReady ||
+        state.connection.connectionState ===
+            Lib.ConnectionState.ConnectionRejected ||
+        state.connection.connectionState === Lib.ConnectionState.SignInFailed
+    );
 
     const stateButton = (
         <>
-            {(connectReady || selectedWallet === SelectedWallet.MetaMask) && (
+            {selectedWallet !== SelectedWallet.WalletConnect && (
                 <StateButton
                     content={<>MetaMask</>}
                     btnState={getButtonState(state.connection.connectionState)}
@@ -82,14 +87,7 @@ function ConnectButton(props: ConnectButtonProps) {
                         setSelectedWallet(SelectedWallet.MetaMask);
                         getMetaMaskProvider(dispatch);
                     }}
-                    disabled={
-                        !(
-                            state.connection.connectionState ===
-                                Lib.ConnectionState.AccountConntectReady ||
-                            state.connection.connectionState ===
-                                Lib.ConnectionState.ConnectionRejected
-                        )
-                    }
+                    disabled={buttonDisabled}
                     className={
                         props.miniSignIn
                             ? 'left-state-btn miniSignInBtn'
@@ -97,8 +95,7 @@ function ConnectButton(props: ConnectButtonProps) {
                     }
                 />
             )}
-            {(connectReady ||
-                selectedWallet === SelectedWallet.WalletConnect) && (
+            {/* {selectedWallet !== SelectedWallet.MetaMask && (
                 <StateButton
                     content={<>WalletConnect</>}
                     btnState={getButtonState(state.connection.connectionState)}
@@ -107,14 +104,7 @@ function ConnectButton(props: ConnectButtonProps) {
                         setSelectedWallet(SelectedWallet.WalletConnect);
                         getWalletConnectProvider(dispatch);
                     }}
-                    disabled={
-                        !(
-                            state.connection.connectionState ===
-                                Lib.ConnectionState.AccountConntectReady ||
-                            state.connection.connectionState ===
-                                Lib.ConnectionState.ConnectionRejected
-                        )
-                    }
+                    disabled={buttonDisabled}
                     className={`${
                         state.connection.connectionState ===
                         Lib.ConnectionState.AccountConntectReady
@@ -126,20 +116,21 @@ function ConnectButton(props: ConnectButtonProps) {
                             : 'left-state-btn'
                     }`}
                 />
-            )}
+            )} */}
         </>
     );
 
     return props.miniSignIn ? (
         stateButton
     ) : (
-        <div className="row">
+        <div className="row mt-4">
             <div className="col-md-5">{stateButton}</div>
             <div className="col-md-7 help-text">
-                Connect a Wallet
+                Connect and sign in
                 <p className="explanation">
-                    The selected ethereum account will be used as your dm3
-                    identity.
+                    The selected Ethereum account will be used as your dm3
+                    identity. After connecting an account, you must sign a
+                    message to create your encryption key.
                 </p>
             </div>
         </div>
