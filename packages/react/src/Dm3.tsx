@@ -37,6 +37,8 @@ function dm3(props: dm3Props) {
         );
     }
 
+    console.log(Lib.ConnectionState[state.connection.connectionState]);
+
     useEffect(() => {
         if (props.config.connectionStateChange) {
             props.config.connectionStateChange(

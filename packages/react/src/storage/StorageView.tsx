@@ -111,7 +111,7 @@ function StorageView() {
                     );
                     sync();
                 }
-            }, 10000);
+            }, 500);
             return () => {
                 clearInterval(autoSync);
             };
@@ -119,21 +119,22 @@ function StorageView() {
     }, [state.connection.storageLocation, state.userDb, state.userDb?.synced]);
 
     const autoSync = () => {
-        if (
-            (state.connection.storageLocation ===
-                Lib.StorageLocation.Web3Storage ||
-                state.connection.storageLocation ===
-                    Lib.StorageLocation.dm3Storage ||
-                state.connection.storageLocation ===
-                    Lib.StorageLocation.GoogleDrive) &&
-            state.userDb &&
-            !state.userDb.synced
-        ) {
-            Lib.log(
-                `[DB] Create user storage external snapshot at timestamp ${state.userDb?.lastChangeTimestamp}`,
-            );
-            sync();
-        }
+        // TODO: check auto sync
+        // if (
+        //     (state.connection.storageLocation ===
+        //         Lib.StorageLocation.Web3Storage ||
+        //         state.connection.storageLocation ===
+        //             Lib.StorageLocation.dm3Storage ||
+        //         state.connection.storageLocation ===
+        //             Lib.StorageLocation.GoogleDrive) &&
+        //     state.userDb &&
+        //     !state.userDb.synced
+        // ) {
+        //     Lib.log(
+        //         `[DB] Create user storage external snapshot at timestamp ${state.userDb?.lastChangeTimestamp}`,
+        //     );
+        //     sync();
+        // }
     };
     useEffect(autoSync, []);
 
