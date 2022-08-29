@@ -158,7 +158,9 @@ function SignIn(props: SignInProps) {
 
     useEffect(() => {
         if (
-            state.connection.connectionState === Lib.ConnectionState.SignInReady
+            state.connection.connectionState ===
+                Lib.ConnectionState.SignInReady &&
+            state.connection.account
         ) {
             signIn(
                 storageLocation,
@@ -169,7 +171,7 @@ function SignIn(props: SignInProps) {
                 dispatch,
             );
         }
-    }, [state.connection.connectionState]);
+    }, [state.connection.connectionState, state.connection.account]);
 
     return props.miniSignIn ? (
         <div className="w-100  pt-4 pb-4">

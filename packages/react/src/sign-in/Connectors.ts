@@ -1,5 +1,5 @@
 import * as Lib from 'dm3-lib';
-import { Actions } from '../GlobalContextProvider';
+import { Actions, GlobalContext } from '../GlobalContextProvider';
 import { ConnectionType } from '../reducers/Connection';
 import { GlobalState } from '../reducers/shared';
 import { UiStateType } from '../reducers/UiState';
@@ -9,6 +9,7 @@ import { ethers } from 'ethers';
 import detectEthereumProvider from '@metamask/detect-provider';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import { UserDbType } from '../reducers/UserDB';
+import { useContext, useState } from 'react';
 
 function handleNewProvider(
     creationsResult: {
