@@ -4,14 +4,14 @@ import * as Lib from 'dm3-lib';
 import { connectionPhase } from './Phases';
 
 interface StorageLocationSelectionProps {
-    setStorageLocation: (location: Lib.StorageLocation) => void;
-    stroageLocation: Lib.StorageLocation;
+    setStorageLocation: (location: Lib.storage.StorageLocation) => void;
+    stroageLocation: Lib.storage.StorageLocation;
 }
 
 function StorageLocationSelection(props: StorageLocationSelectionProps) {
     const keys = Object.keys(
-        Lib.StorageLocation,
-    ) as (keyof typeof Lib.StorageLocation)[];
+        Lib.storage.StorageLocation,
+    ) as (keyof typeof Lib.storage.StorageLocation)[];
 
     return (
         <div className="row row-space">
@@ -20,8 +20,8 @@ function StorageLocationSelection(props: StorageLocationSelectionProps) {
                     {keys.map((key) => {
                         const selected =
                             props.stroageLocation ===
-                            Lib.StorageLocation[
-                                key as keyof typeof Lib.StorageLocation
+                            Lib.storage.StorageLocation[
+                                key as keyof typeof Lib.storage.StorageLocation
                             ];
                         return (
                             <a
@@ -31,15 +31,15 @@ function StorageLocationSelection(props: StorageLocationSelectionProps) {
                                 }`}
                                 onClick={() => {
                                     if (
-                                        (Lib.StorageLocation[
-                                            key as keyof typeof Lib.StorageLocation
-                                        ] as Lib.StorageLocation) ===
-                                        Lib.StorageLocation.dm3Storage
+                                        (Lib.storage.StorageLocation[
+                                            key as keyof typeof Lib.storage.StorageLocation
+                                        ] as Lib.storage.StorageLocation) ===
+                                        Lib.storage.StorageLocation.dm3Storage
                                     ) {
                                         props.setStorageLocation(
-                                            Lib.StorageLocation[
-                                                key as keyof typeof Lib.StorageLocation
-                                            ] as Lib.StorageLocation,
+                                            Lib.storage.StorageLocation[
+                                                key as keyof typeof Lib.storage.StorageLocation
+                                            ] as Lib.storage.StorageLocation,
                                         );
                                     }
                                 }}
@@ -52,21 +52,21 @@ function StorageLocationSelection(props: StorageLocationSelectionProps) {
                                     id="flexRadioDefault2"
                                     checked={selected}
                                     disabled={
-                                        (Lib.StorageLocation[
-                                            key as keyof typeof Lib.StorageLocation
-                                        ] as Lib.StorageLocation) !==
-                                        Lib.StorageLocation.dm3Storage
+                                        (Lib.storage.StorageLocation[
+                                            key as keyof typeof Lib.storage.StorageLocation
+                                        ] as Lib.storage.StorageLocation) !==
+                                        Lib.storage.StorageLocation.dm3Storage
                                     }
                                     readOnly
                                 />
                                 &nbsp;&nbsp;
-                                {Lib.StorageLocation[key] === 'File'
+                                {Lib.storage.StorageLocation[key] === 'File'
                                     ? 'Browser / File Export'
-                                    : Lib.StorageLocation[key]}{' '}
-                                {(Lib.StorageLocation[
-                                    key as keyof typeof Lib.StorageLocation
-                                ] as Lib.StorageLocation) !==
-                                    Lib.StorageLocation.dm3Storage && (
+                                    : Lib.storage.StorageLocation[key]}{' '}
+                                {(Lib.storage.StorageLocation[
+                                    key as keyof typeof Lib.storage.StorageLocation
+                                ] as Lib.storage.StorageLocation) !==
+                                    Lib.storage.StorageLocation.dm3Storage && (
                                     <span className="badge bg-light text-dark">
                                         coming soon
                                     </span>
@@ -79,15 +79,17 @@ function StorageLocationSelection(props: StorageLocationSelectionProps) {
             <div className="col-md-7 help-text">
                 Select storage location
                 <p className="explanation">
-                    {props.stroageLocation === Lib.StorageLocation.File &&
+                    {props.stroageLocation ===
+                        Lib.storage.StorageLocation.File &&
                         'The messages and related data will be encrypted and stored on your local file system.' +
                             ' Every time you sign in the file must be uploaded.'}
                     {props.stroageLocation ===
-                        Lib.StorageLocation.Web3Storage &&
+                        Lib.storage.StorageLocation.Web3Storage &&
                         'The messages and related data will be encrypted and stored ' +
                             'using the decentral web3.storage service.' +
                             ' web3.storage is based on the IPFS protocol and ensures redudancy.'}
-                    {props.stroageLocation === Lib.StorageLocation.dm3Storage &&
+                    {props.stroageLocation ===
+                        Lib.storage.StorageLocation.dm3Storage &&
                         'The messages and related data will be encrypted and stored ' +
                             'using the dm3 Storage Service.' +
                             ' The data can only be decrypted by the owner of the related Ethereum Account Key.'}

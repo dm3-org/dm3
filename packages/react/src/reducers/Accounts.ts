@@ -8,8 +8,8 @@ export enum AccountsType {
 }
 
 export type AccountsPayload = {
-    [AccountsType.SetSelectedContact]: Lib.Account | undefined;
-    [AccountsType.SetContacts]: Lib.Account[] | undefined;
+    [AccountsType.SetSelectedContact]: Lib.account.Account | undefined;
+    [AccountsType.SetContacts]: Lib.account.Account[] | undefined;
     [AccountsType.SetAccountInfoView]: AccountInfo;
 };
 

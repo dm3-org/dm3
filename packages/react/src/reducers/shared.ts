@@ -14,8 +14,8 @@ export type ActionMap<M extends { [index: string]: any }> = {
 };
 
 export type Accounts = {
-    contacts: Lib.Account[] | undefined;
-    selectedContact: Lib.Account | undefined;
+    contacts: Lib.account.Account[] | undefined;
+    selectedContact: Lib.account.Account | undefined;
     accountInfoView: AccountInfo;
 };
 
@@ -23,7 +23,7 @@ export type GlobalState = {
     connection: Lib.Connection;
     accounts: Accounts;
     cache: Cache;
-    userDb: Lib.UserDB | undefined;
+    userDb: Lib.storage.UserDB | undefined;
     uiState: UiState;
 };
 
@@ -35,9 +35,9 @@ export enum AccountInfo {
 
 export const initialState: GlobalState = {
     connection: {
-        connectionState: Lib.ConnectionState.CollectingSignInData,
-        storageLocation: Lib.StorageLocation.dm3Storage,
-        defaultServiceUrl: 'http://localhost:8080' as string,
+        connectionState: Lib.web3provider.ConnectionState.CollectingSignInData,
+        storageLocation: Lib.storage.StorageLocation.dm3Storage,
+        defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
     },
     accounts: {
         contacts: undefined,

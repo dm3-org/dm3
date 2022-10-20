@@ -8,7 +8,7 @@ import Avatar from '../ui-shared/Avatar';
 import { AccountInfo } from '../reducers/shared';
 
 interface ContactListProps {
-    contact: Lib.Account;
+    contact: Lib.account.Account;
     connection: Lib.Connection;
 }
 
@@ -17,16 +17,17 @@ function ContactListEntry(props: ContactListProps) {
     const [teaser, setTeaser] = useState<string | undefined>();
     const { state, dispatch } = useContext(GlobalContext);
     useEffect(() => {
-        const messages = Lib.getConversation(
+        const messages = Lib.storage.getConversation(
             props.contact.address,
             state.connection,
-            state.userDb as Lib.UserDB,
+            state.userDb as Lib.storage.UserDB,
         );
         const calcUnreadMessages = () => {
             setUnreadMessages(
                 messages.filter(
                     (container) =>
-                        container.messageState === Lib.MessageState.Send,
+                        container.messageState ===
+                        Lib.messaging.MessageState.Send,
                 ).length,
             );
         };
@@ -43,8 +44,8 @@ function ContactListEntry(props: ContactListProps) {
 
     const selected =
         state.accounts.selectedContact &&
-        Lib.formatAddress(props.contact.address) ===
-            Lib.formatAddress(state.accounts.selectedContact?.address);
+        Lib.external.formatAddress(props.contact.address) ===
+            Lib.external.formatAddress(state.accounts.selectedContact?.address);
 
     return (
         <div
@@ -72,7 +73,7 @@ function ContactListEntry(props: ContactListProps) {
                 <div className="row">
                     <div className="col-12">
                         <strong>
-                            {Lib.getAccountDisplayName(
+                            {Lib.account.getAccountDisplayName(
                                 props.contact.address,
                                 state.cache.ensNames,
                             )}

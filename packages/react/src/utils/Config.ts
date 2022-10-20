@@ -4,13 +4,15 @@ export interface Config {
     defaultContact?: string;
     showContacts: boolean;
     inline: boolean;
-    defaultStorageLocation: Lib.StorageLocation;
+    defaultStorageLocation: Lib.storage.StorageLocation;
     hideStorageSelection: boolean;
     style: React.CSSProperties;
     defaultServiceUrl: string;
     showAlways: boolean;
     miniSignIn: boolean;
-    connectionStateChange?: (newState: Lib.ConnectionState) => void;
+    connectionStateChange?: (
+        newState: Lib.web3provider.ConnectionState,
+    ) => void;
     warnBeforeLeave: boolean;
     browserStorageBackup: boolean;
     showHelp: boolean;
@@ -20,7 +22,7 @@ const DefaultConfig: Config = {
     showContacts: true,
     inline: false,
     hideStorageSelection: false,
-    defaultStorageLocation: Lib.StorageLocation.dm3Storage,
+    defaultStorageLocation: Lib.storage.StorageLocation.dm3Storage,
     style: {},
     defaultServiceUrl: 'http://localhost:8080' as string,
     showAlways: false,
