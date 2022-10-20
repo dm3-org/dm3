@@ -45,7 +45,7 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
     };
     app.locals.storeSession = async (
         accountAddress: string,
-        session: Lib.Delivery.Session,
+        session: Lib.delivery.Session,
     ) => {
         return redisClient
             ? setSession(accountAddress, session, redisClient)

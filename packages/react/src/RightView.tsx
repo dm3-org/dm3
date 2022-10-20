@@ -15,14 +15,14 @@ function RightView() {
 
     useEffect(() => {
         switch (state.connection.connectionState) {
-            case Lib.ConnectionState.SignedIn:
+            case Lib.web3provider.ConnectionState.SignedIn:
                 dispatch({
                     type: UiStateType.SetSelectedRightView,
                     payload: SelectedRightView.Chat,
                 });
 
                 break;
-            case Lib.ConnectionState.ConnectionRejected:
+            case Lib.web3provider.ConnectionState.ConnectionRejected:
             default:
                 dispatch({
                     type: UiStateType.SetSelectedRightView,

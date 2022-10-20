@@ -25,7 +25,7 @@ function LeftView(props: LeftViewProps) {
         >
             <LeftHeader />
             {state.connection.connectionState ===
-                Lib.ConnectionState.SignedIn && (
+                Lib.web3provider.ConnectionState.SignedIn && (
                 <>
                     <Contacts getContacts={props.getContacts} />
                     <StorageView />

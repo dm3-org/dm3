@@ -40,20 +40,20 @@ export async function createRedisClient(app: Express) {
 export async function getSession(
     accountAddress: string,
     redisClient: Awaited<ReturnType<typeof createRedisClient>>,
-): Promise<Lib.Delivery.Session | null> {
+): Promise<Lib.delivery.Session | null> {
     const session = await redisClient.get(
-        RedisPrefix.Session + Lib.formatAddress(accountAddress),
+        RedisPrefix.Session + Lib.external.formatAddress(accountAddress),
     );
     return session ? JSON.parse(session) : null;
 }
 
 export async function setSession(
     accountAddress: string,
-    session: Lib.Delivery.Session,
+    session: Lib.delivery.Session,
     redisClient: Awaited<ReturnType<typeof createRedisClient>>,
 ): Promise<void> {
     await redisClient.set(
-        RedisPrefix.Session + Lib.formatAddress(accountAddress),
+        RedisPrefix.Session + Lib.external.formatAddress(accountAddress),
         stringify(session),
     );
 }
@@ -61,9 +61,9 @@ export async function setSession(
 export async function getUserStorage(
     accountAddress: string,
     redisClient: Awaited<ReturnType<typeof createRedisClient>>,
-): Promise<Lib.Delivery.Session | null> {
+): Promise<Lib.delivery.Session | null> {
     const userStorage = await redisClient.get(
-        RedisPrefix.UserStorage + Lib.formatAddress(accountAddress),
+        RedisPrefix.UserStorage + Lib.external.formatAddress(accountAddress),
     );
     return userStorage ? JSON.parse(userStorage) : null;
 }
@@ -74,7 +74,7 @@ export async function setUserStorage(
     redisClient: Awaited<ReturnType<typeof createRedisClient>>,
 ): Promise<void> {
     await redisClient.set(
-        RedisPrefix.UserStorage + Lib.formatAddress(accountAddress),
+        RedisPrefix.UserStorage + Lib.external.formatAddress(accountAddress),
         stringify(data),
     );
 }
@@ -85,8 +85,8 @@ export async function addPending(
     redisClient: Awaited<ReturnType<typeof createRedisClient>>,
 ): Promise<void> {
     await redisClient.sAdd(
-        RedisPrefix.Pending + Lib.formatAddress(contactAddress),
-        Lib.formatAddress(accountAddress),
+        RedisPrefix.Pending + Lib.external.formatAddress(contactAddress),
+        Lib.external.formatAddress(accountAddress),
     );
 }
 
@@ -95,7 +95,7 @@ export async function getPending(
     redisClient: Awaited<ReturnType<typeof createRedisClient>>,
 ): Promise<string[]> {
     return redisClient.sMembers(
-        RedisPrefix.Pending + Lib.formatAddress(accountAddress),
+        RedisPrefix.Pending + Lib.external.formatAddress(accountAddress),
     );
 }
 
@@ -104,6 +104,6 @@ export async function deletePending(
     redisClient: Awaited<ReturnType<typeof createRedisClient>>,
 ): Promise<void> {
     await redisClient.del(
-        RedisPrefix.Pending + Lib.formatAddress(accountAddress),
+        RedisPrefix.Pending + Lib.external.formatAddress(accountAddress),
     );
 }

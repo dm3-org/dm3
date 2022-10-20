@@ -21,10 +21,10 @@ function AddContactForm(props: AddContactFormProps) {
 
     const add = async () => {
         try {
-            await Lib.addContact(
+            await Lib.account.addContact(
                 state.connection,
                 accountToAdd,
-                state.userDb as Lib.UserDB,
+                state.userDb as Lib.storage.UserDB,
                 (id: string) =>
                     dispatch({
                         type: UserDbType.createEmptyConversation,
@@ -42,7 +42,8 @@ function AddContactForm(props: AddContactFormProps) {
         return null;
     }
 
-    return state.connection.connectionState === Lib.ConnectionState.SignedIn ? (
+    return state.connection.connectionState ===
+        Lib.web3provider.ConnectionState.SignedIn ? (
         <form
             className="form-floating add-contact-form"
             onSubmit={(e) => {

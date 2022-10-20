@@ -9,7 +9,7 @@ import { SelectedRightView, UiStateType } from '../reducers/UiState';
 import './Chat.css';
 
 interface ChatHeaderProps {
-    account: Lib.Account | undefined;
+    account: Lib.account.Account | undefined;
 }
 
 function ChatHeader(props: ChatHeaderProps) {
@@ -52,7 +52,7 @@ function ChatHeader(props: ChatHeaderProps) {
                                 {props.account &&
                                 state.accounts.accountInfoView ===
                                     AccountInfo.Contact
-                                    ? Lib.getAccountDisplayName(
+                                    ? Lib.account.getAccountDisplayName(
                                           props.account.address,
                                           state.cache.ensNames,
                                       )
@@ -133,7 +133,7 @@ function ChatHeader(props: ChatHeaderProps) {
                                     })
                                 }
                             >
-                                {Lib.getAccountDisplayName(
+                                {Lib.account.getAccountDisplayName(
                                     props.account.address,
                                     state.cache.ensNames,
                                 )}

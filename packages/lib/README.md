@@ -14,5 +14,5 @@ import {getWeb3Provider} from 'dm3-lib';
 
 ...
 
-Lib.getWeb3Provider(...)
+Lib.web3provider.getWeb3Provider(...)
 ```
