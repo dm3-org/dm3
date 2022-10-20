@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { UserDB } from '..';
 import { Account, SignedUserProfile } from '../account/Account';
 import { Acknoledgment } from '../delivery';
 import { getDeliveryServiceProfile } from '../delivery/Delivery';
@@ -7,6 +6,7 @@ import { EncryptionEnvelop, Envelop } from '../messaging/Messaging';
 import { log } from '../shared/log';
 import { Connection } from '../web3-provider/Web3Provider';
 import { formatAddress } from './InjectedWeb3API';
+import { UserDB } from '../storage';
 
 const PROFILE_PATH = '/profile';
 const DELIVERY_PATH = '/delivery';

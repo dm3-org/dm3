@@ -70,7 +70,7 @@ export async function signIn(
             const signature = await personalSign(
                 provider,
                 account,
-                stringify(profileRegistryEntry),
+                stringify(profile),
             );
 
             deliveryServiceToken = await submitUserProfile(

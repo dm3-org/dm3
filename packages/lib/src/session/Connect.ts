@@ -1,5 +1,4 @@
-import { ethers } from 'ethers';
-import { GetUserProfile } from '..';
+import { GetUserProfile } from '../account';
 import { checkUserProfile, SignedUserProfile } from '../account/Account';
 import { RequestAccounts } from '../external-apis/InjectedWeb3API';
 import { Connection, ConnectionState } from '../web3-provider/Web3Provider';

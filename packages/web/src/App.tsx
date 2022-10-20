@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 //@ts-ignore
-import DM3, { DarkLogo, ConnectionState } from 'dm3-react';
+import DM3, { ConnectionState } from 'dm3-react';
 
 function App() {
     const [showLogo, setShowLogo] = useState(false);
@@ -34,6 +34,7 @@ function App() {
                             <img
                                 src="./dm3_Signet_blue-gray.svg"
                                 width="50px"
+                                alt="logo"
                             />
                             <div className="align-self-center">
                                 <span
