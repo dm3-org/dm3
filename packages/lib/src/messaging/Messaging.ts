@@ -17,6 +17,7 @@ import {
     GetNewMessages,
     SubmitMessage,
 } from '../external-apis/BackendAPI';
+import stringify from 'safe-stable-stringify';
 
 export interface Message {
     to: string;
@@ -134,7 +135,7 @@ export async function submitMessage(
         const envelop: EncryptionEnvelop = {
             encryptedData: ethers.utils.hexlify(
                 ethers.utils.toUtf8Bytes(
-                    JSON.stringify(
+                    stringify(
                         encryptSafely({
                             publicKey: to.profile.publicKeys
                                 ?.publicMessagingKey as string,

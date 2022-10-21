@@ -1,3 +1,4 @@
+import stringify from 'safe-stable-stringify';
 import { Keys } from '../account/Account';
 import { Acknoledgment } from '../delivery';
 import {
@@ -108,7 +109,7 @@ export function sortEnvelops(
 
 function prepareUserStoragePayload(userDb: UserDB): UserStoragePayload {
     return {
-        conversations: JSON.stringify(userDb.conversations, replacer),
+        conversations: stringify(userDb.conversations, replacer)!,
         keys: userDb.keys,
         deliveryServiceToken: userDb.deliveryServiceToken,
         lastChangeTimestamp: userDb.lastChangeTimestamp,
@@ -160,7 +161,7 @@ export function sync(userDb: UserDB | undefined): {
             version: 'dm3-encryption-1',
             salt: userDb.keys.storageEncryptionKeySalt,
             payload: symmetricalEncrypt(
-                JSON.stringify(prepareUserStoragePayload(userDb)),
+                stringify(prepareUserStoragePayload(userDb)),
                 userDb.keys.storageEncryptionKey,
             ),
         },
