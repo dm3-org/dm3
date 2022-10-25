@@ -92,7 +92,7 @@ test('createHashUrlParam should create the correct hash', async () => {
     expect(
         createHashUrlParam((await getProfileData()).signedUserProfile),
     ).toStrictEqual(
-        'dm3Hash=0x759d297117b0bc999f8f40c5659d32f598773d69c453a69457ea9cfa95f5c737',
+        'dm3Hash=0x7c1761796e12dff0e1b5bfc9aaa1c4e8bb7b759cd5ec4c52e0b0ddadb401d071',
     );
 });
 
@@ -481,7 +481,7 @@ test('publishProfileOnchain', async () => {
     expect(tx?.args).toStrictEqual([
         '0xca7a0eadca1ba3745db7065063294b717422bd1c70995cba8f5adcd094fdae1d',
         'eth.dm3.profile',
-        'http://bla?dm3Hash=0x759d297117b0bc999f8f40c5659d32f598773d69c453a69457ea9cfa95f5c737',
+        'http://bla?dm3Hash=0x7c1761796e12dff0e1b5bfc9aaa1c4e8bb7b759cd5ec4c52e0b0ddadb401d071',
     ]);
 
     expect(tx?.method()).toStrictEqual('success');

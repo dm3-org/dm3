@@ -59,9 +59,9 @@ export async function incomingMessage(
         throw Error('Token check failed');
     }
 
-    const envelopWithPostmark: EncryptionEnvelop & Postmark = {
+    const envelopWithPostmark: EncryptionEnvelop = {
         ...envelop,
-        ...createPostmark(envelop),
+        postmark: addPostmark(envelop),
     };
 
     await storeNewMessage(conversationId, envelopWithPostmark);
@@ -73,7 +73,7 @@ export async function incomingMessage(
     }
 }
 
-function createPostmark({ encryptedData, to }: EncryptionEnvelop): Postmark {
+function addPostmark({ encryptedData, to }: EncryptionEnvelop): Postmark {
     const postmarkWithoutSig: Omit<Postmark, 'signature'> = {
         messageHash: ethers.utils.hashMessage(encryptedData),
         incommingTimestamp: new Date().getTime(),

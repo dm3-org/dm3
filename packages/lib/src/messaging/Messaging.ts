@@ -61,7 +61,7 @@ export interface EncryptionEnvelop {
     encryptedData: string;
     to: string;
     from: string;
-    deliveryServiceIncommingTimestamp?: number;
+    postmark?: Postmark;
 }
 
 export enum MessageState {

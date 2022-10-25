@@ -94,10 +94,12 @@ test('incomingMessage', async () => {
             encryptionVersion: 'x25519-xsalsa20-poly1305',
             to: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
             from: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-            incommingTimestamp: now,
-            messageHash:
-                '0x5f35dce98ba4fba25530a026ed80b2cecdaa31091ba4958b99b52ea1d068adad',
-            signature: '123',
+            postmark: {
+                incommingTimestamp: now,
+                messageHash:
+                    '0x5f35dce98ba4fba25530a026ed80b2cecdaa31091ba4958b99b52ea1d068adad',
+                signature: '123',
+            },
         },
     });
 });
@@ -121,21 +123,18 @@ test('getMessages', async () => {
                       encryptionVersion: 'x25519-xsalsa20-poly1305',
                       from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
                       to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-                      deliveryServiceIncommingTimestamp: 1,
                   },
                   {
                       encryptedData: 'b',
                       encryptionVersion: 'x25519-xsalsa20-poly1305',
                       to: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
                       from: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-                      deliveryServiceIncommingTimestamp: 1,
                   },
                   {
                       encryptedData: 'c',
                       encryptionVersion: 'x25519-xsalsa20-poly1305',
                       from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
                       to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-                      deliveryServiceIncommingTimestamp: 3,
                   },
               ] as EncryptionEnvelop[])
             : [];
@@ -153,14 +152,12 @@ test('getMessages', async () => {
             encryptionVersion: 'x25519-xsalsa20-poly1305',
             from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
             to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-            deliveryServiceIncommingTimestamp: 1,
         },
         {
             encryptedData: 'c',
             encryptionVersion: 'x25519-xsalsa20-poly1305',
             from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
             to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-            deliveryServiceIncommingTimestamp: 3,
         },
     ]);
 });
