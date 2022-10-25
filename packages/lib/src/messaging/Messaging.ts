@@ -31,6 +31,12 @@ export interface Envelop {
     id?: string;
 }
 
+export interface Postmark {
+    messageHash: string;
+    incommingTimestamp: number;
+    signature: string;
+}
+
 export interface EncryptionEnvelop {
     encryptionVersion: 'x25519-xsalsa20-poly1305';
     encryptedData: string;
