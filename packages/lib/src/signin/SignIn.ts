@@ -7,7 +7,7 @@ import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
 import {
     GetChallenge,
     GetNewToken,
-    SubmitProfileRegistryEntry,
+    SubmitUserProfile,
 } from '../external-apis/BackendAPI';
 import { PersonalSign } from '../external-apis/InjectedWeb3API';
 import { GetSymmetricalKeyFromSignature } from '../encryption/SymmetricalEncryption';
@@ -35,7 +35,7 @@ export async function reAuth(
 export async function signIn(
     connection: Partial<Connection>,
     personalSign: PersonalSign,
-    submitProfileRegistryEntry: SubmitProfileRegistryEntry,
+    submitUserProfile: SubmitUserProfile,
     createKeys: CreateKeys,
     getSymmetricalKeyFromSignature: GetSymmetricalKeyFromSignature,
     browserDataFile: UserStorage | undefined,
@@ -60,24 +60,22 @@ export async function signIn(
                 getSymmetricalKeyFromSignature,
             );
 
-            const profileRegistryEntry: UserProfile = {
-                publicKeys: {
-                    publicMessagingKey: keys.publicMessagingKey,
-                    publicSigningKey: keys.publicSigningKey,
-                },
-                deliveryServiceUrl: connection.defaultServiceUrl!,
+            const userProfile: UserProfile = {
+                publicSigningKey: keys.publicSigningKey,
+                publicEncryptionKey: keys.publicMessagingKey,
+                deliveryServices: [connection.defaultServiceUrl!],
             };
 
             const signature = await personalSign(
                 provider,
                 account,
-                JSON.stringify(profileRegistryEntry),
+                JSON.stringify(userProfile),
             );
 
-            deliveryServiceToken = await submitProfileRegistryEntry(
-                { address: account, profile: profileRegistryEntry },
+            deliveryServiceToken = await submitUserProfile(
+                { address: account, profile: userProfile },
                 {
-                    profileRegistryEntry,
+                    profile: userProfile,
                     signature,
                 },
             );

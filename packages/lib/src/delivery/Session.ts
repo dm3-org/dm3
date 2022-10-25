@@ -3,7 +3,7 @@ import { formatAddress } from '../external-apis/InjectedWeb3API';
 
 export interface Session {
     account: string;
-    signedProfileRegistryEntry: SignedUserProfile;
+    signedUserProfile: SignedUserProfile;
     token: string;
     publicMessageHeadUri?: string;
     ttl?: undefined;

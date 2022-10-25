@@ -14,8 +14,8 @@ const getSession = async (address: string) => {
         '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855'
         ? {
               account: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-              signedProfileRegistryEntry: {
-                  profileRegistryEntry: profile,
+              signedUserProfile: {
+                  profile,
                   signature: '',
               },
 
