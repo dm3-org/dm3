@@ -2,7 +2,7 @@ import axios from 'axios';
 import { log } from '../shared/log';
 import { EncryptionEnvelop, Envelop } from '../messaging/Messaging';
 import { Connection } from '../web3-provider/Web3Provider';
-import { Account, SignedProfileRegistryEntry } from '../account/Account';
+import { Account, SignedUserProfile } from '../account/Account';
 import { UserDB } from '..';
 import { Acknoledgment } from '../delivery';
 import { formatAddress } from './InjectedWeb3API';
@@ -33,7 +33,7 @@ export async function getChallenge(account: Account): Promise<string> {
     const checkedAccount = checkAccount(account);
     return (
         await axios.get(
-            (checkedAccount.profile.deliveryServiceUrl ?? '') +
+            (checkedAccount.profile.deliveryServices[0] ?? '') +
                 AUTH_SERVICE +
                 `/${formatAddress(checkedAccount.address)}`,
         )
@@ -48,7 +48,7 @@ export async function getNewToken(
     const checkedAccount = checkAccount(account);
     return (
         await axios.post(
-            (checkedAccount.profile.deliveryServiceUrl ?? '') +
+            (checkedAccount.profile.deliveryServices[0] ?? '') +
                 AUTH_SERVICE +
                 `/${formatAddress(checkedAccount.address)}`,
             {
@@ -59,21 +59,21 @@ export async function getNewToken(
 }
 export type GetNewToken = typeof getNewToken;
 
-export async function submitProfileRegistryEntry(
+export async function submitUserProfile(
     account: Account,
-    signedProfileRegistryEntry: SignedProfileRegistryEntry,
+    signedUserProfile: SignedUserProfile,
 ): Promise<string> {
     const checkedAccount = checkAccount(account);
     return (
         await axios.post(
-            `${(checkedAccount.profile.deliveryServiceUrl ?? '') + PROFILE}/${
+            `${(checkedAccount.profile.deliveryServices[0] ?? '') + PROFILE}/${
                 account.address
             }`,
-            signedProfileRegistryEntry,
+            signedUserProfile,
         )
     ).data;
 }
-export type SubmitProfileRegistryEntry = typeof submitProfileRegistryEntry;
+export type SubmitUserProfile = typeof submitUserProfile;
 
 export async function submitMessage(
     connection: Connection,
@@ -112,7 +112,7 @@ export async function syncAcknoledgment(
     const checkedAccount = checkAccount(connection.account);
     return axios.post(
         `${
-            (checkedAccount.profile.deliveryServiceUrl ?? '') + DELIVERY
+            (checkedAccount.profile.deliveryServices[0] ?? '') + DELIVERY
         }/messages/${
             connection.account!.address
         }/syncAcknoledgment/${lastMessagePull}`,
@@ -148,7 +148,7 @@ export async function getNewMessages(
     return (
         await axios.get(
             `${
-                (checkedAccount.profile.deliveryServiceUrl ?? '') + DELIVERY
+                (checkedAccount.profile.deliveryServices[0] ?? '') + DELIVERY
             }/messages/${
                 connection.account!.address
             }/contact/${contactAddress}`,
@@ -166,7 +166,7 @@ export async function getPendingConversations(
     return (
         await axios.post(
             `${
-                (checkedAccount.profile.deliveryServiceUrl ?? '') + DELIVERY
+                (checkedAccount.profile.deliveryServices[0] ?? '') + DELIVERY
             }/messages/${connection.account!.address}/pending`,
             {},
             getAxiosConfig(userDb.deliveryServiceToken),
@@ -175,11 +175,11 @@ export async function getPendingConversations(
 }
 export type GetPendingConversations = typeof getPendingConversations;
 
-export async function getProfileRegistryEntryOffChain(
+export async function getUserProfileOffChain(
     account: Account | undefined,
     contact: string,
     url?: string,
-): Promise<SignedProfileRegistryEntry | undefined> {
+): Promise<SignedUserProfile | undefined> {
     if (!url) {
         checkAccount(account);
     }
@@ -189,7 +189,7 @@ export async function getProfileRegistryEntryOffChain(
                 url
                     ? url
                     : `${
-                          (checkAccount(account).profile.deliveryServiceUrl ??
+                          (checkAccount(account).profile.deliveryServices[0] ??
                               '') + PROFILE
                       }/${contact}`,
             )
@@ -202,5 +202,4 @@ export async function getProfileRegistryEntryOffChain(
         }
     }
 }
-export type GetProfileRegistryEntryOffChain =
-    typeof getProfileRegistryEntryOffChain;
+export type GetUserProfileOffChain = typeof getUserProfileOffChain;

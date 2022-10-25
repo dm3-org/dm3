@@ -22,7 +22,7 @@ export async function useDm3Storage(
     const syncResult = sync(userDb);
     log(`[dm3 Storage] Saving user storage`);
     await axios.post(
-        connection.account!.profile!.deliveryServiceUrl +
+        connection.account!.profile!.deliveryServices[0] +
             STORAGE_SERVICE +
             `/${connection.account?.address}`,
         syncResult.userStorage,
@@ -38,7 +38,7 @@ export async function getDm3Storage(
     log(`[dm3 Storage] Get user storage`);
     return (
         await axios.get(
-            connection.account!.profile!.deliveryServiceUrl +
+            connection.account!.profile!.deliveryServices[0] +
                 STORAGE_SERVICE +
                 `/${connection.account?.address}`,
             getAxiosConfig(token),

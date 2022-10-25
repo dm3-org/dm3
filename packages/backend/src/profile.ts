@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.get('/:address', async (req, res, next) => {
     try {
-        const profile = await Lib.Delivery.getProfileRegistryEntry(
+        const profile = await Lib.Delivery.getUserProfile(
             req.app.locals.loadSession,
             req.params.address,
         );
@@ -25,7 +25,7 @@ router.post('/:address', async (req, res, next) => {
     try {
         const account = Lib.formatAddress(req.params.address);
         res.json(
-            await Lib.Delivery.submitProfileRegistryEntry(
+            await Lib.Delivery.submitUserProfile(
                 req.app.locals.loadSession,
                 req.app.locals.storeSession,
                 account,
