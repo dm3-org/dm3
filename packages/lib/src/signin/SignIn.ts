@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { UserDB, UserStorage } from '../storage/Storage';
 import { log } from '../shared/log';
 import { createDB, load } from '../storage/Storage';
-import { Account, CreateKeys, ProfileRegistryEntry } from '../account/Account';
+import { Account, CreateKeys, UserProfile } from '../account/Account';
 import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
 import {
     GetChallenge,
@@ -60,7 +60,7 @@ export async function signIn(
                 getSymmetricalKeyFromSignature,
             );
 
-            const profileRegistryEntry: ProfileRegistryEntry = {
+            const profileRegistryEntry: UserProfile = {
                 publicKeys: {
                     publicMessagingKey: keys.publicMessagingKey,
                     publicSigningKey: keys.publicSigningKey,

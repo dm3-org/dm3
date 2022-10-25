@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { GetProfileRegistryEntry } from '..';
 import {
     checkProfileRegistryEntry,
-    SignedProfileRegistryEntry,
+    SignedUserProfile,
 } from '../account/Account';
 import { RequestAccounts } from '../external-apis/InjectedWeb3API';
 import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
@@ -16,7 +16,7 @@ export async function connectAccount(
     account?: string;
     connectionState: ConnectionState;
     existingAccount: boolean;
-    profile?: SignedProfileRegistryEntry;
+    profile?: SignedUserProfile;
 }> {
     if (!connection.provider) {
         throw Error('No Provider');

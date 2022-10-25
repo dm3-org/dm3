@@ -1,22 +1,21 @@
+import { UserProfile } from '../account/Account';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { EncryptionEnvelop } from '../messaging/Messaging';
 import { getConversationId } from '../storage/Storage';
 import { getMessages, incomingMessage } from './Messages';
 
 const getSession = async (address: string) => {
+    const profile: UserProfile = {
+        publicSigningKey: '',
+        publicEncryptionKey: '',
+        deliveryServices: [''],
+    };
     return formatAddress(address) ===
         '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855'
         ? {
               account: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
               signedProfileRegistryEntry: {
-                  profileRegistryEntry: {
-                      publicKeys: {
-                          publicKey: '',
-                          publicMessagingKey: '',
-                          publicSigningKey: '',
-                      },
-                      deliveryServiceUrl: '',
-                  },
+                  profileRegistryEntry: profile,
                   signature: '',
               },
 

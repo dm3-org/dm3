@@ -37,16 +37,19 @@ export interface Keys {
     storageEncryptionKeySalt: string;
 }
 
-export interface ProfileRegistryEntry {
-    publicKeys: PublicKeys;
-    deliveryServiceUrl: string;
+export interface UserProfile {
+    publicEncryptionKey: string;
+    publicSigningKey: string;
+    deliveryServices: string[];
+    mutableProfileExtensionUrl?: string;
 }
 
-export interface SignedProfileRegistryEntry {
-    profileRegistryEntry: ProfileRegistryEntry;
+export interface SignedUserProfile {
+    profileRegistryEntry: UserProfile;
     signature: string;
 }
 
+//Todo remove since UserProfile interface was renamed
 export interface PublicKeys {
     publicMessagingKey: string;
     publicSigningKey: string;
@@ -59,7 +62,7 @@ export interface PrivateKeys {
 
 export interface Account {
     address: string;
-    profile?: ProfileRegistryEntry;
+    profile?: UserProfile;
 }
 
 export async function getContacts(
@@ -215,7 +218,7 @@ export async function addContact(
         }
     }
 }
-
+//Todo remove since Public Keys interface is no longer used
 export function extractPublicKeys(keys: Keys): PublicKeys {
     return {
         publicMessagingKey: keys.publicMessagingKey,
@@ -224,7 +227,7 @@ export function extractPublicKeys(keys: Keys): PublicKeys {
 }
 
 export function checkProfileRegistryEntry(
-    signedProfileRegistryEntry: SignedProfileRegistryEntry,
+    signedProfileRegistryEntry: SignedUserProfile,
     accountAddress: string,
 ): boolean {
     return (
@@ -262,11 +265,9 @@ export async function getProfileRegistryEntry(
     contact: string,
     getProfileOffChain: GetProfileRegistryEntryOffChain,
     getEnsTextRecord: GetEnsTextRecord,
-    getRessource: (
-        uri: string,
-    ) => Promise<SignedProfileRegistryEntry | undefined>,
+    getRessource: (uri: string) => Promise<SignedUserProfile | undefined>,
     profileUrl?: string,
-): Promise<SignedProfileRegistryEntry | undefined> {
+): Promise<SignedUserProfile | undefined> {
     const uri = await getEnsTextRecord(
         connection.provider!,
         contact,
@@ -292,7 +293,7 @@ export async function getProfileRegistryEntry(
 }
 
 export function checkProfileHash(
-    profile: SignedProfileRegistryEntry,
+    profile: SignedUserProfile,
     uri: string,
 ): boolean {
     const parsedUri = queryString.parseUrl(uri);
@@ -303,9 +304,7 @@ export function checkProfileHash(
     );
 }
 
-export function createHashUrlParam(
-    profile: SignedProfileRegistryEntry,
-): string {
+export function createHashUrlParam(profile: SignedUserProfile): string {
     return `dm3Hash=${ethers.utils.keccak256(
         ethers.utils.toUtf8Bytes(JSON.stringify(profile)),
     )}`;

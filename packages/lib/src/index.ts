@@ -16,8 +16,8 @@ export type {
     Account,
     PublicKeys,
     Keys,
-    ProfileRegistryEntry,
-    SignedProfileRegistryEntry,
+    UserProfile as ProfileRegistryEntry,
+    SignedUserProfile as SignedProfileRegistryEntry,
 } from './account/Account';
 export type {
     Message,
@@ -73,7 +73,7 @@ export function getProfileRegistryEntry(
     connection: Web3Provider.Connection,
     contact: string,
     profileUrl?: string,
-): Promise<Account.SignedProfileRegistryEntry | undefined> {
+): Promise<Account.SignedUserProfile | undefined> {
     return Account.getProfileRegistryEntry(
         connection,
         contact,

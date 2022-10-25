@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import {
     checkProfileRegistryEntry,
     checkStringSignature,
-    SignedProfileRegistryEntry,
+    SignedUserProfile,
 } from '../account/Account';
 
 export async function createChallenge(
@@ -59,7 +59,7 @@ export async function submitProfileRegistryEntry(
     getSession: (accountAddress: string) => Promise<Session | null>,
     setSession: (accountAddress: string, session: Session) => Promise<void>,
     accountAddress: string,
-    signedProfileRegistryEntry: SignedProfileRegistryEntry,
+    signedProfileRegistryEntry: SignedUserProfile,
     getPendingConversations: (accountAddress: string) => Promise<string[]>,
     send: (socketId: string) => void,
 ): Promise<string> {
@@ -98,7 +98,7 @@ export async function submitProfileRegistryEntry(
 export async function getProfileRegistryEntry(
     getSession: (accountAddress: string) => Promise<Session | null>,
     accountAddress: string,
-): Promise<SignedProfileRegistryEntry | undefined> {
+): Promise<SignedUserProfile | undefined> {
     const account = formatAddress(accountAddress);
     const session = await getSession(account);
     if (session) {
