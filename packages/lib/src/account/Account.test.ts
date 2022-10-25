@@ -16,7 +16,6 @@ import {
     checkUserProfile,
     checkStringSignature,
     createHashUrlParam,
-    extractPublicKeys,
     getAccountDisplayName,
     getBrowserStorageKey,
     getContacts,
@@ -313,22 +312,6 @@ test('Should reject to add a contact if the contact was already added', async ()
             () => false,
         ),
     ).rejects.toEqual(Error('Contact exists already.'));
-});
-
-test('extractPublicKeys', async () => {
-    expect(
-        extractPublicKeys({
-            publicMessagingKey: 'b',
-            publicSigningKey: 'c',
-            privateMessagingKey: '1',
-            privateSigningKey: '2',
-            storageEncryptionKey: '3',
-            storageEncryptionKeySalt: 'salt',
-        }),
-    ).toStrictEqual({
-        publicMessagingKey: 'b',
-        publicSigningKey: 'c',
-    });
 });
 
 test('getBrowserStorageKey', async () => {

@@ -49,12 +49,6 @@ export interface SignedUserProfile {
     signature: string;
 }
 
-//Todo remove since UserProfile interface was renamed
-export interface PublicKeys {
-    publicMessagingKey: string;
-    publicSigningKey: string;
-}
-
 export interface PrivateKeys {
     privateMessagingKey: string;
     privateSigningKey: string;
@@ -214,13 +208,6 @@ export async function addContact(
             throw Error(`Couldn't resolve name`);
         }
     }
-}
-//Todo remove since Public Keys interface is no longer used
-export function extractPublicKeys(keys: Keys): PublicKeys {
-    return {
-        publicMessagingKey: keys.publicMessagingKey,
-        publicSigningKey: keys.publicSigningKey,
-    };
 }
 
 export function checkUserProfile(
