@@ -53,7 +53,8 @@ export async function incomingMessage(
     const receiver = formatAddress(envelop.to);
     const conversationId = getConversationId(sender, receiver);
 
-    if (!(await checkToken(getSession, sender, token))) {
+    const tokenIsValid = await checkToken(getSession, sender, token);
+    if (!tokenIsValid) {
         //Token is invalid
         throw Error('Token check failed');
     }
