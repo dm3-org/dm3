@@ -60,7 +60,7 @@ export async function signIn(
                 getSymmetricalKeyFromSignature,
             );
 
-            const userProfile: UserProfile = {
+            const profile: UserProfile = {
                 publicSigningKey: keys.publicSigningKey,
                 publicEncryptionKey: keys.publicMessagingKey,
                 deliveryServices: [connection.defaultServiceUrl!],
@@ -69,13 +69,13 @@ export async function signIn(
             const signature = await personalSign(
                 provider,
                 account,
-                JSON.stringify(userProfile),
+                JSON.stringify(profile),
             );
 
             deliveryServiceToken = await submitUserProfile(
-                { address: account, profile: userProfile },
+                { address: account, profile },
                 {
-                    profile: userProfile,
+                    profile,
                     signature,
                 },
             );
