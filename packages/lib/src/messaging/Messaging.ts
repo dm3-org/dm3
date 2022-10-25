@@ -17,12 +17,31 @@ import {
     GetNewMessages,
     SubmitMessage,
 } from '../external-apis/BackendAPI';
+import stringify from 'safe-stable-stringify';
 
 export interface Message {
     to: string;
     from: string;
     timestamp: number;
     message: string;
+    type: MessageType;
+    referenceMessageHash?: string;
+    attachments?: Attachment[];
+    replyDeliveryInstruction?: string;
+    signature: string;
+}
+
+export type MessageType =
+    | 'NEW'
+    | 'DELETE_REQUEST'
+    | 'EDIT'
+    | 'THREAD_POST'
+    | 'REACTION'
+    | 'READ_RECEIPT';
+
+export interface Attachment {
+    type: string;
+    data: string;
 }
 
 export interface Envelop {
@@ -58,12 +77,22 @@ export function createMessage(
     from: string,
     message: string,
     getTimestamp: () => number,
+    type: MessageType,
+    signature: string,
+    referenceMessageHash?: string,
+    attachments?: Attachment[],
+    replyDeliveryInstruction?: string,
 ): Message {
     return {
         to,
         from,
         timestamp: getTimestamp(),
         message,
+        type,
+        referenceMessageHash,
+        signature,
+        attachments,
+        replyDeliveryInstruction,
     };
 }
 
@@ -112,7 +141,7 @@ export async function submitMessage(
         const envelop: EncryptionEnvelop = {
             encryptedData: ethers.utils.hexlify(
                 ethers.utils.toUtf8Bytes(
-                    JSON.stringify(
+                    stringify(
                         encryptSafely({
                             publicKey: to.profile.publicKeys
                                 ?.publicMessagingKey as string,
