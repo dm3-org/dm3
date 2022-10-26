@@ -13,6 +13,8 @@ import RpcProxy from './rpc-proxy';
 import { errorHandler, logError, logRequest, socketAuth } from './utils';
 import { onConnection } from './messaging';
 import winston from 'winston';
+import { Axios } from 'axios';
+import bodyParser from 'body-parser';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -22,6 +24,7 @@ const server = http.createServer(app);
 
 //TODO remove
 app.use(cors());
+app.use(bodyParser.json());
 let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
 
 (async () => {
@@ -58,7 +61,7 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
     app.use('/storage', Storage);
     app.use('/auth', Auth);
     app.use('/delivery', Delivery);
-    app.use('/rpc', RpcProxy);
+    app.use('/rpc', RpcProxy(new Axios({ url: process.env.RPC })));
     app.use(logError);
     app.use(errorHandler);
 
