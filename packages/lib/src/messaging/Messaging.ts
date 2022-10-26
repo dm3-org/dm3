@@ -182,7 +182,7 @@ function decryptPostmark(
     envelops: EncryptionEnvelop[],
     userDb: UserDB,
 ): Postmark[] {
-    envelops.map(
+    return envelops.map(
         ({ encryptedData }) =>
             decryptSafely({
                 encryptedData: JSON.parse(encryptedData),
