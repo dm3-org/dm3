@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import {
     decryptEnvelop,
+    decryptSafely,
     EncryptSafely,
     SignWithSignatureKey,
 } from '../encryption/Encryption';
@@ -17,12 +18,31 @@ import {
     GetNewMessages,
     SubmitMessage,
 } from '../external-apis/BackendAPI';
+import stringify from 'safe-stable-stringify';
 
 export interface Message {
     to: string;
     from: string;
     timestamp: number;
     message: string;
+    type: MessageType;
+    referenceMessageHash?: string;
+    attachments?: Attachment[];
+    replyDeliveryInstruction?: string;
+    signature: string;
+}
+
+export type MessageType =
+    | 'NEW'
+    | 'DELETE_REQUEST'
+    | 'EDIT'
+    | 'THREAD_POST'
+    | 'REACTION'
+    | 'READ_RECEIPT';
+
+export interface Attachment {
+    type: string;
+    data: string;
 }
 
 export interface Envelop {
@@ -31,12 +51,18 @@ export interface Envelop {
     id?: string;
 }
 
+export interface Postmark {
+    messageHash: string;
+    incommingTimestamp: number;
+    signature: string;
+}
+
 export interface EncryptionEnvelop {
     encryptionVersion: 'x25519-xsalsa20-poly1305';
     encryptedData: string;
     to: string;
     from: string;
-    deliveryServiceIncommingTimestamp?: number;
+    postmark?: string;
 }
 
 export enum MessageState {
@@ -52,12 +78,22 @@ export function createMessage(
     from: string,
     message: string,
     getTimestamp: () => number,
+    type: MessageType,
+    signature: string,
+    referenceMessageHash?: string,
+    attachments?: Attachment[],
+    replyDeliveryInstruction?: string,
 ): Message {
     return {
         to,
         from,
         timestamp: getTimestamp(),
         message,
+        type,
+        referenceMessageHash,
+        signature,
+        attachments,
+        replyDeliveryInstruction,
     };
 }
 
@@ -106,10 +142,9 @@ export async function submitMessage(
         const envelop: EncryptionEnvelop = {
             encryptedData: ethers.utils.hexlify(
                 ethers.utils.toUtf8Bytes(
-                    JSON.stringify(
+                    stringify(
                         encryptSafely({
-                            publicKey: to.profile.publicKeys
-                                ?.publicMessagingKey as string,
+                            publicKey: to.profile.publicEncryptionKey,
                             data: innerEnvelop,
                             version: 'x25519-xsalsa20-poly1305',
                         }),
@@ -143,6 +178,19 @@ function decryptMessages(
     );
 }
 
+function decryptPostmark(
+    envelops: EncryptionEnvelop[],
+    userDb: UserDB,
+): Postmark[] {
+    return envelops.map(
+        ({ encryptedData }) =>
+            decryptSafely({
+                encryptedData: JSON.parse(encryptedData),
+                privateKey: userDb.keys.privateMessagingKey,
+            }) as Postmark,
+    );
+}
+
 export async function getMessages(
     connection: Connection,
     contact: string,
@@ -154,19 +202,26 @@ export async function getMessages(
         (
             await getNewMessages(connection, userDb, contact)
         )
-            .filter((envelop) =>
-                envelop.deliveryServiceIncommingTimestamp ? true : false,
-            )
+            .filter((envelop) => {
+                const [{ incommingTimestamp }] = decryptPostmark(
+                    [envelop],
+                    userDb,
+                );
+                return incommingTimestamp;
+            })
             .map(async (envelop): Promise<StorageEnvelopContainer> => {
                 const decryptedEnvelop = await decryptMessages(
                     [envelop],
                     userDb,
                 );
+
+                const decryptedPostmark = decryptPostmark([envelop], userDb);
+
                 return {
                     envelop: decryptedEnvelop[0],
                     messageState: MessageState.Send,
                     deliveryServiceIncommingTimestamp:
-                        envelop.deliveryServiceIncommingTimestamp!,
+                        decryptedPostmark[0].incommingTimestamp,
                 };
             }),
     );

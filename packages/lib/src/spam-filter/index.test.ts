@@ -1,13 +1,16 @@
 import { ethers } from 'ethers';
+import { Envelop } from '..';
 import { Filter, filter } from './';
 
-const envelops = [
+const envelops: Envelop[] = [
     {
         message: {
             from: '0x1',
             to: '',
             message: 'test0',
             timestamp: 0,
+            type: 'NEW',
+            signature: '',
         },
         signature: '',
     },
@@ -17,6 +20,8 @@ const envelops = [
             to: '',
             message: 'test1',
             timestamp: 0,
+            type: 'NEW',
+            signature: '',
         },
         signature: '',
     },
@@ -26,6 +31,8 @@ const envelops = [
             to: '',
             message: 'test12',
             timestamp: 0,
+            type: 'NEW',
+            signature: '',
         },
         signature: '',
     },

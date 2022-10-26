@@ -2,15 +2,16 @@ import { ethers } from 'ethers';
 import { UserDB, UserStorage } from '../storage/Storage';
 import { log } from '../shared/log';
 import { createDB, load } from '../storage/Storage';
-import { Account, CreateKeys, ProfileRegistryEntry } from '../account/Account';
+import { Account, CreateKeys, UserProfile } from '../account/Account';
 import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
 import {
     GetChallenge,
     GetNewToken,
-    SubmitProfileRegistryEntry,
+    SubmitUserProfile,
 } from '../external-apis/BackendAPI';
 import { PersonalSign } from '../external-apis/InjectedWeb3API';
 import { GetSymmetricalKeyFromSignature } from '../encryption/SymmetricalEncryption';
+import stringify from 'safe-stable-stringify';
 
 export async function reAuth(
     connection: Connection,
@@ -35,7 +36,7 @@ export async function reAuth(
 export async function signIn(
     connection: Partial<Connection>,
     personalSign: PersonalSign,
-    submitProfileRegistryEntry: SubmitProfileRegistryEntry,
+    submitUserProfile: SubmitUserProfile,
     createKeys: CreateKeys,
     getSymmetricalKeyFromSignature: GetSymmetricalKeyFromSignature,
     browserDataFile: UserStorage | undefined,
@@ -60,24 +61,22 @@ export async function signIn(
                 getSymmetricalKeyFromSignature,
             );
 
-            const profileRegistryEntry: ProfileRegistryEntry = {
-                publicKeys: {
-                    publicMessagingKey: keys.publicMessagingKey,
-                    publicSigningKey: keys.publicSigningKey,
-                },
-                deliveryServiceUrl: connection.defaultServiceUrl!,
+            const profile: UserProfile = {
+                publicSigningKey: keys.publicSigningKey,
+                publicEncryptionKey: keys.publicMessagingKey,
+                deliveryServices: [connection.defaultServiceUrl!],
             };
 
             const signature = await personalSign(
                 provider,
                 account,
-                JSON.stringify(profileRegistryEntry),
+                stringify(profile),
             );
 
-            deliveryServiceToken = await submitProfileRegistryEntry(
-                { address: account, profile: profileRegistryEntry },
+            deliveryServiceToken = await submitUserProfile(
+                { address: account, profile },
                 {
-                    profileRegistryEntry,
+                    profile,
                     signature,
                 },
             );

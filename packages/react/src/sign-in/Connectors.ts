@@ -101,7 +101,7 @@ export async function connectAccount(
             type: ConnectionType.ChangeAccount,
             payload: {
                 address: accountConnection.account,
-                profile: accountConnection.profile?.profileRegistryEntry,
+                profile: accountConnection.profile?.profile,
             },
         });
 
@@ -239,14 +239,14 @@ export async function signIn(
             Lib.log(`Setting session token`);
 
             account.profile = (
-                await Lib.getProfileRegistryEntry(
+                await Lib.getUserProfile(
                     state.connection,
                     account.address,
                     state.connection.defaultServiceUrl +
                         '/profile/' +
                         account.address,
                 )
-            )?.profileRegistryEntry;
+            )?.profile;
 
             if (
                 token &&
