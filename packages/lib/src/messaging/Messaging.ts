@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import {
     decryptEnvelop,
+    decryptSafely,
     EncryptSafely,
     SignWithSignatureKey,
 } from '../encryption/Encryption';
@@ -61,7 +62,7 @@ export interface EncryptionEnvelop {
     encryptedData: string;
     to: string;
     from: string;
-    postmark?: Postmark;
+    postmark?: string;
 }
 
 export enum MessageState {
@@ -177,6 +178,19 @@ function decryptMessages(
     );
 }
 
+function decryptPostmark(
+    envelops: EncryptionEnvelop[],
+    userDb: UserDB,
+): Postmark[] {
+    envelops.map(
+        ({ encryptedData }) =>
+            decryptSafely({
+                encryptedData: JSON.parse(encryptedData),
+                privateKey: userDb.keys.privateMessagingKey,
+            }) as Postmark,
+    );
+}
+
 export async function getMessages(
     connection: Connection,
     contact: string,
@@ -188,19 +202,26 @@ export async function getMessages(
         (
             await getNewMessages(connection, userDb, contact)
         )
-            .filter((envelop) =>
-                envelop.deliveryServiceIncommingTimestamp ? true : false,
-            )
+            .filter((envelop) => {
+                const [{ incommingTimestamp }] = decryptPostmark(
+                    [envelop],
+                    userDb,
+                );
+                return incommingTimestamp;
+            })
             .map(async (envelop): Promise<StorageEnvelopContainer> => {
                 const decryptedEnvelop = await decryptMessages(
                     [envelop],
                     userDb,
                 );
+
+                const decryptedPostmark = decryptPostmark([envelop], userDb);
+
                 return {
                     envelop: decryptedEnvelop[0],
                     messageState: MessageState.Send,
                     deliveryServiceIncommingTimestamp:
-                        envelop.deliveryServiceIncommingTimestamp!,
+                        decryptedPostmark[0].incommingTimestamp,
                 };
             }),
     );

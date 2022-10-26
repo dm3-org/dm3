@@ -103,7 +103,10 @@ function addPostmark(
         incommingTimestamp: new Date().getTime(),
     };
 
-    const signature = sign(postmarkWithoutSig, deliveryServiceSigningKey);
+    const signature = signPostmark(
+        postmarkWithoutSig,
+        deliveryServiceSigningKey,
+    );
 
     //Encrypte the signed Postmark and return the ciphertext
     const { ciphertext, nonce, version, ephemPublicKey } = encryptSafely({
@@ -115,7 +118,7 @@ function addPostmark(
     return stringify({ nonce, version, ciphertext, ephemPublicKey })!;
 }
 
-const sign = (p: Omit<Postmark, 'signature'>, signingKey: string) => {
+const signPostmark = (p: Omit<Postmark, 'signature'>, signingKey: string) => {
     return ethers.utils.hexlify(
         nacl.sign.detached(
             ethers.utils.toUtf8Bytes(stringify(p)),

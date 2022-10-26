@@ -33,7 +33,6 @@ const getSession = async (address: string) => {
         token,
     });
 
-    console.log('ADDR : ', address);
     if (isSender) {
         return session(SENDER_ADDRESS, '123', emptyProfile);
     }
@@ -65,7 +64,7 @@ test('incomingMessage auth', async () => {
                     from: SENDER_ADDRESS,
                     to: RECEIVER_ADDRESS,
                 },
-                token: '123',
+                token: 'abc',
             },
             {
                 publicEncryptionKey:
@@ -81,7 +80,7 @@ test('incomingMessage auth', async () => {
     ).rejects.toEqual(Error('Token check failed'));
 });
 
-test.only('incomingMessage', async () => {
+test('incomingMessage', async () => {
     //Mock the time so we can test the message with the incomming timestamp
     jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
 
