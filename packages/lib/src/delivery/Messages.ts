@@ -119,9 +119,12 @@ function addPostmark(
 }
 
 const signPostmark = (p: Omit<Postmark, 'signature'>, signingKey: string) => {
+    const postmarkHash = ethers.utils.keccak256(
+        ethers.utils.toUtf8Bytes(stringify(p)),
+    );
     return ethers.utils.hexlify(
         nacl.sign.detached(
-            ethers.utils.toUtf8Bytes(stringify(p)),
+            ethers.utils.toUtf8Bytes(postmarkHash),
             naclUtil.decodeBase64(signingKey as string),
         ),
     );
