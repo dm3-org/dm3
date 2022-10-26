@@ -1,27 +1,51 @@
+import { ethers } from 'ethers';
+import nacl from 'tweetnacl';
+import { encodeBase64 } from 'tweetnacl-util';
 import { UserProfile } from '../account/Account';
+import { decryptSafely } from '../encryption/Encryption';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { EncryptionEnvelop } from '../messaging/Messaging';
 import { getConversationId } from '../storage/Storage';
 import { getMessages, incomingMessage } from './Messages';
 
+const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
+const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
+const { secretKey, publicKey } = nacl.box.keyPair();
+
+const receiverPublicEncryptionKey = encodeBase64(publicKey);
+const receiverPrivateKey = encodeBase64(secretKey);
+
 const getSession = async (address: string) => {
-    const profile: UserProfile = {
+    const emptyProfile: UserProfile = {
         publicSigningKey: '',
         publicEncryptionKey: '',
         deliveryServices: [''],
     };
-    return formatAddress(address) ===
-        '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855'
-        ? {
-              account: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-              signedUserProfile: {
-                  profile,
-                  signature: '',
-              },
+    const isSender = formatAddress(address) === SENDER_ADDRESS;
+    const isReceiver = formatAddress(address) === RECEIVER_ADDRESS;
 
-              token: '123',
-          }
-        : null;
+    const session = (account: string, token: string, profile: UserProfile) => ({
+        account,
+        signedUserProfile: {
+            profile,
+            signature: '',
+        },
+        token,
+    });
+
+    console.log('ADDR : ', address);
+    if (isSender) {
+        return session(SENDER_ADDRESS, '123', emptyProfile);
+    }
+
+    if (isReceiver) {
+        return session(RECEIVER_ADDRESS, 'abc', {
+            ...emptyProfile,
+            publicEncryptionKey: receiverPublicEncryptionKey,
+        });
+    }
+
+    return null;
 };
 
 test('incomingMessage auth', async () => {
@@ -38,12 +62,18 @@ test('incomingMessage auth', async () => {
                 envelop: {
                     encryptedData: '',
                     encryptionVersion: 'x25519-xsalsa20-poly1305',
-                    to: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-                    from: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+                    from: SENDER_ADDRESS,
+                    to: RECEIVER_ADDRESS,
                 },
-                token: 'abc',
+                token: '123',
             },
-
+            {
+                publicEncryptionKey:
+                    'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
+                url: '',
+                publicSigningKey:
+                    '9SZhajjn9tn0fX/eBMXfZfb0RaUeYyfhlNYHqZyKHpyTiYvwVosQ5qt2XxdDFblTzggir8kp85kWw76p2EZ0rQ==',
+            },
             getSession,
             storeNewMessage,
             () => {},
@@ -51,15 +81,15 @@ test('incomingMessage auth', async () => {
     ).rejects.toEqual(Error('Token check failed'));
 });
 
-test('incomingMessage', async () => {
+test.only('incomingMessage', async () => {
     //Mock the time so we can test the message with the incomming timestamp
     jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
-    const now = new Date().getTime();
 
     let messageContainer: {
         conversationId?: string;
         envelop?: EncryptionEnvelop;
     } = {};
+
     const storeNewMessage = async (
         conversationId: string,
         envelop: EncryptionEnvelop,
@@ -72,10 +102,16 @@ test('incomingMessage', async () => {
             envelop: {
                 encryptedData: '',
                 encryptionVersion: 'x25519-xsalsa20-poly1305',
-                to: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-                from: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+                from: SENDER_ADDRESS,
+                to: RECEIVER_ADDRESS,
             },
             token: '123',
+        },
+        {
+            publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
+            url: '',
+            publicSigningKey:
+                '9SZhajjn9tn0fX/eBMXfZfb0RaUeYyfhlNYHqZyKHpyTiYvwVosQ5qt2XxdDFblTzggir8kp85kWw76p2EZ0rQ==',
         },
         getSession,
         storeNewMessage,
@@ -87,20 +123,30 @@ test('incomingMessage', async () => {
         '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
     );
 
-    expect(messageContainer).toStrictEqual({
+    const actualPostmark = decryptSafely({
+        //@ts-ignore
+        encryptedData: JSON.parse(messageContainer.envelop?.postmark!),
+        privateKey: receiverPrivateKey,
+    });
+
+    //Check message
+    expect(messageContainer).toMatchObject({
         conversationId,
         envelop: {
             encryptedData: '',
             encryptionVersion: 'x25519-xsalsa20-poly1305',
-            to: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-            from: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-            postmark: {
-                incommingTimestamp: now,
-                messageHash:
-                    '0x5f35dce98ba4fba25530a026ed80b2cecdaa31091ba4958b99b52ea1d068adad',
-                signature: '123',
-            },
+            from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
         },
+    });
+    //Check Postmark
+    expect(actualPostmark).toStrictEqual({
+        incommingTimestamp: 1577836800000,
+        messageHash:
+            '0x5f35dce98ba4fba25530a026ed80b2cecdaa31091ba4958b99b52ea1d068adad',
+        signature:
+            // eslint-disable-next-line max-len
+            '0x3b7c1b2966a63767888bc2edfae4f76a5623b85780d3088cdcf436c69d07a1eb4b5900c8f66ff8ccbed6fd590952a561ef05397ed74953586f2c0ca8445f810c',
     });
 });
 

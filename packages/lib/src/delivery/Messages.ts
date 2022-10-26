@@ -1,10 +1,16 @@
 import { ethers } from 'ethers';
+import stringify from 'safe-stable-stringify';
 import nacl from 'tweetnacl';
 import naclUtil from 'tweetnacl-util';
-import { signWithSignatureKey } from '../encryption/Encryption';
+import {
+    encrypt,
+    encryptSafely,
+    signWithSignatureKey,
+} from '../encryption/Encryption';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { EncryptionEnvelop, Envelop, Postmark } from '../messaging/Messaging';
 import { getConversationId } from '../storage/Storage';
+import { DeliveryServiceProfile } from './Delivery';
 import { checkToken, Session } from './Session';
 
 export interface Acknoledgment {
@@ -42,6 +48,7 @@ export async function getMessages(
 // buffer message until delivery and sync acknoledgment
 export async function incomingMessage(
     { envelop, token }: { envelop: EncryptionEnvelop; token: string },
+    deliveryServiceProfile: DeliveryServiceProfile,
     getSession: (accountAddress: string) => Promise<Session | null>,
     storeNewMessage: (
         conversationId: string,
@@ -59,34 +66,60 @@ export async function incomingMessage(
         throw Error('Token check failed');
     }
 
+    const receiverSession = await getSession(receiver);
+    if (receiverSession === null) {
+        //TODO how should we handle this case?
+        throw Error('unknown session');
+    }
+
+    const receiverEncryptionKey =
+        receiverSession?.signedUserProfile.profile.publicEncryptionKey;
+
+    const deliveryServiceSigningKey = deliveryServiceProfile.publicSigningKey;
+
     const envelopWithPostmark: EncryptionEnvelop = {
         ...envelop,
-        postmark: addPostmark(envelop),
+        postmark: addPostmark(
+            envelop,
+            receiverEncryptionKey,
+            deliveryServiceSigningKey,
+        ),
     };
-
     await storeNewMessage(conversationId, envelopWithPostmark);
 
-    const receiverSession = await getSession(receiver);
     if (receiverSession?.socketId) {
         //Client is already connect to the delivery service and the message can be dispatched
         send(receiverSession.socketId, envelopWithPostmark);
     }
 }
 
-function addPostmark({ encryptedData, to }: EncryptionEnvelop): Postmark {
+function addPostmark(
+    { encryptedData }: EncryptionEnvelop,
+    receiverEncryptionKey: string,
+    deliveryServiceSigningKey: string,
+): string {
     const postmarkWithoutSig: Omit<Postmark, 'signature'> = {
         messageHash: ethers.utils.hashMessage(encryptedData),
         incommingTimestamp: new Date().getTime(),
     };
 
-    const signature = sign(postmarkWithoutSig, to);
-    return {
-        ...postmarkWithoutSig,
-        signature,
-    };
+    const signature = sign(postmarkWithoutSig, deliveryServiceSigningKey);
+
+    //Encrypte the signed Postmark and return the ciphertext
+    const { ciphertext, nonce, version, ephemPublicKey } = encryptSafely({
+        publicKey: receiverEncryptionKey,
+        data: { ...postmarkWithoutSig, signature },
+        version: 'x25519-xsalsa20-poly1305',
+    });
+
+    return stringify({ nonce, version, ciphertext, ephemPublicKey })!;
 }
 
-const sign = (p: Omit<Postmark, 'signature'>, receiver: string) => {
-    //TODO implement postmark signing properly
-    return '123';
+const sign = (p: Omit<Postmark, 'signature'>, signingKey: string) => {
+    return ethers.utils.hexlify(
+        nacl.sign.detached(
+            ethers.utils.toUtf8Bytes(stringify(p)),
+            naclUtil.decodeBase64(signingKey as string),
+        ),
+    );
 };
