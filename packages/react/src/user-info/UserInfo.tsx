@@ -238,13 +238,13 @@ function UserInfo(props: UserInfoProps) {
                             <a
                                 className="text-decoration-none text-muted align-self-center"
                                 href={
-                                    props.account.profile.deliveryServiceUrl +
+                                    props.account.profile.deliveryServices[0] +
                                     '/profile/' +
                                     props.account.address
                                 }
                                 target="_blank"
                             >
-                                {props.account.profile.deliveryServiceUrl +
+                                {props.account.profile.deliveryServices[0] +
                                     '/profile/' +
                                     props.account.address}
                             </a>

@@ -13,6 +13,7 @@ import RpcProxy from './rpc-proxy';
 import { errorHandler, logError, logRequest, socketAuth } from './utils';
 import { onConnection } from './messaging';
 import winston from 'winston';
+import { DeliveryServiceProfile } from 'dm3-lib/dist.backend/delivery/Delivery';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -52,6 +53,12 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
             : null;
     };
     app.locals.io = io;
+
+    app.locals.deliveryServiceProfile = {
+        publicSigningKey: process.env.PUBLIC_SIGNING_KEY,
+        publicEncryptionKey: process.env.PUBLIC_ENCRYPTION_KEY,
+        url: process.env.URL,
+    } as DeliveryServiceProfile;
 
     app.use(logRequest);
     app.use('/profile', Profile);

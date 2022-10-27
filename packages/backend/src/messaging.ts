@@ -28,6 +28,7 @@ export function onConnection(app: Express) {
                     });
                     await Lib.Delivery.incomingMessage(
                         data,
+                        app.locals.deliveryServiceProfile,
                         app.locals.loadSession,
                         async (
                             conversationId: string,

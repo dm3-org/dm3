@@ -178,7 +178,7 @@ function decryptMessages(
     );
 }
 
-function decryptPostmark(
+export function decryptPostmark(
     envelops: EncryptionEnvelop[],
     userDb: UserDB,
 ): Postmark[] {

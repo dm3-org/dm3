@@ -15,7 +15,6 @@ import { signWithSignatureKey } from './encryption/Encryption';
 export type { Connection } from './web3-provider/Web3Provider';
 export type {
     Account,
-    PublicKeys,
     Keys,
     UserProfile,
     SignedUserProfile,
@@ -51,12 +50,11 @@ export {
 } from './storage';
 export {
     getAccountDisplayName,
-    extractPublicKeys,
     getBrowserStorageKey,
     checkStringSignature,
 } from './account/Account';
 export { decryptEnvelop, checkSignature } from './encryption/Encryption';
-export { MessageState } from './messaging/Messaging';
+export { MessageState, decryptPostmark } from './messaging/Messaging';
 
 export { getId } from './messaging/Utils';
 export { ConnectionState, getWeb3Provider } from './web3-provider/Web3Provider';
