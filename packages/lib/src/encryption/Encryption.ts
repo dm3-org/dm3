@@ -272,7 +272,7 @@ export function checkSignature(
     }
 }
 
-export function signWithSignatureKey(message: Message, keys: Keys): string {
+export function signWithSignatureKey(message: any, keys: Keys): string {
     return ethers.utils.hexlify(
         nacl.sign.detached(
             ethers.utils.toUtf8Bytes(JSON.stringify(message)),

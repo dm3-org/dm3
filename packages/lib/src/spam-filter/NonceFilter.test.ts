@@ -1,12 +1,15 @@
 import { ethers } from 'ethers';
+import { Envelop } from '../messaging/Messaging';
 import { nonceFilter } from './NonceFilter';
 
-const message = {
+const envelop: Envelop = {
     message: {
         from: '',
         to: '',
         message: 'test',
         timestamp: 0,
+        type: 'NEW',
+        signature: '',
     },
     signature: '',
 };
@@ -18,7 +21,7 @@ test('Should accept a message with a nonce equal the nonce threshold', async () 
 
     await expect(
         nonceFilter(
-            message,
+            envelop,
             {
                 nonceHigherOrEqualThan: 1,
             },
@@ -34,7 +37,7 @@ test('Should reject a message with a nonce lower than the nonce threshold', asyn
 
     await expect(
         nonceFilter(
-            message,
+            envelop,
             {
                 nonceHigherOrEqualThan: 2,
             },
