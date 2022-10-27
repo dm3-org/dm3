@@ -180,7 +180,7 @@ function dm3(props: dm3Props) {
             }
 
             const socket = socketIOClient(
-                state.connection.account.profile.deliveryServiceUrl,
+                state.connection.account.profile.deliveryServices[0],
                 { autoConnect: false },
             );
             socket.auth = {
