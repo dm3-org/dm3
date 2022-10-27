@@ -223,6 +223,7 @@ function Chat() {
             state.accounts.selectedContact.address,
             state.connection.account!.address,
             message,
+            userDb,
         );
         const messageId = messageData.timestamp.toString();
         messageStates.set(messageId, Lib.MessageState.Created);
