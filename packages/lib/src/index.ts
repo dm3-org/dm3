@@ -10,6 +10,7 @@ import * as Storage from './storage';
 
 import { StorageEnvelopContainer, UserDB, UserStorage } from './storage';
 import axios from 'axios';
+import { signWithSignatureKey } from './encryption/Encryption';
 
 export type { Connection } from './web3-provider/Web3Provider';
 export type {
@@ -144,12 +145,22 @@ export function createMessage(
     to: string,
     from: string,
     message: string,
+    userDb: UserDB,
 ): Messaging.Message {
-    return {
+    const messgeWithoutSig: Omit<Messaging.Message, 'signature'> = {
         to,
         from,
         timestamp: new Date().getTime(),
         message,
+        type: 'NEW',
+    };
+
+    return {
+        ...messgeWithoutSig,
+        signature: signWithSignatureKey(
+            messgeWithoutSig,
+            userDb?.keys as Account.Keys,
+        ),
     };
 }
 
