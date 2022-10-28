@@ -29,6 +29,8 @@ import { log } from '../shared/log';
 import queryString from 'query-string';
 import stringify from 'safe-stable-stringify';
 import { LinkResolver } from './profileResolver/LinkResolver';
+import { IpfsResolver } from './profileResolver/IpfsResolver';
+import { ProfileResolver } from './profileResolver/ProfileResolver';
 
 export interface Keys {
     publicMessagingKey: string;
@@ -274,7 +276,10 @@ export async function getUserProfile(
      * * The stringified profile
      */
 
-    const resolver = [LinkResolver(getRessource)];
+    const resolver: ProfileResolver[] = [
+        LinkResolver(getRessource),
+        IpfsResolver(getRessource),
+    ];
 
     return await resolver
         .find((r) => r.isProfile(textRecord))

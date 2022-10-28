@@ -365,7 +365,7 @@ test('Should reject an invalid profile signature', async () => {
     ).toStrictEqual(false);
 });
 
-test('Should get profile registry entry from chain', async () => {
+test('getUserProfile -- Should get profile registry entry from chain if tex record is url', async () => {
     const profile: UserProfile = {
         publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug',
         publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
@@ -391,6 +391,38 @@ test('Should get profile registry entry from chain', async () => {
                 uri === 'http://123?' + createHashUrlParam(signedUserProfile)
                     ? signedUserProfile
                     : undefined,
+        ),
+    ).resolves.toStrictEqual(signedUserProfile);
+});
+
+test('getUserProfile -- Should get profile registry entry from IPFS if textRecord is ipfs hash', async () => {
+    const profile: UserProfile = {
+        publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug',
+        publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
+        deliveryServices: [''],
+    };
+    const signedUserProfile = {
+        profile,
+        //TODO Maybe create new signature
+        signature:
+            '0xaa927647cf7c73363d9c157f113f1c1754307aae79d886dc4cfa7bcb77b4dfc1' +
+            '6cb50e808708085009ee782046891d8b85966a1a7482c5c0c42f73c7210cf7da1b',
+    };
+
+    expect.assertions(1);
+    await expect(
+        getUserProfile(
+            { provider: {} } as any,
+            '0x8101b0729eb9708a344c820fce80f12a90a7c1fa',
+            async () => undefined,
+            async () => 'ipfs://QmZwrAZFDprTo2h3Gbdc4hS2vEVSP1q9j7vDTq8TS1Z137',
+            async (uri) => {
+                return uri ===
+                    // eslint-disable-next-line max-len
+                    'https://www.ipfs.io/ipfs/QmZwrAZFDprTo2h3Gbdc4hS2vEVSP1q9j7vDTq8TS1Z137'
+                    ? signedUserProfile
+                    : undefined;
+            },
         ),
     ).resolves.toStrictEqual(signedUserProfile);
 });
