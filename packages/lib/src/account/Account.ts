@@ -31,6 +31,7 @@ import stringify from 'safe-stable-stringify';
 import { LinkResolver } from './profileResolver/LinkResolver';
 import { IpfsResolver } from './profileResolver/IpfsResolver';
 import { ProfileResolver } from './profileResolver/ProfileResolver';
+import { JsonResolver } from './profileResolver/JsonResolver';
 
 export interface Keys {
     publicMessagingKey: string;
@@ -269,6 +270,7 @@ export async function getUserProfile(
         return getProfileOffChain(connection.account, contact, profileUrl);
     }
 
+    console.log('got record', textRecord);
     /**
      * The Text record can contain either
      * * a link to the profile stored on a http server
@@ -279,6 +281,7 @@ export async function getUserProfile(
     const resolver: ProfileResolver[] = [
         LinkResolver(getRessource),
         IpfsResolver(getRessource),
+        JsonResolver(),
     ];
 
     return await resolver
