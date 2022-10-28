@@ -145,7 +145,7 @@ test('incomingMessage', async () => {
             '0x5f35dce98ba4fba25530a026ed80b2cecdaa31091ba4958b99b52ea1d068adad',
         signature:
             // eslint-disable-next-line max-len
-            '0x796ac571b67b7b83c1080f173d7c18f7ebe1b5e9e3af03a0415a0a1fa9d93547f63bf3e04bf51cda6b35e152ecf28302f2c6d5321e265ed74db1bef80676060f',
+            '0x625a5500c56fdb7fd21f83a142a52c78a2fa33148450ea1a57918a289d22a85aaef58a92d1221b8300849c58b2a5c0afc463526b00bbb9940ec59b9c8012cb00',
     });
 });
 

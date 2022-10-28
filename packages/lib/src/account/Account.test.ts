@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { sha256 } from 'ethers/lib/utils';
 import stringify from 'safe-stable-stringify';
 
 import {
@@ -92,7 +93,7 @@ test('createHashUrlParam should create the correct hash', async () => {
     expect(
         createHashUrlParam((await getProfileData()).signedUserProfile),
     ).toStrictEqual(
-        'dm3Hash=0x7c1761796e12dff0e1b5bfc9aaa1c4e8bb7b759cd5ec4c52e0b0ddadb401d071',
+        'dm3Hash=0x407ae4ad488fef7020267b5789c6f66213a9092c9b99b422bbe877b3f629dd4c',
     );
 });
 
@@ -112,9 +113,7 @@ test('checkProfileHash should accept a correct hash ', async () => {
 
     const uri =
         'http://test/test?dm3Hash=' +
-        ethers.utils.keccak256(
-            ethers.utils.toUtf8Bytes(stringify(signedProfile)),
-        );
+        sha256(ethers.utils.toUtf8Bytes(stringify(signedProfile)));
 
     expect(checkProfileHash(signedProfile, uri)).toStrictEqual(true);
 });
@@ -541,7 +540,7 @@ test('publishProfileOnchain', async () => {
     expect(tx?.args).toStrictEqual([
         '0xca7a0eadca1ba3745db7065063294b717422bd1c70995cba8f5adcd094fdae1d',
         'eth.dm3.profile',
-        'http://bla?dm3Hash=0x7c1761796e12dff0e1b5bfc9aaa1c4e8bb7b759cd5ec4c52e0b0ddadb401d071',
+        'http://bla?dm3Hash=0x407ae4ad488fef7020267b5789c6f66213a9092c9b99b422bbe877b3f629dd4c',
     ]);
 
     expect(tx?.method()).toStrictEqual('success');
