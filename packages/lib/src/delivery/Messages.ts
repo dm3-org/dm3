@@ -9,6 +9,7 @@ import {
 } from '../encryption/Encryption';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { EncryptionEnvelop, Envelop, Postmark } from '../messaging/Messaging';
+import { sha256 } from '../shared/sha256';
 import { getConversationId } from '../storage/Storage';
 import { DeliveryServiceProfile } from './Delivery';
 import { checkToken, Session } from './Session';
@@ -119,9 +120,7 @@ function addPostmark(
 }
 
 const signPostmark = (p: Omit<Postmark, 'signature'>, signingKey: string) => {
-    const postmarkHash = ethers.utils.keccak256(
-        ethers.utils.toUtf8Bytes(stringify(p)),
-    );
+    const postmarkHash = sha256(stringify(p));
     return ethers.utils.hexlify(
         nacl.sign.detached(
             ethers.utils.toUtf8Bytes(postmarkHash),

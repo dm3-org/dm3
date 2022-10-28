@@ -10,6 +10,7 @@ import {
     decodeBase64,
 } from 'tweetnacl-util';
 import { PersonalSign } from '../external-apis/InjectedWeb3API';
+import { sha256 } from '../shared/sha256';
 import { Connection } from '../web3-provider/Web3Provider';
 
 generateSymmetricalKey();
@@ -41,7 +42,7 @@ export async function getSymmetricalKeyFromSignature(
 
     return {
         symmetricalKey: generateSymmetricalKey(
-            ethers.utils.arrayify(ethers.utils.keccak256(signature)),
+            ethers.utils.arrayify(sha256(signature)),
         ),
         symmetricalKeySalt,
     };

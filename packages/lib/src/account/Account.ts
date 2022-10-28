@@ -32,6 +32,7 @@ import { LinkResolver } from './profileResolver/LinkResolver';
 import { IpfsResolver } from './profileResolver/IpfsResolver';
 import { ProfileResolver } from './profileResolver/ProfileResolver';
 import { JsonResolver } from './profileResolver/JsonResolver';
+import { sha256 } from '../shared/sha256';
 
 export interface Keys {
     publicMessagingKey: string;
@@ -292,16 +293,11 @@ export function checkProfileHash(
     uri: string,
 ): boolean {
     const parsedUri = queryString.parseUrl(uri);
-    return (
-        ethers.utils.keccak256(ethers.utils.toUtf8Bytes(stringify(profile))) ===
-        parsedUri.query.dm3Hash
-    );
+    return sha256(stringify(profile)) === parsedUri.query.dm3Hash;
 }
 
 export function createHashUrlParam(profile: SignedUserProfile): string {
-    return `dm3Hash=${ethers.utils.keccak256(
-        ethers.utils.toUtf8Bytes(stringify(profile)),
-    )}`;
+    return `dm3Hash=${sha256(stringify(profile))}`;
 }
 
 export async function publishProfileOnchain(
