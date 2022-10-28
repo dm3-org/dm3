@@ -1,6 +1,5 @@
-import { UserProfile } from '../../../dist';
 import { log } from '../../shared/log';
-import { SignedUserProfile } from '../Account';
+import { SignedUserProfile, UserProfile } from '../Account';
 import { ProfileResolver } from './ProfileResolver';
 
 const isProfile = (textRecord: string) => {
@@ -14,13 +13,6 @@ const isProfile = (textRecord: string) => {
 
         // eslint-disable-next-line max-len
         //If the profile string contains all 3 mandatory fields, and the according signature the string can be considered valid
-
-        console.log(
-            'vlaidata',
-            publicEncryptionKey,
-            publicSigningKey,
-            deliveryServices,
-        );
         return !!(
             signature &&
             publicEncryptionKey &&
@@ -28,7 +20,6 @@ const isProfile = (textRecord: string) => {
             deliveryServices
         );
     } catch (e) {
-        console.log('EEEEE', e);
         return false;
     }
 };

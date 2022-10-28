@@ -8,13 +8,14 @@ const isProfile = (textRecord: string) => {
         const { protocol } = new URL(textRecord);
         return protocol === 'ipfs:';
     } catch (e) {
-        log(`[LinkResolver] Not a valid ipfs resource`);
         return false;
     }
 };
 
 const resolveProfile =
     (getResource: GetResource) => async (textRecord: string) => {
+        log(`[getUserProfile] resolve ipfs link ${textRecord}`);
+
         const ipfsGatewayUrl = 'https://www.ipfs.io/ipfs';
         const cid = textRecord.substring(7);
 

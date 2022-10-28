@@ -8,14 +8,13 @@ const isProfile = (textRecord: string) => {
         const { protocol } = new URL(textRecord);
         return protocol === 'http:' || protocol === 'https:';
     } catch (e) {
-        log(`[LinkResolver] Not a valid http(s) Link `);
         return false;
     }
 };
 
 const resolveProfile =
     (getResource: GetResource) => async (textRecord: string) => {
-        log(`[getUserProfile] Onchain uri ${textRecord}`);
+        log(`[getUserProfile] resolve link ${textRecord}`);
         const profile = await getResource(textRecord);
 
         if (!profile) {

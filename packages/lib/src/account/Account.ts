@@ -269,8 +269,6 @@ export async function getUserProfile(
         log(`[getUserProfile] Offchain`);
         return getProfileOffChain(connection.account, contact, profileUrl);
     }
-
-    console.log('got record', textRecord);
     /**
      * The Text record can contain either
      * * a link to the profile stored on a http server
