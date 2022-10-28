@@ -395,7 +395,7 @@ test('Should get profile registry entry from chain', async () => {
     ).resolves.toStrictEqual(signedUserProfile);
 });
 
-test('Should get profile registry entry from backend', async () => {
+test('getUserProfile -- Should get profile registry entry from backend', async () => {
     const profile: UserProfile = {
         publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug',
         publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
@@ -421,7 +421,7 @@ test('Should get profile registry entry from backend', async () => {
     ).resolves.toStrictEqual(signedUserProfile);
 });
 
-test('Should prioritize onchain over offchain ', async () => {
+test('getUserProfile -- Should prioritize onchain over offchain ', async () => {
     const profile: UserProfile = {
         publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug',
         publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
