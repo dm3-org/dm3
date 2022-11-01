@@ -56,6 +56,8 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
     };
     app.locals.io = io;
 
+    app.locals.deliveryServicePrivateKey = process.env.PRIVATE_KEY;
+
     app.use(logRequest);
     app.use('/profile', Profile);
     app.use('/storage', Storage);

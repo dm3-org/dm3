@@ -53,7 +53,7 @@ export function encrypt({
             try {
                 pubKeyUInt8Array = naclUtil.decodeBase64(publicKey);
             } catch (err) {
-                console.log(err);
+                log('[Encrypt ]' + err);
                 throw new Error('Bad public key');
             }
 
@@ -274,7 +274,7 @@ export function checkSignature(
 export function signWithSignatureKey(message: any, keys: Keys): string {
     return ethers.utils.hexlify(
         nacl.sign.detached(
-            ethers.utils.toUtf8Bytes(stringify(message)),
+            ethers.utils.toUtf8Bytes(stringify(message)!),
             naclUtil.decodeBase64(keys.privateSigningKey as string),
         ),
     );
