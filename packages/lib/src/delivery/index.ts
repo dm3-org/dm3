@@ -9,3 +9,5 @@ export {
     createNewSessionToken,
     createChallenge,
 } from './Keys';
+
+export { getDeliveryServiceProfile } from './Delivery';
