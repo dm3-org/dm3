@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { createClient } from 'redis';
 import * as Lib from 'dm3-lib/dist.backend';
 import { Express } from 'express';
+import { stringify } from 'safe-stable-stringify';
 
 const endpointUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 
@@ -51,7 +52,7 @@ export async function setSession(
 ): Promise<void> {
     await redisClient.set(
         RedisPrefix.Session + Lib.formatAddress(accountAddress),
-        JSON.stringify(session),
+        stringify(session),
     );
 }
 
@@ -72,7 +73,7 @@ export async function setUserStorage(
 ): Promise<void> {
     await redisClient.set(
         RedisPrefix.UserStorage + Lib.formatAddress(accountAddress),
-        JSON.stringify(data),
+        stringify(data),
     );
 }
 
