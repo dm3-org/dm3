@@ -27,7 +27,7 @@ import {
 import { GetProfileRegistryEntry } from '..';
 import { log } from '../shared/log';
 import queryString from 'query-string';
-import stringify from 'safe-stable-stringify';
+import { stringify } from '../shared/stringify';
 
 export interface Keys {
     publicMessagingKey: string;

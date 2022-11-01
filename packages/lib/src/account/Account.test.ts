@@ -1,6 +1,6 @@
 import { getData } from 'ajv/dist/compile/validate';
 import { ethers } from 'ethers';
-import stringify from 'safe-stable-stringify';
+import { stringify } from '../shared/stringify';
 
 import {
     StorageEnvelopContainer,

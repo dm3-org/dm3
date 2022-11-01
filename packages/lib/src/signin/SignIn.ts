@@ -11,7 +11,7 @@ import {
 } from '../external-apis/BackendAPI';
 import { PersonalSign } from '../external-apis/InjectedWeb3API';
 import { GetSymmetricalKeyFromSignature } from '../encryption/SymmetricalEncryption';
-import stringify from 'safe-stable-stringify';
+import { stringify } from '../shared/stringify';
 
 export async function reAuth(
     connection: Connection,

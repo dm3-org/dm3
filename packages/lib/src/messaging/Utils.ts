@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import stringify from 'safe-stable-stringify';
+import { stringify } from '../shared/stringify';
 import { Envelop } from './Messaging';
 
 export function getId(envelop: Envelop): string {

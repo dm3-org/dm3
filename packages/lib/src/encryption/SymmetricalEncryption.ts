@@ -1,7 +1,7 @@
 // From https://github.com/dchest/tweetnacl-js/wiki/Examples
 
 import { ethers } from 'ethers';
-import stringify from 'safe-stable-stringify';
+import { stringify } from '../shared/stringify';
 import { secretbox, randomBytes } from 'tweetnacl';
 import {
     decodeUTF8,

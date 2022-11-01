@@ -17,7 +17,7 @@ import {
     GetNewMessages,
     SubmitMessage,
 } from '../external-apis/BackendAPI';
-import stringify from 'safe-stable-stringify';
+import { stringify } from '../shared/stringify';
 
 export interface Message {
     to: string;
