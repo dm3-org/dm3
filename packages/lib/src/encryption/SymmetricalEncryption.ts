@@ -63,7 +63,7 @@ export function symmetricalEncrypt(json: any, key: string) {
     const keyUint8Array = decodeBase64(key);
 
     const nonce = newNonce();
-    const messageUint8 = decodeUTF8(stringify(json)!);
+    const messageUint8 = decodeUTF8(stringify(json));
     const box = secretbox(messageUint8, nonce, keyUint8Array);
 
     const fullMessage = new Uint8Array(nonce.length + box.length);
