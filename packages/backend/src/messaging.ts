@@ -2,7 +2,7 @@ import { Socket } from 'socket.io';
 import { Express } from 'express';
 import * as Lib from 'dm3-lib/dist.backend';
 import { addPending, RedisPrefix } from './redis';
-
+import { stringify } from 'safe-stable-stringify';
 export function onConnection(app: Express) {
     return (socket: Socket) => {
         socket.on('disconnect', () => {
@@ -38,7 +38,7 @@ export function onConnection(app: Express) {
                                     RedisPrefix.Conversation + conversationId,
                                     {
                                         score: new Date().getTime(),
-                                        value: JSON.stringify(envelop),
+                                        value: stringify(envelop),
                                     },
                                 );
                             } else {
