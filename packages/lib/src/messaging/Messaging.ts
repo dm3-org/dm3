@@ -201,29 +201,17 @@ export async function getMessages(
     const envelops = await Promise.all(
         (
             await getNewMessages(connection, userDb, contact)
-        )
-            .filter((envelop) => {
-                const [{ incommingTimestamp }] = decryptPostmark(
-                    [envelop],
-                    userDb,
-                );
-                return incommingTimestamp;
-            })
-            .map(async (envelop): Promise<StorageEnvelopContainer> => {
-                const decryptedEnvelop = await decryptMessages(
-                    [envelop],
-                    userDb,
-                );
+        ).map(async (envelop): Promise<StorageEnvelopContainer> => {
+            const decryptedEnvelop = await decryptMessages([envelop], userDb);
+            const decryptedPostmark = decryptPostmark([envelop], userDb);
 
-                const decryptedPostmark = decryptPostmark([envelop], userDb);
-
-                return {
-                    envelop: decryptedEnvelop[0],
-                    messageState: MessageState.Send,
-                    deliveryServiceIncommingTimestamp:
-                        decryptedPostmark[0].incommingTimestamp,
-                };
-            }),
+            return {
+                envelop: decryptedEnvelop[0],
+                messageState: MessageState.Send,
+                deliveryServiceIncommingTimestamp:
+                    decryptedPostmark[0].incommingTimestamp,
+            };
+        }),
     );
 
     storeMessages(envelops);

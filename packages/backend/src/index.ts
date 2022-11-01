@@ -54,11 +54,7 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
     };
     app.locals.io = io;
 
-    app.locals.deliveryServiceProfile = {
-        publicSigningKey: process.env.PUBLIC_SIGNING_KEY,
-        publicEncryptionKey: process.env.PUBLIC_ENCRYPTION_KEY,
-        url: process.env.URL,
-    } as DeliveryServiceProfile;
+    app.locals.deliveryServicePrivateKey = process.env.PRIVATE_KEY;
 
     app.use(logRequest);
     app.use('/profile', Profile);
