@@ -1,5 +1,6 @@
 import { getData } from 'ajv/dist/compile/validate';
 import { ethers } from 'ethers';
+import stringify from 'safe-stable-stringify';
 
 import {
     StorageEnvelopContainer,
@@ -52,9 +53,7 @@ const getProfileData = async (): Promise<{
         'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
     const wallet = ethers.Wallet.fromMnemonic(mnemonic);
 
-    const signature = await wallet.signMessage(
-        JSON.stringify(profileRegistryEntry),
-    );
+    const signature = await wallet.signMessage(stringify(profileRegistryEntry));
 
     return {
         account: {
@@ -96,7 +95,7 @@ test('createHashUrlParam should create the correct hash', async () => {
     expect(
         createHashUrlParam((await getProfileData()).signedProfileRegistryEntry),
     ).toStrictEqual(
-        'dm3Hash=0xeb9089d6c59aa43b3abb489232dd926db6f8269589e875e60c9eeeab8ef2031d',
+        'dm3Hash=0x32ce63eef7bd6b11f13f34c020638c7e9cb7bdb03d32da3aeada3211cf20402a',
     );
 });
 
@@ -110,9 +109,7 @@ test('checkProfileHash should accept a correct hash ', async () => {
     };
 
     const wallet = ethers.Wallet.createRandom();
-    const signature = await wallet.signMessage(
-        JSON.stringify(profileRegistryEntry),
-    );
+    const signature = await wallet.signMessage(stringify(profileRegistryEntry));
     const signedProfile = {
         profileRegistryEntry,
         signature,
@@ -121,7 +118,7 @@ test('checkProfileHash should accept a correct hash ', async () => {
     const uri =
         'http://test/test?dm3Hash=' +
         ethers.utils.keccak256(
-            ethers.utils.toUtf8Bytes(JSON.stringify(signedProfile)),
+            ethers.utils.toUtf8Bytes(stringify(signedProfile)),
         );
 
     expect(checkProfileHash(signedProfile, uri)).toStrictEqual(true);
@@ -137,9 +134,7 @@ test('checkProfileHash should reject  an invalid hash ', async () => {
     };
 
     const wallet = ethers.Wallet.createRandom();
-    const signature = await wallet.signMessage(
-        JSON.stringify(profileRegistryEntry),
-    );
+    const signature = await wallet.signMessage(stringify(profileRegistryEntry));
     const signedProfile = {
         profileRegistryEntry,
         signature,
@@ -159,9 +154,7 @@ test('checkProfileHash should reject an URI without hash', async () => {
     };
 
     const wallet = ethers.Wallet.createRandom();
-    const signature = await wallet.signMessage(
-        JSON.stringify(profileRegistryEntry),
-    );
+    const signature = await wallet.signMessage(stringify(profileRegistryEntry));
     const signedProfile = {
         profileRegistryEntry,
         signature,
@@ -181,9 +174,7 @@ test('checkProfileRegistryEntry should accept a correct signature ', async () =>
     };
 
     const wallet = ethers.Wallet.createRandom();
-    const signature = await wallet.signMessage(
-        JSON.stringify(profileRegistryEntry),
-    );
+    const signature = await wallet.signMessage(stringify(profileRegistryEntry));
 
     expect(
         checkProfileRegistryEntry(
@@ -206,11 +197,10 @@ test('checkProfileRegistryEntry should reject an invalid signature ', async () =
     };
 
     const wallet = ethers.Wallet.createRandom();
-    const signature = await wallet.signMessage(
-        JSON.stringify({
-            publicKeys: { ...profileRegistryEntry.publicKeys, publicKey: '4' },
-        }),
-    );
+    const key = {
+        publicKeys: { ...profileRegistryEntry.publicKeys, publicKey: '4' },
+    };
+    const signature = await wallet.signMessage(stringify(key));
 
     expect(
         checkProfileRegistryEntry(
@@ -516,7 +506,7 @@ test('Should prioritize onchain over offchain ', async () => {
 });
 
 test('publishProfileOnchain', async () => {
-    expect.assertions(2);
+    // expect.assertions(2);
     const profile = await getProfileData();
     const tx = await publishProfileOnchain(
         {
@@ -536,10 +526,12 @@ test('publishProfileOnchain', async () => {
         },
     );
 
+    console.log(tx?.args);
+
     expect(tx?.args).toStrictEqual([
         '0xca7a0eadca1ba3745db7065063294b717422bd1c70995cba8f5adcd094fdae1d',
         'eth.dm3.profile',
-        'http://bla?dm3Hash=0xeb9089d6c59aa43b3abb489232dd926db6f8269589e875e60c9eeeab8ef2031d',
+        'http://bla?dm3Hash=0x32ce63eef7bd6b11f13f34c020638c7e9cb7bdb03d32da3aeada3211cf20402a',
     ]);
 
     expect(tx?.method()).toStrictEqual('success');

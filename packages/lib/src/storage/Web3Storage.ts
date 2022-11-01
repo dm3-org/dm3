@@ -1,3 +1,4 @@
+import stringify from 'safe-stable-stringify';
 import { Web3Storage, Web3File } from 'web3.storage';
 import { UserDB } from '.';
 import { Acknoledgment } from '../delivery';
@@ -30,7 +31,7 @@ export async function web3Store(
     const syncResult = sync(userDb);
 
     const client = new Web3Storage({ token: connection.storageToken });
-    const blob = new Blob([JSON.stringify(syncResult.userStorage)], {
+    const blob = new Blob([stringify(syncResult.userStorage)], {
         type: 'text/json',
     });
 

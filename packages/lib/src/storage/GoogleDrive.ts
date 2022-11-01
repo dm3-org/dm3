@@ -1,3 +1,4 @@
+import stringify from 'safe-stable-stringify';
 import { UserDB } from '.';
 import { Acknoledgment } from '../delivery';
 import { log } from '../shared/log';
@@ -25,12 +26,12 @@ async function createGoogleDriveFile(
     const multipartRequestBody =
         delimiter +
         'Content-Type: application/json\r\n\r\n' +
-        JSON.stringify(metadata) +
+        stringify(metadata) +
         delimiter +
         'Content-Type: ' +
         contentType +
         '\r\n\r\n' +
-        JSON.stringify(data) +
+        stringify(data) +
         close_delimiter;
 
     return gapi.client.request({
@@ -90,7 +91,7 @@ export async function googleLoad(gapi: any): Promise<string | undefined> {
                 .execute(),
         );
 
-    return JSON.stringify(
+    return stringify(
         (
             await gapi.client.drive.files.get({
                 fileId: files[0].id,

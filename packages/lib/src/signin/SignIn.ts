@@ -11,6 +11,7 @@ import {
 } from '../external-apis/BackendAPI';
 import { PersonalSign } from '../external-apis/InjectedWeb3API';
 import { GetSymmetricalKeyFromSignature } from '../encryption/SymmetricalEncryption';
+import stringify from 'safe-stable-stringify';
 
 export async function reAuth(
     connection: Connection,
@@ -71,7 +72,7 @@ export async function signIn(
             const signature = await personalSign(
                 provider,
                 account,
-                JSON.stringify(profileRegistryEntry),
+                stringify(profileRegistryEntry),
             );
 
             deliveryServiceToken = await submitProfileRegistryEntry(
