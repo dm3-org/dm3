@@ -35,5 +35,8 @@
         "prepare": "husky install",
         "test": "./test-all.sh"
     },
-    "packageManager": "yarn@1.22.19"
+    "packageManager": "yarn@1.22.19",
+    "resolutions": {
+        "autoprefixer": "10.4.5"
+    }
 }
