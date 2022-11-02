@@ -20,9 +20,9 @@ import {
     getBrowserStorageKey,
     getContacts,
     getUserProfile,
+    UserProfile,
     publishProfileOnchain,
     SignedUserProfile,
-    UserProfile,
 } from './Account';
 
 const connection: Connection = {
@@ -104,7 +104,7 @@ test('checkProfileHash should accept a correct hash ', async () => {
     };
 
     const wallet = ethers.Wallet.createRandom();
-    const signature = await wallet.signMessage(stringify(profile));
+    const signature = await wallet.signMessage(stringify(profile)!);
     const signedProfile = {
         profile,
         signature,
@@ -181,10 +181,9 @@ test('checkUserProfile should reject an invalid signature ', async () => {
     };
 
     const wallet = ethers.Wallet.createRandom();
+
     const signature = await wallet.signMessage(
-        stringify({
-            publicKeys: { ...profile, publicKey: '4' },
-        })!,
+        stringify(profile.publicEncryptionKey),
     );
 
     expect(
@@ -456,7 +455,7 @@ test('Should prioritize onchain over offchain ', async () => {
 });
 
 test('publishProfileOnchain', async () => {
-    expect.assertions(2);
+    // expect.assertions(2);
     const profile = await getProfileData();
     const tx = await publishProfileOnchain(
         {

@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import './Dm3.css';
 import 'react-chat-widget/lib/styles.css';
 import socketIOClient from 'socket.io-client';
@@ -167,9 +167,25 @@ function dm3(props: dm3Props) {
         });
     };
 
+    const [deliveryServiceUrl, setdeliveryServiceUrl] = useState('');
+
+    useEffect(() => {
+        const getDeliveryServiceUrl = async () => {
+            if (state?.connection?.account?.profile === undefined) {
+                return;
+            }
+            const { url } = await Lib.Delivery.getDeliveryServiceProfile(
+                state.connection.account.profile,
+            );
+            setdeliveryServiceUrl(url);
+        };
+
+        getDeliveryServiceUrl();
+    }, [state.connection.account?.profile]);
     useEffect(() => {
         if (
             state.connection.connectionState === Lib.ConnectionState.SignedIn &&
+            deliveryServiceUrl !== '' &&
             !state.connection.socket
         ) {
             if (!state.userDb) {
@@ -182,10 +198,9 @@ function dm3(props: dm3Props) {
                 throw Error('Could not get account profile');
             }
 
-            const socket = socketIOClient(
-                state.connection.account.profile.deliveryServices[0],
-                { autoConnect: false },
-            );
+            const socket = socketIOClient(deliveryServiceUrl, {
+                autoConnect: false,
+            });
             socket.auth = {
                 account: state.connection.account,
                 token: state.userDb.deliveryServiceToken,

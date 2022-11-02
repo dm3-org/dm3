@@ -217,7 +217,7 @@ export function checkUserProfile(
 ): boolean {
     return (
         ethers.utils.recoverAddress(
-            ethers.utils.hashMessage(stringify(signedUserProfile.profile)),
+            ethers.utils.hashMessage(stringify(signedUserProfile.profile)!),
             signedUserProfile.signature,
         ) === formatAddress(accountAddress)
     );

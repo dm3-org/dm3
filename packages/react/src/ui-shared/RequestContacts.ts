@@ -1,3 +1,4 @@
+import { profile } from 'console';
 import * as Lib from 'dm3-lib';
 import { ethers } from 'ethers';
 
@@ -48,7 +49,7 @@ export async function requestContacts(
             (contact: Lib.Account) =>
                 Lib.formatAddress(contact.address) ===
                 Lib.formatAddress(selectedContact.address),
-        )?.profile?.publicEncryptionKey
+        )
     ) {
         setSelectedContact(
             retrievedContacts.find(

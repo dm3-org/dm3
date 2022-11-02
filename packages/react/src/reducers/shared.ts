@@ -37,7 +37,7 @@ export const initialState: GlobalState = {
     connection: {
         connectionState: Lib.ConnectionState.CollectingSignInData,
         storageLocation: Lib.StorageLocation.dm3Storage,
-        defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
+        defaultServiceUrl: 'http://localhost:8080' as string,
     },
     accounts: {
         contacts: undefined,

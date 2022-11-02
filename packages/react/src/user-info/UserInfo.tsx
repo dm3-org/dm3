@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './UserInfo.css';
 import { GlobalContext } from '../GlobalContextProvider';
 import * as Lib from 'dm3-lib';
@@ -29,6 +29,22 @@ function UserInfo(props: UserInfoProps) {
     const [ensTextRecords, setEnsTextRecords] = useState<
         EnsTextRecords | undefined
     >();
+
+    const [deliveryServiceUrl, setdeliveryServiceUrl] = useState('');
+
+    useEffect(() => {
+        const getDeliveryServiceUrl = async () => {
+            if (state?.connection?.account?.profile === undefined) {
+                return;
+            }
+            const { url } = await Lib.Delivery.getDeliveryServiceProfile(
+                state.connection.account.profile,
+            );
+            setdeliveryServiceUrl(url);
+        };
+
+        getDeliveryServiceUrl();
+    }, [state.connection.account?.profile]);
 
     const ensName = state.cache.ensNames.get(props.account.address);
 
@@ -238,13 +254,13 @@ function UserInfo(props: UserInfoProps) {
                             <a
                                 className="text-decoration-none text-muted align-self-center"
                                 href={
-                                    props.account.profile.deliveryServices[0] +
+                                    deliveryServiceUrl +
                                     '/profile/' +
                                     props.account.address
                                 }
                                 target="_blank"
                             >
-                                {props.account.profile.deliveryServices[0] +
+                                {deliveryServiceUrl +
                                     '/profile/' +
                                     props.account.address}
                             </a>
