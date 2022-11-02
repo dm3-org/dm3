@@ -1,4 +1,3 @@
-import { getData } from 'ajv/dist/compile/validate';
 import { ethers } from 'ethers';
 import stringify from 'safe-stable-stringify';
 
@@ -14,8 +13,8 @@ import {
     Account,
     addContact,
     checkProfileHash,
-    checkUserProfile,
     checkStringSignature,
+    checkUserProfile,
     createHashUrlParam,
     getAccountDisplayName,
     getBrowserStorageKey,
@@ -51,7 +50,7 @@ const getProfileData = async (): Promise<{
 
     const wallet = ethers.Wallet.fromMnemonic(mnemonic);
 
-    const signature = await wallet.signMessage(stringify(profile)!);
+    const signature = await wallet.signMessage(stringify(profile));
 
     return {
         account: {
@@ -127,7 +126,7 @@ test('checkProfileHash should reject  an invalid hash ', async () => {
         deliveryServices: [''],
     };
     const wallet = ethers.Wallet.createRandom();
-    const signature = await wallet.signMessage(stringify(profile)!);
+    const signature = await wallet.signMessage(stringify(profile));
     const signedProfile = {
         profile,
         signature,

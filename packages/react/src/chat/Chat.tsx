@@ -82,7 +82,7 @@ function Chat() {
             return account.profile?.publicSigningKey
                 ? Lib.encryption.checkSignature(
                       container.envelop.message,
-                      account.profile?.publicEncryptionKey,
+                      account.profile?.publicSigningKey,
                       account.address,
                       container.envelop.signature,
                   )

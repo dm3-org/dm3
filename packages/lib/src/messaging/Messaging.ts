@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import {
     decryptEnvelop,
+    decryptSafely,
     EncryptSafely,
     SignWithSignatureKey,
 } from '../encryption/Encryption';
@@ -50,12 +51,18 @@ export interface Envelop {
     id?: string;
 }
 
+export interface Postmark {
+    messageHash: string;
+    incommingTimestamp: number;
+    signature: string;
+}
+
 export interface EncryptionEnvelop {
     encryptionVersion: 'x25519-xsalsa20-poly1305';
     encryptedData: string;
     to: string;
     from: string;
-    deliveryServiceIncommingTimestamp?: number;
+    postmark?: string;
 }
 
 export enum MessageState {
@@ -171,6 +178,19 @@ function decryptMessages(
     );
 }
 
+export function decryptPostmark(
+    envelops: EncryptionEnvelop[],
+    userDb: UserDB,
+): Postmark[] {
+    return envelops.map(
+        ({ encryptedData }) =>
+            decryptSafely({
+                encryptedData: JSON.parse(encryptedData),
+                privateKey: userDb.keys.privateMessagingKey,
+            }) as Postmark,
+    );
+}
+
 export async function getMessages(
     connection: Connection,
     contact: string,
@@ -181,22 +201,17 @@ export async function getMessages(
     const envelops = await Promise.all(
         (
             await getNewMessages(connection, userDb, contact)
-        )
-            .filter((envelop) =>
-                envelop.deliveryServiceIncommingTimestamp ? true : false,
-            )
-            .map(async (envelop): Promise<StorageEnvelopContainer> => {
-                const decryptedEnvelop = await decryptMessages(
-                    [envelop],
-                    userDb,
-                );
-                return {
-                    envelop: decryptedEnvelop[0],
-                    messageState: MessageState.Send,
-                    deliveryServiceIncommingTimestamp:
-                        envelop.deliveryServiceIncommingTimestamp!,
-                };
-            }),
+        ).map(async (envelop): Promise<StorageEnvelopContainer> => {
+            const decryptedEnvelop = await decryptMessages([envelop], userDb);
+            const decryptedPostmark = decryptPostmark([envelop], userDb);
+
+            return {
+                envelop: decryptedEnvelop[0],
+                messageState: MessageState.Send,
+                deliveryServiceIncommingTimestamp:
+                    decryptedPostmark[0].incommingTimestamp,
+            };
+        }),
     );
 
     storeMessages(envelops);

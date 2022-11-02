@@ -143,6 +143,10 @@ function dm3(props: dm3Props) {
             state.userDb as Lib.storage.UserDB,
             envelop,
         );
+        const [{ incommingTimestamp }] = Lib.decryptPostmark(
+            [envelop],
+            state.userDb as Lib.UserDB,
+        );
 
         if (!state.userDb) {
             throw Error(
@@ -150,7 +154,7 @@ function dm3(props: dm3Props) {
             );
         }
 
-        if (!envelop.deliveryServiceIncommingTimestamp) {
+        if (!incommingTimestamp) {
             throw Error(`[handleNewMessage] No delivery service timestamp`);
         }
 
