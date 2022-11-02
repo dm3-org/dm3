@@ -10,6 +10,7 @@ import { log } from '../shared/log';
 import { Keys } from '../account/Account';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { UserDB } from '../storage/Storage';
+import stringify from 'safe-stable-stringify';
 
 export interface EthEncryptedData {
     version: string;
@@ -119,10 +120,7 @@ export function encryptSafely({
     };
 
     // calculate padding
-    const dataLength = Buffer.byteLength(
-        JSON.stringify(dataWithPadding),
-        'utf-8',
-    );
+    const dataLength = Buffer.byteLength(stringify(dataWithPadding), 'utf-8');
     const modVal = dataLength % DEFAULT_PADDING_LENGTH;
     let padLength = 0;
     // Only pad if necessary
@@ -131,7 +129,7 @@ export function encryptSafely({
     }
     dataWithPadding.padding = '0'.repeat(padLength);
 
-    const paddedMessage = JSON.stringify(dataWithPadding);
+    const paddedMessage = stringify(dataWithPadding);
     return encrypt({ publicKey, data: paddedMessage, version });
 }
 export type EncryptSafely = typeof encryptSafely;
@@ -256,7 +254,7 @@ export function checkSignature(
     signature: string,
 ): boolean {
     const isValid = nacl.sign.detached.verify(
-        ethers.utils.toUtf8Bytes(JSON.stringify(message)),
+        ethers.utils.toUtf8Bytes(stringify(message)),
         ethers.utils.arrayify(signature),
         nacl_decodeHex(publicSigningKey),
     );
@@ -275,7 +273,7 @@ export function checkSignature(
 export function signWithSignatureKey(message: any, keys: Keys): string {
     return ethers.utils.hexlify(
         nacl.sign.detached(
-            ethers.utils.toUtf8Bytes(JSON.stringify(message)),
+            ethers.utils.toUtf8Bytes(stringify(message)!),
             naclUtil.decodeBase64(keys.privateSigningKey as string),
         ),
     );

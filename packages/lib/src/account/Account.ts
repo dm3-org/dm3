@@ -27,6 +27,7 @@ import {
 import { GetUserProfile } from '..';
 import { log } from '../shared/log';
 import queryString from 'query-string';
+import stringify from 'safe-stable-stringify';
 
 export interface Keys {
     publicMessagingKey: string;
@@ -216,7 +217,7 @@ export function checkUserProfile(
 ): boolean {
     return (
         ethers.utils.recoverAddress(
-            ethers.utils.hashMessage(JSON.stringify(signedUserProfile.profile)),
+            ethers.utils.hashMessage(stringify(signedUserProfile.profile)!),
             signedUserProfile.signature,
         ) === formatAddress(accountAddress)
     );
@@ -280,15 +281,14 @@ export function checkProfileHash(
 ): boolean {
     const parsedUri = queryString.parseUrl(uri);
     return (
-        ethers.utils.keccak256(
-            ethers.utils.toUtf8Bytes(JSON.stringify(profile)),
-        ) === parsedUri.query.dm3Hash
+        ethers.utils.keccak256(ethers.utils.toUtf8Bytes(stringify(profile))) ===
+        parsedUri.query.dm3Hash
     );
 }
 
 export function createHashUrlParam(profile: SignedUserProfile): string {
     return `dm3Hash=${ethers.utils.keccak256(
-        ethers.utils.toUtf8Bytes(JSON.stringify(profile)),
+        ethers.utils.toUtf8Bytes(stringify(profile)),
     )}`;
 }
 
