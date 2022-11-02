@@ -22,9 +22,9 @@ import {
 } from '../encryption/SymmetricalEncryption';
 import {
     GetPendingConversations,
-    GetProfileRegistryEntryOffChain,
+    GetUserProfileOffChain,
 } from '../external-apis/BackendAPI';
-import { GetProfileRegistryEntry } from '..';
+import { GetUserProfile } from '..';
 import { log } from '../shared/log';
 import queryString from 'query-string';
 import stringify from 'safe-stable-stringify';
@@ -38,19 +38,16 @@ export interface Keys {
     storageEncryptionKeySalt: string;
 }
 
-export interface ProfileRegistryEntry {
-    publicKeys: PublicKeys;
-    deliveryServiceUrl: string;
-}
-
-export interface SignedProfileRegistryEntry {
-    profileRegistryEntry: ProfileRegistryEntry;
-    signature: string;
-}
-
-export interface PublicKeys {
-    publicMessagingKey: string;
+export interface UserProfile {
+    publicEncryptionKey: string;
     publicSigningKey: string;
+    deliveryServices: string[];
+    mutableProfileExtensionUrl?: string;
+}
+
+export interface SignedUserProfile {
+    profile: UserProfile;
+    signature: string;
 }
 
 export interface PrivateKeys {
@@ -60,12 +57,12 @@ export interface PrivateKeys {
 
 export interface Account {
     address: string;
-    profile?: ProfileRegistryEntry;
+    profile?: UserProfile;
 }
 
 export async function getContacts(
     connection: Connection,
-    getProfileRegistryEntry: GetProfileRegistryEntry,
+    getUserProfile: GetUserProfile,
     getPendingConversations: GetPendingConversations,
     resolveName: ResolveName,
     userDb: UserDB,
@@ -108,10 +105,7 @@ export async function getContacts(
                     : formatAddress(addresses[0]),
             )
             .map(async (address) => {
-                const profile = await getProfileRegistryEntry(
-                    connection,
-                    address,
-                );
+                const profile = await getUserProfile(connection, address);
                 return {
                     address,
                     profile: profile,
@@ -125,7 +119,7 @@ export async function getContacts(
         .filter(
             (uncheckedProfile) =>
                 (uncheckedProfile.profile &&
-                    checkProfileRegistryEntry(
+                    checkUserProfile(
                         uncheckedProfile.profile,
                         uncheckedProfile.address,
                     )) ||
@@ -133,7 +127,7 @@ export async function getContacts(
         )
         .map((profileContainer) => ({
             address: profileContainer.address,
-            profile: profileContainer.profile?.profileRegistryEntry,
+            profile: profileContainer.profile?.profile,
         }));
 }
 
@@ -217,23 +211,14 @@ export async function addContact(
     }
 }
 
-export function extractPublicKeys(keys: Keys): PublicKeys {
-    return {
-        publicMessagingKey: keys.publicMessagingKey,
-        publicSigningKey: keys.publicSigningKey,
-    };
-}
-
-export function checkProfileRegistryEntry(
-    signedProfileRegistryEntry: SignedProfileRegistryEntry,
+export function checkUserProfile(
+    signedUserProfile: SignedUserProfile,
     accountAddress: string,
 ): boolean {
     return (
         ethers.utils.recoverAddress(
-            ethers.utils.hashMessage(
-                stringify(signedProfileRegistryEntry.profileRegistryEntry),
-            ),
-            signedProfileRegistryEntry.signature,
+            ethers.utils.hashMessage(stringify(signedUserProfile.profile)!),
+            signedUserProfile.signature,
         ) === formatAddress(accountAddress)
     );
 }
@@ -258,16 +243,14 @@ export function getBrowserStorageKey(accountAddress: string) {
     return 'userStorageSnapshot' + formatAddress(accountAddress);
 }
 
-export async function getProfileRegistryEntry(
+export async function getUserProfile(
     connection: Connection,
     contact: string,
-    getProfileOffChain: GetProfileRegistryEntryOffChain,
+    getProfileOffChain: GetUserProfileOffChain,
     getEnsTextRecord: GetEnsTextRecord,
-    getRessource: (
-        uri: string,
-    ) => Promise<SignedProfileRegistryEntry | undefined>,
+    getRessource: (uri: string) => Promise<SignedUserProfile | undefined>,
     profileUrl?: string,
-): Promise<SignedProfileRegistryEntry | undefined> {
+): Promise<SignedUserProfile | undefined> {
     const uri = await getEnsTextRecord(
         connection.provider!,
         contact,
@@ -275,7 +258,7 @@ export async function getProfileRegistryEntry(
     );
 
     if (uri) {
-        log(`[getProfileRegistryEntry] Onchain uri ${uri}`);
+        log(`[getUserProfile] Onchain uri ${uri}`);
         const profile = await getRessource(uri);
 
         if (!profile) {
@@ -287,13 +270,13 @@ export async function getProfileRegistryEntry(
         }
         return profile;
     } else {
-        log(`[getProfileRegistryEntry] Offchain`);
+        log(`[getUserProfile] Offchain`);
         return getProfileOffChain(connection.account, contact, profileUrl);
     }
 }
 
 export function checkProfileHash(
-    profile: SignedProfileRegistryEntry,
+    profile: SignedUserProfile,
     uri: string,
 ): boolean {
     const parsedUri = queryString.parseUrl(uri);
@@ -303,9 +286,7 @@ export function checkProfileHash(
     );
 }
 
-export function createHashUrlParam(
-    profile: SignedProfileRegistryEntry,
-): string {
+export function createHashUrlParam(profile: SignedUserProfile): string {
     return `dm3Hash=${ethers.utils.keccak256(
         ethers.utils.toUtf8Bytes(stringify(profile)),
     )}`;
@@ -317,7 +298,7 @@ export async function publishProfileOnchain(
     lookupAddress: LookupAddress,
     getResolver: GetResolver,
     getConractInstance: GetConractInstance,
-    getProfileOffChain: GetProfileRegistryEntryOffChain,
+    getProfileOffChain: GetUserProfileOffChain,
 ) {
     if (!connection.provider) {
         throw Error('No provider');
@@ -357,7 +338,7 @@ export async function publishProfileOnchain(
         throw Error('could not load account profile');
     }
 
-    if (!checkProfileRegistryEntry(ownProfile, connection.account.address)) {
+    if (!checkUserProfile(ownProfile, connection.account.address)) {
         throw Error('account profile check failed');
     }
 

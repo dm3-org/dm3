@@ -3,9 +3,9 @@ import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { Session } from './Session';
 import { v4 as uuidv4 } from 'uuid';
 import {
-    checkProfileRegistryEntry,
+    checkUserProfile,
     checkStringSignature,
-    SignedProfileRegistryEntry,
+    SignedUserProfile,
 } from '../account/Account';
 
 export async function createChallenge(
@@ -55,24 +55,24 @@ export async function createNewSessionToken(
     }
 }
 
-export async function submitProfileRegistryEntry(
+export async function submitUserProfile(
     getSession: (accountAddress: string) => Promise<Session | null>,
     setSession: (accountAddress: string, session: Session) => Promise<void>,
     accountAddress: string,
-    signedProfileRegistryEntry: SignedProfileRegistryEntry,
+    signedUserProfile: SignedUserProfile,
     getPendingConversations: (accountAddress: string) => Promise<string[]>,
     send: (socketId: string) => void,
 ): Promise<string> {
     const account = formatAddress(accountAddress);
 
-    if (checkProfileRegistryEntry(signedProfileRegistryEntry, account)) {
+    if (checkUserProfile(signedUserProfile, account)) {
         if (await getSession(account)) {
             throw Error('Profile exists already');
         }
 
         const session: Session = {
             account,
-            signedProfileRegistryEntry,
+            signedUserProfile,
             token: uuidv4(),
         };
 
@@ -95,14 +95,14 @@ export async function submitProfileRegistryEntry(
     }
 }
 
-export async function getProfileRegistryEntry(
+export async function getUserProfile(
     getSession: (accountAddress: string) => Promise<Session | null>,
     accountAddress: string,
-): Promise<SignedProfileRegistryEntry | undefined> {
+): Promise<SignedUserProfile | undefined> {
     const account = formatAddress(accountAddress);
     const session = await getSession(account);
     if (session) {
-        return session.signedProfileRegistryEntry;
+        return session.signedUserProfile;
     } else {
         return;
     }

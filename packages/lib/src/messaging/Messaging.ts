@@ -137,8 +137,7 @@ export async function submitMessage(
                 ethers.utils.toUtf8Bytes(
                     stringify(
                         encryptSafely({
-                            publicKey: to.profile.publicKeys
-                                ?.publicMessagingKey as string,
+                            publicKey: to.profile.publicEncryptionKey,
                             data: innerEnvelop,
                             version: 'x25519-xsalsa20-poly1305',
                         }),

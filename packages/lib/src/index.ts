@@ -15,10 +15,9 @@ import { signWithSignatureKey } from './encryption/Encryption';
 export type { Connection } from './web3-provider/Web3Provider';
 export type {
     Account,
-    PublicKeys,
     Keys,
-    ProfileRegistryEntry,
-    SignedProfileRegistryEntry,
+    UserProfile,
+    SignedUserProfile,
 } from './account/Account';
 export type {
     Message,
@@ -51,7 +50,6 @@ export {
 } from './storage';
 export {
     getAccountDisplayName,
-    extractPublicKeys,
     getBrowserStorageKey,
     checkStringSignature,
 } from './account/Account';
@@ -70,22 +68,22 @@ export {
 export { log } from './shared/log';
 export { getSessionToken } from './signin';
 
-export function getProfileRegistryEntry(
+export function getUserProfile(
     connection: Web3Provider.Connection,
     contact: string,
     profileUrl?: string,
-): Promise<Account.SignedProfileRegistryEntry | undefined> {
-    return Account.getProfileRegistryEntry(
+): Promise<Account.SignedUserProfile | undefined> {
+    return Account.getUserProfile(
         connection,
         contact,
-        BackendAPI.getProfileRegistryEntryOffChain,
+        BackendAPI.getUserProfileOffChain,
         Web3Api.getEnsTextRecord,
         async (uri) => (await axios.get(uri)).data,
         profileUrl,
     );
 }
 
-export type GetProfileRegistryEntry = typeof getProfileRegistryEntry;
+export type GetUserProfile = typeof getUserProfile;
 
 export function connectAccount(
     connection: Web3Provider.Connection,
@@ -94,7 +92,7 @@ export function connectAccount(
     return SignIn.connectAccount(
         connection,
         Web3Api.requestAccounts,
-        getProfileRegistryEntry,
+        getUserProfile,
         preSetAccount,
     );
 }
@@ -123,7 +121,7 @@ export function publishProfileOnchain(
         Web3Api.lookupAddress,
         Web3Api.getResolver,
         Web3Api.getConractInstance,
-        BackendAPI.getProfileRegistryEntryOffChain,
+        BackendAPI.getUserProfileOffChain,
     );
 }
 export async function addContact(
@@ -177,7 +175,7 @@ export async function signIn(
     return SignIn.signIn(
         connection,
         Web3Api.prersonalSign,
-        BackendAPI.submitProfileRegistryEntry,
+        BackendAPI.submitUserProfile,
         Account.createKeys,
         SymmetricalEncryption.getSymmetricalKeyFromSignature,
         browserDataFile,
@@ -233,7 +231,7 @@ export async function getContacts(
 ) {
     return Account.getContacts(
         connection,
-        getProfileRegistryEntry,
+        getUserProfile,
         BackendAPI.getPendingConversations,
         Web3Api.resolveName,
         userDb,
