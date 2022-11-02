@@ -36,9 +36,10 @@ export type MessageType =
     | 'NEW'
     | 'DELETE_REQUEST'
     | 'EDIT'
-    | 'THREAD_POST'
+    | 'REPLY'
     | 'REACTION'
-    | 'READ_RECEIPT';
+    | 'READ_RECEIPT'
+    | 'RESEND_REQUEST';
 
 export interface Attachment {
     type: string;
