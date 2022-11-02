@@ -19,7 +19,7 @@ import { UiStateType } from '../reducers/UiState';
 import StorageView from '../storage/StorageView';
 
 export interface EnvelopContainer {
-    envelop: Lib.Envelop;
+    envelop: Lib.messaging.Envelop;
     encrypted: boolean;
 }
 
@@ -29,11 +29,11 @@ function Chat() {
         toggleWidget();
     }
     const [messageStates, setMessageStates] = useState<
-        Map<string, Lib.MessageState>
-    >(new Map<string, Lib.MessageState>());
+        Map<string, Lib.messaging.MessageState>
+    >(new Map<string, Lib.messaging.MessageState>());
 
     const [messageContainers, setMessageContainers] = useState<
-        Lib.StorageEnvelopContainer[]
+        Lib.storage.StorageEnvelopContainer[]
     >([]);
 
     const getPastMessages = async () => {
@@ -42,10 +42,10 @@ function Chat() {
             throw Error('no contact selected');
         }
         handleMessages(
-            await Lib.getMessages(
+            await Lib.messaging.getMessages(
                 state.connection,
                 state.accounts.selectedContact.address,
-                state.userDb as Lib.UserDB,
+                state.userDb as Lib.storage.UserDB,
                 (envelops) =>
                     envelops.forEach((envelop) =>
                         dispatch({
@@ -65,22 +65,24 @@ function Chat() {
     };
 
     const handleMessages = async (
-        containers: Lib.StorageEnvelopContainer[],
+        containers: Lib.storage.StorageEnvelopContainer[],
     ): Promise<void> => {
         const checkedContainers = containers.filter((container) => {
             if (!state.accounts.selectedContact) {
                 throw Error('No selected contact');
             }
             const account =
-                Lib.formatAddress(container.envelop.message.from) ===
-                Lib.formatAddress(state.accounts.selectedContact.address)
+                Lib.external.formatAddress(container.envelop.message.from) ===
+                Lib.external.formatAddress(
+                    state.accounts.selectedContact.address,
+                )
                     ? state.accounts.selectedContact
                     : state.connection.account!;
 
-            return account.profile?.publicEncryptionKey
-                ? Lib.checkSignature(
+            return account.profile?.publicSigningKey
+                ? Lib.encryption.checkSignature(
                       container.envelop.message,
-                      account.profile?.publicEncryptionKey,
+                      account.profile?.publicSigningKey,
                       account.address,
                       container.envelop.signature,
                   )
@@ -89,17 +91,18 @@ function Chat() {
 
         const newMessages = checkedContainers
             .filter(
-                (conatier) => conatier.messageState === Lib.MessageState.Send,
+                (conatier) =>
+                    conatier.messageState === Lib.messaging.MessageState.Send,
             )
             .map((container) => ({
                 ...container,
-                messageState: Lib.MessageState.Read,
+                messageState: Lib.messaging.MessageState.Read,
             }));
 
         const oldMessages = checkedContainers.filter(
             (conatier) =>
-                conatier.messageState === Lib.MessageState.Read ||
-                conatier.messageState === Lib.MessageState.Created,
+                conatier.messageState === Lib.messaging.MessageState.Read ||
+                conatier.messageState === Lib.messaging.MessageState.Created,
         );
 
         setMessageContainers(oldMessages);
@@ -166,7 +169,7 @@ function Chat() {
                         messageState={
                             messageStates.get(
                                 container.envelop.message.timestamp.toString(),
-                            ) as Lib.MessageState
+                            ) as Lib.messaging.MessageState
                         }
                         time={container.envelop.message.timestamp}
                         ownMessage={
@@ -182,7 +185,7 @@ function Chat() {
 
     useEffect(() => {
         setMessageContainers([]);
-        setMessageStates(new Map<string, Lib.MessageState>());
+        setMessageStates(new Map<string, Lib.messaging.MessageState>());
         if (state.accounts.selectedContact) {
             getPastMessages();
         }
@@ -191,7 +194,7 @@ function Chat() {
     useEffect(() => {
         if (state.accounts.selectedContact && state.userDb) {
             handleMessages(
-                Lib.getConversation(
+                Lib.storage.getConversation(
                     state.accounts.selectedContact.address,
                     state.connection,
                     state.userDb,
@@ -202,7 +205,7 @@ function Chat() {
 
     const handleNewUserMessage = async (
         message: string,
-        userDb: Lib.UserDB,
+        userDb: Lib.storage.UserDB,
     ) => {
         deleteMessages(1);
         if (!state.accounts.selectedContact) {
@@ -215,24 +218,24 @@ function Chat() {
                 ? false
                 : true;
 
-        const messageData = Lib.createMessage(
+        const messageData = Lib.messaging.createMessage(
             state.accounts.selectedContact.address,
             state.connection.account!.address,
             message,
             userDb,
         );
         const messageId = messageData.timestamp.toString();
-        messageStates.set(messageId, Lib.MessageState.Created);
+        messageStates.set(messageId, Lib.messaging.MessageState.Created);
         setMessageStates(new Map(messageStates));
 
         try {
-            await Lib.submitMessage(
+            await Lib.messaging.submitMessage(
                 state.connection,
                 userDb,
                 state.accounts.selectedContact,
                 messageData,
                 haltDelivery,
-                (envelops: Lib.StorageEnvelopContainer[]) =>
+                (envelops: Lib.storage.StorageEnvelopContainer[]) =>
                     envelops.forEach((envelop) =>
                         dispatch({
                             type: UserDbType.addMessage,
@@ -244,13 +247,19 @@ function Chat() {
                     ),
 
                 () => {
-                    messageStates.set(messageId, Lib.MessageState.Send);
+                    messageStates.set(
+                        messageId,
+                        Lib.messaging.MessageState.Send,
+                    );
                     setMessageStates(new Map(messageStates));
                 },
             );
         } catch (e) {
             Lib.log(e as string);
-            messageStates.set(messageId, Lib.MessageState.FailedToSend);
+            messageStates.set(
+                messageId,
+                Lib.messaging.MessageState.FailedToSend,
+            );
             setMessageStates(new Map(messageStates));
         }
     };
@@ -265,7 +274,7 @@ function Chat() {
                     handleNewUserMessage={(message: string) =>
                         handleNewUserMessage(
                             message,
-                            state.userDb as Lib.UserDB,
+                            state.userDb as Lib.storage.UserDB,
                         )
                     }
                     showTimeStamp={false}

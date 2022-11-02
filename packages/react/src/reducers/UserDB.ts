@@ -11,23 +11,23 @@ export enum UserDbType {
 
 export type UserDbPayload = {
     [UserDbType.addMessage]: {
-        container: Lib.StorageEnvelopContainer;
+        container: Lib.storage.StorageEnvelopContainer;
         connection: Lib.Connection;
     };
-    [UserDbType.setDB]: Lib.UserDB;
+    [UserDbType.setDB]: Lib.storage.UserDB;
     [UserDbType.createEmptyConversation]: string;
     [UserDbType.setSynced]: boolean;
-    [UserDbType.setSyncProcessState]: Lib.SyncProcessState;
+    [UserDbType.setSyncProcessState]: Lib.storage.SyncProcessState;
 };
 
 export type UserDbActions =
     ActionMap<UserDbPayload>[keyof ActionMap<UserDbPayload>];
 
 export function userDbReducer(
-    state: Lib.UserDB | undefined,
+    state: Lib.storage.UserDB | undefined,
     action: UserDbActions,
-): Lib.UserDB | undefined {
-    const lastChangeTimestamp = Lib.createTimestamp();
+): Lib.storage.UserDB | undefined {
+    const lastChangeTimestamp = Lib.storage.createTimestamp();
     switch (action.type) {
         case UserDbType.addMessage:
             if (!state) {
@@ -38,7 +38,7 @@ export function userDbReducer(
             const connection = action.payload.connection;
             const newConversations = new Map<
                 string,
-                Lib.StorageEnvelopContainer[]
+                Lib.storage.StorageEnvelopContainer[]
             >(state.conversations);
 
             let hasChanged = false;
@@ -47,18 +47,18 @@ export function userDbReducer(
                 container.envelop.message.from === connection.account!.address
                     ? container.envelop.message.to
                     : container.envelop.message.from;
-            const conversationId = Lib.getConversationId(
+            const conversationId = Lib.storage.getConversationId(
                 contactAddress,
                 connection.account!.address,
             );
-            const prevContainers = Lib.getConversation(
+            const prevContainers = Lib.storage.getConversation(
                 contactAddress,
                 connection,
                 state,
             );
 
             if (!container.envelop.id) {
-                container.envelop.id = Lib.getId(container.envelop);
+                container.envelop.id = Lib.messaging.getId(container.envelop);
             }
 
             if (prevContainers.length === 0) {
@@ -81,7 +81,7 @@ export function userDbReducer(
 
                 newConversations.set(
                     conversationId,
-                    Lib.sortEnvelops([...otherContainer, container]),
+                    Lib.storage.sortEnvelops([...otherContainer, container]),
                 );
                 hasChanged = true;
             }

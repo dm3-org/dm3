@@ -37,7 +37,9 @@ function dm3(props: dm3Props) {
         );
     }
 
-    console.log(Lib.ConnectionState[state.connection.connectionState]);
+    console.log(
+        Lib.web3provider.ConnectionState[state.connection.connectionState],
+    );
 
     useEffect(() => {
         if (props.config.connectionStateChange) {
@@ -97,12 +99,12 @@ function dm3(props: dm3Props) {
         return requestContacts(
             connection,
             state.accounts.selectedContact,
-            (contact: Lib.Account | undefined) =>
+            (contact: Lib.account.Account | undefined) =>
                 dispatch({
                     type: AccountsType.SetSelectedContact,
                     payload: contact,
                 }),
-            (contacts: Lib.Account[]) =>
+            (contacts: Lib.account.Account[]) =>
                 dispatch({ type: AccountsType.SetContacts, payload: contacts }),
             (address: string, name: string) =>
                 dispatch({
@@ -132,11 +134,13 @@ function dm3(props: dm3Props) {
         );
     };
 
-    const handleNewMessage = async (envelop: Lib.EncryptionEnvelop) => {
+    const handleNewMessage = async (
+        envelop: Lib.messaging.EncryptionEnvelop,
+    ) => {
         Lib.log('New messages');
 
-        const innerEnvelop = Lib.decryptEnvelop(
-            state.userDb as Lib.UserDB,
+        const innerEnvelop = Lib.encryption.decryptEnvelop(
+            state.userDb as Lib.storage.UserDB,
             envelop,
         );
         const [{ incommingTimestamp }] = Lib.decryptPostmark(
@@ -159,8 +163,9 @@ function dm3(props: dm3Props) {
             payload: {
                 container: {
                     envelop: innerEnvelop,
-                    messageState: Lib.MessageState.Send,
-                    deliveryServiceIncommingTimestamp: incommingTimestamp,
+                    messageState: Lib.messaging.MessageState.Send,
+                    deliveryServiceIncommingTimestamp:
+                        envelop.deliveryServiceIncommingTimestamp,
                 },
                 connection: state.connection as Lib.Connection,
             },
@@ -174,7 +179,7 @@ function dm3(props: dm3Props) {
             if (state?.connection?.account?.profile === undefined) {
                 return;
             }
-            const { url } = await Lib.Delivery.getDeliveryServiceProfile(
+            const { url } = await Lib.delivery.getDeliveryServiceProfile(
                 state.connection.account.profile,
             );
             setdeliveryServiceUrl(url);
@@ -184,8 +189,8 @@ function dm3(props: dm3Props) {
     }, [state.connection.account?.profile]);
     useEffect(() => {
         if (
-            state.connection.connectionState === Lib.ConnectionState.SignedIn &&
-            deliveryServiceUrl !== '' &&
+            state.connection.connectionState ===
+                Lib.web3provider.ConnectionState.SignedIn &&
             !state.connection.socket
         ) {
             if (!state.userDb) {
@@ -206,7 +211,7 @@ function dm3(props: dm3Props) {
                 token: state.userDb.deliveryServiceToken,
             };
             socket.connect();
-            socket.on('message', (envelop: Lib.EncryptionEnvelop) => {
+            socket.on('message', (envelop: Lib.messaging.EncryptionEnvelop) => {
                 handleNewMessage(envelop);
             });
             socket.on('joined', () => {
@@ -222,7 +227,7 @@ function dm3(props: dm3Props) {
 
             state.connection.socket.on(
                 'message',
-                (envelop: Lib.EncryptionEnvelop) => {
+                (envelop: Lib.messaging.EncryptionEnvelop) => {
                     handleNewMessage(envelop);
                 },
             );
@@ -238,7 +243,8 @@ function dm3(props: dm3Props) {
     ]);
 
     const showHelp =
-        state.connection.connectionState === Lib.ConnectionState.SignedIn &&
+        state.connection.connectionState ===
+            Lib.web3provider.ConnectionState.SignedIn &&
         state.accounts.contacts &&
         state.accounts.contacts.length <= 1 &&
         state.uiState.maxLeftView &&

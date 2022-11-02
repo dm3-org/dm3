@@ -3,6 +3,7 @@ import express from 'express';
 import { getUserStorage, setUserStorage } from './redis';
 import { auth } from './utils';
 import cors from 'cors';
+import { stringify } from 'safe-stable-stringify';
 
 const router = express.Router();
 
@@ -12,11 +13,11 @@ router.param('address', auth);
 
 router.post('/:address', async (req, res, next) => {
     try {
-        const account = Lib.formatAddress(req.params.address);
+        const account = Lib.external.formatAddress(req.params.address);
 
         await setUserStorage(
             account,
-            JSON.stringify(req.body),
+            stringify(req.body),
             req.app.locals.redisClient,
         );
 
@@ -30,7 +31,7 @@ router.post('/:address', async (req, res, next) => {
 
 router.get('/:address', async (req, res, next) => {
     try {
-        const account = Lib.formatAddress(req.params.address);
+        const account = Lib.external.formatAddress(req.params.address);
 
         res.json(await getUserStorage(account, req.app.locals.redisClient));
     } catch (e) {

@@ -4,7 +4,7 @@ import * as Lib from 'dm3-lib';
 import { GlobalContext } from '../GlobalContextProvider';
 
 interface ChooseFileProps {
-    storageLocation: Lib.StorageLocation;
+    storageLocation: Lib.storage.StorageLocation;
     setDataFile: (dataFile: string | undefined) => void;
 }
 
@@ -26,7 +26,7 @@ function ChooseFile(props: ChooseFileProps) {
     if (
         !(
             state.uiState.proflieExists &&
-            props.storageLocation === Lib.StorageLocation.File
+            props.storageLocation === Lib.storage.StorageLocation.File
         )
     ) {
         return null;

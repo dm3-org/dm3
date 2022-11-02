@@ -41,7 +41,7 @@ function Contacts(props: ContactsProps) {
 
             {state.accounts.contacts &&
                 state.connection.connectionState ===
-                    Lib.ConnectionState.SignedIn && (
+                    Lib.web3provider.ConnectionState.SignedIn && (
                     <div className="text-center contact-list-container">
                         <ContactList />
                     </div>

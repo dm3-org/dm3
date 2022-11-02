@@ -9,12 +9,11 @@ import { ethers } from 'ethers';
 import detectEthereumProvider from '@metamask/detect-provider';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import { UserDbType } from '../reducers/UserDB';
-import { useContext, useState } from 'react';
 
 function handleNewProvider(
     creationsResult: {
         provider?: ethers.providers.Web3Provider | undefined;
-        connectionState: Lib.ConnectionState;
+        connectionState: Lib.web3provider.ConnectionState;
     },
     dispatch: React.Dispatch<Actions>,
 ) {
@@ -32,14 +31,14 @@ function handleNewProvider(
 
     if (
         creationsResult.connectionState !==
-        Lib.ConnectionState.AccountConntectReady
+        Lib.web3provider.ConnectionState.AccountConntectReady
     ) {
         throw Error('Could not connect to MetaMask');
     }
 }
 
 export async function getMetaMaskProvider(dispatch: React.Dispatch<Actions>) {
-    const web3Provider = await Lib.getWeb3Provider(
+    const web3Provider = await Lib.web3provider.getWeb3Provider(
         await detectEthereumProvider(),
     );
 
@@ -58,7 +57,7 @@ export async function getWalletConnectProvider(
     await provider.disconnect();
     await provider.enable();
 
-    const web3Provider = await Lib.getWeb3Provider(provider);
+    const web3Provider = await Lib.web3provider.getWeb3Provider(provider);
     handleNewProvider(web3Provider, dispatch);
 }
 
@@ -69,10 +68,10 @@ export async function connectAccount(
 ) {
     dispatch({
         type: ConnectionType.ChangeConnectionState,
-        payload: Lib.ConnectionState.WaitingForAccountConntection,
+        payload: Lib.web3provider.ConnectionState.WaitingForAccountConntection,
     });
 
-    const accountConnection = await Lib.connectAccount(
+    const accountConnection = await Lib.session.connectAccount(
         state.connection,
         preSetAccount,
     );
@@ -88,7 +87,7 @@ export async function connectAccount(
     );
     if (accountConnection.account && !accountConnection.existingAccount) {
         await localforage.removeItem(
-            Lib.getBrowserStorageKey(accountConnection.account),
+            Lib.account.getBrowserStorageKey(accountConnection.account),
         );
     }
 
@@ -105,7 +104,7 @@ export async function connectAccount(
             },
         });
 
-        const ensName = await Lib.lookupAddress(
+        const ensName = await Lib.external.lookupAddress(
             state.connection.provider as ethers.providers.JsonRpcProvider,
             accountConnection.account,
         );
@@ -127,7 +126,7 @@ export async function connectAccount(
 }
 
 export async function signIn(
-    storageLocation: Lib.StorageLocation,
+    storageLocation: Lib.storage.StorageLocation,
     token: string | undefined,
     storeApiToken: boolean,
     dataFile: string | undefined,
@@ -136,45 +135,45 @@ export async function signIn(
 ) {
     dispatch({
         type: ConnectionType.ChangeConnectionState,
-        payload: Lib.ConnectionState.WaitingForSignIn,
+        payload: Lib.web3provider.ConnectionState.WaitingForSignIn,
     });
 
     let data = dataFile;
 
-    const account: Lib.Account = {
+    const account: Lib.account.Account = {
         address: state.connection.account!.address,
     };
 
-    let browserDataFile: Lib.UserStorage | undefined | null =
+    let browserDataFile: Lib.storage.UserStorage | undefined | null =
         state.uiState.proflieExists && state.uiState.browserStorageBackup
             ? await localforage.getItem(
-                  Lib.getBrowserStorageKey(account.address),
+                  Lib.account.getBrowserStorageKey(account.address),
               )
             : null;
 
     let preLoadedKey: string | undefined;
-    let overwriteUserDb: Partial<Lib.UserDB> = {};
+    let overwriteUserDb: Partial<Lib.storage.UserDB> = {};
 
     if (state.uiState.proflieExists) {
         switch (storageLocation) {
-            case Lib.StorageLocation.Web3Storage:
+            case Lib.storage.StorageLocation.Web3Storage:
                 data = state.uiState.proflieExists
-                    ? await Lib.web3Load(token as string)
+                    ? await Lib.storage.web3Load(token as string)
                     : undefined;
                 break;
 
-            case Lib.StorageLocation.GoogleDrive:
+            case Lib.storage.StorageLocation.GoogleDrive:
                 data = state.uiState.proflieExists
-                    ? await Lib.googleLoad((window as any).gapi)
+                    ? await Lib.storage.googleLoad((window as any).gapi)
                     : undefined;
                 break;
 
-            case Lib.StorageLocation.dm3Storage:
+            case Lib.storage.StorageLocation.dm3Storage:
                 let authToken = (await localforage.getItem(
                     'ENS_MAIL_AUTH_' + account.address,
                 )) as string;
                 if (!authToken) {
-                    authToken = await Lib.reAuth(state.connection);
+                    authToken = await Lib.session.reAuth(state.connection);
                     await localforage.setItem(
                         'ENS_MAIL_AUTH_' + account.address,
                         authToken,
@@ -185,7 +184,10 @@ export async function signIn(
 
                 try {
                     data = state.uiState.proflieExists
-                        ? await Lib.getDm3Storage(state.connection, authToken)
+                        ? await Lib.storage.getDm3Storage(
+                              state.connection,
+                              authToken,
+                          )
                         : undefined;
                 } catch (e) {
                     if (
@@ -193,13 +195,13 @@ export async function signIn(
                             'Request failed with status code 401',
                         )
                     ) {
-                        authToken = await Lib.reAuth(state.connection);
+                        authToken = await Lib.session.reAuth(state.connection);
                         await localforage.setItem(
                             'ENS_MAIL_AUTH_' + account.address,
                             authToken,
                         );
                         data = state.uiState.proflieExists
-                            ? await Lib.getDm3Storage(
+                            ? await Lib.storage.getDm3Storage(
                                   state.connection,
                                   authToken,
                               )
@@ -224,10 +226,10 @@ export async function signIn(
     if (state.uiState.proflieExists && !browserDataFile && !data) {
         dispatch({
             type: ConnectionType.ChangeConnectionState,
-            payload: Lib.ConnectionState.SignInFailed,
+            payload: Lib.web3provider.ConnectionState.SignInFailed,
         });
     } else {
-        const singInRequest = await Lib.signIn(
+        const singInRequest = await Lib.session.signIn(
             state.connection,
             browserDataFile ? browserDataFile : undefined,
             data,
@@ -239,7 +241,7 @@ export async function signIn(
             Lib.log(`Setting session token`);
 
             account.profile = (
-                await Lib.getUserProfile(
+                await Lib.account.getUserProfile(
                     state.connection,
                     account.address,
                     state.connection.defaultServiceUrl +
@@ -251,7 +253,7 @@ export async function signIn(
             if (
                 token &&
                 storeApiToken &&
-                storageLocation === Lib.StorageLocation.Web3Storage
+                storageLocation === Lib.storage.StorageLocation.Web3Storage
             ) {
                 window.localStorage.setItem('StorageToken', token);
             }
