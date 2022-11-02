@@ -3,7 +3,7 @@ import queryString from 'query-string';
 import stringify from 'safe-stable-stringify';
 import nacl from 'tweetnacl';
 import { encodeBase64 } from 'tweetnacl-util';
-import { GetUserProfile } from '..';
+import { GetUserProfile } from '.';
 import { GetSymmetricalKeyFromSignature } from '../encryption/SymmetricalEncryption';
 import {
     GetPendingConversations,
