@@ -1,3 +1,5 @@
+import { Axios } from 'axios';
+import bodyParser from 'body-parser';
 import cors from 'cors';
 import * as Lib from 'dm3-lib/dist.backend';
 import express from 'express';
@@ -22,6 +24,7 @@ const server = http.createServer(app);
 
 //TODO remove
 app.use(cors());
+app.use(bodyParser.json());
 let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
 
 (async () => {
@@ -60,7 +63,7 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
     app.use('/storage', Storage);
     app.use('/auth', Auth);
     app.use('/delivery', Delivery);
-    app.use('/rpc', RpcProxy);
+    app.use('/rpc', RpcProxy(new Axios({ url: process.env.RPC })));
     app.use(logError);
     app.use(errorHandler);
 
