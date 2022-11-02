@@ -11,13 +11,13 @@ export async function auth(
     next: NextFunction,
     address: string,
 ) {
-    const account = Lib.formatAddress(address);
+    const account = Lib.external.formatAddress(address);
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
     if (
         token &&
-        (await Lib.Delivery.checkToken(
+        (await Lib.delivery.checkToken(
             req.app.locals.loadSession,
             account,
             token,
@@ -39,7 +39,7 @@ export function socketAuth(app: Express) {
         socket: Socket,
         next: (err?: ExtendedError | undefined) => void,
     ) => {
-        const account = Lib.formatAddress(
+        const account = Lib.external.formatAddress(
             socket.handshake.auth.account.address as string,
         );
         app.locals.logger.info({
@@ -49,7 +49,7 @@ export function socketAuth(app: Express) {
         });
 
         if (
-            !(await Lib.Delivery.checkToken(
+            !(await Lib.delivery.checkToken(
                 app.locals.loadSession,
                 account,
                 socket.handshake.auth.token as string,

@@ -22,7 +22,7 @@ function Avatar(props: AvatarProps) {
     const { state, dispatch } = useContext(GlobalContext);
 
     const getAvatar = async () => {
-        const address = Lib.formatAddress(props.accountAddress);
+        const address = Lib.external.formatAddress(props.accountAddress);
 
         let url = state.cache.avatarUrls.get(address);
 

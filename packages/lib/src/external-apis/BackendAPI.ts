@@ -1,15 +1,16 @@
 import axios from 'axios';
-import { log } from '../shared/log';
-import { EncryptionEnvelop, Envelop } from '../messaging/Messaging';
-import { Connection } from '../web3-provider/Web3Provider';
 import { Account, SignedUserProfile } from '../account/Account';
-import { UserDB } from '..';
 import { Acknoledgment } from '../delivery';
+import { getDeliveryServiceProfile } from '../delivery/Delivery';
+import { EncryptionEnvelop, Envelop } from '../messaging/Messaging';
+import { log } from '../shared/log';
+import { Connection } from '../web3-provider/Web3Provider';
 import { formatAddress } from './InjectedWeb3API';
+import { UserDB } from '../storage';
 
-const PROFILE = '/profile';
-const DELIVERY = '/delivery';
-const AUTH_SERVICE = '/auth';
+const PROFILE_PATH = '/profile';
+const DELIVERY_PATH = '/delivery';
+const AUTH_SERVICE_PATH = '/auth';
 
 function getAxiosConfig(token: string) {
     return {
@@ -30,14 +31,16 @@ function checkAccount(account: Account | undefined): Required<Account> {
 }
 
 export async function getChallenge(account: Account): Promise<string> {
-    const checkedAccount = checkAccount(account);
-    return (
-        await axios.get(
-            (checkedAccount.profile.deliveryServices[0] ?? '') +
-                AUTH_SERVICE +
-                `/${formatAddress(checkedAccount.address)}`,
-        )
-    ).data.challenge;
+    const { profile, address } = checkAccount(account);
+    const deliveryServiceUrl = await getDeliveryServiceProfile(profile);
+
+    const url = `${deliveryServiceUrl}${AUTH_SERVICE_PATH}/${formatAddress(
+        address,
+    )}`;
+
+    const { data } = await axios.get(url);
+
+    return data.challenge;
 }
 export type GetChallenge = typeof getChallenge;
 
@@ -45,17 +48,17 @@ export async function getNewToken(
     account: Account,
     signature: string,
 ): Promise<string> {
-    const checkedAccount = checkAccount(account);
-    return (
-        await axios.post(
-            (checkedAccount.profile.deliveryServices[0] ?? '') +
-                AUTH_SERVICE +
-                `/${formatAddress(checkedAccount.address)}`,
-            {
-                signature,
-            },
-        )
-    ).data.token;
+    const { profile, address } = checkAccount(account);
+    const deliveryServiceUrl = await getDeliveryServiceProfile(profile);
+    const url = `${deliveryServiceUrl}${AUTH_SERVICE_PATH}/${formatAddress(
+        address,
+    )}`;
+
+    const { data } = await axios.post(url, {
+        signature,
+    });
+
+    return data.token;
 }
 export type GetNewToken = typeof getNewToken;
 
@@ -63,15 +66,15 @@ export async function submitUserProfile(
     account: Account,
     signedUserProfile: SignedUserProfile,
 ): Promise<string> {
-    const checkedAccount = checkAccount(account);
-    return (
-        await axios.post(
-            `${(checkedAccount.profile.deliveryServices[0] ?? '') + PROFILE}/${
-                account.address
-            }`,
-            signedUserProfile,
-        )
-    ).data;
+    const { profile, address } = checkAccount(account);
+    const deliveryServiceUrl = await getDeliveryServiceProfile(profile);
+    const url = `${deliveryServiceUrl}${PROFILE_PATH}/${formatAddress(
+        address,
+    )}`;
+
+    const { data } = await axios.post(url, signedUserProfile);
+
+    return data;
 }
 export type SubmitUserProfile = typeof submitUserProfile;
 
@@ -104,18 +107,18 @@ export async function submitMessage(
 export type SubmitMessage = typeof submitMessage;
 
 export async function syncAcknoledgment(
-    connection: Connection,
+    { account }: Connection,
     acknoledgments: Acknoledgment[],
     userDb: UserDB,
     lastMessagePull: number,
 ): Promise<void> {
-    const checkedAccount = checkAccount(connection.account);
+    const { profile } = checkAccount(account);
+    const deliveryServiceUrl = await getDeliveryServiceProfile(profile);
+    const url = `${deliveryServiceUrl}${DELIVERY_PATH}/messages/${
+        account!.address
+    }/syncAcknoledgment/${lastMessagePull}`;
     return axios.post(
-        `${
-            (checkedAccount.profile.deliveryServices[0] ?? '') + DELIVERY
-        }/messages/${
-            connection.account!.address
-        }/syncAcknoledgment/${lastMessagePull}`,
+        url,
         { acknoledgments },
         getAxiosConfig(userDb.deliveryServiceToken),
     );
@@ -140,38 +143,42 @@ export async function createPendingEntry(
 export type CreatePendingEntry = typeof createPendingEntry;
 
 export async function getNewMessages(
-    connection: Connection,
+    { account }: Connection,
     userDb: UserDB,
     contactAddress: string,
 ): Promise<EncryptionEnvelop[]> {
-    const checkedAccount = checkAccount(connection.account);
-    return (
-        await axios.get(
-            `${
-                (checkedAccount.profile.deliveryServices[0] ?? '') + DELIVERY
-            }/messages/${
-                connection.account!.address
-            }/contact/${contactAddress}`,
-            getAxiosConfig(userDb.deliveryServiceToken),
-        )
-    ).data;
+    const { profile } = checkAccount(account);
+    const deliveryServiceUrl = await getDeliveryServiceProfile(profile);
+    const url = `${deliveryServiceUrl}${DELIVERY_PATH}/messages/${
+        account!.address
+    }/contact/${contactAddress}`;
+
+    const { data } = await axios.get(
+        url,
+        getAxiosConfig(userDb.deliveryServiceToken),
+    );
+
+    return data;
 }
 export type GetNewMessages = typeof getNewMessages;
 
 export async function getPendingConversations(
-    connection: Connection,
+    { account }: Connection,
     userDb: UserDB,
 ): Promise<string[]> {
-    const checkedAccount = checkAccount(connection.account);
-    return (
-        await axios.post(
-            `${
-                (checkedAccount.profile.deliveryServices[0] ?? '') + DELIVERY
-            }/messages/${connection.account!.address}/pending`,
-            {},
-            getAxiosConfig(userDb.deliveryServiceToken),
-        )
-    ).data;
+    const { profile } = checkAccount(account);
+    const deliveryServiceUrl = await getDeliveryServiceProfile(profile);
+    const url = `${deliveryServiceUrl}${DELIVERY_PATH}/messages/${
+        account!.address
+    }/pending/`;
+
+    const { data } = await axios.post(
+        url,
+        {},
+        getAxiosConfig(userDb.deliveryServiceToken),
+    );
+
+    return data;
 }
 export type GetPendingConversations = typeof getPendingConversations;
 
@@ -180,20 +187,16 @@ export async function getUserProfileOffChain(
     contact: string,
     url?: string,
 ): Promise<SignedUserProfile | undefined> {
-    if (!url) {
+    const getFallbackUrl = async () => {
         checkAccount(account);
-    }
+        const { profile } = checkAccount(account);
+        const deliveryServiceUrl = await getDeliveryServiceProfile(profile);
+        return `${deliveryServiceUrl}${PROFILE_PATH}/${contact}`;
+    };
+
     try {
-        return (
-            await axios.get(
-                url
-                    ? url
-                    : `${
-                          (checkAccount(account).profile.deliveryServices[0] ??
-                              '') + PROFILE
-                      }/${contact}`,
-            )
-        ).data;
+        const { data } = await axios.get(url ? url : await getFallbackUrl());
+        return data;
     } catch (e) {
         if ((e as Error).message.includes('404')) {
             return undefined;

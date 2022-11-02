@@ -30,7 +30,7 @@ function ConnectButton(props: ConnectButtonProps) {
         if (
             state.connection.provider &&
             state.connection.connectionState ===
-                Lib.ConnectionState.AccountConntectReady
+                Lib.web3provider.ConnectionState.AccountConntectReady
         ) {
             if (selectedWallet === SelectedWallet.WalletConnect) {
                 const account = (
@@ -46,23 +46,23 @@ function ConnectButton(props: ConnectButtonProps) {
     }, [state.connection.provider, state.connection.connectionState]);
 
     const getButtonState = (
-        connectionState: Lib.ConnectionState,
+        connectionState: Lib.web3provider.ConnectionState,
     ): ButtonState => {
         switch (connectionState) {
-            case Lib.ConnectionState.SignInFailed:
-            case Lib.ConnectionState.ConnectionRejected:
+            case Lib.web3provider.ConnectionState.SignInFailed:
+            case Lib.web3provider.ConnectionState.ConnectionRejected:
                 return ButtonState.Failed;
 
-            case Lib.ConnectionState.SignInReady:
-            case Lib.ConnectionState.WaitingForSignIn:
-            case Lib.ConnectionState.WaitingForAccountConntection:
+            case Lib.web3provider.ConnectionState.SignInReady:
+            case Lib.web3provider.ConnectionState.WaitingForSignIn:
+            case Lib.web3provider.ConnectionState.WaitingForAccountConntection:
                 return ButtonState.Loading;
 
-            case Lib.ConnectionState.SignedIn:
+            case Lib.web3provider.ConnectionState.SignedIn:
                 return ButtonState.Success;
 
-            case Lib.ConnectionState.AccountConntectReady:
-            case Lib.ConnectionState.CollectingSignInData:
+            case Lib.web3provider.ConnectionState.AccountConntectReady:
+            case Lib.web3provider.ConnectionState.CollectingSignInData:
             default:
                 return ButtonState.Idel;
         }
@@ -70,10 +70,11 @@ function ConnectButton(props: ConnectButtonProps) {
 
     const buttonDisabled = !(
         state.connection.connectionState ===
-            Lib.ConnectionState.AccountConntectReady ||
+            Lib.web3provider.ConnectionState.AccountConntectReady ||
         state.connection.connectionState ===
-            Lib.ConnectionState.ConnectionRejected ||
-        state.connection.connectionState === Lib.ConnectionState.SignInFailed
+            Lib.web3provider.ConnectionState.ConnectionRejected ||
+        state.connection.connectionState ===
+            Lib.web3provider.ConnectionState.SignInFailed
     );
 
     const stateButton = (
@@ -107,7 +108,7 @@ function ConnectButton(props: ConnectButtonProps) {
                     disabled={buttonDisabled}
                     className={`${
                         state.connection.connectionState ===
-                        Lib.ConnectionState.AccountConntectReady
+                        Lib.web3provider.ConnectionState.AccountConntectReady
                             ? 'mt-2'
                             : ''
                     } ${

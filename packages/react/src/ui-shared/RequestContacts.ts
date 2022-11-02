@@ -1,18 +1,19 @@
+import { profile } from 'console';
 import * as Lib from 'dm3-lib';
 import { ethers } from 'ethers';
 
 export async function requestContacts(
     connection: Lib.Connection,
-    selectedContact: Lib.Account | undefined,
-    setSelectedContact: (account: Lib.Account | undefined) => void,
-    setContacts: (constacts: Lib.Account[]) => void,
+    selectedContact: Lib.account.Account | undefined,
+    setSelectedContact: (account: Lib.account.Account | undefined) => void,
+    setContacts: (constacts: Lib.account.Account[]) => void,
     addEnsName: (address: string, name: string) => void,
-    userDb: Lib.UserDB,
+    userDb: Lib.storage.UserDB,
     createEmptyConversationEntry: (id: string) => void,
-    storeMessages: (envelops: Lib.StorageEnvelopContainer[]) => void,
+    storeMessages: (envelops: Lib.storage.StorageEnvelopContainer[]) => void,
     defaultContact?: string,
 ) {
-    let retrievedContacts = await Lib.getContacts(
+    let retrievedContacts = await Lib.account.getContacts(
         connection,
         userDb,
         createEmptyConversationEntry,
@@ -22,17 +23,17 @@ export async function requestContacts(
         defaultContact &&
         !retrievedContacts.find(
             (accounts) =>
-                Lib.formatAddress(accounts.address) ===
-                Lib.formatAddress(defaultContact),
+                Lib.external.formatAddress(accounts.address) ===
+                Lib.external.formatAddress(defaultContact),
         )
     ) {
-        await Lib.addContact(
+        await Lib.account.addContact(
             connection,
             defaultContact,
             userDb,
             createEmptyConversationEntry,
         );
-        retrievedContacts = await Lib.getContacts(
+        retrievedContacts = await Lib.account.getContacts(
             connection,
             userDb,
             createEmptyConversationEntry,
@@ -45,23 +46,23 @@ export async function requestContacts(
         selectedContact &&
         !selectedContact?.profile?.publicEncryptionKey &&
         retrievedContacts.find(
-            (contact: Lib.Account) =>
-                Lib.formatAddress(contact.address) ===
-                Lib.formatAddress(selectedContact.address),
-        )?.profile?.publicEncryptionKey
+            (contact: Lib.account.Account) =>
+                Lib.external.formatAddress(contact.address) ===
+                Lib.external.formatAddress(selectedContact.address),
+        )?.profile?.publicSigningKey
     ) {
         setSelectedContact(
             retrievedContacts.find(
-                (contact: Lib.Account) =>
-                    Lib.formatAddress(contact.address) ===
-                    Lib.formatAddress(selectedContact.address),
+                (contact: Lib.account.Account) =>
+                    Lib.external.formatAddress(contact.address) ===
+                    Lib.external.formatAddress(selectedContact.address),
             ),
         );
     } else if (!selectedContact && defaultContact) {
         const contactToSelect = retrievedContacts.find(
             (accounts) =>
-                Lib.formatAddress(accounts.address) ===
-                Lib.formatAddress(defaultContact),
+                Lib.external.formatAddress(accounts.address) ===
+                Lib.external.formatAddress(defaultContact),
         );
 
         setSelectedContact(contactToSelect);
@@ -69,9 +70,9 @@ export async function requestContacts(
 
     (
         await Promise.all(
-            retrievedContacts.map(async (contact: Lib.Account) => ({
+            retrievedContacts.map(async (contact: Lib.account.Account) => ({
                 address: contact.address,
-                ens: await Lib.lookupAddress(
+                ens: await Lib.external.lookupAddress(
                     connection.provider as ethers.providers.JsonRpcProvider,
                     contact.address,
                 ),
@@ -87,14 +88,16 @@ export async function requestContacts(
         );
 
     retrievedContacts.forEach((contact) => {
-        Lib.getConversation(contact.address, connection, userDb)
+        Lib.storage
+            .getConversation(contact.address, connection, userDb)
             .filter(
                 (message) =>
-                    message.messageState === Lib.MessageState.Created &&
+                    message.messageState ===
+                        Lib.messaging.MessageState.Created &&
                     contact.profile?.publicEncryptionKey,
             )
             .forEach(async (message) => {
-                await Lib.submitMessage(
+                await Lib.messaging.submitMessage(
                     connection,
                     userDb,
                     contact,
