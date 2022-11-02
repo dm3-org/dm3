@@ -1,9 +1,9 @@
-import { SignedProfileRegistryEntry } from '../account/Account';
+import { SignedUserProfile } from '../account/Account';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 
 export interface Session {
     account: string;
-    signedProfileRegistryEntry: SignedProfileRegistryEntry;
+    signedUserProfile: SignedUserProfile;
     token: string;
     publicMessageHeadUri?: string;
     ttl?: undefined;

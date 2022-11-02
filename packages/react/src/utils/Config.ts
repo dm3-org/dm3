@@ -22,7 +22,7 @@ const DefaultConfig: Config = {
     hideStorageSelection: false,
     defaultStorageLocation: Lib.StorageLocation.dm3Storage,
     style: {},
-    defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
+    defaultServiceUrl: 'http://localhost:8080' as string,
     showAlways: false,
     connectionStateChange: undefined,
     miniSignIn: false,

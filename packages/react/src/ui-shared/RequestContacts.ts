@@ -1,3 +1,4 @@
+import { profile } from 'console';
 import * as Lib from 'dm3-lib';
 import { ethers } from 'ethers';
 
@@ -43,12 +44,12 @@ export async function requestContacts(
 
     if (
         selectedContact &&
-        !selectedContact?.profile?.publicKeys?.publicMessagingKey &&
+        !selectedContact?.profile?.publicEncryptionKey &&
         retrievedContacts.find(
             (contact: Lib.Account) =>
                 Lib.formatAddress(contact.address) ===
                 Lib.formatAddress(selectedContact.address),
-        )?.profile?.publicKeys
+        )
     ) {
         setSelectedContact(
             retrievedContacts.find(
@@ -91,7 +92,7 @@ export async function requestContacts(
             .filter(
                 (message) =>
                     message.messageState === Lib.MessageState.Created &&
-                    contact.profile?.publicKeys?.publicMessagingKey,
+                    contact.profile?.publicEncryptionKey,
             )
             .forEach(async (message) => {
                 await Lib.submitMessage(

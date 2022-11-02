@@ -21,10 +21,12 @@ export async function createRedisClient(app: Express) {
             rejectUnauthorized: false,
         },
     };
-    const client = createClient({
+    /*     const client = createClient({
         url: endpointUrl,
         ...(process.env.NODE_ENV == 'development' ? {} : socketConf),
-    });
+    }); */
+
+    const client = createClient();
     client.on('error', (error) => {
         app.locals.logger.error({
             method: 'REDIS CLIENT',
