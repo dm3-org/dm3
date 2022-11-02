@@ -1,6 +1,6 @@
 import { log } from '../../shared/log';
 import { SignedUserProfile, UserProfile } from '../Account';
-import { ProfileResolver } from './ProfileResolver';
+import { UserProfileResolver } from './UserProfileResolver';
 
 const isProfile = (textRecord: string) => {
     try {
@@ -46,7 +46,7 @@ const resolveProfile = () => async (textRecord: string) => {
     } as SignedUserProfile;
 };
 
-export const JsonResolver = (): ProfileResolver => {
+export const JsonResolver = (): UserProfileResolver => {
     return {
         isProfile,
         resolveProfile: resolveProfile(),

@@ -29,7 +29,7 @@ import { Connection } from '../web3-provider/Web3Provider';
 import { IpfsResolver } from './profileResolver/IpfsResolver';
 import { JsonResolver } from './profileResolver/JsonResolver';
 import { LinkResolver } from './profileResolver/LinkResolver';
-import { ProfileResolver } from './profileResolver/ProfileResolver';
+import { UserProfileResolver } from './profileResolver/UserProfileResolver';
 
 export interface Keys {
     publicMessagingKey: string;
@@ -274,7 +274,7 @@ export async function getUserProfile(
      * * The stringified profile
      */
 
-    const resolver: ProfileResolver[] = [
+    const resolver: UserProfileResolver[] = [
         LinkResolver(getRessource),
         IpfsResolver(getRessource),
         JsonResolver(),

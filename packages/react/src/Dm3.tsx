@@ -143,9 +143,9 @@ function dm3(props: dm3Props) {
             state.userDb as Lib.storage.UserDB,
             envelop,
         );
-        const [{ incommingTimestamp }] = Lib.decryptPostmark(
+        const [{ incommingTimestamp }] = Lib.messaging.decryptPostmark(
             [envelop],
-            state.userDb as Lib.UserDB,
+            state.userDb as Lib.storage.UserDB,
         );
 
         if (!state.userDb) {
@@ -164,8 +164,7 @@ function dm3(props: dm3Props) {
                 container: {
                     envelop: innerEnvelop,
                     messageState: Lib.messaging.MessageState.Send,
-                    deliveryServiceIncommingTimestamp:
-                        envelop.deliveryServiceIncommingTimestamp,
+                    deliveryServiceIncommingTimestamp: incommingTimestamp,
                 },
                 connection: state.connection as Lib.Connection,
             },

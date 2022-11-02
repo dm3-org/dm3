@@ -1,7 +1,6 @@
-import { URL } from 'url';
 import { log } from '../../shared/log';
 import { checkProfileHash, GetResource } from '../Account';
-import { ProfileResolver } from './ProfileResolver';
+import { UserProfileResolver } from './UserProfileResolver';
 
 const isProfile = (textRecord: string) => {
     try {
@@ -27,7 +26,7 @@ const resolveProfile =
         return profile;
     };
 
-export const LinkResolver = (getResource: GetResource): ProfileResolver => {
+export const LinkResolver = (getResource: GetResource): UserProfileResolver => {
     return {
         isProfile,
         resolveProfile: resolveProfile(getResource),
