@@ -1,8 +1,8 @@
-import { log } from '../../shared/log';
-import { SignedUserProfile, UserProfile } from '../Account';
-import { UserProfileResolver } from './UserProfileResolver';
+import { DeliveryServiceProfile } from '../../../delivery/Delivery';
+import { log } from '../../../shared/log';
+import { UserProfile } from '../../Account';
 
-const isProfile = (textRecord: string) => {
+export function isProfile(textRecord: string) {
     try {
         const { profile, signature } = JSON.parse(textRecord);
         const {
@@ -22,33 +22,27 @@ const isProfile = (textRecord: string) => {
     } catch (e) {
         return false;
     }
-};
+}
 
-const resolveProfile = () => async (textRecord: string) => {
+function resolveProfile(textRecord: string) {
     log(`[getUserProfile] Resolve Json profile `);
 
     const { profile, signature } = JSON.parse(textRecord);
     const {
         publicEncryptionKey,
         publicSigningKey,
-        deliveryServices,
-        mutableProfileExtensionUrl,
-    }: Partial<UserProfile> = profile;
+        url,
+    }: Partial<DeliveryServiceProfile> = profile;
 
     return {
-        profile: {
-            publicEncryptionKey,
-            publicSigningKey,
-            deliveryServices,
-            mutableProfileExtensionUrl,
-        },
-        signature,
-    } as SignedUserProfile;
-};
-
-export const JsonResolver = (): UserProfileResolver => {
+        publicEncryptionKey,
+        publicSigningKey,
+        url,
+    } as DeliveryServiceProfile;
+}
+export function DeliveryServiceResolver() {
     return {
         isProfile,
-        resolveProfile: resolveProfile(),
+        resolveProfile,
     };
-};
+}

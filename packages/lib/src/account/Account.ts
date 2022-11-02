@@ -27,9 +27,9 @@ import {
 } from '../storage/Storage';
 import { Connection } from '../web3-provider/Web3Provider';
 import { IpfsResolver } from './profileResolver/IpfsResolver';
-import { JsonResolver } from './profileResolver/JsonResolver';
+import { UserProfileResolver } from './profileResolver/json/UserProfileResolver';
 import { LinkResolver } from './profileResolver/LinkResolver';
-import { UserProfileResolver } from './profileResolver/UserProfileResolver';
+import { Dm3Profile, ProfileResolver } from './profileResolver/ProfileResolver';
 
 export interface Keys {
     publicMessagingKey: string;
@@ -245,16 +245,14 @@ export function getBrowserStorageKey(accountAddress: string) {
     return 'userStorageSnapshot' + formatAddress(accountAddress);
 }
 
-export type GetResource = (
-    uri: string,
-) => Promise<SignedUserProfile | undefined>;
+export type GetResource<T> = (uri: string) => Promise<T | undefined>;
 
 export async function getUserProfile(
     connection: Connection,
     contact: string,
     getProfileOffChain: GetUserProfileOffChain,
     getEnsTextRecord: GetEnsTextRecord,
-    getRessource: GetResource,
+    getRessource: GetResource<SignedUserProfile>,
     profileUrl?: string,
 ): Promise<SignedUserProfile | undefined> {
     const textRecord = await getEnsTextRecord(
@@ -274,10 +272,10 @@ export async function getUserProfile(
      * * The stringified profile
      */
 
-    const resolver: UserProfileResolver[] = [
+    const resolver: ProfileResolver<SignedUserProfile>[] = [
         LinkResolver(getRessource),
         IpfsResolver(getRessource),
-        JsonResolver(),
+        UserProfileResolver(),
     ];
 
     return await resolver
@@ -285,10 +283,7 @@ export async function getUserProfile(
         ?.resolveProfile(textRecord);
 }
 
-export function checkProfileHash(
-    profile: SignedUserProfile,
-    uri: string,
-): boolean {
+export function checkProfileHash(profile: Dm3Profile, uri: string): boolean {
     const parsedUri = queryString.parseUrl(uri);
     return sha256(stringify(profile)) === parsedUri.query.dm3Hash;
 }
