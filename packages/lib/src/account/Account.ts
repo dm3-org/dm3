@@ -25,6 +25,10 @@ import { log } from '../shared/log';
 import queryString from 'query-string';
 import stringify from 'safe-stable-stringify';
 import { GetUserProfile } from '.';
+import { JsonResolver } from './profileResolver/JsonResolver';
+import { IpfsResolver } from './profileResolver/IpfsResolver';
+import { ProfileResolver } from './profileResolver/ProfileResolver';
+import { LinkResolver } from './profileResolver/LinkResolver';
 
 export interface Keys {
     publicMessagingKey: string;
@@ -240,36 +244,44 @@ export function getBrowserStorageKey(accountAddress: string) {
     return 'userStorageSnapshot' + formatAddress(accountAddress);
 }
 
+export type GetResource = (
+    uri: string,
+) => Promise<SignedUserProfile | undefined>;
+
 export async function getUserProfile(
     connection: Connection,
     contact: string,
     getProfileOffChain: GetUserProfileOffChain,
     getEnsTextRecord: GetEnsTextRecord,
-    getRessource: (uri: string) => Promise<SignedUserProfile | undefined>,
+    getRessource: GetResource,
     profileUrl?: string,
 ): Promise<SignedUserProfile | undefined> {
-    const uri = await getEnsTextRecord(
+    const textRecord = await getEnsTextRecord(
         connection.provider!,
         contact,
         'eth.dm3.profile',
     );
-
-    if (uri) {
-        log(`[getUserProfile] Onchain uri ${uri}`);
-        const profile = await getRessource(uri);
-
-        if (!profile) {
-            throw Error('Could not load profile');
-        }
-
-        if (!checkProfileHash(profile, uri)) {
-            throw Error('Profile hash check failed');
-        }
-        return profile;
-    } else {
+    //The user has no dm3-Profile text record set. Hence we need to fetch the profile offChain
+    if (!textRecord) {
         log(`[getUserProfile] Offchain`);
         return getProfileOffChain(connection.account, contact, profileUrl);
     }
+    /**
+     * The Text record can contain either
+     * * a link to the profile stored on a http server
+     * * a link to the profile stored on ipfs
+     * * The stringified profile
+     */
+
+    const resolver: ProfileResolver[] = [
+        LinkResolver(getRessource),
+        IpfsResolver(getRessource),
+        JsonResolver(),
+    ];
+
+    return await resolver
+        .find((r) => r.isProfile(textRecord))
+        ?.resolveProfile(textRecord);
 }
 
 export function checkProfileHash(
