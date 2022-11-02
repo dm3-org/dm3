@@ -1,6 +1,6 @@
-import { getData } from 'ajv/dist/compile/validate';
 import { ethers } from 'ethers';
 import { stringify } from '../shared/stringify';
+import { sha256 } from 'ethers/lib/utils';
 
 import {
     StorageEnvelopContainer,
@@ -14,17 +14,16 @@ import {
     Account,
     addContact,
     checkProfileHash,
-    checkProfileRegistryEntry,
     checkStringSignature,
+    checkUserProfile,
     createHashUrlParam,
-    extractPublicKeys,
     getAccountDisplayName,
     getBrowserStorageKey,
     getContacts,
-    getProfileRegistryEntry,
-    ProfileRegistryEntry,
+    getUserProfile,
+    UserProfile,
     publishProfileOnchain,
-    SignedProfileRegistryEntry,
+    SignedUserProfile,
 } from './Account';
 
 const connection: Connection = {
@@ -38,30 +37,29 @@ const connection: Connection = {
 };
 
 const getProfileData = async (): Promise<{
-    signedProfileRegistryEntry: SignedProfileRegistryEntry;
+    signedUserProfile: SignedUserProfile;
     account: Account;
 }> => {
-    const profileRegistryEntry = {
-        publicKeys: {
-            publicMessagingKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
-            publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
-        },
-        deliveryServiceUrl: '',
+    const profile: UserProfile = {
+        publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
+        publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
+        deliveryServices: [''],
     };
 
     const mnemonic =
         'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
+
     const wallet = ethers.Wallet.fromMnemonic(mnemonic);
 
-    const signature = await wallet.signMessage(stringify(profileRegistryEntry));
+    const signature = await wallet.signMessage(stringify(profile));
 
     return {
         account: {
             address: wallet.address,
-            profile: profileRegistryEntry,
+            profile,
         },
-        signedProfileRegistryEntry: {
-            profileRegistryEntry,
+        signedUserProfile: {
+            profile,
             signature,
         },
     };
@@ -93,50 +91,43 @@ test('get correct account display name if account is undefined', async () => {
 
 test('createHashUrlParam should create the correct hash', async () => {
     expect(
-        createHashUrlParam((await getProfileData()).signedProfileRegistryEntry),
+        createHashUrlParam((await getProfileData()).signedUserProfile),
     ).toStrictEqual(
-        'dm3Hash=0x32ce63eef7bd6b11f13f34c020638c7e9cb7bdb03d32da3aeada3211cf20402a',
+        'dm3Hash=0x407ae4ad488fef7020267b5789c6f66213a9092c9b99b422bbe877b3f629dd4c',
     );
 });
 
 test('checkProfileHash should accept a correct hash ', async () => {
-    const profileRegistryEntry: ProfileRegistryEntry = {
-        publicKeys: {
-            publicMessagingKey: '2',
-            publicSigningKey: '3',
-        },
-        deliveryServiceUrl: '',
+    const profile: UserProfile = {
+        publicSigningKey: '3',
+        publicEncryptionKey: '2',
+        deliveryServices: [''],
     };
 
     const wallet = ethers.Wallet.createRandom();
-    const signature = await wallet.signMessage(stringify(profileRegistryEntry));
+    const signature = await wallet.signMessage(stringify(profile));
     const signedProfile = {
-        profileRegistryEntry,
+        profile,
         signature,
     };
 
     const uri =
         'http://test/test?dm3Hash=' +
-        ethers.utils.keccak256(
-            ethers.utils.toUtf8Bytes(stringify(signedProfile)),
-        );
+        sha256(ethers.utils.toUtf8Bytes(stringify(signedProfile)));
 
     expect(checkProfileHash(signedProfile, uri)).toStrictEqual(true);
 });
 
 test('checkProfileHash should reject  an invalid hash ', async () => {
-    const profileRegistryEntry: ProfileRegistryEntry = {
-        publicKeys: {
-            publicMessagingKey: '2',
-            publicSigningKey: '3',
-        },
-        deliveryServiceUrl: '',
+    const profile: UserProfile = {
+        publicSigningKey: '3',
+        publicEncryptionKey: '2',
+        deliveryServices: [''],
     };
-
     const wallet = ethers.Wallet.createRandom();
-    const signature = await wallet.signMessage(stringify(profileRegistryEntry));
+    const signature = await wallet.signMessage(stringify(profile));
     const signedProfile = {
-        profileRegistryEntry,
+        profile,
         signature,
     };
 
@@ -145,18 +136,15 @@ test('checkProfileHash should reject  an invalid hash ', async () => {
 });
 
 test('checkProfileHash should reject an URI without hash', async () => {
-    const profileRegistryEntry: ProfileRegistryEntry = {
-        publicKeys: {
-            publicMessagingKey: '2',
-            publicSigningKey: '3',
-        },
-        deliveryServiceUrl: '',
+    const profile: UserProfile = {
+        publicSigningKey: '3',
+        publicEncryptionKey: '2',
+        deliveryServices: [''],
     };
-
     const wallet = ethers.Wallet.createRandom();
-    const signature = await wallet.signMessage(stringify(profileRegistryEntry));
+    const signature = await wallet.signMessage(stringify(profile));
     const signedProfile = {
-        profileRegistryEntry,
+        profile,
         signature,
     };
 
@@ -164,49 +152,41 @@ test('checkProfileHash should reject an URI without hash', async () => {
     expect(checkProfileHash(signedProfile, uri)).toStrictEqual(false);
 });
 
-test('checkProfileRegistryEntry should accept a correct signature ', async () => {
-    const profileRegistryEntry: ProfileRegistryEntry = {
-        publicKeys: {
-            publicMessagingKey: '2',
-            publicSigningKey: '3',
-        },
-        deliveryServiceUrl: '',
+test('checkUserProfile should accept a correct signature ', async () => {
+    const profile: UserProfile = {
+        publicSigningKey: '3',
+        publicEncryptionKey: '2',
+        deliveryServices: [''],
     };
 
     const wallet = ethers.Wallet.createRandom();
-    const signature = await wallet.signMessage(stringify(profileRegistryEntry));
+    const signature = await wallet.signMessage(stringify(profile));
 
     expect(
-        checkProfileRegistryEntry(
+        checkUserProfile(
             {
-                profileRegistryEntry,
+                profile: profile,
                 signature,
             },
             wallet.address,
         ),
     ).toStrictEqual(true);
 });
-
-test('checkProfileRegistryEntry should reject an invalid signature ', async () => {
-    const profileRegistryEntry: ProfileRegistryEntry = {
-        publicKeys: {
-            publicMessagingKey: '2',
-            publicSigningKey: '3',
-        },
-        deliveryServiceUrl: '',
+test('checkUserProfile should reject an invalid signature ', async () => {
+    const profile: UserProfile = {
+        publicSigningKey: '3',
+        publicEncryptionKey: '2',
+        deliveryServices: [''],
     };
 
     const wallet = ethers.Wallet.createRandom();
-    const key = {
-        publicKeys: { ...profileRegistryEntry.publicKeys, publicKey: '4' },
-    };
-    const signature = await wallet.signMessage(stringify(key));
+
+    const signature = await wallet.signMessage(
+        stringify(profile.publicEncryptionKey),
+    );
 
     expect(
-        checkProfileRegistryEntry(
-            { profileRegistryEntry, signature },
-            wallet.address,
-        ),
+        checkUserProfile({ profile: profile, signature }, wallet.address),
     ).toStrictEqual(false);
 });
 
@@ -332,22 +312,6 @@ test('Should reject to add a contact if the contact was already added', async ()
     ).rejects.toEqual(Error('Contact exists already.'));
 });
 
-test('extractPublicKeys', async () => {
-    expect(
-        extractPublicKeys({
-            publicMessagingKey: 'b',
-            publicSigningKey: 'c',
-            privateMessagingKey: '1',
-            privateSigningKey: '2',
-            storageEncryptionKey: '3',
-            storageEncryptionKeySalt: 'salt',
-        }),
-    ).toStrictEqual({
-        publicMessagingKey: 'b',
-        publicSigningKey: 'c',
-    });
-});
-
 test('getBrowserStorageKey', async () => {
     expect(
         getBrowserStorageKey('0x25A643B6e52864d0eD816F1E43c0CF49C83B8292'),
@@ -376,42 +340,38 @@ test('Should reject an invalid signature of a string', async () => {
 
 test('Should accept a valid profile signature', async () => {
     expect(
-        checkProfileRegistryEntry(
-            (await getProfileData()).signedProfileRegistryEntry,
+        checkUserProfile(
+            (await getProfileData()).signedUserProfile,
             (await getProfileData()).account.address,
         ),
     ).toStrictEqual(true);
 });
 
 test('Should reject an invalid profile signature', async () => {
-    const profileRegistryEntry = (await getProfileData()).account.profile!;
+    const userProfile = (await getProfileData()).account.profile!;
     expect(
-        checkProfileRegistryEntry(
+        checkUserProfile(
             {
-                profileRegistryEntry: {
-                    ...profileRegistryEntry,
-                    deliveryServiceUrl: 'http://1',
+                profile: {
+                    ...userProfile,
+                    deliveryServices: ['http://1'],
                 },
-                signature: (await getProfileData()).signedProfileRegistryEntry
-                    .signature,
+                signature: (await getProfileData()).signedUserProfile.signature,
             },
             (await getProfileData()).account.address,
         ),
     ).toStrictEqual(false);
 });
 
-test('Should get profile registry entry from chain', async () => {
-    const signedProfileRegistryEntry = {
-        profileRegistryEntry: {
-            publicKeys: {
-                publicKey: 'RXqfW5bqr44s26iDgAgf0SCDzLIsLko4vSwiAxm5W30=',
-                publicMessagingKey:
-                    'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
-                publicSigningKey:
-                    '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
-            },
-            deliveryServiceUrl: '',
-        },
+test('getUserProfile -- Should get profile registry entry from chain if tex record is url', async () => {
+    const profile: UserProfile = {
+        publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug',
+        publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
+        deliveryServices: [''],
+    };
+    const signedUserProfile = {
+        profile,
+        //TODO Maybe create new signature
         signature:
             '0xaa927647cf7c73363d9c157f113f1c1754307aae79d886dc4cfa7bcb77b4dfc1' +
             '6cb50e808708085009ee782046891d8b85966a1a7482c5c0c42f73c7210cf7da1b',
@@ -419,34 +379,88 @@ test('Should get profile registry entry from chain', async () => {
 
     expect.assertions(1);
     await expect(
-        getProfileRegistryEntry(
+        getUserProfile(
+            { provider: {} } as any,
+            '0x8101b0729eb9708a344c820fce80f12a90a7c1fa',
+            async () => undefined,
+            async () => 'http://123?' + createHashUrlParam(signedUserProfile),
+
+            async (uri) =>
+                uri === 'http://123?' + createHashUrlParam(signedUserProfile)
+                    ? signedUserProfile
+                    : undefined,
+        ),
+    ).resolves.toStrictEqual(signedUserProfile);
+});
+
+test('getUserProfile -- Should get profile registry entry from IPFS if textRecord is ipfs hash', async () => {
+    const profile: UserProfile = {
+        publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug',
+        publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
+        deliveryServices: [''],
+    };
+    const signedUserProfile = {
+        profile,
+        //TODO Maybe create new signature
+        signature:
+            '0xaa927647cf7c73363d9c157f113f1c1754307aae79d886dc4cfa7bcb77b4dfc1' +
+            '6cb50e808708085009ee782046891d8b85966a1a7482c5c0c42f73c7210cf7da1b',
+    };
+
+    expect.assertions(1);
+    await expect(
+        getUserProfile(
+            { provider: {} } as any,
+            '0x8101b0729eb9708a344c820fce80f12a90a7c1fa',
+            async () => undefined,
+            async () => 'ipfs://QmZwrAZFDprTo2h3Gbdc4hS2vEVSP1q9j7vDTq8TS1Z137',
+            async (uri) => {
+                return uri ===
+                    // eslint-disable-next-line max-len
+                    'https://www.ipfs.io/ipfs/QmZwrAZFDprTo2h3Gbdc4hS2vEVSP1q9j7vDTq8TS1Z137'
+                    ? signedUserProfile
+                    : undefined;
+            },
+        ),
+    ).resolves.toStrictEqual(signedUserProfile);
+});
+test('getUserProfile -- Should resolve profile if textREcored stores a stringified profile ', async () => {
+    const profile: UserProfile = {
+        publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug',
+        publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
+        deliveryServices: [''],
+        mutableProfileExtensionUrl: undefined,
+    };
+    const signedUserProfile = {
+        profile,
+        //TODO Maybe create new signature
+        signature:
+            '0xaa927647cf7c73363d9c157f113f1c1754307aae79d886dc4cfa7bcb77b4dfc1' +
+            '6cb50e808708085009ee782046891d8b85966a1a7482c5c0c42f73c7210cf7da1b',
+    };
+
+    expect.assertions(1);
+    await expect(
+        getUserProfile(
             { provider: {} } as any,
             '0x8101b0729eb9708a344c820fce80f12a90a7c1fa',
             async () => undefined,
             async () =>
-                'http://123?' + createHashUrlParam(signedProfileRegistryEntry),
-
-            async (uri) =>
-                uri ===
-                'http://123?' + createHashUrlParam(signedProfileRegistryEntry)
-                    ? signedProfileRegistryEntry
-                    : undefined,
+                // eslint-disable-next-line max-len
+                JSON.stringify(signedUserProfile),
+            async (_) => undefined,
         ),
-    ).resolves.toStrictEqual(signedProfileRegistryEntry);
+    ).resolves.toStrictEqual(signedUserProfile);
 });
 
-test('Should get profile registry entry from backend', async () => {
-    const signedProfileRegistryEntry = {
-        profileRegistryEntry: {
-            publicKeys: {
-                publicKey: 'RXqfW5bqr44s26iDgAgf0SCDzLIsLko4vSwiAxm5W30=',
-                publicMessagingKey:
-                    'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
-                publicSigningKey:
-                    '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
-            },
-            deliveryServiceUrl: '',
-        },
+test('getUserProfile -- Should get profile registry entry from backend', async () => {
+    const profile: UserProfile = {
+        publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug',
+        publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
+        deliveryServices: [''],
+    };
+    const signedUserProfile = {
+        profile,
         signature:
             '0xaa927647cf7c73363d9c157f113f1c1754307aae79d886dc4cfa7bcb77b4dfc1' +
             '6cb50e808708085009ee782046891d8b85966a1a7482c5c0c42f73c7210cf7da1b',
@@ -454,55 +468,49 @@ test('Should get profile registry entry from backend', async () => {
 
     expect.assertions(1);
     await expect(
-        getProfileRegistryEntry(
+        getUserProfile(
             { provider: {} } as any,
             '0x8101b0729eb9708a344c820fce80f12a90a7c1fa',
-            async () => signedProfileRegistryEntry,
+            async () => signedUserProfile,
             async () => undefined,
 
             async () => undefined,
         ),
-    ).resolves.toStrictEqual(signedProfileRegistryEntry);
+    ).resolves.toStrictEqual(signedUserProfile);
 });
 
-test('Should prioritize onchain over offchain ', async () => {
-    const signedProfileRegistryEntry = {
-        profileRegistryEntry: {
-            publicKeys: {
-                publicKey: 'RXqfW5bqr44s26iDgAgf0SCDzLIsLko4vSwiAxm5W30=',
-                publicMessagingKey:
-                    'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
-                publicSigningKey:
-                    '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
-            },
-            deliveryServiceUrl: '',
-        },
+test('getUserProfile -- Should prioritize onchain over offchain ', async () => {
+    const profile: UserProfile = {
+        publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug',
+        publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
+        deliveryServices: [''],
+    };
+    const signedUserProfile = {
+        profile,
         signature:
             '0xaa927647cf7c73363d9c157f113f1c1754307aae79d886dc4cfa7bcb77b4dfc1' +
             '6cb50e808708085009ee782046891d8b85966a1a7482c5c0c42f73c7210cf7da1b',
     };
 
-    const signedProfileRegistryEntry2 = {
-        ...signedProfileRegistryEntry,
+    const signedUserProfile2 = {
+        ...signedUserProfile,
         signature: '1',
     };
 
     expect.assertions(1);
     await expect(
-        getProfileRegistryEntry(
+        getUserProfile(
             { provider: {} } as any,
             '0x8101b0729eb9708a344c820fce80f12a90a7c1fa',
-            async () => signedProfileRegistryEntry2,
-            async () =>
-                'http://123?' + createHashUrlParam(signedProfileRegistryEntry),
+            async () => signedUserProfile2,
+            async () => 'http://123?' + createHashUrlParam(signedUserProfile),
 
             async (uri) =>
-                uri ===
-                'http://123?' + createHashUrlParam(signedProfileRegistryEntry)
-                    ? signedProfileRegistryEntry
+                uri === 'http://123?' + createHashUrlParam(signedUserProfile)
+                    ? signedUserProfile
                     : undefined,
         ),
-    ).resolves.toStrictEqual(signedProfileRegistryEntry);
+    ).resolves.toStrictEqual(signedUserProfile);
 });
 
 test('publishProfileOnchain', async () => {
@@ -522,7 +530,7 @@ test('publishProfileOnchain', async () => {
             return { setText: () => 'success' } as any;
         },
         async () => {
-            return profile.signedProfileRegistryEntry;
+            return profile.signedUserProfile;
         },
     );
 
@@ -531,7 +539,7 @@ test('publishProfileOnchain', async () => {
     expect(tx?.args).toStrictEqual([
         '0xca7a0eadca1ba3745db7065063294b717422bd1c70995cba8f5adcd094fdae1d',
         'eth.dm3.profile',
-        'http://bla?dm3Hash=0x32ce63eef7bd6b11f13f34c020638c7e9cb7bdb03d32da3aeada3211cf20402a',
+        'http://bla?dm3Hash=0x407ae4ad488fef7020267b5789c6f66213a9092c9b99b422bbe877b3f629dd4c',
     ]);
 
     expect(tx?.method()).toStrictEqual('success');

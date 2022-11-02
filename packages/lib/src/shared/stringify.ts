@@ -1,6 +1,6 @@
 import safeStringify, { Replacer } from 'safe-stable-stringify';
 
-export function stringify(value: object, replacer?: Replacer) {
+export function stringify(value: any, replacer?: Replacer) {
     const jsonString = safeStringify(value);
 
     if (typeof jsonString !== 'string') {

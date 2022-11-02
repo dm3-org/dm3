@@ -13,7 +13,7 @@ router.param('address', auth);
 
 router.post('/:address', async (req, res, next) => {
     try {
-        const account = Lib.formatAddress(req.params.address);
+        const account = Lib.external.formatAddress(req.params.address);
 
         await setUserStorage(
             account,
@@ -31,7 +31,7 @@ router.post('/:address', async (req, res, next) => {
 
 router.get('/:address', async (req, res, next) => {
     try {
-        const account = Lib.formatAddress(req.params.address);
+        const account = Lib.external.formatAddress(req.params.address);
 
         res.json(await getUserStorage(account, req.app.locals.redisClient));
     } catch (e) {

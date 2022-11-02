@@ -15,12 +15,12 @@ export enum ConnectionType {
 }
 
 type ConnectionPayload = {
-    [ConnectionType.ChangeConnectionState]: Lib.ConnectionState;
+    [ConnectionType.ChangeConnectionState]: Lib.web3provider.ConnectionState;
     [ConnectionType.ChangeSocket]: Socket<DefaultEventsMap, DefaultEventsMap>;
-    [ConnectionType.ChangeAccount]: Lib.Account;
+    [ConnectionType.ChangeAccount]: Lib.account.Account;
     [ConnectionType.ChangeProvider]: ethers.providers.JsonRpcProvider;
     [ConnectionType.ChangeStorageToken]: string | undefined;
-    [ConnectionType.ChangeStorageLocation]: Lib.StorageLocation;
+    [ConnectionType.ChangeStorageLocation]: Lib.storage.StorageLocation;
     [ConnectionType.SetDefaultServiceUrl]: string;
 };
 
@@ -38,7 +38,7 @@ export function connectionReducer(
             } else {
                 Lib.log(
                     `[Connection] New connection state ${
-                        Lib.ConnectionState[action.payload]
+                        Lib.web3provider.ConnectionState[action.payload]
                     }`,
                 );
                 return {

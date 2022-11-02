@@ -10,7 +10,7 @@ function LeftHeader() {
     const { state } = useContext(GlobalContext);
 
     return state.connection.connectionState !==
-        Lib.ConnectionState.SignedIn ? null : (
+        Lib.web3provider.ConnectionState.SignedIn ? null : (
         <div className="ps-3 header-row-left w-100 top-left-radius pe-3">
             <div
                 className={

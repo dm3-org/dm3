@@ -4,8 +4,10 @@ export type { Acknoledgment } from './Messages';
 export type {} from './PublicMessages';
 export type { Session } from './Session';
 export {
-    submitProfileRegistryEntry,
-    getProfileRegistryEntry,
     createNewSessionToken,
     createChallenge,
+    getUserProfile,
+    submitUserProfile,
 } from './Keys';
+
+export { getDeliveryServiceProfile } from './Delivery';

@@ -6,7 +6,7 @@ import { GlobalContext } from '../GlobalContextProvider';
 import Icon from '../ui-shared/Icon';
 
 interface TokenInputProps {
-    storageLocation: Lib.StorageLocation;
+    storageLocation: Lib.storage.StorageLocation;
     token: string | undefined;
     setToken: (token: string | undefined) => void;
     storeApiToken: boolean;
@@ -16,7 +16,7 @@ function TokenInput(props: TokenInputProps) {
     const { state, dispatch } = useContext(GlobalContext);
     if (
         connectionPhase(state.connection.connectionState) ||
-        props.storageLocation !== Lib.StorageLocation.Web3Storage ||
+        props.storageLocation !== Lib.storage.StorageLocation.Web3Storage ||
         (state.uiState.proflieExists && props.token && props.storeApiToken)
     ) {
         return null;

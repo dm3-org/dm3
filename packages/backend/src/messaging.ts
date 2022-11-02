@@ -16,7 +16,7 @@ export function onConnection(app: Express) {
             'submitMessage',
             async (
                 data: {
-                    envelop: Lib.EncryptionEnvelop;
+                    envelop: Lib.messaging.EncryptionEnvelop;
                     token: string;
                 },
                 callback,
@@ -26,12 +26,13 @@ export function onConnection(app: Express) {
                         method: 'WS INCOMING MESSAGE',
                         account: data.envelop.from,
                     });
-                    await Lib.Delivery.incomingMessage(
+                    await Lib.delivery.incomingMessage(
                         data,
+                        app.locals.deliveryServicePrivateKey,
                         app.locals.loadSession,
                         async (
                             conversationId: string,
-                            envelop: Lib.EncryptionEnvelop,
+                            envelop: Lib.messaging.EncryptionEnvelop,
                         ) => {
                             if (app.locals.redisClient) {
                                 await app.locals.redisClient.zAdd(
@@ -45,7 +46,10 @@ export function onConnection(app: Express) {
                                 throw Error('db not connected');
                             }
                         },
-                        (socketId: string, envelop: Lib.EncryptionEnvelop) => {
+                        (
+                            socketId: string,
+                            envelop: Lib.messaging.EncryptionEnvelop,
+                        ) => {
                             app.locals.io.sockets
                                 .to(socketId)
                                 .emit('message', envelop);
@@ -62,8 +66,8 @@ export function onConnection(app: Express) {
         );
 
         socket.on('pendingMessage', async (data) => {
-            const account = Lib.formatAddress(data.accountAddress);
-            const contact = Lib.formatAddress(data.contactAddress);
+            const account = Lib.external.formatAddress(data.accountAddress);
+            const contact = Lib.external.formatAddress(data.contactAddress);
             app.locals.logger.info({
                 method: 'WS PENDING MESSAGE',
                 account,
@@ -71,7 +75,7 @@ export function onConnection(app: Express) {
             });
             try {
                 if (
-                    await Lib.Delivery.checkToken(
+                    await Lib.delivery.checkToken(
                         app.locals.loadSession,
                         account,
                         data.token,

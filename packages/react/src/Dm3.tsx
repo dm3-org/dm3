@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import './Dm3.css';
 import 'react-chat-widget/lib/styles.css';
 import socketIOClient from 'socket.io-client';
@@ -37,7 +37,9 @@ function dm3(props: dm3Props) {
         );
     }
 
-    console.log(Lib.ConnectionState[state.connection.connectionState]);
+    console.log(
+        Lib.web3provider.ConnectionState[state.connection.connectionState],
+    );
 
     useEffect(() => {
         if (props.config.connectionStateChange) {
@@ -97,12 +99,12 @@ function dm3(props: dm3Props) {
         return requestContacts(
             connection,
             state.accounts.selectedContact,
-            (contact: Lib.Account | undefined) =>
+            (contact: Lib.account.Account | undefined) =>
                 dispatch({
                     type: AccountsType.SetSelectedContact,
                     payload: contact,
                 }),
-            (contacts: Lib.Account[]) =>
+            (contacts: Lib.account.Account[]) =>
                 dispatch({ type: AccountsType.SetContacts, payload: contacts }),
             (address: string, name: string) =>
                 dispatch({
@@ -132,12 +134,18 @@ function dm3(props: dm3Props) {
         );
     };
 
-    const handleNewMessage = async (envelop: Lib.EncryptionEnvelop) => {
+    const handleNewMessage = async (
+        envelop: Lib.messaging.EncryptionEnvelop,
+    ) => {
         Lib.log('New messages');
 
-        const innerEnvelop = Lib.decryptEnvelop(
-            state.userDb as Lib.UserDB,
+        const innerEnvelop = Lib.encryption.decryptEnvelop(
+            state.userDb as Lib.storage.UserDB,
             envelop,
+        );
+        const [{ incommingTimestamp }] = Lib.decryptPostmark(
+            [envelop],
+            state.userDb as Lib.UserDB,
         );
 
         if (!state.userDb) {
@@ -146,7 +154,7 @@ function dm3(props: dm3Props) {
             );
         }
 
-        if (!envelop.deliveryServiceIncommingTimestamp) {
+        if (!incommingTimestamp) {
             throw Error(`[handleNewMessage] No delivery service timestamp`);
         }
 
@@ -155,7 +163,7 @@ function dm3(props: dm3Props) {
             payload: {
                 container: {
                     envelop: innerEnvelop,
-                    messageState: Lib.MessageState.Send,
+                    messageState: Lib.messaging.MessageState.Send,
                     deliveryServiceIncommingTimestamp:
                         envelop.deliveryServiceIncommingTimestamp,
                 },
@@ -164,9 +172,25 @@ function dm3(props: dm3Props) {
         });
     };
 
+    const [deliveryServiceUrl, setdeliveryServiceUrl] = useState('');
+
+    useEffect(() => {
+        const getDeliveryServiceUrl = async () => {
+            if (state?.connection?.account?.profile === undefined) {
+                return;
+            }
+            const { url } = await Lib.delivery.getDeliveryServiceProfile(
+                state.connection.account.profile,
+            );
+            setdeliveryServiceUrl(url);
+        };
+
+        getDeliveryServiceUrl();
+    }, [state.connection.account?.profile]);
     useEffect(() => {
         if (
-            state.connection.connectionState === Lib.ConnectionState.SignedIn &&
+            state.connection.connectionState ===
+                Lib.web3provider.ConnectionState.SignedIn &&
             !state.connection.socket
         ) {
             if (!state.userDb) {
@@ -179,16 +203,15 @@ function dm3(props: dm3Props) {
                 throw Error('Could not get account profile');
             }
 
-            const socket = socketIOClient(
-                state.connection.account.profile.deliveryServiceUrl,
-                { autoConnect: false },
-            );
+            const socket = socketIOClient(deliveryServiceUrl, {
+                autoConnect: false,
+            });
             socket.auth = {
                 account: state.connection.account,
                 token: state.userDb.deliveryServiceToken,
             };
             socket.connect();
-            socket.on('message', (envelop: Lib.EncryptionEnvelop) => {
+            socket.on('message', (envelop: Lib.messaging.EncryptionEnvelop) => {
                 handleNewMessage(envelop);
             });
             socket.on('joined', () => {
@@ -204,7 +227,7 @@ function dm3(props: dm3Props) {
 
             state.connection.socket.on(
                 'message',
-                (envelop: Lib.EncryptionEnvelop) => {
+                (envelop: Lib.messaging.EncryptionEnvelop) => {
                     handleNewMessage(envelop);
                 },
             );
@@ -220,7 +243,8 @@ function dm3(props: dm3Props) {
     ]);
 
     const showHelp =
-        state.connection.connectionState === Lib.ConnectionState.SignedIn &&
+        state.connection.connectionState ===
+            Lib.web3provider.ConnectionState.SignedIn &&
         state.accounts.contacts &&
         state.accounts.contacts.length <= 1 &&
         state.uiState.maxLeftView &&
