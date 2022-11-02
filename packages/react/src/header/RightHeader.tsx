@@ -9,7 +9,10 @@ import { GlobalContext } from '../GlobalContextProvider';
 function RightHeader() {
     const { state } = useContext(GlobalContext);
 
-    if (state.connection.connectionState !== Lib.ConnectionState.SignedIn) {
+    if (
+        state.connection.connectionState !==
+        Lib.web3provider.ConnectionState.SignedIn
+    ) {
         return (
             <div className="row header-row-right">
                 <div
@@ -33,7 +36,7 @@ function RightHeader() {
                 }
             >
                 {state.connection?.connectionState ===
-                    Lib.ConnectionState.SignedIn && (
+                    Lib.web3provider.ConnectionState.SignedIn && (
                     <ChatHeader account={state.accounts.selectedContact} />
                 )}
             </div>

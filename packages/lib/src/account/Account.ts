@@ -16,18 +16,15 @@ import {
     getConversationId,
     UserDB,
 } from '../storage/Storage';
-import {
-    generateSymmetricalKey,
-    GetSymmetricalKeyFromSignature,
-} from '../encryption/SymmetricalEncryption';
+import { GetSymmetricalKeyFromSignature } from '../encryption/SymmetricalEncryption';
 import {
     GetPendingConversations,
     GetUserProfileOffChain,
 } from '../external-apis/BackendAPI';
-import { GetUserProfile } from '..';
 import { log } from '../shared/log';
 import queryString from 'query-string';
 import stringify from 'safe-stable-stringify';
+import { GetUserProfile } from '.';
 
 export interface Keys {
     publicMessagingKey: string;
