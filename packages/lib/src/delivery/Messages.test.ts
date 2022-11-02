@@ -1,4 +1,3 @@
-import { ethers } from 'ethers';
 import nacl from 'tweetnacl';
 import { encodeBase64 } from 'tweetnacl-util';
 import { UserProfile } from '../account/Account';
@@ -66,13 +65,7 @@ test('incomingMessage auth', async () => {
                 },
                 token: 'abc',
             },
-            {
-                publicEncryptionKey:
-                    'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
-                url: '',
-                publicSigningKey:
-                    '9SZhajjn9tn0fX/eBMXfZfb0RaUeYyfhlNYHqZyKHpyTiYvwVosQ5qt2XxdDFblTzggir8kp85kWw76p2EZ0rQ==',
-            },
+            '9SZhajjn9tn0fX/eBMXfZfb0RaUeYyfhlNYHqZyKHpyTiYvwVosQ5qt2XxdDFblTzggir8kp85kWw76p2EZ0rQ==',
             getSession,
             storeNewMessage,
             () => {},

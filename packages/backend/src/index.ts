@@ -1,19 +1,18 @@
-import express, { NextFunction, Response, Request } from 'express';
-import { Server } from 'socket.io';
+import cors from 'cors';
+import * as Lib from 'dm3-lib/dist.backend';
+import express from 'express';
 import http from 'http';
 import path from 'path';
-import * as Lib from 'dm3-lib/dist.backend';
-import cors from 'cors';
-import { createRedisClient, getSession, setSession } from './redis';
-import Profile from './profile';
-import Auth from './auth';
-import Storage from './storage';
-import Delivery from './delivery';
-import RpcProxy from './rpc-proxy';
-import { errorHandler, logError, logRequest, socketAuth } from './utils';
-import { onConnection } from './messaging';
+import { Server } from 'socket.io';
 import winston from 'winston';
-import { DeliveryServiceProfile } from 'dm3-lib/dist.backend/delivery/Delivery';
+import Auth from './auth';
+import Delivery from './delivery';
+import { onConnection } from './messaging';
+import Profile from './profile';
+import { createRedisClient, getSession, setSession } from './redis';
+import RpcProxy from './rpc-proxy';
+import Storage from './storage';
+import { errorHandler, logError, logRequest, socketAuth } from './utils';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -46,7 +45,7 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
     };
     app.locals.storeSession = async (
         accountAddress: string,
-        session: Lib.Delivery.Session,
+        session: Lib.delivery.Session,
     ) => {
         return redisClient
             ? setSession(accountAddress, session, redisClient)
@@ -54,11 +53,7 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
     };
     app.locals.io = io;
 
-    app.locals.deliveryServiceProfile = {
-        publicSigningKey: process.env.PUBLIC_SIGNING_KEY,
-        publicEncryptionKey: process.env.PUBLIC_ENCRYPTION_KEY,
-        url: process.env.URL,
-    } as DeliveryServiceProfile;
+    app.locals.deliveryServicePrivateKey = process.env.PRIVATE_KEY;
 
     app.use(logRequest);
     app.use('/profile', Profile);

@@ -16,27 +16,26 @@ import { signIn } from './Connectors';
 interface SignInProps {
     hideStorageSelection: boolean;
     miniSignIn: boolean;
-    defaultStorageLocation: Lib.StorageLocation | undefined;
+    defaultStorageLocation: Lib.storage.StorageLocation | undefined;
 }
 
 function SignIn(props: SignInProps) {
     const getStorageLocation = () => {
         const persistedStorageLocation = window.localStorage.getItem(
             'StorageLocation',
-        ) as Lib.StorageLocation | null;
+        ) as Lib.storage.StorageLocation | null;
 
         return (
             props.defaultStorageLocation ??
             persistedStorageLocation ??
-            Lib.StorageLocation.File
+            Lib.storage.StorageLocation.File
         );
     };
 
     const [dataFile, setDataFile] = useState<string | undefined>();
     const [token, setToken] = useState<string | undefined>();
-    const [storageLocation, setStorageLocation] = useState<Lib.StorageLocation>(
-        getStorageLocation(),
-    );
+    const [storageLocation, setStorageLocation] =
+        useState<Lib.storage.StorageLocation>(getStorageLocation());
     const [googleAuthState, setGoogleAuthState] = useState<GoogleAuthState>(
         GoogleAuthState.Ready,
     );
@@ -48,7 +47,7 @@ function SignIn(props: SignInProps) {
     const initToken = () => {
         if (
             state.uiState.proflieExists &&
-            storageLocation === Lib.StorageLocation.Web3Storage
+            storageLocation === Lib.storage.StorageLocation.Web3Storage
         ) {
             setToken(window.localStorage.getItem('StorageToken') as string);
         }
@@ -58,19 +57,19 @@ function SignIn(props: SignInProps) {
         const setAccountConntectReady = () =>
             dispatch({
                 type: ConnectionType.ChangeConnectionState,
-                payload: Lib.ConnectionState.AccountConntectReady,
+                payload: Lib.web3provider.ConnectionState.AccountConntectReady,
             });
 
         const setCollectingInfos = () =>
             dispatch({
                 type: ConnectionType.ChangeConnectionState,
-                payload: Lib.ConnectionState.CollectingSignInData,
+                payload: Lib.web3provider.ConnectionState.CollectingSignInData,
             });
 
         const browserDataFile =
             state.connection.account && state.uiState.browserStorageBackup
                 ? await localforage.getItem(
-                      Lib.getBrowserStorageKey(
+                      Lib.account.getBrowserStorageKey(
                           state.connection.account.address,
                       ),
                   )
@@ -78,51 +77,51 @@ function SignIn(props: SignInProps) {
 
         const isCollectingSignInData =
             state.connection.connectionState ===
-            Lib.ConnectionState.CollectingSignInData;
+            Lib.web3provider.ConnectionState.CollectingSignInData;
         const isSignInReady =
             state.connection.connectionState ===
-            Lib.ConnectionState.SignInReady;
+            Lib.web3provider.ConnectionState.SignInReady;
 
         if (
-            storageLocation === Lib.StorageLocation.File &&
+            storageLocation === Lib.storage.StorageLocation.File &&
             !state.uiState.proflieExists &&
             isCollectingSignInData
         ) {
             setAccountConntectReady();
         } else if (
             token &&
-            storageLocation === Lib.StorageLocation.Web3Storage &&
+            storageLocation === Lib.storage.StorageLocation.Web3Storage &&
             isCollectingSignInData
         ) {
             setAccountConntectReady();
         } else if (
-            storageLocation === Lib.StorageLocation.File &&
+            storageLocation === Lib.storage.StorageLocation.File &&
             state.uiState.proflieExists &&
             isCollectingSignInData &&
             (dataFile || browserDataFile)
         ) {
             setAccountConntectReady();
         } else if (
-            storageLocation === Lib.StorageLocation.dm3Storage &&
+            storageLocation === Lib.storage.StorageLocation.dm3Storage &&
             isCollectingSignInData
         ) {
             setAccountConntectReady();
         }
 
         if (
-            storageLocation === Lib.StorageLocation.File &&
+            storageLocation === Lib.storage.StorageLocation.File &&
             state.uiState.proflieExists &&
             isSignInReady
         ) {
             setAccountConntectReady();
         } else if (
             !token &&
-            storageLocation === Lib.StorageLocation.Web3Storage &&
+            storageLocation === Lib.storage.StorageLocation.Web3Storage &&
             isSignInReady
         ) {
             setCollectingInfos();
         } else if (
-            storageLocation === Lib.StorageLocation.GoogleDrive &&
+            storageLocation === Lib.storage.StorageLocation.GoogleDrive &&
             isSignInReady &&
             googleAuthState !== GoogleAuthState.Success
         ) {
@@ -159,7 +158,7 @@ function SignIn(props: SignInProps) {
     useEffect(() => {
         if (
             state.connection.connectionState ===
-                Lib.ConnectionState.SignInReady &&
+                Lib.web3provider.ConnectionState.SignInReady &&
             state.connection.account
         ) {
             signIn(

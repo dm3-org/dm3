@@ -15,39 +15,42 @@ function StorageView() {
         }
         dispatch({
             type: UserDbType.setSyncProcessState,
-            payload: Lib.SyncProcessState.Running,
+            payload: Lib.storage.SyncProcessState.Running,
         });
         try {
             let acknoledgments = [];
 
             switch (state.connection.storageLocation) {
-                case Lib.StorageLocation.GoogleDrive:
-                    acknoledgments = await Lib.googleStore(
+                case Lib.storage.StorageLocation.GoogleDrive:
+                    acknoledgments = await Lib.storage.googleStore(
                         (window as any).gapi,
-                        state.userDb as Lib.UserDB,
+                        state.userDb as Lib.storage.UserDB,
                     );
                     break;
 
-                case Lib.StorageLocation.Web3Storage:
-                    acknoledgments = await Lib.web3Store(
+                case Lib.storage.StorageLocation.Web3Storage:
+                    acknoledgments = await Lib.storage.web3Store(
                         state.connection,
-                        state.userDb as Lib.UserDB,
+                        state.userDb as Lib.storage.UserDB,
                     );
                     break;
 
-                case Lib.StorageLocation.dm3Storage:
-                    acknoledgments = await Lib.useDm3Storage(
+                case Lib.storage.StorageLocation.dm3Storage:
+                    acknoledgments = await Lib.storage.useDm3Storage(
                         state.connection,
-                        state.userDb as Lib.UserDB,
+                        state.userDb as Lib.storage.UserDB,
                     );
                     break;
 
-                case Lib.StorageLocation.File:
+                case Lib.storage.StorageLocation.File:
                 default:
                     if (state.userDb) {
-                        await Lib.useDm3Storage(state.connection, state.userDb);
+                        await Lib.storage.useDm3Storage(
+                            state.connection,
+                            state.userDb,
+                        );
                     }
-                    const syncResult = Lib.sync(state.userDb);
+                    const syncResult = Lib.storage.sync(state.userDb);
                     acknoledgments = syncResult.acknoledgments;
                     const blob = new Blob(
                         [JSON.stringify(syncResult.userStorage)],
@@ -57,7 +60,7 @@ function StorageView() {
                     );
 
                     const a = document.createElement('a');
-                    a.download = `${Lib.getAccountDisplayName(
+                    a.download = `${Lib.account.getAccountDisplayName(
                         state.connection.account!.address,
                         state.cache.ensNames,
                         true,
@@ -74,7 +77,7 @@ function StorageView() {
             }
 
             if (state.userDb && acknoledgments.length > 0) {
-                await Lib.syncAcknoledgment(
+                await Lib.external.syncAcknoledgment(
                     state.connection,
                     acknoledgments,
                     state.userDb,
@@ -85,13 +88,13 @@ function StorageView() {
             dispatch({ type: UserDbType.setSynced, payload: true });
             dispatch({
                 type: UserDbType.setSyncProcessState,
-                payload: Lib.SyncProcessState.Idle,
+                payload: Lib.storage.SyncProcessState.Idle,
             });
         } catch (e) {
             Lib.log(e as string);
             dispatch({
                 type: UserDbType.setSyncProcessState,
-                payload: Lib.SyncProcessState.Failed,
+                payload: Lib.storage.SyncProcessState.Failed,
             });
         }
     };
@@ -99,10 +102,11 @@ function StorageView() {
     useEffect(() => {
         if (
             state.connection.storageLocation ===
-                Lib.StorageLocation.Web3Storage ||
+                Lib.storage.StorageLocation.Web3Storage ||
             state.connection.storageLocation ===
-                Lib.StorageLocation.GoogleDrive ||
-            state.connection.storageLocation === Lib.StorageLocation.dm3Storage
+                Lib.storage.StorageLocation.GoogleDrive ||
+            state.connection.storageLocation ===
+                Lib.storage.StorageLocation.dm3Storage
         ) {
             const autoSync = setInterval(() => {
                 if (state.userDb && !state.userDb.synced) {
@@ -121,11 +125,11 @@ function StorageView() {
     const autoSync = () => {
         if (
             (state.connection.storageLocation ===
-                Lib.StorageLocation.Web3Storage ||
+                Lib.storage.StorageLocation.Web3Storage ||
                 state.connection.storageLocation ===
-                    Lib.StorageLocation.dm3Storage ||
+                    Lib.storage.StorageLocation.dm3Storage ||
                 state.connection.storageLocation ===
-                    Lib.StorageLocation.GoogleDrive) &&
+                    Lib.storage.StorageLocation.GoogleDrive) &&
             state.userDb &&
             !state.userDb.synced
         ) {
@@ -143,8 +147,10 @@ function StorageView() {
                 `[DB/Browser] Create user storage browser snapshot at timestamp ${state.userDb?.lastChangeTimestamp}`,
             );
             localforage.setItem(
-                Lib.getBrowserStorageKey(state.connection.account!.address),
-                Lib.sync(state.userDb).userStorage,
+                Lib.account.getBrowserStorageKey(
+                    state.connection.account!.address,
+                ),
+                Lib.storage.sync(state.userDb).userStorage,
             );
         }
         autoSync();
@@ -152,8 +158,9 @@ function StorageView() {
 
     const showAlert =
         (!state.userDb?.synced &&
-            state.connection.storageLocation === Lib.StorageLocation.File) ||
-        state.userDb?.syncProcessState === Lib.SyncProcessState.Failed;
+            state.connection.storageLocation ===
+                Lib.storage.StorageLocation.File) ||
+        state.userDb?.syncProcessState === Lib.storage.SyncProcessState.Failed;
 
     return state.uiState.maxLeftView ? (
         <div className="mt-auto w-100 ">
@@ -176,18 +183,18 @@ function StorageView() {
                             className={`ms-1 me-3 btn btn-outline-secondary left-btn`}
                             disabled={
                                 state.userDb?.syncProcessState ===
-                                Lib.SyncProcessState.Running
+                                Lib.storage.SyncProcessState.Running
                             }
                         >
                             {state.userDb?.syncProcessState ===
-                            Lib.SyncProcessState.Running ? (
+                            Lib.storage.SyncProcessState.Running ? (
                                 <span className="push-end">
                                     <Icon iconClass="fas fa-sync fa-spin" />
                                 </span>
                             ) : (
                                 <>
                                     {state.connection.storageLocation ===
-                                    Lib.StorageLocation.File ? (
+                                    Lib.storage.StorageLocation.File ? (
                                         <Icon
                                             iconClass={`fas fa-download ${
                                                 state.userDb?.synced

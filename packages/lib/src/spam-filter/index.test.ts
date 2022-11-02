@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
-import { Envelop } from '..';
+import { Envelop } from '../messaging';
+
 import { Filter, filter } from './';
 
 const envelops: Envelop[] = [

@@ -14,10 +14,12 @@ router.get(
     '/messages/:address/contact/:contact_address',
     async (req, res, next) => {
         try {
-            const account = Lib.formatAddress(req.params.address);
-            const contact = Lib.formatAddress(req.params.contact_address);
+            const account = Lib.external.formatAddress(req.params.address);
+            const contact = Lib.external.formatAddress(
+                req.params.contact_address,
+            );
 
-            const newMessages = await Lib.Delivery.getMessages(
+            const newMessages = await Lib.delivery.getMessages(
                 async (
                     conversationId: string,
                     offset: number,
@@ -55,7 +57,7 @@ router.get(
 
 router.post('/messages/:address/pending', async (req, res, next) => {
     try {
-        const account = Lib.formatAddress(req.params.address);
+        const account = Lib.external.formatAddress(req.params.address);
 
         const pending = await getPending(account, req.app.locals.redisClient);
         await deletePending(account, req.app.locals.redisClient);
@@ -69,11 +71,11 @@ router.post(
     '/messages/:address/syncAcknoledgment/:last_message_pull',
     async (req, res, next) => {
         try {
-            const account = Lib.formatAddress(req.params.address);
+            const account = Lib.external.formatAddress(req.params.address);
             await Promise.all(
                 req.body.acknoledgments.map(
-                    async (ack: Lib.Delivery.Acknoledgment) => {
-                        const conversationId = Lib.getConversationId(
+                    async (ack: Lib.delivery.Acknoledgment) => {
+                        const conversationId = Lib.storage.getConversationId(
                             account,
                             ack.contactAddress,
                         );

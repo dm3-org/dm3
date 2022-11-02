@@ -49,7 +49,7 @@ export async function getMessages(
 // buffer message until delivery and sync acknoledgment
 export async function incomingMessage(
     { envelop, token }: { envelop: EncryptionEnvelop; token: string },
-    deliveryServiceProfile: DeliveryServiceProfile,
+    deliveryServicePrivateKey: string,
     getSession: (accountAddress: string) => Promise<Session | null>,
     storeNewMessage: (
         conversationId: string,
@@ -69,21 +69,18 @@ export async function incomingMessage(
 
     const receiverSession = await getSession(receiver);
     if (receiverSession === null) {
-        //TODO how should we handle this case?
         throw Error('unknown session');
     }
 
     const receiverEncryptionKey =
         receiverSession?.signedUserProfile.profile.publicEncryptionKey;
 
-    const deliveryServiceSigningKey = deliveryServiceProfile.publicSigningKey;
-
     const envelopWithPostmark: EncryptionEnvelop = {
         ...envelop,
         postmark: addPostmark(
             envelop,
             receiverEncryptionKey,
-            deliveryServiceSigningKey,
+            deliveryServicePrivateKey,
         ),
     };
     await storeNewMessage(conversationId, envelopWithPostmark);

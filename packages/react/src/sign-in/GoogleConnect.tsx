@@ -6,7 +6,7 @@ import { ConnectionType } from '../reducers/Connection';
 import StateButton, { ButtonState } from '../ui-shared/StateButton';
 
 interface GoogleConnectProps {
-    storageLocation: Lib.StorageLocation;
+    storageLocation: Lib.storage.StorageLocation;
     setGoogleAuthState: (authState: GoogleAuthState) => void;
     googleAuthState: GoogleAuthState;
 }
@@ -34,12 +34,14 @@ function GoogleConnect(props: GoogleConnectProps) {
         try {
             if (
                 isSignedIn &&
-                props.storageLocation === Lib.StorageLocation.GoogleDrive
+                props.storageLocation ===
+                    Lib.storage.StorageLocation.GoogleDrive
             ) {
                 props.setGoogleAuthState(GoogleAuthState.Success);
                 dispatch({
                     type: ConnectionType.ChangeConnectionState,
-                    payload: Lib.ConnectionState.AccountConntectReady,
+                    payload:
+                        Lib.web3provider.ConnectionState.AccountConntectReady,
                 });
             } else {
                 (window as any).gapi.auth2.getAuthInstance().signIn();
@@ -99,7 +101,8 @@ function GoogleConnect(props: GoogleConnectProps) {
     };
 
     return connectionPhase(state.connection.connectionState) ||
-        props.storageLocation !== Lib.StorageLocation.GoogleDrive ? null : (
+        props.storageLocation !==
+            Lib.storage.StorageLocation.GoogleDrive ? null : (
         <div className="row row-space">
             <div className="col-md-5">
                 <StateButton

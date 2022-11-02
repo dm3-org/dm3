@@ -9,9 +9,9 @@ router.use(cors());
 
 router.get('/:address', async (req, res, next) => {
     try {
-        const account = Lib.formatAddress(req.params.address);
+        const account = Lib.external.formatAddress(req.params.address);
 
-        const challenge = await Lib.Delivery.createChallenge(
+        const challenge = await Lib.delivery.createChallenge(
             req.app.locals.loadSession,
             req.app.locals.storeSession,
             account,
@@ -27,9 +27,9 @@ router.get('/:address', async (req, res, next) => {
 
 router.post('/:address', async (req, res, next) => {
     try {
-        const account = Lib.formatAddress(req.params.address);
+        const account = Lib.external.formatAddress(req.params.address);
 
-        const token = await Lib.Delivery.createNewSessionToken(
+        const token = await Lib.delivery.createNewSessionToken(
             req.app.locals.loadSession,
             req.app.locals.storeSession,
             req.body.signature,

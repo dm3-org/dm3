@@ -1,4 +1,14 @@
 import { ethers } from 'ethers';
+import queryString from 'query-string';
+import stringify from 'safe-stable-stringify';
+import nacl from 'tweetnacl';
+import { encodeBase64 } from 'tweetnacl-util';
+import { GetUserProfile } from '..';
+import { GetSymmetricalKeyFromSignature } from '../encryption/SymmetricalEncryption';
+import {
+    GetPendingConversations,
+    GetUserProfileOffChain,
+} from '../external-apis/BackendAPI';
 import {
     formatAddress,
     GetConractInstance,
@@ -8,31 +18,18 @@ import {
     PersonalSign,
     ResolveName,
 } from '../external-apis/InjectedWeb3API';
-import { Connection } from '../web3-provider/Web3Provider';
-import nacl from 'tweetnacl';
-import { encodeBase64 } from 'tweetnacl-util';
+import { log } from '../shared/log';
+import { sha256 } from '../shared/sha256';
 import {
     createEmptyConversation,
     getConversationId,
     UserDB,
 } from '../storage/Storage';
-import {
-    generateSymmetricalKey,
-    GetSymmetricalKeyFromSignature,
-} from '../encryption/SymmetricalEncryption';
-import {
-    GetPendingConversations,
-    GetUserProfileOffChain,
-} from '../external-apis/BackendAPI';
-import { GetUserProfile } from '..';
-import { log } from '../shared/log';
-import queryString from 'query-string';
-import stringify from 'safe-stable-stringify';
-import { LinkResolver } from './profileResolver/LinkResolver';
+import { Connection } from '../web3-provider/Web3Provider';
 import { IpfsResolver } from './profileResolver/IpfsResolver';
-import { ProfileResolver } from './profileResolver/ProfileResolver';
 import { JsonResolver } from './profileResolver/JsonResolver';
-import { sha256 } from '../shared/sha256';
+import { LinkResolver } from './profileResolver/LinkResolver';
+import { ProfileResolver } from './profileResolver/ProfileResolver';
 
 export interface Keys {
     publicMessagingKey: string;

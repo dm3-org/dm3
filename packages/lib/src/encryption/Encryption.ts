@@ -53,7 +53,7 @@ export function encrypt({
             try {
                 pubKeyUInt8Array = naclUtil.decodeBase64(publicKey);
             } catch (err) {
-                console.log(err);
+                log('[Encrypt ]' + err);
                 throw new Error('Bad public key');
             }
 

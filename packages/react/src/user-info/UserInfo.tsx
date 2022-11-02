@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './UserInfo.css';
 import { GlobalContext } from '../GlobalContextProvider';
 import * as Lib from 'dm3-lib';
@@ -10,7 +10,7 @@ import { useAsync } from '../ui-shared/useAsync';
 import StateButton, { ButtonState } from '../ui-shared/StateButton';
 
 interface UserInfoProps {
-    account: Lib.Account;
+    account: Lib.account.Account;
 }
 
 interface EnsTextRecords {
@@ -30,6 +30,22 @@ function UserInfo(props: UserInfoProps) {
         EnsTextRecords | undefined
     >();
 
+    const [deliveryServiceUrl, setdeliveryServiceUrl] = useState('');
+
+    useEffect(() => {
+        const getDeliveryServiceUrl = async () => {
+            if (state?.connection?.account?.profile === undefined) {
+                return;
+            }
+            const { url } = await Lib.delivery.getDeliveryServiceProfile(
+                state.connection.account.profile,
+            );
+            setdeliveryServiceUrl(url);
+        };
+
+        getDeliveryServiceUrl();
+    }, [state.connection.account?.profile]);
+
     const ensName = state.cache.ensNames.get(props.account.address);
 
     const getTextRecords = async (): Promise<EnsTextRecords | undefined> => {
@@ -39,7 +55,7 @@ function UserInfo(props: UserInfoProps) {
             ensName &&
             state.connection.provider
         ) {
-            return Lib.getDefaultEnsTextRecord(
+            return Lib.external.getDefaultEnsTextRecord(
                 state.connection.provider,
                 ensName,
             );
@@ -63,7 +79,7 @@ function UserInfo(props: UserInfoProps) {
     const publishProfileOnchain = async () => {
         setPublishButtonState(ButtonState.Loading);
         try {
-            const tx = await Lib.publishProfileOnchain(
+            const tx = await Lib.account.publishProfileOnchain(
                 state.connection,
                 state.connection.defaultServiceUrl +
                     '/profile/' +
@@ -71,7 +87,7 @@ function UserInfo(props: UserInfoProps) {
             );
 
             if (tx) {
-                const response = await Lib.executeTransaction(tx);
+                const response = await Lib.external.executeTransaction(tx);
                 await response.wait();
                 setPublishButtonState(ButtonState.Success);
             } else {
@@ -238,13 +254,13 @@ function UserInfo(props: UserInfoProps) {
                             <a
                                 className="text-decoration-none text-muted align-self-center"
                                 href={
-                                    props.account.profile.deliveryServices[0] +
+                                    deliveryServiceUrl +
                                     '/profile/' +
                                     props.account.address
                                 }
                                 target="_blank"
                             >
-                                {props.account.profile.deliveryServices[0] +
+                                {deliveryServiceUrl +
                                     '/profile/' +
                                     props.account.address}
                             </a>

@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
-import { UserDB } from '..';
 import { Keys } from '../account/Account';
 import { decryptSafely, EthEncryptedData } from '../encryption/Encryption';
+import { UserDB } from '../storage';
 
 export interface Executable {
     method: (...args: any[]) => Promise<ethers.providers.TransactionResponse>;

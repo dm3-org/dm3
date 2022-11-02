@@ -21,9 +21,9 @@ import {
     getBrowserStorageKey,
     getContacts,
     getUserProfile,
+    UserProfile,
     publishProfileOnchain,
     SignedUserProfile,
-    UserProfile,
 } from './Account';
 
 const connection: Connection = {
@@ -180,10 +180,9 @@ test('checkUserProfile should reject an invalid signature ', async () => {
     };
 
     const wallet = ethers.Wallet.createRandom();
+
     const signature = await wallet.signMessage(
-        stringify({
-            publicKeys: { ...profile, publicKey: '4' },
-        })!,
+        stringify(profile.publicEncryptionKey),
     );
 
     expect(

@@ -5,7 +5,7 @@ import { connectionPhase } from './Phases';
 import { GlobalContext } from '../GlobalContextProvider';
 
 interface StoreTokenProps {
-    storageLocation: Lib.StorageLocation;
+    storageLocation: Lib.storage.StorageLocation;
     storeApiToken: boolean;
     setStoreApiToken: (store: boolean) => void;
 }
@@ -14,7 +14,7 @@ function StoreToken(props: StoreTokenProps) {
     const { state } = useContext(GlobalContext);
     if (
         connectionPhase(state.connection.connectionState) ||
-        props.storageLocation !== Lib.StorageLocation.Web3Storage
+        props.storageLocation !== Lib.storage.StorageLocation.Web3Storage
     ) {
         return null;
     }
