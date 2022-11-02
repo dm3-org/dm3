@@ -25,6 +25,10 @@ import { log } from '../shared/log';
 import queryString from 'query-string';
 import stringify from 'safe-stable-stringify';
 import { GetUserProfile } from '.';
+import { JsonResolver } from './profileResolver/JsonResolver';
+import { IpfsResolver } from './profileResolver/IpfsResolver';
+import { ProfileResolver } from './profileResolver/ProfileResolver';
+import { LinkResolver } from './profileResolver/LinkResolver';
 
 export interface Keys {
     publicMessagingKey: string;
