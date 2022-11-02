@@ -1,4 +1,3 @@
-import { profile } from 'console';
 import * as Lib from 'dm3-lib';
 import { ethers } from 'ethers';
 
