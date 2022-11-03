@@ -101,9 +101,6 @@ function addPostmark(
         incommingTimestamp: new Date().getTime(),
     };
 
-    console.log('SING POST MARK USING ', deliveryServiceSigningKey);
-    console.log('POSTMARK', postmarkWithoutSig);
-
     const signature = signPostmark(
         postmarkWithoutSig,
         deliveryServiceSigningKey,

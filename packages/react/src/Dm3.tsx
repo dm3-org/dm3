@@ -29,6 +29,8 @@ interface dm3Props {
 function dm3(props: dm3Props) {
     const { state, dispatch } = useContext(GlobalContext);
 
+    const [deliveryServiceUrl, setdeliveryServiceUrl] = useState('');
+
     if (state.userDb?.synced && props.config.warnBeforeLeave) {
         useBeforeunload();
     } else if (props.config.warnBeforeLeave) {
@@ -88,6 +90,79 @@ function dm3(props: dm3Props) {
             }
         }
     }, [state.connection.provider]);
+
+    useEffect(() => {
+        const getDeliveryServiceUrl = async () => {
+            if (deliveryServiceUrl !== '') {
+                return;
+            }
+            if (state?.connection?.account?.profile === undefined) {
+                return;
+            }
+            const { url } = await Lib.delivery.getDeliveryServiceProfile(
+                state.connection.account.profile,
+                state.connection,
+            );
+            setdeliveryServiceUrl(url);
+        };
+
+        getDeliveryServiceUrl();
+    }, [state.connection.account?.profile]);
+
+    useEffect(() => {
+        if (
+            state.connection.connectionState ===
+                Lib.web3provider.ConnectionState.SignedIn &&
+            !state.connection.socket
+        ) {
+            if (!state.userDb) {
+                throw Error(
+                    `Couldn't handle new messages. User db not created.`,
+                );
+            }
+
+            if (!state.connection.account?.profile) {
+                throw Error('Could not get account profile');
+            }
+
+            const socket = socketIOClient(deliveryServiceUrl, {
+                autoConnect: false,
+            });
+            socket.auth = {
+                account: state.connection.account,
+                token: state.userDb.deliveryServiceToken,
+            };
+            socket.connect();
+            socket.on('message', (envelop: Lib.messaging.EncryptionEnvelop) => {
+                handleNewMessage(envelop);
+            });
+            socket.on('joined', () => {
+                getContacts(state.connection as Lib.Connection);
+            });
+            dispatch({ type: ConnectionType.ChangeSocket, payload: socket });
+        }
+    }, [state.connection.connectionState, state.connection.socket]);
+
+    useEffect(() => {
+        if (state.accounts.selectedContact && state.connection.socket) {
+            state.connection.socket.removeAllListeners();
+
+            state.connection.socket.on(
+                'message',
+                (envelop: Lib.messaging.EncryptionEnvelop) => {
+                    handleNewMessage(envelop);
+                },
+            );
+
+            state.connection.socket.on('joined', () => {
+                getContacts(state.connection as Lib.Connection);
+            });
+        }
+    }, [
+        state.accounts.selectedContact,
+        state.accounts.selectedContact,
+        state.userDb?.conversations,
+    ]);
 
     const getContacts = (connection: Lib.Connection) => {
         if (!state.userDb) {
@@ -171,84 +246,6 @@ function dm3(props: dm3Props) {
             },
         });
     };
-    const [deliveryServiceUrl, setdeliveryServiceUrl] = useState('');
-
-    useEffect(() => {
-        const getDeliveryServiceUrl = async () => {
-            if (deliveryServiceUrl !== '') {
-                console.log('url already set', deliveryServiceUrl);
-                return;
-            }
-            if (state?.connection?.account?.profile === undefined) {
-                console.log('profile not there');
-
-                return;
-            }
-            const { url } = await Lib.delivery.getDeliveryServiceProfile(
-                state.connection.account.profile,
-                state.connection,
-            );
-            console.log('set deliveryService url', deliveryServiceUrl);
-            setdeliveryServiceUrl(url);
-        };
-
-        getDeliveryServiceUrl();
-    }, [state.connection.account?.profile]);
-
-    useEffect(() => {
-        if (
-            state.connection.connectionState ===
-                Lib.web3provider.ConnectionState.SignedIn &&
-            !state.connection.socket
-        ) {
-            if (!state.userDb) {
-                throw Error(
-                    `Couldn't handle new messages. User db not created.`,
-                );
-            }
-
-            if (!state.connection.account?.profile) {
-                throw Error('Could not get account profile');
-            }
-
-            const socket = socketIOClient(deliveryServiceUrl, {
-                autoConnect: false,
-            });
-            socket.auth = {
-                account: state.connection.account,
-                token: state.userDb.deliveryServiceToken,
-            };
-            socket.connect();
-            socket.on('message', (envelop: Lib.messaging.EncryptionEnvelop) => {
-                handleNewMessage(envelop);
-            });
-            socket.on('joined', () => {
-                getContacts(state.connection as Lib.Connection);
-            });
-            dispatch({ type: ConnectionType.ChangeSocket, payload: socket });
-        }
-    }, [state.connection.connectionState, state.connection.socket]);
-
-    useEffect(() => {
-        if (state.accounts.selectedContact && state.connection.socket) {
-            state.connection.socket.removeAllListeners();
-
-            state.connection.socket.on(
-                'message',
-                (envelop: Lib.messaging.EncryptionEnvelop) => {
-                    handleNewMessage(envelop);
-                },
-            );
-
-            state.connection.socket.on('joined', () => {
-                getContacts(state.connection as Lib.Connection);
-            });
-        }
-    }, [
-        state.accounts.selectedContact,
-        state.accounts.selectedContact,
-        state.userDb?.conversations,
-    ]);
 
     const showHelp =
         state.connection.connectionState ===

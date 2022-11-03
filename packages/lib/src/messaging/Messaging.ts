@@ -192,7 +192,7 @@ export async function getMessages(
             const decryptedEnvelop = await decryptMessages([envelop], userDb);
             const decryptedPostmark = decryptPayload<Postmark>(
                 userDb,
-                JSON.parse(envelop.postmark!),
+                envelop.postmark!,
             );
 
             return {
