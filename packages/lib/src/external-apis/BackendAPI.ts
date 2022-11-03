@@ -30,10 +30,14 @@ function checkAccount(account: Account | undefined): Required<Account> {
     return account as Required<Account>;
 }
 
-export async function getChallenge(account: Account): Promise<string> {
+export async function getChallenge(
+    account: Account,
+    connection: Connection,
+): Promise<string> {
     const { profile, address } = checkAccount(account);
     const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
         profile,
+        connection,
     );
 
     const url = `${deliveryServiceUrl}${AUTH_SERVICE_PATH}/${formatAddress(
@@ -48,11 +52,13 @@ export type GetChallenge = typeof getChallenge;
 
 export async function getNewToken(
     account: Account,
+    connection: Connection,
     signature: string,
 ): Promise<string> {
     const { profile, address } = checkAccount(account);
     const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
         profile,
+        connection,
     );
     const url = `${deliveryServiceUrl}${AUTH_SERVICE_PATH}/${formatAddress(
         address,
@@ -68,11 +74,13 @@ export type GetNewToken = typeof getNewToken;
 
 export async function submitUserProfile(
     account: Account,
+    connection: Connection,
     signedUserProfile: SignedUserProfile,
 ): Promise<string> {
     const { profile, address } = checkAccount(account);
     const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
         profile,
+        connection,
     );
 
     const url = `${deliveryServiceUrl}${PROFILE_PATH}/${formatAddress(
@@ -114,14 +122,16 @@ export async function submitMessage(
 export type SubmitMessage = typeof submitMessage;
 
 export async function syncAcknoledgment(
-    { account }: Connection,
+    connection: Connection,
     acknoledgments: Acknoledgment[],
     userDb: UserDB,
     lastMessagePull: number,
 ): Promise<void> {
+    const { account } = connection;
     const { profile } = checkAccount(account);
     const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
         profile,
+        connection,
     );
     const url = `${deliveryServiceUrl}${DELIVERY_PATH}/messages/${
         account!.address
@@ -152,13 +162,16 @@ export async function createPendingEntry(
 export type CreatePendingEntry = typeof createPendingEntry;
 
 export async function getNewMessages(
-    { account }: Connection,
+    connection: Connection,
     userDb: UserDB,
     contactAddress: string,
 ): Promise<EncryptionEnvelop[]> {
+    const { account } = connection;
     const { profile } = checkAccount(account);
+
     const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
         profile,
+        connection,
     );
     const url = `${deliveryServiceUrl}${DELIVERY_PATH}/messages/${
         account!.address
@@ -174,12 +187,14 @@ export async function getNewMessages(
 export type GetNewMessages = typeof getNewMessages;
 
 export async function getPendingConversations(
-    { account }: Connection,
+    connection: Connection,
     userDb: UserDB,
 ): Promise<string[]> {
+    const { account } = connection;
     const { profile } = checkAccount(account);
     const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
         profile,
+        connection,
     );
     const url = `${deliveryServiceUrl}${DELIVERY_PATH}/messages/${
         account!.address
@@ -196,6 +211,7 @@ export async function getPendingConversations(
 export type GetPendingConversations = typeof getPendingConversations;
 
 export async function getUserProfileOffChain(
+    connection: Connection,
     account: Account | undefined,
     contact: string,
     url?: string,
@@ -205,6 +221,7 @@ export async function getUserProfileOffChain(
         const { profile } = checkAccount(account);
         const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
             profile,
+            connection,
         );
         return `${deliveryServiceUrl}${PROFILE_PATH}/${contact}`;
     };

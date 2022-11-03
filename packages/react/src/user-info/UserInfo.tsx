@@ -31,14 +31,17 @@ function UserInfo(props: UserInfoProps) {
     >();
 
     const [deliveryServiceUrl, setdeliveryServiceUrl] = useState('');
-
     useEffect(() => {
         const getDeliveryServiceUrl = async () => {
+            if (deliveryServiceUrl !== '') {
+                return;
+            }
             if (state?.connection?.account?.profile === undefined) {
                 return;
             }
             const { url } = await Lib.delivery.getDeliveryServiceProfile(
                 state.connection.account.profile,
+                state.connection,
             );
             setdeliveryServiceUrl(url);
         };
