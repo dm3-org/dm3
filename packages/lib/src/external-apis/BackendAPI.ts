@@ -4,9 +4,9 @@ import { Acknoledgment } from '../delivery';
 import { getDeliveryServiceProfile } from '../delivery/Delivery';
 import { EncryptionEnvelop, Envelop } from '../messaging/Messaging';
 import { log } from '../shared/log';
+import { UserDB } from '../storage';
 import { Connection } from '../web3-provider/Web3Provider';
 import { formatAddress } from './InjectedWeb3API';
-import { UserDB } from '../storage';
 
 const PROFILE_PATH = '/profile';
 const DELIVERY_PATH = '/delivery';
@@ -32,7 +32,9 @@ function checkAccount(account: Account | undefined): Required<Account> {
 
 export async function getChallenge(account: Account): Promise<string> {
     const { profile, address } = checkAccount(account);
-    const deliveryServiceUrl = await getDeliveryServiceProfile(profile);
+    const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
+        profile,
+    );
 
     const url = `${deliveryServiceUrl}${AUTH_SERVICE_PATH}/${formatAddress(
         address,
@@ -49,7 +51,9 @@ export async function getNewToken(
     signature: string,
 ): Promise<string> {
     const { profile, address } = checkAccount(account);
-    const deliveryServiceUrl = await getDeliveryServiceProfile(profile);
+    const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
+        profile,
+    );
     const url = `${deliveryServiceUrl}${AUTH_SERVICE_PATH}/${formatAddress(
         address,
     )}`;
@@ -67,7 +71,10 @@ export async function submitUserProfile(
     signedUserProfile: SignedUserProfile,
 ): Promise<string> {
     const { profile, address } = checkAccount(account);
-    const deliveryServiceUrl = await getDeliveryServiceProfile(profile);
+    const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
+        profile,
+    );
+
     const url = `${deliveryServiceUrl}${PROFILE_PATH}/${formatAddress(
         address,
     )}`;
@@ -113,7 +120,9 @@ export async function syncAcknoledgment(
     lastMessagePull: number,
 ): Promise<void> {
     const { profile } = checkAccount(account);
-    const deliveryServiceUrl = await getDeliveryServiceProfile(profile);
+    const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
+        profile,
+    );
     const url = `${deliveryServiceUrl}${DELIVERY_PATH}/messages/${
         account!.address
     }/syncAcknoledgment/${lastMessagePull}`;
@@ -148,7 +157,9 @@ export async function getNewMessages(
     contactAddress: string,
 ): Promise<EncryptionEnvelop[]> {
     const { profile } = checkAccount(account);
-    const deliveryServiceUrl = await getDeliveryServiceProfile(profile);
+    const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
+        profile,
+    );
     const url = `${deliveryServiceUrl}${DELIVERY_PATH}/messages/${
         account!.address
     }/contact/${contactAddress}`;
@@ -167,7 +178,9 @@ export async function getPendingConversations(
     userDb: UserDB,
 ): Promise<string[]> {
     const { profile } = checkAccount(account);
-    const deliveryServiceUrl = await getDeliveryServiceProfile(profile);
+    const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
+        profile,
+    );
     const url = `${deliveryServiceUrl}${DELIVERY_PATH}/messages/${
         account!.address
     }/pending/`;
@@ -190,7 +203,9 @@ export async function getUserProfileOffChain(
     const getFallbackUrl = async () => {
         checkAccount(account);
         const { profile } = checkAccount(account);
-        const deliveryServiceUrl = await getDeliveryServiceProfile(profile);
+        const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
+            profile,
+        );
         return `${deliveryServiceUrl}${PROFILE_PATH}/${contact}`;
     };
 

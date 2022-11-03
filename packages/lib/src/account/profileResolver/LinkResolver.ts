@@ -1,7 +1,6 @@
-import { URL } from 'url';
 import { log } from '../../shared/log';
 import { checkProfileHash, GetResource } from '../Account';
-import { ProfileResolver } from './ProfileResolver';
+import { Dm3Profile, ProfileResolver } from './ProfileResolver';
 
 const isProfile = (textRecord: string) => {
     try {
@@ -12,8 +11,8 @@ const isProfile = (textRecord: string) => {
     }
 };
 
-const resolveProfile =
-    (getResource: GetResource) => async (textRecord: string) => {
+function resolveProfile<T extends Dm3Profile>(getResource: GetResource<T>) {
+    return async (textRecord: string) => {
         log(`[getUserProfile] resolve link ${textRecord}`);
         const profile = await getResource(textRecord);
 
@@ -26,10 +25,13 @@ const resolveProfile =
         }
         return profile;
     };
+}
 
-export const LinkResolver = (getResource: GetResource): ProfileResolver => {
+export function LinkResolver<T extends Dm3Profile>(
+    getResource: GetResource<T>,
+): ProfileResolver<T> {
     return {
         isProfile,
-        resolveProfile: resolveProfile(getResource),
+        resolveProfile: resolveProfile<T>(getResource),
     };
-};
+}
