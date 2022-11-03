@@ -101,6 +101,9 @@ function addPostmark(
         incommingTimestamp: new Date().getTime(),
     };
 
+    console.log('SING POST MARK USING ', deliveryServiceSigningKey);
+    console.log('POSTMARK', postmarkWithoutSig);
+
     const signature = signPostmark(
         postmarkWithoutSig,
         deliveryServiceSigningKey,
@@ -113,10 +116,20 @@ function addPostmark(
         version: 'x25519-xsalsa20-poly1305',
     });
 
-    return stringify({ nonce, version, ciphertext, ephemPublicKey })!;
+    const encryptedPostmark = stringify({
+        nonce,
+        version,
+        ciphertext,
+        ephemPublicKey,
+    })!;
+
+    const { hexlify, toUtf8Bytes } = ethers.utils;
+
+    return hexlify(toUtf8Bytes(encryptedPostmark));
 }
 
 const signPostmark = (p: Omit<Postmark, 'signature'>, signingKey: string) => {
+    console.log('SING POST MARK USING ', signingKey);
     const postmarkHash = sha256(stringify(p));
     return ethers.utils.hexlify(
         nacl.sign.detached(

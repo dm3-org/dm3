@@ -234,17 +234,12 @@ function nacl_decodeHex(msgHex: string): Uint8Array {
     return naclUtil.decodeBase64(msgHex);
 }
 
-export function decryptEnvelop(
-    userDb: UserDB,
-    envelop: EncryptionEnvelop,
-): Envelop {
+export function decryptPayload<T>(userDb: UserDB, payload: string): T {
     return {
         ...(decryptSafely({
-            encryptedData: JSON.parse(
-                ethers.utils.toUtf8String(envelop.encryptedData),
-            ),
+            encryptedData: JSON.parse(ethers.utils.toUtf8String(payload)),
             privateKey: (userDb.keys as Keys).privateMessagingKey as string,
-        }) as Envelop),
+        }) as T),
     };
 }
 

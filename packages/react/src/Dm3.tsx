@@ -20,6 +20,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { Config } from './utils/Config';
 import Help from './ui-shared/Help';
+import { Envelop, Postmark } from 'dm3-lib/dist/messaging/Messaging';
 
 interface dm3Props {
     config: Config;
@@ -139,13 +140,13 @@ function dm3(props: dm3Props) {
     ) => {
         Lib.log('New messages');
 
-        const innerEnvelop = Lib.encryption.decryptEnvelop(
+        const innerEnvelop = Lib.encryption.decryptPayload<Envelop>(
             state.userDb as Lib.storage.UserDB,
-            envelop,
+            envelop.encryptedData,
         );
-        const [{ incommingTimestamp }] = Lib.messaging.decryptPostmark(
-            [envelop],
+        const { incommingTimestamp } = Lib.encryption.decryptPayload<Postmark>(
             state.userDb as Lib.storage.UserDB,
+            envelop.postmark!,
         );
 
         if (!state.userDb) {
@@ -170,7 +171,6 @@ function dm3(props: dm3Props) {
             },
         });
     };
-
     const [deliveryServiceUrl, setdeliveryServiceUrl] = useState('');
 
     useEffect(() => {

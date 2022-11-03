@@ -7,7 +7,6 @@ import {
     getMessages as execGetMessages,
     Message,
     submitMessage as execSubmitMessage,
-    decryptPostmark,
 } from './Messaging';
 import {
     createPendingEntry,
@@ -17,7 +16,7 @@ import { encryptSafely, signWithSignatureKey } from '../encryption/Encryption';
 
 export type { Message, EncryptionEnvelop, Envelop } from './Messaging';
 
-export { MessageState, decryptPostmark } from './Messaging';
+export { MessageState } from './Messaging';
 export { getId } from './Utils';
 
 export async function getMessages(
