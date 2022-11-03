@@ -1,1 +1,1 @@
-export { decryptEnvelop, checkSignature } from './Encryption';
+export { decryptPayload, checkSignature } from './Encryption';

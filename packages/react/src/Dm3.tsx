@@ -20,6 +20,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { Config } from './utils/Config';
 import Help from './ui-shared/Help';
+import { Envelop, Postmark } from 'dm3-lib/dist/messaging/Messaging';
 
 interface dm3Props {
     config: Config;
@@ -27,6 +28,8 @@ interface dm3Props {
 
 function dm3(props: dm3Props) {
     const { state, dispatch } = useContext(GlobalContext);
+
+    const [deliveryServiceUrl, setdeliveryServiceUrl] = useState('');
 
     if (state.userDb?.synced && props.config.warnBeforeLeave) {
         useBeforeunload();
@@ -88,104 +91,24 @@ function dm3(props: dm3Props) {
         }
     }, [state.connection.provider]);
 
-    const getContacts = (connection: Lib.Connection) => {
-        if (!state.userDb) {
-            throw Error(
-                `[getContacts] Couldn't handle new messages. User db not created.`,
-            );
-        }
-        Lib.log('[getContacts]');
-
-        return requestContacts(
-            connection,
-            state.accounts.selectedContact,
-            (contact: Lib.account.Account | undefined) =>
-                dispatch({
-                    type: AccountsType.SetSelectedContact,
-                    payload: contact,
-                }),
-            (contacts: Lib.account.Account[]) =>
-                dispatch({ type: AccountsType.SetContacts, payload: contacts }),
-            (address: string, name: string) =>
-                dispatch({
-                    type: CacheType.AddEnsName,
-                    payload: {
-                        address,
-                        name,
-                    },
-                }),
-            state.userDb,
-            (id: string) =>
-                dispatch({
-                    type: UserDbType.createEmptyConversation,
-                    payload: id,
-                }),
-            (conversations) =>
-                conversations.forEach((conversation) =>
-                    dispatch({
-                        type: UserDbType.addMessage,
-                        payload: {
-                            container: conversation,
-                            connection: connection,
-                        },
-                    }),
-                ),
-            props.config.defaultContact,
-        );
-    };
-
-    const handleNewMessage = async (
-        envelop: Lib.messaging.EncryptionEnvelop,
-    ) => {
-        Lib.log('New messages');
-
-        const innerEnvelop = Lib.encryption.decryptEnvelop(
-            state.userDb as Lib.storage.UserDB,
-            envelop,
-        );
-        const [{ incommingTimestamp }] = Lib.messaging.decryptPostmark(
-            [envelop],
-            state.userDb as Lib.storage.UserDB,
-        );
-
-        if (!state.userDb) {
-            throw Error(
-                `[handleNewMessage] Couldn't handle new messages. User db not created.`,
-            );
-        }
-
-        if (!incommingTimestamp) {
-            throw Error(`[handleNewMessage] No delivery service timestamp`);
-        }
-
-        dispatch({
-            type: UserDbType.addMessage,
-            payload: {
-                container: {
-                    envelop: innerEnvelop,
-                    messageState: Lib.messaging.MessageState.Send,
-                    deliveryServiceIncommingTimestamp: incommingTimestamp,
-                },
-                connection: state.connection as Lib.Connection,
-            },
-        });
-    };
-
-    const [deliveryServiceUrl, setdeliveryServiceUrl] = useState('');
-
     useEffect(() => {
         const getDeliveryServiceUrl = async () => {
+            if (deliveryServiceUrl !== '') {
+                return;
+            }
             if (state?.connection?.account?.profile === undefined) {
                 return;
             }
             const { url } = await Lib.delivery.getDeliveryServiceProfile(
                 state.connection.account.profile,
+                state.connection,
             );
             setdeliveryServiceUrl(url);
         };
 
         getDeliveryServiceUrl();
     }, [state.connection.account?.profile]);
+
     useEffect(() => {
         if (
             state.connection.connectionState ===
@@ -240,6 +163,89 @@ function dm3(props: dm3Props) {
         state.accounts.selectedContact,
         state.userDb?.conversations,
     ]);
+
+    const getContacts = (connection: Lib.Connection) => {
+        if (!state.userDb) {
+            throw Error(
+                `[getContacts] Couldn't handle new messages. User db not created.`,
+            );
+        }
+        Lib.log('[getContacts]');
+
+        return requestContacts(
+            connection,
+            state.accounts.selectedContact,
+            (contact: Lib.account.Account | undefined) =>
+                dispatch({
+                    type: AccountsType.SetSelectedContact,
+                    payload: contact,
+                }),
+            (contacts: Lib.account.Account[]) =>
+                dispatch({ type: AccountsType.SetContacts, payload: contacts }),
+            (address: string, name: string) =>
+                dispatch({
+                    type: CacheType.AddEnsName,
+                    payload: {
+                        address,
+                        name,
+                    },
+                }),
+            state.userDb,
+            (id: string) =>
+                dispatch({
+                    type: UserDbType.createEmptyConversation,
+                    payload: id,
+                }),
+            (conversations) =>
+                conversations.forEach((conversation) =>
+                    dispatch({
+                        type: UserDbType.addMessage,
+                        payload: {
+                            container: conversation,
+                            connection: connection,
+                        },
+                    }),
+                ),
+            props.config.defaultContact,
+        );
+    };
+
+    const handleNewMessage = async (
+        envelop: Lib.messaging.EncryptionEnvelop,
+    ) => {
+        Lib.log('New messages');
+
+        const innerEnvelop = Lib.encryption.decryptPayload<Envelop>(
+            state.userDb as Lib.storage.UserDB,
+            envelop.encryptedData,
+        );
+        const { incommingTimestamp } = Lib.encryption.decryptPayload<Postmark>(
+            state.userDb as Lib.storage.UserDB,
+            envelop.postmark!,
+        );
+
+        if (!state.userDb) {
+            throw Error(
+                `[handleNewMessage] Couldn't handle new messages. User db not created.`,
+            );
+        }
+
+        if (!incommingTimestamp) {
+            throw Error(`[handleNewMessage] No delivery service timestamp`);
+        }
+
+        dispatch({
+            type: UserDbType.addMessage,
+            payload: {
+                container: {
+                    envelop: innerEnvelop,
+                    messageState: Lib.messaging.MessageState.Send,
+                    deliveryServiceIncommingTimestamp: incommingTimestamp,
+                },
+                connection: state.connection as Lib.Connection,
+            },
+        });
+    };
 
     const showHelp =
         state.connection.connectionState ===
