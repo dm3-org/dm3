@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 //@ts-ignore
-import DM3, { ConnectionState } from 'dm3-react';
+import { DM3, ConnectionState } from 'dm3-react';
 
 function App() {
     const [showLogo, setShowLogo] = useState(false);
