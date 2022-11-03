@@ -17,6 +17,7 @@ test('getDeliveryServiceProfile -- throws Exception if ENS name is invalid', asy
         await getDeliveryServiceProfile(
             { deliveryServices } as UserProfile,
             { provider } as Connection,
+            (_: string) => Promise.resolve(undefined),
         );
         fail();
     } catch (e) {
@@ -24,7 +25,7 @@ test('getDeliveryServiceProfile -- throws Exception if ENS name is invalid', asy
     }
 });
 
-test('getDeliveryServiceProfile -- throws Exception if TextRecord is not a valid dm3Profile', async () => {
+test('getDeliveryServiceProfile -- returns undefined TextRecord is not a valid dm3Profile', async () => {
     const deliveryServices = ['blabla'];
 
     const mockGetEnsResolver = (_: string) =>
@@ -37,15 +38,12 @@ test('getDeliveryServiceProfile -- throws Exception if TextRecord is not a valid
         getResolver: mockGetEnsResolver,
     } as ethers.providers.BaseProvider;
 
-    try {
-        await getDeliveryServiceProfile(
-            { deliveryServices } as UserProfile,
-            { provider } as Connection,
-        );
-        fail();
-    } catch (e) {
-        expect(e).toBe('invalid profile');
-    }
+    const profile = await getDeliveryServiceProfile(
+        { deliveryServices } as UserProfile,
+        { provider } as Connection,
+        (_: string) => Promise.resolve(undefined),
+    );
+    expect(profile).toBeUndefined();
 });
 test('getDeliveryServiceProfile -- Resolves Json Profile', async () => {
     const expectedProfile = {
@@ -68,6 +66,7 @@ test('getDeliveryServiceProfile -- Resolves Json Profile', async () => {
     const receivedProfile = await getDeliveryServiceProfile(
         { deliveryServices } as UserProfile,
         { provider } as Connection,
+        (_: string) => Promise.resolve(undefined),
     );
 
     expect(receivedProfile).toStrictEqual(receivedProfile);

@@ -25,10 +25,17 @@ export async function useDm3Storage(
 
     const { account } = connection;
     const { profile, address } = account!;
-    const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
+    const deliveryServiceProfile = await getDeliveryServiceProfile(
         profile!,
         connection,
+        async (url) => (await axios.get(url)).data,
     );
+
+    if (!deliveryServiceProfile) {
+        throw 'unknown delivery service';
+    }
+
+    const { url: deliveryServiceUrl } = deliveryServiceProfile;
     const url = `${deliveryServiceUrl}${STORAGE_SERVICE}/${address}`;
 
     await axios.post(
@@ -47,10 +54,18 @@ export async function getDm3Storage(
 
     const { account } = connection;
     const { profile, address } = account!;
-    const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
+    const deliveryServiceProfile = await getDeliveryServiceProfile(
         profile!,
         connection,
+        async (url) => (await axios.get(url)).data,
     );
+
+    if (!deliveryServiceProfile) {
+        throw 'unknown delivery service';
+    }
+
+    const { url: deliveryServiceUrl } = deliveryServiceProfile;
+
     const url = `${deliveryServiceUrl}${STORAGE_SERVICE}/${address}`;
     const { data } = await axios.get(url, getAxiosConfig(token));
 

@@ -35,11 +35,17 @@ export async function getChallenge(
     connection: Connection,
 ): Promise<string> {
     const { profile, address } = checkAccount(account);
-    const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
+    const deliveryServiceProfile = await getDeliveryServiceProfile(
         profile,
         connection,
+        async (url) => (await axios.get(url)).data,
     );
 
+    if (!deliveryServiceProfile) {
+        throw 'unknown delivery service';
+    }
+
+    const { url: deliveryServiceUrl } = deliveryServiceProfile;
     const url = `${deliveryServiceUrl}${AUTH_SERVICE_PATH}/${formatAddress(
         address,
     )}`;
@@ -56,10 +62,17 @@ export async function getNewToken(
     signature: string,
 ): Promise<string> {
     const { profile, address } = checkAccount(account);
-    const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
+    const deliveryServiceProfile = await getDeliveryServiceProfile(
         profile,
         connection,
+        async (url) => (await axios.get(url)).data,
     );
+
+    if (!deliveryServiceProfile) {
+        throw 'unknown delivery service';
+    }
+
+    const { url: deliveryServiceUrl } = deliveryServiceProfile;
     const url = `${deliveryServiceUrl}${AUTH_SERVICE_PATH}/${formatAddress(
         address,
     )}`;
@@ -78,10 +91,17 @@ export async function submitUserProfile(
     signedUserProfile: SignedUserProfile,
 ): Promise<string> {
     const { profile, address } = checkAccount(account);
-    const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
+    const deliveryServiceProfile = await getDeliveryServiceProfile(
         profile,
         connection,
+        async (url) => (await axios.get(url)).data,
     );
+
+    if (!deliveryServiceProfile) {
+        throw 'unknown delivery service';
+    }
+
+    const { url: deliveryServiceUrl } = deliveryServiceProfile;
 
     const url = `${deliveryServiceUrl}${PROFILE_PATH}/${formatAddress(
         address,
@@ -129,10 +149,18 @@ export async function syncAcknoledgment(
 ): Promise<void> {
     const { account } = connection;
     const { profile } = checkAccount(account);
-    const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
+    const deliveryServiceProfile = await getDeliveryServiceProfile(
         profile,
         connection,
+        async (url) => (await axios.get(url)).data,
     );
+
+    if (!deliveryServiceProfile) {
+        throw 'unknown delivery service';
+    }
+
+    const { url: deliveryServiceUrl } = deliveryServiceProfile;
+
     const url = `${deliveryServiceUrl}${DELIVERY_PATH}/messages/${
         account!.address
     }/syncAcknoledgment/${lastMessagePull}`;
@@ -169,10 +197,18 @@ export async function getNewMessages(
     const { account } = connection;
     const { profile } = checkAccount(account);
 
-    const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
+    const deliveryServiceProfile = await getDeliveryServiceProfile(
         profile,
         connection,
+        async (url) => (await axios.get(url)).data,
     );
+
+    if (!deliveryServiceProfile) {
+        throw 'unknown delivery service';
+    }
+
+    const { url: deliveryServiceUrl } = deliveryServiceProfile;
+
     const url = `${deliveryServiceUrl}${DELIVERY_PATH}/messages/${
         account!.address
     }/contact/${contactAddress}`;
@@ -192,10 +228,17 @@ export async function getPendingConversations(
 ): Promise<string[]> {
     const { account } = connection;
     const { profile } = checkAccount(account);
-    const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
+    const deliveryServiceProfile = await getDeliveryServiceProfile(
         profile,
         connection,
+        async (url) => (await axios.get(url)).data,
     );
+
+    if (!deliveryServiceProfile) {
+        throw 'unknown delivery service';
+    }
+
+    const { url: deliveryServiceUrl } = deliveryServiceProfile;
     const url = `${deliveryServiceUrl}${DELIVERY_PATH}/messages/${
         account!.address
     }/pending/`;
@@ -219,10 +262,17 @@ export async function getUserProfileOffChain(
     const getFallbackUrl = async () => {
         checkAccount(account);
         const { profile } = checkAccount(account);
-        const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
+        const deliveryServiceProfile = await getDeliveryServiceProfile(
             profile,
             connection,
+            async (url) => (await axios.get(url)).data,
         );
+
+        if (!deliveryServiceProfile) {
+            throw 'unknown delivery service';
+        }
+
+        const { url: deliveryServiceUrl } = deliveryServiceProfile;
         return `${deliveryServiceUrl}${PROFILE_PATH}/${contact}`;
     };
 

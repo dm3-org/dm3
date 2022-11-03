@@ -1,5 +1,10 @@
 import { ethers } from 'ethers';
-import { UserProfile } from '../account/Account';
+import { GetResource, UserProfile } from '../account/Account';
+import { IpfsResolver } from '../account/profileResolver/IpfsResolver';
+import { DeliveryServiceResolver } from '../account/profileResolver/json/DeliveryServiceResolver';
+import { UserProfileResolver } from '../account/profileResolver/json/UserProfileResolver';
+import { LinkResolver } from '../account/profileResolver/LinkResolver';
+import { ProfileResolver } from '../account/profileResolver/ProfileResolver';
 import { Connection } from '../web3-provider/Web3Provider';
 
 export interface DeliveryServiceProfile {
@@ -11,7 +16,8 @@ export interface DeliveryServiceProfile {
 export async function getDeliveryServiceProfile(
     { deliveryServices }: UserProfile,
     { provider }: Connection,
-): Promise<DeliveryServiceProfile> {
+    getRessource: GetResource<DeliveryServiceProfile>,
+): Promise<DeliveryServiceProfile | undefined> {
     const DELIVERY_SERVICE_PROFILE_KEY = 'eth.dm3.deliveryService';
     const ensResolver = await provider?.getResolver(deliveryServices[0]);
 
@@ -19,21 +25,17 @@ export async function getDeliveryServiceProfile(
         throw 'Unknown ENS name';
     }
 
-    const profileString = await ensResolver?.getText(
-        DELIVERY_SERVICE_PROFILE_KEY,
-    );
+    const textRecord = await ensResolver?.getText(DELIVERY_SERVICE_PROFILE_KEY);
 
-    const deliveryServiceProfile = JSON.parse(
-        profileString,
-    ) as DeliveryServiceProfile;
+    const resolver: ProfileResolver<DeliveryServiceProfile>[] = [
+        LinkResolver(getRessource),
+        IpfsResolver(getRessource),
+        DeliveryServiceResolver(),
+    ];
 
-    const { publicEncryptionKey, publicSigningKey, url } =
-        deliveryServiceProfile;
+    const profile = await resolver
+        .find((r) => r.isProfile(textRecord))
+        ?.resolveProfile(textRecord);
 
-    //Todo merge ipfs lookup branch to use reolver here as well
-    if (!publicEncryptionKey || !publicSigningKey || !url) {
-        throw 'invalid profile';
-    }
-
-    return deliveryServiceProfile;
+    return profile;
 }

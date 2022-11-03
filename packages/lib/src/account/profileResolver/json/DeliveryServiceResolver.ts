@@ -24,7 +24,7 @@ export function isProfile(textRecord: string) {
     }
 }
 
-function resolveProfile(textRecord: string) {
+async function resolveProfile(textRecord: string) {
     log(`[getUserProfile] Resolve Json profile `);
 
     const { profile, signature } = JSON.parse(textRecord);
