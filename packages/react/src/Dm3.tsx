@@ -186,6 +186,7 @@ function dm3(props: dm3Props) {
             }
             const { url } = await Lib.delivery.getDeliveryServiceProfile(
                 state.connection.account.profile,
+                state.connection,
             );
             console.log('set deliveryService url', deliveryServiceUrl);
             setdeliveryServiceUrl(url);

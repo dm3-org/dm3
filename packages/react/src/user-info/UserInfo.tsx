@@ -41,6 +41,7 @@ function UserInfo(props: UserInfoProps) {
             }
             const { url } = await Lib.delivery.getDeliveryServiceProfile(
                 state.connection.account.profile,
+                state.connection,
             );
             setdeliveryServiceUrl(url);
         };

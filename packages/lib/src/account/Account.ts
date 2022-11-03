@@ -263,7 +263,12 @@ export async function getUserProfile(
     //The user has no dm3-Profile text record set. Hence we need to fetch the profile offChain
     if (!textRecord) {
         log(`[getUserProfile] Offchain`);
-        return getProfileOffChain(connection.account, contact, profileUrl);
+        return getProfileOffChain(
+            connection,
+            connection.account,
+            contact,
+            profileUrl,
+        );
     }
     /**
      * The Text record can contain either
@@ -330,6 +335,7 @@ export async function publishProfileOnchain(
     );
 
     const ownProfile = await getProfileOffChain(
+        connection,
         connection.account,
         connection.account.address,
     );

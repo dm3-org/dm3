@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { UserProfile } from '../account/Account';
+import { Connection } from '../web3-provider/Web3Provider';
 
 export interface DeliveryServiceProfile {
     publicSigningKey: string;
@@ -8,14 +9,12 @@ export interface DeliveryServiceProfile {
 }
 declare let window: Window & { ethereum: any };
 
-export async function getDeliveryServiceProfile({
-    deliveryServices,
-}: UserProfile): Promise<DeliveryServiceProfile> {
+export async function getDeliveryServiceProfile(
+    { deliveryServices }: UserProfile,
+    { provider }: Connection,
+): Promise<DeliveryServiceProfile> {
     const DELIVERY_SERVICE_PROFILE_KEY = 'eth.dm3.deliveryService';
-    const ensResolver = await new ethers.providers.Web3Provider(
-        window.ethereum,
-        'any',
-    ).getResolver(deliveryServices[0]);
+    const ensResolver = await provider?.getResolver(deliveryServices[0]);
 
     if (!ensResolver) {
         throw 'Unknown ENS name';
