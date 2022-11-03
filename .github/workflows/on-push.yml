@@ -40,5 +40,7 @@ jobs:
           run: yarn install
           env:
             NODE_AUTH_TOKEN: ${{ secrets.PACKAGE_PAT }}
+        - name: Build
+          run: yarn build
         - name: Unit Tests
           run: yarn test --ci --watchAll=false
