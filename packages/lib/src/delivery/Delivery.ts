@@ -7,7 +7,6 @@ export interface DeliveryServiceProfile {
     publicEncryptionKey: string;
     url: string;
 }
-declare let window: Window & { ethereum: any };
 
 export async function getDeliveryServiceProfile(
     { deliveryServices }: UserProfile,
