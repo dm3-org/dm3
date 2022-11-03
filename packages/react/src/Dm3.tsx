@@ -175,17 +175,25 @@ function dm3(props: dm3Props) {
 
     useEffect(() => {
         const getDeliveryServiceUrl = async () => {
+            if (deliveryServiceUrl !== '') {
+                console.log('url already set', deliveryServiceUrl);
+                return;
+            }
             if (state?.connection?.account?.profile === undefined) {
+                console.log('profile not there');
+
                 return;
             }
             const { url } = await Lib.delivery.getDeliveryServiceProfile(
                 state.connection.account.profile,
             );
+            console.log('set deliveryService url', deliveryServiceUrl);
             setdeliveryServiceUrl(url);
         };
 
         getDeliveryServiceUrl();
     }, [state.connection.account?.profile]);
+
     useEffect(() => {
         if (
             state.connection.connectionState ===

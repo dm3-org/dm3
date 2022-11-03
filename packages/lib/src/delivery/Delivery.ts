@@ -6,16 +6,16 @@ export interface DeliveryServiceProfile {
     publicEncryptionKey: string;
     url: string;
 }
+declare let window: Window & { ethereum: any };
 
 export async function getDeliveryServiceProfile({
     deliveryServices,
 }: UserProfile): Promise<DeliveryServiceProfile> {
     const DELIVERY_SERVICE_PROFILE_KEY = 'eth.dm3.deliveryService';
-
-    const ensResolver = await ethers
-        .getDefaultProvider()
-        //Todo Implement deliveryService lookup algorithm #293
-        .getResolver(deliveryServices[0]);
+    const ensResolver = await new ethers.providers.Web3Provider(
+        window.ethereum,
+        'any',
+    ).getResolver(deliveryServices[0]);
 
     if (!ensResolver) {
         throw 'Unknown ENS name';

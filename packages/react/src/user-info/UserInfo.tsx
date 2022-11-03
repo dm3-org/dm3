@@ -31,9 +31,11 @@ function UserInfo(props: UserInfoProps) {
     >();
 
     const [deliveryServiceUrl, setdeliveryServiceUrl] = useState('');
-
     useEffect(() => {
         const getDeliveryServiceUrl = async () => {
+            if (deliveryServiceUrl !== '') {
+                return;
+            }
             if (state?.connection?.account?.profile === undefined) {
                 return;
             }
