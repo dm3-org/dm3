@@ -1,7 +1,6 @@
-import { URL } from 'url';
 import { log } from '../../shared/log';
-import { checkProfileHash, GetResource } from '../Account';
-import { ProfileResolver } from './ProfileResolver';
+import { Dm3Profile } from './ProfileResolver';
+import { GetResource } from '../Account';
 
 const isProfile = (textRecord: string) => {
     try {
@@ -12,8 +11,10 @@ const isProfile = (textRecord: string) => {
     }
 };
 
-const resolveProfile =
-    (getResource: GetResource) => async (textRecord: string) => {
+export function resolveProfile<T extends Dm3Profile>(
+    getResource: GetResource<T>,
+) {
+    return async (textRecord: string) => {
         log(`[getUserProfile] resolve ipfs link ${textRecord}`);
 
         const ipfsGatewayUrl = 'https://www.ipfs.io/ipfs';
@@ -27,10 +28,12 @@ const resolveProfile =
 
         return profile;
     };
-
-export const IpfsResolver = (getResource: GetResource): ProfileResolver => {
+}
+export function IpfsResolver<T extends Dm3Profile>(
+    getResource: GetResource<T>,
+) {
     return {
         isProfile,
         resolveProfile: resolveProfile(getResource),
     };
-};
+}
