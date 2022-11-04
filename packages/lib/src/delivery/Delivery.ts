@@ -4,6 +4,7 @@ import axios, {
     AxiosRequestConfig,
     AxiosResponse,
 } from 'axios';
+import { Console } from 'console';
 import { GetResource, UserProfile } from '../account/Account';
 import { IpfsResolver } from '../account/profileResolver/IpfsResolver';
 import { DeliveryServiceResolver } from '../account/profileResolver/json/DeliveryServiceResolver';
@@ -70,47 +71,54 @@ export async function getDeliveryServiceClient(
 
     // eslint-disable-next-line max-len
     //The DeliveryServiceLookupInterceptor checks if a request made to the deliveryService was successful. If so everything is fine and the response will be returned. If not the interceptor fetched the profile of the next deliveryService and retries the request.
-    const DeliveryServiceLookupInterceptor =
-        (currentDeliveryServiceProfile: number) => () => {
-            //The Lookup always starts at 0
-            const onSucces = (res: AxiosResponse) => res;
-            //The request has failed. We are trying to send the same request to the next delivery service.
-            const onError = async (err: AxiosError) => {
-                currentDeliveryServiceProfile++;
-                //If there is no delivery service left,the request finally results in an error
-                if (
-                    profile.deliveryServices[currentDeliveryServiceProfile] ===
-                    undefined
-                ) {
-                    return err;
-                }
+    const DeliveryServiceLookupInterceptor = (
+        currentDeliveryServiceProfile: number,
+    ) => {
+        //The Lookup always starts at 0
+        const onSucces = (res: AxiosResponse) => {
+            console.log('SUCCES');
+            return res;
+        };
+        //The request has failed. We are trying to send the same request to the next delivery service.
+        const onError = async (err: AxiosError) => {
+            console.log('On ERROR');
 
-                const nextBaseUrl = await getDeliveryServiceUrl(
-                    currentDeliveryServiceProfile,
-                );
+            currentDeliveryServiceProfile++;
+            //If there is no delivery service left,the request finally results in an error
+            if (
+                profile.deliveryServices[currentDeliveryServiceProfile] ===
+                undefined
+            ) {
+                return err;
+            }
 
-                const req: AxiosRequestConfig = {
-                    ...err.request,
-                    baseURL: nextBaseUrl,
-                };
+            const nextBaseUrl = await getDeliveryServiceUrl(
+                currentDeliveryServiceProfile,
+            );
 
-                const instance = new Axios(req);
+            const instance = axios.create();
 
-                instance.interceptors.response.use(
-                    DeliveryServiceLookupInterceptor(
-                        currentDeliveryServiceProfile,
-                    ),
-                );
+            const { onSucces, onError } = DeliveryServiceLookupInterceptor(
+                currentDeliveryServiceProfile,
+            );
 
-                return new Axios(req);
+            instance.interceptors.response.use(onSucces, onError);
+
+            const req: AxiosRequestConfig = {
+                ...err.config,
+                baseURL: nextBaseUrl,
             };
 
-            return { onSucces, onError };
+            return await instance.request(req);
         };
 
-    instance.interceptors.response.use(
-        DeliveryServiceLookupInterceptor(INITIAL_DELIVERY_SERVICE),
+        return { onSucces, onError };
+    };
+
+    const { onSucces, onError } = DeliveryServiceLookupInterceptor(
+        INITIAL_DELIVERY_SERVICE,
     );
+    instance.interceptors.response.use(onSucces, onError);
 
     return instance;
 }

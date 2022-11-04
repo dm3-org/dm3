@@ -133,21 +133,158 @@ describe('Delivery', () => {
                 getResolver: mockGetEnsResolver,
             } as ethers.providers.BaseProvider;
 
-            try {
-                axiosMock.onGet('/foo').reply(400);
+            axiosMock.onGet('http://blabla.io/foo').reply(400);
 
-                const axiosInstance = await getDeliveryServiceClient(
-                    userProfile,
-                    { provider } as Connection,
-                    (_: string) => Promise.resolve(undefined),
-                );
+            const axiosInstance = await getDeliveryServiceClient(
+                userProfile,
+                { provider } as Connection,
+                (_: string) => Promise.resolve(undefined),
+            );
 
-                const res = await axiosInstance.get('/foo');
-                fail();
-            } catch (e) {
-                const err = e as AxiosError;
-                expect(err.message).toBe('Request failed with status code 400');
-            }
+            const res: any = await axiosInstance.get('http://blabla.io/foo');
+
+            expect(res.response.status).toBe(400);
+        });
+        // eslint-disable-next-line max-len
+        test('getDeliveryServiceClient -- returns response if default deliveryService is working as intended ', async () => {
+            const userProfile = {
+                deliveryServices: ['blabla.ens'] as string[],
+            } as UserProfile;
+
+            const deliveryServiceProfile = {
+                publicSigningKey: '1',
+                publicEncryptionKey: '2',
+                url: 'http://blabla.io',
+            } as DeliveryServiceProfile;
+
+            const mockGetEnsResolver = (_: string) =>
+                Promise.resolve({
+                    getText: (_: string) =>
+                        Promise.resolve(JSON.stringify(deliveryServiceProfile)),
+                } as unknown);
+
+            const provider = {
+                getResolver: mockGetEnsResolver,
+            } as ethers.providers.BaseProvider;
+
+            axiosMock.onGet('http://blabla.io/foo').reply(200);
+
+            const axiosInstance = await getDeliveryServiceClient(
+                userProfile,
+                { provider } as Connection,
+                (_: string) => Promise.resolve(undefined),
+            );
+
+            const res = await axiosInstance.get('/foo');
+
+            expect(res.status).toBe(200);
+        });
+        // eslint-disable-next-line max-len
+        test('getDeliveryServiceClient -- returns response if fallback deliveryService is working as intended ', async () => {
+            const userProfile = {
+                deliveryServices: ['blabla.ens', 'fallback.ens'],
+            } as UserProfile;
+
+            const deliveryServiceProfile = {
+                publicSigningKey: '1',
+                publicEncryptionKey: '2',
+                url: 'http://blabla.io',
+            } as DeliveryServiceProfile;
+
+            const fallbackDeliveryServiceProfile1 = {
+                publicSigningKey: '3',
+                publicEncryptionKey: '4',
+                url: 'http://fallback.io',
+            } as DeliveryServiceProfile;
+
+            const mockGetEnsResolver = (textRecord: string) =>
+                Promise.resolve({
+                    getText: (_: string) => {
+                        if (textRecord === 'blabla.ens') {
+                            return Promise.resolve(
+                                JSON.stringify(deliveryServiceProfile),
+                            );
+                        }
+                        if (textRecord === 'fallback.ens') {
+                            return Promise.resolve(
+                                JSON.stringify(fallbackDeliveryServiceProfile1),
+                            );
+                        }
+
+                        return Promise.reject(textRecord);
+                    },
+                } as unknown);
+
+            const provider = {
+                getResolver: mockGetEnsResolver,
+            } as ethers.providers.BaseProvider;
+
+            axiosMock.onGet('http://blabla.io/foo').reply(400);
+            axiosMock.onGet('http://fallback.io/foo').reply(200);
+
+            const axiosInstance = await getDeliveryServiceClient(
+                userProfile,
+                { provider } as Connection,
+                (_: string) => Promise.resolve(undefined),
+            );
+
+            const res = await axiosInstance.get('/foo');
+            console.log(res);
+
+            expect(res.status).toBe(200);
+            expect(res.config.baseURL).toBe('http://fallback.io');
+        });
+        test('getDeliveryServiceClient -- returns axios error if all delivery Services are failing ', async () => {
+            const userProfile = {
+                deliveryServices: ['blabla.ens', 'fallback.ens'],
+            } as UserProfile;
+
+            const deliveryServiceProfile = {
+                publicSigningKey: '1',
+                publicEncryptionKey: '2',
+                url: 'http://blabla.io',
+            } as DeliveryServiceProfile;
+
+            const fallbackDeliveryServiceProfile1 = {
+                publicSigningKey: '3',
+                publicEncryptionKey: '4',
+                url: 'http://fallback.io',
+            } as DeliveryServiceProfile;
+
+            const mockGetEnsResolver = (textRecord: string) =>
+                Promise.resolve({
+                    getText: (_: string) => {
+                        if (textRecord === 'blabla.ens') {
+                            return Promise.resolve(
+                                JSON.stringify(deliveryServiceProfile),
+                            );
+                        }
+                        if (textRecord === 'fallback.ens') {
+                            return Promise.resolve(
+                                JSON.stringify(fallbackDeliveryServiceProfile1),
+                            );
+                        }
+
+                        return Promise.reject(textRecord);
+                    },
+                } as unknown);
+
+            const provider = {
+                getResolver: mockGetEnsResolver,
+            } as ethers.providers.BaseProvider;
+
+            axiosMock.onGet('http://blabla.io/foo').reply(400);
+            axiosMock.onGet('http://fallback.io/foo').reply(400);
+
+            const axiosInstance = await getDeliveryServiceClient(
+                userProfile,
+                { provider } as Connection,
+                (_: string) => Promise.resolve(undefined),
+            );
+
+            const res: any = await axiosInstance.get('/foo');
+
+            expect(res.response.status).toBe(400);
         });
     });
 });
