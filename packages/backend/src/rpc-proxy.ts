@@ -38,11 +38,14 @@ const handleSubmitMessage = async (
     }
 
     try {
-        await Lib.Delivery.incomingMessage(
+        await Lib.delivery.incomingMessage(
             { envelop, token },
             req.app.locals.deliveryServicePrivateKey,
             req.app.locals.loadSession,
-            async (conversationId: string, envelop: Lib.EncryptionEnvelop) => {
+            async (
+                conversationId: string,
+                envelop: Lib.messaging.EncryptionEnvelop,
+            ) => {
                 if (req.app.locals.redisClient) {
                     await req.app.locals.redisClient.zAdd(
                         RedisPrefix.Conversation + conversationId,
@@ -55,7 +58,7 @@ const handleSubmitMessage = async (
                     throw Error('db not connected');
                 }
             },
-            (socketId: string, envelop: Lib.EncryptionEnvelop) => {
+            (socketId: string, envelop: Lib.messaging.EncryptionEnvelop) => {
                 req.app.locals.io.sockets.to(socketId).emit('message', envelop);
             },
         );

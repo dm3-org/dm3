@@ -1,18 +1,25 @@
+import { stringify } from 'safe-stable-stringify';
 import nacl from 'tweetnacl';
 import { encodeBase64 } from 'tweetnacl-util';
 import { UserProfile } from '../account/Account';
-import { decryptSafely } from '../encryption/Encryption';
+import { decryptPayload, decryptSafely } from '../encryption/Encryption';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { EncryptionEnvelop } from '../messaging/Messaging';
-import { getConversationId } from '../storage/Storage';
+import { getConversationId, UserDB } from '../storage/Storage';
 import { getMessages, incomingMessage } from './Messages';
 
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
-const { secretKey, publicKey } = nacl.box.keyPair();
 
+const { secretKey, publicKey } = nacl.box.keyPair();
 const receiverPublicEncryptionKey = encodeBase64(publicKey);
-const receiverPrivateKey = encodeBase64(secretKey);
+const receiverPrivateEncryptionKey = encodeBase64(secretKey);
+
+const { secretKey: signingSecretKet, publicKey: signingPublicKey } =
+    nacl.sign.keyPair();
+
+const receiverPublicSigningKey = encodeBase64(signingPublicKey);
+const receiverPrivateSigningKey = encodeBase64(signingSecretKet);
 
 const getSession = async (address: string) => {
     const emptyProfile: UserProfile = {
@@ -110,11 +117,12 @@ test('incomingMessage', async () => {
         '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
     );
 
-    const actualPostmark = decryptSafely({
-        //@ts-ignore
-        encryptedData: JSON.parse(messageContainer.envelop?.postmark!),
-        privateKey: receiverPrivateKey,
-    });
+    const actualPostmark = decryptPayload(
+        {
+            keys: { privateMessagingKey: receiverPrivateEncryptionKey },
+        } as UserDB,
+        messageContainer.envelop?.postmark!,
+    );
 
     //Check message
     expect(messageContainer).toMatchObject({

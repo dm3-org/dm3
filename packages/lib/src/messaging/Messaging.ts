@@ -1,24 +1,23 @@
 import { ethers } from 'ethers';
+import { Account, Keys } from '../account/Account';
 import {
-    decryptEnvelop,
-    decryptSafely,
+    decryptPayload,
     EncryptSafely,
     SignWithSignatureKey,
 } from '../encryption/Encryption';
-import { Connection } from '../web3-provider/Web3Provider';
-import {
-    getConversation,
-    StorageEnvelopContainer,
-    UserDB,
-} from '../storage/Storage';
-import { log } from '../shared/log';
-import { Account, Keys } from '../account/Account';
 import {
     CreatePendingEntry,
     GetNewMessages,
     SubmitMessage,
 } from '../external-apis/BackendAPI';
 import { stringify } from '../shared/stringify';
+import { log } from '../shared/log';
+import {
+    getConversation,
+    StorageEnvelopContainer,
+    UserDB,
+} from '../storage/Storage';
+import { Connection } from '../web3-provider/Web3Provider';
 
 export interface Message {
     to: string;
@@ -174,21 +173,8 @@ function decryptMessages(
     return Promise.all(
         envelops.map(
             async (envelop): Promise<Envelop> =>
-                decryptEnvelop(userDb, envelop),
+                decryptPayload(userDb, envelop.encryptedData),
         ),
-    );
-}
-
-export function decryptPostmark(
-    envelops: EncryptionEnvelop[],
-    userDb: UserDB,
-): Postmark[] {
-    return envelops.map(
-        ({ encryptedData }) =>
-            decryptSafely({
-                encryptedData: JSON.parse(encryptedData),
-                privateKey: userDb.keys.privateMessagingKey,
-            }) as Postmark,
     );
 }
 
@@ -204,13 +190,16 @@ export async function getMessages(
             await getNewMessages(connection, userDb, contact)
         ).map(async (envelop): Promise<StorageEnvelopContainer> => {
             const decryptedEnvelop = await decryptMessages([envelop], userDb);
-            const decryptedPostmark = decryptPostmark([envelop], userDb);
+            const decryptedPostmark = decryptPayload<Postmark>(
+                userDb,
+                envelop.postmark!,
+            );
 
             return {
                 envelop: decryptedEnvelop[0],
                 messageState: MessageState.Send,
                 deliveryServiceIncommingTimestamp:
-                    decryptedPostmark[0].incommingTimestamp,
+                    decryptedPostmark.incommingTimestamp,
             };
         }),
     );
