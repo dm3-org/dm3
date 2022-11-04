@@ -8,6 +8,7 @@ import Avatar, { SpecialSize } from '../ui-shared/Avatar';
 import { AccountInfo } from '../reducers/shared';
 import { useAsync } from '../ui-shared/useAsync';
 import StateButton, { ButtonState } from '../ui-shared/StateButton';
+import axios from 'axios';
 
 interface UserInfoProps {
     account: Lib.account.Account;
@@ -39,11 +40,16 @@ function UserInfo(props: UserInfoProps) {
             if (state?.connection?.account?.profile === undefined) {
                 return;
             }
-            const { url } = await Lib.delivery.getDeliveryServiceProfile(
-                state.connection.account.profile,
-                state.connection,
-            );
-            setdeliveryServiceUrl(url);
+            const deliveryServiceProfile =
+                await Lib.delivery.getDeliveryServiceProfile(
+                    //TODO Implement usage of all delivery services
+                    //https://github.com/corpus-ventures/dm3/issues/330
+                    state.connection.account.profile.deliveryServices[0],
+                    state.connection,
+                    async (url) => (await axios.get(url)).data,
+                );
+
+            setdeliveryServiceUrl(deliveryServiceProfile!.url);
         };
 
         getDeliveryServiceUrl();
