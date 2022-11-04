@@ -104,8 +104,7 @@ describe('Delivery', () => {
                     profile,
                     { provider } as Connection,
                     (_: string) => Promise.resolve(undefined),
-                );
-                fail();
+                ).get('/foo');
             } catch (e) {
                 expect(e).toBe('Unknown ENS name');
             }
@@ -135,13 +134,11 @@ describe('Delivery', () => {
 
             axiosMock.onGet('http://blabla.io/foo').reply(400);
 
-            const axiosInstance = await getDeliveryServiceClient(
+            const res: any = await getDeliveryServiceClient(
                 userProfile,
                 { provider } as Connection,
                 (_: string) => Promise.resolve(undefined),
-            );
-
-            const res: any = await axiosInstance.get('http://blabla.io/foo');
+            ).get('http://blabla.io/foo');
 
             expect(res.response.status).toBe(400);
         });
@@ -169,13 +166,11 @@ describe('Delivery', () => {
 
             axiosMock.onGet('http://blabla.io/foo').reply(200);
 
-            const axiosInstance = await getDeliveryServiceClient(
+            const res = await getDeliveryServiceClient(
                 userProfile,
                 { provider } as Connection,
                 (_: string) => Promise.resolve(undefined),
-            );
-
-            const res = await axiosInstance.get('/foo');
+            ).get('/foo');
 
             expect(res.status).toBe(200);
         });
@@ -222,14 +217,11 @@ describe('Delivery', () => {
             axiosMock.onGet('http://blabla.io/foo').reply(400);
             axiosMock.onGet('http://fallback.io/foo').reply(200);
 
-            const axiosInstance = await getDeliveryServiceClient(
+            const res = await getDeliveryServiceClient(
                 userProfile,
                 { provider } as Connection,
                 (_: string) => Promise.resolve(undefined),
-            );
-
-            const res = await axiosInstance.get('/foo');
-            console.log(res);
+            ).get('/foo');
 
             expect(res.status).toBe(200);
             expect(res.config.baseURL).toBe('http://fallback.io');
@@ -276,13 +268,11 @@ describe('Delivery', () => {
             axiosMock.onGet('http://blabla.io/foo').reply(400);
             axiosMock.onGet('http://fallback.io/foo').reply(400);
 
-            const axiosInstance = await getDeliveryServiceClient(
+            const res: any = await getDeliveryServiceClient(
                 userProfile,
                 { provider } as Connection,
                 (_: string) => Promise.resolve(undefined),
-            );
-
-            const res: any = await axiosInstance.get('/foo');
+            ).get('/foo');
 
             expect(res.response.status).toBe(400);
         });

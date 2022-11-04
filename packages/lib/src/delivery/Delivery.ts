@@ -45,13 +45,11 @@ export async function getDeliveryServiceProfile(
     return profile;
 }
 
-export async function getDeliveryServiceClient(
+export function getDeliveryServiceClient(
     profile: UserProfile,
     connection: Connection,
     getRessource: GetResource<DeliveryServiceProfile>,
-): Promise<Axios> {
-    const INITIAL_DELIVERY_SERVICE = 0;
-
+): Axios {
     const getDeliveryServiceUrl = async (index: number) => {
         const deliveryServiceProfile = await getDeliveryServiceProfile(
             profile.deliveryServices[index],
@@ -62,27 +60,16 @@ export async function getDeliveryServiceClient(
         return deliveryServiceProfile?.url;
     };
 
-    //The url of the first deliverServiy is going to be used as the BaseUrl of the returned instance
-    const initialBaseUrl = await getDeliveryServiceUrl(
-        INITIAL_DELIVERY_SERVICE,
-    );
-
-    const instance = axios.create({ baseURL: initialBaseUrl });
-
     // eslint-disable-next-line max-len
     //The DeliveryServiceLookupInterceptor checks if a request made to the deliveryService was successful. If so everything is fine and the response will be returned. If not the interceptor fetched the profile of the next deliveryService and retries the request.
     const DeliveryServiceLookupInterceptor = (
         currentDeliveryServiceProfile: number,
     ) => {
         //The Lookup always starts at 0
-        const onSucces = (res: AxiosResponse) => {
-            console.log('SUCCES');
-            return res;
-        };
+        const onSucces = (res: AxiosResponse) => res;
+
         //The request has failed. We are trying to send the same request to the next delivery service.
         const onError = async (err: AxiosError) => {
-            console.log('On ERROR');
-
             currentDeliveryServiceProfile++;
             //If there is no delivery service left,the request finally results in an error
             if (
@@ -114,11 +101,21 @@ export async function getDeliveryServiceClient(
 
         return { onSucces, onError };
     };
+    const instance = axios.create();
 
+    const INITIAL_DELIVERY_SERVICE = 0;
+    //The url of the first deliverServiy is going to be used as the BaseUrl of the returned instance
     const { onSucces, onError } = DeliveryServiceLookupInterceptor(
         INITIAL_DELIVERY_SERVICE,
     );
     instance.interceptors.response.use(onSucces, onError);
+    instance.interceptors.request.use(async (config: AxiosRequestConfig) => {
+        const initialBaseUrl = await getDeliveryServiceUrl(
+            INITIAL_DELIVERY_SERVICE,
+        );
+
+        return { ...config, baseURL: initialBaseUrl };
+    });
 
     return instance;
 }
