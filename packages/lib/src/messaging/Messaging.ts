@@ -1,5 +1,4 @@
 import { ethers } from 'ethers';
-import stringify from 'safe-stable-stringify';
 import { Account, Keys } from '../account/Account';
 import {
     decryptPayload,
@@ -11,6 +10,7 @@ import {
     GetNewMessages,
     SubmitMessage,
 } from '../external-apis/BackendAPI';
+import { stringify } from '../shared/stringify';
 import { log } from '../shared/log';
 import {
     getConversation,

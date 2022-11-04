@@ -3,7 +3,7 @@ import express from 'express';
 import { getUserStorage, setUserStorage } from './redis';
 import { auth } from './utils';
 import cors from 'cors';
-import { stringify } from 'safe-stable-stringify';
+import stringify from 'safe-stable-stringify';
 
 const router = express.Router();
 

@@ -1,4 +1,4 @@
-import stringify from 'safe-stable-stringify';
+import { stringify } from '../shared/stringify';
 import { Web3Storage, Web3File } from 'web3.storage';
 import { UserDB } from '.';
 import { Acknoledgment } from '../delivery';
