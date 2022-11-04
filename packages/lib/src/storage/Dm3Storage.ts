@@ -26,7 +26,7 @@ export async function useDm3Storage(
     const { account } = connection;
     const { profile, address } = account!;
     const deliveryServiceProfile = await getDeliveryServiceProfile(
-        profile!,
+        profile!.deliveryServices[0],
         connection,
         async (url) => (await axios.get(url)).data,
     );
@@ -55,7 +55,7 @@ export async function getDm3Storage(
     const { account } = connection;
     const { profile, address } = account!;
     const deliveryServiceProfile = await getDeliveryServiceProfile(
-        profile!,
+        profile!.deliveryServices[0],
         connection,
         async (url) => (await axios.get(url)).data,
     );

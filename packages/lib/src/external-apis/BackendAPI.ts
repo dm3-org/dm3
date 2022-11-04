@@ -36,7 +36,7 @@ export async function getChallenge(
 ): Promise<string> {
     const { profile, address } = checkAccount(account);
     const deliveryServiceProfile = await getDeliveryServiceProfile(
-        profile,
+        profile.deliveryServices[0],
         connection,
         async (url) => (await axios.get(url)).data,
     );
@@ -63,7 +63,7 @@ export async function getNewToken(
 ): Promise<string> {
     const { profile, address } = checkAccount(account);
     const deliveryServiceProfile = await getDeliveryServiceProfile(
-        profile,
+        profile.deliveryServices[0],
         connection,
         async (url) => (await axios.get(url)).data,
     );
@@ -92,7 +92,7 @@ export async function submitUserProfile(
 ): Promise<string> {
     const { profile, address } = checkAccount(account);
     const deliveryServiceProfile = await getDeliveryServiceProfile(
-        profile,
+        profile.deliveryServices[0],
         connection,
         async (url) => (await axios.get(url)).data,
     );
@@ -150,7 +150,7 @@ export async function syncAcknoledgment(
     const { account } = connection;
     const { profile } = checkAccount(account);
     const deliveryServiceProfile = await getDeliveryServiceProfile(
-        profile,
+        profile.deliveryServices[0],
         connection,
         async (url) => (await axios.get(url)).data,
     );
@@ -198,7 +198,7 @@ export async function getNewMessages(
     const { profile } = checkAccount(account);
 
     const deliveryServiceProfile = await getDeliveryServiceProfile(
-        profile,
+        profile.deliveryServices[0],
         connection,
         async (url) => (await axios.get(url)).data,
     );
@@ -229,7 +229,7 @@ export async function getPendingConversations(
     const { account } = connection;
     const { profile } = checkAccount(account);
     const deliveryServiceProfile = await getDeliveryServiceProfile(
-        profile,
+        profile.deliveryServices[0],
         connection,
         async (url) => (await axios.get(url)).data,
     );
@@ -263,7 +263,7 @@ export async function getUserProfileOffChain(
         checkAccount(account);
         const { profile } = checkAccount(account);
         const deliveryServiceProfile = await getDeliveryServiceProfile(
-            profile,
+            profile.deliveryServices[0],
             connection,
             async (url) => (await axios.get(url)).data,
         );
