@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
+import { stringify } from '../shared/stringify';
 import { sha256 } from 'ethers/lib/utils';
-import stringify from 'safe-stable-stringify';
 
 import {
     StorageEnvelopContainer,

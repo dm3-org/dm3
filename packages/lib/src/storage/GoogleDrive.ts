@@ -1,4 +1,4 @@
-import stringify from 'safe-stable-stringify';
+import { stringify } from '../shared/stringify';
 import { UserDB } from '.';
 import { Acknoledgment } from '../delivery';
 import { log } from '../shared/log';

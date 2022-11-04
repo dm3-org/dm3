@@ -7,11 +7,10 @@ import { Buffer } from 'buffer';
 import { ethers } from 'ethers';
 import { EncryptionEnvelop, Envelop, Message } from '../messaging/Messaging';
 import { log } from '../shared/log';
+import { stringify } from '../shared/stringify';
 import { Keys } from '../account/Account';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { UserDB } from '../storage/Storage';
-import stringify from 'safe-stable-stringify';
-
 export interface EthEncryptedData {
     version: string;
     nonce: string;
@@ -269,7 +268,7 @@ export function checkSignature(
 export function signWithSignatureKey(message: any, keys: Keys): string {
     return ethers.utils.hexlify(
         nacl.sign.detached(
-            ethers.utils.toUtf8Bytes(stringify(message)!),
+            ethers.utils.toUtf8Bytes(stringify(message)),
             naclUtil.decodeBase64(keys.privateSigningKey as string),
         ),
     );
