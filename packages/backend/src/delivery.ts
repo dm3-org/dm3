@@ -96,6 +96,7 @@ export default () => {
             await deletePending(account, req.app.locals.redisClient);
             res.json(pending);
         } catch (e) {
+            console.log(e);
             next(e);
         }
     });

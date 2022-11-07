@@ -6,7 +6,7 @@ import auth from './auth';
 import delivery from './delivery';
 
 describe('Delivery', () => {
-    describe.only('getMessages', () => {
+    describe('getMessages', () => {
         it('Returns 200 if schema is valid', async () => {
             const app = express();
             app.use(bodyParser.json());
@@ -57,6 +57,67 @@ describe('Delivery', () => {
                     // eslint-disable-next-line max-len
                     '/messages/01234/contact/5679',
                 )
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+
+                .send();
+
+            expect(status).toBe(400);
+        });
+    });
+
+    describe.only('getPendingMessages', () => {
+        it('Returns 200 if schema is valid', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(delivery());
+
+            app.locals.redisClient = {
+                exists: (_: any) => false,
+                sMembers: (_: any) => [],
+                del: (_: any) => {},
+            };
+
+            const token = await createAuthToken();
+
+            app.locals.loadSession = async (accountAddress: string) => ({
+                challenge: '123',
+                token,
+            });
+
+            const { status } = await request(app)
+                .post(
+                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/pending',
+                )
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+
+                .send();
+
+            expect(status).toBe(200);
+        });
+        it('Returns 400 if schema is invalid', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(delivery());
+
+            app.locals.redisClient = {
+                exists: (_: any) => false,
+                sMembers: (_: any) => [],
+                del: (_: any) => {},
+            };
+
+            const token = await createAuthToken();
+
+            app.locals.loadSession = async (accountAddress: string) => ({
+                challenge: '123',
+                token,
+            });
+
+            const { status } = await request(app)
+                .post('/messages/1234/pending')
                 .set({
                     authorization: `Bearer ${token}`,
                 })
