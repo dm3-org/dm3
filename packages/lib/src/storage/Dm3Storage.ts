@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { UserDB } from '.';
 import { Acknoledgment } from '../delivery';
-import { getDeliveryServiceProfile } from '../delivery/Delivery';
+import { getDeliveryServiceClient } from '../delivery/Delivery';
 import { log } from '../shared/log';
 import { Connection } from '../web3-provider/Web3Provider';
 import { sync } from './Storage';
@@ -25,13 +25,14 @@ export async function useDm3Storage(
 
     const { account } = connection;
     const { profile, address } = account!;
-    const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
+
+    const url = `${STORAGE_SERVICE}/${address}`;
+
+    await await getDeliveryServiceClient(
         profile!,
         connection,
-    );
-    const url = `${deliveryServiceUrl}${STORAGE_SERVICE}/${address}`;
-
-    await axios.post(
+        async (url) => (await axios.get(url)).data,
+    ).post(
         url,
         syncResult.userStorage,
         getAxiosConfig(userDb.deliveryServiceToken),
@@ -47,12 +48,13 @@ export async function getDm3Storage(
 
     const { account } = connection;
     const { profile, address } = account!;
-    const { url: deliveryServiceUrl } = await getDeliveryServiceProfile(
+
+    const url = `${STORAGE_SERVICE}/${address}`;
+    const { data } = await getDeliveryServiceClient(
         profile!,
         connection,
-    );
-    const url = `${deliveryServiceUrl}${STORAGE_SERVICE}/${address}`;
-    const { data } = await axios.get(url, getAxiosConfig(token));
+        async (url) => (await axios.get(url)).data,
+    ).get(url, getAxiosConfig(token));
 
     return data;
 }

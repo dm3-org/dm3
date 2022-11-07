@@ -21,6 +21,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { Config } from './utils/Config';
 import Help from './ui-shared/Help';
 import { Envelop, Postmark } from 'dm3-lib/dist/messaging/Messaging';
+import axios from 'axios';
 
 interface dm3Props {
     config: Config;
@@ -99,11 +100,15 @@ function dm3(props: dm3Props) {
             if (state?.connection?.account?.profile === undefined) {
                 return;
             }
-            const { url } = await Lib.delivery.getDeliveryServiceProfile(
-                state.connection.account.profile,
-                state.connection,
-            );
-            setdeliveryServiceUrl(url);
+            const deliveryServiceProfile =
+                await Lib.delivery.getDeliveryServiceProfile(
+                    //TODO Implement usage of all delivery services
+                    //https://github.com/corpus-ventures/dm3/issues/330
+                    state.connection.account.profile.deliveryServices[0],
+                    state.connection,
+                    async (url) => (await axios.get(url)).data,
+                );
+            setdeliveryServiceUrl(deliveryServiceProfile!.url);
         };
 
         getDeliveryServiceUrl();
@@ -141,7 +146,11 @@ function dm3(props: dm3Props) {
             });
             dispatch({ type: ConnectionType.ChangeSocket, payload: socket });
         }
-    }, [state.connection.connectionState, state.connection.socket]);
+    }, [
+        state.connection.connectionState,
+        state.connection.socket,
+        deliveryServiceUrl,
+    ]);
 
     useEffect(() => {
         if (state.accounts.selectedContact && state.connection.socket) {
