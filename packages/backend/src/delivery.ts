@@ -16,6 +16,35 @@ const getMessagesSchema = {
     additionalProperties: false,
 };
 
+const syncAcknoledgmentParamsSchema = {
+    type: 'object',
+    properties: {
+        address: { type: 'string' },
+        last_message_pull: { type: 'string' },
+    },
+    required: ['address', 'last_message_pull'],
+    additionalProperties: false,
+};
+const syncAcknoledgmentBodySchema = {
+    type: 'object',
+    properties: {
+        acknoledgments: {
+            type: 'array',
+            items: {
+                type: 'object',
+                properties: {
+                    contactAddress: { type: 'string' },
+                    messageDeliveryServiceTimestamp: { type: 'number' },
+                },
+                required: ['contactAddress', 'messageDeliveryServiceTimestamp'],
+                additionalProperties: false,
+            },
+        },
+    },
+    required: ['acknoledgments'],
+    additionalProperties: false,
+};
+
 export default () => {
     const router = express.Router();
 
@@ -104,6 +133,26 @@ export default () => {
     router.post(
         '/messages/:address/syncAcknoledgment/:last_message_pull',
         async (req, res, next) => {
+            const hasValidParams = Lib.validateSchema(
+                syncAcknoledgmentParamsSchema,
+                req.params,
+            );
+
+            const hasValidBody = Lib.validateSchema(
+                syncAcknoledgmentBodySchema,
+                req.body,
+            );
+
+            // eslint-disable-next-line max-len
+            //Express transform number inputs into strings. So we have to check if a string used as last_message_pull can be converted to a number later on.
+            const isLastMessagePullNumber = !isNaN(
+                Number.parseInt(req.params.last_message_pull),
+            );
+
+            if (!hasValidParams || !isLastMessagePullNumber || !hasValidBody) {
+                return res.send(400);
+            }
+
             try {
                 const account = Lib.external.formatAddress(req.params.address);
                 await Promise.all(
@@ -158,6 +207,7 @@ export default () => {
 
                 res.json();
             } catch (e) {
+                console.log(e);
                 next(e);
             }
         },

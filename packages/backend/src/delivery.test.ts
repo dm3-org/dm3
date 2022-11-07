@@ -67,7 +67,7 @@ describe('Delivery', () => {
         });
     });
 
-    describe.only('getPendingMessages', () => {
+    describe('getPendingMessages', () => {
         it('Returns 200 if schema is valid', async () => {
             const app = express();
             app.use(bodyParser.json());
@@ -123,6 +123,114 @@ describe('Delivery', () => {
                 })
 
                 .send();
+
+            expect(status).toBe(400);
+        });
+    });
+
+    describe('syncAcknoledgment', () => {
+        it('Returns 200 if schema is valid', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(delivery());
+
+            app.locals.redisClient = {
+                exists: (_: any) => false,
+                sMembers: (_: any) => [],
+                del: (_: any) => {},
+                hSet: (_: any, __: any, ___: any) => {},
+                hGetAll: () => ['123', '456'],
+                zRemRangeByScore: (_: any, __: any, ___: any) => 0,
+            };
+
+            const token = await createAuthToken();
+
+            app.locals.loadSession = async (accountAddress: string) => ({
+                challenge: '123',
+                token,
+            });
+
+            const { status } = await request(app)
+                .post(
+                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknoledgment/12345',
+                )
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+
+                .send({
+                    acknoledgments: [
+                        {
+                            contactAddress:
+                                '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
+                            messageDeliveryServiceTimestamp: 123,
+                        },
+                    ],
+                });
+
+            expect(status).toBe(200);
+        });
+        it('Returns 400 if params are invalid', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(delivery());
+
+            app.locals.redisClient = {
+                exists: (_: any) => false,
+                sMembers: (_: any) => [],
+                del: (_: any) => {},
+            };
+
+            const token = await createAuthToken();
+
+            app.locals.loadSession = async (accountAddress: string) => ({
+                challenge: '123',
+                token,
+            });
+
+            const { status } = await request(app)
+                .post(
+                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknoledgment/fooo',
+                )
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+
+                .send({
+                    acknoledgments: [],
+                });
+
+            expect(status).toBe(400);
+        });
+        it('Returns 400 if body is invalid', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(delivery());
+
+            app.locals.redisClient = {
+                exists: (_: any) => false,
+                sMembers: (_: any) => [],
+                del: (_: any) => {},
+            };
+
+            const token = await createAuthToken();
+
+            app.locals.loadSession = async (accountAddress: string) => ({
+                challenge: '123',
+                token,
+            });
+
+            const { status } = await request(app)
+                .post(
+                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknoledgment/1234',
+                )
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+
+                .send({
+                    foo: 'bar',
+                });
 
             expect(status).toBe(400);
         });
