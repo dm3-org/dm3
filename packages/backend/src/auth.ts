@@ -1,47 +1,69 @@
 import * as Lib from 'dm3-lib/dist.backend';
 import express from 'express';
 import cors from 'cors';
+import { ethers } from 'ethers';
 
-const router = express.Router();
+const getChallengeSchema = {
+    type: 'object',
+    properties: {
+        address: { type: 'string' },
+    },
+    required: ['address'],
+    additionalProperties: false,
+};
 
-//TODO remove
-router.use(cors());
+export default () => {
+    const router = express.Router();
 
-router.get('/:address', async (req, res, next) => {
-    try {
-        const account = Lib.external.formatAddress(req.params.address);
+    //TODO remove
+    router.use(cors());
 
-        const challenge = await Lib.delivery.createChallenge(
-            req.app.locals.loadSession,
-            req.app.locals.storeSession,
-            account,
-        );
+    router.get('/:address', async (req, res, next) => {
+        try {
+            const isValidSchema = Lib.validateSchema(
+                getChallengeSchema,
+                req.params,
+            );
 
-        res.json({
-            challenge,
-        });
-    } catch (e) {
-        next(e);
-    }
-});
+            if (!isValidSchema || !ethers.utils.isAddress(req.params.address)) {
+                console.log('INVALID SCHEMA');
+                return res.send(400);
+            }
 
-router.post('/:address', async (req, res, next) => {
-    try {
-        const account = Lib.external.formatAddress(req.params.address);
+            const account = Lib.external.formatAddress(req.params.address);
 
-        const token = await Lib.delivery.createNewSessionToken(
-            req.app.locals.loadSession,
-            req.app.locals.storeSession,
-            req.body.signature,
-            account,
-        );
+            const challenge = await Lib.delivery.createChallenge(
+                req.app.locals.loadSession,
+                req.app.locals.storeSession,
+                account,
+            );
 
-        res.json({
-            token,
-        });
-    } catch (e) {
-        next(e);
-    }
-});
+            res.json({
+                challenge,
+            });
+        } catch (e) {
+            next(e);
+        }
+    });
 
-export default router;
+    router.post('/:address', async (req, res, next) => {
+        try {
+            const account = Lib.external.formatAddress(req.params.address);
+
+            const token = await Lib.delivery.createNewSessionToken(
+                req.app.locals.loadSession,
+                req.app.locals.storeSession,
+                req.body.signature,
+                account,
+            );
+
+            res.json({
+                token,
+            });
+        } catch (e) {
+            next(e);
+        }
+    });
+
+    return router;
+};
