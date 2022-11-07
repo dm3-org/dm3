@@ -11,3 +11,4 @@ export * as storage from './storage';
 export * as web3provider from './web3-provider';
 
 export { log } from './shared/log';
+export { validateSchema } from './shared/validateSchema';
