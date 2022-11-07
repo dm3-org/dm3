@@ -1,8 +1,7 @@
-import { stringify } from 'safe-stable-stringify';
 import nacl from 'tweetnacl';
 import { encodeBase64 } from 'tweetnacl-util';
 import { UserProfile } from '../account/Account';
-import { decryptPayload, decryptSafely } from '../encryption/Encryption';
+import { decryptPayload } from '../encryption/Encryption';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { EncryptionEnvelop } from '../messaging/Messaging';
 import { getConversationId, UserDB } from '../storage/Storage';
