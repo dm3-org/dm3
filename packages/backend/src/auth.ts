@@ -12,6 +12,24 @@ const getChallengeSchema = {
     additionalProperties: false,
 };
 
+const createNewSessionTokenParamsSchema = {
+    type: 'object',
+    properties: {
+        address: { type: 'string' },
+    },
+    required: ['address'],
+    additionalProperties: false,
+};
+
+const createNewSessionTokenBodySchema = {
+    type: 'object',
+    properties: {
+        signature: { type: 'string' },
+    },
+    required: ['signature'],
+    additionalProperties: false,
+};
+
 export default () => {
     const router = express.Router();
 
@@ -20,13 +38,12 @@ export default () => {
 
     router.get('/:address', async (req, res, next) => {
         try {
-            const isValidSchema = Lib.validateSchema(
+            const schemaIsValid = Lib.validateSchema(
                 getChallengeSchema,
                 req.params,
             );
 
-            if (!isValidSchema || !ethers.utils.isAddress(req.params.address)) {
-                console.log('INVALID SCHEMA');
+            if (!schemaIsValid || !ethers.utils.isAddress(req.params.address)) {
                 return res.send(400);
             }
 
@@ -48,6 +65,22 @@ export default () => {
 
     router.post('/:address', async (req, res, next) => {
         try {
+            const paramsAreValid = Lib.validateSchema(
+                createNewSessionTokenParamsSchema,
+                req.params,
+            );
+
+            const bodyIsValid = Lib.validateSchema(
+                createNewSessionTokenBodySchema,
+                req.body,
+            );
+
+            const schemaIsValid = paramsAreValid && bodyIsValid;
+
+            if (!schemaIsValid || !ethers.utils.isAddress(req.params.address)) {
+                return res.send(400);
+            }
+
             const account = Lib.external.formatAddress(req.params.address);
 
             const token = await Lib.delivery.createNewSessionToken(
@@ -61,6 +94,7 @@ export default () => {
                 token,
             });
         } catch (e) {
+            console.log(e);
             next(e);
         }
     });
