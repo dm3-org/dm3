@@ -42,7 +42,7 @@
         "ts-json-schema-generator": "^0.98.0"
     },
     "scripts": {
-        "build:schema": "yarn ts-json-schema-generator -f tsconfig.json --path src/lib/Messaging.ts --type Message -o src/schema.json --no-type-check",
+        "build:schema": "yarn ts-json-schema-generator -f tsconfig.json --path src/lib/Messaging.ts --type Message -o src/schema.json --no-type-check && yarn ts-json-schema-generator -f tsconfig.json --path lib/src/delivery/Messages.ts --type Acknoledgment -o src/delivery/schema/Acknoledgment.schema.json --no-type-check",
         "build": "yarn build:schema && tsc --declaration && tsc --declaration -p tsconfig.backend.json",
         "test": "jest --coverage"
     },
