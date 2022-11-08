@@ -3,6 +3,7 @@ import { Express } from 'express';
 import * as Lib from 'dm3-lib/dist.backend';
 import { addPending, RedisPrefix } from './redis';
 import { stringify } from 'safe-stable-stringify';
+import { isAddress } from 'ethers/lib/utils';
 
 const submitMessageSchema = {
     type: 'object',
@@ -11,6 +12,17 @@ const submitMessageSchema = {
         envelop: Lib.messaging.schema.EncryptionEnvelopeSchema,
     },
     required: ['token', 'envelop'],
+    additionalProperties: false,
+};
+
+const pendingMessageSchema = {
+    type: 'object',
+    properties: {
+        accountAddress: { type: 'string' },
+        contactAddress: { type: 'string' },
+        token: { type: 'string' },
+    },
+    required: ['accountAddress', 'contactAddress', 'token'],
     additionalProperties: false,
 };
 export function onConnection(app: Express) {
@@ -91,7 +103,26 @@ export function onConnection(app: Express) {
             },
         );
 
-        socket.on('pendingMessage', async (data) => {
+        socket.on('pendingMessage', async (data, callback) => {
+            const isSchemaValid = Lib.validateSchema(
+                pendingMessageSchema,
+                data,
+            );
+
+            const addressesAreValid =
+                isAddress(data.accountAddress) &&
+                isAddress(data.contactAddress);
+
+            if (!isSchemaValid || !addressesAreValid) {
+                const error = 'invalid schema';
+
+                app.locals.logger.warn({
+                    method: 'WS PENDING MESSAGE',
+                    error,
+                });
+                return callback(error);
+            }
+
             const account = Lib.external.formatAddress(data.accountAddress);
             const contact = Lib.external.formatAddress(data.contactAddress);
             app.locals.logger.info({
@@ -108,6 +139,7 @@ export function onConnection(app: Express) {
                     )
                 ) {
                     await addPending(account, contact, app.locals.redisClient);
+                    callback('success');
                 } else {
                     throw Error('Token check failed');
                 }
@@ -116,6 +148,7 @@ export function onConnection(app: Express) {
                     method: 'WS PRENDING MESSAGE',
                     error,
                 });
+                callback('error');
             }
         });
     };
