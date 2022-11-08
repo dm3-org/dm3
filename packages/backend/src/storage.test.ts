@@ -60,6 +60,59 @@ describe('Storage', () => {
             expect(status).toBe(400);
         });
     });
+
+    describe('setUserStorage', () => {
+        it('Returns 200 if schema is valid', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(storage());
+
+            app.locals.redisClient = {
+                set: (_: any) => {},
+            };
+
+            const token = await createAuthToken();
+
+            app.locals.loadSession = async (accountAddress: string) => ({
+                challenge: '123',
+                token,
+            });
+
+            const { status } = await request(app)
+                .post(`/0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+
+            expect(status).toBe(200);
+        });
+        it('Returns 400 if schema is invalid', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(storage());
+
+            app.locals.redisClient = {
+                set: (_: any) => {},
+            };
+
+            const token = await createAuthToken();
+
+            app.locals.loadSession = async (accountAddress: string) => ({
+                challenge: '123',
+                token,
+            });
+
+            const { status } = await request(app)
+                .post(`/1234`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+
+            expect(status).toBe(400);
+        });
+    });
 });
 
 const createAuthToken = async () => {
