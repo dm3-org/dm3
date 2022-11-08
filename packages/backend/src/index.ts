@@ -59,7 +59,7 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
     app.locals.deliveryServicePrivateKey = process.env.PRIVATE_KEY;
 
     app.use(logRequest);
-    app.use('/profile', Profile);
+    app.use('/profile', Profile());
     app.use('/storage', Storage);
     app.use('/auth', Auth());
     app.use('/delivery', Delivery());

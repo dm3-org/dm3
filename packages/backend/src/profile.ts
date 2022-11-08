@@ -42,6 +42,14 @@ export default () => {
 
     router.post('/:address', async (req, res, next) => {
         try {
+            const schemaIsValid = Lib.validateSchema(
+                getProfileSchema,
+                req.params,
+            );
+
+            if (!schemaIsValid || !isAddress(req.params.address)) {
+                return res.status(400).send({ error: 'invalid schema' });
+            }
             const account = Lib.external.formatAddress(req.params.address);
             res.json(
                 await Lib.delivery.submitUserProfile(
