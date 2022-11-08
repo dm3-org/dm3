@@ -2,16 +2,11 @@ import { ethers } from 'ethers';
 import stringify from 'safe-stable-stringify';
 import nacl from 'tweetnacl';
 import naclUtil from 'tweetnacl-util';
-import {
-    encrypt,
-    encryptSafely,
-    signWithSignatureKey,
-} from '../encryption/Encryption';
+import { encryptSafely } from '../encryption/Encryption';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
-import { EncryptionEnvelop, Envelop, Postmark } from '../messaging/Messaging';
+import { EncryptionEnvelop, Postmark } from '../messaging/Messaging';
 import { sha256 } from '../shared/sha256';
 import { getConversationId } from '../storage/Storage';
-import { DeliveryServiceProfile } from './Delivery';
 import { checkToken, Session } from './Session';
 
 export interface Acknoledgment {

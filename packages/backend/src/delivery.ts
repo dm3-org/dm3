@@ -30,15 +30,7 @@ const syncAcknoledgmentBodySchema = {
     properties: {
         acknoledgments: {
             type: 'array',
-            items: {
-                type: 'object',
-                properties: {
-                    contactAddress: { type: 'string' },
-                    messageDeliveryServiceTimestamp: { type: 'number' },
-                },
-                required: ['contactAddress', 'messageDeliveryServiceTimestamp'],
-                additionalProperties: false,
-            },
+            items: Lib.delivery.schema.AcknoledgmentSchema,
         },
     },
     required: ['acknoledgments'],
@@ -47,7 +39,6 @@ const syncAcknoledgmentBodySchema = {
 
 export default () => {
     const router = express.Router();
-
     //TODO remove
     router.use(cors());
     router.param('address', auth);
