@@ -44,9 +44,11 @@ export function socketAuth(app: Express) {
         socket: Socket,
         next: (err?: ExtendedError | undefined) => void,
     ) => {
-        const account = Lib.external.formatAddress(
-            socket.handshake.auth.account.address as string,
-        );
+        const address = socket.handshake.auth.account.address;
+        if (!isAddress(address)) {
+            return next(new Error('Invalid address'));
+        }
+        const account = Lib.external.formatAddress(address as string);
         app.locals.logger.info({
             method: 'WS CONNECT',
             account,

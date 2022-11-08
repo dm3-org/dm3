@@ -3,6 +3,16 @@ import { Express } from 'express';
 import * as Lib from 'dm3-lib/dist.backend';
 import { addPending, RedisPrefix } from './redis';
 import { stringify } from 'safe-stable-stringify';
+
+const submitMessageSchema = {
+    type: 'object',
+    properties: {
+        token: { type: 'string' },
+        envelop: Lib.messaging.schema.EncryptionEnvelopeSchema,
+    },
+    required: ['token', 'envelop'],
+    additionalProperties: false,
+};
 export function onConnection(app: Express) {
     return (socket: Socket) => {
         socket.on('disconnect', () => {
@@ -26,6 +36,22 @@ export function onConnection(app: Express) {
                         method: 'WS INCOMING MESSAGE',
                         account: data.envelop.from,
                     });
+
+                    const isSchemaValid = Lib.validateSchema(
+                        submitMessageSchema,
+                        data,
+                    );
+
+                    if (!isSchemaValid) {
+                        const error = 'invalid schema';
+
+                        app.locals.logger.warn({
+                            method: 'WS SUBMIT MESSAGE',
+                            error,
+                        });
+                        return callback(error);
+                    }
+
                     await Lib.delivery.incomingMessage(
                         data,
                         app.locals.deliveryServicePrivateKey,
