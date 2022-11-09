@@ -9,11 +9,38 @@ export async function handleSubmitMessage(
     next: express.NextFunction,
 ) {
     const {
-        params: [envelop, token],
+        params: [stringifiedEnvelop, token],
     } = req.body;
+
+    const envelop = JSON.parse(stringifiedEnvelop);
 
     if (!envelop || !token) {
         return res.send(400);
+    }
+
+    const submitMessageSchema = {
+        type: 'object',
+        properties: {
+            token: { type: 'string' },
+            envelop: Lib.messaging.schema.EncryptionEnvelopeSchema,
+        },
+        required: ['token', 'envelop'],
+        additionalProperties: false,
+    };
+
+    const isSchemaValid = Lib.validateSchema(submitMessageSchema, {
+        envelop,
+        token,
+    });
+
+    if (!isSchemaValid) {
+        const error = 'invalid schema';
+
+        req.app.locals.logger.warn({
+            method: 'WS SUBMIT MESSAGE',
+            error,
+        });
+        return res.status(400).send({ error });
     }
 
     try {

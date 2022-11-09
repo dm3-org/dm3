@@ -1,6 +1,7 @@
 import { Axios } from 'axios';
 import 'dotenv/config';
 import express from 'express';
+import { handleGetDeliveryServiceProperties } from './methods/handleGetDeliveryServiceProperties';
 import { handleSubmitMessage } from './methods/handleSubmitMessage';
 
 const DM3_SUBMIT_MESSAGE = 'dm3_submitMessage';
@@ -22,10 +23,11 @@ export default (axios: Axios) => {
                 return handleSubmitMessage(req, res, next);
 
             case DM3_GET_DELIVERY_SERVICE_PROPERTIES:
-                return;
-        }
+                return handleGetDeliveryServiceProperties(req, res, next);
 
-        if (method) return forwardToRpcNode(axios)(req, res, next);
+            default:
+                return forwardToRpcNode(axios)(req, res, next);
+        }
     });
     return router;
 };
