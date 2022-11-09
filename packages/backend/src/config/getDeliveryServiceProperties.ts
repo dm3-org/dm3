@@ -10,7 +10,7 @@ const DEFAULT_DELIVERY_SERVICE_PROPERTIES: Lib.delivery.DeliveryServicePropertie
         sizeLimit: 0,
     };
 
-export function readDeliveryServiceProperties(
+export function getDeliveryServiceProperties(
     path: string = DEFAULT_CONFIG_FILE_PATH,
     defaultDeliveryServiceProperties: Lib.delivery.DeliveryServiceProperties = DEFAULT_DELIVERY_SERVICE_PROPERTIES,
 ): Lib.delivery.DeliveryServiceProperties {
@@ -20,7 +20,10 @@ export function readDeliveryServiceProperties(
     }
     const yamlString = readFileSync(path, { encoding: 'utf-8' });
 
-    const { messageTTL, sizeLimit } = parse(yamlString);
+    const { messageTTL, sizeLimit } = {
+        ...defaultDeliveryServiceProperties,
+        ...parse(yamlString),
+    } as Lib.delivery.DeliveryServiceProperties;
 
     return { messageTTL, sizeLimit };
 }

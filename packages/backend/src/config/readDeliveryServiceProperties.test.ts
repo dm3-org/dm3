@@ -1,11 +1,11 @@
-import { readDeliveryServiceProperties } from './readDeliveryServiceProperties';
+import { getDeliveryServiceProperties } from './getDeliveryServiceProperties';
 import { writeFileSync, unlinkSync } from 'fs';
 import { stringify } from 'yaml';
 import { resolve } from 'path';
 
 describe('ReadDeliveryServiceProperties', () => {
     it('Returns default DeliveryServiceProfile if config file is undefined', () => {
-        const config = readDeliveryServiceProperties('/unknown-path', {
+        const config = getDeliveryServiceProperties('/unknown-path', {
             messageTTL: 12345,
             sizeLimit: 456,
         });
@@ -24,7 +24,7 @@ describe('ReadDeliveryServiceProperties', () => {
             }),
             { encoding: 'utf-8' },
         );
-        const config = readDeliveryServiceProperties(path);
+        const config = getDeliveryServiceProperties(path);
 
         expect(config).toStrictEqual({
             messageTTL: 12345,
@@ -45,7 +45,7 @@ describe('ReadDeliveryServiceProperties', () => {
             }),
             { encoding: 'utf-8' },
         );
-        const config = readDeliveryServiceProperties(path);
+        const config = getDeliveryServiceProperties(path);
 
         expect(config).toStrictEqual({
             messageTTL: 12345,
