@@ -96,13 +96,53 @@ describe('rpc-Proxy', () => {
                         }),
                         '123',
                     ],
-                    id: 1,
                 });
 
             expect(mockPost).not.toBeCalled();
             expect(status).toBe(200);
+        });
 
-            return;
+        test('Should handle dm3_getDeliveryServiceProperties', async () => {
+            const mockPost = jest.fn((url: string, body: any) => {
+                return Promise.reject('Should not have been invoked');
+            });
+            const axiosMock = {
+                post: mockPost,
+            } as Partial<Axios>;
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(RpcProxy(axiosMock as Axios));
+
+            app.locals = {
+                logger: {
+                    warn: (e: any) => {
+                        console.log(e);
+                    },
+                    info: (e: any) => {
+                        console.log(e);
+                    },
+                    error: (e: any) => {
+                        console.log(e);
+                    },
+                },
+            };
+
+            const { status, body } = await request(app).post('/').send({
+                jsonrpc: '2.0',
+                method: 'dm3_getDeliveryServiceProperties',
+                params: [],
+            });
+
+            expect(mockPost).not.toBeCalled();
+            expect(status).toBe(200);
+            expect(body).toStrictEqual({
+                jsonrpc: '2.0',
+                result: JSON.stringify({
+                    messageTTL: 0,
+                    sizeLimit: 0,
+                }),
+            });
         });
 
         test('Should return 400 if method is undefined', async () => {
