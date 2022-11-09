@@ -18,6 +18,8 @@ export interface DeliveryServiceProfile {
     url: string;
 }
 
+export interface DeliveryServiceProperties {}
+
 export async function getDeliveryServiceProfile(
     deliveryServiceEnsName: string,
     { provider }: Connection,
