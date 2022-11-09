@@ -18,7 +18,10 @@ export interface DeliveryServiceProfile {
     url: string;
 }
 
-export interface DeliveryServiceProperties {}
+export interface DeliveryServiceProperties {
+    messageTTL: number;
+    sizeLimit: number;
+}
 
 export async function getDeliveryServiceProfile(
     deliveryServiceEnsName: string,
