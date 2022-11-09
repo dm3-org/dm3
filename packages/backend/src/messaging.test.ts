@@ -1,12 +1,9 @@
-import bodyParser from 'body-parser';
-import { delivery } from 'dm3-lib';
-
 import express from 'express';
 import { Socket } from 'socket.io';
-import { onConnection } from './messaging';
-import { socketAuth } from './utils';
 import nacl from 'tweetnacl';
 import { encodeBase64 } from 'tweetnacl-util';
+import { onConnection } from './messaging';
+import { socketAuth } from './utils';
 
 import * as Lib from 'dm3-lib/dist.backend';
 
@@ -209,7 +206,11 @@ const loadSession = async (address: string) => {
     const isSender = Lib.external.formatAddress(address) === SENDER_ADDRESS;
     const isReceiver = Lib.external.formatAddress(address) === RECEIVER_ADDRESS;
 
-    const session = (account: string, token: string, profile: UserProfile) => ({
+    const session = (
+        account: string,
+        token: string,
+        profile: Lib.account.UserProfile,
+    ) => ({
         account,
         signedUserProfile: {
             profile,

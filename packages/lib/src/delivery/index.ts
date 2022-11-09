@@ -10,3 +10,7 @@ export type {} from './PublicMessages';
 export * as schema from './schema';
 export { checkToken } from './Session';
 export type { Session } from './Session';
+export {
+    getDeliveryServiceProfile,
+    getDeliveryServiceClient,
+} from './Delivery';
