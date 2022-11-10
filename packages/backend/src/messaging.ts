@@ -1,5 +1,5 @@
 import { Socket } from 'socket.io';
-import { Express } from 'express';
+import express from 'express';
 import * as Lib from 'dm3-lib/dist.backend';
 import { addPending, RedisPrefix } from './redis';
 import { stringify } from 'safe-stable-stringify';
@@ -26,9 +26,10 @@ const pendingMessageSchema = {
     additionalProperties: false,
 };
 
-export function onConnection(app: Express) {
+export function onConnection(app: express.Application) {
     return (socket: Socket) => {
         socket.on('disconnect', () => {
+            app;
             app.locals.logger.info({
                 method: 'WS DISCONNECT',
                 socketId: socket.id,
