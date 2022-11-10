@@ -1,5 +1,5 @@
-import Ajv, { KeywordCxt } from 'ajv';
-import { ethers } from 'ethers';
+import Ajv from 'ajv';
+import { log } from './log';
 
 export function validateSchema(schema: any, data: any) {
     const ajv = new Ajv();
@@ -7,7 +7,7 @@ export function validateSchema(schema: any, data: any) {
         const validate = ajv.compile(schema);
         return validate(data);
     } catch (e) {
-        console.log(e);
+        log(e as string);
         return false;
     }
 }
