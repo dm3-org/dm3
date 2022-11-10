@@ -1,9 +1,20 @@
 import { getDeliveryServiceProperties } from './getDeliveryServiceProperties';
-import { writeFileSync, unlinkSync } from 'fs';
+import { writeFileSync, unlinkSync, existsSync } from 'fs';
 import { stringify } from 'yaml';
 import { resolve } from 'path';
 
 describe('ReadDeliveryServiceProperties', () => {
+    let path: string;
+    beforeEach(() => {
+        path = resolve(__dirname, './config.test.yml');
+    });
+
+    afterEach(() => {
+        if (existsSync(path)) {
+            unlinkSync(path);
+        }
+    });
+
     it('Returns default DeliveryServiceProfile if config file is undefined', () => {
         const config = getDeliveryServiceProperties('/unknown-path', {
             messageTTL: 12345,
@@ -14,8 +25,6 @@ describe('ReadDeliveryServiceProperties', () => {
     });
 
     it('Returns Config from path', () => {
-        const path = resolve(__dirname, './config.test.yml');
-
         writeFileSync(
             path,
             stringify({
@@ -30,12 +39,8 @@ describe('ReadDeliveryServiceProperties', () => {
             messageTTL: 12345,
             sizeLimit: 456,
         });
-
-        unlinkSync(path);
     });
     it('Adds default properties if config.yml is not fully specified', () => {
-        const path = resolve(__dirname, './config.test.yml');
-
         writeFileSync(
             path,
             stringify({
@@ -47,9 +52,7 @@ describe('ReadDeliveryServiceProperties', () => {
 
         expect(config).toStrictEqual({
             messageTTL: 12345,
-            sizeLimit: 0,
+            sizeLimit: 100000,
         });
-
-        unlinkSync(path);
     });
 });
