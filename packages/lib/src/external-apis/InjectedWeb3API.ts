@@ -1,7 +1,4 @@
 import { ethers } from 'ethers';
-import { Keys } from '../account/Account';
-import { decryptSafely, EthEncryptedData } from '../encryption/Encryption';
-import { UserDB } from '../storage';
 
 export interface Executable {
     method: (...args: any[]) => Promise<ethers.providers.TransactionResponse>;
@@ -16,16 +13,6 @@ export async function prersonalSign(
     return provider.send('personal_sign', [message, account]);
 }
 export type PersonalSign = typeof prersonalSign;
-
-export async function decryptMessage(
-    userDb: UserDB,
-    encryptedData: EthEncryptedData,
-): Promise<string> {
-    return decryptSafely({
-        encryptedData,
-        privateKey: (userDb.keys as Keys).privateMessagingKey as string,
-    }) as string;
-}
 
 export async function requestAccounts(
     provider: ethers.providers.JsonRpcProvider,

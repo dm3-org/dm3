@@ -1,12 +1,8 @@
 import { stringify } from '../shared/stringify';
 import { Keys } from '../account/Account';
+import { decrypt, encrypt, EncryptedPayload } from '../crypto';
 import { Acknoledgment } from '../delivery';
-import {
-    GetSymmetricalKeyFromSignature,
-    symmetricalDecrypt,
-    symmetricalEncrypt,
-} from '../encryption/SymmetricalEncryption';
-import { formatAddress, PersonalSign } from '../external-apis/InjectedWeb3API';
+import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { Envelop, MessageState } from '../messaging/Messaging';
 import { log } from '../shared/log';
 import { Connection } from '../web3-provider/Web3Provider';
@@ -43,8 +39,8 @@ export interface UserDB {
 
 export interface UserStorage {
     version: string;
-    salt: string;
-    payload: string;
+    nonce: number;
+    payload: EncryptedPayload;
 }
 
 interface UserStoragePayload {
@@ -109,17 +105,17 @@ export function sortEnvelops(
 
 function prepareUserStoragePayload(userDb: UserDB): UserStoragePayload {
     return {
-        conversations: stringify(userDb.conversations, replacer)!,
+        conversations: JSON.stringify(userDb.conversations, replacer),
         keys: userDb.keys,
         deliveryServiceToken: userDb.deliveryServiceToken,
         lastChangeTimestamp: userDb.lastChangeTimestamp,
     };
 }
 
-export function sync(userDb: UserDB | undefined): {
+export async function sync(userDb: UserDB | undefined): Promise<{
     userStorage: UserStorage;
     acknoledgments: Acknoledgment[];
-} {
+}> {
     if (!userDb) {
         throw Error(`User db hasn't been create`);
     }
@@ -159,55 +155,22 @@ export function sync(userDb: UserDB | undefined): {
     return {
         userStorage: {
             version: 'dm3-encryption-1',
-            salt: userDb.keys.storageEncryptionKeySalt,
-            payload: symmetricalEncrypt(
-                stringify(prepareUserStoragePayload(userDb)),
+            nonce: userDb.keys.storageEncryptionNonce,
+            payload: await encrypt(
                 userDb.keys.storageEncryptionKey,
+                stringify(prepareUserStoragePayload(userDb)),
             ),
         },
         acknoledgments,
     };
 }
 
-export async function load(
-    connection: Connection,
-    data: UserStorage,
-    getSymmetricalKeyFromSignature: GetSymmetricalKeyFromSignature,
-    personalSign: PersonalSign,
-    key?: string,
-): Promise<UserDB> {
+export async function load(data: UserStorage, key: string): Promise<UserDB> {
     log('[storage] Loading user storage');
 
-    let storageEncryptionKey =
-        key ??
-        (
-            await getSymmetricalKeyFromSignature(
-                connection,
-                personalSign,
-                data.salt,
-            )
-        ).symmetricalKey;
-    let decryptedPayload: UserStoragePayload;
-    try {
-        decryptedPayload = JSON.parse(
-            symmetricalDecrypt(data.payload, storageEncryptionKey),
-        );
-    } catch (e) {
-        if (key) {
-            storageEncryptionKey = (
-                await getSymmetricalKeyFromSignature(
-                    connection,
-                    personalSign,
-                    data.salt,
-                )
-            ).symmetricalKey;
-            decryptedPayload = JSON.parse(
-                symmetricalDecrypt(data.payload, storageEncryptionKey),
-            );
-        } else {
-            throw e;
-        }
-    }
+    const decryptedPayload: UserStoragePayload = JSON.parse(
+        await decrypt(key, data.payload),
+    );
 
     const conversations: Map<string, StorageEnvelopContainer[]> = JSON.parse(
         decryptedPayload.conversations,
@@ -218,7 +181,7 @@ export async function load(
         keys: decryptedPayload.keys,
         deliveryServiceToken: decryptedPayload.deliveryServiceToken,
         conversations,
-        conversationsCount: conversations.keys.length,
+        conversationsCount: conversations.keys ? conversations.keys.length : 0,
         synced: true,
         syncProcessState: SyncProcessState.Idle,
         lastChangeTimestamp: decryptedPayload.lastChangeTimestamp,

@@ -42,7 +42,7 @@ describe('Profile', () => {
     });
 
     describe('submitUserProfile', () => {
-        it.only('Returns 200 if schema is valid', async () => {
+        it('Returns 200 if schema is valid', async () => {
             const app = express();
             app.use(bodyParser.json());
             app.use(profile());

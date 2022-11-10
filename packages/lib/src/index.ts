@@ -3,7 +3,7 @@ export type { GetTransactions } from './external-apis/Etherscan';
 
 export * as delivery from './delivery';
 export * as account from './account';
-export * as encryption from './encryption';
+export * as crypto from './crypto';
 export * as external from './external-apis';
 export * as messaging from './messaging';
 export * as session from './session';

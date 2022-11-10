@@ -1,3 +1,5 @@
 #!/bin/sh
-cd packages/lib/
+cd packages/lib/ && 
+yarn test --watchAll=false &&
+cd ../backend/ && 
 yarn test --watchAll=false
