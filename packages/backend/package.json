@@ -25,7 +25,7 @@
     "scripts": {
         "start": "node dist",
         "test": "jest --coverage",
-        "build": "tsc"
+        "build": "tsc && cp ./src/config.yml ./dist/config.yml | true"
     },
     "devDependencies": {
         "@babel/core": "^7.19.6",
