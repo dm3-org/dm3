@@ -1,5 +1,3 @@
-import { createKeys } from '../account/Account';
-import { getSymmetricalKeyFromSignature } from '../encryption/SymmetricalEncryption';
 import {
     getChallenge,
     getNewToken,
@@ -20,7 +18,6 @@ export async function signIn(
     browserDataFile: UserStorage | undefined,
     externalDataFile: string | undefined,
     overwriteUserDb: Partial<UserDB>,
-    preLoadedKey?: string,
 ): Promise<{
     connectionState: ConnectionState;
     db?: UserDB;
@@ -29,12 +26,9 @@ export async function signIn(
         connection,
         prersonalSign,
         submitUserProfile,
-        createKeys,
-        getSymmetricalKeyFromSignature,
         browserDataFile,
         externalDataFile,
         overwriteUserDb,
-        preLoadedKey,
     );
 }
 

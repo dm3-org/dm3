@@ -22,7 +22,7 @@ jobs:
           run: yarn lint
         - name: Format
           run: yarn format:check
-    unit-tests:
+    lib-tests:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v2
@@ -36,6 +36,28 @@ jobs:
             node-version: 16.13.2
         - name: Lib Package
           run: cd packages/lib
+        - name: Install
+          run: yarn install
+          env:
+            NODE_AUTH_TOKEN: ${{ secrets.PACKAGE_PAT }}
+        - name: Build
+          run: yarn build
+        - name: Unit Tests
+          run: yarn test --ci --watchAll=false
+    backend-tests:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - uses: actions/cache@v2
+          with:
+              path: '**/node_modules'
+              key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}              
+        - uses: actions/setup-node@v2
+          with:
+            registry-url: 'https://npm.pkg.github.com'
+            node-version: 16.13.2
+        - name: Lib Package
+          run: cd packages/backend
         - name: Install
           run: yarn install
           env:

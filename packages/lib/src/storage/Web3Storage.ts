@@ -28,7 +28,7 @@ export async function web3Store(
     if (!connection.storageToken) {
         throw Error('No API token');
     }
-    const syncResult = sync(userDb);
+    const syncResult = await sync(userDb);
 
     const client = new Web3Storage({ token: connection.storageToken });
     const blob = new Blob([stringify(syncResult.userStorage)], {
