@@ -33,15 +33,13 @@ describe('ReadDeliveryServiceProperties', () => {
 
         unlinkSync(path);
     });
-    it('Returns only properties included in DeliveryServiceProperties interface', () => {
+    it('Adds default properties if config.yml is not fully specified', () => {
         const path = resolve(__dirname, './config.test.yml');
 
         writeFileSync(
             path,
             stringify({
                 messageTTL: 12345,
-                sizeLimit: 456,
-                foo: 'bar',
             }),
             { encoding: 'utf-8' },
         );
@@ -49,7 +47,7 @@ describe('ReadDeliveryServiceProperties', () => {
 
         expect(config).toStrictEqual({
             messageTTL: 12345,
-            sizeLimit: 456,
+            sizeLimit: 0,
         });
 
         unlinkSync(path);

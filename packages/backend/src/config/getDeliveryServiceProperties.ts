@@ -21,6 +21,22 @@ export function getDeliveryServiceProperties(
     }
     const yamlString = readFileSync(path, { encoding: 'utf-8' });
 
+    const deliveryServiceProfile = parse(yamlString);
+
+    const isSchemaValid = Lib.validateSchema(
+        // eslint-disable-next-line max-len
+        //The interface DeliveryServiceProperties requires all properties to be non-null. But since we are accepting a partially filled config.yml we are overwriting the required fields so basically no property is required at all. This can be done because every missing property is replaced by a default property
+        {
+            ...Lib.delivery.schema.DeliveryServicePropertiesSchema,
+            required: [],
+        },
+        deliveryServiceProfile,
+    );
+
+    if (!isSchemaValid) {
+        throw Error('Invalid config.yml');
+    }
+
     const { messageTTL, sizeLimit } = {
         ...defaultDeliveryServiceProperties,
         ...parse(yamlString),
