@@ -72,11 +72,39 @@ test('incomingMessage auth', async () => {
                 token: 'abc',
             },
             '9SZhajjn9tn0fX/eBMXfZfb0RaUeYyfhlNYHqZyKHpyTiYvwVosQ5qt2XxdDFblTzggir8kp85kWw76p2EZ0rQ==',
+            1024,
             getSession,
             storeNewMessage,
             () => {},
         ),
     ).rejects.toEqual(Error('Token check failed'));
+});
+test('incomingMessage sizeLimit', async () => {
+    const storeNewMessage = async (
+        conversationId: string,
+        envelop: EncryptionEnvelop,
+    ) => {};
+
+    expect.assertions(1);
+
+    await expect(() =>
+        incomingMessage(
+            {
+                envelop: {
+                    encryptedData: '',
+                    encryptionVersion: 'x25519-xsalsa20-poly1305',
+                    from: SENDER_ADDRESS,
+                    to: RECEIVER_ADDRESS,
+                },
+                token: '123',
+            },
+            '9SZhajjn9tn0fX/eBMXfZfb0RaUeYyfhlNYHqZyKHpyTiYvwVosQ5qt2XxdDFblTzggir8kp85kWw76p2EZ0rQ==',
+            1,
+            getSession,
+            storeNewMessage,
+            () => {},
+        ),
+    ).rejects.toEqual(Error('Message is to large'));
 });
 
 test('incomingMessage', async () => {
@@ -106,6 +134,7 @@ test('incomingMessage', async () => {
             token: '123',
         },
         '9SZhajjn9tn0fX/eBMXfZfb0RaUeYyfhlNYHqZyKHpyTiYvwVosQ5qt2XxdDFblTzggir8kp85kWw76p2EZ0rQ==',
+        1024,
         getSession,
         storeNewMessage,
         () => {},

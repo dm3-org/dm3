@@ -8,6 +8,7 @@ import { EncryptionEnvelop, Postmark } from '../messaging/Messaging';
 import { sha256 } from '../shared/sha256';
 import { getConversationId } from '../storage/Storage';
 import { checkToken, Session } from './Session';
+import { serialize } from 'v8';
 
 export interface Acknoledgment {
     contactAddress: string;
@@ -45,6 +46,7 @@ export async function getMessages(
 export async function incomingMessage(
     { envelop, token }: { envelop: EncryptionEnvelop; token: string },
     deliveryServicePrivateKey: string,
+    sizeLimit: number,
     getSession: (accountAddress: string) => Promise<Session | null>,
     storeNewMessage: (
         conversationId: string,
@@ -67,6 +69,10 @@ export async function incomingMessage(
         throw Error('unknown session');
     }
 
+    if (messageIsToLarge(envelop, sizeLimit)) {
+        throw Error('Message is too large');
+    }
+
     const receiverEncryptionKey =
         receiverSession?.signedUserProfile.profile.publicEncryptionKey;
 
@@ -84,6 +90,13 @@ export async function incomingMessage(
         //Client is already connect to the delivery service and the message can be dispatched
         send(receiverSession.socketId, envelopWithPostmark);
     }
+}
+
+function messageIsToLarge(
+    envelop: EncryptionEnvelop,
+    sizeLimit: number,
+): boolean {
+    return Buffer.byteLength(serialize(envelop), 'utf-8') > sizeLimit;
 }
 
 function addPostmark(
