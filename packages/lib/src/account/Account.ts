@@ -1,10 +1,8 @@
 import { ethers } from 'ethers';
 import queryString from 'query-string';
 import stringify from 'safe-stable-stringify';
-import nacl from 'tweetnacl';
-import { encodeBase64 } from 'tweetnacl-util';
 import { GetUserProfile } from '.';
-import { GetSymmetricalKeyFromSignature } from '../encryption/SymmetricalEncryption';
+import { KeyPair } from '../crypto';
 import {
     GetPendingConversations,
     GetUserProfileOffChain,
@@ -15,7 +13,6 @@ import {
     GetEnsTextRecord,
     GetResolver,
     LookupAddress,
-    PersonalSign,
     ResolveName,
 } from '../external-apis/InjectedWeb3API';
 import { log } from '../shared/log';
@@ -31,20 +28,18 @@ import { UserProfileResolver } from './profileResolver/json/UserProfileResolver'
 import { LinkResolver } from './profileResolver/LinkResolver';
 import { Dm3Profile, ProfileResolver } from './profileResolver/ProfileResolver';
 
-export interface Keys {
-    publicMessagingKey: string;
-    privateMessagingKey: string;
-    publicSigningKey: string;
-    privateSigningKey: string;
-    storageEncryptionKey: string;
-    storageEncryptionKeySalt: string;
-}
-
 export interface UserProfile {
     publicEncryptionKey: string;
     publicSigningKey: string;
     deliveryServices: string[];
     mutableProfileExtensionUrl?: string;
+}
+
+export interface Keys {
+    encryptionKeyPair: KeyPair;
+    signingKeyPair: KeyPair;
+    storageEncryptionKey: string;
+    storageEncryptionNonce: number;
 }
 
 export interface SignedUserProfile {
@@ -150,28 +145,6 @@ export function getAccountDisplayName(
               accountAddress.substring(accountAddress.length - 4)
         : accountAddress;
 }
-
-export async function createKeys(
-    connection: Partial<Connection>,
-    personalSign: PersonalSign,
-    getSymmetricalKeyFromSignature: GetSymmetricalKeyFromSignature,
-): Promise<Keys> {
-    const encryptionKeyPair = nacl.box.keyPair();
-    const signingKeyPair = nacl.sign.keyPair();
-    const symmetricalKey = await getSymmetricalKeyFromSignature(
-        connection,
-        personalSign,
-    );
-    return {
-        publicMessagingKey: encodeBase64(encryptionKeyPair.publicKey),
-        privateMessagingKey: encodeBase64(encryptionKeyPair.secretKey),
-        publicSigningKey: encodeBase64(signingKeyPair.publicKey),
-        privateSigningKey: encodeBase64(signingKeyPair.secretKey),
-        storageEncryptionKey: symmetricalKey.symmetricalKey,
-        storageEncryptionKeySalt: symmetricalKey.symmetricalKeySalt,
-    };
-}
-export type CreateKeys = typeof createKeys;
 
 export async function addContact(
     connection: Connection,

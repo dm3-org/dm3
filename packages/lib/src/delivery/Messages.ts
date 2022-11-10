@@ -1,13 +1,13 @@
 import { ethers } from 'ethers';
 import stringify from 'safe-stable-stringify';
-import nacl from 'tweetnacl';
-import naclUtil from 'tweetnacl-util';
-import { encryptSafely } from '../encryption/Encryption';
+
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { EncryptionEnvelop, Postmark } from '../messaging/Messaging';
+import { encryptAsymmetric, EncryptedPayload, sign } from '../crypto';
 import { sha256 } from '../shared/sha256';
 import { getConversationId } from '../storage/Storage';
 import { checkToken, Session } from './Session';
+import { log } from '../shared/log';
 
 export interface Acknoledgment {
     contactAddress: string;
@@ -77,10 +77,12 @@ export async function incomingMessage(
 
     const envelopWithPostmark: EncryptionEnvelop = {
         ...envelop,
-        postmark: addPostmark(
-            envelop,
-            receiverEncryptionKey,
-            deliveryServicePrivateKey,
+        postmark: stringify(
+            await addPostmark(
+                envelop,
+                receiverEncryptionKey,
+                deliveryServicePrivateKey,
+            ),
         ),
     };
     await storeNewMessage(conversationId, envelopWithPostmark);
@@ -98,46 +100,39 @@ function messageIsToLarge(
     return Buffer.byteLength(JSON.stringify(envelop), 'utf-8') > sizeLimit;
 }
 
-function addPostmark(
+async function addPostmark(
     { encryptedData }: EncryptionEnvelop,
     receiverEncryptionKey: string,
     deliveryServiceSigningKey: string,
-): string {
+): Promise<EncryptedPayload> {
     const postmarkWithoutSig: Omit<Postmark, 'signature'> = {
-        messageHash: ethers.utils.hashMessage(encryptedData),
+        messageHash: ethers.utils.hashMessage(stringify(encryptedData)),
         incommingTimestamp: new Date().getTime(),
     };
 
-    const signature = signPostmark(
+    const signature = await signPostmark(
         postmarkWithoutSig,
         deliveryServiceSigningKey,
     );
 
     //Encrypte the signed Postmark and return the ciphertext
-    const { ciphertext, nonce, version, ephemPublicKey } = encryptSafely({
-        publicKey: receiverEncryptionKey,
-        data: { ...postmarkWithoutSig, signature },
-        version: 'x25519-xsalsa20-poly1305',
-    });
+    const { ciphertext, nonce, ephemPublicKey } = await encryptAsymmetric(
+        receiverEncryptionKey,
+        stringify({ ...postmarkWithoutSig, signature })!,
+    );
 
-    const encryptedPostmark = stringify({
+    return {
         nonce,
-        version,
         ciphertext,
         ephemPublicKey,
-    })!;
-
-    const { hexlify, toUtf8Bytes } = ethers.utils;
-
-    return hexlify(toUtf8Bytes(encryptedPostmark));
+    };
 }
 
-const signPostmark = (p: Omit<Postmark, 'signature'>, signingKey: string) => {
+function signPostmark(
+    p: Omit<Postmark, 'signature'>,
+    signingKey: string,
+): Promise<string> {
+    log(`SING POST MARK USING ${signingKey}`);
     const postmarkHash = sha256(stringify(p));
-    return ethers.utils.hexlify(
-        nacl.sign.detached(
-            ethers.utils.toUtf8Bytes(postmarkHash),
-            naclUtil.decodeBase64(signingKey as string),
-        ),
-    );
-};
+    return sign(signingKey, postmarkHash);
+}

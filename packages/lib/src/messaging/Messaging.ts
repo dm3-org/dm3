@@ -1,10 +1,5 @@
-import { ethers } from 'ethers';
 import { Account, Keys } from '../account/Account';
-import {
-    decryptPayload,
-    EncryptSafely,
-    SignWithSignatureKey,
-} from '../encryption/Encryption';
+import { decryptAsymmetric, EncryptAsymmetric, sign } from '../crypto';
 import {
     CreatePendingEntry,
     GetNewMessages,
@@ -58,7 +53,7 @@ export interface Postmark {
 }
 
 export interface EncryptionEnvelop {
-    encryptionVersion: 'x25519-xsalsa20-poly1305';
+    encryptionVersion: 'x25519-chacha20-poly1305';
     encryptedData: string;
     to: string;
     from: string;
@@ -103,8 +98,7 @@ export async function submitMessage(
     to: Account,
     message: Message,
     submitMessageApi: SubmitMessage,
-    signWithSignatureKey: SignWithSignatureKey,
-    encryptSafely: EncryptSafely,
+    encryptAsymmetric: EncryptAsymmetric,
     createPendingEntry: CreatePendingEntry,
     haltDelivery: boolean,
     storeMessages: (envelops: StorageEnvelopContainer[]) => void,
@@ -114,7 +108,10 @@ export async function submitMessage(
 
     const innerEnvelop: Envelop = {
         message,
-        signature: signWithSignatureKey(message, userDb?.keys as Keys),
+        signature: await sign(
+            (userDb?.keys as Keys).signingKeyPair.privateKey,
+            stringify(message),
+        ),
     };
 
     const allOnSuccess = () => {
@@ -140,20 +137,16 @@ export async function submitMessage(
             throw Error('Contact has no profile');
         }
         const envelop: EncryptionEnvelop = {
-            encryptedData: ethers.utils.hexlify(
-                ethers.utils.toUtf8Bytes(
-                    stringify(
-                        encryptSafely({
-                            publicKey: to.profile.publicEncryptionKey,
-                            data: innerEnvelop,
-                            version: 'x25519-xsalsa20-poly1305',
-                        }),
-                    ),
+            encryptedData: stringify(
+                await encryptAsymmetric(
+                    to.profile.publicEncryptionKey,
+                    stringify(innerEnvelop),
                 ),
             ),
+
             to: to.address,
             from: (connection.account as Account).address,
-            encryptionVersion: 'x25519-xsalsa20-poly1305',
+            encryptionVersion: 'x25519-chacha20-poly1305',
         };
         await submitMessageApi(connection, userDb, envelop, allOnSuccess, () =>
             log('submit message error'),
@@ -166,14 +159,19 @@ export async function submitMessage(
     }
 }
 
-function decryptMessages(
+async function decryptMessages(
     envelops: EncryptionEnvelop[],
     userDb: UserDB,
 ): Promise<Envelop[]> {
     return Promise.all(
         envelops.map(
             async (envelop): Promise<Envelop> =>
-                decryptPayload(userDb, envelop.encryptedData),
+                JSON.parse(
+                    await decryptAsymmetric(
+                        userDb.keys.encryptionKeyPair,
+                        JSON.parse(envelop.encryptedData),
+                    ),
+                ),
         ),
     );
 }
@@ -190,9 +188,11 @@ export async function getMessages(
             await getNewMessages(connection, userDb, contact)
         ).map(async (envelop): Promise<StorageEnvelopContainer> => {
             const decryptedEnvelop = await decryptMessages([envelop], userDb);
-            const decryptedPostmark = decryptPayload<Postmark>(
-                userDb,
-                envelop.postmark!,
+            const decryptedPostmark = JSON.parse(
+                await decryptAsymmetric(
+                    userDb.keys.encryptionKeyPair,
+                    JSON.parse(envelop.postmark!),
+                ),
             );
 
             return {

@@ -36,6 +36,19 @@ const connection: Connection = {
     provider: {} as any,
 };
 
+const keys = {
+    encryptionKeyPair: {
+        publicKey: 'b',
+        privateKey: 'c',
+    },
+    signingKeyPair: {
+        publicKey: 'd',
+        privateKey: 'e',
+    },
+    storageEncryptionNonce: 0,
+    storageEncryptionKey: '3',
+};
+
 const getProfileData = async (): Promise<{
     signedUserProfile: SignedUserProfile;
     account: Account;
@@ -195,14 +208,7 @@ test('getContacts ', async () => {
         conversations: new Map<string, StorageEnvelopContainer[]>(),
         conversationsCount: 0,
         deliveryServiceToken: '',
-        keys: {
-            publicMessagingKey: 'b',
-            publicSigningKey: 'c',
-            privateMessagingKey: '1',
-            privateSigningKey: '2',
-            storageEncryptionKey: '3',
-            storageEncryptionKeySalt: 'salt',
-        },
+        keys,
         lastChangeTimestamp: 0,
         syncProcessState: SyncProcessState.Idle,
         synced: true,
@@ -249,14 +255,7 @@ test('Should create an empty conversation for a new contact ', (done) => {
         conversations: new Map<string, StorageEnvelopContainer[]>(),
         conversationsCount: 0,
         deliveryServiceToken: '',
-        keys: {
-            publicMessagingKey: 'b',
-            publicSigningKey: 'c',
-            privateMessagingKey: '1',
-            privateSigningKey: '2',
-            storageEncryptionKey: '3',
-            storageEncryptionKeySalt: 'salt',
-        },
+        keys,
         lastChangeTimestamp: 0,
         syncProcessState: SyncProcessState.Idle,
         synced: true,
@@ -281,14 +280,7 @@ test('Should reject to add a contact if the contact was already added', async ()
         conversations: new Map<string, StorageEnvelopContainer[]>(),
         conversationsCount: 0,
         deliveryServiceToken: '',
-        keys: {
-            publicMessagingKey: 'b',
-            publicSigningKey: 'c',
-            privateMessagingKey: '1',
-            privateSigningKey: '2',
-            storageEncryptionKey: '3',
-            storageEncryptionKeySalt: 'salt',
-        },
+        keys,
         lastChangeTimestamp: 0,
         syncProcessState: SyncProcessState.Idle,
         synced: true,

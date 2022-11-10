@@ -55,7 +55,7 @@ export async function googleStore(
 
     log('Sync with google drive');
 
-    const syncResult = sync(userDb);
+    const syncResult = await sync(userDb);
     await createGoogleDriveFile(
         gapi,
         FILE_NAME + '-' + new Date().getTime() + '.json',
