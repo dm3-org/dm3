@@ -26,7 +26,7 @@ export {
     checkStringSignature,
 } from './Account';
 
-export type { Account, Keys } from './Account';
+export type { Account, Keys, UserProfile } from './Account';
 
 export async function addContact(
     connection: Connection,

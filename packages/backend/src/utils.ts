@@ -1,9 +1,9 @@
 import * as Lib from 'dm3-lib/dist.backend';
-import { NextFunction, Response, Request } from 'express';
+import { ethers } from 'ethers';
+import { isAddress } from 'ethers/lib/utils';
+import { Express, NextFunction, Request, Response } from 'express';
 import { Socket } from 'socket.io';
 import { ExtendedError } from 'socket.io/dist/namespace';
-import { Express } from 'express';
-import winston from 'winston';
 
 export async function auth(
     req: Request,
@@ -11,6 +11,11 @@ export async function auth(
     next: NextFunction,
     address: string,
 ) {
+    //Address has to be a valid ethereum addresss
+    if (!isAddress(address)) {
+        return res.sendStatus(400);
+    }
+
     const account = Lib.external.formatAddress(address);
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -39,9 +44,11 @@ export function socketAuth(app: Express) {
         socket: Socket,
         next: (err?: ExtendedError | undefined) => void,
     ) => {
-        const account = Lib.external.formatAddress(
-            socket.handshake.auth.account.address as string,
-        );
+        const address = socket.handshake.auth.account.address;
+        if (!isAddress(address)) {
+            return next(new Error('Invalid address'));
+        }
+        const account = Lib.external.formatAddress(address as string);
         app.locals.logger.info({
             method: 'WS CONNECT',
             account,

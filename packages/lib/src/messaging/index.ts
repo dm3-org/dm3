@@ -13,11 +13,14 @@ import {
     submitMessage as backendSubmitMessage,
 } from '../external-apis/BackendAPI';
 import { encryptSafely, signWithSignatureKey } from '../encryption/Encryption';
+import { schema } from '../delivery';
 
 export type { Message, EncryptionEnvelop, Envelop } from './Messaging';
 
 export { MessageState } from './Messaging';
 export { getId } from './Utils';
+
+export * as schema from './schema';
 
 export async function getMessages(
     connection: Connection,
