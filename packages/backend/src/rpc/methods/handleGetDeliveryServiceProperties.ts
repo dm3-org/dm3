@@ -7,7 +7,7 @@ export function handleGetDeliveryServiceProperties(
     res: express.Response,
     next: express.NextFunction,
 ) {
-    const response = getDeliveryServiceProperties();
+    const response = req.app.locals.deliveryServiceProperties;
 
     if (!response) {
         req.app.locals.logger.error({

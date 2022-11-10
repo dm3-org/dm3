@@ -104,7 +104,7 @@ test('incomingMessage sizeLimit', async () => {
             storeNewMessage,
             () => {},
         ),
-    ).rejects.toEqual(Error('Message is to large'));
+    ).rejects.toEqual(Error('Message is too large'));
 });
 
 test('incomingMessage', async () => {

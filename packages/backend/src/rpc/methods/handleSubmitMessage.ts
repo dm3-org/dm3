@@ -47,6 +47,7 @@ export async function handleSubmitMessage(
         await Lib.delivery.incomingMessage(
             { envelop, token },
             req.app.locals.deliveryServicePrivateKey,
+            req.app.locals.deliveryServiceProperties.sizeLimit,
             req.app.locals.loadSession,
             async (
                 conversationId: string,

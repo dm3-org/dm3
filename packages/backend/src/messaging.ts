@@ -25,6 +25,7 @@ const pendingMessageSchema = {
     required: ['accountAddress', 'contactAddress', 'token'],
     additionalProperties: false,
 };
+
 export function onConnection(app: Express) {
     return (socket: Socket) => {
         socket.on('disconnect', () => {
@@ -67,6 +68,7 @@ export function onConnection(app: Express) {
                     await Lib.delivery.incomingMessage(
                         data,
                         app.locals.deliveryServicePrivateKey,
+                        app.locals.deliveryServiceProperties.sizeLimit,
                         app.locals.loadSession,
                         async (
                             conversationId: string,
@@ -95,6 +97,7 @@ export function onConnection(app: Express) {
                     ),
                         callback('success');
                 } catch (error) {
+                    //TODO Should we use the callback function to return the error
                     app.locals.logger.warn({
                         method: 'WS SUBMIT MESSAGE',
                         error,
