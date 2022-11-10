@@ -1,40 +1,46 @@
-import express from 'express';
-import { Axios } from 'axios';
-import 'dotenv/config';
 import * as Lib from 'dm3-lib/dist.backend';
-import { RedisPrefix } from './redis';
+import 'dotenv/config';
+import express from 'express';
+import { RedisPrefix } from '../../redis';
 
-const DM3_SUBMIT_MESSAGE = 'dm3_submitMessage';
-
-export default (axios: Axios) => {
-    const router = express.Router();
-
-    router.post('/', async (req, res, next) => {
-        //RPC must be called with a method name
-        if (req.body?.method === undefined) {
-            return res.send(400);
-        }
-
-        const { method, params } = req.body;
-        if (method === DM3_SUBMIT_MESSAGE) {
-            return handleSubmitMessage(req, res, next);
-        }
-        return forwardToRpcNode(axios)(req, res, next);
-    });
-    return router;
-};
-
-const handleSubmitMessage = async (
+export async function handleSubmitMessage(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction,
-) => {
+) {
     const {
-        params: [envelop, token],
+        params: [stringifiedEnvelop, token],
     } = req.body;
+
+    const envelop = JSON.parse(stringifiedEnvelop);
 
     if (!envelop || !token) {
         return res.send(400);
+    }
+
+    const submitMessageSchema = {
+        type: 'object',
+        properties: {
+            token: { type: 'string' },
+            envelop: Lib.messaging.schema.EncryptionEnvelopeSchema,
+        },
+        required: ['token', 'envelop'],
+        additionalProperties: false,
+    };
+
+    const isSchemaValid = Lib.validateSchema(submitMessageSchema, {
+        envelop,
+        token,
+    });
+
+    if (!isSchemaValid) {
+        const error = 'invalid schema';
+
+        req.app.locals.logger.warn({
+            method: 'WS SUBMIT MESSAGE',
+            error,
+        });
+        return res.status(400).send({ error });
     }
 
     try {
@@ -71,21 +77,4 @@ const handleSubmitMessage = async (
 
         return res.send(400);
     }
-};
-
-const forwardToRpcNode =
-    (axios: Axios) =>
-    async (
-        req: express.Request,
-        res: express.Response,
-        next: express.NextFunction,
-    ) => {
-        try {
-            const data = (await axios.post(process.env.RPC as string, req.body))
-                .data;
-            console.log('data ' + data);
-            res.json(data);
-        } catch (e) {
-            next(e);
-        }
-    };
+}

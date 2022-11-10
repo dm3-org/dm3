@@ -14,3 +14,8 @@ export {
     getDeliveryServiceProfile,
     getDeliveryServiceClient,
 } from './Delivery';
+
+export type {
+    DeliveryServiceProfile,
+    DeliveryServiceProperties,
+} from './Delivery';
