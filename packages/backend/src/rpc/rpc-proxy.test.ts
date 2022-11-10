@@ -17,7 +17,7 @@ const receiverPublicEncryptionKey = encodeBase64(publicKey);
 
 describe('rpc-Proxy', () => {
     describe('routing', () => {
-        test('Should route non-dm3 related messages to the rpc node', async () => {
+        it('Should route non-dm3 related messages to the rpc node', async () => {
             const mockPost = jest.fn((url: string, body: any) => {
                 return Promise.resolve({ data: 'Forwarded' });
             });
@@ -28,6 +28,20 @@ describe('rpc-Proxy', () => {
             const app = express();
             app.use(bodyParser.json());
             app.use(RpcProxy(axiosMock as Axios));
+
+            app.locals = {
+                logger: {
+                    warn: (e: any) => {
+                        console.log(e);
+                    },
+                    info: (e: any) => {
+                        console.log(e);
+                    },
+                    error: (e: any) => {
+                        console.log(e);
+                    },
+                },
+            };
 
             const { body } = await request(app)
                 .post('/')
@@ -46,7 +60,7 @@ describe('rpc-Proxy', () => {
 
             return;
         });
-        test('Should handle dm3_submitMessage', async () => {
+        it('Should handle dm3_submitMessage', async () => {
             const mockPost = jest.fn((url: string, body: any) => {
                 return Promise.reject('Should not have been invoked');
             });
@@ -102,7 +116,7 @@ describe('rpc-Proxy', () => {
             expect(status).toBe(200);
         });
 
-        test('Should handle dm3_getDeliveryServiceProperties', async () => {
+        it('Should handle dm3_getDeliveryServiceProperties', async () => {
             const mockPost = jest.fn((url: string, body: any) => {
                 return Promise.reject('Should not have been invoked');
             });
@@ -145,7 +159,7 @@ describe('rpc-Proxy', () => {
             });
         });
 
-        test('Should return 400 if method is undefined', async () => {
+        it('Should return 400 if method is undefined', async () => {
             const mockPost = jest.fn((url: string, body: any) => {
                 return Promise.reject('Should not have been invoked');
             });

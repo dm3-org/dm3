@@ -39,7 +39,7 @@ const forwardToRpcNode =
         res: express.Response,
         next: express.NextFunction,
     ) => {
-        req.app.locals.info('Forward method to rpc url');
+        req.app.locals.logger.info('Forward method to rpc url');
         try {
             const data = (await axios.post(process.env.RPC as string, req.body))
                 .data;
