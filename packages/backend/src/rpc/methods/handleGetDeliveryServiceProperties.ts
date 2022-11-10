@@ -1,6 +1,5 @@
 import { stringify } from 'dm3-lib/dist.backend';
 import express from 'express';
-import { getDeliveryServiceProperties } from '../../config/getDeliveryServiceProperties';
 
 export function handleGetDeliveryServiceProperties(
     req: express.Request,
