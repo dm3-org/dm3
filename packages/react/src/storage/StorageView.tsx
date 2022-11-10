@@ -50,7 +50,7 @@ function StorageView() {
                             state.userDb,
                         );
                     }
-                    const syncResult = Lib.storage.sync(state.userDb);
+                    const syncResult = await Lib.storage.sync(state.userDb);
                     acknoledgments = syncResult.acknoledgments;
                     const blob = new Blob(
                         [JSON.stringify(syncResult.userStorage)],
@@ -142,16 +142,19 @@ function StorageView() {
     useEffect(autoSync, []);
 
     useEffect(() => {
-        if (state.uiState.browserStorageBackup) {
-            Lib.log(
-                `[DB/Browser] Create user storage browser snapshot at timestamp ${state.userDb?.lastChangeTimestamp}`,
-            );
+        const setBroserStorage = async () => {
             localforage.setItem(
                 Lib.account.getBrowserStorageKey(
                     state.connection.account!.address,
                 ),
-                Lib.storage.sync(state.userDb).userStorage,
+                (await Lib.storage.sync(state.userDb)).userStorage,
             );
+        };
+        if (state.uiState.browserStorageBackup) {
+            Lib.log(
+                `[DB/Browser] Create user storage browser snapshot at timestamp ${state.userDb?.lastChangeTimestamp}`,
+            );
+            setBroserStorage();
         }
         autoSync();
     }, [state.userDb?.lastChangeTimestamp]);

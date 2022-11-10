@@ -16,7 +16,9 @@ import { GlobalContext } from '../GlobalContextProvider';
 import { UserDbType } from '../reducers/UserDB';
 import InfoBox from './InfoBox';
 import { UiStateType } from '../reducers/UiState';
+
 import StorageView from '../storage/StorageView';
+import { checkSignature } from '../utils/SigCheck';
 
 export interface EnvelopContainer {
     envelop: Lib.messaging.Envelop;
@@ -80,7 +82,7 @@ function Chat() {
                     : state.connection.account!;
 
             return account.profile?.publicSigningKey
-                ? Lib.encryption.checkSignature(
+                ? checkSignature(
                       container.envelop.message,
                       account.profile?.publicSigningKey,
                       account.address,
@@ -218,7 +220,7 @@ function Chat() {
                 ? false
                 : true;
 
-        const messageData = Lib.messaging.createMessage(
+        const messageData = await Lib.messaging.createMessage(
             state.accounts.selectedContact.address,
             state.connection.account!.address,
             message,

@@ -26,7 +26,7 @@ const pendingMessageSchema = {
     additionalProperties: false,
 };
 export function onConnection(app: Express) {
-    return (socket: Socket) => {
+    return async (socket: Socket) => {
         socket.on('disconnect', () => {
             app.locals.logger.info({
                 method: 'WS DISCONNECT',
@@ -97,7 +97,7 @@ export function onConnection(app: Express) {
                 } catch (error) {
                     app.locals.logger.warn({
                         method: 'WS SUBMIT MESSAGE',
-                        error,
+                        error: (error as Error).toString(),
                     });
                 }
             },
@@ -120,7 +120,6 @@ export function onConnection(app: Express) {
                     method: 'WS PENDING MESSAGE',
                     error,
                 });
-                return callback(error);
             }
 
             const account = Lib.external.formatAddress(data.accountAddress);
@@ -139,7 +138,6 @@ export function onConnection(app: Express) {
                     )
                 ) {
                     await addPending(account, contact, app.locals.redisClient);
-                    callback('success');
                 } else {
                     throw Error('Token check failed');
                 }
@@ -148,7 +146,6 @@ export function onConnection(app: Express) {
                     method: 'WS PRENDING MESSAGE',
                     error,
                 });
-                callback('error');
             }
         });
     };

@@ -1,24 +1,50 @@
-import nacl from 'tweetnacl';
-import { encodeBase64 } from 'tweetnacl-util';
 import { UserProfile } from '../account/Account';
-import { decryptPayload } from '../encryption/Encryption';
+import { decryptAsymmetric } from '../crypto';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { EncryptionEnvelop } from '../messaging/Messaging';
-import { getConversationId, UserDB } from '../storage/Storage';
+import { getConversationId } from '../storage/Storage';
 import { getMessages, incomingMessage } from './Messages';
 
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
-const { secretKey, publicKey } = nacl.box.keyPair();
-const receiverPublicEncryptionKey = encodeBase64(publicKey);
-const receiverPrivateEncryptionKey = encodeBase64(secretKey);
+const keysA = {
+    encryptionKeyPair: {
+        publicKey:
+            '0x78798cab6f457a23ca7cd3e449cb4fb99197bd5d2c29e3bf299917da75ef320c',
+        privateKey:
+            '0xa4c23bec5db0dc62bea2664207803ad560ea21238e9d61974767ff3132dba9b6',
+    },
+    signingKeyPair: {
+        publicKey:
+            '0xfad90341665fbfd8b106639bb1ff2d8131d365a8f0004f66b93b450148f67bd2',
+        privateKey:
+            '0xf83a5e0630b32021688bbe37ff8ebac89ba7b07479e4186bdc69ea712e1cb895' +
+            'fad90341665fbfd8b106639bb1ff2d8131d365a8f0004f66b93b450148f67bd2',
+    },
+    storageEncryptionKey:
+        '0xf83a5e0630b32021688bbe37ff8ebac89ba7b07479e4186bdc69ea712e1cb895',
+    storageEncryptionNonce: 0,
+};
 
-const { secretKey: signingSecretKet, publicKey: signingPublicKey } =
-    nacl.sign.keyPair();
-
-const receiverPublicSigningKey = encodeBase64(signingPublicKey);
-const receiverPrivateSigningKey = encodeBase64(signingSecretKet);
+const keysB = {
+    encryptionKeyPair: {
+        publicKey:
+            '0x19867565066fc86c876f6f027006f64edabe435155fffa5269746eac00142608',
+        privateKey:
+            '0x395643aa80723066c4ce1c5d1dc4eeaf3a44c31c4fdbfd44322354c7e493e60e',
+    },
+    signingKeyPair: {
+        publicKey:
+            '0xee64c50eb6b097cee37b534d9d1858128578b465578479533dc69d968aa2be6d',
+        privateKey:
+            '0xf83a5e0630b32021688bbe37ff8ebac89ba7b07479e4186bdc69ea712e1cb89' +
+            '6ee64c50eb6b097cee37b534d9d1858128578b465578479533dc69d968aa2be6d',
+    },
+    storageEncryptionKey:
+        '0xf83a5e0630b32021688bbe37ff8ebac89ba7b07479e4186bdc69ea712e1cb896',
+    storageEncryptionNonce: 0,
+};
 
 const getSession = async (address: string) => {
     const emptyProfile: UserProfile = {
@@ -45,7 +71,7 @@ const getSession = async (address: string) => {
     if (isReceiver) {
         return session(RECEIVER_ADDRESS, 'abc', {
             ...emptyProfile,
-            publicEncryptionKey: receiverPublicEncryptionKey,
+            publicEncryptionKey: keysB.encryptionKeyPair.publicKey,
         });
     }
 
@@ -64,8 +90,8 @@ test('incomingMessage auth', async () => {
         incomingMessage(
             {
                 envelop: {
-                    encryptedData: '',
-                    encryptionVersion: 'x25519-xsalsa20-poly1305',
+                    encryptedData: {} as any,
+                    encryptionVersion: 'x25519-chacha20-poly1305',
                     from: SENDER_ADDRESS,
                     to: RECEIVER_ADDRESS,
                 },
@@ -98,14 +124,14 @@ test('incomingMessage', async () => {
     await incomingMessage(
         {
             envelop: {
-                encryptedData: '',
-                encryptionVersion: 'x25519-xsalsa20-poly1305',
+                encryptedData: {} as any,
+                encryptionVersion: 'x25519-chacha20-poly1305',
                 from: SENDER_ADDRESS,
                 to: RECEIVER_ADDRESS,
             },
             token: '123',
         },
-        '9SZhajjn9tn0fX/eBMXfZfb0RaUeYyfhlNYHqZyKHpyTiYvwVosQ5qt2XxdDFblTzggir8kp85kWw76p2EZ0rQ==',
+        keysA.signingKeyPair.privateKey,
         getSession,
         storeNewMessage,
         () => {},
@@ -116,31 +142,30 @@ test('incomingMessage', async () => {
         '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
     );
 
-    const actualPostmark = decryptPayload(
-        {
-            keys: { privateMessagingKey: receiverPrivateEncryptionKey },
-        } as UserDB,
-        messageContainer.envelop?.postmark!,
+    const actualPostmark = await decryptAsymmetric(
+        keysB.encryptionKeyPair,
+        JSON.parse(messageContainer.envelop?.postmark!),
     );
 
     //Check message
     expect(messageContainer).toMatchObject({
         conversationId,
         envelop: {
-            encryptedData: '',
-            encryptionVersion: 'x25519-xsalsa20-poly1305',
+            encryptedData: {},
+            encryptionVersion: 'x25519-chacha20-poly1305',
             from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
             to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
         },
     });
     //Check Postmark
-    expect(actualPostmark).toStrictEqual({
+    expect(JSON.parse(actualPostmark)).toStrictEqual({
         incommingTimestamp: 1577836800000,
         messageHash:
-            '0x5f35dce98ba4fba25530a026ed80b2cecdaa31091ba4958b99b52ea1d068adad',
+            '0xc496eb97e233a06697fa8bff2f26e72d174d1307686616c1e4e37bc6bdf0f6af',
         signature:
             // eslint-disable-next-line max-len
-            '0x625a5500c56fdb7fd21f83a142a52c78a2fa33148450ea1a57918a289d22a85aaef58a92d1221b8300849c58b2a5c0afc463526b00bbb9940ec59b9c8012cb00',
+            '0xdbb4337d68b68a429965607394544be3119d304b02f61ac146ad673cb25088e4' +
+            'daf1c946faeb1536975483c4cd4a77254f82ca4eb26cb6876a1ba3ef94b0d00d',
     });
 });
 
@@ -159,20 +184,20 @@ test('getMessages', async () => {
         return conversationId === conversationIdToUse
             ? ([
                   {
-                      encryptedData: 'a',
-                      encryptionVersion: 'x25519-xsalsa20-poly1305',
+                      encryptedData: {} as any,
+                      encryptionVersion: 'x25519-chacha20-poly1305',
                       from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
                       to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
                   },
                   {
-                      encryptedData: 'b',
-                      encryptionVersion: 'x25519-xsalsa20-poly1305',
+                      encryptedData: {} as any,
+                      encryptionVersion: 'x25519-chacha20-poly1305',
                       to: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
                       from: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
                   },
                   {
-                      encryptedData: 'c',
-                      encryptionVersion: 'x25519-xsalsa20-poly1305',
+                      encryptedData: {} as any,
+                      encryptionVersion: 'x25519-chacha20-poly1305',
                       from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
                       to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
                   },
@@ -188,14 +213,14 @@ test('getMessages', async () => {
         ),
     ).toStrictEqual([
         {
-            encryptedData: 'a',
-            encryptionVersion: 'x25519-xsalsa20-poly1305',
+            encryptedData: {},
+            encryptionVersion: 'x25519-chacha20-poly1305',
             from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
             to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
         },
         {
-            encryptedData: 'c',
-            encryptionVersion: 'x25519-xsalsa20-poly1305',
+            encryptedData: {},
+            encryptionVersion: 'x25519-chacha20-poly1305',
             from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
             to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
         },

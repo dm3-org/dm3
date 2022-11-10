@@ -20,7 +20,7 @@ export async function useDm3Storage(
     connection: Connection,
     userDb: UserDB,
 ): Promise<Acknoledgment[]> {
-    const syncResult = sync(userDb);
+    const syncResult = await sync(userDb);
     log(`[dm3 Storage] Saving user storage`);
 
     const { account } = connection;
