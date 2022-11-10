@@ -1,47 +1,103 @@
 import * as Lib from 'dm3-lib/dist.backend';
 import express from 'express';
 import cors from 'cors';
+import { ethers } from 'ethers';
 
-const router = express.Router();
+const getChallengeSchema = {
+    type: 'object',
+    properties: {
+        address: { type: 'string' },
+    },
+    required: ['address'],
+    additionalProperties: false,
+};
 
-//TODO remove
-router.use(cors());
+const createNewSessionTokenParamsSchema = {
+    type: 'object',
+    properties: {
+        address: { type: 'string' },
+    },
+    required: ['address'],
+    additionalProperties: false,
+};
 
-router.get('/:address', async (req, res, next) => {
-    try {
-        const account = Lib.external.formatAddress(req.params.address);
+const createNewSessionTokenBodySchema = {
+    type: 'object',
+    properties: {
+        signature: { type: 'string' },
+    },
+    required: ['signature'],
+    additionalProperties: false,
+};
 
-        const challenge = await Lib.delivery.createChallenge(
-            req.app.locals.loadSession,
-            req.app.locals.storeSession,
-            account,
-        );
+export default () => {
+    const router = express.Router();
 
-        res.json({
-            challenge,
-        });
-    } catch (e) {
-        next(e);
-    }
-});
+    //TODO remove
+    router.use(cors());
 
-router.post('/:address', async (req, res, next) => {
-    try {
-        const account = Lib.external.formatAddress(req.params.address);
+    router.get('/:address', async (req, res, next) => {
+        try {
+            const schemaIsValid = Lib.validateSchema(
+                getChallengeSchema,
+                req.params,
+            );
 
-        const token = await Lib.delivery.createNewSessionToken(
-            req.app.locals.loadSession,
-            req.app.locals.storeSession,
-            req.body.signature,
-            account,
-        );
+            if (!schemaIsValid || !ethers.utils.isAddress(req.params.address)) {
+                return res.send(400);
+            }
 
-        res.json({
-            token,
-        });
-    } catch (e) {
-        next(e);
-    }
-});
+            const account = Lib.external.formatAddress(req.params.address);
 
-export default router;
+            const challenge = await Lib.delivery.createChallenge(
+                req.app.locals.loadSession,
+                req.app.locals.storeSession,
+                account,
+            );
+
+            res.json({
+                challenge,
+            });
+        } catch (e) {
+            next(e);
+        }
+    });
+
+    router.post('/:address', async (req, res, next) => {
+        try {
+            const paramsAreValid = Lib.validateSchema(
+                createNewSessionTokenParamsSchema,
+                req.params,
+            );
+
+            const bodyIsValid = Lib.validateSchema(
+                createNewSessionTokenBodySchema,
+                req.body,
+            );
+
+            const schemaIsValid = paramsAreValid && bodyIsValid;
+
+            if (!schemaIsValid || !ethers.utils.isAddress(req.params.address)) {
+                return res.send(400);
+            }
+
+            const account = Lib.external.formatAddress(req.params.address);
+
+            const token = await Lib.delivery.createNewSessionToken(
+                req.app.locals.loadSession,
+                req.app.locals.storeSession,
+                req.body.signature,
+                account,
+            );
+
+            res.json({
+                token,
+            });
+        } catch (e) {
+            console.log(e);
+            next(e);
+        }
+    });
+
+    return router;
+};

@@ -59,10 +59,10 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
     app.locals.deliveryServicePrivateKey = process.env.PRIVATE_KEY;
 
     app.use(logRequest);
-    app.use('/profile', Profile);
-    app.use('/storage', Storage);
-    app.use('/auth', Auth);
-    app.use('/delivery', Delivery);
+    app.use('/profile', Profile());
+    app.use('/storage', Storage());
+    app.use('/auth', Auth());
+    app.use('/delivery', Delivery());
     app.use('/rpc', RpcProxy(new Axios({ url: process.env.RPC })));
     app.use(logError);
     app.use(errorHandler);
