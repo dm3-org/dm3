@@ -36,7 +36,7 @@ describe.skip('rpc-Proxy', () => {
 
             return;
         });
-        test.only('Should handle dm3_submitMessage', async () => {
+        test('Should handle dm3_submitMessage', async () => {
             const mockPost = jest.fn((url: string, body: any) => {
                 return Promise.reject('Should not have been invoked');
             });
