@@ -8,7 +8,6 @@ import { EncryptionEnvelop, Postmark } from '../messaging/Messaging';
 import { sha256 } from '../shared/sha256';
 import { getConversationId } from '../storage/Storage';
 import { checkToken, Session } from './Session';
-import { serialize } from 'v8';
 
 export interface Acknoledgment {
     contactAddress: string;
@@ -96,7 +95,7 @@ function messageIsToLarge(
     envelop: EncryptionEnvelop,
     sizeLimit: number,
 ): boolean {
-    return Buffer.byteLength(serialize(envelop), 'utf-8') > sizeLimit;
+    return Buffer.byteLength(JSON.stringify(envelop), 'utf-8') > sizeLimit;
 }
 
 function addPostmark(
