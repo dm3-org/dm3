@@ -4,13 +4,8 @@ import './SignIn.css';
 import * as Lib from 'dm3-lib';
 import { GlobalContext } from '../GlobalContextProvider';
 import StateButton, { ButtonState } from '../ui-shared/StateButton';
-import {
-    getMetaMaskProvider,
-    connectAccount,
-    getWalletConnectProvider,
-} from './Connectors';
+import { getMetaMaskProvider, connectAccount } from './Connectors';
 import { Web3Provider } from '@ethersproject/providers';
-import WalletConnectProvider from '@walletconnect/web3-provider';
 
 interface ConnectButtonProps {
     miniSignIn: boolean;
@@ -19,7 +14,6 @@ interface ConnectButtonProps {
 enum SelectedWallet {
     None,
     MetaMask,
-    WalletConnect,
 }
 
 function ConnectButton(props: ConnectButtonProps) {
@@ -32,16 +26,7 @@ function ConnectButton(props: ConnectButtonProps) {
             state.connection.connectionState ===
                 Lib.web3provider.ConnectionState.AccountConntectReady
         ) {
-            if (selectedWallet === SelectedWallet.WalletConnect) {
-                const account = (
-                    (state.connection.provider as Web3Provider)
-                        .provider as WalletConnectProvider
-                ).accounts[0];
-
-                connectAccount(state, dispatch, account);
-            } else {
-                connectAccount(state, dispatch);
-            }
+            connectAccount(state, dispatch);
         }
     }, [state.connection.provider, state.connection.connectionState]);
 
@@ -79,45 +64,21 @@ function ConnectButton(props: ConnectButtonProps) {
 
     const stateButton = (
         <>
-            {selectedWallet !== SelectedWallet.WalletConnect && (
-                <StateButton
-                    content={<>MetaMask</>}
-                    btnState={getButtonState(state.connection.connectionState)}
-                    btnType="primary"
-                    onClick={() => {
-                        setSelectedWallet(SelectedWallet.MetaMask);
-                        getMetaMaskProvider(dispatch);
-                    }}
-                    disabled={buttonDisabled}
-                    className={
-                        props.miniSignIn
-                            ? 'left-state-btn miniSignInBtn'
-                            : 'left-state-btn'
-                    }
-                />
-            )}
-            {/* {selectedWallet !== SelectedWallet.MetaMask && (
-                <StateButton
-                    content={<>WalletConnect</>}
-                    btnState={getButtonState(state.connection.connectionState)}
-                    btnType="primary"
-                    onClick={() => {
-                        setSelectedWallet(SelectedWallet.WalletConnect);
-                        getWalletConnectProvider(dispatch);
-                    }}
-                    disabled={buttonDisabled}
-                    className={`${
-                        state.connection.connectionState ===
-                        Lib.web3provider.ConnectionState.AccountConntectReady
-                            ? 'mt-2'
-                            : ''
-                    } ${
-                        props.miniSignIn
-                            ? 'left-state-btn miniSignInBtn'
-                            : 'left-state-btn'
-                    }`}
-                />
-            )} */}
+            <StateButton
+                content={<>MetaMask</>}
+                btnState={getButtonState(state.connection.connectionState)}
+                btnType="primary"
+                onClick={() => {
+                    setSelectedWallet(SelectedWallet.MetaMask);
+                    getMetaMaskProvider(dispatch);
+                }}
+                disabled={buttonDisabled}
+                className={
+                    props.miniSignIn
+                        ? 'left-state-btn miniSignInBtn'
+                        : 'left-state-btn'
+                }
+            />
         </>
     );
 

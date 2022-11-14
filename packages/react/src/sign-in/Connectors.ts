@@ -7,7 +7,6 @@ import localforage from 'localforage';
 import { CacheType } from '../reducers/Cache';
 import { ethers } from 'ethers';
 import detectEthereumProvider from '@metamask/detect-provider';
-import WalletConnectProvider from '@walletconnect/web3-provider';
 import { UserDbType } from '../reducers/UserDB';
 
 function handleNewProvider(
@@ -42,22 +41,6 @@ export async function getMetaMaskProvider(dispatch: React.Dispatch<Actions>) {
         await detectEthereumProvider(),
     );
 
-    handleNewProvider(web3Provider, dispatch);
-}
-
-export async function getWalletConnectProvider(
-    dispatch: React.Dispatch<Actions>,
-) {
-    const provider = new WalletConnectProvider({
-        rpc: {
-            //@ts-ignore
-            1: process.env.REACT_APP_RPC,
-        },
-    });
-    await provider.disconnect();
-    await provider.enable();
-
-    const web3Provider = await Lib.web3provider.getWeb3Provider(provider);
     handleNewProvider(web3Provider, dispatch);
 }
 
