@@ -1,4 +1,4 @@
-import { Account, Keys } from '../account/Account';
+import { Account, ProfileKeys } from '../account/Account';
 import { decryptAsymmetric, EncryptAsymmetric, sign } from '../crypto';
 import {
     CreatePendingEntry,
@@ -109,7 +109,7 @@ export async function submitMessage(
     const innerEnvelop: Envelop = {
         message,
         signature: await sign(
-            (userDb?.keys as Keys).signingKeyPair.privateKey,
+            (userDb?.keys as ProfileKeys).signingKeyPair.privateKey,
             stringify(message),
         ),
     };

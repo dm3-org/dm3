@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import _sodium from 'libsodium-wrappers';
+import _sodium, { unpad } from 'libsodium-wrappers';
 import {
     createKeyPair,
     createReceiverSessionKey,
@@ -12,6 +12,8 @@ export interface EncryptedPayload {
     ciphertext: string;
     ephemPublicKey?: string;
 }
+
+const PAD_BLOCKSIZE = 2 ** 11;
 
 export async function encrypt(
     key: string,
@@ -31,8 +33,13 @@ export async function encrypt(
         sodium.increment(ethers.utils.arrayify(nonce));
     }
 
-    const encryptedPayload = sodium.crypto_aead_chacha20poly1305_ietf_encrypt(
+    const paddedPayload = sodium.pad(
         ethers.utils.toUtf8Bytes(payload),
+        PAD_BLOCKSIZE,
+    );
+
+    const encryptedPayload = sodium.crypto_aead_chacha20poly1305_ietf_encrypt(
+        paddedPayload,
         null,
         null,
         nonce,
@@ -60,7 +67,9 @@ export async function decrypt(
         ethers.utils.arrayify(key),
     );
 
-    return ethers.utils.toUtf8String(payload);
+    const unpadded = sodium.unpad(payload, PAD_BLOCKSIZE);
+
+    return ethers.utils.toUtf8String(unpadded);
 }
 
 export async function encryptAsymmetric(

@@ -168,20 +168,13 @@ export async function signIn(
                 break;
 
             case Lib.storage.StorageLocation.dm3Storage:
-                let authToken = null;
-                // (await localforage.getItem(
-                //     'ENS_MAIL_AUTH_' + account.address,
-                // )) as string;
+                let authToken = await Lib.session.reAuth(state.connection);
+                await localforage.setItem(
+                    'ENS_MAIL_AUTH_' + account.address,
+                    authToken,
+                );
 
-                if (!authToken) {
-                    authToken = await Lib.session.reAuth(state.connection);
-                    await localforage.setItem(
-                        'ENS_MAIL_AUTH_' + account.address,
-                        authToken,
-                    );
-
-                    browserDataFile = undefined;
-                }
+                browserDataFile = undefined;
 
                 try {
                     data = state.uiState.proflieExists
