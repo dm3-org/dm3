@@ -55,6 +55,7 @@ describe('Messaging', () => {
                     },
                     deliveryServicePrivateKey:
                         '9SZhajjn9tn0fX/eBMXfZfb0RaUeYyfhlNYHqZyKHpyTiYvwVosQ5qt2XxdDFblTzggir8kp85kWw76p2EZ0rQ==',
+                    deliveryServiceProperties: { sizeLimit: 1024 },
                     loadSession,
                     redisClient: {
                         zAdd: () => {},

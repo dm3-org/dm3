@@ -83,6 +83,7 @@ describe('rpc-Proxy', () => {
                 },
                 deliveryServicePrivateKey:
                     '9SZhajjn9tn0fX/eBMXfZfb0RaUeYyfhlNYHqZyKHpyTiYvwVosQ5qt2XxdDFblTzggir8kp85kWw76p2EZ0rQ==',
+                deliveryServiceProperties: { sizeLimit: 1024 },
                 loadSession,
                 redisClient: {
                     zAdd: () => {},
@@ -140,6 +141,7 @@ describe('rpc-Proxy', () => {
                         console.log(e);
                     },
                 },
+                deliveryServiceProperties: { messageTTL: 0, sizeLimit: 0 },
             };
 
             const { status, body } = await request(app).post('/').send({
