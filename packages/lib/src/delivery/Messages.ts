@@ -132,7 +132,6 @@ function signPostmark(
     p: Omit<Postmark, 'signature'>,
     signingKey: string,
 ): Promise<string> {
-    log(`SING POST MARK USING ${signingKey}`);
     const postmarkHash = sha256(stringify(p));
     return sign(signingKey, postmarkHash);
 }

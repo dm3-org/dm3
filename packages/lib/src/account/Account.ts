@@ -35,7 +35,7 @@ export interface UserProfile {
     mutableProfileExtensionUrl?: string;
 }
 
-export interface Keys {
+export interface ProfileKeys {
     encryptionKeyPair: KeyPair;
     signingKeyPair: KeyPair;
     storageEncryptionKey: string;

@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { UserDB, UserStorage } from '../storage/Storage';
 import { log } from '../shared/log';
 import { createDB, load } from '../storage/Storage';
-import { Account, Keys, UserProfile } from '../account/Account';
+import { Account, ProfileKeys, UserProfile } from '../account/Account';
 import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
 import {
     GetChallenge,
@@ -41,7 +41,7 @@ export async function reAuth(
 export async function createKeys(
     nonceMsgSig: string,
     nonce: number,
-): Promise<Keys> {
+): Promise<ProfileKeys> {
     return {
         encryptionKeyPair: await createKeyPair(nonceMsgSig),
         signingKeyPair: await createSigningKeyPair(nonceMsgSig),

@@ -7,22 +7,20 @@ export async function checkSignature(
     accountAddress: string,
     signature: string,
 ): Promise<boolean> {
-    const isValid = await Lib.crypto.checkSignature(
+    const sigCheck = await Lib.crypto.checkSignature(
         publicSigningKey,
         stringify(message)!,
         signature,
     );
 
-    if (!isValid) {
-        Lib.log(`Signature check for ${accountAddress} failed.`);
-    }
-
     if (
+        sigCheck &&
         Lib.external.formatAddress(accountAddress) !==
-        Lib.external.formatAddress(message.from)
+            Lib.external.formatAddress(message.from)
     ) {
-        return false;
+        return true;
     } else {
-        return isValid;
+        Lib.log(`Signature check for ${accountAddress} failed.`);
+        return false;
     }
 }

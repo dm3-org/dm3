@@ -118,7 +118,7 @@ test('incomingMessage sizeLimit', async () => {
             {
                 envelop: {
                     encryptedData: '',
-                    encryptionVersion: 'x25519-xsalsa20-poly1305',
+                    encryptionVersion: 'x25519-chacha20-poly1305',
                     from: SENDER_ADDRESS,
                     to: RECEIVER_ADDRESS,
                 },

@@ -1,4 +1,4 @@
-import { Account, Keys } from '../account';
+import { Account, ProfileKeys } from '../account';
 import { getNewMessages } from '../external-apis';
 import { StorageEnvelopContainer, UserDB } from '../storage';
 import { Connection } from '../web3-provider/Web3Provider';
@@ -77,7 +77,7 @@ export async function createMessage(
     return {
         ...messgeWithoutSig,
         signature: await sign(
-            (userDb?.keys as Keys).signingKeyPair.privateKey,
+            (userDb?.keys as ProfileKeys).signingKeyPair.privateKey,
             stringify(messgeWithoutSig),
         ),
     };

@@ -1,5 +1,5 @@
 import { stringify } from '../shared/stringify';
-import { Keys } from '../account/Account';
+import { ProfileKeys } from '../account/Account';
 import { decrypt, encrypt, EncryptedPayload } from '../crypto';
 import { Acknoledgment } from '../delivery';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
@@ -31,7 +31,7 @@ export interface UserDB {
     conversations: Map<string, StorageEnvelopContainer[]>;
     conversationsCount: number;
     deliveryServiceToken: string;
-    keys: Keys;
+    keys: ProfileKeys;
     synced: boolean;
     syncProcessState: SyncProcessState;
     lastChangeTimestamp: number;
@@ -45,7 +45,7 @@ export interface UserStorage {
 
 interface UserStoragePayload {
     conversations: string;
-    keys: Keys;
+    keys: ProfileKeys;
     deliveryServiceToken: string;
     lastChangeTimestamp: number;
 }
@@ -70,7 +70,10 @@ function reviver(key: string, value: any) {
     return value;
 }
 
-export function createDB(keys: Keys, deliveryServiceToken: string): UserDB {
+export function createDB(
+    keys: ProfileKeys,
+    deliveryServiceToken: string,
+): UserDB {
     return {
         conversations: new Map<string, StorageEnvelopContainer[]>(),
         conversationsCount: 0,
