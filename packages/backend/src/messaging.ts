@@ -1,5 +1,5 @@
 import { Socket } from 'socket.io';
-import { Express } from 'express';
+import express from 'express';
 import * as Lib from 'dm3-lib/dist.backend';
 import { addPending, RedisPrefix } from './redis';
 import { stringify } from 'safe-stable-stringify';
@@ -25,9 +25,11 @@ const pendingMessageSchema = {
     required: ['accountAddress', 'contactAddress', 'token'],
     additionalProperties: false,
 };
-export function onConnection(app: Express) {
+
+export function onConnection(app: express.Application) {
     return (socket: Socket) => {
         socket.on('disconnect', () => {
+            app;
             app.locals.logger.info({
                 method: 'WS DISCONNECT',
                 socketId: socket.id,
@@ -67,6 +69,7 @@ export function onConnection(app: Express) {
                     await Lib.delivery.incomingMessage(
                         data,
                         app.locals.deliveryServicePrivateKey,
+                        app.locals.deliveryServiceProperties.sizeLimit,
                         app.locals.loadSession,
                         async (
                             conversationId: string,
@@ -95,6 +98,7 @@ export function onConnection(app: Express) {
                     ),
                         callback('success');
                 } catch (error) {
+                    //TODO Should we use the callback function to return the error
                     app.locals.logger.warn({
                         method: 'WS SUBMIT MESSAGE',
                         error,

@@ -8,6 +8,7 @@ import path from 'path';
 import { Server } from 'socket.io';
 import winston from 'winston';
 import Auth from './auth';
+import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import Delivery from './delivery';
 import { onConnection } from './messaging';
 import Profile from './profile';
@@ -57,6 +58,8 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
     app.locals.io = io;
 
     app.locals.deliveryServicePrivateKey = process.env.PRIVATE_KEY;
+
+    app.locals.deliveryServiceProperties = getDeliveryServiceProperties();
 
     app.use(logRequest);
     app.use('/profile', Profile());

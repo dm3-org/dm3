@@ -7,7 +7,8 @@ const DEFAULT_CONFIG_FILE_PATH = resolve(__dirname, './../config.yml');
 const DEFAULT_DELIVERY_SERVICE_PROPERTIES: Lib.delivery.DeliveryServiceProperties =
     {
         messageTTL: 0,
-        sizeLimit: 0,
+        //100Kb
+        sizeLimit: 100000,
     };
 
 export function getDeliveryServiceProperties(

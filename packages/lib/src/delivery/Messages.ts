@@ -45,6 +45,7 @@ export async function getMessages(
 export async function incomingMessage(
     { envelop, token }: { envelop: EncryptionEnvelop; token: string },
     deliveryServicePrivateKey: string,
+    sizeLimit: number,
     getSession: (accountAddress: string) => Promise<Session | null>,
     storeNewMessage: (
         conversationId: string,
@@ -67,6 +68,10 @@ export async function incomingMessage(
         throw Error('unknown session');
     }
 
+    if (messageIsToLarge(envelop, sizeLimit)) {
+        throw Error('Message is too large');
+    }
+
     const receiverEncryptionKey =
         receiverSession?.signedUserProfile.profile.publicEncryptionKey;
 
@@ -84,6 +89,13 @@ export async function incomingMessage(
         //Client is already connect to the delivery service and the message can be dispatched
         send(receiverSession.socketId, envelopWithPostmark);
     }
+}
+
+function messageIsToLarge(
+    envelop: EncryptionEnvelop,
+    sizeLimit: number,
+): boolean {
+    return Buffer.byteLength(JSON.stringify(envelop), 'utf-8') > sizeLimit;
 }
 
 function addPostmark(

@@ -1,13 +1,12 @@
 import { stringify } from 'dm3-lib/dist.backend';
 import express from 'express';
-import { getDeliveryServiceProperties } from '../../config/getDeliveryServiceProperties';
 
 export function handleGetDeliveryServiceProperties(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction,
 ) {
-    const response = getDeliveryServiceProperties();
+    const response = req.app.locals.deliveryServiceProperties;
 
     if (!response) {
         req.app.locals.logger.error({
