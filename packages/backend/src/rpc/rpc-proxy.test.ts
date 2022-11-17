@@ -88,6 +88,9 @@ describe('rpc-Proxy', () => {
                 redisClient: {
                     zAdd: () => {},
                 },
+                db: {
+                    createMessage: () => {},
+                },
                 io: {
                     sockets: {
                         to: (_: any) => ({

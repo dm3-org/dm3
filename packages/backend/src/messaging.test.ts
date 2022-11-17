@@ -67,6 +67,9 @@ describe('Messaging', () => {
                             }),
                         },
                     },
+                    db: {
+                        createMessage: () => {},
+                    },
                 } as any,
             } as express.Express;
 

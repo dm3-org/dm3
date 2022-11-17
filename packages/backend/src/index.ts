@@ -11,6 +11,7 @@ import Auth from './auth';
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import Delivery from './delivery';
 import { onConnection } from './messaging';
+import { getDatabase } from './persistance/getDatabase';
 import Profile from './profile';
 import { createRedisClient, getSession, setSession } from './redis';
 import RpcProxy from './rpc/rpc-proxy';
@@ -60,6 +61,8 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
     app.locals.deliveryServicePrivateKey = process.env.PRIVATE_KEY;
 
     app.locals.deliveryServiceProperties = getDeliveryServiceProperties();
+
+    app.locals.db = await getDatabase();
 
     app.use(logRequest);
     app.use('/profile', Profile());
