@@ -29,8 +29,8 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
 export interface IDatabase {
     getMessages: (
         conversionId: string,
-        from: number,
-        to: number,
+        offset: number,
+        limit: number,
     ) => Promise<Lib.messaging.EncryptionEnvelop[]>;
     createMessage: (
         conversationId: string,

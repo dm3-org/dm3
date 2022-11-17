@@ -6,14 +6,14 @@ export function getMessages(
     redis: Redis,
 ): (
     conversionId: string,
-    min: number,
-    max: number,
+    offset: number,
+    size: number,
 ) => Promise<Lib.messaging.EncryptionEnvelop[]> {
-    return async (conversionId: string, min: number, max: number) => {
+    return async (conversionId: string, offset: number, size: number) => {
         const messageStrings = await redis.zRange(
             RedisPrefix.Conversation + conversionId,
-            min,
-            max,
+            offset,
+            offset + size,
             { REV: true },
         );
 
