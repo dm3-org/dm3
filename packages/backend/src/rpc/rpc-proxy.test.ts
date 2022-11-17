@@ -4,16 +4,12 @@ import express from 'express';
 import request from 'supertest';
 import RpcProxy from './rpc-proxy';
 
-import nacl from 'tweetnacl';
-import { encodeBase64 } from 'tweetnacl-util';
-
 import * as Lib from 'dm3-lib/dist.backend';
 
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
-const { publicKey } = nacl.box.keyPair();
-const receiverPublicEncryptionKey = encodeBase64(publicKey);
+const keyPair = Lib.crypto.createKeyPair();
 
 describe('rpc-Proxy', () => {
     describe('routing', () => {
@@ -82,8 +78,10 @@ describe('rpc-Proxy', () => {
                     },
                 },
                 deliveryServicePrivateKey:
-                    '9SZhajjn9tn0fX/eBMXfZfb0RaUeYyfhlNYHqZyKHpyTiYvwVosQ5qt2XxdDFblTzggir8kp85kWw76p2EZ0rQ==',
+                    '0xf83a5e0630b32021688bbe37ff8ebac89ba7b07479e4186bdc69ea712e1cb89' +
+                    '5fad90341665fbfd8b106639bb1ff2d8131d365a8f0004f66b93b450148f67bd2',
                 deliveryServiceProperties: { sizeLimit: 1024 },
+
                 loadSession,
                 redisClient: {
                     zAdd: () => {},
@@ -108,7 +106,7 @@ describe('rpc-Proxy', () => {
                     params: [
                         JSON.stringify({
                             encryptedData: '',
-                            encryptionVersion: 'x25519-xsalsa20-poly1305',
+                            encryptionVersion: 'x25519-chacha20-poly1305',
                             from: SENDER_ADDRESS,
                             to: RECEIVER_ADDRESS,
                         }),
@@ -215,7 +213,7 @@ const loadSession = async (address: string) => {
     if (isReceiver) {
         return session(RECEIVER_ADDRESS, 'abc', {
             ...emptyProfile,
-            publicEncryptionKey: receiverPublicEncryptionKey,
+            publicEncryptionKey: (await keyPair).publicKey,
         });
     }
 

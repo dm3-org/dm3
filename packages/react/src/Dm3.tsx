@@ -20,7 +20,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { Config } from './utils/Config';
 import Help from './ui-shared/Help';
-import { Envelop, Postmark } from 'dm3-lib/dist/messaging/Messaging';
 import axios from 'axios';
 
 interface dm3Props {
@@ -40,10 +39,6 @@ function dm3(props: dm3Props) {
                 "The app is out of sync with the database. You'll loose your new messages.",
         );
     }
-
-    console.log(
-        Lib.web3provider.ConnectionState[state.connection.connectionState],
-    );
 
     useEffect(() => {
         if (props.config.connectionStateChange) {
@@ -118,7 +113,8 @@ function dm3(props: dm3Props) {
         if (
             state.connection.connectionState ===
                 Lib.web3provider.ConnectionState.SignedIn &&
-            !state.connection.socket
+            !state.connection.socket &&
+            deliveryServiceUrl
         ) {
             if (!state.userDb) {
                 throw Error(
@@ -133,6 +129,7 @@ function dm3(props: dm3Props) {
             const socket = socketIOClient(deliveryServiceUrl, {
                 autoConnect: false,
             });
+
             socket.auth = {
                 account: state.connection.account,
                 token: state.userDb.deliveryServiceToken,
@@ -224,13 +221,17 @@ function dm3(props: dm3Props) {
     ) => {
         Lib.log('New messages');
 
-        const innerEnvelop = Lib.encryption.decryptPayload<Envelop>(
-            state.userDb as Lib.storage.UserDB,
-            envelop.encryptedData,
+        const innerEnvelop = JSON.parse(
+            await Lib.crypto.decryptAsymmetric(
+                (state.userDb as Lib.storage.UserDB).keys.encryptionKeyPair,
+                JSON.parse(envelop.encryptedData),
+            ),
         );
-        const { incommingTimestamp } = Lib.encryption.decryptPayload<Postmark>(
-            state.userDb as Lib.storage.UserDB,
-            envelop.postmark!,
+        const { incommingTimestamp } = JSON.parse(
+            await Lib.crypto.decryptAsymmetric(
+                (state.userDb as Lib.storage.UserDB).keys.encryptionKeyPair,
+                JSON.parse(envelop.postmark!),
+            ),
         );
 
         if (!state.userDb) {

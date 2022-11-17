@@ -6,6 +6,7 @@ describe('Delete Expired messages', () => {
     beforeEach(async () => {
         redisClient = await getRedisClient();
         db = await getDatabase(redisClient);
+        await redisClient.flushDb();
     });
 
     afterEach(async () => {
@@ -13,12 +14,12 @@ describe('Delete Expired messages', () => {
         await redisClient.disconnect();
     });
 
-    it('Delete all messages createdAt before a given time', async () => {
+    it.only('Delete all messages createdAt before a given time', async () => {
         await db.createMessage(
             'foo',
             {
                 encryptedData: 'hello',
-                encryptionVersion: 'x25519-xsalsa20-poly1305',
+                encryptionVersion: 'x25519-chacha20-poly1305',
                 to: '',
                 from: '',
             },
@@ -28,7 +29,7 @@ describe('Delete Expired messages', () => {
             'foo',
             {
                 encryptedData: 'world',
-                encryptionVersion: 'x25519-xsalsa20-poly1305',
+                encryptionVersion: 'x25519-chacha20-poly1305',
                 to: '',
                 from: '',
             },
@@ -38,7 +39,7 @@ describe('Delete Expired messages', () => {
             'foo',
             {
                 encryptedData: 'dm3',
-                encryptionVersion: 'x25519-xsalsa20-poly1305',
+                encryptionVersion: 'x25519-chacha20-poly1305',
                 to: '',
                 from: '',
             },

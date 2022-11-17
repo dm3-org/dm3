@@ -1,4 +1,4 @@
-import { Account, Keys } from '../account';
+import { Account, ProfileKeys } from '../account';
 import { getNewMessages } from '../external-apis';
 import { StorageEnvelopContainer, UserDB } from '../storage';
 import { Connection } from '../web3-provider/Web3Provider';
@@ -12,8 +12,8 @@ import {
     createPendingEntry,
     submitMessage as backendSubmitMessage,
 } from '../external-apis/BackendAPI';
-import { encryptSafely, signWithSignatureKey } from '../encryption/Encryption';
-import { schema } from '../delivery';
+import { encryptAsymmetric, sign } from '../crypto';
+import stringify from 'safe-stable-stringify';
 
 export type { Message, EncryptionEnvelop, Envelop } from './Messaging';
 
@@ -52,8 +52,7 @@ export async function submitMessage(
         to,
         message,
         backendSubmitMessage,
-        signWithSignatureKey,
-        encryptSafely,
+        encryptAsymmetric,
         createPendingEntry,
         haltDelivery,
         storeMessages,
@@ -61,12 +60,12 @@ export async function submitMessage(
     );
 }
 
-export function createMessage(
+export async function createMessage(
     to: string,
     from: string,
     message: string,
     userDb: UserDB,
-): Message {
+): Promise<Message> {
     const messgeWithoutSig: Omit<Message, 'signature'> = {
         to,
         from,
@@ -77,6 +76,9 @@ export function createMessage(
 
     return {
         ...messgeWithoutSig,
-        signature: signWithSignatureKey(messgeWithoutSig, userDb?.keys as Keys),
+        signature: await sign(
+            (userDb?.keys as ProfileKeys).signingKeyPair.privateKey,
+            stringify(messgeWithoutSig),
+        ),
     };
 }

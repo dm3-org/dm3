@@ -151,7 +151,6 @@ export async function signIn(
               )
             : null;
 
-    let preLoadedKey: string | undefined;
     let overwriteUserDb: Partial<Lib.storage.UserDB> = {};
 
     if (state.uiState.proflieExists) {
@@ -169,18 +168,13 @@ export async function signIn(
                 break;
 
             case Lib.storage.StorageLocation.dm3Storage:
-                let authToken = (await localforage.getItem(
+                let authToken = await Lib.session.reAuth(state.connection);
+                await localforage.setItem(
                     'ENS_MAIL_AUTH_' + account.address,
-                )) as string;
-                if (!authToken) {
-                    authToken = await Lib.session.reAuth(state.connection);
-                    await localforage.setItem(
-                        'ENS_MAIL_AUTH_' + account.address,
-                        authToken,
-                    );
+                    authToken,
+                );
 
-                    browserDataFile = undefined;
-                }
+                browserDataFile = undefined;
 
                 try {
                     data = state.uiState.proflieExists
@@ -234,7 +228,6 @@ export async function signIn(
             browserDataFile ? browserDataFile : undefined,
             data,
             overwriteUserDb,
-            preLoadedKey,
         );
 
         if (singInRequest.db) {

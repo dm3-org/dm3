@@ -87,7 +87,7 @@ export function onConnection(app: express.Application & WithLocals) {
                     //TODO Should we use the callback function to return the error
                     app.locals.logger.warn({
                         method: 'WS SUBMIT MESSAGE',
-                        error,
+                        error: (error as Error).toString(),
                     });
                 }
             },
@@ -110,7 +110,6 @@ export function onConnection(app: express.Application & WithLocals) {
                     method: 'WS PENDING MESSAGE',
                     error,
                 });
-                return callback(error);
             }
 
             const account = Lib.external.formatAddress(data.accountAddress);
@@ -129,7 +128,6 @@ export function onConnection(app: express.Application & WithLocals) {
                     )
                 ) {
                     await addPending(account, contact, app.locals.redisClient);
-                    callback('success');
                 } else {
                     throw Error('Token check failed');
                 }
@@ -138,7 +136,6 @@ export function onConnection(app: express.Application & WithLocals) {
                     method: 'WS PRENDING MESSAGE',
                     error,
                 });
-                callback('error');
             }
         });
     };
