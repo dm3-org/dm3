@@ -4,14 +4,14 @@ import * as Lib from 'dm3-lib/dist.backend';
 //1 day
 const DEFAULT_CLEANUP_INTERVAL = 86400000;
 
-async function onCleanup(db: IDatabase, ttl: number) {
+async function onCleanUpPendingMessages(db: IDatabase, ttl: number) {
     const now = new Date().getTime();
     const expiryDate = now - ttl;
     Lib.log('[Clean up] Delete expired messages');
     await db.deleteExpiredMessages(expiryDate);
 }
 
-export function startCleanupJob(
+export function startCleanUpPendingMessagesJob(
     db: IDatabase,
     ttl: number,
     cleaningInterval: number = DEFAULT_CLEANUP_INTERVAL,
@@ -23,6 +23,6 @@ export function startCleanupJob(
     }
     Lib.log('[Clean up] Start Clean up job');
     return setInterval(() => {
-        onCleanup(db, ttl);
+        onCleanUpPendingMessages(db, ttl);
     }, cleaningInterval);
 }

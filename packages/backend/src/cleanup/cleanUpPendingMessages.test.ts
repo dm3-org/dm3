@@ -1,5 +1,5 @@
 import { IDatabase } from '../persistance/getDatabase';
-import { startCleanupJob } from './cleanup';
+import { startCleanUpPendingMessagesJob } from './cleanUpPendingMessages';
 
 describe('Cleanup test', () => {
     let timer: NodeJS.Timer;
@@ -12,7 +12,7 @@ describe('Cleanup test', () => {
             deleteExpiredMessages: deletedExpiredMessagesMock,
         } as unknown as IDatabase;
 
-        timer = startCleanupJob(db, 1, 1000)!;
+        timer = startCleanUpPendingMessagesJob(db, 1, 1000)!;
 
         expect(timer).toBeTruthy();
 
@@ -26,7 +26,7 @@ describe('Cleanup test', () => {
             deleteExpiredMessages: deletedExpiredMessagesMock,
         } as unknown as IDatabase;
 
-        const timer = startCleanupJob(db, 0, 1000);
+        const timer = startCleanUpPendingMessagesJob(db, 0, 1000);
 
         expect(timer).toBeFalsy();
     }, 5000);
@@ -36,7 +36,7 @@ describe('Cleanup test', () => {
             deleteExpiredMessages: deletedExpiredMessagesMock,
         } as unknown as IDatabase;
 
-        const timer = startCleanupJob(db, -1, 1000);
+        const timer = startCleanUpPendingMessagesJob(db, -1, 1000);
 
         expect(timer).toBeFalsy();
     }, 5000);

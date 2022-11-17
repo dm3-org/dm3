@@ -8,7 +8,7 @@ import path from 'path';
 import { Server } from 'socket.io';
 import winston from 'winston';
 import Auth from './auth';
-import { startCleanupJob } from './cleanup/cleanup';
+import { startCleanUpPendingMessagesJob } from './cleanup/cleanUpPendingMessages';
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import Delivery from './delivery';
 import { onConnection } from './messaging';
@@ -78,7 +78,7 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
 
     io.on('connection', onConnection(app));
 
-    startCleanupJob(
+    startCleanUpPendingMessagesJob(
         app.locals.db,
         app.locals.deliveryServiceProperties.messageTTL,
     );
