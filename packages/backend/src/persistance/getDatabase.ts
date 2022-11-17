@@ -7,7 +7,7 @@ export async function getRedisClient() {
     const client = createClient();
 
     client.on('error', (err) => {
-        throw Error('REDIS CONNECTION ERROR ,', err);
+        throw Error('REDIS CONNECTION ERROR ,' + err);
     });
 
     await client.connect();
