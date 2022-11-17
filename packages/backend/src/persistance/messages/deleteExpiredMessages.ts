@@ -14,7 +14,7 @@ export function deleteExpiredMessages(
 
         await Promise.all(
             conversions.map((conversion) =>
-                redisClient.zRemRangeByScore(conversion, time, now),
+                redisClient.zRemRangeByScore(conversion, 0, time),
             ),
         );
     };
