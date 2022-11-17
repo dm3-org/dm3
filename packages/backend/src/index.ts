@@ -8,6 +8,7 @@ import path from 'path';
 import { Server } from 'socket.io';
 import winston from 'winston';
 import Auth from './auth';
+import { startCleanupJob } from './cleanup/cleanup';
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import Delivery from './delivery';
 import { onConnection } from './messaging';
@@ -76,6 +77,11 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
     io.use(socketAuth(app));
 
     io.on('connection', onConnection(app));
+
+    startCleanupJob(
+        app.locals.db,
+        app.locals.deliveryServiceProperties.messageTTL,
+    );
 })();
 
 // TODO include standalone web app
