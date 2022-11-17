@@ -15,8 +15,8 @@ export async function getRedisClient() {
     return client;
 }
 
-export async function getDatabase(): Promise<IDatabase> {
-    const redis = await getRedisClient();
+export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
+    const redis = _redis ?? (await getRedisClient());
 
     return {
         getMessages: Messages.getMessages(redis),
@@ -25,17 +25,7 @@ export async function getDatabase(): Promise<IDatabase> {
     };
 }
 
-export async function clearDatabase() {
-    const db = await getRedisClient();
-    await db.flushDb();
-}
-
-export async function disconnectDatabase() {
-    const db = await getRedisClient();
-    await db.disconnect();
-}
-
-//This has to be moved to the common package
+//This has to be moved to the Lib package
 export interface IDatabase {
     getMessages: (
         conversionId: string,
@@ -45,6 +35,7 @@ export interface IDatabase {
     createMessage: (
         conversationId: string,
         envelop: Lib.messaging.EncryptionEnvelop,
+        createdAt?: number,
     ) => Promise<void>;
     deleteExpiredMessages: (time: number) => Promise<void>;
 }
