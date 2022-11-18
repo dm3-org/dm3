@@ -1,10 +1,10 @@
+import cors from 'cors';
 import * as Lib from 'dm3-lib/dist.backend';
+import { isAddress } from 'ethers/lib/utils';
 import express from 'express';
 import { deletePending, getPending, RedisPrefix } from './redis';
+import { WithLocals } from './types';
 import { auth } from './utils';
-import cors from 'cors';
-import { ethers } from 'ethers';
-import { isAddress } from 'ethers/lib/utils';
 
 const getMessagesSchema = {
     type: 'object',
@@ -45,7 +45,7 @@ export default () => {
 
     router.get(
         '/messages/:address/contact/:contact_address',
-        async (req, res, next) => {
+        async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
                 const { address, contact_address } = req.params;
 
@@ -69,31 +69,7 @@ export default () => {
                 );
 
                 const newMessages = await Lib.delivery.getMessages(
-                    async (
-                        conversationId: string,
-                        offset: number,
-                        size: number,
-                    ) => {
-                        if (req.app.locals.redisClient) {
-                            return (
-                                (await req.app.locals.redisClient.exists(
-                                    RedisPrefix.Conversation + conversationId,
-                                ))
-                                    ? await req.app.locals.redisClient.zRange(
-                                          RedisPrefix.Conversation +
-                                              conversationId,
-                                          offset,
-                                          offset + size,
-                                          { REV: true },
-                                      )
-                                    : []
-                            ).map((envelopString: string) =>
-                                JSON.parse(envelopString),
-                            );
-                        } else {
-                            throw Error('db not connected');
-                        }
-                    },
+                    req.app.locals.db.getMessages,
                     account,
                     contact,
                 );

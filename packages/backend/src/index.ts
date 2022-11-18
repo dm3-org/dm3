@@ -8,9 +8,11 @@ import path from 'path';
 import { Server } from 'socket.io';
 import winston from 'winston';
 import Auth from './auth';
+import { startCleanUpPendingMessagesJob } from './cleanup/cleanUpPendingMessages';
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import Delivery from './delivery';
 import { onConnection } from './messaging';
+import { getDatabase } from './persistance/getDatabase';
 import Profile from './profile';
 import { createRedisClient, getSession, setSession } from './redis';
 import RpcProxy from './rpc/rpc-proxy';
@@ -61,6 +63,8 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
 
     app.locals.deliveryServiceProperties = getDeliveryServiceProperties();
 
+    app.locals.db = await getDatabase();
+
     app.use(logRequest);
     app.use('/profile', Profile());
     app.use('/storage', Storage());
@@ -73,6 +77,11 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
     io.use(socketAuth(app));
 
     io.on('connection', onConnection(app));
+
+    startCleanUpPendingMessagesJob(
+        app.locals.db,
+        app.locals.deliveryServiceProperties.messageTTL,
+    );
 })();
 
 // TODO include standalone web app
