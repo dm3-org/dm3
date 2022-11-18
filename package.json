@@ -27,13 +27,14 @@
         ]
     },
     "scripts": {
+        "docker:up": "cd packages/backend && docker-compose up -d",
         "build": "cd packages/lib/ && yarn build && cd ../react && yarn build && cd ../web && yarn build && cd ../backend && yarn build",
         "start": "cd packages/backend && yarn start",
         "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
         "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
         "format:check": "prettier --check '*/**/*.{js,ts,tsx,json}'",
         "prepare": "husky install",
-        "test": "./test-all.sh"
+        "test": "npm run docker:up && ./test-all.sh"
     },
     "packageManager": "yarn@1.22.19",
     "resolutions": {
