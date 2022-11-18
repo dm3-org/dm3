@@ -1,10 +1,10 @@
 import * as Lib from 'dm3-lib/dist.backend';
 import 'dotenv/config';
 import express from 'express';
-import { RedisPrefix } from '../../redis';
+import { WithLocals } from '../../types';
 
 export async function handleSubmitMessage(
-    req: express.Request,
+    req: express.Request & { app: WithLocals },
     res: express.Response,
     next: express.NextFunction,
 ) {
@@ -49,22 +49,7 @@ export async function handleSubmitMessage(
             req.app.locals.deliveryServicePrivateKey,
             req.app.locals.deliveryServiceProperties.sizeLimit,
             req.app.locals.loadSession,
-            async (
-                conversationId: string,
-                envelop: Lib.messaging.EncryptionEnvelop,
-            ) => {
-                if (req.app.locals.redisClient) {
-                    await req.app.locals.redisClient.zAdd(
-                        RedisPrefix.Conversation + conversationId,
-                        {
-                            score: new Date().getTime(),
-                            value: JSON.stringify(envelop),
-                        },
-                    );
-                } else {
-                    throw Error('db not connected');
-                }
-            },
+            req.app.locals.db.createMessage,
             (socketId: string, envelop: Lib.messaging.EncryptionEnvelop) => {
                 req.app.locals.io.sockets.to(socketId).emit('message', envelop);
             },

@@ -16,6 +16,10 @@ describe('Delivery', () => {
                 exists: (_: any) => false,
             };
 
+            app.locals.db = {
+                getMessages: () => Promise.resolve([]),
+            };
+
             const token = await createAuthToken();
 
             app.locals.loadSession = async (accountAddress: string) => ({

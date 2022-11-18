@@ -4,6 +4,7 @@ import * as Lib from 'dm3-lib/dist.backend';
 import { addPending, RedisPrefix } from './redis';
 import { stringify } from 'safe-stable-stringify';
 import { isAddress } from 'ethers/lib/utils';
+import { WithLocals } from './types';
 
 const submitMessageSchema = {
     type: 'object',
@@ -26,8 +27,8 @@ const pendingMessageSchema = {
     additionalProperties: false,
 };
 
-export function onConnection(app: express.Application) {
-    return async (socket: Socket) => {
+export function onConnection(app: express.Application & WithLocals) {
+    return (socket: Socket) => {
         socket.on('disconnect', () => {
             app;
             app.locals.logger.info({
@@ -71,22 +72,7 @@ export function onConnection(app: express.Application) {
                         app.locals.deliveryServicePrivateKey,
                         app.locals.deliveryServiceProperties.sizeLimit,
                         app.locals.loadSession,
-                        async (
-                            conversationId: string,
-                            envelop: Lib.messaging.EncryptionEnvelop,
-                        ) => {
-                            if (app.locals.redisClient) {
-                                await app.locals.redisClient.zAdd(
-                                    RedisPrefix.Conversation + conversationId,
-                                    {
-                                        score: new Date().getTime(),
-                                        value: stringify(envelop),
-                                    },
-                                );
-                            } else {
-                                throw Error('db not connected');
-                            }
-                        },
+                        app.locals.db.createMessage,
                         (
                             socketId: string,
                             envelop: Lib.messaging.EncryptionEnvelop,
