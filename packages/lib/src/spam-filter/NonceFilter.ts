@@ -6,13 +6,9 @@ export interface NonceFilterSettings {
 }
 
 export async function nonceFilter(
-    envelop: Envelop | EncryptionEnvelop,
+    from: string,
     settings: NonceFilterSettings,
     getNonce: (address: string) => Promise<number>,
 ): Promise<boolean> {
-    const from = (envelop as EncryptionEnvelop).encryptionVersion
-        ? (envelop as EncryptionEnvelop).from
-        : (envelop as Envelop).message.from;
-
     return (await getNonce(from)) >= settings.nonceHigherOrEqualThan;
 }

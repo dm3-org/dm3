@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import express from 'express';
 import request from 'supertest';
 import RpcProxy from './rpc-proxy';
+import * as testData from './rpc-proxy.test.json';
 
 import * as Lib from 'dm3-lib/dist.backend';
 
@@ -13,6 +14,25 @@ const keyPair = Lib.crypto.createKeyPair();
 
 describe('rpc-Proxy', () => {
     describe('routing', () => {
+        const keysA = {
+            encryptionKeyPair: {
+                publicKey:
+                    '0x78798cab6f457a23ca7cd3e449cb4fb99197bd5d2c29e3bf299917da75ef320c',
+                privateKey:
+                    '0xa4c23bec5db0dc62bea2664207803ad560ea21238e9d61974767ff3132dba9b6',
+            },
+            signingKeyPair: {
+                publicKey:
+                    '0xfad90341665fbfd8b106639bb1ff2d8131d365a8f0004f66b93b450148f67bd2',
+                privateKey:
+                    '0xf83a5e0630b32021688bbe37ff8ebac89ba7b07479e4186bdc69ea712e1cb895' +
+                    'fad90341665fbfd8b106639bb1ff2d8131d365a8f0004f66b93b450148f67bd2',
+            },
+            storageEncryptionKey:
+                '0xf83a5e0630b32021688bbe37ff8ebac89ba7b07479e4186bdc69ea712e1cb895',
+            storageEncryptionNonce: 0,
+        };
+
         it('Should route non-dm3 related messages to the rpc node', async () => {
             const mockPost = jest.fn((url: string, body: any) => {
                 return Promise.resolve({ data: 'Forwarded' });
@@ -77,10 +97,11 @@ describe('rpc-Proxy', () => {
                         console.log(e);
                     },
                 },
-                deliveryServicePrivateKey:
-                    '0xf83a5e0630b32021688bbe37ff8ebac89ba7b07479e4186bdc69ea712e1cb89' +
-                    '5fad90341665fbfd8b106639bb1ff2d8131d365a8f0004f66b93b450148f67bd2',
-                deliveryServiceProperties: { sizeLimit: 1024 },
+                keys: {
+                    signing: keysA.signingKeyPair,
+                    encryption: keysA.encryptionKeyPair,
+                },
+                deliveryServiceProperties: { sizeLimit: 2 ** 14 },
 
                 loadSession,
                 redisClient: {
@@ -105,10 +126,11 @@ describe('rpc-Proxy', () => {
                     method: 'dm3_submitMessage',
                     params: [
                         JSON.stringify({
-                            encryptedData: '',
+                            message: '',
                             encryptionVersion: 'x25519-chacha20-poly1305',
-                            from: SENDER_ADDRESS,
-                            to: RECEIVER_ADDRESS,
+                            deliveryInformation: Lib.stringify(
+                                testData.deliveryInformation,
+                            ),
                         }),
                         '123',
                     ],

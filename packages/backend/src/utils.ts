@@ -111,3 +111,28 @@ export function errorHandler(
     res.status(500);
     res.render('error', { error: err });
 }
+
+export function readKeysFromEnv(env: NodeJS.ProcessEnv): {
+    encryption: Lib.crypto.KeyPair;
+    signing: Lib.crypto.KeyPair;
+} {
+    const readKey = (keyName: string) => {
+        const key = env[keyName];
+        if (!key) {
+            throw Error(`Missing ${keyName} in env`);
+        }
+
+        return key;
+    };
+
+    return {
+        signing: {
+            publicKey: readKey('SIGNING_PUBLIC_KEY'),
+            privateKey: readKey('SIGNING_PRIVATE_KEY'),
+        },
+        encryption: {
+            publicKey: readKey('ENCRYPTION_PUBLIC_KEY'),
+            privateKey: readKey('ENCRYPTION_PRIVATE_KEY'),
+        },
+    };
+}

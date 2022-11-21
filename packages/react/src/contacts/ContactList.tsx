@@ -10,7 +10,7 @@ function ContactList() {
     const contactsList = state.accounts.contacts
         ? state.accounts.contacts.map((contact) => (
               <ContactListEntry
-                  key={contact.address}
+                  key={contact.account.address}
                   connection={state.connection}
                   contact={contact}
               />
