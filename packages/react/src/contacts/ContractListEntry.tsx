@@ -5,10 +5,10 @@ import * as Lib from 'dm3-lib';
 import { GlobalContext } from '../GlobalContextProvider';
 import { AccountsType } from '../reducers/Accounts';
 import Avatar from '../ui-shared/Avatar';
-import { AccountInfo } from '../reducers/shared';
+import { AccountInfo, Contact } from '../reducers/shared';
 
 interface ContactListProps {
-    contact: Lib.account.Account;
+    contact: Contact;
     connection: Lib.Connection;
 }
 
@@ -18,7 +18,7 @@ function ContactListEntry(props: ContactListProps) {
     const { state, dispatch } = useContext(GlobalContext);
     useEffect(() => {
         const messages = Lib.storage.getConversation(
-            props.contact.address,
+            props.contact.account.address,
             state.connection,
             state.userDb as Lib.storage.UserDB,
         );
@@ -44,15 +44,17 @@ function ContactListEntry(props: ContactListProps) {
 
     const selected =
         state.accounts.selectedContact &&
-        Lib.external.formatAddress(props.contact.address) ===
-            Lib.external.formatAddress(state.accounts.selectedContact?.address);
+        Lib.external.formatAddress(props.contact.account.address) ===
+            Lib.external.formatAddress(
+                state.accounts.selectedContact?.account.address,
+            );
 
     return (
         <div
             className={`list-group-item list-group-item-action contact-entry d-flex justify-content-between ${
                 selected ? 'contract-entry-selected' : ''
             }`}
-            key={props.contact.address}
+            key={props.contact.account.address}
             onClick={() => {
                 dispatch({
                     type: AccountsType.SetSelectedContact,
@@ -66,7 +68,7 @@ function ContactListEntry(props: ContactListProps) {
         >
             <div className="d-flex">
                 <div className="align-self-center contact-entry-avatar">
-                    <Avatar accountAddress={props.contact.address} />
+                    <Avatar accountAddress={props.contact.account.address} />
                 </div>
             </div>
             <div className="w-100 text-start contact-entry-center">
@@ -74,7 +76,7 @@ function ContactListEntry(props: ContactListProps) {
                     <div className="col-12">
                         <strong>
                             {Lib.account.getAccountDisplayName(
-                                props.contact.address,
+                                props.contact.account.address,
                                 state.cache.ensNames,
                             )}
                         </strong>

@@ -46,7 +46,7 @@ function Chat() {
         handleMessages(
             await Lib.messaging.getMessages(
                 state.connection,
-                state.accounts.selectedContact.address,
+                state.accounts.selectedContact.account.address,
                 state.userDb as Lib.storage.UserDB,
                 (envelops) =>
                     envelops.forEach((envelop) =>
@@ -76,9 +76,9 @@ function Chat() {
             const account =
                 Lib.external.formatAddress(container.envelop.message.from) ===
                 Lib.external.formatAddress(
-                    state.accounts.selectedContact.address,
+                    state.accounts.selectedContact.account.address,
                 )
-                    ? state.accounts.selectedContact
+                    ? state.accounts.selectedContact.account
                     : state.connection.account!;
 
             return account.profile?.publicSigningKey
@@ -130,7 +130,10 @@ function Chat() {
 
     useEffect(() => {
         dropMessages();
-        if (!state.accounts.selectedContact?.profile?.publicEncryptionKey) {
+        if (
+            !state.accounts.selectedContact?.account.profile
+                ?.publicEncryptionKey
+        ) {
             renderCustomComponent(
                 () => (
                     <InfoBox
@@ -197,7 +200,7 @@ function Chat() {
         if (state.accounts.selectedContact && state.userDb) {
             handleMessages(
                 Lib.storage.getConversation(
-                    state.accounts.selectedContact.address,
+                    state.accounts.selectedContact.account.address,
                     state.connection,
                     state.userDb,
                 ),
@@ -215,13 +218,14 @@ function Chat() {
         }
 
         const haltDelivery =
-            state.accounts.selectedContact?.profile?.publicEncryptionKey &&
+            state.accounts.selectedContact?.account.profile
+                ?.publicEncryptionKey &&
             state.connection.account?.profile?.publicEncryptionKey
                 ? false
                 : true;
 
         const messageData = await Lib.messaging.createMessage(
-            state.accounts.selectedContact.address,
+            state.accounts.selectedContact.account.address,
             state.connection.account!.address,
             message,
             userDb,
@@ -234,8 +238,10 @@ function Chat() {
             await Lib.messaging.submitMessage(
                 state.connection,
                 userDb,
-                state.accounts.selectedContact,
+                state.accounts.selectedContact.account,
                 messageData,
+                state.accounts.selectedContact.deliveryServiceProfile
+                    .publicEncryptionKey,
                 haltDelivery,
                 (envelops: Lib.storage.StorageEnvelopContainer[]) =>
                     envelops.forEach((envelop) =>
