@@ -49,7 +49,6 @@ export function onConnection(app: express.Application & WithLocals) {
                 try {
                     app.locals.logger.info({
                         method: 'WS INCOMING MESSAGE',
-                        account: data.envelop.from,
                     });
 
                     const isSchemaValid = Lib.validateSchema(
@@ -69,7 +68,8 @@ export function onConnection(app: express.Application & WithLocals) {
 
                     await Lib.delivery.incomingMessage(
                         data,
-                        app.locals.deliveryServicePrivateKey,
+                        app.locals.keys.signing,
+                        app.locals.keys.encryption,
                         app.locals.deliveryServiceProperties.sizeLimit,
                         app.locals.db.getSession,
                         app.locals.db.createMessage,

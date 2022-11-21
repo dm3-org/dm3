@@ -17,7 +17,13 @@ import Profile from './profile';
 import { createRedisClient } from './redis';
 import RpcProxy from './rpc/rpc-proxy';
 import Storage from './storage';
-import { errorHandler, logError, logRequest, socketAuth } from './utils';
+import {
+    errorHandler,
+    logError,
+    logRequest,
+    readKeysFromEnv,
+    socketAuth,
+} from './utils';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -48,7 +54,7 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
     app.locals.redisClient = redisClient;
     app.locals.io = io;
 
-    app.locals.deliveryServicePrivateKey = process.env.PRIVATE_KEY;
+    app.locals.keys = readKeysFromEnv(process.env);
 
     app.locals.deliveryServiceProperties = getDeliveryServiceProperties();
 

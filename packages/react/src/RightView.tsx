@@ -80,7 +80,7 @@ function RightView() {
                             state.accounts.accountInfoView ===
                             AccountInfo.Account
                                 ? state.connection.account!
-                                : state.accounts.selectedContact!
+                                : state.accounts.selectedContact?.account!
                         }
                     />
                 </div>

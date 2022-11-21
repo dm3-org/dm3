@@ -21,6 +21,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { Config } from './utils/Config';
 import Help from './ui-shared/Help';
 import axios from 'axios';
+import { Contact } from './reducers/shared';
 
 interface dm3Props {
     config: Config;
@@ -182,12 +183,12 @@ function dm3(props: dm3Props) {
             connection,
             state.auth.currentSession?.token!,
             state.accounts.selectedContact,
-            (contact: Lib.account.Account | undefined) =>
+            (contact: Contact | undefined) =>
                 dispatch({
                     type: AccountsType.SetSelectedContact,
                     payload: contact,
                 }),
-            (contacts: Lib.account.Account[]) =>
+            (contacts: Contact[]) =>
                 dispatch({ type: AccountsType.SetContacts, payload: contacts }),
             (address: string, name: string) =>
                 dispatch({
@@ -225,7 +226,7 @@ function dm3(props: dm3Props) {
         const innerEnvelop = JSON.parse(
             await Lib.crypto.decryptAsymmetric(
                 (state.userDb as Lib.storage.UserDB).keys.encryptionKeyPair,
-                JSON.parse(envelop.encryptedData),
+                JSON.parse(envelop.message),
             ),
         );
         const { incommingTimestamp } = JSON.parse(

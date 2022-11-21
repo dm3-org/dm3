@@ -52,11 +52,16 @@ export interface Postmark {
     signature: string;
 }
 
-export interface EncryptionEnvelop {
-    encryptionVersion: 'x25519-chacha20-poly1305';
-    encryptedData: string;
+export interface DeliveryInformation {
     to: string;
     from: string;
+    deliveryInstruction?: string;
+}
+
+export interface EncryptionEnvelop {
+    encryptionVersion: 'x25519-chacha20-poly1305';
+    message: string;
+    deliveryInformation: string;
     postmark?: string;
 }
 
@@ -98,6 +103,7 @@ export async function submitMessage(
     userDb: UserDB,
     to: Account,
     message: Message,
+    deliveryServiceEncryptionPubKey: string,
     submitMessageApi: SubmitMessage,
     encryptAsymmetric: EncryptAsymmetric,
     createPendingEntry: CreatePendingEntry,
@@ -137,16 +143,24 @@ export async function submitMessage(
         if (!to.profile) {
             throw Error('Contact has no profile');
         }
+
+        const deliveryInformation: DeliveryInformation = {
+            to: to.address,
+            from: (connection.account as Account).address,
+        };
         const envelop: EncryptionEnvelop = {
-            encryptedData: stringify(
+            message: stringify(
                 await encryptAsymmetric(
                     to.profile.publicEncryptionKey,
                     stringify(innerEnvelop),
                 ),
             ),
-
-            to: to.address,
-            from: (connection.account as Account).address,
+            deliveryInformation: stringify(
+                await encryptAsymmetric(
+                    deliveryServiceEncryptionPubKey,
+                    stringify(deliveryInformation),
+                ),
+            ),
             encryptionVersion: 'x25519-chacha20-poly1305',
         };
         await submitMessageApi(
@@ -174,7 +188,7 @@ async function decryptMessages(
                 JSON.parse(
                     await decryptAsymmetric(
                         userDb.keys.encryptionKeyPair,
-                        JSON.parse(envelop.encryptedData),
+                        JSON.parse(envelop.message),
                     ),
                 ),
         ),

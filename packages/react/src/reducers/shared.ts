@@ -14,9 +14,14 @@ export type ActionMap<M extends { [index: string]: any }> = {
           };
 };
 
+export interface Contact {
+    account: Lib.account.Account;
+    deliveryServiceProfile: Lib.delivery.DeliveryServiceProfile;
+}
+
 export type Accounts = {
-    contacts: Lib.account.Account[] | undefined;
-    selectedContact: Lib.account.Account | undefined;
+    contacts: Contact[] | undefined;
+    selectedContact: Contact | undefined;
     accountInfoView: AccountInfo;
 };
 

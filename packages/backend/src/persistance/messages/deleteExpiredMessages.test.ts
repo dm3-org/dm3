@@ -18,30 +18,27 @@ describe.skip('Delete Expired messages', () => {
         await db.createMessage(
             'foo',
             {
-                encryptedData: 'hello',
+                message: 'hello',
                 encryptionVersion: 'x25519-chacha20-poly1305',
-                to: '',
-                from: '',
+                deliveryInformation: '',
             },
             1,
         );
         await db.createMessage(
             'foo',
             {
-                encryptedData: 'world',
+                message: 'world',
                 encryptionVersion: 'x25519-chacha20-poly1305',
-                to: '',
-                from: '',
+                deliveryInformation: '',
             },
             3,
         );
         await db.createMessage(
             'foo',
             {
-                encryptedData: 'dm3',
+                message: 'dm3',
                 encryptionVersion: 'x25519-chacha20-poly1305',
-                to: '',
-                from: '',
+                deliveryInformation: '',
             },
             100,
         );
@@ -54,6 +51,6 @@ describe.skip('Delete Expired messages', () => {
         const afterDeleteMessages = await db.getMessages('foo', 0, 50);
         expect(afterDeleteMessages.length).toBe(1);
 
-        expect(afterDeleteMessages[0].encryptedData).toBe('dm3');
+        expect(afterDeleteMessages[0].message).toBe('dm3');
     });
 });
