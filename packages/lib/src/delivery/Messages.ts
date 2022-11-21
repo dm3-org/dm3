@@ -2,8 +2,14 @@ import { ethers } from 'ethers';
 import stringify from 'safe-stable-stringify';
 
 import { formatAddress } from '../external-apis/InjectedWeb3API';
-import { EncryptionEnvelop, Postmark } from '../messaging/Messaging';
-import { encryptAsymmetric, EncryptedPayload, sign } from '../crypto';
+import { EncryptionEnvelop, Postmark, DeliveryInformation } from '../messaging';
+import {
+    decryptAsymmetric,
+    encryptAsymmetric,
+    EncryptedPayload,
+    KeyPair,
+    sign,
+} from '../crypto';
 import { sha256 } from '../shared/sha256';
 import { getConversationId } from '../storage/Storage';
 import { checkToken, Session } from './Session';
@@ -21,6 +27,7 @@ export async function getMessages(
         offset: number,
         size: number,
     ) => Promise<EncryptionEnvelop[]>,
+    encryptionKeyPair: KeyPair,
     accountAddress: string,
     contactAddress: string,
 ) {
@@ -34,17 +41,30 @@ export async function getMessages(
         50,
     );
 
-    const messages = receivedMessages.filter(
-        (envelop) => formatAddress(envelop.to) === account,
+    const envelopContainers = await Promise.all(
+        receivedMessages.map(async (envelop) => ({
+            to: formatAddress(
+                JSON.parse(
+                    await decryptAsymmetric(
+                        encryptionKeyPair,
+                        JSON.parse(envelop.deliveryInformation),
+                    ),
+                ).to,
+            ),
+            envelop,
+        })),
     );
 
-    return messages;
+    return envelopContainers
+        .filter((envelopContainer) => envelopContainer.to === account)
+        .map((envelopContainer) => envelopContainer.envelop);
 }
 
 // buffer message until delivery and sync acknoledgment
 export async function incomingMessage(
     { envelop, token }: { envelop: EncryptionEnvelop; token: string },
-    deliveryServicePrivateKey: string,
+    signingKeyPair: KeyPair,
+    encryptionKeyPair: KeyPair,
     sizeLimit: number,
     getSession: (accountAddress: string) => Promise<Session | null>,
     storeNewMessage: (
@@ -53,23 +73,35 @@ export async function incomingMessage(
     ) => Promise<void>,
     send: (socketId: string, envelop: EncryptionEnvelop) => void,
 ): Promise<void> {
-    const sender = formatAddress(envelop.from);
-    const receiver = formatAddress(envelop.to);
-    const conversationId = getConversationId(sender, receiver);
+    if (messageIsToLarge(envelop, sizeLimit)) {
+        throw Error('Message is too large');
+    }
 
-    const tokenIsValid = await checkToken(getSession, sender, token);
+    const deliveryInformation: DeliveryInformation = JSON.parse(
+        await decryptAsymmetric(
+            encryptionKeyPair,
+            JSON.parse(envelop.deliveryInformation),
+        ),
+    );
+
+    const conversationId = getConversationId(
+        deliveryInformation.from,
+        deliveryInformation.to,
+    );
+
+    const tokenIsValid = await checkToken(
+        getSession,
+        deliveryInformation.from,
+        token,
+    );
     if (!tokenIsValid) {
         //Token is invalid
         throw Error('Token check failed');
     }
 
-    const receiverSession = await getSession(receiver);
+    const receiverSession = await getSession(deliveryInformation.to);
     if (receiverSession === null) {
         throw Error('unknown session');
-    }
-
-    if (messageIsToLarge(envelop, sizeLimit)) {
-        throw Error('Message is too large');
     }
 
     const receiverEncryptionKey =
@@ -81,7 +113,7 @@ export async function incomingMessage(
             await addPostmark(
                 envelop,
                 receiverEncryptionKey,
-                deliveryServicePrivateKey,
+                signingKeyPair.privateKey,
             ),
         ),
     };
@@ -101,12 +133,12 @@ function messageIsToLarge(
 }
 
 async function addPostmark(
-    { encryptedData }: EncryptionEnvelop,
+    { message }: EncryptionEnvelop,
     receiverEncryptionKey: string,
     deliveryServiceSigningKey: string,
 ): Promise<EncryptedPayload> {
     const postmarkWithoutSig: Omit<Postmark, 'signature'> = {
-        messageHash: ethers.utils.hashMessage(stringify(encryptedData)),
+        messageHash: ethers.utils.hashMessage(stringify(message)),
         incommingTimestamp: new Date().getTime(),
     };
 

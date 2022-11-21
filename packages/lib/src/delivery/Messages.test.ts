@@ -1,9 +1,11 @@
 import { UserProfile } from '../account/Account';
-import { decryptAsymmetric } from '../crypto';
+import { decryptAsymmetric, encryptAsymmetric } from '../crypto';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { EncryptionEnvelop } from '../messaging/Messaging';
+import { stringify } from '../shared/stringify';
 import { getConversationId } from '../storage/Storage';
 import { getMessages, incomingMessage } from './Messages';
+import * as testData from './Messages.test.json';
 
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
@@ -90,15 +92,17 @@ test('incomingMessage auth', async () => {
         incomingMessage(
             {
                 envelop: {
-                    encryptedData: {} as any,
+                    message: '',
                     encryptionVersion: 'x25519-chacha20-poly1305',
-                    from: SENDER_ADDRESS,
-                    to: RECEIVER_ADDRESS,
+                    deliveryInformation: stringify(
+                        testData.deliveryInformation,
+                    ),
                 },
                 token: 'abc',
             },
-            '9SZhajjn9tn0fX/eBMXfZfb0RaUeYyfhlNYHqZyKHpyTiYvwVosQ5qt2XxdDFblTzggir8kp85kWw76p2EZ0rQ==',
-            1024,
+            keysA.signingKeyPair,
+            keysA.encryptionKeyPair,
+            2 ** 14,
             getSession,
             storeNewMessage,
             () => {},
@@ -117,14 +121,14 @@ test('incomingMessage sizeLimit', async () => {
         incomingMessage(
             {
                 envelop: {
-                    encryptedData: '',
+                    message: '',
                     encryptionVersion: 'x25519-chacha20-poly1305',
-                    from: SENDER_ADDRESS,
-                    to: RECEIVER_ADDRESS,
+                    deliveryInformation: '',
                 },
                 token: '123',
             },
-            '9SZhajjn9tn0fX/eBMXfZfb0RaUeYyfhlNYHqZyKHpyTiYvwVosQ5qt2XxdDFblTzggir8kp85kWw76p2EZ0rQ==',
+            keysA.signingKeyPair,
+            keysA.encryptionKeyPair,
             1,
             getSession,
             storeNewMessage,
@@ -152,15 +156,15 @@ test('incomingMessage', async () => {
     await incomingMessage(
         {
             envelop: {
-                encryptedData: {} as any,
+                message: '',
                 encryptionVersion: 'x25519-chacha20-poly1305',
-                from: SENDER_ADDRESS,
-                to: RECEIVER_ADDRESS,
+                deliveryInformation: stringify(testData.deliveryInformation),
             },
             token: '123',
         },
-        keysA.signingKeyPair.privateKey,
-        1024,
+        keysA.signingKeyPair,
+        keysA.encryptionKeyPair,
+        2 ** 14,
         getSession,
         storeNewMessage,
         () => {},
@@ -177,29 +181,29 @@ test('incomingMessage', async () => {
     );
 
     //Check message
-    expect(messageContainer).toMatchObject({
-        conversationId,
-        envelop: {
-            encryptedData: {},
+    expect(messageContainer.conversationId).toEqual(conversationId);
+
+    expect(messageContainer.envelop).toEqual(
+        expect.objectContaining({
+            message: '',
+            deliveryInformation: expect.any(String),
             encryptionVersion: 'x25519-chacha20-poly1305',
-            from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-            to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-        },
-    });
+        }),
+    );
+
     //Check Postmark
     expect(JSON.parse(actualPostmark)).toStrictEqual({
         incommingTimestamp: 1577836800000,
         messageHash:
-            '0xc496eb97e233a06697fa8bff2f26e72d174d1307686616c1e4e37bc6bdf0f6af',
+            '0xd7c617eb7ffee435e7d4e7f6b13d46ccdf88d2e5463148c50659e5cd88d248b5',
         signature:
             // eslint-disable-next-line max-len
-            '0xdbb4337d68b68a429965607394544be3119d304b02f61ac146ad673cb25088e4' +
-            'daf1c946faeb1536975483c4cd4a77254f82ca4eb26cb6876a1ba3ef94b0d00d',
+            '0x944b3207908f07f02d3a0635adb7b28d143cbb58da287c8e4adac18919964fa2' +
+            '2944cfef3cd38153e2145391562d9976bf9582fbf680efeb647e56e5187bd60d',
     });
 });
 
 test('getMessages', async () => {
-    const messages = new Map<string, EncryptionEnvelop[]>();
     const conversationIdToUse = getConversationId(
         '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
         '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
@@ -209,26 +213,29 @@ test('getMessages', async () => {
         conversationId: string,
         offset: number,
         size: number,
-    ) => {
+    ): Promise<EncryptionEnvelop[]> => {
         return conversationId === conversationIdToUse
             ? ([
                   {
-                      encryptedData: {} as any,
+                      message: '',
                       encryptionVersion: 'x25519-chacha20-poly1305',
-                      from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-                      to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+                      deliveryInformation: stringify(
+                          testData.deliveryInformation,
+                      ),
                   },
                   {
-                      encryptedData: {} as any,
+                      message: '',
                       encryptionVersion: 'x25519-chacha20-poly1305',
-                      to: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-                      from: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+                      deliveryInformation: stringify(
+                          testData.deliveryInformationB,
+                      ),
                   },
                   {
-                      encryptedData: {} as any,
+                      message: '',
                       encryptionVersion: 'x25519-chacha20-poly1305',
-                      from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-                      to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+                      deliveryInformation: stringify(
+                          testData.deliveryInformation,
+                      ),
                   },
               ] as EncryptionEnvelop[])
             : [];
@@ -237,21 +244,20 @@ test('getMessages', async () => {
     expect(
         await getMessages(
             loadMessages,
+            keysA.encryptionKeyPair,
             '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
             '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
         ),
     ).toStrictEqual([
         {
-            encryptedData: {},
+            message: '',
             encryptionVersion: 'x25519-chacha20-poly1305',
-            from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-            to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+            deliveryInformation: stringify(testData.deliveryInformation),
         },
         {
-            encryptedData: {},
+            message: '',
             encryptionVersion: 'x25519-chacha20-poly1305',
-            from: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-            to: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+            deliveryInformation: stringify(testData.deliveryInformation),
         },
     ]);
 });

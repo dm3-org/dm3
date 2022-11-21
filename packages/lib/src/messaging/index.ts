@@ -15,7 +15,13 @@ import {
 import { encryptAsymmetric, sign } from '../crypto';
 import stringify from 'safe-stable-stringify';
 
-export type { Message, EncryptionEnvelop, Envelop } from './Messaging';
+export type {
+    Message,
+    EncryptionEnvelop,
+    Envelop,
+    DeliveryInformation,
+    Postmark,
+} from './Messaging';
 
 export { MessageState } from './Messaging';
 export { getId } from './Utils';
@@ -42,6 +48,7 @@ export async function submitMessage(
     userDb: UserDB,
     to: Account,
     message: Message,
+    deliveryServiceEncryptionPubKey: string,
     haltDelivery: boolean,
     storeMessages: (envelops: StorageEnvelopContainer[]) => void,
     onSuccess?: (envelop: Envelop) => void,
@@ -51,6 +58,7 @@ export async function submitMessage(
         userDb,
         to,
         message,
+        deliveryServiceEncryptionPubKey,
         backendSubmitMessage,
         encryptAsymmetric,
         createPendingEntry,
