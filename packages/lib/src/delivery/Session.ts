@@ -18,7 +18,17 @@ export async function checkToken(
 ): Promise<boolean> {
     const account = formatAddress(accountAddress);
     const session = await getSession(account);
-    const passed = session && session?.token === token;
+    //There is now account for the requesting accoung
+    if (!session) {
+        return false;
+    }
 
-    return passed ? true : false;
+    const tokenIsValid = token === session.token;
+
+    //The account has a session but the token is wrong
+    if (!tokenIsValid) {
+        return false;
+    }
+
+    return true;
 }
