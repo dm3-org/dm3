@@ -14,7 +14,7 @@ import Delivery from './delivery';
 import { onConnection } from './messaging';
 import { getDatabase } from './persistance/getDatabase';
 import Profile from './profile';
-import { createRedisClient, getSession, setSession } from './redis';
+import { createRedisClient } from './redis';
 import RpcProxy from './rpc/rpc-proxy';
 import Storage from './storage';
 import { errorHandler, logError, logRequest, socketAuth } from './utils';
