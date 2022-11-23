@@ -2,6 +2,7 @@ import * as Lib from 'dm3-lib/dist.backend';
 import express from 'express';
 import cors from 'cors';
 import { ethers } from 'ethers';
+import { WithLocals } from './types';
 
 const getChallengeSchema = {
     type: 'object',
@@ -36,68 +37,80 @@ export default () => {
     //TODO remove
     router.use(cors());
 
-    router.get('/:address', async (req, res, next) => {
-        try {
-            const schemaIsValid = Lib.validateSchema(
-                getChallengeSchema,
-                req.params,
-            );
+    router.get(
+        '/:address',
+        async (req: express.Request & { app: WithLocals }, res, next) => {
+            try {
+                const schemaIsValid = Lib.validateSchema(
+                    getChallengeSchema,
+                    req.params,
+                );
 
-            if (!schemaIsValid || !ethers.utils.isAddress(req.params.address)) {
-                return res.send(400);
+                if (
+                    !schemaIsValid ||
+                    !ethers.utils.isAddress(req.params.address)
+                ) {
+                    return res.send(400);
+                }
+
+                const account = Lib.external.formatAddress(req.params.address);
+
+                const challenge = await Lib.delivery.createChallenge(
+                    req.app.locals.db.getSession,
+                    req.app.locals.db.setSession,
+                    account,
+                );
+
+                res.json({
+                    challenge,
+                });
+            } catch (e) {
+                next(e);
             }
+        },
+    );
 
-            const account = Lib.external.formatAddress(req.params.address);
+    router.post(
+        '/:address',
+        async (req: express.Request & { app: WithLocals }, res, next) => {
+            try {
+                const paramsAreValid = Lib.validateSchema(
+                    createNewSessionTokenParamsSchema,
+                    req.params,
+                );
 
-            const challenge = await Lib.delivery.createChallenge(
-                req.app.locals.loadSession,
-                req.app.locals.storeSession,
-                account,
-            );
+                const bodyIsValid = Lib.validateSchema(
+                    createNewSessionTokenBodySchema,
+                    req.body,
+                );
 
-            res.json({
-                challenge,
-            });
-        } catch (e) {
-            next(e);
-        }
-    });
+                const schemaIsValid = paramsAreValid && bodyIsValid;
 
-    router.post('/:address', async (req, res, next) => {
-        try {
-            const paramsAreValid = Lib.validateSchema(
-                createNewSessionTokenParamsSchema,
-                req.params,
-            );
+                if (
+                    !schemaIsValid ||
+                    !ethers.utils.isAddress(req.params.address)
+                ) {
+                    return res.send(400);
+                }
 
-            const bodyIsValid = Lib.validateSchema(
-                createNewSessionTokenBodySchema,
-                req.body,
-            );
+                const account = Lib.external.formatAddress(req.params.address);
 
-            const schemaIsValid = paramsAreValid && bodyIsValid;
+                const token = await Lib.delivery.createNewSessionToken(
+                    req.app.locals.db.getSession,
+                    req.app.locals.db.setSession,
+                    req.body.signature,
+                    account,
+                );
 
-            if (!schemaIsValid || !ethers.utils.isAddress(req.params.address)) {
-                return res.send(400);
+                res.json({
+                    token,
+                });
+            } catch (e) {
+                console.log(e);
+                next(e);
             }
-
-            const account = Lib.external.formatAddress(req.params.address);
-
-            const token = await Lib.delivery.createNewSessionToken(
-                req.app.locals.loadSession,
-                req.app.locals.storeSession,
-                req.body.signature,
-                account,
-            );
-
-            res.json({
-                token,
-            });
-        } catch (e) {
-            console.log(e);
-            next(e);
-        }
-    });
+        },
+    );
 
     return router;
 };

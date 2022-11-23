@@ -11,7 +11,7 @@ const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
 const keyPair = Lib.crypto.createKeyPair();
 
-describe('rpc-Proxy', () => {
+describe.only('rpc-Proxy', () => {
     describe('routing', () => {
         it('Should route non-dm3 related messages to the rpc node', async () => {
             const mockPost = jest.fn((url: string, body: any) => {
@@ -82,12 +82,13 @@ describe('rpc-Proxy', () => {
                     '5fad90341665fbfd8b106639bb1ff2d8131d365a8f0004f66b93b450148f67bd2',
                 deliveryServiceProperties: { sizeLimit: 1024 },
 
-                loadSession,
+                loadSession: getSession,
                 redisClient: {
                     zAdd: () => {},
                 },
                 db: {
                     createMessage: () => {},
+                    getSession,
                 },
                 io: {
                     sockets: {
@@ -184,7 +185,7 @@ describe('rpc-Proxy', () => {
     });
 });
 
-const loadSession = async (address: string) => {
+const getSession = async (address: string) => {
     const emptyProfile: Lib.account.UserProfile = {
         publicSigningKey: '',
         publicEncryptionKey: '',

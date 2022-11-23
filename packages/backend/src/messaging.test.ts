@@ -28,7 +28,7 @@ describe('Messaging', () => {
         });
     });
     describe('submitMessage', () => {
-        it('returns success if schema is valid', (done: any) => {
+        it.only('returns success if schema is valid', (done: any) => {
             //We expect the callback functions called once witht he value 'success'
             expect.assertions(1);
             const callback = (e: any) => {
@@ -56,7 +56,7 @@ describe('Messaging', () => {
                         '5fad90341665fbfd8b106639bb1ff2d8131d365a8f0004f66b93b450148f67bd2',
                     deliveryServiceProperties: { sizeLimit: 1024 },
 
-                    loadSession,
+                    db: { getSession, createMessage: () => {} },
                     redisClient: {
                         zAdd: () => {},
                     },
@@ -66,9 +66,6 @@ describe('Messaging', () => {
                                 emit: (_: any, __any: any) => {},
                             }),
                         },
-                    },
-                    db: {
-                        createMessage: () => {},
                     },
                 } as any,
             } as express.Express;
@@ -121,7 +118,6 @@ describe('Messaging', () => {
                     },
                     deliveryServicePrivateKey:
                         '9SZhajjn9tn0fX/eBMXfZfb0RaUeYyfhlNYHqZyKHpyTiYvwVosQ5qt2XxdDFblTzggir8kp85kWw76p2EZ0rQ==',
-                    loadSession,
                     redisClient: {
                         zAdd: () => {},
                     },
@@ -131,6 +127,9 @@ describe('Messaging', () => {
                                 emit: (_: any, __any: any) => {},
                             }),
                         },
+                    },
+                    db: {
+                        getSession,
                     },
                 } as any,
             } as express.Express;
@@ -201,7 +200,7 @@ describe('Messaging', () => {
     });
 });
 
-const loadSession = async (address: string) => {
+const getSession = async (address: string) => {
     const emptyProfile: Lib.account.UserProfile = {
         publicSigningKey: '',
         publicEncryptionKey: '',

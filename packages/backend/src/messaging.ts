@@ -71,7 +71,7 @@ export function onConnection(app: express.Application & WithLocals) {
                         data,
                         app.locals.deliveryServicePrivateKey,
                         app.locals.deliveryServiceProperties.sizeLimit,
-                        app.locals.loadSession,
+                        app.locals.db.getSession,
                         app.locals.db.createMessage,
                         (
                             socketId: string,
@@ -122,7 +122,7 @@ export function onConnection(app: express.Application & WithLocals) {
             try {
                 if (
                     await Lib.delivery.checkToken(
-                        app.locals.loadSession,
+                        app.locals.db.getSession,
                         account,
                         data.token,
                     )

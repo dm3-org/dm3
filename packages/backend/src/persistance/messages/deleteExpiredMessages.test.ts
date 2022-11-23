@@ -1,5 +1,5 @@
 import { getDatabase, getRedisClient, IDatabase, Redis } from '../getDatabase';
-describe('Delete Expired messages', () => {
+describe.skip('Delete Expired messages', () => {
     let redisClient: Redis;
     let db: IDatabase;
 
@@ -14,7 +14,7 @@ describe('Delete Expired messages', () => {
         await redisClient.disconnect();
     });
 
-    it.only('Delete all messages createdAt before a given time', async () => {
+    it('Delete all messages createdAt before a given time', async () => {
         await db.createMessage(
             'foo',
             {

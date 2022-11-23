@@ -37,27 +37,6 @@ export async function createRedisClient(app: Express) {
     return client;
 }
 
-export async function getSession(
-    accountAddress: string,
-    redisClient: Awaited<ReturnType<typeof createRedisClient>>,
-): Promise<Lib.delivery.Session | null> {
-    const session = await redisClient.get(
-        RedisPrefix.Session + Lib.external.formatAddress(accountAddress),
-    );
-    return session ? JSON.parse(session) : null;
-}
-
-export async function setSession(
-    accountAddress: string,
-    session: Lib.delivery.Session,
-    redisClient: Awaited<ReturnType<typeof createRedisClient>>,
-): Promise<void> {
-    await redisClient.set(
-        RedisPrefix.Session + Lib.external.formatAddress(accountAddress),
-        stringify(session),
-    );
-}
-
 export async function getUserStorage(
     accountAddress: string,
     redisClient: Awaited<ReturnType<typeof createRedisClient>>,

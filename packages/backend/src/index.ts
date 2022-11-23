@@ -46,17 +46,6 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
     });
 
     app.locals.redisClient = redisClient;
-    app.locals.loadSession = async (accountAddress: string) => {
-        return redisClient ? getSession(accountAddress, redisClient) : null;
-    };
-    app.locals.storeSession = async (
-        accountAddress: string,
-        session: Lib.delivery.Session,
-    ) => {
-        return redisClient
-            ? setSession(accountAddress, session, redisClient)
-            : null;
-    };
     app.locals.io = io;
 
     app.locals.deliveryServicePrivateKey = process.env.PRIVATE_KEY;

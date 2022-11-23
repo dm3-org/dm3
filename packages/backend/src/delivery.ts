@@ -76,6 +76,7 @@ export default () => {
 
                 res.json(newMessages);
             } catch (e) {
+                console.log(e);
                 next(e);
             }
         },
