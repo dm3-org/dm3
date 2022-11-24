@@ -175,7 +175,7 @@ describe('Messaging', () => {
     });
 
     describe('pendingMessage', () => {
-        it.skip('returns error if schema is invalid', async () => {
+        it('returns error if schema is invalid', async () => {
             const app = {
                 locals: {
                     logger: {
