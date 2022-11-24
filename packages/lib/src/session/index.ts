@@ -9,7 +9,7 @@ import {
 } from '../external-apis/InjectedWeb3API';
 import { UserDB, UserStorage } from '../storage';
 import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
-import { signIn as execSignIn, reAuth as execReAuth } from './SignIn';
+import { signIn as execSignIn, reAuth as execReAuth } from './SignIn/SignIn';
 import { connectAccount as execConnectAccount } from './Connect';
 import { getUserProfile } from '../account';
 

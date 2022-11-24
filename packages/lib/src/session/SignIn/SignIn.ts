@@ -1,22 +1,23 @@
 import { ethers } from 'ethers';
-import { UserDB, UserStorage } from '../storage/Storage';
-import { log } from '../shared/log';
-import { createDB, load } from '../storage/Storage';
-import { Account, ProfileKeys, UserProfile } from '../account/Account';
-import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
+import { UserDB, UserStorage } from '../../storage/Storage';
+import { log } from '../../shared/log';
+import { createDB, load } from '../../storage/Storage';
+import { Account, ProfileKeys, UserProfile } from '../../account/Account';
+import { Connection, ConnectionState } from '../../web3-provider/Web3Provider';
 import {
     GetChallenge,
     GetNewToken,
     SubmitUserProfile,
-} from '../external-apis/BackendAPI';
-import { PersonalSign } from '../external-apis/InjectedWeb3API';
-import { stringify } from '../shared/stringify';
+} from '../../external-apis/BackendAPI';
+import { PersonalSign } from '../../external-apis/InjectedWeb3API';
+import { stringify } from '../../shared/stringify';
 import {
     createKeyPair,
     createSigningKeyPair,
     createStorageKey,
     getStorageKeyCreationMessage,
-} from '../crypto';
+} from '../../crypto';
+import { signInWithEthereum } from './signInWithEtheruem';
 
 export async function reAuth(
     connection: Connection,
@@ -62,17 +63,17 @@ export async function signIn(
     db?: UserDB;
 }> {
     try {
-        const provider =
-            connection.provider as ethers.providers.JsonRpcProvider;
-        const account = (connection.account as Account).address;
+        const provider = connection.provider!;
+        const account = connection.account!.address;
 
-        let deliveryServiceToken: string;
-        const nonce = 0;
-        const nonceMsg = getStorageKeyCreationMessage(nonce);
-        const signedNonceMsg = await personalSign(provider, account, nonceMsg);
+        const { siwaMessage, nonce } = await signInWithEthereum(
+            provider,
+            personalSign,
+            account,
+        );
 
         const keys = await createKeys(
-            await createStorageKey(signedNonceMsg),
+            await createStorageKey(siwaMessage),
             nonce,
         );
 
@@ -89,7 +90,7 @@ export async function signIn(
                 stringify(profile),
             );
 
-            deliveryServiceToken = await submitUserProfile(
+            const deliveryServiceToken = await submitUserProfile(
                 { address: account, profile },
                 connection as Connection,
                 {
