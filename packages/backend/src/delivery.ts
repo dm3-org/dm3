@@ -175,7 +175,6 @@ export default () => {
 
                 res.json();
             } catch (e) {
-                console.log(e);
                 next(e);
             }
         },
