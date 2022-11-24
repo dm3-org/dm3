@@ -32,6 +32,7 @@
         "react-dom": "^17.0.2"
     },
     "devDependencies": {
+        "@babel/preset-typescript": "^7.18.6",
         "@rollup/plugin-commonjs": "^22.0.0",
         "@rollup/plugin-node-resolve": "^13.3.0",
         "@rollup/plugin-typescript": "^8.3.3",
@@ -57,7 +58,8 @@
         "ts-json-schema-generator": "^0.98.0"
     },
     "scripts": {
-        "build": "rollup -c"
+        "build": "rollup -c",
+        "test": "jest --coverage"
     },
     "browserslist": {
         "production": [
