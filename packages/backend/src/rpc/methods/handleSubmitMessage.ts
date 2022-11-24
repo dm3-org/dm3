@@ -49,7 +49,7 @@ export async function handleSubmitMessage(
             req.app.locals.keys.signing,
             req.app.locals.keys.encryption,
             req.app.locals.deliveryServiceProperties.sizeLimit,
-            req.app.locals.loadSession,
+            req.app.locals.db.getSession,
             req.app.locals.db.createMessage,
             (socketId: string, envelop: Lib.messaging.EncryptionEnvelop) => {
                 req.app.locals.io.sockets.to(socketId).emit('message', envelop);

@@ -14,7 +14,7 @@ import Delivery from './delivery';
 import { onConnection } from './messaging';
 import { getDatabase } from './persistance/getDatabase';
 import Profile from './profile';
-import { createRedisClient, getSession, setSession } from './redis';
+import { createRedisClient } from './redis';
 import RpcProxy from './rpc/rpc-proxy';
 import Storage from './storage';
 import {
@@ -52,17 +52,6 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
     });
 
     app.locals.redisClient = redisClient;
-    app.locals.loadSession = async (accountAddress: string) => {
-        return redisClient ? getSession(accountAddress, redisClient) : null;
-    };
-    app.locals.storeSession = async (
-        accountAddress: string,
-        session: Lib.delivery.Session,
-    ) => {
-        return redisClient
-            ? setSession(accountAddress, session, redisClient)
-            : null;
-    };
     app.locals.io = io;
 
     app.locals.keys = readKeysFromEnv(process.env);

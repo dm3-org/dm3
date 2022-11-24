@@ -71,7 +71,7 @@ export function onConnection(app: express.Application & WithLocals) {
                         app.locals.keys.signing,
                         app.locals.keys.encryption,
                         app.locals.deliveryServiceProperties.sizeLimit,
-                        app.locals.loadSession,
+                        app.locals.db.getSession,
                         app.locals.db.createMessage,
                         (
                             socketId: string,
@@ -110,6 +110,8 @@ export function onConnection(app: express.Application & WithLocals) {
                     method: 'WS PENDING MESSAGE',
                     error,
                 });
+
+                return callback(error);
             }
 
             const account = Lib.external.formatAddress(data.accountAddress);
@@ -122,7 +124,7 @@ export function onConnection(app: express.Application & WithLocals) {
             try {
                 if (
                     await Lib.delivery.checkToken(
-                        app.locals.loadSession,
+                        app.locals.db.getSession,
                         account,
                         data.token,
                     )

@@ -14,9 +14,12 @@ describe('Auth', () => {
                 app.use(bodyParser.json());
                 app.use(auth());
 
-                app.locals.loadSession = async (accountAddress: string) => ({
-                    challenge: '123',
-                });
+                app.locals.db = {
+                    getSession: async (accountAddress: string) => ({
+                        challenge: '123',
+                    }),
+                };
+
                 app.locals.storeSession = async (
                     accountAddress: string,
                     session: any,
@@ -33,11 +36,13 @@ describe('Auth', () => {
                 app.use(bodyParser.json());
                 app.use(auth());
 
-                app.locals.loadSession = async (_: string) => ({
-                    challenge: '123',
-                });
-                app.locals.storeSession = async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
+                app.locals.db = {
+                    getSession: async (accountAddress: string) => ({
+                        challenge: '123',
+                    }),
+                    setSession: async (_: string, __: any) => {
+                        return (_: any, __: any, ___: any) => {};
+                    },
                 };
 
                 const { status } = await request(app)
@@ -56,11 +61,13 @@ describe('Auth', () => {
                 app.use(bodyParser.json());
                 app.use(auth());
 
-                app.locals.loadSession = async (_: string) => ({
-                    challenge: '123',
-                });
-                app.locals.storeSession = async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
+                app.locals.db = {
+                    getSession: async (accountAddress: string) => ({
+                        challenge: '123',
+                    }),
+                    setSession: async (_: string, __: any) => {
+                        return (_: any, __: any, ___: any) => {};
+                    },
                 };
                 const mnemonic =
                     'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
@@ -80,11 +87,13 @@ describe('Auth', () => {
                 app.use(bodyParser.json());
                 app.use(auth());
 
-                app.locals.loadSession = async (_: string) => ({
-                    challenge: '123',
-                });
-                app.locals.storeSession = async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
+                app.locals.db = {
+                    getSession: async (accountAddress: string) => ({
+                        challenge: '123',
+                    }),
+                    setSession: async (_: string, __: any) => {
+                        return (_: any, __: any, ___: any) => {};
+                    },
                 };
                 const mnemonic =
                     'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
@@ -106,11 +115,13 @@ describe('Auth', () => {
                 app.use(bodyParser.json());
                 app.use(auth());
 
-                app.locals.loadSession = async (_: string) => ({
-                    challenge: '123',
-                });
-                app.locals.storeSession = async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
+                app.locals.db = {
+                    getSession: async (accountAddress: string) => ({
+                        challenge: '123',
+                    }),
+                    setSession: async (_: string, __: any) => {
+                        return (_: any, __: any, ___: any) => {};
+                    },
                 };
                 const mnemonic =
                     'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';

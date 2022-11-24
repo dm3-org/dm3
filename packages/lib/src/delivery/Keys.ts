@@ -74,6 +74,7 @@ export async function submitUserProfile(
             account,
             signedUserProfile,
             token: uuidv4(),
+            createdAt: new Date().getTime(),
         };
 
         await setSession(account, session);

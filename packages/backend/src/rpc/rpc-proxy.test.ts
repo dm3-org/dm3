@@ -103,12 +103,13 @@ describe('rpc-Proxy', () => {
                 },
                 deliveryServiceProperties: { sizeLimit: 2 ** 14 },
 
-                loadSession,
+                loadSession: getSession,
                 redisClient: {
                     zAdd: () => {},
                 },
                 db: {
                     createMessage: () => {},
+                    getSession,
                 },
                 io: {
                     sockets: {
@@ -206,7 +207,7 @@ describe('rpc-Proxy', () => {
     });
 });
 
-const loadSession = async (address: string) => {
+const getSession = async (address: string) => {
     const emptyProfile: Lib.account.UserProfile = {
         publicSigningKey: '',
         publicEncryptionKey: '',

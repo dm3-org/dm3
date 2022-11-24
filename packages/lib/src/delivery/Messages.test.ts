@@ -64,6 +64,7 @@ const getSession = async (address: string) => {
             signature: '',
         },
         token,
+        createdAt: new Date().getTime(),
     });
 
     if (isSender) {

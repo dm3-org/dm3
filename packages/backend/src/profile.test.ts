@@ -14,10 +14,14 @@ describe('Profile', () => {
             app.use(bodyParser.json());
             app.use(profile());
 
-            app.locals.loadSession = (_: string) =>
-                Promise.resolve({
+            app.locals.db = {
+                getSession: async (accountAddress: string) => ({
                     signedUserProfile: {},
-                });
+                }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+            };
 
             const { status } = await request(app)
                 .get('/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870')
@@ -30,11 +34,14 @@ describe('Profile', () => {
             app.use(bodyParser.json());
             app.use(profile());
 
-            app.locals.loadSession = (_: string) =>
-                Promise.resolve({
+            app.locals.db = {
+                getSession: async (accountAddress: string) => ({
                     signedUserProfile: {},
-                });
-
+                }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+            };
             const { status, body } = await request(app).get('/12345').send();
 
             expect(status).toBe(400);
@@ -47,9 +54,13 @@ describe('Profile', () => {
             app.use(bodyParser.json());
             app.use(profile());
 
-            app.locals.loadSession = (_: string) => Promise.resolve(null);
-
-            app.locals.storeSession = (_: string, __: any) => {};
+            app.locals.db = {
+                getSession: async (accountAddress: string) =>
+                    Promise.resolve(null),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+            };
 
             app.locals.redisClient = {
                 sMembers: (_: any) => Promise.resolve([]),
@@ -86,9 +97,13 @@ describe('Profile', () => {
             app.use(bodyParser.json());
             app.use(profile());
 
-            app.locals.loadSession = (_: string) => Promise.resolve(null);
-
-            app.locals.storeSession = (_: string, __: any) => {};
+            app.locals.db = {
+                getSession: async (accountAddress: string) =>
+                    Promise.resolve(null),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+            };
 
             app.locals.redisClient = {
                 sMembers: (_: any) => Promise.resolve([]),

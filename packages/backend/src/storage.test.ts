@@ -18,11 +18,16 @@ describe('Storage', () => {
 
             const token = await createAuthToken();
 
-            app.locals.loadSession = async (accountAddress: string) => ({
-                challenge: '123',
-                token,
-            });
-
+            app.locals.db = {
+                getSession: async (accountAddress: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+            };
             const { status } = await request(app)
                 .get(`/0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1`)
                 .set({
@@ -44,10 +49,16 @@ describe('Storage', () => {
 
             const token = await createAuthToken();
 
-            app.locals.loadSession = async (accountAddress: string) => ({
-                challenge: '123',
-                token,
-            });
+            app.locals.db = {
+                getSession: async (accountAddress: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+            };
 
             const { status } = await request(app)
                 .get(`/12345`)
@@ -73,10 +84,16 @@ describe('Storage', () => {
 
             const token = await createAuthToken();
 
-            app.locals.loadSession = async (accountAddress: string) => ({
-                challenge: '123',
-                token,
-            });
+            app.locals.db = {
+                getSession: async (accountAddress: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+            };
 
             const { status } = await request(app)
                 .post(`/0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1`)
@@ -98,10 +115,16 @@ describe('Storage', () => {
 
             const token = await createAuthToken();
 
-            app.locals.loadSession = async (accountAddress: string) => ({
-                challenge: '123',
-                token,
-            });
+            app.locals.db = {
+                getSession: async (accountAddress: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+            };
 
             const { status } = await request(app)
                 .post(`/1234`)
@@ -124,11 +147,14 @@ const createAuthToken = async () => {
         exists: (_: any) => false,
     };
 
-    app.locals.loadSession = async (accountAddress: string) => ({
-        challenge: '123',
-    });
-    app.locals.storeSession = async (accountAddress: string, session: any) => {
-        return (_: any, __: any, ___: any) => {};
+    app.locals.db = {
+        getSession: async (accountAddress: string) =>
+            Promise.resolve({
+                challenge: '123',
+            }),
+        setSession: async (_: string, __: any) => {
+            return (_: any, __: any, ___: any) => {};
+        },
     };
 
     const mnemonic =

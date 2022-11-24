@@ -23,7 +23,7 @@ export async function auth(
     if (
         token &&
         (await Lib.delivery.checkToken(
-            req.app.locals.loadSession,
+            req.app.locals.db.getSession,
             account,
             token,
         ))
@@ -57,14 +57,14 @@ export function socketAuth(app: Express) {
 
         if (
             !(await Lib.delivery.checkToken(
-                app.locals.loadSession,
+                app.locals.db.getSession,
                 account,
                 socket.handshake.auth.token as string,
             ))
         ) {
             return next(new Error('invalid username'));
         }
-        const session = await app.locals.loadSession(account);
+        const session = await app.locals.db.getSession(account);
         if (!session) {
             throw Error('Could not get session');
         }
