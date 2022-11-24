@@ -2,6 +2,7 @@ import * as Lib from 'dm3-lib/dist.backend';
 import { createClient } from 'redis';
 import { createRedisClient } from '../redis';
 import Messages from './messages';
+import Session from './session';
 
 export async function getRedisClient() {
     const client = createClient();
@@ -22,6 +23,9 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
         getMessages: Messages.getMessages(redis),
         createMessage: Messages.createMessage(redis),
         deleteExpiredMessages: Messages.deleteExpiredMessages(redis),
+        //Session
+        setSession: Session.setSession(redis),
+        getSession: Session.getSession(redis),
     };
 }
 
@@ -38,6 +42,13 @@ export interface IDatabase {
         createdAt?: number,
     ) => Promise<void>;
     deleteExpiredMessages: (time: number) => Promise<void>;
+
+    setSession: (
+        account: string,
+        session: Lib.delivery.Session,
+    ) => Promise<void>;
+
+    getSession: (account: string) => Promise<Lib.delivery.Session | null>;
 }
 
 export type Redis = Awaited<ReturnType<typeof createRedisClient>>;

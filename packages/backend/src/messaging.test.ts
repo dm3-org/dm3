@@ -78,7 +78,7 @@ describe('Messaging', () => {
 
                     deliveryServiceProperties: { sizeLimit: 2 ** 14 },
 
-                    loadSession,
+                    db: { getSession, createMessage: () => {} },
                     redisClient: {
                         zAdd: () => {},
                     },
@@ -88,9 +88,6 @@ describe('Messaging', () => {
                                 emit: (_: any, __any: any) => {},
                             }),
                         },
-                    },
-                    db: {
-                        createMessage: () => {},
                     },
                 } as any,
             } as express.Express;
@@ -138,7 +135,6 @@ describe('Messaging', () => {
                     },
                     deliveryServicePrivateKey:
                         '9SZhajjn9tn0fX/eBMXfZfb0RaUeYyfhlNYHqZyKHpyTiYvwVosQ5qt2XxdDFblTzggir8kp85kWw76p2EZ0rQ==',
-                    loadSession,
                     redisClient: {
                         zAdd: () => {},
                     },
@@ -148,6 +144,9 @@ describe('Messaging', () => {
                                 emit: (_: any, __any: any) => {},
                             }),
                         },
+                    },
+                    db: {
+                        getSession,
                     },
                 } as any,
             } as express.Express;
@@ -176,7 +175,7 @@ describe('Messaging', () => {
     });
 
     describe('pendingMessage', () => {
-        it.skip('returns error if schema is invalid', async () => {
+        it('returns error if schema is invalid', async () => {
             const app = {
                 locals: {
                     logger: {
@@ -218,7 +217,7 @@ describe('Messaging', () => {
     });
 });
 
-const loadSession = async (address: string) => {
+const getSession = async (address: string) => {
     const emptyProfile: Lib.account.UserProfile = {
         publicSigningKey: '',
         publicEncryptionKey: '',
