@@ -1,5 +1,5 @@
 import { getDatabase, getRedisClient, IDatabase, Redis } from '../getDatabase';
-describe.skip('Delete Expired messages', () => {
+describe('Delete Expired messages', () => {
     let redisClient: Redis;
     let db: IDatabase;
 

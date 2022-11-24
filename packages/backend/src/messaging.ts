@@ -110,6 +110,8 @@ export function onConnection(app: express.Application & WithLocals) {
                     method: 'WS PENDING MESSAGE',
                     error,
                 });
+
+                return callback(error);
             }
 
             const account = Lib.external.formatAddress(data.accountAddress);

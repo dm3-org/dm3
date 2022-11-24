@@ -28,7 +28,7 @@ describe('Messaging', () => {
         });
     });
     describe('submitMessage', () => {
-        it.only('returns success if schema is valid', (done: any) => {
+        it('returns success if schema is valid', (done: any) => {
             //We expect the callback functions called once witht he value 'success'
             expect.assertions(1);
             const callback = (e: any) => {
@@ -158,7 +158,7 @@ describe('Messaging', () => {
     });
 
     describe('pendingMessage', () => {
-        it.skip('returns error if schema is invalid', async () => {
+        it('returns error if schema is invalid', async () => {
             const app = {
                 locals: {
                     logger: {
