@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import { createStorageKey, getStorageKeyCreationMessage } from '../../crypto';
-import { createKeys } from './SignIn';
+import { createStorageKey, getStorageKeyCreationMessage } from '../crypto';
+import { createKeys } from './signInWithEtheruem';
 
 test(`Should create keys`, async () => {
     expect.assertions(1);

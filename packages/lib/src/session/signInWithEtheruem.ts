@@ -1,9 +1,13 @@
-import { createStorageKey, getStorageKeyCreationMessage } from '../../crypto';
+import {
+    createKeyPair,
+    createSigningKeyPair,
+    createStorageKey,
+    getStorageKeyCreationMessage,
+} from '../crypto';
 import { SiweMessage } from 'siwe';
 import { ethers } from 'ethers';
-import { PersonalSign } from '../../external-apis/InjectedWeb3API';
-import { createKeys } from './SignIn';
-import { ProfileKeys } from '../../account';
+import { PersonalSign } from '../external-apis/InjectedWeb3API';
+import { ProfileKeys } from '../account';
 
 const DEFAULT_NONCE = 0;
 
@@ -29,6 +33,18 @@ function getNonce() {
     return DEFAULT_NONCE;
 }
 
+export async function createKeys(
+    nonceMsgSig: string,
+    nonce: number,
+): Promise<ProfileKeys> {
+    return {
+        encryptionKeyPair: await createKeyPair(nonceMsgSig),
+        signingKeyPair: await createSigningKeyPair(nonceMsgSig),
+        storageEncryptionKey: nonceMsgSig,
+        storageEncryptionNonce: nonce,
+    };
+}
+
 export async function signInWithEthereum(
     provider: ethers.providers.JsonRpcProvider,
     personalSign: PersonalSign,
@@ -46,18 +62,9 @@ export async function signInWithEthereum(
             unsignedSiwaMessage,
         );
 
-        console.log('SIWA MSG', siwaMessage);
-
-        const sha = await createStorageKey(siwaMessage);
-        console.log('sha', sha);
-        return await createKeys(sha, nonce);
+        return await createKeys(await createStorageKey(siwaMessage), nonce);
     } catch (e) {
         console.log(e);
-        throw Error("Can't signIn with Etheruem");
+        throw Error("Can't signIn with Ethereum");
     }
 }
-
-// eslint-disable-next-line max-len
-//MSG 0x8aaae81b03d0d257fac700719ea873cae3f6b1c126c9a44d464f5187b611bee923025919ea5867986ddcefa124cdcae8639e5e5ee66c99a7da4a8d1cf1fe85871c
-
-//SHA 0x085e95ce0777b1e3083125756aa36c6ce71d51da63d4a21c609493273db58a2c

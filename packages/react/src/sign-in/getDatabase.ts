@@ -31,7 +31,7 @@ async function getExistingDatebase(
         state.connection,
     );
 
-    //No access to data -> Sign in fails
+    //If there is no storageFile despite the profile exists the login should fail
     if (!storageFile) {
         dispatch({
             type: ConnectionType.ChangeConnectionState,
@@ -39,7 +39,7 @@ async function getExistingDatebase(
         });
         throw 'Sign in failed';
     }
-
+    //The encrypted session file will now be decrypted, therefore the user has to sign the auth message again.
     const { db, connectionState } = await Lib.session.getSessionFromStorage(
         state.connection,
         storageFile,

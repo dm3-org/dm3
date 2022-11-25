@@ -8,14 +8,13 @@ import {
     prersonalSign,
     requestAccounts,
 } from '../external-apis/InjectedWeb3API';
-import { UserDB } from '../storage';
-import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
+import { Connection } from '../web3-provider/Web3Provider';
 import { connectAccount as execConnectAccount } from './Connect';
-import {
-    reAuth as execReAuth,
-    initialSignIn as execInitialSignIn,
-    getSessionFromStorage as execGetSessionFromStroage,
-} from './SignIn/SignIn';
+
+import { reAuth as execReAuth } from './reAuth';
+
+import { initialSignIn as execInitialSignIn } from './initialSignIn';
+import { getSessionFromStorage as execGetSessionFromStroage } from './getSessionFromStorage';
 
 export function connectAccount(connection: Connection, preSetAccount?: string) {
     return execConnectAccount(
@@ -25,6 +24,7 @@ export function connectAccount(connection: Connection, preSetAccount?: string) {
         preSetAccount,
     );
 }
+
 export async function reAuth(connection: Connection) {
     return execReAuth(connection, getChallenge, getNewToken, prersonalSign);
 }

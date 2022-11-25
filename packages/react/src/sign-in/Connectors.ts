@@ -135,12 +135,13 @@ export async function signIn(
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
 ) {
-    // If profile existis ->
     dispatch({
         type: ConnectionType.ChangeConnectionState,
         payload: Lib.web3provider.ConnectionState.WaitingForSignIn,
     });
 
+    // eslint-disable-next-line max-len
+    //Get the users DB. Based wether the profile already exits the db will either be created by decrypting the exisitng storge file or by by creating a enitre new profile
     const { db, connectionState, deliveryServiceToken } = await getDatabase(
         state.uiState.proflieExists,
         storageLocation,
@@ -149,28 +150,24 @@ export async function signIn(
         dispatch,
     );
 
-    console.log(db, connectionState);
-
-    const account: Lib.account.Account = {
-        address: state.connection.account!.address,
-    };
-
+    const address = state.connection.account!.address;
+    //Fetching the profile from the Delivery Service
     const profile = (
         await Lib.account.getUserProfile(
             state.connection,
-            account.address,
-            state.connection.defaultServiceUrl + '/profile/' + account.address,
+            address,
+            state.connection.defaultServiceUrl + '/profile/' + address,
         )
     )?.profile;
 
-    const accountWithProfile = {
-        ...account,
+    const account: Lib.account.Account = {
+        address: state.connection.account!.address,
         profile,
     };
 
     dispatch({
         type: ConnectionType.ChangeAccount,
-        payload: accountWithProfile,
+        payload: account,
     });
     dispatch({
         type: ConnectionType.ChangeStorageLocation,
@@ -189,11 +186,9 @@ export async function signIn(
     dispatch({
         type: AuthStateType.AddNewSession,
         payload: {
-            //TODO replace token
             token: deliveryServiceToken,
             address: account.address,
             storage: storageLocation,
-            //storageEncryptionKey:""
         },
     });
 
