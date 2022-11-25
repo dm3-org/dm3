@@ -5,13 +5,15 @@ import { GlobalState, initialState } from './reducers/shared';
 import { UserDbActions, userDbReducer } from './reducers/UserDB';
 import { UiStateActions, uiStateReducer } from './reducers/UiState';
 import { CacheActions, cacheReducer } from './reducers/Cache';
+import { authReducer, AuthStateActions } from './reducers/Auth';
 
 export type Actions =
     | ConnectionActions
     | CacheActions
     | AccountsActions
     | UserDbActions
-    | UiStateActions;
+    | UiStateActions
+    | AuthStateActions;
 
 export const GlobalContext = React.createContext<{
     state: GlobalState;
@@ -31,6 +33,7 @@ const mainReducer = (state: GlobalState, action: Actions): GlobalState => ({
     accounts: accountsReducer(state.accounts, action as AccountsActions),
     userDb: userDbReducer(state.userDb, action as UserDbActions),
     uiState: uiStateReducer(state.uiState, action as UiStateActions),
+    auth: authReducer(state.auth, action as AuthStateActions),
 });
 
 function GlobalContextProvider(props: GlobalContextProviderProps) {

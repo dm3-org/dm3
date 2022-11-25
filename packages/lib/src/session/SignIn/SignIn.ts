@@ -1,9 +1,6 @@
 import { ethers } from 'ethers';
-import { UserDB, UserStorage } from '../../storage/Storage';
-import { log } from '../../shared/log';
-import { createDB, load } from '../../storage/Storage';
-import { Account, ProfileKeys, UserProfile } from '../../account/Account';
-import { Connection, ConnectionState } from '../../web3-provider/Web3Provider';
+import { ProfileKeys, UserProfile } from '../../account/Account';
+import { createKeyPair, createSigningKeyPair } from '../../crypto';
 import {
     GetChallenge,
     GetNewToken,
@@ -11,12 +8,8 @@ import {
 } from '../../external-apis/BackendAPI';
 import { PersonalSign } from '../../external-apis/InjectedWeb3API';
 import { stringify } from '../../shared/stringify';
-import {
-    createKeyPair,
-    createSigningKeyPair,
-    createStorageKey,
-    getStorageKeyCreationMessage,
-} from '../../crypto';
+import { createDB, load, UserDB } from '../../storage/Storage';
+import { Connection, ConnectionState } from '../../web3-provider/Web3Provider';
 import { signInWithEthereum } from './signInWithEtheruem';
 
 export async function reAuth(
@@ -51,104 +44,82 @@ export async function createKeys(
     };
 }
 
-export async function signIn(
+export async function initialSignIn(
     connection: Partial<Connection>,
     personalSign: PersonalSign,
     submitUserProfile: SubmitUserProfile,
-    browserDataFile: UserStorage | undefined,
-    externalDataFile: string | undefined,
-    overwriteUserDb: Partial<UserDB>,
 ): Promise<{
     connectionState: ConnectionState;
-    db?: UserDB;
+    db: UserDB;
+    deliveryServiceToken: string;
 }> {
-    try {
-        const provider = connection.provider!;
-        const account = connection.account!.address;
+    const { provider, account } = connection;
+    const keys = await signInWithEthereum(
+        provider!,
+        personalSign,
+        account?.address!,
+    );
 
-        const { siwaMessage, nonce } = await signInWithEthereum(
-            provider,
-            personalSign,
-            account,
-        );
+    //Initial Sign in -> Create new profile
+    const profile: UserProfile = {
+        publicSigningKey: keys.signingKeyPair.publicKey,
+        publicEncryptionKey: keys.encryptionKeyPair.publicKey,
+        deliveryServices: ['dev-ds.dm3.eth'],
+    };
 
-        const keys = await createKeys(
-            await createStorageKey(siwaMessage),
-            nonce,
-        );
+    //Create  signed user profile
+    const signature = await personalSign(
+        provider!,
+        account?.address!,
+        stringify(profile),
+    );
+    //Create userProfile
+    const deliveryServiceToken = await submitUserProfile(
+        { address: account?.address!, profile },
+        connection as Connection,
+        {
+            profile,
+            signature,
+        },
+    );
 
-        if (!externalDataFile && !browserDataFile) {
-            const profile: UserProfile = {
-                publicSigningKey: keys.signingKeyPair.publicKey,
-                publicEncryptionKey: keys.encryptionKeyPair.publicKey,
-                deliveryServices: ['dev-ds.dm3.eth'],
-            };
+    return {
+        connectionState: ConnectionState.SignedIn,
+        db: {
+            ...createDB(keys),
+        },
+        deliveryServiceToken,
+    };
+}
 
-            const signature = await personalSign(
-                provider,
-                account,
-                stringify(profile),
-            );
+export async function getSessionFromStorage(
+    connection: Partial<Connection>,
+    personalSign: PersonalSign,
+    storageFile: string,
+) {
+    const { provider, account } = connection;
 
-            const deliveryServiceToken = await submitUserProfile(
-                { address: account, profile },
-                connection as Connection,
-                {
-                    profile,
-                    signature,
-                },
-            );
+    const keys = await signInWithEthereum(
+        provider!,
+        personalSign,
+        account?.address!,
+    );
 
-            return {
-                connectionState: ConnectionState.SignedIn,
-                db: {
-                    ...createDB(keys, deliveryServiceToken),
-                    ...overwriteUserDb,
-                },
-            };
-        } else {
-            const externalData = externalDataFile
-                ? await load(
-                      JSON.parse(externalDataFile),
-                      keys.storageEncryptionKey,
-                  )
-                : null;
+    const externalData = await load(
+        JSON.parse(storageFile),
+        keys.storageEncryptionKey,
+    );
 
-            const dataFromBrowser = browserDataFile
-                ? await load(browserDataFile, keys.storageEncryptionKey)
-                : null;
-
-            if (externalData && dataFromBrowser) {
-                return {
-                    connectionState: ConnectionState.SignedIn,
-                    db: {
-                        ...(externalData.lastChangeTimestamp >=
-                        dataFromBrowser.lastChangeTimestamp
-                            ? externalData
-                            : dataFromBrowser),
-                        ...overwriteUserDb,
-                    },
-                };
-            } else {
-                return {
-                    connectionState: ConnectionState.SignedIn,
-                    db: {
-                        ...(externalData
-                            ? externalData
-                            : (dataFromBrowser as UserDB)),
-                        ...overwriteUserDb,
-                    },
-                };
-            }
-        }
-    } catch (e) {
-        log(e as string);
-        return {
-            connectionState: ConnectionState.SignInFailed,
-        };
-    }
+    return {
+        connectionState: ConnectionState.SignedIn,
+        db: {
+            ...externalData,
+        },
+    };
 }
 
 export function getSessionToken(signature: string) {
     return ethers.utils.keccak256(signature);
 }
+
+//"309ac781-fef0-4a31-a3cb-b31a42af6566"

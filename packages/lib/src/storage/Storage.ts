@@ -30,7 +30,6 @@ export interface StorageEnvelopContainer {
 export interface UserDB {
     conversations: Map<string, StorageEnvelopContainer[]>;
     conversationsCount: number;
-    deliveryServiceToken: string;
     keys: ProfileKeys;
     synced: boolean;
     syncProcessState: SyncProcessState;
@@ -70,15 +69,11 @@ function reviver(key: string, value: any) {
     return value;
 }
 
-export function createDB(
-    keys: ProfileKeys,
-    deliveryServiceToken: string,
-): UserDB {
+export function createDB(keys: ProfileKeys): UserDB {
     return {
         conversations: new Map<string, StorageEnvelopContainer[]>(),
         conversationsCount: 0,
         synced: false,
-        deliveryServiceToken,
         keys,
         syncProcessState: SyncProcessState.Idle,
         lastChangeTimestamp: createTimestamp(),
@@ -106,16 +101,22 @@ export function sortEnvelops(
     );
 }
 
-function prepareUserStoragePayload(userDb: UserDB): UserStoragePayload {
+function prepareUserStoragePayload(
+    userDb: UserDB,
+    token: string,
+): UserStoragePayload {
     return {
         conversations: JSON.stringify(userDb.conversations, replacer),
         keys: userDb.keys,
-        deliveryServiceToken: userDb.deliveryServiceToken,
+        deliveryServiceToken: token,
         lastChangeTimestamp: userDb.lastChangeTimestamp,
     };
 }
 
-export async function sync(userDb: UserDB | undefined): Promise<{
+export async function sync(
+    userDb: UserDB | undefined,
+    deliveryServiceToken: string,
+): Promise<{
     userStorage: UserStorage;
     acknoledgments: Acknoledgment[];
 }> {
@@ -161,7 +162,9 @@ export async function sync(userDb: UserDB | undefined): Promise<{
             nonce: userDb.keys.storageEncryptionNonce,
             payload: await encrypt(
                 userDb.keys.storageEncryptionKey,
-                stringify(prepareUserStoragePayload(userDb)),
+                stringify(
+                    prepareUserStoragePayload(userDb, deliveryServiceToken),
+                ),
             ),
         },
         acknoledgments,
@@ -182,7 +185,6 @@ export async function load(data: UserStorage, key: string): Promise<UserDB> {
 
     return {
         keys: decryptedPayload.keys,
-        deliveryServiceToken: decryptedPayload.deliveryServiceToken,
         conversations,
         conversationsCount: conversations.keys ? conversations.keys.length : 0,
         synced: true,

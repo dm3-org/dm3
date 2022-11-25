@@ -25,6 +25,7 @@ function StorageView() {
                     acknoledgments = await Lib.storage.googleStore(
                         (window as any).gapi,
                         state.userDb as Lib.storage.UserDB,
+                        state.auth.currentSession?.token!,
                     );
                     break;
 
@@ -32,6 +33,7 @@ function StorageView() {
                     acknoledgments = await Lib.storage.web3Store(
                         state.connection,
                         state.userDb as Lib.storage.UserDB,
+                        state.auth.currentSession?.token!,
                     );
                     break;
 
@@ -39,6 +41,7 @@ function StorageView() {
                     acknoledgments = await Lib.storage.useDm3Storage(
                         state.connection,
                         state.userDb as Lib.storage.UserDB,
+                        state.auth.currentSession?.token!,
                     );
                     break;
 
@@ -48,9 +51,13 @@ function StorageView() {
                         await Lib.storage.useDm3Storage(
                             state.connection,
                             state.userDb,
+                            state.auth.currentSession?.token!,
                         );
                     }
-                    const syncResult = await Lib.storage.sync(state.userDb);
+                    const syncResult = await Lib.storage.sync(
+                        state.userDb,
+                        state.auth.currentSession?.token!,
+                    );
                     acknoledgments = syncResult.acknoledgments;
                     const blob = new Blob(
                         [JSON.stringify(syncResult.userStorage)],
@@ -80,7 +87,7 @@ function StorageView() {
                 await Lib.external.syncAcknoledgment(
                     state.connection,
                     acknoledgments,
-                    state.userDb,
+                    state.auth.currentSession?.token!,
                     state.uiState.lastMessagePull,
                 );
             }
@@ -147,7 +154,12 @@ function StorageView() {
                 Lib.account.getBrowserStorageKey(
                     state.connection.account!.address,
                 ),
-                (await Lib.storage.sync(state.userDb)).userStorage,
+                (
+                    await Lib.storage.sync(
+                        state.userDb,
+                        state.auth.currentSession?.token!,
+                    )
+                ).userStorage,
             );
         };
         if (state.uiState.browserStorageBackup) {

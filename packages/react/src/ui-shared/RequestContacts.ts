@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 
 export async function requestContacts(
     connection: Lib.Connection,
+    deliveryServiceToken: string,
     selectedContact: Lib.account.Account | undefined,
     setSelectedContact: (account: Lib.account.Account | undefined) => void,
     setContacts: (constacts: Lib.account.Account[]) => void,
@@ -15,6 +16,7 @@ export async function requestContacts(
     let retrievedContacts = await Lib.account.getContacts(
         connection,
         userDb,
+        deliveryServiceToken,
         createEmptyConversationEntry,
     );
 
@@ -35,6 +37,7 @@ export async function requestContacts(
         retrievedContacts = await Lib.account.getContacts(
             connection,
             userDb,
+            deliveryServiceToken,
             createEmptyConversationEntry,
         );
     }
@@ -98,6 +101,7 @@ export async function requestContacts(
             .forEach(async (message) => {
                 await Lib.messaging.submitMessage(
                     connection,
+                    deliveryServiceToken,
                     userDb,
                     contact,
                     message.envelop.message,

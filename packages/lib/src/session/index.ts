@@ -1,3 +1,4 @@
+import { getUserProfile } from '../account';
 import {
     getChallenge,
     getNewToken,
@@ -7,30 +8,14 @@ import {
     prersonalSign,
     requestAccounts,
 } from '../external-apis/InjectedWeb3API';
-import { UserDB, UserStorage } from '../storage';
+import { UserDB } from '../storage';
 import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
-import { signIn as execSignIn, reAuth as execReAuth } from './SignIn/SignIn';
 import { connectAccount as execConnectAccount } from './Connect';
-import { getUserProfile } from '../account';
-
-export async function signIn(
-    connection: Partial<Connection>,
-    browserDataFile: UserStorage | undefined,
-    externalDataFile: string | undefined,
-    overwriteUserDb: Partial<UserDB>,
-): Promise<{
-    connectionState: ConnectionState;
-    db?: UserDB;
-}> {
-    return execSignIn(
-        connection,
-        prersonalSign,
-        submitUserProfile,
-        browserDataFile,
-        externalDataFile,
-        overwriteUserDb,
-    );
-}
+import {
+    reAuth as execReAuth,
+    initialSignIn as execInitialSignIn,
+    getSessionFromStorage as execGetSessionFromStroage,
+} from './SignIn/SignIn';
 
 export function connectAccount(connection: Connection, preSetAccount?: string) {
     return execConnectAccount(
@@ -42,4 +27,14 @@ export function connectAccount(connection: Connection, preSetAccount?: string) {
 }
 export async function reAuth(connection: Connection) {
     return execReAuth(connection, getChallenge, getNewToken, prersonalSign);
+}
+
+export async function initialSignIn(connection: Partial<Connection>) {
+    return execInitialSignIn(connection, prersonalSign, submitUserProfile);
+}
+export async function getSessionFromStorage(
+    connection: Partial<Connection>,
+    storageFile: string,
+) {
+    return execGetSessionFromStroage(connection, prersonalSign, storageFile);
 }

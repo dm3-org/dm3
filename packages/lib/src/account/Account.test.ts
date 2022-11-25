@@ -207,7 +207,6 @@ test('getContacts ', async () => {
     const userDb: UserDB = {
         conversations: new Map<string, StorageEnvelopContainer[]>(),
         conversationsCount: 0,
-        deliveryServiceToken: '',
         keys,
         lastChangeTimestamp: 0,
         syncProcessState: SyncProcessState.Idle,
@@ -222,6 +221,7 @@ test('getContacts ', async () => {
     expect(
         await getContacts(
             connection,
+            '',
             async () => undefined,
             async () => [],
             async () => '',
@@ -241,6 +241,7 @@ test('getContacts should throw if provider is undefined', async () => {
     await expect(
         getContacts(
             { ...connection, provider: undefined },
+            '',
             async () => undefined,
             async () => [],
             async () => '',
@@ -254,7 +255,6 @@ test('Should create an empty conversation for a new contact ', (done) => {
     const userDb: UserDB = {
         conversations: new Map<string, StorageEnvelopContainer[]>(),
         conversationsCount: 0,
-        deliveryServiceToken: '',
         keys,
         lastChangeTimestamp: 0,
         syncProcessState: SyncProcessState.Idle,
@@ -279,7 +279,6 @@ test('Should reject to add a contact if the contact was already added', async ()
     const userDb: UserDB = {
         conversations: new Map<string, StorageEnvelopContainer[]>(),
         conversationsCount: 0,
-        deliveryServiceToken: '',
         keys,
         lastChangeTimestamp: 0,
         syncProcessState: SyncProcessState.Idle,

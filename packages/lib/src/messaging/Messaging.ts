@@ -94,6 +94,7 @@ export function createMessage(
 
 export async function submitMessage(
     connection: Connection,
+    deliveryServiceToken: string,
     userDb: UserDB,
     to: Account,
     message: Message,
@@ -122,7 +123,7 @@ export async function submitMessage(
 
     await createPendingEntry(
         connection,
-        userDb,
+        deliveryServiceToken,
         innerEnvelop.message.from,
         innerEnvelop.message.to,
     );
@@ -148,8 +149,12 @@ export async function submitMessage(
             from: (connection.account as Account).address,
             encryptionVersion: 'x25519-chacha20-poly1305',
         };
-        await submitMessageApi(connection, userDb, envelop, allOnSuccess, () =>
-            log('submit message error'),
+        await submitMessageApi(
+            connection,
+            deliveryServiceToken,
+            envelop,
+            allOnSuccess,
+            () => log('submit message error'),
         );
 
         storeMessages([
@@ -178,6 +183,7 @@ async function decryptMessages(
 
 export async function getMessages(
     connection: Connection,
+    deliveryServiceToken: string,
     contact: string,
     getNewMessages: GetNewMessages,
     storeMessages: (envelops: StorageEnvelopContainer[]) => void,
@@ -185,7 +191,7 @@ export async function getMessages(
 ): Promise<StorageEnvelopContainer[]> {
     const envelops = await Promise.all(
         (
-            await getNewMessages(connection, userDb, contact)
+            await getNewMessages(connection, deliveryServiceToken, contact)
         ).map(async (envelop): Promise<StorageEnvelopContainer> => {
             const decryptedEnvelop = await decryptMessages([envelop], userDb);
             const decryptedPostmark = JSON.parse(

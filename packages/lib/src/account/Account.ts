@@ -59,6 +59,7 @@ export interface Account {
 
 export async function getContacts(
     connection: Connection,
+    deliveryServiceToken: string,
     getUserProfile: GetUserProfile,
     getPendingConversations: GetPendingConversations,
     resolveName: ResolveName,
@@ -70,7 +71,7 @@ export async function getContacts(
     }
     const pendingConversations = await getPendingConversations(
         connection,
-        userDb,
+        deliveryServiceToken,
     );
 
     Promise.all(

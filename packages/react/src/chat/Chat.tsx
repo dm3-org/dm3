@@ -46,6 +46,7 @@ function Chat() {
         handleMessages(
             await Lib.messaging.getMessages(
                 state.connection,
+                state.auth.currentSession?.token!,
                 state.accounts.selectedContact.address,
                 state.userDb as Lib.storage.UserDB,
                 (envelops) =>
@@ -233,6 +234,7 @@ function Chat() {
         try {
             await Lib.messaging.submitMessage(
                 state.connection,
+                state.auth.currentSession?.token!,
                 userDb,
                 state.accounts.selectedContact,
                 messageData,
