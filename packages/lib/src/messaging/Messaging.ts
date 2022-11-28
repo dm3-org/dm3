@@ -21,7 +21,7 @@ export interface Message {
     message: string;
     type: MessageType;
     referenceMessageHash?: string;
-    attachments?: Attachment[];
+    attachments?: string[];
     replyDeliveryInstruction?: string;
     signature: string;
 }
@@ -34,11 +34,6 @@ export type MessageType =
     | 'REACTION'
     | 'READ_RECEIPT'
     | 'RESEND_REQUEST';
-
-export interface Attachment {
-    type: string;
-    data: string;
-}
 
 export interface Envelop {
     message: Message;
@@ -81,7 +76,7 @@ export function createMessage(
     type: MessageType,
     signature: string,
     referenceMessageHash?: string,
-    attachments?: Attachment[],
+    attachments?: string[],
     replyDeliveryInstruction?: string,
 ): Message {
     return {
