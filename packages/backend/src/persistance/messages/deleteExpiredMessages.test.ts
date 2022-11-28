@@ -16,7 +16,7 @@ describe('Delete Expired messages', () => {
 
     it('Delete all messages createdAt before a given time', async () => {
         await db.createMessage(
-            'foo',
+            'foox',
             {
                 message: 'hello',
                 encryptionVersion: 'x25519-chacha20-poly1305',
@@ -25,7 +25,7 @@ describe('Delete Expired messages', () => {
             1,
         );
         await db.createMessage(
-            'foo',
+            'foox',
             {
                 message: 'world',
                 encryptionVersion: 'x25519-chacha20-poly1305',
@@ -34,7 +34,7 @@ describe('Delete Expired messages', () => {
             3,
         );
         await db.createMessage(
-            'foo',
+            'foox',
             {
                 message: 'dm3',
                 encryptionVersion: 'x25519-chacha20-poly1305',
@@ -43,12 +43,12 @@ describe('Delete Expired messages', () => {
             100,
         );
 
-        const priorDeleteMessages = await db.getMessages('foo', 0, 50);
+        const priorDeleteMessages = await db.getMessages('foox', 0, 50);
         expect(priorDeleteMessages.length).toBe(3);
 
         await db.deleteExpiredMessages(50);
 
-        const afterDeleteMessages = await db.getMessages('foo', 0, 50);
+        const afterDeleteMessages = await db.getMessages('foox', 0, 50);
         expect(afterDeleteMessages.length).toBe(1);
 
         expect(afterDeleteMessages[0].message).toBe('dm3');
