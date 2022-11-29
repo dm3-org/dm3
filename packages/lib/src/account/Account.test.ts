@@ -24,6 +24,7 @@ import {
     UserProfile,
     publishProfileOnchain,
     SignedUserProfile,
+    getProfileCreationMessage,
 } from './Account';
 
 const connection: Connection = {
@@ -64,7 +65,10 @@ const getProfileData = async (): Promise<{
 
     const wallet = ethers.Wallet.fromMnemonic(mnemonic);
 
-    const signature = await wallet.signMessage(stringify(profile));
+    const createUserProfileMessage = getProfileCreationMessage(
+        stringify(profile),
+    );
+    const signature = await wallet.signMessage(createUserProfileMessage);
 
     return {
         account: {
@@ -106,7 +110,7 @@ test('createHashUrlParam should create the correct hash', async () => {
     expect(
         createHashUrlParam((await getProfileData()).signedUserProfile),
     ).toStrictEqual(
-        'dm3Hash=0x407ae4ad488fef7020267b5789c6f66213a9092c9b99b422bbe877b3f629dd4c',
+        'dm3Hash=0xdedbd431b7bb71b9b34443fb703c84e10e1431c4eab1d8439e3e92cfcd226df1',
     );
 });
 
@@ -155,7 +159,10 @@ test('checkProfileHash should reject an URI without hash', async () => {
         deliveryServices: [''],
     };
     const wallet = ethers.Wallet.createRandom();
-    const signature = await wallet.signMessage(stringify(profile));
+    const createUserProfileMessage = getProfileCreationMessage(
+        stringify(profile),
+    );
+    const signature = await wallet.signMessage(createUserProfileMessage);
     const signedProfile = {
         profile,
         signature,
@@ -173,7 +180,10 @@ test('checkUserProfile should accept a correct signature ', async () => {
     };
 
     const wallet = ethers.Wallet.createRandom();
-    const signature = await wallet.signMessage(stringify(profile));
+    const createUserProfileMessage = getProfileCreationMessage(
+        stringify(profile),
+    );
+    const signature = await wallet.signMessage(createUserProfileMessage);
 
     expect(
         checkUserProfile(
@@ -530,7 +540,7 @@ test('publishProfileOnchain', async () => {
     expect(tx?.args).toStrictEqual([
         '0xca7a0eadca1ba3745db7065063294b717422bd1c70995cba8f5adcd094fdae1d',
         'eth.dm3.profile',
-        'http://bla?dm3Hash=0x407ae4ad488fef7020267b5789c6f66213a9092c9b99b422bbe877b3f629dd4c',
+        'http://bla?dm3Hash=0xdedbd431b7bb71b9b34443fb703c84e10e1431c4eab1d8439e3e92cfcd226df1',
     ]);
 
     expect(tx?.method()).toStrictEqual('success');

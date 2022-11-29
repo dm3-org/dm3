@@ -24,6 +24,7 @@ export {
     getAccountDisplayName,
     getBrowserStorageKey,
     checkStringSignature,
+    getProfileCreationMessage,
 } from './Account';
 
 export type { Account, ProfileKeys, UserProfile } from './Account';
