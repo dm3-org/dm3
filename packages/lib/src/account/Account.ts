@@ -57,6 +57,10 @@ export interface Account {
     profile?: UserProfile;
 }
 
+export function getProfileCreationMessage(stringifiedProfile: string) {
+    return `Hearby you accept dm3's terms of service ${stringifiedProfile}`;
+}
+
 export async function getContacts(
     connection: Connection,
     deliveryServiceToken: string,
@@ -188,13 +192,16 @@ export async function addContact(
 }
 
 export function checkUserProfile(
-    signedUserProfile: SignedUserProfile,
+    { profile, signature }: SignedUserProfile,
     accountAddress: string,
 ): boolean {
+    const createUserProfileMessage = getProfileCreationMessage(
+        stringify(profile),
+    );
     return (
         ethers.utils.recoverAddress(
-            ethers.utils.hashMessage(stringify(signedUserProfile.profile)),
-            signedUserProfile.signature,
+            ethers.utils.hashMessage(createUserProfileMessage),
+            signature,
         ) === formatAddress(accountAddress)
     );
 }
