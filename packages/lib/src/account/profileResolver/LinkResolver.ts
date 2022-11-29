@@ -11,7 +11,10 @@ const isProfile = (textRecord: string) => {
     }
 };
 
-function resolveProfile<T extends Dm3Profile>(getResource: GetResource<T>) {
+function resolveProfile<T extends Dm3Profile>(
+    getResource: GetResource<T>,
+    validate: (objectToCheck: T) => boolean,
+) {
     return async (textRecord: string) => {
         log(`[getUserProfile] resolve link ${textRecord}`);
         const profile = await getResource(textRecord);
@@ -23,15 +26,20 @@ function resolveProfile<T extends Dm3Profile>(getResource: GetResource<T>) {
         if (!checkProfileHash(profile, textRecord)) {
             throw Error('Profile hash check failed');
         }
+
+        if (!validate(profile)) {
+            throw Error("SignedUserProfileSchema doesn't fit schema");
+        }
         return profile;
     };
 }
 
 export function LinkResolver<T extends Dm3Profile>(
     getResource: GetResource<T>,
+    validate: (objectToCheck: T) => boolean,
 ): ProfileResolver<T> {
     return {
         isProfile,
-        resolveProfile: resolveProfile<T>(getResource),
+        resolveProfile: resolveProfile<T>(getResource, validate),
     };
 }
