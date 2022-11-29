@@ -70,6 +70,7 @@ export default () => {
 
                 const newMessages = await Lib.delivery.getMessages(
                     req.app.locals.db.getMessages,
+                    req.app.locals.keys.encryption,
                     account,
                     contact,
                 );
@@ -175,7 +176,6 @@ export default () => {
 
                 res.json();
             } catch (e) {
-                console.log(e);
                 next(e);
             }
         },

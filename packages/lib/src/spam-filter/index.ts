@@ -1,4 +1,9 @@
-import { EncryptionEnvelop, Envelop } from '../messaging/Messaging';
+import { decryptAsymmetric, KeyPair } from '../crypto';
+import {
+    DeliveryInformation,
+    EncryptionEnvelop,
+    Envelop,
+} from '../messaging/Messaging';
 import { Connection } from '../web3-provider/Web3Provider';
 import { ethBalanceFilter, EthBalanceFilterSettings } from './EthBalanceFilter';
 import { nonceFilter, NonceFilterSettings } from './NonceFilter';
@@ -27,23 +32,23 @@ function getFilter(filter: Filter) {
     switch (filter) {
         case Filter.NonceFilter:
             return (
-                envelop: Envelop | EncryptionEnvelop,
+                from: string,
                 settings: NonceFilterSettings,
                 connection: Connection,
             ): Promise<boolean> =>
                 nonceFilter(
-                    envelop,
+                    from,
                     settings,
                     connection.provider!.getTransactionCount,
                 );
         case Filter.EthBalanceFilter:
             return (
-                envelop: Envelop | EncryptionEnvelop,
+                from: string,
                 settings: EthBalanceFilterSettings,
                 connection: Connection,
             ): Promise<boolean> =>
                 ethBalanceFilter(
-                    envelop,
+                    from,
                     settings,
                     connection.provider!.getBalance,
                 );
@@ -55,8 +60,9 @@ function getFilter(filter: Filter) {
 
 export async function filter(
     filters: FilterFunction[],
-    envelops: (Envelop | EncryptionEnvelop)[],
+    envelops: EncryptionEnvelop[],
     connection: Connection,
+    encryptionKeyPair: KeyPair,
 ): Promise<(Envelop | EncryptionEnvelop)[]> {
     if (!connection.provider) {
         throw Error('No provider');
@@ -66,13 +72,20 @@ export async function filter(
         envelops.map(async (envelop) => ({
             result: (
                 await Promise.all(
-                    filters.map((filterContainer) =>
-                        getFilter(filterContainer.filter)(
-                            envelop,
+                    filters.map(async (filterContainer) => {
+                        const deliveryInformation: DeliveryInformation =
+                            JSON.parse(
+                                await decryptAsymmetric(
+                                    encryptionKeyPair,
+                                    JSON.parse(envelop.deliveryInformation),
+                                ),
+                            );
+                        return getFilter(filterContainer.filter)(
+                            deliveryInformation.from,
                             filterContainer.settings as any,
                             connection,
-                        ),
-                    ),
+                        );
+                    }),
                 )
             ).reduce((prev, current) => prev && current, true),
             envelop,
