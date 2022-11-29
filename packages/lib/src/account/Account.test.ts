@@ -416,12 +416,11 @@ test('getUserProfile -- Should get profile registry entry from IPFS if textRecor
         ),
     ).resolves.toStrictEqual(signedUserProfile);
 });
-test('getUserProfile -- Should resolve profile if textREcored stores a stringified profile ', async () => {
+test('getUserProfile -- Should resolve profile if textRecored stores a stringified profile ', async () => {
     const profile: UserProfile = {
         publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug',
         publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
         deliveryServices: [''],
-        mutableProfileExtensionUrl: undefined,
     };
     const signedUserProfile = {
         profile,
@@ -438,8 +437,7 @@ test('getUserProfile -- Should resolve profile if textREcored stores a stringifi
             '0x8101b0729eb9708a344c820fce80f12a90a7c1fa',
             async () => undefined,
             async () =>
-                // eslint-disable-next-line max-len
-                JSON.stringify(signedUserProfile),
+                'data:application/json,' + JSON.stringify(signedUserProfile),
             async (_) => undefined,
         ),
     ).resolves.toStrictEqual(signedUserProfile);

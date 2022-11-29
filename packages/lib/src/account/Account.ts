@@ -24,9 +24,10 @@ import {
 } from '../storage/Storage';
 import { Connection } from '../web3-provider/Web3Provider';
 import { IpfsResolver } from './profileResolver/IpfsResolver';
-import { UserProfileResolver } from './profileResolver/json/UserProfileResolver';
+import { JsonResolver } from './profileResolver/JsonResolver';
 import { LinkResolver } from './profileResolver/LinkResolver';
 import { Dm3Profile, ProfileResolver } from './profileResolver/ProfileResolver';
+import { validateSignedUserProfile } from './profileResolver/Validation';
 
 export interface UserProfile {
     publicEncryptionKey: string;
@@ -251,9 +252,9 @@ export async function getUserProfile(
      */
 
     const resolver: ProfileResolver<SignedUserProfile>[] = [
-        LinkResolver(getRessource),
-        IpfsResolver(getRessource),
-        UserProfileResolver(),
+        LinkResolver(getRessource, validateSignedUserProfile),
+        IpfsResolver(getRessource, validateSignedUserProfile),
+        JsonResolver(validateSignedUserProfile),
     ];
 
     return await resolver
