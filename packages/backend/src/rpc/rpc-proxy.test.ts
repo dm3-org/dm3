@@ -12,7 +12,7 @@ const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
 const keyPair = Lib.crypto.createKeyPair();
 
-describe.only('rpc-Proxy', () => {
+describe('rpc-Proxy', () => {
     describe('routing', () => {
         const keysA = {
             encryptionKeyPair: {

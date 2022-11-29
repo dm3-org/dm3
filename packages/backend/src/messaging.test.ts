@@ -48,7 +48,7 @@ describe('Messaging', () => {
         });
     });
     describe('submitMessage', () => {
-        it.only('returns success if schema is valid', (done: any) => {
+        it('returns success if schema is valid', (done: any) => {
             //We expect the callback functions called once witht he value 'success'
             expect.assertions(1);
             const callback = (e: any) => {
