@@ -23,7 +23,6 @@
         "libsodium-wrappers": "^0.7.10",
         "query-string": "^7.1.1",
         "safe-stable-stringify": "^2.4.1",
-        "siwe": "^1.1.6",
         "socket.io": "^4.4.1",
         "socket.io-client": "^4.4.1",
         "uuid": "^8.3.2",
