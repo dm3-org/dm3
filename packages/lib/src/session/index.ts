@@ -13,7 +13,7 @@ import { connectAccount as execConnectAccount } from './Connect';
 
 import { reAuth as execReAuth } from './reAuth';
 
-import { initialSignIn as execInitialSignIn } from './initialSignIn';
+import { signIn as execSignIn } from './SignIn/signIn';
 import { getSessionFromStorage as execGetSessionFromStroage } from './getSessionFromStorage';
 
 export function connectAccount(connection: Connection, preSetAccount?: string) {
@@ -29,8 +29,8 @@ export async function reAuth(connection: Connection) {
     return execReAuth(connection, getChallenge, getNewToken, prersonalSign);
 }
 
-export async function initialSignIn(connection: Partial<Connection>) {
-    return execInitialSignIn(connection, prersonalSign, submitUserProfile);
+export async function signIn(connection: Partial<Connection>) {
+    return execSignIn(connection, prersonalSign, submitUserProfile);
 }
 export async function getSessionFromStorage(
     connection: Partial<Connection>,

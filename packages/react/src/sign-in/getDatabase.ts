@@ -49,5 +49,5 @@ async function getExistingDatebase(
 }
 
 async function createNewDatabase(state: GlobalState) {
-    return await Lib.session.initialSignIn(state.connection);
+    return await Lib.session.signIn(state.connection);
 }
