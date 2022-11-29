@@ -4,13 +4,13 @@ import axios, {
     AxiosRequestConfig,
     AxiosResponse,
 } from 'axios';
-import { Console } from 'console';
 import { GetResource, UserProfile } from '../account/Account';
 import { IpfsResolver } from '../account/profileResolver/IpfsResolver';
-import { DeliveryServiceResolver } from '../account/profileResolver/json/DeliveryServiceResolver';
+import { JsonResolver } from '../account/profileResolver/JsonResolver';
 import { LinkResolver } from '../account/profileResolver/LinkResolver';
 import { ProfileResolver } from '../account/profileResolver/ProfileResolver';
 import { Connection } from '../web3-provider/Web3Provider';
+import { validateDeliveryServiceProfile } from './Validation';
 
 export interface DeliveryServiceProfile {
     publicSigningKey: string;
@@ -39,9 +39,9 @@ export async function getDeliveryServiceProfile(
     const textRecord = await ensResolver?.getText(DELIVERY_SERVICE_PROFILE_KEY);
 
     const resolver: ProfileResolver<DeliveryServiceProfile>[] = [
-        LinkResolver(getRessource),
-        IpfsResolver(getRessource),
-        DeliveryServiceResolver(),
+        LinkResolver(getRessource, validateDeliveryServiceProfile),
+        IpfsResolver(getRessource, validateDeliveryServiceProfile),
+        JsonResolver(validateDeliveryServiceProfile),
     ];
 
     const profile = await resolver

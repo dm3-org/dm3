@@ -5,16 +5,9 @@ const SUPPORTED_PROTOCOLS = ['http', 'https', 'data'];
 
 function uriCheck(url: URL | undefined): boolean {
     if (url) {
-<<<<<<< HEAD
         const usesSupportedProtocol = !!SUPPORTED_PROTOCOLS.find(
             (protocol) => protocol + ':' === url.protocol,
         );
-=======
-        const usesSupportedProtocol =
-            SUPPORTED_PROTOCOLS.find(
-                (protocol) => protocol + ':' === url.protocol,
-            ) !== undefined;
->>>>>>> 88b8a2a (feat: use URIs for attachments)
         if (!usesSupportedProtocol) {
             log(`unsupported attachment protocol: ${url.href}`);
         }

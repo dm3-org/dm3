@@ -18,6 +18,7 @@
         "@types/libsodium-wrappers": "^0.7.10",
         "ajv": "^8.11.0",
         "axios": "^0.25.0",
+        "data-urls": "^3.0.2",
         "ethers": "^5.5.4",
         "googleapis": "^100.0.0",
         "libsodium-wrappers": "^0.7.10",
@@ -26,12 +27,15 @@
         "socket.io": "^4.4.1",
         "socket.io-client": "^4.4.1",
         "uuid": "^8.3.2",
-        "web3.storage": "^3.5.7"
+        "web3.storage": "^3.5.7",
+        "whatwg-encoding": "^2.0.0"
     },
     "devDependencies": {
+        "@types/data-urls": "^3.0.1",
         "@types/jest": "^28.1.1",
         "@types/node": "^16.7.13",
         "@types/uuid": "^8.3.4",
+        "@types/whatwg-encoding": "^2.0.0",
         "axios-mock-adapter": "^1.21.2",
         "jest": "^28.1.1",
         "ts-jest": "^28.0.4",
@@ -39,7 +43,7 @@
         "typescript": "^4.4.2"
     },
     "scripts": {
-        "build:schema": "yarn ts-json-schema-generator -f tsconfig.json --path src/lib/Messaging.ts --type Message -o src/schema.json --no-type-check && yarn ts-json-schema-generator -f tsconfig.json --path lib/src/delivery/Messages.ts --type Acknoledgment -o src/delivery/schema/Acknoledgment.schema.json --no-type-check && yarn ts-json-schema-generator -f tsconfig.json --path lib/src/messaging/Messaging.ts --type EncryptionEnvelop -o src/messaging/schema/EncryptionEnvelop.schema.json --no-type-check  && yarn ts-json-schema-generator -f tsconfig.json --path lib/src/delivery/Delivery.ts --type DeliveryServiceProperties -o src/delivery/schema/DeliveryServiceProperties.schema.json --no-type-check && yarn ts-json-schema-generator -f tsconfig.json --path lib/src/delivery/Session.ts --type Session -o src/delivery/schema/Session.schema.json --no-type-check",
+        "build:schema": "sh ./schemas.sh",
         "build": "yarn build:schema && tsc --declaration && tsc --declaration -p tsconfig.backend.json",
         "test": "jest --coverage"
     },

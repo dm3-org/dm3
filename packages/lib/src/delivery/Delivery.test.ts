@@ -157,7 +157,10 @@ describe('Delivery', () => {
             const mockGetEnsResolver = (_: string) =>
                 Promise.resolve({
                     getText: (_: string) =>
-                        Promise.resolve(JSON.stringify(deliveryServiceProfile)),
+                        Promise.resolve(
+                            'data:application/json,' +
+                                JSON.stringify(deliveryServiceProfile),
+                        ),
                 } as unknown);
 
             const provider = {
@@ -174,6 +177,7 @@ describe('Delivery', () => {
 
             expect(res.status).toBe(200);
         });
+
         // eslint-disable-next-line max-len
         test('getDeliveryServiceClient -- returns response if fallback deliveryService is working as intended ', async () => {
             const userProfile = {
@@ -197,12 +201,16 @@ describe('Delivery', () => {
                     getText: (_: string) => {
                         if (textRecord === 'blabla.ens') {
                             return Promise.resolve(
-                                JSON.stringify(deliveryServiceProfile),
+                                'data:application/json,' +
+                                    JSON.stringify(deliveryServiceProfile),
                             );
                         }
                         if (textRecord === 'fallback.ens') {
                             return Promise.resolve(
-                                JSON.stringify(fallbackDeliveryServiceProfile1),
+                                'data:application/json,' +
+                                    JSON.stringify(
+                                        fallbackDeliveryServiceProfile1,
+                                    ),
                             );
                         }
 
@@ -248,12 +256,16 @@ describe('Delivery', () => {
                     getText: (_: string) => {
                         if (textRecord === 'blabla.ens') {
                             return Promise.resolve(
-                                JSON.stringify(deliveryServiceProfile),
+                                'data:application/json,' +
+                                    JSON.stringify(deliveryServiceProfile),
                             );
                         }
                         if (textRecord === 'fallback.ens') {
                             return Promise.resolve(
-                                JSON.stringify(fallbackDeliveryServiceProfile1),
+                                'data:application/json,' +
+                                    JSON.stringify(
+                                        fallbackDeliveryServiceProfile1,
+                                    ),
                             );
                         }
 
