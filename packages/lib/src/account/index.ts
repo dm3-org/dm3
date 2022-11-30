@@ -24,6 +24,7 @@ export {
     getAccountDisplayName,
     getBrowserStorageKey,
     checkStringSignature,
+    getProfileCreationMessage,
 } from './Account';
 
 export type { Account, ProfileKeys, UserProfile } from './Account';
@@ -46,10 +47,12 @@ export async function addContact(
 export async function getContacts(
     connection: Connection,
     userDb: UserDB,
+    deliveryServiceToken: string,
     createEmptyConversationEntry: (id: string) => void,
 ) {
     return execGetContacts(
         connection,
+        deliveryServiceToken,
         getUserProfile,
         getPendingConversations,
         resolveName,

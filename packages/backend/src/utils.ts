@@ -4,6 +4,7 @@ import { isAddress } from 'ethers/lib/utils';
 import { Express, NextFunction, Request, Response } from 'express';
 import { Socket } from 'socket.io';
 import { ExtendedError } from 'socket.io/dist/namespace';
+import { WithLocals } from './types';
 
 export async function auth(
     req: Request,
@@ -39,7 +40,7 @@ export async function auth(
     }
 }
 
-export function socketAuth(app: Express) {
+export function socketAuth(app: Express & WithLocals) {
     return async (
         socket: Socket,
         next: (err?: ExtendedError | undefined) => void,
@@ -69,7 +70,7 @@ export function socketAuth(app: Express) {
             throw Error('Could not get session');
         }
 
-        await app.locals.storeSession(account, {
+        await app.locals.db.setSession(account, {
             ...session,
             socketId: socket.id,
         });

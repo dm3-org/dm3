@@ -48,6 +48,7 @@ async function createGoogleDriveFile(
 export async function googleStore(
     gapi: any,
     userDb: UserDB,
+    deliveryServiceToken: string,
 ): Promise<Acknoledgment[]> {
     if (!gapi) {
         throw Error('No google api object');
@@ -55,7 +56,7 @@ export async function googleStore(
 
     log('Sync with google drive');
 
-    const syncResult = await sync(userDb);
+    const syncResult = await sync(userDb, deliveryServiceToken);
     await createGoogleDriveFile(
         gapi,
         FILE_NAME + '-' + new Date().getTime() + '.json',

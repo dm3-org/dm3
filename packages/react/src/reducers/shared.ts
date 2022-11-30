@@ -1,4 +1,5 @@
 import * as Lib from 'dm3-lib';
+import { AuthState } from './Auth';
 import { Cache } from './Cache';
 import { SelectedRightView, UiState } from './UiState';
 
@@ -30,6 +31,7 @@ export type GlobalState = {
     cache: Cache;
     userDb: Lib.storage.UserDB | undefined;
     uiState: UiState;
+    auth: AuthState;
 };
 
 export enum AccountInfo {
@@ -63,5 +65,10 @@ export const initialState: GlobalState = {
         lastMessagePull: 0,
         proflieExists: false,
         browserStorageBackup: false,
+    },
+    auth: {
+        currentSession: undefined,
+        recentlyUsedSession: undefined,
+        allSessions: {},
     },
 };

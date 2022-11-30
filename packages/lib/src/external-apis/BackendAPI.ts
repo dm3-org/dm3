@@ -93,7 +93,7 @@ export type SubmitUserProfile = typeof submitUserProfile;
 
 export async function submitMessage(
     connection: Connection,
-    userDb: UserDB,
+    token: string,
     envelop: Envelop | EncryptionEnvelop,
     onSuccess: () => void,
     onError: () => void,
@@ -103,7 +103,7 @@ export async function submitMessage(
             'submitMessage',
             {
                 envelop,
-                token: userDb.deliveryServiceToken,
+                token,
             },
             (response: string) => {
                 if (response === 'success') {
@@ -122,7 +122,7 @@ export type SubmitMessage = typeof submitMessage;
 export async function syncAcknoledgment(
     connection: Connection,
     acknoledgments: Acknoledgment[],
-    userDb: UserDB,
+    token: string,
     lastMessagePull: number,
 ): Promise<void> {
     const { account } = connection;
@@ -136,17 +136,13 @@ export async function syncAcknoledgment(
         profile,
         connection,
         async (url) => (await axios.get(url)).data,
-    ).post(
-        url,
-        { acknoledgments },
-        getAxiosConfig(userDb.deliveryServiceToken),
-    );
+    ).post(url, { acknoledgments }, getAxiosConfig(token));
 }
 export type SyncAcknoledgment = typeof syncAcknoledgment;
 
 export async function createPendingEntry(
     connection: Connection,
-    userDb: UserDB,
+    token: string,
     accountAddress: string,
     contactAddress: string,
 ): Promise<void> {
@@ -155,7 +151,7 @@ export async function createPendingEntry(
         connection.socket.emit('pendingMessage', {
             accountAddress,
             contactAddress,
-            token: userDb.deliveryServiceToken,
+            token,
         });
     }
 }
@@ -163,7 +159,7 @@ export type CreatePendingEntry = typeof createPendingEntry;
 
 export async function getNewMessages(
     connection: Connection,
-    userDb: UserDB,
+    token: string,
     contactAddress: string,
 ): Promise<EncryptionEnvelop[]> {
     const { account } = connection;
@@ -177,7 +173,7 @@ export async function getNewMessages(
         profile,
         connection,
         async (url) => (await axios.get(url)).data,
-    ).get(url, getAxiosConfig(userDb.deliveryServiceToken));
+    ).get(url, getAxiosConfig(token));
 
     return data;
 }
@@ -185,7 +181,7 @@ export type GetNewMessages = typeof getNewMessages;
 
 export async function getPendingConversations(
     connection: Connection,
-    userDb: UserDB,
+    token: string,
 ): Promise<string[]> {
     const { account } = connection;
     const { profile } = checkAccount(account);
@@ -196,7 +192,7 @@ export async function getPendingConversations(
         profile,
         connection,
         async (url) => (await axios.get(url)).data,
-    ).post(url, {}, getAxiosConfig(userDb.deliveryServiceToken));
+    ).post(url, {}, getAxiosConfig(token));
 
     return data;
 }

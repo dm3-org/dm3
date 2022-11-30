@@ -161,14 +161,7 @@ function SignIn(props: SignInProps) {
                 Lib.web3provider.ConnectionState.SignInReady &&
             state.connection.account
         ) {
-            signIn(
-                storageLocation,
-                token,
-                storeApiToken,
-                dataFile,
-                state,
-                dispatch,
-            );
+            signIn(storageLocation, token, state, dispatch);
         }
     }, [state.connection.connectionState, state.connection.account]);
 

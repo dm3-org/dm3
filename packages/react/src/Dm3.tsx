@@ -133,7 +133,7 @@ function dm3(props: dm3Props) {
 
             socket.auth = {
                 account: state.connection.account,
-                token: state.userDb.deliveryServiceToken,
+                token: state.auth.currentSession!.token,
             };
             socket.connect();
             socket.on('message', (envelop: Lib.messaging.EncryptionEnvelop) => {
@@ -181,6 +181,7 @@ function dm3(props: dm3Props) {
 
         return requestContacts(
             connection,
+            state.auth.currentSession?.token!,
             state.accounts.selectedContact,
             (contact: Contact | undefined) =>
                 dispatch({
