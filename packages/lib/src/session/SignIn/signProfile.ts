@@ -13,7 +13,6 @@ export async function signProfile(
             getProfileCreationMessage(stringifiedProfile);
         return await personalSign(provider, account, profileCreationMessage);
     } catch (e) {
-        console.log(e);
-        throw Error("Can't signIn with Ethereum");
+        throw Error("Can't signIn profile");
     }
 }

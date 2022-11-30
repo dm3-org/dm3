@@ -43,7 +43,6 @@ const forwardToRpcNode =
         try {
             const data = (await axios.post(process.env.RPC as string, req.body))
                 .data;
-            console.log('data ' + data);
             res.json(data);
         } catch (e) {
             next(e);

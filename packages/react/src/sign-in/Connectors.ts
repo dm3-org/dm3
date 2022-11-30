@@ -197,6 +197,4 @@ export async function signIn(
         payload: connectionState,
     });
 
-    console.log('Auth state', state.auth);
 }
-//"74932b40-f24c-46e3-a847-11d2584d5505"
