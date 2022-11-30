@@ -19,8 +19,9 @@ function getAxiosConfig(token: string) {
 export async function useDm3Storage(
     connection: Connection,
     userDb: UserDB,
+    token: string,
 ): Promise<Acknoledgment[]> {
-    const syncResult = await sync(userDb);
+    const syncResult = await sync(userDb, token);
     log(`[dm3 Storage] Saving user storage`);
 
     const { account } = connection;
@@ -32,11 +33,7 @@ export async function useDm3Storage(
         profile!,
         connection,
         async (url) => (await axios.get(url)).data,
-    ).post(
-        url,
-        syncResult.userStorage,
-        getAxiosConfig(userDb.deliveryServiceToken),
-    );
+    ).post(url, syncResult.userStorage, getAxiosConfig(token));
     return syncResult.acknoledgments;
 }
 

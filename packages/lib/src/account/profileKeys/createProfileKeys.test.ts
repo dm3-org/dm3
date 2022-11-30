@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import { createStorageKey, getStorageKeyCreationMessage } from '../crypto';
-import { createKeys } from './SignIn';
+import { createStorageKey, getStorageKeyCreationMessage } from '../../crypto';
+import { createProfileKeys } from './createProfileKeys';
 
 test(`Should create keys`, async () => {
     expect.assertions(1);
@@ -13,7 +13,10 @@ test(`Should create keys`, async () => {
     const nonceMsg = getStorageKeyCreationMessage(nonce);
     const signedMessage = await wallet.signMessage(nonceMsg);
 
-    const keys = await createKeys(await createStorageKey(signedMessage), nonce);
+    const keys = await createProfileKeys(
+        await createStorageKey(signedMessage),
+        nonce,
+    );
 
     expect(keys).toEqual({
         encryptionKeyPair: {

@@ -30,12 +30,14 @@ export * as schema from './schema';
 
 export async function getMessages(
     connection: Connection,
+    deliveryServiceToken: string,
     contact: string,
     userDb: UserDB,
     storeMessages: (envelops: StorageEnvelopContainer[]) => void,
 ) {
     return execGetMessages(
         connection,
+        deliveryServiceToken,
         contact,
         getNewMessages,
         storeMessages,
@@ -45,6 +47,7 @@ export async function getMessages(
 
 export async function submitMessage(
     connection: Connection,
+    deliveryServiceToken: string,
     userDb: UserDB,
     to: Account,
     message: Message,
@@ -55,6 +58,7 @@ export async function submitMessage(
 ) {
     execSubmitMessage(
         connection,
+        deliveryServiceToken,
         userDb,
         to,
         message,

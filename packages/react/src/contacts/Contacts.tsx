@@ -14,12 +14,12 @@ function Contacts(props: ContactsProps) {
     useEffect(() => {
         if (
             !state.accounts.contacts &&
-            state.userDb?.deliveryServiceToken &&
+            state.auth?.currentSession?.token &&
             state.connection.socket
         ) {
             props.getContacts(state.connection);
         }
-    }, [state.userDb?.deliveryServiceToken, state.connection.socket]);
+    }, [state.auth?.currentSession?.token, state.connection.socket]);
 
     useEffect(() => {
         if (state.userDb?.conversations) {

@@ -3,8 +3,44 @@ import * as Lib from 'dm3-lib';
 import { ethers } from 'ethers';
 import { Contact } from '../reducers/shared';
 
+function fetchDeliveryServiceProfile(connection: Lib.Connection) {
+    return async (
+        account: Lib.account.Account,
+    ): Promise<Contact | undefined> => {
+        const deliveryServiceUrl = account.profile?.deliveryServices[0];
+
+        //This is most likely the case when the profile can't be fetched at all.
+        if (!deliveryServiceUrl) {
+            Lib.log(
+                '[fetchDeliverServicePorfile] Cant resolve deliveryServiceUrl',
+            );
+            return undefined;
+        }
+
+        const deliveryServiceProfile =
+            await Lib.delivery.getDeliveryServiceProfile(
+                deliveryServiceUrl,
+                connection,
+                async (url) => (await axios.get(url)).data,
+            );
+
+        if (!deliveryServiceProfile) {
+            Lib.log(
+                '[fetchDeliverServicePorfile] Cant resolve deliveryServiceProfile',
+            );
+            return undefined;
+        }
+
+        return {
+            account,
+            deliveryServiceProfile,
+        };
+    };
+}
+
 export async function requestContacts(
     connection: Lib.Connection,
+    deliveryServiceToken: string,
     selectedContact: Contact | undefined,
     setSelectedContact: (contact: Contact | undefined) => void,
     setContacts: (constacts: Contact[]) => void,
@@ -17,6 +53,7 @@ export async function requestContacts(
     let retrievedContacts = await Lib.account.getContacts(
         connection,
         userDb,
+        deliveryServiceToken,
         createEmptyConversationEntry,
     );
 
@@ -37,20 +74,19 @@ export async function requestContacts(
         retrievedContacts = await Lib.account.getContacts(
             connection,
             userDb,
+            deliveryServiceToken,
             createEmptyConversationEntry,
         );
     }
+    console.log('GOT CONTRACT ', retrievedContacts);
 
-    const contacts = await Promise.all(
-        retrievedContacts.map(async (account) => ({
-            account,
-            deliveryServiceProfile:
-                (await Lib.delivery.getDeliveryServiceProfile(
-                    account.profile!.deliveryServices[0],
-                    connection,
-                    async (url) => (await axios.get(url)).data,
-                ))!,
-        })),
+    const contactsWithDeliverService = await Promise.all(
+        retrievedContacts.map(fetchDeliveryServiceProfile(connection)),
+    );
+
+    //We have to filter all contacts that deliveryServiceProfile could not be resolved.
+    const contacts = contactsWithDeliverService.filter(
+        (c): c is Contact => !!c,
     );
 
     setContacts(contacts);
@@ -112,6 +148,7 @@ export async function requestContacts(
             .forEach(async (message) => {
                 await Lib.messaging.submitMessage(
                     connection,
+                    deliveryServiceToken,
                     userDb,
                     contact.account,
                     message.envelop.message,

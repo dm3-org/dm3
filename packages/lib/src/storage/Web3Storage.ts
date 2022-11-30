@@ -24,11 +24,12 @@ function readFileAsync(file: Blob): Promise<string> {
 export async function web3Store(
     connection: Connection,
     userDb: UserDB,
+    deliveryServiceToken: string,
 ): Promise<Acknoledgment[]> {
     if (!connection.storageToken) {
         throw Error('No API token');
     }
-    const syncResult = await sync(userDb);
+    const syncResult = await sync(userDb, deliveryServiceToken);
 
     const client = new Web3Storage({ token: connection.storageToken });
     const blob = new Blob([stringify(syncResult.userStorage)], {
