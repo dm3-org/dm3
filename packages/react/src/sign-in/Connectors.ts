@@ -196,5 +196,4 @@ export async function signIn(
         type: ConnectionType.ChangeConnectionState,
         payload: connectionState,
     });
-
 }
