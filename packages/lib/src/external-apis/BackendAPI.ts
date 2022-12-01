@@ -161,19 +161,15 @@ export async function getNewMessages(
     connection: Connection,
     token: string,
     contactAddress: string,
+    baseUrl: string,
 ): Promise<EncryptionEnvelop[]> {
     const { account } = connection;
-    const { profile } = checkAccount(account);
 
-    const url = `${DELIVERY_PATH}/messages/${
+    const url = `${baseUrl}${DELIVERY_PATH}/messages/${
         account!.address
     }/contact/${contactAddress}`;
 
-    const { data } = await getDeliveryServiceClient(
-        profile,
-        connection,
-        async (url) => (await axios.get(url)).data,
-    ).get(url, getAxiosConfig(token));
+    const { data } = await axios.create().get(url, getAxiosConfig(token));
 
     return data;
 }

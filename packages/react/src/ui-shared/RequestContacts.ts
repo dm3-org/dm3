@@ -78,7 +78,6 @@ export async function requestContacts(
             createEmptyConversationEntry,
         );
     }
-    console.log('GOT CONTRACT ', retrievedContacts);
 
     const contactsWithDeliverService = await Promise.all(
         retrievedContacts.map(fetchDeliveryServiceProfile(connection)),
