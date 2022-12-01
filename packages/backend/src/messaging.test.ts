@@ -54,10 +54,10 @@ describe('Messaging', () => {
             const callback = (e: any) => {
                 // eslint-disable-next-line max-len
                 //Even though the method fails jest dosen't recognize it becuase of the catch block used in messaging.ts. So we have to throw another error if the callback returns anything else then the expected result.
-                if (e !== 'success') {
+                if (e.response !== 'success') {
                     throw Error(e);
                 }
-                expect(e).toBe('success');
+                expect(e.response).toBe('success');
                 done();
             };
             //We provide an mocked express app with all needes locals vars
@@ -117,10 +117,10 @@ describe('Messaging', () => {
             const callback = jest.fn((e: any) => {
                 // eslint-disable-next-line max-len
                 //Even though the method fails jest dosen't recognize it becuase of the catch block used in messaging.ts. So we have to throw another error if the callback returns anything else then the expected result.
-                if (e !== 'invalid schema') {
+                if (e.error !== 'invalid schema') {
                     throw Error(e);
                 }
-                expect(e).toBe('invalid schema');
+                expect(e.error).toBe('invalid schema');
             });
             //We provide an mocked express app with all needes locals vars
             const app = {
@@ -195,10 +195,10 @@ describe('Messaging', () => {
             };
 
             const callback = jest.fn((e: any) => {
-                if (e !== 'invalid schema') {
+                if (e.error !== 'invalid schema') {
                     throw Error(e);
                 }
-                expect(e).toBe('invalid schema');
+                expect(e.error).toBe('invalid schema');
             });
 
             const getSocketMock = jest.fn(() => {
