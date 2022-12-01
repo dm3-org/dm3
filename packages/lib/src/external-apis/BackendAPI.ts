@@ -161,40 +161,17 @@ export async function getNewMessages(
     connection: Connection,
     token: string,
     contactAddress: string,
+    baseUrl: string,
 ): Promise<EncryptionEnvelop[]> {
     const { account } = connection;
-    const { profile } = checkAccount(account);
 
-    //Fetch evey delivery service's profie
-    const deliveryServices = await Promise.all(
-        profile.deliveryServices.map(async (ds) => {
-            const deliveryServiceProfile = await getDeliveryServiceProfile(
-                ds,
-                connection,
-                async (url) => (await axios.get(url)).data,
-            );
-            return deliveryServiceProfile?.url;
-        }),
-    );
-    //Filter every deliveryService without an url
-    const deliveryServiceUrls = deliveryServices.filter((ds) => !!ds);
+    const url = `${baseUrl}${DELIVERY_PATH}/messages/${
+        account!.address
+    }/contact/${contactAddress}`;
 
-    //Fetch messages from each deliveryService
-    const messages = await Promise.all(
-        deliveryServiceUrls.map(async (baseUrl) => {
-            const url = `${baseUrl}${DELIVERY_PATH}/messages/${
-                account!.address
-            }/contact/${contactAddress}`;
+    const { data } = await axios.create().get(url, getAxiosConfig(token));
 
-            const { data } = await axios
-                .create()
-                .get(url, getAxiosConfig(token));
-
-            return data;
-        }),
-    );
-    //Flatten the message arrays of each delivery service to one message array
-    return messages.reduce((agg, cur) => [...agg, ...cur]);
+    return data;
 }
 export type GetNewMessages = typeof getNewMessages;
 
