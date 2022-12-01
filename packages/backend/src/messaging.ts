@@ -63,7 +63,7 @@ export function onConnection(app: express.Application & WithLocals) {
                             method: 'WS SUBMIT MESSAGE',
                             error,
                         });
-                        return callback(error);
+                        return callback({ error });
                     }
 
                     await Lib.delivery.incomingMessage(
@@ -82,13 +82,14 @@ export function onConnection(app: express.Application & WithLocals) {
                                 .emit('message', envelop);
                         },
                     ),
-                        callback('success');
+                        callback({ response: 'success' });
                 } catch (error) {
                     //TODO Should we use the callback function to return the error
                     app.locals.logger.warn({
                         method: 'WS SUBMIT MESSAGE',
                         error: (error as Error).toString(),
                     });
+                    callback({ error: "Can't submit message" });
                 }
             },
         );
@@ -111,7 +112,7 @@ export function onConnection(app: express.Application & WithLocals) {
                     error,
                 });
 
-                return callback(error);
+                return callback({ error });
             }
 
             const account = Lib.external.formatAddress(data.accountAddress);
@@ -123,21 +124,29 @@ export function onConnection(app: express.Application & WithLocals) {
             });
             try {
                 if (
-                    await Lib.delivery.checkToken(
+                    !(await Lib.delivery.checkToken(
                         app.locals.db.getSession,
                         account,
                         data.token,
-                    )
+                    ))
                 ) {
-                    await addPending(account, contact, app.locals.redisClient);
-                } else {
-                    throw Error('Token check failed');
+                    const error = 'Token check failed';
+                    app.locals.logger.warn({
+                        method: 'WS PENDING MESSAGE',
+                        error,
+                    });
+                    return callback({ error });
                 }
+
+                await addPending(account, contact, app.locals.redisClient);
+
+                callback({ response: 'success' });
             } catch (error) {
                 app.locals.logger.warn({
-                    method: 'WS PRENDING MESSAGE',
+                    method: 'WS PENDING MESSAGE',
                     error,
                 });
+                callback({ error: "Can't add pending message" });
             }
         });
     };
