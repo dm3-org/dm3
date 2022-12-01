@@ -4,4 +4,5 @@ yarn ts-json-schema-generator -f tsconfig.json --path src/lib/Messaging.ts --typ
 && yarn ts-json-schema-generator -f tsconfig.json --path lib/src/delivery/Delivery.ts --type DeliveryServiceProperties -o src/delivery/schema/DeliveryServiceProperties.schema.json --no-type-check \
 && yarn ts-json-schema-generator -f tsconfig.json --path lib/src/delivery/Delivery.ts --type DeliveryServiceProfile -o src/delivery/schema/DeliveryServiceProfile.schema.json --no-type-check \
 && yarn ts-json-schema-generator -f tsconfig.json --path lib/src/delivery/Session.ts --type Session -o src/delivery/schema/Session.schema.json --no-type-check \
-&& yarn ts-json-schema-generator -f tsconfig.json --path lib/src/account/Account.ts --type SignedUserProfile -o src/account/schema/SignedUserProfile.schema.json --no-type-check
+&& yarn ts-json-schema-generator -f tsconfig.json --path lib/src/account/Account.ts --type SignedUserProfile -o src/account/schema/SignedUserProfile.schema.json --no-type-check \
+&& yarn ts-json-schema-generator -f tsconfig.json --path lib/src/account/mutableProfileExtension/MutableProfileExtension.ts --type MutableProfileExtension -o src/account/schema/MutableProfileExtension.schema.json --no-type-check
