@@ -137,3 +137,19 @@ export function readKeysFromEnv(env: NodeJS.ProcessEnv): {
         },
     };
 }
+
+export function getWeb3Provider(
+    env: NodeJS.ProcessEnv,
+): ethers.providers.BaseProvider {
+    const readKey = (keyName: string) => {
+        const key = env[keyName];
+        if (!key) {
+            throw Error(`Missing ${keyName} in env`);
+        }
+
+        return key;
+    };
+
+    const apiKey = readKey('ALCHEMY_KEY');
+    return new ethers.providers.AlchemyProvider('Mainnet', { apiKey });
+}
