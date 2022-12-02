@@ -2,10 +2,13 @@ import { Axios } from 'axios';
 import 'dotenv/config';
 import express from 'express';
 import { handleGetDeliveryServiceProperties } from './methods/handleGetDeliveryServiceProperties';
+import { handleResolveProfileExtension } from './methods/handleResolveProfileExtension';
+
 import { handleSubmitMessage } from './methods/handleSubmitMessage';
 
 const DM3_SUBMIT_MESSAGE = 'dm3_submitMessage';
 const DM3_GET_DELIVERY_SERVICE_PROPERTIES = 'dm3_getDeliveryServiceProperties';
+const DM3_GET_PROFILE_EXTENSION = 'dm3_getProfileExtension';
 
 export default (axios: Axios) => {
     const router = express.Router();
@@ -24,6 +27,9 @@ export default (axios: Axios) => {
 
             case DM3_GET_DELIVERY_SERVICE_PROPERTIES:
                 return handleGetDeliveryServiceProperties(req, res, next);
+
+            case DM3_GET_PROFILE_EXTENSION:
+                return handleResolveProfileExtension(axios)(req, res, next);
 
             default:
                 return forwardToRpcNode(axios)(req, res, next);

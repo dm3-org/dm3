@@ -1,3 +1,5 @@
+import { MessageType } from '../../messaging/Messaging';
+
 export interface MutableProfileExtension {
     // the minimum nonce of the sender's address
     // (optional)
@@ -12,7 +14,7 @@ export interface MutableProfileExtension {
     // Request of a specific ancryption algorithm.
     // (optional)
     encryptionAlgorithm?: string[];
+
     // List not supported message types
-    // (optional)
-    notSupportedMessageTypes?: string[];
+    notSupportedMessageTypes: MessageType[];
 }

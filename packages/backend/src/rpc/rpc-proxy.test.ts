@@ -205,6 +205,311 @@ describe('rpc-Proxy', () => {
             return;
         });
     });
+
+    describe.only('resolveProfileExtension', () => {
+        it('return 400 if ens-name is not linked to an address', async () => {
+            const mockPost = jest.fn((url: string, body: any) => {
+                return Promise.reject('Should not have been invoked');
+            });
+            const axiosMock = {
+                post: mockPost,
+            } as Partial<Axios>;
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(RpcProxy(axiosMock as Axios));
+
+            app.locals = {
+                logger: {
+                    warn: (e: any) => {
+                        console.log(e);
+                    },
+                    info: (e: any) => {
+                        console.log(e);
+                    },
+                    error: (e: any) => {
+                        console.log(e);
+                    },
+                },
+                web3Provider: {
+                    resolveName: (_: string) => Promise.resolve(null),
+                },
+            };
+
+            const { status, body } = await request(app)
+                .post('/')
+                .send({
+                    jsonrpc: '2.0',
+                    method: 'dm3_getProfileExtension',
+                    params: ['unknown.eth'],
+                });
+
+            expect(mockPost).not.toBeCalled();
+            expect(status).toBe(400);
+            expect(body).toStrictEqual({
+                error: 'unknown ens-name',
+            });
+        });
+        it('return 400 if user is unknown', async () => {
+            const mockPost = jest.fn((url: string, body: any) => {
+                return Promise.reject('Should not have been invoked');
+            });
+            const axiosMock = {
+                post: mockPost,
+            } as Partial<Axios>;
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(RpcProxy(axiosMock as Axios));
+
+            app.locals = {
+                logger: {
+                    warn: (e: any) => {
+                        console.log(e);
+                    },
+                    info: (e: any) => {
+                        console.log(e);
+                    },
+                    error: (e: any) => {
+                        console.log(e);
+                    },
+                },
+                web3Provider: {
+                    resolveName: (_: string) =>
+                        Promise.resolve(RECEIVER_ADDRESS),
+                },
+                db: {
+                    getSession: (_: string) => Promise.resolve(null),
+                },
+            };
+
+            const { status, body } = await request(app)
+                .post('/')
+                .send({
+                    jsonrpc: '2.0',
+                    method: 'dm3_getProfileExtension',
+                    params: ['unknown.eth'],
+                });
+
+            expect(mockPost).not.toBeCalled();
+            expect(status).toBe(400);
+            expect(body).toStrictEqual({
+                error: 'unknown ens-name',
+            });
+        });
+        // eslint-disable-next-line max-len
+        it('return 200 and the default profile if the user is known to the deliveryService but has not specified an mutableProfileExtensionUrl', async () => {
+            const mockPost = jest.fn((url: string, body: any) => {
+                return Promise.reject('Should not have been invoked');
+            });
+            const axiosMock = {
+                post: mockPost,
+            } as Partial<Axios>;
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(RpcProxy(axiosMock as Axios));
+
+            app.locals = {
+                logger: {
+                    warn: (e: any) => {
+                        console.log(e);
+                    },
+                    info: (e: any) => {
+                        console.log(e);
+                    },
+                    error: (e: any) => {
+                        console.log(e);
+                    },
+                },
+                web3Provider: {
+                    resolveName: (_: string) =>
+                        Promise.resolve(RECEIVER_ADDRESS),
+                },
+                db: {
+                    getSession: (_: string) =>
+                        Promise.resolve({
+                            account: '',
+                            signedUserProfile: {
+                                profile: {
+                                    publicEncryptionKey: '',
+                                    publicSigningKey: '',
+                                    deliveryServices: '',
+                                },
+                                signature: '',
+                            },
+                            token: '',
+                            publicMessageHeadUri: '',
+                            createdAt: 0,
+                            socketId: '',
+                            challenge: '',
+                        }),
+                },
+            };
+
+            const { status, body } = await request(app)
+                .post('/')
+                .send({
+                    jsonrpc: '2.0',
+                    method: 'dm3_getProfileExtension',
+                    params: ['unknown.eth'],
+                });
+
+            expect(mockPost).not.toBeCalled();
+            expect(status).toBe(200);
+            expect(body).toStrictEqual({
+                jsonrpc: '2.0',
+                result: Lib.stringify({ notSupportedMessageTypes: ['NEW'] }),
+            });
+        });
+        // eslint-disable-next-line max-len
+        it('return 200 and the default profile if the profile contains a mutableProfileExtensionUrl that can not be resolved ', async () => {
+            const mockPost = jest.fn((url: string, body: any) => {
+                return Promise.reject('Should not have been invoked');
+            });
+            const axiosMock = {
+                post: mockPost,
+                get: async (url: string) => Promise.resolve(null),
+            } as Partial<Axios>;
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(RpcProxy(axiosMock as Axios));
+
+            app.locals = {
+                logger: {
+                    warn: (e: any) => {
+                        console.log(e);
+                    },
+                    info: (e: any) => {
+                        console.log(e);
+                    },
+                    error: (e: any) => {
+                        console.log(e);
+                    },
+                },
+                web3Provider: {
+                    resolveName: (_: string) =>
+                        Promise.resolve(RECEIVER_ADDRESS),
+                },
+                db: {
+                    getSession: (_: string) =>
+                        Promise.resolve({
+                            account: '',
+                            signedUserProfile: {
+                                profile: {
+                                    publicEncryptionKey: '',
+                                    publicSigningKey: '',
+                                    deliveryServices: '',
+                                    mutableProfileExtensionUrl: 'www.foo.io',
+                                },
+                                signature: '',
+                            },
+                            token: '',
+                            publicMessageHeadUri: '',
+                            createdAt: 0,
+                            socketId: '',
+                            challenge: '',
+                        }),
+                },
+            };
+
+            const { status, body } = await request(app)
+                .post('/')
+                .send({
+                    jsonrpc: '2.0',
+                    method: 'dm3_getProfileExtension',
+                    params: ['unknown.eth'],
+                });
+
+            expect(mockPost).not.toBeCalled();
+            expect(status).toBe(200);
+            expect(body).toStrictEqual({
+                jsonrpc: '2.0',
+                result: Lib.stringify({
+                    notSupportedMessageTypes: ['NEW'],
+                }),
+            });
+        });
+        it('return 200 and the profile the mutableProfileExtensionUrl points to', async () => {
+            const mockPost = jest.fn((url: string, body: any) => {
+                return Promise.reject('Should not have been invoked');
+            });
+            const axiosMock = {
+                post: mockPost,
+                get: async (url: string) => {
+                    if (url === 'www.foo.io') {
+                        return {
+                            data: {
+                                notSupportedMessageTypes: ['NEW'],
+                                minNonce: '0x1',
+                            },
+                        };
+                    }
+                },
+            } as Partial<Axios>;
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(RpcProxy(axiosMock as Axios));
+
+            app.locals = {
+                logger: {
+                    warn: (e: any) => {
+                        console.log(e);
+                    },
+                    info: (e: any) => {
+                        console.log(e);
+                    },
+                    error: (e: any) => {
+                        console.log(e);
+                    },
+                },
+                web3Provider: {
+                    resolveName: (_: string) =>
+                        Promise.resolve(RECEIVER_ADDRESS),
+                },
+                db: {
+                    getSession: (_: string) =>
+                        Promise.resolve({
+                            account: '',
+                            signedUserProfile: {
+                                profile: {
+                                    publicEncryptionKey: '',
+                                    publicSigningKey: '',
+                                    deliveryServices: '',
+                                    mutableProfileExtensionUrl: 'www.foo.io',
+                                },
+                                signature: '',
+                            },
+                            token: '',
+                            publicMessageHeadUri: '',
+                            createdAt: 0,
+                            socketId: '',
+                            challenge: '',
+                        }),
+                },
+            };
+
+            const { status, body } = await request(app)
+                .post('/')
+                .send({
+                    jsonrpc: '2.0',
+                    method: 'dm3_getProfileExtension',
+                    params: ['unknown.eth'],
+                });
+
+            expect(mockPost).not.toBeCalled();
+            expect(status).toBe(200);
+            expect(body).toStrictEqual({
+                jsonrpc: '2.0',
+                result: Lib.stringify({
+                    notSupportedMessageTypes: ['NEW'],
+                    minNonce: '0x1',
+                }),
+            });
+        });
+    });
 });
 
 const getSession = async (address: string) => {

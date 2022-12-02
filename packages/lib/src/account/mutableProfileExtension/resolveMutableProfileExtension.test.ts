@@ -5,11 +5,18 @@ describe('resolveProfileExtension', () => {
     it('Retuns MutableProfileExtension if url retruns proper json', async () => {
         const url = 'www.foo.io';
 
-        const getResource = (_: string) => Promise.resolve({ minNonce: '1' });
+        const getResource = (_: string) =>
+            Promise.resolve({
+                minNonce: '1',
+                notSupportedMessageTypes: [],
+            } as MutableProfileExtension);
 
         const resolved = await resolveMutableProfileExtension(url, getResource);
 
-        expect(resolved).toStrictEqual({ minNonce: '1' });
+        expect(resolved).toStrictEqual({
+            minNonce: '1',
+            notSupportedMessageTypes: [],
+        });
     });
     it('Retuns undefined if the request to the url fails ', async () => {
         const url = 'www.foo.io';
@@ -24,7 +31,9 @@ describe('resolveProfileExtension', () => {
         const url = 'www.foo.io';
 
         const getResource = (_: string) =>
-            Promise.resolve({ foo: 'bar' } as MutableProfileExtension);
+            Promise.resolve({
+                foo: 'bar',
+            } as unknown as MutableProfileExtension);
 
         const resolved = await resolveMutableProfileExtension(url, getResource);
 
