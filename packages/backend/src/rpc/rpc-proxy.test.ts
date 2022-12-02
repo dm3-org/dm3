@@ -206,7 +206,7 @@ describe('rpc-Proxy', () => {
         });
     });
 
-    describe.only('resolveProfileExtension', () => {
+    describe('resolveProfileExtension', () => {
         it('return 400 if ens-name is not linked to an address', async () => {
             const mockPost = jest.fn((url: string, body: any) => {
                 return Promise.reject('Should not have been invoked');
