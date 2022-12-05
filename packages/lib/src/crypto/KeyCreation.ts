@@ -16,12 +16,12 @@ export async function createSigningKeyPair(seed?: string): Promise<KeyPair> {
     await _sodium.ready;
     const sodium = _sodium;
     const keys = seed
-        ? sodium.crypto_sign_seed_keypair(ethers.utils.arrayify(seed))
+        ? sodium.crypto_sign_seed_keypair(ethers.utils.base64.decode(seed))
         : sodium.crypto_sign_keypair();
 
     return {
-        publicKey: ethers.utils.hexlify(keys.publicKey),
-        privateKey: ethers.utils.hexlify(keys.privateKey),
+        publicKey: ethers.utils.base64.encode(keys.publicKey),
+        privateKey: ethers.utils.base64.encode(keys.privateKey),
     };
 }
 
@@ -32,19 +32,23 @@ export function getStorageKeyCreationMessage(nonce: number) {
 export async function createStorageKey(
     creationMessageSig: string,
 ): Promise<string> {
-    return sha256(ethers.utils.toUtf8Bytes(creationMessageSig));
+    return ethers.utils.base64.encode(
+        ethers.utils.arrayify(
+            sha256(ethers.utils.toUtf8Bytes(creationMessageSig)),
+        ),
+    );
 }
 
 export async function createKeyPair(seed?: string): Promise<KeyPair> {
     await _sodium.ready;
     const sodium = _sodium;
     const keys = seed
-        ? sodium.crypto_kx_seed_keypair(ethers.utils.arrayify(seed))
+        ? sodium.crypto_kx_seed_keypair(ethers.utils.base64.decode(seed))
         : sodium.crypto_kx_keypair();
 
     return {
-        publicKey: ethers.utils.hexlify(keys.publicKey),
-        privateKey: ethers.utils.hexlify(keys.privateKey),
+        publicKey: ethers.utils.base64.encode(keys.publicKey),
+        privateKey: ethers.utils.base64.encode(keys.privateKey),
     };
 }
 
@@ -55,14 +59,14 @@ export async function createSenderSessionKey(
     await _sodium.ready;
     const sodium = _sodium;
     const sessionKey = sodium.crypto_kx_client_session_keys(
-        ethers.utils.arrayify(keyPair.publicKey),
-        ethers.utils.arrayify(keyPair.privateKey),
-        ethers.utils.arrayify(externalPublicKey),
+        ethers.utils.base64.decode(keyPair.publicKey),
+        ethers.utils.base64.decode(keyPair.privateKey),
+        ethers.utils.base64.decode(externalPublicKey),
     );
 
     return {
-        sharedRx: ethers.utils.hexlify(sessionKey.sharedRx),
-        sharedTx: ethers.utils.hexlify(sessionKey.sharedTx),
+        sharedRx: ethers.utils.base64.encode(sessionKey.sharedRx),
+        sharedTx: ethers.utils.base64.encode(sessionKey.sharedTx),
     };
 }
 
@@ -73,13 +77,13 @@ export async function createReceiverSessionKey(
     await _sodium.ready;
     const sodium = _sodium;
     const sessionKey = sodium.crypto_kx_server_session_keys(
-        ethers.utils.arrayify(keyPair.publicKey),
-        ethers.utils.arrayify(keyPair.privateKey),
-        ethers.utils.arrayify(externalPublicKey),
+        ethers.utils.base64.decode(keyPair.publicKey),
+        ethers.utils.base64.decode(keyPair.privateKey),
+        ethers.utils.base64.decode(externalPublicKey),
     );
 
     return {
-        sharedRx: ethers.utils.hexlify(sessionKey.sharedRx),
-        sharedTx: ethers.utils.hexlify(sessionKey.sharedTx),
+        sharedRx: ethers.utils.base64.encode(sessionKey.sharedRx),
+        sharedTx: ethers.utils.base64.encode(sessionKey.sharedTx),
     };
 }

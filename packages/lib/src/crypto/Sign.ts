@@ -10,7 +10,7 @@ export async function sign(
     return ethers.utils.hexlify(
         sodium.crypto_sign_detached(
             ethers.utils.toUtf8Bytes(payloadToSign),
-            ethers.utils.arrayify(privateKey),
+            ethers.utils.base64.decode(privateKey),
         ),
     );
 }
@@ -26,6 +26,6 @@ export async function checkSignature(
     return sodium.crypto_sign_verify_detached(
         ethers.utils.arrayify(signature),
         ethers.utils.toUtf8Bytes(signedPayload),
-        ethers.utils.arrayify(publicKey),
+        ethers.utils.base64.decode(publicKey),
     );
 }
