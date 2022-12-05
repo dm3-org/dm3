@@ -1,12 +1,11 @@
+import { ethers } from 'ethers';
 import _sodium from 'libsodium-wrappers';
 import { checkSignature, sign } from './Sign';
 
 const keyA = {
-    publicKey:
-        '0xee7ad00cf118feee2a39f0499f592995fca09655f656fd407d4a3600cb82e393',
+    publicKey: '7nrQDPEY/u4qOfBJn1kplfygllX2Vv1AfUo2AMuC45M=',
     privateKey:
-        '0x7f1232267316372cc499ae5d4c52201441db32139c519d62abaa50375dabe1c9e' +
-        'e7ad00cf118feee2a39f0499f592995fca09655f656fd407d4a3600cb82e393',
+        'fxIyJnMWNyzEma5dTFIgFEHbMhOcUZ1iq6pQN12r4cnuetAM8Rj+7io58EmfWSmV/KCWVfZW/UB9SjYAy4Ljkw==',
 };
 
 test('should sign a payload', async () => {

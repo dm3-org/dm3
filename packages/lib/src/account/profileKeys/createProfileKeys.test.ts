@@ -20,20 +20,15 @@ test(`Should create keys`, async () => {
 
     expect(keys).toEqual({
         encryptionKeyPair: {
-            publicKey:
-                '0x5712222da4730a8b4e05abf77b0c6da5fe35529af7ca73bc3b3035edb2f78a34',
-            privateKey:
-                '0xf541d3971d80aa9f25165f1903a744f029f851d94c904508b0bf09f2348e6a3a',
+            publicKey: 'VxIiLaRzCotOBav3ewxtpf41Upr3ynO8OzA17bL3ijQ=',
+            privateKey: '9UHTlx2Aqp8lFl8ZA6dE8Cn4UdlMkEUIsL8J8jSOajo=',
         },
         signingKeyPair: {
-            publicKey:
-                '0xe89596dfa661a6da0c78874cb9d98a6dac42bfa2030269f750072ba6c18288e4',
+            publicKey: '6JWW36ZhptoMeIdMudmKbaxCv6IDAmn3UAcrpsGCiOQ=',
             privateKey:
-                '0x3ccb73f3b04c0b1af86a472a1b51fcf779f114298838ce8f3650799484be4f6f' +
-                'e89596dfa661a6da0c78874cb9d98a6dac42bfa2030269f750072ba6c18288e4',
+                'PMtz87BMCxr4akcqG1H893nxFCmIOM6PNlB5lIS+T2/olZbfpmGm2gx4h0y52YptrEK/ogMCafdQByumwYKI5A==',
         },
-        storageEncryptionKey:
-            '0x3ccb73f3b04c0b1af86a472a1b51fcf779f114298838ce8f3650799484be4f6f',
+        storageEncryptionKey: 'PMtz87BMCxr4akcqG1H893nxFCmIOM6PNlB5lIS+T28=',
         storageEncryptionNonce: 0,
     });
 });
