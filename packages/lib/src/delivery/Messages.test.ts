@@ -223,8 +223,7 @@ test('incomingMessage', async () => {
             '0xd7c617eb7ffee435e7d4e7f6b13d46ccdf88d2e5463148c50659e5cd88d248b5',
         signature:
             // eslint-disable-next-line max-len
-            '0x944b3207908f07f02d3a0635adb7b28d143cbb58da287c8e4adac18919964fa2' +
-            '2944cfef3cd38153e2145391562d9976bf9582fbf680efeb647e56e5187bd60d',
+            'lEsyB5CPB/AtOgY1rbeyjRQ8u1jaKHyOStrBiRmWT6IpRM/vPNOBU+IUU5FWLZl2v5WC+/aA7+tkflblGHvWDQ==',
     });
 });
 test('incomingMessage -- rejects sender with a nonce below the filter', async () => {

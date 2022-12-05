@@ -11,8 +11,7 @@ const keyA = {
 test('should sign a payload', async () => {
     const sig = await sign(keyA.privateKey, 'test');
     expect(sig).toEqual(
-        '0xf71d7c9677f50e9eb986c78db8bf0cf4b2fcc78918cb7722dae305d' +
-            'e7712703f778f0744c6304148f334b376f8fb6fba2c478b644097d7e6d413fbac52a6a400',
+        '9x18lnf1Dp65hseNuL8M9LL8x4kYy3ci2uMF3ncScD93jwdExjBBSPM0s3b4+2+6LEeLZECX1+bUE/usUqakAA==',
     );
 });
 
@@ -21,8 +20,7 @@ test('should accecpt a correct signature', async () => {
         await checkSignature(
             keyA.publicKey,
             'test',
-            '0xf71d7c9677f50e9eb986c78db8bf0cf4b2fcc78918cb7722dae305d' +
-                'e7712703f778f0744c6304148f334b376f8fb6fba2c478b644097d7e6d413fbac52a6a400',
+            '9x18lnf1Dp65hseNuL8M9LL8x4kYy3ci2uMF3ncScD93jwdExjBBSPM0s3b4+2+6LEeLZECX1+bUE/usUqakAA==',
         ),
     ).toEqual(true);
 });
@@ -32,8 +30,7 @@ test('should reject a manipulated payload', async () => {
         await checkSignature(
             keyA.publicKey,
             'test1',
-            '0xf71d7c9677f50e9eb986c78db8bf0cf4b2fcc78918cb7722dae305d' +
-                'e7712703f778f0744c6304148f334b376f8fb6fba2c478b644097d7e6d413fbac52a6a400',
+            '9x18lnf1Dp65hseNuL8M9LL8x4kYy3ci2uMF3ncScD93jwdExjBBSPM0s3b4+2+6LEeLZECX1+bUE/usUqakAA==',
         ),
     ).toEqual(false);
 });
