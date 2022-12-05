@@ -43,7 +43,7 @@ export async function encrypt(
         null,
         null,
         nonce,
-        ethers.utils.arrayify(key),
+        ethers.utils.base64.decode(key),
     );
 
     return {
@@ -64,7 +64,7 @@ export async function decrypt(
         ethers.utils.arrayify(encryptedPayload.ciphertext),
         null,
         ethers.utils.arrayify(encryptedPayload.nonce),
-        ethers.utils.arrayify(key),
+        ethers.utils.base64.decode(key),
     );
 
     const unpadded = sodium.unpad(payload, PAD_BLOCKSIZE);
