@@ -7,7 +7,7 @@ export async function sign(
 ): Promise<string> {
     await _sodium.ready;
     const sodium = _sodium;
-    return ethers.utils.hexlify(
+    return ethers.utils.base64.encode(
         sodium.crypto_sign_detached(
             ethers.utils.toUtf8Bytes(payloadToSign),
             ethers.utils.base64.decode(privateKey),
@@ -24,7 +24,7 @@ export async function checkSignature(
     await _sodium.ready;
     const sodium = _sodium;
     return sodium.crypto_sign_verify_detached(
-        ethers.utils.arrayify(signature),
+        ethers.utils.base64.decode(signature),
         ethers.utils.toUtf8Bytes(signedPayload),
         ethers.utils.base64.decode(publicKey),
     );
