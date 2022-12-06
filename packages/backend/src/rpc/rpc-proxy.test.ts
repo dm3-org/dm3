@@ -442,7 +442,6 @@ describe('rpc-Proxy', () => {
                         return {
                             data: {
                                 notSupportedMessageTypes: ['NEW'],
-                                minNonce: '0x1',
                             },
                         };
                     }
@@ -505,7 +504,6 @@ describe('rpc-Proxy', () => {
                 jsonrpc: '2.0',
                 result: Lib.stringify({
                     notSupportedMessageTypes: ['NEW'],
-                    minNonce: '0x1',
                 }),
             });
         });

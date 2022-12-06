@@ -7,14 +7,12 @@ describe('resolveProfileExtension', () => {
 
         const getResource = (_: string) =>
             Promise.resolve({
-                minNonce: '1',
                 notSupportedMessageTypes: [],
             } as MutableProfileExtension);
 
         const resolved = await resolveMutableProfileExtension(url, getResource);
 
         expect(resolved).toStrictEqual({
-            minNonce: '1',
             notSupportedMessageTypes: [],
         });
     });
