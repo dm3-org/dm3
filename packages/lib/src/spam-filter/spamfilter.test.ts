@@ -1,10 +1,12 @@
 import { ethers } from 'ethers';
-import { EncryptionEnvelop } from '../messaging';
+import { DeliveryInformation, EncryptionEnvelop } from '../messaging';
 
-import { reduceSpamFilters, SpamFilter } from '.';
+import { compileSpamFilter } from '.';
 import { ethBalanceFilter } from './filter/EthBalanceFilter';
 import { nonceFilter } from './filter/NonceFilter';
 import * as testData from './spamfilter.test.json';
+import { SpamFilter } from './filter/SpamFilter';
+import { decryptAsymmetric } from '../crypto';
 
 const keysA = {
     encryptionKeyPair: {
@@ -50,27 +52,37 @@ const connection = {
     },
 } as any;
 
-const envelops = [testData.envelopA, testData.envelopB] as EncryptionEnvelop[];
-
 test('Should use filter correctly with one filter criteria', async () => {
-    expect.assertions(1);
-
     const allFilters: SpamFilter[] = [
         ethBalanceFilter(connection.provider!.getBalance, {
             ethHigherOrEqualThan: '1',
         }),
     ];
 
-    const filter = reduceSpamFilters(allFilters, keysA.encryptionKeyPair);
+    const filter = compileSpamFilter(allFilters);
 
-    const filteredEnvelopes = filter(envelops);
+    const envelopAIsValid = await filter(
+        JSON.parse(
+            await decryptAsymmetric(
+                keysA.encryptionKeyPair,
+                JSON.parse(testData.envelopA.deliveryInformation),
+            ),
+        ),
+    );
+    const envelopBIsValid = await filter(
+        JSON.parse(
+            await decryptAsymmetric(
+                keysA.encryptionKeyPair,
+                JSON.parse(testData.envelopB.deliveryInformation),
+            ),
+        ),
+    );
 
-    await expect(filteredEnvelopes).resolves.toStrictEqual([envelops[1]]);
+    await expect(envelopAIsValid).toBe(false);
+    await expect(envelopBIsValid).toBe(true);
 });
 
 test('Should use filter correctly with two filter criteria', async () => {
-    expect.assertions(1);
-
     const allFilters: SpamFilter[] = [
         ethBalanceFilter(connection.provider!.getBalance, {
             ethHigherOrEqualThan: '1',
@@ -79,10 +91,25 @@ test('Should use filter correctly with two filter criteria', async () => {
             nonceHigherOrEqualThan: 2,
         }),
     ];
+    const filter = compileSpamFilter(allFilters);
 
-    const filter = reduceSpamFilters(allFilters, keysA.encryptionKeyPair);
+    const envelopAIsValid = await filter(
+        JSON.parse(
+            await decryptAsymmetric(
+                keysA.encryptionKeyPair,
+                JSON.parse(testData.envelopA.deliveryInformation),
+            ),
+        ),
+    );
+    const envelopBIsValid = await filter(
+        JSON.parse(
+            await decryptAsymmetric(
+                keysA.encryptionKeyPair,
+                JSON.parse(testData.envelopB.deliveryInformation),
+            ),
+        ),
+    );
 
-    const filteredEnvelopes = filter(envelops);
-
-    await expect(filteredEnvelopes).resolves.toStrictEqual([]);
+    await expect(envelopAIsValid).toBe(false);
+    await expect(envelopBIsValid).toBe(false);
 });

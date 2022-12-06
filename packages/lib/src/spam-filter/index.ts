@@ -1,25 +1,10 @@
-import { decryptAsymmetric, KeyPair } from '../crypto';
-import { DeliveryInformation, EncryptionEnvelop } from '../messaging/Messaging';
+import { DeliveryInformation } from '../messaging/Messaging';
+import { SpamFilter } from './filter/SpamFilter';
 
-export interface SpamFilter {
-    filter(e: DeliveryInformation): Promise<boolean>;
-}
-
-export function reduceSpamFilters(
-    filter: SpamFilter[],
-    encryptionKeyPair: KeyPair,
-) {
-    const filterEnvelop = async ({
-        deliveryInformation,
-    }: EncryptionEnvelop) => {
-        const decryptedDeliveryInformation: DeliveryInformation = JSON.parse(
-            await decryptAsymmetric(
-                encryptionKeyPair,
-                JSON.parse(deliveryInformation),
-            ),
-        );
+export function compileSpamFilter(filter: SpamFilter[]) {
+    return async (deliveryInformation: DeliveryInformation) => {
         const filterPromises = await Promise.all(
-            filter.map((f) => f.filter(decryptedDeliveryInformation)),
+            filter.map((f) => f.filter(deliveryInformation)),
         );
 
         return filterPromises.reduce(
@@ -27,9 +12,6 @@ export function reduceSpamFilters(
             true,
         );
     };
-
-    return async (envelop: EncryptionEnvelop[]) => {
-        const results = await Promise.all(envelop.map(filterEnvelop));
-        return envelop.filter((_, index) => results[index]);
-    };
 }
+
+export function filterSpam() {}
