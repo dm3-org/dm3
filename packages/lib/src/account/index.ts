@@ -29,7 +29,7 @@ export {
 
 export type { Account, ProfileKeys, UserProfile } from './Account';
 
-export type { MutableProfileExtension } from './mutableProfileExtension';
+export type { ProfileExtension } from './profileExtension';
 
 export async function addContact(
     connection: Connection,

@@ -7,8 +7,7 @@ import {
     checkStringSignature,
     SignedUserProfile,
 } from '../account/Account';
-import { MutableProfileExtension } from '../account';
-import { getDefaultMutableProfileExtension } from '../account/mutableProfileExtension/MutableProfileExtension';
+import { getDefaultProfileExtension } from '../account/profileExtension/ProfileExtension';
 
 export async function createChallenge(
     getSession: (accountAddress: string) => Promise<Session | null>,
@@ -77,7 +76,7 @@ export async function submitUserProfile(
             signedUserProfile,
             token: uuidv4(),
             createdAt: new Date().getTime(),
-            profileExtension: getDefaultMutableProfileExtension(),
+            profileExtension: getDefaultProfileExtension(),
         };
 
         await setSession(account, session);

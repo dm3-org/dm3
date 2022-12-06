@@ -25,7 +25,7 @@ export function handleResolveProfileExtension(axios: Axios) {
             return res.status(400).send({ error });
         }
 
-        //Get the Session to retrive the mutableProfileExtensionUrl of the address
+        //Get the Session to retrive profileExtension
         const session = await req.app.locals.db.getSession(address);
 
         //The requesito ens-name it not known to the delivery service
