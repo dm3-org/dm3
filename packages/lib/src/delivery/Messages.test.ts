@@ -1,6 +1,5 @@
-import { LimitNumberError } from 'ajv/dist/vocabularies/validation/limitNumber';
 import { UserProfile } from '../account/Account';
-import { decryptAsymmetric, encryptAsymmetric } from '../crypto';
+import { decryptAsymmetric } from '../crypto';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { EncryptionEnvelop } from '../messaging/Messaging';
 import { stringify } from '../shared/stringify';

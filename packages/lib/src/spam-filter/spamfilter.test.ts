@@ -1,8 +1,10 @@
 import { ethers } from 'ethers';
-import { EncryptionEnvelop, Envelop } from '../messaging';
+import { EncryptionEnvelop } from '../messaging';
 
-import { Filter, filter } from './';
-import * as testData from './index.test.json';
+import { reduceSpamFilters, SpamFilter } from '.';
+import { ethBalanceFilter } from './filter/EthBalanceFilter';
+import { nonceFilter } from './filter/NonceFilter';
+import * as testData from './spamfilter.test.json';
 
 const keysA = {
     encryptionKeyPair: {
@@ -53,45 +55,34 @@ const envelops = [testData.envelopA, testData.envelopB] as EncryptionEnvelop[];
 test('Should use filter correctly with one filter criteria', async () => {
     expect.assertions(1);
 
-    await expect(
-        filter(
-            [
-                {
-                    filter: Filter.EthBalanceFilter,
-                    settings: {
-                        ethHigherOrEqualThan: '1',
-                    },
-                },
-            ],
-            envelops,
-            connection,
-            keysA.encryptionKeyPair,
-        ),
-    ).resolves.toStrictEqual([envelops[1]]);
+    const allFilters: SpamFilter[] = [
+        ethBalanceFilter(connection.provider!.getBalance, {
+            ethHigherOrEqualThan: '1',
+        }),
+    ];
+
+    const filter = reduceSpamFilters(allFilters, keysA.encryptionKeyPair);
+
+    const filteredEnvelopes = filter(envelops);
+
+    await expect(filteredEnvelopes).resolves.toStrictEqual([envelops[1]]);
 });
 
 test('Should use filter correctly with two filter criteria', async () => {
     expect.assertions(1);
 
-    await expect(
-        filter(
-            [
-                {
-                    filter: Filter.EthBalanceFilter,
-                    settings: {
-                        ethHigherOrEqualThan: '1',
-                    },
-                },
-                {
-                    filter: Filter.NonceFilter,
-                    settings: {
-                        nonceHigherOrEqualThan: 2,
-                    },
-                },
-            ],
-            envelops,
-            connection,
-            keysA.encryptionKeyPair,
-        ),
-    ).resolves.toStrictEqual([]);
+    const allFilters: SpamFilter[] = [
+        ethBalanceFilter(connection.provider!.getBalance, {
+            ethHigherOrEqualThan: '1',
+        }),
+        nonceFilter(connection.provider!.getTransactionCount, {
+            nonceHigherOrEqualThan: 2,
+        }),
+    ];
+
+    const filter = reduceSpamFilters(allFilters, keysA.encryptionKeyPair);
+
+    const filteredEnvelopes = filter(envelops);
+
+    await expect(filteredEnvelopes).resolves.toStrictEqual([]);
 });

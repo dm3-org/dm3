@@ -1,5 +1,4 @@
-import { ethers } from 'ethers';
-import { Envelop } from '../messaging/Messaging';
+import { DeliveryInformation } from '../../messaging';
 import { nonceFilter } from './NonceFilter';
 
 test('Should accept a message with a nonce equal the nonce threshold', async () => {
@@ -7,14 +6,12 @@ test('Should accept a message with a nonce equal the nonce threshold', async () 
     const getNonce = async (): Promise<number> =>
         new Promise((resolve) => resolve(1));
 
+    const { filter } = nonceFilter(getNonce, {
+        nonceHigherOrEqualThan: 1,
+    });
+
     await expect(
-        nonceFilter(
-            '',
-            {
-                nonceHigherOrEqualThan: 1,
-            },
-            getNonce,
-        ),
+        filter({ from: '' } as DeliveryInformation),
     ).resolves.toStrictEqual(true);
 });
 
@@ -23,13 +20,11 @@ test('Should reject a message with a nonce lower than the nonce threshold', asyn
     const getNonce = async (): Promise<number> =>
         new Promise((resolve) => resolve(1));
 
+    const { filter } = nonceFilter(getNonce, {
+        nonceHigherOrEqualThan: 2,
+    });
+
     await expect(
-        nonceFilter(
-            '',
-            {
-                nonceHigherOrEqualThan: 2,
-            },
-            getNonce,
-        ),
+        filter({ from: '' } as DeliveryInformation),
     ).resolves.toStrictEqual(false);
 });

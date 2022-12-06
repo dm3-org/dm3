@@ -14,6 +14,7 @@ export interface Session {
     socketId?: string;
     challenge?: string;
     profileExtension: ProfileExtension;
+    //  filterSettings: FilterSettings;
 }
 
 export async function checkToken(
