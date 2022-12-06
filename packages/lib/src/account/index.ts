@@ -27,8 +27,6 @@ export {
     getProfileCreationMessage,
 } from './Account';
 
-export { resolveMutableProfileExtension } from './mutableProfileExtension';
-
 export type { Account, ProfileKeys, UserProfile } from './Account';
 
 export type { MutableProfileExtension } from './mutableProfileExtension';
