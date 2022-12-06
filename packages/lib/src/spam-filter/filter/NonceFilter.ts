@@ -1,5 +1,5 @@
-import { SpamFilter } from '..';
 import { DeliveryInformation } from '../../messaging';
+import { SpamFilter } from './SpamFilter';
 
 export interface NonceFilterSettings {
     nonceHigherOrEqualThan: number;
