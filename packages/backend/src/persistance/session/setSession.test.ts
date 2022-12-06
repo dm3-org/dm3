@@ -29,6 +29,9 @@ describe('Set Session', () => {
             signedUserProfile: { profile, signature: 'foo' },
             token: '',
             createdAt: 0,
+            profileExtension: {
+                notSupportedMessageTypes: [],
+            },
         };
 
         const priorSetSession = await db.getSession(USER_ADDRESS);

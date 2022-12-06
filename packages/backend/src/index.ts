@@ -19,6 +19,7 @@ import RpcProxy from './rpc/rpc-proxy';
 import Storage from './storage';
 import {
     errorHandler,
+    getWeb3Provider,
     logError,
     logRequest,
     readKeysFromEnv,
@@ -59,6 +60,7 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
     app.locals.deliveryServiceProperties = getDeliveryServiceProperties();
 
     app.locals.db = await getDatabase();
+    app.locals.web3Provider = getWeb3Provider(process.env);
 
     app.use(logRequest);
     app.use('/profile', Profile());
