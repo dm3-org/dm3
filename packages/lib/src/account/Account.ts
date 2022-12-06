@@ -33,7 +33,6 @@ export interface UserProfile {
     publicEncryptionKey: string;
     publicSigningKey: string;
     deliveryServices: string[];
-    mutableProfileExtensionUrl?: string;
 }
 
 export interface ProfileKeys {

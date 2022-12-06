@@ -1,3 +1,4 @@
+import { LimitNumberError } from 'ajv/dist/vocabularies/validation/limitNumber';
 import { UserProfile } from '../account/Account';
 import { decryptAsymmetric, encryptAsymmetric } from '../crypto';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
@@ -6,6 +7,7 @@ import { stringify } from '../shared/stringify';
 import { getConversationId } from '../storage/Storage';
 import { getMessages, incomingMessage } from './Messages';
 import * as testData from './Messages.test.json';
+import { Session } from './Session';
 
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
@@ -57,7 +59,11 @@ const getSession = async (address: string) => {
     const isSender = formatAddress(address) === SENDER_ADDRESS;
     const isReceiver = formatAddress(address) === RECEIVER_ADDRESS;
 
-    const session = (account: string, token: string, profile: UserProfile) => ({
+    const session = (
+        account: string,
+        token: string,
+        profile: UserProfile,
+    ): Session => ({
         account,
         signedUserProfile: {
             profile,
@@ -65,6 +71,10 @@ const getSession = async (address: string) => {
         },
         token,
         createdAt: new Date().getTime(),
+        profileExtension: {
+            encryptionAlgorithm: [],
+            notSupportedMessageTypes: [],
+        },
     });
 
     if (isSender) {

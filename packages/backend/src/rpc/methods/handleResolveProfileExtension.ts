@@ -1,7 +1,7 @@
-import express from 'express';
-import * as Lib from 'dm3-lib/dist.backend';
-import { WithLocals } from '../../types';
 import { Axios } from 'axios';
+import * as Lib from 'dm3-lib/dist.backend';
+import express from 'express';
+import { WithLocals } from '../../types';
 
 export function handleResolveProfileExtension(axios: Axios) {
     return async (
@@ -25,15 +25,11 @@ export function handleResolveProfileExtension(axios: Axios) {
             return res.status(400).send({ error });
         }
 
-        //Get the Profile to retrive the mutableProfileExtensionUrl of the address
-        const profile = await Lib.delivery.getUserProfile(
-            req.app.locals.db.getSession,
-            address,
-        );
+        //Get the Session to retrive the mutableProfileExtensionUrl of the address
+        const session = await req.app.locals.db.getSession(address);
 
-        if (!profile) {
-            const error = 'unknown ens-name';
-
+        if (!session) {
+            const error = 'unknown user';
             req.app.locals.logger.warn({
                 method: 'RPC - RESOLVE PROFILE',
                 error,
@@ -41,40 +37,11 @@ export function handleResolveProfileExtension(axios: Axios) {
             return res.status(400).send({ error });
         }
 
-        const { mutableProfileExtensionUrl } = profile.profile;
-
-        //There is no mutableExtensionUrl specified within the profile. Hence the defaults values are beeing returned
-        if (!mutableProfileExtensionUrl) {
-            const defaultProfileExtension = getDefaultProfileExtension();
-            return res.status(200).send({
-                jsonrpc: '2.0',
-                result: Lib.stringify({ ...defaultProfileExtension }),
-            });
-        }
-
-        const profileExtension =
-            await Lib.account.resolveMutableProfileExtension(
-                mutableProfileExtensionUrl,
-                async (url) => (await axios.get(url))?.data,
-            );
-
-        //The url points not to an valid profile Extension. Hence the default profileExtension is beeing returned
-        if (!profileExtension) {
-            const defaultProfileExtension = getDefaultProfileExtension();
-            return res.status(200).send({
-                jsonrpc: '2.0',
-                result: Lib.stringify({ ...defaultProfileExtension }),
-            });
-        }
+        const { profileExtension } = session;
 
         return res.status(200).send({
             jsonrpc: '2.0',
             result: Lib.stringify({ ...profileExtension }),
         });
     };
-    function getDefaultProfileExtension() {
-        return {
-            notSupportedMessageTypes: ['NEW'],
-        } as Partial<Lib.account.MutableProfileExtension>;
-    }
 }

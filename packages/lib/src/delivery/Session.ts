@@ -1,3 +1,4 @@
+import { MutableProfileExtension } from '../account';
 import { SignedUserProfile } from '../account/Account';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 
@@ -12,6 +13,7 @@ export interface Session {
     createdAt: number;
     socketId?: string;
     challenge?: string;
+    profileExtension: MutableProfileExtension;
 }
 
 export async function checkToken(
