@@ -29,6 +29,8 @@ export {
 
 export type { Account, ProfileKeys, UserProfile } from './Account';
 
+export type { ProfileExtension } from './profileExtension';
+
 export async function addContact(
     connection: Connection,
     accountInput: string,
