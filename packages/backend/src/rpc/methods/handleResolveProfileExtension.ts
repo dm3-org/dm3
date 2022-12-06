@@ -28,6 +28,7 @@ export function handleResolveProfileExtension(axios: Axios) {
         //Get the Session to retrive the mutableProfileExtensionUrl of the address
         const session = await req.app.locals.db.getSession(address);
 
+        //The requesito ens-name it not known to the delivery service
         if (!session) {
             const error = 'unknown user';
             req.app.locals.logger.warn({
