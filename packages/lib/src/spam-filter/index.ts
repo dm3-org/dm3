@@ -4,6 +4,7 @@ import { DeliveryInformation } from '../messaging/Messaging';
 import { ethBalanceFilterFactory } from './filter/ethBalanceFilter/EthBalanceFilter';
 import { nonceFilterFactory } from './filter/nonceFilter/NonceFilter';
 import { SpamFilter, SpamFilterFactory } from './filter/SpamFilter';
+import { tokenBalanceFilterFactory } from './filter/tokenBalanceFilter/TokenBalanceFilter';
 
 /**
  * All spam filters that are currently implemented.
@@ -12,6 +13,7 @@ import { SpamFilter, SpamFilterFactory } from './filter/SpamFilter';
 const SUPPORTED_SPAM_FILTERS: SpamFilterFactory[] = [
     nonceFilterFactory(),
     ethBalanceFilterFactory(),
+    tokenBalanceFilterFactory(),
 ];
 
 /**
