@@ -6,9 +6,7 @@ test('Should accept a message with a nonce equal the nonce threshold', async () 
     const getNonce = async (): Promise<number> =>
         new Promise((resolve) => resolve(1));
 
-    const { filter } = nonceFilter(getNonce, {
-        nonceHigherOrEqualThan: 1,
-    });
+    const { filter } = nonceFilter(getNonce, 1);
 
     await expect(
         filter({ from: '' } as DeliveryInformation),
@@ -20,9 +18,7 @@ test('Should reject a message with a nonce lower than the nonce threshold', asyn
     const getNonce = async (): Promise<number> =>
         new Promise((resolve) => resolve(1));
 
-    const { filter } = nonceFilter(getNonce, {
-        nonceHigherOrEqualThan: 2,
-    });
+    const { filter } = nonceFilter(getNonce, 2);
 
     await expect(
         filter({ from: '' } as DeliveryInformation),

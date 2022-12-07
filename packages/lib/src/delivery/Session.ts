@@ -1,6 +1,7 @@
 import { ProfileExtension } from '../account';
 import { SignedUserProfile } from '../account/Account';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
+import { SpamFilterRules } from '../spam-filter/SpamFilterRules';
 
 //1Year
 const TTL = 31536000000;
@@ -14,7 +15,7 @@ export interface Session {
     socketId?: string;
     challenge?: string;
     profileExtension: ProfileExtension;
-    //  filterSettings: FilterSettings;
+    spamFilterRules?: SpamFilterRules;
 }
 
 export async function checkToken(

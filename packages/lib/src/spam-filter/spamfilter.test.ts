@@ -1,12 +1,12 @@
 import { ethers } from 'ethers';
-import { DeliveryInformation, EncryptionEnvelop } from '../messaging';
 
-import { compileSpamFilter } from '.';
+import { compileSpamFilter, getUsersSpamFilters } from '.';
+import { decryptAsymmetric } from '../crypto';
+import { Session } from '../delivery';
 import { ethBalanceFilter } from './filter/EthBalanceFilter';
 import { nonceFilter } from './filter/NonceFilter';
-import * as testData from './spamfilter.test.json';
 import { SpamFilter } from './filter/SpamFilter';
-import { decryptAsymmetric } from '../crypto';
+import * as testData from './spamfilter.test.json';
 
 const keysA = {
     encryptionKeyPair: {
@@ -54,9 +54,7 @@ const connection = {
 
 test('Should use filter correctly with one filter criteria', async () => {
     const allFilters: SpamFilter[] = [
-        ethBalanceFilter(connection.provider!.getBalance, {
-            ethHigherOrEqualThan: '1',
-        }),
+        ethBalanceFilter(connection.provider!.getBalance, '1'),
     ];
 
     const filter = compileSpamFilter(allFilters);
@@ -84,12 +82,8 @@ test('Should use filter correctly with one filter criteria', async () => {
 
 test('Should use filter correctly with two filter criteria', async () => {
     const allFilters: SpamFilter[] = [
-        ethBalanceFilter(connection.provider!.getBalance, {
-            ethHigherOrEqualThan: '1',
-        }),
-        nonceFilter(connection.provider!.getTransactionCount, {
-            nonceHigherOrEqualThan: 2,
-        }),
+        ethBalanceFilter(connection.provider!.getBalance, '1'),
+        nonceFilter(connection.provider!.getTransactionCount, 2),
     ];
     const filter = compileSpamFilter(allFilters);
 
@@ -112,4 +106,13 @@ test('Should use filter correctly with two filter criteria', async () => {
 
     await expect(envelopAIsValid).toBe(false);
     await expect(envelopBIsValid).toBe(false);
+});
+
+test.only('getUsersSpam filter should return an empty array if SpamFilter Rules are undefined ', () => {
+    const session = {} as Session;
+    const provider = {} as ethers.providers.BaseProvider;
+
+    const filters = getUsersSpamFilters(provider, session);
+
+    expect(filters?.length).toBe(0);
 });

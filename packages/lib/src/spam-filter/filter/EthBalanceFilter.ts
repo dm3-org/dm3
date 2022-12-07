@@ -1,10 +1,10 @@
 import { ethers } from 'ethers';
+import { FilterFactory } from '..';
 import { DeliveryInformation } from '../../messaging';
+import { Rules } from '../SpamFilterRules';
 import { SpamFilter } from './SpamFilter';
 
-export interface EthBalanceFilterSettings {
-    ethHigherOrEqualThan: string;
-}
+export type EthBalanceFilterSettings = string;
 
 export function ethBalanceFilter(
     getEthBalance: (address: string) => Promise<ethers.BigNumber>,
@@ -12,9 +12,25 @@ export function ethBalanceFilter(
 ): SpamFilter {
     const filter = async (e: DeliveryInformation) => {
         return (await getEthBalance(e.from)).gte(
-            ethers.BigNumber.from(settings.ethHigherOrEqualThan),
+            ethers.BigNumber.from(settings),
         );
     };
 
     return { filter };
+}
+
+export function ethBalanceFilterFactory(): FilterFactory {
+    const ID = Rules.MIN_BALANCE;
+    const getId = () => ID;
+
+    const getFilter = (
+        provider: ethers.providers.BaseProvider,
+        settings: any,
+    ) =>
+        ethBalanceFilter(
+            provider.getBalance,
+            settings as EthBalanceFilterSettings,
+        );
+
+    return { getId, getFilter };
 }

@@ -11,9 +11,7 @@ test('Should accept a message with an eth balance equal the threshold', async ()
 
     const { filter } = ethBalanceFilter(
         async () => ethers.BigNumber.from('1'),
-        {
-            ethHigherOrEqualThan: '1',
-        },
+        '1',
     );
 
     await expect(
@@ -25,9 +23,7 @@ test('Should reject a message with an eth balance lower than the threshold', asy
     expect.assertions(1);
     const { filter } = ethBalanceFilter(
         async () => ethers.BigNumber.from('1'),
-        {
-            ethHigherOrEqualThan: '2',
-        },
+        '2',
     );
 
     await expect(
