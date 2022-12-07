@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
-import { DeliveryInformation } from '../../messaging';
-import { SpamFilterRule } from '../SpamFilterRules';
-import { SpamFilterFactory, SpamFilter } from './SpamFilter';
+import { DeliveryInformation } from '../../../messaging';
+import { SpamFilterRule } from '../../SpamFilterRules';
+import { SpamFilterFactory, SpamFilter } from '../SpamFilter';
 
 export type NonceFilterSettings = number;
 

@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
-import { DeliveryInformation } from '../../messaging';
-import { SpamFilterRule } from '../SpamFilterRules';
-import { SpamFilterFactory, SpamFilter } from './SpamFilter';
+import { DeliveryInformation } from '../../../messaging';
+import { SpamFilterRule } from '../../SpamFilterRules';
+import { SpamFilter, SpamFilterFactory } from '../SpamFilter';
 
 export type EthBalanceFilterSettings = string;
 

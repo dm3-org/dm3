@@ -1,15 +1,15 @@
 import { ethers } from 'ethers';
 import { Session } from '../delivery';
 import { DeliveryInformation } from '../messaging/Messaging';
-import { ethBalanceFilterFactory } from './filter/EthBalanceFilter';
-import { nonceFilterFactory } from './filter/NonceFilter';
-import { SpamFilter } from './filter/SpamFilter';
+import { ethBalanceFilterFactory } from './filter/ethBalanceFilter/EthBalanceFilter';
+import { nonceFilterFactory } from './filter/nonceFilter/NonceFilter';
+import { SpamFilter, SpamFilterFactory } from './filter/SpamFilter';
 
 /**
  * All spam filters that are currently implemented.
  * A new filter can easily be added by implementing the {@see SpamFilterFactory} interface
  */
-const SUPPORTED_SPAM_FILTERS = [
+const SUPPORTED_SPAM_FILTERS: SpamFilterFactory[] = [
     nonceFilterFactory(),
     ethBalanceFilterFactory(),
 ];

@@ -1,9 +1,5 @@
 import { ethers } from 'ethers';
-import {
-    DeliveryInformation,
-    EncryptionEnvelop,
-    Envelop,
-} from '../../messaging/Messaging';
+import { DeliveryInformation } from '../../../messaging/Messaging';
 import { ethBalanceFilter } from './EthBalanceFilter';
 
 test('Should accept a message with an eth balance equal the threshold', async () => {
