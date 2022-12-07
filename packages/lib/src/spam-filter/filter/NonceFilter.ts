@@ -1,8 +1,7 @@
 import { ethers } from 'ethers';
-import { FilterFactory } from '..';
 import { DeliveryInformation } from '../../messaging';
-import { Rules } from '../SpamFilterRules';
-import { SpamFilter } from './SpamFilter';
+import { SpamFilterRule } from '../SpamFilterRules';
+import { SpamFilterFactory, SpamFilter } from './SpamFilter';
 
 export type NonceFilterSettings = number;
 
@@ -17,8 +16,8 @@ export function nonceFilter(
     return { filter };
 }
 
-export function nonceFilterFactory(): FilterFactory {
-    const ID = Rules.MIN_NONCE;
+export function nonceFilterFactory(): SpamFilterFactory {
+    const ID = SpamFilterRule.MIN_NONCE;
     const getId = () => ID;
 
     const getFilter = (

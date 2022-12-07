@@ -1,21 +1,9 @@
-import { ethers, providers } from 'ethers';
+import { ethers } from 'ethers';
 import { Session } from '../delivery';
 import { DeliveryInformation } from '../messaging/Messaging';
-import {
-    ethBalanceFilter,
-    ethBalanceFilterFactory,
-} from './filter/EthBalanceFilter';
+import { ethBalanceFilterFactory } from './filter/EthBalanceFilter';
 import { nonceFilterFactory } from './filter/NonceFilter';
 import { SpamFilter } from './filter/SpamFilter';
-import { Rules } from './SpamFilterRules';
-
-export interface FilterFactory {
-    getId: () => Rules;
-    getFilter: (
-        provider: ethers.providers.BaseProvider,
-        settings: any,
-    ) => SpamFilter;
-}
 
 //Reduces many SpamFilters into one single Filter
 export function compileSpamFilter(filter: SpamFilter[]) {

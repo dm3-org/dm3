@@ -1,8 +1,7 @@
 import { ethers } from 'ethers';
-import { FilterFactory } from '..';
 import { DeliveryInformation } from '../../messaging';
-import { Rules } from '../SpamFilterRules';
-import { SpamFilter } from './SpamFilter';
+import { SpamFilterRule } from '../SpamFilterRules';
+import { SpamFilterFactory, SpamFilter } from './SpamFilter';
 
 export type EthBalanceFilterSettings = string;
 
@@ -19,8 +18,8 @@ export function ethBalanceFilter(
     return { filter };
 }
 
-export function ethBalanceFilterFactory(): FilterFactory {
-    const ID = Rules.MIN_BALANCE;
+export function ethBalanceFilterFactory(): SpamFilterFactory {
+    const ID = SpamFilterRule.MIN_BALANCE;
     const getId = () => ID;
 
     const getFilter = (
