@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 
-import { compileSpamFilter, getUsersSpamFilters } from '.';
+import { compileSpamFilter, getUsersSpamFilters, isSpam } from '.';
 import { decryptAsymmetric } from '../crypto';
 import { Session } from '../delivery';
 import { ethBalanceFilter } from './filter/EthBalanceFilter';
@@ -52,67 +52,81 @@ const connection = {
     },
 } as any;
 
-test('Should use filter correctly with one filter criteria', async () => {
-    const allFilters: SpamFilter[] = [
-        ethBalanceFilter(connection.provider!.getBalance, '1'),
-    ];
+describe('SpamFilter', () => {
+    describe('isSpam ', () => {
+        it('Should filter correctly with one filter criteria', async () => {
+            const session = {
+                spamFilterRules: { minBalance: '1' },
+            } as Session;
 
-    const filter = compileSpamFilter(allFilters);
+            const envelopAIsSpam = await isSpam(
+                connection.provider,
+                session,
+                JSON.parse(
+                    await decryptAsymmetric(
+                        keysA.encryptionKeyPair,
+                        JSON.parse(testData.envelopA.deliveryInformation),
+                    ),
+                ),
+            );
+            const envelopBIsSpam = await isSpam(
+                connection.provider,
+                session,
+                JSON.parse(
+                    await decryptAsymmetric(
+                        keysA.encryptionKeyPair,
+                        JSON.parse(testData.envelopB.deliveryInformation),
+                    ),
+                ),
+            );
 
-    const envelopAIsValid = await filter(
-        JSON.parse(
-            await decryptAsymmetric(
-                keysA.encryptionKeyPair,
-                JSON.parse(testData.envelopA.deliveryInformation),
-            ),
-        ),
-    );
-    const envelopBIsValid = await filter(
-        JSON.parse(
-            await decryptAsymmetric(
-                keysA.encryptionKeyPair,
-                JSON.parse(testData.envelopB.deliveryInformation),
-            ),
-        ),
-    );
+            await expect(envelopAIsSpam).toBe(true);
+            await expect(envelopBIsSpam).toBe(false);
+        });
+        it('Should use filter correctly with two filter criteria', async () => {
+            const session = {
+                spamFilterRules: { minBalance: '1', minNonce: 2 },
+            } as Session;
 
-    await expect(envelopAIsValid).toBe(false);
-    await expect(envelopBIsValid).toBe(true);
-});
+            const envelopAIsSpam = await isSpam(
+                connection.provider,
+                session,
+                JSON.parse(
+                    await decryptAsymmetric(
+                        keysA.encryptionKeyPair,
+                        JSON.parse(testData.envelopA.deliveryInformation),
+                    ),
+                ),
+            );
+            const envelopBIsSpam = await isSpam(
+                connection.provider,
+                session,
+                JSON.parse(
+                    await decryptAsymmetric(
+                        keysA.encryptionKeyPair,
+                        JSON.parse(testData.envelopB.deliveryInformation),
+                    ),
+                ),
+            );
 
-test('Should use filter correctly with two filter criteria', async () => {
-    const allFilters: SpamFilter[] = [
-        ethBalanceFilter(connection.provider!.getBalance, '1'),
-        nonceFilter(connection.provider!.getTransactionCount, 2),
-    ];
-    const filter = compileSpamFilter(allFilters);
+            await expect(envelopAIsSpam).toBe(true);
+            await expect(envelopBIsSpam).toBe(true);
+        });
+        it('Should not consider a message as spam if no SpamFilterRules are provided', async () => {
+            const session = {} as Session;
 
-    const envelopAIsValid = await filter(
-        JSON.parse(
-            await decryptAsymmetric(
-                keysA.encryptionKeyPair,
-                JSON.parse(testData.envelopA.deliveryInformation),
-            ),
-        ),
-    );
-    const envelopBIsValid = await filter(
-        JSON.parse(
-            await decryptAsymmetric(
-                keysA.encryptionKeyPair,
-                JSON.parse(testData.envelopB.deliveryInformation),
-            ),
-        ),
-    );
+            const envelopAIsSpam = await isSpam(
+                connection.provider,
+                session,
+                JSON.parse(
+                    await decryptAsymmetric(
+                        keysA.encryptionKeyPair,
+                        JSON.parse(testData.envelopA.deliveryInformation),
+                    ),
+                ),
+            );
 
-    await expect(envelopAIsValid).toBe(false);
-    await expect(envelopBIsValid).toBe(false);
-});
-
-test.only('getUsersSpam filter should return an empty array if SpamFilter Rules are undefined ', () => {
-    const session = {} as Session;
-    const provider = {} as ethers.providers.BaseProvider;
-
-    const filters = getUsersSpamFilters(provider, session);
-
-    expect(filters?.length).toBe(0);
+            await expect(envelopAIsSpam).toBe(false);
+        });
+    });
 });
