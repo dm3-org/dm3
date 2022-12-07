@@ -111,6 +111,78 @@ describe('Messaging', () => {
 
             onConnection(app)(getSocketMock());
         });
+        it('returns error if message is spam', (done: any) => {
+            //We expect the callback functions called once witht he value 'success'
+            expect.assertions(1);
+            const callback = jest.fn((e: any) => {
+                // eslint-disable-next-line max-len
+                //Even though the method fails jest dosen't recognize it becuase of the catch block used in messaging.ts. So we have to throw another error if the callback returns anything else then the expected result.
+                if (e.error !== 'Message does not match spam criteria') {
+                    throw Error(e);
+                }
+                expect(e.error).toBe('Message does not match spam criteria');
+                done();
+            });
+            const session = async (addr: string) => {
+                return {
+                    ...(await getSession(addr)),
+                    spamFilterRules: { minNonce: 2 },
+                } as Lib.delivery.Session;
+            };
+            //We provide an mocked express app with all needes locals vars
+            const app = {
+                locals: {
+                    logger: {
+                        warn: (e: any) => {
+                            console.log(e);
+                        },
+                        info: (e: any) => {
+                            console.log(e);
+                        },
+                    },
+                    keys: {
+                        signing: keysA.signingKeyPair,
+                        encryption: keysA.encryptionKeyPair,
+                    },
+
+                    deliveryServiceProperties: { sizeLimit: 2 ** 14 },
+
+                    db: { getSession: session, createMessage: () => {} },
+                    web3Provider: {
+                        getTransactionCount: (_: string) => Promise.resolve(0),
+                    },
+                    redisClient: {
+                        zAdd: () => {},
+                    },
+                    io: {
+                        sockets: {
+                            to: (_: any) => ({
+                                emit: (_: any, __any: any) => {},
+                            }),
+                        },
+                    },
+                } as any,
+            } as express.Express;
+
+            //The same data used in Messages.test
+            const data = {
+                envelop: testData.envelopA,
+                token: '123',
+            };
+
+            const getSocketMock = () => {
+                return {
+                    on: async (name: string, onSubmitMessage: any) => {
+                        //We just want to test the submitMessage callback fn
+                        if (name === 'submitMessage') {
+                            await onSubmitMessage(data, callback);
+                        }
+                    },
+                } as unknown as Socket;
+            };
+
+            onConnection(app)(getSocketMock());
+        });
         it('Throws error if schema is invalid', async () => {
             //We expect the callback functions called once witht he value 'success'
             expect.assertions(1);
