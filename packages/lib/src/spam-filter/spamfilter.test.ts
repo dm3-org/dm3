@@ -1,11 +1,8 @@
 import { ethers } from 'ethers';
 
-import { compileSpamFilter, getUsersSpamFilters, isSpam } from '.';
+import { isSpam } from '.';
 import { decryptAsymmetric } from '../crypto';
 import { Session } from '../delivery';
-import { ethBalanceFilter } from './filter/EthBalanceFilter';
-import { nonceFilter } from './filter/NonceFilter';
-import { SpamFilter } from './filter/SpamFilter';
 import * as testData from './spamfilter.test.json';
 
 const keysA = {
