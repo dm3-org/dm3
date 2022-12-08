@@ -132,7 +132,6 @@ describe('Storage', () => {
                 connection,
                 db,
             );
-
             expect(actualConversation).toStrictEqual(expectedConversation);
         });
     });
@@ -162,7 +161,7 @@ describe('Storage', () => {
             );
         });
 
-        it('Sync Acknoledgements', async () => {
+        it('Sync Db with conversations', async () => {
             const profileKeys = await getMockProfileKeys();
 
             const db = createDB(profileKeys);
@@ -195,7 +194,7 @@ describe('Storage', () => {
                 conversation,
             );
         });
-        it('Filter empty conversations', async () => {
+        it('Sync db and filter empty conversations', async () => {
             const profileKeys = await getMockProfileKeys();
 
             const db = createDB(profileKeys);
@@ -226,6 +225,23 @@ describe('Storage', () => {
             expect(loadDb.conversations.get(conversationId)).toStrictEqual(
                 conversation,
             );
+        });
+        it('Sync db without conversations', async () => {
+            const profileKeys = await getMockProfileKeys();
+
+            const db = createDB(profileKeys);
+
+            const { acknoledgments, userStorage } = await sync(db, '');
+
+            expect(acknoledgments.length).toBe(0);
+            expect(acknoledgments).toStrictEqual([]);
+
+            const loadDb = await load(
+                userStorage,
+                profileKeys.storageEncryptionKey,
+            );
+
+            expect(loadDb.conversationsCount).toBe(0);
         });
     });
 

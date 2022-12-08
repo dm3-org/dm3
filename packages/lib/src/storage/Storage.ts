@@ -167,9 +167,9 @@ export async function sync(
         // get newest delivery service query timestamp
         .map((conversationId) =>
             userDb.conversations
-                .get(conversationId)
+                .get(conversationId)!
                 //TODO is it still needed to filter messages without an incomingtimestamp @Heiko
-                ?.filter(
+                .filter(
                     ({ deliveryServiceIncommingTimestamp }) =>
                         !!deliveryServiceIncommingTimestamp,
                 )
@@ -228,7 +228,7 @@ export async function load(
     return {
         keys: decryptedPayload.keys,
         conversations,
-        conversationsCount: conversations.keys ? conversations.keys.length : 0,
+        conversationsCount: conversations.keys.length,
         synced: true,
         syncProcessState: SyncProcessState.Idle,
         lastChangeTimestamp: decryptedPayload.lastChangeTimestamp,
