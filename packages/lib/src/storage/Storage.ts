@@ -119,7 +119,9 @@ export function getConversation(
     const envelops = db.conversations.get(conversationId);
     return envelops ? envelops : [];
 }
-
+/**
+ * Sorts an Array of {@see StorageEnvelopContainer} by timestamp ASC
+ */
 export function sortEnvelops(
     containers: StorageEnvelopContainer[],
 ): StorageEnvelopContainer[] {

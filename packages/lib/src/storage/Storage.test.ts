@@ -6,6 +6,7 @@ import {
     getConversation,
     parseConversations,
     serializeConversations,
+    sortEnvelops,
     StorageEnvelopContainer,
     sync,
 } from './Storage';
@@ -14,11 +15,11 @@ const USER_ADDRESS_1 = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const USER_ADDRESS_2 = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 const USER_ADDRESS_3 = '0x09c3d8547020a044c4879cD0546D448D362124Ae';
 
-const getStorageEnvelopeContainer = () => {
+const getStorageEnvelopeContainer = (timestamp: number = 0) => {
     const message: Message = {
         to: '',
         from: '',
-        timestamp: 0,
+        timestamp,
         message: '',
         type: 'NEW',
         signature: '',
@@ -131,6 +132,24 @@ describe('Storage', () => {
 
             expect(actualConversation).toStrictEqual(actualConversation);
         });
+    });
+
+    describe('sortEnvelops', () => {
+        const envelopContainer1 = getStorageEnvelopeContainer(1);
+        const envelopContainer2 = getStorageEnvelopeContainer(2);
+        const envelopContainer3 = getStorageEnvelopeContainer(3);
+
+        const sortedEnvelops = sortEnvelops([
+            envelopContainer2,
+            envelopContainer3,
+            envelopContainer1,
+        ]);
+
+        expect(sortedEnvelops).toStrictEqual([
+            envelopContainer1,
+            envelopContainer2,
+            envelopContainer3,
+        ]);
     });
 
     describe('Sync', () => {
