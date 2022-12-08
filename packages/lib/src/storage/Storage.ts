@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { stringify } from '../shared/stringify';
 import { ProfileKeys } from '../account/Account';
 import { decrypt, encrypt, EncryptedPayload } from '../crypto';
@@ -49,7 +50,31 @@ interface UserStoragePayload {
     lastChangeTimestamp: number;
 }
 
-function replacer(key: string, value: any) {
+/**
+ * In order to stringify the conversations properly, the map that contains the conversations has to be transformed to the follwoing structure
+ {
+  "dataType": "Map",
+  "value": [
+    [
+      "conversionID0",
+      [
+        [...storageEnvelopContainer]
+      ]
+    ],
+    [
+      "conversionID1",
+      [
+        [...storageEnvelopContainer]
+      ]
+    ]
+  ]
+}
+ * 
+ */
+export function serializeConversations(
+    _: string,
+    value: Map<string, StorageEnvelopContainer[]>,
+) {
     if (value instanceof Map) {
         return {
             dataType: 'Map',
@@ -59,8 +84,10 @@ function replacer(key: string, value: any) {
         return value;
     }
 }
-
-function reviver(key: string, value: any) {
+/**
+ * If a JSON string contains an object created with {@see serializeConversations} a it'll be transformed to a Map<string,StorageEnvelopContainer[]> where the key is the conversationID
+ */
+export function parseConversations(key: string, value: any) {
     if (typeof value === 'object' && value !== null) {
         if (value.dataType === 'Map') {
             return new Map(value.value);
@@ -106,7 +133,10 @@ function prepareUserStoragePayload(
     token: string,
 ): UserStoragePayload {
     return {
-        conversations: JSON.stringify(userDb.conversations, replacer),
+        conversations: JSON.stringify(
+            userDb.conversations,
+            serializeConversations,
+        ),
         keys: userDb.keys,
         deliveryServiceToken: token,
         lastChangeTimestamp: userDb.lastChangeTimestamp,
@@ -180,7 +210,7 @@ export async function load(data: UserStorage, key: string): Promise<UserDB> {
 
     const conversations: Map<string, StorageEnvelopContainer[]> = JSON.parse(
         decryptedPayload.conversations,
-        reviver,
+        parseConversations,
     );
 
     return {
