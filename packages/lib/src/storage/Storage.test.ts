@@ -1,9 +1,7 @@
-import exp from 'constants';
 import { ethers } from 'ethers';
-import { Message } from '../../dist.backend/messaging';
 import { createProfileKeys } from '../account/profileKeys/createProfileKeys';
-import { getStorageKeyCreationMessage, createStorageKey } from '../crypto';
-import { Envelop, MessageState } from '../messaging';
+import { createStorageKey, getStorageKeyCreationMessage } from '../crypto';
+import { Envelop, Message, MessageState } from '../messaging';
 import { Connection } from '../web3-provider/Web3Provider';
 import {
     createDB,

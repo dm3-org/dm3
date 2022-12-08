@@ -1,11 +1,11 @@
 /* eslint-disable max-len */
-import { stringify } from '../shared/stringify';
 import { ProfileKeys } from '../account/Account';
 import { decrypt, encrypt, EncryptedPayload } from '../crypto';
 import { Acknoledgment } from '../delivery';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { Envelop, MessageState } from '../messaging/Messaging';
 import { log } from '../shared/log';
+import { stringify } from '../shared/stringify';
 import { Connection } from '../web3-provider/Web3Provider';
 import { createTimestamp } from './Utils';
 
