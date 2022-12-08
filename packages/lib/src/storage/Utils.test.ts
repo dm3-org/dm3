@@ -1,4 +1,4 @@
-import { getTimestamp } from './Utils';
+import { createTimestamp, getTimestamp } from './Utils';
 
 describe('Storage Utils', () => {
     describe('getTimeStamp', () => {
@@ -19,6 +19,15 @@ describe('Storage Utils', () => {
 
             const timeStamp = getTimestamp(file);
             expect(timeStamp).toBeUndefined();
+        });
+    });
+
+    describe('createTimestamp', () => {
+        it('create new timestamp', () => {
+            jest.useFakeTimers().setSystemTime(new Date(123));
+            const timestamp = createTimestamp();
+
+            expect(timestamp).toBe(123);
         });
     });
 });
