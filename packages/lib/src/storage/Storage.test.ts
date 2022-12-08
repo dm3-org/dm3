@@ -1,9 +1,14 @@
+import exp from 'constants';
+import { ethers } from 'ethers';
 import { Message } from '../../dist.backend/messaging';
+import { createProfileKeys } from '../account/profileKeys/createProfileKeys';
+import { getStorageKeyCreationMessage, createStorageKey } from '../crypto';
 import { Envelop, MessageState } from '../messaging';
 import { Connection } from '../web3-provider/Web3Provider';
 import {
     createDB,
     getConversation,
+    load,
     parseConversations,
     serializeConversations,
     sortEnvelops,
@@ -18,7 +23,7 @@ const USER_ADDRESS_3 = '0x09c3d8547020a044c4879cD0546D448D362124Ae';
 const getStorageEnvelopeContainer = (timestamp: number = 0) => {
     const message: Message = {
         to: '',
-        from: '',
+        from: USER_ADDRESS_1,
         timestamp,
         message: '',
         type: 'NEW',
@@ -33,7 +38,22 @@ const getStorageEnvelopeContainer = (timestamp: number = 0) => {
     return {
         messageState: MessageState.Created,
         envelop: envelop,
+        deliveryServiceIncommingTimestamp: 123,
     } as StorageEnvelopContainer;
+};
+const getMockProfileKeys = async () => {
+    const nonce = 0;
+    const wallet = new ethers.Wallet(
+        '0xac58f2f021d6f148fd621b355edbd0ebadcf9682019015ef1219cf9c0c2ddc8b',
+    );
+
+    const nonceMsg = getStorageKeyCreationMessage(nonce);
+    const signedMessage = await wallet.signMessage(nonceMsg);
+
+    return await createProfileKeys(
+        await createStorageKey(signedMessage),
+        nonce,
+    );
 };
 
 describe('Storage', () => {
@@ -98,23 +118,12 @@ describe('Storage', () => {
 
             expect(conversations).toStrictEqual([]);
         });
-        it('Returns the conversation between the account specified in the connection and the contact ', () => {
-            const profileKeys = {
-                encryptionKeyPair: {
-                    publicKey: '',
-                    privateKey: '',
-                },
-                signingKeyPair: {
-                    publicKey: '',
-                    privateKey: '',
-                },
-                storageEncryptionKey: '',
-                storageEncryptionNonce: 0,
-            };
-
+        it('Returns the conversation between the account specified in the connection and the contact ', async () => {
             const connection = {
                 account: { address: USER_ADDRESS_2 },
             } as Connection;
+
+            const profileKeys = await getMockProfileKeys();
 
             const db = createDB(profileKeys);
 
@@ -151,12 +160,77 @@ describe('Storage', () => {
             envelopContainer3,
         ]);
     });
-
-    describe('Sync', () => {
+    describe('Sync / Load', () => {
         it(`Should throw if userDb isn't set`, async () => {
             expect.assertions(1);
             await expect(() => sync(undefined, '')).rejects.toEqual(
                 Error(`User db hasn't been create`),
+            );
+        });
+
+        it('Sync Acknoledgements', async () => {
+            const profileKeys = await getMockProfileKeys();
+
+            const db = createDB(profileKeys);
+
+            const conversation = [
+                getStorageEnvelopeContainer(),
+                getStorageEnvelopeContainer(),
+            ];
+
+            const conversationId = USER_ADDRESS_1 + USER_ADDRESS_2;
+
+            db.conversations.set(conversationId, conversation);
+
+            const { acknoledgments, userStorage } = await sync(db, '');
+
+            expect(acknoledgments.length).toBe(1);
+            expect(acknoledgments).toStrictEqual([
+                {
+                    contactAddress: USER_ADDRESS_1,
+                    messageDeliveryServiceTimestamp: 123,
+                },
+            ]);
+
+            const loadDb = await load(
+                userStorage,
+                profileKeys.storageEncryptionKey,
+            );
+
+            expect(loadDb.conversations.get(conversationId)).toStrictEqual(
+                conversation,
+            );
+        });
+        it('Filter empty conversations', async () => {
+            const profileKeys = await getMockProfileKeys();
+
+            const db = createDB(profileKeys);
+
+            const conversation = [getStorageEnvelopeContainer()];
+
+            const conversationId = USER_ADDRESS_1 + USER_ADDRESS_2;
+            const emptyConversion = USER_ADDRESS_1 + USER_ADDRESS_3;
+
+            db.conversations.set(conversationId, conversation);
+            db.conversations.set(emptyConversion, []);
+
+            const { acknoledgments, userStorage } = await sync(db, '');
+
+            expect(acknoledgments.length).toBe(1);
+            expect(acknoledgments).toStrictEqual([
+                {
+                    contactAddress: USER_ADDRESS_1,
+                    messageDeliveryServiceTimestamp: 123,
+                },
+            ]);
+
+            const loadDb = await load(
+                userStorage,
+                profileKeys.storageEncryptionKey,
+            );
+
+            expect(loadDb.conversations.get(conversationId)).toStrictEqual(
+                conversation,
             );
         });
     });

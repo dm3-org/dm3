@@ -144,7 +144,12 @@ function prepareUserStoragePayload(
         lastChangeTimestamp: userDb.lastChangeTimestamp,
     };
 }
-
+/**
+ * Sync the userDb by Acknoleding each non-empty conversation
+ * @returns  an Array of Acknloedgements and an encrypted @see {UserStorage} object
+ * This can be decrypted by using the @see {load} method with the according storageEncryptionKey
+ *
+ */
 export async function sync(
     userDb: UserDB | undefined,
     deliveryServiceToken: string,
@@ -160,33 +165,32 @@ export async function sync(
         userDb.conversations.keys(),
     )
         // get newest delivery service query timestamp
-        .map((key) =>
+        .map((conversationId) =>
             userDb.conversations
-                .get(key)
-                ?.filter((container) =>
-                    container.deliveryServiceIncommingTimestamp ? true : false,
+                .get(conversationId)
+                //TODO is it still needed to filter messages without an incomingtimestamp @Heiko
+                ?.filter(
+                    ({ deliveryServiceIncommingTimestamp }) =>
+                        !!deliveryServiceIncommingTimestamp,
                 )
+                //Sort Messages ASC by incoming timeStamp
                 .sort(
                     (a, b) =>
                         b.deliveryServiceIncommingTimestamp! -
                         a.deliveryServiceIncommingTimestamp!,
                 ),
         )
-        // create acknoledgments
-        .map(
-            (containers) =>
-                containers && containers.length > 0
-                    ? {
-                          contactAddress: containers[0]!.envelop.message.from,
-                          messageDeliveryServiceTimestamp:
-                              containers[0].deliveryServiceIncommingTimestamp!,
-                      }
-                    : null,
-            // remove null acknoledgments
+        //Filter empty containers
+        .filter(
+            (containers): containers is StorageEnvelopContainer[] =>
+                !!containers && containers.length > 0,
         )
-        .filter((acknoledgment) =>
-            acknoledgment ? true : false,
-        ) as Acknoledgment[];
+        // create acknoledgments
+        .map((containers) => ({
+            contactAddress: containers[0].envelop.message.from,
+            messageDeliveryServiceTimestamp:
+                containers[0].deliveryServiceIncommingTimestamp!,
+        }));
 
     return {
         userStorage: {
@@ -202,12 +206,18 @@ export async function sync(
         acknoledgments,
     };
 }
-
-export async function load(data: UserStorage, key: string): Promise<UserDB> {
+/**
+ * Decryptes an encrypted @see {UserStorage}
+ * @retruns The decrypted @see {UserDB}
+ */
+export async function load(
+    data: UserStorage,
+    storageEncryptionKey: string,
+): Promise<UserDB> {
     log('[storage] Loading user storage');
 
     const decryptedPayload: UserStoragePayload = JSON.parse(
-        await decrypt(key, data.payload),
+        await decrypt(storageEncryptionKey, data.payload),
     );
 
     const conversations: Map<string, StorageEnvelopContainer[]> = JSON.parse(
