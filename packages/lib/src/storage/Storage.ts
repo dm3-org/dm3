@@ -117,7 +117,7 @@ export function getConversation(
         connection.account!.address,
     );
     const envelops = db.conversations.get(conversationId);
-    return envelops ? envelops : [];
+    return envelops ?? [];
 }
 /**
  * Sorts an Array of {@see StorageEnvelopContainer} by timestamp ASC
@@ -238,7 +238,11 @@ export async function load(
 export function getConversationId(accountA: string, accountB: string): string {
     return [formatAddress(accountA), formatAddress(accountB)].sort().join();
 }
-
+/**
+ * Creates a new conversation entry if the conversationId not yet known.
+ * If the conversationId was used previously the function returns false
+ * @returns An boolean that indicates if a new conversion was created
+ */
 export function createEmptyConversation(
     connection: Connection,
     accountAddress: string,
@@ -249,10 +253,12 @@ export function createEmptyConversation(
         connection.account!.address,
         accountAddress,
     );
-    const isNewConversation = !userDb.conversations.has(conversationId);
-    if (isNewConversation) {
-        createEmptyConversationEntry(conversationId);
+    const conversationIsAlreadyKnown = userDb.conversations.has(conversationId);
+
+    if (conversationIsAlreadyKnown) {
+        return false;
     }
 
-    return isNewConversation;
+    createEmptyConversationEntry(conversationId);
+    return true;
 }

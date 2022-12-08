@@ -7,7 +7,9 @@ import { Envelop, MessageState } from '../messaging';
 import { Connection } from '../web3-provider/Web3Provider';
 import {
     createDB,
+    createEmptyConversation,
     getConversation,
+    getConversationId,
     load,
     parseConversations,
     serializeConversations,
@@ -91,19 +93,8 @@ describe('Storage', () => {
     });
 
     describe('getConversation', () => {
-        it("Returns an empty array if the db don't contains a particular conversation", () => {
-            const profileKeys = {
-                encryptionKeyPair: {
-                    publicKey: '',
-                    privateKey: '',
-                },
-                signingKeyPair: {
-                    publicKey: '',
-                    privateKey: '',
-                },
-                storageEncryptionKey: '',
-                storageEncryptionNonce: 0,
-            };
+        it("Returns an empty array if the db don't contains a particular conversation", async () => {
+            const profileKeys = await getMockProfileKeys();
 
             const connection = {
                 account: { address: USER_ADDRESS_2 },
@@ -127,7 +118,10 @@ describe('Storage', () => {
 
             const db = createDB(profileKeys);
 
-            const conversationId = USER_ADDRESS_1 + USER_ADDRESS_2;
+            const conversationId = getConversationId(
+                USER_ADDRESS_1,
+                USER_ADDRESS_2,
+            );
 
             const expectedConversation = [getStorageEnvelopeContainer()];
 
@@ -139,7 +133,7 @@ describe('Storage', () => {
                 db,
             );
 
-            expect(actualConversation).toStrictEqual(actualConversation);
+            expect(actualConversation).toStrictEqual(expectedConversation);
         });
     });
 
@@ -232,6 +226,59 @@ describe('Storage', () => {
             expect(loadDb.conversations.get(conversationId)).toStrictEqual(
                 conversation,
             );
+        });
+    });
+
+    describe('createEmptyConversation', () => {
+        it('Returns true and creates a new conversation if the conversionId was not used so far', async () => {
+            const connection = {
+                account: { address: USER_ADDRESS_2 },
+            } as Connection;
+
+            const keys = await getMockProfileKeys();
+
+            const db = createDB(keys);
+
+            const createEmptyConversationMock = jest.fn();
+
+            const createdNewConversation = createEmptyConversation(
+                connection,
+                USER_ADDRESS_1,
+                db,
+                createEmptyConversationMock,
+            );
+
+            expect(createdNewConversation).toBe(true);
+            expect(createEmptyConversationMock).toBeCalledWith(
+                getConversationId(USER_ADDRESS_2, USER_ADDRESS_1),
+            );
+        });
+        it('Returns false and conversionId was used before', async () => {
+            const connection = {
+                account: { address: USER_ADDRESS_2 },
+            } as Connection;
+
+            const conversionId = getConversationId(
+                USER_ADDRESS_2,
+                USER_ADDRESS_1,
+            );
+            const keys = await getMockProfileKeys();
+
+            const db = createDB(keys);
+
+            db.conversations.set(conversionId, [getStorageEnvelopeContainer()]);
+
+            const createEmptyConversationMock = jest.fn();
+
+            const createdNewConversation = createEmptyConversation(
+                connection,
+                USER_ADDRESS_1,
+                db,
+                createEmptyConversationMock,
+            );
+
+            expect(createdNewConversation).toBe(false);
+            expect(createEmptyConversationMock).not.toBeCalled();
         });
     });
 });
