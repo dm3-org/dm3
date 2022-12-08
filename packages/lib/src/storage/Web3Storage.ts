@@ -5,7 +5,7 @@ import { Acknoledgment } from '../delivery';
 import { log } from '../shared/log';
 import { Connection } from '../web3-provider/Web3Provider';
 import { sync } from './Storage';
-import { FILE_NAME, getTimestamp } from './Utils';
+import { FILE_NAME_PREFIX, getTimestamp } from './Utils';
 
 function readFileAsync(file: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -37,7 +37,10 @@ export async function web3Store(
     });
 
     await client.put([
-        new File([blob], FILE_NAME + '-' + new Date().getTime() + '.json'),
+        new File(
+            [blob],
+            FILE_NAME_PREFIX + '-' + new Date().getTime() + '.json',
+        ),
     ]);
 
     return syncResult.acknoledgments;
