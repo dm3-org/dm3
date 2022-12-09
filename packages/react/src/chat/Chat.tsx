@@ -75,7 +75,9 @@ function Chat() {
                 throw Error('No selected contact');
             }
             const account =
-                Lib.external.formatAddress(container.envelop.message.from) ===
+                Lib.external.formatAddress(
+                    container.envelop.message.metadata.from,
+                ) ===
                 Lib.external.formatAddress(
                     state.accounts.selectedContact.account.address,
                 )
@@ -87,7 +89,7 @@ function Chat() {
                       container.envelop.message,
                       account.profile?.publicSigningKey,
                       account.address,
-                      container.envelop.signature,
+                      container.envelop.metadata!.signature,
                   )
                 : false;
         });
@@ -150,22 +152,22 @@ function Chat() {
 
         messageContainers.forEach((container) => {
             if (
-                container.envelop.message.from ===
+                container.envelop.message.metadata.from ===
                 state.connection.account!.address
             ) {
                 addUserMessage(
                     container.envelop.message.message,
-                    container.envelop.message.timestamp.toString(),
+                    container.envelop.message.metadata.timestamp.toString(),
                 );
             } else {
                 addResponseMessage(
                     container.envelop.message.message,
-                    container.envelop.message.timestamp.toString(),
+                    container.envelop.message.metadata.timestamp.toString(),
                 );
             }
 
             messageStates.set(
-                container.envelop.message.timestamp.toString(),
+                container.envelop.message.metadata.timestamp.toString(),
                 container.messageState,
             );
             setMessageStates(new Map(messageStates));
@@ -174,12 +176,12 @@ function Chat() {
                     <MessageStateView
                         messageState={
                             messageStates.get(
-                                container.envelop.message.timestamp.toString(),
+                                container.envelop.message.metadata.timestamp.toString(),
                             ) as Lib.messaging.MessageState
                         }
-                        time={container.envelop.message.timestamp}
+                        time={container.envelop.message.metadata.timestamp}
                         ownMessage={
-                            container.envelop.message.from ===
+                            container.envelop.message.metadata.from ===
                             state.connection.account!.address
                         }
                     />
@@ -231,19 +233,26 @@ function Chat() {
             message,
             userDb,
         );
-        const messageId = messageData.timestamp.toString();
+        const messageId = messageData.metadata.timestamp.toString();
         messageStates.set(messageId, Lib.messaging.MessageState.Created);
         setMessageStates(new Map(messageStates));
+
+        const sendDependencies: Lib.messaging.SendDependencies = {
+            deliveryServiceEncryptionPubKey:
+                state.accounts.selectedContact.deliveryServiceProfile
+                    .publicEncryptionKey,
+            from: state.connection.account!,
+            to: state.accounts.selectedContact.account,
+            keys: userDb.keys,
+        };
 
         try {
             await Lib.messaging.submitMessage(
                 state.connection,
                 state.auth.currentSession?.token!,
-                userDb,
-                state.accounts.selectedContact.account,
                 messageData,
-                state.accounts.selectedContact.deliveryServiceProfile
-                    .publicEncryptionKey,
+                sendDependencies,
+
                 haltDelivery,
                 (envelops: Lib.storage.StorageEnvelopContainer[]) =>
                     envelops.forEach((envelop) =>

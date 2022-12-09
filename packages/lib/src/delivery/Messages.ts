@@ -20,6 +20,11 @@ export interface Acknoledgment {
     messageDeliveryServiceTimestamp: number;
 }
 
+export interface MessageSubmission {
+    token: string;
+    envelop: EncryptionEnvelop;
+}
+
 // fetch new messages
 export async function getMessages(
     loadMessages: (
@@ -47,7 +52,9 @@ export async function getMessages(
                 JSON.parse(
                     await decryptAsymmetric(
                         encryptionKeyPair,
-                        JSON.parse(envelop.deliveryInformation),
+                        JSON.parse(
+                            envelop.metadata.deliveryInformation as string,
+                        ),
                     ),
                 ).to,
             ),
@@ -81,7 +88,7 @@ export async function incomingMessage(
     const deliveryInformation: DeliveryInformation = JSON.parse(
         await decryptAsymmetric(
             encryptionKeyPair,
-            JSON.parse(envelop.deliveryInformation),
+            JSON.parse(envelop.metadata.deliveryInformation as string),
         ),
     );
 

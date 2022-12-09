@@ -6,6 +6,7 @@ import {
     Envelop,
     getMessages as execGetMessages,
     Message,
+    SendDependencies,
     submitMessage as execSubmitMessage,
 } from './Messaging';
 import {
@@ -21,6 +22,8 @@ export type {
     Envelop,
     DeliveryInformation,
     Postmark,
+    MessageMetadata,
+    SendDependencies,
 } from './Messaging';
 
 export { MessageState } from './Messaging';
@@ -48,10 +51,8 @@ export async function getMessages(
 export async function submitMessage(
     connection: Connection,
     deliveryServiceToken: string,
-    userDb: UserDB,
-    to: Account,
     message: Message,
-    deliveryServiceEncryptionPubKey: string,
+    sendDependencies: SendDependencies,
     haltDelivery: boolean,
     storeMessages: (envelops: StorageEnvelopContainer[]) => void,
     onSuccess?: (envelop: Envelop) => void,
@@ -59,10 +60,8 @@ export async function submitMessage(
     execSubmitMessage(
         connection,
         deliveryServiceToken,
-        userDb,
-        to,
+        sendDependencies,
         message,
-        deliveryServiceEncryptionPubKey,
         backendSubmitMessage,
         encryptAsymmetric,
         createPendingEntry,
@@ -79,11 +78,13 @@ export async function createMessage(
     userDb: UserDB,
 ): Promise<Message> {
     const messgeWithoutSig: Omit<Message, 'signature'> = {
-        to,
-        from,
-        timestamp: new Date().getTime(),
         message,
-        type: 'NEW',
+        metadata: {
+            type: 'NEW',
+            to,
+            from,
+            timestamp: new Date().getTime(),
+        },
     };
 
     return {

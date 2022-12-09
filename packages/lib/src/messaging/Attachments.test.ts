@@ -1,22 +1,25 @@
-import { Envelop } from './Messaging';
+import { Envelop, MessageMetadata } from './Messaging';
 import { getAttachments } from './Attachments';
+
+const metadata: MessageMetadata = {
+    to: '',
+    from: '',
+    timestamp: 1,
+    type: 'NEW',
+};
 
 test('should accept supported protocols', async () => {
     const envelop: Envelop = {
         message: {
-            to: '',
-            from: '',
+            metadata,
             message: '',
             signature: '',
-            timestamp: 1,
-            type: 'NEW',
             attachments: [
                 'https://google.de',
                 'http://google.de',
                 'data:text/plain,test',
             ],
         },
-        signature: '',
     };
     expect(getAttachments(envelop).map((a) => a.href)).toEqual([
         'https://google.de/',
@@ -28,12 +31,9 @@ test('should accept supported protocols', async () => {
 test('should filter unsupported protocols', async () => {
     const envelop: Envelop = {
         message: {
-            to: '',
-            from: '',
+            metadata,
             message: '',
             signature: '',
-            timestamp: 1,
-            type: 'NEW',
             attachments: [
                 'ftp://google.de',
                 'https://google.de',
@@ -41,7 +41,6 @@ test('should filter unsupported protocols', async () => {
                 'data:text/plain,test',
             ],
         },
-        signature: '',
     };
     expect(getAttachments(envelop).map((a) => a.href)).toEqual([
         'https://google.de/',
@@ -53,12 +52,9 @@ test('should filter unsupported protocols', async () => {
 test('should filter invalid uris', async () => {
     const envelop: Envelop = {
         message: {
-            to: '',
-            from: '',
+            metadata,
             message: '',
             signature: '',
-            timestamp: 1,
-            type: 'NEW',
             attachments: [
                 '---',
                 'https://google.de',
@@ -66,7 +62,6 @@ test('should filter invalid uris', async () => {
                 'data:text/plain,test',
             ],
         },
-        signature: '',
     };
     expect(getAttachments(envelop).map((a) => a.href)).toEqual([
         'https://google.de/',
