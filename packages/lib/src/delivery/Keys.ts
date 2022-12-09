@@ -41,11 +41,11 @@ export async function createNewSessionToken(
         throw Error('No pending challenge');
     }
 
-    if (checkStringSignature(session.challenge, signature, account)) {
-        const token = uuidv4();
-        await setSession(account, { ...session, challenge: undefined, token });
-        return token;
-    } else {
+    if (!checkStringSignature(session.challenge, signature, account)) {
         throw Error('Signature invalid');
     }
+
+    const token = uuidv4();
+    await setSession(account, { ...session, challenge: undefined, token });
+    return token;
 }
