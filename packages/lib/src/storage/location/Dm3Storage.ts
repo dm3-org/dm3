@@ -1,10 +1,10 @@
 import axios from 'axios';
-import { UserDB } from '.';
-import { Acknoledgment } from '../delivery';
-import { getDeliveryServiceClient } from '../delivery/Delivery';
-import { log } from '../shared/log';
-import { Connection } from '../web3-provider/Web3Provider';
-import { sync } from './Storage';
+import { UserDB } from '..';
+import { Acknoledgment } from '../../delivery';
+import { getDeliveryServiceClient } from '../../delivery/Delivery';
+import { log } from '../../shared/log';
+import { Connection } from '../../web3-provider/Web3Provider';
+import { sync } from '../Storage';
 
 const STORAGE_SERVICE = '/storage';
 

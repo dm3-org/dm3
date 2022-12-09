@@ -1,6 +1,6 @@
-export { useDm3Storage, getDm3Storage } from './Dm3Storage';
+export { useDm3Storage, getDm3Storage } from './location/Dm3Storage';
 
-export { googleLoad, googleStore } from './GoogleDrive';
+export { googleLoad, googleStore } from './location/GoogleDrive';
 
 export {
     createDB,
@@ -13,7 +13,7 @@ export {
     load,
 } from './Storage';
 
-export { web3Store, web3Load } from './Web3Storage';
+export { web3Store, web3Load } from './location/Web3Storage';
 
 export { createTimestamp } from './Utils';
 
