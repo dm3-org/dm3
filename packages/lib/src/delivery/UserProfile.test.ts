@@ -1,7 +1,5 @@
-import { sign } from 'crypto';
 import { ethers } from 'ethers';
 import { getProfileCreationMessage, UserProfile } from '../account';
-import { formatAddress } from '../external-apis';
 import { stringify } from '../shared/stringify';
 import { Session } from './Session';
 import { getUserProfile, submitUserProfile } from './UserProfile';
