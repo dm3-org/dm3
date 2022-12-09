@@ -54,6 +54,7 @@ export async function handleSubmitMessage(
             (socketId: string, envelop: Lib.messaging.EncryptionEnvelop) => {
                 req.app.locals.io.sockets.to(socketId).emit('message', envelop);
             },
+            req.app.locals.web3Provider,
         );
         res.send(200);
     } catch (error) {

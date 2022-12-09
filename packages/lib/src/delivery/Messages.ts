@@ -1,8 +1,6 @@
 import { ethers } from 'ethers';
 import stringify from 'safe-stable-stringify';
 
-import { formatAddress } from '../external-apis/InjectedWeb3API';
-import { EncryptionEnvelop, Postmark, DeliveryInformation } from '../messaging';
 import {
     decryptAsymmetric,
     encryptAsymmetric,
@@ -10,10 +8,12 @@ import {
     KeyPair,
     sign,
 } from '../crypto';
+import { formatAddress } from '../external-apis/InjectedWeb3API';
+import { DeliveryInformation, EncryptionEnvelop, Postmark } from '../messaging';
 import { sha256 } from '../shared/sha256';
+import { isSpam } from '../spam-filter';
 import { getConversationId } from '../storage/Storage';
 import { checkToken, Session } from './Session';
-import { log } from '../shared/log';
 
 export interface Acknoledgment {
     contactAddress: string;
@@ -72,6 +72,7 @@ export async function incomingMessage(
         envelop: EncryptionEnvelop,
     ) => Promise<void>,
     send: (socketId: string, envelop: EncryptionEnvelop) => void,
+    provider: ethers.providers.BaseProvider,
 ): Promise<void> {
     if (messageIsToLarge(envelop, sizeLimit)) {
         throw Error('Message is too large');
@@ -102,6 +103,10 @@ export async function incomingMessage(
     const receiverSession = await getSession(deliveryInformation.to);
     if (receiverSession === null) {
         throw Error('unknown session');
+    }
+
+    if (await isSpam(provider, receiverSession, deliveryInformation)) {
+        throw Error('Message does not match spam criteria');
     }
 
     const receiverEncryptionKey =

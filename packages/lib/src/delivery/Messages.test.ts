@@ -1,6 +1,7 @@
-import { LimitNumberError } from 'ajv/dist/vocabularies/validation/limitNumber';
+import { assert } from 'console';
+import { BigNumber, ethers } from 'ethers';
 import { UserProfile } from '../account/Account';
-import { decryptAsymmetric, encryptAsymmetric } from '../crypto';
+import { decryptAsymmetric } from '../crypto';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { EncryptionEnvelop } from '../messaging/Messaging';
 import { stringify } from '../shared/stringify';
@@ -117,6 +118,7 @@ test('incomingMessage auth', async () => {
             getSession,
             storeNewMessage,
             () => {},
+            {} as ethers.providers.BaseProvider,
         ),
     ).rejects.toEqual(Error('Token check failed'));
 });
@@ -144,6 +146,7 @@ test('incomingMessage sizeLimit', async () => {
             getSession,
             storeNewMessage,
             () => {},
+            {} as ethers.providers.BaseProvider,
         ),
     ).rejects.toEqual(Error('Message is too large'));
 });
@@ -179,6 +182,7 @@ test('incomingMessage', async () => {
         getSession,
         storeNewMessage,
         () => {},
+        {} as ethers.providers.BaseProvider,
     );
 
     const conversationId = getConversationId(
@@ -212,6 +216,108 @@ test('incomingMessage', async () => {
             '0x944b3207908f07f02d3a0635adb7b28d143cbb58da287c8e4adac18919964fa2' +
             '2944cfef3cd38153e2145391562d9976bf9582fbf680efeb647e56e5187bd60d',
     });
+});
+test('incomingMessage -- rejects sender with a nonce below the filter', async () => {
+    //Mock the time so we can test the message with the incomming timestamp
+    jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
+
+    let messageContainer: {
+        conversationId?: string;
+        envelop?: EncryptionEnvelop;
+    } = {};
+
+    const session = async (address: string) =>
+        ({
+            ...(await getSession(address)),
+            spamFilterRules: { minNonce: 2 },
+        } as Session);
+
+    const provider = {
+        getTransactionCount: async (_: string) => Promise.resolve(0),
+    } as ethers.providers.BaseProvider;
+
+    const storeNewMessage = async (
+        conversationId: string,
+        envelop: EncryptionEnvelop,
+    ) => {
+        messageContainer = { conversationId, envelop };
+    };
+
+    try {
+        await incomingMessage(
+            {
+                envelop: {
+                    message: '',
+                    encryptionVersion: 'x25519-chacha20-poly1305',
+                    deliveryInformation: stringify(
+                        testData.deliveryInformation,
+                    ),
+                },
+                token: '123',
+            },
+            keysA.signingKeyPair,
+            keysA.encryptionKeyPair,
+            2 ** 14,
+            session,
+            storeNewMessage,
+            () => {},
+            provider,
+        );
+        fail();
+    } catch (err: any) {
+        expect(err.message).toBe('Message does not match spam criteria');
+    }
+});
+test('incomingMessage -- rejects sender with a balance below the filter', async () => {
+    //Mock the time so we can test the message with the incomming timestamp
+    jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
+
+    let messageContainer: {
+        conversationId?: string;
+        envelop?: EncryptionEnvelop;
+    } = {};
+
+    const session = async (address: string) =>
+        ({
+            ...(await getSession(address)),
+            spamFilterRules: { minBalance: '0xa' },
+        } as Session);
+
+    const provider = {
+        getBalance: async (_: string) => Promise.resolve(BigNumber.from(5)),
+    } as ethers.providers.BaseProvider;
+
+    const storeNewMessage = async (
+        conversationId: string,
+        envelop: EncryptionEnvelop,
+    ) => {
+        messageContainer = { conversationId, envelop };
+    };
+
+    try {
+        await incomingMessage(
+            {
+                envelop: {
+                    message: '',
+                    encryptionVersion: 'x25519-chacha20-poly1305',
+                    deliveryInformation: stringify(
+                        testData.deliveryInformation,
+                    ),
+                },
+                token: '123',
+            },
+            keysA.signingKeyPair,
+            keysA.encryptionKeyPair,
+            2 ** 14,
+            session,
+            storeNewMessage,
+            () => {},
+            provider,
+        );
+        fail();
+    } catch (err: any) {
+        expect(err.message).toBe('Message does not match spam criteria');
+    }
 });
 
 test('getMessages', async () => {
