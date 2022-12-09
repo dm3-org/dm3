@@ -497,63 +497,69 @@ describe('Messages', () => {
             expect(sendMock).toBeCalled();
         });
     });
-});
 
-test('getMessages', async () => {
-    const conversationIdToUse = getConversationId(
-        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-        '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-    );
+    describe('GetMessages', () => {
+        it('returns all messages of the user', async () => {
+            const conversationIdToUse = getConversationId(
+                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+            );
 
-    const loadMessages = async (
-        conversationId: string,
-        offset: number,
-        size: number,
-    ): Promise<EncryptionEnvelop[]> => {
-        return conversationId === conversationIdToUse
-            ? ([
-                  {
-                      message: '',
-                      encryptionVersion: 'x25519-chacha20-poly1305',
-                      deliveryInformation: stringify(
-                          testData.deliveryInformation,
-                      ),
-                  },
-                  {
-                      message: '',
-                      encryptionVersion: 'x25519-chacha20-poly1305',
-                      deliveryInformation: stringify(
-                          testData.deliveryInformationB,
-                      ),
-                  },
-                  {
-                      message: '',
-                      encryptionVersion: 'x25519-chacha20-poly1305',
-                      deliveryInformation: stringify(
-                          testData.deliveryInformation,
-                      ),
-                  },
-              ] as EncryptionEnvelop[])
-            : [];
-    };
+            const loadMessages = async (
+                conversationId: string,
+                offset: number,
+                size: number,
+            ): Promise<EncryptionEnvelop[]> => {
+                return conversationId === conversationIdToUse
+                    ? ([
+                          {
+                              message: '',
+                              encryptionVersion: 'x25519-chacha20-poly1305',
+                              deliveryInformation: stringify(
+                                  testData.deliveryInformation,
+                              ),
+                          },
+                          {
+                              message: '',
+                              encryptionVersion: 'x25519-chacha20-poly1305',
+                              deliveryInformation: stringify(
+                                  testData.deliveryInformationB,
+                              ),
+                          },
+                          {
+                              message: '',
+                              encryptionVersion: 'x25519-chacha20-poly1305',
+                              deliveryInformation: stringify(
+                                  testData.deliveryInformation,
+                              ),
+                          },
+                      ] as EncryptionEnvelop[])
+                    : [];
+            };
 
-    expect(
-        await getMessages(
-            loadMessages,
-            keysA.encryptionKeyPair,
-            '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-            '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-        ),
-    ).toStrictEqual([
-        {
-            message: '',
-            encryptionVersion: 'x25519-chacha20-poly1305',
-            deliveryInformation: stringify(testData.deliveryInformation),
-        },
-        {
-            message: '',
-            encryptionVersion: 'x25519-chacha20-poly1305',
-            deliveryInformation: stringify(testData.deliveryInformation),
-        },
-    ]);
+            expect(
+                await getMessages(
+                    loadMessages,
+                    keysA.encryptionKeyPair,
+                    '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+                    '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                ),
+            ).toStrictEqual([
+                {
+                    message: '',
+                    encryptionVersion: 'x25519-chacha20-poly1305',
+                    deliveryInformation: stringify(
+                        testData.deliveryInformation,
+                    ),
+                },
+                {
+                    message: '',
+                    encryptionVersion: 'x25519-chacha20-poly1305',
+                    deliveryInformation: stringify(
+                        testData.deliveryInformation,
+                    ),
+                },
+            ]);
+        });
+    });
 });

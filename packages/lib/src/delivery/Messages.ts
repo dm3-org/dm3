@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { ethers } from 'ethers';
 import stringify from 'safe-stable-stringify';
 
@@ -61,7 +62,12 @@ export async function getMessages(
 }
 
 /**
- * Handles an incomming message. Either stores the message
+ * Handles an incomming message. Either stores the message or sends it directly to the receiver if a socketId is provided
+ * In order to be considered valid a incoming message has to meet the following criterias
+ * 1. The message size must be lower than the sizeLimit specified by the deliveryService {@see messageIsToLarge}
+ * 2. The DeliveryServiceToken used by the sender has to be valid
+ * 3. The receiver has to have a session at the deliveryService
+ * 4. The message must pass every {@see SpamFilterRule} the receiver declared
  */
 export async function incomingMessage(
     { envelop, token }: { envelop: EncryptionEnvelop; token: string },
@@ -76,10 +82,11 @@ export async function incomingMessage(
     send: (socketId: string, envelop: EncryptionEnvelop) => void,
     provider: ethers.providers.BaseProvider,
 ): Promise<void> {
+    //Checks the size of the incoming message
     if (messageIsToLarge(envelop, sizeLimit)) {
         throw Error('Message is too large');
     }
-
+    //Decryptes the encrypted DeliveryInformation with the KeyPair of the deliveryService
     const deliveryInformation: DeliveryInformation = JSON.parse(
         await decryptAsymmetric(
             encryptionKeyPair,
@@ -91,7 +98,7 @@ export async function incomingMessage(
         deliveryInformation.from,
         deliveryInformation.to,
     );
-
+    //Checks if the sender is authenticated
     const tokenIsValid = await checkToken(
         getSession,
         deliveryInformation.from,
@@ -101,13 +108,12 @@ export async function incomingMessage(
         //Token is invalid
         throw Error('Token check failed');
     }
-
+    //Retrives the session of the receiver
     const receiverSession = await getSession(deliveryInformation.to);
-    console.log('RECEIVER', deliveryInformation.to);
     if (!receiverSession) {
         throw Error('unknown session');
     }
-
+    //Checkes if the message is spam
     if (await isSpam(provider, receiverSession, deliveryInformation)) {
         throw Error('Message does not match spam criteria');
     }
@@ -127,8 +133,7 @@ export async function incomingMessage(
     };
     await storeNewMessage(conversationId, envelopWithPostmark);
 
-    console.log(receiverSession);
-
+    //If there is currently a webSocket connection open to the receiver, the message will be directly send.
     if (receiverSession.socketId) {
         //Client is already connect to the delivery service and the message can be dispatched
         send(receiverSession.socketId, envelopWithPostmark);
