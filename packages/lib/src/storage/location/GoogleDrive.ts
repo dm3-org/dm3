@@ -1,8 +1,8 @@
-import { stringify } from '../shared/stringify';
-import { UserDB } from '.';
-import { Acknoledgment } from '../delivery';
-import { log } from '../shared/log';
-import { sync, UserStorage } from './Storage';
+import { stringify } from '../../shared/stringify';
+import { UserDB } from '..';
+import { Acknoledgment } from '../../delivery';
+import { log } from '../../shared/log';
+import { sync, UserStorage } from '../Storage';
 
 const FILE_NAME = 'dm3';
 

@@ -1,10 +1,11 @@
-import { stringify } from '../shared/stringify';
+/* eslint-disable max-len */
 import { ProfileKeys } from '../account/Account';
 import { decrypt, encrypt, EncryptedPayload } from '../crypto';
 import { Acknoledgment } from '../delivery';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { Envelop, MessageState } from '../messaging/Messaging';
 import { log } from '../shared/log';
+import { stringify } from '../shared/stringify';
 import { Connection } from '../web3-provider/Web3Provider';
 import { createTimestamp } from './Utils';
 
@@ -49,7 +50,31 @@ interface UserStoragePayload {
     lastChangeTimestamp: number;
 }
 
-function replacer(key: string, value: any) {
+/**
+ * In order to stringify the conversations properly, the map that contains the conversations has to be transformed to the follwoing structure
+ {
+  "dataType": "Map",
+  "value": [
+    [
+      "conversionID0",
+      [
+        [...storageEnvelopContainer]
+      ]
+    ],
+    [
+      "conversionID1",
+      [
+        [...storageEnvelopContainer]
+      ]
+    ]
+  ]
+}
+ * 
+ */
+export function serializeConversations(
+    _: string,
+    value: Map<string, StorageEnvelopContainer[]>,
+) {
     if (value instanceof Map) {
         return {
             dataType: 'Map',
@@ -59,8 +84,10 @@ function replacer(key: string, value: any) {
         return value;
     }
 }
-
-function reviver(key: string, value: any) {
+/**
+ * If a JSON string contains an object created with {@see serializeConversations} a it'll be transformed to a Map<string,StorageEnvelopContainer[]> where the key is the conversationID
+ */
+export function parseConversations(key: string, value: any) {
     if (typeof value === 'object' && value !== null) {
         if (value.dataType === 'Map') {
             return new Map(value.value);
@@ -90,9 +117,11 @@ export function getConversation(
         connection.account!.address,
     );
     const envelops = db.conversations.get(conversationId);
-    return envelops ? envelops : [];
+    return envelops ?? [];
 }
-
+/**
+ * Sorts an Array of {@see StorageEnvelopContainer} by timestamp ASC
+ */
 export function sortEnvelops(
     containers: StorageEnvelopContainer[],
 ): StorageEnvelopContainer[] {
@@ -106,13 +135,21 @@ function prepareUserStoragePayload(
     token: string,
 ): UserStoragePayload {
     return {
-        conversations: JSON.stringify(userDb.conversations, replacer),
+        conversations: JSON.stringify(
+            userDb.conversations,
+            serializeConversations,
+        ),
         keys: userDb.keys,
         deliveryServiceToken: token,
         lastChangeTimestamp: userDb.lastChangeTimestamp,
     };
 }
-
+/**
+ * Sync the userDb by Acknoleding each non-empty conversation
+ * @returns  an Array of Acknloedgements and an encrypted @see {UserStorage} object
+ * This can be decrypted by using the @see {load} method with the according storageEncryptionKey
+ *
+ */
 export async function sync(
     userDb: UserDB | undefined,
     deliveryServiceToken: string,
@@ -128,33 +165,32 @@ export async function sync(
         userDb.conversations.keys(),
     )
         // get newest delivery service query timestamp
-        .map((key) =>
+        .map((conversationId) =>
             userDb.conversations
-                .get(key)
-                ?.filter((container) =>
-                    container.deliveryServiceIncommingTimestamp ? true : false,
+                .get(conversationId)!
+                //TODO is it still needed to filter messages without an incomingtimestamp @Heiko
+                .filter(
+                    ({ deliveryServiceIncommingTimestamp }) =>
+                        !!deliveryServiceIncommingTimestamp,
                 )
+                //Sort Messages ASC by incoming timeStamp
                 .sort(
                     (a, b) =>
                         b.deliveryServiceIncommingTimestamp! -
                         a.deliveryServiceIncommingTimestamp!,
                 ),
         )
-        // create acknoledgments
-        .map(
-            (containers) =>
-                containers && containers.length > 0
-                    ? {
-                          contactAddress: containers[0]!.envelop.message.from,
-                          messageDeliveryServiceTimestamp:
-                              containers[0].deliveryServiceIncommingTimestamp!,
-                      }
-                    : null,
-            // remove null acknoledgments
+        //Filter empty containers
+        .filter(
+            (containers): containers is StorageEnvelopContainer[] =>
+                !!containers && containers.length > 0,
         )
-        .filter((acknoledgment) =>
-            acknoledgment ? true : false,
-        ) as Acknoledgment[];
+        // create acknoledgments
+        .map((containers) => ({
+            contactAddress: containers[0].envelop.message.from,
+            messageDeliveryServiceTimestamp:
+                containers[0].deliveryServiceIncommingTimestamp!,
+        }));
 
     return {
         userStorage: {
@@ -170,23 +206,29 @@ export async function sync(
         acknoledgments,
     };
 }
-
-export async function load(data: UserStorage, key: string): Promise<UserDB> {
+/**
+ * Decryptes an encrypted @see {UserStorage}
+ * @retruns The decrypted @see {UserDB}
+ */
+export async function load(
+    data: UserStorage,
+    storageEncryptionKey: string,
+): Promise<UserDB> {
     log('[storage] Loading user storage');
 
     const decryptedPayload: UserStoragePayload = JSON.parse(
-        await decrypt(key, data.payload),
+        await decrypt(storageEncryptionKey, data.payload),
     );
 
     const conversations: Map<string, StorageEnvelopContainer[]> = JSON.parse(
         decryptedPayload.conversations,
-        reviver,
+        parseConversations,
     );
 
     return {
         keys: decryptedPayload.keys,
         conversations,
-        conversationsCount: conversations.keys ? conversations.keys.length : 0,
+        conversationsCount: conversations.keys.length,
         synced: true,
         syncProcessState: SyncProcessState.Idle,
         lastChangeTimestamp: decryptedPayload.lastChangeTimestamp,
@@ -196,7 +238,11 @@ export async function load(data: UserStorage, key: string): Promise<UserDB> {
 export function getConversationId(accountA: string, accountB: string): string {
     return [formatAddress(accountA), formatAddress(accountB)].sort().join();
 }
-
+/**
+ * Creates a new conversation entry if the conversationId not yet known.
+ * If the conversationId was used previously the function returns false
+ * @returns An boolean that indicates if a new conversion was created
+ */
 export function createEmptyConversation(
     connection: Connection,
     accountAddress: string,
@@ -207,10 +253,12 @@ export function createEmptyConversation(
         connection.account!.address,
         accountAddress,
     );
-    const isNewConversation = !userDb.conversations.has(conversationId);
-    if (isNewConversation) {
-        createEmptyConversationEntry(conversationId);
+    const conversationIsAlreadyKnown = userDb.conversations.has(conversationId);
+
+    if (conversationIsAlreadyKnown) {
+        return false;
     }
 
-    return isNewConversation;
+    createEmptyConversationEntry(conversationId);
+    return true;
 }
