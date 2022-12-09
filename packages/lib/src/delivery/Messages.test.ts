@@ -51,7 +51,7 @@ const keysB = {
     storageEncryptionNonce: 0,
 };
 
-const getSession = async (address: string) => {
+const getSession = async (address: string, socketId?: string) => {
     const emptyProfile: UserProfile = {
         publicSigningKey: '',
         publicEncryptionKey: '',
@@ -76,7 +76,7 @@ const getSession = async (address: string) => {
             encryptionAlgorithm: [],
             notSupportedMessageTypes: [],
         },
-        socketId: 'foo',
+        socketId,
     });
 
     if (isSender) {
@@ -383,6 +383,80 @@ describe('Messages', () => {
                 keysA.encryptionKeyPair,
                 2 ** 14,
                 getSession,
+                storeNewMessage,
+                sendMock,
+                {} as ethers.providers.BaseProvider,
+            );
+
+            const conversationId = getConversationId(
+                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+            );
+
+            const actualPostmark = await decryptAsymmetric(
+                keysB.encryptionKeyPair,
+                JSON.parse(messageContainer.envelop?.postmark!),
+            );
+
+            //Check message
+            expect(messageContainer.conversationId).toEqual(conversationId);
+
+            expect(messageContainer.envelop).toEqual(
+                expect.objectContaining({
+                    message: '',
+                    deliveryInformation: expect.any(String),
+                    encryptionVersion: 'x25519-chacha20-poly1305',
+                }),
+            );
+
+            //Check Postmark
+            expect(JSON.parse(actualPostmark)).toStrictEqual({
+                incommingTimestamp: 1577836800000,
+                messageHash:
+                    '0xd7c617eb7ffee435e7d4e7f6b13d46ccdf88d2e5463148c50659e5cd88d248b5',
+                signature:
+                    // eslint-disable-next-line max-len
+                    '0x944b3207908f07f02d3a0635adb7b28d143cbb58da287c8e4adac18919964fa2' +
+                    '2944cfef3cd38153e2145391562d9976bf9582fbf680efeb647e56e5187bd60d',
+            });
+            //Check if the message was submitted to the socket
+            expect(sendMock).not.toBeCalled();
+        });
+        it('stores proper incoming message and submit it if receiver is connected to a socket', async () => {
+            //Mock the time so we can test the message with the incomming timestamp
+            jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
+
+            let messageContainer: {
+                conversationId?: string;
+                envelop?: EncryptionEnvelop;
+            } = {};
+
+            const storeNewMessage = async (
+                conversationId: string,
+                envelop: EncryptionEnvelop,
+            ) => {
+                messageContainer = { conversationId, envelop };
+            };
+
+            const sendMock = jest.fn();
+
+            const _getSession = (address: string) => getSession(address, 'foo');
+
+            await incomingMessage(
+                {
+                    envelop: {
+                        message: '',
+                        encryptionVersion: 'x25519-chacha20-poly1305',
+                        deliveryInformation: stringify(
+                            testData.deliveryInformation,
+                        ),
+                    },
+                    token: '123',
+                },
+                keysA.signingKeyPair,
+                keysA.encryptionKeyPair,
+                2 ** 14,
+                _getSession,
                 storeNewMessage,
                 sendMock,
                 {} as ethers.providers.BaseProvider,

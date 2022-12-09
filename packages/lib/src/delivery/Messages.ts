@@ -60,7 +60,9 @@ export async function getMessages(
         .map((envelopContainer) => envelopContainer.envelop);
 }
 
-// buffer message until delivery and sync acknoledgment
+/**
+ * Handles an incomming message. Either stores the message
+ */
 export async function incomingMessage(
     { envelop, token }: { envelop: EncryptionEnvelop; token: string },
     signingKeyPair: KeyPair,
@@ -102,7 +104,7 @@ export async function incomingMessage(
 
     const receiverSession = await getSession(deliveryInformation.to);
     console.log('RECEIVER', deliveryInformation.to);
-    if (receiverSession === null) {
+    if (!receiverSession) {
         throw Error('unknown session');
     }
 
@@ -111,7 +113,7 @@ export async function incomingMessage(
     }
 
     const receiverEncryptionKey =
-        receiverSession?.signedUserProfile.profile.publicEncryptionKey;
+        receiverSession.signedUserProfile.profile.publicEncryptionKey;
 
     const envelopWithPostmark: EncryptionEnvelop = {
         ...envelop,
@@ -127,7 +129,7 @@ export async function incomingMessage(
 
     console.log(receiverSession);
 
-    if (!!receiverSession?.socketId) {
+    if (receiverSession.socketId) {
         //Client is already connect to the delivery service and the message can be dispatched
         send(receiverSession.socketId, envelopWithPostmark);
     }
