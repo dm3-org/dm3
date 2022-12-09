@@ -101,6 +101,7 @@ export async function incomingMessage(
     }
 
     const receiverSession = await getSession(deliveryInformation.to);
+    console.log('RECEIVER', deliveryInformation.to);
     if (receiverSession === null) {
         throw Error('unknown session');
     }
@@ -124,7 +125,9 @@ export async function incomingMessage(
     };
     await storeNewMessage(conversationId, envelopWithPostmark);
 
-    if (receiverSession?.socketId) {
+    console.log(receiverSession);
+
+    if (!!receiverSession?.socketId) {
         //Client is already connect to the delivery service and the message can be dispatched
         send(receiverSession.socketId, envelopWithPostmark);
     }
