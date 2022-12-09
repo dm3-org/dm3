@@ -55,16 +55,3 @@ export async function createNewSessionToken(
         throw Error('Signature invalid');
     }
 }
-
-export async function getUserProfile(
-    getSession: (accountAddress: string) => Promise<Session | null>,
-    accountAddress: string,
-): Promise<SignedUserProfile | undefined> {
-    const account = formatAddress(accountAddress);
-    const session = await getSession(account);
-    if (session) {
-        return session.signedUserProfile;
-    } else {
-        return;
-    }
-}

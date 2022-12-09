@@ -58,3 +58,12 @@ export async function submitUserProfile(
     );
     return session.token;
 }
+
+export async function getUserProfile(
+    getSession: (accountAddress: string) => Promise<Session | null>,
+    accountAddress: string,
+): Promise<SignedUserProfile | undefined> {
+    const account = formatAddress(accountAddress);
+    const session = await getSession(account);
+    return session?.signedUserProfile;
+}

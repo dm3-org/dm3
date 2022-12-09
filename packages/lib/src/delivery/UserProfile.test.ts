@@ -4,7 +4,7 @@ import { getProfileCreationMessage, UserProfile } from '../account';
 import { formatAddress } from '../external-apis';
 import { stringify } from '../shared/stringify';
 import { Session } from './Session';
-import { submitUserProfile } from './UserProfile';
+import { getUserProfile, submitUserProfile } from './UserProfile';
 
 const SENDER_ADDRESS = '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1';
 const RANDO_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
@@ -202,6 +202,23 @@ describe('UserProfile', () => {
             );
 
             expect(setSession).toBeCalled();
+        });
+    });
+    describe('GetUserProfile', () => {
+        it('Returns undefined if address has no session', async () => {
+            const getSession = () => Promise.resolve(null);
+
+            const profile = await getUserProfile(getSession, RANDO_ADDRESS);
+
+            expect(profile).toBeUndefined();
+        });
+        it('Returns the signedUserProfile if a session was created', async () => {
+            const getSession = () =>
+                Promise.resolve({ signedUserProfile: {} } as Session);
+
+            const profile = await getUserProfile(getSession, RANDO_ADDRESS);
+
+            expect(profile).not.toBeUndefined();
         });
     });
 });
