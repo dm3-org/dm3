@@ -15,16 +15,21 @@ import {
 import { Connection } from '../web3-provider/Web3Provider';
 import { getDeliveryServiceProfile } from '../delivery';
 import axios from 'axios';
+import { sha256 } from '../shared/sha256';
 
-export interface Message {
+export interface MessageMetadata {
     to: string;
     from: string;
     timestamp: number;
-    message: string;
-    type: MessageType;
     referenceMessageHash?: string;
-    attachments?: string[];
     replyDeliveryInstruction?: string;
+    type: MessageType;
+}
+
+export interface Message {
+    message: string;
+    metadata: MessageMetadata;
+    attachments?: string[];
     signature: string;
 }
 
@@ -39,7 +44,8 @@ export type MessageType =
 
 export interface Envelop {
     message: Message;
-    signature: string;
+    metadata?: EnvelopeMetadata;
+    postmark?: Postmark;
     id?: string;
 }
 
@@ -55,10 +61,17 @@ export interface DeliveryInformation {
     deliveryInstruction?: string;
 }
 
+export interface EnvelopeMetadata {
+    version: string;
+    encryptionScheme?: string;
+    deliveryInformation: string | DeliveryInformation;
+    encryptedMessageHash: string;
+    signature: string;
+}
+
 export interface EncryptionEnvelop {
-    encryptionVersion: 'x25519-chacha20-poly1305';
     message: string;
-    deliveryInformation: string;
+    metadata: EnvelopeMetadata;
     postmark?: string;
 }
 
@@ -70,37 +83,71 @@ export enum MessageState {
     FailedToSend,
 }
 
-export function createMessage(
-    to: string,
-    from: string,
-    message: string,
-    getTimestamp: () => number,
-    type: MessageType,
-    signature: string,
-    referenceMessageHash?: string,
-    attachments?: string[],
-    replyDeliveryInstruction?: string,
-): Message {
+export interface SendDependencies {
+    from: Account;
+    to: Account;
+    deliveryServiceEncryptionPubKey: string;
+    keys: ProfileKeys;
+}
+
+export async function buildEnvelop(
+    message: Message,
+    encryptAsymmetric: EncryptAsymmetric,
+    { to, from, deliveryServiceEncryptionPubKey, keys }: SendDependencies,
+): Promise<{ encryptedEnvelop: EncryptionEnvelop; envelop: Envelop }> {
+    if (!to.profile) {
+        throw Error('Contact has no profile');
+    }
+
+    const encryptedMessage = stringify(
+        await encryptAsymmetric(
+            to.profile.publicEncryptionKey,
+            stringify(message),
+        ),
+    );
+
+    const deliveryInformation: DeliveryInformation = {
+        to: to.address,
+        from: from.address,
+    };
+
+    const envelopeMetadata: Omit<EnvelopeMetadata, 'signature'> = {
+        encryptionScheme: 'x25519-chacha20-poly1305',
+        deliveryInformation: stringify(
+            await encryptAsymmetric(
+                deliveryServiceEncryptionPubKey,
+                stringify(deliveryInformation),
+            ),
+        ),
+        encryptedMessageHash: sha256(stringify(encryptedMessage)),
+        version: 'v1',
+    };
+
+    const metadata = {
+        ...envelopeMetadata,
+        signature: await sign(
+            keys.signingKeyPair.privateKey,
+            stringify(envelopeMetadata),
+        ),
+    };
+
     return {
-        to,
-        from,
-        timestamp: getTimestamp(),
-        message,
-        type,
-        referenceMessageHash,
-        signature,
-        attachments,
-        replyDeliveryInstruction,
+        encryptedEnvelop: {
+            message: encryptedMessage,
+            metadata,
+        },
+        envelop: {
+            message,
+            metadata: { ...metadata, deliveryInformation },
+        },
     };
 }
 
 export async function submitMessage(
     connection: Connection,
     deliveryServiceToken: string,
-    userDb: UserDB,
-    to: Account,
+    sendDependencies: SendDependencies,
     message: Message,
-    deliveryServiceEncryptionPubKey: string,
     submitMessageApi: SubmitMessage,
     encryptAsymmetric: EncryptAsymmetric,
     createPendingEntry: CreatePendingEntry,
@@ -110,67 +157,45 @@ export async function submitMessage(
 ) {
     log('Submitting message');
 
-    const innerEnvelop: Envelop = {
-        message,
-        signature: await sign(
-            (userDb?.keys as ProfileKeys).signingKeyPair.privateKey,
-            stringify(message),
-        ),
-    };
-
-    const allOnSuccess = () => {
-        if (onSuccess) {
-            onSuccess(innerEnvelop);
-        }
-    };
-
     await createPendingEntry(
         connection,
         deliveryServiceToken,
-        innerEnvelop.message.from,
-        innerEnvelop.message.to,
+        message.metadata.from,
+        message.metadata.to,
     );
 
     if (haltDelivery) {
         log('- Halt delivery');
         storeMessages([
-            { envelop: innerEnvelop, messageState: MessageState.Created },
+            {
+                envelop: {
+                    message,
+                },
+                messageState: MessageState.Created,
+            },
         ]);
     } else {
-        if (!to.profile) {
-            throw Error('Contact has no profile');
-        }
+        const { envelop, encryptedEnvelop } = await buildEnvelop(
+            message,
+            encryptAsymmetric,
+            sendDependencies,
+        );
 
-        const deliveryInformation: DeliveryInformation = {
-            to: to.address,
-            from: (connection.account as Account).address,
+        const allOnSuccess = () => {
+            if (onSuccess) {
+                onSuccess(envelop);
+            }
         };
-        const envelop: EncryptionEnvelop = {
-            message: stringify(
-                await encryptAsymmetric(
-                    to.profile.publicEncryptionKey,
-                    stringify(innerEnvelop),
-                ),
-            ),
-            deliveryInformation: stringify(
-                await encryptAsymmetric(
-                    deliveryServiceEncryptionPubKey,
-                    stringify(deliveryInformation),
-                ),
-            ),
-            encryptionVersion: 'x25519-chacha20-poly1305',
-        };
+
         await submitMessageApi(
             connection,
             deliveryServiceToken,
-            envelop,
+            encryptedEnvelop,
             allOnSuccess,
             () => log('submit message error'),
         );
 
-        storeMessages([
-            { envelop: innerEnvelop, messageState: MessageState.Send },
-        ]);
+        storeMessages([{ envelop, messageState: MessageState.Send }]);
         log('- Message sent');
     }
 }

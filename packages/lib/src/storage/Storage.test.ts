@@ -22,17 +22,18 @@ const USER_ADDRESS_3 = '0x09c3d8547020a044c4879cD0546D448D362124Ae';
 
 const getStorageEnvelopeContainer = (timestamp: number = 0) => {
     const message: Message = {
-        to: '',
-        from: USER_ADDRESS_1,
-        timestamp,
+        metadata: {
+            to: '',
+            from: USER_ADDRESS_1,
+            timestamp,
+            type: 'NEW',
+        },
         message: '',
-        type: 'NEW',
         signature: '',
     };
 
     const envelop: Envelop = {
         message,
-        signature: '',
     };
 
     return {

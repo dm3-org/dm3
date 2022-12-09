@@ -16,7 +16,7 @@ export async function checkSignature(
     if (
         sigCheck &&
         Lib.external.formatAddress(accountAddress) !==
-            Lib.external.formatAddress(message.from)
+            Lib.external.formatAddress(message.metadata.from)
     ) {
         return true;
     } else {

@@ -2,7 +2,7 @@ import Ajv from 'ajv';
 import { log } from './log';
 
 export function validateSchema(schema: any, data: any) {
-    const ajv = new Ajv();
+    let ajv = new Ajv();
     try {
         const validate = ajv.compile(schema);
         return validate(data);

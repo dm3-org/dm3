@@ -128,10 +128,15 @@ describe('rpc-Proxy', () => {
                     params: [
                         JSON.stringify({
                             message: '',
-                            encryptionVersion: 'x25519-chacha20-poly1305',
-                            deliveryInformation: Lib.stringify(
-                                testData.deliveryInformation,
-                            ),
+                            metadata: {
+                                deliveryInformation: Lib.stringify(
+                                    testData.deliveryInformation,
+                                ),
+                                signature: '',
+                                encryptedMessageHash: '',
+                                version: '',
+                                encryptionScheme: 'x25519-chacha20-poly1305',
+                            },
                         }),
                         '123',
                     ],

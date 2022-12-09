@@ -19,8 +19,13 @@ describe('Delete Expired messages', () => {
             'foox',
             {
                 message: 'hello',
-                encryptionVersion: 'x25519-chacha20-poly1305',
-                deliveryInformation: '',
+                metadata: {
+                    deliveryInformation: '',
+                    signature: '',
+                    encryptedMessageHash: '',
+                    version: '',
+                    encryptionScheme: 'x25519-chacha20-poly1305',
+                },
             },
             1,
         );
@@ -28,8 +33,13 @@ describe('Delete Expired messages', () => {
             'foox',
             {
                 message: 'world',
-                encryptionVersion: 'x25519-chacha20-poly1305',
-                deliveryInformation: '',
+                metadata: {
+                    deliveryInformation: '',
+                    signature: '',
+                    encryptedMessageHash: '',
+                    version: '',
+                    encryptionScheme: 'x25519-chacha20-poly1305',
+                },
             },
             3,
         );
@@ -37,8 +47,13 @@ describe('Delete Expired messages', () => {
             'foox',
             {
                 message: 'dm3',
-                encryptionVersion: 'x25519-chacha20-poly1305',
-                deliveryInformation: '',
+                metadata: {
+                    deliveryInformation: '',
+                    signature: '',
+                    encryptedMessageHash: '',
+                    version: '',
+                    encryptionScheme: 'x25519-chacha20-poly1305',
+                },
             },
             100,
         );
