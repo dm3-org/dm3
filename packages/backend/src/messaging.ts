@@ -81,15 +81,15 @@ export function onConnection(app: express.Application & WithLocals) {
                                 .to(socketId)
                                 .emit('message', envelop);
                         },
+                        app.locals.web3Provider,
                     ),
                         callback({ response: 'success' });
-                } catch (error) {
-                    //TODO Should we use the callback function to return the error
+                } catch (error: any) {
                     app.locals.logger.warn({
                         method: 'WS SUBMIT MESSAGE',
                         error: (error as Error).toString(),
                     });
-                    callback({ error: "Can't submit message" });
+                    return callback({ error: error.message });
                 }
             },
         );
