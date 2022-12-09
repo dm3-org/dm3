@@ -105,10 +105,15 @@ test('incomingMessage auth', async () => {
             {
                 envelop: {
                     message: '',
-                    encryptionVersion: 'x25519-chacha20-poly1305',
-                    deliveryInformation: stringify(
-                        testData.deliveryInformation,
-                    ),
+                    metadata: {
+                        encryptionScheme: 'x25519-chacha20-poly1305',
+                        deliveryInformation: stringify(
+                            testData.deliveryInformation,
+                        ),
+                        encryptedMessageHash: '',
+                        signature: '',
+                        version: '',
+                    },
                 },
                 token: 'abc',
             },
@@ -135,8 +140,13 @@ test('incomingMessage sizeLimit', async () => {
             {
                 envelop: {
                     message: '',
-                    encryptionVersion: 'x25519-chacha20-poly1305',
-                    deliveryInformation: '',
+                    metadata: {
+                        encryptionScheme: 'x25519-chacha20-poly1305',
+                        deliveryInformation: '',
+                        encryptedMessageHash: '',
+                        signature: '',
+                        version: '',
+                    },
                 },
                 token: '123',
             },
@@ -171,8 +181,15 @@ test('incomingMessage', async () => {
         {
             envelop: {
                 message: '',
-                encryptionVersion: 'x25519-chacha20-poly1305',
-                deliveryInformation: stringify(testData.deliveryInformation),
+                metadata: {
+                    encryptionScheme: 'x25519-chacha20-poly1305',
+                    deliveryInformation: stringify(
+                        testData.deliveryInformation,
+                    ),
+                    encryptedMessageHash: '',
+                    signature: '',
+                    version: '',
+                },
             },
             token: '123',
         },
@@ -198,11 +215,14 @@ test('incomingMessage', async () => {
     //Check message
     expect(messageContainer.conversationId).toEqual(conversationId);
 
-    expect(messageContainer.envelop).toEqual(
+    expect(messageContainer.envelop?.message).toEqual('');
+
+    expect(messageContainer.envelop?.metadata).toEqual(
         expect.objectContaining({
-            message: '',
             deliveryInformation: expect.any(String),
-            encryptionVersion: 'x25519-chacha20-poly1305',
+            encryptionScheme: 'x25519-chacha20-poly1305',
+            signature: expect.any(String),
+            version: expect.any(String),
         }),
     );
 
@@ -248,10 +268,15 @@ test('incomingMessage -- rejects sender with a nonce below the filter', async ()
             {
                 envelop: {
                     message: '',
-                    encryptionVersion: 'x25519-chacha20-poly1305',
-                    deliveryInformation: stringify(
-                        testData.deliveryInformation,
-                    ),
+                    metadata: {
+                        encryptionScheme: 'x25519-chacha20-poly1305',
+                        deliveryInformation: stringify(
+                            testData.deliveryInformation,
+                        ),
+                        encryptedMessageHash: '',
+                        signature: '',
+                        version: '',
+                    },
                 },
                 token: '123',
             },
@@ -299,10 +324,15 @@ test('incomingMessage -- rejects sender with a balance below the filter', async 
             {
                 envelop: {
                     message: '',
-                    encryptionVersion: 'x25519-chacha20-poly1305',
-                    deliveryInformation: stringify(
-                        testData.deliveryInformation,
-                    ),
+                    metadata: {
+                        encryptionScheme: 'x25519-chacha20-poly1305',
+                        deliveryInformation: stringify(
+                            testData.deliveryInformation,
+                        ),
+                        encryptedMessageHash: '',
+                        signature: '',
+                        version: '',
+                    },
                 },
                 token: '123',
             },
@@ -335,24 +365,39 @@ test('getMessages', async () => {
             ? ([
                   {
                       message: '',
-                      encryptionVersion: 'x25519-chacha20-poly1305',
-                      deliveryInformation: stringify(
-                          testData.deliveryInformation,
-                      ),
+                      metadata: {
+                          encryptionScheme: 'x25519-chacha20-poly1305',
+                          deliveryInformation: stringify(
+                              testData.deliveryInformation,
+                          ),
+                          encryptedMessageHash: '',
+                          signature: '',
+                          version: '',
+                      },
                   },
                   {
                       message: '',
-                      encryptionVersion: 'x25519-chacha20-poly1305',
-                      deliveryInformation: stringify(
-                          testData.deliveryInformationB,
-                      ),
+                      metadata: {
+                          encryptionScheme: 'x25519-chacha20-poly1305',
+                          deliveryInformation: stringify(
+                              testData.deliveryInformationB,
+                          ),
+                          encryptedMessageHash: '',
+                          signature: '',
+                          version: '',
+                      },
                   },
                   {
                       message: '',
-                      encryptionVersion: 'x25519-chacha20-poly1305',
-                      deliveryInformation: stringify(
-                          testData.deliveryInformation,
-                      ),
+                      metadata: {
+                          encryptionScheme: 'x25519-chacha20-poly1305',
+                          deliveryInformation: stringify(
+                              testData.deliveryInformation,
+                          ),
+                          encryptedMessageHash: '',
+                          signature: '',
+                          version: '',
+                      },
                   },
               ] as EncryptionEnvelop[])
             : [];
@@ -368,13 +413,23 @@ test('getMessages', async () => {
     ).toStrictEqual([
         {
             message: '',
-            encryptionVersion: 'x25519-chacha20-poly1305',
-            deliveryInformation: stringify(testData.deliveryInformation),
+            metadata: {
+                encryptionScheme: 'x25519-chacha20-poly1305',
+                deliveryInformation: stringify(testData.deliveryInformation),
+                encryptedMessageHash: '',
+                signature: '',
+                version: '',
+            },
         },
         {
             message: '',
-            encryptionVersion: 'x25519-chacha20-poly1305',
-            deliveryInformation: stringify(testData.deliveryInformation),
+            metadata: {
+                encryptionScheme: 'x25519-chacha20-poly1305',
+                deliveryInformation: stringify(testData.deliveryInformation),
+                encryptedMessageHash: '',
+                signature: '',
+                version: '',
+            },
         },
     ]);
 });

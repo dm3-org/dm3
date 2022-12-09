@@ -62,7 +62,9 @@ describe('SpamFilter', () => {
                 JSON.parse(
                     await decryptAsymmetric(
                         keysA.encryptionKeyPair,
-                        JSON.parse(testData.envelopA.deliveryInformation),
+                        JSON.parse(
+                            testData.envelopA.metadata.deliveryInformation,
+                        ),
                     ),
                 ),
             );
@@ -72,7 +74,9 @@ describe('SpamFilter', () => {
                 JSON.parse(
                     await decryptAsymmetric(
                         keysA.encryptionKeyPair,
-                        JSON.parse(testData.envelopB.deliveryInformation),
+                        JSON.parse(
+                            testData.envelopB.metadata.deliveryInformation,
+                        ),
                     ),
                 ),
             );
@@ -91,7 +95,9 @@ describe('SpamFilter', () => {
                 JSON.parse(
                     await decryptAsymmetric(
                         keysA.encryptionKeyPair,
-                        JSON.parse(testData.envelopA.deliveryInformation),
+                        JSON.parse(
+                            testData.envelopA.metadata.deliveryInformation,
+                        ),
                     ),
                 ),
             );
@@ -101,7 +107,9 @@ describe('SpamFilter', () => {
                 JSON.parse(
                     await decryptAsymmetric(
                         keysA.encryptionKeyPair,
-                        JSON.parse(testData.envelopB.deliveryInformation),
+                        JSON.parse(
+                            testData.envelopB.metadata.deliveryInformation,
+                        ),
                     ),
                 ),
             );
@@ -118,7 +126,9 @@ describe('SpamFilter', () => {
                 JSON.parse(
                     await decryptAsymmetric(
                         keysA.encryptionKeyPair,
-                        JSON.parse(testData.envelopA.deliveryInformation),
+                        JSON.parse(
+                            testData.envelopA.metadata.deliveryInformation,
+                        ),
                     ),
                 ),
             );

@@ -148,10 +148,14 @@ export async function requestContacts(
                 await Lib.messaging.submitMessage(
                     connection,
                     deliveryServiceToken,
-                    userDb,
-                    contact.account,
                     message.envelop.message,
-                    contact.deliveryServiceProfile.publicEncryptionKey,
+                    {
+                        deliveryServiceEncryptionPubKey:
+                            contact.deliveryServiceProfile.publicEncryptionKey,
+                        from: connection.account!,
+                        keys: userDb.keys,
+                        to: contact.account,
+                    },
                     false,
                     storeMessages,
                 );

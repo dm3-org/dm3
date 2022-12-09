@@ -1,20 +1,9 @@
 import { Socket } from 'socket.io';
 import express from 'express';
 import * as Lib from 'dm3-lib/dist.backend';
-import { addPending, RedisPrefix } from './redis';
-import { stringify } from 'safe-stable-stringify';
+import { addPending } from './redis';
 import { isAddress } from 'ethers/lib/utils';
 import { WithLocals } from './types';
-
-const submitMessageSchema = {
-    type: 'object',
-    properties: {
-        token: { type: 'string' },
-        envelop: Lib.messaging.schema.EncryptionEnvelopeSchema,
-    },
-    required: ['token', 'envelop'],
-    additionalProperties: false,
-};
 
 const pendingMessageSchema = {
     type: 'object',
@@ -52,7 +41,7 @@ export function onConnection(app: express.Application & WithLocals) {
                     });
 
                     const isSchemaValid = Lib.validateSchema(
-                        submitMessageSchema,
+                        Lib.delivery.schema.MessageSubmission,
                         data,
                     );
 

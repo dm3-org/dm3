@@ -126,7 +126,9 @@ export function sortEnvelops(
     containers: StorageEnvelopContainer[],
 ): StorageEnvelopContainer[] {
     return containers.sort(
-        (a, b) => a.envelop.message.timestamp - b.envelop.message.timestamp,
+        (a, b) =>
+            a.envelop.message.metadata.timestamp -
+            b.envelop.message.metadata.timestamp,
     );
 }
 
@@ -187,7 +189,7 @@ export async function sync(
         )
         // create acknoledgments
         .map((containers) => ({
-            contactAddress: containers[0].envelop.message.from,
+            contactAddress: containers[0].envelop.message.metadata.from,
             messageDeliveryServiceTimestamp:
                 containers[0].deliveryServiceIncommingTimestamp!,
         }));
