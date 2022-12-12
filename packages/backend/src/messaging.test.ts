@@ -9,6 +9,14 @@ import * as Lib from 'dm3-lib/dist.backend';
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
+// eslint-disable-next-line no-console
+const log = (toLog: any) => console.log(toLog);
+
+const logger = {
+    warn: log,
+    info: log,
+};
+
 const keysA = {
     encryptionKeyPair: {
         publicKey: 'eHmMq29FeiPKfNPkSctPuZGXvV0sKeO/KZkX2nXvMgw=',
@@ -58,14 +66,7 @@ describe('Messaging', () => {
             //We provide an mocked express app with all needes locals vars
             const app = {
                 locals: {
-                    logger: {
-                        warn: (e: any) => {
-                            console.log(e);
-                        },
-                        info: (e: any) => {
-                            console.log(e);
-                        },
-                    },
+                    logger,
                     keys: {
                         signing: keysA.signingKeyPair,
                         encryption: keysA.encryptionKeyPair,
@@ -127,14 +128,7 @@ describe('Messaging', () => {
             //We provide an mocked express app with all needes locals vars
             const app = {
                 locals: {
-                    logger: {
-                        warn: (e: any) => {
-                            console.log(e);
-                        },
-                        info: (e: any) => {
-                            console.log(e);
-                        },
-                    },
+                    logger,
                     keys: {
                         signing: keysA.signingKeyPair,
                         encryption: keysA.encryptionKeyPair,
@@ -192,14 +186,7 @@ describe('Messaging', () => {
             //We provide an mocked express app with all needes locals vars
             const app = {
                 locals: {
-                    logger: {
-                        warn: (e: any) => {
-                            console.log(e);
-                        },
-                        info: (e: any) => {
-                            console.log(e);
-                        },
-                    },
+                    logger,
                     deliveryServicePrivateKey:
                         '9SZhajjn9tn0fX/eBMXfZfb0RaUeYyfhlNYHqZyKHpyTiYvwVosQ5qt2XxdDFblTzggir8kp85kWw76p2EZ0rQ==',
                     redisClient: {
@@ -245,14 +232,7 @@ describe('Messaging', () => {
         it('returns error if schema is invalid', async () => {
             const app = {
                 locals: {
-                    logger: {
-                        warn: (e: any) => {
-                            console.log(e);
-                        },
-                        info: (e: any) => {
-                            console.log(e);
-                        },
-                    },
+                    logger,
                 } as any,
             } as express.Express;
 

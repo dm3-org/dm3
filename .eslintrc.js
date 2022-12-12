@@ -5,8 +5,11 @@ module.exports = {
         sourceType: 'module', // Allows for the use of imports
     },
     extends: ['prettier'],
-    ignorePatterns: ['package.json', '**/dist/**/*.js'],
+    plugins: ['no-only-tests'],
+    ignorePatterns: ['package.json', '**/*.js'],
     rules: {
         'max-len': ['error', { code: 120 }],
+        'no-console': ['error'],
+        'no-only-tests/no-only-tests': ['error'],
     },
 };

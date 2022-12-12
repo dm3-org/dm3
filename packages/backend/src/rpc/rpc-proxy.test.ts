@@ -6,7 +6,15 @@ import RpcProxy from './rpc-proxy';
 import * as testData from './rpc-proxy.test.json';
 
 import * as Lib from 'dm3-lib/dist.backend';
-import { ethers } from 'ethers';
+
+// eslint-disable-next-line no-console
+const log = (toLog: any) => console.log(toLog);
+
+const logger = {
+    warn: log,
+    info: log,
+    error: log,
+};
 
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
@@ -43,17 +51,7 @@ describe('rpc-Proxy', () => {
             app.use(RpcProxy(axiosMock as Axios));
 
             app.locals = {
-                logger: {
-                    warn: (e: any) => {
-                        console.log(e);
-                    },
-                    info: (e: any) => {
-                        console.log(e);
-                    },
-                    error: (e: any) => {
-                        console.log(e);
-                    },
-                },
+                logger,
             };
 
             const { body } = await request(app)
@@ -86,14 +84,7 @@ describe('rpc-Proxy', () => {
             app.use(RpcProxy(axiosMock as Axios));
 
             app.locals = {
-                logger: {
-                    warn: (e: any) => {
-                        console.log(e);
-                    },
-                    info: (e: any) => {
-                        console.log(e);
-                    },
-                },
+                logger,
                 keys: {
                     signing: keysA.signingKeyPair,
                     encryption: keysA.encryptionKeyPair,
@@ -156,17 +147,7 @@ describe('rpc-Proxy', () => {
             app.use(RpcProxy(axiosMock as Axios));
 
             app.locals = {
-                logger: {
-                    warn: (e: any) => {
-                        console.log(e);
-                    },
-                    info: (e: any) => {
-                        console.log(e);
-                    },
-                    error: (e: any) => {
-                        console.log(e);
-                    },
-                },
+                logger,
                 deliveryServiceProperties: { messageTTL: 0, sizeLimit: 0 },
             };
 
@@ -222,17 +203,7 @@ describe('rpc-Proxy', () => {
             app.use(RpcProxy(axiosMock as Axios));
 
             app.locals = {
-                logger: {
-                    warn: (e: any) => {
-                        console.log(e);
-                    },
-                    info: (e: any) => {
-                        console.log(e);
-                    },
-                    error: (e: any) => {
-                        console.log(e);
-                    },
-                },
+                logger,
                 web3Provider: {
                     resolveName: (_: string) => Promise.resolve(null),
                 },
@@ -265,17 +236,7 @@ describe('rpc-Proxy', () => {
             app.use(RpcProxy(axiosMock as Axios));
 
             app.locals = {
-                logger: {
-                    warn: (e: any) => {
-                        console.log(e);
-                    },
-                    info: (e: any) => {
-                        console.log(e);
-                    },
-                    error: (e: any) => {
-                        console.log(e);
-                    },
-                },
+                logger,
                 web3Provider: {
                     resolveName: (_: string) =>
                         Promise.resolve(RECEIVER_ADDRESS),
@@ -313,17 +274,7 @@ describe('rpc-Proxy', () => {
             app.use(RpcProxy(axiosMock as Axios));
 
             app.locals = {
-                logger: {
-                    warn: (e: any) => {
-                        console.log(e);
-                    },
-                    info: (e: any) => {
-                        console.log(e);
-                    },
-                    error: (e: any) => {
-                        console.log(e);
-                    },
-                },
+                logger,
                 web3Provider: {
                     resolveName: (_: string) =>
                         Promise.resolve(RECEIVER_ADDRESS),
