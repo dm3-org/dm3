@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { isSpam } from '.';
 import { decryptAsymmetric } from '../crypto';
 import { Session } from '../delivery';
-import * as testData from './spamfilter.test.json';
+import { testData } from '../../../../test-data/encrypted-envelops.test';
 
 const keysA = {
     encryptionKeyPair: {
