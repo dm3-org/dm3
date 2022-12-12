@@ -7,7 +7,7 @@ import { EncryptionEnvelop } from '../messaging/Envelop';
 import { stringify } from '../shared/stringify';
 import { getConversationId } from '../storage/Storage';
 import { getMessages, incomingMessage } from './Messages';
-import * as testData from './Messages.test.json';
+import { testData } from '../../../../test-data/encrypted-envelops.test';
 import { Session } from './Session';
 
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';

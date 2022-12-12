@@ -2,8 +2,7 @@ import express from 'express';
 import { Socket } from 'socket.io';
 import { onConnection } from './messaging';
 import { socketAuth } from './utils';
-import * as testData from './messaging.test.json';
-
+import { testData } from '../../../test-data/encrypted-envelops.test';
 import * as Lib from 'dm3-lib/dist.backend';
 
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
