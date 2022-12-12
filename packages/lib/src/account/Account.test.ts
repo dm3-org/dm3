@@ -533,8 +533,6 @@ test('publishProfileOnchain', async () => {
         },
     );
 
-    console.log(tx?.args);
-
     expect(tx?.args).toStrictEqual([
         '0xca7a0eadca1ba3745db7065063294b717422bd1c70995cba8f5adcd094fdae1d',
         'eth.dm3.profile',

@@ -73,7 +73,6 @@ function GoogleConnect(props: GoogleConnectProps) {
                 },
                 (error: any) => {
                     props.setGoogleAuthState(GoogleAuthState.Failed);
-                    console.log(error);
                 },
             );
     };
