@@ -38,7 +38,6 @@ export async function connectAccount(
             profile,
         };
     } catch (e) {
-        console.error(e);
         return {
             existingAccount: false,
             connectionState: ConnectionState.ConnectionRejected,
