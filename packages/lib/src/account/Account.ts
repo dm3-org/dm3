@@ -57,8 +57,12 @@ export interface Account {
     profile?: UserProfile;
 }
 
+/**
+ * signs a profile with an ethereum account key
+ * @param stringifiedProfile stringified dm3 user profile object
+ */
 export function getProfileCreationMessage(stringifiedProfile: string) {
-    return `Hearby you accept dm3's terms of service ${stringifiedProfile}`;
+    return `Hearby your dm3 profile is linked with your Ethereum account\n\n ${stringifiedProfile}`;
 }
 
 export async function getContacts(
@@ -78,25 +82,26 @@ export async function getContacts(
         deliveryServiceToken,
     );
 
-    Promise.all(
-        pendingConversations.map(async (address) => {
-            if (
-                !userDb.conversations.has(
-                    getConversationId(connection.account!.address, address),
-                )
-            ) {
-                return await addContact(
-                    connection,
-                    address,
-                    resolveName,
-                    userDb,
-                    createEmptyConversationEntry,
-                );
-            }
-            return;
-        }),
-    );
+    for (const pendingConversation of pendingConversations) {
+        if (
+            !userDb.conversations.has(
+                getConversationId(
+                    connection.account!.address,
+                    pendingConversation,
+                ),
+            )
+        ) {
+            await addContact(
+                connection,
+                pendingConversation,
+                resolveName,
+                userDb,
+                createEmptyConversationEntry,
+            );
+        }
+    }
 
+    // fetch the user profile of the contacts
     const uncheckedProfiles = await Promise.all(
         Array.from(userDb.conversations.keys())
             .map((conversationId) => conversationId.split(','))
@@ -133,6 +138,12 @@ export async function getContacts(
         }));
 }
 
+/**
+ * make too long names shorter
+ * @param accountAddress ethereum account address
+ * @param ensNames ENS name cache
+ * @param forFile Use shortend name for a file name
+ */
 export function getAccountDisplayName(
     accountAddress: string | undefined,
     ensNames: Map<string, string>,
@@ -175,22 +186,23 @@ export async function addContact(
             accountInput,
         );
         if (address) {
-            if (
-                !createEmptyConversation(
-                    connection,
-                    address,
-                    userDb,
-                    createEmptyConversationEntry,
-                )
-            ) {
-                throw Error('Contact exists already.');
-            }
+            createEmptyConversation(
+                connection,
+                address,
+                userDb,
+                createEmptyConversationEntry,
+            );
         } else {
             throw Error(`Couldn't resolve name`);
         }
     }
 }
 
+/**
+ * check the signature of the fetched user profile
+ * @param signedUserProfile The profile to check
+ * @param accountAddress The Etehereum account address of the profile owner
+ */
 export function checkUserProfile(
     { profile, signature }: SignedUserProfile,
     accountAddress: string,
@@ -206,6 +218,12 @@ export function checkUserProfile(
     );
 }
 
+/**
+ * check a signature by recovering the signer address
+ * @param stringToCheck Signed string
+ * @param signature The signature
+ * @param signature The Ethereum account address of the signer
+ */
 export function checkStringSignature(
     stringToCheck: string,
     signature: string,
@@ -219,6 +237,10 @@ export function checkStringSignature(
     );
 }
 
+/**
+ * create the string used to create the browser storage key
+ * @param accountAddress The Ethereum account address
+ */
 export function getBrowserStorageKey(accountAddress: string) {
     if (!accountAddress) {
         throw Error('No address provided');
@@ -228,6 +250,15 @@ export function getBrowserStorageKey(accountAddress: string) {
 
 export type GetResource<T> = (uri: string) => Promise<T | undefined>;
 
+/**
+ * fetch a dm3 user profile
+ * @param connection dm3 connection object
+ * @param contact The Ethereum account address of the of the profile owner
+ * @param getProfileOffChain Function to fetch offchain user profiles
+ * @param getEnsTextRecord Function to fetch ENS text records
+ * @param getRessource Function to fetch a user profile
+ * @param profileUrl Offchain user profile URL
+ */
 export async function getUserProfile(
     connection: Connection,
     contact: string,
@@ -269,18 +300,27 @@ export async function getUserProfile(
         ?.resolveProfile(textRecord);
 }
 
+/**
+ * checks the user profile hash contained in the `dm3Hash` URI prarameter
+ * @param profile dm3 user profile
+ * @param uri URI containing the `dm3Hash` prarameter
+ */
 export function checkProfileHash(profile: Dm3Profile, uri: string): boolean {
     const parsedUri = queryString.parseUrl(uri);
     return sha256(stringify(profile)) === parsedUri.query.dm3Hash;
 }
 
+/**
+ * creats the `dm3Hash` URI prarameter for the provided user profile
+ * @param profile dm3 user profile
+ */
 export function createHashUrlParam(profile: SignedUserProfile): string {
     return `dm3Hash=${sha256(stringify(profile))}`;
 }
 
 export async function publishProfileOnchain(
     connection: Connection,
-    uri: string,
+    url: string,
     lookupAddress: LookupAddress,
     getResolver: GetResolver,
     getConractInstance: GetConractInstance,
@@ -296,13 +336,13 @@ export async function publishProfileOnchain(
         connection.provider,
         connection.account.address,
     );
-    if (ensName === null) {
-        return;
+    if (!ensName) {
+        throw Error('No ENS name found');
     }
 
     const ethersResolver = await getResolver(connection.provider, ensName);
-    if (ethersResolver === null) {
-        return;
+    if (!ethersResolver) {
+        throw Error('No resolver found');
     }
 
     const node = ethers.utils.namehash(ensName);
@@ -334,7 +374,7 @@ export async function publishProfileOnchain(
         args: [
             node,
             'eth.dm3.profile',
-            uri + '?' + createHashUrlParam(ownProfile),
+            url + '?' + createHashUrlParam(ownProfile),
         ],
     };
 }
