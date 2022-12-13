@@ -21,7 +21,7 @@ describe('Delivery', () => {
         axiosMock.reset();
     });
     describe('getDeliveryServiceProfile', () => {
-        test('throws Exception if ENS name is invalid', async () => {
+        it('throws Exception if ENS name is invalid', async () => {
             const deliveryServices = ['blabla'];
 
             const mockGetEnsResolver = (_: string) => Promise.resolve(null);
@@ -42,7 +42,7 @@ describe('Delivery', () => {
             }
         });
 
-        test('returns undefined TextRecord is not a valid dm3Profile', async () => {
+        it('returns undefined TextRecord is not a valid dm3Profile', async () => {
             const deliveryServices = ['blabla'];
 
             const mockGetEnsResolver = (_: string) =>
@@ -62,7 +62,7 @@ describe('Delivery', () => {
             );
             expect(profile).toBeUndefined();
         });
-        test('Resolves Json Profile', async () => {
+        it('Resolves Json Profile', async () => {
             const expectedProfile = {
                 publicSigningKey: '1',
                 publicEncryptionKey: '2',
@@ -91,7 +91,21 @@ describe('Delivery', () => {
     });
 
     describe('getDeliveryServiceClient', () => {
-        test('throws exception if no deliveryServiceName was specifed ', async () => {
+        it('throws exception if no provider was specifed ', async () => {
+            const profile = { deliveryServices: [] as string[] } as UserProfile;
+            const mockGetEnsResolver = (_: string) => Promise.resolve(null);
+
+            try {
+                await getDeliveryServiceClient(
+                    profile,
+                    {} as Connection,
+                    (_: string) => Promise.resolve(undefined),
+                ).get('/foo');
+            } catch (e) {
+                expect(e).toBe('Provider is undefined');
+            }
+        });
+        it('throws exception if no deliveryServiceName was specifed ', async () => {
             const profile = { deliveryServices: [] as string[] } as UserProfile;
             const mockGetEnsResolver = (_: string) => Promise.resolve(null);
 
