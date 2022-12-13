@@ -30,13 +30,17 @@ export async function getDeliveryServiceProfile(
     getRessource: GetResource<DeliveryServiceProfile>,
 ): Promise<DeliveryServiceProfile | undefined> {
     const DELIVERY_SERVICE_PROFILE_KEY = 'eth.dm3.deliveryService';
-    const ensResolver = await provider?.getResolver(deliveryServiceEnsName);
+
+    if (!provider) {
+        throw 'Provider is undefined';
+    }
+    const ensResolver = await provider.getResolver(deliveryServiceEnsName);
 
     if (!ensResolver) {
         throw 'Unknown ENS name';
     }
 
-    const textRecord = await ensResolver?.getText(DELIVERY_SERVICE_PROFILE_KEY);
+    const textRecord = await ensResolver.getText(DELIVERY_SERVICE_PROFILE_KEY);
 
     const resolver: ProfileResolver<DeliveryServiceProfile>[] = [
         LinkResolver(getRessource, validateDeliveryServiceProfile),

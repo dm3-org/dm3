@@ -34,6 +34,17 @@ const getStorageEnvelopeContainer = (timestamp: number = 0) => {
 
     const envelop: Envelop = {
         message,
+        metadata: {
+            deliveryInformation: {
+                from: '',
+                to: '',
+                deliveryInstruction: '',
+            },
+            encryptedMessageHash: '',
+            version: '',
+            encryptionScheme: '',
+            signature: '',
+        },
     };
 
     return {

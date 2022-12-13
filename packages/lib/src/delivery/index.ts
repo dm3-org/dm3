@@ -1,9 +1,5 @@
-export {
-    createChallenge,
-    createNewSessionToken,
-    getUserProfile,
-    submitUserProfile,
-} from './Keys';
+export { createChallenge, createNewSessionToken } from './Keys';
+export { submitUserProfile, getUserProfile } from './UserProfile';
 export { getMessages, incomingMessage } from './Messages';
 export type { Acknoledgment } from './Messages';
 export type {} from './PublicMessages';
