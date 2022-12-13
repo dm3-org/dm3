@@ -44,9 +44,10 @@ export function userDbReducer(
             let hasChanged = false;
 
             const contactAddress =
-                container.envelop.message.from === connection.account!.address
-                    ? container.envelop.message.to
-                    : container.envelop.message.from;
+                container.envelop.message.metadata.from ===
+                connection.account!.address
+                    ? container.envelop.message.metadata.to
+                    : container.envelop.message.metadata.from;
             const conversationId = Lib.storage.getConversationId(
                 contactAddress,
                 connection.account!.address,
@@ -66,7 +67,8 @@ export function userDbReducer(
                 hasChanged = true;
             } else if (
                 prevContainers[prevContainers.length - 1].envelop.message
-                    .timestamp < container.envelop.message.timestamp
+                    .metadata.timestamp <
+                container.envelop.message.metadata.timestamp
             ) {
                 newConversations.set(conversationId, [
                     ...prevContainers,

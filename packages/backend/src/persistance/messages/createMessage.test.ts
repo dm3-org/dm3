@@ -22,8 +22,13 @@ describe('Create Message', () => {
     it('Creates a new Message ', async () => {
         const envelop: Lib.messaging.EncryptionEnvelop = {
             message: '',
-            encryptionVersion: 'x25519-chacha20-poly1305',
-            deliveryInformation: '',
+            metadata: {
+                deliveryInformation: '',
+                signature: '',
+                encryptedMessageHash: '',
+                version: '',
+                encryptionScheme: 'x25519-chacha20-poly1305',
+            },
         };
 
         const conversionId = SENDER_ADDRESS + RECEIVER_ADDRESS;

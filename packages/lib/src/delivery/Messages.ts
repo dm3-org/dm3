@@ -21,6 +21,11 @@ export interface Acknoledgment {
     messageDeliveryServiceTimestamp: number;
 }
 
+export interface MessageSubmission {
+    token: string;
+    envelop: EncryptionEnvelop;
+}
+
 // fetch new messages
 export async function getMessages(
     loadMessages: (
@@ -48,7 +53,9 @@ export async function getMessages(
                 JSON.parse(
                     await decryptAsymmetric(
                         encryptionKeyPair,
-                        JSON.parse(envelop.deliveryInformation),
+                        JSON.parse(
+                            envelop.metadata.deliveryInformation as string,
+                        ),
                     ),
                 ).to,
             ),
@@ -90,7 +97,7 @@ export async function incomingMessage(
     const deliveryInformation: DeliveryInformation = JSON.parse(
         await decryptAsymmetric(
             encryptionKeyPair,
-            JSON.parse(envelop.deliveryInformation),
+            JSON.parse(envelop.metadata.deliveryInformation as string),
         ),
     );
 
@@ -114,6 +121,10 @@ export async function incomingMessage(
         throw Error('unknown session');
     }
     //Checkes if the message is spam
+    if (await isSpam(provider, receiverSession, deliveryInformation)) {
+        throw Error('Message does not match spam criteria');
+    }
+
     if (await isSpam(provider, receiverSession, deliveryInformation)) {
         throw Error('Message does not match spam criteria');
     }

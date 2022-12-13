@@ -1,3 +1,4 @@
+import { ethers } from 'ethers';
 import {
     decrypt,
     decryptAsymmetric,
@@ -9,14 +10,11 @@ import {
 import * as Encrypted from './Encryption.test.json';
 
 const keyA = {
-    publicKey:
-        '0xc75df5b29bd9657ea60d322789a50de4ddbba2bf1796596f6ac5dbf66c86bd74',
-    privateKey:
-        '0xb83714c1b203acb17881def49f3633dca7662b88baaeb12bd7dd6fa1f05b0d02',
+    publicKey: 'x131spvZZX6mDTIniaUN5N27or8XlllvasXb9myGvXQ=',
+    privateKey: 'uDcUwbIDrLF4gd70nzYz3KdmK4i6rrEr191vofBbDQI=',
 };
 
-const keyB =
-    '0xf83a5e0630b32021688bbe37ff8ebac89ba7b07479e4186bdc69ea712e1cb895';
+const keyB = '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJU=';
 
 test('should encrypt a string symetric', async () => {
     const encryptedA = await encrypt(keyB, 'test');

@@ -3,6 +3,10 @@ import 'dotenv/config';
 import express from 'express';
 import { WithLocals } from '../../types';
 
+interface SubmitMessage {
+    token: string;
+}
+
 export async function handleSubmitMessage(
     req: express.Request & { app: WithLocals },
     res: express.Response,
@@ -18,20 +22,13 @@ export async function handleSubmitMessage(
         return res.send(400);
     }
 
-    const submitMessageSchema = {
-        type: 'object',
-        properties: {
-            token: { type: 'string' },
-            envelop: Lib.messaging.schema.EncryptionEnvelopeSchema,
+    const isSchemaValid = Lib.validateSchema(
+        Lib.delivery.schema.MessageSubmission,
+        {
+            envelop,
+            token,
         },
-        required: ['token', 'envelop'],
-        additionalProperties: false,
-    };
-
-    const isSchemaValid = Lib.validateSchema(submitMessageSchema, {
-        envelop,
-        token,
-    });
+    );
 
     if (!isSchemaValid) {
         const error = 'invalid schema';

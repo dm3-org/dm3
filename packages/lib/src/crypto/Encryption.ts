@@ -43,11 +43,11 @@ export async function encrypt(
         null,
         null,
         nonce,
-        ethers.utils.arrayify(key),
+        ethers.utils.base64.decode(key),
     );
 
     return {
-        ciphertext: ethers.utils.hexlify(encryptedPayload),
+        ciphertext: ethers.utils.base64.encode(encryptedPayload),
         nonce: ethers.utils.hexlify(nonce),
     };
 }
@@ -61,10 +61,10 @@ export async function decrypt(
 
     const payload = sodium.crypto_aead_chacha20poly1305_ietf_decrypt(
         null,
-        ethers.utils.arrayify(encryptedPayload.ciphertext),
+        ethers.utils.base64.decode(encryptedPayload.ciphertext),
         null,
         ethers.utils.arrayify(encryptedPayload.nonce),
-        ethers.utils.arrayify(key),
+        ethers.utils.base64.decode(key),
     );
 
     const unpadded = sodium.unpad(payload, PAD_BLOCKSIZE);

@@ -15,39 +15,29 @@ const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
 const keysA = {
     encryptionKeyPair: {
-        publicKey:
-            '0x78798cab6f457a23ca7cd3e449cb4fb99197bd5d2c29e3bf299917da75ef320c',
-        privateKey:
-            '0xa4c23bec5db0dc62bea2664207803ad560ea21238e9d61974767ff3132dba9b6',
+        publicKey: 'eHmMq29FeiPKfNPkSctPuZGXvV0sKeO/KZkX2nXvMgw=',
+        privateKey: 'pMI77F2w3GK+omZCB4A61WDqISOOnWGXR2f/MTLbqbY=',
     },
     signingKeyPair: {
-        publicKey:
-            '0xfad90341665fbfd8b106639bb1ff2d8131d365a8f0004f66b93b450148f67bd2',
+        publicKey: '+tkDQWZfv9ixBmObsf8tgTHTZajwAE9muTtFAUj2e9I=',
         privateKey:
-            '0xf83a5e0630b32021688bbe37ff8ebac89ba7b07479e4186bdc69ea712e1cb895' +
-            'fad90341665fbfd8b106639bb1ff2d8131d365a8f0004f66b93b450148f67bd2',
+            '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJX62QNBZl+/2LEGY5ux/y2BMdNlqPAAT2a5O0UBSPZ70g==',
     },
-    storageEncryptionKey:
-        '0xf83a5e0630b32021688bbe37ff8ebac89ba7b07479e4186bdc69ea712e1cb895',
+    storageEncryptionKey: '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJU=',
     storageEncryptionNonce: 0,
 };
 
 const keysB = {
     encryptionKeyPair: {
-        publicKey:
-            '0x19867565066fc86c876f6f027006f64edabe435155fffa5269746eac00142608',
-        privateKey:
-            '0x395643aa80723066c4ce1c5d1dc4eeaf3a44c31c4fdbfd44322354c7e493e60e',
+        publicKey: 'GYZ1ZQZvyGyHb28CcAb2Ttq+Q1FV//pSaXRurAAUJgg=',
+        privateKey: 'OVZDqoByMGbEzhxdHcTurzpEwxxP2/1EMiNUx+ST5g4=',
     },
     signingKeyPair: {
-        publicKey:
-            '0xee64c50eb6b097cee37b534d9d1858128578b465578479533dc69d968aa2be6d',
+        publicKey: '7mTFDrawl87je1NNnRhYEoV4tGVXhHlTPcadloqivm0=',
         privateKey:
-            '0xf83a5e0630b32021688bbe37ff8ebac89ba7b07479e4186bdc69ea712e1cb89' +
-            '6ee64c50eb6b097cee37b534d9d1858128578b465578479533dc69d968aa2be6d',
+            '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJbuZMUOtrCXzuN7U02dGFgShXi0ZVeEeVM9xp2WiqK+bQ==',
     },
-    storageEncryptionKey:
-        '0xf83a5e0630b32021688bbe37ff8ebac89ba7b07479e4186bdc69ea712e1cb896',
+    storageEncryptionKey: '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJY=',
     storageEncryptionNonce: 0,
 };
 
@@ -108,10 +98,15 @@ describe('Messages', () => {
                     {
                         envelop: {
                             message: '',
-                            encryptionVersion: 'x25519-chacha20-poly1305',
-                            deliveryInformation: stringify(
-                                testData.deliveryInformation,
-                            ),
+                            metadata: {
+                                version: '',
+                                encryptionScheme: 'x25519-chacha20-poly1305',
+                                deliveryInformation: stringify(
+                                    testData.deliveryInformation,
+                                ),
+                                encryptedMessageHash: '',
+                                signature: '',
+                            },
                         },
                         token: 'abc',
                     },
@@ -137,9 +132,14 @@ describe('Messages', () => {
                 incomingMessage(
                     {
                         envelop: {
+                            metadata: {
+                                encryptionScheme: 'x25519-chacha20-poly1305',
+                                deliveryInformation: '',
+                                encryptedMessageHash: '',
+                                signature: '',
+                                version: '',
+                            },
                             message: '',
-                            encryptionVersion: 'x25519-chacha20-poly1305',
-                            deliveryInformation: '',
                         },
                         token: '123',
                     },
@@ -166,10 +166,15 @@ describe('Messages', () => {
                     {
                         envelop: {
                             message: '',
-                            encryptionVersion: 'x25519-chacha20-poly1305',
-                            deliveryInformation: stringify(
-                                testData.deliveryInformationB,
-                            ),
+                            metadata: {
+                                encryptionScheme: 'x25519-chacha20-poly1305',
+                                version: '',
+                                encryptedMessageHash: '',
+                                signature: '',
+                                deliveryInformation: stringify(
+                                    testData.deliveryInformationB,
+                                ),
+                            },
                         },
                         token: 'abc',
                     },
@@ -214,10 +219,15 @@ describe('Messages', () => {
                     {
                         envelop: {
                             message: '',
-                            encryptionVersion: 'x25519-chacha20-poly1305',
-                            deliveryInformation: stringify(
-                                testData.deliveryInformation,
-                            ),
+                            metadata: {
+                                encryptionScheme: 'x25519-chacha20-poly1305',
+                                encryptedMessageHash: '',
+                                signature: '',
+                                version: '',
+                                deliveryInformation: stringify(
+                                    testData.deliveryInformation,
+                                ),
+                            },
                         },
                         token: '123',
                     },
@@ -268,10 +278,15 @@ describe('Messages', () => {
                     {
                         envelop: {
                             message: '',
-                            encryptionVersion: 'x25519-chacha20-poly1305',
-                            deliveryInformation: stringify(
-                                testData.deliveryInformation,
-                            ),
+                            metadata: {
+                                encryptionScheme: 'x25519-chacha20-poly1305',
+                                version: '',
+                                encryptedMessageHash: '',
+                                signature: '',
+                                deliveryInformation: stringify(
+                                    testData.deliveryInformation,
+                                ),
+                            },
                         },
                         token: '123',
                     },
@@ -328,10 +343,16 @@ describe('Messages', () => {
                     {
                         envelop: {
                             message: '',
-                            encryptionVersion: 'x25519-chacha20-poly1305',
-                            deliveryInformation: stringify(
-                                testData.deliveryInformation,
-                            ),
+                            metadata: {
+                                encryptionScheme: 'x25519-chacha20-poly1305',
+                                deliveryInformation: stringify(
+                                    testData.deliveryInformation,
+                                ),
+
+                                version: '',
+                                encryptedMessageHash: '',
+                                signature: '',
+                            },
                         },
                         token: '123',
                     },
@@ -372,10 +393,15 @@ describe('Messages', () => {
                 {
                     envelop: {
                         message: '',
-                        encryptionVersion: 'x25519-chacha20-poly1305',
-                        deliveryInformation: stringify(
-                            testData.deliveryInformation,
-                        ),
+                        metadata: {
+                            version: '',
+                            encryptedMessageHash: '',
+                            signature: '',
+                            encryptionScheme: 'x25519-chacha20-poly1305',
+                            deliveryInformation: stringify(
+                                testData.deliveryInformation,
+                            ),
+                        },
                     },
                     token: '123',
                 },
@@ -404,8 +430,15 @@ describe('Messages', () => {
             expect(messageContainer.envelop).toEqual(
                 expect.objectContaining({
                     message: '',
-                    deliveryInformation: expect.any(String),
-                    encryptionVersion: 'x25519-chacha20-poly1305',
+                    metadata: {
+                        version: '',
+                        encryptedMessageHash: '',
+                        signature: '',
+                        encryptionScheme: 'x25519-chacha20-poly1305',
+                        deliveryInformation: stringify(
+                            testData.deliveryInformation,
+                        ),
+                    },
                 }),
             );
 
@@ -415,9 +448,7 @@ describe('Messages', () => {
                 messageHash:
                     '0xd7c617eb7ffee435e7d4e7f6b13d46ccdf88d2e5463148c50659e5cd88d248b5',
                 signature:
-                    // eslint-disable-next-line max-len
-                    '0x944b3207908f07f02d3a0635adb7b28d143cbb58da287c8e4adac18919964fa2' +
-                    '2944cfef3cd38153e2145391562d9976bf9582fbf680efeb647e56e5187bd60d',
+                    'lEsyB5CPB/AtOgY1rbeyjRQ8u1jaKHyOStrBiRmWT6IpRM/vPNOBU+IUU5FWLZl2v5WC+/aA7+tkflblGHvWDQ==',
             });
             //Check if the message was submitted to the socket
             expect(sendMock).not.toBeCalled();
@@ -446,10 +477,15 @@ describe('Messages', () => {
                 {
                     envelop: {
                         message: '',
-                        encryptionVersion: 'x25519-chacha20-poly1305',
-                        deliveryInformation: stringify(
-                            testData.deliveryInformation,
-                        ),
+                        metadata: {
+                            encryptionScheme: 'x25519-chacha20-poly1305',
+                            deliveryInformation: stringify(
+                                testData.deliveryInformation,
+                            ),
+                            version: '',
+                            encryptedMessageHash: '',
+                            signature: '',
+                        },
                     },
                     token: '123',
                 },
@@ -478,8 +514,15 @@ describe('Messages', () => {
             expect(messageContainer.envelop).toEqual(
                 expect.objectContaining({
                     message: '',
-                    deliveryInformation: expect.any(String),
-                    encryptionVersion: 'x25519-chacha20-poly1305',
+                    metadata: {
+                        encryptionScheme: 'x25519-chacha20-poly1305',
+                        deliveryInformation: stringify(
+                            testData.deliveryInformation,
+                        ),
+                        version: '',
+                        encryptedMessageHash: '',
+                        signature: '',
+                    },
                 }),
             );
 
@@ -489,9 +532,7 @@ describe('Messages', () => {
                 messageHash:
                     '0xd7c617eb7ffee435e7d4e7f6b13d46ccdf88d2e5463148c50659e5cd88d248b5',
                 signature:
-                    // eslint-disable-next-line max-len
-                    '0x944b3207908f07f02d3a0635adb7b28d143cbb58da287c8e4adac18919964fa2' +
-                    '2944cfef3cd38153e2145391562d9976bf9582fbf680efeb647e56e5187bd60d',
+                    'lEsyB5CPB/AtOgY1rbeyjRQ8u1jaKHyOStrBiRmWT6IpRM/vPNOBU+IUU5FWLZl2v5WC+/aA7+tkflblGHvWDQ==',
             });
             //Check if the message was submitted to the socket
             expect(sendMock).toBeCalled();
@@ -514,24 +555,39 @@ describe('Messages', () => {
                     ? ([
                           {
                               message: '',
-                              encryptionVersion: 'x25519-chacha20-poly1305',
-                              deliveryInformation: stringify(
-                                  testData.deliveryInformation,
-                              ),
+                              metadata: {
+                                  encryptionScheme: 'x25519-chacha20-poly1305',
+                                  deliveryInformation: stringify(
+                                      testData.deliveryInformation,
+                                  ),
+                                  version: '',
+                                  encryptedMessageHash: '',
+                                  signature: '',
+                              },
                           },
                           {
                               message: '',
-                              encryptionVersion: 'x25519-chacha20-poly1305',
-                              deliveryInformation: stringify(
-                                  testData.deliveryInformationB,
-                              ),
+                              metadata: {
+                                  encryptionScheme: 'x25519-chacha20-poly1305',
+                                  deliveryInformation: stringify(
+                                      testData.deliveryInformation,
+                                  ),
+                                  version: '',
+                                  encryptedMessageHash: '',
+                                  signature: '',
+                              },
                           },
                           {
                               message: '',
-                              encryptionVersion: 'x25519-chacha20-poly1305',
-                              deliveryInformation: stringify(
-                                  testData.deliveryInformation,
-                              ),
+                              metadata: {
+                                  encryptionScheme: 'x25519-chacha20-poly1305',
+                                  deliveryInformation: stringify(
+                                      testData.deliveryInformationB,
+                                  ),
+                                  version: '',
+                                  encryptedMessageHash: '',
+                                  signature: '',
+                              },
                           },
                       ] as EncryptionEnvelop[])
                     : [];
@@ -547,17 +603,27 @@ describe('Messages', () => {
             ).toStrictEqual([
                 {
                     message: '',
-                    encryptionVersion: 'x25519-chacha20-poly1305',
-                    deliveryInformation: stringify(
-                        testData.deliveryInformation,
-                    ),
+                    metadata: {
+                        encryptionScheme: 'x25519-chacha20-poly1305',
+                        deliveryInformation: stringify(
+                            testData.deliveryInformation,
+                        ),
+                        encryptedMessageHash: '',
+                        signature: '',
+                        version: '',
+                    },
                 },
                 {
                     message: '',
-                    encryptionVersion: 'x25519-chacha20-poly1305',
-                    deliveryInformation: stringify(
-                        testData.deliveryInformation,
-                    ),
+                    metadata: {
+                        encryptionScheme: 'x25519-chacha20-poly1305',
+                        deliveryInformation: stringify(
+                            testData.deliveryInformation,
+                        ),
+                        version: '',
+                        encryptedMessageHash: '',
+                        signature: '',
+                    },
                 },
             ]);
         });
