@@ -23,13 +23,14 @@ function resolveProfile<T extends Dm3Profile>(
             throw Error('Could not load profile');
         }
 
+        if (!validate(profile)) {
+            throw Error("SignedUserProfileSchema doesn't fit schema");
+        }
+
         if (!checkProfileHash(profile, textRecord)) {
             throw Error('Profile hash check failed');
         }
 
-        if (!validate(profile)) {
-            throw Error("SignedUserProfileSchema doesn't fit schema");
-        }
         return profile;
     };
 }
