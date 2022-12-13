@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Account, ProfileKeys } from '../account/Account';
 import { decryptAsymmetric, EncryptAsymmetric } from '../crypto';
-import { getDeliveryServiceProfile } from '../delivery';
+import { DeliveryServiceProfile, getDeliveryServiceProfile } from '../delivery';
 import {
     CreatePendingEntry,
     GetNewMessages,
@@ -75,14 +75,17 @@ export async function submitMessage(
     onSuccess?: (envelop: Envelop) => void,
 ) {
     log('Submitting message');
-
+    /*
+     * A Pending entry indicates the receiver that there is a new message
+     * for them
+     */
     await createPendingEntry(
         connection,
         deliveryServiceToken,
         message.metadata.from,
         message.metadata.to,
     );
-
+    //TODO @Heiko why is this flag beeing used
     if (haltDelivery) {
         log('- Halt delivery');
         storeMessages([
@@ -93,30 +96,32 @@ export async function submitMessage(
                 messageState: MessageState.Created,
             },
         ]);
-    } else {
-        const { envelop, encryptedEnvelop } = await buildEnvelop(
-            message,
-            encryptAsymmetric,
-            sendDependencies,
-        );
-
-        const allOnSuccess = () => {
-            if (onSuccess) {
-                onSuccess(envelop);
-            }
-        };
-
-        await submitMessageApi(
-            connection,
-            deliveryServiceToken,
-            encryptedEnvelop,
-            allOnSuccess,
-            () => log('submit message error'),
-        );
-
-        storeMessages([{ envelop, messageState: MessageState.Send }]);
-        log('- Message sent');
+        return;
     }
+
+    const { envelop, encryptedEnvelop } = await buildEnvelop(
+        message,
+        encryptAsymmetric,
+        sendDependencies,
+    );
+
+    const allOnSuccess = () => {
+        if (onSuccess) {
+            onSuccess(envelop);
+        }
+    };
+    // eslint-disable-next-line max-len
+    //TODO shouldnt we handle this failure by either throwing an exception returning false or just log simething different as message sent
+    await submitMessageApi(
+        connection,
+        deliveryServiceToken,
+        encryptedEnvelop,
+        allOnSuccess,
+        () => log('submit message error'),
+    );
+
+    storeMessages([{ envelop, messageState: MessageState.Send }]);
+    log('- Message sent');
 }
 
 async function decryptMessages(
@@ -142,21 +147,20 @@ export async function getMessages(
     contact: string,
     getNewMessages: GetNewMessages,
     storeMessages: (envelops: StorageEnvelopContainer[]) => void,
+    getDeliveryServiceProfile: (
+        url: string,
+    ) => Promise<DeliveryServiceProfile | undefined>,
     userDb: UserDB,
 ): Promise<StorageEnvelopContainer[]> {
     const profile = connection.account?.profile;
 
     if (!profile) {
-        throw 'Account has no profile';
+        throw Error('Account has no profile');
     }
     //Fetch evey delivery service's profie
     const deliveryServices = await Promise.all(
         profile.deliveryServices.map(async (ds) => {
-            const deliveryServiceProfile = await getDeliveryServiceProfile(
-                ds,
-                connection,
-                async (url) => (await axios.get(url)).data,
-            );
+            const deliveryServiceProfile = await getDeliveryServiceProfile(ds);
             return deliveryServiceProfile?.url;
         }),
     );
@@ -179,7 +183,8 @@ export async function getMessages(
     );
 
     //Flatten the message arrays of each delivery service to one message array
-    const allMessages = messages.reduce((agg, cur) => [...agg, ...cur]);
+    const allMessages = messages.reduce((agg, cur) => [...agg, ...cur], []);
+    console.log('ALL MSG', allMessages);
 
     const envelops = await Promise.all(
         allMessages.map(async (envelop): Promise<StorageEnvelopContainer> => {
@@ -199,7 +204,7 @@ export async function getMessages(
             };
         }),
     );
-
+    //TODO Why is this messages persisting messages?
     storeMessages(envelops);
 
     return getConversation(contact, connection, userDb);

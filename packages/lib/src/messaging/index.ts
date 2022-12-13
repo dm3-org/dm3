@@ -1,6 +1,8 @@
+import axios from 'axios';
 import stringify from 'safe-stable-stringify';
 import { ProfileKeys } from '../account';
 import { encryptAsymmetric, sign } from '../crypto';
+import { getDeliveryServiceProfile as execGetDeliveryServiceProfile } from '../delivery';
 import { getNewMessages } from '../external-apis';
 import {
     createPendingEntry,
@@ -38,12 +40,20 @@ export async function getMessages(
     userDb: UserDB,
     storeMessages: (envelops: StorageEnvelopContainer[]) => void,
 ) {
+    const getDeliveryServiceProfile = async (url: string) =>
+        await execGetDeliveryServiceProfile(
+            url,
+            connection,
+            async (url) => (await axios.get(url)).data,
+        );
+
     return execGetMessages(
         connection,
         deliveryServiceToken,
         contact,
         getNewMessages,
         storeMessages,
+        getDeliveryServiceProfile,
         userDb,
     );
 }
