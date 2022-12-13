@@ -1,5 +1,4 @@
 import { ethers } from 'ethers';
-import { base64 } from 'ethers/lib/utils';
 import { JsonResolver } from './JsonResolver';
 
 test('should accept correct data URI and types', () => {
@@ -7,6 +6,12 @@ test('should accept correct data URI and types', () => {
     expect(
         JsonResolver(() => true).isProfile('data:application/json,' + data),
     ).toEqual(true);
+});
+
+test('should throw if data URI could not be parsed', async () => {
+    await expect(JsonResolver(() => false).resolveProfile('')).rejects.toEqual(
+        Error(`Couldn't parse data uri`),
+    );
 });
 
 test('should reject wrong type', () => {

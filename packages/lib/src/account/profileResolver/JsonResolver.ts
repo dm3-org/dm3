@@ -29,10 +29,7 @@ function resolveProfile<T>(validate: (objectToCheck: T) => boolean) {
             dataUrl.mimeType.parameters.get('charset') || 'utf-8',
         );
 
-        if (!encodingName) {
-            throw Error(`Couldn't parse data uri (encoding error).`);
-        }
-        const bodyDecoded = decode(dataUrl.body, encodingName);
+        const bodyDecoded = decode(dataUrl.body, encodingName!);
 
         const profile = JSON.parse(bodyDecoded);
 
