@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import { ethers } from 'ethers';
 import stringify from 'safe-stable-stringify';
 
@@ -69,7 +68,8 @@ export async function getMessages(
 }
 
 /**
- * Handles an incomming message. Either stores the message or sends it directly to the receiver if a socketId is provided
+ * Handles an incomming message.
+ * Either stores the message or sends it directly to the receiver if a socketId is provided
  * In order to be considered valid a incoming message has to meet the following criterias
  * 1. The message size must be lower than the sizeLimit specified by the deliveryService {@see messageIsToLarge}
  * 2. The DeliveryServiceToken used by the sender has to be valid

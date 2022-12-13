@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import { ProfileKeys } from '../account/Account';
 import { decrypt, encrypt, EncryptedPayload } from '../crypto';
 import { Acknoledgment } from '../delivery';
@@ -51,7 +50,8 @@ interface UserStoragePayload {
 }
 
 /**
- * In order to stringify the conversations properly, the map that contains the conversations has to be transformed to the follwoing structure
+ * In order to stringify the conversations properly, 
+ * the map that contains the conversations has to be transformed to the follwoing structure
  {
   "dataType": "Map",
   "value": [
@@ -85,7 +85,8 @@ export function serializeConversations(
     }
 }
 /**
- * If a JSON string contains an object created with {@see serializeConversations} a it'll be transformed to a Map<string,StorageEnvelopContainer[]> where the key is the conversationID
+ * If a JSON string contains an object created with {@see serializeConversations}
+ * it'll be transformed to a Map<string,StorageEnvelopContainer[]> where the key is the conversationID
  */
 export function parseConversations(key: string, value: any) {
     if (typeof value === 'object' && value !== null) {
