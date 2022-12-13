@@ -1,11 +1,12 @@
+import axios from 'axios';
 import { Account, ProfileKeys } from '../account/Account';
-import { decryptAsymmetric, EncryptAsymmetric, sign } from '../crypto';
+import { decryptAsymmetric, EncryptAsymmetric } from '../crypto';
+import { getDeliveryServiceProfile } from '../delivery';
 import {
     CreatePendingEntry,
     GetNewMessages,
     SubmitMessage,
 } from '../external-apis/BackendAPI';
-import { stringify } from '../shared/stringify';
 import { log } from '../shared/log';
 import {
     getConversation,
@@ -13,9 +14,7 @@ import {
     UserDB,
 } from '../storage/Storage';
 import { Connection } from '../web3-provider/Web3Provider';
-import { getDeliveryServiceProfile } from '../delivery';
-import axios from 'axios';
-import { sha256 } from '../shared/sha256';
+import { buildEnvelop, EncryptionEnvelop, Envelop } from './Envelop';
 
 export interface MessageMetadata {
     to: string;
@@ -42,37 +41,10 @@ export type MessageType =
     | 'READ_RECEIPT'
     | 'RESEND_REQUEST';
 
-export interface Envelop {
-    message: Message;
-    metadata?: EnvelopeMetadata;
-    postmark?: Postmark;
-    id?: string;
-}
-
 export interface Postmark {
     messageHash: string;
     incommingTimestamp: number;
     signature: string;
-}
-
-export interface DeliveryInformation {
-    to: string;
-    from: string;
-    deliveryInstruction?: string;
-}
-
-export interface EnvelopeMetadata {
-    version: string;
-    encryptionScheme?: string;
-    deliveryInformation: string | DeliveryInformation;
-    encryptedMessageHash: string;
-    signature: string;
-}
-
-export interface EncryptionEnvelop {
-    message: string;
-    metadata: EnvelopeMetadata;
-    postmark?: string;
 }
 
 export enum MessageState {
@@ -88,59 +60,6 @@ export interface SendDependencies {
     to: Account;
     deliveryServiceEncryptionPubKey: string;
     keys: ProfileKeys;
-}
-
-export async function buildEnvelop(
-    message: Message,
-    encryptAsymmetric: EncryptAsymmetric,
-    { to, from, deliveryServiceEncryptionPubKey, keys }: SendDependencies,
-): Promise<{ encryptedEnvelop: EncryptionEnvelop; envelop: Envelop }> {
-    if (!to.profile) {
-        throw Error('Contact has no profile');
-    }
-
-    const encryptedMessage = stringify(
-        await encryptAsymmetric(
-            to.profile.publicEncryptionKey,
-            stringify(message),
-        ),
-    );
-
-    const deliveryInformation: DeliveryInformation = {
-        to: to.address,
-        from: from.address,
-    };
-
-    const envelopeMetadata: Omit<EnvelopeMetadata, 'signature'> = {
-        encryptionScheme: 'x25519-chacha20-poly1305',
-        deliveryInformation: stringify(
-            await encryptAsymmetric(
-                deliveryServiceEncryptionPubKey,
-                stringify(deliveryInformation),
-            ),
-        ),
-        encryptedMessageHash: sha256(stringify(encryptedMessage)),
-        version: 'v1',
-    };
-
-    const metadata = {
-        ...envelopeMetadata,
-        signature: await sign(
-            keys.signingKeyPair.privateKey,
-            stringify(envelopeMetadata),
-        ),
-    };
-
-    return {
-        encryptedEnvelop: {
-            message: encryptedMessage,
-            metadata,
-        },
-        envelop: {
-            message,
-            metadata: { ...metadata, deliveryInformation },
-        },
-    };
 }
 
 export async function submitMessage(

@@ -1,5 +1,6 @@
-import { Envelop, MessageMetadata } from './Messaging';
+import { MessageMetadata } from './Message';
 import { getAttachments } from './Attachments';
+import { Envelop } from './Envelop';
 
 const metadata: MessageMetadata = {
     to: '',

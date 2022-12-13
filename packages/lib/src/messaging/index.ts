@@ -1,35 +1,35 @@
-import { Account, ProfileKeys } from '../account';
+import stringify from 'safe-stable-stringify';
+import { ProfileKeys } from '../account';
+import { encryptAsymmetric, sign } from '../crypto';
 import { getNewMessages } from '../external-apis';
-import { StorageEnvelopContainer, UserDB } from '../storage';
-import { Connection } from '../web3-provider/Web3Provider';
-import {
-    Envelop,
-    getMessages as execGetMessages,
-    Message,
-    SendDependencies,
-    submitMessage as execSubmitMessage,
-} from './Messaging';
 import {
     createPendingEntry,
     submitMessage as backendSubmitMessage,
 } from '../external-apis/BackendAPI';
-import { encryptAsymmetric, sign } from '../crypto';
-import stringify from 'safe-stable-stringify';
+import { StorageEnvelopContainer, UserDB } from '../storage';
+import { Connection } from '../web3-provider/Web3Provider';
+import { Envelop } from './Envelop';
+import {
+    getMessages as execGetMessages,
+    Message,
+    SendDependencies,
+    submitMessage as execSubmitMessage,
+} from './Message';
 
 export type {
-    Message,
+    DeliveryInformation,
     EncryptionEnvelop,
     Envelop,
-    DeliveryInformation,
-    Postmark,
+} from './Envelop';
+export { MessageState } from './Message';
+export type {
+    Message,
     MessageMetadata,
+    Postmark,
     SendDependencies,
-} from './Messaging';
-
-export { MessageState } from './Messaging';
-export { getId } from './Utils';
-
+} from './Message';
 export * as schema from './schema';
+export { getId } from './Utils';
 
 export async function getMessages(
     connection: Connection,

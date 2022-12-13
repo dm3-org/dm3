@@ -3,7 +3,7 @@ import { BigNumber, ethers } from 'ethers';
 import { UserProfile } from '../account/Account';
 import { decryptAsymmetric } from '../crypto';
 import { formatAddress } from '../external-apis/InjectedWeb3API';
-import { EncryptionEnvelop } from '../messaging/Messaging';
+import { EncryptionEnvelop } from '../messaging/Envelop';
 import { stringify } from '../shared/stringify';
 import { getConversationId } from '../storage/Storage';
 import { getMessages, incomingMessage } from './Messages';

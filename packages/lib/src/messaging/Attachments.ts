@@ -1,5 +1,5 @@
 import { log } from '../shared/log';
-import { Envelop } from './Messaging';
+import { Envelop } from './Envelop';
 
 const SUPPORTED_PROTOCOLS = ['http', 'https', 'data'];
 
