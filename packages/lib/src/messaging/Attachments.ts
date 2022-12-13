@@ -3,7 +3,7 @@ import { Envelop } from './Messaging';
 
 const SUPPORTED_PROTOCOLS = ['http', 'https', 'data'];
 
-function uriCheck(url: URL | undefined): boolean {
+function uriCheck(url: URL | undefined): url is URL {
     if (url) {
         const usesSupportedProtocol = !!SUPPORTED_PROTOCOLS.find(
             (protocol) => protocol + ':' === url.protocol,
@@ -18,16 +18,18 @@ function uriCheck(url: URL | undefined): boolean {
 }
 
 export function getAttachments(envelop: Envelop): URL[] {
+    if (!envelop.message.attachments) {
+        return [];
+    }
+
     return envelop.message.attachments
-        ? (envelop.message.attachments
-              .map((attachmentURI) => {
-                  try {
-                      return new URL(attachmentURI);
-                  } catch (e) {
-                      log(`couldn't prarse URI: ${attachmentURI}`);
-                      return undefined;
-                  }
-              })
-              .filter(uriCheck) as URL[])
-        : [];
+        .map((attachmentURI) => {
+            try {
+                return new URL(attachmentURI);
+            } catch (e) {
+                log(`couldn't prarse URI: ${attachmentURI}`);
+                return undefined;
+            }
+        })
+        .filter(uriCheck);
 }
