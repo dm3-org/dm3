@@ -1,13 +1,9 @@
 import axios from 'axios';
 import { Account, SignedUserProfile } from '../account/Account';
 import { Acknoledgment } from '../delivery';
-import {
-    getDeliveryServiceClient,
-    getDeliveryServiceProfile,
-} from '../delivery/Delivery';
+import { getDeliveryServiceClient } from '../delivery/Delivery';
 import { EncryptionEnvelop, Envelop } from '../messaging';
 import { log } from '../shared/log';
-import { UserDB } from '../storage';
 import { Connection } from '../web3-provider/Web3Provider';
 import { formatAddress } from './InjectedWeb3API';
 
@@ -98,24 +94,26 @@ export async function submitMessage(
     onSuccess: () => void,
     onError: () => void,
 ): Promise<void> {
-    if (connection.socket) {
-        connection.socket.emit(
-            'submitMessage',
-            {
-                envelop,
-                token,
-            },
-            (response: string) => {
-                if (response === 'success') {
-                    log(`- success`);
-                    onSuccess();
-                } else {
-                    log(`- error`);
-                    onError();
-                }
-            },
-        );
+    if (!connection.socket) {
+        return;
     }
+    //TODO handle error messages properly
+    connection.socket.emit(
+        'submitMessage',
+        {
+            envelop,
+            token,
+        },
+        (response: string) => {
+            if (response === 'success') {
+                log(`- success`);
+                onSuccess();
+            } else {
+                log(`- error`);
+                onError();
+            }
+        },
+    );
 }
 export type SubmitMessage = typeof submitMessage;
 
