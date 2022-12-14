@@ -38,7 +38,9 @@ export async function buildEnvelop(
     if (!to.profile) {
         throw Error('Contact has no profile');
     }
-
+    /**
+     * Encrypts a message using the receivers public encryptionKey
+     */
     const encryptedMessage = stringify(
         await encryptAsymmetric(
             to.profile.publicEncryptionKey,
@@ -50,7 +52,11 @@ export async function buildEnvelop(
         to: to.address,
         from: from.address,
     };
-
+    /**
+     * Builds the {@see EnvelopMetadata} for the message
+     * and encrypts the {@see DeliveryInformation} using the deliveryServiceEncryptionPubKey
+     * the encryptedMessageHash field is mendatory to establish a link between the message and metadata
+     */
     const envelopeMetadata: Omit<EnvelopeMetadata, 'signature'> = {
         encryptionScheme: 'x25519-chacha20-poly1305',
         deliveryInformation: stringify(
@@ -63,6 +69,9 @@ export async function buildEnvelop(
         version: 'v1',
     };
 
+    /**
+     * Signes the Metadata of the envelop using the senders privateKey
+     */
     const metadata = {
         ...envelopeMetadata,
         signature: await sign(
