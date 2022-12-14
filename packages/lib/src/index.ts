@@ -1,5 +1,4 @@
 export type { Connection } from './web3-provider/Web3Provider';
-export type { GetTransactions } from './external-apis/Etherscan';
 
 export * as delivery from './delivery';
 export * as account from './account';
