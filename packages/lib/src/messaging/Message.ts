@@ -85,7 +85,11 @@ export async function submitMessage(
         message.metadata.from,
         message.metadata.to,
     );
-    //TODO @Heiko why is this flag beeing used
+    /**
+     * The client can halt the delivry of a message if the receiver has no dm3-profile yet.
+     * In this case the message will be stored at the senders deliveryService until the reciver
+     * has created themself a profile
+     */
     if (haltDelivery) {
         log('- Halt delivery');
         storeMessages([
@@ -98,7 +102,9 @@ export async function submitMessage(
         ]);
         return;
     }
-
+    /**
+     * Encrypts the message using the deliveryService' encryptionKey
+     */
     const { envelop, encryptedEnvelop } = await buildEnvelop(
         message,
         encryptAsymmetric,
@@ -110,8 +116,9 @@ export async function submitMessage(
             onSuccess(envelop);
         }
     };
-    // eslint-disable-next-line max-len
-    //TODO shouldnt we handle this failure by either throwing an exception returning false or just log simething different as message sent
+    /**
+     * Dispatching the message to the deliveryService using an API i.E an existng webSocket connecion
+     */
     await submitMessageApi(
         connection,
         deliveryServiceToken,
@@ -184,7 +191,6 @@ export async function getMessages(
 
     //Flatten the message arrays of each delivery service to one message array
     const allMessages = messages.reduce((agg, cur) => [...agg, ...cur], []);
-    console.log('ALL MSG', allMessages);
 
     const envelops = await Promise.all(
         allMessages.map(async (envelop): Promise<StorageEnvelopContainer> => {
@@ -204,8 +210,9 @@ export async function getMessages(
             };
         }),
     );
-    //TODO Why is this messages persisting messages?
+    //Storing the newly fetched messages in the userDb
     storeMessages(envelops);
 
+    //Return all messages from the conversation between the user and their contact
     return getConversation(contact, connection, userDb);
 }
