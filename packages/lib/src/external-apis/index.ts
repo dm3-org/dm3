@@ -9,5 +9,3 @@ export {
     getDefaultEnsTextRecord,
     executeTransaction,
 } from './InjectedWeb3API';
-
-export { getTransactions } from './Etherscan';
