@@ -5,7 +5,7 @@ import {
     getDeliveryServiceClient,
     getDeliveryServiceProfile,
 } from '../delivery/Delivery';
-import { EncryptionEnvelop, Envelop } from '../messaging/Messaging';
+import { EncryptionEnvelop, Envelop } from '../messaging';
 import { log } from '../shared/log';
 import { UserDB } from '../storage';
 import { Connection } from '../web3-provider/Web3Provider';

@@ -1,5 +1,5 @@
 import MessageSchema from '../schema.json';
-import { Envelop } from './Messaging';
+import { Envelop } from './Envelop';
 import Ajv from 'ajv';
 
 export function validateMessage(envelop: Envelop) {

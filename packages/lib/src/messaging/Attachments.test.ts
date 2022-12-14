@@ -1,5 +1,6 @@
-import { Envelop, MessageMetadata } from './Messaging';
+import { MessageMetadata } from './Message';
 import { getAttachments } from './Attachments';
+import { Envelop } from './Envelop';
 
 const metadata: MessageMetadata = {
     to: '',
@@ -68,4 +69,15 @@ test('should filter invalid uris', async () => {
         'http://google.de/',
         'data:text/plain,test',
     ]);
+});
+
+test('return empty attachment array if envelop has no attachments', () => {
+    const envelop: Envelop = {
+        message: {
+            metadata,
+            message: '',
+            signature: '',
+        },
+    };
+    expect(getAttachments(envelop).map((a) => a.href)).toEqual([]);
 });

@@ -1,4 +1,4 @@
-import { MessageType } from '../../messaging/Messaging';
+import { MessageType } from '../../messaging/Message';
 
 export interface ProfileExtension {
     encryptionAlgorithm?: string[];

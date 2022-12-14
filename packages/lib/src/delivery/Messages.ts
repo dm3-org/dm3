@@ -125,10 +125,6 @@ export async function incomingMessage(
         throw Error('Message does not match spam criteria');
     }
 
-    if (await isSpam(provider, receiverSession, deliveryInformation)) {
-        throw Error('Message does not match spam criteria');
-    }
-
     const receiverEncryptionKey =
         receiverSession.signedUserProfile.profile.publicEncryptionKey;
 
