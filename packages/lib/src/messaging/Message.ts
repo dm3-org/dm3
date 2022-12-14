@@ -193,6 +193,9 @@ export async function getMessages(
     const allMessages = messages.reduce((agg, cur) => [...agg, ...cur], []);
 
     const envelops = await Promise.all(
+        /**
+         * Decrypts every message using the receivers encryptionKey
+         */
         allMessages.map(async (envelop): Promise<StorageEnvelopContainer> => {
             const decryptedEnvelop = await decryptMessages([envelop], userDb);
             const decryptedPostmark = JSON.parse(
