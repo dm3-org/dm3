@@ -137,13 +137,21 @@ async function decryptMessages(
 ): Promise<Envelop[]> {
     return Promise.all(
         envelops.map(
-            async (envelop): Promise<Envelop> =>
-                JSON.parse(
+            async (envelop): Promise<Envelop> => ({
+                message: JSON.parse(
                     await decryptAsymmetric(
                         userDb.keys.encryptionKeyPair,
                         JSON.parse(envelop.message),
                     ),
                 ),
+                postmark: JSON.parse(
+                    await decryptAsymmetric(
+                        userDb.keys.encryptionKeyPair,
+                        JSON.parse(envelop.postmark!),
+                    ),
+                ),
+                metadata: envelop.metadata,
+            }),
         ),
     );
 }
@@ -198,18 +206,12 @@ export async function getMessages(
          */
         allMessages.map(async (envelop): Promise<StorageEnvelopContainer> => {
             const decryptedEnvelop = await decryptMessages([envelop], userDb);
-            const decryptedPostmark = JSON.parse(
-                await decryptAsymmetric(
-                    userDb.keys.encryptionKeyPair,
-                    JSON.parse(envelop.postmark!),
-                ),
-            );
 
             return {
                 envelop: decryptedEnvelop[0],
                 messageState: MessageState.Send,
                 deliveryServiceIncommingTimestamp:
-                    decryptedPostmark.incommingTimestamp,
+                    decryptedEnvelop[0].postmark?.incommingTimestamp,
             };
         }),
     );

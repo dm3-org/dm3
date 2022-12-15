@@ -74,6 +74,7 @@ function Chat() {
             if (!state.accounts.selectedContact) {
                 throw Error('No selected contact');
             }
+
             const account =
                 Lib.external.formatAddress(
                     container.envelop.message.metadata.from,
@@ -89,7 +90,7 @@ function Chat() {
                       container.envelop.message,
                       account.profile?.publicSigningKey,
                       account.address,
-                      container.envelop.metadata!.signature,
+                      container.envelop.message.signature,
                   )
                 : false;
         });

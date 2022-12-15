@@ -1,5 +1,4 @@
 import { ethers } from 'ethers';
-import { base64 } from 'ethers/lib/utils';
 import { JsonResolver } from './JsonResolver';
 
 test('should accept correct data URI and types', () => {
@@ -54,7 +53,7 @@ test('should support base64', async () => {
     const data = JSON.stringify({ test: 'test' });
     expect(
         await JsonResolver(() => true).resolveProfile(
-            'data:application/xml;base64,' +
+            'data:application/json;base64,' +
                 ethers.utils.base64.encode(ethers.utils.toUtf8Bytes(data)),
         ),
     ).toEqual({ test: 'test' });

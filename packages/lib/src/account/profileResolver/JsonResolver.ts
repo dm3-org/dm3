@@ -1,18 +1,29 @@
-import parseDataURL from 'data-urls';
 import { log } from '../../shared/log';
 import { decode, labelToName } from 'whatwg-encoding';
 import { Dm3Profile, ProfileResolver } from './ProfileResolver';
 
+function parseDataUrl(dataUri: string) {
+    const regex =
+        /^data:(?<mime>[\w+.-]+\/[\w+.-]+)(;charset=(?<charset>[\w-]+))?(;(?<encoding>\w+))?,(?<data>.*)$/;
+    const match = regex.exec(dataUri);
+
+    if (!match || !match.groups) {
+        throw Error(`Couldn't parse data uri`);
+    }
+
+    return {
+        mime: match.groups.mime,
+        charset: match.groups.charset,
+        encoding: match.groups.encoding,
+        data: match.groups.data,
+    };
+}
+
 function isProfile(textRecord: string) {
-    const dataUrl = parseDataURL(textRecord);
-    if (
-        !dataUrl ||
-        dataUrl.mimeType.type !== 'application' ||
-        dataUrl.mimeType.subtype !== 'json'
-    ) {
+    try {
+        return parseDataUrl(textRecord).mime === 'application/json';
+    } catch (e) {
         return false;
-    } else {
-        return true;
     }
 }
 
@@ -20,21 +31,27 @@ function resolveProfile<T>(validate: (objectToCheck: T) => boolean) {
     return async <T>(textRecord: string): Promise<T> => {
         log(`[getUserProfile] Resolve User Json profile `);
 
-        const dataUrl = parseDataURL(textRecord);
+        const dataUrl = parseDataUrl(textRecord);
 
         if (!dataUrl) {
             throw Error(`Couldn't parse data uri`);
         }
-        const encodingName = labelToName(
-            dataUrl.mimeType.parameters.get('charset') || 'utf-8',
-        );
+        const encodingName = labelToName(dataUrl.charset || 'utf-8');
 
         if (!encodingName) {
             throw Error(`Couldn't parse data uri (encoding error).`);
         }
-        const bodyDecoded = decode(dataUrl.body, encodingName);
 
-        const profile = JSON.parse(bodyDecoded);
+        const bodyDecoded = decode(
+            Uint8Array.from(dataUrl.data, (c) => c.charCodeAt(0)),
+            encodingName,
+        );
+
+        const profile = JSON.parse(
+            dataUrl.encoding === 'base64'
+                ? Buffer.from(bodyDecoded, 'base64').toString()
+                : bodyDecoded,
+        );
 
         if (!validate(profile)) {
             throw Error("SignedUserProfileSchema doesn't fit schema");
