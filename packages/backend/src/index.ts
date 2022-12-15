@@ -86,5 +86,5 @@ app.use(express.static(path.join(__dirname, '../../web/build')));
 const port = process.env.PORT || '8080';
 
 server.listen(port, () => {
-    Lib.log('[Server] listening');
+    Lib.log('[Server] listening at port ' + port + ' and dir ' + __dirname);
 });

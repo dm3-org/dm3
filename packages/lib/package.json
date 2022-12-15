@@ -18,7 +18,6 @@
         "@types/libsodium-wrappers": "^0.7.10",
         "ajv": "^8.11.0",
         "axios": "^0.25.0",
-        "data-urls": "^3.0.2",
         "ethers": "^5.5.4",
         "googleapis": "^100.0.0",
         "libsodium-wrappers": "^0.7.10",

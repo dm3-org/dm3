@@ -36,11 +36,12 @@ function RightHeader() {
                 }
             >
                 {state.connection?.connectionState ===
-                    Lib.web3provider.ConnectionState.SignedIn && (
-                    <ChatHeader
-                        account={state.accounts.selectedContact!.account}
-                    />
-                )}
+                    Lib.web3provider.ConnectionState.SignedIn &&
+                    state.accounts.selectedContact?.account && (
+                        <ChatHeader
+                            account={state.accounts.selectedContact.account}
+                        />
+                    )}
             </div>
         </div>
     );
