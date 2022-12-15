@@ -150,6 +150,6 @@ export function getWeb3Provider(
         return key;
     };
 
-    const apiKey = readKey('ALCHEMY_KEY');
-    return new ethers.providers.AlchemyProvider('Mainnet', { apiKey });
+    const rpc = readKey('RPC');
+    return new ethers.providers.JsonRpcProvider(rpc);
 }
