@@ -59,7 +59,7 @@ test('should support base64', async () => {
     const data = JSON.stringify({ test: 'test' });
     expect(
         await JsonResolver(() => true).resolveProfile(
-            'data:application/xml;base64,' +
+            'data:application/json;base64,' +
                 ethers.utils.base64.encode(ethers.utils.toUtf8Bytes(data)),
         ),
     ).toEqual({ test: 'test' });

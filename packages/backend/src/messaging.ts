@@ -101,7 +101,7 @@ export function onConnection(app: express.Application & WithLocals) {
                     error,
                 });
 
-                return callback({ error });
+                //return callback({ error });
             }
 
             const account = Lib.external.formatAddress(data.accountAddress);
@@ -129,13 +129,14 @@ export function onConnection(app: express.Application & WithLocals) {
 
                 await addPending(account, contact, app.locals.redisClient);
 
-                callback({ response: 'success' });
+                // callback({ response: 'success' });
             } catch (error) {
                 app.locals.logger.warn({
                     method: 'WS PENDING MESSAGE',
-                    error,
+                    error: (error as Error).toString(),
                 });
-                callback({ error: "Can't add pending message" });
+
+                //return callback({ error: "Can't add pending message" });
             }
         });
     };

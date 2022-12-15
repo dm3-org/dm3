@@ -210,7 +210,7 @@ function dm3(props: dm3Props) {
                         type: UserDbType.addMessage,
                         payload: {
                             container: conversation,
-                            connection: connection,
+                            connection: state.connection,
                         },
                     }),
                 ),
@@ -223,13 +223,13 @@ function dm3(props: dm3Props) {
     ) => {
         Lib.log('New messages');
 
-        const innerEnvelop = JSON.parse(
+        const message = JSON.parse(
             await Lib.crypto.decryptAsymmetric(
                 (state.userDb as Lib.storage.UserDB).keys.encryptionKeyPair,
                 JSON.parse(envelop.message),
             ),
         );
-        const { incommingTimestamp } = JSON.parse(
+        const postmark: Lib.messaging.Postmark = JSON.parse(
             await Lib.crypto.decryptAsymmetric(
                 (state.userDb as Lib.storage.UserDB).keys.encryptionKeyPair,
                 JSON.parse(envelop.postmark!),
@@ -242,7 +242,7 @@ function dm3(props: dm3Props) {
             );
         }
 
-        if (!incommingTimestamp) {
+        if (!postmark.incommingTimestamp) {
             throw Error(`[handleNewMessage] No delivery service timestamp`);
         }
 
@@ -250,9 +250,14 @@ function dm3(props: dm3Props) {
             type: UserDbType.addMessage,
             payload: {
                 container: {
-                    envelop: innerEnvelop,
+                    envelop: {
+                        message,
+                        postmark,
+                        metadata: envelop.metadata,
+                    },
                     messageState: Lib.messaging.MessageState.Send,
-                    deliveryServiceIncommingTimestamp: incommingTimestamp,
+                    deliveryServiceIncommingTimestamp:
+                        postmark.incommingTimestamp,
                 },
                 connection: state.connection as Lib.Connection,
             },
