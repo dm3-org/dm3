@@ -4,6 +4,7 @@ import { onConnection } from './messaging';
 import { socketAuth } from './utils';
 import { testData } from '../../../test-data/encrypted-envelops.test';
 import * as Lib from 'dm3-lib/dist.backend';
+import { WithLocals } from './types';
 
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
@@ -35,7 +36,7 @@ const keyPair = Lib.crypto.createKeyPair();
 describe('Messaging', () => {
     describe('socketAuth', () => {
         it('throws error if address is not a valid ethereum address', async () => {
-            const app = {} as express.Express;
+            const app = {} as express.Express & WithLocals;
 
             const getSocketMock = jest.fn(() => {
                 return {
@@ -85,7 +86,7 @@ describe('Messaging', () => {
                         },
                     },
                 } as any,
-            } as express.Express;
+            } as express.Express & WithLocals;
 
             //The same data used in Messages.test
             const data = {
@@ -150,7 +151,7 @@ describe('Messaging', () => {
                         },
                     },
                 } as any,
-            } as express.Express;
+            } as express.Express & WithLocals;
 
             //The same data used in Messages.test
             const data = {
@@ -202,7 +203,7 @@ describe('Messaging', () => {
                         getSession,
                     },
                 } as any,
-            } as express.Express;
+            } as express.Express & WithLocals;
 
             //The same data used in Messages.test
             const data = {
@@ -228,13 +229,12 @@ describe('Messaging', () => {
     });
 
     describe('pendingMessage', () => {
-        // TODO: enable after lib sends callback with pendingMessage
-        it.skip('returns error if schema is invalid', async () => {
+        it('returns error if schema is invalid', async () => {
             const app = {
                 locals: {
                     logger,
                 } as any,
-            } as express.Express;
+            } as express.Express & WithLocals;
 
             const data = {
                 accountAddress: '',
