@@ -203,24 +203,60 @@ describe('BackendAPI', () => {
 
     describe('createPendingEntry', () => {
         it('emits event if connection has socket attached', async () => {
-            const emitMock = jest.fn();
+            const socketMock = {
+                emit: jest.fn((_: any, __: any, callback: any) => {
+                    callback('success');
+                }),
+            };
             const connection = {
-                socket: {
-                    emit: emitMock,
-                },
+                socket: socketMock,
             } as unknown as Connection;
             const token = '';
             const accountAddress = '';
             const contactAddress = '';
+            const onSucces = jest.fn();
+            const onError = jest.fn();
 
             await createPendingEntry(
                 connection,
                 token,
                 accountAddress,
                 contactAddress,
+                onSucces,
+                onError,
             );
 
-            expect(emitMock).toBeCalled();
+            expect(socketMock.emit).toBeCalled();
+            expect(onSucces).toBeCalled();
+            expect(onError).not.toBeCalled();
+        });
+        it('calls on error in case the callback fails', async () => {
+            const socketMock = {
+                emit: jest.fn((_: any, __: any, callback: any) => {
+                    callback('error');
+                }),
+            };
+            const connection = {
+                socket: socketMock,
+            } as unknown as Connection;
+            const token = '';
+            const accountAddress = '';
+            const contactAddress = '';
+            const onSucces = jest.fn();
+            const onError = jest.fn();
+
+            await createPendingEntry(
+                connection,
+                token,
+                accountAddress,
+                contactAddress,
+                onSucces,
+                onError,
+            );
+
+            expect(socketMock.emit).toBeCalled();
+            expect(onSucces).not.toBeCalled();
+            expect(onError).toBeCalled();
         });
     });
     describe('getNewMessages', () => {
