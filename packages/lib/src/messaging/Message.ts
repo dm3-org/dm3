@@ -84,6 +84,8 @@ export async function submitMessage(
         deliveryServiceToken,
         message.metadata.from,
         message.metadata.to,
+        () => {},
+        () => {},
     );
     /**
      * The client can halt the delivry of a message if the receiver has no dm3-profile yet.

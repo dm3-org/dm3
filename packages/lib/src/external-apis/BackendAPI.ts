@@ -143,14 +143,28 @@ export async function createPendingEntry(
     token: string,
     accountAddress: string,
     contactAddress: string,
+    onSuccess: () => void,
+    onError: () => void,
 ): Promise<void> {
     if (connection.socket) {
         log(`Create pending entry`);
-        connection.socket.emit('pendingMessage', {
-            accountAddress,
-            contactAddress,
-            token,
-        });
+        connection.socket.emit(
+            'pendingMessage',
+            {
+                accountAddress,
+                contactAddress,
+                token,
+            },
+            (response: string) => {
+                if (response === 'success') {
+                    log(`- success`);
+                    onSuccess();
+                } else {
+                    log(`- error`);
+                    onError();
+                }
+            },
+        );
     }
 }
 export type CreatePendingEntry = typeof createPendingEntry;
