@@ -1,13 +1,11 @@
-import { ProfileKeys, UserProfile } from '../../account';
-import { createProfileKeys } from '../../account/profileKeys/createProfileKeys';
-import { getStorageKeyCreationMessage } from '../../crypto/KeyCreation';
+import { UserProfile } from '../../account';
 import { SubmitUserProfile } from '../../external-apis/BackendAPI';
 import { PersonalSign } from '../../external-apis/InjectedWeb3API';
 import { stringify } from '../../shared/stringify';
 import { createDB, UserDB } from '../../storage';
 import { ConnectionState } from '../../web3-provider';
 import { Connection } from '../../web3-provider/Web3Provider';
-import { signProfileKeyPair } from './signProfileKeyPair';
+import { createKeyPairsFromSig } from './signProfileKeyPair';
 import { signProfile as signProfile } from './signProfile';
 
 const DEFAULT_NONCE = 0;
@@ -34,7 +32,7 @@ export async function signIn(
     const nonce = DEFAULT_NONCE;
 
     //Create new profileKey pair.
-    const profileKeys = await signProfileKeyPair(
+    const profileKeys = await createKeyPairsFromSig(
         connection,
         personalSign,
         nonce,
