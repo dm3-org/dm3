@@ -1,18 +1,23 @@
 import { ethers } from 'ethers';
-import { UserProfile } from '../account';
+import { checkSignature, sign } from '../crypto';
 import { createChallenge, createNewSessionToken } from './Keys';
 import { Session } from './Session';
 
 const RANDO_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 const SENDER_ADDRESS = '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1';
-const signChallenge = async (challenge: string) => {
-    //0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1
-    const mnemonic =
-        'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
 
-    const wallet = ethers.Wallet.fromMnemonic(mnemonic);
-
-    return await wallet.signMessage(challenge);
+const keysA = {
+    encryptionKeyPair: {
+        publicKey: 'eHmMq29FeiPKfNPkSctPuZGXvV0sKeO/KZkX2nXvMgw=',
+        privateKey: 'pMI77F2w3GK+omZCB4A61WDqISOOnWGXR2f/MTLbqbY=',
+    },
+    signingKeyPair: {
+        publicKey: '+tkDQWZfv9ixBmObsf8tgTHTZajwAE9muTtFAUj2e9I=',
+        privateKey:
+            '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJX62QNBZl+/2LEGY5ux/y2BMdNlqPAAT2a5O0UBSPZ70g==',
+    },
+    storageEncryptionKey: '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJU=',
+    storageEncryptionNonce: 0,
 };
 
 describe('Keys', () => {
@@ -83,11 +88,22 @@ describe('Keys', () => {
 
         it('Returns token if challenge was correct', async () => {
             const challenge = 'my-Challenge';
+            expect.assertions(2);
 
-            const getSession = () => Promise.resolve({ challenge } as Session);
+            const getSession = () =>
+                Promise.resolve({
+                    challenge,
+                    signedUserProfile: {
+                        profile: {
+                            publicSigningKey: keysA.signingKeyPair.publicKey,
+                        },
+                    },
+                } as Session);
             const setSession = jest.fn();
 
-            const signature = await signChallenge(challenge);
+            const signature =
+                '3A893rTBPEa3g9FL2vgDreY3vvXnOiYCOoJURNyctncwH' +
+                '0En/mcwo/t2v2jtQx/pcnOpTzuJwLuZviTQjd9vBQ==';
 
             const token = await createNewSessionToken(
                 getSession,
@@ -99,13 +115,24 @@ describe('Keys', () => {
             expect(token).not.toBeUndefined();
             expect(setSession).toBeCalled();
         });
+
         it('Throws Exception if challange was solved wrong', async () => {
             const challenge = 'my-Challenge';
 
-            const getSession = () => Promise.resolve({ challenge } as Session);
+            const getSession = () =>
+                Promise.resolve({
+                    challenge,
+                    signedUserProfile: {
+                        profile: {
+                            publicSigningKey: keysA.signingKeyPair.publicKey,
+                        },
+                    },
+                } as Session);
             const setSession = () => Promise.resolve();
 
-            const signature = await signChallenge('grgrgrgr');
+            const signature =
+                'YgT2r48h7JxDmOEzvM9UBjYnGV+K0ouLDsei44tdH2+ps' +
+                'rR4nbPY1fQJialx6fKly62tgkE5vs5EGbU+Bf+IBA==';
 
             await expect(async () => {
                 await createNewSessionToken(

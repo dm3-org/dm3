@@ -1,4 +1,4 @@
-import { getUserProfile } from '../account';
+import { getUserProfile, ProfileKeys } from '../account';
 import {
     getChallenge,
     getNewToken,
@@ -10,11 +10,11 @@ import {
 } from '../external-apis/InjectedWeb3API';
 import { Connection } from '../web3-provider/Web3Provider';
 import { connectAccount as execConnectAccount } from './Connect';
-
 import { reAuth as execReAuth } from './reAuth';
-
 import { signIn as execSignIn } from './SignIn/signIn';
-import { getSessionFromStorage as execGetSessionFromStroage } from './getSessionFromStorage';
+import { createKeyPairsFromSig as execCreateKeyPairsFromSig } from './SignIn/signProfileKeyPair';
+
+export { getSessionFromStorage } from './getSessionFromStorage';
 
 export function connectAccount(connection: Connection, preSetAccount?: string) {
     return execConnectAccount(
@@ -25,16 +25,20 @@ export function connectAccount(connection: Connection, preSetAccount?: string) {
     );
 }
 
-export async function reAuth(connection: Connection) {
-    return execReAuth(connection, getChallenge, getNewToken, prersonalSign);
+export async function reAuth(
+    connection: Connection,
+    privateSigningKey: string,
+) {
+    return execReAuth(connection, getChallenge, getNewToken, privateSigningKey);
 }
 
 export async function signIn(connection: Partial<Connection>) {
     return execSignIn(connection, prersonalSign, submitUserProfile);
 }
-export async function getSessionFromStorage(
+
+export async function createKeyPairsFromSig(
     connection: Partial<Connection>,
-    storageFile: string,
-) {
-    return execGetSessionFromStroage(connection, prersonalSign, storageFile);
+    nonce: number,
+): Promise<ProfileKeys> {
+    return execCreateKeyPairsFromSig(connection, prersonalSign, nonce);
 }

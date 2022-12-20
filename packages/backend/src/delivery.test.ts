@@ -5,27 +5,22 @@ import request from 'supertest';
 import auth from './auth';
 import delivery from './delivery';
 
+const keysA = {
+    encryptionKeyPair: {
+        publicKey: 'eHmMq29FeiPKfNPkSctPuZGXvV0sKeO/KZkX2nXvMgw=',
+        privateKey: 'pMI77F2w3GK+omZCB4A61WDqISOOnWGXR2f/MTLbqbY=',
+    },
+    signingKeyPair: {
+        publicKey: '+tkDQWZfv9ixBmObsf8tgTHTZajwAE9muTtFAUj2e9I=',
+        privateKey:
+            '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJX62QNBZl+/2LEGY5ux/y2BMdNlqPAAT2a5O0UBSPZ70g==',
+    },
+    storageEncryptionKey: '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJU=',
+    storageEncryptionNonce: 0,
+};
+
 describe('Delivery', () => {
     describe('getMessages', () => {
-        const keysA = {
-            encryptionKeyPair: {
-                publicKey:
-                    '0x78798cab6f457a23ca7cd3e449cb4fb99197bd5d2c29e3bf299917da75ef320c',
-                privateKey:
-                    '0xa4c23bec5db0dc62bea2664207803ad560ea21238e9d61974767ff3132dba9b6',
-            },
-            signingKeyPair: {
-                publicKey:
-                    '0xfad90341665fbfd8b106639bb1ff2d8131d365a8f0004f66b93b450148f67bd2',
-                privateKey:
-                    '0xf83a5e0630b32021688bbe37ff8ebac89ba7b07479e4186bdc69ea712e1cb895' +
-                    'fad90341665fbfd8b106639bb1ff2d8131d365a8f0004f66b93b450148f67bd2',
-            },
-            storageEncryptionKey:
-                '0xf83a5e0630b32021688bbe37ff8ebac89ba7b07479e4186bdc69ea712e1cb895',
-            storageEncryptionNonce: 0,
-        };
-
         it('Returns 200 if schema is valid', async () => {
             const app = express();
             app.use(bodyParser.json());
@@ -43,7 +38,13 @@ describe('Delivery', () => {
             app.locals.db = {
                 getSession: async (accountAddress: string) =>
                     Promise.resolve({
-                        challenge: '123',
+                        challenge: 'my-Challenge',
+                        signedUserProfile: {
+                            profile: {
+                                publicSigningKey:
+                                    keysA.signingKeyPair.publicKey,
+                            },
+                        },
                         token,
                     }),
                 setSession: async (_: string, __: any) => {
@@ -307,23 +308,27 @@ const createAuthToken = async () => {
 
     app.locals.db = {
         getSession: async (accountAddress: string) => ({
-            challenge: '123',
+            challenge: 'my-Challenge',
+            signedUserProfile: {
+                profile: {
+                    publicSigningKey: keysA.signingKeyPair.publicKey,
+                },
+            },
         }),
         setSession: async (_: string, __: any) => {
             return (_: any, __: any, ___: any) => {};
         },
     };
 
-    const mnemonic =
-        'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
+    const signature =
+        '3A893rTBPEa3g9FL2vgDreY3vvXnOiYCOoJURNyctncwH' +
+        '0En/mcwo/t2v2jtQx/pcnOpTzuJwLuZviTQjd9vBQ==';
 
-    const wallet = ethers.Wallet.fromMnemonic(mnemonic);
-
-    const signature = await wallet.signMessage('123');
-
-    const { body } = await request(app).post(`/${wallet.address}`).send({
-        signature,
-    });
+    const { body } = await request(app)
+        .post(`/0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1`)
+        .send({
+            signature,
+        });
 
     return body.token;
 };
