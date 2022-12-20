@@ -1,12 +1,18 @@
 import { Account } from '../account';
 import { SignedUserProfile } from '../account/Account';
+import { Acknoledgment } from '../delivery';
 import { Envelop } from '../messaging';
 import { Connection } from '../web3-provider/Web3Provider';
 import {
+    createPendingEntry,
     getChallenge,
+    getNewMessages,
     getNewToken,
+    getPendingConversations,
+    getUserProfileOffChain,
     submitMessage,
     submitUserProfile,
+    syncAcknoledgment,
 } from './BackendAPI';
 
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
@@ -14,9 +20,22 @@ const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
 jest.mock('../delivery/Delivery', () => ({
     getDeliveryServiceClient: jest.fn(() => ({
-        get: () => ({
-            data: { challenge: 'my-challenge' },
-        }),
+        get: (url: string) => {
+            const [_, path] = url.split('/');
+            switch (path) {
+                case 'auth':
+                    return {
+                        data: {
+                            challenge: 'my-challenge',
+                        },
+                    };
+                case 'delivery':
+                    return { data: [] };
+                case 'profile':
+                    return { data: { signature: 'bar' } };
+            }
+        },
+
         post: (url: string) => {
             const [_, path] = url.split('/');
             switch (path) {
@@ -30,11 +49,19 @@ jest.mock('../delivery/Delivery', () => ({
                     return {
                         data: 'my-profile',
                     };
+                case 'messages':
+                    return {};
+                case 'delivery':
+                    return {
+                        data: [],
+                    };
             }
         },
     })),
 }));
-
+jest.mock('axios', () => ({
+    get: () => ({ data: { signature: 'foo' } }),
+}));
 describe('BackendAPI', () => {
     describe('getChallenge', () => {
         it('Returns a challenge if the user has a deliveryService specified ', async () => {
@@ -153,6 +180,116 @@ describe('BackendAPI', () => {
 
             expect(onSuccess).not.toBeCalled();
             expect(onError).toBeCalled();
+        });
+    });
+    describe('syncAcknoledgment', () => {
+        it('Returns the acknoledgment  ', async () => {
+            const connection = {
+                account: {
+                    profile: {},
+                },
+            } as Connection;
+            const acknoledgments = <Acknoledgment[]>[];
+            const token = '';
+            const lastMessagePull = 0;
+            await syncAcknoledgment(
+                connection,
+                acknoledgments,
+                token,
+                lastMessagePull,
+            );
+        });
+    });
+
+    describe('createPendingEntry', () => {
+        it('emits event if connection has socket attached', async () => {
+            const emitMock = jest.fn();
+            const connection = {
+                socket: {
+                    emit: emitMock,
+                },
+            } as unknown as Connection;
+            const token = '';
+            const accountAddress = '';
+            const contactAddress = '';
+
+            await createPendingEntry(
+                connection,
+                token,
+                accountAddress,
+                contactAddress,
+            );
+
+            expect(emitMock).toBeCalled();
+        });
+    });
+    describe('getNewMessages', () => {
+        it('Returns new messages', async () => {
+            const connection = {
+                account: {
+                    address: SENDER_ADDRESS,
+                    profile: {},
+                },
+            } as Connection;
+            const token = '';
+            const accountAddress = '';
+            const baseUrl = '';
+
+            const data = await getNewMessages(
+                connection,
+                token,
+                accountAddress,
+                baseUrl,
+            );
+
+            expect(data).toStrictEqual([]);
+        });
+    });
+    describe('getPendingConversations', () => {
+        it('returns pending conversations', async () => {
+            const connection = {
+                account: {
+                    address: SENDER_ADDRESS,
+                    profile: {},
+                },
+            } as Connection;
+            const token = '';
+            const data = await getPendingConversations(connection, token);
+            expect(data).toStrictEqual([]);
+        });
+    });
+    describe('getUserProfileOffChain', () => {
+        it('returns profile from given url', async () => {
+            const connection = {} as Connection;
+            const account = {} as Account;
+            const contact = RECEIVER_ADDRESS;
+            const url = 'dm3.io';
+
+            const profile = await getUserProfileOffChain(
+                connection,
+                account,
+                contact,
+                url,
+            );
+
+            expect(profile).toStrictEqual({ signature: 'foo' });
+        });
+        it('returns fallback profile if url is undefined', async () => {
+            const connection = {} as Connection;
+            const account = {
+                profile: {},
+            } as Account;
+            const contact = RECEIVER_ADDRESS;
+            const url = undefined;
+
+            const profile = await getUserProfileOffChain(
+                connection,
+                account,
+                contact,
+                url,
+            );
+
+            expect(profile).toStrictEqual({ signature: 'bar' });
         });
     });
 });
