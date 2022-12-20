@@ -1,8 +1,9 @@
 import { formatAddress } from '../external-apis/InjectedWeb3API';
 
 import { v4 as uuidv4 } from 'uuid';
-import { checkStringSignature } from '../account/Account';
+
 import { Session } from './Session';
+import { checkSignature } from '../crypto';
 
 export async function createChallenge(
     getSession: (accountAddress: string) => Promise<Session | null>,
@@ -41,7 +42,13 @@ export async function createNewSessionToken(
         throw Error('No pending challenge');
     }
 
-    if (!checkStringSignature(session.challenge, signature, account)) {
+    if (
+        !(await checkSignature(
+            session.signedUserProfile.profile.publicSigningKey,
+            session.challenge,
+            signature,
+        ))
+    ) {
         throw Error('Signature invalid');
     }
 

@@ -9,9 +9,7 @@ import { ethers } from 'ethers';
 import detectEthereumProvider from '@metamask/detect-provider';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import { UserDbType } from '../reducers/UserDB';
-import { getStorageFile } from './getStorageFile';
 import { AuthStateType } from '../reducers/Auth';
-import { sign } from 'dm3-lib/dist/crypto';
 import { getDatabase } from './getDatabase';
 
 function handleNewProvider(
@@ -140,8 +138,9 @@ export async function signIn(
         payload: Lib.web3provider.ConnectionState.WaitingForSignIn,
     });
 
-    // eslint-disable-next-line max-len
-    //Get the users DB. Based wether the profile already exits the db will either be created by decrypting the exisitng storge file or by by creating a enitre new profile
+    // Get the users DB. Based wether the profile already exits the db
+    // will either be created by decrypting the exisitng storge file
+    // or by by creating a enitre new profile
     const { db, connectionState, deliveryServiceToken } = await getDatabase(
         state.uiState.proflieExists,
         storageLocation,

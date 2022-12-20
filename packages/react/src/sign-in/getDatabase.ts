@@ -22,7 +22,12 @@ async function getExistingDatebase(
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
 ) {
-    const deliveryServiceToken = await Lib.session.reAuth(state.connection);
+    const keys = await Lib.session.createKeyPairsFromSig(state.connection, 0);
+
+    const deliveryServiceToken = await Lib.session.reAuth(
+        state.connection,
+        keys.signingKeyPair.privateKey,
+    );
 
     const storageFile = await getStorageFile(
         storageLocation,
@@ -41,8 +46,8 @@ async function getExistingDatebase(
     }
     //The encrypted session file will now be decrypted, therefore the user has to sign the auth message again.
     const { db, connectionState } = await Lib.session.getSessionFromStorage(
-        state.connection,
         storageFile,
+        keys,
     );
 
     return { deliveryServiceToken, db, connectionState };

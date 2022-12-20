@@ -4,9 +4,20 @@ import request from 'supertest';
 import auth from './auth';
 import { ethers } from 'ethers';
 describe('Auth', () => {
-    let sender;
+    const keysA = {
+        encryptionKeyPair: {
+            publicKey: 'eHmMq29FeiPKfNPkSctPuZGXvV0sKeO/KZkX2nXvMgw=',
+            privateKey: 'pMI77F2w3GK+omZCB4A61WDqISOOnWGXR2f/MTLbqbY=',
+        },
+        signingKeyPair: {
+            publicKey: '+tkDQWZfv9ixBmObsf8tgTHTZajwAE9muTtFAUj2e9I=',
+            privateKey:
+                '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJX62QNBZl+/2LEGY5ux/y2BMdNlqPAAT2a5O0UBSPZ70g==',
+        },
+        storageEncryptionKey: '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJU=',
+        storageEncryptionNonce: 0,
+    };
 
-    beforeEach(async () => {});
     describe('getChallenge', () => {
         describe('schema', () => {
             it('Returns 400 if schema is invalid', async () => {
@@ -117,21 +128,25 @@ describe('Auth', () => {
 
                 app.locals.db = {
                     getSession: async (accountAddress: string) => ({
-                        challenge: '123',
+                        challenge: 'my-Challenge',
+                        signedUserProfile: {
+                            profile: {
+                                publicSigningKey:
+                                    keysA.signingKeyPair.publicKey,
+                            },
+                        },
                     }),
                     setSession: async (_: string, __: any) => {
                         return (_: any, __: any, ___: any) => {};
                     },
                 };
-                const mnemonic =
-                    'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
 
-                const wallet = ethers.Wallet.fromMnemonic(mnemonic);
-
-                const signature = await wallet.signMessage('123');
+                const signature =
+                    '3A893rTBPEa3g9FL2vgDreY3vvXnOiYCOoJURNyctncwH' +
+                    '0En/mcwo/t2v2jtQx/pcnOpTzuJwLuZviTQjd9vBQ==';
 
                 const { status } = await request(app)
-                    .post(`/${wallet.address}`)
+                    .post(`/0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1`)
                     .send({
                         signature,
                     });
