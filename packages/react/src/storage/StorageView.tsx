@@ -195,7 +195,7 @@ function StorageView() {
                                 );
                                 sync();
                             }}
-                            className={`ms-1 me-3 btn btn-outline-secondary left-btn`}
+                            className={`ms-1 me-3 btn btn-outline-secondary right-btn`}
                             disabled={
                                 state.userDb?.syncProcessState ===
                                 Lib.storage.SyncProcessState.Running

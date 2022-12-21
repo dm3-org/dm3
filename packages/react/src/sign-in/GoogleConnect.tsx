@@ -106,10 +106,10 @@ function GoogleConnect(props: GoogleConnectProps) {
             <div className="col-md-5">
                 <StateButton
                     btnState={getButtonState(props.googleAuthState)}
-                    btnType="primary"
+                    btnType="secondary"
                     onClick={handleClientLoad}
                     content={<>Connect Google Drive</>}
-                    className="left-state-btn"
+                    className=""
                 />
             </div>
             <div className="col-md-7 help-text">

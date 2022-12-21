@@ -4,9 +4,7 @@ import { ethers } from 'ethers';
 import { Contact } from '../reducers/shared';
 
 function fetchDeliveryServiceProfile(connection: Lib.Connection) {
-    return async (
-        account: Lib.account.Account,
-    ): Promise<Contact | undefined> => {
+    return async (account: Lib.account.Account): Promise<Contact> => {
         const deliveryServiceUrl = account.profile?.deliveryServices[0];
 
         //This is most likely the case when the profile can't be fetched at all.
@@ -14,7 +12,9 @@ function fetchDeliveryServiceProfile(connection: Lib.Connection) {
             Lib.log(
                 '[fetchDeliverServicePorfile] Cant resolve deliveryServiceUrl',
             );
-            return undefined;
+            return {
+                account,
+            };
         }
 
         const deliveryServiceProfile =
@@ -23,14 +23,6 @@ function fetchDeliveryServiceProfile(connection: Lib.Connection) {
                 connection,
                 async (url) => (await axios.get(url)).data,
             );
-
-        if (!deliveryServiceProfile) {
-            Lib.log(
-                '[fetchDeliverServicePorfile] Cant resolve deliveryServiceProfile',
-            );
-            return undefined;
-        }
-
         return {
             account,
             deliveryServiceProfile,
@@ -79,13 +71,8 @@ export async function requestContacts(
         );
     }
 
-    const contactsWithDeliverService = await Promise.all(
+    const contacts = await Promise.all(
         retrievedContacts.map(fetchDeliveryServiceProfile(connection)),
-    );
-
-    //We have to filter all contacts that deliveryServiceProfile could not be resolved.
-    const contacts = contactsWithDeliverService.filter(
-        (c): c is Contact => !!c,
     );
 
     setContacts(contacts);
@@ -136,29 +123,32 @@ export async function requestContacts(
         );
 
     contacts.forEach((contact) => {
-        Lib.storage
-            .getConversation(contact.account.address, connection, userDb)
-            .filter(
-                (message) =>
-                    message.messageState ===
-                        Lib.messaging.MessageState.Created &&
-                    contact.account.profile?.publicEncryptionKey,
-            )
-            .forEach(async (message) => {
-                await Lib.messaging.submitMessage(
-                    connection,
-                    deliveryServiceToken,
-                    message.envelop.message,
-                    {
-                        deliveryServiceEncryptionPubKey:
-                            contact.deliveryServiceProfile.publicEncryptionKey,
-                        from: connection.account!,
-                        keys: userDb.keys,
-                        to: contact.account,
-                    },
-                    false,
-                    storeMessages,
-                );
-            });
+        if (contact.deliveryServiceProfile) {
+            Lib.storage
+                .getConversation(contact.account.address, connection, userDb)
+                .filter(
+                    (message) =>
+                        message.messageState ===
+                            Lib.messaging.MessageState.Created &&
+                        contact.account.profile?.publicEncryptionKey,
+                )
+                .forEach(async (message) => {
+                    await Lib.messaging.submitMessage(
+                        connection,
+                        deliveryServiceToken,
+                        message.envelop.message,
+                        {
+                            deliveryServiceEncryptionPubKey:
+                                contact.deliveryServiceProfile!
+                                    .publicEncryptionKey,
+                            from: connection.account!,
+                            keys: userDb.keys,
+                            to: contact.account,
+                        },
+                        false,
+                        storeMessages,
+                    );
+                });
+        }
     });
 }

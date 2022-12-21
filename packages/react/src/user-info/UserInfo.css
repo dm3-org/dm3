@@ -11,14 +11,25 @@
 
 
 .info-value {
+    color: #ffffff;
     word-break: break-all;
+
+}
+
+.info-value div a {
+    color: #ffffff;
+    
 }
 
 .user-info-row {
-    background-color: var(--mainLightSecondary);
-    border-radius: 12px;
+    background-color: transparent;
+    border-radius: 4px;
     padding: 8px;
     margin-right: 1rem;
     margin-left: 1rem;
     margin-bottom: 1rem;
+}
+
+.user-info-row div button {
+    border: none;
 }

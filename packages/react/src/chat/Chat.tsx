@@ -217,8 +217,13 @@ function Chat() {
         userDb: Lib.storage.UserDB,
     ) => {
         deleteMessages(1);
+
         if (!state.accounts.selectedContact) {
             throw Error('no contact selected');
+        }
+
+        if (!state.accounts.selectedContact.deliveryServiceProfile) {
+            throw Error('no deliveryServiceProfile');
         }
 
         const haltDelivery =
