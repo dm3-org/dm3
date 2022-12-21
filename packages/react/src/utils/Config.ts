@@ -30,7 +30,7 @@ const DefaultConfig: Config = {
     miniSignIn: false,
     warnBeforeLeave: false,
     browserStorageBackup: false,
-    showHelp: true,
+    showHelp: false,
 };
 
 export function getConfig(overwrite: Partial<Config>): Config {

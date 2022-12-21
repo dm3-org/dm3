@@ -24,40 +24,7 @@ function App() {
                         target="_blank"
                         rel="noreferrer"
                     >
-                        <div
-                            style={{
-                                fontSize: '35px',
-                                filter: 'brightness(90%)',
-                            }}
-                            className="d-flex"
-                        >
-                            <img
-                                src="./dm3_Signet_blue-gray.svg"
-                                width="50px"
-                                alt="logo"
-                            />
-                            <div className="align-self-center">
-                                <span
-                                    className="ms-2"
-                                    style={{
-                                        fontWeight: '650',
-                                        color: '#323332',
-                                        fontSize: '40px',
-                                    }}
-                                >
-                                    dm
-                                </span>
-                                <span
-                                    style={{
-                                        fontWeight: '250',
-                                        color: '#5880de',
-                                        fontSize: '40px',
-                                    }}
-                                >
-                                    3
-                                </span>
-                            </div>
-                        </div>
+                        <img src="./dm3-logo.png" height="30" alt="logo" />
                     </a>
                 )}
             </div>

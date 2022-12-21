@@ -110,7 +110,7 @@ function UserInfo(props: UserInfoProps) {
 
     return (
         <div className="user-info">
-            <div className="row row-space-sm">
+            <div className="row row-space-sm pb-4">
                 <div className="col text-center">
                     <Avatar
                         accountAddress={props.account.address}
@@ -120,19 +120,19 @@ function UserInfo(props: UserInfoProps) {
             </div>
 
             <div className="row mt-4 user-info-row ">
-                <div className="col-2 text-center">
+                <div className="col-2 d-flex">
                     <button
                         type="button"
-                        className="right-btn btn btn-outline-secondary w-100 show-add-btn align-self-center"
+                        className="ms-auto right-btn btn btn-outline-secondary w-100 show-add-btn align-self-center"
                         disabled
                     >
-                        <Icon iconClass="fab fa-ethereum" />
+                        <Icon iconClass="fab fa-ethereum fa-2x" />
                     </button>
                 </div>
-                <div className="col-10 text-muted info-value d-flex">
+                <div className="col-10 info-value d-flex">
                     <div className="align-self-center">
                         <a
-                            className="text-decoration-none text-muted"
+                            className="text-decoration-none "
                             href={
                                 'https://etherscan.io/address/' +
                                 props.account.address
@@ -146,19 +146,19 @@ function UserInfo(props: UserInfoProps) {
             </div>
             {ensTextRecords?.email && (
                 <div className="row user-info-row ">
-                    <div className="col-2  text-center">
+                    <div className="col-2 d-flex">
                         <button
                             type="button"
-                            className="right-btn btn btn-outline-secondary w-100 show-add-btn align-self-center"
+                            className="ms-auto right-btn btn btn-outline-secondary w-100 show-add-btn align-self-center"
                             disabled
                         >
-                            <Icon iconClass="far fa-envelope" />
+                            <Icon iconClass="far fa-envelope fa-2x" />
                         </button>
                     </div>
-                    <div className="col-10 text-muted info-value d-flex">
+                    <div className="col-10 info-value d-flex">
                         <div className="align-self-center">
                             <a
-                                className="text-decoration-none text-muted"
+                                className="text-decoration-none "
                                 href={'mailto://' + ensTextRecords?.email}
                                 target="_blank"
                             >
@@ -170,19 +170,19 @@ function UserInfo(props: UserInfoProps) {
             )}
             {ensTextRecords?.url && (
                 <div className="row  user-info-row">
-                    <div className="col-2  text-center">
+                    <div className="col-2 d-flex">
                         <button
                             type="button"
-                            className="right-btn btn btn-outline-secondary w-100 show-add-btn align-self-center"
+                            className="ms-auto right-btn btn btn-outline-secondary w-100 show-add-btn align-self-center"
                             disabled
                         >
-                            <Icon iconClass="fas fa-link" />
+                            <Icon iconClass="fas fa-link fa-2x" />
                         </button>
                     </div>
-                    <div className="col-10 text-muted info-value d-flex">
+                    <div className="col-10  info-value d-flex">
                         <div className="align-self-center">
                             <a
-                                className="text-decoration-none text-muted"
+                                className="text-decoration-none "
                                 href={ensTextRecords?.url}
                                 target="_blank"
                             >
@@ -194,19 +194,19 @@ function UserInfo(props: UserInfoProps) {
             )}
             {ensTextRecords?.github && (
                 <div className="row user-info-row">
-                    <div className="col-2  text-center">
+                    <div className="col-2 d-flex">
                         <button
                             type="button"
-                            className="right-btn btn btn-outline-secondary w-100 show-add-btn align-self-center"
+                            className="ms-auto right-btn btn btn-outline-secondary w-100 show-add-btn align-self-center"
                             disabled
                         >
-                            <Icon iconClass="fab fa-github" />
+                            <Icon iconClass="fab fa-github fa-2x" />
                         </button>
                     </div>
-                    <div className="col-10 text-muted info-value d-flex">
+                    <div className="col-10  info-value d-flex">
                         <div className="align-self-center">
                             <a
-                                className="text-decoration-none text-muted"
+                                className="text-decoration-none "
                                 href={
                                     'https://github.com/' +
                                     ensTextRecords?.github
@@ -221,19 +221,19 @@ function UserInfo(props: UserInfoProps) {
             )}
             {ensTextRecords?.twitter && (
                 <div className="row user-info-row">
-                    <div className="col-2  text-center">
+                    <div className="col-2 r d-flex">
                         <button
                             type="button"
-                            className="right-btn btn btn-outline-secondary w-100 show-add-btn align-self-center"
+                            className="ms-auto right-btn btn btn-outline-secondary w-100 show-add-btn align-self-center"
                             disabled
                         >
-                            <Icon iconClass="fab fa-twitter" />
+                            <Icon iconClass="fab fa-twitter fa-2x" />
                         </button>
                     </div>
-                    <div className="col-10 text-muted info-value d-flex">
+                    <div className="col-10  info-value d-flex">
                         <div className="align-self-center">
                             <a
-                                className="text-decoration-none text-muted align-self-center"
+                                className="text-decoration-none  align-self-center"
                                 href={
                                     'https://twitter.com/' +
                                     ensTextRecords?.twitter
@@ -249,19 +249,19 @@ function UserInfo(props: UserInfoProps) {
 
             {props.account.profile && (
                 <div className="row user-info-row">
-                    <div className="col-2  text-center">
+                    <div className="col-2 d-flex">
                         <button
                             type="button"
-                            className="right-btn btn btn-outline-secondary w-100 show-add-btn align-self-center"
+                            className="ms-auto right-btn btn btn-outline-secondary w-100 show-add-btn align-self-center"
                             disabled
                         >
-                            <Icon iconClass="fas fa-lock" />
+                            <Icon iconClass="fas fa-lock fa-2x" />
                         </button>
                     </div>
-                    <div className="col-10 text-muted info-value d-flex">
+                    <div className="col-10  info-value d-flex">
                         <div className="align-self-center">
                             <a
-                                className="text-decoration-none text-muted align-self-center"
+                                className="text-decoration-none  align-self-center"
                                 href={
                                     deliveryServiceUrl +
                                     '/profile/' +
@@ -279,7 +279,7 @@ function UserInfo(props: UserInfoProps) {
             )}
             {ensName && (
                 <div className="row row-space">
-                    <div className="col-12 text-muted">
+                    <div className="col-12 ">
                         <a
                             href={`https://app.ens.domains/name/${ensName}/details`}
                             target="_blank"
@@ -297,13 +297,13 @@ function UserInfo(props: UserInfoProps) {
             )}
             {state.accounts.accountInfoView === AccountInfo.Account && (
                 <div className="row row-space ">
-                    <div className="col-12 text-muted">
+                    <div className="col-12 ">
                         <StateButton
                             btnState={publishButtonState}
-                            btnType="primary"
+                            btnType="secondary"
                             onClick={publishProfileOnchain}
                             content={<>Publish Profile</>}
-                            className="right-state-button"
+                            className=""
                         />
                     </div>
                 </div>
