@@ -83,17 +83,13 @@ function ConnectButton(props: ConnectButtonProps) {
                 <StateButton
                     content={<>MetaMask</>}
                     btnState={getButtonState(state.connection.connectionState)}
-                    btnType="primary"
+                    btnType="secondary"
                     onClick={() => {
                         setSelectedWallet(SelectedWallet.MetaMask);
                         getMetaMaskProvider(dispatch);
                     }}
                     disabled={buttonDisabled}
-                    className={
-                        props.miniSignIn
-                            ? 'left-state-btn miniSignInBtn'
-                            : 'left-state-btn'
-                    }
+                    className={props.miniSignIn ? 'miniSignInBtn' : ''}
                 />
             )}
             {/* {selectedWallet !== SelectedWallet.MetaMask && (
