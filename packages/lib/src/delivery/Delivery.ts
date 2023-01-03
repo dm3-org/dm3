@@ -4,11 +4,13 @@ import axios, {
     AxiosRequestConfig,
     AxiosResponse,
 } from 'axios';
+import { libraryagent } from 'googleapis/build/src/apis/libraryagent';
 import { GetResource, UserProfile } from '../account/Account';
 import { IpfsResolver } from '../account/profileResolver/IpfsResolver';
 import { JsonResolver } from '../account/profileResolver/JsonResolver';
 import { LinkResolver } from '../account/profileResolver/LinkResolver';
 import { ProfileResolver } from '../account/profileResolver/ProfileResolver';
+import { getResolver } from '../external-apis/InjectedWeb3API';
 import { Connection } from '../web3-provider/Web3Provider';
 import { validateDeliveryServiceProfile } from './Validation';
 
@@ -29,12 +31,13 @@ export async function getDeliveryServiceProfile(
     { provider }: Connection,
     getRessource: GetResource<DeliveryServiceProfile>,
 ): Promise<DeliveryServiceProfile | undefined> {
-    const DELIVERY_SERVICE_PROFILE_KEY = 'eth.dm3.deliveryService';
+    const DELIVERY_SERVICE_PROFILE_KEY = 'bnb.dm3.deliveryService';
 
     if (!provider) {
         throw 'Provider is undefined';
     }
-    const ensResolver = await provider.getResolver(deliveryServiceEnsName);
+
+    const ensResolver = await getResolver(provider, deliveryServiceEnsName);
 
     if (!ensResolver) {
         throw 'Unknown ENS name';
