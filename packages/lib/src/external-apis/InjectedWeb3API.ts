@@ -1,4 +1,9 @@
+import { getResolverContract, setupENS } from '@siddomains/ui';
+//@ts-ignore
+import SID from '@siddomains/sidjs';
+//@ts-ignore
 import { ethers } from 'ethers';
+import { log } from '..';
 
 export interface Executable {
     method: (...args: any[]) => Promise<ethers.providers.TransactionResponse>;
@@ -25,15 +30,34 @@ export async function lookupAddress(
     provider: ethers.providers.JsonRpcProvider,
     accountAddress: string,
 ): Promise<string | null> {
-    return provider.lookupAddress(accountAddress);
+    const sidAddress = '0x08CEd32a7f3eeC915Ba84415e9C07a7286977956';
+
+    const sid = new SID({ provider, sidAddress });
+
+    const { name } = await sid.getName(accountAddress);
+    return name;
 }
 export type LookupAddress = typeof lookupAddress;
 
 export async function resolveName(
     provider: ethers.providers.JsonRpcProvider,
-    name: string,
+    sidname: string,
 ): Promise<string | null> {
-    return provider.resolveName(name);
+    const sidAddress = '0x08CEd32a7f3eeC915Ba84415e9C07a7286977956';
+
+    const sid = new SID({ provider, sidAddress });
+
+    const sidName = sid.name(sidname);
+    if (!sidName) {
+        return null;
+    }
+
+    const resolvedAddr = await sidName.getAddress();
+
+    if (!resolvedAddr) {
+        return null;
+    }
+    return resolvedAddr;
 }
 export type ResolveName = typeof resolveName;
 
@@ -55,31 +79,40 @@ export function checkSignature(
         ) === formatAddress(account)
     );
 }
-
+//Replace with BNB SpaceId Contract
 export async function getEnsTextRecord(
     provider: ethers.providers.JsonRpcProvider,
     accountAddress: string,
     recordKey: string,
 ) {
-    const ensName = await provider.lookupAddress(accountAddress);
-    if (ensName === null) {
+    const sidRegistryAddress = '0x08CEd32a7f3eeC915Ba84415e9C07a7286977956';
+    const sid = new SID({ provider, sidAddress: sidRegistryAddress });
+    const { name } = await sid.getName(accountAddress);
+    if (!name) {
         return;
     }
+    const sidNameObject = await sid.name(name);
 
-    const resolver = await provider.getResolver(ensName);
-    if (resolver === null) {
-        return;
-    }
+    const text = (await sidNameObject.getText(recordKey)) as Promise<
+        string | undefined
+    >;
 
-    return await resolver.getText(recordKey);
+    return text;
 }
 export type GetEnsTextRecord = typeof getEnsTextRecord;
 
 export async function getResolver(
     provider: ethers.providers.JsonRpcProvider,
-    ensName: string,
+    sidName: string,
 ) {
-    return provider.getResolver(ensName);
+    const sidAddress = '0x08CEd32a7f3eeC915Ba84415e9C07a7286977956';
+
+    const sid = new SID({ provider, sidAddress });
+    const sidNameObject = await sid.name(sidName);
+
+    const resolver = await sidNameObject.getResolver();
+
+    return new ethers.providers.Resolver(provider, resolver, sidName);
 }
 export type GetResolver = typeof getResolver;
 
@@ -87,7 +120,7 @@ export async function getDefaultEnsTextRecord(
     provider: ethers.providers.JsonRpcProvider,
     ensName: string,
 ) {
-    const resolver = await provider.getResolver(ensName);
+    const resolver = await getResolver(provider, ensName);
 
     if (!resolver) {
         throw Error(`No resolver for ${ensName}`);
