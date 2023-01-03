@@ -42,7 +42,7 @@ export async function signIn(
     const profile: UserProfile = {
         publicSigningKey: signingKeyPair.publicKey,
         publicEncryptionKey: encryptionKeyPair.publicKey,
-        deliveryServices: ['dev-ds.dm3.eth'],
+        deliveryServices: ['dev-ds.bnb'],
     };
 
     //Create signed user profile

@@ -270,7 +270,7 @@ export async function getUserProfile(
     const textRecord = await getEnsTextRecord(
         connection.provider!,
         contact,
-        'eth.dm3.profile',
+        'bnb.dm3.profile',
     );
     //The user has no dm3-Profile text record set. Hence we need to fetch the profile offChain
     if (!textRecord) {
@@ -373,7 +373,7 @@ export async function publishProfileOnchain(
         method: resolver.setText,
         args: [
             node,
-            'eth.dm3.profile',
+            'bnb.dm3.profile',
             url + '?' + createHashUrlParam(ownProfile),
         ],
     };
