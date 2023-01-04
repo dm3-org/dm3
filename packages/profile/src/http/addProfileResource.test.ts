@@ -21,6 +21,39 @@ describe('getProfileResource', () => {
         expect(status).toBe(400);
         expect(body.error).toBe('invalid schema');
     });
+    it('Rejects invalid profile', async () => {
+        const app = express();
+        app.use(bodyParser.json());
+        app.use(addProfileResource());
+
+        const profile: Lib.account.UserProfile = {
+            publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
+            publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
+            deliveryServices: [''],
+        };
+
+        const mnemonic =
+            'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
+
+        const wallet = ethers.Wallet.fromMnemonic(mnemonic);
+
+        const createUserProfileMessage = Lib.account.getProfileCreationMessage(
+            Lib.stringify(profile),
+        );
+        const signature = await wallet.signMessage('foo');
+
+        const { status, body } = await request(app).post(`/`).send({
+            name: 'foo.dm3.eth',
+            address: wallet.address,
+            signedUserProfile: {
+                profile,
+                signature,
+            },
+        });
+
+        expect(status).toBe(400);
+        expect(body.error).toBe('invalid profile');
+    });
     it('Stores a valid profile', async () => {
         const app = express();
         app.use(bodyParser.json());
@@ -44,7 +77,7 @@ describe('getProfileResource', () => {
 
         const { status } = await request(app).post(`/`).send({
             name: 'foo.dm3.eth',
-            address: SENDER_ADDRESS,
+            address: wallet.address,
             signedUserProfile: {
                 signature,
                 profile,

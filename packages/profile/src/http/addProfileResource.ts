@@ -27,20 +27,27 @@ export function addProfileResource() {
     const router = express.Router();
 
     router.post('/', async (req: express.Request, res, next) => {
-        // eslint-disable-next-line no-console
-        console.log(addProfileSchema);
         const isSchemaValid = Lib.validateSchema(addProfileSchema, req.body);
 
+        //Check if schema is valid
         if (!isSchemaValid) {
             return res.status(400).send({ error: 'invalid schema' });
         }
 
         const { signedUserProfile, name, address } = req.body;
 
+        const profileIsValid = Lib.account.checkUserProfile(
+            signedUserProfile,
+            address,
+        );
+
+        //Check if profile sig is correcet
+        if (!profileIsValid) {
+            return res.status(400).send({ error: 'invalid profile' });
+        }
+
         return res.send(200);
 
-        //Check if schema is valid
-        //Check if profile sig is correcet
         //Check if name is still available
     });
     return router;

@@ -27,6 +27,8 @@ export {
     getProfileCreationMessage,
 } from './Account';
 
+export { checkUserProfile } from './Account';
+
 export type { Account, ProfileKeys, UserProfile } from './Account';
 
 export type { ProfileExtension } from './profileExtension';
