@@ -4,7 +4,7 @@ import http from 'http';
 import cors from 'cors';
 import winston from 'winston';
 import { getDatabase } from './persistance/getDatabase';
-import { getProfileResource } from './http/getProfileResource';
+import { addProfileResource } from './http/addProfileResource';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -22,5 +22,5 @@ app.use(bodyParser.json());
 
     app.locals.db = await getDatabase();
 
-    app.use(getProfileResource());
+    app.use(addProfileResource());
 })();

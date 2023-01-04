@@ -119,3 +119,5 @@ export function getUserProfile(
 }
 
 export type GetUserProfile = typeof getUserProfile;
+
+export * as schema from './schema';
