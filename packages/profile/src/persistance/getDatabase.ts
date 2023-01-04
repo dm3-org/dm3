@@ -1,16 +1,19 @@
 import { IDatabase } from './IDatabase';
+import * as Profile from './profile';
 
 export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
     const redis = _redis ?? (await getRedisClient());
 
-    return {};
+    return {
+        getUserProfile: Profile.getUserProfile(redis),
+    };
 }
 
 export type Redis = Awaited<ReturnType<typeof createRedisClient>>;
 
 import { createClient } from 'redis';
 
-async function getRedisClient() {
+export async function getRedisClient() {
     const client = createClient();
 
     client.on('error', (err) => {
