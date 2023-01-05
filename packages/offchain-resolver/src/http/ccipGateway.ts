@@ -25,7 +25,7 @@ const addProfileSchema = {
     additionalProperties: false,
 };
 
-export function addProfileResource() {
+export function ccipGateway() {
     const router = express.Router();
 
     router.post(
@@ -67,6 +67,23 @@ export function addProfileResource() {
             });
 
             return res.send(200);
+        },
+    );
+
+    router.get(
+        '/:name',
+        async (
+            req: express.Request & { app: WithLocals },
+            res: express.Response,
+        ) => {
+            const { name } = req.params;
+            const profile = await req.app.locals.db.getUserProfile(name);
+
+            if (!profile) {
+                return res.send(404);
+            }
+
+            return res.send(profile);
         },
     );
     return router;
