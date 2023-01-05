@@ -1,10 +1,10 @@
 import * as Lib from 'dm3-lib/dist.backend';
 
 export interface IDatabase {
-    getUserProfile(name: string): Promise<UserProfileDto | null>;
+    getUserProfile(name: string): Promise<OffchainUserProfile | null>;
     setUserProfile(
         ensName: string,
-        userProfileDto: UserProfileDto,
+        offchainUserProfile: OffchainUserProfile,
     ): Promise<boolean>;
 }
 
@@ -12,7 +12,7 @@ export interface IDatabase {
  * Contains a user profile and an array of signatures made by the profileService
  * This is not a {@see SignedUserProfile} because the signatures are not made by the profile owner
  */
-export interface UserProfileDto {
+export interface OffchainUserProfile {
     profile: Lib.account.UserProfile;
     signatures: string[];
 }

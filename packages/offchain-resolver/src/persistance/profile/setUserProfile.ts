@@ -1,10 +1,10 @@
-import { UserProfileDto } from '../IDatabase';
+import { OffchainUserProfile } from '../IDatabase';
 import * as Lib from 'dm3-lib/dist.backend';
 import { Redis } from '../getDatabase';
 import { USER_PROFILE_KEY } from '.';
 
 export function setUserProfile(redis: Redis) {
-    return async (ensName: string, userProfileDto: UserProfileDto) => {
+    return async (ensName: string, userProfileDto: OffchainUserProfile) => {
         const { profile, signatures } = userProfileDto;
 
         const profileIsValid = Lib.validateSchema(

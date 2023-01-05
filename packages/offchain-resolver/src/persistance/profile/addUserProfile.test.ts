@@ -1,5 +1,5 @@
 import { getRedisClient, Redis, getDatabase } from '../getDatabase';
-import { IDatabase, UserProfileDto } from '../IDatabase';
+import { IDatabase, OffchainUserProfile } from '../IDatabase';
 import { setUserProfile } from './setUserProfile';
 import * as Lib from 'dm3-lib/dist.backend';
 
@@ -20,7 +20,10 @@ describe('addUserProfile', () => {
 
     it('Rejects invalid user profile', async () => {
         await expect(async () => {
-            await setUserProfile(redisClient)('foo.eth', {} as UserProfileDto);
+            await setUserProfile(redisClient)(
+                'foo.eth',
+                {} as OffchainUserProfile,
+            );
         }).rejects.toEqual(Error('Invalid user profile'));
     });
     it('Stores valid user profile', async () => {
@@ -30,14 +33,14 @@ describe('addUserProfile', () => {
             deliveryServices: [''],
         };
 
-        const userProfileDto: UserProfileDto = {
+        const userProfileDto: OffchainUserProfile = {
             profile,
             signatures: [],
         };
 
         const writeResult = await setUserProfile(redisClient)(
             'foo.eth',
-            userProfileDto as UserProfileDto,
+            userProfileDto as OffchainUserProfile,
         );
 
         expect(writeResult).toBeTruthy();
@@ -49,7 +52,7 @@ describe('addUserProfile', () => {
             deliveryServices: [''],
         };
 
-        const userProfileDto: UserProfileDto = {
+        const userProfileDto: OffchainUserProfile = {
             profile,
             signatures: [],
         };
@@ -57,13 +60,13 @@ describe('addUserProfile', () => {
         //This should pass
         const firstWrite = await setUserProfile(redisClient)(
             'foo.eth',
-            userProfileDto as UserProfileDto,
+            userProfileDto as OffchainUserProfile,
         );
         expect(firstWrite).toBeTruthy();
         //This should reject bc the subdomain already has a profile
         const secondWrite = await setUserProfile(redisClient)(
             'foo.eth',
-            userProfileDto as UserProfileDto,
+            userProfileDto as OffchainUserProfile,
         );
         expect(secondWrite).toBeFalsy();
     });
