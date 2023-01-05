@@ -1,4 +1,4 @@
-import { Signer } from 'ethers';
+import { Signer } from '@ethersproject/abstract-signer';
 import { UserProfile } from '../../account';
 import { stringify } from '../../shared/stringify';
 import { OffchainUserProfile } from '../OffchainUserProfile';
