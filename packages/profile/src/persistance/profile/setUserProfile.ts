@@ -3,7 +3,7 @@ import * as Lib from 'dm3-lib/dist.backend';
 import { Redis } from '../getDatabase';
 import { USER_PROFILE_KEY } from '.';
 
-export function addUserProfile(redis: Redis) {
+export function setUserProfile(redis: Redis) {
     return async (ensName: string, userProfileDto: UserProfileDto) => {
         const { profile, signatures } = userProfileDto;
 

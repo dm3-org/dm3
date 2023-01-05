@@ -1,6 +1,6 @@
 import { getRedisClient, Redis, getDatabase } from '../getDatabase';
 import { IDatabase, UserProfileDto } from '../IDatabase';
-import { addUserProfile } from './addUserProfile';
+import { setUserProfile } from './setUserProfile';
 import * as Lib from 'dm3-lib/dist.backend';
 
 describe('addUserProfile', () => {
@@ -20,7 +20,7 @@ describe('addUserProfile', () => {
 
     it('Rejects invalid user profile', async () => {
         await expect(async () => {
-            await addUserProfile(redisClient)('foo.eth', {} as UserProfileDto);
+            await setUserProfile(redisClient)('foo.eth', {} as UserProfileDto);
         }).rejects.toEqual(Error('Invalid user profile'));
     });
     it('Stores valid user profile', async () => {
@@ -35,7 +35,7 @@ describe('addUserProfile', () => {
             signatures: [],
         };
 
-        const writeResult = await addUserProfile(redisClient)(
+        const writeResult = await setUserProfile(redisClient)(
             'foo.eth',
             userProfileDto as UserProfileDto,
         );
@@ -55,13 +55,13 @@ describe('addUserProfile', () => {
         };
 
         //This should pass
-        const firstWrite = await addUserProfile(redisClient)(
+        const firstWrite = await setUserProfile(redisClient)(
             'foo.eth',
             userProfileDto as UserProfileDto,
         );
         expect(firstWrite).toBeTruthy();
         //This should reject bc the subdomain already has a profile
-        const secondWrite = await addUserProfile(redisClient)(
+        const secondWrite = await setUserProfile(redisClient)(
             'foo.eth',
             userProfileDto as UserProfileDto,
         );

@@ -1,8 +1,11 @@
 import * as Lib from 'dm3-lib/dist.backend';
 
 export interface IDatabase {
-    //
     getUserProfile(name: string): Promise<UserProfileDto | null>;
+    setUserProfile(
+        ensName: string,
+        userProfileDto: UserProfileDto,
+    ): Promise<boolean>;
 }
 
 /**
