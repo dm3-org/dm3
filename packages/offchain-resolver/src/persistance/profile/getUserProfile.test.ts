@@ -1,5 +1,5 @@
 import { USER_PROFILE_KEY } from '.';
-import { IDatabase, OffchainUserProfile } from '../IDatabase';
+import { IDatabase } from '../IDatabase';
 import { getDatabase, getRedisClient, Redis } from './../getDatabase';
 import { getUserProfile } from './getUserProfile';
 import * as Lib from 'dm3-lib/dist.backend';
@@ -34,7 +34,7 @@ describe('getUserProfile', () => {
             deliveryServices: [''],
         };
 
-        const userProfileDto: OffchainUserProfile = {
+        const userProfileDto: Lib.offchainResolver.OffchainUserProfile = {
             profile,
             signatures: [],
         };

@@ -1,5 +1,5 @@
 import { getRedisClient, Redis, getDatabase } from '../getDatabase';
-import { IDatabase, OffchainUserProfile } from '../IDatabase';
+import { IDatabase } from '../IDatabase';
 import { setUserProfile } from './setUserProfile';
 import * as Lib from 'dm3-lib/dist.backend';
 
@@ -22,7 +22,7 @@ describe('addUserProfile', () => {
         await expect(async () => {
             await setUserProfile(redisClient)(
                 'foo.eth',
-                {} as OffchainUserProfile,
+                {} as Lib.offchainResolver.OffchainUserProfile,
             );
         }).rejects.toEqual(Error('Invalid user profile'));
     });
@@ -33,14 +33,14 @@ describe('addUserProfile', () => {
             deliveryServices: [''],
         };
 
-        const userProfileDto: OffchainUserProfile = {
+        const userProfileDto: Lib.offchainResolver.OffchainUserProfile = {
             profile,
             signatures: [],
         };
 
         const writeResult = await setUserProfile(redisClient)(
             'foo.eth',
-            userProfileDto as OffchainUserProfile,
+            userProfileDto as Lib.offchainResolver.OffchainUserProfile,
         );
 
         expect(writeResult).toBeTruthy();
@@ -52,7 +52,7 @@ describe('addUserProfile', () => {
             deliveryServices: [''],
         };
 
-        const userProfileDto: OffchainUserProfile = {
+        const userProfileDto: Lib.offchainResolver.OffchainUserProfile = {
             profile,
             signatures: [],
         };
@@ -60,13 +60,13 @@ describe('addUserProfile', () => {
         //This should pass
         const firstWrite = await setUserProfile(redisClient)(
             'foo.eth',
-            userProfileDto as OffchainUserProfile,
+            userProfileDto as Lib.offchainResolver.OffchainUserProfile,
         );
         expect(firstWrite).toBeTruthy();
         //This should reject bc the subdomain already has a profile
         const secondWrite = await setUserProfile(redisClient)(
             'foo.eth',
-            userProfileDto as OffchainUserProfile,
+            userProfileDto as Lib.offchainResolver.OffchainUserProfile,
         );
         expect(secondWrite).toBeFalsy();
     });

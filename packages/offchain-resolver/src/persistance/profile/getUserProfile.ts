@@ -1,6 +1,6 @@
+import * as Lib from 'dm3-lib/dist.backend';
 import { USER_PROFILE_KEY } from '.';
 import { Redis } from '../getDatabase';
-import { OffchainUserProfile } from '../IDatabase';
 
 export function getUserProfile(redis: Redis) {
     return async (name: string) => {
@@ -11,6 +11,8 @@ export function getUserProfile(redis: Redis) {
 
         const stringifiedUserProfile = await redis.hGet(USER_PROFILE_KEY, name);
 
-        return JSON.parse(stringifiedUserProfile!) as OffchainUserProfile;
+        return JSON.parse(
+            stringifiedUserProfile!,
+        ) as Lib.offchainResolver.OffchainUserProfile;
     };
 }
