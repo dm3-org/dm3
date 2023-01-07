@@ -3,9 +3,12 @@ import express from 'express';
 import { ccipGateway } from './ccipGateway';
 import request from 'supertest';
 import * as Lib from 'dm3-lib/dist.backend';
-import { ethers } from 'ethers';
+import { Contract, ethers } from 'ethers';
 import { getRedisClient, Redis, getDatabase } from '../persistance/getDatabase';
 import { IDatabase } from '../persistance/IDatabase';
+import { IResolverService__factory, OffchainResolver } from '../../typechain';
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
+import { ethers as hreEthers } from 'hardhat';
 
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 
@@ -14,14 +17,31 @@ describe('CCIP Gateway', () => {
     let db: IDatabase;
     let app: express.Express;
 
+    let offchainResolver: OffchainResolver;
+
+    let signer: SignerWithAddress;
+    let dm3User: SignerWithAddress;
+
     beforeEach(async () => {
+        //Get signers
+        [signer, dm3User] = await hreEthers.getSigners();
+
+        //Create ResolverContract
+        const OffchainResolver = await hreEthers.getContractFactory(
+            'OffchainResolver',
+        );
+        offchainResolver = await OffchainResolver.deploy(
+            'http://localhost:8080/{sender}/{data}',
+            [signer.address],
+        );
+
         redisClient = await getRedisClient();
         db = await getDatabase(redisClient);
         await redisClient.flushDb();
 
         app = express();
         app.use(bodyParser.json());
-        app.use(ccipGateway());
+        app.use(ccipGateway(signer, offchainResolver.address));
 
         app.locals.db = db;
     });
@@ -122,19 +142,51 @@ describe('CCIP Gateway', () => {
             const { signer, profile, signature } = await getSignedUserProfile();
 
             const name = 'foo.dm3.eth';
+
             //Create the profile in the first place
-            const { status } = await request(app).post(`/`).send({
+            const writeRes = await request(app).post(`/`).send({
                 name,
                 address: signer,
                 signedUserProfile: {
-                    signature,
                     profile,
+                    signature,
                 },
             });
 
-            const { body } = await request(app).get(`/${name}`);
-            expect(body.profile).toStrictEqual(profile);
-            expect(body.profile).toStrictEqual(profile);
+            expect(writeRes.status).toBe(200);
+            const { callData, sender } = await resolveGateWayUrl(
+                name,
+                offchainResolver,
+            );
+
+            const getRes = await request(app)
+                .get(`/${sender}/${callData}`)
+                .send();
+
+            const { userProfile, validUntil, sigData } = getRes.body;
+
+            const iface = new ethers.utils.Interface([
+                'function text(bytes32 node, string calldata key) external view returns (string memory)',
+            ]);
+
+            const profileHash = iface.encodeFunctionResult(
+                'text(bytes32,string)',
+                [Lib.stringify(userProfile)],
+            );
+
+            const response = ethers.utils.defaultAbiCoder.encode(
+                ['bytes', 'uint64', 'bytes'],
+                [profileHash, validUntil, sigData],
+            );
+
+            const resolverRes = await offchainResolver.resolveWithProof(
+                response,
+                callData,
+            );
+
+            const [result] = iface.decodeFunctionResult('text', resolverRes);
+
+            expect(JSON.parse(result)).toStrictEqual(userProfile);
         });
     });
 });
@@ -158,4 +210,61 @@ const getSignedUserProfile = async (
     const signer = wallet.address;
 
     return { signature, profile, signer };
+};
+
+function dnsName(name: string) {
+    // strip leading and trailing .
+    const n = name.replace(/^\.|\.$/gm, '');
+
+    var bufLen = n === '' ? 1 : n.length + 2;
+    var buf = Buffer.allocUnsafe(bufLen);
+
+    let offset = 0;
+    if (n.length) {
+        const list = n.split('.');
+        for (let i = 0; i < list.length; i++) {
+            const len = buf.write(list[i], offset + 1);
+            buf[offset] = len;
+            offset += len + 1;
+        }
+    }
+    buf[offset++] = 0;
+    return (
+        '0x' +
+        buf.reduce(
+            (output, elem) => output + ('0' + elem.toString(16)).slice(-2),
+            '',
+        )
+    );
+}
+export function getResolverInterface() {
+    return new ethers.utils.Interface([
+        'function resolve(bytes calldata name, bytes calldata data) external view returns(bytes)',
+        'function text(bytes32 node, string calldata key) external view returns (string memory)',
+    ]);
+}
+const resolveGateWayUrl = async (
+    ensName: string,
+    offchainResolver: Contract,
+) => {
+    try {
+        const textData = getResolverInterface().encodeFunctionData('text', [
+            ethers.utils.namehash(ethers.utils.nameprep(ensName)),
+            'eth.dm3.profile',
+        ]);
+
+        //This always revers and throws the OffchainLookup Exceptions hence we need to catch it
+        await offchainResolver.resolve(dnsName(ensName), textData);
+        return { gatewayUrl: '', callbackFunction: '', extraData: '' };
+    } catch (err: any) {
+        const { sender, urls, callData } = err.errorArgs;
+        //Decode call
+
+        //Replace template vars
+        const gatewayUrl = urls[0]
+            .replace('{sender}', sender)
+            .replace('{data}', callData);
+
+        return { gatewayUrl, sender, callData };
+    }
 };

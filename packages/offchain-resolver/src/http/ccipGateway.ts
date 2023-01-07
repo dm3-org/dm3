@@ -1,8 +1,7 @@
-import express from 'express';
 import * as Lib from 'dm3-lib/dist.backend';
-import { id } from 'ethers/lib/utils';
+import { Signer } from 'ethers';
+import express from 'express';
 import { WithLocals } from './types';
-
 const addProfileSchema = {
     type: 'object',
     properties: {
@@ -25,7 +24,7 @@ const addProfileSchema = {
     additionalProperties: false,
 };
 
-export function ccipGateway() {
+export function ccipGateway(signer: Signer, resolverAddr: string) {
     const router = express.Router();
 
     router.post(
@@ -71,19 +70,43 @@ export function ccipGateway() {
     );
 
     router.get(
-        '/:name',
+        '/:resolverAddr/:data',
         async (
             req: express.Request & { app: WithLocals },
             res: express.Response,
         ) => {
-            const { name } = req.params;
-            const profile = await req.app.locals.db.getUserProfile(name);
+            const { resolverAddr, data } = req.params;
+            //TODO should we blackist all request that are not orignated from our dm3 resolver? CC@Heiko
+            try {
+                const { record, name, signature } =
+                    Lib.offchainResolver.decodeCalldata(data);
 
-            if (!profile) {
-                return res.send(404);
+                if (record !== 'eth.dm3.profile') {
+                    return res.status(400).send({
+                        error: `Record is not supported by this resolver`,
+                    });
+                }
+
+                //Todo get rid of unused onchain userprofile
+                const profile = await req.app.locals.db.getUserProfile(name);
+
+                if (!profile) {
+                    return res.send(404);
+                }
+
+                const { userProfile, validUntil, sigData } =
+                    await Lib.offchainResolver.encodeUserProfile(
+                        signer,
+                        profile.profile,
+                        resolverAddr,
+                        data,
+                        signature,
+                    );
+
+                return res.send({ userProfile, validUntil, sigData });
+            } catch (e) {
+                return res.status(400).send({ error: 'Unknown error' });
             }
-
-            return res.send(profile);
         },
     );
     return router;
