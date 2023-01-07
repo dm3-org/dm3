@@ -1,2 +1,6 @@
 .env
 config.yml
+
+/typechain
+cache
+artifacts
