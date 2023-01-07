@@ -1,29 +1,37 @@
 /* eslint-disable max-len */
 import { ethers } from 'ethers';
+import { log } from '../../shared/log';
+import { getResolverInterface } from './getResolverInterface';
 
 export function decodeCalldata(calldata: string) {
-    const iResolver = new ethers.utils.Interface([
-        'function resolve(bytes calldata name, bytes calldata data) external view returns(bytes)',
-        'function text(bytes32 node, string calldata key) external view returns (string memory)',
-    ]);
+    try {
+        const textResolver = getResolverInterface();
 
-    //Parse the calldata returned by a contra
-    const [rawName, data] = iResolver.parseTransaction({ data: calldata }).args;
+        //Parse the calldata returned by a contra
+        const [rawName, data] = textResolver.parseTransaction({
+            data: calldata,
+        }).args;
 
-    //The naw has to be normalized be it can be processed
-    const encodedName = ethers.utils.nameprep(rawName);
+        //The name has to be normalized before be it can be processed
+        const encodedName = ethers.utils.nameprep(rawName);
 
-    const [nameHash, record] = iResolver.parseTransaction({
-        data,
-    }).args;
+        const { signature, args } = textResolver.parseTransaction({
+            data,
+        });
+        const [nameHash, record] = args;
 
-    const name = decodeDnsName(encodedName);
+        const name = decodeDnsName(encodedName);
 
-    if (ethers.utils.namehash(name) !== nameHash) {
-        throw Error("Namehash doesn't match");
+        if (ethers.utils.namehash(name) !== nameHash) {
+            throw Error("Namehash doesn't match");
+        }
+
+        return { name, record, signature };
+    } catch (err: any) {
+        log("[Decode Calldata] Can't decode calldata ");
+        log(err);
+        throw err;
     }
-
-    return { name, record };
 }
 /**
  * 
