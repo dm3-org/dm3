@@ -1,4 +1,6 @@
+import { ethers } from 'ethers';
 import { decodeCalldata } from './decodeCalldata';
+import { getResolverInterface } from './getResolverInterface';
 describe('decodeCalldata', () => {
     it('decodes valid calldata', () => {
         const calldata =
@@ -11,6 +13,45 @@ describe('decodeCalldata', () => {
         expect(name).toBe('foo.dm3.eth');
         expect(signature).toBe('text(bytes32,string)');
     });
+
+    it('throws if namehash does not matched encoded ens.name', () => {
+        const textData = getResolverInterface().encodeFunctionData('text', [
+            ethers.utils.namehash(ethers.utils.nameprep('FOOO')),
+            'eth.profile.dm3',
+        ]);
+
+        const calldata = getResolverInterface().encodeFunctionData('resolve', [
+            dnsName('foo.dm3.eth'),
+            textData,
+        ]);
+
+        expect(() => decodeCalldata(calldata)).toThrowError(
+            "Namehash doesn't match",
+        );
+    });
 });
-0x03666f6f03646d330365746800;
-0x03666f6f2e646d332e65746800;
+function dnsName(name: string) {
+    // strip leading and trailing .
+    const n = name.replace(/^\.|\.$/gm, '');
+
+    var bufLen = n === '' ? 1 : n.length + 2;
+    var buf = Buffer.allocUnsafe(bufLen);
+
+    let offset = 0;
+    if (n.length) {
+        const list = n.split('.');
+        for (let i = 0; i < list.length; i++) {
+            const len = buf.write(list[i], offset + 1);
+            buf[offset] = len;
+            offset += len + 1;
+        }
+    }
+    buf[offset++] = 0;
+    return (
+        '0x' +
+        buf.reduce(
+            (output, elem) => output + ('0' + elem.toString(16)).slice(-2),
+            '',
+        )
+    );
+}

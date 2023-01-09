@@ -4,4 +4,4 @@ export { signProfile } from './signProfile/signProfile';
 export { decodeCalldata } from './resolve/decodeCalldata';
 export { encodeUserProfile } from './resolve/encodeUserProfile';
 export { resolveWithProof } from './resolve/resolveWithProof';
-export type { ResolveResponse } from './resolve/types';
+export type { ResolveResponse, DecodedCcipRequest } from './resolve/types';

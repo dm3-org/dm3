@@ -2,8 +2,18 @@
 import { ethers } from 'ethers';
 import { log } from '../../shared/log';
 import { getResolverInterface } from './getResolverInterface';
+import { DecodedCcipRequest } from './types';
+/**
+ * This function can be used to decode calldata return by the resolve method of the Offchain Resolver Smart Contract
+ * This encoded calldata must have the following format
+ * "resolve (dnsname(name),text(namehash(name),record))""
+ * To find out how to build the calldata you may check out {@see encodeFunctionData} {@see getResolverInterface}
+ * or the unit test provided in this package
+ * @param calldata the encoded calldata string
+ * @returns {@see DecodedCcipRequest}
+ */
 
-export function decodeCalldata(calldata: string) {
+export function decodeCalldata(calldata: string): DecodedCcipRequest {
     try {
         const textResolver = getResolverInterface();
 
