@@ -34,19 +34,10 @@ describe('getUserProfile', () => {
             deliveryServices: [''],
         };
 
-        const userProfileDto: Lib.offchainResolver.OffchainUserProfile = {
-            profile,
-            signatures: [],
-        };
-
-        await redisClient.hSet(
-            USER_PROFILE_KEY,
-            name,
-            JSON.stringify(userProfileDto),
-        );
+        await redisClient.hSet(USER_PROFILE_KEY, name, JSON.stringify(profile));
 
         const retrivedProfile = await getUserProfile(redisClient)(name);
 
-        expect(retrivedProfile).toStrictEqual(userProfileDto);
+        expect(retrivedProfile).toStrictEqual(profile);
     });
 });

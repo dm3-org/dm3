@@ -3,32 +3,20 @@ import { Redis } from '../getDatabase';
 import { USER_PROFILE_KEY } from '.';
 
 export function setUserProfile(redis: Redis) {
-    return async (
-        ensName: string,
-        userProfileDto: Lib.offchainResolver.OffchainUserProfile,
-    ) => {
-        const { profile, signatures } = userProfileDto;
-
+    return async (ensName: string, profile: Lib.account.UserProfile) => {
         const profileIsValid = Lib.validateSchema(
             Lib.account.schema.SignedUserProfile.definitions.UserProfile,
             profile,
         );
 
-        const signaturesAreValid = Lib.validateSchema(
-            { type: 'array', items: { type: 'string' } },
-            signatures,
-        );
-
-        const isValid = profileIsValid && signaturesAreValid;
-
-        if (!isValid) {
+        if (!profileIsValid) {
             throw Error('Invalid user profile');
         }
 
         const writeResult = await redis.hSet(
             USER_PROFILE_KEY,
             ensName,
-            JSON.stringify(userProfileDto),
+            JSON.stringify(profile),
         );
 
         return !!writeResult;

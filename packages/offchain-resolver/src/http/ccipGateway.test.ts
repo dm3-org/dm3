@@ -194,10 +194,6 @@ describe('CCIP Gateway', () => {
             expect(status).toBe(404);
         });
         it('Returns 400 if record is not eth.dm3.profile', async () => {
-            const { signer, profile, signature } = await getSignedUserProfile();
-
-            const name = 'foo.dm3.eth';
-
             //Call the contract to retrieve the gateway url
             const resolveGatewayUrlForTheWrongRecord = async () => {
                 try {

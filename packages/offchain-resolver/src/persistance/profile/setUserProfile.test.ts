@@ -3,7 +3,7 @@ import { IDatabase } from '../IDatabase';
 import { setUserProfile } from './setUserProfile';
 import * as Lib from 'dm3-lib/dist.backend';
 
-describe('addUserProfile', () => {
+describe('setUserProfile', () => {
     let redisClient: Redis;
     let db: IDatabase;
 
@@ -22,7 +22,7 @@ describe('addUserProfile', () => {
         await expect(async () => {
             await setUserProfile(redisClient)(
                 'foo.eth',
-                {} as Lib.offchainResolver.OffchainUserProfile,
+                {} as Lib.account.UserProfile,
             );
         }).rejects.toEqual(Error('Invalid user profile'));
     });
@@ -33,14 +33,9 @@ describe('addUserProfile', () => {
             deliveryServices: [''],
         };
 
-        const userProfileDto: Lib.offchainResolver.OffchainUserProfile = {
-            profile,
-            signatures: [],
-        };
-
         const writeResult = await setUserProfile(redisClient)(
             'foo.eth',
-            userProfileDto as Lib.offchainResolver.OffchainUserProfile,
+            profile,
         );
 
         expect(writeResult).toBeTruthy();
@@ -52,21 +47,16 @@ describe('addUserProfile', () => {
             deliveryServices: [''],
         };
 
-        const userProfileDto: Lib.offchainResolver.OffchainUserProfile = {
-            profile,
-            signatures: [],
-        };
-
         //This should pass
         const firstWrite = await setUserProfile(redisClient)(
             'foo.eth',
-            userProfileDto as Lib.offchainResolver.OffchainUserProfile,
+            profile,
         );
         expect(firstWrite).toBeTruthy();
         //This should reject bc the subdomain already has a profile
         const secondWrite = await setUserProfile(redisClient)(
             'foo.eth',
-            userProfileDto as Lib.offchainResolver.OffchainUserProfile,
+            profile,
         );
         expect(secondWrite).toBeFalsy();
     });

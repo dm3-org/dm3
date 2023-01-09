@@ -11,8 +11,6 @@ export function getUserProfile(redis: Redis) {
 
         const stringifiedUserProfile = await redis.hGet(USER_PROFILE_KEY, name);
 
-        return JSON.parse(
-            stringifiedUserProfile!,
-        ) as Lib.offchainResolver.OffchainUserProfile;
+        return JSON.parse(stringifiedUserProfile!) as Lib.account.UserProfile;
     };
 }

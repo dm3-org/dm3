@@ -2,27 +2,6 @@ import * as Lib from 'dm3-lib/dist.backend';
 import { Signer } from 'ethers';
 import express from 'express';
 import { WithLocals } from './types';
-const addProfileSchema = {
-    type: 'object',
-    properties: {
-        address: { type: 'string' },
-        name: { type: 'string' },
-        signedUserProfile: {
-            ...Lib.account.schema.SignedUserProfile.definitions
-                .SignedUserProfile,
-            properties: {
-                ...Lib.account.schema.SignedUserProfile.definitions
-                    .SignedUserProfile.properties,
-                profile: {
-                    ...Lib.account.schema.SignedUserProfile.definitions
-                        .UserProfile,
-                },
-            },
-        },
-    },
-    required: ['address', 'name', 'signedUserProfile'],
-    additionalProperties: false,
-};
 
 export function ccipGateway(signer: Signer, resolverAddr: string) {
     const router = express.Router();
@@ -30,17 +9,16 @@ export function ccipGateway(signer: Signer, resolverAddr: string) {
     router.post(
         '/',
         async (req: express.Request & { app: WithLocals }, res, next) => {
+            const { signedUserProfile, name, address } = req.body;
             const isSchemaValid = Lib.validateSchema(
-                addProfileSchema,
-                req.body,
+                Lib.account.schema.SignedUserProfile,
+                signedUserProfile,
             );
 
             //Check if schema is valid
             if (!isSchemaValid) {
                 return res.status(400).send({ error: 'invalid schema' });
             }
-
-            const { signedUserProfile, name, address } = req.body;
 
             const profileIsValid = Lib.account.checkUserProfile(
                 signedUserProfile,
@@ -60,10 +38,10 @@ export function ccipGateway(signer: Signer, resolverAddr: string) {
                     .send({ error: 'subdomain already claimed' });
             }
             //TODO impl sig
-            await req.app.locals.db.setUserProfile(name, {
-                profile: signedUserProfile.profile,
-                signatures: [],
-            });
+            await req.app.locals.db.setUserProfile(
+                name,
+                signedUserProfile.profile,
+            );
 
             return res.send(200);
         },
@@ -97,7 +75,7 @@ export function ccipGateway(signer: Signer, resolverAddr: string) {
                 const resolveResponse =
                     await Lib.offchainResolver.encodeUserProfile(
                         signer,
-                        profile.profile,
+                        profile,
                         resolverAddr,
                         data,
                         signature,
