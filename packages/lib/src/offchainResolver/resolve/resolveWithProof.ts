@@ -1,7 +1,7 @@
 import { Contract, ethers } from 'ethers';
 import { log, stringify } from '../..';
 import { getResolverInterface } from './getResolverInterface';
-import { ResolveResponse } from './types';
+import { CiipResponse } from './types';
 
 /**
  * This funcition can by used by a client to ensure onchain that the {@see UserProfile} returned by the ciip gateway
@@ -9,14 +9,14 @@ import { ResolveResponse } from './types';
  * @param provider {@see ether.BaseProvider}
  * @param resolverAddress the address of the OffchainResolver Smart contract.
  * @param request the calldata returned be the resolved method of the OffchainResolver Smart contract
- * @param response {@see ResolveResponse}
+ * @param response {@see CiipResponse}
  * @returns See resolved {@see UserProfile} if sucesfully validated onchain
  */
 export async function resolveWithProof(
     provider: ethers.providers.BaseProvider,
     resolverAddress: string,
     request: string,
-    response: ResolveResponse,
+    response: CiipResponse,
 ) {
     const { userProfile, validUntil, sig } = response;
     try {

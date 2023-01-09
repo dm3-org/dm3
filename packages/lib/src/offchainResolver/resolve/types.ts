@@ -1,6 +1,6 @@
 import { UserProfile } from '../../account';
 //TODO add proper description and response
-export interface ResolveResponse {
+export interface CiipResponse {
     userProfile: UserProfile;
     validUntil: number;
     sig: string;
