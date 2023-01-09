@@ -25,7 +25,7 @@ describe('encodeUserProfie', () => {
 
         const functionSelector = 'text(bytes32,string)';
 
-        const { userProfile, validUntil, sigData } = await encodeUserProfile(
+        const { userProfile, validUntil } = await encodeUserProfile(
             signer,
             profile,
             signer.address,

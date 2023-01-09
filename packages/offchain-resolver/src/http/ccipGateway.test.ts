@@ -1,14 +1,14 @@
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import bodyParser from 'body-parser';
-import express from 'express';
-import { ccipGateway } from './ccipGateway';
-import request from 'supertest';
 import * as Lib from 'dm3-lib/dist.backend';
 import { Contract, ethers } from 'ethers';
-import { getRedisClient, Redis, getDatabase } from '../persistance/getDatabase';
-import { IDatabase } from '../persistance/IDatabase';
-import { IResolverService__factory, OffchainResolver } from '../../typechain';
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
+import express from 'express';
 import { ethers as hreEthers } from 'hardhat';
+import request from 'supertest';
+import { OffchainResolver } from '../../typechain';
+import { getDatabase, getRedisClient, Redis } from '../persistance/getDatabase';
+import { IDatabase } from '../persistance/IDatabase';
+import { ccipGateway } from './ccipGateway';
 
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 
@@ -154,39 +154,26 @@ describe('CCIP Gateway', () => {
             });
 
             expect(writeRes.status).toBe(200);
+            //Call the contract to retrieve the gateway url
             const { callData, sender } = await resolveGateWayUrl(
                 name,
                 offchainResolver,
             );
 
-            const getRes = await request(app)
+            //You the url returned by he contract to fetch the profile from the ccip gateway
+            const { body, status } = await request(app)
                 .get(`/${sender}/${callData}`)
                 .send();
 
-            const { userProfile, validUntil, sigData } = getRes.body;
-
-            const iface = new ethers.utils.Interface([
-                'function text(bytes32 node, string calldata key) external view returns (string memory)',
-            ]);
-
-            const profileHash = iface.encodeFunctionResult(
-                'text(bytes32,string)',
-                [Lib.stringify(userProfile)],
-            );
-
-            const response = ethers.utils.defaultAbiCoder.encode(
-                ['bytes', 'uint64', 'bytes'],
-                [profileHash, validUntil, sigData],
-            );
-
-            const resolverRes = await offchainResolver.resolveWithProof(
-                response,
+            expect(status).toBe(200);
+            const result = await Lib.offchainResolver.resolveWithProof(
+                hreEthers.provider,
+                offchainResolver.address,
                 callData,
+                body,
             );
 
-            const [result] = iface.decodeFunctionResult('text', resolverRes);
-
-            expect(JSON.parse(result)).toStrictEqual(userProfile);
+            expect(JSON.parse(result)).toStrictEqual(body.userProfile);
         });
     });
 });

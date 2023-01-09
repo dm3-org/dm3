@@ -94,7 +94,7 @@ export function ccipGateway(signer: Signer, resolverAddr: string) {
                     return res.send(404);
                 }
 
-                const { userProfile, validUntil, sigData } =
+                const resolveResponse =
                     await Lib.offchainResolver.encodeUserProfile(
                         signer,
                         profile.profile,
@@ -103,7 +103,7 @@ export function ccipGateway(signer: Signer, resolverAddr: string) {
                         signature,
                     );
 
-                return res.send({ userProfile, validUntil, sigData });
+                return res.send(resolveResponse);
             } catch (e) {
                 return res.status(400).send({ error: 'Unknown error' });
             }

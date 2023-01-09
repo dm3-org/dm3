@@ -1,4 +1,5 @@
 import { ethers, Signer } from 'ethers';
+import { ResolveResponse } from '..';
 import { stringify } from '../..';
 import { UserProfile } from '../../account';
 import { getResolverInterface } from './getResolverInterface';
@@ -10,7 +11,7 @@ export async function encodeUserProfile(
     request: string,
     functionSelector: string,
     ttl: number = 300,
-) {
+): Promise<ResolveResponse> {
     const textResolver = getResolverInterface();
     const validUntil = Math.floor(Date.now() / 1000 + ttl);
 
@@ -31,7 +32,7 @@ export async function encodeUserProfile(
 
     const msgHashDigest = ethers.utils.arrayify(messageHash);
 
-    let sigData = await signer.signMessage(msgHashDigest);
+    const sig = await signer.signMessage(msgHashDigest);
 
-    return { userProfile, validUntil, sigData };
+    return { userProfile, validUntil, sig };
 }
