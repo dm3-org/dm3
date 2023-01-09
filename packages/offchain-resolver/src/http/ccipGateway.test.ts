@@ -138,7 +138,7 @@ describe('CCIP Gateway', () => {
         });
     });
     describe('Get UserProfile Offchain', () => {
-        it('Returns Offchain Userprofile', async () => {
+        it('Returns valid Offchain profile', async () => {
             const { signer, profile, signature } = await getSignedUserProfile();
 
             const name = 'foo.dm3.eth';
@@ -174,6 +174,80 @@ describe('CCIP Gateway', () => {
             );
 
             expect(JSON.parse(result)).toStrictEqual(body.userProfile);
+        });
+        it('Returns 404 if profile does not exists', async () => {
+            const { signer, profile, signature } = await getSignedUserProfile();
+
+            const name = 'foo.dm3.eth';
+
+            //Call the contract to retrieve the gateway url
+            const { callData, sender } = await resolveGateWayUrl(
+                name,
+                offchainResolver,
+            );
+
+            //You the url returned by he contract to fetch the profile from the ccip gateway
+            const { body, status } = await request(app)
+                .get(`/${sender}/${callData}`)
+                .send();
+
+            expect(status).toBe(404);
+        });
+        it('Returns 400 if record is not eth.dm3.profile', async () => {
+            const { signer, profile, signature } = await getSignedUserProfile();
+
+            const name = 'foo.dm3.eth';
+
+            //Call the contract to retrieve the gateway url
+            const resolveGatewayUrlForTheWrongRecord = async () => {
+                try {
+                    const textData = getResolverInterface().encodeFunctionData(
+                        'text',
+                        [
+                            ethers.utils.namehash(
+                                ethers.utils.nameprep('foo.dm3.eth'),
+                            ),
+                            'unknown.record',
+                        ],
+                    );
+
+                    //This always revers and throws the OffchainLookup Exceptions hence we need to catch it
+                    await offchainResolver.resolve(
+                        dnsName('foo.dm3.eth'),
+                        textData,
+                    );
+                    return {
+                        gatewayUrl: '',
+                        callbackFunction: '',
+                        extraData: '',
+                    };
+                } catch (err: any) {
+                    const { sender, urls, callData } = err.errorArgs;
+                    //Decode call
+
+                    //Replace template vars
+                    const gatewayUrl = urls[0]
+                        .replace('{sender}', sender)
+                        .replace('{data}', callData);
+
+                    return { gatewayUrl, sender, callData };
+                }
+            };
+            const { sender, callData } =
+                await resolveGatewayUrlForTheWrongRecord();
+            //You the url returned by he contract to fetch the profile from the ccip gateway
+            const { status } = await request(app)
+                .get(`/${sender}/${callData}`)
+                .send();
+
+            expect(status).toBe(400);
+        });
+        it('Returns 400 if something failed during the request', async () => {
+            //You the url returned by he contract to fetch the profile from the ccip gateway
+            const { body, status } = await request(app).get(`/foo/bar`).send();
+
+            expect(status).toBe(400);
+            expect(body.error).toBe('Unknown error');
         });
     });
 });
