@@ -259,7 +259,7 @@ describe('CCIP Gateway', () => {
             const { body, status } = await request(app).get(`/foo/bar`).send();
 
             expect(status).toBe(400);
-            expect(body.error).toBe('Unknown error');
+            expect(body.message).toBe('Unknown error');
         });
     });
 
@@ -295,6 +295,23 @@ describe('CCIP Gateway', () => {
             const text = await resolver.getText('eth.dm3.profile');
 
             expect(JSON.parse(text)).toStrictEqual(profile);
+        });
+        it('Throws error if lookup went wrong', async () => {
+            const provider = new MockProvider(
+                hreEthers.provider,
+                fetchProfileFromCcipGateway,
+                offchainResolver,
+            );
+
+            const resolver = new ethers.providers.Resolver(
+                provider,
+                offchainResolver.address,
+                'foo.dm3.eth',
+            );
+
+            expect(
+                async () => await resolver.getText('unknown record'),
+            ).rejects.toThrowError();
         });
     });
     const fetchProfileFromCcipGateway = async (url: string, json?: string) => {
@@ -399,7 +416,11 @@ describe('CCIP Gateway', () => {
                 template.includes('{data}') ? undefined : JSON.stringify(args),
                 processFunc,
             );
-            return data.body.data;
+            if (data.status === 200) {
+                return data.body.data;
+            }
+
+            return data.body.message;
         }
 
         detectNetwork(): Promise<Network> {

@@ -60,7 +60,7 @@ export function ccipGateway(signer: Signer, resolverAddr: string) {
 
                 if (record !== 'eth.dm3.profile') {
                     return res.status(400).send({
-                        error: `Record is not supported by this resolver`,
+                        message: `Record is not supported by this resolver`,
                     });
                 }
 
@@ -68,7 +68,9 @@ export function ccipGateway(signer: Signer, resolverAddr: string) {
                 const profile = await req.app.locals.db.getUserProfile(name);
 
                 if (!profile) {
-                    return res.send(404);
+                    return res
+                        .status(404)
+                        .send({ message: 'Profile not found' });
                 }
 
                 const data = await Lib.offchainResolver.encodeUserProfile(
@@ -81,7 +83,7 @@ export function ccipGateway(signer: Signer, resolverAddr: string) {
 
                 return res.send({ data });
             } catch (e) {
-                return res.status(400).send({ error: 'Unknown error' });
+                return res.status(400).send({ message: 'Unknown error' });
             }
         },
     );
