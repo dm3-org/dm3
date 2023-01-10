@@ -1,5 +1,5 @@
 import { Contract, ethers } from 'ethers';
-import { log, stringify } from '../..';
+import { log, stringify } from './..';
 import { getResolverInterface } from './getResolverInterface';
 import { CiipResponse } from './types';
 

@@ -1,7 +1,7 @@
 import { ethers, Signer } from 'ethers';
-import { ResolveResponse } from '..';
-import { stringify } from '../..';
-import { UserProfile } from '../../account';
+import { ResolveResponse } from '.';
+import { stringify } from './..';
+import { UserProfile } from './../account';
 import { getResolverInterface } from './getResolverInterface';
 
 /**

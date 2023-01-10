@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import { ethers } from 'ethers';
-import { log } from '../../shared/log';
+import { log } from './../shared/log';
 import { getResolverInterface } from './getResolverInterface';
 import { DecodedCcipRequest } from './types';
 /**

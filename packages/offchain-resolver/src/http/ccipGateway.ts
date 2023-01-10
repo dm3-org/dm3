@@ -37,7 +37,6 @@ export function ccipGateway(signer: Signer, resolverAddr: string) {
                     .status(400)
                     .send({ error: 'subdomain already claimed' });
             }
-            //TODO impl sig
             await req.app.locals.db.setUserProfile(
                 name,
                 signedUserProfile.profile,

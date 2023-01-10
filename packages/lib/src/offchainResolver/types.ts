@@ -1,4 +1,4 @@
-import { UserProfile } from '../../account';
+import { UserProfile } from './../account';
 //TODO add proper description and response
 export interface CiipResponse {
     userProfile: UserProfile;

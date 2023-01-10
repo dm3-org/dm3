@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import { UserProfile } from '../../account';
-import { stringify } from '../../shared/stringify';
+import { UserProfile } from './../account';
+import { stringify } from './../shared/stringify';
 import { encodeUserProfile } from './encodeUserProfile';
 import { getResolverInterface } from './getResolverInterface';
 
