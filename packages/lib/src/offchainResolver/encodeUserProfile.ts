@@ -21,7 +21,7 @@ export async function encodeUserProfile(
     request: string,
     functionSelector: string,
     ttl: number = 300,
-): Promise<ResolveResponse> {
+): Promise<string> {
     const textResolver = getResolverInterface();
     const validUntil = Math.floor(Date.now() / 1000 + ttl);
 
@@ -50,5 +50,8 @@ export async function encodeUserProfile(
      */
     const sig = await signer.signMessage(msgHashDigest);
 
-    return { userProfile, validUntil, sig };
+    return ethers.utils.defaultAbiCoder.encode(
+        ['bytes', 'uint64', 'bytes'],
+        [result, validUntil, sig],
+    );
 }

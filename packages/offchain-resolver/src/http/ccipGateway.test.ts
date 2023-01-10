@@ -1,11 +1,23 @@
+import {
+    BaseProvider,
+    TransactionRequest,
+    BlockTag,
+    Network,
+} from '@ethersproject/providers';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import bodyParser from 'body-parser';
 import * as Lib from 'dm3-lib/dist.backend';
-import { Contract, ethers } from 'ethers';
+import { BytesLike, Contract, ethers } from 'ethers';
+import {
+    fetchJson,
+    arrayify,
+    FetchJsonResponse,
+    hexlify,
+} from 'ethers/lib/utils';
 import express from 'express';
 import { ethers as hreEthers } from 'hardhat';
 import request from 'supertest';
-import { OffchainResolver } from '../../typechain';
+import { OffchainResolver, OffchainResolver__factory } from '../../typechain';
 import { getDatabase, getRedisClient, Redis } from '../persistance/getDatabase';
 import { IDatabase } from '../persistance/IDatabase';
 import { ccipGateway } from './ccipGateway';
@@ -166,14 +178,18 @@ describe('CCIP Gateway', () => {
                 .send();
 
             expect(status).toBe(200);
-            const result = await Lib.offchainResolver.resolveWithProof(
-                hreEthers.provider,
-                offchainResolver.address,
+
+            const resultString = await offchainResolver.resolveWithProof(
+                body.data,
                 callData,
-                body,
             );
 
-            expect(JSON.parse(result)).toStrictEqual(body.userProfile);
+            const [actualProfile] = getResolverInterface().decodeFunctionResult(
+                'text',
+                resultString,
+            );
+
+            expect(JSON.parse(actualProfile)).toStrictEqual(profile);
         });
         it('Returns 404 if profile does not exists', async () => {
             const { signer, profile, signature } = await getSignedUserProfile();
@@ -246,6 +262,150 @@ describe('CCIP Gateway', () => {
             expect(body.error).toBe('Unknown error');
         });
     });
+
+    describe('E2e test', () => {
+        it('resolves propfile using ethers.provider.getText()', async () => {
+            const { signer, profile, signature } = await getSignedUserProfile();
+
+            const name = 'foo.dm3.eth';
+
+            //Create the profile in the first place
+            const writeRes = await request(app).post(`/`).send({
+                name,
+                address: signer,
+                signedUserProfile: {
+                    profile,
+                    signature,
+                },
+            });
+            expect(writeRes.status).toBe(200);
+
+            const provider = new MockProvider(
+                hreEthers.provider,
+                fetchProfileFromCcipGateway,
+                offchainResolver,
+            );
+
+            const resolver = new ethers.providers.Resolver(
+                provider,
+                offchainResolver.address,
+                'foo.dm3.eth',
+            );
+
+            const text = await resolver.getText('eth.dm3.profile');
+
+            expect(JSON.parse(text)).toStrictEqual(profile);
+        });
+    });
+    const fetchProfileFromCcipGateway = async (url: string, json?: string) => {
+        const [sender, data] = url.split('/').slice(3);
+
+        const response = await request(app).get(`/${sender}/${data}`).send();
+
+        return response;
+    };
+
+    type Fetch = (
+        url: string,
+        json?: string,
+        processFunc?: (value: any, response: FetchJsonResponse) => any,
+    ) => Promise<any>;
+    class MockProvider extends BaseProvider {
+        readonly parent: BaseProvider;
+        readonly fetcher: Fetch;
+        readonly offchainResolver: OffchainResolver;
+
+        /**
+         * Constructor.
+         * @param provider: The Ethers provider to wrap.
+         */
+        constructor(
+            provider: BaseProvider,
+            fetcher: Fetch = fetchJson,
+            offchainResolver: OffchainResolver,
+        ) {
+            super(31337);
+            this.parent = provider;
+            this.fetcher = fetcher;
+            this.offchainResolver = offchainResolver;
+        }
+
+        async perform(method: string, params: any): Promise<any> {
+            switch (method) {
+                case 'call':
+                    const { result } = await this.handleCall(this, params);
+                    return result;
+                default:
+                    return this.parent.perform(method, params);
+            }
+        }
+
+        async handleCall(
+            provider: MockProvider,
+            params: { transaction: TransactionRequest; blockTag?: BlockTag },
+        ): Promise<{ transaction: TransactionRequest; result: BytesLike }> {
+            const fnSig = params.transaction.data!.toString().substring(0, 10);
+
+            const rawResult = await provider.parent.perform('call', params);
+
+            if (fnSig !== '0x9061b923') {
+                const result = offchainResolver.interface.encodeFunctionResult(
+                    fnSig,
+                    [rawResult],
+                );
+
+                return {
+                    transaction: params.transaction,
+                    result,
+                };
+            }
+
+            const { urls, callData } =
+                offchainResolver.interface.decodeErrorResult(
+                    'OffchainLookup',
+                    rawResult,
+                );
+
+            const response = await this.sendRPC(
+                provider.fetcher,
+                urls,
+                params.transaction.to,
+                callData,
+            );
+            return {
+                transaction: params.transaction,
+                result: response,
+            };
+        }
+
+        async sendRPC(
+            fetcher: Fetch,
+            urls: string[],
+            to: any,
+            callData: BytesLike,
+        ): Promise<BytesLike> {
+            const processFunc = (value: any, response: FetchJsonResponse) => {
+                return { body: value, status: response.statusCode };
+            };
+
+            const args = { sender: hexlify(to), data: hexlify(callData) };
+            const template = urls[0];
+            const url = template.replace(
+                /\{([^}]*)\}/g,
+                (_match, p1: keyof typeof args) => args[p1],
+            );
+            const data = await fetcher(
+                url,
+                template.includes('{data}') ? undefined : JSON.stringify(args),
+                processFunc,
+            );
+            return data.body.data;
+        }
+
+        detectNetwork(): Promise<Network> {
+            return this.parent.detectNetwork();
+        }
+    }
 });
 
 const getSignedUserProfile = async (

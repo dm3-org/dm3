@@ -47,16 +47,16 @@ export function ccipGateway(signer: Signer, resolverAddr: string) {
     );
 
     router.get(
-        '/:resolverAddr/:data',
+        '/:resolverAddr/:calldata',
         async (
             req: express.Request & { app: WithLocals },
             res: express.Response,
         ) => {
-            const { resolverAddr, data } = req.params;
+            const { resolverAddr, calldata } = req.params;
             //TODO should we blackist all request that are not orignated from our dm3 resolver? CC@Heiko
             try {
                 const { record, name, signature } =
-                    Lib.offchainResolver.decodeCalldata(data);
+                    Lib.offchainResolver.decodeCalldata(calldata);
 
                 if (record !== 'eth.dm3.profile') {
                     return res.status(400).send({
@@ -71,16 +71,15 @@ export function ccipGateway(signer: Signer, resolverAddr: string) {
                     return res.send(404);
                 }
 
-                const resolveResponse =
-                    await Lib.offchainResolver.encodeUserProfile(
-                        signer,
-                        profile,
-                        resolverAddr,
-                        data,
-                        signature,
-                    );
+                const data = await Lib.offchainResolver.encodeUserProfile(
+                    signer,
+                    profile,
+                    resolverAddr,
+                    calldata,
+                    signature,
+                );
 
-                return res.send(resolveResponse);
+                return res.send({ data });
             } catch (e) {
                 return res.status(400).send({ error: 'Unknown error' });
             }
