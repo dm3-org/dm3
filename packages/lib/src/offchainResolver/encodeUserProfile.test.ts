@@ -25,7 +25,7 @@ describe('encodeUserProfie', () => {
 
         const functionSelector = 'text(bytes32,string)';
 
-        const { userProfile, validUntil } = await encodeUserProfile(
+        const encodedProfile = await encodeUserProfile(
             signer,
             profile,
             signer.address,
@@ -33,33 +33,16 @@ describe('encodeUserProfie', () => {
             functionSelector,
         );
 
-        const hash = ethers.utils.solidityKeccak256(
-            ['bytes', 'address', 'uint64', 'bytes32', 'bytes32'],
-            [
-                '0x1900',
-                signer.address,
-                validUntil,
-                ethers.utils.keccak256(calldata),
-                ethers.utils.keccak256(
-                    getResolverInterface().encodeFunctionResult(
-                        functionSelector,
-                        [stringify(userProfile)],
-                    ),
-                ),
-            ],
+        const [encodedResult] = ethers.utils.defaultAbiCoder.decode(
+            ['bytes', 'uint64', 'bytes'],
+            encodedProfile,
         );
 
-        const pack = ethers.utils.keccak256(
-            ethers.utils.solidityPack(
-                ['string', 'string', 'bytes'],
-                [
-                    '\x19Ethereum Signed Message:\n',
-                    String.fromCharCode(hash.length),
-                    hash,
-                ],
-            ),
+        const [decodedProfile] = getResolverInterface().decodeFunctionResult(
+            'text',
+            encodedResult,
         );
-        //TODO add assertion
+        expect(JSON.parse(decodedProfile)).toStrictEqual(profile);
     });
 });
 function dnsName(name: string) {
