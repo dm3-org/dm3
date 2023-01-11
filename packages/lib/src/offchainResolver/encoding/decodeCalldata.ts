@@ -1,12 +1,12 @@
-/* eslint-disable max-len */
 import { ethers } from 'ethers';
 import { log } from '../../shared/log';
-import { getResolverInterface } from './getResolverInterface';
+import { decodeDnsName } from '../dns/decodeDnsName';
 import { DecodedCcipRequest } from '../types';
+import { getResolverInterface } from './getResolverInterface';
 /**
  * This function can be used to decode calldata return by the resolve method of the Offchain Resolver Smart Contract
  * This encoded calldata must have the following format
- * "resolve (dnsname(name),text(namehash(name),record))""
+ * "resolve (decodeDnsName(name),text(namehash(name),record))""
  * To find out how to build the calldata you may check out {@see encodeFunctionData} {@see getResolverInterface}
  * or the unit test provided in this package
  * @param calldata the encoded calldata string
@@ -42,22 +42,4 @@ export function decodeCalldata(calldata: string): DecodedCcipRequest {
         log(err);
         throw err;
     }
-}
-/**
- * 
-
- * {@link https://github.com/ensdomains/offchain-resolver/blob/ed330e4322b1fafe2ffbd1496829c75185dd9e2e/packages/gateway/src/server.ts#L30}
-*/
-function decodeDnsName(dnsname: string) {
-    //Create an Buffer of the name without the leading "0x" sequence
-    const nameBuffer = Buffer.from(dnsname.slice(2), 'hex');
-    const labels = [];
-    let idx = 0;
-    while (true) {
-        const len = nameBuffer.readUInt8(idx);
-        if (len === 0) break;
-        labels.push(nameBuffer.slice(idx + 1, idx + len + 1).toString('utf8'));
-        idx += len + 1;
-    }
-    return labels.join('.');
 }

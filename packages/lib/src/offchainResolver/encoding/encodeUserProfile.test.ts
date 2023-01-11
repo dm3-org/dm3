@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import { UserProfile } from '../../account';
 import { stringify } from '../../shared/stringify';
+import { encodeEnsName } from '../dns/encodeEnsName';
 import { encodeUserProfile } from './encodeUserProfile';
 import { getResolverInterface } from './getResolverInterface';
 
@@ -19,7 +20,7 @@ describe('encodeUserProfie', () => {
         ]);
 
         const calldata = getResolverInterface().encodeFunctionData('resolve', [
-            dnsName('foo.dm3.eth'),
+            encodeEnsName('foo.dm3.eth'),
             textData,
         ]);
 
@@ -45,28 +46,3 @@ describe('encodeUserProfie', () => {
         expect(JSON.parse(decodedProfile)).toStrictEqual(profile);
     });
 });
-function dnsName(name: string) {
-    // strip leading and trailing .
-    const n = name.replace(/^\.|\.$/gm, '');
-
-    var bufLen = n === '' ? 1 : n.length + 2;
-    var buf = Buffer.allocUnsafe(bufLen);
-
-    let offset = 0;
-    if (n.length) {
-        const list = n.split('.');
-        for (let i = 0; i < list.length; i++) {
-            const len = buf.write(list[i], offset + 1);
-            buf[offset] = len;
-            offset += len + 1;
-        }
-    }
-    buf[offset++] = 0;
-    return (
-        '0x' +
-        buf.reduce(
-            (output, elem) => output + ('0' + elem.toString(16)).slice(-2),
-            '',
-        )
-    );
-}

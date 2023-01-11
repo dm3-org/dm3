@@ -225,7 +225,7 @@ describe('CCIP Gateway', () => {
 
                     //This always revers and throws the OffchainLookup Exceptions hence we need to catch it
                     await offchainResolver.resolve(
-                        dnsName('foo.dm3.eth'),
+                        Lib.offchainResolver.encodeEnsName('foo.dm3.eth'),
                         textData,
                     );
                     return {
@@ -450,31 +450,6 @@ const getSignedUserProfile = async (
     return { signature, profile, signer };
 };
 
-function dnsName(name: string) {
-    // strip leading and trailing .
-    const n = name.replace(/^\.|\.$/gm, '');
-
-    var bufLen = n === '' ? 1 : n.length + 2;
-    var buf = Buffer.allocUnsafe(bufLen);
-
-    let offset = 0;
-    if (n.length) {
-        const list = n.split('.');
-        for (let i = 0; i < list.length; i++) {
-            const len = buf.write(list[i], offset + 1);
-            buf[offset] = len;
-            offset += len + 1;
-        }
-    }
-    buf[offset++] = 0;
-    return (
-        '0x' +
-        buf.reduce(
-            (output, elem) => output + ('0' + elem.toString(16)).slice(-2),
-            '',
-        )
-    );
-}
 export function getResolverInterface() {
     return new ethers.utils.Interface([
         'function resolve(bytes calldata name, bytes calldata data) external view returns(bytes)',
@@ -492,7 +467,10 @@ const resolveGateWayUrl = async (
         ]);
 
         //This always revers and throws the OffchainLookup Exceptions hence we need to catch it
-        await offchainResolver.resolve(dnsName(ensName), textData);
+        await offchainResolver.resolve(
+            Lib.offchainResolver.encodeEnsName(ensName),
+            textData,
+        );
         return { gatewayUrl: '', callbackFunction: '', extraData: '' };
     } catch (err: any) {
         const { sender, urls, callData } = err.errorArgs;
