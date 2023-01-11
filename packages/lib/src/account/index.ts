@@ -27,6 +27,8 @@ export {
     getProfileCreationMessage,
 } from './Account';
 
+export { checkUserProfile } from './Account';
+
 export type { Account, ProfileKeys, UserProfile } from './Account';
 
 export type { ProfileExtension } from './profileExtension';
@@ -119,3 +121,5 @@ export function getUserProfile(
 }
 
 export type GetUserProfile = typeof getUserProfile;
+
+export * as schema from './schema';
