@@ -1,8 +1,8 @@
 /* eslint-disable max-len */
 import { ethers } from 'ethers';
-import { log } from './../shared/log';
+import { log } from '../../shared/log';
 import { getResolverInterface } from './getResolverInterface';
-import { DecodedCcipRequest } from './types';
+import { DecodedCcipRequest } from '../types';
 /**
  * This function can be used to decode calldata return by the resolve method of the Offchain Resolver Smart Contract
  * This encoded calldata must have the following format

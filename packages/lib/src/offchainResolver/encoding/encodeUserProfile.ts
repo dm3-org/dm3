@@ -1,7 +1,6 @@
 import { ethers, Signer } from 'ethers';
-import { ResolveResponse } from '.';
-import { stringify } from './..';
-import { UserProfile } from './../account';
+import { stringify } from '../..';
+import { UserProfile } from '../../account';
 import { getResolverInterface } from './getResolverInterface';
 
 /**
@@ -12,7 +11,7 @@ import { getResolverInterface } from './getResolverInterface';
  * @param request The calldata the resolve method of the OffchainProcessor returns {@see decodeCalldata}
  * @param functionSelector The selector that was used to query the profile entry in the first place
  * @param ttl the time to life to calculate validUntil.
- * @returns {@see ResolveResponse}
+ * @returns the encoded response
  */
 export async function encodeUserProfile(
     signer: Signer,

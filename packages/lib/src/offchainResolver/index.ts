@@ -1,7 +1,4 @@
-export { decodeCalldata } from './decodeCalldata';
-export { encodeUserProfile } from './encodeUserProfile';
-export { resolveWithProof } from './resolveWithProof';
-export type {
-    CiipResponse as ResolveResponse,
-    DecodedCcipRequest,
-} from './types';
+export { decodeCalldata } from './encoding/decodeCalldata';
+export { encodeUserProfile } from './encoding/encodeUserProfile';
+
+export type { DecodedCcipRequest } from './types';
