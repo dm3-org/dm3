@@ -810,7 +810,7 @@ describe('Account', () => {
 
             expect(tx?.args).toStrictEqual([
                 '0xca7a0eadca1ba3745db7065063294b717422bd1c70995cba8f5adcd094fdae1d',
-                'eth.dm3.profile',
+                'dm3.profile',
                 'http://bla?dm3Hash=0x352942c3b35370f5424b2a4d263aeca1158a5c6e3c1d0a866c23f9d80e6ea426',
             ]);
 
