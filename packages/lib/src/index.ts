@@ -5,6 +5,7 @@ export * as account from './account';
 export * as crypto from './crypto';
 export * as external from './external-apis';
 export * as messaging from './messaging';
+export * as offchainResolver from './offchainResolver';
 export * as session from './session';
 export * as storage from './storage';
 export * as web3provider from './web3-provider';

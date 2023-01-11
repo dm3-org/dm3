@@ -5,7 +5,8 @@
             "packages/lib",
             "packages/backend",
             "packages/react",
-            "packages/web"
+            "packages/web",
+            "packages/offchain-resolver"
         ],
         "nohoist": [
             "**/react",
