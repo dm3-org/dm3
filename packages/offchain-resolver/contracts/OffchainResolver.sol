@@ -38,10 +38,13 @@ interface IResolverService {
  * Callers must implement EIP 3668 and ENSIP 10.
  */
 contract OffchainResolver is IExtendedResolver, SupportsInterface {
+    address public owner;
     string public url;
     mapping(address => bool) public signers;
 
     event NewSigners(address[] signers);
+    event NewOwner(address newOwner);
+
     error OffchainLookup(
         address sender,
         string[] urls,
@@ -50,12 +53,27 @@ contract OffchainResolver is IExtendedResolver, SupportsInterface {
         bytes extraData
     );
 
-    constructor(string memory _url, address[] memory _signers) {
+    constructor(
+        string memory _url,
+        address _owner,
+        address[] memory _signers
+    ) {
         url = _url;
+        owner = _owner;
         for (uint256 i = 0; i < _signers.length; i++) {
             signers[_signers[i]] = true;
         }
         emit NewSigners(_signers);
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, 'only owner');
+        _;
+    }
+
+    function setOwner(address _newOwner) onlyOwner external {
+        owner = _newOwner;
+        emit NewOwner(owner);
     }
 
     function makeSignatureHash(
@@ -63,7 +81,7 @@ contract OffchainResolver is IExtendedResolver, SupportsInterface {
         uint64 expires,
         bytes memory request,
         bytes memory result
-    ) external view returns (bytes32) {
+    ) external pure returns (bytes32) {
         return
             SignatureVerifier.makeSignatureHash(
                 target,
