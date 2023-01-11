@@ -58,7 +58,7 @@ export function ccipGateway(signer: Signer, resolverAddr: string) {
                 const { record, name, signature } =
                     Lib.offchainResolver.decodeCalldata(calldata);
 
-                if (record !== 'eth.dm3.profile') {
+                if (record !== 'dm3.profile') {
                     return res.status(400).send({
                         message: `Record is not supported by this resolver`,
                     });
