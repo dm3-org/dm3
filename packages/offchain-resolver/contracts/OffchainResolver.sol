@@ -44,6 +44,7 @@ contract OffchainResolver is IExtendedResolver, SupportsInterface {
 
     event NewSigners(address[] signers);
     event NewOwner(address newOwner);
+    event SignerRemoved(address removedSinger);
 
     error OffchainLookup(
         address sender,
@@ -71,9 +72,26 @@ contract OffchainResolver is IExtendedResolver, SupportsInterface {
         _;
     }
 
-    function setOwner(address _newOwner) onlyOwner external {
+    function setOwner(address _newOwner) external onlyOwner {
         owner = _newOwner;
         emit NewOwner(owner);
+    }
+
+    function addSigners(address[] memory _signers) external onlyOwner {
+        for (uint256 i = 0; i < _signers.length; i++) {
+            signers[_signers[i]] = true;
+        }
+        emit NewSigners(_signers);
+    }
+
+    function removeSigners(address[] memory _signers) external onlyOwner {
+        for (uint256 i = 0; i < _signers.length; i++) {
+            //Without this if check it's possible to add a signer to the SignerRemoved Event that never was a signer in the first place. This may cause failures at indexing services that are trying to delete a non-existing signer...
+            if (signers[_signers[i]]) {
+                signers[_signers[i]] = false;
+                emit SignerRemoved((_signers[i]));
+            }
+        }
     }
 
     function makeSignatureHash(

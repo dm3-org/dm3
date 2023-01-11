@@ -3,16 +3,27 @@ import '@nomicfoundation/hardhat-toolbox';
 import '@nomiclabs/hardhat-ethers';
 import '@typechain/hardhat';
 import '@nomiclabs/hardhat-ethers';
+import 'hardhat-gas-reporter';
 
 import * as dotenv from 'dotenv';
 require('@nomiclabs/hardhat-ethers');
 require('@typechain/hardhat');
-require('@nomiclabs/hardhat-ethers');
 
 dotenv.config();
 
 const config: HardhatUserConfig = {
-    solidity: '0.8.17',
+    solidity: {
+        version: '0.8.4',
+        settings: {
+            optimizer: {
+                enabled: true,
+                // eslint-disable-next-line max-len
+                //I think it make sense to optimize for cheap deployment since setOwner or addSince will not be used often
+                runs: 1,
+            },
+        },
+    },
+
     etherscan: {
         apiKey: '',
     },
@@ -24,6 +35,11 @@ const config: HardhatUserConfig = {
     typechain: {
         outDir: 'typechain',
         target: 'ethers-v5',
+    },
+    gasReporter: {
+        currency: 'USD',
+        gasPrice: 21,
+        enabled: true,
     },
 };
 
