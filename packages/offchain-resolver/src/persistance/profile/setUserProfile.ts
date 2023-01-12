@@ -1,10 +1,14 @@
 import * as Lib from 'dm3-lib/dist.backend';
 import { Redis } from '../getDatabase';
-import { USER_PROFILE_KEY } from '.';
+import { ADDRESS_TO_PROFILE_KEY, USER_PROFILE_KEY } from '.';
 import { ethers } from 'ethers';
 
 export function setUserProfile(redis: Redis) {
-    return async (name: string, profile: Lib.account.UserProfile) => {
+    return async (
+        name: string,
+        profile: Lib.account.UserProfile,
+        address: string,
+    ) => {
         const profileIsValid = Lib.validateSchema(
             Lib.account.schema.SignedUserProfile.definitions.UserProfile,
             profile,
@@ -21,6 +25,8 @@ export function setUserProfile(redis: Redis) {
             nameHash,
             JSON.stringify(profile),
         );
+
+        await redis.set(ADDRESS_TO_PROFILE_KEY + address, nameHash);
 
         return !!writeResult;
     };
