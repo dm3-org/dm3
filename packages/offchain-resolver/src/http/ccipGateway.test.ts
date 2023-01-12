@@ -69,6 +69,11 @@ describe('CCIP Gateway', () => {
         it('Returns valid Offchain profile', async () => {
             const { signer, profile, signature } = await getSignedUserProfile();
 
+            await dm3User.sendTransaction({
+                to: signer,
+                value: hreEthers.BigNumber.from(1),
+            });
+
             const name = 'foo.dm3.eth';
 
             //Create the profile in the first place
@@ -184,6 +189,10 @@ describe('CCIP Gateway', () => {
     describe('E2e test', () => {
         it('resolves propfile using ethers.provider.getText()', async () => {
             const { signer, profile, signature } = await getSignedUserProfile();
+            await dm3User.sendTransaction({
+                to: signer,
+                value: hreEthers.BigNumber.from(1),
+            });
 
             const name = 'foo.dm3.eth';
 

@@ -1,4 +1,4 @@
-import { USER_PROFILE_KEY } from '.';
+import { setUserProfile } from '.';
 import { IDatabase } from '../IDatabase';
 import { getDatabase, getRedisClient, Redis } from './../getDatabase';
 import { getUserProfile } from './getUserProfile';
@@ -34,8 +34,7 @@ describe('getUserProfile', () => {
             deliveryServices: [''],
         };
 
-        await redisClient.hSet(USER_PROFILE_KEY, name, JSON.stringify(profile));
-
+        await setUserProfile(redisClient)(name, profile);
         const retrivedProfile = await getUserProfile(redisClient)(name);
 
         expect(retrivedProfile).toStrictEqual(profile);

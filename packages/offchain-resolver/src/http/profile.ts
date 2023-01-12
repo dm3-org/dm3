@@ -38,6 +38,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     .status(400)
                     .send({ error: 'Insuficient ETH balance' });
             }
+
             const profileExists = await req.app.locals.db.getUserProfile(name);
 
             if (profileExists) {
