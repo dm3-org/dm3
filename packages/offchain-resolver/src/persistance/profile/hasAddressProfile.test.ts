@@ -3,8 +3,8 @@ import { Redis, getRedisClient, getDatabase } from '../getDatabase';
 import { IDatabase } from '../IDatabase';
 import { setUserProfile } from './setUserProfile';
 import { ethers } from 'ethers';
-import { addressHasAlreadyAProfile } from './addressHasAlreadyAProfile';
-describe('addressHasAlreadyAProfile', () => {
+import { hasAddressProfile } from './hasAddressProfile';
+describe('hasAddressProfile', () => {
     let redisClient: Redis;
     let db: IDatabase;
 
@@ -20,9 +20,7 @@ describe('addressHasAlreadyAProfile', () => {
     });
     it('Returns false if the requesting address has no profile created yet', async () => {
         const { address } = ethers.Wallet.createRandom();
-        const hasProfile = await addressHasAlreadyAProfile(redisClient)(
-            address,
-        );
+        const hasProfile = await hasAddressProfile(redisClient)(address);
 
         expect(hasProfile).toBe(false);
     });
@@ -38,9 +36,7 @@ describe('addressHasAlreadyAProfile', () => {
         };
 
         await setUserProfile(redisClient)(name, profile, address);
-        const hasProfile = await addressHasAlreadyAProfile(redisClient)(
-            address,
-        );
+        const hasProfile = await hasAddressProfile(redisClient)(address);
 
         expect(hasProfile).toBe(true);
     });

@@ -7,5 +7,5 @@ export interface IDatabase {
         offchainUserProfile: Lib.account.UserProfile,
         address: string,
     ): Promise<boolean>;
-    addressHasAlreadyAProfile(name: string): Promise<boolean>;
+    hasAddressProfile(name: string): Promise<boolean>;
 }

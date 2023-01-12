@@ -30,11 +30,12 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 return res.status(400).send({ error: 'invalid profile' });
             }
 
-            const addressHasAlreadyAProfile =
-                await req.app.locals.db.addressHasAlreadyAProfile(address);
+            const hasAddressProfile = await req.app.locals.db.hasAddressProfile(
+                address,
+            );
 
             //One address can only claim one subdomain
-            if (addressHasAlreadyAProfile) {
+            if (hasAddressProfile) {
                 return res
                     .status(400)
                     .send({ error: 'address has already claimed a subdomain' });

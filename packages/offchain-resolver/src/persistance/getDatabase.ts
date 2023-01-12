@@ -7,7 +7,7 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
     return {
         getUserProfile: Profile.getUserProfile(redis),
         setUserProfile: Profile.setUserProfile(redis),
-        addressHasAlreadyAProfile: Profile.addressHasAlreadyAProfile(redis),
+        hasAddressProfile: Profile.hasAddressProfile(redis),
     };
 }
 
