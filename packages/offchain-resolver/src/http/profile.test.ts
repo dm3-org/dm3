@@ -131,6 +131,45 @@ describe('Profile', () => {
             expect(res2.status).toBe(400);
             expect(res2.body.error).toStrictEqual('subdomain already claimed');
         });
+        it('Rejects if address already claimed a subdomain', async () => {
+            const offChainProfile1 = await getSignedUserProfile();
+
+            //Fund wallets so their balance is not zero
+            const [wale] = await hreEthers.getSigners();
+            await wale.sendTransaction({
+                to: offChainProfile1.signer,
+                value: hreEthers.BigNumber.from(1),
+            });
+
+            const res1 = await request(app)
+                .post(`/`)
+                .send({
+                    name: 'foo.dm3.eth',
+                    address: offChainProfile1.signer,
+                    signedUserProfile: {
+                        signature: offChainProfile1.signature,
+                        profile: offChainProfile1.profile,
+                    },
+                });
+
+            expect(res1.status).toBe(200);
+
+            const res2 = await request(app)
+                .post(`/`)
+                .send({
+                    name: 'bar.dm3.eth',
+                    address: offChainProfile1.signer,
+                    signedUserProfile: {
+                        signature: offChainProfile1.signature,
+                        profile: offChainProfile1.profile,
+                    },
+                });
+
+            expect(res2.status).toBe(400);
+            expect(res2.body.error).toStrictEqual(
+                'address has already claimed a subdomain',
+            );
+        });
         it('Stores a valid profile', async () => {
             const { signer, profile, signature } = await getSignedUserProfile();
 

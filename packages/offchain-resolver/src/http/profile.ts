@@ -30,6 +30,15 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 return res.status(400).send({ error: 'invalid profile' });
             }
 
+            const addressHasAlreadyAProfile =
+                await req.app.locals.db.addressHasAlreadyAProfile(address);
+
+            //One address can only claim one subdomain
+            if (addressHasAlreadyAProfile) {
+                return res
+                    .status(400)
+                    .send({ error: 'address has already claimed a subdomain' });
+            }
             const sendersBalance = await web3Provider.getBalance(address);
 
             //To avoid spam the user is required to have at least a non-zero balance
@@ -49,6 +58,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
             await req.app.locals.db.setUserProfile(
                 name,
                 signedUserProfile.profile,
+                address,
             );
 
             return res.send(200);
