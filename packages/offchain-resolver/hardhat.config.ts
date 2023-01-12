@@ -31,6 +31,14 @@ const config: HardhatUserConfig = {
         localhost: {
             url: 'http://localhost:8545',
         },
+        goerli: {
+            url: process.env.GOERLI_RPC,
+            accounts: [process.env.GOERLI_PK as string],
+        },
+        mainnet: {
+            url: process.env.MAINNET_RPC,
+            accounts: [process.env.MAINNET_PK as string],
+        },
     },
     typechain: {
         outDir: 'typechain',
