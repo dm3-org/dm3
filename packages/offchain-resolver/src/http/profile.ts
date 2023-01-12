@@ -30,7 +30,14 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 return res.status(400).send({ error: 'invalid profile' });
             }
 
-            //Lib.account.ethBalanceFilter();
+            const sendersBalance = await web3Provider.getBalance(address);
+
+            //To avoid spam the user is required to have at least a non-zero balance
+            if (sendersBalance.isZero()) {
+                return res
+                    .status(400)
+                    .send({ error: 'Insuficient ETH balance' });
+            }
             const profileExists = await req.app.locals.db.getUserProfile(name);
 
             if (profileExists) {

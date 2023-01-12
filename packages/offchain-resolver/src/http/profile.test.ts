@@ -66,7 +66,7 @@ describe('Profile', () => {
             expect(body.error).toBe('invalid profile');
         });
 
-        /*      it.only('Rejects address with an empty eth balance', async () => {
+        it('Rejects address with an empty eth balance', async () => {
             const offChainProfile = await getSignedUserProfile();
             const { status, body } = await request(app)
                 .post(`/`)
@@ -81,7 +81,7 @@ describe('Profile', () => {
 
             expect(status).toBe(400);
             expect(body.error).toBe('Insuficient ETH balance');
-        }); */
+        });
 
         it('Rejects if subdomain has already a profile', async () => {
             const profile2: Lib.account.UserProfile = {
@@ -92,6 +92,17 @@ describe('Profile', () => {
 
             const offChainProfile1 = await getSignedUserProfile();
             const offChainProfile2 = await getSignedUserProfile(profile2);
+
+            //Fund wallets so their balance is not zero
+            const [wale] = await hreEthers.getSigners();
+            await wale.sendTransaction({
+                to: offChainProfile1.signer,
+                value: hreEthers.BigNumber.from(1),
+            });
+            await wale.sendTransaction({
+                to: offChainProfile2.signer,
+                value: hreEthers.BigNumber.from(1),
+            });
 
             const res1 = await request(app)
                 .post(`/`)
@@ -122,6 +133,14 @@ describe('Profile', () => {
         });
         it('Stores a valid profile', async () => {
             const { signer, profile, signature } = await getSignedUserProfile();
+
+            //Fund wallet so their balance is not zero
+            const [wale] = await hreEthers.getSigners();
+            await wale.sendTransaction({
+                to: signer,
+                value: hreEthers.BigNumber.from(1),
+            });
+
             const { status } = await request(app).post(`/`).send({
                 name: 'foo.dm3.eth',
                 address: signer,
