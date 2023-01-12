@@ -3,6 +3,14 @@ import { Redis } from '../getDatabase';
 import { ADDRESS_TO_PROFILE_KEY, USER_PROFILE_KEY } from '.';
 import { ethers } from 'ethers';
 
+/**
+ *
+ * @param {Redis} redis - Redis client
+ * @param {string} name - ENS name
+ * @param {Lib.account.UserProfile} profile - User Profile object
+ * @param {string} address - Ethereum address
+ * @returns {Promise<boolean>} - A promise that resolves to true if the profile is set successfully, false otherwise
+ */
 export function setUserProfile(redis: Redis) {
     return async (
         name: string,
