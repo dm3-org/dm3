@@ -52,7 +52,7 @@ describe('Envelope', () => {
                 deliveryServiceEncryptionPubKey: '',
                 keys: await getMockProfileKeys(),
                 from: {
-                    address: '',
+                    ensName: '',
                     profile: {
                         deliveryServices: [],
                         publicEncryptionKey: '',
@@ -60,7 +60,7 @@ describe('Envelope', () => {
                     },
                 },
                 to: {
-                    address: '',
+                    ensName: '',
                 },
             };
             expect(async () => {
@@ -93,7 +93,7 @@ describe('Envelope', () => {
                 deliveryServiceEncryptionPubKey: '',
                 keys: await getMockProfileKeys(),
                 from: {
-                    address: '',
+                    ensName: '',
                     profile: {
                         deliveryServices: [],
                         publicEncryptionKey: '',
@@ -101,7 +101,7 @@ describe('Envelope', () => {
                     },
                 },
                 to: {
-                    address: '',
+                    ensName: '',
                     profile: {
                         deliveryServices: [],
                         publicEncryptionKey: '',

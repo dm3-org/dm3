@@ -1,15 +1,19 @@
 import axios from 'axios';
-import { Account, SignedUserProfile } from '../account/Account';
+import {
+    Account,
+    getNamehash,
+    normalizeEnsName,
+    SignedUserProfile,
+} from '../account/Account';
 import { Acknoledgment } from '../delivery';
 import { getDeliveryServiceClient } from '../delivery/Delivery';
 import { EncryptionEnvelop, Envelop } from '../messaging';
 import { log } from '../shared/log';
 import { Connection } from '../web3-provider/Web3Provider';
-import { formatAddress } from './InjectedWeb3API';
 
-const PROFILE_PATH = '/profile';
-const DELIVERY_PATH = '/delivery';
-const AUTH_SERVICE_PATH = '/auth';
+const PROFILE_PATH = process.env.REACT_APP_BACKEND + '/profile';
+const DELIVERY_PATH = process.env.REACT_APP_BACKEND + '/delivery';
+const AUTH_SERVICE_PATH = process.env.REACT_APP_BACKEND + '/auth';
 
 function getAxiosConfig(token: string) {
     return {
@@ -33,9 +37,9 @@ export async function getChallenge(
     account: Account,
     connection: Connection,
 ): Promise<string> {
-    const { profile, address } = checkAccount(account);
+    const { profile, ensName } = checkAccount(account);
 
-    const url = `${AUTH_SERVICE_PATH}/${formatAddress(address)}`;
+    const url = `${AUTH_SERVICE_PATH}/${normalizeEnsName(ensName)}`;
 
     const { data } = await getDeliveryServiceClient(
         profile,
@@ -52,9 +56,9 @@ export async function getNewToken(
     connection: Connection,
     signature: string,
 ): Promise<string> {
-    const { profile, address } = checkAccount(account);
+    const { profile, ensName } = checkAccount(account);
 
-    const url = `${AUTH_SERVICE_PATH}/${formatAddress(address)}`;
+    const url = `${AUTH_SERVICE_PATH}/${normalizeEnsName(ensName)}`;
 
     const { data } = await getDeliveryServiceClient(
         profile,
@@ -73,9 +77,9 @@ export async function submitUserProfile(
     connection: Connection,
     signedUserProfile: SignedUserProfile,
 ): Promise<string> {
-    const { profile, address } = checkAccount(account);
+    const { profile, ensName } = checkAccount(account);
 
-    const url = `${PROFILE_PATH}/${formatAddress(address)}`;
+    const url = `${PROFILE_PATH}/${normalizeEnsName(ensName)}`;
 
     const { data } = await getDeliveryServiceClient(
         profile,
@@ -85,7 +89,6 @@ export async function submitUserProfile(
 
     return data;
 }
-
 export type SubmitUserProfile = typeof submitUserProfile;
 
 export async function submitMessage(
@@ -127,9 +130,9 @@ export async function syncAcknoledgment(
     const { account } = connection;
     const { profile } = checkAccount(account);
 
-    const url = `${DELIVERY_PATH}/messages/${
-        account!.address
-    }/syncAcknoledgment/${lastMessagePull}`;
+    const url = `${DELIVERY_PATH}/messages/${normalizeEnsName(
+        account!.ensName,
+    )}/syncAcknoledgment/${lastMessagePull}`;
 
     return getDeliveryServiceClient(
         profile,
@@ -179,9 +182,9 @@ export async function getNewMessages(
     const { account } = connection;
     const { profile } = checkAccount(account);
 
-    const url = `${DELIVERY_PATH}/messages/${
-        account!.address
-    }/contact/${contactAddress}`;
+    const url = `${DELIVERY_PATH}/messages/${normalizeEnsName(
+        account!.ensName,
+    )}/contact/${contactAddress}`;
 
     const { data } = await getDeliveryServiceClient(
         profile,
@@ -200,7 +203,7 @@ export async function getPendingConversations(
     const { account } = connection;
     const { profile } = checkAccount(account);
 
-    const url = `${DELIVERY_PATH}/messages/${account!.address}/pending/`;
+    const url = `${DELIVERY_PATH}/messages/${getNamehash(account!)}/pending/`;
 
     const { data } = await getDeliveryServiceClient(
         profile,

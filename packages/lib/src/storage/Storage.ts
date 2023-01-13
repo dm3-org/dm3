@@ -1,7 +1,6 @@
-import { ProfileKeys } from '../account/Account';
+import { normalizeEnsName, ProfileKeys } from '../account/Account';
 import { decrypt, encrypt, EncryptedPayload } from '../crypto';
 import { Acknoledgment } from '../delivery';
-import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { Envelop } from '../messaging';
 import { MessageState } from '../messaging/Message';
 import { log } from '../shared/log';
@@ -116,7 +115,7 @@ export function getConversation(
 ): StorageEnvelopContainer[] {
     const conversationId = getConversationId(
         contact,
-        connection.account!.address,
+        connection.account!.ensName,
     );
     const envelops = db.conversations.get(conversationId);
     return envelops ?? [];
@@ -239,8 +238,10 @@ export async function load(
     };
 }
 
-export function getConversationId(accountA: string, accountB: string): string {
-    return [formatAddress(accountA), formatAddress(accountB)].sort().join();
+export function getConversationId(ensNameA: string, ensNameB: string): string {
+    return [normalizeEnsName(ensNameA), normalizeEnsName(ensNameB)]
+        .sort()
+        .join();
 }
 /**
  * Creates a new conversation entry if the conversationId not yet known.
@@ -249,13 +250,13 @@ export function getConversationId(accountA: string, accountB: string): string {
  */
 export function createEmptyConversation(
     connection: Connection,
-    accountAddress: string,
+    ensName: string,
     userDb: UserDB,
     createEmptyConversationEntry: (id: string) => void,
 ): boolean {
     const conversationId = getConversationId(
-        connection.account!.address,
-        accountAddress,
+        connection.account!.ensName,
+        ensName,
     );
     const conversationIsAlreadyKnown = userDb.conversations.has(conversationId);
 

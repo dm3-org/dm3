@@ -14,7 +14,7 @@ describe('Profile', () => {
             app.use(profile());
 
             app.locals.db = {
-                getSession: async (accountAddress: string) => ({
+                getSession: async (ensName: string) => ({
                     signedUserProfile: {},
                 }),
                 setSession: async (_: string, __: any) => {
@@ -28,23 +28,6 @@ describe('Profile', () => {
 
             expect(status).toBe(200);
         });
-        it('Returns 400 if schema is invalid', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(profile());
-
-            app.locals.db = {
-                getSession: async (accountAddress: string) => ({
-                    signedUserProfile: {},
-                }),
-                setSession: async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
-                },
-            };
-            const { status, body } = await request(app).get('/12345').send();
-
-            expect(status).toBe(400);
-        });
     });
 
     describe('submitUserProfile', () => {
@@ -53,13 +36,21 @@ describe('Profile', () => {
             app.use(bodyParser.json());
             app.use(profile());
 
-            app.locals.db = {
-                getSession: async (accountAddress: string) =>
-                    Promise.resolve(null),
-                setSession: async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
+            const mnemonic =
+                'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
+
+            const wallet = ethers.Wallet.fromMnemonic(mnemonic);
+
+            app.locals = {
+                web3Provider: { resolveName: async () => wallet.address },
+                db: {
+                    getSession: async (ensName: string) =>
+                        Promise.resolve(null),
+                    setSession: async (_: string, __: any) => {
+                        return (_: any, __: any, ___: any) => {};
+                    },
+                    getPending: (_: any) => [],
                 },
-                getPending: (_: any) => [],
             };
 
             const userProfile: UserProfile = {
@@ -67,11 +58,6 @@ describe('Profile', () => {
                 publicEncryptionKey: '1',
                 deliveryServices: [],
             };
-
-            const mnemonic =
-                'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
-
-            const wallet = ethers.Wallet.fromMnemonic(mnemonic);
 
             const createUserProfileMessage =
                 Lib.account.getProfileCreationMessage(
@@ -123,7 +109,7 @@ describe('Profile', () => {
 
             const signedUserProfile = {
                 profile: userProfile,
-                signature,
+                signature: null,
             };
 
             const { status } = await request(app)

@@ -13,7 +13,9 @@ import { StorageLocation, UserDB } from '../storage';
 import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
 import { getMessages, submitMessage } from './Message';
 
+const USER_NAME_1 = 'alice.eth';
 const USER_ADDRESS_1 = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
+const USER_NAME_2 = 'bob.eth';
 const USER_ADDRESS_2 = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
 const getMockProfileKeys = async () => {
@@ -39,7 +41,7 @@ describe('Message', () => {
             const message: Message = {
                 metadata: {
                     to: '',
-                    from: USER_ADDRESS_1,
+                    from: USER_NAME_1,
                     timestamp: 123,
                     type: 'NEW',
                 },
@@ -50,7 +52,7 @@ describe('Message', () => {
                 deliveryServiceEncryptionPubKey: '',
                 keys: await getMockProfileKeys(),
                 from: {
-                    address: '',
+                    ensName: '',
                     profile: {
                         deliveryServices: [],
                         publicEncryptionKey: '',
@@ -58,7 +60,7 @@ describe('Message', () => {
                     },
                 },
                 to: {
-                    address: '',
+                    ensName: '',
                     profile: {
                         deliveryServices: [],
                         publicEncryptionKey: '',
@@ -103,7 +105,7 @@ describe('Message', () => {
             const message: Message = {
                 metadata: {
                     to: '',
-                    from: USER_ADDRESS_1,
+                    from: USER_NAME_1,
                     timestamp: 123,
                     type: 'NEW',
                 },
@@ -114,7 +116,7 @@ describe('Message', () => {
                 deliveryServiceEncryptionPubKey: '',
                 keys: await getMockProfileKeys(),
                 from: {
-                    address: '',
+                    ensName: '',
                     profile: {
                         deliveryServices: [],
                         publicEncryptionKey: '',
@@ -122,7 +124,7 @@ describe('Message', () => {
                     },
                 },
                 to: {
-                    address: '',
+                    ensName: '',
                     profile: {
                         deliveryServices: [],
                         publicEncryptionKey: '',
@@ -178,7 +180,7 @@ describe('Message', () => {
         it('Throws Exception if connection has no account', async () => {
             const connection = {} as Connection;
             const deliveryServiceToken = '';
-            const contact = USER_ADDRESS_2;
+            const contact = USER_NAME_2;
             const getNewMessages = jest.fn();
             const storeMessages = () => {};
             const userDb = {} as UserDB;
@@ -208,7 +210,7 @@ describe('Message', () => {
                         publicEncryptionKey: '',
                         publicSigningKey: '',
                     },
-                    address: USER_ADDRESS_1,
+                    ensName: USER_NAME_1,
                 },
                 provider: {
                     getResolver: () => {
@@ -220,7 +222,7 @@ describe('Message', () => {
             } as Connection;
 
             const deliveryServiceToken = '';
-            const contact = USER_ADDRESS_2;
+            const contact = USER_NAME_2;
 
             const keys = await getMockProfileKeys();
 

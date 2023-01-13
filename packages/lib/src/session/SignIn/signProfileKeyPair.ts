@@ -21,9 +21,15 @@ export async function createKeyPairsFromSig(
 
     const storageKeyCreationMessage = getStorageKeyCreationMessage(nonce);
 
+    const address = await connection.provider?.resolveName(account.ensName);
+
+    if (!address) {
+        throw Error(`Couldn't resolve ENS name to eth address`);
+    }
+
     const signature = await personalSign(
         provider,
-        account.address,
+        address,
         storageKeyCreationMessage,
     );
 

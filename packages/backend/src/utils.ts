@@ -1,6 +1,5 @@
 import * as Lib from 'dm3-lib/dist.backend';
 import { ethers } from 'ethers';
-import { isAddress } from 'ethers/lib/utils';
 import { Express, NextFunction, Request, Response } from 'express';
 import { Socket } from 'socket.io';
 import { ExtendedError } from 'socket.io/dist/namespace';
@@ -10,22 +9,28 @@ export async function auth(
     req: Request,
     res: Response,
     next: NextFunction,
-    address: string,
+    ensName: string,
 ) {
-    //Address has to be a valid ethereum addresss
-    if (!isAddress(address)) {
-        return res.sendStatus(400);
-    }
-
-    const account = Lib.external.formatAddress(address);
+    const normalizedEnsName = Lib.account.normalizeEnsName(ensName);
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
+
+    const address = await req.app.locals.web3Provider.resolveName(ensName);
+    if (!address) {
+        req.app.locals.logger.warn({
+            method: 'AUTH',
+            error: 'Token check failed: Could not resolve ENS name',
+            normalizedEnsName,
+        });
+        res.sendStatus(401);
+    }
 
     if (
         token &&
         (await Lib.delivery.checkToken(
+            req.app.locals.web3Provider,
             req.app.locals.db.getSession,
-            account,
+            address,
             token,
         ))
     ) {
@@ -34,7 +39,7 @@ export async function auth(
         req.app.locals.logger.warn({
             method: 'AUTH',
             error: 'Token check failed',
-            account,
+            normalizedEnsName,
         });
         res.sendStatus(401);
     }
@@ -45,32 +50,32 @@ export function socketAuth(app: Express & WithLocals) {
         socket: Socket,
         next: (err?: ExtendedError | undefined) => void,
     ) => {
-        const address = socket.handshake.auth.account.address;
-        if (!isAddress(address)) {
-            return next(new Error('Invalid address'));
-        }
-        const account = Lib.external.formatAddress(address as string);
+        const ensName = Lib.account.normalizeEnsName(
+            socket.handshake.auth.account.ensName,
+        );
+
         app.locals.logger.info({
             method: 'WS CONNECT',
-            account,
+            ensName,
             socketId: socket.id,
         });
 
         if (
             !(await Lib.delivery.checkToken(
+                app.locals.web3Provider,
                 app.locals.db.getSession,
-                account,
+                ensName,
                 socket.handshake.auth.token as string,
             ))
         ) {
             return next(new Error('invalid username'));
         }
-        const session = await app.locals.db.getSession(account);
+        const session = await app.locals.db.getSession(ensName);
         if (!session) {
             throw Error('Could not get session');
         }
 
-        await app.locals.db.setSession(account, {
+        await app.locals.db.setSession(ensName, {
             ...session,
             socketId: socket.id,
         });
@@ -140,7 +145,7 @@ export function readKeysFromEnv(env: NodeJS.ProcessEnv): {
 
 export function getWeb3Provider(
     env: NodeJS.ProcessEnv,
-): ethers.providers.BaseProvider {
+): ethers.providers.JsonRpcProvider {
     const readKey = (keyName: string) => {
         const key = env[keyName];
         if (!key) {

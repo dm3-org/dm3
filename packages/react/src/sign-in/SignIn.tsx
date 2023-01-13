@@ -70,7 +70,7 @@ function SignIn(props: SignInProps) {
             state.connection.account && state.uiState.browserStorageBackup
                 ? await localforage.getItem(
                       Lib.account.getBrowserStorageKey(
-                          state.connection.account.address,
+                          state.connection.account.ensName,
                       ),
                   )
                 : null;

@@ -1,7 +1,6 @@
 import express from 'express';
 import { Socket } from 'socket.io';
 import { onConnection } from './messaging';
-import { socketAuth } from './utils';
 import { testData } from '../../../test-data/encrypted-envelops.test';
 import * as Lib from 'dm3-lib/dist.backend';
 import { WithLocals } from './types';
@@ -34,22 +33,6 @@ const keysA = {
 const keyPair = Lib.crypto.createKeyPair();
 
 describe('Messaging', () => {
-    describe('socketAuth', () => {
-        it('throws error if address is not a valid ethereum address', async () => {
-            const app = {} as express.Express & WithLocals;
-
-            const getSocketMock = jest.fn(() => {
-                return {
-                    handshake: { auth: { account: { address: 'foo' } } },
-                } as unknown as Socket;
-            });
-            const next = jest.fn((e: any) => {
-                expect(e.message).toBe('Invalid address');
-            });
-
-            await socketAuth(app)(getSocketMock(), next);
-        });
-    });
     describe('submitMessage', () => {
         it('returns success if schema is valid', (done: any) => {
             //We expect the callback functions called once witht he value 'success'
@@ -73,6 +56,10 @@ describe('Messaging', () => {
                     },
 
                     deliveryServiceProperties: { sizeLimit: 2 ** 14 },
+                    web3Provider: {
+                        resolveName: async () =>
+                            '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                    },
 
                     db: { getSession, createMessage: () => {} },
                     redisClient: {
@@ -126,6 +113,7 @@ describe('Messaging', () => {
                 } as Lib.delivery.Session;
             };
             //We provide an mocked express app with all needes locals vars
+
             const app = {
                 locals: {
                     logger,
@@ -139,6 +127,8 @@ describe('Messaging', () => {
                     db: { getSession: session, createMessage: () => {} },
                     web3Provider: {
                         getTransactionCount: (_: string) => Promise.resolve(0),
+                        resolveName: async () =>
+                            '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
                     },
                     redisClient: {
                         zAdd: () => {},

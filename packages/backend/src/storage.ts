@@ -10,13 +10,15 @@ export default () => {
 
     //TODO remove
     router.use(cors());
-    router.param('address', auth);
+    router.param('ensName', auth);
 
     router.get(
-        '/:address',
+        '/:ensName',
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const account = Lib.external.formatAddress(req.params.address);
+                const account = Lib.account.normalizeEnsName(
+                    req.params.ensName,
+                );
                 const userStorage = await req.app.locals.db.getUserStorage(
                     account,
                 );
@@ -28,10 +30,12 @@ export default () => {
     );
 
     router.post(
-        '/:address',
+        '/:ensName',
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const account = Lib.external.formatAddress(req.params.address);
+                const account = Lib.account.normalizeEnsName(
+                    req.params.ensName,
+                );
 
                 await req.app.locals.db.setUserStorage(
                     account,

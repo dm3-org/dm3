@@ -15,8 +15,8 @@ import {
     syncAcknoledgment,
 } from './BackendAPI';
 
-const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
-const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
+const SENDER_NAME = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
+const RECEIVER_NAME = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
 jest.mock('../delivery/Delivery', () => ({
     getDeliveryServiceClient: jest.fn(() => ({
@@ -66,7 +66,7 @@ describe('BackendAPI', () => {
     describe('getChallenge', () => {
         it('Returns a challenge if the user has a deliveryService specified ', async () => {
             const account = {
-                address: SENDER_ADDRESS,
+                ensName: SENDER_NAME,
                 profile: {
                     deliveryServices: ['foo.eth'],
                 },
@@ -97,7 +97,7 @@ describe('BackendAPI', () => {
     describe('getNewToken', () => {
         it('Returns a token if a valid signature was provided', async () => {
             const account = {
-                address: SENDER_ADDRESS,
+                ensName: SENDER_NAME,
                 profile: {
                     deliveryServices: ['foo.eth'],
                 },
@@ -112,7 +112,7 @@ describe('BackendAPI', () => {
     describe('submitUserProfile', () => {
         it('Returns a userToken if a valid profile was provided', async () => {
             const account = {
-                address: SENDER_ADDRESS,
+                ensName: SENDER_NAME,
                 profile: {
                     deliveryServices: ['foo.eth'],
                 },
@@ -186,6 +186,7 @@ describe('BackendAPI', () => {
         it('Returns the acknoledgment  ', async () => {
             const connection = {
                 account: {
+                    ensName: SENDER_NAME,
                     profile: {},
                 },
             } as Connection;
@@ -263,7 +264,7 @@ describe('BackendAPI', () => {
         it('Returns new messages', async () => {
             const connection = {
                 account: {
-                    address: SENDER_ADDRESS,
+                    ensName: SENDER_NAME,
                     profile: {},
                 },
             } as Connection;
@@ -285,7 +286,7 @@ describe('BackendAPI', () => {
         it('returns pending conversations', async () => {
             const connection = {
                 account: {
-                    address: SENDER_ADDRESS,
+                    ensName: SENDER_NAME,
                     profile: {},
                 },
             } as Connection;
@@ -298,7 +299,7 @@ describe('BackendAPI', () => {
         it('returns profile from given url', async () => {
             const connection = {} as Connection;
             const account = {} as Account;
-            const contact = RECEIVER_ADDRESS;
+            const contact = RECEIVER_NAME;
             const url = 'dm3.io';
 
             const profile = await getUserProfileOffChain(
@@ -315,7 +316,7 @@ describe('BackendAPI', () => {
             const account = {
                 profile: {},
             } as Account;
-            const contact = RECEIVER_ADDRESS;
+            const contact = RECEIVER_NAME;
             const url = undefined;
 
             const profile = await getUserProfileOffChain(

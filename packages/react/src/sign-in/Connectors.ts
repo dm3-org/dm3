@@ -101,24 +101,10 @@ export async function connectAccount(
         dispatch({
             type: ConnectionType.ChangeAccount,
             payload: {
-                address: accountConnection.account,
+                ensName: accountConnection.account,
                 profile: accountConnection.profile?.profile,
             },
         });
-
-        const ensName = await Lib.external.lookupAddress(
-            state.connection.provider as ethers.providers.JsonRpcProvider,
-            accountConnection.account,
-        );
-        if (ensName) {
-            dispatch({
-                type: CacheType.AddEnsName,
-                payload: {
-                    address: accountConnection.account,
-                    name: ensName,
-                },
-            });
-        }
     } else {
         dispatch({
             type: ConnectionType.ChangeConnectionState,
@@ -141,28 +127,24 @@ export async function signIn(
     // Get the users DB. Based wether the profile already exits the db
     // will either be created by decrypting the exisitng storge file
     // or by by creating a enitre new profile
-    const { db, connectionState, deliveryServiceToken } = await getDatabase(
-        state.uiState.proflieExists,
-        storageLocation,
-        storageToken,
-        state,
-        dispatch,
-    );
+    const { db, connectionState, deliveryServiceToken, account } =
+        await getDatabase(
+            state.uiState.proflieExists,
+            storageLocation,
+            storageToken,
+            state,
+            dispatch,
+        );
 
-    const address = state.connection.account!.address;
+    const ensName = state.connection.account!.ensName;
     //Fetching the profile from the Delivery Service
     const profile = (
         await Lib.account.getUserProfile(
             state.connection,
-            address,
-            state.connection.defaultServiceUrl + '/profile/' + address,
+            ensName,
+            state.connection.defaultServiceUrl + '/profile/' + ensName,
         )
     )?.profile;
-
-    const account: Lib.account.Account = {
-        address: state.connection.account!.address,
-        profile,
-    };
 
     dispatch({
         type: ConnectionType.ChangeAccount,
@@ -186,7 +168,7 @@ export async function signIn(
         type: AuthStateType.AddNewSession,
         payload: {
             token: deliveryServiceToken,
-            address: account.address,
+            ensName: account.ensName,
             storage: storageLocation,
         },
     });

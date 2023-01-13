@@ -13,7 +13,6 @@ import { UserDbType } from './reducers/UserDB';
 import { ConnectionType } from './reducers/Connection';
 import { showSignIn } from './sign-in/Phases';
 import SignIn from './sign-in/SignIn';
-import { CacheType } from './reducers/Cache';
 import { UiStateType } from './reducers/UiState';
 import Start from './start/Start';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -190,14 +189,6 @@ function dm3(props: dm3Props) {
                 }),
             (contacts: Contact[]) =>
                 dispatch({ type: AccountsType.SetContacts, payload: contacts }),
-            (address: string, name: string) =>
-                dispatch({
-                    type: CacheType.AddEnsName,
-                    payload: {
-                        address,
-                        name,
-                    },
-                }),
             state.userDb,
             (id: string) =>
                 dispatch({

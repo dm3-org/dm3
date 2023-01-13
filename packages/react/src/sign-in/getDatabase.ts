@@ -3,6 +3,7 @@ import { ConnectionType } from '../reducers/Connection';
 import { GlobalState } from '../reducers/shared';
 import { getStorageFile } from './getStorageFile';
 import * as Lib from 'dm3-lib';
+import { AccountsType } from '../reducers/Accounts';
 
 export async function getDatabase(
     profileExists: boolean,
@@ -11,9 +12,10 @@ export async function getDatabase(
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
 ) {
-    return profileExists
-        ? getExistingDatebase(storageLocation, storageToken, state, dispatch)
-        : createNewDatabase(state);
+    // return profileExists
+    //     ? getExistingDatebase(storageLocation, storageToken, state, dispatch)
+    //     : createNewDatabase(state);
+    return createNewDatabase(state);
 }
 
 async function getExistingDatebase(
@@ -53,6 +55,13 @@ async function getExistingDatebase(
     return { deliveryServiceToken, db, connectionState };
 }
 
-async function createNewDatabase(state: GlobalState) {
-    return await Lib.session.signIn(state.connection);
+async function createNewDatabase(state: GlobalState): Promise<{
+    connectionState: Lib.web3provider.ConnectionState;
+    db: Lib.storage.UserDB;
+    deliveryServiceToken: string;
+    account: Lib.account.Account;
+}> {
+    const signInData = await Lib.session.signIn(state.connection);
+
+    return signInData;
 }

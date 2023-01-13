@@ -52,7 +52,6 @@ export const initialState: GlobalState = {
         accountInfoView: AccountInfo.None,
     },
     cache: {
-        ensNames: new Map<string, string>(),
         abis: new Map<string, string>(),
         avatarUrls: new Map<string, string>(),
     },
