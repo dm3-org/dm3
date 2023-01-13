@@ -4,46 +4,10 @@ import { stringify } from '../shared/stringify';
 import { Session } from './Session';
 import { getUserProfile, submitUserProfile } from './UserProfile';
 
+const SENDER_NAME = 'alice.eth';
+const RANDO_NAME = 'bob.eth';
 const SENDER_ADDRESS = '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1';
 const RANDO_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
-
-const keysA = {
-    encryptionKeyPair: {
-        publicKey:
-            '0x78798cab6f457a23ca7cd3e449cb4fb99197bd5d2c29e3bf299917da75ef320c',
-        privateKey:
-            '0xa4c23bec5db0dc62bea2664207803ad560ea21238e9d61974767ff3132dba9b6',
-    },
-    signingKeyPair: {
-        publicKey:
-            '0xfad90341665fbfd8b106639bb1ff2d8131d365a8f0004f66b93b450148f67bd2',
-        privateKey:
-            '0xf83a5e0630b32021688bbe37ff8ebac89ba7b07479e4186bdc69ea712e1cb895' +
-            'fad90341665fbfd8b106639bb1ff2d8131d365a8f0004f66b93b450148f67bd2',
-    },
-    storageEncryptionKey:
-        '0xf83a5e0630b32021688bbe37ff8ebac89ba7b07479e4186bdc69ea712e1cb895',
-    storageEncryptionNonce: 0,
-};
-
-const keysB = {
-    encryptionKeyPair: {
-        publicKey:
-            '0x19867565066fc86c876f6f027006f64edabe435155fffa5269746eac00142608',
-        privateKey:
-            '0x395643aa80723066c4ce1c5d1dc4eeaf3a44c31c4fdbfd44322354c7e493e60e',
-    },
-    signingKeyPair: {
-        publicKey:
-            '0xee64c50eb6b097cee37b534d9d1858128578b465578479533dc69d968aa2be6d',
-        privateKey:
-            '0xf83a5e0630b32021688bbe37ff8ebac89ba7b07479e4186bdc69ea712e1cb89' +
-            '6ee64c50eb6b097cee37b534d9d1858128578b465578479533dc69d968aa2be6d',
-    },
-    storageEncryptionKey:
-        '0xf83a5e0630b32021688bbe37ff8ebac89ba7b07479e4186bdc69ea712e1cb896',
-    storageEncryptionNonce: 0,
-};
 
 const emptyProfile: UserProfile = {
     publicSigningKey: '',
@@ -83,9 +47,10 @@ describe('UserProfile', () => {
 
             await expect(async () => {
                 await submitUserProfile(
+                    { resolveName: () => RANDO_ADDRESS } as any,
                     getSession,
                     setSession,
-                    RANDO_ADDRESS,
+                    RANDO_NAME,
                     singedUserProfile,
                     getPendingConversations,
                     send,
@@ -115,7 +80,7 @@ describe('UserProfile', () => {
                     };
                 };
 
-                return session(SENDER_ADDRESS, '123', emptyProfile);
+                return session(SENDER_NAME, '123', emptyProfile);
             };
             const getPendingConversations = () => Promise.resolve([]);
             const send = () => {};
@@ -124,28 +89,30 @@ describe('UserProfile', () => {
 
             await expect(async () => {
                 await submitUserProfile(
+                    { resolveName: () => SENDER_ADDRESS } as any,
                     getSession,
                     setSession,
-                    SENDER_ADDRESS,
+                    SENDER_NAME,
                     singedUserProfile,
                     getPendingConversations,
                     send,
                 );
             }).rejects.toEqual(Error('Profile exists already'));
         });
+
         it('skips pending contact without a session', async () => {
             const setSession = jest.fn();
             const getSession = (address: string) => Promise.resolve(null);
-            const getPendingConversations = () =>
-                Promise.resolve([RANDO_ADDRESS]);
+            const getPendingConversations = () => Promise.resolve([RANDO_NAME]);
             const send = jest.fn();
 
             const singedUserProfile = await signProfile(emptyProfile);
 
             await submitUserProfile(
+                { resolveName: () => SENDER_ADDRESS } as any,
                 getSession,
                 setSession,
-                SENDER_ADDRESS,
+                SENDER_NAME,
                 singedUserProfile,
                 getPendingConversations,
                 send,
@@ -154,26 +121,27 @@ describe('UserProfile', () => {
             expect(setSession).toBeCalled();
             expect(send).not.toBeCalled();
         });
+
         it('notifies pending contact with a socketId', async () => {
             const setSession = jest.fn();
             const getSession = (address: string) => {
-                if (address === RANDO_ADDRESS) {
+                if (address === RANDO_NAME) {
                     return Promise.resolve({
                         socketId: 'foo',
                     } as Session);
                 }
                 return Promise.resolve(null);
             };
-            const getPendingConversations = () =>
-                Promise.resolve([RANDO_ADDRESS]);
+            const getPendingConversations = () => Promise.resolve([RANDO_NAME]);
             const send = jest.fn();
 
             const singedUserProfile = await signProfile(emptyProfile);
 
             await submitUserProfile(
+                { resolveName: () => SENDER_ADDRESS } as any,
                 getSession,
                 setSession,
-                SENDER_ADDRESS,
+                SENDER_NAME,
                 singedUserProfile,
                 getPendingConversations,
                 send,
@@ -182,6 +150,7 @@ describe('UserProfile', () => {
             expect(setSession).toBeCalled();
             expect(send).toBeCalled();
         });
+
         it('stores a newly created user profile', async () => {
             const setSession = jest.fn();
             const getSession = () => Promise.resolve(null);
@@ -191,9 +160,10 @@ describe('UserProfile', () => {
             const singedUserProfile = await signProfile(emptyProfile);
 
             await submitUserProfile(
+                { resolveName: () => SENDER_ADDRESS } as any,
                 getSession,
                 setSession,
-                SENDER_ADDRESS,
+                SENDER_NAME,
                 singedUserProfile,
                 getPendingConversations,
                 send,
@@ -206,7 +176,7 @@ describe('UserProfile', () => {
         it('Returns undefined if address has no session', async () => {
             const getSession = () => Promise.resolve(null);
 
-            const profile = await getUserProfile(getSession, RANDO_ADDRESS);
+            const profile = await getUserProfile(getSession, RANDO_NAME);
 
             expect(profile).toBeUndefined();
         });
@@ -214,7 +184,7 @@ describe('UserProfile', () => {
             const getSession = () =>
                 Promise.resolve({ signedUserProfile: {} } as Session);
 
-            const profile = await getUserProfile(getSession, RANDO_ADDRESS);
+            const profile = await getUserProfile(getSession, RANDO_NAME);
 
             expect(profile).not.toBeUndefined();
         });

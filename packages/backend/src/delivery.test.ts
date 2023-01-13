@@ -1,5 +1,4 @@
 import bodyParser from 'body-parser';
-import { ethers } from 'ethers';
 import express from 'express';
 import request from 'supertest';
 import auth from './auth';
@@ -25,10 +24,14 @@ describe('Delivery', () => {
             const app = express();
             app.use(bodyParser.json());
             app.use(delivery());
-            (app.locals.keys = {
-                signing: keysA.signingKeyPair,
-                encryption: keysA.encryptionKeyPair,
+            (app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
             }),
+                (app.locals.keys = {
+                    signing: keysA.signingKeyPair,
+                    encryption: keysA.encryptionKeyPair,
+                }),
                 (app.locals.redisClient = {
                     exists: (_: any) => false,
                 });
@@ -36,7 +39,7 @@ describe('Delivery', () => {
             const token = await createAuthToken();
 
             app.locals.db = {
-                getSession: async (accountAddress: string) =>
+                getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: 'my-Challenge',
                         signedUserProfile: {
@@ -54,10 +57,7 @@ describe('Delivery', () => {
             };
 
             const { status } = await request(app)
-                .get(
-                    // eslint-disable-next-line max-len
-                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/contact/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
-                )
+                .get('/messages/alice.eth/contact/bob.eth')
                 .set({
                     authorization: `Bearer ${token}`,
                 })
@@ -65,34 +65,6 @@ describe('Delivery', () => {
                 .send();
 
             expect(status).toBe(200);
-        });
-        it('Returns 400 if schema is invalid', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(delivery());
-
-            const token = await createAuthToken();
-
-            app.locals.db = {
-                getSession: async (accountAddress: string) => ({
-                    challenge: '123',
-                    token,
-                }),
-                setSession: async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
-                },
-                getPending: (_: any) => [],
-            };
-
-            const { status } = await request(app)
-                .get('/messages/01234/contact/5679')
-                .set({
-                    authorization: `Bearer ${token}`,
-                })
-
-                .send();
-
-            expect(status).toBe(400);
         });
     });
 
@@ -107,11 +79,15 @@ describe('Delivery', () => {
                 sMembers: (_: any) => [],
                 del: (_: any) => {},
             };
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
+            };
 
             const token = await createAuthToken();
 
             app.locals.db = {
-                getSession: async (accountAddress: string) => ({
+                getSession: async (ensName: string) => ({
                     challenge: '123',
                     token,
                 }),
@@ -134,39 +110,6 @@ describe('Delivery', () => {
 
             expect(status).toBe(200);
         });
-        it('Returns 400 if schema is invalid', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(delivery());
-
-            app.locals.redisClient = {
-                exists: (_: any) => false,
-                sMembers: (_: any) => [],
-                del: (_: any) => {},
-            };
-
-            const token = await createAuthToken();
-
-            app.locals.db = {
-                getSession: async (accountAddress: string) => ({
-                    challenge: '123',
-                    token,
-                }),
-                setSession: async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
-                },
-            };
-
-            const { status } = await request(app)
-                .post('/messages/1234/pending')
-                .set({
-                    authorization: `Bearer ${token}`,
-                })
-
-                .send();
-
-            expect(status).toBe(400);
-        });
     });
 
     describe('syncAcknoledgment', () => {
@@ -183,11 +126,15 @@ describe('Delivery', () => {
                 hGetAll: () => ['123', '456'],
                 zRemRangeByScore: (_: any, __: any, ___: any) => 0,
             };
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
+            };
 
             const token = await createAuthToken();
 
             app.locals.db = {
-                getSession: async (accountAddress: string) => ({
+                getSession: async (ensName: string) => ({
                     challenge: '123',
                     token,
                 }),
@@ -226,11 +173,15 @@ describe('Delivery', () => {
                 sMembers: (_: any) => [],
                 del: (_: any) => {},
             };
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
+            };
 
             const token = await createAuthToken();
 
             app.locals.db = {
-                getSession: async (accountAddress: string) => ({
+                getSession: async (ensName: string) => ({
                     challenge: '123',
                     token,
                 }),
@@ -263,11 +214,15 @@ describe('Delivery', () => {
                 sMembers: (_: any) => [],
                 del: (_: any) => {},
             };
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
+            };
 
             const token = await createAuthToken();
 
             app.locals.db = {
-                getSession: async (accountAddress: string) => ({
+                getSession: async (ensName: string) => ({
                     challenge: '123',
                     token,
                 }),
@@ -303,7 +258,7 @@ const createAuthToken = async () => {
     };
 
     app.locals.db = {
-        getSession: async (accountAddress: string) => ({
+        getSession: async (ensName: string) => ({
             challenge: 'my-Challenge',
             signedUserProfile: {
                 profile: {

@@ -1,19 +1,23 @@
-import { SignedUserProfile, checkUserProfile } from '../account/Account';
+import {
+    SignedUserProfile,
+    checkUserProfile,
+    normalizeEnsName,
+} from '../account/Account';
 import { getDefaultProfileExtension } from '../account/profileExtension/ProfileExtension';
-import { formatAddress } from '../external-apis';
 import { Session } from './Session';
 import { v4 as uuidv4 } from 'uuid';
+import { ethers } from 'ethers';
 
 const handlePendingConversations = async (
-    account: string,
+    ensName: string,
     getSession: (accountAddress: string) => Promise<Session | null>,
     getPendingConversations: (accountAddress: string) => Promise<string[]>,
     send: (socketId: string) => void,
 ) => {
-    const pending = await getPendingConversations(account);
+    const pending = await getPendingConversations(ensName);
     await Promise.all(
         pending.map(async (pendingEntry) => {
-            const contact = formatAddress(pendingEntry);
+            const contact = normalizeEnsName(pendingEntry);
             const contactSession = await getSession(contact);
 
             if (contactSession?.socketId) {
@@ -24,16 +28,17 @@ const handlePendingConversations = async (
 };
 
 export async function submitUserProfile(
+    provider: ethers.providers.JsonRpcProvider,
     getSession: (accountAddress: string) => Promise<Session | null>,
     setSession: (accountAddress: string, session: Session) => Promise<void>,
-    accountAddress: string,
+    ensName: string,
     signedUserProfile: SignedUserProfile,
     getPendingConversations: (accountAddress: string) => Promise<string[]>,
     send: (socketId: string) => void,
 ): Promise<string> {
-    const account = formatAddress(accountAddress);
+    const account = normalizeEnsName(ensName);
 
-    if (!checkUserProfile(signedUserProfile, account)) {
+    if (!(await checkUserProfile(provider, signedUserProfile, account))) {
         throw Error('Signature invalid.');
     }
     if (await getSession(account)) {
@@ -51,7 +56,7 @@ export async function submitUserProfile(
     await setSession(account, session);
 
     await handlePendingConversations(
-        accountAddress,
+        account,
         getSession,
         getPendingConversations,
         send,
@@ -61,9 +66,9 @@ export async function submitUserProfile(
 
 export async function getUserProfile(
     getSession: (accountAddress: string) => Promise<Session | null>,
-    accountAddress: string,
+    ensName: string,
 ): Promise<SignedUserProfile | undefined> {
-    const account = formatAddress(accountAddress);
+    const account = normalizeEnsName(ensName);
     const session = await getSession(account);
     return session?.signedUserProfile;
 }

@@ -50,16 +50,13 @@ function AccountNameHeader(props: AccountNameHeaderProps) {
                                 }}
                             >
                                 {Lib.account.getAccountDisplayName(
-                                    props.account.address,
-                                    state.cache.ensNames,
+                                    props.account.ensName,
                                 )}
                             </div>
                         </div>
                         <div className="d-flex align-items-center">
                             <div className="d-flex contact-entry-avatar">
-                                <Avatar
-                                    accountAddress={props.account.address}
-                                />
+                                <Avatar ensName={props.account.ensName} />
                             </div>
                         </div>
                     </div>

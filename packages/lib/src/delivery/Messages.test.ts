@@ -1,15 +1,15 @@
-import { assert } from 'console';
 import { BigNumber, ethers } from 'ethers';
-import { UserProfile } from '../account/Account';
-import { decryptAsymmetric } from '../crypto';
-import { formatAddress } from '../external-apis/InjectedWeb3API';
-import { EncryptionEnvelop } from '../messaging/Envelop';
+import { normalizeEnsName, UserProfile } from '../account/Account';
+import { decryptAsymmetric, encryptAsymmetric } from '../crypto';
+import { DeliveryInformation, EncryptionEnvelop } from '../messaging/Envelop';
 import { stringify } from '../shared/stringify';
 import { getConversationId } from '../storage/Storage';
 import { getMessages, incomingMessage } from './Messages';
 import { testData } from '../../../../test-data/encrypted-envelops.test';
 import { Session } from './Session';
 
+const SENDER_NAME = 'alice.eth';
+const RECEIVER_NAME = 'bob.eth';
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
@@ -41,14 +41,14 @@ const keysB = {
     storageEncryptionNonce: 0,
 };
 
-const getSession = async (address: string, socketId?: string) => {
+const getSession = async (ensName: string, socketId?: string) => {
     const emptyProfile: UserProfile = {
         publicSigningKey: '',
         publicEncryptionKey: '',
         deliveryServices: [''],
     };
-    const isSender = formatAddress(address) === SENDER_ADDRESS;
-    const isReceiver = formatAddress(address) === RECEIVER_ADDRESS;
+    const isSender = normalizeEnsName(ensName) === SENDER_NAME;
+    const isReceiver = normalizeEnsName(ensName) === RECEIVER_NAME;
 
     const session = (
         account: string,
@@ -70,11 +70,11 @@ const getSession = async (address: string, socketId?: string) => {
     });
 
     if (isSender) {
-        return session(SENDER_ADDRESS, '123', emptyProfile);
+        return session(SENDER_NAME, '123', emptyProfile);
     }
 
     if (isReceiver) {
-        return session(RECEIVER_ADDRESS, 'abc', {
+        return session(RECEIVER_NAME, 'abc', {
             ...emptyProfile,
             publicEncryptionKey: keysB.encryptionKeyPair.publicKey,
         });
@@ -116,10 +116,14 @@ describe('Messages', () => {
                     getSession,
                     storeNewMessage,
                     () => {},
-                    {} as ethers.providers.BaseProvider,
+                    {
+                        resolveName: async () =>
+                            '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                    } as any,
                 ),
             ).rejects.toEqual(Error('Token check failed'));
         });
+
         it('rejects an incoming message if it is to large', async () => {
             const storeNewMessage = async (
                 conversationId: string,
@@ -149,7 +153,7 @@ describe('Messages', () => {
                     getSession,
                     storeNewMessage,
                     () => {},
-                    {} as ethers.providers.BaseProvider,
+                    {} as ethers.providers.JsonRpcProvider,
                 ),
             ).rejects.toEqual(Error('Message is too large'));
         });
@@ -176,7 +180,7 @@ describe('Messages', () => {
                                 ),
                             },
                         },
-                        token: 'abc',
+                        token: '123',
                     },
                     keysA.signingKeyPair,
                     keysA.encryptionKeyPair,
@@ -184,10 +188,14 @@ describe('Messages', () => {
                     getSession,
                     storeNewMessage,
                     () => {},
-                    {} as ethers.providers.BaseProvider,
+                    {
+                        resolveName: async () =>
+                            '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                    } as any,
                 ),
             ).rejects.toEqual(Error('unknown session'));
         });
+
         it('rejects message if the senders nonce is below the threshold', async () => {
             //Mock the time so we can test the message with the incomming timestamp
             jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
@@ -205,7 +213,9 @@ describe('Messages', () => {
 
             const provider = {
                 getTransactionCount: async (_: string) => Promise.resolve(0),
-            } as ethers.providers.BaseProvider;
+                resolveName: async () =>
+                    '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            } as any;
 
             const storeNewMessage = async (
                 conversationId: string,
@@ -246,6 +256,7 @@ describe('Messages', () => {
                 );
             }
         });
+
         it('rejects message if the senders eth balance is below the threshold', async () => {
             //Mock the time so we can test the message with the incomming timestamp
             jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
@@ -264,7 +275,9 @@ describe('Messages', () => {
             const provider = {
                 getBalance: async (_: string) =>
                     Promise.resolve(BigNumber.from(5)),
-            } as ethers.providers.BaseProvider;
+                resolveName: async () =>
+                    '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            } as any;
 
             const storeNewMessage = async (
                 conversationId: string,
@@ -305,6 +318,7 @@ describe('Messages', () => {
                 );
             }
         });
+
         it('rejects message if the senders token balance is below the threshold', async () => {
             //Mock the time so we can test the message with the incomming timestamp
             jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
@@ -329,7 +343,9 @@ describe('Messages', () => {
             const provider = {
                 _isProvider: true,
                 call: () => Promise.resolve(BigNumber.from(0).toHexString()),
-            } as unknown as ethers.providers.BaseProvider;
+                resolveName: async () =>
+                    '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            } as unknown as ethers.providers.JsonRpcProvider;
 
             const storeNewMessage = async (
                 conversationId: string,
@@ -371,6 +387,7 @@ describe('Messages', () => {
                 );
             }
         });
+
         it('stores proper incoming message', async () => {
             //Mock the time so we can test the message with the incomming timestamp
             jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
@@ -411,13 +428,13 @@ describe('Messages', () => {
                 getSession,
                 storeNewMessage,
                 sendMock,
-                {} as ethers.providers.BaseProvider,
+                {
+                    resolveName: async () =>
+                        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                } as any,
             );
 
-            const conversationId = getConversationId(
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-                '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-            );
+            const conversationId = getConversationId('alice.eth', 'bob.eth');
 
             const actualPostmark = await decryptAsymmetric(
                 keysB.encryptionKeyPair,
@@ -453,6 +470,7 @@ describe('Messages', () => {
             //Check if the message was submitted to the socket
             expect(sendMock).not.toBeCalled();
         });
+
         it('stores proper incoming message and submit it if receiver is connected to a socket', async () => {
             //Mock the time so we can test the message with the incomming timestamp
             jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
@@ -495,13 +513,13 @@ describe('Messages', () => {
                 _getSession,
                 storeNewMessage,
                 sendMock,
-                {} as ethers.providers.BaseProvider,
+                {
+                    resolveName: async () =>
+                        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                } as any,
             );
 
-            const conversationId = getConversationId(
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-                '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-            );
+            const conversationId = getConversationId('alice.eth', 'bob.eth');
 
             const actualPostmark = await decryptAsymmetric(
                 keysB.encryptionKeyPair,
@@ -542,8 +560,8 @@ describe('Messages', () => {
     describe('GetMessages', () => {
         it('returns all messages of the user', async () => {
             const conversationIdToUse = getConversationId(
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-                '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+                'alice.eth',
+                'bob.eth',
             );
 
             const loadMessages = async (
@@ -597,8 +615,8 @@ describe('Messages', () => {
                 await getMessages(
                     loadMessages,
                     keysA.encryptionKeyPair,
-                    '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-                    '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                    'bob.eth',
+                    'alice.eth',
                 ),
             ).toStrictEqual([
                 {

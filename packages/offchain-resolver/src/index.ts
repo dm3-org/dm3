@@ -9,6 +9,9 @@ import { getWeb3Provider } from './utils/getWeb3Provider';
 import { getSigner } from './utils/getSigner';
 import { readKeyFromEnv } from './utils/readKeyEnv';
 import { profile } from './http/profile';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -32,3 +35,9 @@ app.use(bodyParser.json());
     app.use('/', ccipGateway(signer, resolverAddress));
     app.use('/profile', profile(getWeb3Provider()));
 })();
+const port = process.env.PORT || '8081';
+server.listen(port, () => {
+    app.locals.logger.log(
+        '[Server] listening at port ' + port + ' and dir ' + __dirname,
+    );
+});

@@ -8,34 +8,66 @@ describe('Session', () => {
                     token: 'foo',
                     createdAt: new Date().getTime(),
                 } as Session);
-            const address = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
-            const isValid = await checkToken(getSession, address, 'foo');
+
+            const isValid = await checkToken(
+                {
+                    resolveName: async () =>
+                        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                } as any,
+                getSession,
+                'alice.eth',
+                'foo',
+            );
 
             expect(isValid).toBe(true);
         });
+
         it('Should return false if no session exists for the account ', async () => {
             const getSession = (_: string) => Promise.resolve(null);
 
-            const address = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
-            const isValid = await checkToken(getSession, address, 'foo');
+            const isValid = await checkToken(
+                {
+                    resolveName: async () =>
+                        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                } as any,
+                getSession,
+                'alice.eth',
+                'foo',
+            );
 
             expect(isValid).toBe(false);
         });
+
         it('Should return false if a session exists but the token is wrong ', async () => {
             const getSession = (_: string) =>
                 Promise.resolve({ token: 'bar' } as Session);
 
-            const address = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
-            const isValid = await checkToken(getSession, address, 'foo');
+            const isValid = await checkToken(
+                {
+                    resolveName: async () =>
+                        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                } as any,
+                getSession,
+                'alice.eth',
+                'foo',
+            );
 
             expect(isValid).toBe(false);
         });
+
         it('Should return false if a session exists but the token is expired ', async () => {
             const getSession = (_: string) =>
                 Promise.resolve({ token: 'foo', createdAt: 1 } as Session);
 
-            const address = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
-            const isValid = await checkToken(getSession, address, 'foo');
+            const isValid = await checkToken(
+                {
+                    resolveName: async () =>
+                        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                } as any,
+                getSession,
+                'alice.eth',
+                'foo',
+            );
 
             expect(isValid).toBe(false);
         });

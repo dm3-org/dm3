@@ -1,6 +1,5 @@
 import axios from 'axios';
 import * as Lib from 'dm3-lib';
-import { ethers } from 'ethers';
 import { Contact } from '../reducers/shared';
 
 function fetchDeliveryServiceProfile(connection: Lib.Connection) {
@@ -36,11 +35,10 @@ export async function requestContacts(
     selectedContact: Contact | undefined,
     setSelectedContact: (contact: Contact | undefined) => void,
     setContacts: (constacts: Contact[]) => void,
-    addEnsName: (address: string, name: string) => void,
     userDb: Lib.storage.UserDB,
     createEmptyConversationEntry: (id: string) => void,
     storeMessages: (envelops: Lib.storage.StorageEnvelopContainer[]) => void,
-    defaultContact?: string,
+    defaultContactEnsName?: string,
 ) {
     let retrievedContacts = await Lib.account.getContacts(
         connection,
@@ -50,16 +48,16 @@ export async function requestContacts(
     );
 
     if (
-        defaultContact &&
+        defaultContactEnsName &&
         !retrievedContacts.find(
             (accounts) =>
-                Lib.external.formatAddress(accounts.address) ===
-                Lib.external.formatAddress(defaultContact),
+                Lib.account.normalizeEnsName(accounts.ensName) ===
+                Lib.account.normalizeEnsName(defaultContactEnsName),
         )
     ) {
         await Lib.account.addContact(
             connection,
-            defaultContact,
+            defaultContactEnsName,
             userDb,
             createEmptyConversationEntry,
         );
@@ -82,50 +80,33 @@ export async function requestContacts(
         !selectedContact?.account.profile?.publicEncryptionKey &&
         retrievedContacts.find(
             (contact: Lib.account.Account) =>
-                Lib.external.formatAddress(contact.address) ===
-                Lib.external.formatAddress(selectedContact.account.address),
+                Lib.account.normalizeEnsName(contact.ensName) ===
+                Lib.account.normalizeEnsName(selectedContact.account.ensName),
         )?.profile?.publicSigningKey
     ) {
         setSelectedContact(
             contacts.find(
                 (contact) =>
-                    Lib.external.formatAddress(contact.account.address) ===
-                    Lib.external.formatAddress(selectedContact.account.address),
+                    Lib.account.normalizeEnsName(contact.account.ensName) ===
+                    Lib.account.normalizeEnsName(
+                        selectedContact.account.ensName,
+                    ),
             ),
         );
-    } else if (!selectedContact && defaultContact) {
+    } else if (!selectedContact && defaultContactEnsName) {
         const contactToSelect = contacts.find(
             (accounts) =>
-                Lib.external.formatAddress(accounts.account.address) ===
-                Lib.external.formatAddress(defaultContact),
+                Lib.account.normalizeEnsName(accounts.account.ensName) ===
+                Lib.account.normalizeEnsName(defaultContactEnsName),
         );
 
         setSelectedContact(contactToSelect);
     }
 
-    (
-        await Promise.all(
-            retrievedContacts.map(async (contact: Lib.account.Account) => ({
-                address: contact.address,
-                ens: await Lib.external.lookupAddress(
-                    connection.provider as ethers.providers.JsonRpcProvider,
-                    contact.address,
-                ),
-            })),
-        )
-    )
-        .filter(
-            (lookup: { address: string; ens: string | null }) =>
-                lookup.ens !== null,
-        )
-        .forEach((lookup: { address: string; ens: string | null }) =>
-            addEnsName(lookup.address, lookup.ens as string),
-        );
-
     contacts.forEach((contact) => {
         if (contact.deliveryServiceProfile) {
             Lib.storage
-                .getConversation(contact.account.address, connection, userDb)
+                .getConversation(contact.account.ensName, connection, userDb)
                 .filter(
                     (message) =>
                         message.messageState ===

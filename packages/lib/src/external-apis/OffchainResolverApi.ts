@@ -16,13 +16,13 @@ export async function claimSubdomain(
     name: string,
     signedUserProfile: SignedUserProfile,
 ): Promise<boolean> {
-    const { address } = checkAccount(account);
+    const { ensName } = checkAccount(account);
 
     const url = `${offchainResolverUrl}/name`;
     const data = {
         signedUserProfile,
         name,
-        address,
+        ensName,
     };
 
     const { status } = await axios.post(url, data);
@@ -30,12 +30,10 @@ export async function claimSubdomain(
 }
 
 export async function claimAddress(
-    account: Account,
+    address: string,
     offchainResolverUrl: string,
     signedUserProfile: SignedUserProfile,
 ) {
-    const { address } = checkAccount(account);
-
     const url = `${offchainResolverUrl}/address`;
     const data = {
         signedUserProfile,

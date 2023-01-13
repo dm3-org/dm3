@@ -7,9 +7,9 @@ import { WithLocals } from './types';
 const getProfileSchema = {
     type: 'object',
     properties: {
-        address: { type: 'string' },
+        ensName: { type: 'string' },
     },
-    required: ['address'],
+    required: ['ensName'],
     additionalProperties: false,
 };
 
@@ -17,20 +17,16 @@ export default () => {
     const router = express.Router();
 
     router.get(
-        '/:address',
+        '/:ensName',
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const schemaIsValid = Lib.validateSchema(
-                    getProfileSchema,
-                    req.params,
+                const ensName = Lib.account.normalizeEnsName(
+                    req.params.ensName,
                 );
 
-                if (!schemaIsValid || !isAddress(req.params.address)) {
-                    return res.status(400).send({ error: 'invalid schema' });
-                }
                 const profile = await Lib.delivery.getUserProfile(
                     req.app.locals.db.getSession,
-                    req.params.address,
+                    ensName,
                 );
                 if (profile) {
                     res.json(profile);
@@ -44,26 +40,29 @@ export default () => {
     );
 
     router.post(
-        '/:address',
+        '/:ensName',
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
                 const schemaIsValid = Lib.validateSchema(
-                    getProfileSchema,
-                    req.params,
+                    Lib.account.schema.SignedUserProfile,
+                    req.body,
                 );
 
-                if (!schemaIsValid || !isAddress(req.params.address)) {
+                if (!schemaIsValid) {
                     return res.status(400).send({ error: 'invalid schema' });
                 }
-                const account = Lib.external.formatAddress(req.params.address);
+                const ensName = Lib.account.normalizeEnsName(
+                    req.params.ensName,
+                );
                 res.json(
                     await Lib.delivery.submitUserProfile(
+                        req.app.locals.web3Provider,
                         req.app.locals.db.getSession,
                         req.app.locals.db.setSession,
-                        account,
+                        ensName,
                         req.body,
-                        (accountAddress: string) =>
-                            req.app.locals.db.getPending(accountAddress),
+                        (ensName: string) =>
+                            req.app.locals.db.getPending(ensName),
                         (socketId: string) =>
                             req.app.locals.io.sockets
                                 .to(socketId)

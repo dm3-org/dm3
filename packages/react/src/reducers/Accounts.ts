@@ -19,16 +19,27 @@ export type AccountsActions =
 export function accountsReducer(state: Accounts, action: AccountsActions) {
     switch (action.type) {
         case AccountsType.SetSelectedContact:
-            if (state.selectedContact === action.payload?.account.address) {
+            if (
+                state.selectedContact === action.payload?.account.ensName ||
+                !action.payload
+            ) {
                 return state;
             } else {
                 Lib.log(
-                    `[Accounts] Set selected account to ${action.payload?.account.address}`,
+                    `[Accounts] Set selected account to ${action.payload?.account.ensName}`,
                 );
 
                 return {
                     ...state,
-                    selectedContact: action.payload,
+                    selectedContact: {
+                        ...action.payload,
+                        account: {
+                            ...action.payload.account,
+                            ensName: Lib.account.normalizeEnsName(
+                                action.payload.account.ensName,
+                            ),
+                        },
+                    },
                 };
             }
 

@@ -20,35 +20,13 @@ describe('Auth', () => {
 
     describe('getChallenge', () => {
         describe('schema', () => {
-            it('Returns 400 if schema is invalid', async () => {
-                const app = express();
-                app.use(bodyParser.json());
-                app.use(auth());
-
-                app.locals.db = {
-                    getSession: async (accountAddress: string) => ({
-                        challenge: '123',
-                    }),
-                };
-
-                app.locals.storeSession = async (
-                    accountAddress: string,
-                    session: any,
-                ) => {
-                    return (_: any, __: any, ___: any) => {};
-                };
-
-                const { status } = await request(app).get('/890').send();
-
-                expect(status).toBe(400);
-            });
             it('Returns 200 if schema is valid', async () => {
                 const app = express();
                 app.use(bodyParser.json());
                 app.use(auth());
 
                 app.locals.db = {
-                    getSession: async (accountAddress: string) => ({
+                    getSession: async (ensName: string) => ({
                         challenge: '123',
                     }),
                     setSession: async (_: string, __: any) => {
@@ -73,7 +51,7 @@ describe('Auth', () => {
                 app.use(auth());
 
                 app.locals.db = {
-                    getSession: async (accountAddress: string) => ({
+                    getSession: async (ensName: string) => ({
                         challenge: '123',
                     }),
                     setSession: async (_: string, __: any) => {
@@ -88,7 +66,7 @@ describe('Auth', () => {
                 const signature = await wallet.signMessage('123');
 
                 const { status } = await request(app).post(`/1234`).send({
-                    signature,
+                    signature: 123,
                 });
 
                 expect(status).toBe(400);
@@ -99,7 +77,7 @@ describe('Auth', () => {
                 app.use(auth());
 
                 app.locals.db = {
-                    getSession: async (accountAddress: string) => ({
+                    getSession: async (ensName: string) => ({
                         challenge: '123',
                     }),
                     setSession: async (_: string, __: any) => {
@@ -127,7 +105,7 @@ describe('Auth', () => {
                 app.use(auth());
 
                 app.locals.db = {
-                    getSession: async (accountAddress: string) => ({
+                    getSession: async (ensName: string) => ({
                         challenge: 'my-Challenge',
                         signedUserProfile: {
                             profile: {

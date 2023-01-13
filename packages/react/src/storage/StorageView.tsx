@@ -68,8 +68,7 @@ function StorageView() {
 
                     const a = document.createElement('a');
                     a.download = `${Lib.account.getAccountDisplayName(
-                        state.connection.account!.address,
-                        state.cache.ensNames,
+                        state.connection.account!.ensName,
                         true,
                     )}-${Date.now()}.json`;
                     a.href = window.URL.createObjectURL(blob);
@@ -152,7 +151,7 @@ function StorageView() {
         const setBroserStorage = async () => {
             localforage.setItem(
                 Lib.account.getBrowserStorageKey(
-                    state.connection.account!.address,
+                    state.connection.account!.ensName,
                 ),
                 (
                     await Lib.storage.sync(

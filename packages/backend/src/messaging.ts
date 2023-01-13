@@ -7,11 +7,11 @@ import { WithLocals } from './types';
 const pendingMessageSchema = {
     type: 'object',
     properties: {
-        accountAddress: { type: 'string' },
-        contactAddress: { type: 'string' },
+        ensName: { type: 'string' },
+        contactEnsName: { type: 'string' },
         token: { type: 'string' },
     },
-    required: ['accountAddress', 'contactAddress', 'token'],
+    required: ['ensName', 'contactEnsName', 'token'],
     additionalProperties: false,
 };
 
@@ -88,11 +88,7 @@ export function onConnection(app: express.Application & WithLocals) {
                 data,
             );
 
-            const addressesAreValid =
-                isAddress(data.accountAddress) &&
-                isAddress(data.contactAddress);
-
-            if (!isSchemaValid || !addressesAreValid) {
+            if (!isSchemaValid) {
                 const error = 'invalid schema';
 
                 app.locals.logger.warn({
@@ -103,18 +99,34 @@ export function onConnection(app: express.Application & WithLocals) {
                 return callback({ error });
             }
 
-            const account = Lib.external.formatAddress(data.accountAddress);
-            const contact = Lib.external.formatAddress(data.contactAddress);
+            let ensName: string;
+            let contactEnsName: string;
+
+            try {
+                ensName = Lib.account.normalizeEnsName(data.ensName);
+                contactEnsName = Lib.account.normalizeEnsName(
+                    data.contactEnsName,
+                );
+            } catch (error) {
+                app.locals.logger.warn({
+                    method: 'WS PENDING MESSAGE',
+                    error,
+                });
+
+                return callback({ error });
+            }
+
             app.locals.logger.info({
                 method: 'WS PENDING MESSAGE',
-                account,
-                contact,
+                ensName,
+                contactEnsName,
             });
             try {
                 if (
                     !(await Lib.delivery.checkToken(
+                        app.locals.web3Provider,
                         app.locals.db.getSession,
-                        account,
+                        ensName,
                         data.token,
                     ))
                 ) {
@@ -126,7 +138,7 @@ export function onConnection(app: express.Application & WithLocals) {
                     return callback({ error });
                 }
 
-                await app.locals.db.addPending(account, contact);
+                await app.locals.db.addPending(ensName, contactEnsName);
 
                 callback({ response: 'success' });
             } catch (error) {

@@ -6,8 +6,6 @@ import {
     getConractInstance,
     getEnsTextRecord,
     getResolver,
-    lookupAddress,
-    resolveName,
 } from '../external-apis/InjectedWeb3API';
 import { UserDB } from '../storage';
 import { Connection } from '../web3-provider/Web3Provider';
@@ -25,9 +23,11 @@ export {
     getBrowserStorageKey,
     checkStringSignature,
     getProfileCreationMessage,
+    normalizeNamehash,
+    normalizeEnsName,
+    checkUserProfile,
+    checkUserProfileWithAddress,
 } from './Account';
-
-export { checkUserProfile } from './Account';
 
 export type { Account, ProfileKeys, UserProfile } from './Account';
 
@@ -37,20 +37,19 @@ export type { ProfileExtension } from './profileExtension';
  * add a contact by creating an empty converation with that contact
  *
  * @param connection dm3 connection object
- * @param accountInput Contact Etehereum account address
+ * @param ensName The ENS name of the contact
  * @param userDb User storage database
  * @param createEmptyConversationEntry Function to create an empty conversation
  */
 export async function addContact(
     connection: Connection,
-    accountInput: string,
+    ensName: string,
     userDb: UserDB,
     createEmptyConversationEntry: (id: string) => void,
 ) {
     return execAddContact(
         connection,
-        accountInput,
-        resolveName,
+        ensName,
         userDb,
         createEmptyConversationEntry,
     );
@@ -75,7 +74,6 @@ export async function getContacts(
         deliveryServiceToken,
         getUserProfile,
         getPendingConversations,
-        resolveName,
         userDb,
         createEmptyConversationEntry,
     );
@@ -91,7 +89,6 @@ export function publishProfileOnchain(connection: Connection, url: string) {
     return execPublishProfileOnchain(
         connection,
         url,
-        lookupAddress,
         getResolver,
         getConractInstance,
         getUserProfileOffChain,

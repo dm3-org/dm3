@@ -32,6 +32,7 @@ export function ccipGateway(signer: Signer, resolverAddr: string) {
                     calldata,
                     'text(bytes32,string)',
                 );
+                Lib.log(`GET ${resolverAddr} ${calldata}`);
 
                 return res.send({ data });
             } catch (e) {

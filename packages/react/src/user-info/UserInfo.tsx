@@ -55,18 +55,15 @@ function UserInfo(props: UserInfoProps) {
         getDeliveryServiceUrl();
     }, [state.connection.account?.profile]);
 
-    const ensName = state.cache.ensNames.get(props.account.address);
-
     const getTextRecords = async (): Promise<EnsTextRecords | undefined> => {
         if (
             (state.accounts.accountInfoView === AccountInfo.Account ||
                 state.accounts.accountInfoView === AccountInfo.Contact) &&
-            ensName &&
             state.connection.provider
         ) {
             return Lib.external.getDefaultEnsTextRecord(
                 state.connection.provider,
-                ensName,
+                props.account.ensName,
             );
         } else {
             return;
@@ -92,7 +89,7 @@ function UserInfo(props: UserInfoProps) {
                 state.connection,
                 state.connection.defaultServiceUrl +
                     '/profile/' +
-                    state.connection.account!.address,
+                    state.connection.account!.ensName,
             );
 
             if (tx) {
@@ -113,7 +110,7 @@ function UserInfo(props: UserInfoProps) {
             <div className="row row-space-sm pb-4">
                 <div className="col text-center">
                     <Avatar
-                        accountAddress={props.account.address}
+                        ensName={props.account.ensName}
                         specialSize={SpecialSize.Md}
                     />
                 </div>
@@ -135,11 +132,11 @@ function UserInfo(props: UserInfoProps) {
                             className="text-decoration-none "
                             href={
                                 'https://etherscan.io/address/' +
-                                props.account.address
+                                props.account.ensName
                             }
                             target="_blank"
                         >
-                            {props.account.address}
+                            {props.account.ensName}
                         </a>
                     </div>
                 </div>
@@ -265,23 +262,23 @@ function UserInfo(props: UserInfoProps) {
                                 href={
                                     deliveryServiceUrl +
                                     '/profile/' +
-                                    props.account.address
+                                    props.account.ensName
                                 }
                                 target="_blank"
                             >
                                 {deliveryServiceUrl +
                                     '/profile/' +
-                                    props.account.address}
+                                    props.account.ensName}
                             </a>
                         </div>
                     </div>
                 </div>
             )}
-            {ensName && (
+            {props.account.ensName && (
                 <div className="row row-space">
                     <div className="col-12 ">
                         <a
-                            href={`https://app.ens.domains/name/${ensName}/details`}
+                            href={`https://app.ens.domains/name/${props.account.ensName}/details`}
                             target="_blank"
                             type="button"
                             className={`w-100 btn btn-lg btn-outline-secondary right-state-button`}

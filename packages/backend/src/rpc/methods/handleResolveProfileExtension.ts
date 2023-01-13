@@ -10,23 +10,14 @@ export function handleResolveProfileExtension(axios: Axios) {
         next: express.NextFunction,
     ) => {
         const {
-            params: [name],
+            params: [ensName],
         } = req.body;
 
-        //Resolve the address of the provided ENS name
-        const address = await req.app.locals.web3Provider.resolveName(name);
-        if (!address) {
-            const error = 'unknown ens-name';
-
-            req.app.locals.logger.warn({
-                method: 'RPC - RESOLVE PROFILE',
-                error,
-            });
-            return res.status(400).send({ error });
-        }
+        const normalizedEnsName = Lib.account.normalizeEnsName(ensName);
 
         //Get the Session to retrive profileExtension
-        const session = await req.app.locals.db.getSession(address);
+
+        const session = await req.app.locals.db.getSession(normalizedEnsName);
 
         //The requesito ens-name it not known to the delivery service
         if (!session) {

@@ -73,21 +73,18 @@ export interface IDatabase {
     deleteExpiredMessages: (time: number) => Promise<void>;
 
     setSession: (
-        account: string,
+        ensName: string,
         session: Lib.delivery.Session,
     ) => Promise<void>;
 
-    getSession: (account: string) => Promise<Lib.delivery.Session | null>;
+    getSession: (ensName: string) => Promise<Lib.delivery.Session | null>;
     getUserStorage: (
-        accountAddress: string,
+        ensName: string,
     ) => Promise<Lib.storage.UserStorage | null>;
-    setUserStorage: (accountAddress: string, data: string) => Promise<void>;
-    addPending: (
-        accountAddress: string,
-        contactAddress: string,
-    ) => Promise<void>;
-    getPending: (accountAddress: string) => Promise<string[]>;
-    deletePending: (accountAddress: string) => Promise<void>;
+    setUserStorage: (ensName: string, data: string) => Promise<void>;
+    addPending: (ensName: string, contactEnsName: string) => Promise<void>;
+    getPending: (ensName: string) => Promise<string[]>;
+    deletePending: (ensName: string) => Promise<void>;
 }
 
 export type Redis = Awaited<ReturnType<typeof getRedisClient>>;

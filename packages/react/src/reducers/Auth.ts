@@ -8,7 +8,7 @@ export interface AuthState {
 export interface AuthSession {
     storage: string;
     token: string;
-    address: string;
+    ensName: string;
     storageEncryptionKey?: string;
 }
 
@@ -31,13 +31,13 @@ export function authReducer(
         case AuthStateType.AddNewSession:
             const allSessions = {
                 ...state.allSessions,
-                [payload.address]: payload,
+                [payload.ensName]: payload,
             };
             return {
                 ...state,
                 currentSession: payload,
                 allSessions,
-                recentlyUsedSession: payload.address,
+                recentlyUsedSession: payload.ensName,
             };
 
         default:

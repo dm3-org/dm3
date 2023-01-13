@@ -16,6 +16,9 @@ const logger = {
     error: log,
 };
 
+const SENDER_NAME = 'alice.eth';
+const RECEIVER_NAME = 'bob.eth';
+
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
@@ -90,7 +93,10 @@ describe('rpc-Proxy', () => {
                     encryption: keysA.encryptionKeyPair,
                 },
                 deliveryServiceProperties: { sizeLimit: 2 ** 14 },
-
+                web3Provider: {
+                    resolveName: async () =>
+                        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                },
                 loadSession: getSession,
                 redisClient: {
                     zAdd: () => {},
@@ -190,39 +196,6 @@ describe('rpc-Proxy', () => {
     });
 
     describe('resolveProfileExtension', () => {
-        it('return 400 if ens-name is not linked to an address', async () => {
-            const mockPost = jest.fn((url: string, body: any) => {
-                return Promise.reject('Should not have been invoked');
-            });
-            const axiosMock = {
-                post: mockPost,
-            } as Partial<Axios>;
-
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(RpcProxy(axiosMock as Axios));
-
-            app.locals = {
-                logger,
-                web3Provider: {
-                    resolveName: (_: string) => Promise.resolve(null),
-                },
-            };
-
-            const { status, body } = await request(app)
-                .post('/')
-                .send({
-                    jsonrpc: '2.0',
-                    method: 'dm3_getProfileExtension',
-                    params: ['unknown.eth'],
-                });
-
-            expect(mockPost).not.toBeCalled();
-            expect(status).toBe(400);
-            expect(body).toStrictEqual({
-                error: 'unknown ens-name',
-            });
-        });
         it('return 400 if user is unknown', async () => {
             const mockPost = jest.fn((url: string, body: any) => {
                 return Promise.reject('Should not have been invoked');
@@ -238,8 +211,7 @@ describe('rpc-Proxy', () => {
             app.locals = {
                 logger,
                 web3Provider: {
-                    resolveName: (_: string) =>
-                        Promise.resolve(RECEIVER_ADDRESS),
+                    resolveName: (_: string) => Promise.resolve(RECEIVER_NAME),
                 },
                 db: {
                     getSession: (_: string) => Promise.resolve(null),
@@ -276,8 +248,7 @@ describe('rpc-Proxy', () => {
             app.locals = {
                 logger,
                 web3Provider: {
-                    resolveName: (_: string) =>
-                        Promise.resolve(RECEIVER_ADDRESS),
+                    resolveName: (_: string) => Promise.resolve(RECEIVER_NAME),
                 },
                 db: {
                     getSession: (_: string) =>
@@ -323,14 +294,15 @@ describe('rpc-Proxy', () => {
     });
 });
 
-const getSession = async (address: string) => {
+const getSession = async (ensName: string) => {
     const emptyProfile: Lib.account.UserProfile = {
         publicSigningKey: '',
         publicEncryptionKey: '',
         deliveryServices: [''],
     };
-    const isSender = Lib.external.formatAddress(address) === SENDER_ADDRESS;
-    const isReceiver = Lib.external.formatAddress(address) === RECEIVER_ADDRESS;
+
+    const isSender = Lib.account.normalizeEnsName(ensName) === SENDER_NAME;
+    const isReceiver = Lib.account.normalizeEnsName(ensName) === RECEIVER_NAME;
 
     const session = (
         account: string,
@@ -350,7 +322,7 @@ const getSession = async (address: string) => {
     }
 
     if (isReceiver) {
-        return session(RECEIVER_ADDRESS, 'abc', {
+        return session(RECEIVER_NAME, 'abc', {
             ...emptyProfile,
             publicEncryptionKey: (await keyPair).publicKey,
         });

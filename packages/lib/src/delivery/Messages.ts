@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import stringify from 'safe-stable-stringify';
+import { normalizeEnsName } from '../account';
 
 import {
     decryptAsymmetric,
@@ -8,7 +9,6 @@ import {
     KeyPair,
     sign,
 } from '../crypto';
-import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { DeliveryInformation, EncryptionEnvelop, Postmark } from '../messaging';
 import { sha256 } from '../shared/sha256';
 import { isSpam } from '../spam-filter';
@@ -33,11 +33,11 @@ export async function getMessages(
         size: number,
     ) => Promise<EncryptionEnvelop[]>,
     encryptionKeyPair: KeyPair,
-    accountAddress: string,
-    contactAddress: string,
+    ensName: string,
+    contactEnsName: string,
 ) {
-    const account = formatAddress(accountAddress);
-    const contact = formatAddress(contactAddress);
+    const account = normalizeEnsName(ensName);
+    const contact = normalizeEnsName(contactEnsName);
     const conversationId = getConversationId(contact, account);
 
     const receivedMessages: EncryptionEnvelop[] = await loadMessages(
@@ -48,7 +48,7 @@ export async function getMessages(
 
     const envelopContainers = await Promise.all(
         receivedMessages.map(async (envelop) => ({
-            to: formatAddress(
+            to: normalizeEnsName(
                 JSON.parse(
                     await decryptAsymmetric(
                         encryptionKeyPair,
@@ -87,7 +87,7 @@ export async function incomingMessage(
         envelop: EncryptionEnvelop,
     ) => Promise<void>,
     send: (socketId: string, envelop: EncryptionEnvelop) => void,
-    provider: ethers.providers.BaseProvider,
+    provider: ethers.providers.JsonRpcProvider,
 ): Promise<void> {
     //Checks the size of the incoming message
     if (messageIsToLarge(envelop, sizeLimit)) {
@@ -105,8 +105,10 @@ export async function incomingMessage(
         deliveryInformation.from,
         deliveryInformation.to,
     );
+
     //Checks if the sender is authenticated
     const tokenIsValid = await checkToken(
+        provider,
         getSession,
         deliveryInformation.from,
         token,
