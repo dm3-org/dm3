@@ -1,6 +1,6 @@
+import { ethers } from 'ethers';
 import { ProfileExtension } from '../account';
 import { SignedUserProfile } from '../account/Account';
-import { formatAddress } from '../external-apis/InjectedWeb3API';
 import { SpamFilterRules } from '../spam-filter/SpamFilterRules';
 
 //1Year
@@ -19,12 +19,18 @@ export interface Session {
 }
 
 export async function checkToken(
-    getSession: (accountAddress: string) => Promise<Session | null>,
-    accountAddress: string,
+    provider: ethers.providers.JsonRpcProvider,
+    getSession: (ensName: string) => Promise<Session | null>,
+    ensName: string,
     token: string,
 ): Promise<boolean> {
-    const account = formatAddress(accountAddress);
-    const session = await getSession(account);
+    const address = await provider.resolveName(ensName);
+
+    if (!address) {
+        throw Error(`Couln't resolve ENS name`);
+    }
+
+    const session = await getSession(ensName);
     //There is now account for the requesting accoung
     if (!session) {
         return false;

@@ -20,7 +20,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 return res.status(400).send({ error: 'invalid schema' });
             }
 
-            const profileIsValid = Lib.account.checkUserProfile(
+            const profileIsValid = Lib.account.checkUserProfileWithAddress(
                 signedUserProfile,
                 address,
             );
@@ -71,7 +71,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 address,
             );
 
-            return res.send(200);
+            return res.sendStatus(200);
         },
     );
     router.post(
@@ -88,7 +88,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 return res.status(400).send({ error: 'invalid schema' });
             }
 
-            const profileIsValid = Lib.account.checkUserProfile(
+            const profileIsValid = Lib.account.checkUserProfileWithAddress(
                 signedUserProfile,
                 address,
             );
@@ -109,7 +109,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     .send({ error: 'address has already claimed a subdomain' });
             }
 
-            const name = `${address}.dm3.eth`;
+            const name = `${address}.dev-addr.dm3.eth`;
 
             const profileExists = await req.app.locals.db.getUserProfile(name);
 
@@ -125,7 +125,9 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 address,
             );
 
-            return res.send(200);
+            Lib.log(`Registered ${name}`);
+
+            return res.sendStatus(200);
         },
     );
 

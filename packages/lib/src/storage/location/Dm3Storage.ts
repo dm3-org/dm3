@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { UserDB } from '..';
+import { normalizeEnsName } from '../../account';
 import { Acknoledgment } from '../../delivery';
 import { getDeliveryServiceClient } from '../../delivery/Delivery';
 import { log } from '../../shared/log';
@@ -25,9 +26,9 @@ export async function useDm3Storage(
     log(`[dm3 Storage] Saving user storage`);
 
     const { account } = connection;
-    const { profile, address } = account!;
+    const { profile, ensName } = account!;
 
-    const url = `${STORAGE_SERVICE}/${address}`;
+    const url = `${STORAGE_SERVICE}/${normalizeEnsName(ensName)}`;
 
     await await getDeliveryServiceClient(
         profile!,
@@ -44,9 +45,9 @@ export async function getDm3Storage(
     log(`[dm3 Storage] Get user storage`);
 
     const { account } = connection;
-    const { profile, address } = account!;
+    const { profile, ensName } = account!;
 
-    const url = `${STORAGE_SERVICE}/${address}`;
+    const url = `${STORAGE_SERVICE}/${normalizeEnsName(ensName)}`;
     const { data } = await getDeliveryServiceClient(
         profile!,
         connection,

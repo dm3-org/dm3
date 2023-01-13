@@ -9,15 +9,10 @@ async function main() {
         'OffchainResolver',
     );
 
-    const signer = ethers.Wallet.createRandom();
-
-    console.log(`Signer address: ${signer.address}`);
-    console.log(`SIGNER PK: ${signer.privateKey}`);
-
     const offchainResolver = await OffchainResolver.deploy(
-        'http://localhost:8081',
+        'http://localhost:8081/{sender}/{data}.json',
         accounts[0].address,
-        [signer.getAddress()],
+        ['0x300AdE3DF46e3531004F9c0E19EdEa62Be3f67f2'],
     );
 
     await offchainResolver.deployed();

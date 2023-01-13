@@ -30,12 +30,17 @@ describe('Utils', () => {
                 },
             };
 
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            };
+
             app.locals.logger = {
                 warn: (_: string) => {},
             };
 
             const { status, body } = await request(app)
-                .get('/0x25A643B6e52864d0eD816F1E43c0CF49C83B8292')
+                .get('/alice.eth')
                 .set({ authorization: `Bearer foo` })
 
                 .send();
@@ -61,6 +66,12 @@ describe('Utils', () => {
                     return (_: any, __: any, ___: any) => {};
                 },
             };
+
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            };
+
             app.locals.logger = {
                 warn: (_: string) => {},
             };
@@ -94,6 +105,11 @@ describe('Utils', () => {
                 setSession: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
+            };
+
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
             };
 
             app.locals.logger = {
@@ -131,6 +147,12 @@ describe('Utils', () => {
                     return (_: any, __: any, ___: any) => {};
                 },
             };
+
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            };
+
             app.locals.logger = {
                 warn: (_: string) => {},
             };

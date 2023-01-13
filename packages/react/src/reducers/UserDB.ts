@@ -43,17 +43,17 @@ export function userDbReducer(
 
             let hasChanged = false;
 
-            const contactAddress =
+            const contactEnsName =
                 container.envelop.message.metadata.from ===
-                connection.account!.address
+                connection.account!.ensName
                     ? container.envelop.message.metadata.to
                     : container.envelop.message.metadata.from;
             const conversationId = Lib.storage.getConversationId(
-                contactAddress,
-                connection.account!.address,
+                contactEnsName,
+                connection.account!.ensName,
             );
             const prevContainers = Lib.storage.getConversation(
-                contactAddress,
+                contactEnsName,
                 connection,
                 state,
             );

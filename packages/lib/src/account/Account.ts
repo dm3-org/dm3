@@ -12,8 +12,6 @@ import {
     GetConractInstance,
     GetEnsTextRecord,
     GetResolver,
-    LookupAddress,
-    ResolveName,
 } from '../external-apis/InjectedWeb3API';
 import { log } from '../shared/log';
 import { sha256 } from '../shared/sha256';
@@ -53,7 +51,7 @@ export interface PrivateKeys {
 }
 
 export interface Account {
-    address: string;
+    ensName: string;
     profile?: UserProfile;
 }
 
@@ -65,12 +63,29 @@ export function getProfileCreationMessage(stringifiedProfile: string) {
     return `Hearby your dm3 profile is linked with your Ethereum account\n\n ${stringifiedProfile}`;
 }
 
+/**
+ * calculate the namehash of a given ENS name
+ * @param account Account with ENS name
+ */
+export function getNamehash(account: Account): string {
+    return normalizeNamehash(
+        ethers.utils.namehash(ethers.utils.nameprep(account.ensName)),
+    );
+}
+
+/**
+ * normalizes an ENS name
+ * @param ensName name that should be normalized
+ */
+export function normalizeEnsName(ensName: string): string {
+    return ethers.utils.nameprep(ensName);
+}
+
 export async function getContacts(
     connection: Connection,
     deliveryServiceToken: string,
     getUserProfile: GetUserProfile,
     getPendingConversations: GetPendingConversations,
-    resolveName: ResolveName,
     userDb: UserDB,
     createEmptyConversationEntry: (id: string) => void,
 ): Promise<Account[]> {
@@ -86,7 +101,7 @@ export async function getContacts(
         if (
             !userDb.conversations.has(
                 getConversationId(
-                    connection.account!.address,
+                    normalizeEnsName(connection.account!.ensName),
                     pendingConversation,
                 ),
             )
@@ -94,7 +109,6 @@ export async function getContacts(
             await addContact(
                 connection,
                 pendingConversation,
-                resolveName,
                 userDb,
                 createEmptyConversationEntry,
             );
@@ -105,16 +119,16 @@ export async function getContacts(
     const uncheckedProfiles = await Promise.all(
         Array.from(userDb.conversations.keys())
             .map((conversationId) => conversationId.split(','))
-            .map((addresses) =>
-                formatAddress(connection.account!.address) ===
-                formatAddress(addresses[0])
-                    ? formatAddress(addresses[1])
-                    : formatAddress(addresses[0]),
+            .map((ensNames) =>
+                normalizeEnsName(connection.account!.ensName) ===
+                normalizeEnsName(ensNames[0])
+                    ? normalizeEnsName(ensNames[1])
+                    : normalizeEnsName(ensNames[0]),
             )
-            .map(async (address) => {
-                const profile = await getUserProfile(connection, address);
+            .map(async (ensName) => {
+                const profile = await getUserProfile(connection, ensName);
                 return {
-                    address,
+                    ensName,
                     profile: profile,
                 };
             }),
@@ -122,94 +136,97 @@ export async function getContacts(
 
     // accept if account has a profile and a valid signature
     // accept if there is no profile and no signature
-    return uncheckedProfiles
-        .filter(
-            (uncheckedProfile) =>
-                (uncheckedProfile.profile &&
-                    checkUserProfile(
+    return (
+        await Promise.all(
+            uncheckedProfiles.map(async (uncheckedProfile) => ({
+                valid:
+                    !uncheckedProfile.profile ||
+                    (await checkUserProfile(
+                        connection.provider!,
                         uncheckedProfile.profile,
-                        uncheckedProfile.address,
-                    )) ||
-                !uncheckedProfile.profile,
+
+                        uncheckedProfile.ensName,
+                    )),
+                container: uncheckedProfile,
+            })),
         )
+    )
+        .filter((checkedProfile) => checkedProfile.valid)
         .map((profileContainer) => ({
-            address: profileContainer.address,
-            profile: profileContainer.profile?.profile,
+            ensName: profileContainer.container.ensName,
+            profile: profileContainer.container.profile?.profile,
         }));
 }
 
 /**
  * make too long names shorter
- * @param accountAddress ethereum account address
- * @param ensNames ENS name cache
+ * @param ensName The ENS name
  * @param forFile Use shortend name for a file name
  */
 export function getAccountDisplayName(
-    accountAddress: string | undefined,
-    ensNames: Map<string, string>,
+    ensName: string,
     forFile?: boolean,
 ): string {
-    if (!accountAddress) {
-        return '';
-    }
-    if (ensNames.get(accountAddress)) {
-        return ensNames.get(accountAddress) as string;
-    }
-    return accountAddress.length > 10
-        ? accountAddress.substring(0, 4) +
+    const normalizedEnsName = normalizeEnsName(ensName);
+
+    return normalizedEnsName.length > 10
+        ? normalizedEnsName.substring(0, 6) +
               (forFile ? '-' : '...') +
-              accountAddress.substring(accountAddress.length - 4)
-        : accountAddress;
+              normalizedEnsName.substring(normalizedEnsName.length - 4)
+        : normalizedEnsName;
 }
 
 export async function addContact(
     connection: Connection,
-    accountInput: string,
-    resolveName: ResolveName,
+    ensName: string,
     userDb: UserDB,
     createEmptyConversationEntry: (id: string) => void,
 ) {
-    if (ethers.utils.isAddress(accountInput)) {
-        if (
-            !createEmptyConversation(
-                connection,
-                accountInput,
-                userDb,
-                createEmptyConversationEntry,
-            )
-        ) {
-            throw Error('Contact exists already.');
-        }
-    } else {
-        const address = await resolveName(
-            connection.provider as ethers.providers.JsonRpcProvider,
-            accountInput,
-        );
-        if (address) {
-            createEmptyConversation(
-                connection,
-                address,
-                userDb,
-                createEmptyConversationEntry,
-            );
-        } else {
-            throw Error(`Couldn't resolve name`);
-        }
+    if (
+        !createEmptyConversation(
+            connection,
+            ensName,
+            userDb,
+            createEmptyConversationEntry,
+        )
+    ) {
+        throw Error('Contact exists already.');
     }
 }
 
 /**
  * check the signature of the fetched user profile
+ * @param provider Eth rpc provider
  * @param signedUserProfile The profile to check
- * @param accountAddress The Etehereum account address of the profile owner
+ * @param ensName The ENS domain name
  */
-export function checkUserProfile(
+export async function checkUserProfile(
+    provider: ethers.providers.JsonRpcProvider,
+    { profile, signature }: SignedUserProfile,
+    ensName: string,
+): Promise<boolean> {
+    const accountAddress = await provider.resolveName(ensName);
+
+    if (!accountAddress) {
+        throw Error(`Couldn't resolve name`);
+    }
+
+    return checkUserProfileWithAddress({ profile, signature }, accountAddress);
+}
+
+/**
+ * check the signature of the fetched user profile using the eth address
+ * @param signedUserProfile The profile to check
+ * @param accountAddress The ENS domain name
+ */
+export function checkUserProfileWithAddress(
     { profile, signature }: SignedUserProfile,
     accountAddress: string,
 ): boolean {
     const createUserProfileMessage = getProfileCreationMessage(
         stringify(profile),
     );
+
     return (
         ethers.utils.recoverAddress(
             ethers.utils.hashMessage(createUserProfileMessage),
@@ -239,13 +256,10 @@ export function checkStringSignature(
 
 /**
  * create the string used to create the browser storage key
- * @param accountAddress The Ethereum account address
+ * @param ensName The ENS name
  */
-export function getBrowserStorageKey(accountAddress: string) {
-    if (!accountAddress) {
-        throw Error('No address provided');
-    }
-    return 'userStorageSnapshot' + formatAddress(accountAddress);
+export function getBrowserStorageKey(ensName: string) {
+    return 'userStorageSnapshot:' + normalizeEnsName(ensName);
 }
 
 export type GetResource<T> = (uri: string) => Promise<T | undefined>;
@@ -318,10 +332,21 @@ export function createHashUrlParam(profile: SignedUserProfile): string {
     return `dm3Hash=${sha256(stringify(profile))}`;
 }
 
+/**
+ * normalizes a namehash
+ * @param namehash the namehash that should be checked
+ */
+export function normalizeNamehash(namehash: string): string {
+    if (!/^(0x)?[a-fA-F0-9]{64}$/.test(namehash)) {
+        throw Error('Namehash must be a 32 bytes hex value');
+    }
+    return namehash.toLocaleLowerCase();
+}
+
 export async function publishProfileOnchain(
     connection: Connection,
     url: string,
-    lookupAddress: LookupAddress,
+
     getResolver: GetResolver,
     getConractInstance: GetConractInstance,
     getProfileOffChain: GetUserProfileOffChain,
@@ -332,20 +357,16 @@ export async function publishProfileOnchain(
     if (!connection.account) {
         throw Error('No account');
     }
-    const ensName = await lookupAddress(
-        connection.provider,
-        connection.account.address,
-    );
-    if (!ensName) {
-        throw Error('No ENS name found');
-    }
 
-    const ethersResolver = await getResolver(connection.provider, ensName);
+    const ethersResolver = await getResolver(
+        connection.provider,
+        connection.account.ensName,
+    );
     if (!ethersResolver) {
         throw Error('No resolver found');
     }
 
-    const node = ethers.utils.namehash(ensName);
+    const node = ethers.utils.namehash(connection.account.ensName);
 
     const resolver = getConractInstance(
         ethersResolver.address,
@@ -358,14 +379,21 @@ export async function publishProfileOnchain(
     const ownProfile = await getProfileOffChain(
         connection,
         connection.account,
-        connection.account.address,
+        connection.account.ensName,
     );
 
     if (!ownProfile) {
         throw Error('could not load account profile');
     }
 
-    if (!checkUserProfile(ownProfile, connection.account.address)) {
+    if (
+        !(await checkUserProfile(
+            connection.provider,
+            ownProfile,
+
+            connection.account.ensName,
+        ))
+    ) {
         throw Error('account profile check failed');
     }
 

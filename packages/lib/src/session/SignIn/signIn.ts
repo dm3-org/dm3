@@ -1,4 +1,4 @@
-import { UserProfile } from '../../account';
+import { Account, UserProfile } from '../../account';
 import { SubmitUserProfile } from '../../external-apis/BackendAPI';
 import { PersonalSign } from '../../external-apis/InjectedWeb3API';
 import { stringify } from '../../shared/stringify';
@@ -7,6 +7,8 @@ import { ConnectionState } from '../../web3-provider';
 import { Connection } from '../../web3-provider/Web3Provider';
 import { createKeyPairsFromSig } from './signProfileKeyPair';
 import { signProfile as signProfile } from './signProfile';
+import { claimAddress } from '../../external-apis';
+import { SignedUserProfile } from '../../account/Account';
 
 const DEFAULT_NONCE = 0;
 
@@ -18,6 +20,9 @@ const DEFAULT_NONCE = 0;
 //1 -> Use reAuth to create a new deliverySerivceToken. User has to sign a challenge
 //2-> Decrypt storageFile.  Sign message with getMessage(nonce) to get the storage encryption key
 
+const ADDR_SUBDOMAIN = '.dev-addr.dm3.eth';
+const OFFCHAIN_RESOLVER_URL = 'http://localhost:8081/profile';
+
 export async function signIn(
     connection: Partial<Connection>,
     personalSign: PersonalSign,
@@ -26,8 +31,9 @@ export async function signIn(
     connectionState: ConnectionState;
     db: UserDB;
     deliveryServiceToken: string;
+    account: Account;
 }> {
-    const { provider, account } = connection;
+    const { provider } = connection;
 
     const nonce = DEFAULT_NONCE;
 
@@ -45,22 +51,33 @@ export async function signIn(
         deliveryServices: ['dev-ds.dm3.eth'],
     };
 
+    const address = (await provider!.listAccounts())[0];
+    const ensName = address + ADDR_SUBDOMAIN;
+
     //Create signed user profile
     const signature = await signProfile(
         provider!,
         personalSign,
-        account?.address!,
+        address,
         stringify(profile),
     );
 
+    const signedUserProfile: SignedUserProfile = {
+        profile,
+        signature,
+    };
+
+    if (
+        !(await claimAddress(address, OFFCHAIN_RESOLVER_URL, signedUserProfile))
+    ) {
+        throw Error(`Couldn't claim address subdomain`);
+    }
+
     //Submit newely created UserProfile
     const deliveryServiceToken = await submitUserProfile(
-        { address: account?.address!, profile },
+        { ensName: ensName, profile },
         connection as Connection,
-        {
-            profile,
-            signature,
-        },
+        signedUserProfile,
     );
 
     return {
@@ -69,5 +86,9 @@ export async function signIn(
             ...createDB(profileKeys),
         },
         deliveryServiceToken,
+        account: {
+            ensName,
+            profile,
+        },
     };
 }

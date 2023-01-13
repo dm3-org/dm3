@@ -7,10 +7,10 @@ export interface Executable {
 
 export async function prersonalSign(
     provider: ethers.providers.JsonRpcProvider,
-    account: string,
+    address: string,
     message: string,
 ): Promise<any> {
-    return provider.send('personal_sign', [message, account]);
+    return provider.send('personal_sign', [message, address]);
 }
 export type PersonalSign = typeof prersonalSign;
 

@@ -16,15 +16,15 @@ import {
     sync,
 } from './Storage';
 
-const USER_ADDRESS_1 = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
-const USER_ADDRESS_2 = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
-const USER_ADDRESS_3 = '0x09c3d8547020a044c4879cD0546D448D362124Ae';
+const USER_1 = 'alice.eth';
+const USER_2 = 'bob.eth';
+const USER_3 = 'joe.eth';
 
 const getStorageEnvelopeContainer = (timestamp: number = 0) => {
     const message: Message = {
         metadata: {
             to: '',
-            from: USER_ADDRESS_1,
+            from: USER_1,
             timestamp,
             type: 'NEW',
         },
@@ -71,8 +71,8 @@ const getMockProfileKeys = async () => {
 describe('Storage', () => {
     describe('Serialize Conversations', () => {
         it('Should serialize a conversation properly', () => {
-            const conversion1ID = USER_ADDRESS_1 + USER_ADDRESS_2;
-            const conversion2ID = USER_ADDRESS_2 + USER_ADDRESS_3;
+            const conversion1ID = USER_1 + ',' + USER_2;
+            const conversion2ID = USER_2 + ',' + USER_3;
 
             const conversations = new Map<string, StorageEnvelopContainer[]>();
 
@@ -107,41 +107,30 @@ describe('Storage', () => {
             const profileKeys = await getMockProfileKeys();
 
             const connection = {
-                account: { address: USER_ADDRESS_2 },
+                account: { ensName: USER_2 },
             } as Connection;
             const db = createDB(profileKeys);
 
-            const conversations = getConversation(
-                USER_ADDRESS_1,
-                connection,
-                db,
-            );
+            const conversations = getConversation(USER_1, connection, db);
 
             expect(conversations).toStrictEqual([]);
         });
         it('Returns the conversation between the account specified in the connection and the contact ', async () => {
             const connection = {
-                account: { address: USER_ADDRESS_2 },
+                account: { ensName: USER_2 },
             } as Connection;
 
             const profileKeys = await getMockProfileKeys();
 
             const db = createDB(profileKeys);
 
-            const conversationId = getConversationId(
-                USER_ADDRESS_1,
-                USER_ADDRESS_2,
-            );
+            const conversationId = getConversationId(USER_1, USER_2);
 
             const expectedConversation = [getStorageEnvelopeContainer()];
 
             db.conversations.set(conversationId, expectedConversation);
 
-            const actualConversation = getConversation(
-                USER_ADDRESS_1,
-                connection,
-                db,
-            );
+            const actualConversation = getConversation(USER_1, connection, db);
             expect(actualConversation).toStrictEqual(expectedConversation);
         });
     });
@@ -181,7 +170,7 @@ describe('Storage', () => {
                 getStorageEnvelopeContainer(),
             ];
 
-            const conversationId = USER_ADDRESS_1 + USER_ADDRESS_2;
+            const conversationId = USER_1 + USER_2;
 
             db.conversations.set(conversationId, conversation);
 
@@ -190,7 +179,7 @@ describe('Storage', () => {
             expect(acknoledgments.length).toBe(1);
             expect(acknoledgments).toStrictEqual([
                 {
-                    contactAddress: USER_ADDRESS_1,
+                    contactAddress: USER_1,
                     messageDeliveryServiceTimestamp: 123,
                 },
             ]);
@@ -211,8 +200,8 @@ describe('Storage', () => {
 
             const conversation = [getStorageEnvelopeContainer()];
 
-            const conversationId = USER_ADDRESS_1 + USER_ADDRESS_2;
-            const emptyConversion = USER_ADDRESS_1 + USER_ADDRESS_3;
+            const conversationId = USER_1 + ',' + USER_2;
+            const emptyConversion = USER_1 + ',' + USER_3;
 
             db.conversations.set(conversationId, conversation);
             db.conversations.set(emptyConversion, []);
@@ -222,7 +211,7 @@ describe('Storage', () => {
             expect(acknoledgments.length).toBe(1);
             expect(acknoledgments).toStrictEqual([
                 {
-                    contactAddress: USER_ADDRESS_1,
+                    contactAddress: USER_1,
                     messageDeliveryServiceTimestamp: 123,
                 },
             ]);
@@ -258,7 +247,7 @@ describe('Storage', () => {
     describe('createEmptyConversation', () => {
         it('Returns true and creates a new conversation if the conversionId was not used so far', async () => {
             const connection = {
-                account: { address: USER_ADDRESS_2 },
+                account: { ensName: USER_2 },
             } as Connection;
 
             const keys = await getMockProfileKeys();
@@ -269,25 +258,22 @@ describe('Storage', () => {
 
             const createdNewConversation = createEmptyConversation(
                 connection,
-                USER_ADDRESS_1,
+                USER_1,
                 db,
                 createEmptyConversationMock,
             );
 
             expect(createdNewConversation).toBe(true);
             expect(createEmptyConversationMock).toBeCalledWith(
-                getConversationId(USER_ADDRESS_2, USER_ADDRESS_1),
+                getConversationId(USER_2, USER_1),
             );
         });
         it('Returns false and conversionId was used before', async () => {
             const connection = {
-                account: { address: USER_ADDRESS_2 },
+                account: { ensName: USER_2 },
             } as Connection;
 
-            const conversionId = getConversationId(
-                USER_ADDRESS_2,
-                USER_ADDRESS_1,
-            );
+            const conversionId = getConversationId(USER_2, USER_1);
             const keys = await getMockProfileKeys();
 
             const db = createDB(keys);
@@ -298,7 +284,7 @@ describe('Storage', () => {
 
             const createdNewConversation = createEmptyConversation(
                 connection,
-                USER_ADDRESS_1,
+                USER_1,
                 db,
                 createEmptyConversationMock,
             );

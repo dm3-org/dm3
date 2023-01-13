@@ -18,7 +18,7 @@ function ContactListEntry(props: ContactListProps) {
     const { state, dispatch } = useContext(GlobalContext);
     useEffect(() => {
         const messages = Lib.storage.getConversation(
-            props.contact.account.address,
+            props.contact.account.ensName,
             state.connection,
             state.userDb as Lib.storage.UserDB,
         );
@@ -44,9 +44,9 @@ function ContactListEntry(props: ContactListProps) {
 
     const selected =
         state.accounts.selectedContact &&
-        Lib.external.formatAddress(props.contact.account.address) ===
-            Lib.external.formatAddress(
-                state.accounts.selectedContact?.account.address,
+        Lib.account.normalizeEnsName(props.contact.account.ensName) ===
+            Lib.account.normalizeEnsName(
+                state.accounts.selectedContact?.account.ensName,
             );
 
     return (
@@ -54,7 +54,7 @@ function ContactListEntry(props: ContactListProps) {
             className={`list-group-item list-group-item-action contact-entry d-flex justify-content-between ${
                 selected ? 'contract-entry-selected' : ''
             }`}
-            key={props.contact.account.address}
+            key={props.contact.account.ensName}
             onClick={() => {
                 dispatch({
                     type: AccountsType.SetSelectedContact,
@@ -68,7 +68,7 @@ function ContactListEntry(props: ContactListProps) {
         >
             <div className="d-flex">
                 <div className="align-self-center contact-entry-avatar">
-                    <Avatar accountAddress={props.contact.account.address} />
+                    <Avatar ensName={props.contact.account.ensName} />
                 </div>
             </div>
             <div className="w-100 text-start contact-entry-center">
@@ -76,8 +76,7 @@ function ContactListEntry(props: ContactListProps) {
                     <div className="col-12">
                         <strong>
                             {Lib.account.getAccountDisplayName(
-                                props.contact.account.address,
-                                state.cache.ensNames,
+                                props.contact.account.ensName,
                             )}
                         </strong>
                     </div>

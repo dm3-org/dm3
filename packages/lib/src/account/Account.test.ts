@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { ethers, providers } from 'ethers';
 import { stringify } from '../shared/stringify';
 import { sha256 } from 'ethers/lib/utils';
 
@@ -26,6 +26,9 @@ import {
     publishProfileOnchain,
     SignedUserProfile,
     getProfileCreationMessage,
+    normalizeNamehash,
+    getNamehash,
+    normalizeEnsName,
 } from './Account';
 
 const connection: Connection = {
@@ -33,7 +36,7 @@ const connection: Connection = {
     storageLocation: StorageLocation.File,
     defaultServiceUrl: '',
     account: {
-        address: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+        ensName: 'alice.eth',
     },
     provider: {} as any,
 };
@@ -52,6 +55,7 @@ const keys = {
 };
 
 const getProfileData = async (): Promise<{
+    address: string;
     signedUserProfile: SignedUserProfile;
     account: Account;
 }> => {
@@ -72,8 +76,9 @@ const getProfileData = async (): Promise<{
     const signature = await wallet.signMessage(createUserProfileMessage);
 
     return {
+        address: wallet.address,
         account: {
-            address: wallet.address,
+            ensName: 'bob.eth',
             profile,
         },
         signedUserProfile: {
@@ -86,48 +91,32 @@ const getProfileData = async (): Promise<{
 describe('Account', () => {
     describe('getAccountDisplayName', () => {
         test('get correct account display name', async () => {
-            const ensNames = new Map();
-            ensNames.set('0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855', 'test1');
-            expect(
-                getAccountDisplayName(
-                    '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-                    ensNames,
-                ),
-            ).toStrictEqual('test1');
+            expect(getAccountDisplayName('alice.eth')).toStrictEqual(
+                'alice.eth',
+            );
 
-            expect(
-                getAccountDisplayName(
-                    '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-                    ensNames,
-                ),
-            ).toStrictEqual('0x25...8292');
+            expect(getAccountDisplayName('Alice.eth')).toStrictEqual(
+                'alice.eth',
+            );
+
+            expect(getAccountDisplayName('0x25a6....eth')).toStrictEqual(
+                '0x25a6....eth',
+            );
         });
 
         test('get correct account display name for file', async () => {
-            const ensNames = new Map();
-
             expect(
                 getAccountDisplayName(
-                    '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-                    ensNames,
+                    '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292.addr.dm3.eth',
+
                     true,
                 ),
-            ).toStrictEqual('0xDd-7855');
+            ).toStrictEqual('0x25a6-.eth');
         });
 
         test('get correct account display name for short account', async () => {
-            const ensNames = new Map();
-
-            expect(
-                getAccountDisplayName('0xDd55', ensNames, true),
-            ).toStrictEqual('0xDd55');
-        });
-
-        test('get correct account display name if account is undefined', async () => {
-            const ensNames = new Map();
-            ensNames.set('0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855', 'test1');
-            expect(getAccountDisplayName(undefined, ensNames)).toStrictEqual(
-                '',
+            expect(getAccountDisplayName('alice.eth', true)).toStrictEqual(
+                'alice.eth',
             );
         });
     });
@@ -142,8 +131,49 @@ describe('Account', () => {
         });
     });
 
+    describe('normalizeNamehash', () => {
+        test('should normalize a namehash', async () => {
+            expect(
+                normalizeNamehash(
+                    '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdeF',
+                ),
+            ).toStrictEqual(
+                '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+            );
+        });
+        test('should reject a 31 bytes hash value ', async () => {
+            expect(() =>
+                normalizeNamehash(
+                    '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd',
+                ),
+            ).toThrowError('Namehash must be a 32 bytes hex value');
+        });
+    });
+
+    describe('getNamehash', () => {
+        test('should get the correct namehash for an ENS name', async () => {
+            expect(getNamehash({ ensName: 'alice.eth' })).toStrictEqual(
+                '0x787192fc5378cc32aa956ddfdedbf26b24e8d78e40109add0eea2c1a012c3dec',
+            );
+        });
+    });
+
+    describe('normalizeEnsName', () => {
+        test('should normalize an ENS name', async () => {
+            expect(normalizeEnsName('Alice.eth')).toStrictEqual('alice.eth');
+        });
+    });
+
+    describe('getNamehash', () => {
+        test('should get the correct namehash for an ENS name', async () => {
+            expect(getNamehash({ ensName: 'alice.eth' })).toStrictEqual(
+                '0x787192fc5378cc32aa956ddfdedbf26b24e8d78e40109add0eea2c1a012c3dec',
+            );
+        });
+    });
+
     describe('checkProfileHash', () => {
-        test('should accept a correct hash ', async () => {
+        test('should accept a correct hash', async () => {
             const profile: UserProfile = {
                 publicSigningKey: '3',
                 publicEncryptionKey: '2',
@@ -164,7 +194,7 @@ describe('Account', () => {
             expect(checkProfileHash(signedProfile, uri)).toStrictEqual(true);
         });
 
-        test('should reject  an invalid hash ', async () => {
+        test('should reject an invalid hash', async () => {
             const profile: UserProfile = {
                 publicSigningKey: '3',
                 publicEncryptionKey: '2',
@@ -206,48 +236,40 @@ describe('Account', () => {
 
     describe('checkUserProfile', () => {
         test('checkUserProfile should accept a correct signature ', async () => {
-            const profile: UserProfile = {
-                publicSigningKey: '3',
-                publicEncryptionKey: '2',
-                deliveryServices: [''],
-            };
-
-            const wallet = ethers.Wallet.createRandom();
-            const createUserProfileMessage = getProfileCreationMessage(
-                stringify(profile),
-            );
-            const signature = await wallet.signMessage(
-                createUserProfileMessage,
-            );
+            const profile = await getProfileData();
 
             expect(
-                checkUserProfile(
+                await checkUserProfile(
                     {
-                        profile: profile,
-                        signature,
+                        resolveName: async () => profile.address,
+                    } as any,
+
+                    {
+                        profile: profile.account.profile!,
+                        signature: profile.signedUserProfile.signature,
                     },
-                    wallet.address,
+
+                    'alice.eth',
                 ),
             ).toStrictEqual(true);
         });
 
         test('checkUserProfile should reject an invalid signature ', async () => {
-            const profile: UserProfile = {
-                publicSigningKey: '3',
-                publicEncryptionKey: '2',
-                deliveryServices: [''],
-            };
-
-            const wallet = ethers.Wallet.createRandom();
-
-            const signature = await wallet.signMessage(
-                stringify(profile.publicEncryptionKey),
-            );
+            const profile = await getProfileData();
 
             expect(
-                checkUserProfile(
-                    { profile: profile, signature },
-                    wallet.address,
+                await checkUserProfile(
+                    {
+                        resolveName: async () => profile.address,
+                    } as any,
+                    {
+                        profile: {
+                            ...profile.account.profile!,
+                            deliveryServices: ['test.test'],
+                        },
+                        signature: profile.signedUserProfile.signature,
+                    },
+                    'alice.eth',
                 ),
             ).toStrictEqual(false);
         });
@@ -264,24 +286,23 @@ describe('Account', () => {
                 synced: true,
             };
 
-            userDb.conversations.set(
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292,0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-                [],
-            );
+            userDb.conversations.set('alice.eth,bob.eth', []);
 
             expect(
                 await getContacts(
-                    connection,
+                    {
+                        ...connection,
+                        provider: { resolveName: async () => '' } as any,
+                    },
                     '',
                     async () => undefined,
                     async () => [],
-                    async () => '',
                     userDb,
                     () => {},
                 ),
             ).toStrictEqual([
                 {
-                    address: '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                    ensName: 'bob.eth',
                     profile: undefined,
                 },
             ]);
@@ -297,30 +318,25 @@ describe('Account', () => {
                 synced: true,
             };
 
-            userDb.conversations.set(
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292,0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-                [],
-            );
+            userDb.conversations.set('alice.eth,bob.eth', []);
 
             expect(
                 await getContacts(
                     {
                         ...connection,
                         account: {
-                            address:
-                                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                            ensName: 'bob.eth',
                         },
                     },
                     '',
                     async () => undefined,
                     async () => [],
-                    async () => '',
                     userDb,
                     () => {},
                 ),
             ).toStrictEqual([
                 {
-                    address: '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+                    ensName: 'alice.eth',
                     profile: undefined,
                 },
             ]);
@@ -338,26 +354,27 @@ describe('Account', () => {
             const profile = await getProfileData();
 
             userDb.conversations.set(
-                getConversationId(
-                    profile.account.address,
-                    '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-                ),
+                getConversationId(profile.account.ensName, 'bob.eth'),
                 [],
             );
 
             expect(
                 await getContacts(
-                    connection,
+                    {
+                        ...connection,
+                        provider: {
+                            resolveName: async () => profile.address,
+                        } as any,
+                    },
                     '',
                     async () => profile.signedUserProfile,
                     async () => [],
-                    async () => '',
                     userDb,
                     () => {},
                 ),
             ).toStrictEqual([
                 {
-                    address: profile.account.address,
+                    ensName: profile.account.ensName,
                     profile: profile.signedUserProfile.profile,
                 },
             ]);
@@ -373,11 +390,7 @@ describe('Account', () => {
                 synced: true,
             };
 
-            userDb.conversations.set(
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292,' +
-                    '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-                [],
-            );
+            userDb.conversations.set('alice.eth,' + 'bob.eth', []);
 
             const conversations: string[] = [];
 
@@ -385,15 +398,14 @@ describe('Account', () => {
                 connection,
                 '',
                 async () => undefined,
-                async () => ['0x25A643B6e52864d0eD816F1E43c0CF49C83B8292'],
-                async () => '',
+                async () => ['bob.eth'],
                 userDb,
                 (id) => {
                     conversations.push(id);
                 },
             );
             expect(Array.from(userDb.conversations.keys())).toStrictEqual([
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292,0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
+                'alice.eth,bob.eth',
             ]);
         });
 
@@ -413,16 +425,13 @@ describe('Account', () => {
                 connection,
                 '',
                 async () => undefined,
-                async () => ['0x25A643B6e52864d0eD816F1E43c0CF49C83B8292'],
-                async () => '',
+                async () => ['bob.eth'],
                 userDb,
                 (id) => {
                     conversations.push(id);
                 },
             );
-            expect(conversations).toStrictEqual([
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292,0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-            ]);
+            expect(conversations).toStrictEqual(['alice.eth,bob.eth']);
         });
 
         test('should throw if provider is undefined', async () => {
@@ -433,7 +442,6 @@ describe('Account', () => {
                     '',
                     async () => undefined,
                     async () => [],
-                    async () => '',
                     {} as any,
                     () => {},
                 ),
@@ -452,19 +460,11 @@ describe('Account', () => {
                 synced: true,
             };
 
-            addContact(
-                connection,
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-                async () => null,
-                userDb,
-                (id: string) => {
-                    expect(id).toStrictEqual(
-                        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292,0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-                    );
-                    done();
-                    return true;
-                },
-            );
+            addContact(connection, 'bob.eth', userDb, (id: string) => {
+                expect(id).toStrictEqual('alice.eth,bob.eth');
+                done();
+                return true;
+            });
         });
 
         test('Should create an empty conversation for a new contact  after resolving the ENS name', (done) => {
@@ -480,40 +480,13 @@ describe('Account', () => {
             addContact(
                 connection,
                 'test.eth',
-                async () => '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+
                 userDb,
                 (id: string) => {
-                    expect(id).toStrictEqual(
-                        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292,0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-                    );
+                    expect(id).toStrictEqual('alice.eth,test.eth');
                     done();
                 },
             );
-        });
-
-        test('Should throw if name could not be resolved', async () => {
-            const userDb: UserDB = {
-                conversations: new Map<string, StorageEnvelopContainer[]>(),
-                conversationsCount: 0,
-                keys,
-                lastChangeTimestamp: 0,
-                syncProcessState: SyncProcessState.Idle,
-                synced: true,
-            };
-
-            await expect(
-                addContact(
-                    connection,
-                    'test.eth',
-                    async () => null,
-                    userDb,
-                    (id: string) => {
-                        expect(id).toStrictEqual(
-                            '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292,0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-                        );
-                    },
-                ),
-            ).rejects.toEqual(Error(`Couldn't resolve name`));
         });
 
         test('Should reject to add a contact if the contact was already added', async () => {
@@ -526,38 +499,20 @@ describe('Account', () => {
                 synced: true,
             };
 
-            userDb.conversations.set(
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292,0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855',
-                [],
-            );
+            userDb.conversations.set('alice.eth,bob.eth', []);
             userDb.conversationsCount = 1;
 
             expect.assertions(1);
             await expect(
-                addContact(
-                    connection,
-                    '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-                    async () => null,
-                    userDb,
-                    () => false,
-                ),
+                addContact(connection, 'bob.eth', userDb, () => false),
             ).rejects.toEqual(Error('Contact exists already.'));
         });
     });
 
     describe('getBrowserStorageKey', () => {
         test('should return the correct storage key', async () => {
-            expect(
-                getBrowserStorageKey(
-                    '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-                ),
-            ).toStrictEqual(
-                'userStorageSnapshot0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-            );
-        });
-        test('should return the correct storage key', async () => {
-            expect(() => getBrowserStorageKey(null as any)).toThrowError(
-                'No address provided',
+            expect(getBrowserStorageKey('alice.eth')).toStrictEqual(
+                'userStorageSnapshot:alice.eth',
             );
         });
     });
@@ -584,27 +539,38 @@ describe('Account', () => {
 
     describe('checkUserProfile', () => {
         test('Should accept a valid profile signature', async () => {
+            const profile = await getProfileData();
             expect(
-                checkUserProfile(
-                    (await getProfileData()).signedUserProfile,
-                    (await getProfileData()).account.address,
+                await checkUserProfile(
+                    {
+                        resolveName: async () => profile.address,
+                    } as any,
+                    profile.signedUserProfile,
+                    profile.account.ensName,
                 ),
             ).toStrictEqual(true);
         });
 
         test('Should reject an invalid profile signature', async () => {
-            const userProfile = (await getProfileData()).account.profile!;
+            const profile = await getProfileData();
             expect(
-                checkUserProfile(
+                await checkUserProfile(
+                    {
+                        resolveName: async () => profile.address,
+                    } as any,
                     {
                         profile: {
-                            ...userProfile,
+                            ...profile.account.profile!,
                             deliveryServices: ['http://1'],
                         },
-                        signature: (await getProfileData()).signedUserProfile
-                            .signature,
+                        signature: (
+                            await getProfileData()
+                        ).signedUserProfile.signature,
                     },
-                    (await getProfileData()).account.address,
+
+                    (
+                        await getProfileData()
+                    ).account.ensName,
                 ),
             ).toStrictEqual(false);
         });
@@ -630,7 +596,7 @@ describe('Account', () => {
             await expect(
                 getUserProfile(
                     { provider: {} } as any,
-                    '0x8101b0729eb9708a344c820fce80f12a90a7c1fa',
+                    'bob.eth',
                     async () => undefined,
                     async () =>
                         'http://123?' + createHashUrlParam(signedUserProfile),
@@ -649,7 +615,7 @@ describe('Account', () => {
             await expect(
                 getUserProfile(
                     { provider: {} } as any,
-                    '0x8101b0729eb9708a344c820fce80f12a90a7c1fa',
+                    'bob.eth',
                     async () => ({ test: 'test' } as any),
                     async () => 'test',
 
@@ -677,7 +643,7 @@ describe('Account', () => {
             await expect(
                 getUserProfile(
                     { provider: {} } as any,
-                    '0x8101b0729eb9708a344c820fce80f12a90a7c1fa',
+                    'bob.eth',
                     async () => undefined,
                     async () =>
                         'ipfs://QmZwrAZFDprTo2h3Gbdc4hS2vEVSP1q9j7vDTq8TS1Z137',
@@ -711,7 +677,7 @@ describe('Account', () => {
             await expect(
                 getUserProfile(
                     { provider: {} } as any,
-                    '0x8101b0729eb9708a344c820fce80f12a90a7c1fa',
+                    'bob.eth',
                     async () => undefined,
                     async () =>
                         'data:application/json,' +
@@ -739,7 +705,7 @@ describe('Account', () => {
             await expect(
                 getUserProfile(
                     { provider: {} } as any,
-                    '0x8101b0729eb9708a344c820fce80f12a90a7c1fa',
+                    'bob.eth',
                     async () => signedUserProfile,
                     async () => undefined,
 
@@ -771,7 +737,7 @@ describe('Account', () => {
             await expect(
                 getUserProfile(
                     { provider: {} } as any,
-                    '0x8101b0729eb9708a344c820fce80f12a90a7c1fa',
+                    'bob.eth',
                     async () => signedUserProfile2,
                     async () =>
                         'http://123?' + createHashUrlParam(signedUserProfile),
@@ -793,10 +759,13 @@ describe('Account', () => {
             const tx = await publishProfileOnchain(
                 {
                     ...connection,
+                    provider: {
+                        resolveName: async () => profile.address,
+                    } as any,
                     account: profile.account,
                 },
                 'http://bla',
-                async () => '0x1',
+
                 () => {
                     return { address: '0x2' } as any;
                 },
@@ -809,7 +778,7 @@ describe('Account', () => {
             );
 
             expect(tx?.args).toStrictEqual([
-                '0xca7a0eadca1ba3745db7065063294b717422bd1c70995cba8f5adcd094fdae1d',
+                '0xbe11069ec59144113f438b6ef59dd30497769fc2dce8e2b52e3ae71ac18e47c9',
                 'dm3.profile',
                 'http://bla?dm3Hash=0x352942c3b35370f5424b2a4d263aeca1158a5c6e3c1d0a866c23f9d80e6ea426',
             ]);
@@ -824,7 +793,6 @@ describe('Account', () => {
                 publishProfileOnchain(
                     { ...connection, provider: undefined },
                     'http://bla',
-                    async () => '0x1',
                     () => {
                         return { address: '0x2' } as any;
                     },
@@ -845,7 +813,6 @@ describe('Account', () => {
                 publishProfileOnchain(
                     { ...connection, account: undefined },
                     'http://bla',
-                    async () => '0x1',
                     () => {
                         return { address: '0x2' } as any;
                     },
@@ -866,7 +833,7 @@ describe('Account', () => {
                 publishProfileOnchain(
                     { ...connection },
                     'http://bla',
-                    async () => '0x1',
+
                     () => ({ address: '0x2' } as any),
                     () => ({ setText: () => 'success' } as any),
                     async () => undefined,
@@ -883,9 +850,11 @@ describe('Account', () => {
                     {
                         ...connection,
                         account: profile.account,
+                        provider: {
+                            resolveName: async () => profile.address,
+                        } as any,
                     },
                     'http://bla',
-                    async () => '0x1',
                     () => ({ address: '0x2' } as any),
                     () => ({ setText: () => 'success' } as any),
                     async () => ({
@@ -898,27 +867,6 @@ describe('Account', () => {
             ).rejects.toEqual(Error('account profile check failed'));
         });
 
-        test('Should throw if ENS name could not be found', async () => {
-            expect.assertions(1);
-
-            await expect(
-                publishProfileOnchain(
-                    { ...connection },
-                    'http://bla',
-                    async () => null,
-                    () => {
-                        return { address: '0x2' } as any;
-                    },
-                    () => {
-                        return { setText: () => 'success' } as any;
-                    },
-                    async () => {
-                        return undefined;
-                    },
-                ),
-            ).rejects.toEqual(Error('No ENS name found'));
-        });
-
         test('Should throw if the ENS could not be obtained ', async () => {
             expect.assertions(1);
 
@@ -926,7 +874,7 @@ describe('Account', () => {
                 publishProfileOnchain(
                     { ...connection },
                     'http://bla',
-                    async () => '0x1',
+
                     async () => {
                         return null;
                     },

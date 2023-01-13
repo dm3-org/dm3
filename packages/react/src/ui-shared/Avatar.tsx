@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { GlobalContext } from '../GlobalContextProvider';
 import makeBlockie from 'ethereum-blockies-base64';
 import './Avatar.css';
@@ -13,7 +13,7 @@ export enum SpecialSize {
 }
 
 interface AvatarProps {
-    accountAddress: string;
+    ensName: string;
     specialSize?: SpecialSize;
 }
 
@@ -22,28 +22,24 @@ function Avatar(props: AvatarProps) {
     const { state, dispatch } = useContext(GlobalContext);
 
     const getAvatar = async () => {
-        const address = Lib.external.formatAddress(props.accountAddress);
+        const ensName = Lib.account.normalizeEnsName(props.ensName);
 
-        let url = state.cache.avatarUrls.get(address);
+        let url = state.cache.avatarUrls.get(ensName);
 
         if (url) {
             return url;
         }
 
-        const ensName = state.cache.ensNames.get(address);
+        const urlResponse = await state.connection.provider!.getAvatar(
+            props.ensName,
+        );
 
-        if (ensName) {
-            const urlResponse = await state.connection.provider!.getAvatar(
-                ensName!,
-            );
-
-            if (urlResponse) {
-                dispatch({
-                    type: CacheType.AddAvatarUrl,
-                    payload: { address, url: urlResponse },
-                });
-                return url;
-            }
+        if (urlResponse) {
+            dispatch({
+                type: CacheType.AddAvatarUrl,
+                payload: { ensName, url: urlResponse },
+            });
+            return url;
         }
 
         return undefined;
@@ -54,10 +50,10 @@ function Avatar(props: AvatarProps) {
         (avatarUrl: unknown) => {
             setAvatar(avatarUrl as string | undefined);
         },
-        [props.accountAddress, state.cache.ensNames, state.cache.avatarUrls],
+        [props.ensName, state.cache.avatarUrls],
     );
 
-    if (!props.accountAddress) {
+    if (!props.ensName) {
         return null;
     }
 
@@ -97,7 +93,7 @@ function Avatar(props: AvatarProps) {
         <img
             className={'avatar'}
             style={style(props.specialSize)}
-            src={makeBlockie(props.accountAddress)}
+            src={makeBlockie(props.ensName)}
             alt="Avatar"
         />
     );

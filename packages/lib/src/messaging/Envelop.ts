@@ -49,8 +49,8 @@ export async function buildEnvelop(
     );
 
     const deliveryInformation: DeliveryInformation = {
-        to: to.address,
-        from: from.address,
+        to: to.ensName,
+        from: from.ensName,
     };
     /**
      * Builds the {@see EnvelopMetadata} for the message

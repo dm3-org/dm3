@@ -10,5 +10,5 @@ export interface WithLocals {
             'deliveryServiceProperties',
             Lib.delivery.DeliveryServiceProperties
         > &
-        Record<'web3Provider', ethers.providers.BaseProvider>;
+        Record<'web3Provider', ethers.providers.JsonRpcProvider>;
 }

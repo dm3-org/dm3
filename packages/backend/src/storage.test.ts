@@ -28,7 +28,7 @@ describe('Storage', () => {
             const token = await createAuthToken();
 
             app.locals.db = {
-                getSession: async (accountAddress: string) =>
+                getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
@@ -46,8 +46,13 @@ describe('Storage', () => {
                     return {};
                 },
             };
+
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
             const { status } = await request(app)
-                .get(`/0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1`)
+                .get(`/bob.eth`)
                 .set({
                     authorization: `Bearer ${token}`,
                 })
@@ -55,38 +60,6 @@ describe('Storage', () => {
                 .send();
 
             expect(status).toBe(200);
-        });
-        it('Returns 200 if schema is valid', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(storage());
-
-            app.locals.redisClient = {
-                get: (_: any) => JSON.stringify({}),
-            };
-
-            const token = await createAuthToken();
-
-            app.locals.db = {
-                getSession: async (accountAddress: string) =>
-                    Promise.resolve({
-                        challenge: '123',
-                        token,
-                    }),
-                setSession: async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
-                },
-            };
-
-            const { status } = await request(app)
-                .get(`/12345`)
-                .set({
-                    authorization: `Bearer ${token}`,
-                })
-
-                .send();
-
-            expect(status).toBe(400);
         });
     });
 
@@ -99,7 +72,7 @@ describe('Storage', () => {
             const token = await createAuthToken();
 
             app.locals.db = {
-                getSession: async (accountAddress: string) =>
+                getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
                         token,
@@ -109,46 +82,19 @@ describe('Storage', () => {
                 },
                 setUserStorage: (_: string, __: string) => {},
             };
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
 
             const { status } = await request(app)
-                .post(`/0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1`)
+                .post(`/bob.eth`)
                 .set({
                     authorization: `Bearer ${token}`,
                 })
                 .send();
 
             expect(status).toBe(200);
-        });
-        it('Returns 400 if schema is invalid', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(storage());
-
-            app.locals.redisClient = {
-                set: (_: any) => {},
-            };
-
-            const token = await createAuthToken();
-
-            app.locals.db = {
-                getSession: async (accountAddress: string) =>
-                    Promise.resolve({
-                        challenge: '123',
-                        token,
-                    }),
-                setSession: async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
-                },
-            };
-
-            const { status } = await request(app)
-                .post(`/1234`)
-                .set({
-                    authorization: `Bearer ${token}`,
-                })
-                .send();
-
-            expect(status).toBe(400);
         });
     });
 });
@@ -158,8 +104,14 @@ const createAuthToken = async () => {
     app.use(bodyParser.json());
     app.use(auth());
 
-    app.locals.redisClient = {
-        exists: (_: any) => false,
+    app.locals = {
+        web3Provider: {
+            resolveName: async () =>
+                '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+        },
+        redisClient: {
+            exists: (_: any) => false,
+        },
     };
 
     app.locals.db = {
@@ -181,11 +133,9 @@ const createAuthToken = async () => {
         '3A893rTBPEa3g9FL2vgDreY3vvXnOiYCOoJURNyctncwH' +
         '0En/mcwo/t2v2jtQx/pcnOpTzuJwLuZviTQjd9vBQ==';
 
-    const { body } = await request(app)
-        .post(`/0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1`)
-        .send({
-            signature,
-        });
+    const { body } = await request(app).post(`/bob.eth`).send({
+        signature,
+    });
 
     return body.token;
 };

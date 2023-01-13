@@ -1,16 +1,14 @@
-import { formatAddress } from '../external-apis/InjectedWeb3API';
-
 import { v4 as uuidv4 } from 'uuid';
-
 import { Session } from './Session';
 import { checkSignature } from '../crypto';
+import { normalizeEnsName } from '../account';
 
 export async function createChallenge(
     getSession: (accountAddress: string) => Promise<Session | null>,
     setSession: (accountAddress: string, session: Session) => Promise<void>,
-    accountAddress: string,
+    ensName: string,
 ) {
-    const account = formatAddress(accountAddress);
+    const account = normalizeEnsName(ensName);
     const session = await getSession(account);
 
     if (!session) {
@@ -26,13 +24,12 @@ export async function createChallenge(
 }
 
 export async function createNewSessionToken(
-    getSession: (accountAddress: string) => Promise<Session | null>,
-    setSession: (accountAddress: string, session: Session) => Promise<void>,
+    getSession: (ensName: string) => Promise<Session | null>,
+    setSession: (ensName: string, session: Session) => Promise<void>,
     signature: string,
-    accountAddress: string,
+    ensName: string,
 ): Promise<string> {
-    const account = formatAddress(accountAddress);
-    const session = await getSession(account);
+    const session = await getSession(ensName);
 
     if (!session) {
         throw Error('Session not found');
@@ -53,6 +50,6 @@ export async function createNewSessionToken(
     }
 
     const token = uuidv4();
-    await setSession(account, { ...session, challenge: undefined, token });
+    await setSession(ensName, { ...session, challenge: undefined, token });
     return token;
 }

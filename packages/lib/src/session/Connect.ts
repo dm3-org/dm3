@@ -26,7 +26,10 @@ export async function connectAccount(
             account,
             connection.defaultServiceUrl + '/profile/' + account,
         );
-        if (profile && !checkUserProfile(profile, account)) {
+        if (
+            profile &&
+            !(await checkUserProfile(connection.provider, profile, account))
+        ) {
             throw Error('Profile signature is invalid');
         }
         //Todo is this the right way to do it

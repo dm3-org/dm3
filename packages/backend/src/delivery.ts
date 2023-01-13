@@ -1,28 +1,17 @@
 import cors from 'cors';
 import * as Lib from 'dm3-lib/dist.backend';
-import { isAddress } from 'ethers/lib/utils';
 import express from 'express';
 import { RedisPrefix } from './persistance/getDatabase';
 import { WithLocals } from './types';
 import { auth } from './utils';
 
-const getMessagesSchema = {
-    type: 'object',
-    properties: {
-        address: { type: 'string' },
-        contact_address: { type: 'string' },
-    },
-    required: ['address', 'contact_address'],
-    additionalProperties: false,
-};
-
 const syncAcknoledgmentParamsSchema = {
     type: 'object',
     properties: {
-        address: { type: 'string' },
+        ensName: { type: 'string' },
         last_message_pull: { type: 'string' },
     },
-    required: ['address', 'last_message_pull'],
+    required: ['ensName', 'last_message_pull'],
     additionalProperties: false,
 };
 const syncAcknoledgmentBodySchema = {
@@ -41,38 +30,24 @@ export default () => {
     const router = express.Router();
     //TODO remove
     router.use(cors());
-    router.param('address', auth);
+    router.param('ensName', auth);
 
     router.get(
-        '/messages/:address/contact/:contact_address',
+        '/messages/:ensName/contact/:contactEnsName',
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const { address, contact_address } = req.params;
-
-                const isSchemaValid = Lib.validateSchema(
-                    getMessagesSchema,
-                    req.params,
+                const ensName = Lib.account.normalizeEnsName(
+                    req.params.ensName,
                 );
-                if (
-                    !(
-                        isSchemaValid &&
-                        isAddress(address) &&
-                        isAddress(contact_address)
-                    )
-                ) {
-                    return res.send(400);
-                }
-
-                const account = Lib.external.formatAddress(address);
-                const contact = Lib.external.formatAddress(
-                    req.params.contact_address,
+                const contactEnsName = Lib.account.normalizeEnsName(
+                    req.params.contactEnsName,
                 );
 
                 const newMessages = await Lib.delivery.getMessages(
                     req.app.locals.db.getMessages,
                     req.app.locals.keys.encryption,
-                    account,
-                    contact,
+                    ensName,
+                    contactEnsName,
                 );
 
                 res.json(newMessages);
@@ -82,9 +57,9 @@ export default () => {
         },
     );
 
-    router.post('/messages/:address/pending', async (req, res, next) => {
+    router.post('/messages/:ensName/pending', async (req, res, next) => {
         try {
-            const account = Lib.external.formatAddress(req.params.address);
+            const account = Lib.account.normalizeEnsName(req.params.ensName);
 
             const pending = await req.app.locals.db.getPending(
                 account,
@@ -101,7 +76,7 @@ export default () => {
     });
 
     router.post(
-        '/messages/:address/syncAcknoledgment/:last_message_pull',
+        '/messages/:ensName/syncAcknoledgment/:last_message_pull',
         async (req, res, next) => {
             const hasValidParams = Lib.validateSchema(
                 syncAcknoledgmentParamsSchema,
@@ -124,13 +99,15 @@ export default () => {
             }
 
             try {
-                const account = Lib.external.formatAddress(req.params.address);
+                const ensName = Lib.account.normalizeEnsName(
+                    req.params.ensName,
+                );
                 await Promise.all(
                     req.body.acknoledgments.map(
                         async (ack: Lib.delivery.Acknoledgment) => {
                             const conversationId =
                                 Lib.storage.getConversationId(
-                                    account,
+                                    ensName,
                                     ack.contactAddress,
                                 );
 
@@ -142,7 +119,7 @@ export default () => {
 
                                 await req.app.locals.redisClient.hSet(
                                     redisKey,
-                                    account,
+                                    ensName,
                                     req.params.last_message_pull,
                                 );
 

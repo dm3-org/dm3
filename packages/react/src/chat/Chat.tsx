@@ -47,7 +47,7 @@ function Chat() {
             await Lib.messaging.getMessages(
                 state.connection,
                 state.auth.currentSession?.token!,
-                state.accounts.selectedContact.account.address,
+                state.accounts.selectedContact.account.ensName,
                 state.userDb as Lib.storage.UserDB,
                 (envelops) =>
                     envelops.forEach((envelop) =>
@@ -76,12 +76,9 @@ function Chat() {
             }
 
             const account =
-                Lib.external.formatAddress(
+                Lib.account.normalizeEnsName(
                     container.envelop.message.metadata.from,
-                ) ===
-                Lib.external.formatAddress(
-                    state.accounts.selectedContact.account.address,
-                )
+                ) === state.accounts.selectedContact.account.ensName
                     ? state.accounts.selectedContact.account
                     : state.connection.account!;
 
@@ -89,7 +86,7 @@ function Chat() {
                 ? checkSignature(
                       container.envelop.message,
                       account.profile?.publicSigningKey,
-                      account.address,
+                      account.ensName,
                       container.envelop.message.signature,
                   )
                 : false;
@@ -154,7 +151,7 @@ function Chat() {
         messageContainers.forEach((container) => {
             if (
                 container.envelop.message.metadata.from ===
-                state.connection.account!.address
+                state.connection.account!.ensName
             ) {
                 addUserMessage(
                     container.envelop.message.message,
@@ -183,7 +180,7 @@ function Chat() {
                         time={container.envelop.message.metadata.timestamp}
                         ownMessage={
                             container.envelop.message.metadata.from ===
-                            state.connection.account!.address
+                            state.connection.account!.ensName
                         }
                     />
                 ),
@@ -204,7 +201,7 @@ function Chat() {
         if (state.accounts.selectedContact && state.userDb) {
             handleMessages(
                 Lib.storage.getConversation(
-                    state.accounts.selectedContact.account.address,
+                    state.accounts.selectedContact.account.ensName,
                     state.connection,
                     state.userDb,
                 ),
@@ -234,8 +231,8 @@ function Chat() {
                 : true;
 
         const messageData = await Lib.messaging.createMessage(
-            state.accounts.selectedContact.account.address,
-            state.connection.account!.address,
+            state.accounts.selectedContact.account.ensName,
+            state.connection.account!.ensName,
             message,
             userDb,
         );

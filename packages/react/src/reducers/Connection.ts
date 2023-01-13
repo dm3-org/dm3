@@ -54,7 +54,7 @@ export function connectionReducer(
             };
 
         case ConnectionType.ChangeAccount:
-            Lib.log(`[Connection] Set account ${action.payload.address}`);
+            Lib.log(`[Connection] Set account ${action.payload.ensName}`);
             return {
                 ...state,
                 account: action.payload,
