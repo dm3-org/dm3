@@ -47,6 +47,7 @@
         "babel-cli": "^6.26.0",
         "babel-jest": "^29.2.2",
         "babel-preset-env": "^1.7.0",
+        "chai": "^4.3.7",
         "hardhat": "^2.12.5",
         "hardhat-gas-reporter": "^1.0.9",
         "jest": "^29.2.2",
