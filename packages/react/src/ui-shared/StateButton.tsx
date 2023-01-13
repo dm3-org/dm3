@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import Icon from '../ui-shared/Icon';
+import './StateButton.css';
 
 interface StateButtonProps {
     content: JSX.Element;
@@ -52,9 +53,9 @@ function StateButton(props: StateButtonProps) {
         <button
             onClick={props.onClick}
             type="button"
-            className={`state-btn btn-${
+            className={`btn-outline-${
                 props.btnState === ButtonState.Failed ? 'danger' : props.btnType
-            } btn-lg w-100 ${props.className ? props.className : ''}`}
+            } btn-lg state-btn w-100 ${props.className ? props.className : ''}`}
             disabled={
                 props.disabled !== undefined
                     ? props.disabled

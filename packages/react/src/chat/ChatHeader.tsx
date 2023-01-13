@@ -23,7 +23,7 @@ function ChatHeader(props: ChatHeaderProps) {
                     ' account-header h-100 d-flex flex-column pe-3'
                 }
             >
-                <div className="w-100 mt-2 mb-2">
+                <div className="w-100 mt-3 mb-3">
                     <div className="w-100">
                         <div className=" d-flex justify-content-between  pe-0">
                             <div className="push-end d-flex">
@@ -48,16 +48,19 @@ function ChatHeader(props: ChatHeaderProps) {
                                     )}
                                 </button>
                             </div>
-                            <div className="account-header-text">
-                                {props.account &&
-                                state.accounts.accountInfoView ===
-                                    AccountInfo.Contact
-                                    ? Lib.account.getAccountDisplayName(
-                                          props.account.address,
-                                          state.cache.ensNames,
-                                      )
-                                    : 'Account Info'}
+                            <div className="d-flex">
+                                <div className="account-header-text align-self-center">
+                                    {props.account &&
+                                    state.accounts.accountInfoView ===
+                                        AccountInfo.Contact
+                                        ? Lib.account.getAccountDisplayName(
+                                              props.account.address,
+                                              state.cache.ensNames,
+                                          )
+                                        : 'Account Info'}
+                                </div>
                             </div>
+
                             <div className="d-flex align-items-center">
                                 <button
                                     type="button"
@@ -95,11 +98,11 @@ function ChatHeader(props: ChatHeaderProps) {
         return (
             <div
                 className={
-                    ' ps-3 account-name w-100 d-flex justify-content-between' +
+                    ' ps-3  account-name w-100 d-flex justify-content-between' +
                     ' account-header h-100 d-flex flex-column pe-3'
                 }
             >
-                <div className="w-100 mt-2 mb-2">
+                <div className="w-100 mt-3 mb-3">
                     <div className="w-100">
                         <div className=" d-flex justify-content-between  pe-0">
                             <div className="push-end d-flex">
@@ -124,19 +127,21 @@ function ChatHeader(props: ChatHeaderProps) {
                                     )}
                                 </button>
                             </div>
-                            <div
-                                className="account-header-text"
-                                onClick={() =>
-                                    dispatch({
-                                        type: AccountsType.SetAccountInfoView,
-                                        payload: AccountInfo.Contact,
-                                    })
-                                }
-                            >
-                                {Lib.account.getAccountDisplayName(
-                                    props.account.address,
-                                    state.cache.ensNames,
-                                )}
+                            <div className="d-flex">
+                                <div
+                                    className="account-header-text align-self-center"
+                                    onClick={() =>
+                                        dispatch({
+                                            type: AccountsType.SetAccountInfoView,
+                                            payload: AccountInfo.Contact,
+                                        })
+                                    }
+                                >
+                                    {Lib.account.getAccountDisplayName(
+                                        props.account.address,
+                                        state.cache.ensNames,
+                                    )}
+                                </div>
                             </div>
                             <div className="d-flex align-items-center">
                                 <div className="d-flex contact-entry-avatar">
