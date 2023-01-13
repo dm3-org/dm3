@@ -17,6 +17,7 @@ import { getDatabase, getRedisClient, Redis } from '../persistance/getDatabase';
 import { IDatabase } from '../persistance/IDatabase';
 import { ccipGateway } from './ccipGateway';
 import { profile } from './profile';
+const { expect } = require('chai');
 
 describe('CCIP Gateway', () => {
     let redisClient: Redis;
@@ -86,7 +87,7 @@ describe('CCIP Gateway', () => {
                 },
             });
 
-            expect(writeRes.status).toBe(200);
+            expect(writeRes.status).to.equal(200);
             //Call the contract to retrieve the gateway url
             const { callData, sender } = await resolveGateWayUrl(
                 name,
@@ -98,7 +99,7 @@ describe('CCIP Gateway', () => {
                 .get(`/${sender}/${callData}`)
                 .send();
 
-            expect(status).toBe(200);
+            expect(status).to.equal(200);
 
             const resultString = await offchainResolver.resolveWithProof(
                 body.data,
@@ -110,7 +111,7 @@ describe('CCIP Gateway', () => {
                 resultString,
             );
 
-            expect(JSON.parse(actualProfile)).toStrictEqual(profile);
+            expect(JSON.parse(actualProfile)).to.eql(profile);
         });
         it('Returns 404 if profile does not exists', async () => {
             const { signer, profile, signature } = await getSignedUserProfile();
@@ -128,7 +129,7 @@ describe('CCIP Gateway', () => {
                 .get(`/${sender}/${callData}`)
                 .send();
 
-            expect(status).toBe(404);
+            expect(status).to.equal(404);
         });
         it('Returns 400 if record is not dm3.profile', async () => {
             //Call the contract to retrieve the gateway url
@@ -173,7 +174,7 @@ describe('CCIP Gateway', () => {
                 .get(`/${sender}/${callData}`)
                 .send();
 
-            expect(status).toBe(400);
+            expect(status).to.equal(400);
         });
         it('Returns 400 if something failed during the request', async () => {
             //You the url returned by he contract to fetch the profile from the ccip gateway
@@ -181,8 +182,8 @@ describe('CCIP Gateway', () => {
                 .get(`/foo/bar`)
                 .send();
 
-            expect(status).toBe(400);
-            expect(body.message).toBe('Unknown error');
+            expect(status).to.equal(400);
+            expect(body.message).to.equal('Unknown error');
         });
     });
 
@@ -205,7 +206,7 @@ describe('CCIP Gateway', () => {
                     signature,
                 },
             });
-            expect(writeRes.status).toBe(200);
+            expect(writeRes.status).to.equal(200);
 
             const provider = new MockProvider(
                 hreEthers.provider,
@@ -221,7 +222,7 @@ describe('CCIP Gateway', () => {
 
             const text = await resolver.getText('dm3.profile');
 
-            expect(JSON.parse(text)).toStrictEqual(profile);
+            expect(JSON.parse(text)).to.eql(profile);
         });
         it('Throws error if lookup went wrong', async () => {
             const provider = new MockProvider(
@@ -236,9 +237,7 @@ describe('CCIP Gateway', () => {
                 'foo.dm3.eth',
             );
 
-            expect(
-                async () => await resolver.getText('unknown record'),
-            ).rejects.toThrowError();
+            expect(resolver.getText('unknown record')).rejected;
         });
     });
     const fetchProfileFromCcipGateway = async (url: string, json?: string) => {

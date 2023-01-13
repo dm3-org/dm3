@@ -23,7 +23,7 @@
     "scripts": {
         "docker:up": "docker-compose up -d",
         "start": "node dist",
-        "test": "npm run docker:up && nyc hardhat test &&jest --runInBand ",
+        "test": " nyc hardhat test test/**test.ts src/**/**.test.ts  ",
         "build": "tsc && cp ./config.yml ./dist/config.yml | true"
     },
     "devDependencies": {

@@ -4,6 +4,8 @@ import { IDatabase } from '../IDatabase';
 import { setUserProfile } from './setUserProfile';
 import { ethers } from 'ethers';
 import { hasAddressProfile } from './hasAddressProfile';
+const { expect } = require('chai');
+
 describe('hasAddressProfile', () => {
     let redisClient: Redis;
     let db: IDatabase;
@@ -22,7 +24,7 @@ describe('hasAddressProfile', () => {
         const { address } = ethers.Wallet.createRandom();
         const hasProfile = await hasAddressProfile(redisClient)(address);
 
-        expect(hasProfile).toBe(false);
+        expect(hasProfile).to.equal(false);
     });
 
     it('Returns true after a profile was created', async () => {
@@ -38,6 +40,6 @@ describe('hasAddressProfile', () => {
         await setUserProfile(redisClient)(name, profile, address);
         const hasProfile = await hasAddressProfile(redisClient)(address);
 
-        expect(hasProfile).toBe(true);
+        expect(hasProfile).to.equal(true);
     });
 });

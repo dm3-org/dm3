@@ -7,6 +7,7 @@ import { IDatabase } from '../persistance/IDatabase';
 import { profile } from './profile';
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 import * as Lib from 'dm3-lib/dist.backend';
+const { expect } = require('chai');
 
 describe('Profile', () => {
     let redisClient: Redis;
@@ -37,8 +38,8 @@ describe('Profile', () => {
                 signedUserProfile: {},
             });
 
-            expect(status).toBe(400);
-            expect(body.error).toBe('invalid schema');
+            expect(status).to.equal(400);
+            expect(body.error).to.equal('invalid schema');
         });
         it('Rejects invalid profile', async () => {
             const profile: Lib.account.UserProfile = {
@@ -62,8 +63,8 @@ describe('Profile', () => {
                 },
             });
 
-            expect(status).toBe(400);
-            expect(body.error).toBe('invalid profile');
+            expect(status).to.equal(400);
+            expect(body.error).to.equal('invalid profile');
         });
 
         it('Rejects address with an empty eth balance', async () => {
@@ -79,8 +80,8 @@ describe('Profile', () => {
                     },
                 });
 
-            expect(status).toBe(400);
-            expect(body.error).toBe('Insuficient ETH balance');
+            expect(status).to.equal(400);
+            expect(body.error).to.equal('Insuficient ETH balance');
         });
 
         it('Rejects if subdomain has already a profile', async () => {
@@ -115,7 +116,7 @@ describe('Profile', () => {
                     },
                 });
 
-            expect(res1.status).toBe(200);
+            expect(res1.status).to.equal(200);
 
             const res2 = await request(app)
                 .post(`/`)
@@ -128,8 +129,8 @@ describe('Profile', () => {
                     },
                 });
 
-            expect(res2.status).toBe(400);
-            expect(res2.body.error).toStrictEqual('subdomain already claimed');
+            expect(res2.status).to.equal(400);
+            expect(res2.body.error).to.eql('subdomain already claimed');
         });
         it('Rejects if address already claimed a subdomain', async () => {
             const offChainProfile1 = await getSignedUserProfile();
@@ -152,7 +153,7 @@ describe('Profile', () => {
                     },
                 });
 
-            expect(res1.status).toBe(200);
+            expect(res1.status).to.equal(200);
 
             const res2 = await request(app)
                 .post(`/`)
@@ -165,8 +166,8 @@ describe('Profile', () => {
                     },
                 });
 
-            expect(res2.status).toBe(400);
-            expect(res2.body.error).toStrictEqual(
+            expect(res2.status).to.equal(400);
+            expect(res2.body.error).to.eql(
                 'address has already claimed a subdomain',
             );
         });
@@ -189,7 +190,7 @@ describe('Profile', () => {
                 },
             });
 
-            expect(status).toBe(200);
+            expect(status).to.equal(200);
         });
     });
 });

@@ -4,6 +4,8 @@ import { getDatabase, getRedisClient, Redis } from './../getDatabase';
 import { getUserProfile } from './getUserProfile';
 import * as Lib from 'dm3-lib/dist.backend';
 import { ethers } from 'ethers';
+const { expect } = require('chai');
+
 describe('getUserProfile', () => {
     let redisClient: Redis;
     let db: IDatabase;
@@ -21,8 +23,7 @@ describe('getUserProfile', () => {
 
     it('Returns null if the name has no profile yet', async () => {
         const profile = await getUserProfile(redisClient)('foo');
-
-        expect(profile).toBeNull();
+        expect(profile).to.be.null;
     });
 
     it('Returns the profile if a name has one', async () => {
@@ -38,6 +39,6 @@ describe('getUserProfile', () => {
         await setUserProfile(redisClient)(name, profile, address);
         const retrivedProfile = await getUserProfile(redisClient)(name);
 
-        expect(retrivedProfile).toStrictEqual(profile);
+        expect(retrivedProfile).to.eql(profile);
     });
 });

@@ -3,6 +3,8 @@ import { IDatabase } from '../IDatabase';
 import { setUserProfile } from './setUserProfile';
 import * as Lib from 'dm3-lib/dist.backend';
 import { ethers } from 'ethers';
+const { expect } = require('chai');
+
 describe('setUserProfile', () => {
     let redisClient: Redis;
     let db: IDatabase;
@@ -21,13 +23,13 @@ describe('setUserProfile', () => {
     it('Rejects invalid user profile', async () => {
         const { address } = ethers.Wallet.createRandom();
 
-        await expect(async () => {
-            await setUserProfile(redisClient)(
+        expect(
+            setUserProfile(redisClient)(
                 'foo.eth',
                 {} as Lib.account.UserProfile,
                 address,
-            );
-        }).rejects.toEqual(Error('Invalid user profile'));
+            ),
+        ).rejectedWith(Error('Invalid user profile'));
     });
     it('Stores valid user profile', async () => {
         const { address } = ethers.Wallet.createRandom();
@@ -44,7 +46,7 @@ describe('setUserProfile', () => {
             address,
         );
 
-        expect(writeResult).toBeTruthy();
+        expect(writeResult).to.be.true;
     });
     it('Rejects if a name already has profile attached', async () => {
         const { address } = ethers.Wallet.createRandom();
@@ -61,13 +63,13 @@ describe('setUserProfile', () => {
             profile,
             address,
         );
-        expect(firstWrite).toBeTruthy();
+        expect(firstWrite).to.be.true;
         //This should reject bc the subdomain already has a profile
         const secondWrite = await setUserProfile(redisClient)(
             'foo.eth',
             profile,
             address,
         );
-        expect(secondWrite).toBeFalsy();
+        expect(secondWrite).to.be.false;
     });
 });
