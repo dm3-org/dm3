@@ -12,7 +12,7 @@ import { ethers } from 'ethers';
  */
 export function getUserProfile(redis: Redis) {
     return async (name: string) => {
-        const nameHash = ethers.utils.nameprep(ethers.utils.namehash(name));
+        const nameHash = ethers.utils.namehash(ethers.utils.nameprep(name));
 
         const isMember = await redis.hExists(USER_PROFILE_KEY, nameHash);
         if (!isMember) {
