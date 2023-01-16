@@ -1,7 +1,7 @@
-import express from 'express';
-import ethers from 'ethers';
-import { WithLocals } from './types';
 import * as Lib from 'dm3-lib/dist.backend';
+import { ethers } from 'ethers';
+import express from 'express';
+import { WithLocals } from './types';
 
 export function profile(web3Provider: ethers.providers.BaseProvider) {
     const router = express.Router();
@@ -63,6 +63,32 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
             );
 
             return res.send(200);
+        },
+    );
+
+    router.get(
+        '/:address',
+        async (req: express.Request & { app: WithLocals }, res, next) => {
+            const { address } = req.params;
+            if (!ethers.utils.isAddress(address)) {
+                return res.status(400).send();
+            }
+
+            const hasAddressProfile = await req.app.locals.db.hasAddressProfile(
+                address,
+            );
+
+            if (!hasAddressProfile) {
+                return res.send(404);
+            }
+            const userProfile = await req.app.locals.db.getUserProfileByAddress(
+                address,
+            );
+            if (!userProfile) {
+                return res.send(404);
+            }
+
+            return res.status(200).send(userProfile);
         },
     );
     return router;

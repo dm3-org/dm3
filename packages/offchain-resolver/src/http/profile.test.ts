@@ -193,6 +193,47 @@ describe('Profile', () => {
             expect(status).to.equal(200);
         });
     });
+    describe('Get User By Account', () => {
+        it('Returns 400 if address in invalid', async () => {
+            const { status, body } = await request(app).get(`/fooo`).send();
+            expect(status).to.equal(400);
+        });
+
+        it('Returns 404 if profile does not exists', async () => {
+            const { status, body } = await request(app)
+                .get(`/${SENDER_ADDRESS}`)
+                .send();
+            expect(status).to.equal(404);
+        });
+
+        it('Returns the profile linked to ', async () => {
+            const { signer, profile, signature } = await getSignedUserProfile();
+
+            //Fund wallet so their balance is not zero
+            const [wale] = await hreEthers.getSigners();
+            await wale.sendTransaction({
+                to: signer,
+                value: hreEthers.BigNumber.from(1),
+            });
+
+            const writeRes = await request(app).post(`/`).send({
+                name: 'foo.dm3.eth',
+                address: signer,
+                signedUserProfile: {
+                    signature,
+                    profile,
+                },
+            });
+            expect(writeRes.status).to.equal(200);
+
+            const { status, body } = await request(app)
+                .get(`/${signer}`)
+                .send();
+
+            expect(status).to.equal(200);
+            expect(body).to.eql(profile);
+        });
+    });
 });
 
 const getSignedUserProfile = async (
