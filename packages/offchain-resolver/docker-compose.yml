@@ -7,5 +7,5 @@ services:
     restart: always
     container_name: redis_offchain_resolver
     ports:
-      - '6380:6379'
+      - '6370:6379'
 
