@@ -4,6 +4,7 @@ import { createRedisClient } from '../redis';
 import Messages from './messages';
 import Session from './session';
 import Storage from './storage';
+import Pending from './pending';
 
 export async function getRedisClient() {
     const client = createClient();
@@ -27,8 +28,10 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
         //Session
         setSession: Session.setSession(redis),
         getSession: Session.getSession(redis),
+        //Storage
         getUserStorage: Storage.getUserStorage(redis),
         setUserStorage: Storage.setUserStorage(redis),
+        addPending: Pending.addPending(redis),
     };
 }
 
@@ -55,6 +58,10 @@ export interface IDatabase {
         accountAddress: string,
     ) => Promise<Lib.storage.UserStorage | null>;
     setUserStorage: (accountAddress: string, data: string) => Promise<void>;
+    addPending: (
+        accountAddress: string,
+        contactAddress: string,
+    ) => Promise<void>;
 }
 
 export type Redis = Awaited<ReturnType<typeof createRedisClient>>;
