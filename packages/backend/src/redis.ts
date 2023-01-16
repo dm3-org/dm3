@@ -37,17 +37,6 @@ export async function createRedisClient(app: Express) {
     return client;
 }
 
-export async function setUserStorage(
-    accountAddress: string,
-    data: string,
-    redisClient: Awaited<ReturnType<typeof createRedisClient>>,
-): Promise<void> {
-    await redisClient.set(
-        RedisPrefix.UserStorage + Lib.external.formatAddress(accountAddress),
-        stringify(data),
-    );
-}
-
 export async function addPending(
     accountAddress: string,
     contactAddress: string,

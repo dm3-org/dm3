@@ -28,6 +28,7 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
         setSession: Session.setSession(redis),
         getSession: Session.getSession(redis),
         getUserStorage: Storage.getUserStorage(redis),
+        setUserStorage: Storage.setUserStorage(redis),
     };
 }
 
@@ -53,6 +54,7 @@ export interface IDatabase {
     getUserStorage: (
         accountAddress: string,
     ) => Promise<Lib.storage.UserStorage | null>;
+    setUserStorage: (accountAddress: string, data: string) => Promise<void>;
 }
 
 export type Redis = Awaited<ReturnType<typeof createRedisClient>>;

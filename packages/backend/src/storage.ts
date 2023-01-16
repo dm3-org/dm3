@@ -28,23 +28,25 @@ export default () => {
         },
     );
 
-    router.post('/:address', async (req, res, next) => {
-        try {
-            const account = Lib.external.formatAddress(req.params.address);
+    router.post(
+        '/:address',
+        async (req: express.Request & { app: WithLocals }, res, next) => {
+            try {
+                const account = Lib.external.formatAddress(req.params.address);
 
-            await setUserStorage(
-                account,
-                stringify(req.body),
-                req.app.locals.redisClient,
-            );
+                await req.app.locals.db.setUserStorage(
+                    account,
+                    stringify(req.body),
+                );
 
-            res.json({
-                timestamp: new Date().getTime(),
-            });
-        } catch (e) {
-            next(e);
-        }
-    });
+                res.json({
+                    timestamp: new Date().getTime(),
+                });
+            } catch (e) {
+                next(e);
+            }
+        },
+    );
 
     return router;
 };
