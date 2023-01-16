@@ -25,10 +25,6 @@ describe('Storage', () => {
             app.use(bodyParser.json());
             app.use(storage());
 
-            app.locals.redisClient = {
-                get: (_: any) => JSON.stringify({}),
-            };
-
             const token = await createAuthToken();
 
             app.locals.db = {
@@ -45,6 +41,9 @@ describe('Storage', () => {
                     }),
                 setSession: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
+                },
+                getUserStorage: async (addr: string) => {
+                    return {};
                 },
             };
             const { status } = await request(app)

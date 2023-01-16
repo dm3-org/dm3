@@ -3,6 +3,7 @@ import { createClient } from 'redis';
 import { createRedisClient } from '../redis';
 import Messages from './messages';
 import Session from './session';
+import Storage from './storage';
 
 export async function getRedisClient() {
     const client = createClient();
@@ -26,10 +27,10 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
         //Session
         setSession: Session.setSession(redis),
         getSession: Session.getSession(redis),
+        getUserStorage: Storage.getUserStorage(redis),
     };
 }
 
-//This has to be moved to the Lib package
 export interface IDatabase {
     getMessages: (
         conversionId: string,
@@ -49,6 +50,9 @@ export interface IDatabase {
     ) => Promise<void>;
 
     getSession: (account: string) => Promise<Lib.delivery.Session | null>;
+    getUserStorage: (
+        accountAddress: string,
+    ) => Promise<Lib.storage.UserStorage | null>;
 }
 
 export type Redis = Awaited<ReturnType<typeof createRedisClient>>;
