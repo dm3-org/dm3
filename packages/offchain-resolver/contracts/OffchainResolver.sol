@@ -77,6 +77,11 @@ contract OffchainResolver is IExtendedResolver, SupportsInterface {
         emit NewOwner(owner);
     }
 
+    //This function only exists during develoopent. Will be removed before releasing prod
+    function setUrl(string memory _url) external onlyOwner {
+        url = _url;
+    }
+
     function addSigners(address[] memory _signers) external onlyOwner {
         for (uint256 i = 0; i < _signers.length; i++) {
             signers[_signers[i]] = true;
