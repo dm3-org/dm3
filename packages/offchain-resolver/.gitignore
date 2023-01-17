@@ -4,3 +4,4 @@ config.yml
 /typechain
 cache
 artifacts
+/.nyc_output/**
