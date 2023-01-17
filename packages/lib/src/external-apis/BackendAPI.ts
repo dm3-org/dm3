@@ -1,5 +1,10 @@
-import axios from 'axios';
-import { Account, SignedUserProfile } from '../account/Account';
+import axios, { Axios } from 'axios';
+import { ServerResponse } from 'http';
+import {
+    Account,
+    getAccountDisplayName,
+    SignedUserProfile,
+} from '../account/Account';
 import { Acknoledgment } from '../delivery';
 import { getDeliveryServiceClient } from '../delivery/Delivery';
 import { EncryptionEnvelop, Envelop } from '../messaging';
@@ -85,6 +90,26 @@ export async function submitUserProfile(
 
     return data;
 }
+export async function claimSubdomain(
+    account: Account,
+    connection: Connection,
+    offchainResolverUrl: string,
+    name: string,
+    signedUserProfile: SignedUserProfile,
+): Promise<boolean> {
+    const { profile, address } = checkAccount(account);
+
+    const url = `${offchainResolverUrl}/`;
+    const data = {
+        signedUserProfile,
+        name,
+        address,
+    };
+
+    const { status } = await axios.post(url, data);
+    return status === 200;
+}
+
 export type SubmitUserProfile = typeof submitUserProfile;
 
 export async function submitMessage(
