@@ -7,7 +7,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
     const router = express.Router();
 
     router.post(
-        '/',
+        '/name',
         async (req: express.Request & { app: WithLocals }, res, next) => {
             const { signedUserProfile, name, address } = req.body;
             const isSchemaValid = Lib.validateSchema(

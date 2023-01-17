@@ -32,7 +32,7 @@ describe('Profile', () => {
     });
     describe('Store UserProfile', () => {
         it('Rejects invalid schema', async () => {
-            const { status, body } = await request(app).post(`/`).send({
+            const { status, body } = await request(app).post(`/name`).send({
                 name: 'foo.dm3.eth',
                 address: SENDER_ADDRESS,
                 signedUserProfile: {},
@@ -54,7 +54,7 @@ describe('Profile', () => {
 
             const signature = await wallet.signMessage('foo');
 
-            const { status, body } = await request(app).post(`/`).send({
+            const { status, body } = await request(app).post(`/name`).send({
                 name: 'foo.dm3.eth',
                 address: wallet.address,
                 signedUserProfile: {
@@ -70,7 +70,7 @@ describe('Profile', () => {
         it('Rejects address with an empty eth balance', async () => {
             const offChainProfile = await getSignedUserProfile();
             const { status, body } = await request(app)
-                .post(`/`)
+                .post(`/name`)
                 .send({
                     name: 'foo.dm3.eth',
                     address: offChainProfile.signer,
@@ -106,7 +106,7 @@ describe('Profile', () => {
             });
 
             const res1 = await request(app)
-                .post(`/`)
+                .post(`/name`)
                 .send({
                     name: 'foo.dm3.eth',
                     address: offChainProfile1.signer,
@@ -119,7 +119,7 @@ describe('Profile', () => {
             expect(res1.status).to.equal(200);
 
             const res2 = await request(app)
-                .post(`/`)
+                .post(`/name`)
                 .send({
                     name: 'foo.dm3.eth',
                     address: offChainProfile2.signer,
@@ -143,7 +143,7 @@ describe('Profile', () => {
             });
 
             const res1 = await request(app)
-                .post(`/`)
+                .post(`/name`)
                 .send({
                     name: 'foo.dm3.eth',
                     address: offChainProfile1.signer,
@@ -156,7 +156,7 @@ describe('Profile', () => {
             expect(res1.status).to.equal(200);
 
             const res2 = await request(app)
-                .post(`/`)
+                .post(`/name`)
                 .send({
                     name: 'bar.dm3.eth',
                     address: offChainProfile1.signer,
@@ -181,7 +181,7 @@ describe('Profile', () => {
                 value: hreEthers.BigNumber.from(1),
             });
 
-            const { status } = await request(app).post(`/`).send({
+            const { status } = await request(app).post(`/name`).send({
                 name: 'foo.dm3.eth',
                 address: signer,
                 signedUserProfile: {
@@ -216,7 +216,7 @@ describe('Profile', () => {
                 value: hreEthers.BigNumber.from(1),
             });
 
-            const writeRes = await request(app).post(`/`).send({
+            const writeRes = await request(app).post(`/name`).send({
                 name: 'foo.dm3.eth',
                 address: signer,
                 signedUserProfile: {
