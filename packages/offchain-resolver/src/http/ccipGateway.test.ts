@@ -78,7 +78,7 @@ describe('CCIP Gateway', () => {
             const name = 'foo.dm3.eth';
 
             //Create the profile in the first place
-            const writeRes = await request(profileApp).post(`/`).send({
+            const writeRes = await request(profileApp).post(`/name`).send({
                 name,
                 address: signer,
                 signedUserProfile: {
@@ -198,7 +198,7 @@ describe('CCIP Gateway', () => {
             const name = 'foo.dm3.eth';
 
             //Create the profile in the first place
-            const writeRes = await request(profileApp).post(`/`).send({
+            const writeRes = await request(profileApp).post(`/name`).send({
                 name,
                 address: signer,
                 signedUserProfile: {
