@@ -2,7 +2,7 @@ import cors from 'cors';
 import * as Lib from 'dm3-lib/dist.backend';
 import { isAddress } from 'ethers/lib/utils';
 import express from 'express';
-import { deletePending, RedisPrefix } from './redis';
+import { RedisPrefix } from './redis';
 import { WithLocals } from './types';
 import { auth } from './utils';
 
@@ -90,7 +90,10 @@ export default () => {
                 account,
                 req.app.locals.redisClient,
             );
-            await deletePending(account, req.app.locals.redisClient);
+            await req.app.locals.db.deletePending(
+                account,
+                req.app.locals.redisClient,
+            );
             res.json(pending);
         } catch (e) {
             next(e);

@@ -119,6 +119,7 @@ describe('Delivery', () => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 getPending: (_: any) => [],
+                deletePending: (_: any) => [],
             };
 
             const { status } = await request(app)

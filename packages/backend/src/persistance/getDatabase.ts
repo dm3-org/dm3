@@ -33,6 +33,8 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
         setUserStorage: Storage.setUserStorage(redis),
         //Pending
         addPending: Pending.addPending(redis),
+        getPending: Pending.getPending(redis),
+        deletePending: Pending.deletePending(redis),
     };
 }
 
@@ -63,6 +65,8 @@ export interface IDatabase {
         accountAddress: string,
         contactAddress: string,
     ) => Promise<void>;
+    getPending: (accountAddress: string) => Promise<string[]>;
+    deletePending: (accountAddress: string) => Promise<void>;
 }
 
 export type Redis = Awaited<ReturnType<typeof createRedisClient>>;

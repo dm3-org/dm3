@@ -36,12 +36,3 @@ export async function createRedisClient(app: Express) {
     await client.connect();
     return client;
 }
-
-export async function deletePending(
-    accountAddress: string,
-    redisClient: Awaited<ReturnType<typeof createRedisClient>>,
-): Promise<void> {
-    await redisClient.del(
-        RedisPrefix.Pending + Lib.external.formatAddress(accountAddress),
-    );
-}
