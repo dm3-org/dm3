@@ -80,8 +80,8 @@ function Avatar(props: AvatarProps) {
                 };
             default:
                 return {
-                    borderRadius: '0.5rem',
-                    height: '2.5rem',
+                    borderRadius: '4px',
+                    height: '30px',
                 };
         }
     };

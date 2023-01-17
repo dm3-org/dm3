@@ -8,12 +8,10 @@
 
 .account-header-text {
     cursor: pointer;
-
+    color: #81828D
   }
 
-.header-row-right .account-header-text {
-    color: var(--lightHighlight)
-}
+
 
 .info-box {
     margin: 1rem !important;
@@ -26,6 +24,7 @@
     flex-grow: 1!important;
     padding-top: 5px !important;
     max-height: 100% !important;
+    background-color: #1F2029;
     padding: 5px;
     padding-right: 0px;
 }
@@ -33,7 +32,7 @@
 .rcw-input {
   
     padding-left: 5px;
-    padding-right: 5px;
+    padding-right: 40px;
 
 }
 
@@ -47,9 +46,11 @@
   
 .rcw-new-message {
     height: 100%;
-    width: calc(100% - 20px) !important;
+    width: 100%;
     border: solid var(--mainLight) 2px !important;
-    border-radius: 18px;
+    border-radius: 6px;
+    color: #ffffff;
+    background-color: #3A3C50 !important;
 }
   
 .rcw-message {
@@ -62,33 +63,39 @@
 }
   
 .rcw-send {
-    background-color: inherit !important;
+    position: absolute;
+    background-color: transparent !important;
     align-self: center !important;
+    right: 20px;
+    padding: 0px !important;
   
 }
   
 .rcw-sender {
+    position: relative;
     height: 100px !important;
     border-radius: 0px !important;
-    background-color: #fff !important;
+    background-color: #1F2029 !important;
+    display: flex;
 
-    /* display: none !important; */
   
 }
 
+
 .rcw-client .rcw-message-text {
+    color: #ffffff;
     max-width: none !important;
     margin-left: 3rem !important;
-    border-radius: 18px;
-    border-bottom-right-radius: 0px ;
-    background-color: var(--mainColorLightSecondary);
+    border-radius: 6px;
+
+    background-color: #6773DD;
 }
 
 .rcw-response .rcw-message-text {
-
-    border-radius: 18px;
-    border-bottom-left-radius: 0px ;
-    background-color: var(--mainLightSecondary);
+    color: #ffffff;
+    border-radius: 6px;
+  
+    background-color: #3A3C50;
 }
 
 
@@ -107,5 +114,5 @@
 
 .message-state {
     margin-bottom: 15px;
-    color: var(--lightHighlight);
+    color: #81828D;
 }

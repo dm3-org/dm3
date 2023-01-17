@@ -4,7 +4,7 @@
   }
   .account-name {
     height: fit-content;
-    font-size: 2rem;
+    font-size: 1.2rem;
     font-weight: 400;
 
   }
@@ -17,8 +17,7 @@
 }
 
 .show-add-btn {
-
-    height: 40px;
-    width: 40px !important;
-    border-radius: 100% !important; 
+    border-radius: 4px !important;
+    height: 30px !important;
+    width: 30px !important;
 }

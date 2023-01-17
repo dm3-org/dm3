@@ -7,32 +7,25 @@ function DarkLogo() {
     return (
         <div
             style={{ fontSize: '35px', filter: 'brightness(90%)' }}
-            className="d-flex"
+            className=""
         >
+            <div style={{ fontSize: '12px ' }} className="text-end">
+                <span
+                    className="badge bg-warning text-dark"
+                    style={{ borderRadius: '2px' }}
+                >
+                    beta 2
+                </span>
+            </div>
             <a href="https://dm3.network">
                 <img
                     style={{
-                        width: '50px',
+                        height: '30px',
                     }}
-                    src={Logo}
+                    src="dm3-logo.png"
                     className="align-self-center"
                 />
             </a>
-            <div className="align-self-center ms-3">
-                <div style={{ fontSize: '12px ' }} className="text-end">
-                    <span className="badge bg-warning text-dark">beta</span>
-                </div>
-                <div>
-                    <a href="https://dm3.network" className="logo-link">
-                        <span style={{ fontWeight: '600', color: '#fff' }}>
-                            dm
-                        </span>
-                        <span style={{ fontWeight: '400', color: '#fff' }}>
-                            3
-                        </span>
-                    </a>
-                </div>
-            </div>
         </div>
     );
 }

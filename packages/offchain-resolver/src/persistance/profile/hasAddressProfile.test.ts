@@ -1,12 +1,12 @@
-import { setUserProfile } from '.';
-import { IDatabase } from '../IDatabase';
-import { getDatabase, getRedisClient, Redis } from './../getDatabase';
-import { getUserProfile } from './getUserProfile';
 import * as Lib from 'dm3-lib/dist.backend';
+import { Redis, getRedisClient, getDatabase } from '../getDatabase';
+import { IDatabase } from '../IDatabase';
+import { setUserProfile } from './setUserProfile';
 import { ethers } from 'ethers';
+import { hasAddressProfile } from './hasAddressProfile';
 const { expect } = require('chai');
 
-describe('getUserProfile', () => {
+describe('hasAddressProfile', () => {
     let redisClient: Redis;
     let db: IDatabase;
 
@@ -20,13 +20,14 @@ describe('getUserProfile', () => {
         await redisClient.flushDb();
         await redisClient.disconnect();
     });
+    it('Returns false if the requesting address has no profile created yet', async () => {
+        const { address } = ethers.Wallet.createRandom();
+        const hasProfile = await hasAddressProfile(redisClient)(address);
 
-    it('Returns null if the name has no profile yet', async () => {
-        const profile = await getUserProfile(redisClient)('foo');
-        expect(profile).to.be.null;
+        expect(hasProfile).to.equal(false);
     });
 
-    it('Returns the profile if a name has one', async () => {
+    it('Returns true after a profile was created', async () => {
         const name = 'foo.eth';
         const { address } = ethers.Wallet.createRandom();
 
@@ -37,8 +38,8 @@ describe('getUserProfile', () => {
         };
 
         await setUserProfile(redisClient)(name, profile, address);
-        const retrivedProfile = await getUserProfile(redisClient)(name);
+        const hasProfile = await hasAddressProfile(redisClient)(address);
 
-        expect(retrivedProfile).to.eql(profile);
+        expect(hasProfile).to.equal(true);
     });
 });

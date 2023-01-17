@@ -1,33 +1,29 @@
 import {
     BaseProvider,
-    TransactionRequest,
     BlockTag,
     Network,
+    TransactionRequest,
 } from '@ethersproject/providers';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import bodyParser from 'body-parser';
 import * as Lib from 'dm3-lib/dist.backend';
 import { BytesLike, Contract, ethers } from 'ethers';
-import {
-    fetchJson,
-    arrayify,
-    FetchJsonResponse,
-    hexlify,
-} from 'ethers/lib/utils';
+import { fetchJson, FetchJsonResponse, hexlify } from 'ethers/lib/utils';
 import express from 'express';
 import { ethers as hreEthers } from 'hardhat';
 import request from 'supertest';
-import { OffchainResolver, OffchainResolver__factory } from '../../typechain';
+import { OffchainResolver } from '../../typechain';
 import { getDatabase, getRedisClient, Redis } from '../persistance/getDatabase';
 import { IDatabase } from '../persistance/IDatabase';
 import { ccipGateway } from './ccipGateway';
-
-const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
+import { profile } from './profile';
+const { expect } = require('chai');
 
 describe('CCIP Gateway', () => {
     let redisClient: Redis;
     let db: IDatabase;
-    let app: express.Express;
+    let ccipApp: express.Express;
+    let profileApp: express.Express;
 
     let offchainResolver: OffchainResolver;
 
@@ -44,6 +40,7 @@ describe('CCIP Gateway', () => {
         );
         offchainResolver = await OffchainResolver.deploy(
             'http://localhost:8080/{sender}/{data}',
+            signer.address,
             [signer.address],
         );
 
@@ -51,112 +48,37 @@ describe('CCIP Gateway', () => {
         db = await getDatabase(redisClient);
         await redisClient.flushDb();
 
-        app = express();
-        app.use(bodyParser.json());
-        app.use(ccipGateway(signer, offchainResolver.address));
+        ccipApp = express();
+        ccipApp.use(bodyParser.json());
+        ccipApp.use(ccipGateway(signer, offchainResolver.address));
 
-        app.locals.db = db;
+        ccipApp.locals.db = db;
+
+        profileApp = express();
+        profileApp.use(bodyParser.json());
+        profileApp.use(profile(hreEthers.provider));
+
+        profileApp.locals.db = db;
     });
 
     afterEach(async () => {
         await redisClient.flushDb();
         await redisClient.disconnect();
     });
-    describe('Store UserProfile Offchain', () => {
-        it('Rejects invalid schema', async () => {
-            const { status, body } = await request(app).post(`/`).send({
-                name: 'foo.dm3.eth',
-                address: SENDER_ADDRESS,
-                signedUserProfile: {},
-            });
 
-            expect(status).toBe(400);
-            expect(body.error).toBe('invalid schema');
-        });
-        it('Rejects invalid profile', async () => {
-            const profile: Lib.account.UserProfile = {
-                publicSigningKey:
-                    '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
-                publicEncryptionKey:
-                    'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
-                deliveryServices: [''],
-            };
-
-            const wallet = ethers.Wallet.createRandom();
-
-            const signature = await wallet.signMessage('foo');
-
-            const { status, body } = await request(app).post(`/`).send({
-                name: 'foo.dm3.eth',
-                address: wallet.address,
-                signedUserProfile: {
-                    profile,
-                    signature,
-                },
-            });
-
-            expect(status).toBe(400);
-            expect(body.error).toBe('invalid profile');
-        });
-        it('Rejects if subdomain has already a profile', async () => {
-            const profile2: Lib.account.UserProfile = {
-                publicSigningKey: '',
-                publicEncryptionKey: '',
-                deliveryServices: [''],
-            };
-
-            const offChainProfile1 = await getSignedUserProfile();
-            const offChainProfile2 = await getSignedUserProfile(profile2);
-
-            const res1 = await request(app)
-                .post(`/`)
-                .send({
-                    name: 'foo.dm3.eth',
-                    address: offChainProfile1.signer,
-                    signedUserProfile: {
-                        signature: offChainProfile1.signature,
-                        profile: offChainProfile1.profile,
-                    },
-                });
-
-            expect(res1.status).toBe(200);
-
-            const res2 = await request(app)
-                .post(`/`)
-                .send({
-                    name: 'foo.dm3.eth',
-                    address: offChainProfile2.signer,
-                    signedUserProfile: {
-                        signature: offChainProfile2.signature,
-                        profile: offChainProfile2.profile,
-                    },
-                });
-
-            expect(res2.status).toBe(400);
-            expect(res2.body.error).toStrictEqual('subdomain already claimed');
-        });
-        it('Stores a valid profile', async () => {
-            const { signer, profile, signature } = await getSignedUserProfile();
-            const { status } = await request(app).post(`/`).send({
-                name: 'foo.dm3.eth',
-                address: signer,
-                signedUserProfile: {
-                    signature,
-                    profile,
-                },
-            });
-
-            expect(status).toBe(200);
-        });
-    });
     describe('Get UserProfile Offchain', () => {
         it('Returns valid Offchain profile', async () => {
             const { signer, profile, signature } = await getSignedUserProfile();
 
+            await dm3User.sendTransaction({
+                to: signer,
+                value: hreEthers.BigNumber.from(1),
+            });
+
             const name = 'foo.dm3.eth';
 
             //Create the profile in the first place
-            const writeRes = await request(app).post(`/`).send({
+            const writeRes = await request(profileApp).post(`/name`).send({
                 name,
                 address: signer,
                 signedUserProfile: {
@@ -165,7 +87,7 @@ describe('CCIP Gateway', () => {
                 },
             });
 
-            expect(writeRes.status).toBe(200);
+            expect(writeRes.status).to.equal(200);
             //Call the contract to retrieve the gateway url
             const { callData, sender } = await resolveGateWayUrl(
                 name,
@@ -173,11 +95,11 @@ describe('CCIP Gateway', () => {
             );
 
             //You the url returned by he contract to fetch the profile from the ccip gateway
-            const { body, status } = await request(app)
+            const { body, status } = await request(ccipApp)
                 .get(`/${sender}/${callData}`)
                 .send();
 
-            expect(status).toBe(200);
+            expect(status).to.equal(200);
 
             const resultString = await offchainResolver.resolveWithProof(
                 body.data,
@@ -189,7 +111,7 @@ describe('CCIP Gateway', () => {
                 resultString,
             );
 
-            expect(JSON.parse(actualProfile)).toStrictEqual(profile);
+            expect(JSON.parse(actualProfile)).to.eql(profile);
         });
         it('Returns 404 if profile does not exists', async () => {
             const { signer, profile, signature } = await getSignedUserProfile();
@@ -203,11 +125,11 @@ describe('CCIP Gateway', () => {
             );
 
             //You the url returned by he contract to fetch the profile from the ccip gateway
-            const { body, status } = await request(app)
+            const { body, status } = await request(ccipApp)
                 .get(`/${sender}/${callData}`)
                 .send();
 
-            expect(status).toBe(404);
+            expect(status).to.equal(404);
         });
         it('Returns 400 if record is not dm3.profile', async () => {
             //Call the contract to retrieve the gateway url
@@ -248,29 +170,35 @@ describe('CCIP Gateway', () => {
             const { sender, callData } =
                 await resolveGatewayUrlForTheWrongRecord();
             //You the url returned by he contract to fetch the profile from the ccip gateway
-            const { status } = await request(app)
+            const { status } = await request(ccipApp)
                 .get(`/${sender}/${callData}`)
                 .send();
 
-            expect(status).toBe(400);
+            expect(status).to.equal(400);
         });
         it('Returns 400 if something failed during the request', async () => {
             //You the url returned by he contract to fetch the profile from the ccip gateway
-            const { body, status } = await request(app).get(`/foo/bar`).send();
+            const { body, status } = await request(ccipApp)
+                .get(`/foo/bar`)
+                .send();
 
-            expect(status).toBe(400);
-            expect(body.message).toBe('Unknown error');
+            expect(status).to.equal(400);
+            expect(body.message).to.equal('Unknown error');
         });
     });
 
     describe('E2e test', () => {
         it('resolves propfile using ethers.provider.getText()', async () => {
             const { signer, profile, signature } = await getSignedUserProfile();
+            await dm3User.sendTransaction({
+                to: signer,
+                value: hreEthers.BigNumber.from(1),
+            });
 
             const name = 'foo.dm3.eth';
 
             //Create the profile in the first place
-            const writeRes = await request(app).post(`/`).send({
+            const writeRes = await request(profileApp).post(`/name`).send({
                 name,
                 address: signer,
                 signedUserProfile: {
@@ -278,7 +206,7 @@ describe('CCIP Gateway', () => {
                     signature,
                 },
             });
-            expect(writeRes.status).toBe(200);
+            expect(writeRes.status).to.equal(200);
 
             const provider = new MockProvider(
                 hreEthers.provider,
@@ -294,7 +222,7 @@ describe('CCIP Gateway', () => {
 
             const text = await resolver.getText('dm3.profile');
 
-            expect(JSON.parse(text)).toStrictEqual(profile);
+            expect(JSON.parse(text)).to.eql(profile);
         });
         it('Throws error if lookup went wrong', async () => {
             const provider = new MockProvider(
@@ -309,15 +237,15 @@ describe('CCIP Gateway', () => {
                 'foo.dm3.eth',
             );
 
-            expect(
-                async () => await resolver.getText('unknown record'),
-            ).rejects.toThrowError();
+            expect(resolver.getText('unknown record')).rejected;
         });
     });
     const fetchProfileFromCcipGateway = async (url: string, json?: string) => {
         const [sender, data] = url.split('/').slice(3);
 
-        const response = await request(app).get(`/${sender}/${data}`).send();
+        const response = await request(ccipApp)
+            .get(`/${sender}/${data}`)
+            .send();
 
         return response;
     };
@@ -450,7 +378,7 @@ const getSignedUserProfile = async (
     return { signature, profile, signer };
 };
 
-export function getResolverInterface() {
+function getResolverInterface() {
     return new ethers.utils.Interface([
         'function resolve(bytes calldata name, bytes calldata data) external view returns(bytes)',
         'function text(bytes32 node, string calldata key) external view returns (string memory)',

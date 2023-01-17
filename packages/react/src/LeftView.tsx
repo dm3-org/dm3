@@ -28,7 +28,8 @@ function LeftView(props: LeftViewProps) {
                 Lib.web3provider.ConnectionState.SignedIn && (
                 <>
                     <Contacts getContacts={props.getContacts} />
-                    <StorageView />
+                    {state.connection.storageLocation ===
+                        Lib.storage.StorageLocation.File && <StorageView />}
                 </>
             )}
         </div>

@@ -9,3 +9,5 @@ export {
     getDefaultEnsTextRecord,
     executeTransaction,
 } from './InjectedWeb3API';
+
+export { claimAddress, claimSubdomain } from './OffchainResolverApi';

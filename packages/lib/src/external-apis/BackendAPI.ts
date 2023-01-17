@@ -85,6 +85,7 @@ export async function submitUserProfile(
 
     return data;
 }
+
 export type SubmitUserProfile = typeof submitUserProfile;
 
 export async function submitMessage(
