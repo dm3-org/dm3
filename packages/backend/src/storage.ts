@@ -1,10 +1,9 @@
+import cors from 'cors';
 import * as Lib from 'dm3-lib/dist.backend';
 import express from 'express';
-import { setUserStorage } from './redis';
-import { auth } from './utils';
-import cors from 'cors';
 import stringify from 'safe-stable-stringify';
 import { WithLocals } from './types';
+import { auth } from './utils';
 
 export default () => {
     const router = express.Router();

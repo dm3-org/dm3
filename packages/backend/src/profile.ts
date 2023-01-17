@@ -63,10 +63,7 @@ export default () => {
                         account,
                         req.body,
                         (accountAddress: string) =>
-                            req.app.locals.db.getPending(
-                                accountAddress,
-                                req.app.locals.redisClient,
-                            ),
+                            req.app.locals.db.getPending(accountAddress),
                         (socketId: string) =>
                             req.app.locals.io.sockets
                                 .to(socketId)

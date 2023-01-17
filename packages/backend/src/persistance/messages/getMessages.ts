@@ -16,6 +16,6 @@ export function getMessages(
             { REV: true },
         );
 
-        return messageStrings.map((m) => JSON.parse(m));
+        return messageStrings.map((m: string) => JSON.parse(m));
     };
 }

@@ -1,6 +1,5 @@
 import * as Lib from 'dm3-lib/dist.backend';
 import { createClient } from 'redis';
-import { createRedisClient } from '../redis';
 import Messages from './messages';
 import Session from './session';
 import Storage from './storage';
@@ -91,4 +90,4 @@ export interface IDatabase {
     deletePending: (accountAddress: string) => Promise<void>;
 }
 
-export type Redis = Awaited<ReturnType<typeof createRedisClient>>;
+export type Redis = Awaited<ReturnType<typeof getRedisClient>>;
