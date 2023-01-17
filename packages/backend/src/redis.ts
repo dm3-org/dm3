@@ -37,15 +37,6 @@ export async function createRedisClient(app: Express) {
     return client;
 }
 
-export async function getPending(
-    accountAddress: string,
-    redisClient: Awaited<ReturnType<typeof createRedisClient>>,
-): Promise<string[]> {
-    return redisClient.sMembers(
-        RedisPrefix.Pending + Lib.external.formatAddress(accountAddress),
-    );
-}
-
 export async function deletePending(
     accountAddress: string,
     redisClient: Awaited<ReturnType<typeof createRedisClient>>,

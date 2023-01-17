@@ -71,10 +71,6 @@ describe('Delivery', () => {
             app.use(bodyParser.json());
             app.use(delivery());
 
-            app.locals.redisClient = {
-                exists: (_: any) => false,
-            };
-
             const token = await createAuthToken();
 
             app.locals.db = {
@@ -85,13 +81,11 @@ describe('Delivery', () => {
                 setSession: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
+                getPending: (_: any) => [],
             };
 
             const { status } = await request(app)
-                .get(
-                    // eslint-disable-next-line max-len
-                    '/messages/01234/contact/5679',
-                )
+                .get('/messages/01234/contact/5679')
                 .set({
                     authorization: `Bearer ${token}`,
                 })
@@ -124,6 +118,7 @@ describe('Delivery', () => {
                 setSession: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
+                getPending: (_: any) => [],
             };
 
             const { status } = await request(app)

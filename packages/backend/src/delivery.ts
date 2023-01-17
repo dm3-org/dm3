@@ -2,7 +2,7 @@ import cors from 'cors';
 import * as Lib from 'dm3-lib/dist.backend';
 import { isAddress } from 'ethers/lib/utils';
 import express from 'express';
-import { deletePending, getPending, RedisPrefix } from './redis';
+import { deletePending, RedisPrefix } from './redis';
 import { WithLocals } from './types';
 import { auth } from './utils';
 
@@ -86,7 +86,7 @@ export default () => {
         try {
             const account = Lib.external.formatAddress(req.params.address);
 
-            const pending = await getPending(
+            const pending = await req.app.locals.db.getPending(
                 account,
                 req.app.locals.redisClient,
             );

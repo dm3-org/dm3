@@ -31,6 +31,7 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
         //Storage
         getUserStorage: Storage.getUserStorage(redis),
         setUserStorage: Storage.setUserStorage(redis),
+        //Pending
         addPending: Pending.addPending(redis),
     };
 }

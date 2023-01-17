@@ -59,10 +59,7 @@ describe('Profile', () => {
                 setSession: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
-            };
-
-            app.locals.redisClient = {
-                sMembers: (_: any) => Promise.resolve([]),
+                getPending: (_: any) => [],
             };
 
             const userProfile: UserProfile = {
@@ -106,10 +103,7 @@ describe('Profile', () => {
                 setSession: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
-            };
-
-            app.locals.redisClient = {
-                sMembers: (_: any) => Promise.resolve([]),
+                getPending: (_: any) => [],
             };
 
             const userProfile: UserProfile = {
