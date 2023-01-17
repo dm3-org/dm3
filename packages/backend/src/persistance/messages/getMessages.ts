@@ -1,6 +1,5 @@
-import { Redis } from '../getDatabase';
+import { Redis, RedisPrefix } from '../getDatabase';
 import * as Lib from 'dm3-lib/dist.backend';
-import { RedisPrefix } from '../../redis';
 
 export function getMessages(
     redis: Redis,

@@ -6,8 +6,30 @@ import Session from './session';
 import Storage from './storage';
 import Pending from './pending';
 
+export enum RedisPrefix {
+    Conversation = 'conversation:',
+    Sync = 'sync:',
+    Session = 'session:',
+    UserStorage = 'user.storage:',
+    Pending = 'pending:',
+}
+
 export async function getRedisClient() {
-    const client = createClient();
+    const url = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
+    const socketConf = {
+        socket: {
+            tls: true,
+            rejectUnauthorized: false,
+        },
+    };
+    const client = createClient(
+        process.env.NODE_ENV === 'production'
+            ? {
+                  url,
+                  ...socketConf,
+              }
+            : {},
+    );
 
     client.on('error', (err) => {
         throw Error('REDIS CONNECTION ERROR ,' + err);

@@ -1,5 +1,4 @@
-import { RedisPrefix } from '../../redis';
-import { Redis } from '../getDatabase';
+import { Redis, RedisPrefix } from '../getDatabase';
 
 export function deleteExpiredMessages(
     redisClient: Redis,

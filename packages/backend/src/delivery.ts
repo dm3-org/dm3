@@ -2,7 +2,7 @@ import cors from 'cors';
 import * as Lib from 'dm3-lib/dist.backend';
 import { isAddress } from 'ethers/lib/utils';
 import express from 'express';
-import { RedisPrefix } from './redis';
+import { RedisPrefix } from './persistance/getDatabase';
 import { WithLocals } from './types';
 import { auth } from './utils';
 
