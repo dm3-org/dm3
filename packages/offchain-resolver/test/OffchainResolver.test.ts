@@ -75,6 +75,39 @@ describe('OffchainResolver', () => {
             ).to.be.revertedWith('only owner');
         });
     });
+    describe('setUrl', () => {
+        it('Owner can set a new Url ', async () => {
+            const offchainResolver = await offchainResolverFactory.deploy(
+                'http://localhost:8080/{sender}/{data}',
+                owner.address,
+                [signer1.address],
+            );
+
+            const actualUrl = await offchainResolver.url();
+            expect(actualUrl).to.equal('http://localhost:8080/{sender}/{data}');
+
+            await offchainResolver.setUrl('http://foo:8080/{sender}/{data}');
+
+            const newUrl = await offchainResolver.url();
+            expect(newUrl).to.equal('http://foo:8080/{sender}/{data}');
+        });
+        it("Rando can't set a new owner ", async () => {
+            const offchainResolver = await offchainResolverFactory.deploy(
+                'http://localhost:8080/{sender}/{data}',
+                owner.address,
+                [signer1.address],
+            );
+
+            const actualUrl = await offchainResolver.url();
+            expect(actualUrl).to.equal('http://localhost:8080/{sender}/{data}');
+
+            await expect(
+                offchainResolver
+                    .connect(rando)
+                    .setUrl('http://foo:8080/{sender}/{data}'),
+            ).to.be.revertedWith('only owner');
+        });
+    });
 
     describe('addSigners', () => {
         it('Owner can add new signers', async () => {
