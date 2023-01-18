@@ -13,7 +13,6 @@ export async function resolveText(
         });
     }
 
-    //Todo get rid of unused onchain userprofile
     const response = await db.getUserProfile(name);
 
     if (!response) {

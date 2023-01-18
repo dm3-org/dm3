@@ -67,175 +67,204 @@ describe('CCIP Gateway', () => {
     });
 
     describe('Get UserProfile Offchain', () => {
-        it('Returns valid Offchain profile', async () => {
-            const { signer, profile, signature } = await getSignedUserProfile();
+        describe('ResolveText', () => {
+            it('Returns valid Offchain profile', async () => {
+                const { signer, profile, signature } =
+                    await getSignedUserProfile();
 
-            await dm3User.sendTransaction({
-                to: signer,
-                value: hreEthers.BigNumber.from(1),
-            });
+                await dm3User.sendTransaction({
+                    to: signer,
+                    value: hreEthers.BigNumber.from(1),
+                });
 
-            const name = 'foo.dm3.eth';
+                const name = 'foo.dm3.eth';
 
-            //Create the profile in the first place
-            const writeRes = await request(profileApp).post(`/name`).send({
-                name,
-                address: signer,
-                signedUserProfile: {
-                    profile,
-                    signature,
-                },
-            });
+                //Create the profile in the first place
+                const writeRes = await request(profileApp).post(`/name`).send({
+                    name,
+                    address: signer,
+                    signedUserProfile: {
+                        profile,
+                        signature,
+                    },
+                });
 
-            expect(writeRes.status).to.equal(200);
-            //Call the contract to retrieve the gateway url
-            const { callData, sender } = await resolveGateWayUrl(
-                name,
-                offchainResolver,
-            );
+                expect(writeRes.status).to.equal(200);
+                //Call the contract to retrieve the gateway url
+                const { callData, sender } = await resolveGateWayUrl(
+                    name,
+                    offchainResolver,
+                );
 
-            //You the url returned by he contract to fetch the profile from the ccip gateway
-            const { body, status } = await request(ccipApp)
-                .get(`/${sender}/${callData}`)
-                .send();
+                //You the url returned by he contract to fetch the profile from the ccip gateway
+                const { body, status } = await request(ccipApp)
+                    .get(`/${sender}/${callData}`)
+                    .send();
 
-            expect(status).to.equal(200);
+                expect(status).to.equal(200);
 
-            const resultString = await offchainResolver.resolveWithProof(
-                body.data,
-                callData,
-            );
+                const resultString = await offchainResolver.resolveWithProof(
+                    body.data,
+                    callData,
+                );
 
-            const [actualProfile] = getResolverInterface().decodeFunctionResult(
-                'text',
-                resultString,
-            );
-
-            expect(JSON.parse(actualProfile)).to.eql(profile);
-        });
-        it('Returns 404 if profile does not exists', async () => {
-            const { signer, profile, signature } = await getSignedUserProfile();
-
-            const name = 'foo.dm3.eth';
-
-            //Call the contract to retrieve the gateway url
-            const { callData, sender } = await resolveGateWayUrl(
-                name,
-                offchainResolver,
-            );
-
-            //You the url returned by he contract to fetch the profile from the ccip gateway
-            const { body, status } = await request(ccipApp)
-                .get(`/${sender}/${callData}`)
-                .send();
-
-            expect(status).to.equal(404);
-        });
-        it('Returns 400 if record is not dm3.profile', async () => {
-            //Call the contract to retrieve the gateway url
-            const resolveGatewayUrlForTheWrongRecord = async () => {
-                try {
-                    const textData = getResolverInterface().encodeFunctionData(
+                const [actualProfile] =
+                    getResolverInterface().decodeFunctionResult(
                         'text',
-                        [
-                            ethers.utils.namehash('foo.dm3.eth'),
-                            'unknown.record',
-                        ],
+                        resultString,
                     );
 
-                    //This always revers and throws the OffchainLookup Exceptions hence we need to catch it
-                    await offchainResolver.resolve(
-                        Lib.offchainResolver.encodeEnsName('foo.dm3.eth'),
-                        textData,
-                    );
-                    return {
-                        gatewayUrl: '',
-                        callbackFunction: '',
-                        extraData: '',
-                    };
-                } catch (err: any) {
-                    const { sender, urls, callData } = err.errorArgs;
-                    //Decode call
+                expect(JSON.parse(actualProfile)).to.eql(profile);
+            });
+            it('Returns 404 if profile does not exists', async () => {
+                const { signer, profile, signature } =
+                    await getSignedUserProfile();
 
-                    //Replace template vars
-                    const gatewayUrl = urls[0]
-                        .replace('{sender}', sender)
-                        .replace('{data}', callData);
+                const name = 'foo.dm3.eth';
 
-                    return { gatewayUrl, sender, callData };
-                }
-            };
-            const { sender, callData } =
-                await resolveGatewayUrlForTheWrongRecord();
-            //You the url returned by he contract to fetch the profile from the ccip gateway
-            const { status } = await request(ccipApp)
-                .get(`/${sender}/${callData}`)
-                .send();
+                //Call the contract to retrieve the gateway url
+                const { callData, sender } = await resolveGateWayUrl(
+                    name,
+                    offchainResolver,
+                );
 
-            expect(status).to.equal(400);
-        });
-        it('Returns 400 if something failed during the request', async () => {
-            //You the url returned by he contract to fetch the profile from the ccip gateway
-            const { body, status } = await request(ccipApp)
-                .get(`/foo/bar`)
-                .send();
+                //You the url returned by he contract to fetch the profile from the ccip gateway
+                const { body, status } = await request(ccipApp)
+                    .get(`/${sender}/${callData}`)
+                    .send();
 
-            expect(status).to.equal(400);
-            expect(body.message).to.equal('Unknown error');
+                expect(status).to.equal(404);
+            });
+            it('Returns 400 if record is not dm3.profile', async () => {
+                //Call the contract to retrieve the gateway url
+                const resolveGatewayUrlForTheWrongRecord = async () => {
+                    try {
+                        const textData =
+                            getResolverInterface().encodeFunctionData('text', [
+                                ethers.utils.namehash('foo.dm3.eth'),
+                                'unknown.record',
+                            ]);
+
+                        //This always revers and throws the OffchainLookup Exceptions hence we need to catch it
+                        await offchainResolver.resolve(
+                            Lib.offchainResolver.encodeEnsName('foo.dm3.eth'),
+                            textData,
+                        );
+                        return {
+                            gatewayUrl: '',
+                            callbackFunction: '',
+                            extraData: '',
+                        };
+                    } catch (err: any) {
+                        const { sender, urls, callData } = err.errorArgs;
+                        //Decode call
+
+                        //Replace template vars
+                        const gatewayUrl = urls[0]
+                            .replace('{sender}', sender)
+                            .replace('{data}', callData);
+
+                        return { gatewayUrl, sender, callData };
+                    }
+                };
+                const { sender, callData } =
+                    await resolveGatewayUrlForTheWrongRecord();
+                //You the url returned by he contract to fetch the profile from the ccip gateway
+                const { status } = await request(ccipApp)
+                    .get(`/${sender}/${callData}`)
+                    .send();
+
+                expect(status).to.equal(400);
+            });
+            it('Returns 400 if something failed during the request', async () => {
+                //You the url returned by he contract to fetch the profile from the ccip gateway
+                const { body, status } = await request(ccipApp)
+                    .get(`/foo/bar`)
+                    .send();
+
+                expect(status).to.equal(400);
+                expect(body.message).to.equal('Unknown error');
+            });
         });
     });
 
     describe('E2e test', () => {
-        it('resolves propfile using ethers.provider.getText()', async () => {
-            const { signer, profile, signature } = await getSignedUserProfile();
-            await dm3User.sendTransaction({
-                to: signer,
-                value: hreEthers.BigNumber.from(1),
+        describe('resolveText', () => {
+            it('resolves propfile using ethers.provider.getText()', async () => {
+                const { signer, profile, signature } =
+                    await getSignedUserProfile();
+                await dm3User.sendTransaction({
+                    to: signer,
+                    value: hreEthers.BigNumber.from(1),
+                });
+
+                const name = 'foo.dm3.eth';
+
+                //Create the profile in the first place
+                const writeRes = await request(profileApp).post(`/name`).send({
+                    name,
+                    address: signer,
+                    signedUserProfile: {
+                        profile,
+                        signature,
+                    },
+                });
+                expect(writeRes.status).to.equal(200);
+
+                const provider = new MockProvider(
+                    hreEthers.provider,
+                    fetchProfileFromCcipGateway,
+                    offchainResolver,
+                );
+
+                const resolver = await provider.getResolver('foo.dm3.eth');
+
+                const text = await resolver.getText('dm3.profile');
+
+                expect(JSON.parse(text)).to.eql(profile);
             });
+            it('Throws error if lookup went wrong', async () => {
+                const provider = new MockProvider(
+                    hreEthers.provider,
+                    fetchProfileFromCcipGateway,
+                    offchainResolver,
+                );
 
-            const name = 'foo.dm3.eth';
+                const resolver = await provider.getResolver('foo.dm3.eth');
 
-            //Create the profile in the first place
-            const writeRes = await request(profileApp).post(`/name`).send({
-                name,
-                address: signer,
-                signedUserProfile: {
-                    profile,
-                    signature,
-                },
+                expect(resolver.getText('unknown record')).rejected;
             });
-            expect(writeRes.status).to.equal(200);
-
-            const provider = new MockProvider(
-                hreEthers.provider,
-                fetchProfileFromCcipGateway,
-                offchainResolver,
-            );
-
-            const resolver = new ethers.providers.Resolver(
-                provider,
-                offchainResolver.address,
-                'foo.dm3.eth',
-            );
-
-            const text = await resolver.getText('dm3.profile');
-
-            expect(JSON.parse(text)).to.eql(profile);
         });
-        it('Throws error if lookup went wrong', async () => {
-            const provider = new MockProvider(
-                hreEthers.provider,
-                fetchProfileFromCcipGateway,
-                offchainResolver,
-            );
+        describe('ResolveAddr', () => {
+            it('resolvesName returns the Address of the name', async () => {
+                const { signer, profile, signature } =
+                    await getSignedUserProfile();
+                await dm3User.sendTransaction({
+                    to: signer,
+                    value: hreEthers.BigNumber.from(1),
+                });
 
-            const resolver = new ethers.providers.Resolver(
-                provider,
-                offchainResolver.address,
-                'foo.dm3.eth',
-            );
+                const name = 'foo.dm3.eth';
 
-            expect(resolver.getText('unknown record')).rejected;
+                //Create the profile in the first place
+                const writeRes = await request(profileApp).post(`/name`).send({
+                    name,
+                    address: signer,
+                    signedUserProfile: {
+                        profile,
+                        signature,
+                    },
+                });
+                expect(writeRes.status).to.equal(200);
+
+                const provider = new MockProvider(
+                    hreEthers.provider,
+                    fetchProfileFromCcipGateway,
+                    offchainResolver,
+                );
+
+                await provider.resolveName('foo.dm3.eth');
+            });
         });
     });
     const fetchProfileFromCcipGateway = async (url: string, json?: string) => {
@@ -271,6 +300,13 @@ describe('CCIP Gateway', () => {
             this.parent = provider;
             this.fetcher = fetcher;
             this.offchainResolver = offchainResolver;
+        }
+        async getResolver(name: string) {
+            return new ethers.providers.Resolver(
+                this,
+                offchainResolver.address,
+                name,
+            ) as any;
         }
 
         async perform(method: string, params: any): Promise<any> {
