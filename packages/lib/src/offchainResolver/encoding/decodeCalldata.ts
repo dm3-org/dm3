@@ -1,5 +1,6 @@
 import { log } from '../../shared/log';
 import { DecodedCcipRequest } from '../types';
+import { decodeAddr } from './decode/decodeAddr';
 import { decodeText } from './decode/decodeText';
 import { getResolverInterface } from './getResolverInterface';
 /**
@@ -28,6 +29,8 @@ export function decodeCalldata(calldata: string): DecodedCcipRequest {
         switch (signature) {
             case 'text(bytes32,string)':
                 return { signature, request: decodeText(ensName, args) };
+            case 'addr(bytes32)':
+                return { signature, request: decodeAddr(ensName, args) };
             default:
                 throw Error(`${signature} is not supported`);
         }
