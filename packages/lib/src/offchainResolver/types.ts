@@ -4,7 +4,6 @@
  * @param signature the signature of the function the request should query
  */
 export interface DecodedCcipRequest {
-    name: string;
-    record: string;
+    request: any;
     signature: string;
 }

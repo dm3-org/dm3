@@ -14,11 +14,10 @@ describe('decodeCalldata', () => {
             encodeEnsName('foo.dm3.eth'),
             textData,
         ]);
-        const { record, name, signature } = decodeCalldata(calldata);
+        const { request } = decodeCalldata(calldata);
 
-        expect(record).toBe('dm3.profile');
-        expect(name).toBe('foo.dm3.eth');
-        expect(signature).toBe('text(bytes32,string)');
+        expect(request.record).toBe('dm3.profile');
+        expect(request.name).toBe('foo.dm3.eth');
     });
 
     it('throws if namehash does not matched encoded ens.name', () => {

@@ -1,7 +1,6 @@
-import { ethers } from 'ethers';
 import { log } from '../../shared/log';
-import { decodeDnsName } from '../dns/decodeDnsName';
 import { DecodedCcipRequest } from '../types';
+import { decodeText } from './decode/decodeText';
 import { getResolverInterface } from './getResolverInterface';
 /**
  * This function can be used to decode calldata return by the resolve method of the Offchain Resolver Smart Contract
@@ -18,22 +17,20 @@ export function decodeCalldata(calldata: string): DecodedCcipRequest {
         const textResolver = getResolverInterface();
 
         //Parse the calldata returned by a contra
-        const [rawName, data] = textResolver.parseTransaction({
+        const [ensName, data] = textResolver.parseTransaction({
             data: calldata,
         }).args;
 
         const { signature, args } = textResolver.parseTransaction({
             data,
         });
-        const [nameHash, record] = args;
 
-        const name = decodeDnsName(rawName);
-
-        if (ethers.utils.namehash(name) !== nameHash) {
-            throw Error("Namehash doesn't match");
+        switch (signature) {
+            case 'text(bytes32,string)':
+                return { signature, request: decodeText(ensName, args) };
+            default:
+                throw Error(`${signature} is not supported`);
         }
-
-        return { name, record, signature };
     } catch (err: any) {
         log("[Decode Calldata] Can't decode calldata ");
         log(err);
