@@ -138,9 +138,7 @@ describe('CCIP Gateway', () => {
                     const textData = getResolverInterface().encodeFunctionData(
                         'text',
                         [
-                            ethers.utils.namehash(
-                                ethers.utils.nameprep('foo.dm3.eth'),
-                            ),
+                            ethers.utils.namehash('foo.dm3.eth'),
                             'unknown.record',
                         ],
                     );
@@ -390,7 +388,7 @@ const resolveGateWayUrl = async (
 ) => {
     try {
         const textData = getResolverInterface().encodeFunctionData('text', [
-            ethers.utils.namehash(ethers.utils.nameprep(ensName)),
+            ethers.utils.namehash(ensName),
             'dm3.profile',
         ]);
 

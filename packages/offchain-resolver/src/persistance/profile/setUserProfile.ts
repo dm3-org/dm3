@@ -26,7 +26,7 @@ export function setUserProfile(redis: Redis) {
             throw Error('Invalid user profile');
         }
 
-        const nameHash = ethers.utils.namehash(ethers.utils.nameprep(name));
+        const nameHash = ethers.utils.namehash(name);
 
         const writeResult = await redis.hSet(
             USER_PROFILE_KEY,

@@ -22,15 +22,12 @@ export function decodeCalldata(calldata: string): DecodedCcipRequest {
             data: calldata,
         }).args;
 
-        //The name has to be normalized before be it can be processed
-        const encodedName = ethers.utils.nameprep(rawName);
-
         const { signature, args } = textResolver.parseTransaction({
             data,
         });
         const [nameHash, record] = args;
 
-        const name = decodeDnsName(encodedName);
+        const name = decodeDnsName(rawName);
 
         if (ethers.utils.namehash(name) !== nameHash) {
             throw Error("Namehash doesn't match");

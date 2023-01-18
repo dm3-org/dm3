@@ -6,7 +6,7 @@ import { encodeEnsName } from '../dns/encodeEnsName';
 describe('decodeCalldata', () => {
     it('decodes valid calldata', () => {
         const textData = getResolverInterface().encodeFunctionData('text', [
-            ethers.utils.namehash(ethers.utils.nameprep('foo.dm3.eth')),
+            ethers.utils.namehash('foo.dm3.eth'),
             'dm3.profile',
         ]);
 
@@ -23,7 +23,7 @@ describe('decodeCalldata', () => {
 
     it('throws if namehash does not matched encoded ens.name', () => {
         const textData = getResolverInterface().encodeFunctionData('text', [
-            ethers.utils.namehash(ethers.utils.nameprep('FOOO')),
+            ethers.utils.namehash('FOOO'),
             'dm3.profile',
         ]);
 
