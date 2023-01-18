@@ -1,8 +1,8 @@
-import { IDatabase } from '../../persistance/IDatabase';
+import { IDatabase } from '../../../persistance/IDatabase';
 import express from 'express';
 import { ethers } from 'ethers';
 
-export async function resolveAddr(
+export async function handleAddr(
     res: express.Response,
     db: IDatabase,
     request: any,

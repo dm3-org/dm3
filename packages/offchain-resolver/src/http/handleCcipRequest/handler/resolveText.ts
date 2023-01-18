@@ -1,7 +1,7 @@
 import express from 'express';
-import { IDatabase } from '../../persistance/IDatabase';
+import { IDatabase } from '../../../persistance/IDatabase';
 
-export async function resolveText(
+export async function handleText(
     res: express.Response,
     db: IDatabase,
     request: any,
