@@ -1,9 +1,9 @@
 import { ethers } from 'ethers';
-import { decodeCalldata } from './decodeCalldata';
+import { decodeRequest } from './decodeRequest';
 import { getResolverInterface } from './getResolverInterface';
 import { encodeEnsName } from '../dns/encodeEnsName';
 
-describe('decodeCalldata', () => {
+describe('decodeRequest', () => {
     describe('decodeText', () => {
         it('decodes valid calldata', () => {
             const textData = getResolverInterface().encodeFunctionData('text', [
@@ -15,7 +15,7 @@ describe('decodeCalldata', () => {
                 'resolve',
                 [encodeEnsName('foo.dm3.eth'), textData],
             );
-            const { request } = decodeCalldata(calldata);
+            const { request } = decodeRequest(calldata);
 
             expect(request.record).toBe('dm3.profile');
             expect(request.name).toBe('foo.dm3.eth');
@@ -32,7 +32,7 @@ describe('decodeCalldata', () => {
                 [encodeEnsName('foo.dm3.eth'), textData],
             );
 
-            expect(() => decodeCalldata(calldata)).toThrowError(
+            expect(() => decodeRequest(calldata)).toThrowError(
                 "Namehash doesn't match",
             );
         });
@@ -47,7 +47,7 @@ describe('decodeCalldata', () => {
                 'resolve',
                 [encodeEnsName('foo.dm3.eth'), textData],
             );
-            const { request } = decodeCalldata(calldata);
+            const { request } = decodeRequest(calldata);
             expect(request.name).toBe('foo.dm3.eth');
         });
         it('throws if namehash does not matched encoded ens.name', () => {
@@ -60,7 +60,7 @@ describe('decodeCalldata', () => {
                 [encodeEnsName('foo.dm3.eth'), textData],
             );
 
-            expect(() => decodeCalldata(calldata)).toThrowError(
+            expect(() => decodeRequest(calldata)).toThrowError(
                 "Namehash doesn't match",
             );
         });

@@ -13,7 +13,7 @@ import { getResolverInterface } from './getResolverInterface';
  * @returns {@see DecodedCcipRequest}
  */
 
-export function decodeCalldata(calldata: string): DecodedCcipRequest {
+export function decodeRequest(calldata: string): DecodedCcipRequest {
     try {
         const textResolver = getResolverInterface();
 
