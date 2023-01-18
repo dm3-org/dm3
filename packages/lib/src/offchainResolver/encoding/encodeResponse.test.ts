@@ -1,13 +1,13 @@
 import { ethers } from 'ethers';
 import { UserProfile } from '../../account';
 import { encodeEnsName } from '../dns/encodeEnsName';
-import { encodeUserProfile } from './encodeUserProfile';
+import { encodeResponse } from './encodeResponse';
 import { getResolverInterface } from './getResolverInterface';
 
-describe('encodeUserProfie', () => {
+describe('encodeResponse', () => {
     it('encodes userProfile properly', async () => {
         const signer = ethers.Wallet.createRandom();
-        const profile: UserProfile = {
+        const response: UserProfile = {
             publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
             publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
             deliveryServices: [''],
@@ -25,10 +25,10 @@ describe('encodeUserProfie', () => {
 
         const functionSelector = 'text(bytes32,string)';
 
-        const encodedProfile = await encodeUserProfile(
+        const encodedProfile = await encodeResponse(
             signer,
-            profile,
             signer.address,
+            response,
             calldata,
             functionSelector,
         );
@@ -42,6 +42,6 @@ describe('encodeUserProfie', () => {
             'text',
             encodedResult,
         );
-        expect(JSON.parse(decodedProfile)).toStrictEqual(profile);
+        expect(JSON.parse(decodedProfile)).toStrictEqual(response);
     });
 });

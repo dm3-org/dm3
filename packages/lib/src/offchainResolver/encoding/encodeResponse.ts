@@ -13,10 +13,10 @@ import { getResolverInterface } from './getResolverInterface';
  * @param ttl the time to life to calculate validUntil.
  * @returns the encoded response
  */
-export async function encodeUserProfile(
+export async function encodeResponse(
     signer: Signer,
-    userProfile: UserProfile,
     resolverAddr: string,
+    response: any,
     request: string,
     functionSelector: string,
     ttl: number = 300,
@@ -25,7 +25,7 @@ export async function encodeUserProfile(
     const validUntil = Math.floor(Date.now() / 1000 + ttl);
 
     const result = textResolver.encodeFunctionResult(functionSelector, [
-        stringify(userProfile),
+        stringify(response),
     ]);
     /**
      * This hash has to be compiled the same way as at the OffchainResolver.makeSignatureHash method
