@@ -61,7 +61,7 @@ describe('ReadDeliveryServiceProperties', () => {
                 },
             });
         });
-        it('Returns config if yaml Contains a network if url, ensregistry and chainID are specified', () => {
+        it('Returns config if yaml Contains a network if url, ensName and chainID are specified', () => {
             writeFileSync(
                 path,
                 stringify({
@@ -70,7 +70,7 @@ describe('ReadDeliveryServiceProperties', () => {
                     networks: {
                         eth: {
                             url: 'foo.io',
-                            ensRegistry: '0x',
+                            ensName: '0x',
                             chainId: 123,
                         },
                     },
@@ -83,7 +83,7 @@ describe('ReadDeliveryServiceProperties', () => {
                 messageTTL: 12345,
                 sizeLimit: 456,
                 networks: {
-                    eth: { url: 'foo.io', ensRegistry: '0x', chainId: 123 },
+                    eth: { url: 'foo.io', ensName: '0x', chainId: 123 },
                 },
             });
         });
@@ -96,7 +96,7 @@ describe('ReadDeliveryServiceProperties', () => {
                     networks: {
                         eth: {
                             url: 'foo.io',
-                            ensRegistry: '0x',
+                            ensName: '0x',
                             foo: 'bar',
                         },
                     },

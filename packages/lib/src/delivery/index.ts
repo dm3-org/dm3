@@ -17,3 +17,4 @@ export type {
 } from './Delivery';
 
 export { DefaultNetworks } from './DefaultNetworks';
+export type { Networks } from './DefaultNetworks';

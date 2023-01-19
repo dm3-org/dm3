@@ -25,7 +25,7 @@ export interface DeliveryServiceProperties {
     networks: {
         [network: string]: {
             url: string;
-            ensRegistry?: string;
+            ensAddress?: string;
             chainId?: number;
         };
     };
