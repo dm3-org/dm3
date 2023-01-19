@@ -21,11 +21,9 @@ describe('ReadDeliveryServiceProperties', () => {
                 stringify({
                     messageTTL: 12345,
                     sizeLimit: 456,
-                    networks: [
-                        {
-                            eth: { url: 'foo.io' },
-                        },
-                    ],
+                    networks: {
+                        eth: { url: 'foo.io' },
+                    },
                 }),
                 { encoding: 'utf-8' },
             );
@@ -34,11 +32,9 @@ describe('ReadDeliveryServiceProperties', () => {
             expect(config).toStrictEqual({
                 messageTTL: 12345,
                 sizeLimit: 456,
-                networks: [
-                    {
-                        eth: { url: 'foo.io' },
-                    },
-                ],
+                networks: {
+                    eth: { url: 'foo.io' },
+                },
             });
         });
         it('Returns config if yaml  Contains a multiple networks', () => {
@@ -47,12 +43,10 @@ describe('ReadDeliveryServiceProperties', () => {
                 stringify({
                     messageTTL: 12345,
                     sizeLimit: 456,
-                    networks: [
-                        {
-                            eth: { url: 'foo.io' },
-                            cg: { url: 'bar.io' },
-                        },
-                    ],
+                    networks: {
+                        eth: { url: 'foo.io' },
+                        cg: { url: 'bar.io' },
+                    },
                 }),
                 { encoding: 'utf-8' },
             );
@@ -61,12 +55,10 @@ describe('ReadDeliveryServiceProperties', () => {
             expect(config).toStrictEqual({
                 messageTTL: 12345,
                 sizeLimit: 456,
-                networks: [
-                    {
-                        eth: { url: 'foo.io' },
-                        cg: { url: 'bar.io' },
-                    },
-                ],
+                networks: {
+                    eth: { url: 'foo.io' },
+                    cg: { url: 'bar.io' },
+                },
             });
         });
         it('Returns config if yaml Contains a network if url, ensregistry and chainID are specified', () => {
@@ -75,15 +67,13 @@ describe('ReadDeliveryServiceProperties', () => {
                 stringify({
                     messageTTL: 12345,
                     sizeLimit: 456,
-                    networks: [
-                        {
-                            eth: {
-                                url: 'foo.io',
-                                ensRegistry: '0x',
-                                chainId: 123,
-                            },
+                    networks: {
+                        eth: {
+                            url: 'foo.io',
+                            ensRegistry: '0x',
+                            chainId: 123,
                         },
-                    ],
+                    },
                 }),
                 { encoding: 'utf-8' },
             );
@@ -92,11 +82,9 @@ describe('ReadDeliveryServiceProperties', () => {
             expect(config).toStrictEqual({
                 messageTTL: 12345,
                 sizeLimit: 456,
-                networks: [
-                    {
-                        eth: { url: 'foo.io', ensRegistry: '0x', chainId: 123 },
-                    },
-                ],
+                networks: {
+                    eth: { url: 'foo.io', ensRegistry: '0x', chainId: 123 },
+                },
             });
         });
         it('Throws if networks does not comply to the schema', () => {
@@ -105,15 +93,13 @@ describe('ReadDeliveryServiceProperties', () => {
                 stringify({
                     messageTTL: 12345,
                     sizeLimit: 456,
-                    networks: [
-                        {
-                            eth: {
-                                url: 'foo.io',
-                                ensRegistry: '0x',
-                                foo: 'bar',
-                            },
+                    networks: {
+                        eth: {
+                            url: 'foo.io',
+                            ensRegistry: '0x',
+                            foo: 'bar',
                         },
-                    ],
+                    },
                 }),
                 { encoding: 'utf-8' },
             );
@@ -128,13 +114,13 @@ describe('ReadDeliveryServiceProperties', () => {
         const config = getDeliveryServiceProperties('/unknown-path', {
             messageTTL: 12345,
             sizeLimit: 456,
-            networks: [],
+            networks: {},
         });
 
         expect(config).toStrictEqual({
             messageTTL: 12345,
             sizeLimit: 456,
-            networks: [],
+            networks: {},
         });
     });
 
@@ -152,7 +138,7 @@ describe('ReadDeliveryServiceProperties', () => {
         expect(config).toStrictEqual({
             messageTTL: 12345,
             sizeLimit: 456,
-            networks: [],
+            networks: {},
         });
     });
     //Todo think about how this
@@ -169,7 +155,7 @@ describe('ReadDeliveryServiceProperties', () => {
         expect(config).toStrictEqual({
             messageTTL: 12345,
             sizeLimit: 100000,
-            networks: [],
+            networks: {},
         });
     });
 });

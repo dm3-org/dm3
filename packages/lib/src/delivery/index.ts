@@ -15,3 +15,5 @@ export type {
     DeliveryServiceProfile,
     DeliveryServiceProperties,
 } from './Delivery';
+
+export { DefaultNetworks } from './DefaultNetworks';

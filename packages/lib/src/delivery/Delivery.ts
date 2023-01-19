@@ -28,7 +28,7 @@ export interface DeliveryServiceProperties {
             ensRegistry?: string;
             chainId?: number;
         };
-    }[];
+    };
 }
 
 export async function getDeliveryServiceProfile(

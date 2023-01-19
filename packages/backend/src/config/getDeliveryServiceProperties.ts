@@ -9,7 +9,7 @@ const DEFAULT_DELIVERY_SERVICE_PROPERTIES: Lib.delivery.DeliveryServicePropertie
         messageTTL: 0,
         //100Kb
         sizeLimit: 100000,
-        networks: [],
+        networks: {},
     };
 
 export function getDeliveryServiceProperties(
