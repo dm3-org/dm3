@@ -3,16 +3,13 @@ import { DecodedCcipRequest } from '../types';
 import { decodeAddr } from './decode/decodeAddr';
 import { decodeText } from './decode/decodeText';
 import { getResolverInterface } from './getResolverInterface';
-/**
- * This function can be used to decode calldata return by the resolve method of the Offchain Resolver Smart Contract
- * This encoded calldata must have the following format
- * "resolve (decodeDnsName(name),text(namehash(name),record))""
- * To find out how to build the calldata you may check out {@see encodeFunctionData} {@see getResolverInterface}
- * or the unit test provided in this package
- * @param calldata the encoded calldata string
- * @returns {@see DecodedCcipRequest}
- */
 
+/**
+Decodes a given calldata string and returns a DecodedCcipRequest object containing the signature and request.
+@param calldata - The calldata string to be decoded.
+@returns A {@see DecodedCcipRequest} object containing the signature and request.
+@throws An error if the calldata cannot be decoded or if the signature is not supported.
+*/
 export function decodeRequest(calldata: string): DecodedCcipRequest {
     try {
         const textResolver = getResolverInterface();
