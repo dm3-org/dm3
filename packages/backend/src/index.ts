@@ -14,7 +14,6 @@ import Delivery from './delivery';
 import { onConnection } from './messaging';
 import { getDatabase } from './persistance/getDatabase';
 import Profile from './profile';
-import { createRedisClient } from './redis';
 import RpcProxy from './rpc/rpc-proxy';
 import Storage from './storage';
 import {
@@ -35,14 +34,12 @@ const server = http.createServer(app);
 //TODO remove
 app.use(cors());
 app.use(bodyParser.json());
-let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
 
 (async () => {
     app.locals.logger = winston.createLogger({
         transports: [new winston.transports.Console()],
     });
 
-    redisClient = await createRedisClient(app);
     const io = new Server(server, {
         cors: {
             origin: '*',
@@ -52,7 +49,6 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
         },
     });
 
-    app.locals.redisClient = redisClient;
     app.locals.io = io;
 
     app.locals.keys = readKeysFromEnv(process.env);

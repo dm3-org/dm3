@@ -2,7 +2,6 @@ import * as Lib from 'dm3-lib/dist.backend';
 import { isAddress } from 'ethers/lib/utils';
 
 import express from 'express';
-import { getPending } from './redis';
 import { WithLocals } from './types';
 
 const getProfileSchema = {
@@ -64,10 +63,7 @@ export default () => {
                         account,
                         req.body,
                         (accountAddress: string) =>
-                            getPending(
-                                accountAddress,
-                                req.app.locals.redisClient,
-                            ),
+                            req.app.locals.db.getPending(accountAddress),
                         (socketId: string) =>
                             req.app.locals.io.sockets
                                 .to(socketId)
