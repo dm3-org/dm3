@@ -1,5 +1,4 @@
-import { RedisPrefix } from '../../redis';
-import { Redis } from '../getDatabase';
+import { Redis, RedisPrefix } from '../getDatabase';
 
 export function deleteExpiredMessages(
     redisClient: Redis,
@@ -10,7 +9,7 @@ export function deleteExpiredMessages(
         );
 
         await Promise.all(
-            conversions.map((conversion) =>
+            conversions.map((conversion: any) =>
                 redisClient.zRemRangeByScore(conversion, 0, time),
             ),
         );

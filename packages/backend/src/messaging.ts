@@ -1,7 +1,6 @@
 import { Socket } from 'socket.io';
 import express from 'express';
 import * as Lib from 'dm3-lib/dist.backend';
-import { addPending } from './redis';
 import { isAddress } from 'ethers/lib/utils';
 import { WithLocals } from './types';
 
@@ -127,7 +126,7 @@ export function onConnection(app: express.Application & WithLocals) {
                     return callback({ error });
                 }
 
-                await addPending(account, contact, app.locals.redisClient);
+                await app.locals.db.addPending(account, contact);
 
                 callback({ response: 'success' });
             } catch (error) {

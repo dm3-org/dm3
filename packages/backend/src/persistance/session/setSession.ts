@@ -1,5 +1,4 @@
-import { RedisPrefix } from '../../redis';
-import { Redis } from '../getDatabase';
+import { Redis, RedisPrefix } from '../getDatabase';
 import * as Lib from 'dm3-lib/dist.backend';
 
 export function setSession(redis: Redis) {
