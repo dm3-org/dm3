@@ -9,6 +9,7 @@ const DEFAULT_DELIVERY_SERVICE_PROPERTIES: Lib.delivery.DeliveryServicePropertie
         messageTTL: 0,
         //100Kb
         sizeLimit: 100000,
+        networks: [],
     };
 
 export function getDeliveryServiceProperties(
@@ -37,10 +38,10 @@ export function getDeliveryServiceProperties(
         throw Error('Invalid config.yml');
     }
 
-    const { messageTTL, sizeLimit } = {
+    const { messageTTL, sizeLimit, networks } = {
         ...defaultDeliveryServiceProperties,
-        ...parse(yamlString),
+        ...deliveryServiceProfile,
     } as Lib.delivery.DeliveryServiceProperties;
 
-    return { messageTTL, sizeLimit };
+    return { messageTTL, sizeLimit, networks };
 }

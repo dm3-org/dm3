@@ -22,6 +22,13 @@ export interface DeliveryServiceProperties {
     messageTTL: number;
     //Number of bytes an envelop object should not exceed
     sizeLimit: number;
+    networks: {
+        [network: string]: {
+            url: string;
+            ensRegistry?: string;
+            chainId?: number;
+        };
+    }[];
 }
 
 export async function getDeliveryServiceProfile(
