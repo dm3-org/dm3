@@ -5,9 +5,9 @@ import request from 'supertest';
 import { getDatabase, getRedisClient, Redis } from '../persistance/getDatabase';
 import { IDatabase } from '../persistance/IDatabase';
 import { profile } from './profile';
-const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 import * as Lib from 'dm3-lib/dist.backend';
 const { expect } = require('chai');
+const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 
 describe('Profile', () => {
     let redisClient: Redis;

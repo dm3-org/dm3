@@ -1,7 +1,7 @@
 import * as Lib from 'dm3-lib/dist.backend';
-import ethers from 'ethers';
 import { Signer } from 'ethers';
 import express from 'express';
+import { handleCcipRequest } from './handleCcipRequest/handleCcipRequest';
 import { WithLocals } from './types';
 
 export function ccipGateway(signer: Signer, resolverAddr: string) {
@@ -14,32 +14,23 @@ export function ccipGateway(signer: Signer, resolverAddr: string) {
             res: express.Response,
         ) => {
             const { resolverAddr, calldata } = req.params;
-            //TODO should we blackist all request that are not orignated from our dm3 resolver? CC@Heiko
             try {
-                const { record, name, signature } =
-                    Lib.offchainResolver.decodeCalldata(calldata);
+                const { request, signature } =
+                    Lib.offchainResolver.decodeRequest(calldata);
 
-                if (record !== 'dm3.profile') {
-                    return res.status(400).send({
-                        message: `Record is not supported by this resolver`,
-                    });
-                }
-
-                //Todo get rid of unused onchain userprofile
-                const profile = await req.app.locals.db.getUserProfile(name);
-
-                if (!profile) {
-                    return res
-                        .status(404)
-                        .send({ message: 'Profile not found' });
-                }
-
-                const data = await Lib.offchainResolver.encodeUserProfile(
-                    signer,
-                    profile,
-                    resolverAddr,
-                    calldata,
+                const response = await handleCcipRequest(
+                    req,
+                    res,
                     signature,
+                    request,
+                );
+
+                const data = await Lib.offchainResolver.encodeResponse(
+                    signer,
+                    resolverAddr,
+                    response,
+                    calldata,
+                    'text(bytes32,string)',
                 );
 
                 return res.send({ data });

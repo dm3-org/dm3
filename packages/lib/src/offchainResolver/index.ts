@@ -1,5 +1,5 @@
-export { decodeCalldata } from './encoding/decodeCalldata';
-export { encodeUserProfile } from './encoding/encodeUserProfile';
+export { decodeRequest } from './encoding/decodeRequest';
+export { encodeResponse } from './encoding/encodeResponse';
 export { decodeDnsName } from './dns/decodeDnsName';
 export { encodeEnsName } from './dns/encodeEnsName';
 

@@ -1,10 +1,8 @@
 /**
- * @param name the ENS name after after decoding
- * @param record the name of the record that should be queried
+ * @param request the decoded function params of the request. i.E {name:string,record:string}
  * @param signature the signature of the function the request should query
  */
 export interface DecodedCcipRequest {
-    name: string;
-    record: string;
+    request: any;
     signature: string;
 }
