@@ -1,7 +1,6 @@
 import axios from 'axios';
 import {
     Account,
-    getNamehash,
     normalizeEnsName,
     SignedUserProfile,
 } from '../account/Account';
@@ -203,7 +202,7 @@ export async function getPendingConversations(
     const { account } = connection;
     const { profile } = checkAccount(account);
 
-    const url = `${DELIVERY_PATH}/messages/${getNamehash(account!)}/pending/`;
+    const url = `${DELIVERY_PATH}/messages/${account?.ensName!}/pending/`;
 
     const { data } = await getDeliveryServiceClient(
         profile,

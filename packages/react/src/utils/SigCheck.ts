@@ -4,7 +4,7 @@ import { stringify } from 'safe-stable-stringify';
 export async function checkSignature(
     message: Lib.messaging.Message,
     publicSigningKey: string,
-    accountAddress: string,
+    ensName: string,
     signature: string,
 ): Promise<boolean> {
     const sigCheck = await Lib.crypto.checkSignature(
@@ -15,12 +15,12 @@ export async function checkSignature(
 
     if (
         sigCheck &&
-        Lib.external.formatAddress(accountAddress) !==
-            Lib.external.formatAddress(message.metadata.from)
+        Lib.account.normalizeEnsName(ensName) !==
+            Lib.account.normalizeEnsName(message.metadata.from)
     ) {
         return true;
     } else {
-        Lib.log(`Signature check for ${accountAddress} failed.`);
+        Lib.log(`Signature check for ${ensName} failed.`);
         return false;
     }
 }

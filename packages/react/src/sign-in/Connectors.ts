@@ -1,10 +1,10 @@
 import * as Lib from 'dm3-lib';
-import { Actions, GlobalContext } from '../GlobalContextProvider';
+import { Actions } from '../GlobalContextProvider';
 import { ConnectionType } from '../reducers/Connection';
 import { GlobalState } from '../reducers/shared';
 import { UiStateType } from '../reducers/UiState';
 import localforage from 'localforage';
-import { CacheType } from '../reducers/Cache';
+
 import { ethers } from 'ethers';
 import detectEthereumProvider from '@metamask/detect-provider';
 import WalletConnectProvider from '@walletconnect/web3-provider';

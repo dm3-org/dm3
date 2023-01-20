@@ -26,8 +26,6 @@ import {
     publishProfileOnchain,
     SignedUserProfile,
     getProfileCreationMessage,
-    normalizeNamehash,
-    getNamehash,
     normalizeEnsName,
 } from './Account';
 
@@ -131,44 +129,9 @@ describe('Account', () => {
         });
     });
 
-    describe('normalizeNamehash', () => {
-        test('should normalize a namehash', async () => {
-            expect(
-                normalizeNamehash(
-                    '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdeF',
-                ),
-            ).toStrictEqual(
-                '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-            );
-        });
-        test('should reject a 31 bytes hash value ', async () => {
-            expect(() =>
-                normalizeNamehash(
-                    '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd',
-                ),
-            ).toThrowError('Namehash must be a 32 bytes hex value');
-        });
-    });
-
-    describe('getNamehash', () => {
-        test('should get the correct namehash for an ENS name', async () => {
-            expect(getNamehash({ ensName: 'alice.eth' })).toStrictEqual(
-                '0x787192fc5378cc32aa956ddfdedbf26b24e8d78e40109add0eea2c1a012c3dec',
-            );
-        });
-    });
-
     describe('normalizeEnsName', () => {
         test('should normalize an ENS name', async () => {
             expect(normalizeEnsName('Alice.eth')).toStrictEqual('alice.eth');
-        });
-    });
-
-    describe('getNamehash', () => {
-        test('should get the correct namehash for an ENS name', async () => {
-            expect(getNamehash({ ensName: 'alice.eth' })).toStrictEqual(
-                '0x787192fc5378cc32aa956ddfdedbf26b24e8d78e40109add0eea2c1a012c3dec',
-            );
         });
     });
 

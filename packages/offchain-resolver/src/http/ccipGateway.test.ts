@@ -53,6 +53,12 @@ describe('CCIP Gateway', () => {
         ccipApp.use(ccipGateway(signer, offchainResolver.address));
 
         ccipApp.locals.db = db;
+        ccipApp.locals.logger = {
+            // eslint-disable-next-line no-console
+            info: (msg: string) => console.log(msg),
+            // eslint-disable-next-line no-console
+            warn: (msg: string) => console.log(msg),
+        };
 
         profileApp = express();
         profileApp.use(bodyParser.json());
@@ -114,8 +120,12 @@ describe('CCIP Gateway', () => {
                         resultString,
                     );
 
-                expect(JSON.parse(actualProfile)).to.eql(profile);
+                expect(actualProfile).to.eql(
+                    'data:application/json,' +
+                        Lib.stringify({ profile, signature }),
+                );
             });
+
             it('Returns 404 if profile does not exists', async () => {
                 const { signer, profile, signature } =
                     await getSignedUserProfile();
@@ -135,6 +145,7 @@ describe('CCIP Gateway', () => {
 
                 expect(status).to.equal(404);
             });
+
             it('Returns 400 if record is not dm3.profile', async () => {
                 //Call the contract to retrieve the gateway url
                 const resolveGatewayUrlForTheWrongRecord = async () => {
@@ -169,10 +180,11 @@ describe('CCIP Gateway', () => {
                 };
                 const { sender, callData } =
                     await resolveGatewayUrlForTheWrongRecord();
+
                 //You the url returned by he contract to fetch the profile from the ccip gateway
-                const { status } = await request(ccipApp)
-                    .get(`/${sender}/${callData}`)
-                    .send();
+                const { status } = await request(ccipApp).get(
+                    `/${sender}/${callData}`,
+                );
 
                 expect(status).to.equal(400);
             });
@@ -221,7 +233,10 @@ describe('CCIP Gateway', () => {
 
                 const text = await resolver.getText('dm3.profile');
 
-                expect(JSON.parse(text)).to.eql(profile);
+                expect(text).to.eql(
+                    'data:application/json,' +
+                        Lib.stringify({ signature, profile }),
+                );
             });
             it('Throws error if lookup went wrong', async () => {
                 const provider = new MockProvider(

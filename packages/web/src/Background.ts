@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { Color } from 'three';
 
 export function generateBackground(
     threeContainer: React.RefObject<HTMLDivElement>,

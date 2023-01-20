@@ -18,11 +18,11 @@ import { ethers } from 'ethers';
 export function setUserProfile(redis: Redis) {
     return async (
         name: string,
-        profile: Lib.account.UserProfile,
+        profile: Lib.account.SignedUserProfile,
         address: string,
     ) => {
         const profileIsValid = Lib.validateSchema(
-            Lib.account.schema.SignedUserProfile.definitions.UserProfile,
+            Lib.account.schema.SignedUserProfile,
             profile,
         );
 

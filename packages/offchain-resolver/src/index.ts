@@ -37,7 +37,7 @@ app.use(bodyParser.json());
 })();
 const port = process.env.PORT || '8081';
 server.listen(port, () => {
-    app.locals.logger.log(
+    app.locals.logger.info(
         '[Server] listening at port ' + port + ' and dir ' + __dirname,
     );
 });

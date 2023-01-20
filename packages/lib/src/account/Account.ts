@@ -64,16 +64,6 @@ export function getProfileCreationMessage(stringifiedProfile: string) {
 }
 
 /**
- * calculate the namehash of a given ENS name
- * @param account Account with ENS name
- */
-export function getNamehash(account: Account): string {
-    return normalizeNamehash(
-        ethers.utils.namehash(ethers.utils.nameprep(account.ensName)),
-    );
-}
-
-/**
  * normalizes an ENS name
  * @param ensName name that should be normalized
  */
@@ -92,6 +82,7 @@ export async function getContacts(
     if (!connection.provider) {
         throw Error('No provider');
     }
+
     const pendingConversations = await getPendingConversations(
         connection,
         deliveryServiceToken,
@@ -330,17 +321,6 @@ export function checkProfileHash(profile: Dm3Profile, uri: string): boolean {
  */
 export function createHashUrlParam(profile: SignedUserProfile): string {
     return `dm3Hash=${sha256(stringify(profile))}`;
-}
-
-/**
- * normalizes a namehash
- * @param namehash the namehash that should be checked
- */
-export function normalizeNamehash(namehash: string): string {
-    if (!/^(0x)?[a-fA-F0-9]{64}$/.test(namehash)) {
-        throw Error('Namehash must be a 32 bytes hex value');
-    }
-    return namehash.toLocaleLowerCase();
 }
 
 export async function publishProfileOnchain(
