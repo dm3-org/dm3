@@ -1,12 +1,11 @@
-import { ethers } from 'ethers';
 import * as Lib from 'dm3-lib/dist.backend';
-import { getWeb3Provider } from 'dm3-lib/dist.backend/web3-provider';
+import { ethers } from 'ethers';
 
 type NetworkWithProvider = {
     [network: string]: ethers.providers.BaseProvider | undefined;
 };
 
-export function initializeWeb3Provider(
+export function initializeMultiChainProvider(
     deliveryServiceProperties: Lib.delivery.DeliveryServiceProperties,
 ) {
     const providers = mapNetworksToProvider(deliveryServiceProperties);
@@ -15,12 +14,17 @@ export function initializeWeb3Provider(
         ensName: string,
     ): ethers.providers.BaseProvider | null {
         const segments = ensName.split('.');
+        //An ENS name has to contain at least of name.network
+        if (segments.length < 2) {
+            throw Error('Invalid ENS name');
+        }
         const [network] = segments.slice(-1);
 
         const provider = providers[network];
-
         if (!provider) {
-            Lib.log(`[getWeb3Provider] network ${network}`);
+            Lib.log(
+                `[getWeb3Provider] network ${network} is not supported by the deliveryService`,
+            );
             return null;
         }
 
@@ -69,10 +73,10 @@ function mapNetworksToProvider(
         const { url, chainId, ensAddress } = customConfig;
 
         if (!chainId) {
-            throw Error(`chainId is missing for network:${name}`);
+            throw Error(`chainId is missing for network: ${name}`);
         }
         if (!ensAddress) {
-            throw Error(`ensAddress address is missing for network:${name}`);
+            throw Error(`ensAddress is missing for network: ${name}`);
         }
 
         networksWithProvider[name] = createProviderInstance({
