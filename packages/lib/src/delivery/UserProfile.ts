@@ -15,6 +15,7 @@ const handlePendingConversations = async (
     send: (socketId: string) => void,
 ) => {
     const pending = await getPendingConversations(ensName);
+
     await Promise.all(
         pending.map(async (pendingEntry) => {
             const contact = normalizeEnsName(pendingEntry);
@@ -53,7 +54,7 @@ export async function submitUserProfile(
         profileExtension: getDefaultProfileExtension(),
     };
 
-    await setSession(account, session);
+    await setSession(account.toLocaleLowerCase(), session);
 
     await handlePendingConversations(
         account,
@@ -61,6 +62,7 @@ export async function submitUserProfile(
         getPendingConversations,
         send,
     );
+
     return session.token;
 }
 

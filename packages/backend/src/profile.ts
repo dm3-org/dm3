@@ -1,17 +1,6 @@
 import * as Lib from 'dm3-lib/dist.backend';
-import { isAddress } from 'ethers/lib/utils';
-
 import express from 'express';
 import { WithLocals } from './types';
-
-const getProfileSchema = {
-    type: 'object',
-    properties: {
-        ensName: { type: 'string' },
-    },
-    required: ['ensName'],
-    additionalProperties: false,
-};
 
 export default () => {
     const router = express.Router();
@@ -54,21 +43,19 @@ export default () => {
                 const ensName = Lib.account.normalizeEnsName(
                     req.params.ensName,
                 );
-                res.json(
-                    await Lib.delivery.submitUserProfile(
-                        req.app.locals.web3Provider,
-                        req.app.locals.db.getSession,
-                        req.app.locals.db.setSession,
-                        ensName,
-                        req.body,
-                        (ensName: string) =>
-                            req.app.locals.db.getPending(ensName),
-                        (socketId: string) =>
-                            req.app.locals.io.sockets
-                                .to(socketId)
-                                .emit('joined'),
-                    ),
+
+                const data = await Lib.delivery.submitUserProfile(
+                    req.app.locals.web3Provider,
+                    req.app.locals.db.getSession,
+                    req.app.locals.db.setSession,
+                    ensName,
+                    req.body,
+                    (ensName: string) => req.app.locals.db.getPending(ensName),
+                    (socketId: string) =>
+                        req.app.locals.io.sockets.to(socketId).emit('joined'),
                 );
+
+                res.json(data);
             } catch (e) {
                 next(e);
             }

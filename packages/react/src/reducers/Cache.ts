@@ -13,7 +13,7 @@ export enum CacheType {
 }
 
 export type CachePayload = {
-    [CacheType.AddAbis]: { ensName: string; abi: string }[];
+    [CacheType.AddAbis]: { address: string; abi: string }[];
     [CacheType.AddAvatarUrl]: { ensName: string; url: string };
 };
 
@@ -43,7 +43,7 @@ export function cacheReducer(state: Cache, action: CacheActions): Cache {
 
             action.payload.forEach((abiContainer) => {
                 const address = Lib.external.formatAddress(
-                    abiContainer.ensName,
+                    abiContainer.address,
                 );
                 if (state.abis.has(address)) {
                     Lib.log(`[Cache] ABI for ${address} already in cache`);

@@ -7,7 +7,7 @@ export interface IDatabase {
     ): Promise<Lib.account.UserProfile | null>;
     setUserProfile(
         ensName: string,
-        offchainUserProfile: Lib.account.UserProfile,
+        offchainUserProfile: Lib.account.SignedUserProfile,
         address: string,
     ): Promise<boolean>;
     hasAddressProfile(name: string): Promise<boolean>;
