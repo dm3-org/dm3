@@ -23,13 +23,17 @@ export {
     getBrowserStorageKey,
     checkStringSignature,
     getProfileCreationMessage,
-    normalizeNamehash,
     normalizeEnsName,
     checkUserProfile,
     checkUserProfileWithAddress,
 } from './Account';
 
-export type { Account, ProfileKeys, UserProfile } from './Account';
+export type {
+    Account,
+    ProfileKeys,
+    UserProfile,
+    SignedUserProfile,
+} from './Account';
 
 export type { ProfileExtension } from './profileExtension';
 

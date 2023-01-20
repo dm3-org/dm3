@@ -1,6 +1,4 @@
 import { ethers, Signer } from 'ethers';
-import { stringify } from '../..';
-import { UserProfile } from '../../account';
 import { getResolverInterface } from './getResolverInterface';
 
 /**
@@ -25,7 +23,7 @@ export async function encodeResponse(
     const validUntil = Math.floor(Date.now() / 1000 + ttl);
 
     const result = textResolver.encodeFunctionResult(functionSelector, [
-        stringify(response),
+        response,
     ]);
     /**
      * This hash has to be compiled the same way as at the OffchainResolver.makeSignatureHash method

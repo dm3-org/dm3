@@ -12,6 +12,7 @@ export async function getDatabase(
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
 ) {
+    // TODO: add lookup function for existing profiles
     // return profileExists
     //     ? getExistingDatebase(storageLocation, storageToken, state, dispatch)
     //     : createNewDatabase(state);
@@ -62,6 +63,5 @@ async function createNewDatabase(state: GlobalState): Promise<{
     account: Lib.account.Account;
 }> {
     const signInData = await Lib.session.signIn(state.connection);
-
     return signInData;
 }

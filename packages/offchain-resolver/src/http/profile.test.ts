@@ -24,6 +24,12 @@ describe('Profile', () => {
         app.use(profile(hreEthers.provider));
 
         app.locals.db = db;
+        app.locals.logger = {
+            // eslint-disable-next-line no-console
+            info: (msg: string) => console.log(msg),
+            // eslint-disable-next-line no-console
+            warn: (msg: string) => console.log(msg),
+        };
     });
 
     afterEach(async () => {
@@ -394,7 +400,10 @@ describe('Profile', () => {
                 .send();
 
             expect(status).to.equal(200);
-            expect(body).to.eql(profile);
+            expect(body).to.eql({
+                signature,
+                profile,
+            });
         });
     });
 });

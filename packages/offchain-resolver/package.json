@@ -26,6 +26,7 @@
         "deploy:mainnet": " hardhat run scripts/deploy.ts --network mainnet",
         "start": "node dist/src/",
         "test": " npm run docker:up && nyc hardhat test test/**test.ts src/**/**.test.ts  ",
+        "test:local": "nyc hardhat test test/**test.ts src/**/**.test.ts ",
         "build": "tsc && cp ./config.yml ./dist/config.yml | true"
     },
     "devDependencies": {

@@ -1,22 +1,16 @@
-import express from 'express';
 import { IDatabase } from '../../../persistance/IDatabase';
+import * as Lib from 'dm3-lib/dist.backend';
 
-export async function handleText(
-    res: express.Response,
-    db: IDatabase,
-    request: any,
-) {
+export async function handleText(db: IDatabase, request: any) {
     const { record, name } = request;
+
     if (record !== 'dm3.profile') {
-        return res.status(400).send({
-            message: `Record is not supported by this resolver`,
-        });
+        throw Error(`${record} Record is not supported by this resolver`);
     }
 
-    const response = await db.getUserProfile(name);
+    const userProfile = await db.getUserProfile(name);
 
-    if (!response) {
-        return res.status(404).send({ message: 'Profile not found' });
-    }
-    return response;
+    return userProfile
+        ? 'data:application/json,' + Lib.stringify(userProfile)
+        : null;
 }

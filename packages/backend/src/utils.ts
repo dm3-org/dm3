@@ -15,22 +15,12 @@ export async function auth(
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
-    const address = await req.app.locals.web3Provider.resolveName(ensName);
-    if (!address) {
-        req.app.locals.logger.warn({
-            method: 'AUTH',
-            error: 'Token check failed: Could not resolve ENS name',
-            normalizedEnsName,
-        });
-        res.sendStatus(401);
-    }
-
     if (
         token &&
         (await Lib.delivery.checkToken(
             req.app.locals.web3Provider,
             req.app.locals.db.getSession,
-            address,
+            normalizedEnsName,
             token,
         ))
     ) {

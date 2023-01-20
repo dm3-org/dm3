@@ -30,7 +30,8 @@ export async function checkToken(
         throw Error(`Couln't resolve ENS name`);
     }
 
-    const session = await getSession(ensName);
+    const session = await getSession(ensName.toLocaleLowerCase());
+
     //There is now account for the requesting accoung
     if (!session) {
         return false;

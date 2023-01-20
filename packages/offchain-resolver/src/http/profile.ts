@@ -9,6 +9,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
     router.post(
         '/name',
         async (req: express.Request & { app: WithLocals }, res, next) => {
+            Lib.log(`POST name ${req.body.name} `);
             const { signedUserProfile, name, address } = req.body;
             const isSchemaValid = Lib.validateSchema(
                 Lib.account.schema.SignedUserProfile,
@@ -67,7 +68,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
             }
             await req.app.locals.db.setUserProfile(
                 name,
-                signedUserProfile.profile,
+                signedUserProfile,
                 address,
             );
 
@@ -121,11 +122,10 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
 
             await req.app.locals.db.setUserProfile(
                 name,
-                signedUserProfile.profile,
+                signedUserProfile,
                 address,
             );
-
-            Lib.log(`Registered ${name}`);
+            req.app.locals.logger.info(`Registered ${name}`);
 
             return res.sendStatus(200);
         },
@@ -135,6 +135,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
         '/:address',
         async (req: express.Request & { app: WithLocals }, res, next) => {
             const { address } = req.params;
+            req.app.locals.logger.info(`POST addr ${req.body.address} `);
             if (!ethers.utils.isAddress(address)) {
                 return res.status(400).send();
             }

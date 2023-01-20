@@ -58,14 +58,9 @@ export function checkSignature(
 
 export async function getEnsTextRecord(
     provider: ethers.providers.JsonRpcProvider,
-    accountAddress: string,
+    ensName: string,
     recordKey: string,
 ) {
-    const ensName = await provider.lookupAddress(accountAddress);
-    if (ensName === null) {
-        return;
-    }
-
     const resolver = await provider.getResolver(ensName);
     if (resolver === null) {
         return;

@@ -7,6 +7,7 @@ function fetchDeliveryServiceProfile(connection: Lib.Connection) {
         const deliveryServiceUrl = account.profile?.deliveryServices[0];
 
         //This is most likely the case when the profile can't be fetched at all.
+
         if (!deliveryServiceUrl) {
             Lib.log(
                 '[fetchDeliverServicePorfile] Cant resolve deliveryServiceUrl',
@@ -22,6 +23,7 @@ function fetchDeliveryServiceProfile(connection: Lib.Connection) {
                 connection,
                 async (url) => (await axios.get(url)).data,
             );
+
         return {
             account,
             deliveryServiceProfile,
