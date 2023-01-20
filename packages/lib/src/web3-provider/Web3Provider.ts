@@ -25,6 +25,12 @@ export interface Connection {
     defaultServiceUrl: string;
 }
 
+//TODO rename after multichain provider was implemented on the frontend side
+export type GetWeb3Provider = (
+    ensName: string,
+) => ethers.providers.BaseProvider | null;
+
+//TODO rename after multichain provider was implemented on the frontend side
 export async function getWeb3Provider(provider: unknown): Promise<{
     provider?: ethers.providers.Web3Provider;
     connectionState: ConnectionState;
