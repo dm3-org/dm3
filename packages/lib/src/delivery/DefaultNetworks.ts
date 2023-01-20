@@ -1,6 +1,6 @@
 export const DefaultNetworks: Networks = {
     eth: {
-        ensAddress: '',
+        ensAddress: '0x4976fb03c32e5b8cfe2b6ccb31c09ba78ebaba41',
         chainId: 1,
     },
     bnb: {

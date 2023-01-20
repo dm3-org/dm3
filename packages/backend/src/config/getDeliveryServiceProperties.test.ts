@@ -70,7 +70,7 @@ describe('ReadDeliveryServiceProperties', () => {
                     networks: {
                         eth: {
                             url: 'foo.io',
-                            ensName: '0x',
+                            ensAddress: '0x',
                             chainId: 123,
                         },
                     },
@@ -83,7 +83,7 @@ describe('ReadDeliveryServiceProperties', () => {
                 messageTTL: 12345,
                 sizeLimit: 456,
                 networks: {
-                    eth: { url: 'foo.io', ensName: '0x', chainId: 123 },
+                    eth: { url: 'foo.io', ensAddress: '0x', chainId: 123 },
                 },
             });
         });
