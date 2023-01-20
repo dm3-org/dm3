@@ -13,6 +13,7 @@ import { DeliveryInformation, EncryptionEnvelop, Postmark } from '../messaging';
 import { sha256 } from '../shared/sha256';
 import { isSpam } from '../spam-filter';
 import { getConversationId } from '../storage/Storage';
+import { GetWeb3Provider } from '../web3-provider';
 import { checkToken, Session } from './Session';
 
 export interface Acknoledgment {
@@ -87,7 +88,7 @@ export async function incomingMessage(
         envelop: EncryptionEnvelop,
     ) => Promise<void>,
     send: (socketId: string, envelop: EncryptionEnvelop) => void,
-    provider: ethers.providers.BaseProvider,
+    getWeb3Provider: GetWeb3Provider,
 ): Promise<void> {
     //Checks the size of the incoming message
     if (messageIsToLarge(envelop, sizeLimit)) {
@@ -119,6 +120,11 @@ export async function incomingMessage(
     const receiverSession = await getSession(deliveryInformation.to);
     if (!receiverSession) {
         throw Error('unknown session');
+    }
+
+    const provider = getWeb3Provider(deliveryInformation.from);
+    if (!provider) {
+        throw Error('Unsupported network');
     }
     //Checkes if the message is spam
     if (await isSpam(provider, receiverSession, deliveryInformation)) {

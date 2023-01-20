@@ -7,7 +7,7 @@ type NetworkWithProvider = {
 
 export function initializeMultiChainProvider(
     deliveryServiceProperties: Lib.delivery.DeliveryServiceProperties,
-) {
+): Lib.web3provider.GetWeb3Provider {
     const providers = mapNetworksToProvider(deliveryServiceProperties);
 
     return function getWeb3Provider(

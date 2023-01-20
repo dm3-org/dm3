@@ -70,7 +70,7 @@ export function onConnection(app: express.Application & WithLocals) {
                                 .to(socketId)
                                 .emit('message', envelop);
                         },
-                        app.locals.web3Provider,
+                        app.locals.getWeb3Provider,
                     ),
                         callback({ response: 'success' });
                 } catch (error: any) {

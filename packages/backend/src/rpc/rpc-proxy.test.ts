@@ -6,6 +6,7 @@ import RpcProxy from './rpc-proxy';
 import { testData } from '../../../../test-data/encrypted-envelops.test';
 
 import * as Lib from 'dm3-lib/dist.backend';
+import { ethers } from 'ethers';
 
 // eslint-disable-next-line no-console
 const log = (toLog: any) => console.log(toLog);
@@ -105,6 +106,9 @@ describe('rpc-Proxy', () => {
                             emit: (_: any, __any: any) => {},
                         }),
                     },
+                },
+                getWeb3Provider: (_: string) => {
+                    return {} as ethers.providers.BaseProvider;
                 },
             };
 

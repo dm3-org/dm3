@@ -19,12 +19,12 @@ import RpcProxy from './rpc/rpc-proxy';
 import Storage from './storage';
 import {
     errorHandler,
-    getWeb3Provider,
     logError,
     logRequest,
     readKeysFromEnv,
     socketAuth,
 } from './utils';
+import { initializeMultiChainProvider } from './web3/multiChainProvider';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -60,7 +60,9 @@ let redisClient: undefined | Awaited<ReturnType<typeof createRedisClient>>;
     app.locals.deliveryServiceProperties = getDeliveryServiceProperties();
 
     app.locals.db = await getDatabase();
-    app.locals.web3Provider = getWeb3Provider(process.env);
+    app.locals.getWeb3Provider = initializeMultiChainProvider(
+        app.locals.deliveryServiceProperties,
+    );
 
     app.use(logRequest);
     app.use('/profile', Profile());

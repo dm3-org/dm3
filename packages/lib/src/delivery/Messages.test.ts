@@ -116,7 +116,9 @@ describe('Messages', () => {
                     getSession,
                     storeNewMessage,
                     () => {},
-                    {} as ethers.providers.BaseProvider,
+                    (_: string) => {
+                        return {} as ethers.providers.BaseProvider;
+                    },
                 ),
             ).rejects.toEqual(Error('Token check failed'));
         });
@@ -149,7 +151,9 @@ describe('Messages', () => {
                     getSession,
                     storeNewMessage,
                     () => {},
-                    {} as ethers.providers.BaseProvider,
+                    (_: string) => {
+                        return {} as ethers.providers.BaseProvider;
+                    },
                 ),
             ).rejects.toEqual(Error('Message is too large'));
         });
@@ -184,7 +188,9 @@ describe('Messages', () => {
                     getSession,
                     storeNewMessage,
                     () => {},
-                    {} as ethers.providers.BaseProvider,
+                    (_: string) => {
+                        return {} as ethers.providers.BaseProvider;
+                    },
                 ),
             ).rejects.toEqual(Error('unknown session'));
         });
@@ -237,7 +243,7 @@ describe('Messages', () => {
                     session,
                     storeNewMessage,
                     () => {},
-                    provider,
+                    (_: string) => provider,
                 );
                 fail();
             } catch (err: any) {
@@ -296,7 +302,7 @@ describe('Messages', () => {
                     session,
                     storeNewMessage,
                     () => {},
-                    provider,
+                    (_: string) => provider,
                 );
                 fail();
             } catch (err: any) {
@@ -362,7 +368,7 @@ describe('Messages', () => {
                     session,
                     storeNewMessage,
                     () => {},
-                    provider,
+                    (_: string) => provider,
                 );
                 fail();
             } catch (err: any) {
@@ -411,7 +417,9 @@ describe('Messages', () => {
                 getSession,
                 storeNewMessage,
                 sendMock,
-                {} as ethers.providers.BaseProvider,
+                (_: string) => {
+                    return {} as ethers.providers.BaseProvider;
+                },
             );
 
             const conversationId = getConversationId(
@@ -495,7 +503,9 @@ describe('Messages', () => {
                 _getSession,
                 storeNewMessage,
                 sendMock,
-                {} as ethers.providers.BaseProvider,
+                (_: string) => {
+                    return {} as ethers.providers.BaseProvider;
+                },
             );
 
             const conversationId = getConversationId(
