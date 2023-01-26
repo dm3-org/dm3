@@ -1,9 +1,16 @@
 import * as Lib from 'dm3-lib/dist.backend';
 import { ethers } from 'ethers';
+import { StaticJsonRpcProvider } from '@ethersproject/providers';
 
 type NetworkWithProvider = {
     [network: string]: ethers.providers.BaseProvider | undefined;
 };
+
+/**
+ * @description Get a multi-chain provider from a delivery service properties object
+ * @param deliveryServiceProperties The delivery service properties object
+ * @returns A function that takes an ens name and returns the corresponding provider
+ */
 
 export function initializeMultiChainProvider(
     deliveryServiceProperties: Lib.delivery.DeliveryServiceProperties,
@@ -57,11 +64,10 @@ function mapNetworksToProvider(
                 //then apply the config.yml
                 ...customConfig,
             };
-            networksWithProvider[name] = createProviderInstance({
+            networksWithProvider[name] = new StaticJsonRpcProvider(url, {
                 name,
                 chainId,
                 ensAddress,
-                url,
             });
             return;
         }
@@ -79,31 +85,12 @@ function mapNetworksToProvider(
             throw Error(`ensAddress is missing for network: ${name}`);
         }
 
-        networksWithProvider[name] = createProviderInstance({
-            url,
+        networksWithProvider[name] = new StaticJsonRpcProvider(url, {
+            name,
             chainId,
             ensAddress,
-            name,
         });
     });
 
     return networksWithProvider;
-}
-
-function createProviderInstance({
-    name,
-    url,
-    ensAddress,
-    chainId,
-}: {
-    name: string;
-    url: string;
-    ensAddress: string;
-    chainId: number;
-}) {
-    return new ethers.providers.StaticJsonRpcProvider(url, {
-        name,
-        chainId,
-        ensAddress,
-    });
 }

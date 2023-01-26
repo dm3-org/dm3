@@ -3,25 +3,25 @@ import 'dotenv/config';
 import express from 'express';
 import { WithLocals } from '../../types';
 
-interface SubmitMessage {
-    token: string;
-}
-
 export async function handleSubmitMessage(
     req: express.Request & { app: WithLocals },
     res: express.Response,
     next: express.NextFunction,
 ) {
+    // get parameters from request body
     const {
         params: [stringifiedEnvelop, token],
     } = req.body;
 
+    // parse envelop parameter
     const envelop = JSON.parse(stringifiedEnvelop);
 
+    // if envelop or token are missing, return error
     if (!envelop || !token) {
         return res.send(400);
     }
 
+    // validate schema
     const isSchemaValid = Lib.validateSchema(
         Lib.delivery.schema.MessageSubmission,
         {
@@ -30,6 +30,7 @@ export async function handleSubmitMessage(
         },
     );
 
+    // if schema is invalid, return error
     if (!isSchemaValid) {
         const error = 'invalid schema';
 
@@ -40,6 +41,7 @@ export async function handleSubmitMessage(
         return res.status(400).send({ error });
     }
 
+    // try to deliver message
     try {
         await Lib.delivery.incomingMessage(
             { envelop, token },
@@ -55,6 +57,7 @@ export async function handleSubmitMessage(
         );
         res.send(200);
     } catch (error) {
+        // if delivery failed, return error
         req.app.locals.logger.warn({
             method: 'RPC SUBMIT MESSAGE',
             error,
