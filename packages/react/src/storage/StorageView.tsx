@@ -176,6 +176,10 @@ function StorageView() {
                 Lib.storage.StorageLocation.File) ||
         state.userDb?.syncProcessState === Lib.storage.SyncProcessState.Failed;
 
+    if (state.connection.storageLocation !== Lib.storage.StorageLocation.File) {
+        return <></>;
+    }
+
     return state.uiState.maxLeftView ? (
         <div className="mt-auto w-100 ">
             <div
