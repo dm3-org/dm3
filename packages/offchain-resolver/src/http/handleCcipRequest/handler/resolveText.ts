@@ -4,7 +4,7 @@ import * as Lib from 'dm3-lib/dist.backend';
 export async function handleText(db: IDatabase, request: any) {
     const { record, name } = request;
 
-    if (record !== 'dm3.profile') {
+    if (record !== Lib.account.PROFILE_RECORD_NAME) {
         throw Error(`${record} Record is not supported by this resolver`);
     }
 

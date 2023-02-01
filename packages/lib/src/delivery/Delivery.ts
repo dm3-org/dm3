@@ -29,7 +29,7 @@ export async function getDeliveryServiceProfile(
     { provider }: Connection,
     getRessource: GetResource<DeliveryServiceProfile>,
 ): Promise<DeliveryServiceProfile | undefined> {
-    const DELIVERY_SERVICE_PROFILE_KEY = 'dm3.deliveryService';
+    const DELIVERY_SERVICE_PROFILE_KEY = 'network.dm3.deliveryService';
 
     if (!provider) {
         throw 'Provider is undefined';

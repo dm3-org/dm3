@@ -164,7 +164,7 @@ describe('CCIP Gateway', () => {
                 expect(status).to.equal(404);
             });
 
-            it('Returns 400 if record is not dm3.profile', async () => {
+            it('Returns 400 if record is not network.dm3.profile', async () => {
                 //Call the contract to retrieve the gateway url
                 const resolveGatewayUrlForTheWrongRecord = async () => {
                     try {
@@ -249,7 +249,9 @@ describe('CCIP Gateway', () => {
 
                 const resolver = await provider.getResolver('foo.dm3.eth');
 
-                const text = await resolver.getText('dm3.profile');
+                const text = await resolver.getText(
+                    Lib.account.PROFILE_RECORD_NAME,
+                );
 
                 expect(text).to.eql(
                     'data:application/json,' +
@@ -461,7 +463,7 @@ const resolveGateWayUrl = async (
     try {
         const textData = getResolverInterface().encodeFunctionData('text', [
             ethers.utils.namehash(ensName),
-            'dm3.profile',
+            Lib.account.PROFILE_RECORD_NAME,
         ]);
 
         //This always revers and throws the OffchainLookup Exceptions hence we need to catch it

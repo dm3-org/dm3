@@ -27,6 +27,7 @@ import {
     SignedUserProfile,
     getProfileCreationMessage,
     normalizeEnsName,
+    PROFILE_RECORD_NAME,
 } from './Account';
 
 const connection: Connection = {
@@ -742,7 +743,7 @@ describe('Account', () => {
 
             expect(tx?.args).toStrictEqual([
                 '0xbe11069ec59144113f438b6ef59dd30497769fc2dce8e2b52e3ae71ac18e47c9',
-                'dm3.profile',
+                PROFILE_RECORD_NAME,
                 'http://bla?dm3Hash=0x352942c3b35370f5424b2a4d263aeca1158a5c6e3c1d0a866c23f9d80e6ea426',
             ]);
 
