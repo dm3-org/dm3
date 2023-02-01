@@ -61,12 +61,16 @@ export async function getEnsTextRecord(
     ensName: string,
     recordKey: string,
 ) {
-    const resolver = await provider.getResolver(ensName);
-    if (resolver === null) {
-        return;
-    }
+    try {
+        const resolver = await provider.getResolver(ensName);
+        if (resolver === null) {
+            return;
+        }
 
-    return await resolver.getText(recordKey);
+        return await resolver.getText(recordKey);
+    } catch (e) {
+        return undefined;
+    }
 }
 export type GetEnsTextRecord = typeof getEnsTextRecord;
 

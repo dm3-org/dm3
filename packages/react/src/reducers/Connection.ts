@@ -8,6 +8,7 @@ export enum ConnectionType {
     ChangeConnectionState = 'CHANGE_CONNECTION_STATE',
     ChangeSocket = 'CHANGE_SOCKET',
     ChangeAccount = 'CHANGE_ACCOUNT',
+    ChangeEthAddress = 'CHANGE_ETH_ADDRESS',
     ChangeProvider = 'CHANGE_PROVIDER',
     ChangeStorageToken = 'CHANGE_STORAGE_TOKEN',
     ChangeStorageLocation = 'CHANGE_STORAGE_LOCATION',
@@ -18,6 +19,7 @@ type ConnectionPayload = {
     [ConnectionType.ChangeConnectionState]: Lib.web3provider.ConnectionState;
     [ConnectionType.ChangeSocket]: Socket<DefaultEventsMap, DefaultEventsMap>;
     [ConnectionType.ChangeAccount]: Lib.account.Account;
+    [ConnectionType.ChangeEthAddress]: string;
     [ConnectionType.ChangeProvider]: ethers.providers.JsonRpcProvider;
     [ConnectionType.ChangeStorageToken]: string | undefined;
     [ConnectionType.ChangeStorageLocation]: Lib.storage.StorageLocation;
@@ -58,6 +60,13 @@ export function connectionReducer(
             return {
                 ...state,
                 account: action.payload,
+            };
+
+        case ConnectionType.ChangeEthAddress:
+            Lib.log(`[Connection] Set eth address to ${action.payload}`);
+            return {
+                ...state,
+                ethAddress: action.payload,
             };
 
         case ConnectionType.ChangeStorageLocation:

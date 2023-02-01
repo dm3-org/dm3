@@ -17,6 +17,7 @@ export enum ConnectionState {
 
 export interface Connection {
     connectionState: ConnectionState;
+    ethAddress?: string;
     account?: Account;
     provider?: ethers.providers.JsonRpcProvider;
     socket?: Socket<DefaultEventsMap, DefaultEventsMap>;

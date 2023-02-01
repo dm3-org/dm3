@@ -12,6 +12,7 @@ import { ConnectionType } from '../reducers/Connection';
 import localforage from 'localforage';
 import DarkLogo from '../logos/DarkLogo';
 import { signIn } from './Connectors';
+import { UserDbType } from '../reducers/UserDB';
 
 interface SignInProps {
     hideStorageSelection: boolean;
@@ -159,11 +160,11 @@ function SignIn(props: SignInProps) {
         if (
             state.connection.connectionState ===
                 Lib.web3provider.ConnectionState.SignInReady &&
-            state.connection.account
+            state.connection.ethAddress
         ) {
             signIn(storageLocation, token, state, dispatch);
         }
-    }, [state.connection.connectionState, state.connection.account]);
+    }, [state.connection.connectionState, state.connection.ethAddress]);
 
     return props.miniSignIn ? (
         <div className="w-100  pt-4 pb-4">

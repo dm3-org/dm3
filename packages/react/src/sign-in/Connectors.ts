@@ -11,6 +11,7 @@ import WalletConnectProvider from '@walletconnect/web3-provider';
 import { UserDbType } from '../reducers/UserDB';
 import { AuthStateType } from '../reducers/Auth';
 import { getDatabase } from './getDatabase';
+import { stat } from 'fs';
 
 function handleNewProvider(
     creationsResult: {
@@ -93,6 +94,13 @@ export async function connectAccount(
         );
     }
 
+    if (accountConnection.ethAddress) {
+        dispatch({
+            type: ConnectionType.ChangeEthAddress,
+            payload: accountConnection.ethAddress,
+        });
+    }
+
     if (accountConnection.account) {
         dispatch({
             type: ConnectionType.ChangeConnectionState,
@@ -136,20 +144,17 @@ export async function signIn(
             dispatch,
         );
 
-    const ensName = state.connection.account!.ensName;
-    //Fetching the profile from the Delivery Service
-    const profile = (
-        await Lib.account.getUserProfile(
-            state.connection,
-            ensName,
-            state.connection.defaultServiceUrl + '/profile/' + ensName,
-        )
-    )?.profile;
+    if (!account?.ensName && !state.connection.account) {
+        throw Error(`Couldn't find account`);
+    }
 
-    dispatch({
-        type: ConnectionType.ChangeAccount,
-        payload: account,
-    });
+    if (account) {
+        dispatch({
+            type: ConnectionType.ChangeAccount,
+            payload: account,
+        });
+    }
+
     dispatch({
         type: ConnectionType.ChangeStorageLocation,
         payload: storageLocation,
@@ -164,11 +169,14 @@ export async function signIn(
         type: ConnectionType.ChangeConnectionState,
         payload: connectionState,
     });
+
     dispatch({
         type: AuthStateType.AddNewSession,
         payload: {
             token: deliveryServiceToken,
-            ensName: account.ensName,
+            ensName: account
+                ? account.ensName
+                : state.connection.account!.ensName,
             storage: storageLocation,
         },
     });
