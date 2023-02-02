@@ -2,6 +2,8 @@ export {
     getNewMessages,
     syncAcknoledgment,
     submitUserProfile,
+    createAlias,
+    getNameForAddress,
 } from './BackendAPI';
 export {
     lookupAddress,

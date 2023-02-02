@@ -16,6 +16,24 @@ function ChatHeader(props: ChatHeaderProps) {
     const { state, dispatch } = useContext(GlobalContext);
 
     if (state.accounts.accountInfoView !== AccountInfo.None) {
+        let headerText = '';
+
+        switch (state.accounts.accountInfoView) {
+            case AccountInfo.Contact:
+                headerText = props.account
+                    ? Lib.account.getAccountDisplayName(props.account.ensName)
+                    : '';
+                break;
+
+            case AccountInfo.DomainConfig:
+                headerText = 'Domain Config';
+                break;
+
+            default:
+                headerText = 'Account Info';
+                break;
+        }
+
         return (
             <div
                 className={
@@ -50,13 +68,7 @@ function ChatHeader(props: ChatHeaderProps) {
                             </div>
                             <div className="d-flex">
                                 <div className="account-header-text align-self-center">
-                                    {props.account &&
-                                    state.accounts.accountInfoView ===
-                                        AccountInfo.Contact
-                                        ? Lib.account.getAccountDisplayName(
-                                              props.account.ensName,
-                                          )
-                                        : 'Account Info'}
+                                    {headerText}
                                 </div>
                             </div>
 

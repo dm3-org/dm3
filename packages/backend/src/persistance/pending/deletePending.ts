@@ -1,10 +1,10 @@
 import { Redis, RedisPrefix } from '../getDatabase';
-import * as Lib from 'dm3-lib/dist.backend';
+import { getIdEnsName } from '../session/getIdEnsName';
 
 export function deletePending(redis: Redis) {
     return async (ensName: string): Promise<void> => {
         await redis.del(
-            RedisPrefix.Pending + Lib.account.normalizeEnsName(ensName),
+            RedisPrefix.Pending + (await getIdEnsName(redis)(ensName)),
         );
     };
 }

@@ -4,7 +4,6 @@ import express from 'express';
 export function handleGetDeliveryServiceProperties(
     req: express.Request,
     res: express.Response,
-    next: express.NextFunction,
 ) {
     const response = req.app.locals.deliveryServiceProperties;
 

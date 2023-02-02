@@ -9,6 +9,7 @@ import { AccountInfo } from '../reducers/shared';
 import { useAsync } from '../ui-shared/useAsync';
 import StateButton, { ButtonState } from '../ui-shared/StateButton';
 import axios from 'axios';
+import ConfigView from '../domain-config/ConfigView';
 
 interface UserInfoProps {
     account: Lib.account.Account;
@@ -22,7 +23,7 @@ interface EnsTextRecords {
 }
 
 function UserInfo(props: UserInfoProps) {
-    const { state, dispatch } = useContext(GlobalContext);
+    const { state } = useContext(GlobalContext);
     const [publishButtonState, setPublishButtonState] = useState<ButtonState>(
         ButtonState.Idel,
     );
@@ -104,6 +105,10 @@ function UserInfo(props: UserInfoProps) {
             setPublishButtonState(ButtonState.Failed);
         }
     };
+
+    if (state.accounts.accountInfoView === AccountInfo.DomainConfig) {
+        return <ConfigView />;
+    }
 
     return (
         <div className="user-info">

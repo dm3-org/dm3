@@ -10,7 +10,6 @@ interface SubmitMessage {
 export async function handleSubmitMessage(
     req: express.Request & { app: WithLocals },
     res: express.Response,
-    next: express.NextFunction,
 ) {
     const {
         params: [stringifiedEnvelop, token],
@@ -52,6 +51,7 @@ export async function handleSubmitMessage(
                 req.app.locals.io.sockets.to(socketId).emit('message', envelop);
             },
             req.app.locals.web3Provider,
+            req.app.locals.db.getIdEnsName,
         );
         res.send(200);
     } catch (error) {

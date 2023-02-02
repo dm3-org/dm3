@@ -61,7 +61,11 @@ describe('Messaging', () => {
                             '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
                     },
 
-                    db: { getSession, createMessage: () => {} },
+                    db: {
+                        getSession,
+                        createMessage: () => {},
+                        getIdEnsName: async (ensName: string) => ensName,
+                    },
                     redisClient: {
                         zAdd: () => {},
                     },
@@ -124,7 +128,11 @@ describe('Messaging', () => {
 
                     deliveryServiceProperties: { sizeLimit: 2 ** 14 },
 
-                    db: { getSession: session, createMessage: () => {} },
+                    db: {
+                        getSession: session,
+                        createMessage: () => {},
+                        getIdEnsName: async (ensName: string) => ensName,
+                    },
                     web3Provider: {
                         getTransactionCount: (_: string) => Promise.resolve(0),
                         resolveName: async () =>
@@ -191,6 +199,7 @@ describe('Messaging', () => {
                     },
                     db: {
                         getSession,
+                        getIdEnsName: async (ensName: string) => ensName,
                     },
                 } as any,
             } as express.Express & WithLocals;

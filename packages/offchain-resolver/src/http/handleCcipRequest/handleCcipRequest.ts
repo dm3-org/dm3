@@ -13,6 +13,9 @@ export async function handleCcipRequest(
         case 'addr(bytes32)':
             req.app.locals.logger.info('Reading addr(bytes32))');
             return await handleAddr(req.app.locals.db, request);
+        case 'addr(bytes32,uint256)':
+            req.app.locals.logger.info('Reading addr(bytes32,uint256))');
+            return await handleAddr(req.app.locals.db, request);
 
         default:
             return null;

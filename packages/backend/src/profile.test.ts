@@ -20,6 +20,7 @@ describe('Profile', () => {
                 setSession: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
+                getIdEnsName: async (ensName: string) => ensName,
             };
 
             const { status } = await request(app)
@@ -50,6 +51,7 @@ describe('Profile', () => {
                         return (_: any, __: any, ___: any) => {};
                     },
                     getPending: (_: any) => [],
+                    getIdEnsName: async (ensName: string) => ensName,
                 },
             };
 
@@ -90,6 +92,7 @@ describe('Profile', () => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 getPending: (_: any) => [],
+                getIdEnsName: async (ensName: string) => ensName,
             };
 
             const userProfile: UserProfile = {

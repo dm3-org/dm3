@@ -38,6 +38,7 @@ export enum AccountInfo {
     None,
     Contact,
     Account,
+    DomainConfig,
 }
 
 export const initialState: GlobalState = {

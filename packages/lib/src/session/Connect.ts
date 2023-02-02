@@ -1,8 +1,21 @@
+import { ethers } from 'ethers';
+import { GlobalConf } from '..';
 import { GetUserProfile } from '../account';
 import { checkUserProfile, SignedUserProfile } from '../account/Account';
+import { getNameForAddress } from '../external-apis';
 import { RequestAccounts } from '../external-apis/InjectedWeb3API';
 import { log } from '../shared/log';
 import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
+
+async function findEnsNameToUse(
+    provider: ethers.providers.JsonRpcProvider,
+    address: string,
+) {
+    return (
+        (await provider.lookupAddress(address)) ??
+        (await getNameForAddress(address))
+    );
+}
 
 export async function connectAccount(
     connection: Connection,
@@ -26,7 +39,7 @@ export async function connectAccount(
         const address =
             preSetAccount ?? (await requestAccounts(connection.provider));
 
-        const ensName = await connection.provider.lookupAddress(address);
+        const ensName = await findEnsNameToUse(connection.provider, address);
 
         let profile: SignedUserProfile | undefined;
 
@@ -41,11 +54,11 @@ export async function connectAccount(
             try {
                 profile = await getUserProfile(
                     connection,
-                    address + '.dev-addr.dm3.eth',
+                    address + GlobalConf.ADDR_ENS_SUBDOMAIN(),
                 );
 
                 if (profile) {
-                    account = address + '.dev-addr.dm3.eth';
+                    account = address + GlobalConf.ADDR_ENS_SUBDOMAIN();
                 }
             } catch (e) {
                 log(`Couldn't get address ENS name`);

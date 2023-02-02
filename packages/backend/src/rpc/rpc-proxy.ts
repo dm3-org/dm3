@@ -23,13 +23,13 @@ export default (axios: Axios) => {
 
         switch (method) {
             case DM3_SUBMIT_MESSAGE:
-                return handleSubmitMessage(req, res, next);
+                return handleSubmitMessage(req, res);
 
             case DM3_GET_DELIVERY_SERVICE_PROPERTIES:
-                return handleGetDeliveryServiceProperties(req, res, next);
+                return handleGetDeliveryServiceProperties(req, res);
 
             case DM3_GET_PROFILE_EXTENSION:
-                return handleResolveProfileExtension(axios)(req, res, next);
+                return handleResolveProfileExtension(axios)(req, res);
 
             default:
                 return forwardToRpcNode(axios)(req, res, next);

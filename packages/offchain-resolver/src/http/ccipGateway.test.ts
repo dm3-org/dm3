@@ -62,9 +62,24 @@ describe('CCIP Gateway', () => {
 
         profileApp = express();
         profileApp.use(bodyParser.json());
-        profileApp.use(profile(hreEthers.provider));
+
+        profileApp.locals.forTests = await getSignedUserProfile();
+
+        const provider: ethers.providers.JsonRpcProvider = new Proxy(
+            hreEthers.provider,
+            {
+                get(target, prop) {
+                    const resolveName = async () =>
+                        profileApp.locals.forTests.signer;
+                    return prop === 'resolveName' ? resolveName : target[prop];
+                },
+            },
+        );
+
+        profileApp.use(profile(provider));
 
         profileApp.locals.db = db;
+        profileApp.locals.config = { spamProtection: true };
     });
 
     afterEach(async () => {
@@ -75,8 +90,8 @@ describe('CCIP Gateway', () => {
     describe('Get UserProfile Offchain', () => {
         describe('ResolveText', () => {
             it('Returns valid Offchain profile', async () => {
-                const { signer, profile, signature } =
-                    await getSignedUserProfile();
+                const { signature, profile, signer } =
+                    profileApp.locals.forTests;
 
                 await dm3User.sendTransaction({
                     to: signer,
@@ -86,14 +101,17 @@ describe('CCIP Gateway', () => {
                 const name = 'foo.dm3.eth';
 
                 //Create the profile in the first place
-                const writeRes = await request(profileApp).post(`/name`).send({
-                    name,
-                    address: signer,
-                    signedUserProfile: {
-                        profile,
-                        signature,
-                    },
-                });
+                const writeRes = await request(profileApp)
+                    .post(`/name`)
+                    .send({
+                        name,
+                        ensName: signer + '.addr.dm3.eth',
+                        address: signer,
+                        signedUserProfile: {
+                            profile,
+                            signature,
+                        },
+                    });
 
                 expect(writeRes.status).to.equal(200);
                 //Call the contract to retrieve the gateway url
@@ -122,14 +140,14 @@ describe('CCIP Gateway', () => {
 
                 expect(actualProfile).to.eql(
                     'data:application/json,' +
-                        Lib.stringify({ profile, signature }),
+                        Lib.stringify({
+                            profile,
+                            signature,
+                        }),
                 );
             });
 
             it('Returns 404 if profile does not exists', async () => {
-                const { signer, profile, signature } =
-                    await getSignedUserProfile();
-
                 const name = 'foo.dm3.eth';
 
                 //Call the contract to retrieve the gateway url
@@ -204,7 +222,7 @@ describe('CCIP Gateway', () => {
         describe('resolveText', () => {
             it('resolves propfile using ethers.provider.getText()', async () => {
                 const { signer, profile, signature } =
-                    await getSignedUserProfile();
+                    profileApp.locals.forTests;
                 await dm3User.sendTransaction({
                     to: signer,
                     value: hreEthers.BigNumber.from(1),
@@ -253,7 +271,7 @@ describe('CCIP Gateway', () => {
         describe('ResolveAddr', () => {
             it('resolvesName returns the Address of the name', async () => {
                 const { signer, profile, signature } =
-                    await getSignedUserProfile();
+                    profileApp.locals.forTests;
                 await dm3User.sendTransaction({
                     to: signer,
                     value: hreEthers.BigNumber.from(1),
@@ -262,14 +280,17 @@ describe('CCIP Gateway', () => {
                 const name = 'foo.dm3.eth';
 
                 //Create the profile in the first place
-                const writeRes = await request(profileApp).post(`/name`).send({
-                    name,
-                    address: signer,
-                    signedUserProfile: {
-                        profile,
-                        signature,
-                    },
-                });
+                const writeRes = await request(profileApp)
+                    .post(`/name`)
+                    .send({
+                        name,
+                        ensName: signer + '.addr.dm3.eth',
+                        address: signer,
+                        signedUserProfile: {
+                            profile,
+                            signature,
+                        },
+                    });
                 expect(writeRes.status).to.equal(200);
 
                 const provider = new MockProvider(

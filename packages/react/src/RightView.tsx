@@ -33,6 +33,7 @@ function RightView() {
 
     useEffect(() => {
         switch (state.accounts.accountInfoView) {
+            case AccountInfo.DomainConfig:
             case AccountInfo.Contact:
             case AccountInfo.Account:
                 dispatch({

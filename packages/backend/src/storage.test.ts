@@ -45,6 +45,7 @@ describe('Storage', () => {
                 getUserStorage: async (addr: string) => {
                     return {};
                 },
+                getIdEnsName: async (ensName: string) => ensName,
             };
 
             app.locals.web3Provider = {
@@ -81,6 +82,7 @@ describe('Storage', () => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
             };
             app.locals.web3Provider = {
                 resolveName: async () =>
@@ -127,6 +129,7 @@ const createAuthToken = async () => {
         setSession: async (_: string, __: any) => {
             return (_: any, __: any, ___: any) => {};
         },
+        getIdEnsName: async (ensName: string) => ensName,
     };
 
     const signature =

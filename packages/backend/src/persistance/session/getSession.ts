@@ -1,13 +1,13 @@
 import { Redis, RedisPrefix } from '../getDatabase';
 import * as Lib from 'dm3-lib/dist.backend';
+import { getIdEnsName } from './getIdEnsName';
 
 export function getSession(redis: Redis) {
     return async (ensName: string) => {
-        const session = await redis.get(RedisPrefix.Session + ensName);
-        if (!session) {
-            return null;
-        }
+        let session = await redis.get(
+            RedisPrefix.Session + (await getIdEnsName(redis)(ensName)),
+        );
 
-        return JSON.parse(session) as Lib.delivery.Session;
+        return session ? (JSON.parse(session) as Lib.delivery.Session) : null;
     };
 }

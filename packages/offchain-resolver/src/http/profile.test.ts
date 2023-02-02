@@ -6,6 +6,7 @@ import { getDatabase, getRedisClient, Redis } from '../persistance/getDatabase';
 import { IDatabase } from '../persistance/IDatabase';
 import { profile } from './profile';
 import * as Lib from 'dm3-lib/dist.backend';
+import { ethers } from 'ethers';
 const { expect } = require('chai');
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 
@@ -21,9 +22,21 @@ describe('Profile', () => {
 
         app = express();
         app.use(bodyParser.json());
-        app.use(profile(hreEthers.provider));
+        app.locals.forTests = await getSignedUserProfile();
+        const provider: ethers.providers.JsonRpcProvider = new Proxy(
+            hreEthers.provider,
+            {
+                get(target, prop) {
+                    const resolveName = async () => app.locals.forTests.signer;
+                    return prop === 'resolveName' ? resolveName : target[prop];
+                },
+            },
+        );
 
+        app.use(profile(provider));
+        app.locals.config = { spamProtection: true };
         app.locals.db = db;
+
         app.locals.logger = {
             // eslint-disable-next-line no-console
             info: (msg: string) => console.log(msg),
@@ -74,7 +87,7 @@ describe('Profile', () => {
         });
 
         it('Rejects address with an empty eth balance', async () => {
-            const offChainProfile = await getSignedUserProfile();
+            const offChainProfile = app.locals.forTests;
             const { status, body } = await request(app)
                 .post(`/name`)
                 .send({
@@ -97,17 +110,12 @@ describe('Profile', () => {
                 deliveryServices: [''],
             };
 
-            const offChainProfile1 = await getSignedUserProfile();
-            const offChainProfile2 = await getSignedUserProfile(profile2);
+            const offChainProfile1 = app.locals.forTests;
 
             //Fund wallets so their balance is not zero
             const [wale] = await hreEthers.getSigners();
             await wale.sendTransaction({
                 to: offChainProfile1.signer,
-                value: hreEthers.BigNumber.from(1),
-            });
-            await wale.sendTransaction({
-                to: offChainProfile2.signer,
                 value: hreEthers.BigNumber.from(1),
             });
 
@@ -124,7 +132,40 @@ describe('Profile', () => {
 
             expect(res1.status).to.equal(200);
 
-            const res2 = await request(app)
+            app.locals.forTests = await getSignedUserProfile(profile2);
+            const offChainProfile2 = app.locals.forTests;
+            const provider: ethers.providers.JsonRpcProvider = new Proxy(
+                hreEthers.provider,
+                {
+                    get(target, prop) {
+                        const resolveName = async () =>
+                            app.locals.forTests.signer;
+                        return prop === 'resolveName'
+                            ? resolveName
+                            : target[prop];
+                    },
+                },
+            );
+
+            const app2 = express();
+            app2.use(bodyParser.json());
+
+            app2.use(profile(provider));
+            app2.locals.config = { spamProtection: true };
+            app2.locals.db = db;
+
+            app2.locals.logger = {
+                // eslint-disable-next-line no-console
+                info: (msg: string) => console.log(msg),
+                // eslint-disable-next-line no-console
+                warn: (msg: string) => console.log(msg),
+            };
+            await wale.sendTransaction({
+                to: offChainProfile2.signer,
+                value: hreEthers.BigNumber.from(1),
+            });
+
+            const res2 = await request(app2)
                 .post(`/name`)
                 .send({
                     name: 'foo.dm3.eth',
@@ -139,7 +180,7 @@ describe('Profile', () => {
             expect(res2.body.error).to.eql('subdomain already claimed');
         });
         it('Rejects if address already claimed a subdomain', async () => {
-            const offChainProfile1 = await getSignedUserProfile();
+            const offChainProfile1 = app.locals.forTests;
 
             //Fund wallets so their balance is not zero
             const [wale] = await hreEthers.getSigners();
@@ -153,6 +194,7 @@ describe('Profile', () => {
                 .send({
                     name: 'foo.dm3.eth',
                     address: offChainProfile1.signer,
+                    ensName: offChainProfile1.signer + '.addr.dm3.eth',
                     signedUserProfile: {
                         signature: offChainProfile1.signature,
                         profile: offChainProfile1.profile,
@@ -178,7 +220,7 @@ describe('Profile', () => {
             );
         });
         it('Rejects if name has the address format', async () => {
-            const { signer, profile, signature } = await getSignedUserProfile();
+            const { signer, profile, signature } = app.locals.forTests;
 
             //Fund wallet so their balance is not zero
             const [wale] = await hreEthers.getSigners();
@@ -200,7 +242,7 @@ describe('Profile', () => {
             expect(body.error).to.equal('Invalid ENS name');
         });
         it('Stores a valid profile', async () => {
-            const { signer, profile, signature } = await getSignedUserProfile();
+            const { signer, profile, signature } = app.locals.forTests;
 
             //Fund wallet so their balance is not zero
             const [wale] = await hreEthers.getSigners();
@@ -305,7 +347,7 @@ describe('Profile', () => {
             );
         });
         it('Rejects if address already claimed a subdomain', async () => {
-            const offChainProfile1 = await getSignedUserProfile();
+            const offChainProfile1 = app.locals.forTests;
 
             //Fund wallets so their balance is not zero
             const [wale] = await hreEthers.getSigners();
@@ -342,7 +384,7 @@ describe('Profile', () => {
             );
         });
         it('Stores a valid profile', async () => {
-            const { signer, profile, signature } = await getSignedUserProfile();
+            const { signer, profile, signature } = app.locals.forTests;
 
             //Fund wallet so their balance is not zero
             const [wale] = await hreEthers.getSigners();
@@ -376,7 +418,7 @@ describe('Profile', () => {
         });
 
         it('Returns the profile linked to ', async () => {
-            const { signer, profile, signature } = await getSignedUserProfile();
+            const { signer, profile, signature } = app.locals.forTests;
 
             //Fund wallet so their balance is not zero
             const [wale] = await hreEthers.getSigners();
