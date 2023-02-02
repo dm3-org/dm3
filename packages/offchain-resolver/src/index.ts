@@ -1,3 +1,4 @@
+import * as dotenv from 'dotenv';
 import bodyParser from 'body-parser';
 import express from 'express';
 import http from 'http';
@@ -9,7 +10,6 @@ import { getWeb3Provider } from './utils/getWeb3Provider';
 import { getSigner } from './utils/getSigner';
 import { readKeyFromEnv } from './utils/readKeyEnv';
 import { profile } from './http/profile';
-import * as dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -28,6 +28,9 @@ app.use(bodyParser.json());
     });
 
     app.locals.db = await getDatabase();
+    app.locals.config = {
+        spamProtection: process.env.SPAM_PROTECTION === 'true',
+    };
 
     const signer = getSigner();
     const resolverAddress = readKeyFromEnv('RESOLVER_ADDR');

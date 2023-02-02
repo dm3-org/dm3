@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { check } from 'prettier';
 import {
     Account,
     normalizeEnsName,
@@ -9,10 +10,12 @@ import { getDeliveryServiceClient } from '../delivery/Delivery';
 import { EncryptionEnvelop, Envelop } from '../messaging';
 import { log } from '../shared/log';
 import { Connection } from '../web3-provider/Web3Provider';
+import { formatAddress } from './InjectedWeb3API';
 
 const PROFILE_PATH = process.env.REACT_APP_BACKEND + '/profile';
 const DELIVERY_PATH = process.env.REACT_APP_BACKEND + '/delivery';
 const AUTH_SERVICE_PATH = process.env.REACT_APP_BACKEND + '/auth';
+const PROFILE_BASE_URL = process.env.REACT_APP_PROFILE_BASE_URL;
 
 function getAxiosConfig(token: string) {
     return {
@@ -31,6 +34,19 @@ function checkAccount(account: Account | undefined): Required<Account> {
     }
     return account as Required<Account>;
 }
+
+export async function getNameForAddress(
+    address: string,
+): Promise<string | undefined> {
+    const url = `${PROFILE_BASE_URL}/name/${formatAddress(address)}`;
+    try {
+        const { data } = await axios.get(url);
+        return data.name;
+    } catch (e) {
+        return;
+    }
+}
+export type GetNameForAddress = typeof getNameForAddress;
 
 export async function getChallenge(
     account: Account,
@@ -89,6 +105,29 @@ export async function submitUserProfile(
     return data;
 }
 export type SubmitUserProfile = typeof submitUserProfile;
+
+export async function createAlias(
+    account: Account,
+    connection: Connection,
+    ensName: string,
+    aliasEnsName: string,
+    token: string,
+): Promise<string> {
+    const { profile } = checkAccount(account);
+
+    const url = `${PROFILE_PATH}/${normalizeEnsName(
+        ensName,
+    )}/aka/${normalizeEnsName(aliasEnsName)}`;
+
+    const { data } = await getDeliveryServiceClient(
+        profile,
+        connection,
+        async (url) => (await axios.get(url)).data,
+    ).post(url, {}, getAxiosConfig(token));
+
+    return data;
+}
+export type CreateAlias = typeof createAlias;
 
 export async function submitMessage(
     connection: Connection,

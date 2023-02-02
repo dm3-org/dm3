@@ -32,10 +32,13 @@ describe('Auth', () => {
                     setSession: async (_: string, __: any) => {
                         return (_: any, __: any, ___: any) => {};
                     },
+                    getIdEnsName: async (ensName: string) => ensName,
                 };
 
                 const { status } = await request(app)
-                    .get('/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870')
+                    .get(
+                        '/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870.dev-addr.dm3.eth',
+                    )
                     .send();
 
                 expect(status).toBe(200);
@@ -57,6 +60,7 @@ describe('Auth', () => {
                     setSession: async (_: string, __: any) => {
                         return (_: any, __: any, ___: any) => {};
                     },
+                    getIdEnsName: async (ensName: string) => ensName,
                 };
                 const mnemonic =
                     'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
@@ -83,6 +87,7 @@ describe('Auth', () => {
                     setSession: async (_: string, __: any) => {
                         return (_: any, __: any, ___: any) => {};
                     },
+                    getIdEnsName: async (ensName: string) => ensName,
                 };
                 const mnemonic =
                     'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
@@ -117,6 +122,7 @@ describe('Auth', () => {
                     setSession: async (_: string, __: any) => {
                         return (_: any, __: any, ___: any) => {};
                     },
+                    getIdEnsName: async (ensName: string) => ensName,
                 };
 
                 const signature =

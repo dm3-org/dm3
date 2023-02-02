@@ -40,9 +40,10 @@ export default () => {
         '/:ensName',
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const ensName = Lib.account.normalizeEnsName(
+                const idEnsName = await req.app.locals.db.getIdEnsName(
                     req.params.ensName,
                 );
+
                 const schemaIsValid = Lib.validateSchema(
                     getChallengeSchema,
                     req.params,
@@ -55,7 +56,7 @@ export default () => {
                 const challenge = await Lib.delivery.createChallenge(
                     req.app.locals.db.getSession,
                     req.app.locals.db.setSession,
-                    ensName,
+                    idEnsName,
                 );
 
                 res.json({
@@ -71,7 +72,7 @@ export default () => {
         '/:ensName',
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const ensName = Lib.account.normalizeEnsName(
+                const idEnsName = await req.app.locals.db.getIdEnsName(
                     req.params.ensName,
                 );
                 const paramsAreValid = Lib.validateSchema(
@@ -94,7 +95,7 @@ export default () => {
                     req.app.locals.db.getSession,
                     req.app.locals.db.setSession,
                     req.body.signature,
-                    ensName,
+                    idEnsName,
                 );
 
                 res.json({

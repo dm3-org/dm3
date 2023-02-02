@@ -1,7 +1,6 @@
 import { Socket } from 'socket.io';
 import express from 'express';
 import * as Lib from 'dm3-lib/dist.backend';
-import { isAddress } from 'ethers/lib/utils';
 import { WithLocals } from './types';
 
 const pendingMessageSchema = {
@@ -70,6 +69,7 @@ export function onConnection(app: express.Application & WithLocals) {
                                 .emit('message', envelop);
                         },
                         app.locals.web3Provider,
+                        app.locals.db.getIdEnsName,
                     ),
                         callback({ response: 'success' });
                 } catch (error: any) {
@@ -99,12 +99,12 @@ export function onConnection(app: express.Application & WithLocals) {
                 return callback({ error });
             }
 
-            let ensName: string;
-            let contactEnsName: string;
+            let idEnsName: string;
+            let idContactEnsName: string;
 
             try {
-                ensName = Lib.account.normalizeEnsName(data.ensName);
-                contactEnsName = Lib.account.normalizeEnsName(
+                idEnsName = await app.locals.db.getIdEnsName(data.ensName);
+                idContactEnsName = await app.locals.db.getIdEnsName(
                     data.contactEnsName,
                 );
             } catch (error) {
@@ -118,15 +118,15 @@ export function onConnection(app: express.Application & WithLocals) {
 
             app.locals.logger.info({
                 method: 'WS PENDING MESSAGE',
-                ensName,
-                contactEnsName,
+                idEnsName,
+                idContactEnsName,
             });
             try {
                 if (
                     !(await Lib.delivery.checkToken(
                         app.locals.web3Provider,
                         app.locals.db.getSession,
-                        ensName,
+                        idEnsName,
                         data.token,
                     ))
                 ) {
@@ -138,7 +138,7 @@ export function onConnection(app: express.Application & WithLocals) {
                     return callback({ error });
                 }
 
-                await app.locals.db.addPending(ensName, contactEnsName);
+                await app.locals.db.addPending(idEnsName, idContactEnsName);
 
                 callback({ response: 'success' });
             } catch (error) {

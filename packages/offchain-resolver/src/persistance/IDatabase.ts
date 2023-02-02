@@ -12,4 +12,5 @@ export interface IDatabase {
     ): Promise<boolean>;
     hasAddressProfile(name: string): Promise<boolean>;
     getAddressByName(nameHash: string): Promise<string | null>;
+    getNameByAddress(address: string): Promise<string | null>;
 }

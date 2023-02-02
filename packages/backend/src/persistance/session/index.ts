@@ -1,3 +1,4 @@
-import { setSession } from './setSession';
+import { setSession, setAliasSession } from './setSession';
 import { getSession } from './getSession';
-export default { setSession, getSession };
+import { getIdEnsName } from './getIdEnsName';
+export default { setSession, setAliasSession, getSession, getIdEnsName };

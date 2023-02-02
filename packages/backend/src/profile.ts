@@ -1,6 +1,7 @@
 import * as Lib from 'dm3-lib/dist.backend';
-import express from 'express';
+import express, { NextFunction } from 'express';
 import { WithLocals } from './types';
+import { auth } from './utils';
 
 export default () => {
     const router = express.Router();
@@ -56,6 +57,32 @@ export default () => {
                 );
 
                 res.json(data);
+            } catch (e) {
+                next(e);
+            }
+        },
+    );
+
+    const aliasAuth = () => {
+        return (
+            req: express.Request & { app: WithLocals },
+            res: express.Response,
+            next: NextFunction,
+        ) => {
+            auth(req, res, next, req.params.ensName);
+        };
+    };
+
+    router.post(
+        '/:ensName/aka/:aliasEnsName',
+        aliasAuth(),
+        async (req: express.Request & { app: WithLocals }, res, next) => {
+            try {
+                await req.app.locals.db.setAliasSession(
+                    req.params.ensName,
+                    req.params.aliasEnsName,
+                );
+                res.json({ success: true });
             } catch (e) {
                 next(e);
             }

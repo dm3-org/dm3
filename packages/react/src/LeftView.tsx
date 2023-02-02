@@ -6,6 +6,7 @@ import StorageView from './storage/StorageView';
 import { GlobalContext } from './GlobalContextProvider';
 import LeftHeader from './header/LeftHeader';
 import { SelectedRightView } from './reducers/UiState';
+import ConfigBanner from './domain-config/ConfigBanner';
 
 interface LeftViewProps {
     getContacts: (connection: Lib.Connection) => Promise<void>;
@@ -28,6 +29,7 @@ function LeftView(props: LeftViewProps) {
                 Lib.web3provider.ConnectionState.SignedIn && (
                 <>
                     <Contacts getContacts={props.getContacts} />
+                    <ConfigBanner />
                     <StorageView />
                     {/* {state.connection.storageLocation ===
                         Lib.storage.StorageLocation.File && <StorageView />} */}

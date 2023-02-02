@@ -88,6 +88,7 @@ export async function incomingMessage(
     ) => Promise<void>,
     send: (socketId: string, envelop: EncryptionEnvelop) => void,
     provider: ethers.providers.JsonRpcProvider,
+    getIdEnsName: (name: string) => Promise<string>,
 ): Promise<void> {
     //Checks the size of the incoming message
     if (messageIsToLarge(envelop, sizeLimit)) {
@@ -102,8 +103,8 @@ export async function incomingMessage(
     );
 
     const conversationId = getConversationId(
-        deliveryInformation.from,
-        deliveryInformation.to,
+        await getIdEnsName(deliveryInformation.from),
+        await getIdEnsName(deliveryInformation.to),
     );
 
     //Checks if the sender is authenticated
