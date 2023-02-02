@@ -4,6 +4,7 @@ import {
     ADDRESS_TO_PROFILE_KEY,
     NAME_TO_ADDRESS_KEY,
     USER_PROFILE_KEY,
+    ADDRESS_TO_NAME_KEY,
 } from '.';
 import { ethers } from 'ethers';
 
@@ -40,6 +41,10 @@ export function setUserProfile(redis: Redis) {
 
         await redis.set(ADDRESS_TO_PROFILE_KEY + address, nameHash);
         await redis.set(NAME_TO_ADDRESS_KEY + nameHash, address);
+        await redis.set(
+            ADDRESS_TO_NAME_KEY + Lib.external.formatAddress(address),
+            Lib.account.normalizeEnsName(name),
+        );
 
         return !!writeResult;
     };

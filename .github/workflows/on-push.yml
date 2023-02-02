@@ -99,3 +99,7 @@ jobs:
               run: yarn build
             - name: Unit Tests
               run: yarn test
+              env: 
+                  REACT_APP_USER_ENS_SUBDOMAIN: ".dev-user.dm3.eth"
+                  REACT_APP_ADDR_ENS_SUBDOMAIN: ".dev-addr.dm3.eth"
+                  REACT_APP_DEFAULT_DELIVERY_SERVICE: "dev-ds.dm3.eth"

@@ -7,17 +7,16 @@ export function handleResolveProfileExtension(axios: Axios) {
     return async (
         req: express.Request & { app: WithLocals },
         res: express.Response,
-        next: express.NextFunction,
     ) => {
         const {
             params: [ensName],
         } = req.body;
 
-        const normalizedEnsName = Lib.account.normalizeEnsName(ensName);
+        const idEnsName = await req.app.locals.db.getIdEnsName(ensName);
 
         //Get the Session to retrive profileExtension
 
-        const session = await req.app.locals.db.getSession(normalizedEnsName);
+        const session = await req.app.locals.db.getSession(idEnsName);
 
         //The requesito ens-name it not known to the delivery service
         if (!session) {

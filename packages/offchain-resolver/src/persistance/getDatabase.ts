@@ -10,6 +10,7 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
         getUserProfileByAddress: Profile.getUserProfileByAddress(redis),
         hasAddressProfile: Profile.hasAddressProfile(redis),
         getAddressByName: Profile.getAddressByName(redis),
+        getNameByAddress: Profile.getNameByAddress(redis),
     };
 }
 

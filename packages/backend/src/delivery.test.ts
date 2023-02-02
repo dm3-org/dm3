@@ -54,6 +54,7 @@ describe('Delivery', () => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 getMessages: () => Promise.resolve([]),
+                getIdEnsName: async (ensName: string) => ensName,
             };
 
             const { status } = await request(app)
@@ -96,6 +97,7 @@ describe('Delivery', () => {
                 },
                 getPending: (_: any) => [],
                 deletePending: (_: any) => [],
+                getIdEnsName: async (ensName: string) => ensName,
             };
 
             const { status } = await request(app)
@@ -141,6 +143,7 @@ describe('Delivery', () => {
                 setSession: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
+                getIdEnsName: async (ensName: string) => ensName,
             };
 
             const { status } = await request(app)
@@ -188,6 +191,7 @@ describe('Delivery', () => {
                 setSession: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
+                getIdEnsName: async (ensName: string) => ensName,
             };
 
             const { status } = await request(app)
@@ -229,6 +233,7 @@ describe('Delivery', () => {
                 setSession: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
+                getIdEnsName: async (ensName: string) => ensName,
             };
 
             const { status } = await request(app)
@@ -269,6 +274,7 @@ const createAuthToken = async () => {
         setSession: async (_: string, __: any) => {
             return (_: any, __: any, ___: any) => {};
         },
+        getIdEnsName: async (ensName: string) => ensName,
     };
 
     const signature =

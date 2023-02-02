@@ -4,6 +4,7 @@ import Messages from './messages';
 import Session from './session';
 import Storage from './storage';
 import Pending from './pending';
+import { getIdEnsName } from './session/getIdEnsName';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -48,6 +49,7 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
         deleteExpiredMessages: Messages.deleteExpiredMessages(redis),
         //Session
         setSession: Session.setSession(redis),
+        setAliasSession: Session.setAliasSession(redis),
         getSession: Session.getSession(redis),
         //Storage
         getUserStorage: Storage.getUserStorage(redis),
@@ -56,6 +58,7 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
         addPending: Pending.addPending(redis),
         getPending: Pending.getPending(redis),
         deletePending: Pending.deletePending(redis),
+        getIdEnsName: getIdEnsName(redis),
     };
 }
 
@@ -78,13 +81,16 @@ export interface IDatabase {
     ) => Promise<void>;
 
     getSession: (ensName: string) => Promise<Lib.delivery.Session | null>;
+
     getUserStorage: (
         ensName: string,
     ) => Promise<Lib.storage.UserStorage | null>;
     setUserStorage: (ensName: string, data: string) => Promise<void>;
+    setAliasSession: (ensName: string, aliasEnsName: string) => Promise<void>;
     addPending: (ensName: string, contactEnsName: string) => Promise<void>;
     getPending: (ensName: string) => Promise<string[]>;
     deletePending: (ensName: string) => Promise<void>;
+    getIdEnsName: (ensName: string) => Promise<string>;
 }
 
 export type Redis = Awaited<ReturnType<typeof getRedisClient>>;

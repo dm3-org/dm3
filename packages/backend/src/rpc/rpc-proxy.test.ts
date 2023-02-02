@@ -104,6 +104,7 @@ describe('rpc-Proxy', () => {
                 db: {
                     createMessage: () => {},
                     getSession,
+                    getIdEnsName: async (ensName: string) => ensName,
                 },
                 io: {
                     sockets: {
@@ -214,6 +215,7 @@ describe('rpc-Proxy', () => {
                     resolveName: (_: string) => Promise.resolve(RECEIVER_NAME),
                 },
                 db: {
+                    getIdEnsName: async (ensName: string) => ensName,
                     getSession: (_: string) => Promise.resolve(null),
                 },
             };
@@ -251,6 +253,7 @@ describe('rpc-Proxy', () => {
                     resolveName: (_: string) => Promise.resolve(RECEIVER_NAME),
                 },
                 db: {
+                    getIdEnsName: async (ensName: string) => ensName,
                     getSession: (_: string) =>
                         Promise.resolve({
                             account: '',

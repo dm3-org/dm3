@@ -1,6 +1,5 @@
 import { ActionMap } from './shared';
 import * as Lib from 'dm3-lib';
-import { stat } from 'fs';
 
 export enum SelectedRightView {
     Error,

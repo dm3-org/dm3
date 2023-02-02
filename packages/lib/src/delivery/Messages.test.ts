@@ -120,6 +120,7 @@ describe('Messages', () => {
                         resolveName: async () =>
                             '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
                     } as any,
+                    async () => '',
                 ),
             ).rejects.toEqual(Error('Token check failed'));
         });
@@ -154,6 +155,7 @@ describe('Messages', () => {
                     storeNewMessage,
                     () => {},
                     {} as ethers.providers.JsonRpcProvider,
+                    async () => '',
                 ),
             ).rejects.toEqual(Error('Message is too large'));
         });
@@ -192,6 +194,7 @@ describe('Messages', () => {
                         resolveName: async () =>
                             '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
                     } as any,
+                    async () => '',
                 ),
             ).rejects.toEqual(Error('unknown session'));
         });
@@ -248,6 +251,7 @@ describe('Messages', () => {
                     storeNewMessage,
                     () => {},
                     provider,
+                    async () => '',
                 );
                 fail();
             } catch (err: any) {
@@ -310,6 +314,7 @@ describe('Messages', () => {
                     storeNewMessage,
                     () => {},
                     provider,
+                    async () => '',
                 );
                 fail();
             } catch (err: any) {
@@ -379,6 +384,7 @@ describe('Messages', () => {
                     storeNewMessage,
                     () => {},
                     provider,
+                    async () => '',
                 );
                 fail();
             } catch (err: any) {
@@ -432,6 +438,7 @@ describe('Messages', () => {
                     resolveName: async () =>
                         '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
                 } as any,
+                async (ensName) => ensName,
             );
 
             const conversationId = getConversationId('alice.eth', 'bob.eth');
@@ -517,6 +524,7 @@ describe('Messages', () => {
                     resolveName: async () =>
                         '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
                 } as any,
+                async (ensName) => ensName,
             );
 
             const conversationId = getConversationId('alice.eth', 'bob.eth');

@@ -9,6 +9,7 @@ import { createKeyPairsFromSig } from './signProfileKeyPair';
 import { signProfile as signProfile } from './signProfile';
 import { claimAddress } from '../../external-apis';
 import { SignedUserProfile } from '../../account/Account';
+import { GlobalConf } from '../..';
 
 const DEFAULT_NONCE = 0;
 
@@ -20,7 +21,6 @@ const DEFAULT_NONCE = 0;
 //1 -> Use reAuth to create a new deliverySerivceToken. User has to sign a challenge
 //2-> Decrypt storageFile.  Sign message with getMessage(nonce) to get the storage encryption key
 
-const ADDR_SUBDOMAIN = '.dev-addr.dm3.eth';
 const OFFCHAIN_RESOLVER_URL = 'http://localhost:8081/profile';
 
 export async function signIn(
@@ -48,11 +48,11 @@ export async function signIn(
     const profile: UserProfile = {
         publicSigningKey: signingKeyPair.publicKey,
         publicEncryptionKey: encryptionKeyPair.publicKey,
-        deliveryServices: ['dev-ds.dm3.eth'],
+        deliveryServices: [GlobalConf.DEFAULT_DELIVERY_SERVICE()],
     };
 
     const address = (await provider!.listAccounts())[0];
-    const ensName = address + ADDR_SUBDOMAIN;
+    const ensName = address + GlobalConf.ADDR_ENS_SUBDOMAIN();
 
     //Create signed user profile
     const signature = await signProfile(

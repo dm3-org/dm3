@@ -36,18 +36,18 @@ export default () => {
         '/messages/:ensName/contact/:contactEnsName',
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const ensName = Lib.account.normalizeEnsName(
+                const idEnsName = await req.app.locals.db.getIdEnsName(
                     req.params.ensName,
                 );
-                const contactEnsName = Lib.account.normalizeEnsName(
+                const idContactEnsName = await req.app.locals.db.getIdEnsName(
                     req.params.contactEnsName,
                 );
 
                 const newMessages = await Lib.delivery.getMessages(
                     req.app.locals.db.getMessages,
                     req.app.locals.keys.encryption,
-                    ensName,
-                    contactEnsName,
+                    idEnsName,
+                    idContactEnsName,
                 );
 
                 res.json(newMessages);
@@ -59,7 +59,9 @@ export default () => {
 
     router.post('/messages/:ensName/pending', async (req, res, next) => {
         try {
-            const account = Lib.account.normalizeEnsName(req.params.ensName);
+            const account = await req.app.locals.db.getIdEnsName(
+                req.params.ensName,
+            );
 
             const pending = await req.app.locals.db.getPending(
                 account,
@@ -99,16 +101,21 @@ export default () => {
             }
 
             try {
-                const ensName = Lib.account.normalizeEnsName(
+                const ensName = await req.app.locals.db.getIdEnsName(
                     req.params.ensName,
                 );
+
                 await Promise.all(
                     req.body.acknoledgments.map(
                         async (ack: Lib.delivery.Acknoledgment) => {
+                            const contactEnsName =
+                                await await req.app.locals.db.getIdEnsName(
+                                    ack.contactAddress,
+                                );
                             const conversationId =
                                 Lib.storage.getConversationId(
                                     ensName,
-                                    ack.contactAddress,
+                                    contactEnsName,
                                 );
 
                             if (req.app.locals.redisClient) {
@@ -137,13 +144,12 @@ export default () => {
                                             ? parseInt(syncTimestamps[1])
                                             : parseInt(syncTimestamps[0]);
 
-                                    const deletedMessagesCounter =
-                                        await req.app.locals.redisClient.zRemRangeByScore(
-                                            RedisPrefix.Conversation +
-                                                conversationId,
-                                            0,
-                                            lowestTimestamp,
-                                        );
+                                    await req.app.locals.redisClient.zRemRangeByScore(
+                                        RedisPrefix.Conversation +
+                                            conversationId,
+                                        0,
+                                        lowestTimestamp,
+                                    );
                                 }
                             } else {
                                 throw Error('db not connected');
