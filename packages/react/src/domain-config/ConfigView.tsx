@@ -42,7 +42,9 @@ function ConfigView() {
         }
     };
 
-    const handleInputEnsName = (event: React.FormEvent<HTMLInputElement>) => {
+    const handleInputEnsName = async (
+        event: React.FormEvent<HTMLInputElement>,
+    ) => {
         const ensName = (event.target as any).value;
         setEnsName(ensName);
         const isValidEnsName = ethers.utils.isValidName(ensName);
@@ -50,6 +52,22 @@ function ConfigView() {
             setIsValidEnsName(false);
             return;
         }
+        const address = await state.connection.provider!.resolveName(ensName);
+
+        if (address === null) {
+            setIsValidEnsName(false);
+            return;
+        }
+
+        if (
+            Lib.external.formatAddress(address) !==
+            Lib.external.formatAddress(state.connection.ethAddress!)
+        ) {
+            setIsValidEnsName(false);
+            Lib.log("Ens name doesn't match the address");
+            return;
+        }
+
         setIsValidEnsName(true);
     };
 
