@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../GlobalContextProvider';
 import * as Lib from 'dm3-lib';
 import { ConnectionType } from '../reducers/Connection';
+import { ethers } from 'ethers';
 
 function ConfigView() {
     const [addrEnsName, setAddrEnsName] = useState<string | undefined>();
@@ -27,6 +28,29 @@ function ConfigView() {
                 );
             }
         }
+    };
+
+    //Related to the ENS name input field
+    const [ensName, setEnsName] = useState<string | null>();
+    const [isValidEnsName, setIsValidEnsName] = useState<boolean>(true);
+    const getEnsName = async () => {
+        if (state.connection.ethAddress && state.connection.provider) {
+            const name = await state.connection.provider.lookupAddress(
+                state.connection.ethAddress,
+            );
+            setEnsName(name);
+        }
+    };
+
+    const handleInputEnsName = (event: React.FormEvent<HTMLInputElement>) => {
+        const ensName = (event.target as any).value;
+        setEnsName(ensName);
+        const isValidEnsName = ethers.utils.isValidName(ensName);
+        if (!isValidEnsName) {
+            setIsValidEnsName(false);
+            return;
+        }
+        setIsValidEnsName(true);
     };
 
     const submitDm3UsernameClaim = async () => {
@@ -61,6 +85,7 @@ function ConfigView() {
     };
 
     useEffect(() => {
+        getEnsName();
         getAddrEnsName();
     }, [state.connection.ethAddress, state.connection.provider]);
 
@@ -71,7 +96,6 @@ function ConfigView() {
                     <div className="input-group mb-3">
                         <div className="input-group-text">
                             <input
-                                className="form-check-input mt-0"
                                 type="checkbox"
                                 value=""
                                 aria-label="Checkbox for following text input"
@@ -134,19 +158,30 @@ function ConfigView() {
                                 aria-label="Checkbox for following text input"
                             />
                         </div>
+                        <div className="row"></div>
                         <input
+                            value={ensName ?? ''}
+                            onInput={handleInputEnsName}
                             type="text"
                             placeholder="ENS domain"
-                            className="form-control"
+                            className={
+                                isValidEnsName
+                                    ? 'form-control'
+                                    : 'form-control border border-danger'
+                            }
                             aria-label="Text input with checkbox"
                         />
 
                         <button
+                            disabled={!isValidEnsName}
                             className="btn btn-outline-secondary"
                             type="button"
                         >
                             Publish Profile
                         </button>
+                        <div className="invalid-feedback">
+                            Please provide a valid city.
+                        </div>
                     </div>
                 </div>
             </div>
