@@ -58,7 +58,7 @@ function ConfigView() {
             setIsValidEnsName(false);
             return;
         }
-
+        state;
         if (
             Lib.external.formatAddress(address) !==
             Lib.external.formatAddress(state.connection.ethAddress!)
@@ -100,6 +100,25 @@ function ConfigView() {
             },
         });
         window.location.reload();
+    };
+
+    const submitProfileToMainnet = async () => {
+        //Get profile show it to tx
+        //Await tx
+        //Then create alias
+
+        const tx = await Lib.account.getPublishProfileOnchainTransaction(
+            state.connection,
+            ensName!,
+        );
+        if (tx) {
+            const response = await Lib.external.executeTransaction(tx);
+            await response.wait();
+
+            // setPublishButtonState(ButtonState.Success);
+        } else {
+            throw Error('Error creating publish transaction');
+        }
     };
 
     useEffect(() => {
@@ -194,6 +213,7 @@ function ConfigView() {
                             disabled={!isValidEnsName}
                             className="btn btn-outline-secondary"
                             type="button"
+                            onClick={submitProfileToMainnet}
                         >
                             Publish Profile
                         </button>
