@@ -348,7 +348,7 @@ export async function getPublishProfileOnchainTransaction(
     const jsonPrefix = 'data:application/json,';
 
     const node = ethers.utils.namehash(ensName);
-    const key = 'dm3.profile';
+    const key = 'network.dm3.profile';
     const value = jsonPrefix + stringify(connection.account.profile);
 
     return {

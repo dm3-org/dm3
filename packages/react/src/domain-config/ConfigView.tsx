@@ -3,6 +3,7 @@ import { GlobalContext } from '../GlobalContextProvider';
 import * as Lib from 'dm3-lib';
 import { ConnectionType } from '../reducers/Connection';
 import { ethers } from 'ethers';
+import StateButton, { ButtonState } from '../ui-shared/StateButton';
 
 function ConfigView() {
     const [addrEnsName, setAddrEnsName] = useState<string | undefined>();
@@ -33,6 +34,9 @@ function ConfigView() {
     //Related to the ENS name input field
     const [ensName, setEnsName] = useState<string | null>();
     const [isValidEnsName, setIsValidEnsName] = useState<boolean>(true);
+    const [publishButtonState, setPublishButtonState] = useState<ButtonState>(
+        ButtonState.Idel,
+    );
     const getEnsName = async () => {
         if (state.connection.ethAddress && state.connection.provider) {
             const name = await state.connection.provider.lookupAddress(
@@ -112,13 +116,31 @@ function ConfigView() {
             ensName!,
         );
         if (tx) {
+            setPublishButtonState(ButtonState.Loading);
+
+            await Lib.external.createAlias(
+                state.connection.account!,
+                state.connection,
+                state.connection.account!.ensName,
+                ensName!,
+                state.auth.currentSession!.token!,
+            );
             const response = await Lib.external.executeTransaction(tx);
             await response.wait();
 
-            // setPublishButtonState(ButtonState.Success);
+            //Create alias
+            setPublishButtonState(ButtonState.Success);
         } else {
+            setPublishButtonState(ButtonState.Failed);
             throw Error('Error creating publish transaction');
         }
+    };
+
+    const getSubmitProfileButtonState = (): ButtonState => {
+        if (!isValidEnsName) {
+            return ButtonState.Disabled;
+        }
+        return publishButtonState;
     };
 
     useEffect(() => {
@@ -208,15 +230,13 @@ function ConfigView() {
                             }
                             aria-label="Text input with checkbox"
                         />
-
-                        <button
-                            disabled={!isValidEnsName}
-                            className="btn btn-outline-secondary"
-                            type="button"
+                        <StateButton
+                            btnState={getSubmitProfileButtonState()}
+                            btnType="secondary"
                             onClick={submitProfileToMainnet}
-                        >
-                            Publish Profile
-                        </button>
+                            content={<>Publish Profile</>}
+                            className=""
+                        />
                         <div className="invalid-feedback">
                             Please provide a valid city.
                         </div>
