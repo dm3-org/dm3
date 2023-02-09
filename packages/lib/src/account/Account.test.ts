@@ -17,17 +17,16 @@ import {
     checkProfileHash,
     checkStringSignature,
     checkUserProfile,
-    createHashUrlParam,
     getAccountDisplayName,
     getBrowserStorageKey,
     getContacts,
     getUserProfile,
     UserProfile,
-    publishProfileOnchain,
     SignedUserProfile,
     getProfileCreationMessage,
     normalizeEnsName,
     PROFILE_RECORD_NAME,
+    getPublishProfileOnchainTransaction,
 } from './Account';
 
 const connection: Connection = {
@@ -79,6 +78,7 @@ const getProfileData = async (): Promise<{
         account: {
             ensName: 'bob.eth',
             profile,
+            profileSignature: signature,
         },
         signedUserProfile: {
             profile,
@@ -116,16 +116,6 @@ describe('Account', () => {
         test('get correct account display name for short account', async () => {
             expect(getAccountDisplayName('alice.eth', true)).toStrictEqual(
                 'alice.eth',
-            );
-        });
-    });
-
-    describe('createHashUrlParam', () => {
-        test('should create the correct hash', async () => {
-            expect(
-                createHashUrlParam((await getProfileData()).signedUserProfile),
-            ).toStrictEqual(
-                'dm3Hash=0x352942c3b35370f5424b2a4d263aeca1158a5c6e3c1d0a866c23f9d80e6ea426',
             );
         });
     });
@@ -563,13 +553,8 @@ describe('Account', () => {
                     'bob.eth',
                     async () => undefined,
                     async () =>
-                        'http://123?' + createHashUrlParam(signedUserProfile),
-
-                    async (uri) =>
-                        uri ===
-                        'http://123?' + createHashUrlParam(signedUserProfile)
-                            ? signedUserProfile
-                            : undefined,
+                        'data:application/json,' + stringify(signedUserProfile),
+                    async (uri) => signedUserProfile,
                 ),
             ).resolves.toStrictEqual(signedUserProfile);
         });
@@ -704,13 +689,11 @@ describe('Account', () => {
                     'bob.eth',
                     async () => signedUserProfile2,
                     async () =>
-                        'http://123?' + createHashUrlParam(signedUserProfile),
-
-                    async (uri) =>
-                        uri ===
-                        'http://123?' + createHashUrlParam(signedUserProfile)
-                            ? signedUserProfile
-                            : undefined,
+                        'data:application/json,' +
+                        JSON.stringify(signedUserProfile),
+                    async (uri) => {
+                        return signedUserProfile;
+                    },
                 ),
             ).resolves.toStrictEqual(signedUserProfile);
         });
@@ -720,7 +703,7 @@ describe('Account', () => {
         test('Should publish a profile on chain', async () => {
             expect.assertions(2);
             const profile = await getProfileData();
-            const tx = await publishProfileOnchain(
+            const tx = await getPublishProfileOnchainTransaction(
                 {
                     ...connection,
                     provider: {
@@ -728,23 +711,16 @@ describe('Account', () => {
                     } as any,
                     account: profile.account,
                 },
-                'http://bla',
-
-                () => {
-                    return { address: '0x2' } as any;
-                },
-                () => {
-                    return { setText: () => 'success' } as any;
-                },
-                async () => {
-                    return profile.signedUserProfile;
-                },
+                'alice.eth',
+                () => ({ address: '0x2' } as any),
+                () => ({ setText: () => 'success' } as any),
             );
 
             expect(tx?.args).toStrictEqual([
-                '0xbe11069ec59144113f438b6ef59dd30497769fc2dce8e2b52e3ae71ac18e47c9',
+                '0x787192fc5378cc32aa956ddfdedbf26b24e8d78e40109add0eea2c1a012c3dec',
                 PROFILE_RECORD_NAME,
-                'http://bla?dm3Hash=0x352942c3b35370f5424b2a4d263aeca1158a5c6e3c1d0a866c23f9d80e6ea426',
+                'data:application/json,' +
+                    stringify({ ...profile.signedUserProfile }),
             ]);
 
             expect(tx?.method()).toStrictEqual('success');
@@ -754,18 +730,11 @@ describe('Account', () => {
             expect.assertions(1);
 
             await expect(
-                publishProfileOnchain(
+                getPublishProfileOnchainTransaction(
                     { ...connection, provider: undefined },
-                    'http://bla',
-                    () => {
-                        return { address: '0x2' } as any;
-                    },
-                    () => {
-                        return { setText: () => 'success' } as any;
-                    },
-                    async () => {
-                        return undefined;
-                    },
+                    '',
+                    () => ({ address: '0x2' } as any),
+                    () => ({ setText: () => 'success' } as any),
                 ),
             ).rejects.toEqual(Error('No provider'));
         });
@@ -774,18 +743,11 @@ describe('Account', () => {
             expect.assertions(1);
 
             await expect(
-                publishProfileOnchain(
+                getPublishProfileOnchainTransaction(
                     { ...connection, account: undefined },
-                    'http://bla',
-                    () => {
-                        return { address: '0x2' } as any;
-                    },
-                    () => {
-                        return { setText: () => 'success' } as any;
-                    },
-                    async () => {
-                        return undefined;
-                    },
+                    '',
+                    () => ({ address: '0x2' } as any),
+                    () => ({ setText: () => 'success' } as any),
                 ),
             ).rejects.toEqual(Error('No account'));
         });
@@ -794,60 +756,26 @@ describe('Account', () => {
             expect.assertions(1);
 
             await expect(
-                publishProfileOnchain(
+                getPublishProfileOnchainTransaction(
                     { ...connection },
-                    'http://bla',
+                    '',
 
                     () => ({ address: '0x2' } as any),
                     () => ({ setText: () => 'success' } as any),
-                    async () => undefined,
                 ),
-            ).rejects.toEqual(Error('could not load account profile'));
-        });
-
-        test('Should throw if profile check failed', async () => {
-            expect.assertions(1);
-            const profile = await getProfileData();
-
-            await expect(
-                publishProfileOnchain(
-                    {
-                        ...connection,
-                        account: profile.account,
-                        provider: {
-                            resolveName: async () => profile.address,
-                        } as any,
-                    },
-                    'http://bla',
-                    () => ({ address: '0x2' } as any),
-                    () => ({ setText: () => 'success' } as any),
-                    async () => ({
-                        ...profile.signedUserProfile,
-                        signature:
-                            '0x58df6ddfc3707ef8483537fe82fc29da9eefa87329d2a71823d791659c6a6bb' +
-                            '04a49da60521101660cc9c32d6fff44e0fb9dfac9fad8b697b0c5601ae9e09d101c',
-                    }),
-                ),
-            ).rejects.toEqual(Error('account profile check failed'));
+            ).rejects.toEqual(Error('No profile'));
         });
 
         test('Should throw if the ENS could not be obtained ', async () => {
             expect.assertions(1);
+            const profile = await getProfileData();
 
             await expect(
-                publishProfileOnchain(
-                    { ...connection },
-                    'http://bla',
-
-                    async () => {
-                        return null;
-                    },
-                    () => {
-                        return { setText: () => 'success' } as any;
-                    },
-                    async () => {
-                        return undefined;
-                    },
+                getPublishProfileOnchainTransaction(
+                    { ...connection, account: profile.account },
+                    '',
+                    () => null as any,
+                    () => ({ setText: () => 'success' } as any),
                 ),
             ).rejects.toEqual(Error('No resolver found'));
         });

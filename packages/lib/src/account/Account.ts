@@ -351,13 +351,13 @@ export async function getPublishProfileOnchainTransaction(
         connection.provider,
     );
 
-    const jsonPrefix = 'data:application/json,';
     const signedUserProfile: SignedUserProfile = {
         profile: connection.account.profile,
         signature: connection.account.profileSignature,
     };
-
     const node = ethers.utils.namehash(ensName);
+
+    const jsonPrefix = 'data:application/json,';
     const key = 'network.dm3.profile';
     const value = jsonPrefix + stringify(signedUserProfile);
 
