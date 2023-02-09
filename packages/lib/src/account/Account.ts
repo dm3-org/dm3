@@ -54,6 +54,7 @@ export interface PrivateKeys {
 export interface Account {
     ensName: string;
     profile?: UserProfile;
+    profileSignature?: string;
 }
 
 export const PROFILE_RECORD_NAME = 'network.dm3.profile';
@@ -333,6 +334,9 @@ export async function getPublishProfileOnchainTransaction(
     if (!connection.account.profile) {
         throw Error('No profile');
     }
+    if (!connection.account.profileSignature) {
+        throw Error('No signature');
+    }
 
     const ethersResolver = await getResolver(connection.provider, ensName);
     if (!ethersResolver) {
@@ -348,10 +352,14 @@ export async function getPublishProfileOnchainTransaction(
     );
 
     const jsonPrefix = 'data:application/json,';
+    const signedUserProfile: SignedUserProfile = {
+        profile: connection.account.profile,
+        signature: connection.account.profileSignature,
+    };
 
     const node = ethers.utils.namehash(ensName);
     const key = 'network.dm3.profile';
-    const value = jsonPrefix + stringify(connection.account.profile);
+    const value = jsonPrefix + stringify(signedUserProfile);
 
     return {
         method: resolver.setText,
