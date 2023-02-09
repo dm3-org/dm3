@@ -2,13 +2,14 @@ import { ethers } from 'ethers';
 import { decodeRequest } from './decodeRequest';
 import { getResolverInterface } from './getResolverInterface';
 import { encodeEnsName } from '../dns/encodeEnsName';
+import { PROFILE_RECORD_NAME } from '../../account/Account';
 
 describe('decodeRequest', () => {
     describe('decodeText', () => {
         it('decodes valid calldata', () => {
             const textData = getResolverInterface().encodeFunctionData('text', [
                 ethers.utils.namehash('foo.dm3.eth'),
-                'dm3.profile',
+                PROFILE_RECORD_NAME,
             ]);
 
             const calldata = getResolverInterface().encodeFunctionData(
@@ -17,14 +18,14 @@ describe('decodeRequest', () => {
             );
             const { request } = decodeRequest(calldata);
 
-            expect(request.record).toBe('dm3.profile');
+            expect(request.record).toBe(PROFILE_RECORD_NAME);
             expect(request.name).toBe('foo.dm3.eth');
         });
 
         it('throws if namehash does not matched encoded ens.name', () => {
             const textData = getResolverInterface().encodeFunctionData('text', [
                 ethers.utils.namehash('FOOO'),
-                'dm3.profile',
+                PROFILE_RECORD_NAME,
             ]);
 
             const calldata = getResolverInterface().encodeFunctionData(

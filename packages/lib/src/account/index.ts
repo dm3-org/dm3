@@ -26,6 +26,7 @@ export {
     normalizeEnsName,
     checkUserProfile,
     checkUserProfileWithAddress,
+    PROFILE_RECORD_NAME,
 } from './Account';
 
 export type {

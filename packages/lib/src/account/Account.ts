@@ -56,6 +56,8 @@ export interface Account {
     profile?: UserProfile;
 }
 
+export const PROFILE_RECORD_NAME = 'network.dm3.profile';
+
 /**
  * signs a profile with an ethereum account key
  * @param stringifiedProfile stringified dm3 user profile object
@@ -276,7 +278,7 @@ export async function getUserProfile(
     const textRecord = await getEnsTextRecord(
         connection.provider!,
         contact,
-        'dm3.profile',
+        PROFILE_RECORD_NAME,
     );
     //The user has no dm3-Profile text record set. Hence we need to fetch the profile offChain
     if (!textRecord) {

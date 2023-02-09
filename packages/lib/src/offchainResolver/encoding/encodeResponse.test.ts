@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import { stringify } from 'querystring';
 import { UserProfile } from '../../account';
+import { PROFILE_RECORD_NAME } from '../../account/Account';
 import { encodeEnsName } from '../dns/encodeEnsName';
 import { encodeResponse } from './encodeResponse';
 import { getResolverInterface } from './getResolverInterface';
@@ -20,7 +21,7 @@ describe('encodeResponse', () => {
 
         const textData = getResolverInterface().encodeFunctionData('text', [
             ethers.utils.namehash('foo.dm3.eth'),
-            'dm3.profile',
+            PROFILE_RECORD_NAME,
         ]);
 
         const calldata = getResolverInterface().encodeFunctionData('resolve', [
