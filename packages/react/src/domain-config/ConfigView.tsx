@@ -190,7 +190,7 @@ function ConfigView() {
                             aria-label="Text input with checkbox"
                         />
                         <span className="input-group-text">
-                            Lib.GlobalConf.USER_ENS_SUBDOMAIN()
+                            {Lib.GlobalConf.USER_ENS_SUBDOMAIN()}
                         </span>
                         <button
                             className="btn btn-outline-secondary"
