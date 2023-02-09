@@ -274,19 +274,6 @@ function UserInfo(props: UserInfoProps) {
                     </div>
                 </div>
             )}
-            {state.accounts.accountInfoView === AccountInfo.Account && (
-                <div className="row row-space ">
-                    <div className="col-12 ">
-                        <StateButton
-                            btnState={publishButtonState}
-                            btnType="secondary"
-                            onClick={() => {}}
-                            content={<>Publish Profile</>}
-                            className=""
-                        />
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

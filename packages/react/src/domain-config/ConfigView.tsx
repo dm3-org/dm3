@@ -107,10 +107,6 @@ function ConfigView() {
     };
 
     const submitProfileToMainnet = async () => {
-        //Get profile show it to tx
-        //Await tx
-        //Then create alias
-
         const tx = await Lib.account.getPublishProfileOnchainTransaction(
             state.connection,
             ensName!,
