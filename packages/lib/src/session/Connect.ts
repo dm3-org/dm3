@@ -1,10 +1,8 @@
 import axios from 'axios';
-import { ethers } from 'ethers';
 import { GlobalConf } from '..';
 import { getUserProfile, GetUserProfile } from '../account';
 import { checkUserProfile, SignedUserProfile } from '../account/Account';
 import { getNameForAddress } from '../external-apis';
-import { getUserProfileOffChain } from '../external-apis/BackendAPI';
 import { RequestAccounts } from '../external-apis/InjectedWeb3API';
 import { log } from '../shared/log';
 import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
@@ -130,6 +128,10 @@ async function profileExistsOnDeliveryService(
     ensName: string,
 ) {
     const url = `${connection.defaultServiceUrl}/profile/${ensName}`;
-    const { status } = await axios.get(url);
-    return status === 200;
+    try {
+        const { status } = await axios.get(url);
+        return status === 200;
+    } catch (err) {
+        return false;
+    }
 }
