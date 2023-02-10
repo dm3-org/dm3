@@ -37,6 +37,24 @@ export async function resolveName(
 }
 export type ResolveName = typeof resolveName;
 
+export async function resolveOwner(
+    provider: ethers.providers.JsonRpcProvider,
+    ensName: string,
+) {
+    if (!provider.network.ensAddress) {
+        throw Error('No ENS address found');
+    }
+    const registryContract = getConractInstance(
+        provider.network.ensAddress,
+        ['function owner(bytes32 node) external view returns (address)'],
+        provider,
+    );
+
+    const node = ethers.utils.namehash(ensName);
+    return await registryContract.owner(node);
+}
+export type ResolveOwner = typeof resolveOwner;
+
 export function formatAddress(address: string) {
     return ethers.utils.getAddress(address);
 }

@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../GlobalContextProvider';
 import * as Lib from 'dm3-lib';
 import { ConnectionType } from '../reducers/Connection';
+import { ethers } from 'ethers';
+import StateButton, { ButtonState } from '../ui-shared/StateButton';
 
 function ConfigView() {
     const [addrEnsName, setAddrEnsName] = useState<string | undefined>();
@@ -27,6 +29,53 @@ function ConfigView() {
                 );
             }
         }
+    };
+
+    //Related to the ENS name input field
+    const [ensName, setEnsName] = useState<string | null>();
+    const [isValidEnsName, setIsValidEnsName] = useState<boolean>(true);
+    const [publishButtonState, setPublishButtonState] = useState<ButtonState>(
+        ButtonState.Idel,
+    );
+    const getEnsName = async () => {
+        if (state.connection.ethAddress && state.connection.provider) {
+            const name = await state.connection.provider.lookupAddress(
+                state.connection.ethAddress,
+            );
+            setEnsName(name);
+        }
+    };
+
+    const handleInputEnsName = async (
+        event: React.FormEvent<HTMLInputElement>,
+    ) => {
+        const ensName = (event.target as any).value;
+        setEnsName(ensName);
+        const isValidEnsName = ethers.utils.isValidName(ensName);
+        if (!isValidEnsName) {
+            setIsValidEnsName(false);
+            return;
+        }
+        const address = await Lib.external.resolveOwner(
+            state.connection.provider!,
+            ensName,
+        );
+
+        if (address === null) {
+            setIsValidEnsName(false);
+            return;
+        }
+
+        if (
+            Lib.external.formatAddress(address) !==
+            Lib.external.formatAddress(state.connection.ethAddress!)
+        ) {
+            setIsValidEnsName(false);
+            Lib.log("Ens name doesn't match the address");
+            return;
+        }
+
+        setIsValidEnsName(true);
     };
 
     const submitDm3UsernameClaim = async () => {
@@ -60,7 +109,41 @@ function ConfigView() {
         window.location.reload();
     };
 
+    const submitProfileToMainnet = async () => {
+        const tx = await Lib.account.getPublishProfileOnchainTransaction(
+            state.connection,
+            ensName!,
+        );
+        if (tx) {
+            setPublishButtonState(ButtonState.Loading);
+
+            await Lib.external.createAlias(
+                state.connection.account!,
+                state.connection,
+                state.connection.account!.ensName,
+                ensName!,
+                state.auth.currentSession!.token!,
+            );
+            const response = await Lib.external.executeTransaction(tx);
+            await response.wait();
+
+            //Create alias
+            setPublishButtonState(ButtonState.Success);
+        } else {
+            setPublishButtonState(ButtonState.Failed);
+            throw Error('Error creating publish transaction');
+        }
+    };
+
+    const getSubmitProfileButtonState = (): ButtonState => {
+        if (!isValidEnsName) {
+            return ButtonState.Disabled;
+        }
+        return publishButtonState;
+    };
+
     useEffect(() => {
+        getEnsName();
         getAddrEnsName();
     }, [state.connection.ethAddress, state.connection.provider]);
 
@@ -71,7 +154,6 @@ function ConfigView() {
                     <div className="input-group mb-3">
                         <div className="input-group-text">
                             <input
-                                className="form-check-input mt-0"
                                 type="checkbox"
                                 value=""
                                 aria-label="Checkbox for following text input"
@@ -111,7 +193,7 @@ function ConfigView() {
                             aria-label="Text input with checkbox"
                         />
                         <span className="input-group-text">
-                            Lib.GlobalConf.USER_ENS_SUBDOMAIN()
+                            {Lib.GlobalConf.USER_ENS_SUBDOMAIN()}
                         </span>
                         <button
                             className="btn btn-outline-secondary"
@@ -134,19 +216,29 @@ function ConfigView() {
                                 aria-label="Checkbox for following text input"
                             />
                         </div>
+                        <div className="row"></div>
                         <input
+                            value={ensName ?? ''}
+                            onInput={handleInputEnsName}
                             type="text"
                             placeholder="ENS domain"
-                            className="form-control"
+                            className={
+                                isValidEnsName
+                                    ? 'form-control'
+                                    : 'form-control border border-danger'
+                            }
                             aria-label="Text input with checkbox"
                         />
-
-                        <button
-                            className="btn btn-outline-secondary"
-                            type="button"
-                        >
-                            Publish Profile
-                        </button>
+                        <StateButton
+                            btnState={getSubmitProfileButtonState()}
+                            btnType="secondary"
+                            onClick={submitProfileToMainnet}
+                            content={<>Publish Profile</>}
+                            className=""
+                        />
+                        <div className="invalid-feedback">
+                            Please provide a valid city.
+                        </div>
                     </div>
                 </div>
             </div>

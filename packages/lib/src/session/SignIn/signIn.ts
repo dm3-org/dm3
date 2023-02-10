@@ -79,6 +79,11 @@ export async function signIn(
         connection as Connection,
         signedUserProfile,
     );
+    const account = {
+        ensName,
+        profile,
+        profileSignature: signature,
+    };
 
     return {
         connectionState: ConnectionState.SignedIn,
@@ -86,9 +91,6 @@ export async function signIn(
             ...createDB(profileKeys),
         },
         deliveryServiceToken,
-        account: {
-            ensName,
-            profile,
-        },
+        account,
     };
 }

@@ -1,3 +1,4 @@
+import { profile } from 'console';
 import { ethers } from 'ethers';
 import queryString from 'query-string';
 import stringify from 'safe-stable-stringify';
@@ -53,6 +54,7 @@ export interface PrivateKeys {
 export interface Account {
     ensName: string;
     profile?: UserProfile;
+    profileSignature?: string;
 }
 
 export const PROFILE_RECORD_NAME = 'network.dm3.profile';
@@ -317,21 +319,11 @@ export function checkProfileHash(profile: Dm3Profile, uri: string): boolean {
     return sha256(stringify(profile)) === parsedUri.query.dm3Hash;
 }
 
-/**
- * creats the `dm3Hash` URI prarameter for the provided user profile
- * @param profile dm3 user profile
- */
-export function createHashUrlParam(profile: SignedUserProfile): string {
-    return `dm3Hash=${sha256(stringify(profile))}`;
-}
-
-export async function publishProfileOnchain(
+export async function getPublishProfileOnchainTransaction(
     connection: Connection,
-    url: string,
-
+    ensName: string,
     getResolver: GetResolver,
     getConractInstance: GetConractInstance,
-    getProfileOffChain: GetUserProfileOffChain,
 ) {
     if (!connection.provider) {
         throw Error('No provider');
@@ -339,16 +331,17 @@ export async function publishProfileOnchain(
     if (!connection.account) {
         throw Error('No account');
     }
+    if (!connection.account.profile) {
+        throw Error('No profile');
+    }
+    if (!connection.account.profileSignature) {
+        throw Error('No signature');
+    }
 
-    const ethersResolver = await getResolver(
-        connection.provider,
-        connection.account.ensName,
-    );
+    const ethersResolver = await getResolver(connection.provider, ensName);
     if (!ethersResolver) {
         throw Error('No resolver found');
     }
-
-    const node = ethers.utils.namehash(connection.account.ensName);
 
     const resolver = getConractInstance(
         ethersResolver.address,
@@ -358,33 +351,18 @@ export async function publishProfileOnchain(
         connection.provider,
     );
 
-    const ownProfile = await getProfileOffChain(
-        connection,
-        connection.account,
-        connection.account.ensName,
-    );
+    const signedUserProfile: SignedUserProfile = {
+        profile: connection.account.profile,
+        signature: connection.account.profileSignature,
+    };
+    const node = ethers.utils.namehash(ensName);
 
-    if (!ownProfile) {
-        throw Error('could not load account profile');
-    }
-
-    if (
-        !(await checkUserProfile(
-            connection.provider,
-            ownProfile,
-
-            connection.account.ensName,
-        ))
-    ) {
-        throw Error('account profile check failed');
-    }
+    const jsonPrefix = 'data:application/json,';
+    const key = 'network.dm3.profile';
+    const value = jsonPrefix + stringify(signedUserProfile);
 
     return {
         method: resolver.setText,
-        args: [
-            node,
-            PROFILE_RECORD_NAME,
-            url + '?' + createHashUrlParam(ownProfile),
-        ],
+        args: [node, key, value],
     };
 }
