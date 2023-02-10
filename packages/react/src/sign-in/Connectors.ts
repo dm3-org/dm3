@@ -111,6 +111,7 @@ export async function connectAccount(
             payload: {
                 ensName: accountConnection.account,
                 profile: accountConnection.profile?.profile,
+                profileSignature: accountConnection.profile?.signature,
             },
         });
     } else {

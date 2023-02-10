@@ -13,7 +13,7 @@ import {
     addContact as execAddContact,
     getContacts as execGetContacts,
     getUserProfile as execGetUserProfile,
-    publishProfileOnchain as execPublishProfileOnchain,
+    getPublishProfileOnchainTransaction as execGetPublishProfileOnchainTransaction,
     SignedUserProfile,
 } from './Account';
 import axios from 'axios';
@@ -85,18 +85,20 @@ export async function getContacts(
 }
 
 /**
- * fetch a dm3 user profile
- *
+ * creates the transaction object that can be used to publish the profile to a top level ens name
  * @param connection dm3 connection object
- * @param url The URL pointing to the user profile
+ * @param ensName The ENS the profile should be published to
+ * @param ownProfile The profile that should be published
  */
-export function publishProfileOnchain(connection: Connection, url: string) {
-    return execPublishProfileOnchain(
+export function getPublishProfileOnchainTransaction(
+    connection: Connection,
+    ensName: string,
+) {
+    return execGetPublishProfileOnchainTransaction(
         connection,
-        url,
+        ensName,
         getResolver,
         getConractInstance,
-        getUserProfileOffChain,
     );
 }
 

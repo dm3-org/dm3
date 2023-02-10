@@ -275,11 +275,11 @@ export async function getUserProfileOffChain(
         ).get(fallbackUrl);
         return data;
     } catch (e) {
-        if ((e as Error).message.includes('404')) {
+        const { message } = e as Error;
+        if (message.includes('404') || message.includes('No account')) {
             return undefined;
-        } else {
-            throw Error('Unknown API error');
         }
+        throw Error('Unknown API error');
     }
 }
 export type GetUserProfileOffChain = typeof getUserProfileOffChain;

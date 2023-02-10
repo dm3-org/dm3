@@ -83,29 +83,6 @@ function UserInfo(props: UserInfoProps) {
         ],
     );
 
-    const publishProfileOnchain = async () => {
-        setPublishButtonState(ButtonState.Loading);
-        try {
-            const tx = await Lib.account.publishProfileOnchain(
-                state.connection,
-                state.connection.defaultServiceUrl +
-                    '/profile/' +
-                    state.connection.account!.ensName,
-            );
-
-            if (tx) {
-                const response = await Lib.external.executeTransaction(tx);
-                await response.wait();
-                setPublishButtonState(ButtonState.Success);
-            } else {
-                throw Error('Error creating publish transaction');
-            }
-        } catch (e) {
-            Lib.log(e as string);
-            setPublishButtonState(ButtonState.Failed);
-        }
-    };
-
     if (state.accounts.accountInfoView === AccountInfo.DomainConfig) {
         return <ConfigView />;
     }
@@ -294,19 +271,6 @@ function UserInfo(props: UserInfoProps) {
                                 : 'Show'}{' '}
                             ENS Info
                         </a>
-                    </div>
-                </div>
-            )}
-            {state.accounts.accountInfoView === AccountInfo.Account && (
-                <div className="row row-space ">
-                    <div className="col-12 ">
-                        <StateButton
-                            btnState={publishButtonState}
-                            btnType="secondary"
-                            onClick={publishProfileOnchain}
-                            content={<>Publish Profile</>}
-                            className=""
-                        />
                     </div>
                 </div>
             )}
