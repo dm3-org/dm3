@@ -56,7 +56,10 @@ function ConfigView() {
             setIsValidEnsName(false);
             return;
         }
-        const address = await state.connection.provider!.resolveName(ensName);
+        const address = await Lib.external.resolveOwner(
+            state.connection.provider!,
+            ensName,
+        );
 
         if (address === null) {
             setIsValidEnsName(false);

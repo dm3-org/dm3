@@ -8,6 +8,7 @@ export {
 export {
     lookupAddress,
     formatAddress,
+    resolveOwner,
     getDefaultEnsTextRecord,
     executeTransaction,
 } from './InjectedWeb3API';
