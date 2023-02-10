@@ -1,4 +1,4 @@
-import { getUserProfile, ProfileKeys, SignedUserProfile } from '../account';
+import { getUserProfile, ProfileKeys } from '../account';
 import {
     getChallenge,
     getNewToken,
