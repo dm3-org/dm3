@@ -65,7 +65,7 @@ function ConfigView() {
             setIsValidEnsName(false);
             return;
         }
-        state;
+
         if (
             Lib.external.formatAddress(address) !==
             Lib.external.formatAddress(state.connection.ethAddress!)
