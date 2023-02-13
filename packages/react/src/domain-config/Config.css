@@ -1,17 +1,19 @@
 .config-banner {
-    background-color: #ffc1073b;
+    background-color: #3A3C50;
     color: #ffffff;
     margin: 10px;
+    border-radius: 10px;
 
 }
 
 .config-btn {
-    color: #000;
-    background-color: #ffffff;
-    border-color: #ffffff
+    color: #ffffff;
+
+    border-color: #ffffff;
+
 }
 
-.config-btn:hover {
+/* .config-btn:hover {
     color: #000;
     background-color: #e9e9e9;
     border-color: #e9e9e9;
@@ -27,4 +29,64 @@
     color: #000;
     background-color: #e9e9e9;
     border-color: #e9e9e9;
+} */
+
+.user-info input {
+    color: #ffffff;
+    background-color: #3A3C50 !important;
+    border-style: none;
+}
+
+.user-info input:focus {
+    color: #ffffff;
+  
+}
+
+.user-info-text-muted {
+    color: #8f8f93 !important;
+}
+
+.user-info-text-highlight {
+    color: #ffffff !important;
+}
+
+.user-info .input-group-text {
+    color: #8f8f93;
+    background-color: #1F2029 !important;
+}
+
+.user-info * {
+    border-color: transparent;
+}
+
+.user-info .form-check-input {
+    width: 3rem;
+    height: 3rem;
+    background-color: #1F2029 !important;
+
+}
+
+.user-info .explain-text-sm {
+    font-size: 0.9rem;
+    color: #8f8f93;
+}
+
+.user-info .explain-text {
+    color: #8f8f93;
+    border-bottom: solid 1px #8f8f93;
+    padding-bottom: 1rem;
+}
+
+.config-text {
+   color: #8f8f93 !important;
+}
+
+.user-info .form-control {
+    border-radius: 0.25rem !important;
+}
+
+
+.check-container {
+    padding: 0;
+    width: 3rem;
 }
