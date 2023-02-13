@@ -12,23 +12,24 @@ function ConfigBanner() {
         <div className="mt-auto w-100 ">
             <div className="config-banner card">
                 <div className="card-body">
-                    <p className="card-text">
+                    <p className="small card-text text-center">
                         You have not yet configured your profile.
                     </p>
-                    <div className="d-flex">
-                        <button
-                            type="button"
-                            onClick={() => {
-                                dispatch({
-                                    type: AccountsType.SetAccountInfoView,
-                                    payload: AccountInfo.DomainConfig,
-                                });
-                            }}
-                            className="ms-auto btn btn-primary config-btn "
-                        >
-                            Configure Profile{' '}
-                            <Icon iconClass="fas fa-arrow-right" />
-                        </button>
+                    <div className="d-flex justify-content-center">
+                        <div>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    dispatch({
+                                        type: AccountsType.SetAccountInfoView,
+                                        payload: AccountInfo.DomainConfig,
+                                    });
+                                }}
+                                className="ms-auto btn btn-outline-secondary config-btn "
+                            >
+                                Configure Profile
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
