@@ -5,6 +5,7 @@ import Session from './session';
 import Storage from './storage';
 import Pending from './pending';
 import { getIdEnsName } from './session/getIdEnsName';
+import winston from 'winston';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -14,7 +15,7 @@ export enum RedisPrefix {
     Pending = 'pending:',
 }
 
-export async function getRedisClient() {
+export async function getRedisClient(logger: winston.Logger) {
     const url = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
     const socketConf = {
         socket: {
@@ -32,16 +33,22 @@ export async function getRedisClient() {
     );
 
     client.on('error', (err) => {
-        throw Error('REDIS CONNECTION ERROR ,' + err);
+        logger.error('Redis error: ' + (err as Error).message);
     });
+
+    client.on('reconnecting', () => logger.info('Redis reconnection'));
+    client.on('ready', () => logger.info('Redis ready'));
 
     await client.connect();
 
     return client;
 }
 
-export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
-    const redis = _redis ?? (await getRedisClient());
+export async function getDatabase(
+    logger: winston.Logger,
+    _redis?: Redis,
+): Promise<IDatabase> {
+    const redis = _redis ?? (await getRedisClient(logger));
 
     return {
         getMessages: Messages.getMessages(redis),

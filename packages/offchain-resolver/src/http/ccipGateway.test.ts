@@ -12,6 +12,7 @@ import { fetchJson, FetchJsonResponse, hexlify } from 'ethers/lib/utils';
 import express from 'express';
 import { ethers as hreEthers } from 'hardhat';
 import request from 'supertest';
+import winston from 'winston';
 import { OffchainResolver } from '../../typechain';
 import { getDatabase, getRedisClient, Redis } from '../persistance/getDatabase';
 import { IDatabase } from '../persistance/IDatabase';
@@ -30,6 +31,10 @@ describe('CCIP Gateway', () => {
     let signer: SignerWithAddress;
     let dm3User: SignerWithAddress;
 
+    const logger = winston.createLogger({
+        transports: [new winston.transports.Console()],
+    });
+
     beforeEach(async () => {
         //Get signers
         [signer, dm3User] = await hreEthers.getSigners();
@@ -44,8 +49,8 @@ describe('CCIP Gateway', () => {
             [signer.address],
         );
 
-        redisClient = await getRedisClient();
-        db = await getDatabase(redisClient);
+        redisClient = await getRedisClient(logger);
+        db = await getDatabase(logger, redisClient);
         await redisClient.flushDb();
 
         ccipApp = express();
