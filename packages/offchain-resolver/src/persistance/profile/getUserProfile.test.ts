@@ -4,15 +4,20 @@ import { getDatabase, getRedisClient, Redis } from './../getDatabase';
 import { getUserProfile } from './getUserProfile';
 import * as Lib from 'dm3-lib/dist.backend';
 import { ethers } from 'ethers';
+import winston from 'winston';
 const { expect } = require('chai');
 
 describe('getUserProfile', () => {
     let redisClient: Redis;
     let db: IDatabase;
 
+    const logger = winston.createLogger({
+        transports: [new winston.transports.Console()],
+    });
+
     beforeEach(async () => {
-        redisClient = await getRedisClient();
-        db = await getDatabase(redisClient);
+        redisClient = await getRedisClient(logger);
+        db = await getDatabase(logger, redisClient);
         await redisClient.flushDb();
     });
 

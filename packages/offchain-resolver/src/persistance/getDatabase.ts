@@ -1,8 +1,13 @@
 import { IDatabase } from './IDatabase';
 import * as Profile from './profile';
+import { createClient } from 'redis';
+import winston from 'winston';
 
-export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
-    const redis = _redis ?? (await getRedisClient());
+export async function getDatabase(
+    logger: winston.Logger,
+    _redis?: Redis,
+): Promise<IDatabase> {
+    const redis = _redis ?? (await getRedisClient(logger));
 
     return {
         getUserProfile: Profile.getUserProfile(redis),
@@ -16,14 +21,29 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
 
 export type Redis = Awaited<ReturnType<typeof createRedisClient>>;
 
-import { createClient } from 'redis';
-
-export async function getRedisClient() {
-    const client = createClient();
+export async function getRedisClient(logger: winston.Logger) {
+    const url = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
+    const socketConf = {
+        socket: {
+            tls: true,
+            rejectUnauthorized: false,
+        },
+    };
+    const client = createClient(
+        process.env.NODE_ENV === 'production'
+            ? {
+                  url,
+                  ...socketConf,
+              }
+            : {},
+    );
 
     client.on('error', (err) => {
-        throw Error('REDIS CONNECTION ERROR ,' + err);
+        logger.error('Redis error: ' + (err as Error).message);
     });
+
+    client.on('reconnecting', () => logger.info('Redis reconnection'));
+    client.on('ready', () => logger.info('Redis ready'));
 
     await client.connect();
 

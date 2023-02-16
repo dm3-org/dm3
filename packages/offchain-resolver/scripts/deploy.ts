@@ -10,7 +10,7 @@ async function main() {
     );
 
     const offchainResolver = await OffchainResolver.deploy(
-        'http://localhost:8081/{sender}/{data}.json',
+        'https://dm3-beta2-resolver.herokuapp.com/{sender}/{data}.json',
         accounts[0].address,
         ['0x300AdE3DF46e3531004F9c0E19EdEa62Be3f67f2'],
     );

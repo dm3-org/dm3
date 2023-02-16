@@ -13,7 +13,8 @@ export function ccipGateway(signer: Signer, resolverAddr: string) {
             req: express.Request & { app: WithLocals },
             res: express.Response,
         ) => {
-            const { resolverAddr, calldata } = req.params;
+            const { resolverAddr } = req.params;
+            const calldata = req.params.calldata.replace('.json', '');
 
             req.app.locals.logger.info(`GET ${resolverAddr}`);
 

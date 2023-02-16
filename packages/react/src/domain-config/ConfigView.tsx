@@ -115,7 +115,7 @@ function ConfigView() {
 
             await Lib.external.claimSubdomain(
                 state.connection.account!,
-                'http://localhost:8081/profile',
+                process.env.REACT_APP_RESOLVER_BACKEND as string,
                 dm3UserEnsName! + Lib.GlobalConf.USER_ENS_SUBDOMAIN(),
                 signedProfile!,
             );
