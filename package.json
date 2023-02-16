@@ -32,6 +32,7 @@
         "docker:up": "cd packages/backend && docker-compose up -d",
         "build": "cd packages/lib/ && yarn build && cd ../react && yarn build && cd ../web && yarn build && cd ../backend && yarn build && cd ../offchain-resolver && yarn build",
         "start": "cd packages/backend && yarn start",
+        "resolver": "cd packages/offchain-resolver && yarn start",
         "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
         "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
         "format:check": "prettier --check '*/**/*.{js,ts,tsx,json}'",

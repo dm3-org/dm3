@@ -7,6 +7,7 @@ import { IDatabase } from '../persistance/IDatabase';
 import { profile } from './profile';
 import * as Lib from 'dm3-lib/dist.backend';
 import { ethers } from 'ethers';
+import winston from 'winston';
 const { expect } = require('chai');
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 
@@ -15,9 +16,13 @@ describe('Profile', () => {
     let db: IDatabase;
     let app: express.Express;
 
+    const logger = winston.createLogger({
+        transports: [new winston.transports.Console()],
+    });
+
     beforeEach(async () => {
-        redisClient = await getRedisClient();
-        db = await getDatabase(redisClient);
+        redisClient = await getRedisClient(logger);
+        db = await getDatabase(logger, redisClient);
         await redisClient.flushDb();
 
         app = express();

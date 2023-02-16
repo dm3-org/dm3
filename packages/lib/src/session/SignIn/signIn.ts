@@ -21,8 +21,6 @@ const DEFAULT_NONCE = 0;
 //1 -> Use reAuth to create a new deliverySerivceToken. User has to sign a challenge
 //2-> Decrypt storageFile.  Sign message with getMessage(nonce) to get the storage encryption key
 
-const OFFCHAIN_RESOLVER_URL = 'http://localhost:8081/profile';
-
 export async function signIn(
     connection: Partial<Connection>,
     personalSign: PersonalSign,
@@ -55,12 +53,18 @@ export async function signIn(
             profileKeys,
         ));
 
-    const successfullyClaimed = await claimAddress(
-        address,
-        OFFCHAIN_RESOLVER_URL,
-        { profile, signature },
-    );
-    if (!successfullyClaimed) {
+    const signedUserProfile: SignedUserProfile = {
+        profile,
+        signature,
+    };
+
+    if (
+        !(await claimAddress(
+            address,
+            process.env.REACT_APP_RESOLVER_BACKEND as string,
+            signedUserProfile,
+        ))
+    ) {
         throw Error(`Couldn't claim address subdomain`);
     }
 

@@ -27,7 +27,7 @@ app.use(bodyParser.json());
         transports: [new winston.transports.Console()],
     });
 
-    app.locals.db = await getDatabase();
+    app.locals.db = await getDatabase(app.locals.logger);
     app.locals.config = {
         spamProtection: process.env.SPAM_PROTECTION === 'true',
     };

@@ -1,5 +1,6 @@
 import { Redis, IDatabase, getRedisClient, getDatabase } from '../getDatabase';
 import * as Lib from 'dm3-lib/dist.backend';
+import winston from 'winston';
 
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
@@ -7,10 +8,13 @@ const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 describe('Create Message', () => {
     let redisClient: Redis;
     let db: IDatabase;
+    const logger = winston.createLogger({
+        transports: [new winston.transports.Console()],
+    });
 
     beforeEach(async () => {
-        redisClient = await getRedisClient();
-        db = await getDatabase(redisClient);
+        redisClient = await getRedisClient(logger);
+        db = await getDatabase(logger, redisClient);
         await redisClient.flushDb();
     });
 

@@ -55,7 +55,7 @@ app.use(bodyParser.json());
 
     app.locals.deliveryServiceProperties = getDeliveryServiceProperties();
 
-    app.locals.db = await getDatabase();
+    app.locals.db = await getDatabase(app.locals.logger);
     app.locals.web3Provider = getWeb3Provider(process.env);
 
     app.use(logRequest);
