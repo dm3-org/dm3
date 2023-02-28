@@ -1,4 +1,4 @@
-import { Account, UserProfile } from '../../account';
+import { Account, ProfileKeys, UserProfile } from '../../account';
 import { SubmitUserProfile } from '../../external-apis/BackendAPI';
 import { PersonalSign } from '../../external-apis/InjectedWeb3API';
 import { stringify } from '../../shared/stringify';
@@ -33,7 +33,7 @@ export async function signIn(
     deliveryServiceToken: string;
     account: Account;
 }> {
-    const { provider } = connection;
+    const [address] = await connection.provider!.listAccounts();
 
     const nonce = DEFAULT_NONCE;
 
@@ -43,41 +43,36 @@ export async function signIn(
         personalSign,
         nonce,
     );
-    const { signingKeyPair, encryptionKeyPair } = profileKeys;
 
-    const profile: UserProfile = {
-        publicSigningKey: signingKeyPair.publicKey,
-        publicEncryptionKey: encryptionKeyPair.publicKey,
-        deliveryServices: [GlobalConf.DEFAULT_DELIVERY_SERVICE()],
-    };
+    const onChainProfile = getOnchainProfile(connection);
 
-    const address = (await provider!.listAccounts())[0];
-    const ensName = address + GlobalConf.ADDR_ENS_SUBDOMAIN();
+    const { profile, signature }: SignedUserProfile =
+        onChainProfile ??
+        (await createNewProfile(
+            connection,
+            personalSign,
+            address,
+            profileKeys,
+        ));
 
-    //Create signed user profile
-    const signature = await signProfile(
-        provider!,
-        personalSign,
+    const successfullyClaimed = await claimAddress(
         address,
-        stringify(profile),
+        OFFCHAIN_RESOLVER_URL,
+        { profile, signature },
     );
-
-    const signedUserProfile: SignedUserProfile = {
-        profile,
-        signature,
-    };
-
-    if (
-        !(await claimAddress(address, OFFCHAIN_RESOLVER_URL, signedUserProfile))
-    ) {
+    if (!successfullyClaimed) {
         throw Error(`Couldn't claim address subdomain`);
     }
 
+    const ensName = onChainProfile
+        ? connection.account!.ensName
+        : address + GlobalConf.ADDR_ENS_SUBDOMAIN();
+
     //Submit newely created UserProfile
     const deliveryServiceToken = await submitUserProfile(
-        { ensName: ensName, profile },
+        { ensName, profile },
         connection as Connection,
-        signedUserProfile,
+        { profile, signature },
     );
     const account = {
         ensName,
@@ -93,4 +88,36 @@ export async function signIn(
         deliveryServiceToken,
         account,
     };
+}
+
+function getOnchainProfile(
+    connection: Partial<Connection>,
+): SignedUserProfile | undefined {
+    if (!connection.account?.profile || !connection.account?.profileSignature) {
+        return undefined;
+    }
+    const { profile, profileSignature } = connection.account;
+    return { profile, signature: profileSignature };
+}
+async function createNewProfile(
+    connection: Partial<Connection>,
+    personalSign: PersonalSign,
+    address: string,
+    { signingKeyPair, encryptionKeyPair }: ProfileKeys,
+): Promise<SignedUserProfile> {
+    const profile: UserProfile = {
+        publicSigningKey: signingKeyPair.publicKey,
+        publicEncryptionKey: encryptionKeyPair.publicKey,
+        deliveryServices: [GlobalConf.DEFAULT_DELIVERY_SERVICE()],
+    };
+
+    //Create signed user profile
+    const signature = await signProfile(
+        connection.provider!,
+        personalSign,
+        address,
+        stringify(profile),
+    );
+
+    return { profile, signature };
 }
