@@ -249,26 +249,8 @@ function ConfigView() {
             )}
             <div className="row">
                 <div className="col">
-                    <div className="input-group mb-3">
-                        <input
-                            type="text"
-                            value={addrEnsName}
-                            placeholder="dm3 user name"
-                            className="form-control user-info-text-muted"
-                            aria-label="Text input with checkbox"
-                            readOnly
-                        />
-
-                        <div className="input-group-text check-container">
-                            <input
-                                className="form-check-input mt-0 user-info-text-highlight"
-                                type="checkbox"
-                                value=""
-                                aria-label="Checkbox for following text input"
-                                checked
-                                disabled
-                            />
-                        </div>
+                    <div className="input-group mb-3 value-text">
+                        {addrEnsName}
                     </div>
                 </div>
             </div>
@@ -301,39 +283,32 @@ function ConfigView() {
             )}
             <div className="row">
                 <div className="col">
-                    <div className="input-group mb-3">
-                        <input
-                            type="text"
-                            onInput={(
-                                event: React.FormEvent<HTMLInputElement>,
-                            ) => {
-                                setDm3UserEnsName((event.target as any).value);
-                            }}
-                            className={`form-control${
-                                existingDm3UserEnsName
-                                    ? ' user-info-text-muted'
-                                    : ''
-                            }`}
-                            value={existingDm3UserEnsName}
-                            aria-label="Text input with checkbox"
-                            readOnly={!!existingDm3UserEnsName}
-                        />
-                        {!existingDm3UserEnsName && (
+                    {!existingDm3UserEnsName ? (
+                        <div className="input-group mb-3">
+                            <input
+                                type="text"
+                                onInput={(
+                                    event: React.FormEvent<HTMLInputElement>,
+                                ) => {
+                                    setDm3UserEnsName(
+                                        (event.target as any).value,
+                                    );
+                                }}
+                                className={`form-control`}
+                                placeholder="dm3 User Name"
+                                aria-label="Text input with checkbox"
+                                readOnly={!!existingDm3UserEnsName}
+                            />
                             <span className="input-group-text">
                                 {Lib.GlobalConf.USER_ENS_SUBDOMAIN()}
                             </span>
-                        )}
-                        <div className="input-group-text check-container">
-                            <input
-                                className="form-check-input mt-0 user-info-text-highlight"
-                                type="checkbox"
-                                value=""
-                                aria-label="Checkbox for following text input"
-                                checked={!!existingDm3UserEnsName}
-                                disabled
-                            />
+                            )
                         </div>
-                    </div>
+                    ) : (
+                        <div className="value-text">
+                            {existingDm3UserEnsName}
+                        </div>
+                    )}
                 </div>
             </div>
             <div className="row mb-3">
@@ -380,29 +355,24 @@ function ConfigView() {
             )}
             <div className="row">
                 <div className="col">
-                    <div className="input-group mb-3">
-                        <input
-                            value={ensName ?? ''}
-                            onInput={handleInputEnsName}
-                            type="text"
-                            placeholder="ENS domain"
-                            className={
-                                isValidEnsName
-                                    ? 'form-control'
-                                    : 'form-control border border-danger'
-                            }
-                            aria-label="Text input with checkbox"
-                        />
-                        <div className="input-group-text check-container">
+                    {ensName ? (
+                        <div className="value-text">{ensName}</div>
+                    ) : (
+                        <div className="input-group mb-3">
                             <input
-                                className="form-check-input mt-0 user-info-text-highlight"
-                                type="checkbox"
-                                value=""
-                                aria-label="Checkbox for following text input"
-                                disabled
+                                value={ensName ?? ''}
+                                onInput={handleInputEnsName}
+                                type="text"
+                                placeholder="ENS domain"
+                                className={
+                                    isValidEnsName
+                                        ? 'form-control'
+                                        : 'form-control border border-danger'
+                                }
+                                aria-label="Text input with checkbox"
                             />
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
             <div className="row mb-3">
