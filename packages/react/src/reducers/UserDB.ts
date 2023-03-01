@@ -6,6 +6,7 @@ export enum UserDbType {
     setDB = 'SET_DB',
     createEmptyConversation = 'CREATE_EMPTY_CONVERSATION',
     setSynced = 'SET_SYNCED',
+    setConfigViewed = 'SET_CONFIG_VIEWED',
     setSyncProcessState = 'SET_SYNC_PROCESS_STATE',
 }
 
@@ -17,6 +18,7 @@ export type UserDbPayload = {
     [UserDbType.setDB]: Lib.storage.UserDB;
     [UserDbType.createEmptyConversation]: string;
     [UserDbType.setSynced]: boolean;
+    [UserDbType.setConfigViewed]: boolean;
     [UserDbType.setSyncProcessState]: Lib.storage.SyncProcessState;
 };
 
@@ -145,6 +147,18 @@ export function userDbReducer(
                     lastChangeTimestamp,
                 };
             }
+
+        case UserDbType.setConfigViewed:
+            if (!state) {
+                throw Error(`UserDB hasn't been created.`);
+            }
+
+            Lib.log(`[DB] Set config viewed`);
+
+            return {
+                ...state,
+                configViewed: action.payload,
+            };
 
         case UserDbType.setSyncProcessState:
             if (!state) {
