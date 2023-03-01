@@ -337,14 +337,14 @@ function ConfigView() {
                 </div>
             </div>
             <div className="row mb-3">
-                <div className="col">
+                <div className="col d-flex justify-content-end">
                     {!existingDm3UserEnsName && (
                         <StateButton
                             btnState={getSubmitUserNameButtonState()}
                             btnType="secondary"
                             onClick={submitDm3UsernameClaim}
                             content={<>Claim</>}
-                            className="config-text"
+                            className="submit-btn"
                             disabled={
                                 !(dm3UserEnsName && dm3UserEnsName?.length > 3)
                             }
@@ -406,13 +406,13 @@ function ConfigView() {
                 </div>
             </div>
             <div className="row mb-3">
-                <div className="col">
+                <div className="col d-flex justify-content-end">
                     <StateButton
                         btnState={getSubmitProfileButtonState()}
                         btnType="secondary"
                         onClick={submitProfileToMainnet}
                         content={<>Publish Profile</>}
-                        className="config-text"
+                        className="submit-btn"
                     />
                 </div>
             </div>
