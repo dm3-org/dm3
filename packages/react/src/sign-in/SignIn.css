@@ -54,6 +54,26 @@
 
 }
 
+.sign-in-btn {
+  width: 350px !important;
+  height: 75px;
+  font-size: 1.7rem;
+  border-color: #6773DD !important;
+  color: #ffffff !important;
+  border-radius: 15px;
+}
+
+.sign-in-btn:hover {
+
+  background-color: #6773DD !important;
+
+}
+
+.sign-in-logo {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+}
+
 .miniSignInBtn {
   width: 10rem !important;
 }

@@ -77,60 +77,18 @@ function ConnectButton(props: ConnectButtonProps) {
             Lib.web3provider.ConnectionState.SignInFailed
     );
 
-    const stateButton = (
-        <>
-            {selectedWallet !== SelectedWallet.WalletConnect && (
-                <StateButton
-                    content={<>MetaMask</>}
-                    btnState={getButtonState(state.connection.connectionState)}
-                    btnType="secondary"
-                    onClick={() => {
-                        setSelectedWallet(SelectedWallet.MetaMask);
-                        getMetaMaskProvider(dispatch);
-                    }}
-                    disabled={buttonDisabled}
-                    className={props.miniSignIn ? 'miniSignInBtn' : ''}
-                />
-            )}
-            {/* {selectedWallet !== SelectedWallet.MetaMask && (
-                <StateButton
-                    content={<>WalletConnect</>}
-                    btnState={getButtonState(state.connection.connectionState)}
-                    btnType="primary"
-                    onClick={() => {
-                        setSelectedWallet(SelectedWallet.WalletConnect);
-                        getWalletConnectProvider(dispatch);
-                    }}
-                    disabled={buttonDisabled}
-                    className={`${
-                        state.connection.connectionState ===
-                        Lib.web3provider.ConnectionState.AccountConntectReady
-                            ? 'mt-2'
-                            : ''
-                    } ${
-                        props.miniSignIn
-                            ? 'left-state-btn miniSignInBtn'
-                            : 'left-state-btn'
-                    }`}
-                />
-            )} */}
-        </>
-    );
-
-    return props.miniSignIn ? (
-        stateButton
-    ) : (
-        <div className="row mt-4">
-            <div className="col-md-5">{stateButton}</div>
-            <div className="col-md-7 help-text">
-                Connect and sign in
-                <p className="explanation">
-                    The selected Ethereum account will be used as your dm3
-                    identity. After connecting an account, you must sign a
-                    message to create your encryption key.
-                </p>
-            </div>
-        </div>
+    return (
+        <StateButton
+            content={<>Connect Metamask</>}
+            btnState={getButtonState(state.connection.connectionState)}
+            btnType="secondary"
+            onClick={() => {
+                setSelectedWallet(SelectedWallet.MetaMask);
+                getMetaMaskProvider(dispatch);
+            }}
+            disabled={buttonDisabled}
+            className="sign-in-btn"
+        />
     );
 }
 
