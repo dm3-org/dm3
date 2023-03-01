@@ -8,7 +8,9 @@
 
 }
 
-
+.extended-space {
+    margin-top: 4rem;
+}
 
 .info-value {
     color: #ffffff;
@@ -32,4 +34,13 @@
 
 .user-info-row div button {
     border: none;
+}
+
+.domain-config-btn {
+    border-color: #6c757d;
+    color: #ffffff;
+    border-style: solid;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    width: 300px;
 }
