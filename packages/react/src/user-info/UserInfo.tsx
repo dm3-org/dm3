@@ -10,6 +10,8 @@ import { useAsync } from '../ui-shared/useAsync';
 import StateButton, { ButtonState } from '../ui-shared/StateButton';
 import axios from 'axios';
 import ConfigView from '../domain-config/ConfigView';
+import { AccountsType } from '../reducers/Accounts';
+import { UserDbType } from '../reducers/UserDB';
 
 interface UserInfoProps {
     account: Lib.account.Account;
@@ -23,7 +25,7 @@ interface EnsTextRecords {
 }
 
 function UserInfo(props: UserInfoProps) {
-    const { state } = useContext(GlobalContext);
+    const { state, dispatch } = useContext(GlobalContext);
     const [publishButtonState, setPublishButtonState] = useState<ButtonState>(
         ButtonState.Idel,
     );
@@ -113,7 +115,7 @@ function UserInfo(props: UserInfoProps) {
                         <a
                             className="text-decoration-none "
                             href={
-                                'https://etherscan.io/address/' +
+                                'https://etherscan.io/enslookup-search?search=' +
                                 props.account.ensName
                             }
                             target="_blank"
@@ -256,24 +258,51 @@ function UserInfo(props: UserInfoProps) {
                     </div>
                 </div>
             )}
-            {props.account.ensName && (
-                <div className="row row-space">
-                    <div className="col-12 ">
-                        <a
-                            href={`https://app.ens.domains/name/${props.account.ensName}/details`}
-                            target="_blank"
-                            type="button"
-                            className={`w-100 btn btn-lg btn-outline-secondary right-state-button`}
-                        >
-                            {state.accounts.accountInfoView ===
-                            AccountInfo.Account
-                                ? 'Edit'
-                                : 'Show'}{' '}
-                            ENS Info
-                        </a>
+            <div className="extended-space">
+                {props.account.ensName && (
+                    <div className="row">
+                        <div className="col-12 d-flex justify-content-center">
+                            <a
+                                href={`https://app.ens.domains/name/${props.account.ensName}/details`}
+                                target="_blank"
+                                type="button"
+                                className={`btn btn-outline-secondary domain-config-btn`}
+                            >
+                                {state.accounts.accountInfoView ===
+                                AccountInfo.Account
+                                    ? 'Edit'
+                                    : 'Show'}{' '}
+                                ENS Records
+                            </a>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
+
+                {state.accounts.accountInfoView === AccountInfo.Account && (
+                    <div className="row row-space">
+                        <div className="col-12 d-flex justify-content-center">
+                            <div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        dispatch({
+                                            type: AccountsType.SetAccountInfoView,
+                                            payload: AccountInfo.DomainConfig,
+                                        });
+                                        dispatch({
+                                            type: UserDbType.setConfigViewed,
+                                            payload: true,
+                                        });
+                                    }}
+                                    className="btn btn-outline-secondary domain-config-btn"
+                                >
+                                    Configure Profile
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
