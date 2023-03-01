@@ -166,59 +166,18 @@ function SignIn(props: SignInProps) {
         }
     }, [state.connection.connectionState, state.connection.ethAddress]);
 
-    return props.miniSignIn ? (
-        <div className="w-100  pt-4 pb-4">
-            <div className="row  sign-in">
-                <div className="col-md-12">
-                    <div className="d-flex">
-                        <div className="d-flex align-content-center me-auto ">
-                            <DarkLogo />
-                        </div>
-
-                        <div className="ms-4 align-self-center me-2">
-                            <ConnectButton miniSignIn={props.miniSignIn} />
-                        </div>
-                    </div>
-                </div>
+    return (
+        <div className="w-100 d-flex flex-column align-items-center ">
+            <div className="d-flex justify-content-center sign-in-logo">
+                <DarkLogo />
             </div>
-        </div>
-    ) : (
-        <div className="w-100 d-flex flex-column">
-            <div className="row d-flex justify-content-center row-space sign-in me-2">
-                <div className="col-md-12">
-                    {!props.hideStorageSelection && (
-                        <>
-                            <StorageLocationSelection
-                                setStorageLocation={setStorageLocation}
-                                stroageLocation={storageLocation}
-                            />
-                            <GoogleConnect
-                                googleAuthState={googleAuthState}
-                                setGoogleAuthState={setGoogleAuthState}
-                                storageLocation={storageLocation}
-                            />
-                            <ChooseFile
-                                setDataFile={setDataFile}
-                                storageLocation={storageLocation}
-                            />
-                            <TokenInput
-                                setToken={setToken}
-                                storageLocation={storageLocation}
-                                storeApiToken={storeApiToken}
-                                token={token}
-                            />
-                            <StoreToken
-                                setStoreApiToken={setStoreApiToken}
-                                storageLocation={storageLocation}
-                                storeApiToken={storeApiToken}
-                            />
-                        </>
-                    )}
+            <div className="d-flex justify-content-center mb-4">
+                <div className="d-flex justify-content-center">
                     <ConnectButton miniSignIn={props.miniSignIn} />
                 </div>
             </div>
-            <div className="mt-auto mb-3 me-3 align-self-end">
-                <DarkLogo />
+            <div className="d-flex justify-content-center mt-4">
+                <div className="d-flex justify-content-center"></div>
             </div>
         </div>
     );

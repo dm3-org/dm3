@@ -5,27 +5,18 @@ import './DarkLogo.css';
 
 function DarkLogo() {
     return (
-        <div
-            style={{ fontSize: '35px', filter: 'brightness(90%)' }}
-            className=""
-        >
-            <div style={{ fontSize: '12px ' }} className="text-end">
+        <div>
+            <a href="https://dm3.network">
+                <img src="dm3-logo.png" className="align-self-center" />
+            </a>
+            <div style={{ fontSize: '18px ' }} className="text-end">
                 <span
                     className="badge bg-warning text-dark"
-                    style={{ borderRadius: '2px' }}
+                    style={{ borderRadius: '4px' }}
                 >
                     beta 2
                 </span>
             </div>
-            <a href="https://dm3.network">
-                <img
-                    style={{
-                        height: '30px',
-                    }}
-                    src="dm3-logo.png"
-                    className="align-self-center"
-                />
-            </a>
         </div>
     );
 }
