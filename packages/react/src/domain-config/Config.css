@@ -90,3 +90,35 @@
     padding: 0;
     width: 3rem;
 }
+
+.submit-btn {
+    border-color: #6773DD !important;
+    color: #ffffff;
+    border-style: solid;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    width: 300px !important;
+}
+
+
+  
+  .submit-btn:hover {
+  
+    background-color: #6773DD !important;
+
+  
+  }
+
+  .submit-btn:hover:disabled {
+  
+    background-color: transparent !important;
+    border-color: #6c757d !important;
+  
+  }
+
+  .submit-btn:disabled {
+  
+    background-color: transparent !important;
+    border-color: #6c757d !important;
+  
+  }
