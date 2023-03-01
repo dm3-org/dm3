@@ -4,6 +4,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import * as Lib from 'dm3-lib';
 import { GlobalContext } from '../GlobalContextProvider';
 import { UserDbType } from '../reducers/UserDB';
+import { UiStateType } from '../reducers/UiState';
 
 interface AddContactFormProps {
     getContacts: (connection: Lib.Connection) => Promise<void>;
@@ -32,6 +33,7 @@ function AddContactForm(props: AddContactFormProps) {
                     }),
             );
             setAccountToAdd('');
+            dispatch({ type: UiStateType.SetShowAddContact, payload: false });
         } catch (e) {
             Lib.log(e as string);
             setErrorIndication(true);
