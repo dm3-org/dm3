@@ -1,5 +1,6 @@
 .user-info {
-    padding: 1rem !important
+    padding: 1rem !important;
+    overflow: overlay;
 }
 
 .address-info {
