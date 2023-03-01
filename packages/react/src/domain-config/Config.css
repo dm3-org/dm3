@@ -35,6 +35,7 @@
     color: #ffffff;
     background-color: #3A3C50 !important;
     border-style: none;
+    height: 3rem;
 }
 
 .user-info input:focus {
@@ -61,7 +62,7 @@
 
 .user-info .form-check-input {
     width: 3rem;
-    height: 3rem;
+   
     background-color: #1F2029 !important;
 
 }
@@ -69,6 +70,11 @@
 .user-info .explain-text-sm {
     font-size: 0.9rem;
     color: #8f8f93;
+}
+
+.value-text {
+    color: #8f8f93;
+    
 }
 
 .user-info .explain-text {
