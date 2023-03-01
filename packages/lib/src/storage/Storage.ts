@@ -34,6 +34,7 @@ export interface UserDB {
     synced: boolean;
     syncProcessState: SyncProcessState;
     lastChangeTimestamp: number;
+    configViewed?: boolean;
 }
 
 export interface UserStorage {
@@ -47,6 +48,7 @@ interface UserStoragePayload {
     keys: ProfileKeys;
     deliveryServiceToken: string;
     lastChangeTimestamp: number;
+    configViewed?: boolean;
 }
 
 /**
@@ -145,6 +147,7 @@ function prepareUserStoragePayload(
         keys: userDb.keys,
         deliveryServiceToken: token,
         lastChangeTimestamp: userDb.lastChangeTimestamp,
+        configViewed: userDb.configViewed,
     };
 }
 /**
@@ -235,6 +238,7 @@ export async function load(
         synced: true,
         syncProcessState: SyncProcessState.Idle,
         lastChangeTimestamp: decryptedPayload.lastChangeTimestamp,
+        configViewed: decryptedPayload.configViewed,
     };
 }
 

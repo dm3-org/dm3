@@ -6,6 +6,7 @@ import { useContext } from 'react';
 import { AccountInfo } from '../reducers/shared';
 import { AccountsType } from '../reducers/Accounts';
 import * as Lib from 'dm3-lib';
+import { UserDbType } from '../reducers/UserDB';
 
 function ConfigBanner() {
     const { state, dispatch } = useContext(GlobalContext);
@@ -14,7 +15,8 @@ function ConfigBanner() {
         Lib.GlobalConf.ADDR_ENS_SUBDOMAIN(),
     );
 
-    return !state.connection.account?.ensName || isAddrEnsName ? (
+    return !state.userDb?.configViewed &&
+        (!state.connection.account?.ensName || isAddrEnsName) ? (
         <div className="mt-auto w-100 ">
             <div className="config-banner card">
                 <div className="card-body">
@@ -29,6 +31,10 @@ function ConfigBanner() {
                                     dispatch({
                                         type: AccountsType.SetAccountInfoView,
                                         payload: AccountInfo.DomainConfig,
+                                    });
+                                    dispatch({
+                                        type: UserDbType.setConfigViewed,
+                                        payload: true,
                                     });
                                 }}
                                 className="ms-auto btn btn-outline-secondary config-btn "
