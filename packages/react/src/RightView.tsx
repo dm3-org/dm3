@@ -50,18 +50,28 @@ function RightView() {
         }
     }, [state.accounts.accountInfoView]);
 
-    if (
-        !state.accounts.selectedContact &&
-        state.uiState.selectedRightView === SelectedRightView.Chat
-    ) {
-        return null;
-    }
-
     const classes = `col-md-${
         state.uiState.maxLeftView ? '8' : '12'
     } content-container ${
         state.uiState.maxLeftView ? '' : 'content-container-max'
     } h-100 d-flex flex-column`;
+
+    if (
+        !state.accounts.selectedContact &&
+        state.uiState.selectedRightView === SelectedRightView.Chat
+    ) {
+        return (
+            <div className={classes}>
+                <div className="row h-100">
+                    <div className="col-md-12 text-center w-100 d-flex  h-100">
+                        <div className="align-self-center w-100 d-flex justify-content-center">
+                            <DarkLogo secondary={true} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     switch (state.uiState.selectedRightView) {
         case SelectedRightView.Chat:
