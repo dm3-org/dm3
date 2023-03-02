@@ -25,7 +25,7 @@ function Contacts(props: ContactsProps) {
         if (state.userDb?.conversations && state.userDb?.conversationsCount) {
             props.getContacts(state.connection);
         }
-    }, [state.userDb?.conversations]);
+    }, [state.userDb?.conversations, state.userDb?.conversationsCount]);
 
     return (
         <div className="w-100 flex-grow-1 contacts overflow-overlay">

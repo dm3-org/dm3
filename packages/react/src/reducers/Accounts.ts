@@ -21,10 +21,7 @@ export type AccountsActions =
 export function accountsReducer(state: Accounts, action: AccountsActions) {
     switch (action.type) {
         case AccountsType.SetSelectedContact:
-            if (
-                state.selectedContact === action.payload?.account.ensName ||
-                !action.payload
-            ) {
+            if (state.selectedContact === action.payload?.account.ensName) {
                 return state;
             } else {
                 Lib.log(
@@ -33,7 +30,7 @@ export function accountsReducer(state: Accounts, action: AccountsActions) {
 
                 return {
                     ...state,
-                    selectedContact: {
+                    selectedContact: action.payload && {
                         ...action.payload,
                         account: {
                             ...action.payload.account,
