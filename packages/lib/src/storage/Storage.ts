@@ -29,6 +29,7 @@ export interface StorageEnvelopContainer {
 
 export interface UserDB {
     conversations: Map<string, StorageEnvelopContainer[]>;
+    hiddenContacts: string[];
     conversationsCount: number;
     keys: ProfileKeys;
     synced: boolean;
@@ -45,6 +46,7 @@ export interface UserStorage {
 
 interface UserStoragePayload {
     conversations: string;
+    hiddenContacts: string[];
     keys: ProfileKeys;
     deliveryServiceToken: string;
     lastChangeTimestamp: number;
@@ -102,6 +104,7 @@ export function parseConversations(key: string, value: any) {
 export function createDB(keys: ProfileKeys): UserDB {
     return {
         conversations: new Map<string, StorageEnvelopContainer[]>(),
+        hiddenContacts: [],
         conversationsCount: 0,
         synced: false,
         keys,
@@ -144,6 +147,7 @@ function prepareUserStoragePayload(
             userDb.conversations,
             serializeConversations,
         ),
+        hiddenContacts: userDb.hiddenContacts,
         keys: userDb.keys,
         deliveryServiceToken: token,
         lastChangeTimestamp: userDb.lastChangeTimestamp,
@@ -234,6 +238,7 @@ export async function load(
     return {
         keys: decryptedPayload.keys,
         conversations,
+        hiddenContacts: decryptedPayload.hiddenContacts,
         conversationsCount: conversations.keys.length,
         synced: true,
         syncProcessState: SyncProcessState.Idle,

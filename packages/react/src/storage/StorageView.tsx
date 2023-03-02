@@ -105,6 +105,12 @@ function StorageView() {
         }
     };
 
+    // useEffect(() => {
+    //     if (state.userDb && !state.userDb.synced) {
+    //         sync();
+    //     }
+    // }, [state.userDb?.synced]);
+
     useEffect(() => {
         if (
             state.connection.storageLocation ===

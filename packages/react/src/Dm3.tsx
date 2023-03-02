@@ -176,6 +176,7 @@ function dm3(props: dm3Props) {
                 `[getContacts] Couldn't handle new messages. User db not created.`,
             );
         }
+
         Lib.log('[getContacts]');
 
         return requestContacts(

@@ -8,6 +8,8 @@ export enum UserDbType {
     setSynced = 'SET_SYNCED',
     setConfigViewed = 'SET_CONFIG_VIEWED',
     setSyncProcessState = 'SET_SYNC_PROCESS_STATE',
+    hideContact = 'HIDE_CONTACT',
+    unhideContact = 'UNHIDE_CONTACT',
 }
 
 export type UserDbPayload = {
@@ -20,6 +22,8 @@ export type UserDbPayload = {
     [UserDbType.setSynced]: boolean;
     [UserDbType.setConfigViewed]: boolean;
     [UserDbType.setSyncProcessState]: Lib.storage.SyncProcessState;
+    [UserDbType.hideContact]: string;
+    [UserDbType.unhideContact]: string;
 };
 
 export type UserDbActions =
@@ -158,6 +162,7 @@ export function userDbReducer(
             return {
                 ...state,
                 configViewed: action.payload,
+                lastChangeTimestamp,
             };
 
         case UserDbType.setSyncProcessState:
@@ -174,6 +179,56 @@ export function userDbReducer(
                 return {
                     ...state,
                     syncProcessState: action.payload,
+                    lastChangeTimestamp,
+                };
+            }
+
+        case UserDbType.hideContact:
+            if (!state) {
+                throw Error(`UserDB hasn't been created.`);
+            }
+
+            if (
+                state.hiddenContacts.find(
+                    (contact) => contact === action.payload,
+                )
+            ) {
+                Lib.log(`[DB] Contact ${action.payload} already hidden`);
+                return state;
+            } else {
+                Lib.log(`[DB] Hide contact ${action.payload} `);
+
+                return {
+                    ...state,
+                    hiddenContacts: [...state.hiddenContacts, action.payload],
+                    synced: false,
+                    lastChangeTimestamp,
+                };
+            }
+
+        case UserDbType.unhideContact:
+            if (!state) {
+                throw Error(`UserDB hasn't been created.`);
+            }
+
+            if (
+                !state.hiddenContacts.find(
+                    (contact) => contact === action.payload,
+                )
+            ) {
+                Lib.log(`[DB] Contact ${action.payload} not hidden`);
+                return state;
+            } else {
+                Lib.log(`[DB] Unhide contact ${action.payload} `);
+
+                return {
+                    ...state,
+                    hiddenContacts: state.hiddenContacts.filter(
+                        (contact) =>
+                            Lib.account.normalizeEnsName(contact) !==
+                            Lib.account.normalizeEnsName(action.payload),
+                    ),
+                    synced: false,
                     lastChangeTimestamp,
                 };
             }

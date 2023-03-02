@@ -22,16 +22,10 @@ function Contacts(props: ContactsProps) {
     }, [state.auth?.currentSession?.token, state.connection.socket]);
 
     useEffect(() => {
-        if (state.userDb?.conversations) {
+        if (state.userDb?.conversations && state.userDb?.conversationsCount) {
             props.getContacts(state.connection);
         }
-    }, [state.userDb?.conversationsCount]);
-
-    useEffect(() => {
-        if (state.userDb?.conversations) {
-            props.getContacts(state.connection);
-        }
-    }, []);
+    }, [state.userDb?.conversations]);
 
     return (
         <div className="w-100 flex-grow-1 contacts overflow-overlay">
