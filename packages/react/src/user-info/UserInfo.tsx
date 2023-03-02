@@ -12,7 +12,7 @@ import axios from 'axios';
 import ConfigView from '../domain-config/ConfigView';
 import { AccountsType } from '../reducers/Accounts';
 import { UserDbType } from '../reducers/UserDB';
-import { UiStateType } from '../reducers/UiState';
+import { SelectedRightView, UiStateType } from '../reducers/UiState';
 
 interface UserInfoProps {
     account: Lib.account.Account;
@@ -313,6 +313,14 @@ function UserInfo(props: UserInfoProps) {
                                         type="button"
                                         onClick={() => {
                                             dispatch({
+                                                type: AccountsType.SetSelectedContact,
+                                                payload: undefined,
+                                            });
+                                            dispatch({
+                                                type: UiStateType.SetSelectedRightView,
+                                                payload: SelectedRightView.Chat,
+                                            });
+                                            dispatch({
                                                 type: UserDbType.hideContact,
                                                 payload: props.account.ensName,
                                             });
@@ -323,10 +331,6 @@ function UserInfo(props: UserInfoProps) {
                                             dispatch({
                                                 type: AccountsType.SetAccountInfoView,
                                                 payload: AccountInfo.None,
-                                            });
-                                            dispatch({
-                                                type: AccountsType.SetSelectedContact,
-                                                payload: undefined,
                                             });
                                         }}
                                         className="btn btn-outline-secondary domain-config-btn"

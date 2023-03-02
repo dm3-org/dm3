@@ -17,12 +17,7 @@ function LeftView(props: LeftViewProps) {
 
     return state.uiState.maxLeftView ? (
         <div
-            className={`col-md-${
-                state.accounts.selectedContact ||
-                state.uiState.selectedRightView === SelectedRightView.UserInfo
-                    ? '4'
-                    : '12'
-            } pe-0 ps-0 d-flex align-items-start flex-column left-view`}
+            className={`col-md-4 pe-0 ps-0 d-flex align-items-start flex-column left-view`}
         >
             <LeftHeader />
             {state.connection.connectionState ===
