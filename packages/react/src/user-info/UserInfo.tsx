@@ -12,6 +12,7 @@ import axios from 'axios';
 import ConfigView from '../domain-config/ConfigView';
 import { AccountsType } from '../reducers/Accounts';
 import { UserDbType } from '../reducers/UserDB';
+import { UiStateType } from '../reducers/UiState';
 
 interface UserInfoProps {
     account: Lib.account.Account;
@@ -302,6 +303,40 @@ function UserInfo(props: UserInfoProps) {
                         </div>
                     </div>
                 )}
+
+                {state.accounts.accountInfoView !== AccountInfo.Account &&
+                    state.connection.account?.ensName && (
+                        <div className="row row-space">
+                            <div className="col-12 d-flex justify-content-center">
+                                <div>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            dispatch({
+                                                type: UserDbType.hideContact,
+                                                payload: props.account.ensName,
+                                            });
+                                            dispatch({
+                                                type: AccountsType.RemoveContact,
+                                                payload: props.account.ensName,
+                                            });
+                                            dispatch({
+                                                type: AccountsType.SetAccountInfoView,
+                                                payload: AccountInfo.None,
+                                            });
+                                            dispatch({
+                                                type: AccountsType.SetSelectedContact,
+                                                payload: undefined,
+                                            });
+                                        }}
+                                        className="btn btn-outline-secondary domain-config-btn"
+                                    >
+                                        Hide Contact
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
             </div>
         </div>
     );

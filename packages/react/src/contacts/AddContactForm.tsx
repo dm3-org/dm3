@@ -21,17 +21,33 @@ function AddContactForm(props: AddContactFormProps) {
     const { state, dispatch } = useContext(GlobalContext);
 
     const add = async () => {
+        const normalizedAccountName =
+            Lib.account.normalizeEnsName(accountToAdd);
         try {
-            await Lib.account.addContact(
-                state.connection,
-                accountToAdd,
-                state.userDb as Lib.storage.UserDB,
-                (id: string) =>
-                    dispatch({
-                        type: UserDbType.createEmptyConversation,
-                        payload: id,
-                    }),
-            );
+            if (
+                state.userDb?.hiddenContacts.find(
+                    (contact) =>
+                        Lib.account.normalizeEnsName(contact) ===
+                        normalizedAccountName,
+                )
+            ) {
+                dispatch({
+                    type: UserDbType.unhideContact,
+                    payload: normalizedAccountName,
+                });
+            } else {
+                await Lib.account.addContact(
+                    state.connection,
+                    normalizedAccountName,
+                    state.userDb as Lib.storage.UserDB,
+                    (id: string) =>
+                        dispatch({
+                            type: UserDbType.createEmptyConversation,
+                            payload: id,
+                        }),
+                );
+            }
+
             setAccountToAdd('');
             dispatch({ type: UiStateType.SetShowAddContact, payload: false });
         } catch (e) {

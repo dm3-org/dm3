@@ -5,12 +5,14 @@ export enum AccountsType {
     SetSelectedContact = 'SET_SELECTED_CONTACT',
     SetContacts = 'SET_CONTACTS',
     SetAccountInfoView = 'ACCOUNT_INFO_VIEW',
+    RemoveContact = 'REMOVE_CONTACT',
 }
 
 export type AccountsPayload = {
     [AccountsType.SetSelectedContact]: Contact | undefined;
     [AccountsType.SetContacts]: Contact[] | undefined;
     [AccountsType.SetAccountInfoView]: AccountInfo;
+    [AccountsType.RemoveContact]: string;
 };
 
 export type AccountsActions =
