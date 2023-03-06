@@ -47,6 +47,7 @@ export async function requestContacts(
         userDb,
         deliveryServiceToken,
         createEmptyConversationEntry,
+        connection.ethAddress + Lib.GlobalConf.ADDR_ENS_SUBDOMAIN(),
     );
 
     if (

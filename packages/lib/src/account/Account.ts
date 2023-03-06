@@ -84,6 +84,22 @@ export function isSameEnsName(ensNameA: string, ensNameB: string): boolean {
     return normalizeEnsName(ensNameA) === normalizeEnsName(ensNameB);
 }
 
+function conversationIdToContactEnsName(
+    conversationId: string,
+    ensName: string,
+    alias?: string,
+) {
+    const ensNames = conversationId.split(',');
+    if (ensNames.length !== 2) {
+        throw Error('Invalid conversation id');
+    }
+
+    return normalizeEnsName(ensName) === normalizeEnsName(ensNames[0]) ||
+        (alias && normalizeEnsName(alias) === normalizeEnsName(ensNames[0]))
+        ? normalizeEnsName(ensNames[1])
+        : normalizeEnsName(ensNames[0]);
+}
+
 export async function getContacts(
     connection: Connection,
     deliveryServiceToken: string,
@@ -91,6 +107,7 @@ export async function getContacts(
     getPendingConversations: GetPendingConversations,
     userDb: UserDB,
     createEmptyConversationEntry: (id: string) => void,
+    alias?: string,
 ): Promise<Account[]> {
     if (!connection.provider) {
         throw Error('No provider');
@@ -122,12 +139,12 @@ export async function getContacts(
     // fetch the user profile of the contacts
     const uncheckedProfiles = await Promise.all(
         Array.from(userDb.conversations.keys())
-            .map((conversationId) => conversationId.split(','))
-            .map((ensNames) =>
-                normalizeEnsName(connection.account!.ensName) ===
-                normalizeEnsName(ensNames[0])
-                    ? normalizeEnsName(ensNames[1])
-                    : normalizeEnsName(ensNames[0]),
+            .map((conversationId) =>
+                conversationIdToContactEnsName(
+                    conversationId,
+                    connection.account!.ensName,
+                    alias,
+                ),
             )
             .map(async (ensName) => {
                 const profile = await getUserProfile(connection, ensName);
