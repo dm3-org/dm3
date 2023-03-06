@@ -75,12 +75,12 @@ function Chat() {
                 throw Error('No selected contact');
             }
 
-            const account =
-                Lib.account.normalizeEnsName(
-                    container.envelop.message.metadata.from,
-                ) === state.accounts.selectedContact.account.ensName
-                    ? state.accounts.selectedContact.account
-                    : state.connection.account!;
+            const account = Lib.account.isSameEnsName(
+                container.envelop.message.metadata.from,
+                state.accounts.selectedContact.account.ensName,
+            )
+                ? state.accounts.selectedContact.account
+                : state.connection.account!;
 
             return account.profile?.publicSigningKey
                 ? checkSignature(
@@ -150,8 +150,10 @@ function Chat() {
 
         messageContainers.forEach((container) => {
             if (
-                container.envelop.message.metadata.from ===
-                state.connection.account!.ensName
+                Lib.account.isSameEnsName(
+                    container.envelop.message.metadata.from,
+                    state.connection.account!.ensName,
+                )
             ) {
                 addUserMessage(
                     container.envelop.message.message,
@@ -178,10 +180,10 @@ function Chat() {
                             ) as Lib.messaging.MessageState
                         }
                         time={container.envelop.message.metadata.timestamp}
-                        ownMessage={
-                            container.envelop.message.metadata.from ===
-                            state.connection.account!.ensName
-                        }
+                        ownMessage={Lib.account.isSameEnsName(
+                            container.envelop.message.metadata.from,
+                            state.connection.account!.ensName,
+                        )}
                     />
                 ),
                 {},
