@@ -1,7 +1,7 @@
 import cors from 'cors';
 import * as Lib from 'dm3-lib/dist.backend';
 import express from 'express';
-import { RedisPrefix } from './persistance/getDatabase';
+import { IDatabase, RedisPrefix } from './persistance/getDatabase';
 import { WithLocals } from './types';
 import { auth } from './utils';
 
@@ -59,18 +59,13 @@ export default () => {
 
     router.post('/messages/:ensName/pending', async (req, res, next) => {
         try {
-            const account = await req.app.locals.db.getIdEnsName(
-                req.params.ensName,
-            );
+            const db: IDatabase = req.app.locals.db;
 
-            const pending = await req.app.locals.db.getPending(
-                account,
-                req.app.locals.redisClient,
-            );
-            await req.app.locals.db.deletePending(
-                account,
-                req.app.locals.redisClient,
-            );
+            const account = await db.getIdEnsName(req.params.ensName);
+
+            const pending = await db.getPending(account);
+            await db.deletePending(account);
+
             res.json(pending);
         } catch (e) {
             next(e);
@@ -118,39 +113,14 @@ export default () => {
                                     contactEnsName,
                                 );
 
-                            if (req.app.locals.redisClient) {
-                                const redisKey =
-                                    RedisPrefix.Conversation +
-                                    conversationId +
-                                    ':sync';
+                            if (req.app.locals.db) {
+                                const db: IDatabase = req.app.locals.db;
 
-                                await req.app.locals.redisClient.hSet(
-                                    redisKey,
+                                db.syncAcknoledgment(
+                                    conversationId,
                                     ensName,
                                     req.params.last_message_pull,
                                 );
-
-                                const syncTimestamps: string[] = Object.values(
-                                    await req.app.locals.redisClient.hGetAll(
-                                        redisKey,
-                                    ),
-                                );
-
-                                // TODO: check if both using this delivery service
-                                if (syncTimestamps.length === 2) {
-                                    const lowestTimestamp =
-                                        parseInt(syncTimestamps[0]) >
-                                        parseInt(syncTimestamps[1])
-                                            ? parseInt(syncTimestamps[1])
-                                            : parseInt(syncTimestamps[0]);
-
-                                    await req.app.locals.redisClient.zRemRangeByScore(
-                                        RedisPrefix.Conversation +
-                                            conversationId,
-                                        0,
-                                        lowestTimestamp,
-                                    );
-                                }
                             } else {
                                 throw Error('db not connected');
                             }
