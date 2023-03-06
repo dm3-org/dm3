@@ -68,12 +68,14 @@ export async function addContact(
  * @param deliveryServiceToken Delivery service authentication token
  * @param userDb User storage database
  * @param createEmptyConversationEntry Function to create an empty conversation
+ * @param alias Alias ENS name
  */
 export async function getContacts(
     connection: Connection,
     userDb: UserDB,
     deliveryServiceToken: string,
     createEmptyConversationEntry: (id: string) => void,
+    alias?: string,
 ) {
     return execGetContacts(
         connection,
@@ -82,6 +84,7 @@ export async function getContacts(
         getPendingConversations,
         userDb,
         createEmptyConversationEntry,
+        alias,
     );
 }
 
