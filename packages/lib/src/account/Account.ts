@@ -75,6 +75,15 @@ export function normalizeEnsName(ensName: string): string {
     return ethers.utils.nameprep(ensName);
 }
 
+/**
+ * checks if two ENS names are the same
+ * @param ensNameA first ENS name
+ * @param ensNameB second ENS name
+ */
+export function isSameEnsName(ensNameA: string, ensNameB: string): boolean {
+    return normalizeEnsName(ensNameA) === normalizeEnsName(ensNameB);
+}
+
 export async function getContacts(
     connection: Connection,
     deliveryServiceToken: string,
