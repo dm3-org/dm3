@@ -1,11 +1,6 @@
 import { ethers } from 'ethers';
 import queryString from 'query-string';
-import { GetUserProfile } from '.';
-import { KeyPair } from './../../crypto';
-import {
-    GetPendingConversations,
-    GetUserProfileOffChain,
-} from '../../external-apis/BackendAPI';
+import { GetUserProfileOffChain } from '../../external-apis/BackendAPI';
 import {
     formatAddress,
     GetConractInstance,
@@ -13,14 +8,10 @@ import {
     GetResolver,
 } from '../../external-apis/InjectedWeb3API';
 import { log } from '../../shared/src/log';
-import { stringify } from '../../shared/src/stringify';
 import { sha256 } from '../../shared/src/sha256';
-import {
-    createEmptyConversation,
-    getConversationId,
-    UserDB,
-} from '../../storage/Storage';
+import { stringify } from '../../shared/src/stringify';
 import { Connection } from '../../web3-provider/Web3Provider';
+import { KeyPair } from './../../crypto';
 import { IpfsResolver } from './profileResolver/IpfsResolver';
 import { JsonResolver } from './profileResolver/JsonResolver';
 import { LinkResolver } from './profileResolver/LinkResolver';
@@ -74,84 +65,6 @@ export function normalizeEnsName(ensName: string): string {
     return ethers.utils.nameprep(ensName);
 }
 
-export async function getContacts(
-    connection: Connection,
-    deliveryServiceToken: string,
-    getUserProfile: GetUserProfile,
-    getPendingConversations: GetPendingConversations,
-    userDb: UserDB,
-    createEmptyConversationEntry: (id: string) => void,
-): Promise<Account[]> {
-    if (!connection.provider) {
-        throw Error('No provider');
-    }
-
-    const pendingConversations = await getPendingConversations(
-        connection,
-        deliveryServiceToken,
-    );
-
-    for (const pendingConversation of pendingConversations) {
-        if (
-            !userDb.conversations.has(
-                getConversationId(
-                    normalizeEnsName(connection.account!.ensName),
-                    pendingConversation,
-                ),
-            )
-        ) {
-            await addContact(
-                connection,
-                pendingConversation,
-                userDb,
-                createEmptyConversationEntry,
-            );
-        }
-    }
-
-    // fetch the user profile of the contacts
-    const uncheckedProfiles = await Promise.all(
-        Array.from(userDb.conversations.keys())
-            .map((conversationId) => conversationId.split(','))
-            .map((ensNames) =>
-                normalizeEnsName(connection.account!.ensName) ===
-                normalizeEnsName(ensNames[0])
-                    ? normalizeEnsName(ensNames[1])
-                    : normalizeEnsName(ensNames[0]),
-            )
-            .map(async (ensName) => {
-                const profile = await getUserProfile(connection, ensName);
-                return {
-                    ensName,
-                    profile: profile,
-                };
-            }),
-    );
-
-    // accept if account has a profile and a valid signature
-    // accept if there is no profile and no signature
-    return (
-        await Promise.all(
-            uncheckedProfiles.map(async (uncheckedProfile) => ({
-                valid:
-                    !uncheckedProfile.profile ||
-                    (await checkUserProfile(
-                        connection.provider!,
-                        uncheckedProfile.profile,
-
-                        uncheckedProfile.ensName,
-                    )),
-                container: uncheckedProfile,
-            })),
-        )
-    )
-        .filter((checkedProfile) => checkedProfile.valid)
-        .map((profileContainer) => ({
-            ensName: profileContainer.container.ensName,
-            profile: profileContainer.container.profile?.profile,
-        }));
-}
-
 /**
  * make too long names shorter
  * @param ensName The ENS name
@@ -168,24 +81,6 @@ export function getAccountDisplayName(
               (forFile ? '-' : '...') +
               normalizedEnsName.substring(normalizedEnsName.length - 4)
         : normalizedEnsName;
-}
-
-export async function addContact(
-    connection: Connection,
-    ensName: string,
-    userDb: UserDB,
-    createEmptyConversationEntry: (id: string) => void,
-) {
-    if (
-        !createEmptyConversation(
-            connection,
-            ensName,
-            userDb,
-            createEmptyConversationEntry,
-        )
-    ) {
-        throw Error('Contact exists already.');
-    }
 }
 
 /**

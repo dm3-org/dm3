@@ -11,6 +11,7 @@ export {
     StorageLocation,
     SyncProcessState,
     load,
+    createEmptyConversation,
 } from './Storage';
 
 export { web3Store, web3Load } from './location/Web3Storage';

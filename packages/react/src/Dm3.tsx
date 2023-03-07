@@ -3,7 +3,7 @@ import './Dm3.css';
 import 'react-chat-widget/lib/styles.css';
 import socketIOClient from 'socket.io-client';
 import * as Lib from 'dm3-lib';
-import { requestContacts } from './ui-shared/RequestContacts';
+import { requestContacts } from './ui-shared/contacts/RequestContacts';
 import LeftView from './LeftView';
 import RightView from './RightView';
 import { useBeforeunload } from 'react-beforeunload';

@@ -14,3 +14,4 @@ export {
 } from './InjectedWeb3API';
 
 export { claimAddress, claimSubdomain } from './OffchainResolverApi';
+export type { GetPendingConversations } from './BackendAPI';

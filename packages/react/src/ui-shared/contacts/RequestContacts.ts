@@ -1,6 +1,6 @@
 import axios from 'axios';
 import * as Lib from 'dm3-lib';
-import { Contact } from '../reducers/shared';
+import { Contact } from '../../reducers/shared';
 
 function fetchDeliveryServiceProfile(connection: Lib.Connection) {
     return async (account: Lib.account.Account): Promise<Contact> => {

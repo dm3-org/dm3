@@ -1,88 +1,35 @@
-import {
-    getPendingConversations,
-    getUserProfileOffChain,
-} from '../../external-apis/BackendAPI';
+import axios from 'axios';
+import { getUserProfileOffChain } from '../../external-apis/BackendAPI';
 import {
     getConractInstance,
     getEnsTextRecord,
     getResolver,
 } from '../../external-apis/InjectedWeb3API';
-import { UserDB } from '../../storage';
 import { Connection } from '../../web3-provider/Web3Provider';
 import {
-    addContact as execAddContact,
-    getContacts as execGetContacts,
-    getUserProfile as execGetUserProfile,
     getPublishProfileOnchainTransaction as execGetPublishProfileOnchainTransaction,
+    getUserProfile as execGetUserProfile,
     SignedUserProfile,
 } from './Account';
-import axios from 'axios';
 
+export * as schema from '../schema';
 export {
-    getAccountDisplayName,
-    getBrowserStorageKey,
     checkStringSignature,
-    getProfileCreationMessage,
-    normalizeEnsName,
     checkUserProfile,
     checkUserProfileWithAddress,
+    getAccountDisplayName,
+    getBrowserStorageKey,
+    getProfileCreationMessage,
+    normalizeEnsName,
     PROFILE_RECORD_NAME,
 } from './Account';
-
 export type {
     Account,
     ProfileKeys,
-    UserProfile,
     SignedUserProfile,
+    UserProfile,
 } from './Account';
-
 export type { ProfileExtension } from './profileExtension';
-
-/**
- * add a contact by creating an empty converation with that contact
- *
- * @param connection dm3 connection object
- * @param ensName The ENS name of the contact
- * @param userDb User storage database
- * @param createEmptyConversationEntry Function to create an empty conversation
- */
-export async function addContact(
-    connection: Connection,
-    ensName: string,
-    userDb: UserDB,
-    createEmptyConversationEntry: (id: string) => void,
-) {
-    return execAddContact(
-        connection,
-        ensName,
-        userDb,
-        createEmptyConversationEntry,
-    );
-}
-
-/**
- * returns all accounts based on existing conversations
- *
- * @param connection dm3 connection object
- * @param deliveryServiceToken Delivery service authentication token
- * @param userDb User storage database
- * @param createEmptyConversationEntry Function to create an empty conversation
- */
-export async function getContacts(
-    connection: Connection,
-    userDb: UserDB,
-    deliveryServiceToken: string,
-    createEmptyConversationEntry: (id: string) => void,
-) {
-    return execGetContacts(
-        connection,
-        deliveryServiceToken,
-        getUserProfile,
-        getPendingConversations,
-        userDb,
-        createEmptyConversationEntry,
-    );
-}
 
 /**
  * creates the transaction object that can be used to publish the profile to a top level ens name
@@ -125,5 +72,3 @@ export function getUserProfile(
 }
 
 export type GetUserProfile = typeof getUserProfile;
-
-export * as schema from '../schema';
