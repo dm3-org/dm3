@@ -1,4 +1,4 @@
-import { log } from '../../shared/log';
+import { log } from './../../../shared/src/log';
 import { decode, labelToName } from 'whatwg-encoding';
 import { Dm3Profile, ProfileResolver } from './ProfileResolver';
 

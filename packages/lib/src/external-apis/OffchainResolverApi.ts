@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Account, SignedUserProfile } from '../account/Account';
+import { Account, SignedUserProfile } from '../account/src/Account';
 
 function checkAccount(account: Account | undefined): Required<Account> {
     if (!account) {

@@ -4,11 +4,11 @@ import axios, {
     AxiosRequestConfig,
     AxiosResponse,
 } from 'axios';
-import { GetResource, UserProfile } from '../account/Account';
-import { IpfsResolver } from '../account/profileResolver/IpfsResolver';
-import { JsonResolver } from '../account/profileResolver/JsonResolver';
-import { LinkResolver } from '../account/profileResolver/LinkResolver';
-import { ProfileResolver } from '../account/profileResolver/ProfileResolver';
+import { GetResource, UserProfile } from '../account/src/Account';
+import { IpfsResolver } from '../account/src/profileResolver/IpfsResolver';
+import { JsonResolver } from '../account/src/profileResolver/JsonResolver';
+import { LinkResolver } from '../account/src/profileResolver/LinkResolver';
+import { ProfileResolver } from '../account/src/profileResolver/ProfileResolver';
 import { Connection } from '../web3-provider/Web3Provider';
 import { validateDeliveryServiceProfile } from './Validation';
 

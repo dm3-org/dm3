@@ -1,14 +1,14 @@
-import { Account, ProfileKeys, UserProfile } from '../../account';
+import { Account, ProfileKeys, UserProfile } from '../../account/src';
 import { SubmitUserProfile } from '../../external-apis/BackendAPI';
 import { PersonalSign } from '../../external-apis/InjectedWeb3API';
-import { stringify } from '../../shared/stringify';
+import { stringify } from '../../shared/src/stringify';
 import { createDB, UserDB } from '../../storage';
 import { ConnectionState } from '../../web3-provider';
 import { Connection } from '../../web3-provider/Web3Provider';
 import { createKeyPairsFromSig } from './signProfileKeyPair';
 import { signProfile as signProfile } from './signProfile';
 import { claimAddress } from '../../external-apis';
-import { SignedUserProfile } from '../../account/Account';
+import { SignedUserProfile } from '../../account/src/Account';
 import { GlobalConf } from '../..';
 
 const DEFAULT_NONCE = 0;

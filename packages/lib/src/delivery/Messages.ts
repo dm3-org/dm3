@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import stringify from 'safe-stable-stringify';
-import { normalizeEnsName } from '../account';
+import { normalizeEnsName } from '../account/src';
 
 import {
     decryptAsymmetric,
@@ -10,7 +10,7 @@ import {
     sign,
 } from '../crypto';
 import { DeliveryInformation, EncryptionEnvelop, Postmark } from '../messaging';
-import { sha256 } from '../shared/sha256';
+import { sha256 } from '../shared/src/sha256';
 import { isSpam } from '../spam-filter';
 import { getConversationId } from '../storage/Storage';
 import { checkToken, Session } from './Session';

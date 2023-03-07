@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Session } from './Session';
 import { checkSignature } from '../crypto';
-import { normalizeEnsName } from '../account';
+import { normalizeEnsName } from '../account/src';
 
 export async function createChallenge(
     getSession: (accountAddress: string) => Promise<Session | null>,

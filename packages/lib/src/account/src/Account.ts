@@ -1,27 +1,26 @@
-import { profile } from 'console';
 import { ethers } from 'ethers';
 import queryString from 'query-string';
-import stringify from 'safe-stable-stringify';
 import { GetUserProfile } from '.';
-import { KeyPair } from '../crypto';
+import { KeyPair } from './../../crypto';
 import {
     GetPendingConversations,
     GetUserProfileOffChain,
-} from '../external-apis/BackendAPI';
+} from '../../external-apis/BackendAPI';
 import {
     formatAddress,
     GetConractInstance,
     GetEnsTextRecord,
     GetResolver,
-} from '../external-apis/InjectedWeb3API';
-import { log } from '../shared/log';
-import { sha256 } from '../shared/sha256';
+} from '../../external-apis/InjectedWeb3API';
+import { log } from '../../shared/src/log';
+import { stringify } from '../../shared/src/stringify';
+import { sha256 } from '../../shared/src/sha256';
 import {
     createEmptyConversation,
     getConversationId,
     UserDB,
-} from '../storage/Storage';
-import { Connection } from '../web3-provider/Web3Provider';
+} from '../../storage/Storage';
+import { Connection } from '../../web3-provider/Web3Provider';
 import { IpfsResolver } from './profileResolver/IpfsResolver';
 import { JsonResolver } from './profileResolver/JsonResolver';
 import { LinkResolver } from './profileResolver/LinkResolver';

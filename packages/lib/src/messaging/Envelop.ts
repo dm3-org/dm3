@@ -1,6 +1,6 @@
 import { EncryptAsymmetric, sign } from '../crypto';
-import { sha256 } from '../shared/sha256';
-import { stringify } from '../shared/stringify';
+import { sha256 } from '../shared/src/sha256';
+import { stringify } from '../shared/src/stringify';
 import { Message, Postmark, SendDependencies } from './Message';
 
 export interface EnvelopeMetadata {

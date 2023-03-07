@@ -1,6 +1,6 @@
 import { BigNumber, ethers } from 'ethers';
 import { DeliveryInformation } from '../../../messaging';
-import { log } from '../../../shared/log';
+import { log } from '../../../shared/src/log';
 import { SpamFilterRule } from '../../SpamFilterRules';
 import { SpamFilterFactory } from '../SpamFilter';
 import ERC20Abi from './Erc20Abi.json';

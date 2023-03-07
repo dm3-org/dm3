@@ -1,14 +1,14 @@
 import {
     getPendingConversations,
     getUserProfileOffChain,
-} from '../external-apis/BackendAPI';
+} from '../../external-apis/BackendAPI';
 import {
     getConractInstance,
     getEnsTextRecord,
     getResolver,
-} from '../external-apis/InjectedWeb3API';
-import { UserDB } from '../storage';
-import { Connection } from '../web3-provider/Web3Provider';
+} from '../../external-apis/InjectedWeb3API';
+import { UserDB } from '../../storage';
+import { Connection } from '../../web3-provider/Web3Provider';
 import {
     addContact as execAddContact,
     getContacts as execGetContacts,
@@ -126,4 +126,4 @@ export function getUserProfile(
 
 export type GetUserProfile = typeof getUserProfile;
 
-export * as schema from './schema';
+export * as schema from '../schema';

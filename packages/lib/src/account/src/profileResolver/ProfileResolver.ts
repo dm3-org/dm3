@@ -1,4 +1,4 @@
-import { DeliveryServiceProfile } from '../../delivery/Delivery';
+import { DeliveryServiceProfile } from '../../../delivery/Delivery';
 import { SignedUserProfile } from '../Account';
 
 export type Dm3Profile = SignedUserProfile | DeliveryServiceProfile;

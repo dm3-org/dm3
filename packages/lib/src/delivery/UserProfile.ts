@@ -2,8 +2,8 @@ import {
     SignedUserProfile,
     checkUserProfile,
     normalizeEnsName,
-} from '../account/Account';
-import { getDefaultProfileExtension } from '../account/profileExtension/ProfileExtension';
+} from '../account/src/Account';
+import { getDefaultProfileExtension } from '../account/src/profileExtension/ProfileExtension';
 import { Session } from './Session';
 import { v4 as uuidv4 } from 'uuid';
 import { ethers } from 'ethers';

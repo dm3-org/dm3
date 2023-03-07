@@ -1,5 +1,5 @@
 import { ethers, providers } from 'ethers';
-import { stringify } from '../shared/stringify';
+import { stringify } from '../../shared/stringify';
 import { sha256 } from 'ethers/lib/utils';
 
 import {
@@ -8,9 +8,9 @@ import {
     StorageLocation,
     SyncProcessState,
     UserDB,
-} from '../storage/Storage';
+} from '../../storage/Storage';
 
-import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
+import { Connection, ConnectionState } from '../../web3-provider/Web3Provider';
 import {
     Account,
     addContact,

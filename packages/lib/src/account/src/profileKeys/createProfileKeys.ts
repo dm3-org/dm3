@@ -1,4 +1,4 @@
-import { createKeyPair, createSigningKeyPair } from '../../crypto';
+import { createKeyPair, createSigningKeyPair } from '../../../crypto';
 import { ProfileKeys } from '../Account';
 
 export async function createProfileKeys(

@@ -1,5 +1,5 @@
-import { ProfileKeys } from '../../account';
-import { createProfileKeys } from '../../account/profileKeys/createProfileKeys';
+import { ProfileKeys } from '../../account/src';
+import { createProfileKeys } from '../../account/src/profileKeys/createProfileKeys';
 import { createStorageKey, getStorageKeyCreationMessage } from '../../crypto';
 import { PersonalSign } from '../../external-apis/InjectedWeb3API';
 import { Connection } from '../../web3-provider/Web3Provider';

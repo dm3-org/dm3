@@ -1,8 +1,8 @@
-import { stringify } from '../../shared/stringify';
+import { stringify } from '../../shared/src/stringify';
 import { Web3Storage, Web3File } from 'web3.storage';
 import { UserDB } from '..';
 import { Acknoledgment } from '../../delivery';
-import { log } from '../../shared/log';
+import { log } from '../../shared/src/log';
 import { Connection } from '../../web3-provider/Web3Provider';
 import { sync } from '../Storage';
 import { FILE_NAME_PREFIX, getTimestamp } from '../Utils';

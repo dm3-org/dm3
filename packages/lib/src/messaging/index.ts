@@ -1,6 +1,6 @@
 import axios from 'axios';
 import stringify from 'safe-stable-stringify';
-import { ProfileKeys } from '../account';
+import { ProfileKeys } from '../account/src';
 import { encryptAsymmetric, sign } from '../crypto';
 import { getDeliveryServiceProfile as execGetDeliveryServiceProfile } from '../delivery';
 import { getNewMessages } from '../external-apis';

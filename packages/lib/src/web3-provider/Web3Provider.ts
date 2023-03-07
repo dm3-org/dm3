@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { Socket } from 'socket.io-client';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { StorageLocation } from '../storage/Storage';
-import { Account } from '../account/Account';
+import { Account } from '../account/src/Account';
 
 export enum ConnectionState {
     CollectingSignInData,

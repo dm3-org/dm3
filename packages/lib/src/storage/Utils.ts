@@ -1,4 +1,4 @@
-import { log } from '../shared/log';
+import { log } from '../shared/src/log';
 
 export const FILE_NAME_PREFIX = 'dm3';
 

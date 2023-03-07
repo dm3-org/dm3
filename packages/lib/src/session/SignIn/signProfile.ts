@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { getProfileCreationMessage } from '../../account/Account';
+import { getProfileCreationMessage } from '../../account/src/Account';
 import { PersonalSign } from '../../external-apis/InjectedWeb3API';
 
 export async function signProfile(

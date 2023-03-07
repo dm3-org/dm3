@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Account, ProfileKeys } from '../account/Account';
+import { Account, ProfileKeys } from '../account/src/Account';
 import { decryptAsymmetric, EncryptAsymmetric } from '../crypto';
 import { DeliveryServiceProfile, getDeliveryServiceProfile } from '../delivery';
 import {
@@ -7,7 +7,7 @@ import {
     GetNewMessages,
     SubmitMessage,
 } from '../external-apis/BackendAPI';
-import { log } from '../shared/log';
+import { log } from '../shared/src/log';
 import {
     getConversation,
     StorageEnvelopContainer,

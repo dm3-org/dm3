@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import { ProfileExtension } from '../account';
-import { SignedUserProfile } from '../account/Account';
+import { ProfileExtension } from '../account/src';
+import { SignedUserProfile } from '../account/src/Account';
 import { SpamFilterRules } from '../spam-filter/SpamFilterRules';
 
 //1Year

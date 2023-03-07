@@ -4,11 +4,11 @@ import {
     Account,
     normalizeEnsName,
     SignedUserProfile,
-} from '../account/Account';
+} from '../account/src/Account';
 import { Acknoledgment } from '../delivery';
 import { getDeliveryServiceClient } from '../delivery/Delivery';
 import { EncryptionEnvelop, Envelop } from '../messaging';
-import { log } from '../shared/log';
+import { log } from '../shared/src/log';
 import { Connection } from '../web3-provider/Web3Provider';
 import { formatAddress } from './InjectedWeb3API';
 
