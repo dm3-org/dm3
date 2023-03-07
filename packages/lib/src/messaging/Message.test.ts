@@ -1,14 +1,13 @@
 import { ethers } from 'ethers';
 import { EncryptionEnvelop, Envelop, Message, SendDependencies } from '.';
-import { createProfileKeys } from '../account/profileKeys/createProfileKeys';
-import { JsonResolver } from '../account/profileResolver/JsonResolver';
+import { createProfileKeys } from '../account/src/profileKeys/createProfileKeys';
 import {
-    getStorageKeyCreationMessage,
     createStorageKey,
     encryptAsymmetric,
-} from '../crypto';
+    getStorageKeyCreationMessage,
+} from '../crypto/src';
 import { DeliveryServiceProfile } from '../delivery';
-import { stringify } from '../shared/stringify';
+import { stringify } from '../shared/src/stringify';
 import { StorageLocation, UserDB } from '../storage';
 import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
 import { getMessages, submitMessage } from './Message';

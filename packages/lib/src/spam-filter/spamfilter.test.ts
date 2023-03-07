@@ -1,9 +1,9 @@
 import { ethers } from 'ethers';
 
 import { isSpam } from '.';
-import { decryptAsymmetric } from '../crypto';
-import { Session } from '../delivery';
 import { testData } from '../../../../test-data/encrypted-envelops.test';
+import { decryptAsymmetric } from '../crypto/src';
+import { Session } from '../delivery';
 
 const keysA = {
     encryptionKeyPair: {

@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import { getProfileCreationMessage, UserProfile } from '../account';
-import { stringify } from '../shared/stringify';
+import { getProfileCreationMessage, UserProfile } from '../account/src';
+import { stringify } from '../shared/src/stringify';
 import { Session } from './Session';
 import { getUserProfile, submitUserProfile } from './UserProfile';
 

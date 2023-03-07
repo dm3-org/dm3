@@ -1,4 +1,4 @@
-import { EncryptAsymmetric, sign } from '../crypto';
+import { EncryptAsymmetric, sign } from '../crypto/src';
 import { sha256 } from '../shared/src/sha256';
 import { stringify } from '../shared/src/stringify';
 import { Message, Postmark, SendDependencies } from './Message';

@@ -11,7 +11,7 @@ import { log } from '../../shared/src/log';
 import { sha256 } from '../../shared/src/sha256';
 import { stringify } from '../../shared/src/stringify';
 import { Connection } from '../../web3-provider/Web3Provider';
-import { KeyPair } from './../../crypto';
+import { KeyPair } from './../../crypto/src';
 import { IpfsResolver } from './profileResolver/IpfsResolver';
 import { JsonResolver } from './profileResolver/JsonResolver';
 import { LinkResolver } from './profileResolver/LinkResolver';

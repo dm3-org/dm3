@@ -1,5 +1,3 @@
-import { ethers } from 'ethers';
-import { checkSignature, sign } from '../crypto';
 import { createChallenge, createNewSessionToken } from './Keys';
 import { Session } from './Session';
 

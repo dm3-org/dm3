@@ -1,10 +1,10 @@
 import { ethers } from 'ethers';
-import { createProfileKeys } from '../account/profileKeys/createProfileKeys';
+import { createProfileKeys } from '../account/src/profileKeys/createProfileKeys';
 import {
     createStorageKey,
     EncryptAsymmetric,
     getStorageKeyCreationMessage,
-} from '../crypto';
+} from '../crypto/src';
 import { buildEnvelop } from './Envelop';
 import { Message, SendDependencies } from './Message';
 

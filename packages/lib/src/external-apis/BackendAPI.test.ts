@@ -1,5 +1,5 @@
-import { Account } from '../account';
-import { SignedUserProfile } from '../account/Account';
+import { Account } from '../account/src';
+import { SignedUserProfile } from '../account/src/Account';
 import { Acknoledgment } from '../delivery';
 import { Envelop } from '../messaging';
 import { Connection } from '../web3-provider/Web3Provider';

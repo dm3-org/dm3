@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Session } from './Session';
-import { checkSignature } from '../crypto';
+import { checkSignature } from '../crypto/src';
 import { normalizeEnsName } from '../account/src';
 
 export async function createChallenge(

@@ -1,11 +1,11 @@
 import { BigNumber, ethers } from 'ethers';
-import { normalizeEnsName, UserProfile } from '../account/Account';
-import { decryptAsymmetric, encryptAsymmetric } from '../crypto';
-import { DeliveryInformation, EncryptionEnvelop } from '../messaging/Envelop';
-import { stringify } from '../shared/stringify';
+import { testData } from '../../../../test-data/encrypted-envelops.test';
+import { normalizeEnsName, UserProfile } from '../account/src/Account';
+import { decryptAsymmetric } from '../crypto/src';
+import { EncryptionEnvelop } from '../messaging/Envelop';
+import { stringify } from '../shared/src/stringify';
 import { getConversationId } from '../storage/Storage';
 import { getMessages, incomingMessage } from './Messages';
-import { testData } from '../../../../test-data/encrypted-envelops.test';
 import { Session } from './Session';
 
 const SENDER_NAME = 'alice.eth';

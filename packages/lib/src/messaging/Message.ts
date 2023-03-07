@@ -1,7 +1,6 @@
-import axios from 'axios';
 import { Account, ProfileKeys } from '../account/src/Account';
-import { decryptAsymmetric, EncryptAsymmetric } from '../crypto';
-import { DeliveryServiceProfile, getDeliveryServiceProfile } from '../delivery';
+import { decryptAsymmetric, EncryptAsymmetric } from '../crypto/src';
+import { DeliveryServiceProfile } from '../delivery';
 import {
     CreatePendingEntry,
     GetNewMessages,

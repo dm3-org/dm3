@@ -8,7 +8,7 @@ import {
     EncryptedPayload,
     KeyPair,
     sign,
-} from '../crypto';
+} from '../crypto/src';
 import { DeliveryInformation, EncryptionEnvelop, Postmark } from '../messaging';
 import { sha256 } from '../shared/src/sha256';
 import { isSpam } from '../spam-filter';

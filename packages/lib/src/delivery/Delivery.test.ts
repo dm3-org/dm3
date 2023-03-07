@@ -1,14 +1,13 @@
-import axios, { AxiosError } from 'axios';
-import { assert } from 'console';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
 import { ethers } from 'ethers';
-import { UserProfile } from '../account/Account';
+import { UserProfile } from '../account/src/Account';
 import { Connection } from '../web3-provider/Web3Provider';
 import {
     DeliveryServiceProfile,
     getDeliveryServiceClient,
     getDeliveryServiceProfile,
 } from './Delivery';
-import MockAdapter from 'axios-mock-adapter';
 
 describe('Delivery', () => {
     let axiosMock: MockAdapter;
