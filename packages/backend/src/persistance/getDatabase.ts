@@ -6,6 +6,7 @@ import Storage from './storage';
 import Pending from './pending';
 import { getIdEnsName } from './session/getIdEnsName';
 import winston from 'winston';
+import { syncAcknoledgment } from './messages/syncAcknoledgment';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -66,6 +67,7 @@ export async function getDatabase(
         getPending: Pending.getPending(redis),
         deletePending: Pending.deletePending(redis),
         getIdEnsName: getIdEnsName(redis),
+        syncAcknoledgment: syncAcknoledgment(redis),
     };
 }
 
@@ -98,6 +100,11 @@ export interface IDatabase {
     getPending: (ensName: string) => Promise<string[]>;
     deletePending: (ensName: string) => Promise<void>;
     getIdEnsName: (ensName: string) => Promise<string>;
+    syncAcknoledgment: (
+        conversationId: string,
+        ensName: string,
+        lastMessagePull: string,
+    ) => Promise<void>;
 }
 
 export type Redis = Awaited<ReturnType<typeof getRedisClient>>;
