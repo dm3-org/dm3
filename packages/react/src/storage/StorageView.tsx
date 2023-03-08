@@ -105,29 +105,6 @@ function StorageView() {
         }
     };
 
-    useEffect(() => {
-        if (
-            state.connection.storageLocation ===
-                Lib.storage.StorageLocation.Web3Storage ||
-            state.connection.storageLocation ===
-                Lib.storage.StorageLocation.GoogleDrive ||
-            state.connection.storageLocation ===
-                Lib.storage.StorageLocation.dm3Storage
-        ) {
-            const autoSync = setInterval(() => {
-                if (state.userDb && !state.userDb.synced) {
-                    Lib.log(
-                        `Auto create user storage external snapshot at timestamp ${state.userDb?.lastChangeTimestamp}`,
-                    );
-                    sync();
-                }
-            }, 500);
-            return () => {
-                clearInterval(autoSync);
-            };
-        }
-    }, [state.connection.storageLocation, state.userDb, state.userDb?.synced]);
-
     const autoSync = () => {
         if (
             (state.connection.storageLocation ===

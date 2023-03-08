@@ -241,7 +241,7 @@ describe('Account', () => {
                 synced: true,
             };
 
-            userDb.conversations.set('alice.eth,bob.eth', []);
+            userDb.conversations.set('bob.eth', []);
 
             expect(
                 await getContacts(
@@ -274,7 +274,7 @@ describe('Account', () => {
                 synced: true,
             };
 
-            userDb.conversations.set('alice.eth,bob.eth', []);
+            userDb.conversations.set('alice.eth', []);
 
             expect(
                 await getContacts(
@@ -310,10 +310,7 @@ describe('Account', () => {
             };
             const profile = await getProfileData();
 
-            userDb.conversations.set(
-                getConversationId(profile.account.ensName, 'bob.eth'),
-                [],
-            );
+            userDb.conversations.set('bob.eth', []);
 
             expect(
                 await getContacts(
@@ -390,7 +387,7 @@ describe('Account', () => {
                     conversations.push(id);
                 },
             );
-            expect(conversations).toStrictEqual(['alice.eth,bob.eth']);
+            expect(conversations).toStrictEqual(['bob.eth']);
         });
 
         test('should throw if provider is undefined', async () => {
@@ -405,69 +402,6 @@ describe('Account', () => {
                     () => {},
                 ),
             ).rejects.toEqual(Error('No provider'));
-        });
-    });
-
-    describe('addContact', () => {
-        test('Should create an empty conversation for a new contact ', (done) => {
-            const userDb: UserDB = {
-                conversations: new Map<string, StorageEnvelopContainer[]>(),
-                conversationsCount: 0,
-                keys,
-                hiddenContacts: [],
-                lastChangeTimestamp: 0,
-                syncProcessState: SyncProcessState.Idle,
-                synced: true,
-            };
-
-            addContact(connection, 'bob.eth', userDb, (id: string) => {
-                expect(id).toStrictEqual('alice.eth,bob.eth');
-                done();
-                return true;
-            });
-        });
-
-        test('Should create an empty conversation for a new contact  after resolving the ENS name', (done) => {
-            const userDb: UserDB = {
-                conversations: new Map<string, StorageEnvelopContainer[]>(),
-                conversationsCount: 0,
-                keys,
-                hiddenContacts: [],
-                lastChangeTimestamp: 0,
-                syncProcessState: SyncProcessState.Idle,
-                synced: true,
-            };
-
-            addContact(
-                connection,
-                'test.eth',
-
-                userDb,
-                (id: string) => {
-                    expect(id).toStrictEqual('alice.eth,test.eth');
-                    done();
-                },
-            );
-        });
-
-        test('Should reject to add a contact if the contact was already added', async () => {
-            const userDb: UserDB = {
-                conversations: new Map<string, StorageEnvelopContainer[]>(),
-                conversationsCount: 0,
-                keys,
-                hiddenContacts: [],
-                lastChangeTimestamp: 0,
-                syncProcessState: SyncProcessState.Idle,
-                synced: true,
-            };
-
-            userDb.conversations.set('alice.eth,bob.eth', []);
-            userDb.conversationsCount = 1;
-
-            expect.assertions(1);
-            await expect(
-                addContact(connection, 'bob.eth', userDb, () => false),
-            ).rejects.toEqual(Error('Contact exists already.'));
         });
     });
 

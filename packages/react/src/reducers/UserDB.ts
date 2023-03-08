@@ -49,18 +49,15 @@ export function userDbReducer(
 
             let hasChanged = false;
 
-            const contactEnsName =
+            const contactEnsName = Lib.account.normalizeEnsName(
                 container.envelop.message.metadata.from ===
-                connection.account!.ensName
+                    connection.account!.ensName
                     ? container.envelop.message.metadata.to
-                    : container.envelop.message.metadata.from;
-            const conversationId = Lib.storage.getConversationId(
-                contactEnsName,
-                connection.account!.ensName,
+                    : container.envelop.message.metadata.from,
             );
+
             const prevContainers = Lib.storage.getConversation(
                 contactEnsName,
-                connection,
                 state,
             );
 
@@ -69,14 +66,14 @@ export function userDbReducer(
             }
 
             if (prevContainers.length === 0) {
-                newConversations.set(conversationId, [container]);
+                newConversations.set(contactEnsName, [container]);
                 hasChanged = true;
             } else if (
                 prevContainers[prevContainers.length - 1].envelop.message
                     .metadata.timestamp <
                 container.envelop.message.metadata.timestamp
             ) {
-                newConversations.set(conversationId, [
+                newConversations.set(contactEnsName, [
                     ...prevContainers,
                     container,
                 ]);
@@ -88,7 +85,7 @@ export function userDbReducer(
                 );
 
                 newConversations.set(
-                    conversationId,
+                    contactEnsName,
                     Lib.storage.sortEnvelops([...otherContainer, container]),
                 );
                 hasChanged = true;
@@ -118,6 +115,17 @@ export function userDbReducer(
         case UserDbType.createEmptyConversation:
             if (!state) {
                 throw Error(`UserDB hasn't been created.`);
+            }
+
+            if (
+                state.conversations.has(
+                    Lib.account.normalizeEnsName(action.payload),
+                )
+            ) {
+                Lib.log(
+                    `[DB] Converation exists already (timestamp: ${lastChangeTimestamp})`,
+                );
+                return state;
             }
             Lib.log(
                 `[DB] Create empty conversation (timestamp: ${lastChangeTimestamp})`,
