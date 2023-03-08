@@ -111,26 +111,20 @@ describe('Storage', () => {
             } as Connection;
             const db = createDB(profileKeys);
 
-            const conversations = getConversation(USER_1, connection, db);
+            const conversations = getConversation(USER_1, db);
 
             expect(conversations).toStrictEqual([]);
         });
         it('Returns the conversation between the account specified in the connection and the contact ', async () => {
-            const connection = {
-                account: { ensName: USER_2 },
-            } as Connection;
-
             const profileKeys = await getMockProfileKeys();
 
             const db = createDB(profileKeys);
 
-            const conversationId = getConversationId(USER_1, USER_2);
-
             const expectedConversation = [getStorageEnvelopeContainer()];
 
-            db.conversations.set(conversationId, expectedConversation);
+            db.conversations.set(USER_1, expectedConversation);
 
-            const actualConversation = getConversation(USER_1, connection, db);
+            const actualConversation = getConversation(USER_1, db);
             expect(actualConversation).toStrictEqual(expectedConversation);
         });
     });
@@ -241,56 +235,6 @@ describe('Storage', () => {
             );
 
             expect(loadDb.conversationsCount).toBe(0);
-        });
-    });
-
-    describe('createEmptyConversation', () => {
-        it('Returns true and creates a new conversation if the conversionId was not used so far', async () => {
-            const connection = {
-                account: { ensName: USER_2 },
-            } as Connection;
-
-            const keys = await getMockProfileKeys();
-
-            const db = createDB(keys);
-
-            const createEmptyConversationMock = jest.fn();
-
-            const createdNewConversation = createEmptyConversation(
-                connection,
-                USER_1,
-                db,
-                createEmptyConversationMock,
-            );
-
-            expect(createdNewConversation).toBe(true);
-            expect(createEmptyConversationMock).toBeCalledWith(
-                getConversationId(USER_2, USER_1),
-            );
-        });
-        it('Returns false and conversionId was used before', async () => {
-            const connection = {
-                account: { ensName: USER_2 },
-            } as Connection;
-
-            const conversionId = getConversationId(USER_2, USER_1);
-            const keys = await getMockProfileKeys();
-
-            const db = createDB(keys);
-
-            db.conversations.set(conversionId, [getStorageEnvelopeContainer()]);
-
-            const createEmptyConversationMock = jest.fn();
-
-            const createdNewConversation = createEmptyConversation(
-                connection,
-                USER_1,
-                db,
-                createEmptyConversationMock,
-            );
-
-            expect(createdNewConversation).toBe(false);
-            expect(createEmptyConversationMock).not.toBeCalled();
         });
     });
 });

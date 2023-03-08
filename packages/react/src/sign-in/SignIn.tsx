@@ -177,7 +177,7 @@ function SignIn(props: SignInProps) {
                 </div>
             </div>
             <div className="d-flex justify-content-center mt-4">
-                <div className="d-flex justify-content-center"></div>
+                <div className="d-flex justify-content-center m-4 p-4 help-text text-center"></div>
             </div>
         </div>
     );

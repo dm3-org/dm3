@@ -80,8 +80,16 @@ export function normalizeEnsName(ensName: string): string {
  * @param ensNameA first ENS name
  * @param ensNameB second ENS name
  */
-export function isSameEnsName(ensNameA: string, ensNameB: string): boolean {
-    return normalizeEnsName(ensNameA) === normalizeEnsName(ensNameB);
+export function isSameEnsName(
+    ensNameA: string,
+    ensNameB: string,
+    ensNameBAlias?: string,
+): boolean {
+    return (
+        normalizeEnsName(ensNameA) === normalizeEnsName(ensNameB) ||
+        (!!ensNameBAlias &&
+            normalizeEnsName(ensNameA) === normalizeEnsName(ensNameBAlias))
+    );
 }
 
 function conversationIdToContactEnsName(
@@ -119,16 +127,8 @@ export async function getContacts(
     );
 
     for (const pendingConversation of pendingConversations) {
-        if (
-            !userDb.conversations.has(
-                getConversationId(
-                    normalizeEnsName(connection.account!.ensName),
-                    pendingConversation,
-                ),
-            )
-        ) {
+        if (!userDb.conversations.has(pendingConversation)) {
             await addContact(
-                connection,
                 pendingConversation,
                 userDb,
                 createEmptyConversationEntry,
@@ -138,21 +138,13 @@ export async function getContacts(
 
     // fetch the user profile of the contacts
     const uncheckedProfiles = await Promise.all(
-        Array.from(userDb.conversations.keys())
-            .map((conversationId) =>
-                conversationIdToContactEnsName(
-                    conversationId,
-                    connection.account!.ensName,
-                    alias,
-                ),
-            )
-            .map(async (ensName) => {
-                const profile = await getUserProfile(connection, ensName);
-                return {
-                    ensName,
-                    profile: profile,
-                };
-            }),
+        Array.from(userDb.conversations.keys()).map(async (ensName) => {
+            const profile = await getUserProfile(connection, ensName);
+            return {
+                ensName,
+                profile: profile,
+            };
+        }),
     );
 
     // accept if account has a profile and a valid signature
@@ -198,21 +190,11 @@ export function getAccountDisplayName(
 }
 
 export async function addContact(
-    connection: Connection,
     ensName: string,
     userDb: UserDB,
     createEmptyConversationEntry: (id: string) => void,
 ) {
-    if (
-        !createEmptyConversation(
-            connection,
-            ensName,
-            userDb,
-            createEmptyConversationEntry,
-        )
-    ) {
-        throw Error('Contact exists already.');
-    }
+    createEmptyConversation(ensName, userDb, createEmptyConversationEntry);
 }
 
 /**
