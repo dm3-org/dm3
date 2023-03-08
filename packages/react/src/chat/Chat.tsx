@@ -27,6 +27,11 @@ export interface EnvelopContainer {
 
 function Chat() {
     const { state, dispatch } = useContext(GlobalContext);
+
+    const alias =
+        state.connection.ethAddress &&
+        state.connection.ethAddress + Lib.GlobalConf.ADDR_ENS_SUBDOMAIN();
+
     if (!isWidgetOpened()) {
         toggleWidget();
     }
@@ -34,9 +39,71 @@ function Chat() {
         Map<string, Lib.messaging.MessageState>
     >(new Map<string, Lib.messaging.MessageState>());
 
-    const [messageContainers, setMessageContainers] = useState<
-        Lib.storage.StorageEnvelopContainer[]
-    >([]);
+    const handleMessageContainer = (
+        messageContainers: Lib.storage.StorageEnvelopContainer[],
+    ) => {
+        dropMessages();
+        if (
+            !state.accounts.selectedContact?.account.profile
+                ?.publicEncryptionKey
+        ) {
+            renderCustomComponent(
+                () => (
+                    <InfoBox
+                        text={
+                            `This user hasn't created encryption keys yet.` +
+                            ` The messages will be sent as soon as the keys have been created.`
+                        }
+                    />
+                ),
+                {},
+            );
+        }
+
+        messageContainers.forEach((container) => {
+            if (
+                Lib.account.isSameEnsName(
+                    container.envelop.message.metadata.from,
+                    state.connection.account!.ensName,
+                    alias,
+                )
+            ) {
+                addUserMessage(
+                    container.envelop.message.message,
+                    container.envelop.message.metadata.timestamp.toString(),
+                );
+            } else {
+                addResponseMessage(
+                    container.envelop.message.message,
+                    container.envelop.message.metadata.timestamp.toString(),
+                );
+            }
+
+            messageStates.set(
+                container.envelop.message.metadata.timestamp.toString(),
+                container.messageState,
+            );
+            setMessageStates(new Map(messageStates));
+            renderCustomComponent(
+                () => (
+                    <MessageStateView
+                        messageState={
+                            messageStates.get(
+                                container.envelop.message.metadata.timestamp.toString(),
+                            ) as Lib.messaging.MessageState
+                        }
+                        time={container.envelop.message.metadata.timestamp}
+                        ownMessage={Lib.account.isSameEnsName(
+                            container.envelop.message.metadata.from,
+                            state.connection.account!.ensName,
+                            alias,
+                        )}
+                    />
+                ),
+                {},
+            );
+        });
+    };
 
     const getPastMessages = async () => {
         const lastMessagePull = new Date().getTime();
@@ -78,6 +145,7 @@ function Chat() {
             const account = Lib.account.isSameEnsName(
                 container.envelop.message.metadata.from,
                 state.accounts.selectedContact.account.ensName,
+                alias,
             )
                 ? state.accounts.selectedContact.account
                 : state.connection.account!;
@@ -108,7 +176,7 @@ function Chat() {
                 conatier.messageState === Lib.messaging.MessageState.Created,
         );
 
-        setMessageContainers(oldMessages);
+        handleMessageContainer(oldMessages);
 
         if (!state.userDb) {
             throw Error(
@@ -131,68 +199,6 @@ function Chat() {
 
     useEffect(() => {
         dropMessages();
-        if (
-            !state.accounts.selectedContact?.account.profile
-                ?.publicEncryptionKey
-        ) {
-            renderCustomComponent(
-                () => (
-                    <InfoBox
-                        text={
-                            `This user hasn't created encryption keys yet.` +
-                            ` The messages will be sent as soon as the keys have been created.`
-                        }
-                    />
-                ),
-                {},
-            );
-        }
-
-        messageContainers.forEach((container) => {
-            if (
-                Lib.account.isSameEnsName(
-                    container.envelop.message.metadata.from,
-                    state.connection.account!.ensName,
-                )
-            ) {
-                addUserMessage(
-                    container.envelop.message.message,
-                    container.envelop.message.metadata.timestamp.toString(),
-                );
-            } else {
-                addResponseMessage(
-                    container.envelop.message.message,
-                    container.envelop.message.metadata.timestamp.toString(),
-                );
-            }
-
-            messageStates.set(
-                container.envelop.message.metadata.timestamp.toString(),
-                container.messageState,
-            );
-            setMessageStates(new Map(messageStates));
-            renderCustomComponent(
-                () => (
-                    <MessageStateView
-                        messageState={
-                            messageStates.get(
-                                container.envelop.message.metadata.timestamp.toString(),
-                            ) as Lib.messaging.MessageState
-                        }
-                        time={container.envelop.message.metadata.timestamp}
-                        ownMessage={Lib.account.isSameEnsName(
-                            container.envelop.message.metadata.from,
-                            state.connection.account!.ensName,
-                        )}
-                    />
-                ),
-                {},
-            );
-        });
-    }, [messageContainers]);
-
-    useEffect(() => {
-        setMessageContainers([]);
         setMessageStates(new Map<string, Lib.messaging.MessageState>());
         if (state.accounts.selectedContact) {
             getPastMessages();
@@ -204,7 +210,6 @@ function Chat() {
             handleMessages(
                 Lib.storage.getConversation(
                     state.accounts.selectedContact.account.ensName,
-                    state.connection,
                     state.userDb,
                 ),
             );

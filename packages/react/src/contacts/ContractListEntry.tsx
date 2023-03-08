@@ -19,7 +19,6 @@ function ContactListEntry(props: ContactListProps) {
     useEffect(() => {
         const messages = Lib.storage.getConversation(
             props.contact.account.ensName,
-            state.connection,
             state.userDb as Lib.storage.UserDB,
         );
         const calcUnreadMessages = () => {

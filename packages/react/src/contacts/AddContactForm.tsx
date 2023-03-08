@@ -36,16 +36,10 @@ function AddContactForm(props: AddContactFormProps) {
                     payload: normalizedAccountName,
                 });
             } else {
-                await Lib.account.addContact(
-                    state.connection,
-                    normalizedAccountName,
-                    state.userDb as Lib.storage.UserDB,
-                    (id: string) =>
-                        dispatch({
-                            type: UserDbType.createEmptyConversation,
-                            payload: id,
-                        }),
-                );
+                dispatch({
+                    type: UserDbType.createEmptyConversation,
+                    payload: normalizedAccountName,
+                });
             }
 
             setAccountToAdd('');

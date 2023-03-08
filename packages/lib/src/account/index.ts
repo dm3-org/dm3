@@ -42,23 +42,16 @@ export type { ProfileExtension } from './profileExtension';
 /**
  * add a contact by creating an empty converation with that contact
  *
- * @param connection dm3 connection object
  * @param ensName The ENS name of the contact
  * @param userDb User storage database
  * @param createEmptyConversationEntry Function to create an empty conversation
  */
 export async function addContact(
-    connection: Connection,
     ensName: string,
     userDb: UserDB,
     createEmptyConversationEntry: (id: string) => void,
 ) {
-    return execAddContact(
-        connection,
-        ensName,
-        userDb,
-        createEmptyConversationEntry,
-    );
+    return execAddContact(ensName, userDb, createEmptyConversationEntry);
 }
 
 /**
@@ -75,7 +68,6 @@ export async function getContacts(
     userDb: UserDB,
     deliveryServiceToken: string,
     createEmptyConversationEntry: (id: string) => void,
-    alias?: string,
 ) {
     return execGetContacts(
         connection,
@@ -84,7 +76,6 @@ export async function getContacts(
         getPendingConversations,
         userDb,
         createEmptyConversationEntry,
-        alias,
     );
 }
 
