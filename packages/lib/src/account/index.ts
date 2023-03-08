@@ -68,6 +68,7 @@ export async function getContacts(
     userDb: UserDB,
     deliveryServiceToken: string,
     createEmptyConversationEntry: (id: string) => void,
+    alias?: string,
 ) {
     return execGetContacts(
         connection,
@@ -76,6 +77,7 @@ export async function getContacts(
         getPendingConversations,
         userDb,
         createEmptyConversationEntry,
+        alias,
     );
 }
 
