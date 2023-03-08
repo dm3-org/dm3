@@ -177,7 +177,14 @@ function SignIn(props: SignInProps) {
                 </div>
             </div>
             <div className="d-flex justify-content-center mt-4">
-                <div className="d-flex justify-content-center m-4 p-4 help-text text-center"></div>
+                <div className="m-4 p-4 help-text text-center">
+                    <p>Connect the dm3 app with your wallet. </p>
+                    <p>
+                        Keys for secure communication are derived from the
+                        signature.
+                    </p>
+                    <p>No paid transaction will be executed.</p>
+                </div>
             </div>
         </div>
     );
