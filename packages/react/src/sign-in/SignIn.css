@@ -1,8 +1,11 @@
 .help-text {
-  font-size: 1.8rem;
-  color: #868686;
+
+  color: #6c757d;
 }
 
+.sign-in-main {
+  overflow: overlay;
+}
 
 
 .sign-in-help {

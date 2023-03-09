@@ -167,7 +167,7 @@ function SignIn(props: SignInProps) {
     }, [state.connection.connectionState, state.connection.ethAddress]);
 
     return (
-        <div className="w-100 d-flex flex-column align-items-center ">
+        <div className="w-100 d-flex flex-column align-items-center sign-in-main h-100">
             <div className="d-flex justify-content-center sign-in-logo">
                 <DarkLogo />
             </div>
