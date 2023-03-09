@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import stringify from 'safe-stable-stringify';
-import { normalizeEnsName } from '../account/src';
+import { normalizeEnsName } from 'dm3-lib-account';
 
 import {
     decryptAsymmetric,
@@ -8,15 +8,15 @@ import {
     EncryptedPayload,
     KeyPair,
     sign,
-} from '../crypto/src';
+} from 'dm3-lib-crypto';
 import {
     DeliveryInformation,
     EncryptionEnvelop,
     Postmark,
 } from '../../messaging';
-import { sha256 } from '../shared/src/sha256';
-import { isSpam } from '../spam-filter';
-import { getConversationId } from '../storage/Storage';
+import { sha256 } from '../../shared/src/sha256';
+import { isSpam } from '../../spam-filter';
+import { getConversationId } from '../../storage/Storage';
 import { checkToken, Session } from './Session';
 
 export interface Acknoledgment {

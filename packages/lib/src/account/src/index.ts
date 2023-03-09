@@ -28,8 +28,12 @@ export type {
     ProfileKeys,
     SignedUserProfile,
     UserProfile,
+    GetResource,
 } from './Account';
+export * from './profileResolver';
+
 export type { ProfileExtension } from './profileExtension';
+export * from './profileExtension';
 
 /**
  * creates the transaction object that can be used to publish the profile to a top level ens name

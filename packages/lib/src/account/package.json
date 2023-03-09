@@ -2,12 +2,12 @@
   "name": "dm3-lib-account",
   "version": "0.1.0",
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist/account/src/index.js",
   "module": "dist-backend/index.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/account/src/index.d.ts",
   "exports": {
       ".": {
-          "import": "./dist/index.js",
+          "import": "./dist/account/src/index.js",
           "require": "./dist/index.js"
       },
       "./dist.backend": {
@@ -45,7 +45,7 @@
 },
 "scripts": {
     "build:schema": "sh ./schemas.sh",
-    "build": "yarn build:schema && tsc --declaration ",
+    "build": " tsc --declaration ",
     "test": "jest --coverage"
 },
 "files": [

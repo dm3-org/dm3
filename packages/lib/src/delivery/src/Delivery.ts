@@ -5,11 +5,14 @@ import axios, {
     AxiosResponse,
 } from 'axios';
 import { GetResource, UserProfile } from 'dm3-lib-account';
-import { IpfsResolver } from '../account/src/profileResolver/IpfsResolver';
-import { JsonResolver } from '../account/src/profileResolver/JsonResolver';
-import { LinkResolver } from '../account/src/profileResolver/LinkResolver';
-import { ProfileResolver } from '../account/src/profileResolver/ProfileResolver';
-import { Connection } from '../web3-provider/Web3Provider';
+import {
+    IpfsResolver,
+    JsonResolver,
+    LinkResolver,
+    ProfileResolver,
+} from 'dm3-lib-account';
+
+import { Connection } from '../../web3-provider/Web3Provider';
 import { validateDeliveryServiceProfile } from './Validation';
 
 export interface DeliveryServiceProfile {

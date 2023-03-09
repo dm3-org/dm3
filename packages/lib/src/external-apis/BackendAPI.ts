@@ -6,7 +6,7 @@ import {
     SignedUserProfile,
 } from '../account/src/Account';
 import { Acknoledgment } from '../delivery';
-import { getDeliveryServiceClient } from '../delivery/Delivery';
+import { getDeliveryServiceClient } from '../delivery/src/Delivery';
 import { EncryptionEnvelop, Envelop } from '../messaging';
 import { log } from '../shared/src/log';
 import { Connection } from '../web3-provider/Web3Provider';

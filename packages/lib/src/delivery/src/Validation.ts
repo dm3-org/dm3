@@ -1,4 +1,4 @@
-import DeliveryServiceProfileSchema from './schema/DeliveryServiceProfile.schema.json';
+import DeliveryServiceProfileSchema from '../schema/DeliveryServiceProfile.schema.json';
 import Ajv from 'ajv';
 import { DeliveryServiceProfile } from './Delivery';
 
