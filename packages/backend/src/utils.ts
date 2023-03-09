@@ -40,35 +40,39 @@ export function socketAuth(app: Express & WithLocals) {
         socket: Socket,
         next: (err?: ExtendedError | undefined) => void,
     ) => {
-        const ensName = Lib.account.normalizeEnsName(
-            socket.handshake.auth.account.ensName,
-        );
+        try {
+            const ensName = Lib.account.normalizeEnsName(
+                socket.handshake.auth.account.ensName,
+            );
 
-        app.locals.logger.info({
-            method: 'WS CONNECT',
-            ensName,
-            socketId: socket.id,
-        });
-
-        if (
-            !(await Lib.delivery.checkToken(
-                app.locals.web3Provider,
-                app.locals.db.getSession,
+            app.locals.logger.info({
+                method: 'WS CONNECT',
                 ensName,
-                socket.handshake.auth.token as string,
-            ))
-        ) {
-            return next(new Error('invalid username'));
-        }
-        const session = await app.locals.db.getSession(ensName);
-        if (!session) {
-            throw Error('Could not get session');
-        }
+                socketId: socket.id,
+            });
 
-        await app.locals.db.setSession(ensName, {
-            ...session,
-            socketId: socket.id,
-        });
+            if (
+                !(await Lib.delivery.checkToken(
+                    app.locals.web3Provider,
+                    app.locals.db.getSession,
+                    ensName,
+                    socket.handshake.auth.token as string,
+                ))
+            ) {
+                return next(new Error('invalid username'));
+            }
+            const session = await app.locals.db.getSession(ensName);
+            if (!session) {
+                throw Error('Could not get session');
+            }
+
+            await app.locals.db.setSession(ensName, {
+                ...session,
+                socketId: socket.id,
+            });
+        } catch (e) {
+            next(e as Error);
+        }
 
         next();
     };

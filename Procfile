@@ -1,1 +1,1 @@
-web: yarn resolver
+web: yarn start

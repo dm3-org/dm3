@@ -220,5 +220,5 @@ export async function getMessages(
     storeMessages(envelops);
 
     //Return all messages from the conversation between the user and their contact
-    return getConversation(contact, connection, userDb);
+    return getConversation(contact, userDb);
 }

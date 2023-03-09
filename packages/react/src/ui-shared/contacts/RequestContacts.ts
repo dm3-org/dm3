@@ -47,7 +47,6 @@ export async function requestContacts(
         userDb,
         deliveryServiceToken,
         createEmptyConversationEntry,
-        connection.ethAddress + Lib.GlobalConf.ADDR_ENS_SUBDOMAIN(),
     );
 
     if (
@@ -58,12 +57,8 @@ export async function requestContacts(
                 Lib.account.normalizeEnsName(defaultContactEnsName),
         )
     ) {
-        await Lib.account.addContact(
-            connection,
-            defaultContactEnsName,
-            userDb,
-            createEmptyConversationEntry,
-        );
+        createEmptyConversationEntry(defaultContactEnsName);
+
         retrievedContacts = await Lib.account.getContacts(
             connection,
             userDb,
@@ -109,7 +104,7 @@ export async function requestContacts(
     contacts.forEach((contact) => {
         if (contact.deliveryServiceProfile) {
             Lib.storage
-                .getConversation(contact.account.ensName, connection, userDb)
+                .getConversation(contact.account.ensName, userDb)
                 .filter(
                     (message) =>
                         message.messageState ===

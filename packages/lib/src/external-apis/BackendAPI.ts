@@ -146,8 +146,8 @@ export async function submitMessage(
             envelop,
             token,
         },
-        (response: string) => {
-            if (response === 'success') {
+        (result: any) => {
+            if (result.response === 'success') {
                 log(`- success`);
                 onSuccess();
             } else {
@@ -183,8 +183,8 @@ export type SyncAcknoledgment = typeof syncAcknoledgment;
 export async function createPendingEntry(
     connection: Connection,
     token: string,
-    accountAddress: string,
-    contactAddress: string,
+    ensName: string,
+    contactEnsName: string,
     onSuccess: () => void,
     onError: () => void,
 ): Promise<void> {
@@ -193,12 +193,12 @@ export async function createPendingEntry(
         connection.socket.emit(
             'pendingMessage',
             {
-                accountAddress,
-                contactAddress,
+                ensName,
+                contactEnsName,
                 token,
             },
-            (response: string) => {
-                if (response === 'success') {
+            (result: any) => {
+                if (result.response === 'success') {
                     log(`- success`);
                     onSuccess();
                 } else {

@@ -115,14 +115,9 @@ export function createDB(keys: ProfileKeys): UserDB {
 
 export function getConversation(
     contact: string,
-    connection: Connection,
     db: UserDB,
 ): StorageEnvelopContainer[] {
-    const conversationId = getConversationId(
-        contact,
-        connection.account!.ensName,
-    );
-    const envelops = db.conversations.get(conversationId);
+    const envelops = db.conversations.get(contact);
     return envelops ?? [];
 }
 /**
@@ -175,9 +170,9 @@ export async function sync(
         userDb.conversations.keys(),
     )
         // get newest delivery service query timestamp
-        .map((conversationId) =>
+        .map((contactEnsName) =>
             userDb.conversations
-                .get(conversationId)!
+                .get(contactEnsName)!
                 //TODO is it still needed to filter messages without an incomingtimestamp @Heiko
                 .filter(
                     ({ deliveryServiceIncommingTimestamp }) =>
@@ -258,21 +253,16 @@ export function getConversationId(ensNameA: string, ensNameB: string): string {
  * @returns An boolean that indicates if a new conversion was created
  */
 export function createEmptyConversation(
-    connection: Connection,
-    ensName: string,
+    contactEnsName: string,
     userDb: UserDB,
     createEmptyConversationEntry: (id: string) => void,
 ): boolean {
-    const conversationId = getConversationId(
-        connection.account!.ensName,
-        ensName,
-    );
-    const conversationIsAlreadyKnown = userDb.conversations.has(conversationId);
+    const conversationIsAlreadyKnown = userDb.conversations.has(contactEnsName);
 
     if (conversationIsAlreadyKnown) {
         return false;
     }
 
-    createEmptyConversationEntry(conversationId);
+    createEmptyConversationEntry(contactEnsName);
     return true;
 }
