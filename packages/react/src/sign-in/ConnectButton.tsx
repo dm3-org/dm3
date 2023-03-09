@@ -4,13 +4,7 @@ import './SignIn.css';
 import * as Lib from 'dm3-lib';
 import { GlobalContext } from '../GlobalContextProvider';
 import StateButton, { ButtonState } from '../ui-shared/StateButton';
-import {
-    getMetaMaskProvider,
-    connectAccount,
-    getWalletConnectProvider,
-} from './Connectors';
-import { Web3Provider } from '@ethersproject/providers';
-import WalletConnectProvider from '@walletconnect/web3-provider';
+import { getMetaMaskProvider, connectAccount } from './Connectors';
 
 interface ConnectButtonProps {
     miniSignIn: boolean;
@@ -19,7 +13,6 @@ interface ConnectButtonProps {
 enum SelectedWallet {
     None,
     MetaMask,
-    WalletConnect,
 }
 
 function ConnectButton(props: ConnectButtonProps) {
@@ -32,16 +25,7 @@ function ConnectButton(props: ConnectButtonProps) {
             state.connection.connectionState ===
                 Lib.web3provider.ConnectionState.AccountConntectReady
         ) {
-            if (selectedWallet === SelectedWallet.WalletConnect) {
-                const account = (
-                    (state.connection.provider as Web3Provider)
-                        .provider as WalletConnectProvider
-                ).accounts[0];
-
-                connectAccount(state, dispatch, account);
-            } else {
-                connectAccount(state, dispatch);
-            }
+            connectAccount(state, dispatch);
         }
     }, [state.connection.provider, state.connection.connectionState]);
 
