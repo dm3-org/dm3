@@ -25,7 +25,7 @@ function Start() {
                         'drop-shadow(0px 0px 5px rgb(0 0 0 / 0.4)) ' +
                         brightness,
                 }}
-                src={hover ? GrayLogo : WhiteLogo}
+                src={'favicon.png'}
                 className="align-self-center"
             />
         </button>
