@@ -22,7 +22,7 @@
         ]
        
     },
-    "dependencies": {
+    "dependencies": {   
         "@types/libsodium-wrappers": "^0.7.10",
         "ajv": "^8.11.0",
         "axios": "^0.25.0",
@@ -50,8 +50,10 @@
         "typescript": "^4.4.2"
     },
     "scripts": {
+        "build:crypto": "cd ./src/crypto && yarn build && cd ../../",
+        "build:account": "cd ./src/account && yarn build && cd ../../",
         "build:schema": "sh ./schemas.sh",
-        "build": "yarn build:schema  && cd ./src/crypto && yarn build && cd ../../ &&  cd ./src/account && yarn build && cd ../../  tsc --declaration && tsc --declaration -p tsconfig.backend.json",
+        "build": "yarn build:schema && yarn build:crypto && yarn build:account &&  tsc --declaration && tsc --declaration -p tsconfig.backend.json",
         "test": "jest --coverage"
     },
     "files": [
