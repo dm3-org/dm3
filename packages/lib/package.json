@@ -51,7 +51,7 @@
     },
     "scripts": {
         "build:schema": "sh ./schemas.sh",
-        "build": "yarn build:schema && cd ./src/account && yarn build && cd ../../  tsc --declaration && tsc --declaration -p tsconfig.backend.json",
+        "build": "yarn build:schema  && cd ./src/crypto && yarn build && cd ../../ &&  cd ./src/account && yarn build && cd ../../  tsc --declaration && tsc --declaration -p tsconfig.backend.json",
         "test": "jest --coverage"
     },
     "files": [
