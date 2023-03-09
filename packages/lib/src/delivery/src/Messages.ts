@@ -9,7 +9,11 @@ import {
     KeyPair,
     sign,
 } from '../crypto/src';
-import { DeliveryInformation, EncryptionEnvelop, Postmark } from '../messaging';
+import {
+    DeliveryInformation,
+    EncryptionEnvelop,
+    Postmark,
+} from '../../messaging';
 import { sha256 } from '../shared/src/sha256';
 import { isSpam } from '../spam-filter';
 import { getConversationId } from '../storage/Storage';

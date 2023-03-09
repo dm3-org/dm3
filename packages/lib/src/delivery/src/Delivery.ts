@@ -4,7 +4,7 @@ import axios, {
     AxiosRequestConfig,
     AxiosResponse,
 } from 'axios';
-import { GetResource, UserProfile } from '../account/src/Account';
+import { GetResource, UserProfile } from 'dm3-lib-account';
 import { IpfsResolver } from '../account/src/profileResolver/IpfsResolver';
 import { JsonResolver } from '../account/src/profileResolver/JsonResolver';
 import { LinkResolver } from '../account/src/profileResolver/LinkResolver';

@@ -1,8 +1,8 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { ethers } from 'ethers';
-import { UserProfile } from '../account/src/Account';
-import { Connection } from '../web3-provider/Web3Provider';
+import { UserProfile } from '../../account/src/Account';
+import { Connection } from '../../web3-provider/Web3Provider';
 import {
     DeliveryServiceProfile,
     getDeliveryServiceClient,

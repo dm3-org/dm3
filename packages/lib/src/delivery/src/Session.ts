@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
-import { ProfileExtension } from '../account/src';
-import { SignedUserProfile } from '../account/src/Account';
-import { SpamFilterRules } from '../spam-filter/SpamFilterRules';
+import { ProfileExtension } from '../../account/src';
+import { SignedUserProfile } from '../../account/src/Account';
+import { SpamFilterRules } from '../../spam-filter/SpamFilterRules';
 
 //1Year
 const TTL = 31536000000;
