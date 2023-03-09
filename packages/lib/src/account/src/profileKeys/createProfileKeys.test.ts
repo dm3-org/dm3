@@ -1,8 +1,5 @@
 import { ethers } from 'ethers';
-import {
-    createStorageKey,
-    getStorageKeyCreationMessage,
-} from '../../../crypto/src';
+import { createStorageKey, getStorageKeyCreationMessage } from 'dm3-lib-crypto';
 import { createProfileKeys } from './createProfileKeys';
 
 test(`Should create keys`, async () => {
