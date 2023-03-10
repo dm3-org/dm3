@@ -1,7 +1,5 @@
-import React, { useContext, useEffect } from 'react';
+import React, { memo, useContext, useEffect } from 'react';
 import 'react-chat-widget/lib/styles.css';
-import * as Lib from 'dm3-lib';
-
 import Chat from './chat/Chat';
 import { GlobalContext } from './GlobalContextProvider';
 import { AccountInfo } from './reducers/shared';
@@ -12,24 +10,6 @@ import DarkLogo from './logos/DarkLogo';
 
 function RightView() {
     const { state, dispatch } = useContext(GlobalContext);
-
-    useEffect(() => {
-        switch (state.connection.connectionState) {
-            case Lib.web3provider.ConnectionState.SignedIn:
-                dispatch({
-                    type: UiStateType.SetSelectedRightView,
-                    payload: SelectedRightView.Chat,
-                });
-
-                break;
-            case Lib.web3provider.ConnectionState.ConnectionRejected:
-            default:
-                dispatch({
-                    type: UiStateType.SetSelectedRightView,
-                    payload: SelectedRightView.Error,
-                });
-        }
-    }, [state.connection.connectionState, state.accounts.selectedContact]);
 
     useEffect(() => {
         switch (state.accounts.accountInfoView) {
@@ -78,7 +58,9 @@ function RightView() {
             return (
                 <div className={classes}>
                     <RightHeader />
-                    {state.accounts.selectedContact && <Chat />}
+                    {state.accounts.selectedContact &&
+                        state.uiState.selectedRightView ===
+                            SelectedRightView.Chat && <Chat />}
                 </div>
             );
 

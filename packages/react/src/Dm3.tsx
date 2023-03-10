@@ -164,11 +164,7 @@ function dm3(props: dm3Props) {
                 getContacts(state.connection as Lib.Connection);
             });
         }
-    }, [
-        state.accounts.selectedContact,
-        state.accounts.selectedContact,
-        state.userDb?.conversations,
-    ]);
+    }, [state.connection.socket]);
 
     const getContacts = (connection: Lib.Connection) => {
         if (!state.userDb) {
