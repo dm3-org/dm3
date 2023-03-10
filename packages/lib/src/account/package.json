@@ -45,7 +45,7 @@
 },
 "scripts": {
     "build:schema": "sh ./schemas.sh",
-    "build": "yarn build:schema tsc --declaration ",
+    "build": "yarn build:schema && tsc --declaration ",
     "test": "jest --coverage"
 },
 "files": [
