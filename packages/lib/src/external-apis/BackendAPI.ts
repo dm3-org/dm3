@@ -59,7 +59,7 @@ export async function getChallenge(
     const { data } = await getDeliveryServiceClient(
         profile,
         connection,
-        async (url) => (await axios.get(url)).data,
+        async (url: string) => (await axios.get(url)).data,
     ).get(url);
 
     return data.challenge;
@@ -78,7 +78,7 @@ export async function getNewToken(
     const { data } = await getDeliveryServiceClient(
         profile,
         connection,
-        async (url) => (await axios.get(url)).data,
+        async (url: string) => (await axios.get(url)).data,
     ).post(url, {
         signature,
     });
@@ -99,7 +99,7 @@ export async function submitUserProfile(
     const { data } = await getDeliveryServiceClient(
         profile,
         connection,
-        async (url) => (await axios.get(url)).data,
+        async (url: string) => (await axios.get(url)).data,
     ).post(url, signedUserProfile);
 
     return data;
@@ -122,7 +122,7 @@ export async function createAlias(
     const { data } = await getDeliveryServiceClient(
         profile,
         connection,
-        async (url) => (await axios.get(url)).data,
+        async (url: string) => (await axios.get(url)).data,
     ).post(url, {}, getAxiosConfig(token));
 
     return data;
@@ -175,7 +175,7 @@ export async function syncAcknoledgment(
     return getDeliveryServiceClient(
         profile,
         connection,
-        async (url) => (await axios.get(url)).data,
+        async (url: string) => (await axios.get(url)).data,
     ).post(url, { acknoledgments }, getAxiosConfig(token));
 }
 export type SyncAcknoledgment = typeof syncAcknoledgment;
@@ -227,7 +227,7 @@ export async function getNewMessages(
     const { data } = await getDeliveryServiceClient(
         profile,
         connection,
-        async (url) => (await axios.get(url)).data,
+        async (url: string) => (await axios.get(url)).data,
     ).get(url, getAxiosConfig(token));
 
     return data;
@@ -246,7 +246,7 @@ export async function getPendingConversations(
     const { data } = await getDeliveryServiceClient(
         profile,
         connection,
-        async (url) => (await axios.get(url)).data,
+        async (url: string) => (await axios.get(url)).data,
     ).post(url, {}, getAxiosConfig(token));
 
     return data;
@@ -271,7 +271,7 @@ export async function getUserProfileOffChain(
         const { data } = await getDeliveryServiceClient(
             profile,
             connection,
-            async (url) => (await axios.get(url)).data,
+            async (url: string) => (await axios.get(url)).data,
         ).get(fallbackUrl);
         return data;
     } catch (e) {
