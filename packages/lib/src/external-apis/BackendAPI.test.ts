@@ -1,6 +1,6 @@
 import { Account } from '../account/src';
 import { SignedUserProfile } from '../account/src/Account';
-import { Acknoledgment } from '../delivery';
+import { Acknoledgment } from '../delivery/src';
 import { Envelop } from '../messaging';
 import { Connection } from '../web3-provider/Web3Provider';
 import {

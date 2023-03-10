@@ -5,7 +5,7 @@ import {
     normalizeEnsName,
     SignedUserProfile,
 } from '../account/src/Account';
-import { Acknoledgment } from '../delivery';
+import { Acknoledgment } from '../delivery/src';
 import { getDeliveryServiceClient } from '../delivery/src/Delivery';
 import { EncryptionEnvelop, Envelop } from '../messaging';
 import { log } from '../shared/src/log';

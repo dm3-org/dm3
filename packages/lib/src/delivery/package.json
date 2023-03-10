@@ -1,18 +1,18 @@
 {
     "name": "dm3-lib-delivery",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "license": "MIT",
-    "main": "dist/index.js",
-    "module": "dist-backend/index.js",
-    "types": "dist/index.d.ts",
+    "main": "dist/delivery/src/index.js",
+    "module": "dist-backend/delivery/src/index.js",
+    "types": "dist/delivery/src/index.d.ts",
     "exports": {
         ".": {
-            "import": "./dist/index.js",
-            "require": "./dist/index.js"
+            "import": "./dist/delivery/src/index.js",
+            "require": "./dist/delivery/src/index.js"
         },
         "./dist.backend": {
-            "import": "./dist.backend/index.js",
-            "require": "./dist.backend/index.js"
+            "import": "./dist.backend/delivery/src/index.js",
+            "require": "./dist.backend/delivery/src/index.js"
         }
     },
     "dependencies": {

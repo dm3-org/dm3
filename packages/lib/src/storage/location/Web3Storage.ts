@@ -1,7 +1,7 @@
 import { stringify } from '../../shared/src/stringify';
 import { Web3Storage, Web3File } from 'web3.storage';
 import { UserDB } from '..';
-import { Acknoledgment } from '../../delivery';
+import { Acknoledgment } from '../../delivery/src';
 import { log } from '../../shared/src/log';
 import { Connection } from '../../web3-provider/Web3Provider';
 import { sync } from '../Storage';

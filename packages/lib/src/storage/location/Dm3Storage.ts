@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { UserDB } from '..';
 import { normalizeEnsName } from '../../account/src';
-import { Acknoledgment } from '../../delivery';
+import { Acknoledgment } from '../../delivery/src';
 import { getDeliveryServiceClient } from '../../delivery/src';
 import { log } from '../../shared/src/log';
 import { Connection } from '../../web3-provider/Web3Provider';

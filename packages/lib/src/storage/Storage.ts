@@ -1,6 +1,6 @@
 import { normalizeEnsName, ProfileKeys } from '../account/src/Account';
 import { decrypt, encrypt, EncryptedPayload } from '../crypto/src';
-import { Acknoledgment } from '../delivery';
+import { Acknoledgment } from '../delivery/src';
 import { Envelop } from '../messaging';
 import { MessageState } from '../messaging/Message';
 import { log } from '../shared/src/log';
