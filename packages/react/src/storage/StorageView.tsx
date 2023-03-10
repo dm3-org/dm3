@@ -122,7 +122,6 @@ function StorageView() {
             sync();
         }
     };
-    useEffect(autoSync, []);
 
     useEffect(() => {
         const setBroserStorage = async () => {
