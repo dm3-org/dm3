@@ -18,7 +18,7 @@ import {
 const SENDER_NAME = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_NAME = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
-jest.mock('../delivery/Delivery', () => ({
+jest.mock('../delivery/src/Delivery', () => ({
     getDeliveryServiceClient: jest.fn(() => ({
         get: (url: string) => {
             const [_, path] = url.split('/');
