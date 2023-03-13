@@ -26,7 +26,11 @@ export async function createSigningKeyPair(seed?: string): Promise<KeyPair> {
 }
 
 export function getStorageKeyCreationMessage(nonce: number) {
-    return `Sign this to retrieve your dm3 encryption key.\nNonce: ${nonce}`;
+    return (
+        `Connect the dm3 app with your wallet.` +
+        ` Keys for secure communication are derived from the signature.` +
+        ` No paid transaction will be executed.\nNonce: ${nonce}`
+    );
 }
 
 export async function createStorageKey(
