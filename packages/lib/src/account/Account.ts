@@ -64,7 +64,11 @@ export const PROFILE_RECORD_NAME = 'network.dm3.profile';
  * @param stringifiedProfile stringified dm3 user profile object
  */
 export function getProfileCreationMessage(stringifiedProfile: string) {
-    return `Hearby your dm3 profile is linked with your Ethereum account\n\n ${stringifiedProfile}`;
+    return (
+        `Please sign this message to link your dm3 profile with your Wallet.` +
+        `(This signature will not trigger any transaction or cost gas fees.)` +
+        `Your dm3 profile:\n\n ${stringifiedProfile}`
+    );
 }
 
 /**
