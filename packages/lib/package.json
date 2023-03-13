@@ -54,6 +54,7 @@
     "scripts": {
         "build:install": "yarn install",
         "build:crypto": "cd ./src/crypto && yarn build && cd ../../",
+        "build:shared": "cd ./src/shared && yarn build && cd ../../",
         "build:account": "cd ./src/account && yarn build && cd ../../",
         "build:delivery": "cd ./src/delivery && yarn build && cd ../../",
         "build:schema": "sh ./schemas.sh",
