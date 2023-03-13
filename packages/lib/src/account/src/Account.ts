@@ -1,16 +1,6 @@
 import { ethers } from 'ethers';
 import queryString from 'query-string';
-import { GetUserProfileOffChain } from '../../external-apis/BackendAPI';
-import {
-    formatAddress,
-    GetConractInstance,
-    GetEnsTextRecord,
-    GetResolver,
-} from '../../external-apis/InjectedWeb3API';
-import { log } from '../../shared/src/log';
-import { sha256 } from '../../shared/src/sha256';
-import { stringify } from '../../shared/src/stringify';
-import { Connection } from '../../web3-provider/Web3Provider';
+import { log, sha256, stringify } from 'dm3-lib-shared';
 import { KeyPair } from 'dm3-lib-crypto';
 import { IpfsResolver } from './profileResolver/IpfsResolver';
 import { JsonResolver } from './profileResolver/JsonResolver';
@@ -18,6 +8,14 @@ import { LinkResolver } from './profileResolver/LinkResolver';
 import { Dm3Profile, ProfileResolver } from './profileResolver/ProfileResolver';
 import { validateSignedUserProfile } from './profileResolver/Validation';
 
+export function formatAddress(address: string) {
+    return ethers.utils.getAddress(address);
+}
+type GetUserProfileOffChain = any;
+type Connection = any;
+type GetConractInstance = any;
+type GetEnsTextRecord = any;
+type GetResolver = any;
 export interface UserProfile {
     publicEncryptionKey: string;
     publicSigningKey: string;

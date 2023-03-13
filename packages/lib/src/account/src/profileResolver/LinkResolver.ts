@@ -1,4 +1,4 @@
-import { log } from './../../../shared/src/log';
+import { log } from 'dm3-lib-shared';
 import { checkProfileHash, GetResource } from '../Account';
 import { Dm3Profile, ProfileResolver } from './ProfileResolver';
 

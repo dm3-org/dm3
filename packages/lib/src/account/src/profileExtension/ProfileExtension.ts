@@ -1,4 +1,12 @@
-import { MessageType } from '../../../messaging/Message';
+//TODO import from message pacakge if possbile. If not find a better way to import
+export type MessageType =
+    | 'NEW'
+    | 'DELETE_REQUEST'
+    | 'EDIT'
+    | 'REPLY'
+    | 'REACTION'
+    | 'READ_RECEIPT'
+    | 'RESEND_REQUEST';
 
 export interface ProfileExtension {
     encryptionAlgorithm?: string[];

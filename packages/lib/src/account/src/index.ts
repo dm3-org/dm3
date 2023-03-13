@@ -1,11 +1,5 @@
 import axios from 'axios';
-import { getUserProfileOffChain } from '../../external-apis/BackendAPI';
-import {
-    getConractInstance,
-    getEnsTextRecord,
-    getResolver,
-} from '../../external-apis/InjectedWeb3API';
-import { Connection } from '../../web3-provider/Web3Provider';
+
 import {
     getPublishProfileOnchainTransaction as execGetPublishProfileOnchainTransaction,
     getUserProfile as execGetUserProfile,
@@ -34,6 +28,12 @@ export * from './profileResolver';
 
 export type { ProfileExtension } from './profileExtension';
 export * from './profileExtension';
+
+type Connection = () => {};
+const getResolver = () => {};
+const getEnsTextRecord = () => {};
+const getConractInstance = () => {};
+const getUserProfileOffChain = () => {};
 
 /**
  * creates the transaction object that can be used to publish the profile to a top level ens name
