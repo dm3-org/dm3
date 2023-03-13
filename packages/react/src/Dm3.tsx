@@ -22,6 +22,7 @@ import Help from './ui-shared/Help';
 import axios from 'axios';
 import { Contact } from './reducers/shared';
 import { submitMessage } from '../context/messageContext/submitMessage/submitMessage';
+import { ConnectionState } from '.';
 
 interface dm3Props {
     config: Config;
@@ -82,10 +83,20 @@ function dm3(props: dm3Props) {
                 state.connection.connectionState === ConnectionState.SignedIn
             ) {
                 (window.ethereum as any).on('accountsChanged', () => {
-                    window.location.reload();
+                    if (
+                        state.connection.connectionState ===
+                        ConnectionState.SignedIn
+                    ) {
+                        window.location.reload();
+                    }
                 });
                 (window.ethereum as any).on('chainChanged', () => {
-                    window.location.reload();
+                    if (
+                        state.connection.connectionState ===
+                        ConnectionState.SignedIn
+                    ) {
+                        window.location.reload();
+                    }
                 });
             }
         }
