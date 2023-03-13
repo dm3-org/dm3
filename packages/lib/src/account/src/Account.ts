@@ -1,21 +1,13 @@
+import { KeyPair } from 'dm3-lib-crypto';
+import { sha256, stringify } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import queryString from 'query-string';
-import { log, sha256, stringify } from 'dm3-lib-shared';
-import { KeyPair } from 'dm3-lib-crypto';
-import { IpfsResolver } from './profileResolver/IpfsResolver';
-import { JsonResolver } from './profileResolver/JsonResolver';
-import { LinkResolver } from './profileResolver/LinkResolver';
-import { Dm3Profile, ProfileResolver } from './profileResolver/ProfileResolver';
-import { validateSignedUserProfile } from './profileResolver/Validation';
+import { Dm3Profile } from './profileResolver/ProfileResolver';
 
 export function formatAddress(address: string) {
     return ethers.utils.getAddress(address);
 }
-type GetUserProfileOffChain = any;
-type Connection = any;
-type GetConractInstance = any;
-type GetEnsTextRecord = any;
-type GetResolver = any;
+
 export interface UserProfile {
     publicEncryptionKey: string;
     publicSigningKey: string;
@@ -152,56 +144,6 @@ export function getBrowserStorageKey(ensName: string) {
 export type GetResource<T> = (uri: string) => Promise<T | undefined>;
 
 /**
- * fetch a dm3 user profile
- * @param connection dm3 connection object
- * @param contact The Ethereum account address of the of the profile owner
- * @param getProfileOffChain Function to fetch offchain user profiles
- * @param getEnsTextRecord Function to fetch ENS text records
- * @param getRessource Function to fetch a user profile
- * @param profileUrl Offchain user profile URL
- */
-export async function getUserProfile(
-    connection: Connection,
-    contact: string,
-    getProfileOffChain: GetUserProfileOffChain,
-    getEnsTextRecord: GetEnsTextRecord,
-    getRessource: GetResource<SignedUserProfile>,
-    profileUrl?: string,
-): Promise<SignedUserProfile | undefined> {
-    const textRecord = await getEnsTextRecord(
-        connection.provider!,
-        contact,
-        PROFILE_RECORD_NAME,
-    );
-    //The user has no dm3-Profile text record set. Hence we need to fetch the profile offChain
-    if (!textRecord) {
-        log(`[getUserProfile] Offchain`);
-        return getProfileOffChain(
-            connection,
-            connection.account,
-            contact,
-            profileUrl,
-        );
-    }
-    /**
-     * The Text record can contain either
-     * * a link to the profile stored on a http server
-     * * a link to the profile stored on ipfs
-     * * The stringified profile
-     */
-
-    const resolver: ProfileResolver<SignedUserProfile>[] = [
-        LinkResolver(getRessource, validateSignedUserProfile),
-        IpfsResolver(getRessource, validateSignedUserProfile),
-        JsonResolver(validateSignedUserProfile),
-    ];
-
-    return await resolver
-        .find((r) => r.isProfile(textRecord))
-        ?.resolveProfile(textRecord);
-}
-
-/**
  * checks the user profile hash contained in the `dm3Hash` URI prarameter
  * @param profile dm3 user profile
  * @param uri URI containing the `dm3Hash` prarameter
@@ -209,52 +151,4 @@ export async function getUserProfile(
 export function checkProfileHash(profile: Dm3Profile, uri: string): boolean {
     const parsedUri = queryString.parseUrl(uri);
     return sha256(stringify(profile)) === parsedUri.query.dm3Hash;
-}
-
-export async function getPublishProfileOnchainTransaction(
-    connection: Connection,
-    ensName: string,
-    getResolver: GetResolver,
-    getConractInstance: GetConractInstance,
-) {
-    if (!connection.provider) {
-        throw Error('No provider');
-    }
-    if (!connection.account) {
-        throw Error('No account');
-    }
-    if (!connection.account.profile) {
-        throw Error('No profile');
-    }
-    if (!connection.account.profileSignature) {
-        throw Error('No signature');
-    }
-
-    const ethersResolver = await getResolver(connection.provider, ensName);
-    if (!ethersResolver) {
-        throw Error('No resolver found');
-    }
-
-    const resolver = getConractInstance(
-        ethersResolver.address,
-        [
-            'function setText(bytes32 node, string calldata key, string calldata value) external',
-        ],
-        connection.provider,
-    );
-
-    const signedUserProfile: SignedUserProfile = {
-        profile: connection.account.profile,
-        signature: connection.account.profileSignature,
-    };
-    const node = ethers.utils.namehash(ensName);
-
-    const jsonPrefix = 'data:application/json,';
-    const key = 'network.dm3.profile';
-    const value = jsonPrefix + stringify(signedUserProfile);
-
-    return {
-        method: resolver.setText,
-        args: [node, key, value],
-    };
 }

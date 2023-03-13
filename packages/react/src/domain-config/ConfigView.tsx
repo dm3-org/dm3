@@ -5,6 +5,7 @@ import { ConnectionType } from '../reducers/Connection';
 import { ethers } from 'ethers';
 import StateButton, { ButtonState } from '../ui-shared/StateButton';
 import Icon from '../ui-shared/Icon';
+import { getUserProfile } from '../ui-shared/contacts/getUserProfile';
 
 function ConfigView() {
     const [addrEnsName, setAddrEnsName] = useState<string | undefined>();
@@ -108,7 +109,7 @@ function ConfigView() {
         setLoadingTopicName('dm3UserName');
         setError(undefined);
         try {
-            const signedProfile = await Lib.account.getUserProfile(
+            const signedProfile = await getUserProfile(
                 state.connection,
                 state.connection.account!.ensName,
             );
