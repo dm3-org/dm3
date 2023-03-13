@@ -137,7 +137,7 @@ describe('Envelope', () => {
                         '0xc3428898a18e2cdb914e7eec870e45348c7f401d094968408524b787b43451d0',
                     version: 'v1',
                     signature:
-                        'AlMZfNimxnW1/gUrrpfGVa+dYWyOstQkrK6Oc8PEf+dU5cp955YBnkPSeFL42MpMTVU2QGl5reO77l80sqvMBQ==',
+                        'YEk6gtRvjnIqh90iZgUU6t/eUONjFh0EvcYU+Iln6ZwUPr1DaZwzH0M3kA6m8ygJOaCUkSugt9ghevCUNvwcCw==',
                 },
             });
         });
