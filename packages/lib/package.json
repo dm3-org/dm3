@@ -58,7 +58,7 @@
         "build:account": "cd ./src/account && yarn build && cd ../../",
         "build:delivery": "cd ./src/delivery && yarn build && cd ../../",
         "build:schema": "sh ./schemas.sh",
-        "build": "yarn build:install &&  yarn build:schema && yarn build:crypto && yarn build:account && yarn build:delivery&&  tsc --declaration && tsc --declaration -p tsconfig.backend.json",
+        "build": "yarn build:install &&  yarn build:schema && yarn build:crypto && yarn build:shared && yarn build:account && yarn build:delivery&&  tsc --declaration && tsc --declaration -p tsconfig.backend.json",
         "test": "jest --coverage"
     },
     "files": [
