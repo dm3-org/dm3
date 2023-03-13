@@ -19,7 +19,8 @@
         "packages": [
             "src/account",
             "src/crypto",
-            "src/delivery"
+            "src/delivery",
+            "src/shared"
         ]
        
     },
