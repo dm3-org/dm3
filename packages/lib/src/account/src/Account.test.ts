@@ -78,7 +78,7 @@ const getProfileData = async (): Promise<{
     };
 };
 
-describe.skip('Account', () => {
+describe('Account', () => {
     describe('getAccountDisplayName', () => {
         test('get correct account display name', async () => {
             expect(getAccountDisplayName('alice.eth')).toStrictEqual(

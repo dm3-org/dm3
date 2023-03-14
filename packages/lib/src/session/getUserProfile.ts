@@ -4,13 +4,12 @@ import {
     LinkResolver,
     ProfileResolver,
     SignedUserProfile,
-} from 'dm3-lib-account/src';
+    validateSignedUserProfile,
+} from 'dm3-lib-account';
 import { log } from 'dm3-lib-shared';
 import { getEnsTextRecord } from '../external-apis/InjectedWeb3API';
 import { getUserProfileOffChain } from '../external-apis/BackendAPI';
 import axios from 'axios';
-import { validateSignedUserProfile } from 'dm3-lib-account/src/profileResolver/Validation';
-
 /**
  * fetch a dm3 user profile
  * @param connection dm3 connection object
