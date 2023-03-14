@@ -100,7 +100,7 @@ export function userDbReducer(
                     conversations: newConversations,
                     conversationsCount: Array.from(newConversations.keys())
                         .length,
-                    synced: !hasChanged,
+                    synced: false,
                     lastChangeTimestamp,
                 };
             }

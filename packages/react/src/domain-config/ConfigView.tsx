@@ -319,7 +319,7 @@ function ConfigView() {
                             btnState={getSubmitUserNameButtonState()}
                             btnType="secondary"
                             onClick={submitDm3UsernameClaim}
-                            content={<>Claim</>}
+                            content={<>Claim & Reload</>}
                             className="submit-btn"
                             disabled={
                                 !(dm3UserEnsName && dm3UserEnsName?.length > 3)

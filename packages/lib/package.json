@@ -30,7 +30,7 @@
         "axios": "^0.25.0",
         "ethers": "^5.5.4",
         "googleapis": "^100.0.0",
-        "libsodium-wrappers": "^0.7.10",
+        "libsodium-wrappers": "^0.7.11",
         "query-string": "^7.1.1",
         "safe-stable-stringify": "^2.4.1",
         "socket.io": "^4.4.1",
@@ -42,6 +42,7 @@
     "devDependencies": {
         "@types/data-urls": "^3.0.1",
         "@types/jest": "^28.1.1",
+        "@types/libsodium-wrappers": "^0.7.10",
         "@types/node": "^16.7.13",
         "@types/uuid": "^8.3.4",
         "@types/whatwg-encoding": "^2.0.0",

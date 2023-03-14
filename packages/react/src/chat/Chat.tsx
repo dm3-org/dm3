@@ -9,7 +9,7 @@ import {
     Widget,
 } from 'react-chat-widget';
 import MessageStateView from './MessageStateView';
-import { useContext, useEffect, useState } from 'react';
+import { memo, Profiler, useContext, useEffect, useState } from 'react';
 import * as Lib from 'dm3-lib';
 import './Chat.css';
 import { GlobalContext } from '../GlobalContextProvider';
@@ -38,27 +38,20 @@ function Chat() {
     const [messageStates, setMessageStates] = useState<
         Map<string, Lib.messaging.MessageState>
     >(new Map<string, Lib.messaging.MessageState>());
+    if (!state.accounts.selectedContact?.account.profile?.publicEncryptionKey) {
+        dropMessages();
+        renderCustomComponent(
+            () => (
+                <InfoBox text={`This user hasn't created a dm3 profile yet.`} />
+            ),
+            {},
+        );
+    }
 
     const handleMessageContainer = (
         messageContainers: Lib.storage.StorageEnvelopContainer[],
     ) => {
         dropMessages();
-        if (
-            !state.accounts.selectedContact?.account.profile
-                ?.publicEncryptionKey
-        ) {
-            renderCustomComponent(
-                () => (
-                    <InfoBox
-                        text={
-                            `This user hasn't created encryption keys yet.` +
-                            ` The messages will be sent as soon as the keys have been created.`
-                        }
-                    />
-                ),
-                {},
-            );
-        }
 
         messageContainers.forEach((container) => {
             if (
@@ -105,38 +98,9 @@ function Chat() {
         });
     };
 
-    const getPastMessages = async () => {
-        const lastMessagePull = new Date().getTime();
-        if (!state.accounts.selectedContact) {
-            throw Error('no contact selected');
-        }
-        handleMessages(
-            await Lib.messaging.getMessages(
-                state.connection,
-                state.auth.currentSession?.token!,
-                state.accounts.selectedContact.account.ensName,
-                state.userDb as Lib.storage.UserDB,
-                (envelops) =>
-                    envelops.forEach((envelop) =>
-                        dispatch({
-                            type: UserDbType.addMessage,
-                            payload: {
-                                container: envelop,
-                                connection: state.connection,
-                            },
-                        }),
-                    ),
-            ),
-        );
-        dispatch({
-            type: UiStateType.SetLastMessagePull,
-            payload: lastMessagePull,
-        });
-    };
-
-    const handleMessages = async (
+    const handleMessages = (
         containers: Lib.storage.StorageEnvelopContainer[],
-    ): Promise<void> => {
+    ): void => {
         const checkedContainers = containers.filter((container) => {
             if (!state.accounts.selectedContact) {
                 throw Error('No selected contact');
@@ -198,12 +162,51 @@ function Chat() {
     };
 
     useEffect(() => {
+        let ignore = false;
         dropMessages();
-        setMessageStates(new Map<string, Lib.messaging.MessageState>());
-        if (state.accounts.selectedContact) {
+
+        const getPastMessages = async () => {
+            const lastMessagePull = new Date().getTime();
+            if (!state.accounts.selectedContact) {
+                throw Error('no contact selected');
+            }
+            const messages = await Lib.messaging.getMessages(
+                state.connection,
+                state.auth.currentSession?.token!,
+                state.accounts.selectedContact.account.ensName,
+                state.userDb as Lib.storage.UserDB,
+                (envelops) => {
+                    if (!ignore) {
+                        envelops.forEach((envelop) =>
+                            dispatch({
+                                type: UserDbType.addMessage,
+                                payload: {
+                                    container: envelop,
+                                    connection: state.connection,
+                                },
+                            }),
+                        );
+                    }
+                },
+            );
+            if (!ignore && messages.length > 0) {
+                handleMessages(messages);
+                setMessageStates(new Map<string, Lib.messaging.MessageState>());
+                dispatch({
+                    type: UiStateType.SetLastMessagePull,
+                    payload: lastMessagePull,
+                });
+            }
+        };
+
+        if (!ignore && state.accounts.selectedContact) {
             getPastMessages();
         }
-    }, [state.accounts.selectedContact]);
+
+        return () => {
+            ignore = true;
+        };
+    }, [state.accounts.selectedContact?.account.ensName]);
 
     useEffect(() => {
         if (state.accounts.selectedContact && state.userDb) {
