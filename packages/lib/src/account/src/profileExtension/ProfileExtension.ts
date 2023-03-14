@@ -1,4 +1,4 @@
-//TODO import from message pacakge if possbile. If not find a better way to import
+//TODO import from message package if possbile. If not find a better way to import
 export type MessageType =
     | 'NEW'
     | 'DELETE_REQUEST'

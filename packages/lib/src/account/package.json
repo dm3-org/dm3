@@ -2,17 +2,17 @@
   "name": "dm3-lib-account",
   "version": "0.1.0",
   "license": "MIT",
-  "main": "dist/src/index.js",
-  "module": "dist-backend/src/index.js",
-  "types": "dist/src/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist-backend/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
       ".": {
-          "import": "./dist/src/index.js",
-          "require": "./dist/src/index.js"
+          "import": "./dist/index.js",
+          "require": "./dist/index.js"
       },
       "./dist.backend": {
-          "import": "./dist.backend/src/index.js",
-          "require": "./dist.backend/src/index.js"
+          "import": "./dist.backend/index.js",
+          "require": "./dist.backend/index.js"
       }
   },
   "dependencies": {
