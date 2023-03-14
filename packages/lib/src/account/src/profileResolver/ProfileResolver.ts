@@ -1,11 +1,5 @@
 import { SignedUserProfile } from '../Account';
-
-//Maybe move this to shared
-export interface DeliveryServiceProfile {
-    publicSigningKey: string;
-    publicEncryptionKey: string;
-    url: string;
-}
+import { DeliveryServiceProfile } from '../delivery/Delivery';
 
 export type Dm3Profile = SignedUserProfile | DeliveryServiceProfile;
 

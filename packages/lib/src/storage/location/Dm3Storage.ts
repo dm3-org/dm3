@@ -2,7 +2,7 @@ import axios from 'axios';
 import { UserDB } from '..';
 import { normalizeEnsName } from '../../account/src';
 import { Acknoledgment } from '../../delivery/src';
-import { getDeliveryServiceClient } from '../../delivery/src';
+import { getDeliveryServiceClient } from '../../account/src/delivery/Delivery';
 import { log } from '../../shared/src/log';
 import { Connection } from '../../web3-provider/Web3Provider';
 import { sync } from '../Storage';
@@ -32,7 +32,7 @@ export async function useDm3Storage(
 
     await await getDeliveryServiceClient(
         profile!,
-        connection,
+        connection.provider!,
         async (url) => (await axios.get(url)).data,
     ).post(url, syncResult.userStorage, getAxiosConfig(token));
     return syncResult.acknoledgments;
@@ -50,7 +50,7 @@ export async function getDm3Storage(
     const url = `${STORAGE_SERVICE}/${normalizeEnsName(ensName)}`;
     const { data } = await getDeliveryServiceClient(
         profile!,
-        connection,
+        connection.provider!,
         async (url) => (await axios.get(url)).data,
     ).get(url, getAxiosConfig(token));
 

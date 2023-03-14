@@ -1,8 +1,8 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { ethers } from 'ethers';
-import { UserProfile } from '../../account/src/Account';
-import { Connection } from '../../web3-provider/Web3Provider';
+import { UserProfile } from '../Account';
+import { Connection } from '../../../web3-provider/Web3Provider';
 import {
     DeliveryServiceProfile,
     getDeliveryServiceClient,
@@ -27,12 +27,12 @@ describe('Delivery', () => {
 
             const provider = {
                 getResolver: mockGetEnsResolver,
-            } as ethers.providers.BaseProvider;
+            } as ethers.providers.StaticJsonRpcProvider;
 
             try {
                 await getDeliveryServiceProfile(
                     deliveryServices[0],
-                    { provider } as Connection,
+                    provider,
                     (_: string) => Promise.resolve(undefined),
                 );
                 fail();
@@ -52,11 +52,11 @@ describe('Delivery', () => {
 
             const provider = {
                 getResolver: mockGetEnsResolver,
-            } as ethers.providers.BaseProvider;
+            } as ethers.providers.StaticJsonRpcProvider;
 
             const profile = await getDeliveryServiceProfile(
                 deliveryServices[0],
-                { provider } as Connection,
+                provider,
                 (_: string) => Promise.resolve(undefined),
             );
             expect(profile).toBeUndefined();
@@ -77,11 +77,10 @@ describe('Delivery', () => {
 
             const provider = {
                 getResolver: mockGetEnsResolver,
-            } as ethers.providers.BaseProvider;
-
+            } as ethers.providers.StaticJsonRpcProvider;
             const receivedProfile = await getDeliveryServiceProfile(
                 deliveryServices[0],
-                { provider } as Connection,
+                provider,
                 (_: string) => Promise.resolve(undefined),
             );
 
@@ -97,7 +96,7 @@ describe('Delivery', () => {
             try {
                 await getDeliveryServiceClient(
                     profile,
-                    {} as Connection,
+                    undefined as unknown as ethers.providers.StaticJsonRpcProvider,
                     (_: string) => Promise.resolve(undefined),
                 ).get('/foo');
             } catch (e) {
@@ -110,13 +109,11 @@ describe('Delivery', () => {
 
             const provider = {
                 getResolver: mockGetEnsResolver,
-            } as ethers.providers.BaseProvider;
+            } as ethers.providers.StaticJsonRpcProvider;
 
             try {
-                await getDeliveryServiceClient(
-                    profile,
-                    { provider } as Connection,
-                    (_: string) => Promise.resolve(undefined),
+                await getDeliveryServiceClient(profile, provider, (_: string) =>
+                    Promise.resolve(undefined),
                 ).get('/foo');
             } catch (e) {
                 expect(e).toBe('Unknown ENS name');
@@ -143,13 +140,13 @@ describe('Delivery', () => {
 
             const provider = {
                 getResolver: mockGetEnsResolver,
-            } as ethers.providers.BaseProvider;
+            } as ethers.providers.StaticJsonRpcProvider;
 
             axiosMock.onGet('http://blabla.io/foo').reply(400);
 
             const res: any = await getDeliveryServiceClient(
                 userProfile,
-                { provider } as Connection,
+                provider,
                 (_: string) => Promise.resolve(undefined),
             ).get('http://blabla.io/foo');
 
@@ -178,13 +175,13 @@ describe('Delivery', () => {
 
             const provider = {
                 getResolver: mockGetEnsResolver,
-            } as ethers.providers.BaseProvider;
+            } as ethers.providers.StaticJsonRpcProvider;
 
             axiosMock.onGet('http://blabla.io/foo').reply(200);
 
             const res = await getDeliveryServiceClient(
                 userProfile,
-                { provider } as Connection,
+                provider,
                 (_: string) => Promise.resolve(undefined),
             ).get('/foo');
 
@@ -233,14 +230,14 @@ describe('Delivery', () => {
 
             const provider = {
                 getResolver: mockGetEnsResolver,
-            } as ethers.providers.BaseProvider;
+            } as ethers.providers.StaticJsonRpcProvider;
 
             axiosMock.onGet('http://blabla.io/foo').reply(400);
             axiosMock.onGet('http://fallback.io/foo').reply(200);
 
             const res = await getDeliveryServiceClient(
                 userProfile,
-                { provider } as Connection,
+                provider,
                 (_: string) => Promise.resolve(undefined),
             ).get('/foo');
 
@@ -288,14 +285,14 @@ describe('Delivery', () => {
 
             const provider = {
                 getResolver: mockGetEnsResolver,
-            } as ethers.providers.BaseProvider;
+            } as ethers.providers.StaticJsonRpcProvider;
 
             axiosMock.onGet('http://blabla.io/foo').reply(400);
             axiosMock.onGet('http://fallback.io/foo').reply(400);
 
             const res: any = await getDeliveryServiceClient(
                 userProfile,
-                { provider } as Connection,
+                provider,
                 (_: string) => Promise.resolve(undefined),
             ).get('/foo');
 

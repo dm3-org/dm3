@@ -6,7 +6,7 @@ import {
     SignedUserProfile,
 } from '../account/src/Account';
 import { Acknoledgment } from '../delivery/src';
-import { getDeliveryServiceClient } from '../delivery/src/Delivery';
+import { getDeliveryServiceClient } from '../account/src/delivery/Delivery';
 import { EncryptionEnvelop, Envelop } from '../messaging';
 import { log } from '../shared/src/log';
 import { Connection } from '../web3-provider/Web3Provider';
@@ -58,7 +58,7 @@ export async function getChallenge(
 
     const { data } = await getDeliveryServiceClient(
         profile,
-        connection,
+        connection.provider!,
         async (url: string) => (await axios.get(url)).data,
     ).get(url);
 
@@ -77,7 +77,7 @@ export async function getNewToken(
 
     const { data } = await getDeliveryServiceClient(
         profile,
-        connection,
+        connection.provider!,
         async (url: string) => (await axios.get(url)).data,
     ).post(url, {
         signature,
@@ -98,7 +98,7 @@ export async function submitUserProfile(
 
     const { data } = await getDeliveryServiceClient(
         profile,
-        connection,
+        connection.provider!,
         async (url: string) => (await axios.get(url)).data,
     ).post(url, signedUserProfile);
 
@@ -121,7 +121,7 @@ export async function createAlias(
 
     const { data } = await getDeliveryServiceClient(
         profile,
-        connection,
+        connection.provider!,
         async (url: string) => (await axios.get(url)).data,
     ).post(url, {}, getAxiosConfig(token));
 
@@ -174,7 +174,7 @@ export async function syncAcknoledgment(
 
     return getDeliveryServiceClient(
         profile,
-        connection,
+        connection.provider!,
         async (url: string) => (await axios.get(url)).data,
     ).post(url, { acknoledgments }, getAxiosConfig(token));
 }
@@ -226,7 +226,7 @@ export async function getNewMessages(
 
     const { data } = await getDeliveryServiceClient(
         profile,
-        connection,
+        connection.provider!,
         async (url: string) => (await axios.get(url)).data,
     ).get(url, getAxiosConfig(token));
 
@@ -245,7 +245,7 @@ export async function getPendingConversations(
 
     const { data } = await getDeliveryServiceClient(
         profile,
-        connection,
+        connection.provider!,
         async (url: string) => (await axios.get(url)).data,
     ).post(url, {}, getAxiosConfig(token));
 
@@ -270,7 +270,7 @@ export async function getUserProfileOffChain(
 
         const { data } = await getDeliveryServiceClient(
             profile,
-            connection,
+            connection.provider!,
             async (url: string) => (await axios.get(url)).data,
         ).get(fallbackUrl);
         return data;

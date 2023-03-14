@@ -6,7 +6,7 @@ import {
     encryptAsymmetric,
     getStorageKeyCreationMessage,
 } from '../crypto/src';
-import { DeliveryServiceProfile } from '../delivery';
+import { DeliveryServiceProfile } from '../account/src/delivery/Delivery';
 import { stringify } from '../shared/src/stringify';
 import { StorageLocation, UserDB } from '../storage';
 import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
