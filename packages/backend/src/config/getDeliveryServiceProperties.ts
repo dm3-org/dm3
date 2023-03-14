@@ -27,7 +27,7 @@ export function getDeliveryServiceProperties(
         // eslint-disable-next-line max-len
         //The interface DeliveryServiceProperties requires all properties to be non-null. But since we are accepting a partially filled config.yml we are overwriting the required fields so basically no property is required at all. This can be done because every missing property is replaced by a default property
         {
-            ...Lib.delivery.schema.DeliveryServicePropertiesSchema,
+            ...Lib.delivery.schema.DeliveryServiceProperties,
             required: [],
         },
         deliveryServiceProfile,
