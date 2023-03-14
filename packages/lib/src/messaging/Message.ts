@@ -1,6 +1,6 @@
 import { Account, ProfileKeys } from '../account/src/Account';
 import { decryptAsymmetric, EncryptAsymmetric } from '../crypto/src';
-import { DeliveryServiceProfile } from '../account/src/delivery/Delivery';
+import { DeliveryServiceProfile } from '../account/src/deliveryServiceProfile/Delivery';
 import {
     CreatePendingEntry,
     GetNewMessages,

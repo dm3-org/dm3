@@ -2,7 +2,8 @@ import axios from 'axios';
 import stringify from 'safe-stable-stringify';
 import { ProfileKeys } from '../account/src';
 import { encryptAsymmetric, sign } from '../crypto/src';
-import { getDeliveryServiceProfile as execGetDeliveryServiceProfile } from '../account/src/delivery/Delivery';
+// eslint-disable-next-line max-len
+import { getDeliveryServiceProfile as execGetDeliveryServiceProfile } from '../account/src/deliveryServiceProfile/Delivery';
 import { getNewMessages } from '../external-apis';
 import {
     createPendingEntry,

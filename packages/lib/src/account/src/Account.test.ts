@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { sha256 } from 'ethers/lib/utils';
-import { getUserProfile } from '../../session/getUserProfile';
+import { getUserProfile } from './userProfile/getUserProfile';
 import { stringify } from '../../shared/src/stringify';
 
 import { StorageLocation } from '../../storage/Storage';

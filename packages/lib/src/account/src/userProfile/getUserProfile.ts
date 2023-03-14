@@ -1,15 +1,15 @@
+import { log } from 'dm3-lib-shared';
+import axios from 'axios';
+import { SignedUserProfile } from '../Account';
 import {
+    ProfileResolver,
+    LinkResolver,
+    validateSignedUserProfile,
     IpfsResolver,
     JsonResolver,
-    LinkResolver,
-    ProfileResolver,
-    SignedUserProfile,
-    validateSignedUserProfile,
-} from 'dm3-lib-account';
-import { log } from 'dm3-lib-shared';
-import { getEnsTextRecord } from '../external-apis/InjectedWeb3API';
-import { getUserProfileOffChain } from '../external-apis/BackendAPI';
-import axios from 'axios';
+} from '../profileResolver';
+import { ethers } from 'ethers';
+import { getUserProfileOffChain } from './getUserProfileOffchain';
 /**
  * fetch a dm3 user profile
  * @param connection dm3 connection object
@@ -20,6 +20,23 @@ import axios from 'axios';
  * @param profileUrl Offchain user profile URL
  */
 export const PROFILE_RECORD_NAME = 'network.dm3.profile';
+
+export async function getEnsTextRecord(
+    provider: ethers.providers.JsonRpcProvider,
+    ensName: string,
+    recordKey: string,
+) {
+    try {
+        const resolver = await provider.getResolver(ensName);
+        if (resolver === null) {
+            return;
+        }
+
+        return await resolver.getText(recordKey);
+    } catch (e) {
+        return undefined;
+    }
+}
 
 export async function getUserProfile(
     connection: any,

@@ -152,3 +152,12 @@ export function checkProfileHash(profile: Dm3Profile, uri: string): boolean {
     const parsedUri = queryString.parseUrl(uri);
     return sha256(stringify(profile)) === parsedUri.query.dm3Hash;
 }
+export function checkAccount(account: Account | undefined): Required<Account> {
+    if (!account) {
+        throw Error('No account');
+    }
+    if (!account.profile) {
+        throw Error('Account has no profile.');
+    }
+    return account as Required<Account>;
+}

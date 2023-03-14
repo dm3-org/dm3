@@ -6,7 +6,7 @@ import {
     SignedUserProfile,
 } from '../account/src/Account';
 import { Acknoledgment } from '../delivery/src';
-import { getDeliveryServiceClient } from '../account/src/delivery/Delivery';
+import { getDeliveryServiceClient } from '../account/src/deliveryServiceProfile/Delivery';
 import { EncryptionEnvelop, Envelop } from '../messaging';
 import { log } from '../shared/src/log';
 import { Connection } from '../web3-provider/Web3Provider';
@@ -252,34 +252,3 @@ export async function getPendingConversations(
     return data;
 }
 export type GetPendingConversations = typeof getPendingConversations;
-
-export async function getUserProfileOffChain(
-    connection: Connection,
-    account: Account | undefined,
-    contact: string,
-    url?: string,
-): Promise<SignedUserProfile | undefined> {
-    try {
-        if (url) {
-            const { data } = await axios.get(url);
-            return data;
-        }
-        const { profile } = checkAccount(account);
-
-        const fallbackUrl = `${PROFILE_PATH}/${contact}`;
-
-        const { data } = await getDeliveryServiceClient(
-            profile,
-            connection.provider!,
-            async (url: string) => (await axios.get(url)).data,
-        ).get(fallbackUrl);
-        return data;
-    } catch (e) {
-        const { message } = e as Error;
-        if (message.includes('404') || message.includes('No account')) {
-            return undefined;
-        }
-        throw Error('Unknown API error');
-    }
-}
-export type GetUserProfileOffChain = typeof getUserProfileOffChain;

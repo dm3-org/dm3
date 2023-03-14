@@ -2,7 +2,7 @@ import axios from 'axios';
 import { UserDB } from '..';
 import { normalizeEnsName } from '../../account/src';
 import { Acknoledgment } from '../../delivery/src';
-import { getDeliveryServiceClient } from '../../account/src/delivery/Delivery';
+import { getDeliveryServiceClient } from '../../account/src/deliveryServiceProfile/Delivery';
 import { log } from '../../shared/src/log';
 import { Connection } from '../../web3-provider/Web3Provider';
 import { sync } from '../Storage';

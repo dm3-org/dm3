@@ -49,7 +49,10 @@ export async function getContacts(
                     : Lib.account.normalizeEnsName(ensNames[0]),
             )
             .map(async (ensName) => {
-                const profile = await getUserProfile(connection, ensName);
+                const profile = await Lib.account.getUserProfile(
+                    connection,
+                    ensName,
+                );
                 return {
                     ensName,
                     profile: profile,

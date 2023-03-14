@@ -1,11 +1,11 @@
 import axios from 'axios';
 import { GlobalConf } from '..';
 import { checkUserProfile, SignedUserProfile } from '../account/src/Account';
+import { getUserProfile } from '../account/src';
 import { getNameForAddress } from '../external-apis';
 import { RequestAccounts } from '../external-apis/InjectedWeb3API';
 import { log } from '../shared/src/log';
 import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
-import { getUserProfile } from './getUserProfile';
 
 export function getAliasForAddress(address: string) {
     return address + GlobalConf.ADDR_ENS_SUBDOMAIN();
