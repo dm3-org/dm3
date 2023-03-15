@@ -18,9 +18,9 @@ function fetchDeliveryServiceProfile(connection: Lib.Connection) {
         }
 
         const deliveryServiceProfile =
-            await Lib.delivery.getDeliveryServiceProfile(
+            await Lib.account.getDeliveryServiceProfile(
                 deliveryServiceUrl,
-                connection,
+                connection.provider!,
                 async (url) => (await axios.get(url)).data,
             );
 
