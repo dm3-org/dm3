@@ -83,20 +83,10 @@ function dm3(props: dm3Props) {
                 state.connection.connectionState === ConnectionState.SignedIn
             ) {
                 (window.ethereum as any).on('accountsChanged', () => {
-                    if (
-                        state.connection.connectionState ===
-                        ConnectionState.SignedIn
-                    ) {
-                        window.location.reload();
-                    }
+                    window.location.reload();
                 });
                 (window.ethereum as any).on('chainChanged', () => {
-                    if (
-                        state.connection.connectionState ===
-                        ConnectionState.SignedIn
-                    ) {
-                        window.location.reload();
-                    }
+                    window.location.reload();
                 });
             }
         }
