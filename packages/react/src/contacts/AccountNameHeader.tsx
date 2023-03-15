@@ -51,6 +51,7 @@ function AccountNameHeader(props: AccountNameHeaderProps) {
                             >
                                 {Lib.account.getAccountDisplayName(
                                     props.account.ensName,
+                                    20,
                                 )}
                             </div>
                         </div>
