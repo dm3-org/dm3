@@ -77,26 +77,19 @@ function dm3(props: dm3Props) {
 
     useEffect(() => {
         if (state.connection.provider) {
-            if (window.ethereum) {
+            if (
+                window.ethereum &&
+                state.connection.connectionState === ConnectionState.SignedIn
+            ) {
                 (window.ethereum as any).on('accountsChanged', () => {
-                    if (
-                        state.connection.connectionState ===
-                        ConnectionState.SignedIn
-                    ) {
-                        window.location.reload();
-                    }
+                    window.location.reload();
                 });
                 (window.ethereum as any).on('chainChanged', () => {
-                    if (
-                        state.connection.connectionState ===
-                        ConnectionState.SignedIn
-                    ) {
-                        window.location.reload();
-                    }
+                    window.location.reload();
                 });
             }
         }
-    }, [state.connection.provider]);
+    }, [state.connection.provider, state.connection.connectionState]);
 
     useEffect(() => {
         const getDeliveryServiceUrl = async () => {
