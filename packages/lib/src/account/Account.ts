@@ -1,4 +1,3 @@
-import { profile } from 'console';
 import { ethers } from 'ethers';
 import queryString from 'query-string';
 import stringify from 'safe-stable-stringify';
