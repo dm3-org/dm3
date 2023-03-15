@@ -38,21 +38,28 @@ function Chat() {
     const [messageStates, setMessageStates] = useState<
         Map<string, Lib.messaging.MessageState>
     >(new Map<string, Lib.messaging.MessageState>());
-    if (!state.accounts.selectedContact?.account.profile?.publicEncryptionKey) {
-        dropMessages();
-        renderCustomComponent(
-            () => (
-                <InfoBox text={`This user hasn't created a dm3 profile yet.`} />
-            ),
-            {},
-        );
-    }
+
+    const addAlert = () => {
+        if (
+            !state.accounts.selectedContact?.account.profile
+                ?.publicEncryptionKey
+        ) {
+            renderCustomComponent(
+                () => (
+                    <InfoBox
+                        text={`This user hasn't created a dm3 profile yet.`}
+                    />
+                ),
+                {},
+            );
+        }
+    };
 
     const handleMessageContainer = (
         messageContainers: Lib.storage.StorageEnvelopContainer[],
     ) => {
         dropMessages();
-
+        addAlert();
         messageContainers.forEach((container) => {
             if (
                 Lib.account.isSameEnsName(
@@ -164,6 +171,7 @@ function Chat() {
     useEffect(() => {
         let ignore = false;
         dropMessages();
+        addAlert();
 
         const getPastMessages = async () => {
             const lastMessagePull = new Date().getTime();
