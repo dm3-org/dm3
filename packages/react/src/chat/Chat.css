@@ -11,6 +11,15 @@
     color: #81828D
   }
 
+.profile-warning {
+color: #81828D;
+font-size: 0.8rem !important;
+background-color: #fff3cd22;
+border-color: #ffecb522;
+padding-top: 0.5rem;
+padding-bottom: 0.5rem;
+border-radius: 10px !important;
+}
 
 
 .info-box {
@@ -48,7 +57,7 @@
     height: 100%;
     width: 100%;
     border: solid var(--mainLight) 2px !important;
-    border-radius: 6px;
+    border-radius: 10px;
     color: #ffffff;
     background-color: #3A3C50 !important;
 }
