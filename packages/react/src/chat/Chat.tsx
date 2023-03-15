@@ -9,7 +9,7 @@ import {
     Widget,
 } from 'react-chat-widget';
 import MessageStateView from './MessageStateView';
-import { memo, Profiler, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import * as Lib from 'dm3-lib';
 import './Chat.css';
 import { GlobalContext } from '../GlobalContextProvider';
@@ -214,7 +214,7 @@ function Chat() {
         return () => {
             ignore = true;
         };
-    }, [state.accounts.selectedContact?.account.ensName]);
+    }, [state.accounts.selectedContact]);
 
     useEffect(() => {
         if (state.accounts.selectedContact && state.userDb) {
@@ -304,22 +304,26 @@ function Chat() {
         }
     };
 
+    const widget = (
+        <Widget
+            emojis={false}
+            launcher={() => null}
+            handleNewUserMessage={(message: string) =>
+                handleNewUserMessage(
+                    message,
+                    state.userDb as Lib.storage.UserDB,
+                )
+            }
+            key={state.accounts.selectedContact?.account.ensName}
+            showTimeStamp={false}
+        />
+    );
+
     return (
         <div className="widget-container flex-grow-1">
             <div className="h-100">
                 {/* @ts-ignore */}
-                <Widget
-                    emojis={false}
-                    launcher={() => null}
-                    handleNewUserMessage={(message: string) =>
-                        handleNewUserMessage(
-                            message,
-                            state.userDb as Lib.storage.UserDB,
-                        )
-                    }
-                    showTimeStamp={false}
-                />
-
+                {widget}
                 {!state.uiState.maxLeftView && <StorageView />}
             </div>
         </div>
