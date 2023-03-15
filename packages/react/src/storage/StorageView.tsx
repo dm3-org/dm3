@@ -69,6 +69,7 @@ function StorageView() {
                     const a = document.createElement('a');
                     a.download = `${Lib.account.getAccountDisplayName(
                         state.connection.account!.ensName,
+                        35,
                         true,
                     )}-${Date.now()}.json`;
                     a.href = window.URL.createObjectURL(blob);

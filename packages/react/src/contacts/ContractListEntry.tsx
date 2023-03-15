@@ -76,6 +76,7 @@ function ContactListEntry(props: ContactListProps) {
                         <strong>
                             {Lib.account.getAccountDisplayName(
                                 props.contact.account.ensName,
+                                25,
                             )}
                         </strong>
                     </div>
