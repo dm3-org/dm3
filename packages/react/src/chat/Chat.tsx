@@ -128,7 +128,7 @@ function Chat() {
                       account.ensName,
                       container.envelop.message.signature,
                   )
-                : false;
+                : true;
         });
 
         const newMessages = checkedContainers
@@ -197,6 +197,7 @@ function Chat() {
                     }
                 },
             );
+
             if (!ignore && messages.length > 0) {
                 handleMessages(messages);
                 setMessageStates(new Map<string, Lib.messaging.MessageState>());
@@ -225,7 +226,7 @@ function Chat() {
                 ),
             );
         }
-    }, [state.userDb?.conversations]);
+    }, [state.userDb?.conversations, state.accounts.selectedContact]);
 
     const handleNewUserMessage = async (
         message: string,
@@ -237,9 +238,9 @@ function Chat() {
             throw Error('no contact selected');
         }
 
-        if (!state.accounts.selectedContact.deliveryServiceProfile) {
-            throw Error('no deliveryServiceProfile');
-        }
+        // if (!state.accounts.selectedContact.deliveryServiceProfile) {
+        //     throw Error('no deliveryServiceProfile');
+        // }
 
         const haltDelivery =
             state.accounts.selectedContact?.account.profile
@@ -261,7 +262,7 @@ function Chat() {
         const sendDependencies: Lib.messaging.SendDependencies = {
             deliveryServiceEncryptionPubKey:
                 state.accounts.selectedContact.deliveryServiceProfile
-                    .publicEncryptionKey,
+                    ?.publicEncryptionKey ?? '',
             from: state.connection.account!,
             to: state.accounts.selectedContact.account,
             keys: userDb.keys,
