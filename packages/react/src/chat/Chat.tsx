@@ -250,6 +250,10 @@ function Chat() {
             throw Error('no contact selected');
         }
 
+        // if (!state.accounts.selectedContact.deliveryServiceProfile) {
+        //     throw Error('no deliveryServiceProfile');
+        // }
+
         const haltDelivery =
             state.accounts.selectedContact?.account.profile
                 ?.publicEncryptionKey &&
