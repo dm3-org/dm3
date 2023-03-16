@@ -1,10 +1,10 @@
 import { ethers } from 'ethers';
-import { createProfileKeys } from '../account/src/profileKeys/createProfileKeys';
+import { createProfileKeys } from 'dm3-lib-account';
 import {
     createStorageKey,
     EncryptAsymmetric,
     getStorageKeyCreationMessage,
-} from '../crypto/src';
+} from 'dm3-lib-crypto';
 import { buildEnvelop } from './Envelop';
 import { Message, SendDependencies } from './Message';
 

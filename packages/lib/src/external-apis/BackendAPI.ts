@@ -129,36 +129,6 @@ export async function createAlias(
 }
 export type CreateAlias = typeof createAlias;
 
-export async function submitMessage(
-    connection: Connection,
-    token: string,
-    envelop: Envelop | EncryptionEnvelop,
-    onSuccess: () => void,
-    onError: () => void,
-): Promise<void> {
-    if (!connection.socket) {
-        return;
-    }
-    //TODO handle error messages properly
-    connection.socket.emit(
-        'submitMessage',
-        {
-            envelop,
-            token,
-        },
-        (result: any) => {
-            if (result.response === 'success') {
-                log(`- success`);
-                onSuccess();
-            } else {
-                log(`- error`);
-                onError();
-            }
-        },
-    );
-}
-export type SubmitMessage = typeof submitMessage;
-
 export async function syncAcknoledgment(
     connection: Connection,
     acknoledgments: Acknoledgment[],
@@ -179,37 +149,6 @@ export async function syncAcknoledgment(
     ).post(url, { acknoledgments }, getAxiosConfig(token));
 }
 export type SyncAcknoledgment = typeof syncAcknoledgment;
-
-export async function createPendingEntry(
-    connection: Connection,
-    token: string,
-    ensName: string,
-    contactEnsName: string,
-    onSuccess: () => void,
-    onError: () => void,
-): Promise<void> {
-    if (connection.socket) {
-        log(`Create pending entry`);
-        connection.socket.emit(
-            'pendingMessage',
-            {
-                ensName,
-                contactEnsName,
-                token,
-            },
-            (result: any) => {
-                if (result.response === 'success') {
-                    log(`- success`);
-                    onSuccess();
-                } else {
-                    log(`- error`);
-                    onError();
-                }
-            },
-        );
-    }
-}
-export type CreatePendingEntry = typeof createPendingEntry;
 
 export async function getNewMessages(
     connection: Connection,

@@ -1,6 +1,6 @@
-import MessageSchema from '../schema.json';
 import { Envelop } from './Envelop';
 import Ajv from 'ajv';
+import { MessageSchema } from './schema';
 
 export function validateMessage(envelop: Envelop) {
     const ajv = new Ajv();

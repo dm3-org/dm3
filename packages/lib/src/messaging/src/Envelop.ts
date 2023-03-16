@@ -1,6 +1,5 @@
-import { EncryptAsymmetric, sign } from '../crypto/src';
-import { sha256 } from '../shared/src/sha256';
-import { stringify } from '../shared/src/stringify';
+import { EncryptAsymmetric, sign } from 'dm3-lib-crypto';
+import { sha256, stringify } from 'dm3-lib-shared';
 import { Message, Postmark, SendDependencies } from './Message';
 
 export interface EnvelopeMetadata {
