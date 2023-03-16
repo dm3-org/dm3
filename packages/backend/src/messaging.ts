@@ -101,11 +101,15 @@ export function onConnection(app: express.Application & WithLocals) {
 
             let idEnsName: string;
             let idContactEnsName: string;
+            const ensName = Lib.account.normalizeEnsName(data.ensName);
+            const contactEnsName = Lib.account.normalizeEnsName(
+                data.contactEnsName,
+            );
 
             try {
-                idEnsName = await app.locals.db.getIdEnsName(data.ensName);
+                idEnsName = await app.locals.db.getIdEnsName(ensName);
                 idContactEnsName = await app.locals.db.getIdEnsName(
-                    data.contactEnsName,
+                    contactEnsName,
                 );
             } catch (error) {
                 app.locals.logger.warn({
@@ -118,8 +122,8 @@ export function onConnection(app: express.Application & WithLocals) {
 
             app.locals.logger.info({
                 method: 'WS PENDING MESSAGE',
-                idEnsName,
-                idContactEnsName,
+                ensName,
+                contactEnsName,
             });
             try {
                 if (
@@ -138,7 +142,7 @@ export function onConnection(app: express.Application & WithLocals) {
                     return callback({ error });
                 }
 
-                await app.locals.db.addPending(idEnsName, idContactEnsName);
+                await app.locals.db.addPending(ensName, idContactEnsName);
 
                 callback({ response: 'success' });
             } catch (error) {

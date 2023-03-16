@@ -95,22 +95,6 @@ export function isSameEnsName(
     );
 }
 
-function conversationIdToContactEnsName(
-    conversationId: string,
-    ensName: string,
-    alias?: string,
-) {
-    const ensNames = conversationId.split(',');
-    if (ensNames.length !== 2) {
-        throw Error('Invalid conversation id');
-    }
-
-    return normalizeEnsName(ensName) === normalizeEnsName(ensNames[0]) ||
-        (alias && normalizeEnsName(alias) === normalizeEnsName(ensNames[0]))
-        ? normalizeEnsName(ensNames[1])
-        : normalizeEnsName(ensNames[0]);
-}
-
 export async function getContacts(
     connection: Connection,
     deliveryServiceToken: string,
