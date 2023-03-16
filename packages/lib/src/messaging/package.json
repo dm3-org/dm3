@@ -20,7 +20,6 @@
       "dm3-lib-crypto":"^0.1.0",
       "dm3-lib-shared":"^0.1.0",
       "dm3-lib-account":"^0.1.0",
-
       "safe-stable-stringify": "^2.4.1"
   },
   "devDependencies": {

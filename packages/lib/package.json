@@ -58,8 +58,9 @@
         "build:crypto": "cd ./src/crypto && yarn build && cd ../../",
         "build:shared": "cd ./src/shared && yarn build && cd ../../",
         "build:account": "cd ./src/account && yarn build && cd ../../",
+        "build:messaging": "cd ./src/messaging && yarn build && cd ../../",
         "build:delivery": "cd ./src/delivery && yarn build && cd ../../",
-        "build": "yarn build:install &&  yarn build:crypto && yarn build:shared && yarn build:account && yarn build:delivery&&  tsc --declaration && tsc --declaration -p tsconfig.backend.json",
+        "build": "yarn build:install &&  yarn build:crypto && yarn build:shared && yarn build:account && yarn build:messaging && yarn build:delivery &&  tsc --declaration && tsc --declaration -p tsconfig.backend.json",
         "test": "jest --coverage"
     },
     "files": [
@@ -67,3 +68,4 @@
         "dist.browser"
     ]
 }
+
