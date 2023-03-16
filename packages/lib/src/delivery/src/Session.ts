@@ -1,7 +1,5 @@
 import { ethers } from 'ethers';
-import { ProfileExtension } from '../../account/src';
-import { SignedUserProfile } from '../../account/src/Account';
-import { SpamFilterRules } from '../../spam-filter/SpamFilterRules';
+import { ProfileExtension, SignedUserProfile } from 'dm3-lib-account';
 
 //1Year
 const TTL = 31536000000;
@@ -15,7 +13,8 @@ export interface Session {
     socketId?: string;
     challenge?: string;
     profileExtension: ProfileExtension;
-    spamFilterRules?: SpamFilterRules;
+    //TODEO use SpamFilterRules once spam-filer is ready
+    spamFilterRules?: unknown;
 }
 
 export async function checkToken(

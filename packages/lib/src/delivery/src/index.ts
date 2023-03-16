@@ -3,7 +3,7 @@ export { submitUserProfile, getUserProfile } from './UserProfile';
 export { getMessages, incomingMessage } from './Messages';
 export type { Acknoledgment } from './Messages';
 export type {} from './PublicMessages';
-export * as schema from '../schema';
+export * as schema from './schema';
 export { checkToken } from './Session';
 export type { Session } from './Session';
 

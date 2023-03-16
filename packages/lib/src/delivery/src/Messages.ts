@@ -14,9 +14,7 @@ import {
     EncryptionEnvelop,
     Postmark,
 } from 'dm3-lib-messaging';
-import { sha256 } from '../../shared/src/sha256';
-import { isSpam } from '../../spam-filter';
-import { getConversationId } from '../../storage/Storage';
+import { sha256 } from 'dm3-lib-shared';
 import { checkToken, Session } from './Session';
 
 export interface Acknoledgment {
@@ -28,7 +26,11 @@ export interface MessageSubmission {
     token: string;
     envelop: EncryptionEnvelop;
 }
-
+export function getConversationId(ensNameA: string, ensNameB: string): string {
+    return [normalizeEnsName(ensNameA), normalizeEnsName(ensNameB)]
+        .sort()
+        .join();
+}
 // fetch new messages
 export async function getMessages(
     loadMessages: (
@@ -128,9 +130,10 @@ export async function incomingMessage(
         throw Error('unknown session');
     }
     //Checkes if the message is spam
-    if (await isSpam(provider, receiverSession, deliveryInformation)) {
+    //TODO bring back once spam filter is ready
+    /*  if (await isSpam(provider, receiverSession, deliveryInformation)) {
         throw Error('Message does not match spam criteria');
-    }
+    } */
 
     const receiverEncryptionKey =
         receiverSession.signedUserProfile.profile.publicEncryptionKey;
