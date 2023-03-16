@@ -2,7 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import { testData } from '../../../../../test-data/encrypted-envelops.test';
 import { normalizeEnsName, UserProfile } from 'dm3-lib-account';
 import { decryptAsymmetric } from 'dm3-lib-crypto';
-import { EncryptionEnvelop } from '../../messaging/Envelop';
+import { EncryptionEnvelop } from 'dm3-lib-messaging';
 import { stringify } from '../../shared/src/stringify';
 import { getConversationId } from '../../storage/Storage';
 import { getMessages, incomingMessage } from './Messages';

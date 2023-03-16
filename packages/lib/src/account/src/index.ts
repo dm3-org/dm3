@@ -25,3 +25,4 @@ export {
     getDeliveryServiceClient,
     getDeliveryServiceProfile,
 } from './deliveryServiceProfile/Delivery';
+export * from './profileKeys/createProfileKeys';

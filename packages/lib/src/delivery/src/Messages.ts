@@ -13,7 +13,7 @@ import {
     DeliveryInformation,
     EncryptionEnvelop,
     Postmark,
-} from '../../messaging';
+} from 'dm3-lib-messaging';
 import { sha256 } from '../../shared/src/sha256';
 import { isSpam } from '../../spam-filter';
 import { getConversationId } from '../../storage/Storage';
