@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { Session } from '../delivery/src';
-import { DeliveryInformation } from '../messaging/Envelop';
+import { DeliveryInformation } from '../messaging/src/Envelop';
 import { ethBalanceFilterFactory } from './filter/ethBalanceFilter/EthBalanceFilter';
 import { nonceFilterFactory } from './filter/nonceFilter/NonceFilter';
 import { SpamFilter, SpamFilterFactory } from './filter/SpamFilter';
