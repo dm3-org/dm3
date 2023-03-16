@@ -1,3 +1,4 @@
+import axios from 'axios';
 import * as Lib from 'dm3-lib';
 import { fetchNewMessages } from '../../../api/http/messages/fetchNewMessages';
 
@@ -5,11 +6,8 @@ export async function fetchAndStoreMessages(
     connection: Lib.Connection,
     deliveryServiceToken: string,
     contact: string,
-    storeMessages: (envelops: Lib.storage.StorageEnvelopContainer[]) => void,
-    getDeliveryServiceProfile: (
-        url: string,
-    ) => Promise<Lib.account.DeliveryServiceProfile | undefined>,
     userDb: Lib.storage.UserDB,
+    storeMessages: (envelops: Lib.storage.StorageEnvelopContainer[]) => void,
 ): Promise<Lib.storage.StorageEnvelopContainer[]> {
     const profile = connection.account?.profile;
 
@@ -19,7 +17,12 @@ export async function fetchAndStoreMessages(
     //Fetch evey delivery service's profie
     const deliveryServices = await Promise.all(
         profile.deliveryServices.map(async (ds) => {
-            const deliveryServiceProfile = await getDeliveryServiceProfile(ds);
+            const deliveryServiceProfile =
+                await Lib.account.getDeliveryServiceProfile(
+                    ds,
+                    connection.provider!,
+                    async (url) => (await axios.get(url)).data,
+                );
             return deliveryServiceProfile?.url;
         }),
     );

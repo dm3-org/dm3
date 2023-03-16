@@ -1,5 +1,6 @@
 import * as Lib from 'dm3-lib';
 import axios from 'axios';
+import { withAuthHeader } from '../withAuthHeader';
 const DELIVERY_PATH = process.env.REACT_APP_BACKEND + '/delivery';
 
 export async function fetchNewMessages(
@@ -20,16 +21,8 @@ export async function fetchNewMessages(
             connection.provider!,
             async (url: string) => (await axios.get(url)).data,
         )
-        .get(url, getAxiosConfig(token));
+        .get(url, withAuthHeader(token));
 
     return data;
 }
-export type GetNewMessages = typeof getNewMessages;
-
-function getAxiosConfig(token: string) {
-    return {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    };
-}
+export type GetNewMessages = typeof fetchNewMessages;

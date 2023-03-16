@@ -1,6 +1,8 @@
 import axios from 'axios';
 import * as Lib from 'dm3-lib';
 import { Contact } from '../../reducers/shared';
+import { getContacts } from './getContacts';
+import { SubmitMessageType } from '../../../context/messageContext/submitMessage/submitMessage';
 
 function fetchDeliveryServiceProfile(connection: Lib.Connection) {
     return async (account: Lib.account.Account): Promise<Contact> => {
@@ -40,9 +42,10 @@ export async function requestContacts(
     userDb: Lib.storage.UserDB,
     createEmptyConversationEntry: (id: string) => void,
     storeMessages: (envelops: Lib.storage.StorageEnvelopContainer[]) => void,
+    submitMessage: SubmitMessageType,
     defaultContactEnsName?: string,
 ) {
-    let retrievedContacts = await Lib.account.getContacts(
+    let retrievedContacts = await getContacts(
         connection,
         userDb,
         deliveryServiceToken,
@@ -59,7 +62,7 @@ export async function requestContacts(
     ) {
         createEmptyConversationEntry(defaultContactEnsName);
 
-        retrievedContacts = await Lib.account.getContacts(
+        retrievedContacts = await getContacts(
             connection,
             userDb,
             deliveryServiceToken,
@@ -112,10 +115,9 @@ export async function requestContacts(
                         contact.account.profile?.publicEncryptionKey,
                 )
                 .forEach(async (message) => {
-                    await Lib.messaging.submitMessage(
+                    await submitMessage(
                         connection,
                         deliveryServiceToken,
-                        message.envelop.message,
                         {
                             deliveryServiceEncryptionPubKey:
                                 contact.deliveryServiceProfile!
@@ -124,6 +126,7 @@ export async function requestContacts(
                             keys: userDb.keys,
                             to: contact.account,
                         },
+                        message.envelop.message,
                         false,
                         storeMessages,
                     );

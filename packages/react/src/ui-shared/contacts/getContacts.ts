@@ -1,21 +1,18 @@
-import axios from 'axios';
 import * as Lib from 'dm3-lib';
-import { Contact } from '../../reducers/shared';
+import { fetchPendingConversations } from './../../../api/http/conversations/fetchPendingConversations';
 import { addContact } from './addContact';
 
 export async function getContacts(
     connection: Lib.Connection,
-    deliveryServiceToken: string,
-    getUserProfile: Lib.account.GetUserProfile,
-    getPendingConversations: Lib.external.GetPendingConversations,
     userDb: Lib.storage.UserDB,
+    deliveryServiceToken: string,
     createEmptyConversationEntry: (id: string) => void,
 ): Promise<Lib.account.Account[]> {
     if (!connection.provider) {
         throw Error('No provider');
     }
 
-    const pendingConversations = await getPendingConversations(
+    const pendingConversations = await fetchPendingConversations(
         connection,
         deliveryServiceToken,
     );
@@ -67,7 +64,7 @@ export async function getContacts(
             uncheckedProfiles.map(async (uncheckedProfile) => ({
                 valid:
                     !uncheckedProfile.profile ||
-                    (await checkUserProfile(
+                    (await Lib.account.checkUserProfile(
                         connection.provider!,
                         uncheckedProfile.profile,
 

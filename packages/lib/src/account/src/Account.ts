@@ -161,3 +161,19 @@ export function checkAccount(account: Account | undefined): Required<Account> {
     }
     return account as Required<Account>;
 }
+/**
+ * checks if two ENS names are the same
+ * @param ensNameA first ENS name
+ * @param ensNameB second ENS name
+ */
+export function isSameEnsName(
+    ensNameA: string,
+    ensNameB: string,
+    ensNameBAlias?: string,
+): boolean {
+    return (
+        normalizeEnsName(ensNameA) === normalizeEnsName(ensNameB) ||
+        (!!ensNameBAlias &&
+            normalizeEnsName(ensNameA) === normalizeEnsName(ensNameBAlias))
+    );
+}

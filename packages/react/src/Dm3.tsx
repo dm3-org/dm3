@@ -21,6 +21,7 @@ import { Config } from './utils/Config';
 import Help from './ui-shared/Help';
 import axios from 'axios';
 import { Contact } from './reducers/shared';
+import { submitMessage } from '../context/messageContext/submitMessage/submitMessage';
 
 interface dm3Props {
     config: Config;
@@ -202,6 +203,7 @@ function dm3(props: dm3Props) {
                         },
                     }),
                 ),
+            submitMessage,
             props.config.defaultContact,
         );
     };

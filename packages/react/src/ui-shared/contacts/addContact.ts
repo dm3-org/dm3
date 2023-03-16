@@ -1,6 +1,4 @@
-import axios from 'axios';
 import * as Lib from 'dm3-lib';
-import { Contact } from '../../reducers/shared';
 
 export async function addContact(
     connection: Lib.Connection,
@@ -10,7 +8,6 @@ export async function addContact(
 ) {
     if (
         !Lib.storage.createEmptyConversation(
-            connection,
             ensName,
             userDb,
             createEmptyConversationEntry,

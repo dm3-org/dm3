@@ -20,6 +20,13 @@ export const MessageContext = React.createContext<MessageContextType>({
 
 export const MessageContextProvider = ({ children }: { children?: any }) => {
     return (
-        <MessageContext.Provider value={{}}>{children}</MessageContext.Provider>
+        <MessageContext.Provider
+            value={{
+                fetchAndStoreMessages,
+                submitMessage,
+            }}
+        >
+            {children}
+        </MessageContext.Provider>
     );
 };

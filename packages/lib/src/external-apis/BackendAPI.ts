@@ -172,22 +172,3 @@ export async function getNewMessages(
     return data;
 }
 export type GetNewMessages = typeof getNewMessages;
-
-export async function getPendingConversations(
-    connection: Connection,
-    token: string,
-): Promise<string[]> {
-    const { account } = connection;
-    const { profile } = checkAccount(account);
-
-    const url = `${DELIVERY_PATH}/messages/${account?.ensName!}/pending/`;
-
-    const { data } = await getDeliveryServiceClient(
-        profile,
-        connection.provider!,
-        async (url: string) => (await axios.get(url)).data,
-    ).post(url, {}, getAxiosConfig(token));
-
-    return data;
-}
-export type GetPendingConversations = typeof getPendingConversations;

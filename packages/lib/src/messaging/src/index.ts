@@ -18,6 +18,8 @@ export type {
 export * as schema from './schema';
 export { getId } from './Utils';
 
+export { buildEnvelop } from './Envelop';
+
 export async function createMessage(
     to: string,
     from: string,

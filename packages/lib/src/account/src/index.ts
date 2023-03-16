@@ -7,6 +7,7 @@ export {
     getBrowserStorageKey,
     getProfileCreationMessage,
     normalizeEnsName,
+    isSameEnsName,
     PROFILE_RECORD_NAME,
 } from './Account';
 export type {
@@ -25,4 +26,5 @@ export {
     getDeliveryServiceClient,
     getDeliveryServiceProfile,
 } from './deliveryServiceProfile/Delivery';
+export type { DeliveryServiceProfile } from './deliveryServiceProfile/Delivery';
 export * from './profileKeys/createProfileKeys';

@@ -45,11 +45,11 @@ function UserInfo(props: UserInfoProps) {
                 return;
             }
             const deliveryServiceProfile =
-                await Lib.delivery.getDeliveryServiceProfile(
+                await Lib.account.getDeliveryServiceProfile(
                     //TODO Implement usage of all delivery services
                     //https://github.com/corpus-ventures/dm3/issues/330
                     state.connection.account.profile.deliveryServices[0],
-                    state.connection,
+                    state.connection.provider!,
                     async (url) => (await axios.get(url)).data,
                 );
 
