@@ -21,7 +21,8 @@
             "src/crypto",
             "src/delivery",
             "src/shared",
-            "src/messaging"
+            "src/messaging",
+            "src/storage"
         ]
        
     },

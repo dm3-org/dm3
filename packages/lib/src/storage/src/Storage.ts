@@ -1,11 +1,8 @@
-import { normalizeEnsName, ProfileKeys } from '../account/src/Account';
-import { decrypt, encrypt, EncryptedPayload } from '../crypto/src';
-import { Acknoledgment } from '../delivery/src';
-import { Envelop } from '../messaging';
-import { MessageState } from '../messaging/src/Message';
-import { log } from '../shared/src/log';
-import { stringify } from '../shared/src/stringify';
-import { Connection } from '../web3-provider/Web3Provider';
+import { normalizeEnsName, ProfileKeys } from 'dm3-lib-account';
+import { decrypt, encrypt, EncryptedPayload } from 'dm3-lib-crypto';
+import { Acknoledgment } from 'dm3-lib-delivery';
+import { Envelop, MessageState } from 'dm3-lib-messaging';
+import { log, stringify } from 'dm3-lib-shared';
 import { createTimestamp } from './Utils';
 
 export enum StorageLocation {

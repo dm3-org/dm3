@@ -2,7 +2,7 @@ import { Account, ProfileKeys, UserProfile } from '../../account/src';
 import { SubmitUserProfile } from '../../external-apis/BackendAPI';
 import { PersonalSign } from '../../external-apis/InjectedWeb3API';
 import { stringify } from '../../shared/src/stringify';
-import { createDB, UserDB } from '../../storage';
+import { createDB, UserDB } from '../../storage/src';
 import { ConnectionState } from '../../web3-provider';
 import { Connection } from '../../web3-provider/Web3Provider';
 import { createKeyPairsFromSig } from './signProfileKeyPair';
