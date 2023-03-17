@@ -13,7 +13,7 @@ export interface Session {
     socketId?: string;
     challenge?: string;
     profileExtension: ProfileExtension;
-    //TODEO use SpamFilterRules once spam-filer is ready
+    //TODO use SpamFilterRules once spam-filer is ready
     spamFilterRules?: unknown;
 }
 
