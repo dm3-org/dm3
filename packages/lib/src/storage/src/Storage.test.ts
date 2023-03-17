@@ -1,8 +1,7 @@
 import { ethers } from 'ethers';
-import { createProfileKeys } from '../account/src/profileKeys/createProfileKeys';
-import { createStorageKey, getStorageKeyCreationMessage } from '../crypto/src';
-import { Envelop, Message, MessageState } from '../messaging';
-import { Connection } from '../web3-provider/Web3Provider';
+import { createProfileKeys } from 'dm3-lib-account';
+import { createStorageKey, getStorageKeyCreationMessage } from 'dm3-lib-crypto';
+import { Envelop, Message, MessageState } from 'dm3-lib-messaging';
 import {
     createDB,
     createEmptyConversation,
@@ -106,9 +105,6 @@ describe('Storage', () => {
         it("Returns an empty array if the db don't contains a particular conversation", async () => {
             const profileKeys = await getMockProfileKeys();
 
-            const connection = {
-                account: { ensName: USER_2 },
-            } as Connection;
             const db = createDB(profileKeys);
 
             const conversations = getConversation(USER_1, db);

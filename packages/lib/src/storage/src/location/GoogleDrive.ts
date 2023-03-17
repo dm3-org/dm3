@@ -1,7 +1,6 @@
-import { stringify } from 'dm3-lib-shared/src/stringify';
+import { stringify, log } from 'dm3-lib-shared';
 import { UserDB } from '..';
 import { Acknoledgment } from 'dm3-lib-delivery';
-import { log } from 'dm3-lib-shared/src/log';
 import { sync, UserStorage } from '../Storage';
 
 const FILE_NAME = 'dm3';

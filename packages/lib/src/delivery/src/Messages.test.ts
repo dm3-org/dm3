@@ -4,8 +4,8 @@ import { normalizeEnsName, UserProfile } from 'dm3-lib-account';
 import { decryptAsymmetric } from 'dm3-lib-crypto';
 import { EncryptionEnvelop } from 'dm3-lib-messaging';
 import { stringify } from '../../shared/src/stringify';
-import { getConversationId } from '../../storage/Storage';
-import { getMessages, incomingMessage } from './Messages';
+
+import { getConversationId, getMessages, incomingMessage } from './Messages';
 import { Session } from './Session';
 
 const SENDER_NAME = 'alice.eth';

@@ -1,10 +1,7 @@
+import { stringify } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import { sha256 } from 'ethers/lib/utils';
-import { stringify } from 'dm3-lib-shared';
 
-import { StorageLocation } from '../../storage/Storage';
-
-import { Connection, ConnectionState } from '../../web3-provider/Web3Provider';
 import {
     Account,
     checkProfileHash,
@@ -17,29 +14,6 @@ import {
     SignedUserProfile,
     UserProfile,
 } from './Account';
-
-const connection: Connection = {
-    connectionState: ConnectionState.SignedIn,
-    storageLocation: StorageLocation.File,
-    defaultServiceUrl: '',
-    account: {
-        ensName: 'alice.eth',
-    },
-    provider: {} as any,
-};
-
-const keys = {
-    encryptionKeyPair: {
-        publicKey: 'b',
-        privateKey: 'c',
-    },
-    signingKeyPair: {
-        publicKey: 'd',
-        privateKey: 'e',
-    },
-    storageEncryptionNonce: 0,
-    storageEncryptionKey: '3',
-};
 
 const getProfileData = async (): Promise<{
     address: string;
