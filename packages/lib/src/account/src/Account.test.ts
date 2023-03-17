@@ -1,7 +1,6 @@
 import { ethers } from 'ethers';
 import { sha256 } from 'ethers/lib/utils';
-import { getUserProfile } from './userProfile/getUserProfile';
-import { stringify } from '../../shared/src/stringify';
+import { stringify } from 'dm3-lib-shared';
 
 import { StorageLocation } from '../../storage/Storage';
 
@@ -15,7 +14,6 @@ import {
     getBrowserStorageKey,
     getProfileCreationMessage,
     normalizeEnsName,
-    PROFILE_RECORD_NAME,
     SignedUserProfile,
     UserProfile,
 } from './Account';
