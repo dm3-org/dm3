@@ -31,7 +31,7 @@ function StorageView() {
 
                 case Lib.storage.StorageLocation.Web3Storage:
                     acknoledgments = await Lib.storage.web3Store(
-                        state.connection,
+                        state.connection.storageToken!,
                         state.userDb as Lib.storage.UserDB,
                         state.auth.currentSession?.token!,
                     );
@@ -39,7 +39,8 @@ function StorageView() {
 
                 case Lib.storage.StorageLocation.dm3Storage:
                     acknoledgments = await Lib.storage.useDm3Storage(
-                        state.connection,
+                        state.connection.provider!,
+                        state.connection.account!,
                         state.userDb as Lib.storage.UserDB,
                         state.auth.currentSession?.token!,
                     );
@@ -49,7 +50,8 @@ function StorageView() {
                 default:
                     if (state.userDb) {
                         await Lib.storage.useDm3Storage(
-                            state.connection,
+                            state.connection.provider!,
+                            state.connection.account!,
                             state.userDb,
                             state.auth.currentSession?.token!,
                         );
