@@ -1,9 +1,7 @@
-import { stringify } from '../../shared/src/stringify';
-import { Web3Storage, Web3File } from 'web3.storage';
+import { Acknoledgment } from 'dm3-lib-delivery';
+import { stringify } from 'dm3-lib-shared';
+import { Web3File, Web3Storage } from 'web3.storage';
 import { UserDB } from '..';
-import { Acknoledgment } from '../../delivery/src';
-import { log } from '../../shared/src/log';
-import { Connection } from '../../web3-provider/Web3Provider';
 import { sync } from '../Storage';
 import { FILE_NAME_PREFIX, getTimestamp } from '../Utils';
 
@@ -22,16 +20,13 @@ function readFileAsync(file: Blob): Promise<string> {
 }
 
 export async function web3Store(
-    connection: Connection,
+    storageToken: string,
     userDb: UserDB,
     deliveryServiceToken: string,
 ): Promise<Acknoledgment[]> {
-    if (!connection.storageToken) {
-        throw Error('No API token');
-    }
     const syncResult = await sync(userDb, deliveryServiceToken);
 
-    const client = new Web3Storage({ token: connection.storageToken });
+    const client = new Web3Storage({ token: storageToken });
     const blob = new Blob([stringify(syncResult.userStorage)], {
         type: 'text/json',
     });

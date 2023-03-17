@@ -1,5 +1,5 @@
 import { ProfileKeys } from '../account/src';
-import { load } from '../storage';
+import { load } from '../storage/src';
 import { ConnectionState } from '../web3-provider';
 
 export async function getSessionFromStorage(
