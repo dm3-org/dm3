@@ -7,7 +7,7 @@ export * as external from './external-apis';
 export * as messaging from 'dm3-lib-messaging';
 export * as offchainResolver from './offchainResolver';
 export * as session from './session';
-export * as storage from './storage/src';
+export * as storage from 'dm3-lib-storage';
 export * as web3provider from './web3-provider';
 
 export * as GlobalConf from './GlobalConf';
