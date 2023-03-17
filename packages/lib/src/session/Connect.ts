@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { GlobalConf } from '..';
-import { getUserProfile, GetUserProfile } from '../account';
-import { checkUserProfile, SignedUserProfile } from '../account/Account';
+import { checkUserProfile, SignedUserProfile } from '../account/src/Account';
+import { getUserProfile } from '../account/src';
 import { getNameForAddress } from '../external-apis';
 import { RequestAccounts } from '../external-apis/InjectedWeb3API';
-import { log } from '../shared/log';
+import { log } from '../shared/src/log';
 import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
 
 export function getAliasForAddress(address: string) {
@@ -14,7 +14,6 @@ export function getAliasForAddress(address: string) {
 export async function connectAccount(
     connection: Connection,
     requestAccounts: RequestAccounts,
-    getUserProfile: GetUserProfile,
     preSetAccount: string | undefined,
 ): Promise<{
     account?: string;

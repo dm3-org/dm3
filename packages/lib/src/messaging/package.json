@@ -1,0 +1,42 @@
+{
+    "name": "dm3-lib-messaging",
+    "version": "0.1.0",
+    "license": "MIT",
+    "main": "dist/index.js",
+    "module": "dist-backend/index.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "require": "./dist/index.js"
+        },
+        "./dist.backend": {
+            "import": "./dist.backend/index.js",
+            "require": "./dist.backend/index.js"
+        }
+    },
+    "dependencies": {
+      "ethers": "^5.5.4",
+      "dm3-lib-crypto":"^0.1.0",
+      "dm3-lib-shared":"^0.1.0",
+      "dm3-lib-account":"^0.1.0",
+      "safe-stable-stringify": "^2.4.1"
+  },
+  "devDependencies": {
+      "axios-mock-adapter": "^1.21.2",
+      "jest": "^28.1.1",
+      "ts-jest": "^28.0.4",
+      "ts-json-schema-generator": "^0.98.0",
+      "typescript": "^4.4.2"
+  },
+  "scripts": {
+      "build:schema": "sh ./schemas.sh",
+      "build": "yarn build:schema &&tsc --declaration &&tsc --declaration -p tsconfig.backend.json ",
+      "test": "jest --coverage"
+  },
+  "files": [
+      "dist",
+      "dist.browser"
+  ]
+  }
+  

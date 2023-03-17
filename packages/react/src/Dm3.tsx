@@ -3,7 +3,7 @@ import './Dm3.css';
 import 'react-chat-widget/lib/styles.css';
 import socketIOClient from 'socket.io-client';
 import * as Lib from 'dm3-lib';
-import { requestContacts } from './ui-shared/RequestContacts';
+import { requestContacts } from './ui-shared/contacts/RequestContacts';
 import LeftView from './LeftView';
 import RightView from './RightView';
 import { useBeforeunload } from 'react-beforeunload';
@@ -21,6 +21,7 @@ import { Config } from './utils/Config';
 import Help from './ui-shared/Help';
 import axios from 'axios';
 import { Contact } from './reducers/shared';
+import { submitMessage } from '../context/messageContext/submitMessage/submitMessage';
 
 interface dm3Props {
     config: Config;
@@ -96,11 +97,11 @@ function dm3(props: dm3Props) {
                 return;
             }
             const deliveryServiceProfile =
-                await Lib.delivery.getDeliveryServiceProfile(
+                await Lib.account.getDeliveryServiceProfile(
                     //TODO Implement usage of all delivery services
                     //https://github.com/corpus-ventures/dm3/issues/330
                     state.connection.account.profile.deliveryServices[0],
-                    state.connection,
+                    state.connection.provider!,
                     async (url) => (await axios.get(url)).data,
                 );
             setdeliveryServiceUrl(deliveryServiceProfile!.url);
@@ -202,6 +203,7 @@ function dm3(props: dm3Props) {
                         },
                     }),
                 ),
+            submitMessage,
             props.config.defaultContact,
         );
     };

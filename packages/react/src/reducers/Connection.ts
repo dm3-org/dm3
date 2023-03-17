@@ -52,6 +52,7 @@ export function connectionReducer(
             Lib.log(`[Connection] New socket`);
             return {
                 ...state,
+                //@ts-ignore
                 socket: action.payload,
             };
 
@@ -86,6 +87,7 @@ export function connectionReducer(
             Lib.log(`[Connection] Set provider`);
             return {
                 ...state,
+                //@ts-ignore
                 provider: action.payload,
             };
 

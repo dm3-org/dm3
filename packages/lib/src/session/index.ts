@@ -1,4 +1,4 @@
-import { getUserProfile, ProfileKeys } from '../account';
+import { ProfileKeys } from '../account/src';
 import {
     getChallenge,
     getNewToken,
@@ -17,12 +17,7 @@ import { createKeyPairsFromSig as execCreateKeyPairsFromSig } from './SignIn/sig
 export { getSessionFromStorage } from './getSessionFromStorage';
 
 export function connectAccount(connection: Connection, preSetAccount?: string) {
-    return execConnectAccount(
-        connection,
-        requestAccounts,
-        getUserProfile,
-        preSetAccount,
-    );
+    return execConnectAccount(connection, requestAccounts, preSetAccount);
 }
 
 export async function reAuth(

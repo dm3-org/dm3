@@ -1,4 +1,4 @@
-import { log } from '../../shared/log';
+import { log } from '../../shared/src/log';
 import { DecodedCcipRequest } from '../types';
 import { decodeAddr } from './decode/decodeAddr';
 import { decodeText } from './decode/decodeText';

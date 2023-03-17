@@ -4,11 +4,11 @@ import {
     Account,
     normalizeEnsName,
     SignedUserProfile,
-} from '../account/Account';
-import { Acknoledgment } from '../delivery';
-import { getDeliveryServiceClient } from '../delivery/Delivery';
+} from '../account/src/Account';
+import { Acknoledgment } from '../delivery/src';
+import { getDeliveryServiceClient } from '../account/src/deliveryServiceProfile/Delivery';
 import { EncryptionEnvelop, Envelop } from '../messaging';
-import { log } from '../shared/log';
+import { log } from '../shared/src/log';
 import { Connection } from '../web3-provider/Web3Provider';
 import { formatAddress } from './InjectedWeb3API';
 
@@ -58,8 +58,8 @@ export async function getChallenge(
 
     const { data } = await getDeliveryServiceClient(
         profile,
-        connection,
-        async (url) => (await axios.get(url)).data,
+        connection.provider!,
+        async (url: string) => (await axios.get(url)).data,
     ).get(url);
 
     return data.challenge;
@@ -77,8 +77,8 @@ export async function getNewToken(
 
     const { data } = await getDeliveryServiceClient(
         profile,
-        connection,
-        async (url) => (await axios.get(url)).data,
+        connection.provider!,
+        async (url: string) => (await axios.get(url)).data,
     ).post(url, {
         signature,
     });
@@ -98,8 +98,8 @@ export async function submitUserProfile(
 
     const { data } = await getDeliveryServiceClient(
         profile,
-        connection,
-        async (url) => (await axios.get(url)).data,
+        connection.provider!,
+        async (url: string) => (await axios.get(url)).data,
     ).post(url, signedUserProfile);
 
     return data;
@@ -121,43 +121,13 @@ export async function createAlias(
 
     const { data } = await getDeliveryServiceClient(
         profile,
-        connection,
-        async (url) => (await axios.get(url)).data,
+        connection.provider!,
+        async (url: string) => (await axios.get(url)).data,
     ).post(url, {}, getAxiosConfig(token));
 
     return data;
 }
 export type CreateAlias = typeof createAlias;
-
-export async function submitMessage(
-    connection: Connection,
-    token: string,
-    envelop: Envelop | EncryptionEnvelop,
-    onSuccess: () => void,
-    onError: () => void,
-): Promise<void> {
-    if (!connection.socket) {
-        return;
-    }
-    //TODO handle error messages properly
-    connection.socket.emit(
-        'submitMessage',
-        {
-            envelop,
-            token,
-        },
-        (result: any) => {
-            if (result.response === 'success') {
-                log(`- success`);
-                onSuccess();
-            } else {
-                log(`- error`);
-                onError();
-            }
-        },
-    );
-}
-export type SubmitMessage = typeof submitMessage;
 
 export async function syncAcknoledgment(
     connection: Connection,
@@ -174,42 +144,11 @@ export async function syncAcknoledgment(
 
     return getDeliveryServiceClient(
         profile,
-        connection,
-        async (url) => (await axios.get(url)).data,
+        connection.provider!,
+        async (url: string) => (await axios.get(url)).data,
     ).post(url, { acknoledgments }, getAxiosConfig(token));
 }
 export type SyncAcknoledgment = typeof syncAcknoledgment;
-
-export async function createPendingEntry(
-    connection: Connection,
-    token: string,
-    ensName: string,
-    contactEnsName: string,
-    onSuccess: () => void,
-    onError: () => void,
-): Promise<void> {
-    if (connection.socket) {
-        log(`Create pending entry`);
-        connection.socket.emit(
-            'pendingMessage',
-            {
-                ensName,
-                contactEnsName,
-                token,
-            },
-            (result: any) => {
-                if (result.response === 'success') {
-                    log(`- success`);
-                    onSuccess();
-                } else {
-                    log(`- error`);
-                    onError();
-                }
-            },
-        );
-    }
-}
-export type CreatePendingEntry = typeof createPendingEntry;
 
 export async function getNewMessages(
     connection: Connection,
@@ -226,60 +165,10 @@ export async function getNewMessages(
 
     const { data } = await getDeliveryServiceClient(
         profile,
-        connection,
-        async (url) => (await axios.get(url)).data,
+        connection.provider!,
+        async (url: string) => (await axios.get(url)).data,
     ).get(url, getAxiosConfig(token));
 
     return data;
 }
 export type GetNewMessages = typeof getNewMessages;
-
-export async function getPendingConversations(
-    connection: Connection,
-    token: string,
-): Promise<string[]> {
-    const { account } = connection;
-    const { profile } = checkAccount(account);
-
-    const url = `${DELIVERY_PATH}/messages/${account?.ensName!}/pending/`;
-
-    const { data } = await getDeliveryServiceClient(
-        profile,
-        connection,
-        async (url) => (await axios.get(url)).data,
-    ).post(url, {}, getAxiosConfig(token));
-
-    return data;
-}
-export type GetPendingConversations = typeof getPendingConversations;
-
-export async function getUserProfileOffChain(
-    connection: Connection,
-    account: Account | undefined,
-    contact: string,
-    url?: string,
-): Promise<SignedUserProfile | undefined> {
-    try {
-        if (url) {
-            const { data } = await axios.get(url);
-            return data;
-        }
-        const { profile } = checkAccount(account);
-
-        const fallbackUrl = `${PROFILE_PATH}/${contact}`;
-
-        const { data } = await getDeliveryServiceClient(
-            profile,
-            connection,
-            async (url) => (await axios.get(url)).data,
-        ).get(fallbackUrl);
-        return data;
-    } catch (e) {
-        const { message } = e as Error;
-        if (message.includes('404') || message.includes('No account')) {
-            return undefined;
-        }
-        throw Error('Unknown API error');
-    }
-}
-export type GetUserProfileOffChain = typeof getUserProfileOffChain;

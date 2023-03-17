@@ -16,7 +16,7 @@ export type ActionMap<M extends { [index: string]: any }> = {
 
 export interface Contact {
     account: Lib.account.Account;
-    deliveryServiceProfile?: Lib.delivery.DeliveryServiceProfile;
+    deliveryServiceProfile?: Lib.account.DeliveryServiceProfile;
 }
 
 export type Accounts = {

@@ -11,6 +11,8 @@ export {
     resolveOwner,
     getDefaultEnsTextRecord,
     executeTransaction,
+    getConractInstance,
+    getResolver,
 } from './InjectedWeb3API';
 
 export { claimAddress, claimSubdomain } from './OffchainResolverApi';

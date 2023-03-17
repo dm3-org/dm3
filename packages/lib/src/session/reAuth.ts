@@ -1,4 +1,4 @@
-import { sign } from '../crypto';
+import { sign } from '../crypto/src';
 import { GetChallenge, GetNewToken } from '../external-apis/BackendAPI';
 import { Connection } from '../web3-provider/Web3Provider';
 

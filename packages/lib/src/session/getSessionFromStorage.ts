@@ -1,4 +1,4 @@
-import { ProfileKeys } from '../account';
+import { ProfileKeys } from '../account/src';
 import { load } from '../storage';
 import { ConnectionState } from '../web3-provider';
 

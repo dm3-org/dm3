@@ -5,7 +5,7 @@ import { getIdEnsName } from './getIdEnsName';
 export function setSession(redis: Redis) {
     return async (ensName: string, session: Lib.delivery.Session) => {
         const isValid = Lib.validateSchema(
-            Lib.delivery.schema.SessionSchema,
+            Lib.delivery.schema.Session,
             session,
         );
 

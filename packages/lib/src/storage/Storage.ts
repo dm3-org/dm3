@@ -1,10 +1,10 @@
-import { normalizeEnsName, ProfileKeys } from '../account/Account';
-import { decrypt, encrypt, EncryptedPayload } from '../crypto';
-import { Acknoledgment } from '../delivery';
+import { normalizeEnsName, ProfileKeys } from '../account/src/Account';
+import { decrypt, encrypt, EncryptedPayload } from '../crypto/src';
+import { Acknoledgment } from '../delivery/src';
 import { Envelop } from '../messaging';
-import { MessageState } from '../messaging/Message';
-import { log } from '../shared/log';
-import { stringify } from '../shared/stringify';
+import { MessageState } from '../messaging/src/Message';
+import { log } from '../shared/src/log';
+import { stringify } from '../shared/src/stringify';
 import { Connection } from '../web3-provider/Web3Provider';
 import { createTimestamp } from './Utils';
 

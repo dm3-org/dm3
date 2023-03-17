@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import { createProfileKeys } from '../account/profileKeys/createProfileKeys';
-import { createStorageKey, getStorageKeyCreationMessage } from '../crypto';
+import { createProfileKeys } from '../account/src/profileKeys/createProfileKeys';
+import { createStorageKey, getStorageKeyCreationMessage } from '../crypto/src';
 import { Envelop, Message, MessageState } from '../messaging';
 import { Connection } from '../web3-provider/Web3Provider';
 import {

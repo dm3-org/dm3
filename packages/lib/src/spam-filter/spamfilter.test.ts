@@ -1,9 +1,10 @@
 import { ethers } from 'ethers';
 
 import { isSpam } from '.';
-import { decryptAsymmetric } from '../crypto';
-import { Session } from '../delivery';
 import { testData } from '../../../../test-data/encrypted-envelops.test';
+import { decryptAsymmetric } from '../crypto/src';
+import { Session } from '../delivery';
+import { SpamFilterRules } from './SpamFilterRules';
 
 const keysA = {
     encryptionKeyPair: {
@@ -49,7 +50,7 @@ describe('SpamFilter', () => {
         it('Should filter correctly with one filter criteria', async () => {
             const session = {
                 spamFilterRules: { minBalance: '1' },
-            } as Session;
+            } as Session & { spamFilterRules: SpamFilterRules };
 
             const envelopAIsSpam = await isSpam(
                 connection.provider,
@@ -82,7 +83,7 @@ describe('SpamFilter', () => {
         it('Should use filter correctly with two filter criteria', async () => {
             const session = {
                 spamFilterRules: { minBalance: '1', minNonce: 2 },
-            } as Session;
+            } as Session & { spamFilterRules: SpamFilterRules };
 
             const envelopAIsSpam = await isSpam(
                 connection.provider,
@@ -113,7 +114,9 @@ describe('SpamFilter', () => {
             await expect(envelopBIsSpam).toBe(true);
         });
         it('Should not consider a message as spam if no SpamFilterRules are provided', async () => {
-            const session = {} as Session;
+            const session = {} as Session & {
+                spamFilterRules: SpamFilterRules;
+            };
 
             const envelopAIsSpam = await isSpam(
                 connection.provider,

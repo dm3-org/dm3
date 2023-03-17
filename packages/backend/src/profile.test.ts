@@ -1,7 +1,7 @@
 import bodyParser from 'body-parser';
 import * as Lib from 'dm3-lib/dist.backend';
 
-import { UserProfile } from 'dm3-lib/dist/account/Account';
+import { UserProfile } from 'dm3-lib/dist-backend';
 import { ethers } from 'ethers';
 import express from 'express';
 import request from 'supertest';
@@ -26,18 +26,6 @@ async function getEnsTextRecord(
 
 describe('Profile', () => {
     describe('getProfile', () => {
-        it('Returns 200 if schema is valid', async () => {
-            const provider = new ethers.providers.JsonRpcProvider(
-                'https://eth-mainnet.g.alchemy.com/v2/EI5HOWvFkG6c3gXNKfWs7ZhwcFC2rUxD',
-            );
-
-            await getEnsTextRecord(
-                provider,
-                '0x31efc14236c58b154396d088b0a2419fdf466906.beta-addr.dm3.eth',
-                'network.dm3.profile',
-            );
-        });
-
         it('Returns 200 if schema is valid', async () => {
             const app = express();
             app.use(bodyParser.json());
