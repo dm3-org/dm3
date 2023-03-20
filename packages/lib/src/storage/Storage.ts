@@ -1,4 +1,4 @@
-import { normalizeEnsName, ProfileKeys } from '../account/Account';
+import { Account, normalizeEnsName, ProfileKeys } from '../account/Account';
 import { decrypt, encrypt, EncryptedPayload } from '../crypto';
 import { Acknoledgment } from '../delivery';
 import { Envelop } from '../messaging';
@@ -115,10 +115,28 @@ export function createDB(keys: ProfileKeys): UserDB {
 
 export function getConversation(
     contact: string,
+    contacts: Account[],
     db: UserDB,
 ): StorageEnvelopContainer[] {
-    const envelops = db.conversations.get(contact);
-    return envelops ?? [];
+    const contactProfile = contacts.find(
+        (account) => account.ensName === contact,
+    );
+    if (!contactProfile) {
+        throw Error(`Couldn't get contact data`);
+    }
+
+    return contacts
+        .filter(
+            (account) =>
+                contact === account.ensName ||
+                (!!account.profile &&
+                    !!contactProfile.profile &&
+                    stringify(account.profile) ===
+                        stringify(contactProfile.profile)),
+        )
+        .map((account) => db.conversations.get(account.ensName) ?? [])
+
+        .flat();
 }
 /**
  * Sorts an Array of {@see StorageEnvelopContainer} by timestamp ASC

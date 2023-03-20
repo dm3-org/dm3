@@ -196,6 +196,7 @@ describe('Message', () => {
                     storeMessages,
                     getDeliveryServiceProfile,
                     userDb,
+                    [{ ensName: contact }],
                 );
             }).rejects.toEqual(Error('Account has no profile'));
         });
@@ -282,6 +283,7 @@ describe('Message', () => {
                 storeMessages,
                 getDeliveryServiceProfile,
                 userDb,
+                [{ ensName: contact }],
             );
 
             expect(messages).toStrictEqual([]);

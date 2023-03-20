@@ -178,6 +178,9 @@ function Chat() {
             if (!state.accounts.selectedContact) {
                 throw Error('no contact selected');
             }
+            if (!state.accounts.contacts) {
+                throw Error('no contacts');
+            }
             const messages = await Lib.messaging.getMessages(
                 state.connection,
                 state.auth.currentSession?.token!,
@@ -196,6 +199,7 @@ function Chat() {
                         );
                     }
                 },
+                state.accounts.contacts.map((contact) => contact.account),
             );
 
             if (!ignore && messages.length > 0) {
@@ -218,15 +222,24 @@ function Chat() {
     }, [state.accounts.selectedContact]);
 
     useEffect(() => {
-        if (state.accounts.selectedContact && state.userDb) {
+        if (
+            state.accounts.selectedContact &&
+            state.userDb &&
+            state.accounts.contacts
+        ) {
             handleMessages(
                 Lib.storage.getConversation(
                     state.accounts.selectedContact.account.ensName,
+                    state.accounts.contacts.map((contact) => contact.account),
                     state.userDb,
                 ),
             );
         }
-    }, [state.userDb?.conversations, state.accounts.selectedContact]);
+    }, [
+        state.userDb?.conversations,
+        state.accounts.selectedContact,
+        state.accounts.contacts,
+    ]);
 
     const handleNewUserMessage = async (
         message: string,
@@ -237,10 +250,6 @@ function Chat() {
         if (!state.accounts.selectedContact) {
             throw Error('no contact selected');
         }
-
-        // if (!state.accounts.selectedContact.deliveryServiceProfile) {
-        //     throw Error('no deliveryServiceProfile');
-        // }
 
         const haltDelivery =
             state.accounts.selectedContact?.account.profile
