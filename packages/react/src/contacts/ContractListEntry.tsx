@@ -21,33 +21,36 @@ function ContactListEntry(props: ContactListProps) {
         props.contact.account.ensName,
         'right',
         25,
-        'contact-entry-tooltip',
+        'account-tooltip',
     );
 
     useEffect(() => {
-        const messages = Lib.storage.getConversation(
-            props.contact.account.ensName,
-            state.userDb as Lib.storage.UserDB,
-        );
-        const calcUnreadMessages = () => {
-            setUnreadMessages(
-                messages.filter(
-                    (container) =>
-                        container.messageState ===
-                        Lib.messaging.MessageState.Send,
-                ).length,
+        if (state.accounts.contacts) {
+            const messages = Lib.storage.getConversation(
+                props.contact.account.ensName,
+                state.accounts.contacts.map((contact) => contact.account),
+                state.userDb as Lib.storage.UserDB,
             );
-        };
-        calcUnreadMessages();
+            const calcUnreadMessages = () => {
+                setUnreadMessages(
+                    messages.filter(
+                        (container) =>
+                            container.messageState ===
+                            Lib.messaging.MessageState.Send,
+                    ).length,
+                );
+            };
+            calcUnreadMessages();
 
-        if (messages.length > 0) {
-            const message =
-                messages[messages.length - 1].envelop.message.message;
-            setTeaser(
-                message.slice(0, 25) + (message.length > 25 ? '...' : ''),
-            );
+            if (messages.length > 0) {
+                const message =
+                    messages[messages.length - 1].envelop.message.message;
+                setTeaser(
+                    message.slice(0, 25) + (message.length > 25 ? '...' : ''),
+                );
+            }
         }
-    }, [props.contact, state.userDb?.conversations]);
+    }, [props.contact, state.userDb?.conversations, state.accounts.contacts]);
 
     const selected =
         state.accounts.selectedContact &&

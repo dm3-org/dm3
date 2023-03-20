@@ -58,6 +58,7 @@ export function userDbReducer(
 
             const prevContainers = Lib.storage.getConversation(
                 contactEnsName,
+                [{ ensName: contactEnsName }],
                 state,
             );
 
