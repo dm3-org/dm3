@@ -5,7 +5,6 @@ import { Envelop } from '../messaging';
 import { MessageState } from '../messaging/Message';
 import { log } from '../shared/log';
 import { stringify } from '../shared/stringify';
-import { Connection } from '../web3-provider/Web3Provider';
 import { createTimestamp } from './Utils';
 
 export enum StorageLocation {
@@ -125,18 +124,19 @@ export function getConversation(
         throw Error(`Couldn't get contact data`);
     }
 
-    return contacts
-        .filter(
-            (account) =>
-                contact === account.ensName ||
-                (!!account.profile &&
-                    !!contactProfile.profile &&
-                    stringify(account.profile) ===
-                        stringify(contactProfile.profile)),
-        )
-        .map((account) => db.conversations.get(account.ensName) ?? [])
-
-        .flat();
+    return sortEnvelops(
+        contacts
+            .filter(
+                (account) =>
+                    contact === account.ensName ||
+                    (!!account.profile &&
+                        !!contactProfile.profile &&
+                        stringify(account.profile) ===
+                            stringify(contactProfile.profile)),
+            )
+            .map((account) => db.conversations.get(account.ensName) ?? [])
+            .flat(),
+    );
 }
 /**
  * Sorts an Array of {@see StorageEnvelopContainer} by timestamp ASC
