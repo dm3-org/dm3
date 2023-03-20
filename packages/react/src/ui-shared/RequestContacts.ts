@@ -110,8 +110,14 @@ export async function requestContacts(
                 payload:
                     found.account.ensName.length >
                     contact.account.ensName.length
-                        ? found.account.ensName
-                        : contact.account.ensName,
+                        ? {
+                              ensName: found.account.ensName,
+                              aka: contact.account.ensName,
+                          }
+                        : {
+                              ensName: contact.account.ensName,
+                              aka: found.account.ensName,
+                          },
             });
         }
     });
