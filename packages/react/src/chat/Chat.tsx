@@ -198,7 +198,6 @@ function Chat() {
                         );
                     }
                 },
-                state.accounts.contacts.map((contact) => contact.account),
             );
 
             if (!ignore && messages.length > 0) {
@@ -249,10 +248,6 @@ function Chat() {
         if (!state.accounts.selectedContact) {
             throw Error('no contact selected');
         }
-
-        // if (!state.accounts.selectedContact.deliveryServiceProfile) {
-        //     throw Error('no deliveryServiceProfile');
-        // }
 
         const haltDelivery =
             state.accounts.selectedContact?.account.profile

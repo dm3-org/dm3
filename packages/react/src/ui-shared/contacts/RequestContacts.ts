@@ -1,8 +1,12 @@
 import axios from 'axios';
 import * as Lib from 'dm3-lib';
-import { Contact } from '../../reducers/shared';
+import { Actions } from '../../GlobalContextProvider';
+import { AccountsType } from '../../reducers/Accounts';
+import { Contact, GlobalState } from '../../reducers/shared';
+import { UserDbType } from '../../reducers/UserDB';
+import { Account } from 'dm3-lib/dist/profile/src/Profile';
 import { getContacts } from './getContacts';
-import { SubmitMessageType } from '../../../context/messageContext/submitMessage/submitMessage';
+import { submitMessage } from '../../../context/messageContext/submitMessage/submitMessage';
 
 function fetchDeliveryServiceProfile(connection: Lib.Connection) {
     return async (account: Lib.profile.Account): Promise<Contact> => {
@@ -34,18 +38,39 @@ function fetchDeliveryServiceProfile(connection: Lib.Connection) {
 }
 
 export async function requestContacts(
-    connection: Lib.Connection,
-    deliveryServiceToken: string,
-    selectedContact: Contact | undefined,
-    setSelectedContact: (contact: Contact | undefined) => void,
-    setContacts: (constacts: Contact[]) => void,
-    userDb: Lib.storage.UserDB,
-    createEmptyConversationEntry: (id: string) => void,
-    storeMessages: (envelops: Lib.storage.StorageEnvelopContainer[]) => void,
-    submitMessage: SubmitMessageType,
-    defaultContactEnsName?: string,
+    state: GlobalState,
+    dispatch: React.Dispatch<Actions>,
+    defaultContact?: string,
 ) {
-    let retrievedContacts = await getContacts(
+    const connection = state.connection;
+    const deliveryServiceToken = state.auth.currentSession?.token!;
+    const selectedContact = state.accounts.selectedContact;
+    const setSelectedContact = (contact: Contact | undefined) =>
+        dispatch({
+            type: AccountsType.SetSelectedContact,
+            payload: contact,
+        });
+    const userDb = state.userDb!;
+    const createEmptyConversationEntry = (id: string) =>
+        dispatch({
+            type: UserDbType.createEmptyConversation,
+            payload: id,
+        });
+
+    const storeMessages = (
+        conversations: Lib.storage.StorageEnvelopContainer[],
+    ) =>
+        conversations.forEach((conversation) =>
+            dispatch({
+                type: UserDbType.addMessage,
+                payload: {
+                    container: conversation,
+                    connection: state.connection,
+                },
+            }),
+        );
+
+    let retrievedContacts = await Lib.profile.getContacts(
         connection,
         userDb,
         deliveryServiceToken,
@@ -55,9 +80,9 @@ export async function requestContacts(
     if (
         defaultContact &&
         !retrievedContacts.find(
-            (accounts) =>
-                Lib.profile.normalizeEnsName(accounts.ensName) ===
-                Lib.profile.normalizeEnsName(defaultContactEnsName),
+            (account: Account) =>
+                Lib.profile.normalizeEnsName(account.ensName) ===
+                Lib.profile.normalizeEnsName(defaultContact),
         )
     ) {
         createEmptyConversationEntry(defaultContact);
@@ -69,8 +94,8 @@ export async function requestContacts(
             createEmptyConversationEntry,
         );
     }
-
-    const contacts = await Promise.all(
+    z;
+    const contacts: Contact[] = await Promise.all(
         retrievedContacts.map(fetchDeliveryServiceProfile(connection)),
     );
 
@@ -122,9 +147,9 @@ export async function requestContacts(
         );
     } else if (!selectedContact && defaultContact) {
         const contactToSelect = contacts.find(
-            (accounts) =>
-                Lib.profile.normalizeEnsName(accounts.account.ensName) ===
-                Lib.profile.normalizeEnsName(defaultContactEnsName),
+            (account: Contact) =>
+                Lib.profile.normalizeEnsName(account.account.ensName) ===
+                Lib.profile.normalizeEnsName(defaultContact),
         );
 
         setSelectedContact(contactToSelect);

@@ -181,33 +181,9 @@ function dm3(props: dm3Props) {
         Lib.log('[getContacts]');
 
         return requestContacts(
-            connection,
-            state.auth.currentSession?.token!,
-            state.accounts.selectedContact,
-            (contact: Contact | undefined) =>
-                dispatch({
-                    type: AccountsType.SetSelectedContact,
-                    payload: contact,
-                }),
-            (contacts: Contact[]) =>
-                dispatch({ type: AccountsType.SetContacts, payload: contacts }),
-            state.userDb,
-            (id: string) =>
-                dispatch({
-                    type: UserDbType.createEmptyConversation,
-                    payload: id,
-                }),
-            (conversations) =>
-                conversations.forEach((conversation) =>
-                    dispatch({
-                        type: UserDbType.addMessage,
-                        payload: {
-                            container: conversation,
-                            connection: state.connection,
-                        },
-                    }),
-                ),
-            submitMessage,
+            state,
+            dispatch,
+
             props.config.defaultContact,
         );
     };
