@@ -28,7 +28,7 @@ export interface StorageEnvelopContainer {
 
 export interface UserDB {
     conversations: Map<string, StorageEnvelopContainer[]>;
-    hiddenContacts: string[];
+    hiddenContacts: { ensName: string; aka?: string }[];
     conversationsCount: number;
     keys: ProfileKeys;
     synced: boolean;
@@ -45,7 +45,7 @@ export interface UserStorage {
 
 interface UserStoragePayload {
     conversations: string;
-    hiddenContacts: string[];
+    hiddenContacts: { ensName: string; aka?: string }[];
     keys: ProfileKeys;
     deliveryServiceToken: string;
     lastChangeTimestamp: number;

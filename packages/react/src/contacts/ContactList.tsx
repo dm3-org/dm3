@@ -13,7 +13,9 @@ function ContactList() {
                   (contact) =>
                       !state.userDb?.hiddenContacts.find(
                           (hiddenContact) =>
-                              Lib.account.normalizeEnsName(hiddenContact) ===
+                              Lib.account.normalizeEnsName(
+                                  hiddenContact.ensName,
+                              ) ===
                               Lib.account.normalizeEnsName(
                                   contact.account.ensName,
                               ),
