@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import * as Lib from 'dm3-lib';
@@ -6,6 +6,7 @@ import { GlobalContext } from '../GlobalContextProvider';
 import { AccountsType } from '../reducers/Accounts';
 import Avatar from '../ui-shared/Avatar';
 import { AccountInfo, Contact } from '../reducers/shared';
+import useTooltip from '../ui-shared/useTooltip';
 
 interface ContactListProps {
     contact: Contact;
@@ -16,6 +17,13 @@ function ContactListEntry(props: ContactListProps) {
     const [unreadMessages, setUnreadMessages] = useState<number>(0);
     const [teaser, setTeaser] = useState<string | undefined>();
     const { state, dispatch } = useContext(GlobalContext);
+    const tooltipRef = useTooltip(
+        props.contact.account.ensName,
+        'right',
+        25,
+        'contact-entry-tooltip',
+    );
+
     useEffect(() => {
         const messages = Lib.storage.getConversation(
             props.contact.account.ensName,
@@ -53,6 +61,7 @@ function ContactListEntry(props: ContactListProps) {
             className={`list-group-item list-group-item-action contact-entry d-flex justify-content-between ${
                 selected ? 'contract-entry-selected' : ''
             }`}
+            ref={tooltipRef}
             key={props.contact.account.ensName}
             onClick={() => {
                 dispatch({
