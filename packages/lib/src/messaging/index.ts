@@ -1,6 +1,6 @@
 import axios from 'axios';
 import stringify from 'safe-stable-stringify';
-import { ProfileKeys } from '../account';
+import { Account, ProfileKeys } from '../account';
 import { encryptAsymmetric, sign } from '../crypto';
 import { getDeliveryServiceProfile as execGetDeliveryServiceProfile } from '../delivery';
 import { getNewMessages } from '../external-apis';
@@ -39,6 +39,7 @@ export async function getMessages(
     contact: string,
     userDb: UserDB,
     storeMessages: (envelops: StorageEnvelopContainer[]) => void,
+    contacts: Account[],
 ) {
     const getDeliveryServiceProfile = async (url: string) =>
         await execGetDeliveryServiceProfile(
@@ -55,6 +56,7 @@ export async function getMessages(
         storeMessages,
         getDeliveryServiceProfile,
         userDb,
+        contacts,
     );
 }
 

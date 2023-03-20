@@ -168,6 +168,7 @@ export async function getMessages(
         url: string,
     ) => Promise<DeliveryServiceProfile | undefined>,
     userDb: UserDB,
+    contacts: Account[],
 ): Promise<StorageEnvelopContainer[]> {
     const profile = connection.account?.profile;
 
@@ -221,5 +222,5 @@ export async function getMessages(
     storeMessages(envelops);
 
     //Return all messages from the conversation between the user and their contact
-    return getConversation(contact, userDb);
+    return getConversation(contact, contacts, userDb);
 }
