@@ -6,7 +6,6 @@ import { GlobalContext } from '../GlobalContextProvider';
 import { UserDbType } from '../reducers/UserDB';
 import { UiStateType } from '../reducers/UiState';
 import { AccountsType } from '../reducers/Accounts';
-import { ethers } from 'ethers';
 
 interface AddContactFormProps {
     getContacts: (connection: Lib.Connection) => Promise<void>;
@@ -26,17 +25,27 @@ function AddContactForm(props: AddContactFormProps) {
         const normalizedAccountName =
             Lib.profile.normalizeEnsName(accountToAdd);
         try {
-            if (
-                state.userDb?.hiddenContacts.find(
-                    (contact) =>
-                        Lib.profile.normalizeEnsName(contact) ===
-                        normalizedAccountName,
-                )
-            ) {
-                dispatch({
-                    type: UserDbType.unhideContact,
-                    payload: normalizedAccountName,
-                });
+            const hiddenContact = state.userDb?.hiddenContacts.find(
+                (contact) =>
+                    Lib.profile.normalizeEnsName(contact.ensName) ===
+                    normalizedAccountName,
+            );
+
+            if (hiddenContact && state.accounts.contacts) {
+                if (!hiddenContact.aka) {
+                    dispatch({
+                        type: UserDbType.unhideContact,
+                        payload: normalizedAccountName,
+                    });
+                } else {
+                    dispatch({
+                        type: AccountsType.SetSelectedContact,
+                        payload: state.accounts.contacts.find(
+                            (contact) =>
+                                contact.account.ensName === hiddenContact.aka,
+                        ),
+                    });
+                }
             } else {
                 dispatch({
                     type: UserDbType.createEmptyConversation,

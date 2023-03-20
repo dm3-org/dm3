@@ -234,7 +234,7 @@ export function userDbReducer(
                     ...state,
                     hiddenContacts: state.hiddenContacts.filter(
                         (contact) =>
-                            Lib.profile.normalizeEnsName(contact) !==
+                            Lib.profile.normalizeEnsName(contact.ensName) !==
                             Lib.profile.normalizeEnsName(action.payload),
                     ),
                     synced: false,
