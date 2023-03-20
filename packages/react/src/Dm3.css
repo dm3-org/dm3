@@ -208,3 +208,7 @@ html, body {
   color: var(--lightHighlight);
 }
 
+.account-tooltip .tooltip-inner {
+
+  font-size: 0.8rem;
+}

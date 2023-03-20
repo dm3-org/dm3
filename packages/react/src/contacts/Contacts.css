@@ -1,31 +1,28 @@
 .messages-badge {
     border-radius: 2px !important;
-    background-color: #DFE3EB !important;
-    color: #000
+    background-color: #dfe3eb !important;
+    color: #000;
 }
-
-
 
 .contact-list-container {
     padding: 0px !important;
 }
-  
-.contact-list-container * { 
-    border-radius: 0px; 
-    border-left: none ; 
-    border-right: none ;
+
+.contact-list-container * {
+    border-radius: 0px;
+    border-left: none;
+    border-right: none;
 }
 
 .contact-entry {
     cursor: pointer;
     color: #ffffff;
-    background-color: var(--mainDark);;
+    background-color: var(--mainDark);
     border-bottom-style: none;
     border-top-style: none;
     border-bottom-width: 2px;
     border-top-color: white;
     border-top-width: 2px;
-    
 }
 
 .contact-entry {
@@ -33,12 +30,12 @@
 }
 
 .contact-entry .text-muted {
-    color: #bdbdbd!important;
+    color: #bdbdbd !important;
 }
 
 .contact-entry:hover {
     background-color: #2d4870;
-    color: #ffffffd5
+    color: #ffffffd5;
 }
 
 .contact-entry-center {
@@ -53,15 +50,14 @@
     font-size: 0.8rem;
 }
 
-
 .account-input {
     border-top-style: none;
-    background-color: #E0E5EA;
+    background-color: #e0e5ea;
 }
 
 .account-input:focus {
     border-top-style: none;
-    background-color: #E0E5EA;
+    background-color: #e0e5ea;
 }
 
 .contacts {
@@ -71,14 +67,14 @@
 }
 
 .contract-entry-selected {
-    background-color: #6773DD !important;
+    background-color: #6773dd !important;
 }
 
 .add-btn {
     background-color: var(--mainColorLight) !important;
     color: #fff !important;
     border-style: none !important;
-    background-color: #6773DD !important;
+    background-color: #6773dd !important;
 }
 
 .add-contact-form {
@@ -88,11 +84,11 @@
 }
 
 .add-contact-error-label {
-    color: #fff !important
+    color: #fff !important;
 }
 
 .add-contact-label {
-    color: var(--lightHighlight) !important
+    color: var(--lightHighlight) !important;
 }
 
 .add-contact-error {

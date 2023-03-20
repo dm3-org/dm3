@@ -7,6 +7,7 @@ import { AccountsType } from '../reducers/Accounts';
 import { AccountInfo } from '../reducers/shared';
 import { SelectedRightView, UiStateType } from '../reducers/UiState';
 import './Chat.css';
+import useTooltip from '../ui-shared/useTooltip';
 
 interface ChatHeaderProps {
     account: Lib.account.Account | undefined;
@@ -14,6 +15,15 @@ interface ChatHeaderProps {
 
 function ChatHeader(props: ChatHeaderProps) {
     const { state, dispatch } = useContext(GlobalContext);
+    const tooltipRef = useTooltip(
+        state.accounts.accountInfoView !== AccountInfo.None &&
+            state.accounts.accountInfoView !== AccountInfo.Contact
+            ? ''
+            : props.account?.ensName ?? '',
+        'bottom',
+        35,
+        'account-tooltip',
+    );
 
     if (state.accounts.accountInfoView !== AccountInfo.None) {
         let headerText = '';
@@ -70,7 +80,10 @@ function ChatHeader(props: ChatHeaderProps) {
                                 </button>
                             </div>
                             <div className="d-flex">
-                                <div className="account-header-text align-self-center">
+                                <div
+                                    className="account-header-text align-self-center"
+                                    ref={tooltipRef}
+                                >
                                     {headerText}
                                 </div>
                             </div>
@@ -150,6 +163,7 @@ function ChatHeader(props: ChatHeaderProps) {
                                             payload: AccountInfo.Contact,
                                         })
                                     }
+                                    ref={tooltipRef}
                                 >
                                     {Lib.account.getAccountDisplayName(
                                         props.account.ensName,
