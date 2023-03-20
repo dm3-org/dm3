@@ -6,6 +6,7 @@ import { GlobalContext } from '../GlobalContextProvider';
 import { UserDbType } from '../reducers/UserDB';
 import { UiStateType } from '../reducers/UiState';
 import { AccountsType } from '../reducers/Accounts';
+import { ethers } from 'ethers';
 
 interface AddContactFormProps {
     getContacts: (connection: Lib.Connection) => Promise<void>;
@@ -23,7 +24,13 @@ function AddContactForm(props: AddContactFormProps) {
 
     const add = async () => {
         const normalizedAccountName =
-            Lib.profile.normalizeEnsName(accountToAdd);
+            ethers.utils.isAddress(accountToAdd) &&
+            process.env.REACT_APP_ADDR_ENS_SUBDOMAIN
+                ? Lib.profile.normalizeEnsName(
+                      Lib.profile.formatAddress(accountToAdd) +
+                          process.env.REACT_APP_ADDR_ENS_SUBDOMAIN,
+                  )
+                : Lib.profile.normalizeEnsName(accountToAdd);
         try {
             const hiddenContact = state.userDb?.hiddenContacts.find(
                 (contact) =>
