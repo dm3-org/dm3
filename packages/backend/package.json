@@ -26,7 +26,8 @@
         "docker:up": "docker-compose up -d",
         "start": "node dist",
         "test": "npm run docker:up && jest --coverage --runInBand",
-        "build": "tsc && cp ./config.yml ./dist/config.yml | true"
+        "build": "tsc && cp ./config.yml ./dist/config.yml | true",
+        "createDeliveryServiceProfile": "node --no-warnings ./cli.js"
     },
     "devDependencies": {
         "@babel/core": "^7.19.6",
