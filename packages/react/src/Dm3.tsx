@@ -281,7 +281,11 @@ function dm3(props: dm3Props) {
             {(state.uiState.show || props.config.showAlways) && (
                 <div
                     className="filler"
-                    onClick={() => dispatch({ type: UiStateType.ToggleShow })}
+                    onClick={() =>
+                        dispatch({
+                            type: UiStateType.ToggleShow,
+                        })
+                    }
                 >
                     <div
                         className="container"

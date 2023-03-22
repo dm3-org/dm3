@@ -198,6 +198,9 @@ function Chat() {
                         );
                     }
                 },
+                state.accounts.contacts
+                    ? state.accounts.contacts.map((contact) => contact.account)
+                    : [],
             );
 
             if (!ignore && messages.length > 0) {

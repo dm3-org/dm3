@@ -67,18 +67,24 @@ export function normalizeEnsName(ensName: string): string {
 /**
  * make too long names shorter
  * @param ensName The ENS name
+ * @param size Chars to show without cut
  * @param forFile Use shortend name for a file name
  */
 export function getAccountDisplayName(
     ensName: string,
+    size: number,
     forFile?: boolean,
 ): string {
     const normalizedEnsName = normalizeEnsName(ensName);
 
-    return normalizedEnsName.length > 10
-        ? normalizedEnsName.substring(0, 6) +
+    const charsToShow = Math.floor(size * 0.4);
+
+    return normalizedEnsName.length > size
+        ? normalizedEnsName.substring(0, charsToShow) +
               (forFile ? '-' : '...') +
-              normalizedEnsName.substring(normalizedEnsName.length - 4)
+              normalizedEnsName.substring(
+                  normalizedEnsName.length - charsToShow,
+              )
         : normalizedEnsName;
 }
 

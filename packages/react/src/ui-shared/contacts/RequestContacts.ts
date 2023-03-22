@@ -70,7 +70,7 @@ export async function requestContacts(
             }),
         );
 
-    let retrievedContacts = await Lib.profile.getContacts(
+    let retrievedContacts = await getContacts(
         connection,
         userDb,
         deliveryServiceToken,
@@ -94,7 +94,7 @@ export async function requestContacts(
             createEmptyConversationEntry,
         );
     }
-    z;
+
     const contacts: Contact[] = await Promise.all(
         retrievedContacts.map(fetchDeliveryServiceProfile(connection)),
     );
