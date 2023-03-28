@@ -1,5 +1,6 @@
+import { DeliveryInformation } from 'dm3-lib-messaging';
 import { ethers } from 'ethers';
-import { DeliveryInformation } from '../../../messaging/src/Envelop';
+
 import { ethBalanceFilter } from './EthBalanceFilter';
 
 test('Should accept a message with an eth balance equal the threshold', async () => {

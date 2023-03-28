@@ -7,6 +7,7 @@ import { stringify } from '../../shared/src/stringify';
 
 import { getConversationId, getMessages, incomingMessage } from './Messages';
 import { Session } from './Session';
+import { SpamFilterRules } from './spam-filter/SpamFilterRules';
 
 const SENDER_NAME = 'alice.eth';
 const RECEIVER_NAME = 'bob.eth';
@@ -41,7 +42,10 @@ const keysB = {
     storageEncryptionNonce: 0,
 };
 
-const getSession = async (ensName: string, socketId?: string) => {
+const getSession = async (
+    ensName: string,
+    socketId?: string,
+): Promise<(Session & { spamFilterRules: SpamFilterRules }) | null> => {
     const emptyProfile: UserProfile = {
         publicSigningKey: '',
         publicEncryptionKey: '',
@@ -70,14 +74,20 @@ const getSession = async (ensName: string, socketId?: string) => {
     });
 
     if (isSender) {
-        return session(SENDER_NAME, '123', emptyProfile);
+        return {
+            ...session(SENDER_NAME, '123', emptyProfile),
+            spamFilterRules: {},
+        };
     }
 
     if (isReceiver) {
-        return session(RECEIVER_NAME, 'abc', {
-            ...emptyProfile,
-            publicEncryptionKey: keysB.encryptionKeyPair.publicKey,
-        });
+        return {
+            ...session(RECEIVER_NAME, 'abc', {
+                ...emptyProfile,
+                publicEncryptionKey: keysB.encryptionKeyPair.publicKey,
+            }),
+            spamFilterRules: {},
+        };
     }
 
     return null;
@@ -212,7 +222,7 @@ describe('Messages', () => {
                 ({
                     ...(await getSession(address)),
                     spamFilterRules: { minNonce: 2 },
-                } as Session);
+                } as Session & { spamFilterRules: SpamFilterRules });
 
             const provider = {
                 getTransactionCount: async (_: string) => Promise.resolve(0),
@@ -274,7 +284,7 @@ describe('Messages', () => {
                 ({
                     ...(await getSession(address)),
                     spamFilterRules: { minBalance: '0xa' },
-                } as Session);
+                } as Session & { spamFilterRules: SpamFilterRules });
 
             const provider = {
                 getBalance: async (_: string) =>
@@ -343,7 +353,7 @@ describe('Messages', () => {
                             amount: '0xa',
                         },
                     },
-                } as Session);
+                } as Session & { spamFilterRules: SpamFilterRules });
 
             const provider = {
                 _isProvider: true,

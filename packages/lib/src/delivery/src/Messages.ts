@@ -16,6 +16,8 @@ import {
 } from 'dm3-lib-messaging';
 import { sha256 } from 'dm3-lib-shared';
 import { checkToken, Session } from './Session';
+import { isSpam } from './spam-filter';
+import { SpamFilterRules } from './spam-filter/SpamFilterRules';
 
 export interface Acknoledgment {
     contactAddress: string;
@@ -87,7 +89,9 @@ export async function incomingMessage(
     signingKeyPair: KeyPair,
     encryptionKeyPair: KeyPair,
     sizeLimit: number,
-    getSession: (accountAddress: string) => Promise<Session | null>,
+    getSession: (
+        accountAddress: string,
+    ) => Promise<(Session & { spamFilterRules: SpamFilterRules }) | null>,
     storeNewMessage: (
         conversationId: string,
         envelop: EncryptionEnvelop,
@@ -130,10 +134,9 @@ export async function incomingMessage(
         throw Error('unknown session');
     }
     //Checkes if the message is spam
-    //TODO bring back once spam filter is ready
-    /*  if (await isSpam(provider, receiverSession, deliveryInformation)) {
+    if (await isSpam(provider, receiverSession, deliveryInformation)) {
         throw Error('Message does not match spam criteria');
-    } */
+    }
 
     const receiverEncryptionKey =
         receiverSession.signedUserProfile.profile.publicEncryptionKey;

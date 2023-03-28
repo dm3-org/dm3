@@ -1,9 +1,10 @@
+import { decryptAsymmetric } from 'dm3-lib-crypto';
 import { ethers } from 'ethers';
-
 import { isSpam } from '.';
-import { testData } from '../../../../test-data/encrypted-envelops.test';
-import { decryptAsymmetric } from '../crypto/src';
-import { Session } from '../delivery';
+import { testData } from '../../../../../../test-data/encrypted-envelops.test';
+
+import { Session } from '../Session';
+
 import { SpamFilterRules } from './SpamFilterRules';
 
 const keysA = {

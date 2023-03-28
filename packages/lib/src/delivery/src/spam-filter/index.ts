@@ -1,11 +1,13 @@
 import { ethers } from 'ethers';
-import { Session } from '../delivery/src';
-import { DeliveryInformation } from '../messaging/src/Envelop';
+import { DeliveryInformation } from 'dm3-lib-messaging';
 import { ethBalanceFilterFactory } from './filter/ethBalanceFilter/EthBalanceFilter';
 import { nonceFilterFactory } from './filter/nonceFilter/NonceFilter';
 import { SpamFilter, SpamFilterFactory } from './filter/SpamFilter';
 import { tokenBalanceFilterFactory } from './filter/tokenBalanceFilter/TokenBalanceFilter';
-import { SpamFilterRule, SpamFilterRules } from './SpamFilterRules';
+import { SpamFilterRules } from './SpamFilterRules';
+import { Session } from '../Session';
+
+export type { SpamFilterRules };
 
 /**
  * All spam filters that are currently implemented.
