@@ -1,4 +1,4 @@
-import { DeliveryInformation } from '../../../messaging';
+import { DeliveryInformation } from 'dm3-lib-messaging';
 import { nonceFilter } from './NonceFilter';
 
 test('Should accept a message with a nonce equal the nonce threshold', async () => {

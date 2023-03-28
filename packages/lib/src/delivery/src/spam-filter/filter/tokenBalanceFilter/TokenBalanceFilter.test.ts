@@ -1,5 +1,6 @@
+import { DeliveryInformation } from 'dm3-lib-messaging';
 import { BigNumber, ethers } from 'ethers';
-import { DeliveryInformation } from '../../../messaging';
+
 import { tokenBalanceFilter } from './TokenBalanceFilter';
 
 describe('tokenBalanceFilter', () => {

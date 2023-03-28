@@ -1,9 +1,9 @@
 import { BigNumber, ethers } from 'ethers';
-import { DeliveryInformation } from '../../../messaging';
-import { log } from '../../../shared/src/log';
+import { DeliveryInformation } from 'dm3-lib-messaging';
 import { SpamFilterRule } from '../../SpamFilterRules';
 import { SpamFilterFactory } from '../SpamFilter';
 import ERC20Abi from './Erc20Abi.json';
+import { log } from 'dm3-lib-shared';
 
 export type TokenBalanceFilterSettings = {
     address: string;
