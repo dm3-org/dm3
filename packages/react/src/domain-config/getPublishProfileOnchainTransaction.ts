@@ -18,7 +18,7 @@ export async function getPublishProfileOnchainTransaction(
         throw Error('No signature');
     }
 
-    const ethersResolver = await Lib.external.getResolver(
+    const ethersResolver = await Lib.shared.ethersHelper.getResolver(
         connection.provider,
         ensName,
     );
@@ -26,7 +26,7 @@ export async function getPublishProfileOnchainTransaction(
         throw Error('No resolver found');
     }
 
-    const resolver = Lib.external.getConractInstance(
+    const resolver = Lib.shared.ethersHelper.getConractInstance(
         ethersResolver.address,
         [
             'function setText(bytes32 node, string calldata key, string calldata value) external',

@@ -1,16 +1,14 @@
 import axios from 'axios';
-import { check } from 'prettier';
 import {
     Account,
+    formatAddress,
+    getDeliveryServiceClient,
     normalizeEnsName,
     SignedUserProfile,
-} from '../account/src/Account';
-import { Acknoledgment } from '../delivery/src';
-import { getDeliveryServiceClient } from '../account/src/deliveryServiceProfile/Delivery';
-import { EncryptionEnvelop, Envelop } from '../messaging';
-import { log } from '../shared/src/log';
-import { Connection } from '../web3-provider/Web3Provider';
-import { formatAddress } from './InjectedWeb3API';
+} from 'dm3-lib-account';
+import { Acknoledgment } from 'dm3-lib-delivery';
+import { EncryptionEnvelop } from 'dm3-lib-messaging';
+import { ethers } from 'ethers';
 
 const PROFILE_PATH = process.env.REACT_APP_BACKEND + '/profile';
 const DELIVERY_PATH = process.env.REACT_APP_BACKEND + '/delivery';
@@ -50,7 +48,7 @@ export type GetNameForAddress = typeof getNameForAddress;
 
 export async function getChallenge(
     account: Account,
-    connection: Connection,
+    provider: ethers.providers.JsonRpcProvider,
 ): Promise<string> {
     const { profile, ensName } = checkAccount(account);
 
@@ -58,7 +56,7 @@ export async function getChallenge(
 
     const { data } = await getDeliveryServiceClient(
         profile,
-        connection.provider!,
+        provider,
         async (url: string) => (await axios.get(url)).data,
     ).get(url);
 
@@ -68,7 +66,7 @@ export type GetChallenge = typeof getChallenge;
 
 export async function getNewToken(
     account: Account,
-    connection: Connection,
+    provider: ethers.providers.JsonRpcProvider,
     signature: string,
 ): Promise<string> {
     const { profile, ensName } = checkAccount(account);
@@ -77,7 +75,7 @@ export async function getNewToken(
 
     const { data } = await getDeliveryServiceClient(
         profile,
-        connection.provider!,
+        provider,
         async (url: string) => (await axios.get(url)).data,
     ).post(url, {
         signature,
@@ -89,7 +87,7 @@ export type GetNewToken = typeof getNewToken;
 
 export async function submitUserProfile(
     account: Account,
-    connection: Connection,
+    provider: ethers.providers.JsonRpcProvider,
     signedUserProfile: SignedUserProfile,
 ): Promise<string> {
     const { profile, ensName } = checkAccount(account);
@@ -98,7 +96,7 @@ export async function submitUserProfile(
 
     const { data } = await getDeliveryServiceClient(
         profile,
-        connection.provider!,
+        provider,
         async (url: string) => (await axios.get(url)).data,
     ).post(url, signedUserProfile);
 
@@ -108,7 +106,7 @@ export type SubmitUserProfile = typeof submitUserProfile;
 
 export async function createAlias(
     account: Account,
-    connection: Connection,
+    provider: ethers.providers.JsonRpcProvider,
     ensName: string,
     aliasEnsName: string,
     token: string,
@@ -121,7 +119,7 @@ export async function createAlias(
 
     const { data } = await getDeliveryServiceClient(
         profile,
-        connection.provider!,
+        provider,
         async (url: string) => (await axios.get(url)).data,
     ).post(url, {}, getAxiosConfig(token));
 
@@ -130,12 +128,12 @@ export async function createAlias(
 export type CreateAlias = typeof createAlias;
 
 export async function syncAcknoledgment(
-    connection: Connection,
+    provider: ethers.providers.JsonRpcProvider,
+    account: Account,
     acknoledgments: Acknoledgment[],
     token: string,
     lastMessagePull: number,
 ): Promise<void> {
-    const { account } = connection;
     const { profile } = checkAccount(account);
 
     const url = `${DELIVERY_PATH}/messages/${normalizeEnsName(
@@ -144,19 +142,18 @@ export async function syncAcknoledgment(
 
     return getDeliveryServiceClient(
         profile,
-        connection.provider!,
+        provider,
         async (url: string) => (await axios.get(url)).data,
     ).post(url, { acknoledgments }, getAxiosConfig(token));
 }
 export type SyncAcknoledgment = typeof syncAcknoledgment;
 
 export async function getNewMessages(
-    connection: Connection,
+    account: Account,
     token: string,
     contactAddress: string,
-    baseUrl: string,
+    provider: ethers.providers.JsonRpcProvider,
 ): Promise<EncryptionEnvelop[]> {
-    const { account } = connection;
     const { profile } = checkAccount(account);
 
     const url = `${DELIVERY_PATH}/messages/${normalizeEnsName(
@@ -165,7 +162,7 @@ export async function getNewMessages(
 
     const { data } = await getDeliveryServiceClient(
         profile,
-        connection.provider!,
+        provider,
         async (url: string) => (await axios.get(url)).data,
     ).get(url, getAxiosConfig(token));
 

@@ -65,7 +65,7 @@ function UserInfo(props: UserInfoProps) {
                 state.accounts.accountInfoView === AccountInfo.Contact) &&
             state.connection.provider
         ) {
-            return Lib.external.getDefaultEnsTextRecord(
+            return Lib.shared.ethersHelper.getDefaultEnsTextRecord(
                 state.connection.provider,
                 props.account.ensName,
             );

@@ -1,25 +1,19 @@
 import axios from 'axios';
-import { GlobalConf } from '..';
-import { checkUserProfile, SignedUserProfile } from '../account/src/Account';
-import { getUserProfile } from '../account/src';
-import { getNameForAddress } from '../external-apis';
-import { RequestAccounts } from '../external-apis/InjectedWeb3API';
-import { log } from '../shared/src/log';
-import { Connection, ConnectionState } from '../web3-provider/Web3Provider';
+import * as Lib from 'dm3-lib';
 
 export function getAliasForAddress(address: string) {
-    return address + GlobalConf.ADDR_ENS_SUBDOMAIN();
+    return address + Lib.GlobalConf.ADDR_ENS_SUBDOMAIN();
 }
 
-export async function connectAccount(
-    connection: Connection,
-    requestAccounts: RequestAccounts,
+export async function connectEthAccount(
+    connection: Lib.Connection,
+    requestAccounts: Lib.shared.ethersHelper.RequestAccounts,
     preSetAccount: string | undefined,
 ): Promise<{
     account?: string;
-    connectionState: ConnectionState;
+    connectionState: Lib.web3provider.ConnectionState;
     existingAccount: boolean;
-    profile?: SignedUserProfile;
+    profile?: Lib.account.SignedUserProfile;
     ethAddress?: string;
 }> {
     if (!connection.provider) {
@@ -35,20 +29,24 @@ export async function connectAccount(
             ? await connectOnchainAccount(connection, ensName, address)
             : await connectOffchainAccount(connection, address);
     } catch (e) {
-        log((e as Error).message);
+        Lib.shared.log((e as Error).message);
         return {
             existingAccount: false,
-            connectionState: ConnectionState.ConnectionRejected,
+            connectionState:
+                Lib.web3provider.ConnectionState.ConnectionRejected,
         };
     }
 }
 
 async function connectOnchainAccount(
-    connection: Connection,
+    connection: Lib.Connection,
     ensName: string,
     address: string,
 ) {
-    const onChainProfile = await getUserProfile(connection, ensName);
+    const onChainProfile = await Lib.account.getUserProfile(
+        connection,
+        ensName,
+    );
 
     /**
      * If it turns out there is no on chain profile available
@@ -60,7 +58,7 @@ async function connectOnchainAccount(
     /**
      * We've to check wether the profile published on chain belongs to the address we're trying to connectÌ
      */
-    const isProfileValid = await checkUserProfile(
+    const isProfileValid = await Lib.account.checkUserProfile(
         connection.provider!,
         onChainProfile,
         address,
@@ -82,12 +80,15 @@ async function connectOnchainAccount(
         ethAddress: address,
         //We have to set the state to false so signIn will be called later
         existingAccount,
-        connectionState: ConnectionState.SignInReady,
+        connectionState: Lib.web3provider.ConnectionState.SignInReady,
         profile: onChainProfile,
     };
 }
 
-async function connectOffchainAccount(connection: Connection, address: string) {
+async function connectOffchainAccount(
+    connection: Lib.Connection,
+    address: string,
+) {
     try {
         /**
          * We've to check if the use already has a profile on the delivery service
@@ -95,20 +96,21 @@ async function connectOffchainAccount(connection: Connection, address: string) {
          * Otherwise we use the addr_ens_subdomain
          */
         const ensName =
-            (await getNameForAddress(address)) ?? getAliasForAddress(address);
+            (await Lib.deliveryApi.getNameForAddress(address)) ??
+            getAliasForAddress(address);
 
         //We're trying to get the profile from the delivery service
-        const profile = await getUserProfile(connection, ensName);
+        const profile = await Lib.account.getUserProfile(connection, ensName);
 
         return {
             account: ensName,
             ethAddress: address,
             existingAccount: profile !== undefined,
-            connectionState: ConnectionState.SignInReady,
+            connectionState: Lib.web3provider.ConnectionState.SignInReady,
             profile,
         };
     } catch (e) {
-        log(`Profile not found `);
+        Lib.shared.log(`Profile not found `);
         /**
          * If there is no profile on the delivery service we start the sign in process
          */
@@ -116,14 +118,14 @@ async function connectOffchainAccount(connection: Connection, address: string) {
             account: undefined,
             ethAddress: address,
             existingAccount: false,
-            connectionState: ConnectionState.SignInReady,
+            connectionState: Lib.web3provider.ConnectionState.SignInReady,
             profile: undefined,
         };
     }
 }
 
 async function profileExistsOnDeliveryService(
-    connection: Connection,
+    connection: Lib.Connection,
     ensName: string,
 ) {
     const url = `${connection.defaultServiceUrl}/profile/${ensName}`;

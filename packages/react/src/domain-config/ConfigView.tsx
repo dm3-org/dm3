@@ -47,8 +47,8 @@ function ConfigView() {
 
             if (
                 address &&
-                Lib.external.formatAddress(address) ===
-                    Lib.external.formatAddress(state.connection.ethAddress)
+                Lib.account.formatAddress(address) ===
+                    Lib.account.formatAddress(state.connection.ethAddress)
             ) {
                 setAddrEnsName(
                     state.connection.ethAddress +
@@ -83,7 +83,7 @@ function ConfigView() {
             setIsValidEnsName(false);
             return;
         }
-        const address = await Lib.external.resolveOwner(
+        const address = await Lib.shared.ethersHelper.resolveOwner(
             state.connection.provider!,
             ensName,
         );
@@ -94,8 +94,8 @@ function ConfigView() {
         }
 
         if (
-            Lib.external.formatAddress(address) !==
-            Lib.external.formatAddress(state.connection.ethAddress!)
+            Lib.shared.ethersHelper.formatAddress(address) !==
+            Lib.shared.ethersHelper.formatAddress(state.connection.ethAddress!)
         ) {
             setIsValidEnsName(false);
             Lib.log("Ens name doesn't match the address");
@@ -114,16 +114,16 @@ function ConfigView() {
                 state.connection.account!.ensName,
             );
 
-            await Lib.external.claimSubdomain(
+            await Lib.offchainResolverApi.claimSubdomain(
                 state.connection.account!,
                 process.env.REACT_APP_RESOLVER_BACKEND as string,
                 dm3UserEnsName! + Lib.GlobalConf.USER_ENS_SUBDOMAIN(),
                 signedProfile!,
             );
 
-            await Lib.external.createAlias(
+            await Lib.deliveryApi.createAlias(
                 state.connection.account!,
-                state.connection,
+                state.connection.provider!,
                 state.connection.account!.ensName,
                 dm3UserEnsName! + Lib.GlobalConf.USER_ENS_SUBDOMAIN(),
                 state.auth.currentSession!.token!,
@@ -152,14 +152,16 @@ function ConfigView() {
         if (tx) {
             setPublishButtonState(ButtonState.Loading);
 
-            await Lib.external.createAlias(
+            await Lib.deliveryApi.createAlias(
                 state.connection.account!,
-                state.connection,
+                state.connection.provider!,
                 state.connection.account!.ensName,
                 ensName!,
                 state.auth.currentSession!.token!,
             );
-            const response = await Lib.external.executeTransaction(tx);
+            const response = await Lib.shared.ethersHelper.executeTransaction(
+                tx,
+            );
             await response.wait();
 
             //Create alias

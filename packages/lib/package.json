@@ -22,7 +22,10 @@
             "src/delivery",
             "src/shared",
             "src/messaging",
-            "src/storage"
+            "src/storage",
+            "src/delivery-api",
+            "src/offchainResolver",
+            "src/offchainResolver-api"
         ]
        
     },
@@ -30,7 +33,7 @@
         "@types/libsodium-wrappers": "^0.7.10",
         "ajv": "^8.11.0",
         "axios": "^0.25.0",
-        "ethers": "^5.5.4",
+        "ethers": "5.7.2",
         "googleapis": "^100.0.0",
         "libsodium-wrappers": "^0.7.11",
         "query-string": "^7.1.1",
@@ -62,7 +65,10 @@
         "build:messaging": "cd ./src/messaging && yarn build && cd ../../",
         "build:delivery": "cd ./src/delivery && yarn build && cd ../../",
         "build:storage": "cd ./src/storage && yarn build && cd ../../",
-        "build": "yarn build:install &&  yarn build:crypto && yarn build:shared && yarn build:account && yarn build:messaging && yarn build:delivery && yarn build:storage &&  tsc --declaration && tsc --declaration -p tsconfig.backend.json",
+        "build:delivery-api": "cd ./src/delivery-api && yarn build && cd ../../",
+        "build:offchain-resolver": "cd ./src/offchainResolver && yarn build && cd ../../",
+        "build:offchain-resolver-api": "cd ./src/offchainResolver-api && yarn build && cd ../../",
+        "build": "yarn build:install &&  yarn build:crypto && yarn build:shared && yarn build:account && yarn build:messaging && yarn build:delivery && yarn build:storage && yarn build:delivery-api && yarn build:offchain-resolver && yarn build:offchain-resolver-api && tsc --declaration && tsc --declaration -p tsconfig.backend.json",
         "test": "jest --coverage"
     },
     "files": [

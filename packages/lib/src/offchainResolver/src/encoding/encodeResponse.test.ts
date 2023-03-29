@@ -1,6 +1,7 @@
+import { PROFILE_RECORD_NAME } from 'dm3-lib-account';
 import { ethers } from 'ethers';
 import { stringify } from 'querystring';
-import { PROFILE_RECORD_NAME } from '../../account/src/Account';
+
 import { encodeEnsName } from '../dns/encodeEnsName';
 import { encodeResponse } from './encodeResponse';
 import { getResolverInterface } from './getResolverInterface';

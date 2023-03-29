@@ -270,8 +270,10 @@ const getSession = async (address: string) => {
         publicEncryptionKey: '',
         deliveryServices: [''],
     };
-    const isSender = Lib.external.formatAddress(address) === SENDER_ADDRESS;
-    const isReceiver = Lib.external.formatAddress(address) === RECEIVER_ADDRESS;
+    const isSender =
+        Lib.shared.ethersHelper.formatAddress(address) === SENDER_ADDRESS;
+    const isReceiver =
+        Lib.shared.ethersHelper.formatAddress(address) === RECEIVER_ADDRESS;
 
     const session = (
         account: string,

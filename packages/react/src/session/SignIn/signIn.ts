@@ -1,15 +1,6 @@
-import { Account, ProfileKeys, UserProfile } from '../../account/src';
-import { SubmitUserProfile } from '../../external-apis/BackendAPI';
-import { PersonalSign } from '../../external-apis/InjectedWeb3API';
-import { stringify } from '../../shared/src/stringify';
-import { createDB, UserDB } from '../../storage/src';
-import { ConnectionState } from '../../web3-provider';
-import { Connection } from '../../web3-provider/Web3Provider';
-import { createKeyPairsFromSig } from './signProfileKeyPair';
-import { signProfile as signProfile } from './signProfile';
-import { claimAddress } from '../../external-apis';
-import { SignedUserProfile } from '../../account/src/Account';
-import { GlobalConf } from '../..';
+import * as Lib from 'dm3-lib';
+import { createKeyPairsFromSig } from '..';
+import { signProfile } from './signProfile';
 
 const DEFAULT_NONCE = 0;
 
@@ -22,14 +13,14 @@ const DEFAULT_NONCE = 0;
 //2-> Decrypt storageFile.  Sign message with getMessage(nonce) to get the storage encryption key
 
 export async function signIn(
-    connection: Partial<Connection>,
-    personalSign: PersonalSign,
-    submitUserProfile: SubmitUserProfile,
+    connection: Partial<Lib.Connection>,
+    personalSign: Lib.shared.ethersHelper.PersonalSign,
+    submitUserProfile: Lib.deliveryApi.SubmitUserProfile,
 ): Promise<{
-    connectionState: ConnectionState;
-    db: UserDB;
+    connectionState: Lib.web3provider.ConnectionState;
+    db: Lib.storage.UserDB;
     deliveryServiceToken: string;
-    account: Account;
+    account: Lib.account.Account;
 }> {
     const [address] = await connection.provider!.listAccounts();
 
@@ -37,14 +28,13 @@ export async function signIn(
 
     //Create new profileKey pair.
     const profileKeys = await createKeyPairsFromSig(
-        connection,
-        personalSign,
+        connection as Lib.Connection,
         nonce,
     );
 
     const onChainProfile = getOnchainProfile(connection);
 
-    const { profile, signature }: SignedUserProfile =
+    const { profile, signature }: Lib.account.SignedUserProfile =
         onChainProfile ??
         (await createNewProfile(
             connection,
@@ -53,13 +43,13 @@ export async function signIn(
             profileKeys,
         ));
 
-    const signedUserProfile: SignedUserProfile = {
+    const signedUserProfile: Lib.account.SignedUserProfile = {
         profile,
         signature,
     };
 
     if (
-        !(await claimAddress(
+        !(await Lib.offchainResolverApi.claimAddress(
             address,
             process.env.REACT_APP_RESOLVER_BACKEND as string,
             signedUserProfile,
@@ -70,12 +60,12 @@ export async function signIn(
 
     const ensName = onChainProfile
         ? connection.account!.ensName
-        : address + GlobalConf.ADDR_ENS_SUBDOMAIN();
+        : address + Lib.GlobalConf.ADDR_ENS_SUBDOMAIN();
 
     //Submit newely created UserProfile
     const deliveryServiceToken = await submitUserProfile(
         { ensName, profile },
-        connection as Connection,
+        connection.provider!,
         { profile, signature },
     );
     const account = {
@@ -85,9 +75,9 @@ export async function signIn(
     };
 
     return {
-        connectionState: ConnectionState.SignedIn,
+        connectionState: Lib.web3provider.ConnectionState.SignedIn,
         db: {
-            ...createDB(profileKeys),
+            ...Lib.storage.createDB(profileKeys),
         },
         deliveryServiceToken,
         account,
@@ -95,8 +85,8 @@ export async function signIn(
 }
 
 function getOnchainProfile(
-    connection: Partial<Connection>,
-): SignedUserProfile | undefined {
+    connection: Partial<Lib.Connection>,
+): Lib.account.SignedUserProfile | undefined {
     if (!connection.account?.profile || !connection.account?.profileSignature) {
         return undefined;
     }
@@ -104,15 +94,15 @@ function getOnchainProfile(
     return { profile, signature: profileSignature };
 }
 async function createNewProfile(
-    connection: Partial<Connection>,
-    personalSign: PersonalSign,
+    connection: Partial<Lib.Connection>,
+    personalSign: Lib.shared.ethersHelper.PersonalSign,
     address: string,
-    { signingKeyPair, encryptionKeyPair }: ProfileKeys,
-): Promise<SignedUserProfile> {
-    const profile: UserProfile = {
+    { signingKeyPair, encryptionKeyPair }: Lib.account.ProfileKeys,
+): Promise<Lib.account.SignedUserProfile> {
+    const profile: Lib.account.UserProfile = {
         publicSigningKey: signingKeyPair.publicKey,
         publicEncryptionKey: encryptionKeyPair.publicKey,
-        deliveryServices: [GlobalConf.DEFAULT_DELIVERY_SERVICE()],
+        deliveryServices: [Lib.GlobalConf.DEFAULT_DELIVERY_SERVICE()],
     };
 
     //Create signed user profile
@@ -120,7 +110,7 @@ async function createNewProfile(
         connection.provider!,
         personalSign,
         address,
-        stringify(profile),
+        Lib.shared.stringify(profile),
     );
 
     return { profile, signature };

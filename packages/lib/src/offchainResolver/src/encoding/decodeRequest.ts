@@ -1,4 +1,4 @@
-import { log } from '../../shared/src/log';
+import { log } from 'dm3-lib-shared';
 import { DecodedCcipRequest } from '../types';
 import { decodeAddr } from './decode/decodeAddr';
 import { decodeText } from './decode/decodeText';
