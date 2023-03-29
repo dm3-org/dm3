@@ -17,15 +17,15 @@
     },
     "workspaces": {
         "packages": [
-            "src/account",
-            "src/crypto",
-            "src/delivery",
-            "src/shared",
-            "src/messaging",
-            "src/storage",
-            "src/delivery-api",
-            "src/offchainResolver",
-            "src/offchainResolver-api"
+            "packages/shared",
+            "packages/crypto",
+            "packages/account",
+            "packages/messaging",
+            "packages/delivery",
+            "packages/storage",
+            "packages/delivery-api",
+            "packages/offchainResolver",
+            "packages/offchainResolver-api"
         ]
        
     },
@@ -58,18 +58,8 @@
         "typescript": "^4.4.2"
     },
     "scripts": {
-        "build:install": "yarn install",
-        "build:crypto": "cd ./src/crypto && yarn build && cd ../../",
-        "build:shared": "cd ./src/shared && yarn build && cd ../../",
-        "build:account": "cd ./src/account && yarn build && cd ../../",
-        "build:messaging": "cd ./src/messaging && yarn build && cd ../../",
-        "build:delivery": "cd ./src/delivery && yarn build && cd ../../",
-        "build:storage": "cd ./src/storage && yarn build && cd ../../",
-        "build:delivery-api": "cd ./src/delivery-api && yarn build && cd ../../",
-        "build:offchain-resolver": "cd ./src/offchainResolver && yarn build && cd ../../",
-        "build:offchain-resolver-api": "cd ./src/offchainResolver-api && yarn build && cd ../../",
-        "build": "yarn build:install &&  yarn build:crypto && yarn build:shared && yarn build:account && yarn build:messaging && yarn build:delivery && yarn build:storage && yarn build:delivery-api && yarn build:offchain-resolver && yarn build:offchain-resolver-api && tsc --declaration && tsc --declaration -p tsconfig.backend.json",
-        "test": "jest --coverage"
+        "build": "yarn workspaces run build && tsc --declaration && tsc --declaration -p tsconfig.backend.json",
+        "test": "yarn workspaces run test"
     },
     "files": [
         "dist",

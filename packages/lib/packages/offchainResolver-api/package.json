@@ -29,7 +29,7 @@
     },
     "scripts": {
         "build": "tsc --declaration ",
-        "test": "jest --coverage"
+        "test": "echo 'no tests'"
     },
     "files": [
         "dist",

@@ -24,7 +24,7 @@
     },
     "scripts": {
         "build": " tsc --declaration && tsc --declaration -p tsconfig.backend.json",
-        "test": "jest --coverage"
+        "test": "echo 'no tests'"
     },
     "files": [
         "dist",
