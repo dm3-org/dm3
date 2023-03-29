@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Account, SignedUserProfile } from '../account/src/Account';
+import { Account, SignedUserProfile } from 'dm3-lib-account';
 
 function checkAccount(account: Account | undefined): Required<Account> {
     if (!account) {

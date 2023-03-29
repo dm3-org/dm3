@@ -16,7 +16,7 @@
         }
     },
     "dependencies": {
-      "ethers": "^5.5.4",
+        "ethers": "5.7.2",
       "dm3-lib-crypto":"^0.1.0",
       "dm3-lib-shared":"^0.1.0",
       "dm3-lib-account":"^0.1.0",

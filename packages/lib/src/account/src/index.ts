@@ -9,6 +9,7 @@ export {
     normalizeEnsName,
     isSameEnsName,
     PROFILE_RECORD_NAME,
+    formatAddress,
 } from './Account';
 export type {
     Account,

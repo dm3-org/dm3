@@ -85,8 +85,9 @@ function StorageView() {
             }
 
             if (state.userDb && acknoledgments.length > 0) {
-                await Lib.external.syncAcknoledgment(
-                    state.connection,
+                await Lib.deliveryApi.syncAcknoledgment(
+                    state.connection.provider!,
+                    state.connection.account!,
                     acknoledgments,
                     state.auth.currentSession?.token!,
                     state.uiState.lastMessagePull,

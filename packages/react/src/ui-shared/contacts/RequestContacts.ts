@@ -23,7 +23,7 @@ function fetchDeliveryServiceProfile(connection: Lib.Connection) {
             await Lib.account.getDeliveryServiceProfile(
                 deliveryServiceUrl,
                 connection.provider!,
-                async (url) => (await axios.get(url)).data,
+                async (url: string) => (await axios.get(url)).data,
             );
 
         return {

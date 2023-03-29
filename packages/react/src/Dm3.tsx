@@ -102,7 +102,7 @@ function dm3(props: dm3Props) {
                     //https://github.com/corpus-ventures/dm3/issues/330
                     state.connection.account.profile.deliveryServices[0],
                     state.connection.provider!,
-                    async (url) => (await axios.get(url)).data,
+                    async (url: string) => (await axios.get(url)).data,
                 );
             setdeliveryServiceUrl(deliveryServiceProfile!.url);
         };

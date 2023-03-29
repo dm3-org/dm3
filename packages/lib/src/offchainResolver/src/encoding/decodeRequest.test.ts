@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { decodeRequest } from './decodeRequest';
 import { getResolverInterface } from './getResolverInterface';
 import { encodeEnsName } from '../dns/encodeEnsName';
-import { PROFILE_RECORD_NAME } from '../../account/src/Account';
+import { PROFILE_RECORD_NAME } from 'dm3-lib-account';
 
 describe('decodeRequest', () => {
     describe('decodeText', () => {

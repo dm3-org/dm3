@@ -42,7 +42,8 @@ export function setUserProfile(redis: Redis) {
         await redis.set(ADDRESS_TO_PROFILE_KEY + address, nameHash);
         await redis.set(NAME_TO_ADDRESS_KEY + nameHash, address);
         await redis.set(
-            ADDRESS_TO_NAME_KEY + Lib.external.formatAddress(address),
+            ADDRESS_TO_NAME_KEY +
+                Lib.shared.ethersHelper.formatAddress(address),
             Lib.account.normalizeEnsName(name),
         );
 

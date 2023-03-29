@@ -1,16 +1,15 @@
 import { ethers } from 'ethers';
-import { getProfileCreationMessage } from '../../account/src/Account';
-import { PersonalSign } from '../../external-apis/InjectedWeb3API';
+import * as Lib from 'dm3-lib';
 
 export async function signProfile(
     provider: ethers.providers.JsonRpcProvider,
-    personalSign: PersonalSign,
+    personalSign: Lib.shared.ethersHelper.PersonalSign,
     address: string,
     stringifiedProfile: string,
 ): Promise<string> {
     try {
         const profileCreationMessage =
-            getProfileCreationMessage(stringifiedProfile);
+            Lib.account.getProfileCreationMessage(stringifiedProfile);
         return await personalSign(provider, address, profileCreationMessage);
     } catch (e) {
         throw Error("Can't signIn profile");
