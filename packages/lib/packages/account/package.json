@@ -1,6 +1,6 @@
 {
   "name": "dm3-lib-account",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist-backend/index.js",
@@ -51,6 +51,6 @@
 },
 "files": [
     "dist",
-    "dist.browser"
+    "dist.backend"
 ]
 }
