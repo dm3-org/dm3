@@ -9,7 +9,7 @@ export async function signProfile(
 ): Promise<string> {
     try {
         const profileCreationMessage =
-            Lib.account.getProfileCreationMessage(stringifiedProfile);
+            Lib.profile.getProfileCreationMessage(stringifiedProfile);
         return await personalSign(provider, address, profileCreationMessage);
     } catch (e) {
         throw Error("Can't signIn profile");

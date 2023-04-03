@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import stringify from 'safe-stable-stringify';
-import { normalizeEnsName } from 'dm3-lib-account';
+import { normalizeEnsName } from 'dm3-lib-profile';
 
 import {
     decryptAsymmetric,

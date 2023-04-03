@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { ProfileExtension, SignedUserProfile } from 'dm3-lib-account';
+import { ProfileExtension, SignedUserProfile } from 'dm3-lib-profile';
 
 //1Year
 const TTL = 31536000000;

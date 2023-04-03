@@ -8,7 +8,7 @@ import { ethers } from 'ethers';
  *
  * @param {Redis} redis - Redis client
  * @param {string} name - Ethereum name
- * @returns {Promise<Lib.account.UserProfile>} A promise that resolves to the user profile object or null if the user is not found
+ * @returns {Promise<Lib.profile.UserProfile>} A promise that resolves to the user profile object or null if the user is not found
  */
 export function getUserProfile(redis: Redis) {
     return async (name: string) => {
@@ -24,6 +24,6 @@ export function getUserProfile(redis: Redis) {
             nameHash,
         );
 
-        return JSON.parse(stringifiedUserProfile!) as Lib.account.UserProfile;
+        return JSON.parse(stringifiedUserProfile!) as Lib.profile.UserProfile;
     };
 }

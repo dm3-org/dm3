@@ -20,7 +20,7 @@ export async function getDatabase(
     connectionState: Lib.web3provider.ConnectionState;
     db: Lib.storage.UserDB;
     deliveryServiceToken: string;
-    account?: Lib.account.Account;
+    account?: Lib.profile.Account;
 }> {
     return profileExists
         ? getExistingDatebase(storageLocation, storageToken, state, dispatch)
@@ -68,7 +68,7 @@ async function createNewDatabase(state: GlobalState): Promise<{
     connectionState: Lib.web3provider.ConnectionState;
     db: Lib.storage.UserDB;
     deliveryServiceToken: string;
-    account: Lib.account.Account;
+    account: Lib.profile.Account;
 }> {
     const signInData = await signIn(state.connection);
     return signInData;

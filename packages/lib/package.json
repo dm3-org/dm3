@@ -19,7 +19,7 @@
         "packages": [
             "packages/shared",
             "packages/crypto",
-            "packages/account",
+            "packages/profile",
             "packages/messaging",
             "packages/delivery",
             "packages/storage",

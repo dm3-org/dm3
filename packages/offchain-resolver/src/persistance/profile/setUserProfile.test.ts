@@ -31,7 +31,7 @@ describe('setUserProfile', () => {
         expect(
             setUserProfile(redisClient)(
                 'foo.eth',
-                {} as Lib.account.UserProfile,
+                {} as Lib.profile.UserProfile,
                 address,
             ),
         ).rejectedWith(Error('Invalid user profile'));
@@ -39,7 +39,7 @@ describe('setUserProfile', () => {
     it('Stores valid user profile', async () => {
         const { address } = ethers.Wallet.createRandom();
 
-        const profile: Lib.account.UserProfile = {
+        const profile: Lib.profile.UserProfile = {
             publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
             publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
             deliveryServices: [''],
@@ -56,7 +56,7 @@ describe('setUserProfile', () => {
     it('Rejects if a name already has profile attached', async () => {
         const { address } = ethers.Wallet.createRandom();
 
-        const profile: Lib.account.UserProfile = {
+        const profile: Lib.profile.UserProfile = {
             publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
             publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
             deliveryServices: [''],

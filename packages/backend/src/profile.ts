@@ -10,7 +10,7 @@ export default () => {
         '/:ensName',
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const ensName = Lib.account.normalizeEnsName(
+                const ensName = Lib.profile.normalizeEnsName(
                     req.params.ensName,
                 );
 
@@ -34,14 +34,14 @@ export default () => {
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
                 const schemaIsValid = Lib.validateSchema(
-                    Lib.account.schema.SignedUserProfile,
+                    Lib.profile.schema.SignedUserProfile,
                     req.body,
                 );
 
                 if (!schemaIsValid) {
                     return res.status(400).send({ error: 'invalid schema' });
                 }
-                const ensName = Lib.account.normalizeEnsName(
+                const ensName = Lib.profile.normalizeEnsName(
                     req.params.ensName,
                 );
 

@@ -3,7 +3,7 @@ export async function createKeyPairsFromSig(
     connection: Partial<Lib.Connection>,
     personalSign: Lib.shared.ethersHelper.PersonalSign,
     nonce: number,
-): Promise<Lib.account.ProfileKeys> {
+): Promise<Lib.profile.ProfileKeys> {
     const { provider, ethAddress } = connection;
 
     if (!provider) {
@@ -25,5 +25,5 @@ export async function createKeyPairsFromSig(
 
     const storageKey = await Lib.crypto.createStorageKey(signature);
 
-    return await Lib.account.createProfileKeys(storageKey, nonce);
+    return await Lib.profile.createProfileKeys(storageKey, nonce);
 }

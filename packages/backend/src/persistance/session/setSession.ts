@@ -24,8 +24,8 @@ export function setAliasSession(redis: Redis) {
         await redis.set(
             RedisPrefix.Session +
                 'alias:' +
-                Lib.account.normalizeEnsName(aliasEnsName),
-            Lib.account.normalizeEnsName(ensName),
+                Lib.profile.normalizeEnsName(aliasEnsName),
+            Lib.profile.normalizeEnsName(ensName),
         );
     };
 }

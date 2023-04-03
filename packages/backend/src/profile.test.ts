@@ -80,7 +80,7 @@ describe('Profile', () => {
             };
 
             const createUserProfileMessage =
-                Lib.account.getProfileCreationMessage(
+                Lib.profile.getProfileCreationMessage(
                     Lib.stringify(userProfile),
                 );
             const signature = await wallet.signMessage(

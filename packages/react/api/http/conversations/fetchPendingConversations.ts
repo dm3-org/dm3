@@ -10,7 +10,7 @@ export async function fetchPendingConversations(
 
     const url = `${DELIVERY_PATH}/messages/${account?.ensName!}/pending/`;
 
-    const { data } = await Lib.account
+    const { data } = await Lib.profile
         .getDeliveryServiceClient(
             connection.account?.profile!,
             connection.provider!,

@@ -1,4 +1,4 @@
-import { PROFILE_RECORD_NAME } from 'dm3-lib-account';
+import { PROFILE_RECORD_NAME } from 'dm3-lib-profile';
 import { ethers } from 'ethers';
 import { stringify } from 'querystring';
 

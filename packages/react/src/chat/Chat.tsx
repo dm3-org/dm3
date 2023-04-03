@@ -57,7 +57,7 @@ function Chat() {
 
         messageContainers.forEach((container) => {
             if (
-                Lib.account.isSameEnsName(
+                Lib.profile.isSameEnsName(
                     container.envelop.message.metadata.from,
                     state.connection.account!.ensName,
                     alias,
@@ -88,7 +88,7 @@ function Chat() {
                             ) as Lib.messaging.MessageState
                         }
                         time={container.envelop.message.metadata.timestamp}
-                        ownMessage={Lib.account.isSameEnsName(
+                        ownMessage={Lib.profile.isSameEnsName(
                             container.envelop.message.metadata.from,
                             state.connection.account!.ensName,
                             alias,
@@ -108,7 +108,7 @@ function Chat() {
                 throw Error('No selected contact');
             }
 
-            const account = Lib.account.isSameEnsName(
+            const account = Lib.profile.isSameEnsName(
                 container.envelop.message.metadata.from,
                 state.accounts.selectedContact.account.ensName,
                 alias,

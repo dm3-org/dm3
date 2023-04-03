@@ -18,7 +18,7 @@ export async function fetchAndStoreMessages(
     const deliveryServices = await Promise.all(
         profile.deliveryServices.map(async (ds) => {
             const deliveryServiceProfile =
-                await Lib.account.getDeliveryServiceProfile(
+                await Lib.profile.getDeliveryServiceProfile(
                     ds,
                     connection.provider!,
                     async (url) => (await axios.get(url)).data,

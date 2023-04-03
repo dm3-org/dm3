@@ -42,7 +42,7 @@ export function cacheReducer(state: Cache, action: CacheActions): Cache {
             const abis = new Map<string, string>(state.abis);
 
             action.payload.forEach((abiContainer) => {
-                const address = Lib.account.formatAddress(abiContainer.address);
+                const address = Lib.profile.formatAddress(abiContainer.address);
                 if (state.abis.has(address)) {
                     Lib.log(`[Cache] ABI for ${address} already in cache`);
                 } else {

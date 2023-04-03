@@ -75,7 +75,7 @@ export async function connectAccount(
     );
     if (accountConnection.account && !accountConnection.existingAccount) {
         await localforage.removeItem(
-            Lib.account.getBrowserStorageKey(accountConnection.account),
+            Lib.profile.getBrowserStorageKey(accountConnection.account),
         );
     }
 

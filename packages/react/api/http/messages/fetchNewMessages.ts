@@ -11,11 +11,11 @@ export async function fetchNewMessages(
 ): Promise<Lib.messaging.EncryptionEnvelop[]> {
     const { account } = connection;
 
-    const url = `${DELIVERY_PATH}/messages/${Lib.account.normalizeEnsName(
+    const url = `${DELIVERY_PATH}/messages/${Lib.profile.normalizeEnsName(
         account!.ensName,
     )}/contact/${contactAddress}`;
 
-    const { data } = await Lib.account
+    const { data } = await Lib.profile
         .getDeliveryServiceClient(
             account!.profile!,
             connection.provider!,

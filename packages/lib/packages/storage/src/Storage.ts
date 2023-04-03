@@ -1,4 +1,4 @@
-import { normalizeEnsName, ProfileKeys } from 'dm3-lib-account';
+import { normalizeEnsName, ProfileKeys } from 'dm3-lib-profile';
 import { decrypt, encrypt, EncryptedPayload } from 'dm3-lib-crypto';
 import { Acknoledgment } from 'dm3-lib-delivery';
 import { Envelop, MessageState } from 'dm3-lib-messaging';

@@ -1,7 +1,7 @@
 export type { Connection } from './web3-provider/Web3Provider';
 
 export * as delivery from 'dm3-lib-delivery';
-export * as account from 'dm3-lib-account';
+export * as profile from 'dm3-lib-profile';
 export * as crypto from 'dm3-lib-crypto';
 export * as deliveryApi from 'dm3-lib-delivery-api';
 export * as messaging from 'dm3-lib-messaging';

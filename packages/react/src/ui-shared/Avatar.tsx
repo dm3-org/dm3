@@ -22,7 +22,7 @@ function Avatar(props: AvatarProps) {
     const { state, dispatch } = useContext(GlobalContext);
 
     const getAvatar = async () => {
-        const ensName = Lib.account.normalizeEnsName(props.ensName);
+        const ensName = Lib.profile.normalizeEnsName(props.ensName);
 
         let url = state.cache.avatarUrls.get(ensName);
 

@@ -1,13 +1,13 @@
 import * as Lib from 'dm3-lib/dist.backend';
 
 export interface IDatabase {
-    getUserProfile(name: string): Promise<Lib.account.UserProfile | null>;
+    getUserProfile(name: string): Promise<Lib.profile.UserProfile | null>;
     getUserProfileByAddress(
         address: string,
-    ): Promise<Lib.account.UserProfile | null>;
+    ): Promise<Lib.profile.UserProfile | null>;
     setUserProfile(
         ensName: string,
-        offchainUserProfile: Lib.account.SignedUserProfile,
+        offchainUserProfile: Lib.profile.SignedUserProfile,
         address: string,
     ): Promise<boolean>;
     hasAddressProfile(name: string): Promise<boolean>;

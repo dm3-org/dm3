@@ -9,7 +9,7 @@ import Icon from '../ui-shared/Icon';
 import { UiStateType } from '../reducers/UiState';
 
 interface AccountNameHeaderProps {
-    account: Lib.account.Account;
+    account: Lib.profile.Account;
 }
 
 function AccountNameHeader(props: AccountNameHeaderProps) {
@@ -49,7 +49,7 @@ function AccountNameHeader(props: AccountNameHeaderProps) {
                                     });
                                 }}
                             >
-                                {Lib.account.getAccountDisplayName(
+                                {Lib.profile.getAccountDisplayName(
                                     props.account.ensName,
                                 )}
                             </div>

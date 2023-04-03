@@ -4,7 +4,7 @@ import {
     normalizeEnsName,
     getDeliveryServiceClient,
     Account,
-} from 'dm3-lib-account';
+} from 'dm3-lib-profile';
 import { Acknoledgment } from 'dm3-lib-delivery';
 import { log } from 'dm3-lib-shared';
 import { sync } from '../Storage';

@@ -34,7 +34,7 @@ export function accountsReducer(state: Accounts, action: AccountsActions) {
                         ...action.payload,
                         account: {
                             ...action.payload.account,
-                            ensName: Lib.account.normalizeEnsName(
+                            ensName: Lib.profile.normalizeEnsName(
                                 action.payload.account.ensName,
                             ),
                         },

@@ -47,8 +47,8 @@ function ConfigView() {
 
             if (
                 address &&
-                Lib.account.formatAddress(address) ===
-                    Lib.account.formatAddress(state.connection.ethAddress)
+                Lib.profile.formatAddress(address) ===
+                    Lib.profile.formatAddress(state.connection.ethAddress)
             ) {
                 setAddrEnsName(
                     state.connection.ethAddress +
@@ -109,7 +109,7 @@ function ConfigView() {
         setLoadingTopicName('dm3UserName');
         setError(undefined);
         try {
-            const signedProfile = await Lib.account.getUserProfile(
+            const signedProfile = await Lib.profile.getUserProfile(
                 state.connection,
                 state.connection.account!.ensName,
             );
