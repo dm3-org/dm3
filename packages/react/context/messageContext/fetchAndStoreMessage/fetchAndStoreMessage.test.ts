@@ -1,12 +1,12 @@
 import { ethers } from 'ethers';
 import { EncryptionEnvelop, Envelop, Message, SendDependencies } from '.';
-import { createProfileKeys } from 'dm3-lib-account';
+import { createProfileKeys } from 'dm3-lib-profile';
 import {
     createStorageKey,
     encryptAsymmetric,
     getStorageKeyCreationMessage,
 } from 'dm3-lib-crypto';
-import { DeliveryServiceProfile } from 'dm3-lib-account/src/deliveryServiceProfile/Delivery';
+import { DeliveryServiceProfile } from 'dm3-lib-profile/src/deliveryServiceProfile/Delivery';
 import { stringify } from 'dm3-lib-shared';
 import { StorageLocation, UserDB } from '../../storage';
 import { Connection, ConnectionState } from '../web3-provider/Web3Provider';

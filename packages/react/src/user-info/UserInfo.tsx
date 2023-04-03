@@ -15,7 +15,7 @@ import { UserDbType } from '../reducers/UserDB';
 import { SelectedRightView, UiStateType } from '../reducers/UiState';
 
 interface UserInfoProps {
-    account: Lib.account.Account;
+    account: Lib.profile.Account;
 }
 
 interface EnsTextRecords {
@@ -45,7 +45,7 @@ function UserInfo(props: UserInfoProps) {
                 return;
             }
             const deliveryServiceProfile =
-                await Lib.account.getDeliveryServiceProfile(
+                await Lib.profile.getDeliveryServiceProfile(
                     //TODO Implement usage of all delivery services
                     //https://github.com/corpus-ventures/dm3/issues/330
                     state.connection.account.profile.deliveryServices[0],

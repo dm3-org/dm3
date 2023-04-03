@@ -20,7 +20,7 @@ export async function signIn(
     connectionState: Lib.web3provider.ConnectionState;
     db: Lib.storage.UserDB;
     deliveryServiceToken: string;
-    account: Lib.account.Account;
+    account: Lib.profile.Account;
 }> {
     const [address] = await connection.provider!.listAccounts();
 
@@ -34,7 +34,7 @@ export async function signIn(
 
     const onChainProfile = getOnchainProfile(connection);
 
-    const { profile, signature }: Lib.account.SignedUserProfile =
+    const { profile, signature }: Lib.profile.SignedUserProfile =
         onChainProfile ??
         (await createNewProfile(
             connection,
@@ -43,7 +43,7 @@ export async function signIn(
             profileKeys,
         ));
 
-    const signedUserProfile: Lib.account.SignedUserProfile = {
+    const signedUserProfile: Lib.profile.SignedUserProfile = {
         profile,
         signature,
     };
@@ -86,7 +86,7 @@ export async function signIn(
 
 function getOnchainProfile(
     connection: Partial<Lib.Connection>,
-): Lib.account.SignedUserProfile | undefined {
+): Lib.profile.SignedUserProfile | undefined {
     if (!connection.account?.profile || !connection.account?.profileSignature) {
         return undefined;
     }
@@ -97,9 +97,9 @@ async function createNewProfile(
     connection: Partial<Lib.Connection>,
     personalSign: Lib.shared.ethersHelper.PersonalSign,
     address: string,
-    { signingKeyPair, encryptionKeyPair }: Lib.account.ProfileKeys,
-): Promise<Lib.account.SignedUserProfile> {
-    const profile: Lib.account.UserProfile = {
+    { signingKeyPair, encryptionKeyPair }: Lib.profile.ProfileKeys,
+): Promise<Lib.profile.SignedUserProfile> {
+    const profile: Lib.profile.UserProfile = {
         publicSigningKey: signingKeyPair.publicKey,
         publicEncryptionKey: encryptionKeyPair.publicKey,
         deliveryServices: [Lib.GlobalConf.DEFAULT_DELIVERY_SERVICE()],

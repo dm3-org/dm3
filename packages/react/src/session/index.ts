@@ -28,7 +28,7 @@ export async function signIn(connection: Partial<Lib.Connection>) {
 export async function createKeyPairsFromSig(
     connection: Partial<Lib.Connection>,
     nonce: number,
-): Promise<Lib.account.ProfileKeys> {
+): Promise<Lib.profile.ProfileKeys> {
     return execCreateKeyPairsFromSig(
         connection,
         Lib.shared.ethersHelper.prersonalSign,

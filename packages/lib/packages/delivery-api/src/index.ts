@@ -5,7 +5,7 @@ import {
     getDeliveryServiceClient,
     normalizeEnsName,
     SignedUserProfile,
-} from 'dm3-lib-account';
+} from 'dm3-lib-profile';
 import { Acknoledgment } from 'dm3-lib-delivery';
 import { EncryptionEnvelop } from 'dm3-lib-messaging';
 import { ethers } from 'ethers';

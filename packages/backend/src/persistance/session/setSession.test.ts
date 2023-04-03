@@ -24,7 +24,7 @@ describe('Set Session', () => {
     });
 
     it('Creates a new Session ', async () => {
-        const profile: Lib.account.UserProfile = {
+        const profile: Lib.profile.UserProfile = {
             publicEncryptionKey: '',
             publicSigningKey: '',
             deliveryServices: [],

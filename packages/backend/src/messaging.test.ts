@@ -265,7 +265,7 @@ describe('Messaging', () => {
 });
 
 const getSession = async (address: string) => {
-    const emptyProfile: Lib.account.UserProfile = {
+    const emptyProfile: Lib.profile.UserProfile = {
         publicSigningKey: '',
         publicEncryptionKey: '',
         deliveryServices: [''],
@@ -278,7 +278,7 @@ const getSession = async (address: string) => {
     const session = (
         account: string,
         token: string,
-        profile: Lib.account.UserProfile,
+        profile: Lib.profile.UserProfile,
     ) => ({
         account,
         signedUserProfile: {

@@ -43,8 +43,8 @@ function ContactListEntry(props: ContactListProps) {
 
     const selected =
         state.accounts.selectedContact &&
-        Lib.account.normalizeEnsName(props.contact.account.ensName) ===
-            Lib.account.normalizeEnsName(
+        Lib.profile.normalizeEnsName(props.contact.account.ensName) ===
+            Lib.profile.normalizeEnsName(
                 state.accounts.selectedContact?.account.ensName,
             );
 
@@ -74,7 +74,7 @@ function ContactListEntry(props: ContactListProps) {
                 <div className="row">
                     <div className="col-12">
                         <strong>
-                            {Lib.account.getAccountDisplayName(
+                            {Lib.profile.getAccountDisplayName(
                                 props.contact.account.ensName,
                             )}
                         </strong>

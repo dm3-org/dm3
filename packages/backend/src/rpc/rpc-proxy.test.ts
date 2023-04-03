@@ -298,19 +298,19 @@ describe('rpc-Proxy', () => {
 });
 
 const getSession = async (ensName: string) => {
-    const emptyProfile: Lib.account.UserProfile = {
+    const emptyProfile: Lib.profile.UserProfile = {
         publicSigningKey: '',
         publicEncryptionKey: '',
         deliveryServices: [''],
     };
 
-    const isSender = Lib.account.normalizeEnsName(ensName) === SENDER_NAME;
-    const isReceiver = Lib.account.normalizeEnsName(ensName) === RECEIVER_NAME;
+    const isSender = Lib.profile.normalizeEnsName(ensName) === SENDER_NAME;
+    const isReceiver = Lib.profile.normalizeEnsName(ensName) === RECEIVER_NAME;
 
     const session = (
         account: string,
         token: string,
-        profile: Lib.account.UserProfile,
+        profile: Lib.profile.UserProfile,
     ) => ({
         account,
         signedUserProfile: {

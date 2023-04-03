@@ -5,7 +5,7 @@ import { getContacts } from './getContacts';
 import { SubmitMessageType } from '../../../context/messageContext/submitMessage/submitMessage';
 
 function fetchDeliveryServiceProfile(connection: Lib.Connection) {
-    return async (account: Lib.account.Account): Promise<Contact> => {
+    return async (account: Lib.profile.Account): Promise<Contact> => {
         const deliveryServiceUrl = account.profile?.deliveryServices[0];
 
         //This is most likely the case when the profile can't be fetched at all.
@@ -20,7 +20,7 @@ function fetchDeliveryServiceProfile(connection: Lib.Connection) {
         }
 
         const deliveryServiceProfile =
-            await Lib.account.getDeliveryServiceProfile(
+            await Lib.profile.getDeliveryServiceProfile(
                 deliveryServiceUrl,
                 connection.provider!,
                 async (url: string) => (await axios.get(url)).data,
@@ -56,8 +56,8 @@ export async function requestContacts(
         defaultContactEnsName &&
         !retrievedContacts.find(
             (accounts) =>
-                Lib.account.normalizeEnsName(accounts.ensName) ===
-                Lib.account.normalizeEnsName(defaultContactEnsName),
+                Lib.profile.normalizeEnsName(accounts.ensName) ===
+                Lib.profile.normalizeEnsName(defaultContactEnsName),
         )
     ) {
         createEmptyConversationEntry(defaultContactEnsName);
@@ -80,16 +80,16 @@ export async function requestContacts(
         selectedContact &&
         !selectedContact?.account.profile?.publicEncryptionKey &&
         retrievedContacts.find(
-            (contact: Lib.account.Account) =>
-                Lib.account.normalizeEnsName(contact.ensName) ===
-                Lib.account.normalizeEnsName(selectedContact.account.ensName),
+            (contact: Lib.profile.Account) =>
+                Lib.profile.normalizeEnsName(contact.ensName) ===
+                Lib.profile.normalizeEnsName(selectedContact.account.ensName),
         )?.profile?.publicSigningKey
     ) {
         setSelectedContact(
             contacts.find(
                 (contact) =>
-                    Lib.account.normalizeEnsName(contact.account.ensName) ===
-                    Lib.account.normalizeEnsName(
+                    Lib.profile.normalizeEnsName(contact.account.ensName) ===
+                    Lib.profile.normalizeEnsName(
                         selectedContact.account.ensName,
                     ),
             ),
@@ -97,8 +97,8 @@ export async function requestContacts(
     } else if (!selectedContact && defaultContactEnsName) {
         const contactToSelect = contacts.find(
             (accounts) =>
-                Lib.account.normalizeEnsName(accounts.account.ensName) ===
-                Lib.account.normalizeEnsName(defaultContactEnsName),
+                Lib.profile.normalizeEnsName(accounts.account.ensName) ===
+                Lib.profile.normalizeEnsName(defaultContactEnsName),
         );
 
         setSelectedContact(contactToSelect);

@@ -11,7 +11,7 @@ export async function auth(
     next: NextFunction,
     ensName: string,
 ) {
-    const normalizedEnsName = Lib.account.normalizeEnsName(ensName);
+    const normalizedEnsName = Lib.profile.normalizeEnsName(ensName);
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
@@ -41,7 +41,7 @@ export function socketAuth(app: Express & WithLocals) {
         next: (err?: ExtendedError | undefined) => void,
     ) => {
         try {
-            const ensName = Lib.account.normalizeEnsName(
+            const ensName = Lib.profile.normalizeEnsName(
                 socket.handshake.auth.account.ensName,
             );
 

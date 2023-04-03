@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { createProfileKeys } from 'dm3-lib-account';
+import { createProfileKeys } from 'dm3-lib-profile';
 import {
     createStorageKey,
     EncryptAsymmetric,

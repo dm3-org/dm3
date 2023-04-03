@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Session } from './Session';
 import { checkSignature } from 'dm3-lib-crypto';
-import { normalizeEnsName } from 'dm3-lib-account';
+import { normalizeEnsName } from 'dm3-lib-profile';
 
 export async function createChallenge(
     getSession: (accountAddress: string) => Promise<Session | null>,

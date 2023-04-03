@@ -1,4 +1,4 @@
-import { createProfileKeys } from 'dm3-lib-account';
+import { createProfileKeys } from 'dm3-lib-profile';
 import { createStorageKey, getStorageKeyCreationMessage } from 'dm3-lib-crypto';
 import { ethers } from 'ethers';
 import { EncryptionEnvelop, Envelop, Message, SendDependencies } from '.';

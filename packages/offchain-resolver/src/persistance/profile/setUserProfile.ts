@@ -12,18 +12,18 @@ import { ethers } from 'ethers';
  *
  * @param {Redis} redis - Redis client
  * @param {string} name - ENS name
- * @param {Lib.account.UserProfile} profile - User Profile object
+ * @param {Lib.profile.UserProfile} profile - User Profile object
  * @param {string} address - Ethereum address
  * @returns {Promise<boolean>} - A promise that resolves to true if the profile is set successfully, false otherwise
  */
 export function setUserProfile(redis: Redis) {
     return async (
         name: string,
-        profile: Lib.account.SignedUserProfile,
+        profile: Lib.profile.SignedUserProfile,
         address: string,
     ) => {
         const profileIsValid = Lib.validateSchema(
-            Lib.account.schema.SignedUserProfile,
+            Lib.profile.schema.SignedUserProfile,
             profile,
         );
 
@@ -44,7 +44,7 @@ export function setUserProfile(redis: Redis) {
         await redis.set(
             ADDRESS_TO_NAME_KEY +
                 Lib.shared.ethersHelper.formatAddress(address),
-            Lib.account.normalizeEnsName(name),
+            Lib.profile.normalizeEnsName(name),
         );
 
         return !!writeResult;

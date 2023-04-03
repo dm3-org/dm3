@@ -5,7 +5,7 @@ import { getIdEnsName } from '../session/getIdEnsName';
 export function addPending(redis: Redis) {
     return async (ensName: string, contactEnsName: string): Promise<void> => {
         await redis.sAdd(
-            RedisPrefix.Pending + Lib.account.normalizeEnsName(contactEnsName),
+            RedisPrefix.Pending + Lib.profile.normalizeEnsName(contactEnsName),
             await getIdEnsName(redis)(ensName),
         );
     };

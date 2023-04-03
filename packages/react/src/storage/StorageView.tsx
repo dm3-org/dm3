@@ -69,7 +69,7 @@ function StorageView() {
                     );
 
                     const a = document.createElement('a');
-                    a.download = `${Lib.account.getAccountDisplayName(
+                    a.download = `${Lib.profile.getAccountDisplayName(
                         state.connection.account!.ensName,
                         true,
                     )}-${Date.now()}.json`;
@@ -129,7 +129,7 @@ function StorageView() {
     useEffect(() => {
         const setBroserStorage = async () => {
             localforage.setItem(
-                Lib.account.getBrowserStorageKey(
+                Lib.profile.getBrowserStorageKey(
                     state.connection.account!.ensName,
                 ),
                 (

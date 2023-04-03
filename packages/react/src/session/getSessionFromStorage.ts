@@ -3,7 +3,7 @@ import { ConnectionState } from '..';
 
 export async function getSessionFromStorage(
     storageFile: string,
-    keys: Lib.account.ProfileKeys,
+    keys: Lib.profile.ProfileKeys,
 ) {
     const externalData = await Lib.storage.load(
         JSON.parse(storageFile),

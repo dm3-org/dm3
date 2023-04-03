@@ -14,7 +14,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 Lib.log(`POST name ${name} `);
 
                 const isSchemaValid = Lib.validateSchema(
-                    Lib.account.schema.SignedUserProfile,
+                    Lib.profile.schema.SignedUserProfile,
                     signedUserProfile,
                 );
 
@@ -33,7 +33,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     return res.status(400).send({ error: 'invalid schema' });
                 }
 
-                const profileIsValid = Lib.account.checkUserProfileWithAddress(
+                const profileIsValid = Lib.profile.checkUserProfileWithAddress(
                     signedUserProfile,
                     address,
                 );
@@ -109,7 +109,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
             try {
                 const { signedUserProfile, address } = req.body;
                 const isSchemaValid = Lib.validateSchema(
-                    Lib.account.schema.SignedUserProfile,
+                    Lib.profile.schema.SignedUserProfile,
                     signedUserProfile,
                 );
 
@@ -118,7 +118,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     return res.status(400).send({ error: 'invalid schema' });
                 }
 
-                const profileIsValid = Lib.account.checkUserProfileWithAddress(
+                const profileIsValid = Lib.profile.checkUserProfileWithAddress(
                     signedUserProfile,
                     address,
                 );

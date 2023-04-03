@@ -34,7 +34,7 @@ export async function getPublishProfileOnchainTransaction(
         connection.provider,
     );
 
-    const signedUserProfile: Lib.account.SignedUserProfile = {
+    const signedUserProfile: Lib.profile.SignedUserProfile = {
         profile: connection.account.profile,
         signature: connection.account.profileSignature,
     };

@@ -1,4 +1,4 @@
-import { Account, ProfileKeys } from 'dm3-lib-account';
+import { Account, ProfileKeys } from 'dm3-lib-profile';
 
 export interface MessageMetadata {
     to: string;

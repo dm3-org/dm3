@@ -22,12 +22,12 @@ function AddContactForm(props: AddContactFormProps) {
 
     const add = async () => {
         const normalizedAccountName =
-            Lib.account.normalizeEnsName(accountToAdd);
+            Lib.profile.normalizeEnsName(accountToAdd);
         try {
             if (
                 state.userDb?.hiddenContacts.find(
                     (contact) =>
-                        Lib.account.normalizeEnsName(contact) ===
+                        Lib.profile.normalizeEnsName(contact) ===
                         normalizedAccountName,
                 )
             ) {

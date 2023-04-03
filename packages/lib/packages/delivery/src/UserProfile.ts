@@ -2,8 +2,8 @@ import {
     SignedUserProfile,
     checkUserProfile,
     normalizeEnsName,
-} from 'dm3-lib-account';
-import { getDefaultProfileExtension } from 'dm3-lib-account';
+} from 'dm3-lib-profile';
+import { getDefaultProfileExtension } from 'dm3-lib-profile';
 import { Session } from './Session';
 import { v4 as uuidv4 } from 'uuid';
 import { ethers } from 'ethers';

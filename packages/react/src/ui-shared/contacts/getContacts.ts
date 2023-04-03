@@ -7,7 +7,7 @@ export async function getContacts(
     userDb: Lib.storage.UserDB,
     deliveryServiceToken: string,
     createEmptyConversationEntry: (id: string) => void,
-): Promise<Lib.account.Account[]> {
+): Promise<Lib.profile.Account[]> {
     if (!connection.provider) {
         throw Error('No provider');
     }
@@ -21,7 +21,7 @@ export async function getContacts(
         if (
             !userDb.conversations.has(
                 Lib.storage.getConversationId(
-                    Lib.account.normalizeEnsName(connection.account!.ensName),
+                    Lib.profile.normalizeEnsName(connection.account!.ensName),
                     pendingConversation,
                 ),
             )
@@ -40,13 +40,13 @@ export async function getContacts(
         Array.from(userDb.conversations.keys())
             .map((conversationId) => conversationId.split(','))
             .map((ensNames) =>
-                Lib.account.normalizeEnsName(connection.account!.ensName) ===
-                Lib.account.normalizeEnsName(ensNames[0])
-                    ? Lib.account.normalizeEnsName(ensNames[1])
-                    : Lib.account.normalizeEnsName(ensNames[0]),
+                Lib.profile.normalizeEnsName(connection.account!.ensName) ===
+                Lib.profile.normalizeEnsName(ensNames[0])
+                    ? Lib.profile.normalizeEnsName(ensNames[1])
+                    : Lib.profile.normalizeEnsName(ensNames[0]),
             )
             .map(async (ensName) => {
-                const profile = await Lib.account.getUserProfile(
+                const profile = await Lib.profile.getUserProfile(
                     connection,
                     ensName,
                 );
@@ -64,7 +64,7 @@ export async function getContacts(
             uncheckedProfiles.map(async (uncheckedProfile) => ({
                 valid:
                     !uncheckedProfile.profile ||
-                    (await Lib.account.checkUserProfile(
+                    (await Lib.profile.checkUserProfile(
                         connection.provider!,
                         uncheckedProfile.profile,
 

@@ -13,7 +13,7 @@ export async function connectEthAccount(
     account?: string;
     connectionState: Lib.web3provider.ConnectionState;
     existingAccount: boolean;
-    profile?: Lib.account.SignedUserProfile;
+    profile?: Lib.profile.SignedUserProfile;
     ethAddress?: string;
 }> {
     if (!connection.provider) {
@@ -43,7 +43,7 @@ async function connectOnchainAccount(
     ensName: string,
     address: string,
 ) {
-    const onChainProfile = await Lib.account.getUserProfile(
+    const onChainProfile = await Lib.profile.getUserProfile(
         connection,
         ensName,
     );
@@ -58,7 +58,7 @@ async function connectOnchainAccount(
     /**
      * We've to check wether the profile published on chain belongs to the address we're trying to connectÌ
      */
-    const isProfileValid = await Lib.account.checkUserProfile(
+    const isProfileValid = await Lib.profile.checkUserProfile(
         connection.provider!,
         onChainProfile,
         address,
@@ -100,7 +100,7 @@ async function connectOffchainAccount(
             getAliasForAddress(address);
 
         //We're trying to get the profile from the delivery service
-        const profile = await Lib.account.getUserProfile(connection, ensName);
+        const profile = await Lib.profile.getUserProfile(connection, ensName);
 
         return {
             account: ensName,
