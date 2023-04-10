@@ -7,18 +7,21 @@ import {
     checkProfileHash,
     checkStringSignature,
     checkUserProfile,
+    checkUserProfileWithAddress,
+    createProfile,
     getAccountDisplayName,
     getBrowserStorageKey,
     getProfileCreationMessage,
     normalizeEnsName,
     SignedUserProfile,
     UserProfile,
-} from './Account';
+} from './Profile';
 
 const getProfileData = async (): Promise<{
     address: string;
     signedUserProfile: SignedUserProfile;
     account: Account;
+    wallet: ethers.Wallet;
 }> => {
     const profile: UserProfile = {
         publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
@@ -37,6 +40,7 @@ const getProfileData = async (): Promise<{
     const signature = await wallet.signMessage(createUserProfileMessage);
 
     return {
+        wallet,
         address: wallet.address,
         account: {
             ensName: 'bob.eth',
@@ -217,6 +221,27 @@ describe('Account', () => {
             expect(
                 checkStringSignature('test1', sig, wallet.address),
             ).toStrictEqual(false);
+        });
+    });
+
+    describe('createProfile', () => {
+        test('Should create a correct user profile', async () => {
+            const profileData = await getProfileData();
+            const profile = await createProfile(
+                profileData.address,
+                profileData.signedUserProfile.profile.deliveryServices,
+                {
+                    send: (name: string, params: string[]) => {
+                        return profileData.wallet.signMessage(params[0]);
+                    },
+                } as any,
+            );
+            expect(
+                checkUserProfileWithAddress(
+                    profile.signedProfile,
+                    profileData.address,
+                ),
+            ).toStrictEqual(true);
         });
     });
 

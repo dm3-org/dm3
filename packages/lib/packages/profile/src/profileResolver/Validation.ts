@@ -1,6 +1,6 @@
 import SignedUserProfileSchema from '../schema/SignedUserProfile.schema.json';
 import Ajv from 'ajv';
-import { SignedUserProfile } from '../Account';
+import { SignedUserProfile } from '../Profile';
 
 export function validateSignedUserProfile(
     userProfile: SignedUserProfile,

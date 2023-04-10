@@ -1,5 +1,5 @@
 import { log } from 'dm3-lib-shared';
-import { checkProfileHash, GetResource } from '../Account';
+import { checkProfileHash, GetResource } from '../Profile';
 import { Dm3Profile, ProfileResolver } from './ProfileResolver';
 
 const isProfile = (textRecord: string) => {

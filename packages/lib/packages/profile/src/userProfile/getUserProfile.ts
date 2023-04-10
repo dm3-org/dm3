@@ -1,6 +1,6 @@
 import { log } from 'dm3-lib-shared';
 import axios from 'axios';
-import { SignedUserProfile } from '../Account';
+import { SignedUserProfile } from '../Profile';
 import {
     ProfileResolver,
     LinkResolver,

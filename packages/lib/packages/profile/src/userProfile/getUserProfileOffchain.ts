@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { ethers } from 'ethers';
-import { Account, checkAccount, SignedUserProfile } from '../Account';
+import { Account, checkAccount, SignedUserProfile } from '../Profile';
 import { getDeliveryServiceClient } from '../deliveryServiceProfile/Delivery';
 
 export async function getUserProfileOffChain(

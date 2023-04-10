@@ -1,8 +1,13 @@
-import { KeyPair } from 'dm3-lib-crypto';
+import {
+    KeyPair,
+    createStorageKey,
+    getStorageKeyCreationMessage,
+} from 'dm3-lib-crypto';
 import { sha256, stringify } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import queryString from 'query-string';
 import { Dm3Profile } from './profileResolver/ProfileResolver';
+import { createProfileKeys } from './profileKeys/createProfileKeys';
 
 export function formatAddress(address: string) {
     return ethers.utils.getAddress(address);
@@ -176,4 +181,64 @@ export function isSameEnsName(
         (!!ensNameBAlias &&
             normalizeEnsName(ensNameA) === normalizeEnsName(ensNameBAlias))
     );
+}
+
+async function createKeyPairsFromSig(
+    provider: ethers.providers.JsonRpcProvider,
+    accountAddress: string,
+    nonce?: number,
+    storageKey?: string,
+): Promise<ProfileKeys> {
+    if (!storageKey) {
+        const storageKeyCreationMessage = getStorageKeyCreationMessage(
+            nonce ?? 0,
+        );
+        const signature = await provider.send('personal_sign', [
+            storageKeyCreationMessage,
+            accountAddress,
+        ]);
+        const newStorageKey = await createStorageKey(signature);
+        return await createProfileKeys(newStorageKey, nonce ?? 0);
+    } else {
+        return await createProfileKeys(storageKey, nonce ?? 0);
+    }
+}
+
+/**
+ * creates a dm3 profile
+ * @param accountAddress wallet address used to sign the profile
+ * @param deiveryServiceNames list of delviery service ENS names
+ * @param provider ethers JsonRpcProvider
+ * @param nonce profile nonce
+ * @param nonce existing storage key
+ */
+export async function createProfile(
+    accountAddress: string,
+    deiveryServiceNames: string[],
+    provider: ethers.providers.JsonRpcProvider,
+    nonce?: number,
+    storageKey?: string,
+): Promise<{ signedProfile: SignedUserProfile; keys: ProfileKeys }> {
+    const keys = await createKeyPairsFromSig(
+        provider,
+        accountAddress,
+        nonce,
+        storageKey,
+    );
+
+    const profile: UserProfile = {
+        publicEncryptionKey: keys.encryptionKeyPair.publicKey,
+        publicSigningKey: keys.signingKeyPair.publicKey,
+        deliveryServices: deiveryServiceNames,
+    };
+
+    const profileCreationMessage = getProfileCreationMessage(
+        stringify(profile),
+    );
+    const profileSig = await provider.send('personal_sign', [
+        profileCreationMessage,
+        accountAddress,
+    ]);
+
+    return { signedProfile: { profile, signature: profileSig }, keys };
 }
