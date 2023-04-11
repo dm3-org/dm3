@@ -1,5 +1,5 @@
 import { createKeyPair, createSigningKeyPair } from 'dm3-lib-crypto';
-import { ProfileKeys } from '../Account';
+import { ProfileKeys } from '../Profile';
 
 export async function createProfileKeys(
     nonceMsgSig: string,

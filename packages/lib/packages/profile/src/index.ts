@@ -10,14 +10,14 @@ export {
     isSameEnsName,
     PROFILE_RECORD_NAME,
     formatAddress,
-} from './Account';
+} from './Profile';
 export type {
     Account,
     ProfileKeys,
     SignedUserProfile,
     UserProfile,
     GetResource,
-} from './Account';
+} from './Profile';
 export * from './profileResolver';
 
 export type { ProfileExtension } from './profileExtension';

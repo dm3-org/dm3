@@ -1,6 +1,6 @@
 import { log } from 'dm3-lib-shared';
 import { Dm3Profile, ProfileResolver } from './ProfileResolver';
-import { GetResource } from '../Account';
+import { GetResource } from '../Profile';
 
 const isProfile = (textRecord: string) => {
     try {

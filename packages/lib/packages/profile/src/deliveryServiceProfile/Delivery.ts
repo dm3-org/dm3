@@ -5,7 +5,7 @@ import axios, {
     AxiosRequestConfig,
 } from 'axios';
 import { ethers } from 'ethers';
-import { GetResource, UserProfile } from '../Account';
+import { GetResource, UserProfile } from '../Profile';
 import {
     ProfileResolver,
     LinkResolver,
