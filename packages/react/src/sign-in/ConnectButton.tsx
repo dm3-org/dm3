@@ -63,7 +63,7 @@ function ConnectButton(props: ConnectButtonProps) {
 
     return (
         <StateButton
-            content={<>Connect Metamask</>}
+            content={<>Sign In</>}
             btnState={getButtonState(state.connection.connectionState)}
             btnType="secondary"
             onClick={() => {

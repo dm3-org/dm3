@@ -20,8 +20,8 @@ test(`Should create keys`, async () => {
 
     expect(keys).toEqual({
         encryptionKeyPair: {
-            publicKey: 'VxIiLaRzCotOBav3ewxtpf41Upr3ynO8OzA17bL3ijQ=',
             privateKey: '9UHTlx2Aqp8lFl8ZA6dE8Cn4UdlMkEUIsL8J8jSOajo=',
+            publicKey: 'VxIiLaRzCotOBav3ewxtpf41Upr3ynO8OzA17bL3ijQ=',
         },
         signingKeyPair: {
             publicKey: '6JWW36ZhptoMeIdMudmKbaxCv6IDAmn3UAcrpsGCiOQ=',

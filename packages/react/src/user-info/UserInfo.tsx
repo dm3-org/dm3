@@ -322,7 +322,10 @@ function UserInfo(props: UserInfoProps) {
                                             });
                                             dispatch({
                                                 type: UserDbType.hideContact,
-                                                payload: props.account.ensName,
+                                                payload: {
+                                                    ensName:
+                                                        props.account.ensName,
+                                                },
                                             });
                                             dispatch({
                                                 type: AccountsType.RemoveContact,

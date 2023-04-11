@@ -22,7 +22,7 @@ export type UserDbPayload = {
     [UserDbType.setSynced]: boolean;
     [UserDbType.setConfigViewed]: boolean;
     [UserDbType.setSyncProcessState]: Lib.storage.SyncProcessState;
-    [UserDbType.hideContact]: string;
+    [UserDbType.hideContact]: { ensName: string; aka?: string };
     [UserDbType.unhideContact]: string;
 };
 
@@ -58,6 +58,7 @@ export function userDbReducer(
 
             const prevContainers = Lib.storage.getConversation(
                 contactEnsName,
+                [{ ensName: contactEnsName }],
                 state,
             );
 
@@ -221,7 +222,7 @@ export function userDbReducer(
 
             if (
                 !state.hiddenContacts.find(
-                    (contact) => contact === action.payload,
+                    (contact) => contact.ensName === action.payload,
                 )
             ) {
                 Lib.log(`[DB] Contact ${action.payload} not hidden`);

@@ -107,7 +107,11 @@ describe('Storage', () => {
 
             const db = createDB(profileKeys);
 
-            const conversations = getConversation(USER_1, db);
+            const conversations = getConversation(
+                USER_1,
+                [{ ensName: USER_1 }],
+                db,
+            );
 
             expect(conversations).toStrictEqual([]);
         });
@@ -120,7 +124,11 @@ describe('Storage', () => {
 
             db.conversations.set(USER_1, expectedConversation);
 
-            const actualConversation = getConversation(USER_1, db);
+            const actualConversation = getConversation(
+                USER_1,
+                [{ ensName: USER_1 }],
+                db,
+            );
             expect(actualConversation).toStrictEqual(expectedConversation);
         });
     });

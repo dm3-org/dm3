@@ -40,21 +40,28 @@ function Chat() {
     const [messageStates, setMessageStates] = useState<
         Map<string, Lib.messaging.MessageState>
     >(new Map<string, Lib.messaging.MessageState>());
-    if (!state.accounts.selectedContact?.account.profile?.publicEncryptionKey) {
-        dropMessages();
-        renderCustomComponent(
-            () => (
-                <InfoBox text={`This user hasn't created a dm3 profile yet.`} />
-            ),
-            {},
-        );
-    }
+
+    const addAlert = () => {
+        if (
+            !state.accounts.selectedContact?.account.profile
+                ?.publicEncryptionKey
+        ) {
+            renderCustomComponent(
+                () => (
+                    <InfoBox
+                        text={`This user hasn't created a dm3 profile yet.`}
+                    />
+                ),
+                {},
+            );
+        }
+    };
 
     const handleMessageContainer = (
         messageContainers: Lib.storage.StorageEnvelopContainer[],
     ) => {
         dropMessages();
-
+        addAlert();
         messageContainers.forEach((container) => {
             if (
                 Lib.profile.isSameEnsName(
@@ -123,7 +130,7 @@ function Chat() {
                       account.ensName,
                       container.envelop.message.signature,
                   )
-                : false;
+                : true;
         });
 
         const newMessages = checkedContainers
@@ -166,6 +173,7 @@ function Chat() {
     useEffect(() => {
         let ignore = false;
         dropMessages();
+        addAlert();
 
         const getPastMessages = async () => {
             const lastMessagePull = new Date().getTime();
@@ -190,7 +198,9 @@ function Chat() {
                         );
                     }
                 },
+                state.accounts.contacts.map((contact) => contact.account),
             );
+
             if (!ignore && messages.length > 0) {
                 handleMessages(messages);
                 setMessageStates(new Map<string, Lib.messaging.MessageState>());
@@ -208,18 +218,27 @@ function Chat() {
         return () => {
             ignore = true;
         };
-    }, [state.accounts.selectedContact?.account.ensName]);
+    }, [state.accounts.selectedContact]);
 
     useEffect(() => {
-        if (state.accounts.selectedContact && state.userDb) {
+        if (
+            state.accounts.selectedContact &&
+            state.userDb &&
+            state.accounts.contacts
+        ) {
             handleMessages(
                 Lib.storage.getConversation(
                     state.accounts.selectedContact.account.ensName,
+                    state.accounts.contacts.map((contact) => contact.account),
                     state.userDb,
                 ),
             );
         }
-    }, [state.userDb?.conversations]);
+    }, [
+        state.userDb?.conversations,
+        state.accounts.selectedContact,
+        state.accounts.contacts,
+    ]);
 
     const handleNewUserMessage = async (
         message: string,
@@ -229,10 +248,6 @@ function Chat() {
 
         if (!state.accounts.selectedContact) {
             throw Error('no contact selected');
-        }
-
-        if (!state.accounts.selectedContact.deliveryServiceProfile) {
-            throw Error('no deliveryServiceProfile');
         }
 
         const haltDelivery =
@@ -255,7 +270,7 @@ function Chat() {
         const sendDependencies: Lib.messaging.SendDependencies = {
             deliveryServiceEncryptionPubKey:
                 state.accounts.selectedContact.deliveryServiceProfile
-                    .publicEncryptionKey,
+                    ?.publicEncryptionKey ?? '',
             from: state.connection.account!,
             to: state.accounts.selectedContact.account,
             keys: userDb.keys,
@@ -297,22 +312,26 @@ function Chat() {
         }
     };
 
+    const widget = (
+        <Widget
+            emojis={false}
+            launcher={() => null}
+            handleNewUserMessage={(message: string) =>
+                handleNewUserMessage(
+                    message,
+                    state.userDb as Lib.storage.UserDB,
+                )
+            }
+            key={state.accounts.selectedContact?.account.ensName}
+            showTimeStamp={false}
+        />
+    );
+
     return (
         <div className="widget-container flex-grow-1">
             <div className="h-100">
                 {/* @ts-ignore */}
-                <Widget
-                    emojis={false}
-                    launcher={() => null}
-                    handleNewUserMessage={(message: string) =>
-                        handleNewUserMessage(
-                            message,
-                            state.userDb as Lib.storage.UserDB,
-                        )
-                    }
-                    showTimeStamp={false}
-                />
-
+                {widget}
                 {!state.uiState.maxLeftView && <StorageView />}
             </div>
         </div>

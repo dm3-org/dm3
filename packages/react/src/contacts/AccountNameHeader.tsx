@@ -7,6 +7,7 @@ import { AccountsType } from '../reducers/Accounts';
 import { AccountInfo } from '../reducers/shared';
 import Icon from '../ui-shared/Icon';
 import { UiStateType } from '../reducers/UiState';
+import useTooltip from '../ui-shared/useTooltip';
 
 interface AccountNameHeaderProps {
     account: Lib.profile.Account;
@@ -14,6 +15,12 @@ interface AccountNameHeaderProps {
 
 function AccountNameHeader(props: AccountNameHeaderProps) {
     const { state, dispatch } = useContext(GlobalContext);
+    const tooltipRef = useTooltip(
+        props.account.ensName,
+        'bottom',
+        20,
+        'account-tooltip',
+    );
 
     return (
         <div className="account-name w-100  account-header h-100 d-flex flex-column">
@@ -48,9 +55,11 @@ function AccountNameHeader(props: AccountNameHeaderProps) {
                                         payload: AccountInfo.Account,
                                     });
                                 }}
+                                ref={tooltipRef}
                             >
                                 {Lib.profile.getAccountDisplayName(
                                     props.account.ensName,
+                                    20,
                                 )}
                             </div>
                         </div>

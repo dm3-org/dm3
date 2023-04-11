@@ -6,7 +6,10 @@ interface InfoBoxProps {
 
 function InfoBox(props: InfoBoxProps) {
     return (
-        <div className="alert alert-warning w-100 info-box" role="alert">
+        <div
+            className="alert alert-warning profile-warning w-100 info-box text-center"
+            role="alert"
+        >
             {props.text}
         </div>
     );

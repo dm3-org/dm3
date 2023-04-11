@@ -77,7 +77,10 @@ function dm3(props: dm3Props) {
 
     useEffect(() => {
         if (state.connection.provider) {
-            if (window.ethereum) {
+            if (
+                window.ethereum &&
+                state.connection.connectionState === ConnectionState.SignedIn
+            ) {
                 (window.ethereum as any).on('accountsChanged', () => {
                     window.location.reload();
                 });
@@ -86,7 +89,7 @@ function dm3(props: dm3Props) {
                 });
             }
         }
-    }, [state.connection.provider]);
+    }, [state.connection.provider, state.connection.connectionState]);
 
     useEffect(() => {
         const getDeliveryServiceUrl = async () => {
@@ -165,7 +168,7 @@ function dm3(props: dm3Props) {
                 getContacts(state.connection as Lib.Connection);
             });
         }
-    }, [state.connection.socket]);
+    }, [state.connection.socket, state.userDb?.conversations]);
 
     const getContacts = (connection: Lib.Connection) => {
         if (!state.userDb) {

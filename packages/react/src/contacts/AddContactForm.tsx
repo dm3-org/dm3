@@ -5,6 +5,8 @@ import * as Lib from 'dm3-lib';
 import { GlobalContext } from '../GlobalContextProvider';
 import { UserDbType } from '../reducers/UserDB';
 import { UiStateType } from '../reducers/UiState';
+import { AccountsType } from '../reducers/Accounts';
+import { ethers } from 'ethers';
 
 interface AddContactFormProps {
     getContacts: (connection: Lib.Connection) => Promise<void>;

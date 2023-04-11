@@ -53,14 +53,14 @@ export async function requestContacts(
     );
 
     if (
-        defaultContactEnsName &&
+        defaultContact &&
         !retrievedContacts.find(
             (accounts) =>
                 Lib.profile.normalizeEnsName(accounts.ensName) ===
                 Lib.profile.normalizeEnsName(defaultContactEnsName),
         )
     ) {
-        createEmptyConversationEntry(defaultContactEnsName);
+        createEmptyConversationEntry(defaultContact);
 
         retrievedContacts = await getContacts(
             connection,
@@ -74,7 +74,33 @@ export async function requestContacts(
         retrievedContacts.map(fetchDeliveryServiceProfile(connection)),
     );
 
-    setContacts(contacts);
+    contacts.forEach((contact) => {
+        const found = contacts.find(
+            (innerContact) =>
+                innerContact.account.profile &&
+                contact.account.profile &&
+                Lib.stringify(innerContact.account.profile) ===
+                    Lib.stringify(contact.account.profile),
+        );
+        if (found && found?.account.ensName !== contact.account.ensName) {
+            dispatch({
+                type: UserDbType.hideContact,
+                payload:
+                    found.account.ensName.length >
+                    contact.account.ensName.length
+                        ? {
+                              ensName: found.account.ensName,
+                              aka: contact.account.ensName,
+                          }
+                        : {
+                              ensName: contact.account.ensName,
+                              aka: found.account.ensName,
+                          },
+            });
+        }
+    });
+
+    dispatch({ type: AccountsType.SetContacts, payload: contacts });
 
     if (
         selectedContact &&
@@ -94,7 +120,7 @@ export async function requestContacts(
                     ),
             ),
         );
-    } else if (!selectedContact && defaultContactEnsName) {
+    } else if (!selectedContact && defaultContact) {
         const contactToSelect = contacts.find(
             (accounts) =>
                 Lib.profile.normalizeEnsName(accounts.account.ensName) ===
@@ -107,7 +133,11 @@ export async function requestContacts(
     contacts.forEach((contact) => {
         if (contact.deliveryServiceProfile) {
             Lib.storage
-                .getConversation(contact.account.ensName, userDb)
+                .getConversation(
+                    contact.account.ensName,
+                    contacts.map((contact) => contact.account),
+                    userDb,
+                )
                 .filter(
                     (message) =>
                         message.messageState ===

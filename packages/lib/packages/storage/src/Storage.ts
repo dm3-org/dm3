@@ -1,4 +1,4 @@
-import { normalizeEnsName, ProfileKeys } from 'dm3-lib-profile';
+import { Account, normalizeEnsName, ProfileKeys } from 'dm3-lib-profile';
 import { decrypt, encrypt, EncryptedPayload } from 'dm3-lib-crypto';
 import { Acknoledgment } from 'dm3-lib-delivery';
 import { Envelop, MessageState } from 'dm3-lib-messaging';
@@ -26,7 +26,7 @@ export interface StorageEnvelopContainer {
 
 export interface UserDB {
     conversations: Map<string, StorageEnvelopContainer[]>;
-    hiddenContacts: string[];
+    hiddenContacts: { ensName: string; aka?: string }[];
     conversationsCount: number;
     keys: ProfileKeys;
     synced: boolean;
@@ -43,7 +43,7 @@ export interface UserStorage {
 
 interface UserStoragePayload {
     conversations: string;
-    hiddenContacts: string[];
+    hiddenContacts: { ensName: string; aka?: string }[];
     keys: ProfileKeys;
     deliveryServiceToken: string;
     lastChangeTimestamp: number;
@@ -112,10 +112,29 @@ export function createDB(keys: ProfileKeys): UserDB {
 
 export function getConversation(
     contact: string,
+    contacts: Account[],
     db: UserDB,
 ): StorageEnvelopContainer[] {
-    const envelops = db.conversations.get(contact);
-    return envelops ?? [];
+    const contactProfile = contacts.find(
+        (account) => account.ensName === contact,
+    );
+    if (!contactProfile) {
+        throw Error(`Couldn't get contact data`);
+    }
+
+    return sortEnvelops(
+        contacts
+            .filter(
+                (account) =>
+                    contact === account.ensName ||
+                    (!!account.profile &&
+                        !!contactProfile.profile &&
+                        stringify(account.profile) ===
+                            stringify(contactProfile.profile)),
+            )
+            .map((account) => db.conversations.get(account.ensName) ?? [])
+            .flat(),
+    );
 }
 /**
  * Sorts an Array of {@see StorageEnvelopContainer} by timestamp ASC

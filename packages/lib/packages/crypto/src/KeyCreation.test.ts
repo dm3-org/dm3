@@ -11,7 +11,9 @@ import {
 test('should get a correct storage key creation message', async () => {
     const message = await getStorageKeyCreationMessage(99);
     expect(message).toEqual(
-        'Sign this to retrieve your dm3 encryption key.\nNonce: 99',
+        'Connect the dm3 app with your wallet.' +
+            ' Keys for secure communication are derived from the signature.' +
+            ' No paid transaction will be executed.\nNonce: 99',
     );
 });
 
