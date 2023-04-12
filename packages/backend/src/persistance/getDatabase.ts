@@ -89,7 +89,12 @@ export interface IDatabase {
         session: Lib.delivery.Session,
     ) => Promise<void>;
 
-    getSession: (ensName: string) => Promise<Lib.delivery.Session | null>;
+    getSession: (ensName: string) => Promise<
+        | (Lib.delivery.Session & {
+              spamFilterRules: Lib.delivery.spamFilter.SpamFilterRules;
+          })
+        | null
+    >;
 
     getUserStorage: (
         ensName: string,

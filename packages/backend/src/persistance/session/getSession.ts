@@ -8,6 +8,10 @@ export function getSession(redis: Redis) {
             RedisPrefix.Session + (await getIdEnsName(redis)(ensName)),
         );
 
-        return session ? (JSON.parse(session) as Lib.delivery.Session) : null;
+        return session
+            ? (JSON.parse(session) as Lib.delivery.Session & {
+                  spamFilterRules: Lib.delivery.spamFilter.SpamFilterRules;
+              })
+            : null;
     };
 }

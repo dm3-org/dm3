@@ -19,6 +19,6 @@ export function getUserProfileByAddress(redis: Redis) {
             namehash,
         );
 
-        return JSON.parse(stringifiedUserProfile!) as Lib.account.UserProfile;
+        return JSON.parse(stringifiedUserProfile!) as Lib.profile.UserProfile;
     };
 }

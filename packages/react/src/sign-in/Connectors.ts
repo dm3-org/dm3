@@ -11,6 +11,7 @@ import detectEthereumProvider from '@metamask/detect-provider';
 import { UserDbType } from '../reducers/UserDB';
 import { AuthStateType } from '../reducers/Auth';
 import { getDatabase } from './getDatabase';
+import { connectEthAccount } from '../session/Connect';
 
 function handleNewProvider(
     creationsResult: {
@@ -57,8 +58,9 @@ export async function connectAccount(
         payload: Lib.web3provider.ConnectionState.WaitingForAccountConntection,
     });
 
-    const accountConnection = await Lib.session.connectAccount(
+    const accountConnection = await connectEthAccount(
         state.connection,
+        Lib.shared.ethersHelper.requestAccounts,
         preSetAccount,
     );
 
@@ -73,7 +75,7 @@ export async function connectAccount(
     );
     if (accountConnection.account && !accountConnection.existingAccount) {
         await localforage.removeItem(
-            Lib.account.getBrowserStorageKey(accountConnection.account),
+            Lib.profile.getBrowserStorageKey(accountConnection.account),
         );
     }
 

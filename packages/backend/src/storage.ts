@@ -16,7 +16,7 @@ export default () => {
         '/:ensName',
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const account = Lib.account.normalizeEnsName(
+                const account = Lib.profile.normalizeEnsName(
                     req.params.ensName,
                 );
                 const userStorage = await req.app.locals.db.getUserStorage(
@@ -33,7 +33,7 @@ export default () => {
         '/:ensName',
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const account = Lib.account.normalizeEnsName(
+                const account = Lib.profile.normalizeEnsName(
                     req.params.ensName,
                 );
 

@@ -255,7 +255,7 @@ describe('CCIP Gateway', () => {
                 const resolver = await provider.getResolver('foo.dm3.eth');
 
                 const text = await resolver.getText(
-                    Lib.account.PROFILE_RECORD_NAME,
+                    Lib.profile.PROFILE_RECORD_NAME,
                 );
 
                 expect(text).to.eql(
@@ -435,9 +435,9 @@ describe('CCIP Gateway', () => {
 });
 
 const getSignedUserProfile = async (
-    overwriteProfile?: Lib.account.UserProfile,
+    overwriteProfile?: Lib.profile.UserProfile,
 ) => {
-    const profile: Lib.account.UserProfile = overwriteProfile ?? {
+    const profile: Lib.profile.UserProfile = overwriteProfile ?? {
         publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
         publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
         deliveryServices: [''],
@@ -445,7 +445,7 @@ const getSignedUserProfile = async (
 
     const wallet = ethers.Wallet.createRandom();
 
-    const createUserProfileMessage = Lib.account.getProfileCreationMessage(
+    const createUserProfileMessage = Lib.profile.getProfileCreationMessage(
         Lib.stringify(profile),
     );
     const signature = await wallet.signMessage(createUserProfileMessage);
@@ -468,7 +468,7 @@ const resolveGateWayUrl = async (
     try {
         const textData = getResolverInterface().encodeFunctionData('text', [
             ethers.utils.namehash(ensName),
-            Lib.account.PROFILE_RECORD_NAME,
+            Lib.profile.PROFILE_RECORD_NAME,
         ]);
 
         //This always revers and throws the OffchainLookup Exceptions hence we need to catch it

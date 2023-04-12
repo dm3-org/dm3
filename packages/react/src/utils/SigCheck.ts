@@ -15,8 +15,8 @@ export async function checkSignature(
 
     if (
         sigCheck &&
-        Lib.account.normalizeEnsName(ensName) !==
-            Lib.account.normalizeEnsName(message.metadata.from)
+        Lib.profile.normalizeEnsName(ensName) !==
+            Lib.profile.normalizeEnsName(message.metadata.from)
     ) {
         return true;
     } else {

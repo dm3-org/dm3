@@ -1,24 +1,25 @@
+import * as Lib from 'dm3-lib';
+import { useContext, useEffect, useState } from 'react';
 import {
     addResponseMessage,
     addUserMessage,
     deleteMessages,
     dropMessages,
-    renderCustomComponent,
     isWidgetOpened,
+    renderCustomComponent,
     toggleWidget,
     Widget,
 } from 'react-chat-widget';
-import MessageStateView from './MessageStateView';
-import { useContext, useEffect, useState } from 'react';
-import * as Lib from 'dm3-lib';
-import './Chat.css';
 import { GlobalContext } from '../GlobalContextProvider';
-import { UserDbType } from '../reducers/UserDB';
-import InfoBox from './InfoBox';
 import { UiStateType } from '../reducers/UiState';
+import { UserDbType } from '../reducers/UserDB';
+import './Chat.css';
+import InfoBox from './InfoBox';
+import MessageStateView from './MessageStateView';
 
 import StorageView from '../storage/StorageView';
 import { checkSignature } from '../utils/SigCheck';
+import { MessageContext } from '../../context/messageContext/MessageContext';
 
 export interface EnvelopContainer {
     envelop: Lib.messaging.Envelop;
@@ -27,6 +28,7 @@ export interface EnvelopContainer {
 
 function Chat() {
     const { state, dispatch } = useContext(GlobalContext);
+    const { submitMessage, fetchAndStoreMessages } = useContext(MessageContext);
 
     const alias =
         state.connection.ethAddress &&
@@ -62,7 +64,7 @@ function Chat() {
         addAlert();
         messageContainers.forEach((container) => {
             if (
-                Lib.account.isSameEnsName(
+                Lib.profile.isSameEnsName(
                     container.envelop.message.metadata.from,
                     state.connection.account!.ensName,
                     alias,
@@ -93,7 +95,7 @@ function Chat() {
                             ) as Lib.messaging.MessageState
                         }
                         time={container.envelop.message.metadata.timestamp}
-                        ownMessage={Lib.account.isSameEnsName(
+                        ownMessage={Lib.profile.isSameEnsName(
                             container.envelop.message.metadata.from,
                             state.connection.account!.ensName,
                             alias,
@@ -113,7 +115,7 @@ function Chat() {
                 throw Error('No selected contact');
             }
 
-            const account = Lib.account.isSameEnsName(
+            const account = Lib.profile.isSameEnsName(
                 container.envelop.message.metadata.from,
                 state.accounts.selectedContact.account.ensName,
                 alias,
@@ -178,10 +180,7 @@ function Chat() {
             if (!state.accounts.selectedContact) {
                 throw Error('no contact selected');
             }
-            if (!state.accounts.contacts) {
-                throw Error('no contacts');
-            }
-            const messages = await Lib.messaging.getMessages(
+            const messages = await fetchAndStoreMessages(
                 state.connection,
                 state.auth.currentSession?.token!,
                 state.accounts.selectedContact.account.ensName,
@@ -262,7 +261,7 @@ function Chat() {
             state.accounts.selectedContact.account.ensName,
             state.connection.account!.ensName,
             message,
-            userDb,
+            userDb.keys.encryptionKeyPair.privateKey,
         );
         const messageId = messageData.metadata.timestamp.toString();
         messageStates.set(messageId, Lib.messaging.MessageState.Created);
@@ -278,12 +277,11 @@ function Chat() {
         };
 
         try {
-            await Lib.messaging.submitMessage(
+            await submitMessage(
                 state.connection,
                 state.auth.currentSession?.token!,
-                messageData,
                 sendDependencies,
-
+                messageData,
                 haltDelivery,
                 (envelops: Lib.storage.StorageEnvelopContainer[]) =>
                     envelops.forEach((envelop) =>

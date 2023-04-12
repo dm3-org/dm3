@@ -16,7 +16,8 @@ export async function getStorageFile(
         //Should result in reSignin
         case Lib.storage.StorageLocation.dm3Storage:
             return await Lib.storage.getDm3Storage(
-                connection,
+                connection.provider!,
+                connection.account!,
                 deliveryServiceToken,
             );
 

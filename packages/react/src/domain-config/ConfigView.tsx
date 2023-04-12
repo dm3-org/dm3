@@ -5,6 +5,7 @@ import { ConnectionType } from '../reducers/Connection';
 import { ethers } from 'ethers';
 import StateButton, { ButtonState } from '../ui-shared/StateButton';
 import Icon from '../ui-shared/Icon';
+import { getPublishProfileOnchainTransaction } from './getPublishProfileOnchainTransaction';
 
 function ConfigView() {
     const [addrEnsName, setAddrEnsName] = useState<string | undefined>();
@@ -46,8 +47,8 @@ function ConfigView() {
 
             if (
                 address &&
-                Lib.external.formatAddress(address) ===
-                    Lib.external.formatAddress(state.connection.ethAddress)
+                Lib.profile.formatAddress(address) ===
+                    Lib.profile.formatAddress(state.connection.ethAddress)
             ) {
                 setAddrEnsName(
                     state.connection.ethAddress +
@@ -82,7 +83,7 @@ function ConfigView() {
             setIsValidEnsName(false);
             return;
         }
-        const address = await Lib.external.resolveOwner(
+        const address = await Lib.shared.ethersHelper.resolveOwner(
             state.connection.provider!,
             ensName,
         );
@@ -93,8 +94,8 @@ function ConfigView() {
         }
 
         if (
-            Lib.external.formatAddress(address) !==
-            Lib.external.formatAddress(state.connection.ethAddress!)
+            Lib.shared.ethersHelper.formatAddress(address) !==
+            Lib.shared.ethersHelper.formatAddress(state.connection.ethAddress!)
         ) {
             setIsValidEnsName(false);
             Lib.log("Ens name doesn't match the address");
@@ -108,21 +109,21 @@ function ConfigView() {
         setLoadingTopicName('dm3UserName');
         setError(undefined);
         try {
-            const signedProfile = await Lib.account.getUserProfile(
+            const signedProfile = await Lib.profile.getUserProfile(
                 state.connection,
                 state.connection.account!.ensName,
             );
 
-            await Lib.external.claimSubdomain(
+            await Lib.offchainResolverApi.claimSubdomain(
                 state.connection.account!,
                 process.env.REACT_APP_RESOLVER_BACKEND as string,
                 dm3UserEnsName! + Lib.GlobalConf.USER_ENS_SUBDOMAIN(),
                 signedProfile!,
             );
 
-            await Lib.external.createAlias(
+            await Lib.deliveryApi.createAlias(
                 state.connection.account!,
-                state.connection,
+                state.connection.provider!,
                 state.connection.account!.ensName,
                 dm3UserEnsName! + Lib.GlobalConf.USER_ENS_SUBDOMAIN(),
                 state.auth.currentSession!.token!,
@@ -144,21 +145,23 @@ function ConfigView() {
     };
 
     const submitProfileToMainnet = async () => {
-        const tx = await Lib.account.getPublishProfileOnchainTransaction(
+        const tx = await getPublishProfileOnchainTransaction(
             state.connection,
             ensName!,
         );
         if (tx) {
             setPublishButtonState(ButtonState.Loading);
 
-            await Lib.external.createAlias(
+            await Lib.deliveryApi.createAlias(
                 state.connection.account!,
-                state.connection,
+                state.connection.provider!,
                 state.connection.account!.ensName,
                 ensName!,
                 state.auth.currentSession!.token!,
             );
-            const response = await Lib.external.executeTransaction(tx);
+            const response = await Lib.shared.ethersHelper.executeTransaction(
+                tx,
+            );
             await response.wait();
 
             //Create alias

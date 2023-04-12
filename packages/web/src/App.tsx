@@ -14,9 +14,9 @@ function App() {
                 defaultContact="help.dm3.eth"
                 defaultServiceUrl={process.env.REACT_APP_DEFAULT_SERVICE}
                 showAlways={true}
-                connectionStateChange={(state) =>
-                    setShowLogo(state === ConnectionState.SignedIn)
-                }
+                // connectionStateChange={(state: ConnectionState) =>
+                //     setShowLogo(state === ConnectionState.SignedIn)
+                // }
             />
             <div className="logo">
                 {showLogo && (

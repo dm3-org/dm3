@@ -15,7 +15,7 @@ import { UserDbType } from '../reducers/UserDB';
 import { SelectedRightView, UiStateType } from '../reducers/UiState';
 
 interface UserInfoProps {
-    account: Lib.account.Account;
+    account: Lib.profile.Account;
 }
 
 interface EnsTextRecords {
@@ -45,11 +45,11 @@ function UserInfo(props: UserInfoProps) {
                 return;
             }
             const deliveryServiceProfile =
-                await Lib.delivery.getDeliveryServiceProfile(
+                await Lib.profile.getDeliveryServiceProfile(
                     //TODO Implement usage of all delivery services
                     //https://github.com/corpus-ventures/dm3/issues/330
                     state.connection.account.profile.deliveryServices[0],
-                    state.connection,
+                    state.connection.provider!,
                     async (url) => (await axios.get(url)).data,
                 );
 
@@ -65,7 +65,7 @@ function UserInfo(props: UserInfoProps) {
                 state.accounts.accountInfoView === AccountInfo.Contact) &&
             state.connection.provider
         ) {
-            return Lib.external.getDefaultEnsTextRecord(
+            return Lib.shared.ethersHelper.getDefaultEnsTextRecord(
                 state.connection.provider,
                 props.account.ensName,
             );

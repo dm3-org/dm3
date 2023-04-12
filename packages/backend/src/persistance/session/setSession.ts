@@ -5,7 +5,7 @@ import { getIdEnsName } from './getIdEnsName';
 export function setSession(redis: Redis) {
     return async (ensName: string, session: Lib.delivery.Session) => {
         const isValid = Lib.validateSchema(
-            Lib.delivery.schema.SessionSchema,
+            Lib.delivery.schema.Session,
             session,
         );
 
@@ -24,8 +24,8 @@ export function setAliasSession(redis: Redis) {
         await redis.set(
             RedisPrefix.Session +
                 'alias:' +
-                Lib.account.normalizeEnsName(aliasEnsName),
-            Lib.account.normalizeEnsName(ensName),
+                Lib.profile.normalizeEnsName(aliasEnsName),
+            Lib.profile.normalizeEnsName(ensName),
         );
     };
 }
