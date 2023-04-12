@@ -67,6 +67,7 @@ jobs:
             - name: Build Lib
               run: |
                   cd ../lib 
+                  yarn install
                   yarn build
             - name: Build
               run: yarn build
@@ -94,6 +95,7 @@ jobs:
             - name: Build Lib
               run: |
                   cd ../lib 
+                  yarn install
                   yarn build
             - name: Build
               run: yarn build

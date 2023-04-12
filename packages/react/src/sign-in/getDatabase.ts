@@ -3,6 +3,12 @@ import { ConnectionType } from '../reducers/Connection';
 import { GlobalState } from '../reducers/shared';
 import { getStorageFile } from './getStorageFile';
 import * as Lib from 'dm3-lib';
+import {
+    createKeyPairsFromSig,
+    getSessionFromStorage,
+    reAuth,
+    signIn,
+} from '../session';
 
 export async function getDatabase(
     profileExists: boolean,
@@ -14,7 +20,7 @@ export async function getDatabase(
     connectionState: Lib.web3provider.ConnectionState;
     db: Lib.storage.UserDB;
     deliveryServiceToken: string;
-    account?: Lib.account.Account;
+    account?: Lib.profile.Account;
 }> {
     return profileExists
         ? getExistingDatebase(storageLocation, storageToken, state, dispatch)
@@ -27,9 +33,9 @@ async function getExistingDatebase(
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
 ) {
-    const keys = await Lib.session.createKeyPairsFromSig(state.connection, 0);
+    const keys = await createKeyPairsFromSig(state.connection, 0);
 
-    const deliveryServiceToken = await Lib.session.reAuth(
+    const deliveryServiceToken = await reAuth(
         state.connection,
         keys.signingKeyPair.privateKey,
     );
@@ -50,7 +56,7 @@ async function getExistingDatebase(
         throw 'Sign in failed';
     }
     //The encrypted session file will now be decrypted, therefore the user has to sign the auth message again.
-    const { db, connectionState } = await Lib.session.getSessionFromStorage(
+    const { db, connectionState } = await getSessionFromStorage(
         storageFile,
         keys,
     );
@@ -62,8 +68,8 @@ async function createNewDatabase(state: GlobalState): Promise<{
     connectionState: Lib.web3provider.ConnectionState;
     db: Lib.storage.UserDB;
     deliveryServiceToken: string;
-    account: Lib.account.Account;
+    account: Lib.profile.Account;
 }> {
-    const signInData = await Lib.session.signIn(state.connection);
+    const signInData = await signIn(state.connection);
     return signInData;
 }

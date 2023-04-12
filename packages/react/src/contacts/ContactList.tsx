@@ -13,10 +13,8 @@ function ContactList() {
                   (contact) =>
                       !state.userDb?.hiddenContacts.find(
                           (hiddenContact) =>
-                              Lib.account.normalizeEnsName(
-                                  hiddenContact.ensName,
-                              ) ===
-                              Lib.account.normalizeEnsName(
+                              Lib.profile.normalizeEnsName(hiddenContact) ===
+                              Lib.profile.normalizeEnsName(
                                   contact.account.ensName,
                               ),
                       ),

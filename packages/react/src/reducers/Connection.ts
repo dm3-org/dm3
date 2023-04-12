@@ -18,7 +18,7 @@ export enum ConnectionType {
 type ConnectionPayload = {
     [ConnectionType.ChangeConnectionState]: Lib.web3provider.ConnectionState;
     [ConnectionType.ChangeSocket]: Socket<DefaultEventsMap, DefaultEventsMap>;
-    [ConnectionType.ChangeAccount]: Lib.account.Account;
+    [ConnectionType.ChangeAccount]: Lib.profile.Account;
     [ConnectionType.ChangeEthAddress]: string;
     [ConnectionType.ChangeProvider]: ethers.providers.JsonRpcProvider;
     [ConnectionType.ChangeStorageToken]: string | undefined;
@@ -52,6 +52,7 @@ export function connectionReducer(
             Lib.log(`[Connection] New socket`);
             return {
                 ...state,
+                //@ts-ignore
                 socket: action.payload,
             };
 
@@ -86,6 +87,7 @@ export function connectionReducer(
             Lib.log(`[Connection] Set provider`);
             return {
                 ...state,
+                //@ts-ignore
                 provider: action.payload,
             };
 

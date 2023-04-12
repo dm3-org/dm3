@@ -10,7 +10,7 @@ import { UiStateType } from '../reducers/UiState';
 import useTooltip from '../ui-shared/useTooltip';
 
 interface AccountNameHeaderProps {
-    account: Lib.account.Account;
+    account: Lib.profile.Account;
 }
 
 function AccountNameHeader(props: AccountNameHeaderProps) {
@@ -57,7 +57,7 @@ function AccountNameHeader(props: AccountNameHeaderProps) {
                                 }}
                                 ref={tooltipRef}
                             >
-                                {Lib.account.getAccountDisplayName(
+                                {Lib.profile.getAccountDisplayName(
                                     props.account.ensName,
                                     20,
                                 )}

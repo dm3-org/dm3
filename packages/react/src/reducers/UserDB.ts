@@ -49,7 +49,7 @@ export function userDbReducer(
 
             let hasChanged = false;
 
-            const contactEnsName = Lib.account.normalizeEnsName(
+            const contactEnsName = Lib.profile.normalizeEnsName(
                 container.envelop.message.metadata.from ===
                     connection.account!.ensName
                     ? container.envelop.message.metadata.to
@@ -120,7 +120,7 @@ export function userDbReducer(
 
             if (
                 state.conversations.has(
-                    Lib.account.normalizeEnsName(action.payload),
+                    Lib.profile.normalizeEnsName(action.payload),
                 )
             ) {
                 Lib.log(
@@ -234,8 +234,8 @@ export function userDbReducer(
                     ...state,
                     hiddenContacts: state.hiddenContacts.filter(
                         (contact) =>
-                            Lib.account.normalizeEnsName(contact.ensName) !==
-                            Lib.account.normalizeEnsName(action.payload),
+                            Lib.profile.normalizeEnsName(contact) !==
+                            Lib.profile.normalizeEnsName(action.payload),
                     ),
                     synced: false,
                     lastChangeTimestamp,

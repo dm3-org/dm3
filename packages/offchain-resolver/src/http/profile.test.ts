@@ -66,7 +66,7 @@ describe('Profile', () => {
             expect(body.error).to.equal('invalid schema');
         });
         it('Rejects invalid profile', async () => {
-            const profile: Lib.account.UserProfile = {
+            const profile: Lib.profile.UserProfile = {
                 publicSigningKey:
                     '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
                 publicEncryptionKey:
@@ -109,7 +109,7 @@ describe('Profile', () => {
         });
 
         it('Rejects if subdomain has already a profile', async () => {
-            const profile2: Lib.account.UserProfile = {
+            const profile2: Lib.profile.UserProfile = {
                 publicSigningKey: '',
                 publicEncryptionKey: '',
                 deliveryServices: [''],
@@ -279,7 +279,7 @@ describe('Profile', () => {
             expect(body.error).to.equal('invalid schema');
         });
         it('Rejects invalid profile', async () => {
-            const profile: Lib.account.UserProfile = {
+            const profile: Lib.profile.UserProfile = {
                 publicSigningKey:
                     '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
                 publicEncryptionKey:
@@ -304,7 +304,7 @@ describe('Profile', () => {
         });
 
         it('Rejects if subdomain has already a profile', async () => {
-            const profile2: Lib.account.UserProfile = {
+            const profile2: Lib.profile.UserProfile = {
                 publicSigningKey: '',
                 publicEncryptionKey: '',
                 deliveryServices: [''],
@@ -456,9 +456,9 @@ describe('Profile', () => {
 });
 
 const getSignedUserProfile = async (
-    overwriteProfile?: Lib.account.UserProfile,
+    overwriteProfile?: Lib.profile.UserProfile,
 ) => {
-    const profile: Lib.account.UserProfile = overwriteProfile ?? {
+    const profile: Lib.profile.UserProfile = overwriteProfile ?? {
         publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
         publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
         deliveryServices: [''],
@@ -466,7 +466,7 @@ const getSignedUserProfile = async (
 
     const wallet = hreEthers.Wallet.createRandom();
 
-    const createUserProfileMessage = Lib.account.getProfileCreationMessage(
+    const createUserProfileMessage = Lib.profile.getProfileCreationMessage(
         Lib.stringify(profile),
     );
     const signature = await wallet.signMessage(createUserProfileMessage);

@@ -4,20 +4,36 @@
     "main": "dist/index.js",
     "module": "dist-backend/index.js",
     "types": "dist/index.d.ts",
+    "private": true,
     "exports": {
         ".": {
             "import": "./dist/index.js",
-            "require": "./dist/index.js"
+            "require": "./dist/index.js"    
         },
         "./dist.backend": {
             "import": "./dist.backend/index.js",
             "require": "./dist.backend/index.js"
         }
     },
-    "dependencies": {
+    "workspaces": {
+        "packages": [
+            "packages/shared",
+            "packages/crypto",
+            "packages/profile",
+            "packages/messaging",
+            "packages/delivery",
+            "packages/storage",
+            "packages/delivery-api",
+            "packages/offchainResolver",
+            "packages/offchainResolver-api"
+        ]
+       
+    },
+    "dependencies": {   
+        "@types/libsodium-wrappers": "^0.7.10",
         "ajv": "^8.11.0",
         "axios": "^0.25.0",
-        "ethers": "^5.5.4",
+        "ethers": "5.7.2",
         "googleapis": "^100.0.0",
         "libsodium-wrappers": "^0.7.11",
         "query-string": "^7.1.1",
@@ -42,12 +58,12 @@
         "typescript": "^4.4.2"
     },
     "scripts": {
-        "build:schema": "sh ./schemas.sh",
-        "build": "yarn build:schema && tsc --declaration && tsc --declaration -p tsconfig.backend.json",
-        "test": "jest --coverage"
+        "build": "yarn workspaces run build && tsc --declaration && tsc --declaration -p tsconfig.backend.json",
+        "test": "yarn workspaces run test"
     },
     "files": [
         "dist",
         "dist.browser"
     ]
 }
+

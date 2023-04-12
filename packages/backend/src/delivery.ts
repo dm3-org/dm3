@@ -19,7 +19,7 @@ const syncAcknoledgmentBodySchema = {
     properties: {
         acknoledgments: {
             type: 'array',
-            items: Lib.delivery.schema.AcknoledgmentSchema,
+            items: Lib.delivery.schema.Acknoledgment,
         },
     },
     required: ['acknoledgments'],

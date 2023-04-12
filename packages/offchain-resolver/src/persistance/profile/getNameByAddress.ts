@@ -5,14 +5,16 @@ import { Redis } from '../getDatabase';
 export function getNameByAddress(redis: Redis) {
     return async (address: string) => {
         const isMember = await redis.exists(
-            ADDRESS_TO_NAME_KEY + Lib.external.formatAddress(address),
+            ADDRESS_TO_NAME_KEY +
+                Lib.shared.ethersHelper.formatAddress(address),
         );
         if (!isMember) {
             return null;
         }
 
         return await redis.get(
-            ADDRESS_TO_NAME_KEY + Lib.external.formatAddress(address),
+            ADDRESS_TO_NAME_KEY +
+                Lib.shared.ethersHelper.formatAddress(address),
         );
     };
 }

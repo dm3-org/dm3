@@ -101,8 +101,8 @@ export function onConnection(app: express.Application & WithLocals) {
 
             let idEnsName: string;
             let idContactEnsName: string;
-            const ensName = Lib.account.normalizeEnsName(data.ensName);
-            const contactEnsName = Lib.account.normalizeEnsName(
+            const ensName = Lib.profile.normalizeEnsName(data.ensName);
+            const contactEnsName = Lib.profile.normalizeEnsName(
                 data.contactEnsName,
             );
 

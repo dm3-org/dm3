@@ -1,0 +1,33 @@
+{
+    "name": "dm3-lib-shared",
+    "version": "0.1.1",
+    "main": "dist/index.js",
+    "module": "dist-backend/index.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "require": "./dist/index.js"
+        },
+        "./dist.backend": {
+            "import": "./dist.backend/index.js",
+            "require": "./dist.backend/index.js"
+        }
+    },
+    "dependencies": {
+        "@types/libsodium-wrappers": "^0.7.10",
+        "ethers": "5.7.2",
+        "libsodium-wrappers": "^0.7.10"
+    },
+    "devDependencies": {
+        "typescript": "^4.4.2"
+    },
+    "scripts": {
+        "build": " tsc --declaration && tsc --declaration -p tsconfig.backend.json",
+        "test": "echo 'no tests'"
+    },
+    "files": [
+        "dist",
+        "dist.backend"
+    ]
+}

@@ -11,7 +11,7 @@ export function syncAcknoledgment(redis: Redis) {
 
         await redis.hSet(
             redisKey,
-            Lib.account.normalizeEnsName(ensName),
+            Lib.profile.normalizeEnsName(ensName),
             lastMessagePull,
         );
 
