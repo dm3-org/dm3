@@ -4,6 +4,7 @@
         "packages": [
             "packages/lib",
             "packages/backend",
+            "packages/billboard-client",
             "packages/react",
             "packages/web",
             "packages/offchain-resolver"
