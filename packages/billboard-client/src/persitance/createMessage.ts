@@ -3,7 +3,6 @@ import { Redis, RedisPrefix } from './getDatabase';
 
 export function createMessage(redis: Redis) {
     return async (
-        conversationId: string,
         envelop: Lib.messaging.EncryptionEnvelop,
         createdAt: number = new Date().getTime(),
     ) => {
@@ -16,9 +15,12 @@ export function createMessage(redis: Redis) {
             throw Error('Invalid message');
         }
 
-        await redis.zAdd(RedisPrefix.Conversation + conversationId, {
-            score: createdAt,
-            value: Lib.stringify(envelop),
-        });
+        await redis.zAdd(
+            RedisPrefix.Conversation + envelop.metadata.signature,
+            {
+                score: createdAt,
+                value: Lib.stringify(envelop),
+            },
+        );
     };
 }

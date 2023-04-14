@@ -45,7 +45,6 @@ export async function getDatabase(
     _redis?: Redis,
 ): Promise<IDatabase> {
     const redis = _redis ?? (await getRedisClient(logger));
-
     return {
         createMessage: createMessage(redis),
     };
@@ -53,7 +52,6 @@ export async function getDatabase(
 
 export interface IDatabase {
     createMessage: (
-        conversationId: string,
         envelop: Lib.messaging.EncryptionEnvelop,
         createdAt?: number,
     ) => Promise<void>;
