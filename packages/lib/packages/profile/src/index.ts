@@ -11,13 +11,12 @@ export {
     PROFILE_RECORD_NAME,
     formatAddress,
 } from './Profile';
+export type { Account, ProfileKeys, GetResource } from './Profile';
 export type {
-    Account,
-    ProfileKeys,
     SignedUserProfile,
     UserProfile,
-    GetResource,
-} from './Profile';
+    DeliveryServiceProfile,
+} from './types';
 export * from './profileResolver';
 
 export type { ProfileExtension } from './profileExtension';
@@ -27,5 +26,4 @@ export {
     getDeliveryServiceClient,
     getDeliveryServiceProfile,
 } from './deliveryServiceProfile/Delivery';
-export type { DeliveryServiceProfile } from './deliveryServiceProfile/Delivery';
 export * from './profileKeys/createProfileKeys';

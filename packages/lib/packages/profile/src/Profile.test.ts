@@ -13,9 +13,8 @@ import {
     getBrowserStorageKey,
     getProfileCreationMessage,
     normalizeEnsName,
-    SignedUserProfile,
-    UserProfile,
 } from './Profile';
+import { SignedUserProfile, UserProfile } from './types';
 
 const getProfileData = async (): Promise<{
     address: string;
