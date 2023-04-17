@@ -57,16 +57,16 @@ const getProfileData = async (): Promise<{
 describe('Account', () => {
     describe('getAccountDisplayName', () => {
         test('get correct account display name', async () => {
-            expect(getAccountDisplayName('alice.eth')).toStrictEqual(
+            expect(getAccountDisplayName('alice.eth', 10)).toStrictEqual(
                 'alice.eth',
             );
 
-            expect(getAccountDisplayName('Alice.eth')).toStrictEqual(
+            expect(getAccountDisplayName('Alice.eth', 10)).toStrictEqual(
                 'alice.eth',
             );
 
-            expect(getAccountDisplayName('0x25a6....eth')).toStrictEqual(
-                '0x25a6....eth',
+            expect(getAccountDisplayName('0x25a6....eth', 10)).toStrictEqual(
+                '0x25....eth',
             );
         });
 
@@ -74,14 +74,14 @@ describe('Account', () => {
             expect(
                 getAccountDisplayName(
                     '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292.addr.dm3.eth',
-
+                    10,
                     true,
                 ),
-            ).toStrictEqual('0x25a6-.eth');
+            ).toStrictEqual('0x25-.eth');
         });
 
         test('get correct account display name for short account', async () => {
-            expect(getAccountDisplayName('alice.eth', true)).toStrictEqual(
+            expect(getAccountDisplayName('alice.eth', 10, true)).toStrictEqual(
                 'alice.eth',
             );
         });

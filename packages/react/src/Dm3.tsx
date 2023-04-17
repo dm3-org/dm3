@@ -22,6 +22,7 @@ import Help from './ui-shared/Help';
 import axios from 'axios';
 import { Contact } from './reducers/shared';
 import { submitMessage } from '../context/messageContext/submitMessage/submitMessage';
+import { ConnectionState } from '.';
 
 interface dm3Props {
     config: Config;
@@ -180,33 +181,9 @@ function dm3(props: dm3Props) {
         Lib.log('[getContacts]');
 
         return requestContacts(
-            connection,
-            state.auth.currentSession?.token!,
-            state.accounts.selectedContact,
-            (contact: Contact | undefined) =>
-                dispatch({
-                    type: AccountsType.SetSelectedContact,
-                    payload: contact,
-                }),
-            (contacts: Contact[]) =>
-                dispatch({ type: AccountsType.SetContacts, payload: contacts }),
-            state.userDb,
-            (id: string) =>
-                dispatch({
-                    type: UserDbType.createEmptyConversation,
-                    payload: id,
-                }),
-            (conversations) =>
-                conversations.forEach((conversation) =>
-                    dispatch({
-                        type: UserDbType.addMessage,
-                        payload: {
-                            container: conversation,
-                            connection: state.connection,
-                        },
-                    }),
-                ),
-            submitMessage,
+            state,
+            dispatch,
+
             props.config.defaultContact,
         );
     };
@@ -304,7 +281,11 @@ function dm3(props: dm3Props) {
             {(state.uiState.show || props.config.showAlways) && (
                 <div
                     className="filler"
-                    onClick={() => dispatch({ type: UiStateType.ToggleShow })}
+                    onClick={() =>
+                        dispatch({
+                            type: UiStateType.ToggleShow,
+                        })
+                    }
                 >
                     <div
                         className="container"

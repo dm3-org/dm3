@@ -4,6 +4,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import ContactListEntry from './ContractListEntry';
 import { GlobalContext } from '../GlobalContextProvider';
 import * as Lib from 'dm3-lib';
+import { GlobalState } from '../reducers/shared';
 
 function ContactList() {
     const { state } = useContext(GlobalContext);
@@ -13,7 +14,9 @@ function ContactList() {
                   (contact) =>
                       !state.userDb?.hiddenContacts.find(
                           (hiddenContact) =>
-                              Lib.profile.normalizeEnsName(hiddenContact) ===
+                              Lib.profile.normalizeEnsName(
+                                  hiddenContact.ensName,
+                              ) ===
                               Lib.profile.normalizeEnsName(
                                   contact.account.ensName,
                               ),

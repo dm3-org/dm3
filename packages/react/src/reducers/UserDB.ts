@@ -56,11 +56,12 @@ export function userDbReducer(
                     : container.envelop.message.metadata.from,
             );
 
-            const prevContainers = Lib.storage.getConversation(
-                contactEnsName,
-                [{ ensName: contactEnsName }],
-                state,
-            );
+            const prevContainers: Lib.storage.StorageEnvelopContainer[] =
+                Lib.storage.getConversation(
+                    contactEnsName,
+                    [{ ensName: contactEnsName }],
+                    state,
+                );
 
             if (!container.envelop.id) {
                 container.envelop.id = Lib.messaging.getId(container.envelop);
@@ -199,7 +200,8 @@ export function userDbReducer(
 
             if (
                 state.hiddenContacts.find(
-                    (contact) => contact === action.payload,
+                    (contact: { ensName: string; aka?: string }) =>
+                        contact === action.payload,
                 )
             ) {
                 Lib.log(`[DB] Contact ${action.payload} already hidden`);
@@ -234,7 +236,7 @@ export function userDbReducer(
                     ...state,
                     hiddenContacts: state.hiddenContacts.filter(
                         (contact) =>
-                            Lib.profile.normalizeEnsName(contact) !==
+                            Lib.profile.normalizeEnsName(contact.ensName) !==
                             Lib.profile.normalizeEnsName(action.payload),
                     ),
                     synced: false,
