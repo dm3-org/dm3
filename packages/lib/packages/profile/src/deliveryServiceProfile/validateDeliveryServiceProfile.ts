@@ -1,6 +1,6 @@
 import DeliveryServiceProfileSchema from '../schema/DeliveryServiceProfile.schema.json';
 import Ajv from 'ajv';
-import { DeliveryServiceProfile } from './Delivery';
+import { DeliveryServiceProfile } from '../types';
 
 export function validateDeliveryServiceProfile(
     deliveryServiceProfile: DeliveryServiceProfile,

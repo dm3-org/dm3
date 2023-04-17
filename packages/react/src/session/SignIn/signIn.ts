@@ -1,6 +1,6 @@
 import * as Lib from 'dm3-lib';
-import { createKeyPairsFromSig } from '..';
 import { signProfile } from './signProfile';
+import { createKeyPairsFromSig } from './signProfileKeyPair';
 
 const DEFAULT_NONCE = 0;
 
@@ -29,6 +29,7 @@ export async function signIn(
     //Create new profileKey pair.
     const profileKeys = await createKeyPairsFromSig(
         connection as Lib.Connection,
+        Lib.shared.ethersHelper.prersonalSign,
         nonce,
     );
 

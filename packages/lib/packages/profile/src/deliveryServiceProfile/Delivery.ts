@@ -5,7 +5,7 @@ import axios, {
     AxiosRequestConfig,
 } from 'axios';
 import { ethers } from 'ethers';
-import { GetResource, UserProfile } from '../Profile';
+import { GetResource } from '../Profile';
 import {
     ProfileResolver,
     LinkResolver,
@@ -13,12 +13,8 @@ import {
     JsonResolver,
 } from '../profileResolver';
 import { validateDeliveryServiceProfile } from './validateDeliveryServiceProfile';
+import { DeliveryServiceProfile, UserProfile } from '../types';
 
-export interface DeliveryServiceProfile {
-    publicSigningKey: string;
-    publicEncryptionKey: string;
-    url: string;
-}
 export async function getDeliveryServiceProfile(
     deliveryServiceEnsName: string,
     provider: ethers.providers.JsonRpcProvider,
