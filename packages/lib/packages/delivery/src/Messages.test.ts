@@ -469,9 +469,10 @@ describe('Messages', () => {
                         encryptedMessageHash: '',
                         signature: '',
                         encryptionScheme: 'x25519-chacha20-poly1305',
-                        deliveryInformation: stringify(
-                            testData.deliveryInformation,
-                        ),
+                        deliveryInformation: {
+                            from: 'alice.eth',
+                            to: 'bob.eth',
+                        },
                     },
                 }),
             );
@@ -552,9 +553,10 @@ describe('Messages', () => {
                     message: '',
                     metadata: {
                         encryptionScheme: 'x25519-chacha20-poly1305',
-                        deliveryInformation: stringify(
-                            testData.deliveryInformation,
-                        ),
+                        deliveryInformation: {
+                            from: 'alice.eth',
+                            to: 'bob.eth',
+                        },
                         version: '',
                         encryptedMessageHash: '',
                         signature: '',

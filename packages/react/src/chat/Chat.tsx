@@ -10,13 +10,13 @@ import {
     toggleWidget,
     Widget,
 } from 'react-chat-widget';
+import MessageStateView from './MessageStateView';
+import './Chat.css';
 import { GlobalContext } from '../GlobalContextProvider';
 import { UiStateType } from '../reducers/UiState';
 import { UserDbType } from '../reducers/UserDB';
 import './Chat.css';
 import InfoBox from './InfoBox';
-import MessageStateView from './MessageStateView';
-
 import StorageView from '../storage/StorageView';
 import { checkSignature } from '../utils/SigCheck';
 import { MessageContext } from '../../context/messageContext/MessageContext';
@@ -198,7 +198,9 @@ function Chat() {
                         );
                     }
                 },
-                state.accounts.contacts.map((contact) => contact.account),
+                state.accounts.contacts
+                    ? state.accounts.contacts.map((contact) => contact.account)
+                    : [],
             );
 
             if (!ignore && messages.length > 0) {

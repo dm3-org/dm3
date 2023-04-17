@@ -143,6 +143,11 @@ export async function incomingMessage(
 
     const envelopWithPostmark: EncryptionEnvelop = {
         ...envelop,
+        metadata: {
+            ...envelop.metadata,
+            //Alwaays store the encrypted metadata
+            deliveryInformation,
+        },
         postmark: stringify(
             await addPostmark(
                 envelop,

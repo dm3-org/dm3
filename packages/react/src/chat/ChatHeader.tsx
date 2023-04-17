@@ -31,7 +31,10 @@ function ChatHeader(props: ChatHeaderProps) {
         switch (state.accounts.accountInfoView) {
             case AccountInfo.Contact:
                 headerText = props.account
-                    ? Lib.profile.getAccountDisplayName(props.account.ensName)
+                    ? Lib.profile.getAccountDisplayName(
+                          props.account.ensName,
+                          35,
+                      )
                     : '';
                 break;
 

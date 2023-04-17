@@ -56,6 +56,23 @@ export default () => {
             }
         },
     );
+    router.get(
+        '/messages/incoming/:ensName',
+        async (req: express.Request & { app: WithLocals }, res, next) => {
+            try {
+                const incomingMessages =
+                    await req.app.locals.db.getIncomingMessages(
+                        req.params.ensName,
+                        //Fetch the last 10 messages per conversation
+                        //If we decide to add pagination for that endpoint we can pass this value as a param
+                        10,
+                    );
+                res.json(incomingMessages);
+            } catch (e) {
+                next(e);
+            }
+        },
+    );
 
     router.post('/messages/:ensName/pending', async (req, res, next) => {
         try {

@@ -8,6 +8,7 @@ export async function fetchAndStoreMessages(
     contact: string,
     userDb: Lib.storage.UserDB,
     storeMessages: (envelops: Lib.storage.StorageEnvelopContainer[]) => void,
+    contacts: Lib.profile.Account[],
 ): Promise<Lib.storage.StorageEnvelopContainer[]> {
     const profile = connection.account?.profile;
 
@@ -71,7 +72,7 @@ export async function fetchAndStoreMessages(
     storeMessages(envelops);
 
     //Return all messages from the conversation between the user and their contact
-    return Lib.storage.getConversation(contact, userDb);
+    return Lib.storage.getConversation(contact, contacts, userDb);
 }
 
 async function decryptMessages(
