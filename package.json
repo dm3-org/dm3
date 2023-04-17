@@ -30,7 +30,7 @@
     },
     "scripts": {
         "docker:up": "cd packages/backend && docker-compose up -d",
-        "build": "cd packages/lib/ && yarn build && cd ../react && yarn build && cd ../web && yarn build && cd ../backend && yarn build && cd ../offchain-resolver && yarn build",
+        "build": "yarn workspaces run build",
         "start": "cd packages/backend && yarn start",
         "resolver": "cd packages/offchain-resolver && yarn start",
         "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
