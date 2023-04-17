@@ -77,6 +77,7 @@ export async function getDatabase(
 export interface IDatabase {
     getIncomingMessages: (
         ensName: string,
+        limit: number,
     ) => Promise<Lib.messaging.EncryptionEnvelop[]>;
     getMessages: (
         conversionId: string,

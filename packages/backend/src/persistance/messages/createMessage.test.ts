@@ -82,6 +82,7 @@ describe('Create Message', () => {
 
         const incomingConversations = await db.getIncomingMessages(
             RECEIVER_ADDRESS,
+            10,
         );
 
         expect(incomingConversations.length).toBe(2);
