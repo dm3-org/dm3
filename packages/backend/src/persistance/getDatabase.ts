@@ -10,6 +10,7 @@ import { syncAcknoledgment } from './messages/syncAcknoledgment';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
+    IncomingConversations = 'incoming.conversations:',
     Sync = 'sync:',
     Session = 'session:',
     UserStorage = 'user.storage:',
@@ -52,6 +53,8 @@ export async function getDatabase(
     const redis = _redis ?? (await getRedisClient(logger));
 
     return {
+        //Messages
+        getIncomingMessages: Messages.getIncomingMessages(redis),
         getMessages: Messages.getMessages(redis),
         createMessage: Messages.createMessage(redis),
         deleteExpiredMessages: Messages.deleteExpiredMessages(redis),
@@ -72,6 +75,9 @@ export async function getDatabase(
 }
 
 export interface IDatabase {
+    getIncomingMessages: (
+        ensName: string,
+    ) => Promise<Lib.messaging.EncryptionEnvelop[]>;
     getMessages: (
         conversionId: string,
         offset: number,

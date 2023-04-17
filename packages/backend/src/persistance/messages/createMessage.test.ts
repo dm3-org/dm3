@@ -47,6 +47,45 @@ describe('Create Message', () => {
 
         expect(afterCreateMessages.length).toBe(1);
     });
+    it('Add a messages to incoming conversations set ', async () => {
+        const envelop: Lib.messaging.EncryptionEnvelop = {
+            message: '',
+            metadata: {
+                deliveryInformation: {
+                    to: RECEIVER_ADDRESS,
+                    from: SENDER_ADDRESS,
+                    deliveryInstruction: '',
+                },
+                signature: '',
+                encryptedMessageHash: '',
+                version: '',
+                encryptionScheme: 'x25519-chacha20-poly1305',
+            },
+        };
+
+        const firstMessageConversionId = SENDER_ADDRESS + RECEIVER_ADDRESS;
+        const secondMessageConversionId = RECEIVER_ADDRESS + RECEIVER_ADDRESS;
+
+        await db.createMessage(firstMessageConversionId, envelop);
+        await db.createMessage(secondMessageConversionId, {
+            ...envelop,
+            message: 'foo',
+            metadata: {
+                ...envelop.metadata,
+                deliveryInformation: {
+                    ...(envelop.metadata
+                        .deliveryInformation as Lib.messaging.DeliveryInformation),
+                    to: RECEIVER_ADDRESS,
+                },
+            },
+        });
+
+        const incomingConversations = await db.getIncomingMessages(
+            RECEIVER_ADDRESS,
+        );
+
+        expect(incomingConversations.length).toBe(2);
+    });
 
     it('Rejcts message with an invalid schema', async () => {
         const invalidMessage = {} as Lib.messaging.EncryptionEnvelop;

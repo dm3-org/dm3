@@ -20,5 +20,18 @@ export function createMessage(redis: Redis) {
             score: createdAt,
             value: Lib.stringify(envelop),
         });
+
+        /**
+         * add a redis set key = envelop.metadata.deliveryInformation.to and value = conversationId
+         */
+
+        await redis.zAdd(
+            RedisPrefix.IncomingConversations +
+                envelop.metadata.deliveryInformation.to,
+            {
+                score: createdAt,
+                value: conversationId,
+            },
+        );
     };
 }
