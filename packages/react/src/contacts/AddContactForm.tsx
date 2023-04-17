@@ -24,19 +24,35 @@ function AddContactForm(props: AddContactFormProps) {
 
     const add = async () => {
         const normalizedAccountName =
-            Lib.profile.normalizeEnsName(accountToAdd);
+            ethers.utils.isAddress(accountToAdd) &&
+            process.env.REACT_APP_ADDR_ENS_SUBDOMAIN
+                ? Lib.profile.normalizeEnsName(
+                      Lib.profile.formatAddress(accountToAdd) +
+                          process.env.REACT_APP_ADDR_ENS_SUBDOMAIN,
+                  )
+                : Lib.profile.normalizeEnsName(accountToAdd);
         try {
-            if (
-                state.userDb?.hiddenContacts.find(
-                    (contact) =>
-                        Lib.profile.normalizeEnsName(contact) ===
-                        normalizedAccountName,
-                )
-            ) {
-                dispatch({
-                    type: UserDbType.unhideContact,
-                    payload: normalizedAccountName,
-                });
+            const hiddenContact = state.userDb?.hiddenContacts.find(
+                (contact) =>
+                    Lib.profile.normalizeEnsName(contact.ensName) ===
+                    normalizedAccountName,
+            );
+
+            if (hiddenContact && state.accounts.contacts) {
+                if (!hiddenContact.aka) {
+                    dispatch({
+                        type: UserDbType.unhideContact,
+                        payload: normalizedAccountName,
+                    });
+                } else {
+                    dispatch({
+                        type: AccountsType.SetSelectedContact,
+                        payload: state.accounts.contacts.find(
+                            (contact) =>
+                                contact.account.ensName === hiddenContact.aka,
+                        ),
+                    });
+                }
             } else {
                 dispatch({
                     type: UserDbType.createEmptyConversation,
