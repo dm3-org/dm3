@@ -26,6 +26,7 @@
             "packages/delivery-api",
             "packages/offchainResolver",
             "packages/offchainResolver-api",
+            "packages/offchainResolver-backend",
             "packages/backend"
         ]
        

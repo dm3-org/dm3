@@ -1,5 +1,2 @@
 #!/bin/sh
-cd packages/lib/ && 
-yarn test --watchAll=false &&
-cd ../offchain-resolver/ && 
-yarn test:local
+cd packages/lib/ && yarn test 
