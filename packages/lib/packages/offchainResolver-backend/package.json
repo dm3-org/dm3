@@ -30,7 +30,7 @@
         "docker:up": "docker-compose up -d",
         "deploy:goerli": " hardhat run scripts/deploy.ts --network goerli",
         "deploy:mainnet": " hardhat run scripts/deploy.ts --network mainnet",
-        "start": "node dist/src/",
+        "start": "ts-node --transpile-only  ./src/index.ts",
         "test": " npm run docker:up && nyc hardhat test test/**test.ts src/**/**.test.ts  ",
         "test:local": "nyc hardhat test test/**test.ts src/**/**.test.ts ",
         "build": "tsc && cp ./config.yml ./dist/config.yml | true"
