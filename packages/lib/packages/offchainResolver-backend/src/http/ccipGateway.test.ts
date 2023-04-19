@@ -6,7 +6,8 @@ import {
 } from '@ethersproject/providers';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import bodyParser from 'body-parser';
-import * as Lib from 'dm3-lib/dist.backend';
+import { stringify } from 'dm3-lib-shared/dist.backend';
+import { encodeEnsName } from 'dm3-lib-offchain-resolver/dist.backend';
 import { BytesLike, Contract, ethers } from 'ethers';
 import { fetchJson, FetchJsonResponse, hexlify } from 'ethers/lib/utils';
 import express from 'express';
@@ -18,6 +19,11 @@ import { getDatabase, getRedisClient, Redis } from '../persistance/getDatabase';
 import { IDatabase } from '../persistance/IDatabase';
 import { ccipGateway } from './ccipGateway';
 import { profile } from './profile';
+import {
+    PROFILE_RECORD_NAME,
+    UserProfile,
+    getProfileCreationMessage,
+} from 'dm3-lib-profile/dist.backend';
 const { expect } = require('chai');
 
 describe('CCIP Gateway', () => {
@@ -145,7 +151,7 @@ describe('CCIP Gateway', () => {
 
                 expect(actualProfile).to.eql(
                     'data:application/json,' +
-                        Lib.stringify({
+                        stringify({
                             profile,
                             signature,
                         }),
@@ -181,7 +187,7 @@ describe('CCIP Gateway', () => {
 
                         //This always revers and throws the OffchainLookup Exceptions hence we need to catch it
                         await offchainResolver.resolve(
-                            Lib.offchainResolver.encodeEnsName('foo.dm3.eth'),
+                            encodeEnsName('foo.dm3.eth'),
                             textData,
                         );
                         return {
@@ -254,13 +260,11 @@ describe('CCIP Gateway', () => {
 
                 const resolver = await provider.getResolver('foo.dm3.eth');
 
-                const text = await resolver.getText(
-                    Lib.profile.PROFILE_RECORD_NAME,
-                );
+                const text = await resolver.getText(PROFILE_RECORD_NAME);
 
                 expect(text).to.eql(
                     'data:application/json,' +
-                        Lib.stringify({ signature, profile }),
+                        stringify({ signature, profile }),
                 );
             });
             it('Throws error if lookup went wrong', async () => {
@@ -434,10 +438,8 @@ describe('CCIP Gateway', () => {
     }
 });
 
-const getSignedUserProfile = async (
-    overwriteProfile?: Lib.profile.UserProfile,
-) => {
-    const profile: Lib.profile.UserProfile = overwriteProfile ?? {
+const getSignedUserProfile = async (overwriteProfile?: UserProfile) => {
+    const profile: UserProfile = overwriteProfile ?? {
         publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
         publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
         deliveryServices: [''],
@@ -445,8 +447,8 @@ const getSignedUserProfile = async (
 
     const wallet = ethers.Wallet.createRandom();
 
-    const createUserProfileMessage = Lib.profile.getProfileCreationMessage(
-        Lib.stringify(profile),
+    const createUserProfileMessage = getProfileCreationMessage(
+        stringify(profile),
     );
     const signature = await wallet.signMessage(createUserProfileMessage);
 
@@ -468,14 +470,11 @@ const resolveGateWayUrl = async (
     try {
         const textData = getResolverInterface().encodeFunctionData('text', [
             ethers.utils.namehash(ensName),
-            Lib.profile.PROFILE_RECORD_NAME,
+            PROFILE_RECORD_NAME,
         ]);
 
         //This always revers and throws the OffchainLookup Exceptions hence we need to catch it
-        await offchainResolver.resolve(
-            Lib.offchainResolver.encodeEnsName(ensName),
-            textData,
-        );
+        await offchainResolver.resolve(encodeEnsName(ensName), textData);
         return { gatewayUrl: '', callbackFunction: '', extraData: '' };
     } catch (err: any) {
         const { sender, urls, callData } = err.errorArgs;

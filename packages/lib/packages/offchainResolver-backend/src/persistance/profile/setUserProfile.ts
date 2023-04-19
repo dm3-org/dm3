@@ -1,4 +1,3 @@
-import * as Lib from 'dm3-lib/dist.backend';
 import { Redis } from '../getDatabase';
 import {
     ADDRESS_TO_PROFILE_KEY,
@@ -7,6 +6,12 @@ import {
     ADDRESS_TO_NAME_KEY,
 } from '.';
 import { ethers } from 'ethers';
+import {
+    SignedUserProfile,
+    normalizeEnsName,
+    schema,
+} from 'dm3-lib-profile/dist.backend';
+import { ethersHelper, validateSchema } from 'dm3-lib-shared/dist.backend';
 
 /**
  *
@@ -19,11 +24,11 @@ import { ethers } from 'ethers';
 export function setUserProfile(redis: Redis) {
     return async (
         name: string,
-        profile: Lib.profile.SignedUserProfile,
+        profile: SignedUserProfile,
         address: string,
     ) => {
-        const profileIsValid = Lib.validateSchema(
-            Lib.profile.schema.SignedUserProfile,
+        const profileIsValid = validateSchema(
+            schema.SignedUserProfile,
             profile,
         );
 
@@ -42,9 +47,8 @@ export function setUserProfile(redis: Redis) {
         await redis.set(ADDRESS_TO_PROFILE_KEY + address, nameHash);
         await redis.set(NAME_TO_ADDRESS_KEY + nameHash, address);
         await redis.set(
-            ADDRESS_TO_NAME_KEY +
-                Lib.shared.ethersHelper.formatAddress(address),
-            Lib.profile.normalizeEnsName(name),
+            ADDRESS_TO_NAME_KEY + ethersHelper.formatAddress(address),
+            normalizeEnsName(name),
         );
 
         return !!writeResult;

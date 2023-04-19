@@ -1,13 +1,13 @@
-import * as Lib from 'dm3-lib/dist.backend';
-import { Redis, getRedisClient, getDatabase } from '../getDatabase';
-import { IDatabase } from '../IDatabase';
-import { setUserProfile } from './setUserProfile';
+import { UserProfile } from 'dm3-lib-profile';
 import { ethers } from 'ethers';
-import { hasAddressProfile } from './hasAddressProfile';
 import winston from 'winston';
+import { setUserProfile } from '.';
+import { IDatabase } from '../IDatabase';
+import { getDatabase, getRedisClient, Redis } from './../getDatabase';
+import { getUserProfile } from './getUserProfile';
 const { expect } = require('chai');
 
-describe('hasAddressProfile', () => {
+describe('getUserProfile', () => {
     let redisClient: Redis;
     let db: IDatabase;
 
@@ -25,26 +25,25 @@ describe('hasAddressProfile', () => {
         await redisClient.flushDb();
         await redisClient.disconnect();
     });
-    it('Returns false if the requesting address has no profile created yet', async () => {
-        const { address } = ethers.Wallet.createRandom();
-        const hasProfile = await hasAddressProfile(redisClient)(address);
 
-        expect(hasProfile).to.equal(false);
+    it('Returns null if the name has no profile yet', async () => {
+        const profile = await getUserProfile(redisClient)('foo');
+        expect(profile).to.be.null;
     });
 
-    it('Returns true after a profile was created', async () => {
+    it('Returns the profile if a name has one', async () => {
         const name = 'foo.eth';
         const { address } = ethers.Wallet.createRandom();
 
-        const profile: Lib.profile.UserProfile = {
+        const profile: UserProfile = {
             publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
             publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
             deliveryServices: [''],
         };
 
         await setUserProfile(redisClient)(name, profile, address);
-        const hasProfile = await hasAddressProfile(redisClient)(address);
+        const retrivedProfile = await getUserProfile(redisClient)(name);
 
-        expect(hasProfile).to.equal(true);
+        expect(retrivedProfile).to.eql(profile);
     });
 });

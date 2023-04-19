@@ -1,7 +1,7 @@
+import { UserProfile } from 'dm3-lib-profile/dist.backend';
 import { getRedisClient, Redis, getDatabase } from '../getDatabase';
 import { IDatabase } from '../IDatabase';
 import { setUserProfile } from './setUserProfile';
-import * as Lib from 'dm3-lib/dist.backend';
 import { ethers } from 'ethers';
 import winston from 'winston';
 const { expect } = require('chai');
@@ -29,17 +29,13 @@ describe('setUserProfile', () => {
         const { address } = ethers.Wallet.createRandom();
 
         expect(
-            setUserProfile(redisClient)(
-                'foo.eth',
-                {} as Lib.profile.UserProfile,
-                address,
-            ),
+            setUserProfile(redisClient)('foo.eth', {} as UserProfile, address),
         ).rejectedWith(Error('Invalid user profile'));
     });
     it('Stores valid user profile', async () => {
         const { address } = ethers.Wallet.createRandom();
 
-        const profile: Lib.profile.UserProfile = {
+        const profile: UserProfile = {
             publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
             publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
             deliveryServices: [''],
@@ -56,7 +52,7 @@ describe('setUserProfile', () => {
     it('Rejects if a name already has profile attached', async () => {
         const { address } = ethers.Wallet.createRandom();
 
-        const profile: Lib.profile.UserProfile = {
+        const profile: UserProfile = {
             publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
             publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
             deliveryServices: [''],

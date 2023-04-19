@@ -1,7 +1,6 @@
+import { UserProfile } from 'dm3-lib-profile/dist.backend';
 import { ADDRESS_TO_PROFILE_KEY, getUserProfile, USER_PROFILE_KEY } from '.';
 import { Redis } from '../getDatabase';
-
-import * as Lib from 'dm3-lib/dist.backend';
 
 export function getUserProfileByAddress(redis: Redis) {
     return async (address: string) => {
@@ -19,6 +18,6 @@ export function getUserProfileByAddress(redis: Redis) {
             namehash,
         );
 
-        return JSON.parse(stringifiedUserProfile!) as Lib.profile.UserProfile;
+        return JSON.parse(stringifiedUserProfile!) as UserProfile;
     };
 }

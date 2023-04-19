@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import * as Lib from 'dm3-lib/dist.backend';
+import { UserProfile } from 'dm3-lib-profile/dist.backend';
 import { USER_PROFILE_KEY } from '.';
 import { Redis } from '../getDatabase';
 import { ethers } from 'ethers';
@@ -24,6 +24,6 @@ export function getUserProfile(redis: Redis) {
             nameHash,
         );
 
-        return JSON.parse(stringifiedUserProfile!) as Lib.profile.UserProfile;
+        return JSON.parse(stringifiedUserProfile!) as UserProfile;
     };
 }

@@ -1,7 +1,20 @@
-import * as Lib from 'dm3-lib/dist.backend';
+import { log, validateSchema } from 'dm3-lib-shared/dist.backend';
+import {
+    schema,
+    checkUserProfileWithAddress,
+} from 'dm3-lib-profile/dist.backend';
 import { ethers } from 'ethers';
 import express from 'express';
 import { WithLocals } from './types';
+
+//TODO create global config as a sub package
+export const ADDR_ENS_SUBDOMAIN = () => {
+    if (!process.env.REACT_APP_ADDR_ENS_SUBDOMAIN) {
+        throw Error('REACT_APP_ADDR_ENS_SUBDOMAIN not set');
+    }
+
+    return process.env.REACT_APP_ADDR_ENS_SUBDOMAIN;
+};
 
 export function profile(web3Provider: ethers.providers.BaseProvider) {
     const router = express.Router();
@@ -12,10 +25,10 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
                 const { signedUserProfile, name, ensName } = req.body;
-                Lib.log(`POST name ${name} `);
+                log(`POST name ${name} `);
 
-                const isSchemaValid = Lib.validateSchema(
-                    Lib.profile.schema.SignedUserProfile,
+                const isSchemaValid = validateSchema(
+                    schema.SignedUserProfile,
                     signedUserProfile,
                 );
 
@@ -34,7 +47,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     return res.status(400).send({ error: 'invalid schema' });
                 }
 
-                const profileIsValid = Lib.profile.checkUserProfileWithAddress(
+                const profileIsValid = checkUserProfileWithAddress(
                     signedUserProfile,
                     address,
                 );
@@ -110,8 +123,8 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
                 const { signedUserProfile, address } = req.body;
-                const isSchemaValid = Lib.validateSchema(
-                    Lib.profile.schema.SignedUserProfile,
+                const isSchemaValid = validateSchema(
+                    schema.SignedUserProfile,
                     signedUserProfile,
                 );
 
@@ -120,7 +133,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     return res.status(400).send({ error: 'invalid schema' });
                 }
 
-                const profileIsValid = Lib.profile.checkUserProfileWithAddress(
+                const profileIsValid = checkUserProfileWithAddress(
                     signedUserProfile,
                     address,
                 );
@@ -140,7 +153,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     });
                 }
 
-                const name = `${address}${Lib.GlobalConf.ADDR_ENS_SUBDOMAIN()}`;
+                const name = `${address}${ADDR_ENS_SUBDOMAIN()}`;
 
                 const profileExists = await req.app.locals.db.getUserProfile(
                     name,

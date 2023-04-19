@@ -1,13 +1,18 @@
 import bodyParser from 'body-parser';
+import {
+    getProfileCreationMessage,
+    UserProfile,
+} from 'dm3-lib-profile/dist.backend';
+import { stringify } from 'dm3-lib-shared/dist.backend';
+import { ethers } from 'ethers';
 import express from 'express';
 import { ethers as hreEthers } from 'hardhat';
 import request from 'supertest';
+import winston from 'winston';
 import { getDatabase, getRedisClient, Redis } from '../persistance/getDatabase';
 import { IDatabase } from '../persistance/IDatabase';
 import { profile } from './profile';
-import * as Lib from 'dm3-lib/dist.backend';
-import { ethers } from 'ethers';
-import winston from 'winston';
+
 const { expect } = require('chai');
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 
@@ -66,7 +71,7 @@ describe('Profile', () => {
             expect(body.error).to.equal('invalid schema');
         });
         it('Rejects invalid profile', async () => {
-            const profile: Lib.profile.UserProfile = {
+            const profile: UserProfile = {
                 publicSigningKey:
                     '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
                 publicEncryptionKey:
@@ -109,7 +114,7 @@ describe('Profile', () => {
         });
 
         it('Rejects if subdomain has already a profile', async () => {
-            const profile2: Lib.profile.UserProfile = {
+            const profile2: UserProfile = {
                 publicSigningKey: '',
                 publicEncryptionKey: '',
                 deliveryServices: [''],
@@ -279,7 +284,7 @@ describe('Profile', () => {
             expect(body.error).to.equal('invalid schema');
         });
         it('Rejects invalid profile', async () => {
-            const profile: Lib.profile.UserProfile = {
+            const profile: UserProfile = {
                 publicSigningKey:
                     '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
                 publicEncryptionKey:
@@ -304,7 +309,7 @@ describe('Profile', () => {
         });
 
         it('Rejects if subdomain has already a profile', async () => {
-            const profile2: Lib.profile.UserProfile = {
+            const profile2: UserProfile = {
                 publicSigningKey: '',
                 publicEncryptionKey: '',
                 deliveryServices: [''],
@@ -455,10 +460,8 @@ describe('Profile', () => {
     });
 });
 
-const getSignedUserProfile = async (
-    overwriteProfile?: Lib.profile.UserProfile,
-) => {
-    const profile: Lib.profile.UserProfile = overwriteProfile ?? {
+const getSignedUserProfile = async (overwriteProfile?: UserProfile) => {
+    const profile: UserProfile = overwriteProfile ?? {
         publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
         publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
         deliveryServices: [''],
@@ -466,8 +469,8 @@ const getSignedUserProfile = async (
 
     const wallet = hreEthers.Wallet.createRandom();
 
-    const createUserProfileMessage = Lib.profile.getProfileCreationMessage(
-        Lib.stringify(profile),
+    const createUserProfileMessage = getProfileCreationMessage(
+        stringify(profile),
     );
     const signature = await wallet.signMessage(createUserProfileMessage);
 

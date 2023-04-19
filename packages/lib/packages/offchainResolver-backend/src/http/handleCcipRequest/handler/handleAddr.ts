@@ -1,6 +1,5 @@
-import { IDatabase } from '../../../persistance/IDatabase';
-import express from 'express';
 import { ethers } from 'ethers';
+import { IDatabase } from '../../../persistance/IDatabase';
 
 export async function handleAddr(db: IDatabase, request: any) {
     const { name } = request;
