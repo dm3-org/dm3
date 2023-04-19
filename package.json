@@ -3,7 +3,6 @@
     "workspaces": {
         "packages": [
             "packages/lib",
-            "packages/backend",
             "packages/react",
             "packages/web",
             "packages/offchain-resolver"
@@ -29,9 +28,9 @@
         ]
     },
     "scripts": {
-        "docker:up": "cd packages/backend && docker-compose up -d",
-        "build": "cd packages/lib/ && yarn build && cd ../react && yarn build && cd ../web && yarn build && cd ../backend && yarn build && cd ../offchain-resolver && yarn build",
-        "start": "cd packages/backend && yarn start",
+        "docker:up": "cd packages/lib/packages/backend && docker-compose up -d",
+        "build": "cd packages/lib/ && yarn build && cd ../react && yarn build  && cd ../offchain-resolver && yarn build",
+        "start": "cd packages/lib/packages/backend && yarn start",
         "resolver": "cd packages/offchain-resolver && yarn start",
         "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
         "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",

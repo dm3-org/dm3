@@ -8,6 +8,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
 
     router.post(
         '/name',
+        //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
                 const { signedUserProfile, name, ensName } = req.body;
@@ -105,6 +106,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
     );
     router.post(
         '/address',
+        //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
                 const { signedUserProfile, address } = req.body;
@@ -166,6 +168,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
 
     router.get(
         '/:address',
+        //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res, next) => {
             const { address } = req.params;
             req.app.locals.logger.info(`POST addr ${address} `);
@@ -193,6 +196,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
 
     router.get(
         '/name/:address',
+        //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res) => {
             const { address } = req.params;
             req.app.locals.logger.info(`GET name for ${address} `);

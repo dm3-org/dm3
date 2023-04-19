@@ -1,6 +1,6 @@
 {
     "name": "dm3-lib-delivery",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "license": "MIT",
     "main": "dist/index.js",
     "module": "dist-backend/index.js",
@@ -47,7 +47,7 @@
   },
   "scripts": {
       "build:schema": "sh ./schemas.sh",
-      "build": "yarn build:schema && tsc --declaration ",
+      "build": "yarn build:schema && tsc --declaration && tsc --declaration -p tsconfig.backend.json ",
       "test": "jest --coverage"
   },
   "files": [

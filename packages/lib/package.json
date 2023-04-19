@@ -25,7 +25,8 @@
             "packages/storage",
             "packages/delivery-api",
             "packages/offchainResolver",
-            "packages/offchainResolver-api"
+            "packages/offchainResolver-api",
+            "packages/backend"
         ]
        
     },
