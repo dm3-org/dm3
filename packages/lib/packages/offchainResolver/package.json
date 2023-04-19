@@ -8,6 +8,10 @@
         ".": {
             "import": "./dist/index.js",
             "require": "./dist/index.js"
+        },
+        "./dist.backend": {
+            "import": "./dist.backend/index.js",
+            "require": "./dist.backend/index.js"
         }
     },
     "dependencies": {
@@ -28,7 +32,7 @@
         "typescript": "^4.4.2"
     },
     "scripts": {
-        "build": "tsc --declaration ",
+        "build": "tsc --declaration && tsc --declaration -p tsconfig.backend.json ",
         "test": "jest --coverage"
     },
     "files": [
