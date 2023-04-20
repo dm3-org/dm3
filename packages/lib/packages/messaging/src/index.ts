@@ -38,6 +38,6 @@ export async function createMessage(
 
     return {
         ...messgeWithoutSig,
-        signature: await sign(stringify(messgeWithoutSig), privateKey),
+        signature: await sign(privateKey, stringify(messgeWithoutSig)),
     };
 }
