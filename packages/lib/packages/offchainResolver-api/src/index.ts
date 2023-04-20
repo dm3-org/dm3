@@ -18,7 +18,7 @@ export async function claimSubdomain(
 ): Promise<boolean> {
     const { ensName } = checkAccount(account);
 
-    const url = `${offchainResolverUrl}/name`;
+    const url = `${offchainResolverUrl}/profile/name`;
     const data = {
         signedUserProfile,
         name,
@@ -34,7 +34,7 @@ export async function claimAddress(
     offchainResolverUrl: string,
     signedUserProfile: SignedUserProfile,
 ) {
-    const url = `${offchainResolverUrl}/address`;
+    const url = `${offchainResolverUrl}/profile/address`;
     const data = {
         signedUserProfile,
         address,

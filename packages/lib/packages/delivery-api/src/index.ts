@@ -13,7 +13,8 @@ import { ethers } from 'ethers';
 const PROFILE_PATH = process.env.REACT_APP_BACKEND + '/profile';
 const DELIVERY_PATH = process.env.REACT_APP_BACKEND + '/delivery';
 const AUTH_SERVICE_PATH = process.env.REACT_APP_BACKEND + '/auth';
-const PROFILE_BASE_URL = process.env.REACT_APP_PROFILE_BASE_URL;
+const OFFCHAIN_RESOLVER_PROFILE_PATH =
+    process.env.REACT_APP_RESOLVER_BACKEND + '/profile';
 
 function getAxiosConfig(token: string) {
     return {
@@ -36,7 +37,9 @@ function checkAccount(account: Account | undefined): Required<Account> {
 export async function getNameForAddress(
     address: string,
 ): Promise<string | undefined> {
-    const url = `${PROFILE_BASE_URL}/name/${formatAddress(address)}`;
+    const url = `${OFFCHAIN_RESOLVER_PROFILE_PATH}/name/${formatAddress(
+        address,
+    )}`;
     try {
         const { data } = await axios.get(url);
         return data.name;
