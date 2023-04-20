@@ -258,12 +258,11 @@ function Chat() {
             state.connection.account?.profile?.publicEncryptionKey
                 ? false
                 : true;
-
         const messageData = await Lib.messaging.createMessage(
             state.accounts.selectedContact.account.ensName,
             state.connection.account!.ensName,
             message,
-            userDb.keys.encryptionKeyPair.privateKey,
+            userDb.keys.signingKeyPair.privateKey,
         );
         const messageId = messageData.metadata.timestamp.toString();
         messageStates.set(messageId, Lib.messaging.MessageState.Created);
