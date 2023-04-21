@@ -1,4 +1,4 @@
-import { log, validateSchema } from 'dm3-lib-shared/dist.backend';
+import { globalConfig, log, validateSchema } from 'dm3-lib-shared/dist.backend';
 import {
     schema,
     checkUserProfileWithAddress,
@@ -6,15 +6,6 @@ import {
 import { ethers } from 'ethers';
 import express from 'express';
 import { WithLocals } from './types';
-
-//TODO create global config as a sub package
-export const ADDR_ENS_SUBDOMAIN = () => {
-    if (!process.env.REACT_APP_ADDR_ENS_SUBDOMAIN) {
-        throw Error('REACT_APP_ADDR_ENS_SUBDOMAIN not set');
-    }
-
-    return process.env.REACT_APP_ADDR_ENS_SUBDOMAIN;
-};
 
 export function profile(web3Provider: ethers.providers.BaseProvider) {
     const router = express.Router();
@@ -153,7 +144,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     });
                 }
 
-                const name = `${address}${ADDR_ENS_SUBDOMAIN()}`;
+                const name = `${address}${globalConfig.ADDR_ENS_SUBDOMAIN()}`;
 
                 const profileExists = await req.app.locals.db.getUserProfile(
                     name,
