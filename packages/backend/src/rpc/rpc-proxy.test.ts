@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import express from 'express';
 import request from 'supertest';
 import RpcProxy from './rpc-proxy';
-import { testData } from '../../../../../test-data/encrypted-envelops.test';
+import { testData } from '../../../../test-data/encrypted-envelops.test';
 
 import { createKeyPair } from 'dm3-lib-crypto/dist.backend';
 import { normalizeEnsName, UserProfile } from 'dm3-lib-profile/dist.backend';

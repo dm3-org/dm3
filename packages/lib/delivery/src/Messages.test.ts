@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from 'ethers';
-import { testData } from '../../../../../test-data/encrypted-envelops.test';
+import { testData } from '../../../../test-data/encrypted-envelops.test';
 import { normalizeEnsName, UserProfile } from 'dm3-lib-profile';
 import { decryptAsymmetric } from 'dm3-lib-crypto';
 import { EncryptionEnvelop } from 'dm3-lib-messaging';

@@ -1,7 +1,7 @@
 import express from 'express';
 import { Socket } from 'socket.io';
 import { onConnection } from './messaging';
-import { testData } from '../../../../test-data/encrypted-envelops.test';
+import { testData } from '../../../test-data/encrypted-envelops.test';
 import { WithLocals } from './types';
 import { Session } from 'dm3-lib-delivery/dist.backend';
 import { UserProfile } from 'dm3-lib-profile/dist.backend';

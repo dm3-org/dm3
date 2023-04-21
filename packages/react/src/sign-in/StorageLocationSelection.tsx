@@ -57,8 +57,7 @@ function StorageLocationSelection(props: StorageLocationSelectionProps) {
                                     readOnly
                                 />
                                 &nbsp;&nbsp;
-                                {
-                                 === 'File'
+                                {StorageLocation[key] === 'File'
                                     ? 'Browser / File Export'
                                     : StorageLocation[key]}{' '}
                                 {(StorageLocation[
@@ -77,17 +76,14 @@ function StorageLocationSelection(props: StorageLocationSelectionProps) {
             <div className="col-md-7 help-text">
                 Select storage location
                 <p className="explanation">
-                    {props.stroageLocation ===
-                        StorageLocation.File &&
+                    {props.stroageLocation === StorageLocation.File &&
                         'The messages and related data will be encrypted and stored on your local file system.' +
                             ' Every time you sign in the file must be uploaded.'}
-                    {props.stroageLocation ===
-                        StorageLocation.Web3Storage &&
+                    {props.stroageLocation === StorageLocation.Web3Storage &&
                         'The messages and related data will be encrypted and stored ' +
                             'using the decentral web3.storage service.' +
                             ' web3.storage is based on the IPFS protocol and ensures redudancy.'}
-                    {props.stroageLocation ===
-                        StorageLocation.dm3Storage &&
+                    {props.stroageLocation === StorageLocation.dm3Storage &&
                         'The messages and related data will be encrypted and stored ' +
                             'using the dm3 Storage Service.' +
                             ' The data can only be decrypted by the owner of the related Ethereum Account Key.'}
