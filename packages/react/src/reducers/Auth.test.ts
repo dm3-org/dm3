@@ -1,4 +1,4 @@
-import { authReducer, AuthSession, AuthStateType } from './Auth';
+import { authReducer, AuthStateType } from './Auth';
 
 describe('Accounts', () => {
     describe('Add New Session', () => {

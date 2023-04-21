@@ -1,42 +1,40 @@
-import React, { useContext, useEffect, useState } from 'react';
-import './SignIn.css';
-import * as Lib from 'dm3-lib';
-import StorageLocationSelection from './StorageLocationSelection';
-import TokenInput from './TokenInput';
-import { GlobalContext } from '../GlobalContextProvider';
-import ConnectButton from './ConnectButton';
-import ChooseFile from './ChooseFile';
-import StoreToken from './StoreToken';
-import GoogleConnect, { GoogleAuthState } from './GoogleConnect';
-import { ConnectionType } from '../reducers/Connection';
 import localforage from 'localforage';
+import { useContext, useEffect, useState } from 'react';
+import { GlobalContext } from '../GlobalContextProvider';
 import DarkLogo from '../logos/DarkLogo';
+import { ConnectionType } from '../reducers/Connection';
+import ConnectButton from './ConnectButton';
 import { signIn } from './Connectors';
-import { UserDbType } from '../reducers/UserDB';
+import { GoogleAuthState } from './GoogleConnect';
+import './SignIn.css';
+import { StorageLocation } from 'dm3-lib-storage';
+import { getBrowserStorageKey } from 'dm3-lib-profile';
+import { ConnectionState } from '../web3provider/Web3Provider';
 
 interface SignInProps {
     hideStorageSelection: boolean;
     miniSignIn: boolean;
-    defaultStorageLocation: Lib.storage.StorageLocation | undefined;
+    defaultStorageLocation: StorageLocation | undefined;
 }
 
 function SignIn(props: SignInProps) {
     const getStorageLocation = () => {
         const persistedStorageLocation = window.localStorage.getItem(
             'StorageLocation',
-        ) as Lib.storage.StorageLocation | null;
+        ) as StorageLocation | null;
 
         return (
             props.defaultStorageLocation ??
             persistedStorageLocation ??
-            Lib.storage.StorageLocation.File
+            StorageLocation.File
         );
     };
 
     const [dataFile, setDataFile] = useState<string | undefined>();
     const [token, setToken] = useState<string | undefined>();
-    const [storageLocation, setStorageLocation] =
-        useState<Lib.storage.StorageLocation>(getStorageLocation());
+    const [storageLocation, setStorageLocation] = useState<StorageLocation>(
+        getStorageLocation(),
+    );
     const [googleAuthState, setGoogleAuthState] = useState<GoogleAuthState>(
         GoogleAuthState.Ready,
     );
@@ -48,7 +46,7 @@ function SignIn(props: SignInProps) {
     const initToken = () => {
         if (
             state.uiState.proflieExists &&
-            storageLocation === Lib.storage.StorageLocation.Web3Storage
+            storageLocation === StorageLocation.Web3Storage
         ) {
             setToken(window.localStorage.getItem('StorageToken') as string);
         }
@@ -58,71 +56,69 @@ function SignIn(props: SignInProps) {
         const setAccountConntectReady = () =>
             dispatch({
                 type: ConnectionType.ChangeConnectionState,
-                payload: Lib.web3provider.ConnectionState.AccountConntectReady,
+                payload: ConnectionState.AccountConntectReady,
             });
 
         const setCollectingInfos = () =>
             dispatch({
                 type: ConnectionType.ChangeConnectionState,
-                payload: Lib.web3provider.ConnectionState.CollectingSignInData,
+                payload: ConnectionState.CollectingSignInData,
             });
 
         const browserDataFile =
             state.connection.account && state.uiState.browserStorageBackup
                 ? await localforage.getItem(
-                      Lib.profile.getBrowserStorageKey(
-                          state.connection.account.ensName,
-                      ),
+                      getBrowserStorageKey(state.connection.account.ensName),
                   )
                 : null;
 
         const isCollectingSignInData =
             state.connection.connectionState ===
-            Lib.web3provider.ConnectionState.CollectingSignInData;
+            ConnectionState.CollectingSignInData;
         const isSignInReady =
             state.connection.connectionState ===
-            Lib.web3provider.ConnectionState.SignInReady;
+            ConnectionState.SignInReady;
 
         if (
-            storageLocation === Lib.storage.StorageLocation.File &&
+            storageLocation === StorageLocation.File &&
             !state.uiState.proflieExists &&
             isCollectingSignInData
         ) {
             setAccountConntectReady();
         } else if (
             token &&
-            storageLocation === Lib.storage.StorageLocation.Web3Storage &&
+            storageLocation === StorageLocation.Web3Storage &&
             isCollectingSignInData
         ) {
             setAccountConntectReady();
         } else if (
-            storageLocation === Lib.storage.StorageLocation.File &&
+            storageLocation === StorageLocation.File &&
             state.uiState.proflieExists &&
             isCollectingSignInData &&
             (dataFile || browserDataFile)
         ) {
             setAccountConntectReady();
         } else if (
-            storageLocation === Lib.storage.StorageLocation.dm3Storage &&
+            storageLocation === StorageLocation.dm3Storage &&
             isCollectingSignInData
         ) {
             setAccountConntectReady();
         }
 
         if (
-            storageLocation === Lib.storage.StorageLocation.File &&
+            storageLocation === StorageLocation.File &&
             state.uiState.proflieExists &&
             isSignInReady
         ) {
             setAccountConntectReady();
         } else if (
             !token &&
-            storageLocation === Lib.storage.StorageLocation.Web3Storage &&
+            storageLocation === StorageLocation.Web3Storage &&
             isSignInReady
         ) {
             setCollectingInfos();
         } else if (
-            storageLocation === Lib.storage.StorageLocation.GoogleDrive &&
+            storageLocation === StorageLocation.GoogleDrive &&
             isSignInReady &&
             googleAuthState !== GoogleAuthState.Success
         ) {
@@ -159,7 +155,7 @@ function SignIn(props: SignInProps) {
     useEffect(() => {
         if (
             state.connection.connectionState ===
-                Lib.web3provider.ConnectionState.SignInReady &&
+                ConnectionState.SignInReady &&
             state.connection.ethAddress
         ) {
             signIn(storageLocation, token, state, dispatch);

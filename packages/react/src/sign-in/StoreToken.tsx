@@ -1,11 +1,11 @@
-import React, { useContext } from 'react';
-import './SignIn.css';
-import * as Lib from 'dm3-lib';
-import { connectionPhase } from './Phases';
+import { useContext } from 'react';
 import { GlobalContext } from '../GlobalContextProvider';
+import { connectionPhase } from './Phases';
+import './SignIn.css';
+import { StorageLocation } from 'dm3-lib-storage';
 
 interface StoreTokenProps {
-    storageLocation: Lib.storage.StorageLocation;
+    storageLocation: StorageLocation;
     storeApiToken: boolean;
     setStoreApiToken: (store: boolean) => void;
 }
@@ -14,7 +14,7 @@ function StoreToken(props: StoreTokenProps) {
     const { state } = useContext(GlobalContext);
     if (
         connectionPhase(state.connection.connectionState) ||
-        props.storageLocation !== Lib.storage.StorageLocation.Web3Storage
+        props.storageLocation !== StorageLocation.Web3Storage
     ) {
         return null;
     }

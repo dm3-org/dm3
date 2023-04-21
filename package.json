@@ -2,7 +2,17 @@
     "private": true,
     "workspaces": {
         "packages": [
-            "packages/lib",
+            "packages/lib/shared",
+            "packages/lib/crypto",
+            "packages/lib/profile",
+            "packages/lib/messaging",
+            "packages/lib/delivery",
+            "packages/lib/storage",
+            "packages/lib/delivery-api",
+            "packages/lib/offchainResolver",
+            "packages/lib/offchainResolver-api",
+            "packages/offchainResolver-backend",
+            "packages/backend",
             "packages/react",
             "packages/web",
             "packages/offchain-resolver"
@@ -29,7 +39,7 @@
     },
     "scripts": {
         "docker:up": "cd packages/lib/packages/backend && docker-compose up -d",
-        "build": "cd packages/lib/ && yarn build && cd ../react && yarn build",
+        "build": "yarn workspaces run build",
         "start": "cd packages/lib/packages/backend && yarn start",
         "resolver": "cd packages/offchain-resolver && yarn start",
         "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",

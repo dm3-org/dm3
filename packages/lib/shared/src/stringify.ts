@@ -1,6 +1,6 @@
-import safeStringify, { Replacer } from 'safe-stable-stringify';
+import safeStringify from 'safe-stable-stringify';
 
-export function stringify(value: any, replacer?: Replacer) {
+export function stringify(value: any) {
     const jsonString = safeStringify(value);
 
     if (typeof jsonString !== 'string') {

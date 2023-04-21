@@ -1,32 +1,21 @@
-import * as Lib from 'dm3-lib';
+import { ConnectionState } from '../web3provider/Web3Provider';
 
-export function showSignIn(
-    connectionState: Lib.web3provider.ConnectionState,
-): boolean {
+export function showSignIn(connectionState: ConnectionState): boolean {
     return (
-        connectionState ===
-            Lib.web3provider.ConnectionState.AccountConntectReady ||
-        connectionState === Lib.web3provider.ConnectionState.SignInReady ||
-        connectionState ===
-            Lib.web3provider.ConnectionState.CollectingSignInData ||
-        connectionState ===
-            Lib.web3provider.ConnectionState.WaitingForAccountConntection ||
-        connectionState === Lib.web3provider.ConnectionState.WaitingForSignIn ||
-        connectionState ===
-            Lib.web3provider.ConnectionState.ConnectionRejected ||
-        connectionState === Lib.web3provider.ConnectionState.SignInFailed
+        connectionState === ConnectionState.AccountConntectReady ||
+        connectionState === ConnectionState.SignInReady ||
+        connectionState === ConnectionState.CollectingSignInData ||
+        connectionState === ConnectionState.WaitingForAccountConntection ||
+        connectionState === ConnectionState.WaitingForSignIn ||
+        connectionState === ConnectionState.ConnectionRejected ||
+        connectionState === ConnectionState.SignInFailed
     );
 }
 
-export function connectionPhase(
-    connectionState: Lib.web3provider.ConnectionState,
-): boolean {
+export function connectionPhase(connectionState: ConnectionState): boolean {
     return (
-        connectionState ===
-            Lib.web3provider.ConnectionState.WaitingForAccountConntection ||
-        connectionState ===
-            Lib.web3provider.ConnectionState.ConnectionRejected ||
-        connectionState ===
-            Lib.web3provider.ConnectionState.AccountConntectReady
+        connectionState === ConnectionState.WaitingForAccountConntection ||
+        connectionState === ConnectionState.ConnectionRejected ||
+        connectionState === ConnectionState.AccountConntectReady
     );
 }

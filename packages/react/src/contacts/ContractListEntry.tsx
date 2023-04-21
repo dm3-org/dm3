@@ -1,16 +1,19 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import * as Lib from 'dm3-lib';
 import { GlobalContext } from '../GlobalContextProvider';
 import { AccountsType } from '../reducers/Accounts';
 import Avatar from '../ui-shared/Avatar';
 import { AccountInfo, Contact } from '../reducers/shared';
 import useTooltip from '../ui-shared/useTooltip';
+import { UserDB, getConversation } from 'dm3-lib-storage';
+import { MessageState } from 'dm3-lib-messaging';
+import { Connection } from '../web3provider/Web3Provider';
+import { getAccountDisplayName, normalizeEnsName } from 'dm3-lib-profile';
 
 interface ContactListProps {
     contact: Contact;
-    connection: Lib.Connection;
+    connection: Connection;
 }
 
 function ContactListEntry(props: ContactListProps) {
@@ -26,17 +29,16 @@ function ContactListEntry(props: ContactListProps) {
 
     useEffect(() => {
         if (state.accounts.contacts) {
-            const messages = Lib.storage.getConversation(
+            const messages = getConversation(
                 props.contact.account.ensName,
                 state.accounts.contacts.map((contact) => contact.account),
-                state.userDb as Lib.storage.UserDB,
+                state.userDb as UserDB,
             );
             const calcUnreadMessages = () => {
                 setUnreadMessages(
                     messages.filter(
                         (container) =>
-                            container.messageState ===
-                            Lib.messaging.MessageState.Send,
+                            container.messageState === MessageState.Send,
                     ).length,
                 );
             };
@@ -54,10 +56,8 @@ function ContactListEntry(props: ContactListProps) {
 
     const selected =
         state.accounts.selectedContact &&
-        Lib.profile.normalizeEnsName(props.contact.account.ensName) ===
-            Lib.profile.normalizeEnsName(
-                state.accounts.selectedContact?.account.ensName,
-            );
+        normalizeEnsName(props.contact.account.ensName) ===
+            normalizeEnsName(state.accounts.selectedContact?.account.ensName);
 
     return (
         <div
@@ -86,7 +86,7 @@ function ContactListEntry(props: ContactListProps) {
                 <div className="row">
                     <div className="col-12">
                         <strong>
-                            {Lib.profile.getAccountDisplayName(
+                            {getAccountDisplayName(
                                 props.contact.account.ensName,
                                 25,
                             )}

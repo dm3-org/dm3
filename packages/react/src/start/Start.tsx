@@ -1,10 +1,8 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { GlobalContext } from '../GlobalContextProvider';
 import { UiStateType } from '../reducers/UiState';
 
 import './Start.css';
-import WhiteLogo from '../assets/dm3_Signet_blue-white.svg';
-import GrayLogo from '../assets/dm3_Signet_blue-gray.svg';
 
 function Start() {
     const { state, dispatch } = useContext(GlobalContext);

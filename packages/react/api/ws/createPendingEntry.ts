@@ -1,7 +1,8 @@
-import * as Lib from 'dm3-lib';
+import { log } from 'dm3-lib-shared';
+import { Connection } from '../../src/web3provider/Web3Provider';
 
 export async function createPendingEntry(
-    connection: Lib.Connection,
+    connection: Connection,
     token: string,
     ensName: string,
     contactEnsName: string,
@@ -9,7 +10,7 @@ export async function createPendingEntry(
     onError: () => void,
 ): Promise<void> {
     if (connection.socket) {
-        Lib.log(`Create pending entry`);
+        log(`Create pending entry`);
         connection.socket.emit(
             'pendingMessage',
             {
@@ -19,10 +20,10 @@ export async function createPendingEntry(
             },
             (result: any) => {
                 if (result.response === 'success') {
-                    Lib.log(`- success`);
+                    log(`- success`);
                     onSuccess();
                 } else {
-                    Lib.log(`- error`);
+                    log(`- error`);
                     onError();
                 }
             },

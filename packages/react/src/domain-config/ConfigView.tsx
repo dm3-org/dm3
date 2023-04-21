@@ -1,11 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../GlobalContextProvider';
-import * as Lib from 'dm3-lib';
 import { ConnectionType } from '../reducers/Connection';
 import { ethers } from 'ethers';
 import StateButton, { ButtonState } from '../ui-shared/StateButton';
 import Icon from '../ui-shared/Icon';
 import { getPublishProfileOnchainTransaction } from './getPublishProfileOnchainTransaction';
+import { formatAddress, getUserProfile } from 'dm3-lib-profile';
+import { ethersHelper, globalConfig, log } from 'dm3-lib-shared';
+import { claimSubdomain } from 'dm3-lib-offchain-resolver-api';
+import { createAlias } from 'dm3-lib-delivery-api';
 
 function ConfigView() {
     const [addrEnsName, setAddrEnsName] = useState<string | undefined>();
@@ -31,7 +34,7 @@ function ConfigView() {
         if (
             state.connection.account?.ensName &&
             state.connection.account?.ensName.endsWith(
-                Lib.GlobalConf.USER_ENS_SUBDOMAIN(),
+                globalConfig.USER_ENS_SUBDOMAIN(),
             )
         ) {
             setExistingDm3UserEnsName(state.connection.account.ensName);
@@ -41,18 +44,17 @@ function ConfigView() {
     const getAddrEnsName = async () => {
         if (state.connection.ethAddress && state.connection.provider) {
             const address = await state.connection.provider.resolveName(
-                state.connection.ethAddress +
-                    Lib.GlobalConf.ADDR_ENS_SUBDOMAIN(),
+                state.connection.ethAddress + globalConfig.ADDR_ENS_SUBDOMAIN(),
             );
 
             if (
                 address &&
-                Lib.profile.formatAddress(address) ===
-                    Lib.profile.formatAddress(state.connection.ethAddress)
+                formatAddress(address) ===
+                    formatAddress(state.connection.ethAddress)
             ) {
                 setAddrEnsName(
                     state.connection.ethAddress +
-                        Lib.GlobalConf.ADDR_ENS_SUBDOMAIN(),
+                        globalConfig.ADDR_ENS_SUBDOMAIN(),
                 );
             }
         }
@@ -83,7 +85,7 @@ function ConfigView() {
             setIsValidEnsName(false);
             return;
         }
-        const address = await Lib.shared.ethersHelper.resolveOwner(
+        const address = await ethersHelper.resolveOwner(
             state.connection.provider!,
             ensName,
         );
@@ -94,11 +96,11 @@ function ConfigView() {
         }
 
         if (
-            Lib.shared.ethersHelper.formatAddress(address) !==
-            Lib.shared.ethersHelper.formatAddress(state.connection.ethAddress!)
+            ethersHelper.formatAddress(address) !==
+            ethersHelper.formatAddress(state.connection.ethAddress!)
         ) {
             setIsValidEnsName(false);
-            Lib.log("Ens name doesn't match the address");
+            log("Ens name doesn't match the address");
             return;
         }
 
@@ -109,23 +111,23 @@ function ConfigView() {
         setLoadingTopicName('dm3UserName');
         setError(undefined);
         try {
-            const signedProfile = await Lib.profile.getUserProfile(
+            const signedProfile = await getUserProfile(
                 state.connection,
                 state.connection.account!.ensName,
             );
 
-            await Lib.offchainResolverApi.claimSubdomain(
+            await claimSubdomain(
                 state.connection.account!,
                 process.env.REACT_APP_RESOLVER_BACKEND as string,
-                dm3UserEnsName! + Lib.GlobalConf.USER_ENS_SUBDOMAIN(),
+                dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN(),
                 signedProfile!,
             );
 
-            await Lib.deliveryApi.createAlias(
+            await createAlias(
                 state.connection.account!,
                 state.connection.provider!,
                 state.connection.account!.ensName,
-                dm3UserEnsName! + Lib.GlobalConf.USER_ENS_SUBDOMAIN(),
+                dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN(),
                 state.auth.currentSession!.token!,
             );
 
@@ -133,8 +135,7 @@ function ConfigView() {
                 type: ConnectionType.ChangeAccount,
                 payload: {
                     ...state.connection.account!,
-                    ensName:
-                        dm3UserEnsName + Lib.GlobalConf.USER_ENS_SUBDOMAIN(),
+                    ensName: dm3UserEnsName + globalConfig.USER_ENS_SUBDOMAIN(),
                 },
             });
             window.location.reload();
@@ -152,16 +153,14 @@ function ConfigView() {
         if (tx) {
             setPublishButtonState(ButtonState.Loading);
 
-            await Lib.deliveryApi.createAlias(
+            await createAlias(
                 state.connection.account!,
                 state.connection.provider!,
                 state.connection.account!.ensName,
                 ensName!,
                 state.auth.currentSession!.token!,
             );
-            const response = await Lib.shared.ethersHelper.executeTransaction(
-                tx,
-            );
+            const response = await ethersHelper.executeTransaction(tx);
             await response.wait();
 
             //Create alias
@@ -303,7 +302,7 @@ function ConfigView() {
                                 readOnly={!!existingDm3UserEnsName}
                             />
                             <span className="input-group-text">
-                                {Lib.GlobalConf.USER_ENS_SUBDOMAIN()}
+                                {globalConfig.USER_ENS_SUBDOMAIN()}
                             </span>
                             )
                         </div>

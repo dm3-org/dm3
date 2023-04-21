@@ -1,17 +1,18 @@
-import * as Lib from 'dm3-lib';
+import { StorageLocation } from 'dm3-lib-storage';
+import { ConnectionState } from '../web3provider/Web3Provider';
 
 export interface Config {
     defaultContact?: string;
     showContacts: boolean;
     inline: boolean;
-    defaultStorageLocation: Lib.storage.StorageLocation;
+    defaultStorageLocation: StorageLocation;
     hideStorageSelection: boolean;
     style: React.CSSProperties;
     defaultServiceUrl: string;
     showAlways: boolean;
     miniSignIn: boolean;
     connectionStateChange?: (
-        newState: Lib.web3provider.ConnectionState,
+        newState: ConnectionState,
     ) => void;
     warnBeforeLeave: boolean;
     browserStorageBackup: boolean;
@@ -22,7 +23,7 @@ const DefaultConfig: Config = {
     showContacts: true,
     inline: false,
     hideStorageSelection: false,
-    defaultStorageLocation: Lib.storage.StorageLocation.dm3Storage,
+    defaultStorageLocation: StorageLocation.dm3Storage,
     style: {},
     defaultServiceUrl: 'http://localhost:8080' as string,
     showAlways: false,

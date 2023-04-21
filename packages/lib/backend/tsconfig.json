@@ -13,9 +13,9 @@
         "moduleResolution": "node",
         "resolveJsonModule": true,
         "isolatedModules": true,
-        "outDir": "dist.backend",
+        "outDir": "../../backend/dist",
         "sourceMap": true
     },
-    "include": ["src"],
-    "exclude": ["src/**/*.test.ts"]
+    "include": ["../../backend/src"],
+    "exclude": ["../../backend/src/**/*.test.ts"]
 }

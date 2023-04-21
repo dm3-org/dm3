@@ -1,16 +1,15 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import 'react-chat-widget/lib/styles.css';
-import AccountNameHeader from '../contacts/AccountNameHeader';
-import ChatHeader from '../chat/ChatHeader';
-import * as Lib from 'dm3-lib';
-import './Header.css';
 import { GlobalContext } from '../GlobalContextProvider';
+import AccountNameHeader from '../contacts/AccountNameHeader';
+import './Header.css';
+import { ConnectionState } from '../web3provider/Web3Provider';
 
 function LeftHeader() {
     const { state } = useContext(GlobalContext);
 
     return state.connection.connectionState !==
-        Lib.web3provider.ConnectionState.SignedIn ? null : (
+       ConnectionState.SignedIn ? null : (
         <div className="ps-3 header-row-left w-100 top-left-radius pe-3">
             <div
                 className={

@@ -1,17 +1,16 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import 'react-chat-widget/lib/styles.css';
-import AccountNameHeader from '../contacts/AccountNameHeader';
-import ChatHeader from '../chat/ChatHeader';
-import * as Lib from 'dm3-lib';
-import './Header.css';
 import { GlobalContext } from '../GlobalContextProvider';
+import ChatHeader from '../chat/ChatHeader';
+import './Header.css';
+import { ConnectionState } from '../web3provider/Web3Provider';
 
 function RightHeader() {
     const { state } = useContext(GlobalContext);
 
     if (
         state.connection.connectionState !==
-        Lib.web3provider.ConnectionState.SignedIn
+        ConnectionState.SignedIn
     ) {
         return (
             <div className="row header-row-right">
@@ -36,7 +35,7 @@ function RightHeader() {
                 }
             >
                 {state.connection?.connectionState ===
-                    Lib.web3provider.ConnectionState.SignedIn && (
+                    ConnectionState.SignedIn && (
                     <ChatHeader
                         account={state.accounts.selectedContact?.account}
                     />

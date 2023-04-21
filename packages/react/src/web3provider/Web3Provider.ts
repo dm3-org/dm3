@@ -1,8 +1,8 @@
 import { ethers } from 'ethers';
 import { Socket } from 'socket.io-client';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
-import { StorageLocation } from '../storage/src/Storage';
-import { Account } from '../profile/src/Profile';
+import { StorageLocation } from 'dm3-lib-storage';
+import { Account } from 'dm3-lib-profile';
 
 export enum ConnectionState {
     CollectingSignInData,

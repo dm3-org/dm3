@@ -1,8 +1,10 @@
-import * as Lib from 'dm3-lib';
+import { SignedUserProfile } from 'dm3-lib-profile';
+import { ethersHelper, stringify } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
+import { Connection } from '../web3provider/Web3Provider';
 
 export async function getPublishProfileOnchainTransaction(
-    connection: Lib.Connection,
+    connection: Connection,
     ensName: string,
 ) {
     if (!connection.provider) {
@@ -18,7 +20,7 @@ export async function getPublishProfileOnchainTransaction(
         throw Error('No signature');
     }
 
-    const ethersResolver = await Lib.shared.ethersHelper.getResolver(
+    const ethersResolver = await ethersHelper.getResolver(
         connection.provider,
         ensName,
     );
@@ -26,7 +28,7 @@ export async function getPublishProfileOnchainTransaction(
         throw Error('No resolver found');
     }
 
-    const resolver = Lib.shared.ethersHelper.getConractInstance(
+    const resolver = ethersHelper.getConractInstance(
         ethersResolver.address,
         [
             'function setText(bytes32 node, string calldata key, string calldata value) external',
@@ -34,7 +36,7 @@ export async function getPublishProfileOnchainTransaction(
         connection.provider,
     );
 
-    const signedUserProfile: Lib.profile.SignedUserProfile = {
+    const signedUserProfile: SignedUserProfile = {
         profile: connection.account.profile,
         signature: connection.account.profileSignature,
     };
@@ -42,7 +44,7 @@ export async function getPublishProfileOnchainTransaction(
 
     const jsonPrefix = 'data:application/json,';
     const key = 'network.dm3.profile';
-    const value = jsonPrefix + Lib.stringify(signedUserProfile);
+    const value = jsonPrefix + stringify(signedUserProfile);
 
     return {
         method: resolver.setText,

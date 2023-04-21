@@ -1,11 +1,11 @@
 import React, { Dispatch } from 'react';
-import { ConnectionActions, connectionReducer } from './reducers/Connection';
 import { AccountsActions, accountsReducer } from './reducers/Accounts';
-import { GlobalState, initialState } from './reducers/shared';
-import { UserDbActions, userDbReducer } from './reducers/UserDB';
-import { UiStateActions, uiStateReducer } from './reducers/UiState';
+import { AuthStateActions, authReducer } from './reducers/Auth';
 import { CacheActions, cacheReducer } from './reducers/Cache';
-import { authReducer, AuthStateActions } from './reducers/Auth';
+import { ConnectionActions, connectionReducer } from './reducers/Connection';
+import { UiStateActions, uiStateReducer } from './reducers/UiState';
+import { UserDbActions, userDbReducer } from './reducers/UserDB';
+import { GlobalState, initialState } from './reducers/shared';
 
 export type Actions =
     | ConnectionActions

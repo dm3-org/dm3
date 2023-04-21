@@ -1,6 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
 
-import Logo from '../assets/dm3_Signet_blue-white.svg';
 import './DarkLogo.css';
 
 interface DarkLogoProps {

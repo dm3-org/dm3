@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 import './SignIn.css';
-import * as Lib from 'dm3-lib';
 import { GlobalContext } from '../GlobalContextProvider';
+import { StorageLocation } from 'dm3-lib-storage';
 
 interface ChooseFileProps {
-    storageLocation: Lib.storage.StorageLocation;
+    storageLocation: StorageLocation;
     setDataFile: (dataFile: string | undefined) => void;
 }
 
@@ -26,7 +26,7 @@ function ChooseFile(props: ChooseFileProps) {
     if (
         !(
             state.uiState.proflieExists &&
-            props.storageLocation === Lib.storage.StorageLocation.File
+            props.storageLocation === StorageLocation.File
         )
     ) {
         return null;

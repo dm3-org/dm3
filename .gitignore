@@ -44,3 +44,6 @@ schema
 
 #
 .vscode/**
+
+packages/lib/**/dist.backend
+packages/lib/**/dist

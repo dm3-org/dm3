@@ -1,10 +1,9 @@
-import React, { useContext, useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import ContactListEntry from './ContractListEntry';
+import { normalizeEnsName } from 'dm3-lib-profile';
+import { useContext } from 'react';
 import { GlobalContext } from '../GlobalContextProvider';
-import * as Lib from 'dm3-lib';
-import { GlobalState } from '../reducers/shared';
+import ContactListEntry from './ContractListEntry';
 
 function ContactList() {
     const { state } = useContext(GlobalContext);
@@ -14,10 +13,10 @@ function ContactList() {
                   (contact) =>
                       !state.userDb?.hiddenContacts.find(
                           (hiddenContact) =>
-                              Lib.profile.normalizeEnsName(
+                              normalizeEnsName(
                                   hiddenContact.ensName,
                               ) ===
-                              Lib.profile.normalizeEnsName(
+                              normalizeEnsName(
                                   contact.account.ensName,
                               ),
                       ),

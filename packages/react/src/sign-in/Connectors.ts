@@ -1,4 +1,3 @@
-import * as Lib from 'dm3-lib';
 import { Actions } from '../GlobalContextProvider';
 import { ConnectionType } from '../reducers/Connection';
 import { GlobalState } from '../reducers/shared';
@@ -12,11 +11,15 @@ import { UserDbType } from '../reducers/UserDB';
 import { AuthStateType } from '../reducers/Auth';
 import { getDatabase } from './getDatabase';
 import { connectEthAccount } from '../session/Connect';
+import { ethersHelper, log } from 'dm3-lib-shared';
+import { getBrowserStorageKey } from 'dm3-lib-profile';
+import { StorageLocation } from 'dm3-lib-storage';
+import { ConnectionState, getWeb3Provider } from '../web3provider/Web3Provider';
 
 function handleNewProvider(
     creationsResult: {
         provider?: ethers.providers.Web3Provider | undefined;
-        connectionState: Lib.web3provider.ConnectionState;
+        connectionState: ConnectionState;
     },
     dispatch: React.Dispatch<Actions>,
 ) {
@@ -33,17 +36,14 @@ function handleNewProvider(
     });
 
     if (
-        creationsResult.connectionState !==
-        Lib.web3provider.ConnectionState.AccountConntectReady
+        creationsResult.connectionState !== ConnectionState.AccountConntectReady
     ) {
         throw Error('Could not connect to MetaMask');
     }
 }
 
 export async function getMetaMaskProvider(dispatch: React.Dispatch<Actions>) {
-    const web3Provider = await Lib.web3provider.getWeb3Provider(
-        await detectEthereumProvider(),
-    );
+    const web3Provider = await getWeb3Provider(await detectEthereumProvider());
 
     handleNewProvider(web3Provider, dispatch);
 }
@@ -55,12 +55,12 @@ export async function connectAccount(
 ) {
     dispatch({
         type: ConnectionType.ChangeConnectionState,
-        payload: Lib.web3provider.ConnectionState.WaitingForAccountConntection,
+        payload: ConnectionState.WaitingForAccountConntection,
     });
 
     const accountConnection = await connectEthAccount(
         state.connection,
-        Lib.shared.ethersHelper.requestAccounts,
+        ethersHelper.requestAccounts,
         preSetAccount,
     );
 
@@ -68,14 +68,14 @@ export async function connectAccount(
         type: UiStateType.SetProfileExists,
         payload: accountConnection.existingAccount,
     });
-    Lib.log(
+    log(
         accountConnection.existingAccount
             ? '[Connection] connected to existing profile'
             : '[Connection] connected to new profile',
     );
     if (accountConnection.account && !accountConnection.existingAccount) {
         await localforage.removeItem(
-            Lib.profile.getBrowserStorageKey(accountConnection.account),
+            getBrowserStorageKey(accountConnection.account),
         );
     }
 
@@ -108,14 +108,14 @@ export async function connectAccount(
 }
 
 export async function signIn(
-    storageLocation: Lib.storage.StorageLocation,
+    storageLocation: StorageLocation,
     storageToken: string | undefined,
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
 ) {
     dispatch({
         type: ConnectionType.ChangeConnectionState,
-        payload: Lib.web3provider.ConnectionState.WaitingForSignIn,
+        payload: ConnectionState.WaitingForSignIn,
     });
 
     // Get the users DB. Based wether the profile already exits the db

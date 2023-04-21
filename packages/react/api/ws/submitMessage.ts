@@ -1,9 +1,11 @@
-import * as Lib from 'dm3-lib';
+import { Envelop, EncryptionEnvelop } from "dm3-lib-messaging";
+import { log } from "dm3-lib-shared";
+import { Connection } from "../../src/web3provider/Web3Provider";
 
 export async function sendMessage(
-    connection: Lib.Connection,
+    connection: Connection,
     token: string,
-    envelop: Lib.messaging.Envelop | Lib.messaging.EncryptionEnvelop,
+    envelop: Envelop | EncryptionEnvelop,
     onSuccess: () => void,
     onError: () => void,
 ): Promise<void> {
@@ -18,10 +20,10 @@ export async function sendMessage(
         },
         (result: any) => {
             if (result.response === 'success') {
-                Lib.log(`- success`);
+                log(`- success`);
                 onSuccess();
             } else {
-                Lib.log(`- error`);
+                log(`- error`);
                 onError();
             }
         },

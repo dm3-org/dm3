@@ -1,9 +1,11 @@
-import * as Lib from 'dm3-lib';
+import { sign } from 'dm3-lib-crypto';
+import { GetChallenge, GetNewToken } from 'dm3-lib-delivery-api';
+import { Connection } from '../web3provider/Web3Provider';
 
 export async function reAuth(
-    connection: Lib.Connection,
-    getChallenge: Lib.deliveryApi.GetChallenge,
-    getNewToken: Lib.deliveryApi.GetNewToken,
+    connection: Connection,
+    getChallenge: GetChallenge,
+    getNewToken: GetNewToken,
     privateSigningKey: string,
 ): Promise<string> {
     if (!connection.account) {
@@ -18,7 +20,7 @@ export async function reAuth(
         connection.account,
         connection.provider,
     );
-    const signature = await Lib.crypto.sign(privateSigningKey, challenge);
+    const signature = await sign(privateSigningKey, challenge);
 
     return getNewToken(connection.account, connection.provider, signature);
 }

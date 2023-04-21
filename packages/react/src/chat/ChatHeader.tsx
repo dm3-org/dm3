@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import Icon from '../ui-shared/Icon';
-import * as Lib from 'dm3-lib';
 import { GlobalContext } from '../GlobalContextProvider';
 import Avatar from '../ui-shared/Avatar';
 import { AccountsType } from '../reducers/Accounts';
@@ -8,9 +7,10 @@ import { AccountInfo } from '../reducers/shared';
 import { SelectedRightView, UiStateType } from '../reducers/UiState';
 import './Chat.css';
 import useTooltip from '../ui-shared/useTooltip';
+import { Account, getAccountDisplayName } from 'dm3-lib-profile';
 
 interface ChatHeaderProps {
-    account: Lib.profile.Account | undefined;
+    account: Account | undefined;
 }
 
 function ChatHeader(props: ChatHeaderProps) {
@@ -31,10 +31,7 @@ function ChatHeader(props: ChatHeaderProps) {
         switch (state.accounts.accountInfoView) {
             case AccountInfo.Contact:
                 headerText = props.account
-                    ? Lib.profile.getAccountDisplayName(
-                          props.account.ensName,
-                          35,
-                      )
+                    ? getAccountDisplayName(props.account.ensName, 35)
                     : '';
                 break;
 
@@ -165,7 +162,7 @@ function ChatHeader(props: ChatHeaderProps) {
                                     }
                                     ref={tooltipRef}
                                 >
-                                    {Lib.profile.getAccountDisplayName(
+                                    {getAccountDisplayName(
                                         props.account.ensName,
                                         35,
                                     )}

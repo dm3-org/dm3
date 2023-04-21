@@ -1,5 +1,6 @@
-import * as Lib from 'dm3-lib';
-import { ActionMap, GlobalState } from './shared';
+import { log } from 'dm3-lib-shared';
+import { ActionMap } from './shared';
+import { formatAddress } from 'dm3-lib-profile';
 
 export interface Cache {
     abis: Map<string, string>;
@@ -27,7 +28,7 @@ export function cacheReducer(state: Cache, action: CacheActions): Cache {
                 return state;
             }
 
-            Lib.log(
+            log(
                 `[Cache] Add avatar url ${action.payload.url} for ${action.payload.ensName}`,
             );
 
@@ -42,11 +43,11 @@ export function cacheReducer(state: Cache, action: CacheActions): Cache {
             const abis = new Map<string, string>(state.abis);
 
             action.payload.forEach((abiContainer) => {
-                const address = Lib.profile.formatAddress(abiContainer.address);
+                const address = formatAddress(abiContainer.address);
                 if (state.abis.has(address)) {
-                    Lib.log(`[Cache] ABI for ${address} already in cache`);
+                    log(`[Cache] ABI for ${address} already in cache`);
                 } else {
-                    Lib.log(`[Cache] Adding ABI for ${address}`);
+                    log(`[Cache] Adding ABI for ${address}`);
                     abis.set(address, abiContainer.abi);
                 }
             });

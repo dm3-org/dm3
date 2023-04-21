@@ -1,5 +1,5 @@
+import { log } from 'dm3-lib-shared';
 import { ActionMap } from './shared';
-import * as Lib from 'dm3-lib';
 
 export enum SelectedRightView {
     Error,
@@ -49,7 +49,7 @@ export function uiStateReducer(
             if (state.showAddContact === action.payload) {
                 return state;
             } else {
-                Lib.log(`[UI] Set show add contact form ${action.payload}`);
+                log(`[UI] Set show add contact form ${action.payload}`);
                 return {
                     ...state,
                     showAddContact: action.payload,
@@ -60,7 +60,7 @@ export function uiStateReducer(
             if (state.selectedRightView === action.payload) {
                 return state;
             } else {
-                Lib.log(`[UI] Change right view to ${action.payload}`);
+                log(`[UI] Change right view to ${action.payload}`);
                 return {
                     ...state,
                     selectedRightView: action.payload,
@@ -68,35 +68,35 @@ export function uiStateReducer(
             }
 
         case UiStateType.SetMaxLeftView:
-            Lib.log(`[UI] maxLeftView: ${action.payload}`);
+            log(`[UI] maxLeftView: ${action.payload}`);
             return {
                 ...state,
                 maxLeftView: action.payload,
             };
 
         case UiStateType.ToggleShow:
-            Lib.log(`[UI] toggle show`);
+            log(`[UI] toggle show`);
             return {
                 ...state,
                 show: !state.show,
             };
 
         case UiStateType.SetLastMessagePull:
-            Lib.log(`[UI] set timestamp of last message pull`);
+            log(`[UI] set timestamp of last message pull`);
             return {
                 ...state,
                 lastMessagePull: action.payload,
             };
 
         case UiStateType.SetProfileExists:
-            Lib.log(`[UI] set profile exists to ${action.payload}`);
+            log(`[UI] set profile exists to ${action.payload}`);
             return {
                 ...state,
                 proflieExists: action.payload,
             };
 
         case UiStateType.SetBrowserStorageBackup:
-            Lib.log(
+            log(
                 `[UI] set create browser storage backups to ${action.payload}`,
             );
             return {

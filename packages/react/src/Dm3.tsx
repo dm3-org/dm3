@@ -1,28 +1,29 @@
-import React, { useEffect, useContext, useState } from 'react';
-import './Dm3.css';
-import 'react-chat-widget/lib/styles.css';
-import socketIOClient from 'socket.io-client';
-import * as Lib from 'dm3-lib';
-import { requestContacts } from './ui-shared/contacts/RequestContacts';
-import LeftView from './LeftView';
-import RightView from './RightView';
-import { useBeforeunload } from 'react-beforeunload';
-import { GlobalContext } from './GlobalContextProvider';
-import { AccountsType } from './reducers/Accounts';
-import { UserDbType } from './reducers/UserDB';
-import { ConnectionType } from './reducers/Connection';
-import { showSignIn } from './sign-in/Phases';
-import SignIn from './sign-in/SignIn';
-import { UiStateType } from './reducers/UiState';
-import Start from './start/Start';
+import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import { Config } from './utils/Config';
+import { decryptAsymmetric } from 'dm3-lib-crypto';
+import { EncryptionEnvelop, MessageState, Postmark } from 'dm3-lib-messaging';
+import { getDeliveryServiceProfile } from 'dm3-lib-profile';
+import { log } from 'dm3-lib-shared';
+import { UserDB } from 'dm3-lib-storage';
+import { useContext, useEffect, useState } from 'react';
+import { useBeforeunload } from 'react-beforeunload';
+import 'react-chat-widget/lib/styles.css';
+import socketIOClient from 'socket.io-client';
+import './Dm3.css';
+import { GlobalContext } from './GlobalContextProvider';
+import LeftView from './LeftView';
+import RightView from './RightView';
+import { ConnectionType } from './reducers/Connection';
+import { UiStateType } from './reducers/UiState';
+import { UserDbType } from './reducers/UserDB';
+import { showSignIn } from './sign-in/Phases';
+import SignIn from './sign-in/SignIn';
+import Start from './start/Start';
 import Help from './ui-shared/Help';
-import axios from 'axios';
-import { Contact } from './reducers/shared';
-import { submitMessage } from '../context/messageContext/submitMessage/submitMessage';
-import { ConnectionState } from '.';
+import { requestContacts } from './ui-shared/contacts/RequestContacts';
+import { Config } from './utils/Config';
+import { Connection, ConnectionState } from './web3provider/Web3Provider';
 
 interface dm3Props {
     config: Config;
@@ -100,14 +101,13 @@ function dm3(props: dm3Props) {
             if (state?.connection?.account?.profile === undefined) {
                 return;
             }
-            const deliveryServiceProfile =
-                await Lib.profile.getDeliveryServiceProfile(
-                    //TODO Implement usage of all delivery services
-                    //https://github.com/corpus-ventures/dm3/issues/330
-                    state.connection.account.profile.deliveryServices[0],
-                    state.connection.provider!,
-                    async (url: string) => (await axios.get(url)).data,
-                );
+            const deliveryServiceProfile = await getDeliveryServiceProfile(
+                //TODO Implement usage of all delivery services
+                //https://github.com/corpus-ventures/dm3/issues/330
+                state.connection.account.profile.deliveryServices[0],
+                state.connection.provider!,
+                async (url: string) => (await axios.get(url)).data,
+            );
             setdeliveryServiceUrl(deliveryServiceProfile!.url);
         };
 
@@ -116,8 +116,7 @@ function dm3(props: dm3Props) {
 
     useEffect(() => {
         if (
-            state.connection.connectionState ===
-                Lib.web3provider.ConnectionState.SignedIn &&
+            state.connection.connectionState === ConnectionState.SignedIn &&
             !state.connection.socket &&
             deliveryServiceUrl
         ) {
@@ -140,11 +139,11 @@ function dm3(props: dm3Props) {
                 token: state.auth.currentSession!.token,
             };
             socket.connect();
-            socket.on('message', (envelop: Lib.messaging.EncryptionEnvelop) => {
+            socket.on('message', (envelop: EncryptionEnvelop) => {
                 handleNewMessage(envelop);
             });
             socket.on('joined', () => {
-                getContacts(state.connection as Lib.Connection);
+                getContacts(state.connection as Connection);
             });
             dispatch({ type: ConnectionType.ChangeSocket, payload: socket });
         }
@@ -160,25 +159,25 @@ function dm3(props: dm3Props) {
 
             state.connection.socket.on(
                 'message',
-                (envelop: Lib.messaging.EncryptionEnvelop) => {
+                (envelop: EncryptionEnvelop) => {
                     handleNewMessage(envelop);
                 },
             );
 
             state.connection.socket.on('joined', () => {
-                getContacts(state.connection as Lib.Connection);
+                getContacts(state.connection as Connection);
             });
         }
     }, [state.connection.socket, state.userDb?.conversations]);
 
-    const getContacts = (connection: Lib.Connection) => {
+    const getContacts = (connection: Connection) => {
         if (!state.userDb) {
             throw Error(
                 `[getContacts] Couldn't handle new messages. User db not created.`,
             );
         }
 
-        Lib.log('[getContacts]');
+        log('[getContacts]');
 
         return requestContacts(
             state,
@@ -188,20 +187,18 @@ function dm3(props: dm3Props) {
         );
     };
 
-    const handleNewMessage = async (
-        envelop: Lib.messaging.EncryptionEnvelop,
-    ) => {
-        Lib.log('New messages');
+    const handleNewMessage = async (envelop: EncryptionEnvelop) => {
+        log('New messages');
 
         const message = JSON.parse(
-            await Lib.crypto.decryptAsymmetric(
-                (state.userDb as Lib.storage.UserDB).keys.encryptionKeyPair,
+            await decryptAsymmetric(
+                (state.userDb as UserDB).keys.encryptionKeyPair,
                 JSON.parse(envelop.message),
             ),
         );
-        const postmark: Lib.messaging.Postmark = JSON.parse(
-            await Lib.crypto.decryptAsymmetric(
-                (state.userDb as Lib.storage.UserDB).keys.encryptionKeyPair,
+        const postmark: Postmark = JSON.parse(
+            await decryptAsymmetric(
+                (state.userDb as UserDB).keys.encryptionKeyPair,
                 JSON.parse(envelop.postmark!),
             ),
         );
@@ -225,18 +222,18 @@ function dm3(props: dm3Props) {
                         postmark,
                         metadata: envelop.metadata,
                     },
-                    messageState: Lib.messaging.MessageState.Send,
+                    messageState: MessageState.Send,
                     deliveryServiceIncommingTimestamp:
                         postmark.incommingTimestamp,
                 },
-                connection: state.connection as Lib.Connection,
+                connection: state.connection as Connection,
             },
         });
     };
 
     const showHelp =
         state.connection.connectionState ===
-            Lib.web3provider.ConnectionState.SignedIn &&
+            ConnectionState.SignedIn &&
         state.accounts.contacts &&
         state.accounts.contacts.length <= 1 &&
         state.uiState.maxLeftView &&
