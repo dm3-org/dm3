@@ -15,7 +15,8 @@
         "isolatedModules": true,
         "jsx": "react-jsx",
         "outDir": "dist",
-        "sourceMap": true
+        "sourceMap": true,
+        
     },
     "include": ["src"],
     "exclude": ["src/**/*.test.ts"]
