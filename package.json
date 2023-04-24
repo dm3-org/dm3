@@ -46,7 +46,7 @@
         "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
         "format:check": "prettier --check '*/**/*.{js,ts,tsx,json}'",
         "prepare": "husky install",
-        "test": "./test-all.sh"
+        "test": "yarn workspaces run test"
     },
     "packageManager": "yarn@1.22.19",
     "resolutions": {
