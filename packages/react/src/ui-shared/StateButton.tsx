@@ -1,4 +1,3 @@
-import React, { useContext } from 'react';
 import Icon from '../ui-shared/Icon';
 import './StateButton.css';
 

@@ -5,14 +5,13 @@ import { GlobalContext } from '../GlobalContextProvider';
 import { useContext } from 'react';
 import { AccountInfo } from '../reducers/shared';
 import { AccountsType } from '../reducers/Accounts';
-import * as Lib from 'dm3-lib';
 import { UserDbType } from '../reducers/UserDB';
-
+import { globalConfig } from 'dm3-lib-shared';
 function ConfigBanner() {
     const { state, dispatch } = useContext(GlobalContext);
 
     const isAddrEnsName = state.connection.account?.ensName?.endsWith(
-        Lib.GlobalConf.ADDR_ENS_SUBDOMAIN(),
+        globalConfig.ADDR_ENS_SUBDOMAIN(),
     );
 
     return !state.userDb?.configViewed &&

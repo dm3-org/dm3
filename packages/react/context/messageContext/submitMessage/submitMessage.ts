@@ -1,17 +1,27 @@
-import * as Lib from 'dm3-lib';
+import {
+    Envelop,
+    Message,
+    MessageState,
+    SendDependencies,
+    buildEnvelop,
+} from 'dm3-lib-messaging';
 import { createPendingEntry } from '../../../api/ws/createPendingEntry';
 import { sendMessage } from '../../../api/ws/submitMessage';
+import { Connection } from '../../../src/web3provider/Web3Provider';
+import { StorageEnvelopContainer } from 'dm3-lib-storage';
+import { log } from 'dm3-lib-shared';
+import { encryptAsymmetric } from 'dm3-lib-crypto';
 
 export async function submitMessage(
-    connection: Lib.Connection,
+    connection: Connection,
     deliveryServiceToken: string,
-    sendDependencies: Lib.messaging.SendDependencies,
-    message: Lib.messaging.Message,
+    sendDependencies: SendDependencies,
+    message: Message,
     haltDelivery: boolean,
-    storeMessages: (envelops: Lib.storage.StorageEnvelopContainer[]) => void,
-    onSuccess?: (envelop: Lib.messaging.Envelop) => void,
+    storeMessages: (envelops: StorageEnvelopContainer[]) => void,
+    onSuccess?: (envelop: Envelop) => void,
 ) {
-    Lib.log('Submitting message');
+    log('Submitting message');
     /*
      * A Pending entry indicates the receiver that there is a new message
      * for them
@@ -30,13 +40,13 @@ export async function submitMessage(
      * has created themself a profile
      */
     if (haltDelivery) {
-        Lib.log('- Halt delivery');
+        log('- Halt delivery');
         storeMessages([
             {
                 envelop: {
                     message,
                 },
-                messageState: Lib.messaging.MessageState.Created,
+                messageState: MessageState.Created,
             },
         ]);
         return;
@@ -44,9 +54,9 @@ export async function submitMessage(
     /**
      * Encrypts the message using the deliveryService' encryptionKey
      */
-    const { envelop, encryptedEnvelop } = await Lib.messaging.buildEnvelop(
+    const { envelop, encryptedEnvelop } = await buildEnvelop(
         message,
-        Lib.crypto.encryptAsymmetric,
+        encryptAsymmetric,
         sendDependencies,
     );
 
@@ -63,11 +73,11 @@ export async function submitMessage(
         deliveryServiceToken,
         encryptedEnvelop,
         allOnSuccess,
-        () => Lib.log('submit message error'),
+        () => log('submit message error'),
     );
 
-    storeMessages([{ envelop, messageState: Lib.messaging.MessageState.Send }]);
-    Lib.log('- Message sent');
+    storeMessages([{ envelop, messageState: MessageState.Send }]);
+    log('- Message sent');
 }
 
 export type SubmitMessageType = typeof submitMessage;

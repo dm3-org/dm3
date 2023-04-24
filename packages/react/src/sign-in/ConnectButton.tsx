@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
 import './SignIn.css';
-
-import * as Lib from 'dm3-lib';
 import { GlobalContext } from '../GlobalContextProvider';
 import StateButton, { ButtonState } from '../ui-shared/StateButton';
 import { getMetaMaskProvider, connectAccount } from './Connectors';
+import { ConnectionState } from '../web3provider/Web3Provider';
 
 interface ConnectButtonProps {
     miniSignIn: boolean;
@@ -23,30 +22,28 @@ function ConnectButton(props: ConnectButtonProps) {
         if (
             state.connection.provider &&
             state.connection.connectionState ===
-                Lib.web3provider.ConnectionState.AccountConntectReady
+                ConnectionState.AccountConntectReady
         ) {
             connectAccount(state, dispatch);
         }
     }, [state.connection.provider, state.connection.connectionState]);
 
-    const getButtonState = (
-        connectionState: Lib.web3provider.ConnectionState,
-    ): ButtonState => {
+    const getButtonState = (connectionState: ConnectionState): ButtonState => {
         switch (connectionState) {
-            case Lib.web3provider.ConnectionState.SignInFailed:
-            case Lib.web3provider.ConnectionState.ConnectionRejected:
+            case ConnectionState.SignInFailed:
+            case ConnectionState.ConnectionRejected:
                 return ButtonState.Failed;
 
-            case Lib.web3provider.ConnectionState.SignInReady:
-            case Lib.web3provider.ConnectionState.WaitingForSignIn:
-            case Lib.web3provider.ConnectionState.WaitingForAccountConntection:
+            case ConnectionState.SignInReady:
+            case ConnectionState.WaitingForSignIn:
+            case ConnectionState.WaitingForAccountConntection:
                 return ButtonState.Loading;
 
-            case Lib.web3provider.ConnectionState.SignedIn:
+            case ConnectionState.SignedIn:
                 return ButtonState.Success;
 
-            case Lib.web3provider.ConnectionState.AccountConntectReady:
-            case Lib.web3provider.ConnectionState.CollectingSignInData:
+            case ConnectionState.AccountConntectReady:
+            case ConnectionState.CollectingSignInData:
             default:
                 return ButtonState.Idel;
         }
@@ -54,11 +51,10 @@ function ConnectButton(props: ConnectButtonProps) {
 
     const buttonDisabled = !(
         state.connection.connectionState ===
-            Lib.web3provider.ConnectionState.AccountConntectReady ||
+            ConnectionState.AccountConntectReady ||
         state.connection.connectionState ===
-            Lib.web3provider.ConnectionState.ConnectionRejected ||
-        state.connection.connectionState ===
-            Lib.web3provider.ConnectionState.SignInFailed
+            ConnectionState.ConnectionRejected ||
+        state.connection.connectionState === ConnectionState.SignInFailed
     );
 
     return (

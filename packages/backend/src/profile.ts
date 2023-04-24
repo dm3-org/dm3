@@ -1,4 +1,9 @@
-import * as Lib from 'dm3-lib/dist.backend';
+import {
+    getUserProfile,
+    submitUserProfile,
+} from 'dm3-lib-delivery/dist.backend';
+import { normalizeEnsName, schema } from 'dm3-lib-profile/dist.backend';
+import { validateSchema } from 'dm3-lib-shared/dist.backend';
 import express, { NextFunction } from 'express';
 import { WithLocals } from './types';
 import { auth } from './utils';
@@ -8,13 +13,12 @@ export default () => {
 
     router.get(
         '/:ensName',
+        //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const ensName = Lib.profile.normalizeEnsName(
-                    req.params.ensName,
-                );
+                const ensName = normalizeEnsName(req.params.ensName);
 
-                const profile = await Lib.delivery.getUserProfile(
+                const profile = await getUserProfile(
                     req.app.locals.db.getSession,
                     ensName,
                 );
@@ -31,21 +35,20 @@ export default () => {
 
     router.post(
         '/:ensName',
+        //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const schemaIsValid = Lib.validateSchema(
-                    Lib.profile.schema.SignedUserProfile,
+                const schemaIsValid = validateSchema(
+                    schema.SignedUserProfile,
                     req.body,
                 );
 
                 if (!schemaIsValid) {
                     return res.status(400).send({ error: 'invalid schema' });
                 }
-                const ensName = Lib.profile.normalizeEnsName(
-                    req.params.ensName,
-                );
+                const ensName = normalizeEnsName(req.params.ensName);
 
-                const data = await Lib.delivery.submitUserProfile(
+                const data = await submitUserProfile(
                     req.app.locals.web3Provider,
                     req.app.locals.db.getSession,
                     req.app.locals.db.setSession,
@@ -75,6 +78,7 @@ export default () => {
 
     router.post(
         '/:ensName/aka/:aliasEnsName',
+        //@ts-ignore
         aliasAuth(),
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {

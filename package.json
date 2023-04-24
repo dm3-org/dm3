@@ -2,7 +2,16 @@
     "private": true,
     "workspaces": {
         "packages": [
-            "packages/lib",
+            "packages/lib/shared",
+            "packages/lib/crypto",
+            "packages/lib/profile",
+            "packages/lib/messaging",
+            "packages/lib/delivery",
+            "packages/lib/storage",
+            "packages/lib/delivery-api",
+            "packages/lib/offchainResolver",
+            "packages/lib/offchainResolver-api",
+            "packages/offchainResolver-backend",
             "packages/backend",
             "packages/react",
             "packages/web",
@@ -37,7 +46,7 @@
         "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
         "format:check": "prettier --check '*/**/*.{js,ts,tsx,json}'",
         "prepare": "husky install",
-        "test": "npm run docker:up && ./test-all.sh"
+        "test": "yarn workspaces run test"
     },
     "packageManager": "yarn@1.22.19",
     "resolutions": {

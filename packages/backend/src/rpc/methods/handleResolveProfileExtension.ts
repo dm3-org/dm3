@@ -1,5 +1,5 @@
 import { Axios } from 'axios';
-import * as Lib from 'dm3-lib/dist.backend';
+import { stringify } from 'dm3-lib-shared/dist.backend';
 import express from 'express';
 import { WithLocals } from '../../types';
 
@@ -32,7 +32,7 @@ export function handleResolveProfileExtension(axios: Axios) {
 
         return res.status(200).send({
             jsonrpc: '2.0',
-            result: Lib.stringify({ ...profileExtension }),
+            result: stringify({ ...profileExtension }),
         });
     };
 }

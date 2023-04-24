@@ -1,9 +1,15 @@
 import cors from 'cors';
-import * as Lib from 'dm3-lib/dist.backend';
 import express from 'express';
-import { IDatabase, RedisPrefix } from './persistance/getDatabase';
+import { IDatabase } from './persistance/getDatabase';
 import { WithLocals } from './types';
 import { auth } from './utils';
+import {
+    schema,
+    getMessages,
+    Acknoledgment,
+} from 'dm3-lib-delivery/dist.backend';
+import { validateSchema } from 'dm3-lib-shared/dist.backend';
+import { getConversationId } from 'dm3-lib-storage/dist.backend';
 
 const syncAcknoledgmentParamsSchema = {
     type: 'object',
@@ -19,7 +25,7 @@ const syncAcknoledgmentBodySchema = {
     properties: {
         acknoledgments: {
             type: 'array',
-            items: Lib.delivery.schema.Acknoledgment,
+            items: schema.Acknoledgment,
         },
     },
     required: ['acknoledgments'],
@@ -34,6 +40,7 @@ export default () => {
 
     router.get(
         '/messages/:ensName/contact/:contactEnsName',
+        //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
                 const idEnsName = await req.app.locals.db.getIdEnsName(
@@ -43,7 +50,7 @@ export default () => {
                     req.params.contactEnsName,
                 );
 
-                const newMessages = await Lib.delivery.getMessages(
+                const newMessages = await getMessages(
                     req.app.locals.db.getMessages,
                     req.app.locals.keys.encryption,
                     idEnsName,
@@ -58,6 +65,7 @@ export default () => {
     );
     router.get(
         '/messages/incoming/:ensName',
+        //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
                 const incomingMessages =
@@ -92,12 +100,12 @@ export default () => {
     router.post(
         '/messages/:ensName/syncAcknoledgment/:last_message_pull',
         async (req, res, next) => {
-            const hasValidParams = Lib.validateSchema(
+            const hasValidParams = validateSchema(
                 syncAcknoledgmentParamsSchema,
                 req.params,
             );
 
-            const hasValidBody = Lib.validateSchema(
+            const hasValidBody = validateSchema(
                 syncAcknoledgmentBodySchema,
                 req.body,
             );
@@ -118,31 +126,28 @@ export default () => {
                 );
 
                 await Promise.all(
-                    req.body.acknoledgments.map(
-                        async (ack: Lib.delivery.Acknoledgment) => {
-                            const contactEnsName =
-                                await await req.app.locals.db.getIdEnsName(
-                                    ack.contactAddress,
-                                );
-                            const conversationId =
-                                Lib.storage.getConversationId(
-                                    ensName,
-                                    contactEnsName,
-                                );
+                    req.body.acknoledgments.map(async (ack: Acknoledgment) => {
+                        const contactEnsName =
+                            await await req.app.locals.db.getIdEnsName(
+                                ack.contactAddress,
+                            );
+                        const conversationId = getConversationId(
+                            ensName,
+                            contactEnsName,
+                        );
 
-                            if (req.app.locals.db) {
-                                const db: IDatabase = req.app.locals.db;
+                        if (req.app.locals.db) {
+                            const db: IDatabase = req.app.locals.db;
 
-                                db.syncAcknoledgment(
-                                    conversationId,
-                                    ensName,
-                                    req.params.last_message_pull,
-                                );
-                            } else {
-                                throw Error('db not connected');
-                            }
-                        },
-                    ),
+                            db.syncAcknoledgment(
+                                conversationId,
+                                ensName,
+                                req.params.last_message_pull,
+                            );
+                        } else {
+                            throw Error('db not connected');
+                        }
+                    }),
                 );
 
                 res.json();

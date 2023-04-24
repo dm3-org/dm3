@@ -1,7 +1,10 @@
 import bodyParser from 'body-parser';
-import * as Lib from 'dm3-lib/dist.backend';
 
-import { UserProfile } from 'dm3-lib/dist-backend';
+import {
+    UserProfile,
+    getProfileCreationMessage,
+} from 'dm3-lib-profile/dist.backend';
+import { stringify } from 'dm3-lib-shared/dist.backend';
 import { ethers } from 'ethers';
 import express from 'express';
 import request from 'supertest';
@@ -79,10 +82,9 @@ describe('Profile', () => {
                 deliveryServices: [],
             };
 
-            const createUserProfileMessage =
-                Lib.profile.getProfileCreationMessage(
-                    Lib.stringify(userProfile),
-                );
+            const createUserProfileMessage = getProfileCreationMessage(
+                stringify(userProfile),
+            );
             const signature = await wallet.signMessage(
                 createUserProfileMessage,
             );
@@ -124,9 +126,7 @@ describe('Profile', () => {
 
             const wallet = ethers.Wallet.fromMnemonic(mnemonic);
 
-            const signature = await wallet.signMessage(
-                Lib.stringify(userProfile),
-            );
+            const signature = await wallet.signMessage(stringify(userProfile));
 
             const signedUserProfile = {
                 profile: userProfile,

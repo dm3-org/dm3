@@ -1,11 +1,12 @@
-import * as Lib from 'dm3-lib';
-import { ConnectionState } from '..';
+import { load } from 'dm3-lib-storage';
+import { ProfileKeys } from 'dm3-lib-profile';
+import { ConnectionState } from '../web3provider/Web3Provider';
 
 export async function getSessionFromStorage(
     storageFile: string,
-    keys: Lib.profile.ProfileKeys,
+    keys: ProfileKeys,
 ) {
-    const externalData = await Lib.storage.load(
+    const externalData = await load(
         JSON.parse(storageFile),
         keys.storageEncryptionKey,
     );

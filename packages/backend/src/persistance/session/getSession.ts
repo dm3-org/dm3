@@ -1,5 +1,5 @@
 import { Redis, RedisPrefix } from '../getDatabase';
-import * as Lib from 'dm3-lib/dist.backend';
+import { Session, spamFilter } from 'dm3-lib-delivery/dist.backend';
 import { getIdEnsName } from './getIdEnsName';
 
 export function getSession(redis: Redis) {
@@ -9,8 +9,8 @@ export function getSession(redis: Redis) {
         );
 
         return session
-            ? (JSON.parse(session) as Lib.delivery.Session & {
-                  spamFilterRules: Lib.delivery.spamFilter.SpamFilterRules;
+            ? (JSON.parse(session) as Session & {
+                  spamFilterRules: spamFilter.SpamFilterRules;
               })
             : null;
     };

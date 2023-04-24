@@ -1,12 +1,17 @@
-import * as Lib from 'dm3-lib/dist.backend';
+import {
+    Session as DSSession,
+    spamFilter,
+} from 'dm3-lib-delivery/dist.backend';
+import { EncryptionEnvelop } from 'dm3-lib-messaging/dist.backend';
+import { UserStorage } from 'dm3-lib-storage/dist.backend';
 import { createClient } from 'redis';
-import Messages from './messages';
-import Session from './session';
-import Storage from './storage';
-import Pending from './pending';
-import { getIdEnsName } from './session/getIdEnsName';
 import winston from 'winston';
+import Messages from './messages';
 import { syncAcknoledgment } from './messages/syncAcknoledgment';
+import Pending from './pending';
+import Session from './session';
+import { getIdEnsName } from './session/getIdEnsName';
+import Storage from './storage';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -78,34 +83,29 @@ export interface IDatabase {
     getIncomingMessages: (
         ensName: string,
         limit: number,
-    ) => Promise<Lib.messaging.EncryptionEnvelop[]>;
+    ) => Promise<EncryptionEnvelop[]>;
     getMessages: (
         conversionId: string,
         offset: number,
         limit: number,
-    ) => Promise<Lib.messaging.EncryptionEnvelop[]>;
+    ) => Promise<EncryptionEnvelop[]>;
     createMessage: (
         conversationId: string,
-        envelop: Lib.messaging.EncryptionEnvelop,
+        envelop: EncryptionEnvelop,
         createdAt?: number,
     ) => Promise<void>;
     deleteExpiredMessages: (time: number) => Promise<void>;
 
-    setSession: (
-        ensName: string,
-        session: Lib.delivery.Session,
-    ) => Promise<void>;
+    setSession: (ensName: string, session: DSSession) => Promise<void>;
 
     getSession: (ensName: string) => Promise<
-        | (Lib.delivery.Session & {
-              spamFilterRules: Lib.delivery.spamFilter.SpamFilterRules;
+        | (DSSession & {
+              spamFilterRules: spamFilter.SpamFilterRules;
           })
         | null
     >;
 
-    getUserStorage: (
-        ensName: string,
-    ) => Promise<Lib.storage.UserStorage | null>;
+    getUserStorage: (ensName: string) => Promise<UserStorage | null>;
     setUserStorage: (ensName: string, data: string) => Promise<void>;
     setAliasSession: (ensName: string, aliasEnsName: string) => Promise<void>;
     addPending: (ensName: string, contactEnsName: string) => Promise<void>;

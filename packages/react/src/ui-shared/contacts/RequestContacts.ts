@@ -1,34 +1,38 @@
 import axios from 'axios';
-import * as Lib from 'dm3-lib';
 import { Actions } from '../../GlobalContextProvider';
 import { AccountsType } from '../../reducers/Accounts';
 import { Contact, GlobalState } from '../../reducers/shared';
 import { UserDbType } from '../../reducers/UserDB';
-import { Account } from 'dm3-lib/dist/profile/src/Profile';
 import { getContacts } from './getContacts';
 import { submitMessage } from '../../../context/messageContext/submitMessage/submitMessage';
+import { log, stringify } from 'dm3-lib-shared';
+import {
+    Account,
+    getDeliveryServiceProfile,
+    normalizeEnsName,
+} from 'dm3-lib-profile';
+import { StorageEnvelopContainer, getConversation } from 'dm3-lib-storage';
+import { MessageState } from 'dm3-lib-messaging';
+import { Connection } from '../../web3provider/Web3Provider';
 
-function fetchDeliveryServiceProfile(connection: Lib.Connection) {
-    return async (account: Lib.profile.Account): Promise<Contact> => {
+function fetchDeliveryServiceProfile(connection: Connection) {
+    return async (account: Account): Promise<Contact> => {
         const deliveryServiceUrl = account.profile?.deliveryServices[0];
 
         //This is most likely the case when the profile can't be fetched at all.
 
         if (!deliveryServiceUrl) {
-            Lib.log(
-                '[fetchDeliverServicePorfile] Cant resolve deliveryServiceUrl',
-            );
+            log('[fetchDeliverServicePorfile] Cant resolve deliveryServiceUrl');
             return {
                 account,
             };
         }
 
-        const deliveryServiceProfile =
-            await Lib.profile.getDeliveryServiceProfile(
-                deliveryServiceUrl,
-                connection.provider!,
-                async (url: string) => (await axios.get(url)).data,
-            );
+        const deliveryServiceProfile = await getDeliveryServiceProfile(
+            deliveryServiceUrl,
+            connection.provider!,
+            async (url: string) => (await axios.get(url)).data,
+        );
 
         return {
             account,
@@ -57,9 +61,7 @@ export async function requestContacts(
             payload: id,
         });
 
-    const storeMessages = (
-        conversations: Lib.storage.StorageEnvelopContainer[],
-    ) =>
+    const storeMessages = (conversations: StorageEnvelopContainer[]) =>
         conversations.forEach((conversation) =>
             dispatch({
                 type: UserDbType.addMessage,
@@ -81,8 +83,8 @@ export async function requestContacts(
         defaultContact &&
         !retrievedContacts.find(
             (account: Account) =>
-                Lib.profile.normalizeEnsName(account.ensName) ===
-                Lib.profile.normalizeEnsName(defaultContact),
+                normalizeEnsName(account.ensName) ===
+                normalizeEnsName(defaultContact),
         )
     ) {
         createEmptyConversationEntry(defaultContact);
@@ -104,8 +106,8 @@ export async function requestContacts(
             (innerContact) =>
                 innerContact.account.profile &&
                 contact.account.profile &&
-                Lib.stringify(innerContact.account.profile) ===
-                    Lib.stringify(contact.account.profile),
+                stringify(innerContact.account.profile) ===
+                    stringify(contact.account.profile),
         );
         if (found && found?.account.ensName !== contact.account.ensName) {
             dispatch({
@@ -131,25 +133,23 @@ export async function requestContacts(
         selectedContact &&
         !selectedContact?.account.profile?.publicEncryptionKey &&
         retrievedContacts.find(
-            (contact: Lib.profile.Account) =>
-                Lib.profile.normalizeEnsName(contact.ensName) ===
-                Lib.profile.normalizeEnsName(selectedContact.account.ensName),
+            (contact: Account) =>
+                normalizeEnsName(contact.ensName) ===
+                normalizeEnsName(selectedContact.account.ensName),
         )?.profile?.publicSigningKey
     ) {
         setSelectedContact(
             contacts.find(
                 (contact) =>
-                    Lib.profile.normalizeEnsName(contact.account.ensName) ===
-                    Lib.profile.normalizeEnsName(
-                        selectedContact.account.ensName,
-                    ),
+                    normalizeEnsName(contact.account.ensName) ===
+                    normalizeEnsName(selectedContact.account.ensName),
             ),
         );
     } else if (!selectedContact && defaultContact) {
         const contactToSelect = contacts.find(
             (account: Contact) =>
-                Lib.profile.normalizeEnsName(account.account.ensName) ===
-                Lib.profile.normalizeEnsName(defaultContact),
+                normalizeEnsName(account.account.ensName) ===
+                normalizeEnsName(defaultContact),
         );
 
         setSelectedContact(contactToSelect);
@@ -157,16 +157,14 @@ export async function requestContacts(
 
     contacts.forEach((contact) => {
         if (contact.deliveryServiceProfile) {
-            Lib.storage
-                .getConversation(
-                    contact.account.ensName,
-                    contacts.map((contact) => contact.account),
-                    userDb,
-                )
+            getConversation(
+                contact.account.ensName,
+                contacts.map((contact) => contact.account),
+                userDb,
+            )
                 .filter(
                     (message) =>
-                        message.messageState ===
-                            Lib.messaging.MessageState.Created &&
+                        message.messageState === MessageState.Created &&
                         contact.account.profile?.publicEncryptionKey,
                 )
                 .forEach(async (message) => {

@@ -1,21 +1,22 @@
-import React, { useContext, useEffect, useState } from 'react';
-import './UserInfo.css';
+import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../GlobalContextProvider';
-import * as Lib from 'dm3-lib';
 import Icon from '../ui-shared/Icon';
+import './UserInfo.css';
 
-import Avatar, { SpecialSize } from '../ui-shared/Avatar';
-import { AccountInfo } from '../reducers/shared';
-import { useAsync } from '../ui-shared/useAsync';
-import StateButton, { ButtonState } from '../ui-shared/StateButton';
 import axios from 'axios';
+import { Account, getDeliveryServiceProfile } from 'dm3-lib-profile';
+import { ethersHelper } from 'dm3-lib-shared';
 import ConfigView from '../domain-config/ConfigView';
 import { AccountsType } from '../reducers/Accounts';
-import { UserDbType } from '../reducers/UserDB';
 import { SelectedRightView, UiStateType } from '../reducers/UiState';
+import { UserDbType } from '../reducers/UserDB';
+import { AccountInfo } from '../reducers/shared';
+import Avatar, { SpecialSize } from '../ui-shared/Avatar';
+import { ButtonState } from '../ui-shared/StateButton';
+import { useAsync } from '../ui-shared/useAsync';
 
 interface UserInfoProps {
-    account: Lib.profile.Account;
+    account: Account;
 }
 
 interface EnsTextRecords {
@@ -44,14 +45,13 @@ function UserInfo(props: UserInfoProps) {
             if (state?.connection?.account?.profile === undefined) {
                 return;
             }
-            const deliveryServiceProfile =
-                await Lib.profile.getDeliveryServiceProfile(
-                    //TODO Implement usage of all delivery services
-                    //https://github.com/corpus-ventures/dm3/issues/330
-                    state.connection.account.profile.deliveryServices[0],
-                    state.connection.provider!,
-                    async (url) => (await axios.get(url)).data,
-                );
+            const deliveryServiceProfile = await getDeliveryServiceProfile(
+                //TODO Implement usage of all delivery services
+                //https://github.com/corpus-ventures/dm3/issues/330
+                state.connection.account.profile.deliveryServices[0],
+                state.connection.provider!,
+                async (url) => (await axios.get(url)).data,
+            );
 
             setdeliveryServiceUrl(deliveryServiceProfile!.url);
         };
@@ -65,7 +65,7 @@ function UserInfo(props: UserInfoProps) {
                 state.accounts.accountInfoView === AccountInfo.Contact) &&
             state.connection.provider
         ) {
-            return Lib.shared.ethersHelper.getDefaultEnsTextRecord(
+            return ethersHelper.getDefaultEnsTextRecord(
                 state.connection.provider,
                 props.account.ensName,
             );
