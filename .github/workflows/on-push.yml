@@ -10,7 +10,7 @@ jobs:
             - uses: actions/setup-node@v3
               with:
                   registry-url: 'https://npm.pkg.github.com'
-                  node-version: 16.13.2
+                  node-version: 18.0.0
                   cache: 'yarn'
             - name: Install
               run: yarn install
@@ -29,7 +29,7 @@ jobs:
         - uses: actions/setup-node@v2
           with:
               registry-url: 'https://npm.pkg.github.com'
-              node-version: 16.13.2
+              node-version: 18.0.0
               cache: 'yarn'
         - name: Install
           run: yarn install
@@ -61,7 +61,7 @@ jobs:
             - uses: actions/setup-node@v3
               with:
                   registry-url: 'https://npm.pkg.github.com'
-                  node-version: 16.13.2
+                  node-version: 18.0.0
                   cache: 'yarn'
             - uses: actions/download-artifact@master
               with:
@@ -89,7 +89,7 @@ jobs:
             - uses: actions/setup-node@v3
               with:
                   registry-url: 'https://npm.pkg.github.com'
-                  node-version: 16.13.2
+                  node-version: 18.0.0
                   cache: 'yarn'
             - name: Install
               run: yarn install
