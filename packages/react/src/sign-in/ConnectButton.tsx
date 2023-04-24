@@ -28,9 +28,7 @@ function ConnectButton(props: ConnectButtonProps) {
         }
     }, [state.connection.provider, state.connection.connectionState]);
 
-    const getButtonState = (
-        connectionState: ConnectionState,
-    ): ButtonState => {
+    const getButtonState = (connectionState: ConnectionState): ButtonState => {
         switch (connectionState) {
             case ConnectionState.SignInFailed:
             case ConnectionState.ConnectionRejected:
@@ -56,8 +54,7 @@ function ConnectButton(props: ConnectButtonProps) {
             ConnectionState.AccountConntectReady ||
         state.connection.connectionState ===
             ConnectionState.ConnectionRejected ||
-        state.connection.connectionState ===
-            ConnectionState.SignInFailed
+        state.connection.connectionState === ConnectionState.SignInFailed
     );
 
     return (

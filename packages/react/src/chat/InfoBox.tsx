@@ -1,4 +1,3 @@
-
 interface InfoBoxProps {
     text: string;
 }

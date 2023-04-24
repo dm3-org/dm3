@@ -1,6 +1,6 @@
-import { Envelop, EncryptionEnvelop } from "dm3-lib-messaging";
-import { log } from "dm3-lib-shared";
-import { Connection } from "../../src/web3provider/Web3Provider";
+import { Envelop, EncryptionEnvelop } from 'dm3-lib-messaging';
+import { log } from 'dm3-lib-shared';
+import { Connection } from '../../src/web3provider/Web3Provider';
 
 export async function sendMessage(
     connection: Connection,

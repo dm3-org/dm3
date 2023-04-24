@@ -96,9 +96,7 @@ export function uiStateReducer(
             };
 
         case UiStateType.SetBrowserStorageBackup:
-            log(
-                `[UI] set create browser storage backups to ${action.payload}`,
-            );
+            log(`[UI] set create browser storage backups to ${action.payload}`);
             return {
                 ...state,
                 browserStorageBackup: action.payload,

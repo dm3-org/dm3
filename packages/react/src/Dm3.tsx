@@ -232,8 +232,7 @@ function dm3(props: dm3Props) {
     };
 
     const showHelp =
-        state.connection.connectionState ===
-            ConnectionState.SignedIn &&
+        state.connection.connectionState === ConnectionState.SignedIn &&
         state.accounts.contacts &&
         state.accounts.contacts.length <= 1 &&
         state.uiState.maxLeftView &&

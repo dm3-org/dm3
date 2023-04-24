@@ -8,10 +8,7 @@ import { ConnectionState } from '../web3provider/Web3Provider';
 function RightHeader() {
     const { state } = useContext(GlobalContext);
 
-    if (
-        state.connection.connectionState !==
-        ConnectionState.SignedIn
-    ) {
+    if (state.connection.connectionState !== ConnectionState.SignedIn) {
         return (
             <div className="row header-row-right">
                 <div

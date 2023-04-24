@@ -73,8 +73,7 @@ function AddContactForm(props: AddContactFormProps) {
         return null;
     }
 
-    return state.connection.connectionState ===
-       ConnectionState.SignedIn ? (
+    return state.connection.connectionState === ConnectionState.SignedIn ? (
         <form
             className="form-floating add-contact-form"
             onSubmit={(e) => {

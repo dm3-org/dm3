@@ -76,8 +76,7 @@ function SignIn(props: SignInProps) {
             state.connection.connectionState ===
             ConnectionState.CollectingSignInData;
         const isSignInReady =
-            state.connection.connectionState ===
-            ConnectionState.SignInReady;
+            state.connection.connectionState === ConnectionState.SignInReady;
 
         if (
             storageLocation === StorageLocation.File &&
@@ -154,8 +153,7 @@ function SignIn(props: SignInProps) {
 
     useEffect(() => {
         if (
-            state.connection.connectionState ===
-                ConnectionState.SignInReady &&
+            state.connection.connectionState === ConnectionState.SignInReady &&
             state.connection.ethAddress
         ) {
             signIn(storageLocation, token, state, dispatch);

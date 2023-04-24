@@ -1,4 +1,3 @@
-
 import './DarkLogo.css';
 
 interface DarkLogoProps {

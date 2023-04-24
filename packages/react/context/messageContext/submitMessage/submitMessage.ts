@@ -1,4 +1,10 @@
-import { Envelop, Message, MessageState, SendDependencies, buildEnvelop } from 'dm3-lib-messaging';
+import {
+    Envelop,
+    Message,
+    MessageState,
+    SendDependencies,
+    buildEnvelop,
+} from 'dm3-lib-messaging';
 import { createPendingEntry } from '../../../api/ws/createPendingEntry';
 import { sendMessage } from '../../../api/ws/submitMessage';
 import { Connection } from '../../../src/web3provider/Web3Provider';
