@@ -22,7 +22,7 @@ jobs:
               run: yarn lint
             - name: Format
               run: yarn format:check
-    lib-tests:
+    workspace-tests:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
@@ -42,63 +42,3 @@ jobs:
               run: yarn build
             - name: Unit Tests
               run: yarn test --ci --watchAll=false
-    backend-tests:
-        runs-on: ubuntu-latest
-        defaults:
-            run:
-                working-directory: 'packages/backend'
-        steps:
-            - uses: actions/checkout@v2
-            - uses: actions/cache@v2
-              with:
-                  path: '**/node_modules'
-                  key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
-            - uses: actions/setup-node@v2
-              with:
-                  registry-url: 'https://npm.pkg.github.com'
-                  node-version: 18.0.0
-            - name: Install
-              run: yarn install
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.PACKAGE_PAT }}
-            - name: Build Lib
-              run: |
-                  cd ../lib 
-                  yarn install
-                  yarn build
-            - name: Build
-              run: yarn build
-            - name: Unit Tests
-              run: yarn test --ci --watchAll=false
-
-        runs-on: ubuntu-latest
-        defaults:
-            run:
-                working-directory: 'packages/offchain-resolver'
-        steps:
-            - uses: actions/checkout@v2
-            - uses: actions/cache@v2
-              with:
-                  path: '**/node_modules'
-                  key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
-            - uses: actions/setup-node@v2
-              with:
-                  registry-url: 'https://npm.pkg.github.com'
-                  node-version: 18.0.0
-            - name: Install
-              run: yarn install
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.PACKAGE_PAT }}
-            - name: Build Lib
-              run: |
-                  cd ../lib 
-                  yarn install
-                  yarn build
-            - name: Build
-              run: yarn build
-            - name: Unit Tests
-              run: yarn test
-              env: 
-                  REACT_APP_USER_ENS_SUBDOMAIN: ".dev-user.dm3.eth"
-                  REACT_APP_ADDR_ENS_SUBDOMAIN: ".dev-addr.dm3.eth"
-                  REACT_APP_DEFAULT_DELIVERY_SERVICE: "dev-ds.dm3.eth"
