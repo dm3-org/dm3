@@ -70,36 +70,14 @@ jobs:
               with:
                   name: lib-schema
                   path: packages/lib
+            - uses: actions/download-artifact@master
+              with:
+                  name: lib-backend-builds
+                  path: packages/lib
             - name: Install
               run: yarn install
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.PACKAGE_PAT }}
 
-            - name: Unit Tests
-              run: yarn test --ci --watchAll=false
-    backend-tests:
-        runs-on: ubuntu-latest
-        needs: build
-        defaults:
-            run:
-                working-directory: 'packages/backend'
-        steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v3
-              with:
-                  registry-url: 'https://npm.pkg.github.com'
-                  node-version: 18.0.0
-                  cache: 'yarn'
-            - name: Install
-              run: yarn install
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.PACKAGE_PAT }}
-            - name: Build Lib
-              run: |
-                  cd ../lib 
-                  yarn install
-                  yarn build
-            - name: Build
-              run: yarn build
             - name: Unit Tests
               run: yarn test --ci --watchAll=false

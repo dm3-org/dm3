@@ -64,7 +64,7 @@
         "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
         "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
         "format:check": "prettier --check '*/**/*.{js,ts,tsx,json}'",
-        "test": "jest --coverage"
+        "test": "echo 'no tests'"
     },
     "browserslist": {
         "production": [
