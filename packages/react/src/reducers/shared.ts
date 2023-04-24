@@ -1,7 +1,9 @@
-import * as Lib from 'dm3-lib';
+import { Account, DeliveryServiceProfile } from 'dm3-lib-profile';
 import { AuthState } from './Auth';
 import { Cache } from './Cache';
 import { SelectedRightView, UiState } from './UiState';
+import { StorageLocation, UserDB } from 'dm3-lib-storage';
+import { Connection, ConnectionState } from '../web3provider/Web3Provider';
 
 export type ActionMap<M extends { [index: string]: any }> = {
     [Key in keyof M]: M[Key] extends undefined
@@ -15,8 +17,8 @@ export type ActionMap<M extends { [index: string]: any }> = {
 };
 
 export interface Contact {
-    account: Lib.profile.Account;
-    deliveryServiceProfile?: Lib.profile.DeliveryServiceProfile;
+    account: Account;
+    deliveryServiceProfile?: DeliveryServiceProfile;
 }
 
 export type Accounts = {
@@ -26,10 +28,10 @@ export type Accounts = {
 };
 
 export type GlobalState = {
-    connection: Lib.Connection;
+    connection: Connection;
     accounts: Accounts;
     cache: Cache;
-    userDb: Lib.storage.UserDB | undefined;
+    userDb: UserDB | undefined;
     uiState: UiState;
     auth: AuthState;
 };
@@ -43,8 +45,8 @@ export enum AccountInfo {
 
 export const initialState: GlobalState = {
     connection: {
-        connectionState: Lib.web3provider.ConnectionState.CollectingSignInData,
-        storageLocation: Lib.storage.StorageLocation.dm3Storage,
+        connectionState: ConnectionState.CollectingSignInData,
+        storageLocation: StorageLocation.dm3Storage,
         defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
     },
     accounts: {

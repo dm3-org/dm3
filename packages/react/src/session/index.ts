@@ -1,37 +1,39 @@
-import * as Lib from 'dm3-lib';
+import {
+    getChallenge,
+    getNewToken,
+    submitUserProfile,
+} from 'dm3-lib-delivery-api';
 import { reAuth as execReAuth } from './reAuth';
 import { signIn as execSignIn } from './SignIn/signIn';
 import { createKeyPairsFromSig as execCreateKeyPairsFromSig } from './SignIn/signProfileKeyPair';
+import { ethersHelper } from 'dm3-lib-shared';
+import { ProfileKeys } from 'dm3-lib-profile';
+import { Connection } from '../web3provider/Web3Provider';
 
 export { getSessionFromStorage } from './getSessionFromStorage';
 
 export async function reAuth(
-    connection: Lib.Connection,
+    connection: Connection,
     privateSigningKey: string,
 ) {
-    return execReAuth(
-        connection,
-        Lib.deliveryApi.getChallenge,
-        Lib.deliveryApi.getNewToken,
-        privateSigningKey,
-    );
+    return execReAuth(connection, getChallenge, getNewToken, privateSigningKey);
 }
 
-export async function signIn(connection: Partial<Lib.Connection>) {
+export async function signIn(connection: Partial<Connection>) {
     return execSignIn(
         connection,
-        Lib.shared.ethersHelper.prersonalSign,
-        Lib.deliveryApi.submitUserProfile,
+        ethersHelper.prersonalSign,
+        submitUserProfile,
     );
 }
 
 export async function createKeyPairsFromSig(
-    connection: Partial<Lib.Connection>,
+    connection: Partial<Connection>,
     nonce: number,
-): Promise<Lib.profile.ProfileKeys> {
+): Promise<ProfileKeys> {
     return execCreateKeyPairsFromSig(
         connection,
-        Lib.shared.ethersHelper.prersonalSign,
+        ethersHelper.prersonalSign,
         nonce,
     );
 }

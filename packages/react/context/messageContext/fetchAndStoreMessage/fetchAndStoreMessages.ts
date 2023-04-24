@@ -1,15 +1,23 @@
 import axios from 'axios';
-import * as Lib from 'dm3-lib';
 import { fetchNewMessages } from '../../../api/http/messages/fetchNewMessages';
+import { Connection } from '../../../src/web3provider/Web3Provider';
+import {
+    StorageEnvelopContainer,
+    UserDB,
+    getConversation,
+} from 'dm3-lib-storage';
+import { Account, getDeliveryServiceProfile } from 'dm3-lib-profile';
+import { EncryptionEnvelop, Envelop, MessageState } from 'dm3-lib-messaging';
+import { decryptAsymmetric } from 'dm3-lib-crypto';
 
 export async function fetchAndStoreMessages(
-    connection: Lib.Connection,
+    connection: Connection,
     deliveryServiceToken: string,
     contact: string,
-    userDb: Lib.storage.UserDB,
-    storeMessages: (envelops: Lib.storage.StorageEnvelopContainer[]) => void,
-    contacts: Lib.profile.Account[],
-): Promise<Lib.storage.StorageEnvelopContainer[]> {
+    userDb: UserDB,
+    storeMessages: (envelops: StorageEnvelopContainer[]) => void,
+    contacts: Account[],
+): Promise<StorageEnvelopContainer[]> {
     const profile = connection.account?.profile;
 
     if (!profile) {
@@ -18,12 +26,11 @@ export async function fetchAndStoreMessages(
     //Fetch evey delivery service's profie
     const deliveryServices = await Promise.all(
         profile.deliveryServices.map(async (ds) => {
-            const deliveryServiceProfile =
-                await Lib.profile.getDeliveryServiceProfile(
-                    ds,
-                    connection.provider!,
-                    async (url) => (await axios.get(url)).data,
-                );
+            const deliveryServiceProfile = await getDeliveryServiceProfile(
+                ds,
+                connection.provider!,
+                async (url) => (await axios.get(url)).data,
+            );
             return deliveryServiceProfile?.url;
         }),
     );
@@ -52,44 +59,39 @@ export async function fetchAndStoreMessages(
         /**
          * Decrypts every message using the receivers encryptionKey
          */
-        allMessages.map(
-            async (envelop): Promise<Lib.storage.StorageEnvelopContainer> => {
-                const decryptedEnvelop = await decryptMessages(
-                    [envelop],
-                    userDb,
-                );
+        allMessages.map(async (envelop): Promise<StorageEnvelopContainer> => {
+            const decryptedEnvelop = await decryptMessages([envelop], userDb);
 
-                return {
-                    envelop: decryptedEnvelop[0],
-                    messageState: Lib.messaging.MessageState.Send,
-                    deliveryServiceIncommingTimestamp:
-                        decryptedEnvelop[0].postmark?.incommingTimestamp,
-                };
-            },
-        ),
+            return {
+                envelop: decryptedEnvelop[0],
+                messageState: MessageState.Send,
+                deliveryServiceIncommingTimestamp:
+                    decryptedEnvelop[0].postmark?.incommingTimestamp,
+            };
+        }),
     );
     //Storing the newly fetched messages in the userDb
     storeMessages(envelops);
 
     //Return all messages from the conversation between the user and their contact
-    return Lib.storage.getConversation(contact, contacts, userDb);
+    return getConversation(contact, contacts, userDb);
 }
 
 async function decryptMessages(
-    envelops: Lib.messaging.EncryptionEnvelop[],
-    userDb: Lib.storage.UserDB,
-): Promise<Lib.messaging.Envelop[]> {
+    envelops: EncryptionEnvelop[],
+    userDb: UserDB,
+): Promise<Envelop[]> {
     return Promise.all(
         envelops.map(
-            async (envelop): Promise<Lib.messaging.Envelop> => ({
+            async (envelop): Promise<Envelop> => ({
                 message: JSON.parse(
-                    await Lib.crypto.decryptAsymmetric(
+                    await decryptAsymmetric(
                         userDb.keys.encryptionKeyPair,
                         JSON.parse(envelop.message),
                     ),
                 ),
                 postmark: JSON.parse(
-                    await Lib.crypto.decryptAsymmetric(
+                    await decryptAsymmetric(
                         userDb.keys.encryptionKeyPair,
                         JSON.parse(envelop.postmark!),
                     ),

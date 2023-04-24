@@ -35,8 +35,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-schema.json
-schema
+**schema.json
 
 
 **/*/dist
@@ -44,3 +43,6 @@ schema
 
 #
 .vscode/**
+
+packages/lib/**/dist.backend
+packages/lib/**/dist

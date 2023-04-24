@@ -1,17 +1,14 @@
-import * as Lib from 'dm3-lib';
+import { UserDB, createEmptyConversation } from 'dm3-lib-storage';
+import { Connection } from '../../web3provider/Web3Provider';
 
 export async function addContact(
-    connection: Lib.Connection,
+    connection: Connection,
     ensName: string,
-    userDb: Lib.storage.UserDB,
+    userDb: UserDB,
     createEmptyConversationEntry: (id: string) => void,
 ) {
     if (
-        !Lib.storage.createEmptyConversation(
-            ensName,
-            userDb,
-            createEmptyConversationEntry,
-        )
+        !createEmptyConversation(ensName, userDb, createEmptyConversationEntry)
     ) {
         throw Error('Contact exists already.');
     }

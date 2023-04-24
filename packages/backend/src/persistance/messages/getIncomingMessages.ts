@@ -1,12 +1,12 @@
+import { EncryptionEnvelop } from 'dm3-lib-messaging/dist.backend';
 import { Redis, RedisPrefix } from '../getDatabase';
 import { getMessages } from './getMessages';
-import * as Lib from 'dm3-lib/dist.backend';
 
 export function getIncomingMessages(redis: Redis) {
     return async (
         ensName: string,
         limit: number,
-    ): Promise<Lib.messaging.EncryptionEnvelop[]> => {
+    ): Promise<EncryptionEnvelop[]> => {
         const conversationIds = await redis.zRange(
             RedisPrefix.IncomingConversations + ensName,
             0,

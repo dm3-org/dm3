@@ -1,9 +1,9 @@
 import cors from 'cors';
-import * as Lib from 'dm3-lib/dist.backend';
 import express from 'express';
 import stringify from 'safe-stable-stringify';
 import { WithLocals } from './types';
 import { auth } from './utils';
+import { normalizeEnsName } from 'dm3-lib-profile/dist.backend';
 
 export default () => {
     const router = express.Router();
@@ -12,44 +12,32 @@ export default () => {
     router.use(cors());
     router.param('ensName', auth);
 
-    router.get(
-        '/:ensName',
-        async (req: express.Request & { app: WithLocals }, res, next) => {
-            try {
-                const account = Lib.profile.normalizeEnsName(
-                    req.params.ensName,
-                );
-                const userStorage = await req.app.locals.db.getUserStorage(
-                    account,
-                );
-                return res.json(userStorage);
-            } catch (e) {
-                next(e);
-            }
-        },
-    );
+    router.get('/:ensName', async (req, res, next) => {
+        try {
+            const account = normalizeEnsName(req.params.ensName);
+            const userStorage = await req.app.locals.db.getUserStorage(account);
+            return res.json(userStorage);
+        } catch (e) {
+            next(e);
+        }
+    });
 
-    router.post(
-        '/:ensName',
-        async (req: express.Request & { app: WithLocals }, res, next) => {
-            try {
-                const account = Lib.profile.normalizeEnsName(
-                    req.params.ensName,
-                );
+    router.post('/:ensName', async (req, res, next) => {
+        try {
+            const account = normalizeEnsName(req.params.ensName);
 
-                await req.app.locals.db.setUserStorage(
-                    account,
-                    stringify(req.body),
-                );
+            await req.app.locals.db.setUserStorage(
+                account,
+                stringify(req.body)!,
+            );
 
-                res.json({
-                    timestamp: new Date().getTime(),
-                });
-            } catch (e) {
-                next(e);
-            }
-        },
-    );
+            res.json({
+                timestamp: new Date().getTime(),
+            });
+        } catch (e) {
+            next(e);
+        }
+    });
 
     return router;
 };

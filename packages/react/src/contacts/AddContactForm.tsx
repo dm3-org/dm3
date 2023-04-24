@@ -1,15 +1,17 @@
 import React, { useContext, useRef, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import * as Lib from 'dm3-lib';
 import { GlobalContext } from '../GlobalContextProvider';
 import { UserDbType } from '../reducers/UserDB';
 import { UiStateType } from '../reducers/UiState';
 import { AccountsType } from '../reducers/Accounts';
 import { ethers } from 'ethers';
+import { formatAddress, normalizeEnsName } from 'dm3-lib-profile';
+import { log } from 'dm3-lib-shared';
+import { Connection, ConnectionState } from '../web3provider/Web3Provider';
 
 interface AddContactFormProps {
-    getContacts: (connection: Lib.Connection) => Promise<void>;
+    getContacts: (connection: Connection) => Promise<void>;
 }
 
 function AddContactForm(props: AddContactFormProps) {
@@ -26,16 +28,15 @@ function AddContactForm(props: AddContactFormProps) {
         const normalizedAccountName =
             ethers.utils.isAddress(accountToAdd) &&
             process.env.REACT_APP_ADDR_ENS_SUBDOMAIN
-                ? Lib.profile.normalizeEnsName(
-                      Lib.profile.formatAddress(accountToAdd) +
+                ? normalizeEnsName(
+                      formatAddress(accountToAdd) +
                           process.env.REACT_APP_ADDR_ENS_SUBDOMAIN,
                   )
-                : Lib.profile.normalizeEnsName(accountToAdd);
+                : normalizeEnsName(accountToAdd);
         try {
             const hiddenContact = state.userDb?.hiddenContacts.find(
                 (contact) =>
-                    Lib.profile.normalizeEnsName(contact.ensName) ===
-                    normalizedAccountName,
+                    normalizeEnsName(contact.ensName) === normalizedAccountName,
             );
 
             if (hiddenContact && state.accounts.contacts) {
@@ -63,7 +64,7 @@ function AddContactForm(props: AddContactFormProps) {
             setAccountToAdd('');
             dispatch({ type: UiStateType.SetShowAddContact, payload: false });
         } catch (e) {
-            Lib.log(e as string);
+            log(e as string);
             setErrorIndication(true);
         }
     };
@@ -72,8 +73,7 @@ function AddContactForm(props: AddContactFormProps) {
         return null;
     }
 
-    return state.connection.connectionState ===
-        Lib.web3provider.ConnectionState.SignedIn ? (
+    return state.connection.connectionState === ConnectionState.SignedIn ? (
         <form
             className="form-floating add-contact-form"
             onSubmit={(e) => {

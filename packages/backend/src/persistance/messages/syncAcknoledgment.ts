@@ -1,6 +1,5 @@
-import * as Lib from 'dm3-lib/dist.backend';
 import { Redis, RedisPrefix } from '../getDatabase';
-
+import { normalizeEnsName } from 'dm3-lib-profile/dist.backend';
 export function syncAcknoledgment(redis: Redis) {
     return async (
         conversationId: string,
@@ -9,11 +8,7 @@ export function syncAcknoledgment(redis: Redis) {
     ) => {
         const redisKey = RedisPrefix.Conversation + conversationId + ':sync';
 
-        await redis.hSet(
-            redisKey,
-            Lib.profile.normalizeEnsName(ensName),
-            lastMessagePull,
-        );
+        await redis.hSet(redisKey, normalizeEnsName(ensName), lastMessagePull);
 
         const syncTimestamps: string[] = Object.values(
             await redis.hGetAll(redisKey),

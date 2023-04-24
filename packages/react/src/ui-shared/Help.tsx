@@ -1,6 +1,5 @@
-import React from 'react';
-import './Help.css';
 import Arrow from '../assets/arrow.svg';
+import './Help.css';
 
 function Help() {
     return (

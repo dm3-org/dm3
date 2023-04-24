@@ -3,8 +3,8 @@ import { GlobalContext } from '../GlobalContextProvider';
 import makeBlockie from 'ethereum-blockies-base64';
 import './Avatar.css';
 import { useAsync } from './useAsync';
-import * as Lib from 'dm3-lib';
 import { CacheType } from '../reducers/Cache';
+import { normalizeEnsName } from 'dm3-lib-profile';
 
 export enum SpecialSize {
     Xs,
@@ -22,7 +22,7 @@ function Avatar(props: AvatarProps) {
     const { state, dispatch } = useContext(GlobalContext);
 
     const getAvatar = async () => {
-        const ensName = Lib.profile.normalizeEnsName(props.ensName);
+        const ensName = normalizeEnsName(props.ensName);
 
         let url = state.cache.avatarUrls.get(ensName);
 

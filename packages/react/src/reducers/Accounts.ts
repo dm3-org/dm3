@@ -1,5 +1,6 @@
-import * as Lib from 'dm3-lib';
+import { log } from 'dm3-lib-shared';
 import { AccountInfo, Accounts, ActionMap, Contact } from './shared';
+import { normalizeEnsName } from 'dm3-lib-profile';
 
 export enum AccountsType {
     SetSelectedContact = 'SET_SELECTED_CONTACT',
@@ -24,7 +25,7 @@ export function accountsReducer(state: Accounts, action: AccountsActions) {
             if (state.selectedContact === action.payload?.account.ensName) {
                 return state;
             } else {
-                Lib.log(
+                log(
                     `[Accounts] Set selected account to ${action.payload?.account.ensName}`,
                 );
 
@@ -34,7 +35,7 @@ export function accountsReducer(state: Accounts, action: AccountsActions) {
                         ...action.payload,
                         account: {
                             ...action.payload.account,
-                            ensName: Lib.profile.normalizeEnsName(
+                            ensName: normalizeEnsName(
                                 action.payload.account.ensName,
                             ),
                         },
@@ -43,7 +44,7 @@ export function accountsReducer(state: Accounts, action: AccountsActions) {
             }
 
         case AccountsType.SetContacts:
-            Lib.log(
+            log(
                 `[Accounts] Set ${
                     action.payload ? action.payload.length : '0'
                 } contacts`,
@@ -57,7 +58,7 @@ export function accountsReducer(state: Accounts, action: AccountsActions) {
             if (state.accountInfoView === action.payload) {
                 return state;
             } else {
-                Lib.log(`[Accounts] Set account info view ${action.payload}`);
+                log(`[Accounts] Set account info view ${action.payload}`);
                 return {
                     ...state,
                     accountInfoView: action.payload,

@@ -1,5 +1,5 @@
 import { IDatabase } from '../persistance/getDatabase';
-import * as Lib from 'dm3-lib/dist.backend';
+import { log } from 'dm3-lib-shared/dist.backend';
 
 //1 day
 const DEFAULT_CLEANUP_INTERVAL = 86400000;
@@ -7,7 +7,7 @@ const DEFAULT_CLEANUP_INTERVAL = 86400000;
 async function onCleanUpPendingMessages(db: IDatabase, ttl: number) {
     const now = new Date().getTime();
     const expiryDate = now - ttl;
-    Lib.log('[Clean up] Delete expired messages');
+    log('[Clean up] Delete expired messages');
     await db.deleteExpiredMessages(expiryDate);
 }
 
@@ -21,7 +21,7 @@ export function startCleanUpPendingMessagesJob(
     if (ttl <= 0) {
         return;
     }
-    Lib.log('[Clean up] Start Clean up job');
+    log('[Clean up] Start Clean up job');
     return setInterval(() => {
         onCleanUpPendingMessages(db, ttl);
     }, cleaningInterval);

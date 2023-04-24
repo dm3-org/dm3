@@ -1,9 +1,11 @@
-import * as Lib from 'dm3-lib/dist.backend';
 import { ethers } from 'ethers';
 import { Express, NextFunction, Request, Response } from 'express';
 import { Socket } from 'socket.io';
 import { ExtendedError } from 'socket.io/dist/namespace';
 import { WithLocals } from './types';
+import { normalizeEnsName } from 'dm3-lib-profile/dist.backend';
+import { checkToken } from 'dm3-lib-delivery/dist.backend';
+import { KeyPair } from 'dm3-lib-crypto/dist.backend';
 
 export async function auth(
     req: Request,
@@ -11,13 +13,13 @@ export async function auth(
     next: NextFunction,
     ensName: string,
 ) {
-    const normalizedEnsName = Lib.profile.normalizeEnsName(ensName);
+    const normalizedEnsName = normalizeEnsName(ensName);
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
     if (
         token &&
-        (await Lib.delivery.checkToken(
+        (await checkToken(
             req.app.locals.web3Provider,
             req.app.locals.db.getSession,
             normalizedEnsName,
@@ -41,7 +43,7 @@ export function socketAuth(app: Express & WithLocals) {
         next: (err?: ExtendedError | undefined) => void,
     ) => {
         try {
-            const ensName = Lib.profile.normalizeEnsName(
+            const ensName = normalizeEnsName(
                 socket.handshake.auth.account.ensName,
             );
 
@@ -52,7 +54,7 @@ export function socketAuth(app: Express & WithLocals) {
             });
 
             if (
-                !(await Lib.delivery.checkToken(
+                !(await checkToken(
                     app.locals.web3Provider,
                     app.locals.db.getSession,
                     ensName,
@@ -113,8 +115,8 @@ export function errorHandler(
 }
 
 export function readKeysFromEnv(env: NodeJS.ProcessEnv): {
-    encryption: Lib.crypto.KeyPair;
-    signing: Lib.crypto.KeyPair;
+    encryption: KeyPair;
+    signing: KeyPair;
 } {
     const readKey = (keyName: string) => {
         const key = env[keyName];

@@ -1,14 +1,18 @@
-import * as Lib from 'dm3-lib/dist.backend';
 import { Redis, RedisPrefix } from '../getDatabase';
-
+import {
+    schema,
+    DeliveryInformation,
+    EncryptionEnvelop,
+} from 'dm3-lib-messaging/dist.backend';
+import { validateSchema, stringify } from 'dm3-lib-shared/dist.backend';
 export function createMessage(redis: Redis) {
     return async (
         conversationId: string,
-        envelop: Lib.messaging.EncryptionEnvelop,
+        envelop: EncryptionEnvelop,
         createdAt: number = new Date().getTime(),
     ) => {
-        const isValid = Lib.validateSchema(
-            Lib.messaging.schema.EncryptionEnvelopeSchema,
+        const isValid = validateSchema(
+            schema.EncryptionEnvelopeSchema,
             envelop,
         );
 
@@ -18,7 +22,7 @@ export function createMessage(redis: Redis) {
 
         await redis.zAdd(RedisPrefix.Conversation + conversationId, {
             score: createdAt,
-            value: Lib.stringify(envelop),
+            value: stringify(envelop),
         });
 
         /**
@@ -33,7 +37,7 @@ export function createMessage(redis: Redis) {
          *  to we can ensure that on compile time. https://github.com/corpus-io/dm3/issues/479
          */
         const encryptedDeliverInformation = envelop.metadata
-            .deliveryInformation as Lib.messaging.DeliveryInformation;
+            .deliveryInformation as DeliveryInformation;
 
         await redis.zAdd(
             RedisPrefix.IncomingConversations + encryptedDeliverInformation.to,

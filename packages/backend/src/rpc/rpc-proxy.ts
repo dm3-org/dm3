@@ -5,6 +5,7 @@ import { handleGetDeliveryServiceProperties } from './methods/handleGetDeliveryS
 import { handleResolveProfileExtension } from './methods/handleResolveProfileExtension';
 
 import { handleSubmitMessage } from './methods/handleSubmitMessage';
+import { WithLocals } from '../types';
 
 const DM3_SUBMIT_MESSAGE = 'dm3_submitMessage';
 const DM3_GET_DELIVERY_SERVICE_PROPERTIES = 'dm3_getDeliveryServiceProperties';
@@ -23,13 +24,19 @@ export default (axios: Axios) => {
 
         switch (method) {
             case DM3_SUBMIT_MESSAGE:
-                return handleSubmitMessage(req, res);
+                return handleSubmitMessage(
+                    req as express.Request & { app: WithLocals },
+                    res,
+                );
 
             case DM3_GET_DELIVERY_SERVICE_PROPERTIES:
                 return handleGetDeliveryServiceProperties(req, res);
 
             case DM3_GET_PROFILE_EXTENSION:
-                return handleResolveProfileExtension(axios)(req, res);
+                return handleResolveProfileExtension(axios)(
+                    req as express.Request & { app: WithLocals },
+                    res,
+                );
 
             default:
                 return forwardToRpcNode(axios)(req, res, next);

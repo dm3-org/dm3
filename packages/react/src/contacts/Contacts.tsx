@@ -1,12 +1,12 @@
-import React, { useContext, useEffect, useState } from 'react';
-import ContactList from './ContactList';
-import AddContactForm from './AddContactForm';
-import * as Lib from 'dm3-lib';
-import './Contacts.css';
+import { useContext, useEffect } from 'react';
 import { GlobalContext } from '../GlobalContextProvider';
+import { Connection, ConnectionState } from '../web3provider/Web3Provider';
+import AddContactForm from './AddContactForm';
+import ContactList from './ContactList';
+import './Contacts.css';
 
 interface ContactsProps {
-    getContacts: (connection: Lib.Connection) => Promise<void>;
+    getContacts: (connection: Connection) => Promise<void>;
 }
 
 function Contacts(props: ContactsProps) {
@@ -35,7 +35,7 @@ function Contacts(props: ContactsProps) {
 
             {state.accounts.contacts &&
                 state.connection.connectionState ===
-                    Lib.web3provider.ConnectionState.SignedIn && (
+                    ConnectionState.SignedIn && (
                     <div className="text-center contact-list-container">
                         <ContactList />
                     </div>

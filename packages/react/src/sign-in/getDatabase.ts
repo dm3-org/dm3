@@ -2,25 +2,27 @@ import { Actions } from '../GlobalContextProvider';
 import { ConnectionType } from '../reducers/Connection';
 import { GlobalState } from '../reducers/shared';
 import { getStorageFile } from './getStorageFile';
-import * as Lib from 'dm3-lib';
 import {
     createKeyPairsFromSig,
     getSessionFromStorage,
     reAuth,
     signIn,
 } from '../session';
+import { StorageLocation, UserDB } from 'dm3-lib-storage';
+import { Account } from 'dm3-lib-profile';
+import { ConnectionState } from '../web3provider/Web3Provider';
 
 export async function getDatabase(
     profileExists: boolean,
-    storageLocation: Lib.storage.StorageLocation,
+    storageLocation: StorageLocation,
     storageToken: string | undefined,
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
 ): Promise<{
-    connectionState: Lib.web3provider.ConnectionState;
-    db: Lib.storage.UserDB;
+    connectionState: ConnectionState;
+    db: UserDB;
     deliveryServiceToken: string;
-    account?: Lib.profile.Account;
+    account?: Account;
 }> {
     return profileExists
         ? getExistingDatebase(storageLocation, storageToken, state, dispatch)
@@ -28,7 +30,7 @@ export async function getDatabase(
 }
 
 async function getExistingDatebase(
-    storageLocation: Lib.storage.StorageLocation,
+    storageLocation: StorageLocation,
     storageToken: string | undefined,
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
@@ -51,7 +53,7 @@ async function getExistingDatebase(
     if (!storageFile) {
         dispatch({
             type: ConnectionType.ChangeConnectionState,
-            payload: Lib.web3provider.ConnectionState.SignInFailed,
+            payload: ConnectionState.SignInFailed,
         });
         throw 'Sign in failed';
     }
@@ -65,10 +67,10 @@ async function getExistingDatebase(
 }
 
 async function createNewDatabase(state: GlobalState): Promise<{
-    connectionState: Lib.web3provider.ConnectionState;
-    db: Lib.storage.UserDB;
+    connectionState: ConnectionState;
+    db: UserDB;
     deliveryServiceToken: string;
-    account: Lib.profile.Account;
+    account: Account;
 }> {
     const signInData = await signIn(state.connection);
     return signInData;

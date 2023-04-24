@@ -14,7 +14,7 @@ function App() {
                 //     setShowLogo(state === ConnectionState.SignedIn)
                 // }
             />
-
+            <div className="logo"></div>
             <nav
                 className="navbar fixed-bottom navbar-light "
                 style={{ backgroundColor: '#000000ff !important' }}

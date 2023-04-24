@@ -5,7 +5,9 @@ import request from 'supertest';
 import RpcProxy from './rpc-proxy';
 import { testData } from '../../../../test-data/encrypted-envelops.test';
 
-import * as Lib from 'dm3-lib/dist.backend';
+import { createKeyPair } from 'dm3-lib-crypto/dist.backend';
+import { normalizeEnsName, UserProfile } from 'dm3-lib-profile/dist.backend';
+import { stringify } from 'dm3-lib-shared/dist.backend';
 
 // eslint-disable-next-line no-console
 const log = (toLog: any) => console.log(toLog);
@@ -22,7 +24,7 @@ const RECEIVER_NAME = 'bob.eth';
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
-const keyPair = Lib.crypto.createKeyPair();
+const keyPair = createKeyPair();
 
 describe('rpc-Proxy', () => {
     describe('routing', () => {
@@ -124,7 +126,7 @@ describe('rpc-Proxy', () => {
                         JSON.stringify({
                             message: '',
                             metadata: {
-                                deliveryInformation: Lib.stringify(
+                                deliveryInformation: stringify(
                                     testData.deliveryInformation,
                                 ),
                                 signature: '',
@@ -289,7 +291,7 @@ describe('rpc-Proxy', () => {
             expect(status).toBe(200);
             expect(body).toStrictEqual({
                 jsonrpc: '2.0',
-                result: Lib.stringify({
+                result: stringify({
                     notSupportedMessageTypes: ['NEW'],
                 }),
             });
@@ -298,20 +300,16 @@ describe('rpc-Proxy', () => {
 });
 
 const getSession = async (ensName: string) => {
-    const emptyProfile: Lib.profile.UserProfile = {
+    const emptyProfile: UserProfile = {
         publicSigningKey: '',
         publicEncryptionKey: '',
         deliveryServices: [''],
     };
 
-    const isSender = Lib.profile.normalizeEnsName(ensName) === SENDER_NAME;
-    const isReceiver = Lib.profile.normalizeEnsName(ensName) === RECEIVER_NAME;
+    const isSender = normalizeEnsName(ensName) === SENDER_NAME;
+    const isReceiver = normalizeEnsName(ensName) === RECEIVER_NAME;
 
-    const session = (
-        account: string,
-        token: string,
-        profile: Lib.profile.UserProfile,
-    ) => ({
+    const session = (account: string, token: string, profile: UserProfile) => ({
         account,
         signedUserProfile: {
             profile,
