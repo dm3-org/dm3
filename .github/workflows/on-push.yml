@@ -2,7 +2,6 @@ name: Push Workflow
 on: push
 
 jobs:
-
     code-quality:
         runs-on: ubuntu-latest
         steps:
@@ -22,33 +21,33 @@ jobs:
               run: yarn format:check
 
     build:
-      runs-on: ubuntu-latest
+        runs-on: ubuntu-latest
 
-      steps:
-        - uses: actions/checkout@v2
-        - uses: actions/setup-node@v2
-          with:
-              registry-url: 'https://npm.pkg.github.com'
-              node-version: 18.0.0
-              cache: 'yarn'
-        - name: Install
-          run: yarn install
-          env:
-              NODE_AUTH_TOKEN: ${{ secrets.PACKAGE_PAT }}
-        - name: Build
-          run: yarn build
-        - uses: actions/upload-artifact@master
-          with:
-            name: lib-builds
-            path: packages/lib/packages/**/dist/
-        - uses: actions/upload-artifact@master
-          with:
-            name: lib-backend-builds
-            path: packages/lib/packages/**/dist.backend/
-        - uses: actions/upload-artifact@master
-          with:
-            name: lib-schema
-            path: packages/lib/packages/**/schema/
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+              with:
+                  registry-url: 'https://npm.pkg.github.com'
+                  node-version: 18.0.0
+                  cache: 'yarn'
+            - name: Install
+              run: yarn install
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.PACKAGE_PAT }}
+            - name: Build
+              run: yarn build
+            - uses: actions/upload-artifact@master
+              with:
+                  name: lib-builds
+                  path: packages/lib/**/dist/
+            - uses: actions/upload-artifact@master
+              with:
+                  name: lib-backend-builds
+                  path: packages/lib/**/dist.backend/
+            - uses: actions/upload-artifact@master
+              with:
+                  name: lib-schema
+                  path: packages/lib/**/schema/
 
     lib-tests:
         runs-on: ubuntu-latest
@@ -65,17 +64,17 @@ jobs:
                   cache: 'yarn'
             - uses: actions/download-artifact@master
               with:
-                name: lib-builds
-                path: packages/lib/packages  
+                  name: lib-builds
+                  path: packages/lib
             - uses: actions/download-artifact@master
               with:
-                name: lib-schema
-                path: packages/lib/packages  
+                  name: lib-schema
+                  path: packages/lib
             - name: Install
               run: yarn install
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.PACKAGE_PAT }}
-  
+
             - name: Unit Tests
               run: yarn test --ci --watchAll=false
     backend-tests:
