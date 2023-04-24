@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 //@ts-ignore
-import { DM3, ConnectionState } from 'dm3-react';
+import { DM3 } from 'dm3-react';
 
 function App() {
-    const [showLogo, setShowLogo] = useState(false);
-
     return (
         <>
             <DM3
@@ -18,17 +16,7 @@ function App() {
                 //     setShowLogo(state === ConnectionState.SignedIn)
                 // }
             />
-            <div className="logo">
-                {showLogo && (
-                    <a
-                        href="https://dm3.network/"
-                        target="_blank"
-                        rel="noreferrer"
-                    >
-                        <img src="./dm3-logo.png" height="30" alt="logo" />
-                    </a>
-                )}
-            </div>
+            <div className="logo"></div>
             <nav
                 className="navbar fixed-bottom navbar-light "
                 style={{ backgroundColor: '#000000ff !important' }}
