@@ -33,6 +33,7 @@ export async function buildEnvelop(
     message: Message,
     encryptAsymmetric: EncryptAsymmetric,
     { to, from, deliveryServiceEncryptionPubKey, keys }: SendDependencies,
+    preEncryptedMessage?: string,
 ): Promise<{ encryptedEnvelop: EncryptionEnvelop; envelop: Envelop }> {
     if (!to.profile) {
         throw Error('Contact has no profile');
@@ -40,12 +41,14 @@ export async function buildEnvelop(
     /**
      * Encrypts a message using the receivers public encryptionKey
      */
-    const encryptedMessage = stringify(
-        await encryptAsymmetric(
-            to.profile.publicEncryptionKey,
-            stringify(message),
-        ),
-    );
+    const encryptedMessage =
+        preEncryptedMessage ??
+        stringify(
+            await encryptAsymmetric(
+                to.profile.publicEncryptionKey,
+                stringify(message),
+            ),
+        );
 
     const deliveryInformation: DeliveryInformation = {
         to: to.ensName,
