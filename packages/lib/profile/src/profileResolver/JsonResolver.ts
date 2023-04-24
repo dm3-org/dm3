@@ -54,7 +54,7 @@ function resolveProfile<T>(validate: (objectToCheck: T) => boolean) {
         );
 
         if (!validate(profile)) {
-            throw Error("SignedUserProfileSchema doesn't fit schema");
+            throw Error("Profile doesn't fit schema");
         }
         return profile;
     };

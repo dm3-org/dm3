@@ -46,3 +46,7 @@ yarn-error.log*
 
 packages/lib/**/dist.backend
 packages/lib/**/dist
+
+**/*/.env
+**/*/.nyc_output
+**/*/artifacts

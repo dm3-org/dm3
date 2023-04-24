@@ -52,7 +52,7 @@ test('should throw if validation fails', async () => {
         JsonResolver(() => false).resolveProfile(
             'data:application/xml,' + data,
         ),
-    ).rejects.toEqual(Error(`SignedUserProfileSchema doesn't fit schema`));
+    ).rejects.toEqual(Error(`Profile doesn't fit schema`));
 });
 
 test('should support base64', async () => {
