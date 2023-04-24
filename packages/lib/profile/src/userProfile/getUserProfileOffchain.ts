@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { ethers } from 'ethers';
-import { Account, checkAccount, SignedUserProfile } from '../Profile';
+import { Account, checkAccount } from '../Profile';
 import { getDeliveryServiceClient } from '../deliveryServiceProfile/Delivery';
+import { SignedUserProfile } from '../types';
 
 export async function getUserProfileOffChain(
     provider: ethers.providers.StaticJsonRpcProvider,

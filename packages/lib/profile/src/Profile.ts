@@ -8,15 +8,10 @@ import { ethers } from 'ethers';
 import queryString from 'query-string';
 import { Dm3Profile } from './profileResolver/ProfileResolver';
 import { createProfileKeys } from './profileKeys/createProfileKeys';
+import { SignedUserProfile, UserProfile } from './types';
 
 export function formatAddress(address: string) {
     return ethers.utils.getAddress(address);
-}
-
-export interface UserProfile {
-    publicEncryptionKey: string;
-    publicSigningKey: string;
-    deliveryServices: string[];
 }
 
 export interface ProfileKeys {
@@ -24,11 +19,6 @@ export interface ProfileKeys {
     signingKeyPair: KeyPair;
     storageEncryptionKey: string;
     storageEncryptionNonce: number;
-}
-
-export interface SignedUserProfile {
-    profile: UserProfile;
-    signature: string;
 }
 
 export interface PrivateKeys {

@@ -1,6 +1,5 @@
 import { log } from 'dm3-lib-shared';
 import axios from 'axios';
-import { SignedUserProfile } from '../Profile';
 import {
     ProfileResolver,
     LinkResolver,
@@ -10,6 +9,7 @@ import {
 } from '../profileResolver';
 import { ethers } from 'ethers';
 import { getUserProfileOffChain } from './getUserProfileOffchain';
+import { SignedUserProfile } from '../types';
 /**
  * fetch a dm3 user profile
  * @param connection dm3 connection object

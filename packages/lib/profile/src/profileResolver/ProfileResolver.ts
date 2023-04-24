@@ -1,5 +1,4 @@
-import { SignedUserProfile } from '../Profile';
-import { DeliveryServiceProfile } from '../deliveryServiceProfile/Delivery';
+import { DeliveryServiceProfile, SignedUserProfile } from '../types';
 
 export type Dm3Profile = SignedUserProfile | DeliveryServiceProfile;
 

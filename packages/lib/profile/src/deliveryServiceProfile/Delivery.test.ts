@@ -1,12 +1,12 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { ethers } from 'ethers';
-import { UserProfile } from '../Profile';
+
 import {
-    DeliveryServiceProfile,
     getDeliveryServiceClient,
     getDeliveryServiceProfile,
 } from './Delivery';
+import { DeliveryServiceProfile, UserProfile } from '../types';
 
 describe('Delivery', () => {
     let axiosMock: MockAdapter;

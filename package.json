@@ -40,7 +40,7 @@
     "scripts": {
         "docker:up": "cd packages/backend && docker-compose up -d",
         "build": "yarn workspaces run build",
-        "start": "cd ./packages/backend && yarn start",
+        "start": "cd packages/backend && yarn start",
         "resolver": "cd packages/offchain-resolver && yarn start",
         "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
         "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
