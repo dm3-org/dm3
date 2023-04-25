@@ -7,11 +7,11 @@ export function getMessages(axios: Axios) {
         idBillboard: string,
         time: Date,
         idMessageCursor: string,
-    ): Promise<Message | null> => {
+    ): Promise<Message[] | null> => {
         const url = `messages/${idBillboard}/${time}/${idMessageCursor} }`;
 
         try {
-            const { data } = await axios.get<Message>(url);
+            const { data } = await axios.get<Message[]>(url);
             return data;
         } catch (e) {
             log("can't fetch billboard messages");

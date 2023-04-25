@@ -5,5 +5,5 @@ export interface IBillboardApiClient {
         idBillboard: string,
         time: Date,
         idMessageCursor: string,
-    ) => Promise<Message | null>;
+    ) => Promise<Message[] | null>;
 }
