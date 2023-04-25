@@ -13,6 +13,12 @@ export interface IBillboardApiClient {
         time: Date,
         idMessageCursor: string,
     ) => Promise<Message[] | null>;
+    deleteMessage: (
+        idBillboard: string,
+        idMessage: string,
+        mediator: string,
+        signature: string,
+    ) => Promise<boolean>;
 
     //Billboard
     getBillboards: () => Promise<string[] | null>;
