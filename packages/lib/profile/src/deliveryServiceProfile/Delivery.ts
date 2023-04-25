@@ -61,8 +61,9 @@ export function getDeliveryServiceClient(
         return deliveryServiceProfile?.url;
     };
 
-    // eslint-disable-next-line max-len
-    //The DeliveryServiceLookupInterceptor checks if a request made to the deliveryService was successful. If so everything is fine and the response will be returned. If not the interceptor fetched the profile of the next deliveryService and retries the request.
+    //The DeliveryServiceLookupInterceptor checks if a request made to the deliveryService was successful.
+    //If so everything is fine and the response will be returned.
+    //If not the interceptor fetched the profile of the next deliveryService and retries the request.
     const DeliveryServiceLookupInterceptor = (
         currentDeliveryServiceProfile: number,
     ) => {

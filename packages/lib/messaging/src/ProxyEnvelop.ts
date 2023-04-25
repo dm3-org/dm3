@@ -9,7 +9,7 @@ import {
 import { ethers } from 'ethers';
 import { stringify } from 'dm3-lib-shared';
 
-export interface ProxEnvelop {
+export interface ProxyEnvelop {
     to: string;
     encryptedMessage: string;
     encryptionEnvelops: {
@@ -24,7 +24,7 @@ export async function createProxyEnvelop(
     encryptAsymmetric: EncryptAsymmetric,
     sendDependencies: Omit<SendDependencies, 'deliveryServiceEncryptionPubKey'>,
     getRessource: GetResource<DeliveryServiceProfile>,
-): Promise<ProxEnvelop> {
+): Promise<ProxyEnvelop> {
     if (!sendDependencies.to.profile) {
         throw Error('No profile');
     }
