@@ -49,7 +49,7 @@ async function connectOnchainAccount(
     ensName: string,
     address: string,
 ) {
-    const onChainProfile = await getUserProfile(connection, ensName);
+    const onChainProfile = await getUserProfile(connection.provider!, ensName);
 
     /**
      * If it turns out there is no on chain profile available
@@ -99,7 +99,7 @@ async function connectOffchainAccount(connection: Connection, address: string) {
             (await getNameForAddress(address)) ?? getAliasForAddress(address);
 
         //We're trying to get the profile from the delivery service
-        const profile = await getUserProfile(connection, ensName);
+        const profile = await getUserProfile(connection.provider!, ensName);
 
         return {
             account: ensName,

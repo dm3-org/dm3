@@ -79,7 +79,7 @@ export function getAccountDisplayName(
 }
 
 /**
- * check the signature of the fetched user profile
+ * check the signature of the fetched profile
  * @param provider Eth rpc provider
  * @param signedUserProfile The profile to check
  * @param ensName The ENS domain name

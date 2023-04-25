@@ -8,8 +8,8 @@ import {
     JsonResolver,
 } from '../profileResolver';
 import { ethers } from 'ethers';
-import { getUserProfileOffChain } from './getUserProfileOffchain';
 import { SignedUserProfile } from '../types';
+import { checkUserProfile } from '../Profile';
 /**
  * fetch a dm3 user profile
  * @param connection dm3 connection object
@@ -39,25 +39,18 @@ export async function getEnsTextRecord(
 }
 
 export async function getUserProfile(
-    connection: any,
+    provider: ethers.providers.JsonRpcProvider,
     contact: string,
-    profileUrl?: string,
 ): Promise<SignedUserProfile | undefined> {
     const getResource = async (uri: string) => (await axios.get(uri)).data;
     const textRecord = await getEnsTextRecord(
-        connection.provider!,
+        provider,
         contact,
         PROFILE_RECORD_NAME,
     );
     //The user has no dm3-Profile text record set. Hence we need to fetch the profile offChain
     if (!textRecord) {
-        log(`[getUserProfile] Offchain`);
-        return getUserProfileOffChain(
-            connection,
-            connection.account,
-            contact,
-            profileUrl,
-        );
+        throw Error('Account has no dm3 profile');
     }
     /**
      * The Text record can contain either
@@ -72,7 +65,13 @@ export async function getUserProfile(
         JsonResolver(validateSignedUserProfile),
     ];
 
-    return await resolver
+    const profile = await resolver
         .find((r) => r.isProfile(textRecord))
         ?.resolveProfile(textRecord);
+
+    if (profile && !(await checkUserProfile(provider, profile, contact))) {
+        throw Error(`Couldn't verify user profile`);
+    }
+
+    return profile;
 }

@@ -53,7 +53,10 @@ export async function getContacts(
                     : normalizeEnsName(ensNames[0]),
             )
             .map(async (ensName) => {
-                const profile = await getUserProfile(connection, ensName);
+                const profile = await getUserProfile(
+                    connection.provider!,
+                    ensName,
+                );
                 return {
                     ensName,
                     profile: profile,

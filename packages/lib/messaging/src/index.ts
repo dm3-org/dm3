@@ -4,6 +4,8 @@ export type {
     Envelop,
 } from './Envelop';
 export { MessageState, createMessage } from './Message';
+export { sendOverMessageProxy } from './MessageProxy';
+export type { ProxySendParams } from './MessageProxy';
 export type {
     Message,
     MessageMetadata,

@@ -112,7 +112,7 @@ function ConfigView() {
         setError(undefined);
         try {
             const signedProfile = await getUserProfile(
-                state.connection,
+                state.connection.provider!,
                 state.connection.account!.ensName,
             );
 
