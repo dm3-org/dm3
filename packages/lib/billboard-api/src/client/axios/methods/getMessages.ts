@@ -8,7 +8,7 @@ export function getMessages(axios: Axios) {
         time: Date,
         idMessageCursor: string,
     ): Promise<Message[] | null> => {
-        const url = `messages/${idBillboard}/${time}/${idMessageCursor} }`;
+        const url = `/messages/${idBillboard}/${time}/${idMessageCursor} }`;
 
         try {
             const { data } = await axios.get<Message[]>(url);
