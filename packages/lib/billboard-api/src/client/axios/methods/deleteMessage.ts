@@ -8,20 +8,21 @@ export function deleteMessage(axios: Axios) {
         mediator: string,
         signature: string,
     ): Promise<boolean> => {
-        const url = `/message`;
+        const url = `/rpc`;
 
         const body = {
-            idBillboard,
-            idMessage,
-            mediator,
-            signature,
+            jsonrpc: '2.0',
+            method: 'dm3_billboard_deleteMessage',
+            params: [idBillboard, idMessage, mediator, signature],
         };
-        try {
-            const { status } = await axios.delete(url, { data: body });
-            return status === 200;
-        } catch (err) {
-            log(err as string);
+
+        const { data } = await axios.post(url, body);
+        const { error, result } = data;
+        if (error) {
+            log(error.message);
             return false;
         }
+
+        return true;
     };
 }

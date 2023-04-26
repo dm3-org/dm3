@@ -19,7 +19,6 @@ export function getActiveViewers(axios: Axios) {
             log(error.message);
             return null;
         }
-
         return result;
     };
 }

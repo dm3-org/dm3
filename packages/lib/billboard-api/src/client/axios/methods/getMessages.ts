@@ -8,15 +8,21 @@ export function getMessages(axios: Axios) {
         time: number,
         idMessageCursor: string,
     ): Promise<Message[] | null> => {
-        const url = `/messages/${idBillboard}/${time}/${idMessageCursor} }`;
+        const url = `/rpc`;
 
-        try {
-            const { data } = await axios.get<Message[]>(url);
-            return data;
-        } catch (e) {
-            log("can't fetch billboard messages");
-            log(e as string);
+        const body = {
+            jsonrpc: '2.0',
+            method: 'dm3_billboard_getMessages',
+            params: [idBillboard],
+        };
+        const { data } = await axios.post(url, { data: body });
+
+        const { error, result } = data;
+
+        if (error) {
+            log(error.message);
             return null;
         }
+        return result;
     };
 }

@@ -4,15 +4,23 @@ import { BillboardProperties } from '../../IBillboardApiClient';
 
 export function getBillboardProperties(axios: Axios) {
     return async (idBillboard: string): Promise<BillboardProperties | null> => {
-        const url = `/billboard/${idBillboard}`;
+        const url = `/rpc`;
 
-        try {
-            const { data } = await axios.get<BillboardProperties>(url);
-            return data;
-        } catch (e) {
-            log("can't fetch billboard properties");
-            log(e as string);
+        const body = {
+            jsonrpc: '2.0',
+            method: 'dm3_billboard_properties',
+            params: [idBillboard],
+        };
+
+        const { data } = await axios.post(url, { data: body });
+
+        const { error, result } = data;
+
+        if (error) {
+            log(error.message);
             return null;
         }
+
+        return result;
     };
 }
