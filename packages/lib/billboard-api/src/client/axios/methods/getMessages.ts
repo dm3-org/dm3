@@ -5,7 +5,7 @@ import { log } from 'dm3-lib-shared';
 export function getMessages(axios: Axios) {
     return async (
         idBillboard: string,
-        time: Date,
+        time: number,
         idMessageCursor: string,
     ): Promise<Message[] | null> => {
         const url = `/messages/${idBillboard}/${time}/${idMessageCursor} }`;

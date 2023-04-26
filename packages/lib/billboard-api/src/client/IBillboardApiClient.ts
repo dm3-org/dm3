@@ -4,13 +4,13 @@ import { Message } from 'dm3-lib-messaging';
 export type BillboardProperties = {
     name: string;
     mediators: string[];
-    time: Date;
+    time: number;
 };
 export interface IBillboardApiClient {
     //Messages
     getMessages: (
         idBillboard: string,
-        time: Date,
+        time: number,
         idMessageCursor: string,
     ) => Promise<Message[] | null>;
     deleteMessage: (
