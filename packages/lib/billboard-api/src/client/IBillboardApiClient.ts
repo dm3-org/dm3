@@ -25,4 +25,9 @@ export interface IBillboardApiClient {
     getBillboardProperties: (
         idBillboard: string,
     ) => Promise<BillboardProperties | null>;
+    suspendSender: (
+        blockedSender: string,
+        mediator: string,
+        signature: string,
+    ) => Promise<boolean>;
 }
