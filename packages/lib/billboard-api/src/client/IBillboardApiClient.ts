@@ -30,4 +30,5 @@ export interface IBillboardApiClient {
         mediator: string,
         signature: string,
     ) => Promise<boolean>;
+    getActiveViewers: (idBillboard: string) => Promise<number | null>;
 }

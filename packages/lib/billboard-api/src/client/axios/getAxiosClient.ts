@@ -5,6 +5,7 @@ import { getBillboards } from './methods/getBillboards';
 import { getBillboardProperties } from './methods/getBillboardProperties';
 import { deleteMessage } from './methods/deleteMessage';
 import { suspendSender } from './methods/suspendSender';
+import { getActiveViewers } from './methods/getActiveSenders';
 
 export function getAxiosClient(): IBillboardApiClient {
     const baseURL = process.env.REACT_APP_BILLBOARD_BACKEND;
@@ -21,5 +22,6 @@ export function getAxiosClient(): IBillboardApiClient {
         getBillboards: getBillboards(axios),
         getBillboardProperties: getBillboardProperties(axios),
         suspendSender: suspendSender(axios),
+        getActiveViewers: getActiveViewers(axios),
     };
 }
