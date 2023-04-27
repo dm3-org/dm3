@@ -2,7 +2,7 @@ import bodyParser from 'body-parser';
 import { log } from 'dm3-lib-shared';
 import ethers from 'ethers';
 import express from 'express';
-import { getDeliveryServiceWSClient as DeliveryServiceWSClient } from './api/ws/getDeliveryServiceWSClient';
+import { getDeliveryServiceWSClient as DeliveryServiceWSClient } from './api/internal/ws/getDeliveryServiceWSClient';
 import { getOwnDm3Profile } from './billboard/dm3/getOwnDm3Profile';
 import { getDatabase } from './persitance/getDatabase';
 
