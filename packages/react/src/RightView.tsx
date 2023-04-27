@@ -1,12 +1,12 @@
-import React, { memo, useContext, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import 'react-chat-widget/lib/styles.css';
-import Chat from './chat/Chat';
 import { GlobalContext } from './GlobalContextProvider';
-import { AccountInfo } from './reducers/shared';
-import { SelectedRightView, UiStateType } from './reducers/UiState';
-import UserInfo from './user-info/UserInfo';
+import Chat from './chat/Chat';
 import RightHeader from './header/RightHeader';
 import DarkLogo from './logos/DarkLogo';
+import { SelectedRightView, UiStateType } from './reducers/UiState';
+import { AccountInfo } from './reducers/shared';
+import UserInfo from './user-info/UserInfo';
 
 function RightView() {
     const { state, dispatch } = useContext(GlobalContext);

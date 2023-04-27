@@ -1,5 +1,6 @@
+import { EncryptionEnvelop } from 'dm3-lib-messaging';
+import { log } from 'dm3-lib-shared';
 import { io } from 'socket.io-client';
-import * as Lib from 'dm3-lib/dist.backend';
 
 export const getDeliveryServiceWSClient = (deliveryServices: string[]) => {
     const sockets = deliveryServices.map((deliveryService) => {
@@ -8,20 +9,18 @@ export const getDeliveryServiceWSClient = (deliveryServices: string[]) => {
         });
 
         socket.on('connect', () => {
-            Lib.log(`connected to deliveryService ${deliveryService}`);
+            log(`connected to deliveryService ${deliveryService}`);
         });
 
         socket.on('disconnect', () => {
-            Lib.log(`disconnected from deliveryService ${deliveryService}`);
+            log(`disconnected from deliveryService ${deliveryService}`);
         });
 
         return socket;
     });
 
     return {
-        onMessage: (
-            callback: (message: Lib.messaging.EncryptionEnvelop) => void,
-        ) => {
+        onMessage: (callback: (message: EncryptionEnvelop) => void) => {
             sockets.forEach((socket) => {
                 socket.on('message', callback);
             });

@@ -1,9 +1,13 @@
-import * as Lib from 'dm3-lib';
+import { createStorageKey, getStorageKeyCreationMessage } from 'dm3-lib-crypto';
+import { ProfileKeys, createProfileKeys } from 'dm3-lib-profile';
+import { Connection } from '../../web3provider/Web3Provider';
+import { ethersHelper } from 'dm3-lib-shared';
+
 export async function createKeyPairsFromSig(
-    connection: Partial<Lib.Connection>,
-    personalSign: Lib.shared.ethersHelper.PersonalSign,
+    connection: Partial<Connection>,
+    personalSign: ethersHelper.PersonalSign,
     nonce: number,
-): Promise<Lib.profile.ProfileKeys> {
+): Promise<ProfileKeys> {
     const { provider, ethAddress } = connection;
 
     if (!provider) {
@@ -14,8 +18,7 @@ export async function createKeyPairsFromSig(
         throw Error('No eth address');
     }
 
-    const storageKeyCreationMessage =
-        Lib.crypto.getStorageKeyCreationMessage(nonce);
+    const storageKeyCreationMessage = getStorageKeyCreationMessage(nonce);
 
     const signature = await personalSign(
         provider,
@@ -23,7 +26,7 @@ export async function createKeyPairsFromSig(
         storageKeyCreationMessage,
     );
 
-    const storageKey = await Lib.crypto.createStorageKey(signature);
+    const storageKey = await createStorageKey(signature);
 
-    return await Lib.profile.createProfileKeys(storageKey, nonce);
+    return await createProfileKeys(storageKey, nonce);
 }

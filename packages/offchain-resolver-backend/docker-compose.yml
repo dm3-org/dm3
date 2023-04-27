@@ -1,0 +1,11 @@
+version: '3.6'
+
+# The containers that compose the project
+services:
+  db:
+    image: redis
+    restart: always
+    container_name: redis_offchain_resolver
+    ports:
+      - '6308:6308'
+

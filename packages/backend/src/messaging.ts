@@ -1,8 +1,14 @@
 import { Socket } from 'socket.io';
 import express from 'express';
-import * as Lib from 'dm3-lib/dist.backend';
 import { WithLocals } from './types';
-
+import { validateSchema } from 'dm3-lib-shared/dist.backend';
+import { EncryptionEnvelop } from 'dm3-lib-messaging/dist.backend';
+import { normalizeEnsName } from 'dm3-lib-profile/dist.backend';
+import {
+    schema,
+    checkToken,
+    incomingMessage,
+} from 'dm3-lib-delivery/dist.backend';
 const pendingMessageSchema = {
     type: 'object',
     properties: {
@@ -28,7 +34,7 @@ export function onConnection(app: express.Application & WithLocals) {
             'submitMessage',
             async (
                 data: {
-                    envelop: Lib.messaging.EncryptionEnvelop;
+                    envelop: EncryptionEnvelop;
                     token: string;
                 },
                 callback,
@@ -38,8 +44,8 @@ export function onConnection(app: express.Application & WithLocals) {
                         method: 'WS INCOMING MESSAGE',
                     });
 
-                    const isSchemaValid = Lib.validateSchema(
-                        Lib.delivery.schema.MessageSubmission,
+                    const isSchemaValid = validateSchema(
+                        schema.MessageSubmission,
                         data,
                     );
 
@@ -53,17 +59,14 @@ export function onConnection(app: express.Application & WithLocals) {
                         return callback({ error });
                     }
 
-                    await Lib.delivery.incomingMessage(
+                    await incomingMessage(
                         data,
                         app.locals.keys.signing,
                         app.locals.keys.encryption,
                         app.locals.deliveryServiceProperties.sizeLimit,
                         app.locals.db.getSession,
                         app.locals.db.createMessage,
-                        (
-                            socketId: string,
-                            envelop: Lib.messaging.EncryptionEnvelop,
-                        ) => {
+                        (socketId: string, envelop: EncryptionEnvelop) => {
                             app.locals.io.sockets
                                 .to(socketId)
                                 .emit('message', envelop);
@@ -83,10 +86,7 @@ export function onConnection(app: express.Application & WithLocals) {
         );
 
         socket.on('pendingMessage', async (data, callback) => {
-            const isSchemaValid = Lib.validateSchema(
-                pendingMessageSchema,
-                data,
-            );
+            const isSchemaValid = validateSchema(pendingMessageSchema, data);
 
             if (!isSchemaValid) {
                 const error = 'invalid schema';
@@ -101,10 +101,8 @@ export function onConnection(app: express.Application & WithLocals) {
 
             let idEnsName: string;
             let idContactEnsName: string;
-            const ensName = Lib.profile.normalizeEnsName(data.ensName);
-            const contactEnsName = Lib.profile.normalizeEnsName(
-                data.contactEnsName,
-            );
+            const ensName = normalizeEnsName(data.ensName);
+            const contactEnsName = normalizeEnsName(data.contactEnsName);
 
             try {
                 idEnsName = await app.locals.db.getIdEnsName(ensName);
@@ -127,7 +125,7 @@ export function onConnection(app: express.Application & WithLocals) {
             });
             try {
                 if (
-                    !(await Lib.delivery.checkToken(
+                    !(await checkToken(
                         app.locals.web3Provider,
                         app.locals.db.getSession,
                         idEnsName,

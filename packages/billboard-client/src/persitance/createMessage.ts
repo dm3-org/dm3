@@ -1,13 +1,14 @@
-import * as Lib from 'dm3-lib/dist.backend';
+import { EncryptionEnvelop, schema } from 'dm3-lib-messaging';
 import { Redis, RedisPrefix } from './getDatabase';
+import { stringify, validateSchema } from 'dm3-lib-shared';
 
 export function createMessage(redis: Redis) {
     return async (
-        envelop: Lib.messaging.EncryptionEnvelop,
+        envelop: EncryptionEnvelop,
         createdAt: number = new Date().getTime(),
     ) => {
-        const isValid = Lib.validateSchema(
-            Lib.messaging.schema.EncryptionEnvelopeSchema,
+        const isValid = validateSchema(
+            schema.EncryptionEnvelopeSchema,
             envelop,
         );
 
@@ -19,7 +20,7 @@ export function createMessage(redis: Redis) {
             RedisPrefix.Conversation + envelop.metadata.signature,
             {
                 score: createdAt,
-                value: Lib.stringify(envelop),
+                value: stringify(envelop),
             },
         );
     };

@@ -1,6 +1,9 @@
 import { Redis, IDatabase, getRedisClient, getDatabase } from '../getDatabase';
-import * as Lib from 'dm3-lib/dist.backend';
 import winston from 'winston';
+import {
+    DeliveryInformation,
+    EncryptionEnvelop,
+} from 'dm3-lib-messaging/dist.backend';
 
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
@@ -24,7 +27,7 @@ describe('Create Message', () => {
     });
 
     it('Creates a new Message ', async () => {
-        const envelop: Lib.messaging.EncryptionEnvelop = {
+        const envelop: EncryptionEnvelop = {
             message: '',
             metadata: {
                 deliveryInformation: '',
@@ -48,7 +51,7 @@ describe('Create Message', () => {
         expect(afterCreateMessages.length).toBe(1);
     });
     it('Add a messages to incoming conversations set ', async () => {
-        const envelop: Lib.messaging.EncryptionEnvelop = {
+        const envelop: EncryptionEnvelop = {
             message: '',
             metadata: {
                 deliveryInformation: {
@@ -74,7 +77,7 @@ describe('Create Message', () => {
                 ...envelop.metadata,
                 deliveryInformation: {
                     ...(envelop.metadata
-                        .deliveryInformation as Lib.messaging.DeliveryInformation),
+                        .deliveryInformation as DeliveryInformation),
                     to: RECEIVER_ADDRESS,
                 },
             },
@@ -89,7 +92,7 @@ describe('Create Message', () => {
     });
 
     it('Rejcts message with an invalid schema', async () => {
-        const invalidMessage = {} as Lib.messaging.EncryptionEnvelop;
+        const invalidMessage = {} as EncryptionEnvelop;
         try {
             await db.createMessage('foo', invalidMessage);
             fail();

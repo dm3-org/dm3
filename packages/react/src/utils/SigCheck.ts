@@ -1,13 +1,15 @@
-import * as Lib from 'dm3-lib';
-import { stringify } from 'safe-stable-stringify';
+import { checkSignature as _checkSignature } from 'dm3-lib-crypto';
+import { Message } from 'dm3-lib-messaging';
+import { normalizeEnsName } from 'dm3-lib-profile';
+import { log, stringify } from 'dm3-lib-shared';
 
 export async function checkSignature(
-    message: Lib.messaging.Message,
+    message: Message,
     publicSigningKey: string,
     ensName: string,
     signature: string,
 ): Promise<boolean> {
-    const sigCheck = await Lib.crypto.checkSignature(
+    const sigCheck = await _checkSignature(
         publicSigningKey,
         stringify(message)!,
         signature,
@@ -15,12 +17,11 @@ export async function checkSignature(
 
     if (
         sigCheck &&
-        Lib.profile.normalizeEnsName(ensName) !==
-            Lib.profile.normalizeEnsName(message.metadata.from)
+        normalizeEnsName(ensName) !== normalizeEnsName(message.metadata.from)
     ) {
         return true;
     } else {
-        Lib.log(`Signature check for ${ensName} failed.`);
+        log(`Signature check for ${ensName} failed.`);
         return false;
     }
 }

@@ -1,5 +1,16 @@
-import * as Lib from 'dm3-lib';
+import {
+    StorageEnvelopContainer,
+    SyncProcessState,
+    UserDB,
+    createTimestamp,
+    getConversation,
+    sortEnvelops,
+} from 'dm3-lib-storage';
 import { ActionMap } from './shared';
+import { normalizeEnsName } from 'dm3-lib-profile';
+import { getId } from 'dm3-lib-messaging';
+import { log } from 'dm3-lib-shared';
+import { Connection } from '../web3provider/Web3Provider';
 
 export enum UserDbType {
     addMessage = 'ADD_MESSAGE',
@@ -14,14 +25,14 @@ export enum UserDbType {
 
 export type UserDbPayload = {
     [UserDbType.addMessage]: {
-        container: Lib.storage.StorageEnvelopContainer;
-        connection: Lib.Connection;
+        container: StorageEnvelopContainer;
+        connection: Connection;
     };
-    [UserDbType.setDB]: Lib.storage.UserDB;
+    [UserDbType.setDB]: UserDB;
     [UserDbType.createEmptyConversation]: string;
     [UserDbType.setSynced]: boolean;
     [UserDbType.setConfigViewed]: boolean;
-    [UserDbType.setSyncProcessState]: Lib.storage.SyncProcessState;
+    [UserDbType.setSyncProcessState]: SyncProcessState;
     [UserDbType.hideContact]: { ensName: string; aka?: string };
     [UserDbType.unhideContact]: string;
 };
@@ -30,10 +41,10 @@ export type UserDbActions =
     ActionMap<UserDbPayload>[keyof ActionMap<UserDbPayload>];
 
 export function userDbReducer(
-    state: Lib.storage.UserDB | undefined,
+    state: UserDB | undefined,
     action: UserDbActions,
-): Lib.storage.UserDB | undefined {
-    const lastChangeTimestamp = Lib.storage.createTimestamp();
+): UserDB | undefined {
+    const lastChangeTimestamp = createTimestamp();
     switch (action.type) {
         case UserDbType.addMessage:
             if (!state) {
@@ -42,29 +53,27 @@ export function userDbReducer(
 
             const container = action.payload.container;
             const connection = action.payload.connection;
-            const newConversations = new Map<
-                string,
-                Lib.storage.StorageEnvelopContainer[]
-            >(state.conversations);
+            const newConversations = new Map<string, StorageEnvelopContainer[]>(
+                state.conversations,
+            );
 
             let hasChanged = false;
 
-            const contactEnsName = Lib.profile.normalizeEnsName(
+            const contactEnsName = normalizeEnsName(
                 container.envelop.message.metadata.from ===
                     connection.account!.ensName
                     ? container.envelop.message.metadata.to
                     : container.envelop.message.metadata.from,
             );
 
-            const prevContainers: Lib.storage.StorageEnvelopContainer[] =
-                Lib.storage.getConversation(
-                    contactEnsName,
-                    [{ ensName: contactEnsName }],
-                    state,
-                );
+            const prevContainers: StorageEnvelopContainer[] = getConversation(
+                contactEnsName,
+                [{ ensName: contactEnsName }],
+                state,
+            );
 
             if (!container.envelop.id) {
-                container.envelop.id = Lib.messaging.getId(container.envelop);
+                container.envelop.id = getId(container.envelop);
             }
 
             if (prevContainers.length === 0) {
@@ -88,7 +97,7 @@ export function userDbReducer(
 
                 newConversations.set(
                     contactEnsName,
-                    Lib.storage.sortEnvelops([...otherContainer, container]),
+                    sortEnvelops([...otherContainer, container]),
                 );
                 hasChanged = true;
             }
@@ -96,7 +105,7 @@ export function userDbReducer(
             if (!hasChanged) {
                 return state;
             } else {
-                Lib.log(`[DB] Add message (timestamp: ${lastChangeTimestamp})`);
+                log(`[DB] Add message (timestamp: ${lastChangeTimestamp})`);
                 return {
                     ...state,
                     conversations: newConversations,
@@ -108,7 +117,7 @@ export function userDbReducer(
             }
 
         case UserDbType.setDB:
-            Lib.log(`[DB] Set db (timestamp: ${lastChangeTimestamp})`);
+            log(`[DB] Set db (timestamp: ${lastChangeTimestamp})`);
             return {
                 ...action.payload,
                 lastChangeTimestamp,
@@ -119,17 +128,13 @@ export function userDbReducer(
                 throw Error(`UserDB hasn't been created.`);
             }
 
-            if (
-                state.conversations.has(
-                    Lib.profile.normalizeEnsName(action.payload),
-                )
-            ) {
-                Lib.log(
+            if (state.conversations.has(normalizeEnsName(action.payload))) {
+                log(
                     `[DB] Converation exists already (timestamp: ${lastChangeTimestamp})`,
                 );
                 return state;
             }
-            Lib.log(
+            log(
                 `[DB] Create empty conversation (timestamp: ${lastChangeTimestamp})`,
             );
 
@@ -151,7 +156,7 @@ export function userDbReducer(
             if (state.synced === action.payload) {
                 return state;
             } else {
-                Lib.log(
+                log(
                     `[DB] Set synced to ${action.payload} (timestamp: ${lastChangeTimestamp})`,
                 );
 
@@ -167,7 +172,7 @@ export function userDbReducer(
                 throw Error(`UserDB hasn't been created.`);
             }
 
-            Lib.log(`[DB] Set config viewed`);
+            log(`[DB] Set config viewed`);
 
             return {
                 ...state,
@@ -182,7 +187,7 @@ export function userDbReducer(
             if (state.syncProcessState === action.payload) {
                 return state;
             } else {
-                Lib.log(
+                log(
                     `[DB] Set sync process state to ${action.payload} (timestamp: ${lastChangeTimestamp}) `,
                 );
 
@@ -204,10 +209,10 @@ export function userDbReducer(
                         contact === action.payload,
                 )
             ) {
-                Lib.log(`[DB] Contact ${action.payload} already hidden`);
+                log(`[DB] Contact ${action.payload} already hidden`);
                 return state;
             } else {
-                Lib.log(`[DB] Hide contact ${action.payload} `);
+                log(`[DB] Hide contact ${action.payload} `);
 
                 return {
                     ...state,
@@ -227,17 +232,17 @@ export function userDbReducer(
                     (contact) => contact.ensName === action.payload,
                 )
             ) {
-                Lib.log(`[DB] Contact ${action.payload} not hidden`);
+                log(`[DB] Contact ${action.payload} not hidden`);
                 return state;
             } else {
-                Lib.log(`[DB] Unhide contact ${action.payload} `);
+                log(`[DB] Unhide contact ${action.payload} `);
 
                 return {
                     ...state,
                     hiddenContacts: state.hiddenContacts.filter(
                         (contact) =>
-                            Lib.profile.normalizeEnsName(contact.ensName) !==
-                            Lib.profile.normalizeEnsName(action.payload),
+                            normalizeEnsName(contact.ensName) !==
+                            normalizeEnsName(action.payload),
                     ),
                     synced: false,
                     lastChangeTimestamp,

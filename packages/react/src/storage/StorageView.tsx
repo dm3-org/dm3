@@ -1,11 +1,22 @@
-import React, { useContext, useEffect, useState } from 'react';
+import {
+    StorageLocation,
+    SyncProcessState,
+    UserDB,
+    googleStore,
+    sync as syncStorage,
+    useDm3Storage,
+    web3Store,
+} from 'dm3-lib-storage';
+import localforage from 'localforage';
+import { useContext, useEffect } from 'react';
 import 'react-chat-widget/lib/styles.css';
 import { GlobalContext } from '../GlobalContextProvider';
-import * as Lib from 'dm3-lib';
 import { UserDbType } from '../reducers/UserDB';
 import Icon from '../ui-shared/Icon';
 import './Storage.css';
-import localforage from 'localforage';
+import { getAccountDisplayName, getBrowserStorageKey } from 'dm3-lib-profile';
+import { syncAcknoledgment } from 'dm3-lib-delivery-api';
+import { log } from 'dm3-lib-shared';
 
 function StorageView() {
     const { state, dispatch } = useContext(GlobalContext);
@@ -15,48 +26,48 @@ function StorageView() {
         }
         dispatch({
             type: UserDbType.setSyncProcessState,
-            payload: Lib.storage.SyncProcessState.Running,
+            payload: SyncProcessState.Running,
         });
         try {
             let acknoledgments = [];
 
             switch (state.connection.storageLocation) {
-                case Lib.storage.StorageLocation.GoogleDrive:
-                    acknoledgments = await Lib.storage.googleStore(
+                case StorageLocation.GoogleDrive:
+                    acknoledgments = await googleStore(
                         (window as any).gapi,
-                        state.userDb as Lib.storage.UserDB,
+                        state.userDb as UserDB,
                         state.auth.currentSession?.token!,
                     );
                     break;
 
-                case Lib.storage.StorageLocation.Web3Storage:
-                    acknoledgments = await Lib.storage.web3Store(
+                case StorageLocation.Web3Storage:
+                    acknoledgments = await web3Store(
                         state.connection.storageToken!,
-                        state.userDb as Lib.storage.UserDB,
+                        state.userDb as UserDB,
                         state.auth.currentSession?.token!,
                     );
                     break;
 
-                case Lib.storage.StorageLocation.dm3Storage:
-                    acknoledgments = await Lib.storage.useDm3Storage(
+                case StorageLocation.dm3Storage:
+                    acknoledgments = await useDm3Storage(
                         state.connection.provider!,
                         state.connection.account!,
-                        state.userDb as Lib.storage.UserDB,
+                        state.userDb as UserDB,
                         state.auth.currentSession?.token!,
                     );
                     break;
 
-                case Lib.storage.StorageLocation.File:
+                case StorageLocation.File:
                 default:
                     if (state.userDb) {
-                        await Lib.storage.useDm3Storage(
+                        await useDm3Storage(
                             state.connection.provider!,
                             state.connection.account!,
                             state.userDb,
                             state.auth.currentSession?.token!,
                         );
                     }
-                    const syncResult = await Lib.storage.sync(
+                    const syncResult = await syncStorage(
                         state.userDb,
                         state.auth.currentSession?.token!,
                     );
@@ -69,7 +80,7 @@ function StorageView() {
                     );
 
                     const a = document.createElement('a');
-                    a.download = `${Lib.profile.getAccountDisplayName(
+                    a.download = `${getAccountDisplayName(
                         state.connection.account!.ensName,
                         35,
                         true,
@@ -86,7 +97,7 @@ function StorageView() {
             }
 
             if (state.userDb && acknoledgments.length > 0) {
-                await Lib.deliveryApi.syncAcknoledgment(
+                await syncAcknoledgment(
                     state.connection.provider!,
                     state.connection.account!,
                     acknoledgments,
@@ -98,29 +109,28 @@ function StorageView() {
             dispatch({ type: UserDbType.setSynced, payload: true });
             dispatch({
                 type: UserDbType.setSyncProcessState,
-                payload: Lib.storage.SyncProcessState.Idle,
+                payload: SyncProcessState.Idle,
             });
         } catch (e) {
-            Lib.log(e as string);
+            log(e as string);
             dispatch({
                 type: UserDbType.setSyncProcessState,
-                payload: Lib.storage.SyncProcessState.Failed,
+                payload: SyncProcessState.Failed,
             });
         }
     };
 
     const autoSync = () => {
         if (
-            (state.connection.storageLocation ===
-                Lib.storage.StorageLocation.Web3Storage ||
+            (state.connection.storageLocation === StorageLocation.Web3Storage ||
                 state.connection.storageLocation ===
-                    Lib.storage.StorageLocation.dm3Storage ||
+                    StorageLocation.dm3Storage ||
                 state.connection.storageLocation ===
-                    Lib.storage.StorageLocation.GoogleDrive) &&
+                    StorageLocation.GoogleDrive) &&
             state.userDb &&
             !state.userDb.synced
         ) {
-            Lib.log(
+            log(
                 `[DB] Create user storage external snapshot at timestamp ${state.userDb?.lastChangeTimestamp}`,
             );
             sync();
@@ -130,11 +140,9 @@ function StorageView() {
     useEffect(() => {
         const setBroserStorage = async () => {
             localforage.setItem(
-                Lib.profile.getBrowserStorageKey(
-                    state.connection.account!.ensName,
-                ),
+                getBrowserStorageKey(state.connection.account!.ensName),
                 (
-                    await Lib.storage.sync(
+                    await syncStorage(
                         state.userDb,
                         state.auth.currentSession?.token!,
                     )
@@ -142,7 +150,7 @@ function StorageView() {
             );
         };
         if (state.uiState.browserStorageBackup) {
-            Lib.log(
+            log(
                 `[DB/Browser] Create user storage browser snapshot at timestamp ${state.userDb?.lastChangeTimestamp}`,
             );
             setBroserStorage();
@@ -152,11 +160,10 @@ function StorageView() {
 
     const showAlert =
         (!state.userDb?.synced &&
-            state.connection.storageLocation ===
-                Lib.storage.StorageLocation.File) ||
-        state.userDb?.syncProcessState === Lib.storage.SyncProcessState.Failed;
+            state.connection.storageLocation === StorageLocation.File) ||
+        state.userDb?.syncProcessState === SyncProcessState.Failed;
 
-    if (state.connection.storageLocation !== Lib.storage.StorageLocation.File) {
+    if (state.connection.storageLocation !== StorageLocation.File) {
         return <></>;
     }
 
@@ -172,7 +179,7 @@ function StorageView() {
                         <button
                             type="button"
                             onClick={() => {
-                                Lib.log(
+                                log(
                                     `Manually create user storage external snapshot` +
                                         ` at timestamp ${state.userDb?.lastChangeTimestamp}`,
                                 );
@@ -181,18 +188,18 @@ function StorageView() {
                             className={`ms-1 me-3 btn btn-outline-secondary right-btn`}
                             disabled={
                                 state.userDb?.syncProcessState ===
-                                Lib.storage.SyncProcessState.Running
+                                SyncProcessState.Running
                             }
                         >
                             {state.userDb?.syncProcessState ===
-                            Lib.storage.SyncProcessState.Running ? (
+                            SyncProcessState.Running ? (
                                 <span className="push-end">
                                     <Icon iconClass="fas fa-sync fa-spin" />
                                 </span>
                             ) : (
                                 <>
                                     {state.connection.storageLocation ===
-                                    Lib.storage.StorageLocation.File ? (
+                                    StorageLocation.File ? (
                                         <Icon
                                             iconClass={`fas fa-download ${
                                                 state.userDb?.synced

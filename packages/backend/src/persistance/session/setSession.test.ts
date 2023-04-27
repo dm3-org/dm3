@@ -1,5 +1,6 @@
 import { Redis, IDatabase, getRedisClient, getDatabase } from '../getDatabase';
-import * as Lib from 'dm3-lib/dist.backend';
+import { UserProfile } from 'dm3-lib-profile/dist.backend';
+import { Session } from 'dm3-lib-delivery/dist.backend';
 import winston from 'winston';
 
 const USER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
@@ -24,12 +25,12 @@ describe('Set Session', () => {
     });
 
     it('Creates a new Session ', async () => {
-        const profile: Lib.profile.UserProfile = {
+        const profile: UserProfile = {
             publicEncryptionKey: '',
             publicSigningKey: '',
             deliveryServices: [],
         };
-        const session: Lib.delivery.Session = {
+        const session: Session = {
             account: USER_ADDRESS,
             signedUserProfile: { profile, signature: 'foo' },
             token: '',
@@ -53,7 +54,7 @@ describe('Set Session', () => {
     });
 
     it('Rejcts session with an invalid schema', async () => {
-        const invalidSession = {} as Lib.delivery.Session;
+        const invalidSession = {} as Session;
         try {
             await db.setSession('foo', invalidSession);
             fail();

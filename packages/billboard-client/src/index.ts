@@ -1,10 +1,9 @@
 import bodyParser from 'body-parser';
+import { log } from 'dm3-lib-shared';
+import ethers from 'ethers';
 import express from 'express';
-import * as Lib from 'dm3-lib/dist.backend';
 import { getDeliveryServiceWSClient as DeliveryServiceWSClient } from './api/ws/getDeliveryServiceWSClient';
 import { getOwnDm3Profile } from './billboard/dm3/getOwnDm3Profile';
-import { createMessage } from './persitance/createMessage';
-import ethers from 'ethers';
 import { getDatabase } from './persitance/getDatabase';
 
 /**
@@ -31,7 +30,7 @@ const main = async () => {
     //Start web server
     const port = process.env.PORT || 3000;
     app.listen(port, () => {
-        Lib.log(`Listening on port ${port}`);
+        log(`Listening on port ${port}`);
     });
     return app;
 };

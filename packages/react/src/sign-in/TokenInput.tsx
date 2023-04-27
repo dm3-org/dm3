@@ -1,12 +1,12 @@
-import React, { useContext } from 'react';
-import './SignIn.css';
-import * as Lib from 'dm3-lib';
-import { connectionPhase } from './Phases';
+import { useContext } from 'react';
 import { GlobalContext } from '../GlobalContextProvider';
 import Icon from '../ui-shared/Icon';
+import { connectionPhase } from './Phases';
+import './SignIn.css';
+import { StorageLocation } from 'dm3-lib-storage';
 
 interface TokenInputProps {
-    storageLocation: Lib.storage.StorageLocation;
+    storageLocation: StorageLocation;
     token: string | undefined;
     setToken: (token: string | undefined) => void;
     storeApiToken: boolean;
@@ -16,7 +16,7 @@ function TokenInput(props: TokenInputProps) {
     const { state, dispatch } = useContext(GlobalContext);
     if (
         connectionPhase(state.connection.connectionState) ||
-        props.storageLocation !== Lib.storage.StorageLocation.Web3Storage ||
+        props.storageLocation !== StorageLocation.Web3Storage ||
         (state.uiState.proflieExists && props.token && props.storeApiToken)
     ) {
         return null;

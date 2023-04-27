@@ -1,7 +1,6 @@
 import { Axios } from 'axios';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import * as Lib from 'dm3-lib/dist.backend';
 import express from 'express';
 import http from 'http';
 import path from 'path';
@@ -16,6 +15,8 @@ import { getDatabase } from './persistance/getDatabase';
 import Profile from './profile';
 import RpcProxy from './rpc/rpc-proxy';
 import Storage from './storage';
+import { log } from 'dm3-lib-shared/dist.backend';
+
 import {
     errorHandler,
     getWeb3Provider,
@@ -66,9 +67,9 @@ app.use(bodyParser.json());
     app.use('/rpc', RpcProxy(new Axios({ url: process.env.RPC })));
     app.use(logError);
     app.use(errorHandler);
-
+    //@ts-ignore
     io.use(socketAuth(app));
-
+    //@ts-ignore
     io.on('connection', onConnection(app));
 
     startCleanUpPendingMessagesJob(
@@ -82,5 +83,5 @@ app.use(express.static(path.join(__dirname, '../../web/build')));
 const port = process.env.PORT || '8080';
 
 server.listen(port, () => {
-    Lib.log('[Server] listening at port ' + port + ' and dir ' + __dirname);
+    log('[Server] listening at port ' + port + ' and dir ' + __dirname);
 });

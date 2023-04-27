@@ -1,13 +1,20 @@
-import * as Lib from 'dm3-lib';
+import { UserDB, getConversationId } from 'dm3-lib-storage';
 import { fetchPendingConversations } from './../../../api/http/conversations/fetchPendingConversations';
 import { addContact } from './addContact';
+import {
+    Account,
+    checkUserProfile,
+    getUserProfile,
+    normalizeEnsName,
+} from 'dm3-lib-profile';
+import { Connection } from '../../web3provider/Web3Provider';
 
 export async function getContacts(
-    connection: Lib.Connection,
-    userDb: Lib.storage.UserDB,
+    connection: Connection,
+    userDb: UserDB,
     deliveryServiceToken: string,
     createEmptyConversationEntry: (id: string) => void,
-): Promise<Lib.profile.Account[]> {
+): Promise<Account[]> {
     if (!connection.provider) {
         throw Error('No provider');
     }
@@ -20,8 +27,8 @@ export async function getContacts(
     for (const pendingConversation of pendingConversations) {
         if (
             !userDb.conversations.has(
-                Lib.storage.getConversationId(
-                    Lib.profile.normalizeEnsName(connection.account!.ensName),
+                getConversationId(
+                    normalizeEnsName(connection.account!.ensName),
                     pendingConversation,
                 ),
             )
@@ -40,14 +47,14 @@ export async function getContacts(
         Array.from(userDb.conversations.keys())
             .map((conversationId) => conversationId.split(','))
             .map((ensNames) =>
-                Lib.profile.normalizeEnsName(connection.account!.ensName) ===
-                Lib.profile.normalizeEnsName(ensNames[0])
-                    ? Lib.profile.normalizeEnsName(ensNames[1])
-                    : Lib.profile.normalizeEnsName(ensNames[0]),
+                normalizeEnsName(connection.account!.ensName) ===
+                normalizeEnsName(ensNames[0])
+                    ? normalizeEnsName(ensNames[1])
+                    : normalizeEnsName(ensNames[0]),
             )
             .map(async (ensName) => {
-                const profile = await Lib.profile.getUserProfile(
-                    connection,
+                const profile = await getUserProfile(
+                    connection.provider!,
                     ensName,
                 );
                 return {
@@ -64,7 +71,7 @@ export async function getContacts(
             uncheckedProfiles.map(async (uncheckedProfile) => ({
                 valid:
                     !uncheckedProfile.profile ||
-                    (await Lib.profile.checkUserProfile(
+                    (await checkUserProfile(
                         connection.provider!,
                         uncheckedProfile.profile,
 

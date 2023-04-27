@@ -2,7 +2,17 @@
     "private": true,
     "workspaces": {
         "packages": [
-            "packages/lib",
+            "packages/lib/shared",
+            "packages/lib/crypto",
+            "packages/lib/profile",
+            "packages/lib/messaging",
+            "packages/lib/delivery",
+            "packages/lib/storage",
+            "packages/lib/delivery-api",
+            "packages/lib/offchainResolver",
+            "packages/lib/offchainResolver-api",
+            "packages/offchainResolver-backend",
+            "packages/lib/dm3-lib-billboard-api",
             "packages/backend",
             "packages/billboard-client",
             "packages/react",
@@ -31,14 +41,14 @@
     },
     "scripts": {
         "docker:up": "cd packages/backend && docker-compose up -d",
-        "build": "cd packages/lib/ && yarn build && cd ../react && yarn build && cd ../web && yarn build && cd ../backend && yarn build && cd ../offchain-resolver && yarn build",
+        "build": "yarn workspaces run build",
         "start": "cd packages/backend && yarn start",
         "resolver": "cd packages/offchain-resolver && yarn start",
         "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
         "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
         "format:check": "prettier --check '*/**/*.{js,ts,tsx,json}'",
         "prepare": "husky install",
-        "test": "npm run docker:up && ./test-all.sh"
+        "test": "yarn workspaces run test"
     },
     "packageManager": "yarn@1.22.19",
     "resolutions": {

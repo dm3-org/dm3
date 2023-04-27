@@ -1,7 +1,7 @@
-import * as Lib from 'dm3-lib/dist.backend';
 import { createClient } from 'redis';
 import winston from 'winston';
 import { createMessage } from './createMessage';
+import { EncryptionEnvelop } from 'dm3-lib-messaging';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -52,7 +52,7 @@ export async function getDatabase(
 
 export interface IDatabase {
     createMessage: (
-        envelop: Lib.messaging.EncryptionEnvelop,
+        envelop: EncryptionEnvelop,
         createdAt?: number,
     ) => Promise<void>;
 }

@@ -1,12 +1,13 @@
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../GlobalContextProvider';
-import * as Lib from 'dm3-lib';
 import { connectionPhase } from './Phases';
 import { ConnectionType } from '../reducers/Connection';
 import StateButton, { ButtonState } from '../ui-shared/StateButton';
+import { StorageLocation } from 'dm3-lib-storage';
+import { ConnectionState } from '../web3provider/Web3Provider';
 
 interface GoogleConnectProps {
-    storageLocation: Lib.storage.StorageLocation;
+    storageLocation: StorageLocation;
     setGoogleAuthState: (authState: GoogleAuthState) => void;
     googleAuthState: GoogleAuthState;
 }
@@ -34,14 +35,12 @@ function GoogleConnect(props: GoogleConnectProps) {
         try {
             if (
                 isSignedIn &&
-                props.storageLocation ===
-                    Lib.storage.StorageLocation.GoogleDrive
+                props.storageLocation === StorageLocation.GoogleDrive
             ) {
                 props.setGoogleAuthState(GoogleAuthState.Success);
                 dispatch({
                     type: ConnectionType.ChangeConnectionState,
-                    payload:
-                        Lib.web3provider.ConnectionState.AccountConntectReady,
+                    payload: ConnectionState.AccountConntectReady,
                 });
             } else {
                 (window as any).gapi.auth2.getAuthInstance().signIn();
@@ -100,8 +99,7 @@ function GoogleConnect(props: GoogleConnectProps) {
     };
 
     return connectionPhase(state.connection.connectionState) ||
-        props.storageLocation !==
-            Lib.storage.StorageLocation.GoogleDrive ? null : (
+        props.storageLocation !== StorageLocation.GoogleDrive ? null : (
         <div className="row row-space">
             <div className="col-md-5">
                 <StateButton

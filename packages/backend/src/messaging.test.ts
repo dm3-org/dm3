@@ -2,9 +2,11 @@ import express from 'express';
 import { Socket } from 'socket.io';
 import { onConnection } from './messaging';
 import { testData } from '../../../test-data/encrypted-envelops.test';
-import * as Lib from 'dm3-lib/dist.backend';
 import { WithLocals } from './types';
-
+import { Session } from 'dm3-lib-delivery/dist.backend';
+import { UserProfile } from 'dm3-lib-profile/dist.backend';
+import { createKeyPair } from 'dm3-lib-crypto/dist.backend';
+import { ethersHelper } from 'dm3-lib-shared/dist.backend';
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
@@ -30,7 +32,7 @@ const keysA = {
     storageEncryptionNonce: 0,
 };
 
-const keyPair = Lib.crypto.createKeyPair();
+const keyPair = createKeyPair();
 
 describe('Messaging', () => {
     describe('submitMessage', () => {
@@ -115,7 +117,7 @@ describe('Messaging', () => {
                 return {
                     ...(await getSession(addr)),
                     spamFilterRules: { minNonce: 2 },
-                } as Lib.delivery.Session;
+                } as Session;
             };
             //We provide an mocked express app with all needes locals vars
 
@@ -265,21 +267,15 @@ describe('Messaging', () => {
 });
 
 const getSession = async (address: string) => {
-    const emptyProfile: Lib.profile.UserProfile = {
+    const emptyProfile: UserProfile = {
         publicSigningKey: '',
         publicEncryptionKey: '',
         deliveryServices: [''],
     };
-    const isSender =
-        Lib.shared.ethersHelper.formatAddress(address) === SENDER_ADDRESS;
-    const isReceiver =
-        Lib.shared.ethersHelper.formatAddress(address) === RECEIVER_ADDRESS;
+    const isSender = ethersHelper.formatAddress(address) === SENDER_ADDRESS;
+    const isReceiver = ethersHelper.formatAddress(address) === RECEIVER_ADDRESS;
 
-    const session = (
-        account: string,
-        token: string,
-        profile: Lib.profile.UserProfile,
-    ) => ({
+    const session = (account: string, token: string, profile: UserProfile) => ({
         account,
         signedUserProfile: {
             profile,

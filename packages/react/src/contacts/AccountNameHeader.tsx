@@ -1,16 +1,16 @@
-import React, { useContext } from 'react';
-import './AccountNameHeader.css';
-import * as Lib from 'dm3-lib';
+import { useContext } from 'react';
 import { GlobalContext } from '../GlobalContextProvider';
-import Avatar from '../ui-shared/Avatar';
 import { AccountsType } from '../reducers/Accounts';
-import { AccountInfo } from '../reducers/shared';
-import Icon from '../ui-shared/Icon';
 import { UiStateType } from '../reducers/UiState';
+import { AccountInfo } from '../reducers/shared';
+import Avatar from '../ui-shared/Avatar';
+import Icon from '../ui-shared/Icon';
 import useTooltip from '../ui-shared/useTooltip';
+import './AccountNameHeader.css';
+import { Account, getAccountDisplayName } from 'dm3-lib-profile';
 
 interface AccountNameHeaderProps {
-    account: Lib.profile.Account;
+    account: Account;
 }
 
 function AccountNameHeader(props: AccountNameHeaderProps) {
@@ -57,7 +57,7 @@ function AccountNameHeader(props: AccountNameHeaderProps) {
                                 }}
                                 ref={tooltipRef}
                             >
-                                {Lib.profile.getAccountDisplayName(
+                                {getAccountDisplayName(
                                     props.account.ensName,
                                     20,
                                 )}

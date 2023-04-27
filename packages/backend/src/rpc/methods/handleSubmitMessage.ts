@@ -1,4 +1,6 @@
-import * as Lib from 'dm3-lib/dist.backend';
+import { schema, incomingMessage } from 'dm3-lib-delivery/dist.backend';
+import { EncryptionEnvelop } from 'dm3-lib-messaging/dist.backend';
+import { validateSchema } from 'dm3-lib-shared/dist.backend';
 import 'dotenv/config';
 import express from 'express';
 import { WithLocals } from '../../types';
@@ -21,13 +23,10 @@ export async function handleSubmitMessage(
         return res.send(400);
     }
 
-    const isSchemaValid = Lib.validateSchema(
-        Lib.delivery.schema.MessageSubmission,
-        {
-            envelop,
-            token,
-        },
-    );
+    const isSchemaValid = validateSchema(schema.MessageSubmission, {
+        envelop,
+        token,
+    });
 
     if (!isSchemaValid) {
         const error = 'invalid schema';
@@ -40,14 +39,14 @@ export async function handleSubmitMessage(
     }
 
     try {
-        await Lib.delivery.incomingMessage(
+        await incomingMessage(
             { envelop, token },
             req.app.locals.keys.signing,
             req.app.locals.keys.encryption,
             req.app.locals.deliveryServiceProperties.sizeLimit,
             req.app.locals.db.getSession,
             req.app.locals.db.createMessage,
-            (socketId: string, envelop: Lib.messaging.EncryptionEnvelop) => {
+            (socketId: string, envelop: EncryptionEnvelop) => {
                 req.app.locals.io.sockets.to(socketId).emit('message', envelop);
             },
             req.app.locals.web3Provider,
