@@ -1,5 +1,5 @@
 import { Message } from 'dm3-lib-messaging';
-import { createClient } from 'redis';
+import { RedisClientType, createClient } from 'redis';
 import winston from 'winston';
 import { createMessage } from './createMessage';
 
@@ -29,11 +29,14 @@ export async function getRedisClient(logger: winston.Logger) {
     });
 
     client.on('reconnecting', () => logger.info('Redis reconnection'));
-    client.on('ready', () => logger.info('Redis ready'));
 
-    await client.connect();
-
-    return client;
+    return await new Promise(async (res, rej) => {
+        client.on('ready', () => {
+            () => logger.info('Redis ready');
+            res(client);
+        });
+        await client.connect();
+    });
 }
 
 export async function getDatabase(
