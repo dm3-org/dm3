@@ -1,0 +1,68 @@
+:root {
+  --mainBg: #1F2029;
+  --messageBg: #3A3C50;
+  --textColorPrimary: #FFF;
+  --textColorSecondary: #81828D;
+}
+
+.widget {
+  background-color: var(--mainBg);
+  border-radius: 16px;
+  color: var(--textColorPrimary);
+  max-height: 400px;
+  overflow: auto;
+}
+
+.messageList {
+    list-style: none;
+    margin: 0;
+    padding: 16px 0;
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      margin: 16px;
+    }
+
+    .avatar {
+      padding-right: 16px;
+    }
+}
+.message {
+  .content {
+    padding: 16px 8px;
+    border-radius: 6px;
+    background-color: var(--messageBg);
+    overflow: hidden;
+    white-space: wrap;
+  }
+  .meta {
+    display: flex;
+    justify-content: space-between;
+
+    .sender {
+      color: var(--textColorSecondary);
+      font-weight: 700;
+    }
+    .time {
+      color: var(--textColorSecondary);
+      font-weight: 300;
+    }
+  }
+}
+
+.gradient-shadow {
+  pointer-events: none;
+  position:sticky;
+  top:0;
+  height: 250px;
+  margin-bottom: -250px;
+  background: linear-gradient(180deg, #1F2029 0%, rgba(31, 32, 41, 0) 100%);
+}
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
