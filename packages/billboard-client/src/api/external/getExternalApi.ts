@@ -1,7 +1,8 @@
 import express from 'express';
 import { v4 } from 'uuid';
+import { getViewerCountHandler } from './handler/getViewerCount';
 
-export function getExternaApi() {
+export function getExternaApi(viewerService: IViewerService) {
     const app = express();
 
     app.post('/rpc', async (req: express.Request, res: express.Response) => {
@@ -10,7 +11,9 @@ export function getExternaApi() {
         //Create Json Rpc request Id
         const id = v4();
 
-        const supportedHandlers: IRpcCallHandler[] = [];
+        const supportedHandlers: IRpcCallHandler[] = [
+            getViewerCountHandler(viewerService),
+        ];
 
         const handler = supportedHandlers.find((h) => h.method === method);
 

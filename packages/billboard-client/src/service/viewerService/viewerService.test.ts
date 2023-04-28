@@ -1,7 +1,7 @@
 import { log } from 'dm3-lib-shared';
 import { createServer, Server as HttpServerType } from 'http';
 import { io as Client, SocketOptions } from 'socket.io-client';
-import { startViewerService } from './viewerService';
+import { ViewerService } from './viewerService';
 describe('Viewer Service', () => {
     let client0;
     let client1;
@@ -24,7 +24,7 @@ describe('Viewer Service', () => {
 
     describe('viewerCount', () => {
         it('viewerService recognize multipe viewers', async () => {
-            const viewerService = startViewerService(httpServer);
+            const viewerService = ViewerService(httpServer);
 
             const [socket0IsConnected, socket1IsConnected, socket2IsConnected] =
                 await Promise.all([
@@ -65,7 +65,7 @@ describe('Viewer Service', () => {
             expect(viewerCount).toBe(3);
         });
         it('disconnected client is no longer counted as viewer', async () => {
-            const viewerService = startViewerService(httpServer);
+            const viewerService = ViewerService(httpServer);
 
             const [socket0IsConnected, socket1IsConnected, socket2IsConnected] =
                 await Promise.all([

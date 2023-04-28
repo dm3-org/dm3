@@ -1,7 +1,7 @@
 import http from 'http';
 import { Server, Socket } from 'socket.io';
 
-export function startViewerService(httpServer: http.Server) {
+export function ViewerService(httpServer: http.Server): IViewerService {
     //Establish Ws
     const server = new Server(httpServer, {
         cors: {
