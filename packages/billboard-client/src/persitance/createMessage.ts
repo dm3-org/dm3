@@ -1,27 +1,18 @@
-import { EncryptionEnvelop, schema } from 'dm3-lib-messaging';
-import { Redis, RedisPrefix } from './getDatabase';
+import { Message, schema } from 'dm3-lib-messaging';
 import { stringify, validateSchema } from 'dm3-lib-shared';
+import { Redis, RedisPrefix } from './getDatabase';
 
 export function createMessage(redis: Redis) {
-    return async (
-        envelop: EncryptionEnvelop,
-        createdAt: number = new Date().getTime(),
-    ) => {
-        const isValid = validateSchema(
-            schema.EncryptionEnvelopeSchema,
-            envelop,
-        );
+    return async (idBillboard: string, message: Message) => {
+        const isValid = validateSchema(schema.MessageSchema, message);
 
         if (!isValid) {
             throw Error('Invalid message');
         }
 
-        await redis.zAdd(
-            RedisPrefix.Conversation + envelop.metadata.signature,
-            {
-                score: createdAt,
-                value: stringify(envelop),
-            },
-        );
+        await redis.zAdd(RedisPrefix.Messages + idBillboard, {
+            score: message.metadata.timestamp,
+            value: stringify(message),
+        });
     };
 }

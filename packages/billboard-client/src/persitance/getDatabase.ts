@@ -1,14 +1,10 @@
+import { Message } from 'dm3-lib-messaging';
 import { createClient } from 'redis';
 import winston from 'winston';
 import { createMessage } from './createMessage';
-import { EncryptionEnvelop } from 'dm3-lib-messaging';
 
 export enum RedisPrefix {
-    Conversation = 'conversation:',
-    Sync = 'sync:',
-    Session = 'session:',
-    UserStorage = 'user.storage:',
-    Pending = 'pending:',
+    Messages = 'messages:',
 }
 
 export async function getRedisClient(logger: winston.Logger) {
@@ -51,10 +47,7 @@ export async function getDatabase(
 }
 
 export interface IDatabase {
-    createMessage: (
-        envelop: EncryptionEnvelop,
-        createdAt?: number,
-    ) => Promise<void>;
+    createMessage: (idBillboard: string, message: Message) => Promise<void>;
 }
 
 export type Redis = Awaited<ReturnType<typeof getRedisClient>>;
