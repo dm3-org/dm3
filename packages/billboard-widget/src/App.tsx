@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
 import './App.css';
 
 import { getBillboardApiClient } from 'dm3-lib-billboard-api';
 import { Message } from 'dm3-lib-messaging';
-import ListMessages from './components/ListMessages';
+import ListMessages from './components/MessagesList';
+import AutoScrollContainer from './components/AutoScrollContainer';
 
 const client = getBillboardApiClient({ mock: true });
 
@@ -31,7 +30,7 @@ function App() {
 
     return (
         <>
-            <div className="widget">
+            <AutoScrollContainer containerClassName="widget">
                 <div className="gradient-shadow"></div>
                 {loading ? <div>loading ...</div> : null}
                 {messages && messages.length > 0 ? (
@@ -39,7 +38,7 @@ function App() {
                         <ListMessages messages={messages} />
                     </div>
                 ) : null}
-            </div>
+            </AutoScrollContainer>
             <button onClick={simulateNewMessage}>Send</button>
         </>
     );

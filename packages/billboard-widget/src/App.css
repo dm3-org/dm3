@@ -60,9 +60,24 @@
   background: linear-gradient(180deg, #1F2029 0%, rgba(31, 32, 41, 0) 100%);
 }
 
+.scrollToBottomButton {
+  position: sticky;
+  padding: 16px;
+  bottom: 16px;
+  margin-right: 16px;
+  left: 100%;
+  opacity: 0;
+  transition: opacity 0.5s;
+  &.show {
+    opacity: 0.6;
+  }
+  &:hover {
+    opacity: 1;
+  }
+}
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
-  text-align: center;
 }
