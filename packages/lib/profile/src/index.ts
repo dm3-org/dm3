@@ -11,6 +11,7 @@ export {
     PROFILE_RECORD_NAME,
     formatAddress,
 } from './Profile';
+
 export type { Account, ProfileKeys, GetResource } from './Profile';
 export type {
     SignedUserProfile,
@@ -27,3 +28,4 @@ export {
     getDeliveryServiceProfile,
 } from './deliveryServiceProfile/Delivery';
 export * from './profileKeys/createProfileKeys';
+export * from './profileLink';
