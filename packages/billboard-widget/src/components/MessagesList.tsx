@@ -9,7 +9,7 @@ export interface IMessagesListProps {
 export default function MessagesList({ messages }: IMessagesListProps) {
     return (
         <div className="">
-            <ul className="messageList">
+            <ul className="message-list">
                 {messages.map((msgObj) => (
                     <li>
                         <div className="container">

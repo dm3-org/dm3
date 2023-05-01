@@ -89,7 +89,7 @@ function AutoScrollContainer(props: Props) {
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                     onClick={() => scrollToBottom(bottomRef.current!)}
                     title="Scroll Down"
-                    className={`scrollToBottomButton ${
+                    className={`scroll-to-bottom-button ${
                         !autoScroll ? 'show' : ''
                     }`}
                 >

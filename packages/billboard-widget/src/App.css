@@ -1,3 +1,5 @@
+@import './scrollbars.pcss';
+
 :root {
   --mainBg: #1F2029;
   --messageBg: #3A3C50;
@@ -9,11 +11,15 @@
   background-color: var(--mainBg);
   border-radius: 16px;
   color: var(--textColorPrimary);
-  max-height: 400px;
-  overflow: auto;
+  overflow: hidden;
+
+  .widget-container {
+    max-height: 400px;
+    overflow: auto;
+  }
 }
 
-.messageList {
+.message-list {
     list-style: none;
     margin: 0;
     padding: 16px 0;
@@ -60,7 +66,7 @@
   background: linear-gradient(180deg, #1F2029 0%, rgba(31, 32, 41, 0) 100%);
 }
 
-.scrollToBottomButton {
+.scroll-to-bottom-button {
   position: sticky;
   padding: 16px;
   bottom: 16px;

@@ -30,15 +30,17 @@ function App() {
 
     return (
         <>
-            <AutoScrollContainer containerClassName="widget">
-                <div className="gradient-shadow"></div>
-                {loading ? <div>loading ...</div> : null}
-                {messages && messages.length > 0 ? (
-                    <div>
-                        <ListMessages messages={messages} />
-                    </div>
-                ) : null}
-            </AutoScrollContainer>
+            <div className="widget">
+                <AutoScrollContainer containerClassName="widget-container styled-scrollbars">
+                    <div className="gradient-shadow"></div>
+                    {loading ? <div>loading ...</div> : null}
+                    {messages && messages.length > 0 ? (
+                        <div>
+                            <ListMessages messages={messages} />
+                        </div>
+                    ) : null}
+                </AutoScrollContainer>
+            </div>
             <button onClick={simulateNewMessage}>Send</button>
         </>
     );
