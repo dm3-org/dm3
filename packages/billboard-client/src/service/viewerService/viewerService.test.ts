@@ -98,11 +98,11 @@ describe('Viewer Service', () => {
                     }),
                 ]);
 
-            let viewerCount = viewerService.getViewerCount();
-
             expect(socket0IsConnected).toBe(true);
             expect(socket1IsConnected).toBe(true);
             expect(socket2IsConnected).toBe(true);
+
+            let viewerCount = viewerService.getViewerCount();
             expect(viewerCount).toBe(3);
 
             await client0.close();
