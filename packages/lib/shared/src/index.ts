@@ -4,4 +4,4 @@ export { stringify } from './stringify';
 export { validateSchema } from './validateSchema';
 export * as ethersHelper from './ethersHelper';
 export * as globalConfig from './GlobalConfig';
-export { createJsonDataUri } from './jsonDataUri';
+export { createJsonDataUri } from './createJsonDataUri';

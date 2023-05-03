@@ -66,8 +66,14 @@ describe('ProxyEnvelope', () => {
     describe('createProxyEnvelp', () => {
         it('returns an encrypted envelop', async () => {
             const sendDependencies: SendDependencies = {
-                deliveryServiceEncryptionPubKey:
-                    'KiJ3rfbOMjiHqgB25JsR2Eq5Y+bdg5SoUAGxo4XcQ0M=',
+                deliverServiceProfile: {
+                    publicEncryptionKey:
+                        'KiJ3rfbOMjiHqgB25JsR2Eq5Y+bdg5SoUAGxo4XcQ0M=',
+                    publicSigningKey:
+                        'DWEfOvOv5Xwe+PBwEYOVC0hk1dYvVgbDiE+QKUBSTX4=',
+                    url: '',
+                },
+
                 from: bob.account,
                 to: alice.account,
                 keys: bob.keys,
