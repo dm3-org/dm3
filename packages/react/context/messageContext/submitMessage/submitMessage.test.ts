@@ -10,7 +10,7 @@ const USER_NAME_2 = 'bob.eth';
 const USER_ADDRESS_2 = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
 const getMockProfileKeys = async () => {
-    const nonce = 0;
+    const nonce = '0';
     const wallet = new ethers.Wallet(
         '0xac58f2f021d6f148fd621b355edbd0ebadcf9682019015ef1219cf9c0c2ddc8b',
     );

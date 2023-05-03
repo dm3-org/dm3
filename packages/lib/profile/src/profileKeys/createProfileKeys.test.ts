@@ -4,7 +4,7 @@ import { createProfileKeys } from './createProfileKeys';
 
 test(`Should create keys`, async () => {
     expect.assertions(1);
-    const nonce = 0;
+    const nonce = '0';
 
     const wallet = new ethers.Wallet(
         '0xac58f2f021d6f148fd621b355edbd0ebadcf9682019015ef1219cf9c0c2ddc8b',
@@ -29,6 +29,6 @@ test(`Should create keys`, async () => {
                 'mxwp2Ygys2U3ary7cL0dDbh6TwYl3nEeDVzEaFS01NZnfmfhwVeEJ0MeYvBU9gfAfCImViv4ZrR1s9aPz+bEAQ==',
         },
         storageEncryptionKey: 'mxwp2Ygys2U3ary7cL0dDbh6TwYl3nEeDVzEaFS01NY=',
-        storageEncryptionNonce: 0,
+        storageEncryptionNonce: '0',
     });
 });

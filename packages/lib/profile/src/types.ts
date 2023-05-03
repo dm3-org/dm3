@@ -1,3 +1,5 @@
+import { KeyPair } from 'dm3-lib-crypto';
+
 export interface DeliveryServiceProfile {
     publicSigningKey: string;
     publicEncryptionKey: string;
@@ -13,4 +15,9 @@ export interface UserProfile {
 export interface SignedUserProfile {
     profile: UserProfile;
     signature: string;
+}
+
+export interface DeliveryServiceProfileKeys {
+    encryptionKeyPair: KeyPair;
+    signingKeyPair: KeyPair;
 }

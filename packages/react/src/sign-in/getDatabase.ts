@@ -35,7 +35,7 @@ async function getExistingDatebase(
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
 ) {
-    const keys = await createKeyPairsFromSig(state.connection, 0);
+    const keys = await createKeyPairsFromSig(state.connection, '0');
 
     const deliveryServiceToken = await reAuth(
         state.connection,

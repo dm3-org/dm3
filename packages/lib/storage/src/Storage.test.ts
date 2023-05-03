@@ -53,7 +53,7 @@ const getStorageEnvelopeContainer = (timestamp: number = 0) => {
     } as StorageEnvelopContainer;
 };
 const getMockProfileKeys = async () => {
-    const nonce = 0;
+    const nonce = '0';
     const wallet = new ethers.Wallet(
         '0xac58f2f021d6f148fd621b355edbd0ebadcf9682019015ef1219cf9c0c2ddc8b',
     );

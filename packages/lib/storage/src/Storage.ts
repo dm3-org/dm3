@@ -37,7 +37,7 @@ export interface UserDB {
 
 export interface UserStorage {
     version: string;
-    nonce: number;
+    nonce: string;
     payload: EncryptedPayload;
 }
 
