@@ -45,7 +45,11 @@ export async function createEnvelop(
     keys: ProfileKeys,
     getRessource: GetResource<DeliveryServiceProfile>,
     sendDependenciesCache?: Partial<SendDependencies>,
-): Promise<{ encryptedEnvelop: EncryptionEnvelop; envelop: Envelop }> {
+): Promise<{
+    encryptedEnvelop: EncryptionEnvelop;
+    envelop: Envelop;
+    sendDependencies: SendDependencies;
+}> {
     const to = sendDependenciesCache?.to ?? {
         ensName: message.metadata.to,
         profile: (await getUserProfile(provider, message.metadata.to))?.profile,
@@ -55,38 +59,38 @@ export async function createEnvelop(
         throw Error(`No profile for ${to.ensName}`);
     }
 
-    const deliveryServiceEncryptionPubKey =
-        sendDependenciesCache?.deliveryServiceEncryptionPubKey ??
-        (
-            await getDeliveryServiceProfile(
-                to.profile.deliveryServices[0],
-                provider,
-                getRessource,
-            )
-        )?.publicEncryptionKey;
+    const deliverServiceProfile =
+        sendDependenciesCache?.deliverServiceProfile ??
+        (await getDeliveryServiceProfile(
+            to.profile.deliveryServices[0],
+            provider,
+            getRessource,
+        ));
 
-    if (!deliveryServiceEncryptionPubKey) {
-        throw Error(`Couldn't get delivery service encryption key`);
+    if (!deliverServiceProfile) {
+        throw Error(`Couldn't get delivery service profile`);
     }
     const sendDependencies: SendDependencies = {
         to,
-
         from: sendDependenciesCache?.from ?? {
             ensName: message.metadata.from,
             profile: (await getUserProfile(provider, message.metadata.from))
                 ?.profile,
         },
-        deliveryServiceEncryptionPubKey,
+        deliverServiceProfile,
         keys,
     };
 
-    return buildEnvelop(message, encryptAsymmetric, sendDependencies);
+    return {
+        ...(await buildEnvelop(message, encryptAsymmetric, sendDependencies)),
+        sendDependencies,
+    };
 }
 
 export async function buildEnvelop(
     message: Message,
     encryptAsymmetric: EncryptAsymmetric,
-    { to, from, deliveryServiceEncryptionPubKey, keys }: SendDependencies,
+    { to, from, deliverServiceProfile, keys }: SendDependencies,
     preEncryptedMessage?: string,
 ): Promise<{ encryptedEnvelop: EncryptionEnvelop; envelop: Envelop }> {
     if (!to.profile) {
@@ -117,7 +121,7 @@ export async function buildEnvelop(
         encryptionScheme: 'x25519-chacha20-poly1305',
         deliveryInformation: stringify(
             await encryptAsymmetric(
-                deliveryServiceEncryptionPubKey,
+                deliverServiceProfile.publicEncryptionKey,
                 stringify(deliveryInformation),
             ),
         ),

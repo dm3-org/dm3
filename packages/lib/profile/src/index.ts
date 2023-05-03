@@ -18,6 +18,7 @@ export type {
     SignedUserProfile,
     UserProfile,
     DeliveryServiceProfile,
+    DeliveryServiceProfileKeys,
 } from './types';
 export * from './profileResolver';
 

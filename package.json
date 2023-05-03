@@ -16,7 +16,8 @@
             "packages/backend",
             "packages/react",
             "packages/web",
-            "packages/offchain-resolver"
+            "packages/offchain-resolver",
+            "packages/integration-tests"
         ],
         "nohoist": [
             "**/react",
