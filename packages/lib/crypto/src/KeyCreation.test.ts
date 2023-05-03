@@ -9,7 +9,7 @@ import {
 } from './KeyCreation';
 
 test('should get a correct storage key creation message', async () => {
-    const message = await getStorageKeyCreationMessage(99);
+    const message = await getStorageKeyCreationMessage('99');
     expect(message).toEqual(
         'Connect the dm3 app with your wallet.' +
             ' Keys for secure communication are derived from the signature.' +
