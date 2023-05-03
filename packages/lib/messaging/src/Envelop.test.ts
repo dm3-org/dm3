@@ -49,7 +49,11 @@ describe('Envelope', () => {
             };
 
             const sendDependencies: SendDependencies = {
-                deliveryServiceEncryptionPubKey: '',
+                deliverServiceProfile: {
+                    publicEncryptionKey: '',
+                    publicSigningKey: '',
+                    url: '',
+                },
                 keys: await getMockProfileKeys(),
                 from: {
                     ensName: '',
@@ -90,7 +94,11 @@ describe('Envelope', () => {
             };
 
             const sendDependencies: SendDependencies = {
-                deliveryServiceEncryptionPubKey: '',
+                deliverServiceProfile: {
+                    publicEncryptionKey: '',
+                    publicSigningKey: '',
+                    url: '',
+                },
                 keys: await getMockProfileKeys(),
                 from: {
                     ensName: '',

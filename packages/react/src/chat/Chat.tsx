@@ -273,9 +273,8 @@ function Chat() {
         setMessageStates(new Map(messageStates));
 
         const sendDependencies: SendDependencies = {
-            deliveryServiceEncryptionPubKey:
-                state.accounts.selectedContact.deliveryServiceProfile
-                    ?.publicEncryptionKey ?? '',
+            deliverServiceProfile:
+                state.accounts.selectedContact.deliveryServiceProfile!,
             from: state.connection.account!,
             to: state.accounts.selectedContact.account,
             keys: userDb.keys,

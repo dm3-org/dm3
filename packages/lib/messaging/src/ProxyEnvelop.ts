@@ -70,8 +70,7 @@ export async function createProxyEnvelop(
                             encryptAsymmetric,
                             {
                                 ...sendDependencies,
-                                deliveryServiceEncryptionPubKey:
-                                    dsProfile.profile!.publicEncryptionKey,
+                                deliverServiceProfile: dsProfile.profile!,
                             },
                             encryptedMessage,
                         )

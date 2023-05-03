@@ -1,6 +1,10 @@
 export { createChallenge, createNewSessionToken } from './Keys';
 export { submitUserProfile, getUserProfile } from './UserProfile';
-export { getMessages, incomingMessage } from './Messages';
+export {
+    getMessages,
+    incomingMessage,
+    handleIncomingMessage,
+} from './Messages';
 export type { Acknoledgment } from './Messages';
 export type {} from './PublicMessages';
 export * as schema from './schema';

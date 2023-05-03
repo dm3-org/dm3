@@ -3,7 +3,14 @@ export type {
     EncryptionEnvelop,
     Envelop,
 } from './Envelop';
-export { MessageState, createMessage } from './Message';
+export {
+    MessageState,
+    createMessage,
+    createJsonRpcCallSubmitMessage,
+    handleMessageOnDeliveryService,
+    decryptEnvelop,
+    checkMessageSignature,
+} from './Message';
 export { sendOverMessageProxy } from './MessageProxy';
 export type { ProxySendParams } from './MessageProxy';
 export type {
@@ -11,6 +18,7 @@ export type {
     MessageMetadata,
     Postmark,
     SendDependencies,
+    JsonRpcRequest,
 } from './Message';
 export * as schema from './schema';
 export { getId } from './Utils';
