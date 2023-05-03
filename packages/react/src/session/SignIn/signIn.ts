@@ -12,7 +12,7 @@ import {
 import { claimAddress } from 'dm3-lib-offchain-resolver-api';
 import { Connection, ConnectionState } from '../../web3provider/Web3Provider';
 
-const DEFAULT_NONCE = 0;
+const DEFAULT_NONCE = '0';
 
 //Initial SignIn - Profile is unknown to the delivery service
 //1 ->

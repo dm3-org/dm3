@@ -15,7 +15,7 @@ const bob = {
             publicKey: 'DWEfOvOv5Xwe+PBwEYOVC0hk1dYvVgbDiE+QKUBSTX4=',
         },
         storageEncryptionKey: 'djKxzRYfNoE+gvpFhWlEtejKSpt1UammdibtZ5aG8c4=',
-        storageEncryptionNonce: 0,
+        storageEncryptionNonce: '0',
     },
     account: {
         ensName: 'bob.eth',

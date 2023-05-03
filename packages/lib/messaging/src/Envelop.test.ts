@@ -11,7 +11,7 @@ import { Message, SendDependencies } from './Message';
 const USER_ADDRESS_1 = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 
 const getMockProfileKeys = async () => {
-    const nonce = 0;
+    const nonce = '0';
     const wallet = new ethers.Wallet(
         '0xac58f2f021d6f148fd621b355edbd0ebadcf9682019015ef1219cf9c0c2ddc8b',
     );

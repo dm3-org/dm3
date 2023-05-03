@@ -2,6 +2,7 @@ import {
     KeyPair,
     createStorageKey,
     getStorageKeyCreationMessage,
+    getRandomNonce,
 } from 'dm3-lib-crypto';
 import { sha256, stringify } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
@@ -18,7 +19,7 @@ export interface ProfileKeys {
     encryptionKeyPair: KeyPair;
     signingKeyPair: KeyPair;
     storageEncryptionKey: string;
-    storageEncryptionNonce: number;
+    storageEncryptionNonce: string;
 }
 
 export interface PrivateKeys {
@@ -186,21 +187,19 @@ export function isSameEnsName(
 async function createKeyPairsFromSig(
     provider: ethers.providers.JsonRpcProvider,
     accountAddress: string,
-    nonce?: number,
+    nonce: string,
     storageKey?: string,
 ): Promise<ProfileKeys> {
     if (!storageKey) {
-        const storageKeyCreationMessage = getStorageKeyCreationMessage(
-            nonce ?? 0,
-        );
+        const storageKeyCreationMessage = getStorageKeyCreationMessage(nonce);
         const signature = await provider.send('personal_sign', [
             storageKeyCreationMessage,
             accountAddress,
         ]);
         const newStorageKey = await createStorageKey(signature);
-        return await createProfileKeys(newStorageKey, nonce ?? 0);
+        return await createProfileKeys(newStorageKey, nonce);
     } else {
-        return await createProfileKeys(storageKey, nonce ?? 0);
+        return await createProfileKeys(storageKey, nonce);
     }
 }
 
@@ -216,13 +215,18 @@ export async function createProfile(
     accountAddress: string,
     deiveryServiceNames: string[],
     provider: ethers.providers.JsonRpcProvider,
-    nonce?: number,
+    nonce?: string,
     storageKey?: string,
-): Promise<{ signedProfile: SignedUserProfile; keys: ProfileKeys }> {
+): Promise<{
+    signedProfile: SignedUserProfile;
+    keys: ProfileKeys;
+    nonce: string;
+}> {
+    const nonceToUse = nonce ?? (await getRandomNonce());
     const keys = await createKeyPairsFromSig(
         provider,
         accountAddress,
-        nonce,
+        nonceToUse,
         storageKey,
     );
 
@@ -239,6 +243,9 @@ export async function createProfile(
         profileCreationMessage,
         accountAddress,
     ]);
-
-    return { signedProfile: { profile, signature: profileSig }, keys };
+    return {
+        signedProfile: { profile, signature: profileSig },
+        keys,
+        nonce: nonceToUse,
+    };
 }
