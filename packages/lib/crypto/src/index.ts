@@ -10,6 +10,8 @@ export type {
     EncryptedPayload,
 } from './Encryption';
 
+export { getRandomNonce } from './RandomNonce';
+
 export {
     createKeyPair,
     createReceiverSessionKey,
