@@ -5,7 +5,7 @@ import axios, {
     AxiosRequestConfig,
 } from 'axios';
 import { ethers } from 'ethers';
-import { GetResource } from '../Profile';
+import { GetResource, ProfileKeys } from '../Profile';
 import {
     ProfileResolver,
     LinkResolver,
@@ -13,7 +13,35 @@ import {
     JsonResolver,
 } from '../profileResolver';
 import { validateDeliveryServiceProfile } from './validateDeliveryServiceProfile';
-import { DeliveryServiceProfile, UserProfile } from '../types';
+import {
+    DeliveryServiceProfile,
+    DeliveryServiceProfileKeys,
+    UserProfile,
+} from '../types';
+import { createKeyPair, createSigningKeyPair } from 'dm3-lib-crypto';
+
+/**
+ * creates a dm3 delivery service profile
+ * @param url delivery service endpoint
+ */
+export async function createDeliveryServiceProfile(url: string): Promise<{
+    deliveryServiceProfile: DeliveryServiceProfile;
+    keys: DeliveryServiceProfileKeys;
+}> {
+    const keys: DeliveryServiceProfileKeys = {
+        encryptionKeyPair: await createKeyPair(),
+        signingKeyPair: await createSigningKeyPair(),
+    };
+
+    return {
+        deliveryServiceProfile: {
+            publicEncryptionKey: keys.encryptionKeyPair.publicKey,
+            publicSigningKey: keys.signingKeyPair.publicKey,
+            url: url,
+        },
+        keys,
+    };
+}
 
 export async function getDeliveryServiceProfile(
     deliveryServiceEnsName: string,

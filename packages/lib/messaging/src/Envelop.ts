@@ -1,6 +1,16 @@
-import { EncryptAsymmetric, sign } from 'dm3-lib-crypto';
+import { EncryptAsymmetric, encryptAsymmetric, sign } from 'dm3-lib-crypto';
 import { sha256, stringify } from 'dm3-lib-shared';
 import { Message, Postmark, SendDependencies } from './Message';
+import { ethers } from 'ethers';
+import {
+    Account,
+    DeliveryServiceProfile,
+    GetResource,
+    ProfileExtension,
+    ProfileKeys,
+    getDeliveryServiceProfile,
+    getUserProfile,
+} from 'dm3-lib-profile';
 
 export interface EnvelopeMetadata {
     version: string;
@@ -27,6 +37,50 @@ export interface DeliveryInformation {
     to: string;
     from: string;
     deliveryInstruction?: string;
+}
+
+export async function createEnvelop(
+    message: Message,
+    provider: ethers.providers.JsonRpcProvider,
+    keys: ProfileKeys,
+    getRessource: GetResource<DeliveryServiceProfile>,
+    sendDependenciesCache?: Partial<SendDependencies>,
+): Promise<{ encryptedEnvelop: EncryptionEnvelop; envelop: Envelop }> {
+    const to = sendDependenciesCache?.to ?? {
+        ensName: message.metadata.to,
+        profile: (await getUserProfile(provider, message.metadata.to))?.profile,
+    };
+
+    if (!to.profile) {
+        throw Error(`No profile for ${to.ensName}`);
+    }
+
+    const deliveryServiceEncryptionPubKey =
+        sendDependenciesCache?.deliveryServiceEncryptionPubKey ??
+        (
+            await getDeliveryServiceProfile(
+                to.profile.deliveryServices[0],
+                provider,
+                getRessource,
+            )
+        )?.publicEncryptionKey;
+
+    if (!deliveryServiceEncryptionPubKey) {
+        throw Error(`Couldn't get delivery service encryption key`);
+    }
+    const sendDependencies: SendDependencies = {
+        to,
+
+        from: sendDependenciesCache?.from ?? {
+            ensName: message.metadata.from,
+            profile: (await getUserProfile(provider, message.metadata.from))
+                ?.profile,
+        },
+        deliveryServiceEncryptionPubKey,
+        keys,
+    };
+
+    return buildEnvelop(message, encryptAsymmetric, sendDependencies);
 }
 
 export async function buildEnvelop(
