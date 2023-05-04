@@ -1,20 +1,9 @@
-import React from 'react';
 import { Message } from 'dm3-lib-messaging';
 import { formatDate } from '../utils/formatter';
+import Avatar from './Avatar';
 
 interface Props {
     message: Message;
-}
-
-function Avatar({ identifier }: { identifier: string }) {
-    return (
-        <div className="avatar">
-            <img
-                src={`https://robohash.org/${identifier}?size=38x38`}
-                alt={`cute robot avatar of dm3 user: ${identifier}`}
-            />
-        </div>
-    );
 }
 
 function MessageItem(props: Props) {

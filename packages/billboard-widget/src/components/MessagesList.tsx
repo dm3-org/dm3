@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Message } from 'dm3-lib-messaging';
 import MessageItem from './MessageItem';
 

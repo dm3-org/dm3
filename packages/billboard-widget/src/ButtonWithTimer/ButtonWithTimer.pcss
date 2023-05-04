@@ -1,0 +1,56 @@
+.btn-round {
+  border-radius: 18px;
+  width: 36px;
+  height: 36px;
+  appearance: none;
+  overflow: hidden;
+  padding: 0;
+}
+
+.send-button {
+  background: transparent;
+  position: relative;
+
+  &.disabled {
+    cursor: not-allowed;
+
+    .circle-chart__circle {
+      opacity: 1;
+    }
+    .circle-chart__background {
+      opacity: 1;
+    }
+  }
+
+  &:hover {
+    .circle-chart__background {
+      opacity: 1;
+    }
+  }
+}
+
+.button-icon {
+  position: absolute;
+  width: 100%;
+  transform: translateY(-50%) scale(0.5);
+}
+
+.circle-chart {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+.circle-chart__circle {
+  stroke: #D9D9D9;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  opacity: 0.2;
+  transition: opacity .5s;
+}
+.circle-chart__background {
+  stroke: #81828D;
+  opacity: 0.2;
+  transition: opacity .5s;
+}
+
+

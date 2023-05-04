@@ -1,4 +1,4 @@
-import React, {
+import {
     PropsWithChildren,
     useCallback,
     useEffect,
@@ -11,7 +11,7 @@ import { debounce } from 'lodash';
 type Props = PropsWithChildren<{
     behavior?: 'smooth' | 'auto';
     containerClassName?: string;
-    withToBottomButton: boolean;
+    withToBottomButton?: boolean;
 }>;
 
 /**
@@ -37,7 +37,7 @@ function AutoScrollContainer(props: Props) {
     } = props;
 
     const isScrolledToEnd = useCallback((el: HTMLDivElement) => {
-        return el.scrollTop + el.clientHeight === el.scrollHeight;
+        return el.scrollTop + el.clientHeight >= el.scrollHeight - 10;
     }, []);
 
     const scrollToBottom = useCallback(

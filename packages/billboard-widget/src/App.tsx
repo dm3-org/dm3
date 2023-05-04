@@ -5,6 +5,7 @@ import { getBillboardApiClient } from 'dm3-lib-billboard-api';
 import { Message } from 'dm3-lib-messaging';
 import ListMessages from './components/MessagesList';
 import AutoScrollContainer from './components/AutoScrollContainer';
+import CreateMessage from './components/CreateMessage';
 
 const client = getBillboardApiClient({ mock: true });
 
@@ -40,6 +41,7 @@ function App() {
                         </div>
                     ) : null}
                 </AutoScrollContainer>
+                <CreateMessage />
             </div>
             <button onClick={simulateNewMessage}>Send</button>
         </>
