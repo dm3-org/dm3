@@ -14,20 +14,33 @@ import { mockWsServer } from '../../../test/helper/mockWsServer';
 
 describe('DsConnector', () => {
     describe('Establish connection', () => {
-        //Billboard 1 httpServer
-        //HttpServer that serves delivery service
+        //HttpServers of the delivery services
         let ds1httpServer: HttpServerType;
+        let ds2httpServer: HttpServerType;
+        let ds3httpServer: HttpServerType;
         //Billboard 1 profile
         let billboard1profile;
+        //Billboard 2 profile
+        let billboard2profile;
+
         //DeliveryService 1 profile
         let ds1Profile;
+        //DeliveryService 2 profile
+        let ds2Profile;
+        //DeliveryService 3 profile
+        let ds3Profile;
+
         //DeliveryService 1 wsSocket client
         let ds1WsServer;
+        //DeliveryService 2 wsSocket client
+        let ds2WsServer;
+        //DeliveryService 3 wsSocket client
+        let ds3WsServer;
         beforeEach(async () => {
             billboard1profile = await mockUserProfile(
                 ethers.Wallet.createRandom(),
                 'billboard1.eth',
-                ['ds1.eth'],
+                ['ds1.eth', 'ds2.eth', 'ds3.eth'],
             );
 
             //DS 1
@@ -49,13 +62,52 @@ describe('DsConnector', () => {
                 .reply(200, {
                     token: 'mock-token',
                 });
+
+            //DS 2
+            ds2Profile = await mockDeliveryServiceProfile(
+                ethers.Wallet.createRandom(),
+                'http://localhost:4061',
+            );
+            ds2httpServer = await mockHttpServer(4061);
+            ds2WsServer = await mockWsServer(ds2httpServer);
+
+            axiosMock
+                .onGet('http://localhost:4061/auth/billboard1.eth')
+                .reply(200, {
+                    challenge: 'mock-challenge',
+                });
+            axiosMock
+                .onPost('http://localhost:4061/auth/billboard1.eth')
+                .reply(200, {
+                    token: 'mock-token',
+                });
+            //DS 3
+            ds3Profile = await mockDeliveryServiceProfile(
+                ethers.Wallet.createRandom(),
+                'http://localhost:4062',
+            );
+            ds3httpServer = await mockHttpServer(4062);
+            ds3WsServer = await mockWsServer(ds3httpServer);
+
+            axiosMock
+                .onGet('http://localhost:4062/auth/billboard1.eth')
+                .reply(200, {
+                    challenge: 'mock-challenge',
+                });
+            axiosMock
+                .onPost('http://localhost:4062/auth/billboard1.eth')
+                .reply(200, {
+                    token: 'mock-token',
+                });
         });
 
         afterEach(() => {
             ds1httpServer.close();
+            ds2httpServer.close();
+            ds3httpServer.close();
         });
 
-        it.only('Establish connections happy path', async () => {
+        it.only('Establish connection for one Billboard with multiple ds connected', async () => {
             const db = {} as IDatabase;
             const mockProvider = {
                 resolveName: () => billboard1profile.address,
@@ -68,6 +120,16 @@ describe('DsConnector', () => {
                     if (ensName === 'ds1.eth') {
                         return {
                             getText: () => ds1Profile.stringified,
+                        } as unknown as ethers.providers.Resolver;
+                    }
+                    if (ensName === 'ds2.eth') {
+                        return {
+                            getText: () => ds2Profile.stringified,
+                        } as unknown as ethers.providers.Resolver;
+                    }
+                    if (ensName === 'ds3.eth') {
+                        return {
+                            getText: () => ds3Profile.stringified,
                         } as unknown as ethers.providers.Resolver;
                     }
                     throw new Error('mock provider unknown ensName');
@@ -86,12 +148,23 @@ describe('DsConnector', () => {
                 billBoards,
             );
 
-            let conn;
+            let conn1;
+            let conn2;
+            let conn3;
             ds1WsServer.on('connect', (cb) => {
-                conn = true;
+                conn1 = true;
             });
+            ds2WsServer.on('connect', (cb) => {
+                conn2 = true;
+            });
+            ds3WsServer.on('connect', (cb) => {
+                conn3 = true;
+            });
+
             await connect();
-            expect(conn).toBe(true);
+            expect(conn1).toBe(true);
+            expect(conn2).toBe(true);
+            expect(conn3).toBe(true);
             await disconnect();
         });
         it('Throws if billboard has no profile', async () => {

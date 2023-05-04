@@ -1,9 +1,10 @@
+import { createStorageKey, getStorageKeyCreationMessage } from 'dm3-lib-crypto';
 import {
-    SignedUserProfile,
     Account,
+    SignedUserProfile,
     UserProfile,
+    createProfileKeys,
     getProfileCreationMessage,
-    DeliveryServiceProfile,
 } from 'dm3-lib-profile';
 import { stringify } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
@@ -19,34 +20,40 @@ export const mockUserProfile = async (
     wallet: ethers.Wallet;
     stringified: string;
 }> => {
+    const storageKeyCreationMessage = getStorageKeyCreationMessage(0);
+
+    const storageKeySig = await wallet.signMessage(storageKeyCreationMessage);
+
+    const storageKey = await createStorageKey(storageKeySig);
+    const profileKeys = await createProfileKeys(storageKey, 0);
+
     const profile: UserProfile = {
-        publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
-        publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
+        publicSigningKey: profileKeys.signingKeyPair.publicKey,
+        publicEncryptionKey: profileKeys.encryptionKeyPair.publicKey,
         deliveryServices,
     };
-
     const createUserProfileMessage = getProfileCreationMessage(
         stringify(profile),
     );
-    const signature = await wallet.signMessage(createUserProfileMessage);
+    const userProfileSig = await wallet.signMessage(createUserProfileMessage);
 
     return {
         wallet,
         address: wallet.address,
         account: {
-            ensName: 'bob.eth',
+            ensName,
             profile,
-            profileSignature: signature,
+            profileSignature: userProfileSig,
         },
         signedUserProfile: {
             profile,
-            signature,
+            signature: userProfileSig,
         },
         stringified:
             'data:application/json,' +
             JSON.stringify({
                 profile,
-                signature,
+                signature: userProfileSig,
             }),
     };
 };

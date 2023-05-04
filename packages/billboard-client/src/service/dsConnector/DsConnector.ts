@@ -2,16 +2,22 @@ import { EncryptionEnvelop } from 'dm3-lib-messaging';
 import {
     DeliveryServiceProfile,
     SignedUserProfile,
+    createProfileKeys,
     getDeliveryServiceProfile,
     getUserProfile,
 } from 'dm3-lib-profile';
 import { log } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
-import { io, Socket } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
 import { getChallenge } from '../../api/internal/rest/getChallenge';
 import { getNewToken } from '../../api/internal/rest/getNewToken';
 import { getDeliveryServiceWSClient } from '../../api/internal/ws/getDeliveryServiceWSConnections';
 import { IDatabase } from '../../persitance/getDatabase';
+import {
+    createStorageKey,
+    getStorageKeyCreationMessage,
+    sign,
+} from 'dm3-lib-crypto';
 
 interface Billboard {
     ensName: string;
@@ -53,15 +59,15 @@ export function dsConnector(
             billboardsWithDsProfile,
         );
 
-        const bbws = await establishWsConnections(authenticatedBillboards);
-        _connectedBillboards = bbws;
+        _connectedBillboards = await establishWsConnections(
+            authenticatedBillboards,
+        );
 
         //For each billboard and their delivryServices we establish a websocket connection
         // await establishWsConnections(billboardsWithDsProfile);
     }
 
     function disconnect() {
-
         _connectedBillboards.forEach((billboard) => {
             billboard.dsProfile.forEach(
                 (ds: DeliveryServiceProfile & { socket: Socket }) => {
@@ -134,7 +140,10 @@ export function dsConnector(
                             throw Error('No challenge received from ' + ds.url);
                         }
 
-                        const signature = _signChallenge(challenge, privateKey);
+                        const signature = await _signChallenge(
+                            challenge,
+                            privateKey,
+                        );
 
                         const token = await getNewToken(
                             ds.url,
@@ -193,9 +202,19 @@ export function dsConnector(
 
     async function establishWsConnection() {}
 
-    function _signChallenge(challenge: string, privateKey: string) {
-        //TODO implement
-        return '123';
+    //TODO Heiko please double check if this is the correct way to sign the challenge of the delivery service
+    async function _signChallenge(challenge: string, privateKey: string) {
+        const wallet = new ethers.Wallet(privateKey);
+
+        const storageKeyCreationMessage = getStorageKeyCreationMessage(0);
+        const storageKeySig = await wallet.signMessage(
+            storageKeyCreationMessage,
+        );
+
+        const storageKey = await createStorageKey(storageKeySig);
+        const profileKeys = await createProfileKeys(storageKey, 0);
+
+        return await sign(profileKeys.signingKeyPair.privateKey, challenge);
     }
 
     return { connect, disconnect };
