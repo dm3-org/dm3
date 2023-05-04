@@ -6,7 +6,7 @@ export async function getChallenge(
     dsUrl: string,
     ensName: string,
 ): Promise<string | null> {
-    const url = `${dsUrl}auth/${normalizeEnsName(ensName)}`;
+    const url = `${dsUrl}/auth/${normalizeEnsName(ensName)}`;
 
     try {
         const { data } = await axios.get(url);

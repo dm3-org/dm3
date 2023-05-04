@@ -9,7 +9,9 @@ import {
     getUserProfile,
 } from 'dm3-lib-profile';
 import { ethers } from 'ethers';
-import { log } from 'dm3-lib-shared';
+import { log, stringify } from 'dm3-lib-shared';
+import { getNewToken } from '../../api/internal/rest/getNewToken';
+import { getChallenge } from '../../api/internal/rest/getChallenge';
 
 interface Billboard {
     ensName: string;
@@ -19,6 +21,9 @@ interface Billboard {
 type BillboardWithProfile = Billboard & SignedUserProfile;
 type BillboardWithDsProfile = BillboardWithProfile & {
     dsProfile: DeliveryServiceProfile[];
+};
+type AuthenticatedBillboard = BillboardWithDsProfile & {
+    dsProfile: (DeliveryServiceProfile & { token: string })[];
 };
 
 export async function dsConnector(
@@ -34,28 +39,32 @@ export async function dsConnector(
     const billboardsWithDsProfile = await Promise.all(
         billboardsWithProfile.map(getDsProfile),
     );
+    //For each delivery service profile we've to exercise the login flow
+    const authenticatedBillboards = await signInAtDs(billboardsWithDsProfile);
 
     //For each billboard and their delivryServices we establish a websocket connection
-    await establishWsConnections(billboardsWithDsProfile);
-
-    //For each delivery service profile we've to exercise the login flow
+    // await establishWsConnections(billboardsWithDsProfile);
 
     async function getBillboardProfile() {
         return await Promise.all(
             billboards.map(async (billboard) => {
                 log('Get User profile for ' + billboard.ensName);
-                const billboardProfile = await getUserProfile(
-                    provider,
-                    billboard.ensName,
-                );
-
-                if (!billboardProfile) {
+                try {
+                    const billboardProfile = await getUserProfile(
+                        provider,
+                        billboard.ensName,
+                    );
+                    return {
+                        ...billboard,
+                        ...billboardProfile!,
+                        dsProfile: [],
+                    };
+                } catch (e: any) {
+                    log(e);
                     throw Error(
-                        "Can't get billboard  profile for " + billboard.ensName,
+                        "Can't get billboard profile for " + billboard.ensName,
                     );
                 }
-                billboardProfile.profile.deliveryServices;
-                return { ...billboard, ...billboardProfile, dsProfile: [] };
             }),
         );
     }
@@ -84,6 +93,45 @@ export async function dsConnector(
         );
         return { ...billboardsWithProfile, dsProfile: dsProfiles };
     }
+    async function signInAtDs(
+        billboardsWithDsProfile: BillboardWithDsProfile[],
+    ): Promise<AuthenticatedBillboard[]> {
+        return await Promise.all(
+            billboardsWithDsProfile.map(async (billboard) => {
+                const { ensName, privateKey, dsProfile } = billboard;
+                //Get the auth token for each delivery service. By doing the challenge using the billboards private key
+                const tokens = await Promise.all(
+                    dsProfile.map(async (ds) => {
+                        //Create session using the billboards private key
+                        const challenge = await getChallenge(ds.url, ensName);
+                        if (!challenge) {
+                            throw Error('No challenge received from ' + ds.url);
+                        }
+
+                        const signature = _signChallenge(challenge, privateKey);
+
+                        const token = await getNewToken(
+                            ds.url,
+                            ensName,
+                            signature,
+                        );
+                        log('get token for ' + ds.url);
+                        if (!token) {
+                            throw Error("Can't create session for " + ds.url);
+                        }
+                        return token;
+                    }),
+                );
+                return {
+                    ...billboard,
+                    dsProfile: tokens.map((token, idx) => ({
+                        ...billboard.dsProfile[idx],
+                        token,
+                    })),
+                };
+            }),
+        );
+    }
 
     function establishWsConnections(
         billboardsWithDsProfile: BillboardWithDsProfile[],
@@ -101,4 +149,9 @@ export async function dsConnector(
     function encryptAndStoreMessage(message: EncryptionEnvelop) {}
 
     async function establishWsConnection() {}
+
+    function _signChallenge(challenge: string, privateKey: string) {
+        //TODO implement
+        return '123';
+    }
 }

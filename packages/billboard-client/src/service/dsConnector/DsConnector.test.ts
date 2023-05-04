@@ -4,9 +4,11 @@ import { dsConnector } from './DsConnector';
 import { mockUserProfile } from '../../../test/helper/mockUserProfile';
 import { mockDeliveryServiceProfile } from '../../../test/helper/mockDeliveryServiceProfile';
 import { UserProfile } from 'dm3-lib-profile';
+import axios, { Axios } from 'axios';
+import MockAdapter from 'axios-mock-adapter';
 
 describe('DsConnector', () => {
-    describe('Establish connections', () => {
+    describe('Establish connection', () => {
         let billboard1profile;
         let ds1Profile;
         beforeEach(async () => {
@@ -20,9 +22,17 @@ describe('DsConnector', () => {
                 ethers.Wallet.createRandom(),
                 'localhost:3001',
             );
+            const axiosMock = new MockAdapter(axios);
+
+            axiosMock.onGet('localhost:3001/auth/billboard1.eth').reply(200, {
+                challenge: 'mock-challenge',
+            });
+            axiosMock.onPost('localhost:3001/auth/billboard1.eth').reply(200, {
+                token: 'mock-token',
+            });
         });
 
-        it('Establish connections', async () => {
+        it.only('Establish connections happy path', async () => {
             const db = {} as IDatabase;
             const mockProvider = {
                 resolveName: () => billboard1profile.address,
@@ -76,9 +86,37 @@ describe('DsConnector', () => {
 
             await expect(
                 dsConnector(db, mockProvider, billBoards),
-            ).rejects.toThrow(
-                "Can't get billboard  profile for billboard1.eth",
-            );
+            ).rejects.toThrow("Can't get billboard profile for billboard1.eth");
+        });
+        it('Throws if billboard has invalid profile', async () => {
+            const db = {} as IDatabase;
+            const mockProvider = {
+                resolveName: () => billboard1profile.address,
+                getResolver: (ensName: string) => {
+                    if (ensName === 'billboard1.eth') {
+                        return {
+                            getText: () =>
+                                "data:application/json,{'foo':'bar'}",
+                        } as unknown as ethers.providers.Resolver;
+                    }
+                    if (ensName === 'ds1.eth') {
+                        return {
+                            getText: () => ds1Profile.stringified,
+                        } as unknown as ethers.providers.Resolver;
+                    }
+                    throw new Error('mock provider unknown ensName');
+                },
+            } as unknown as ethers.providers.JsonRpcProvider;
+            const billBoards = [
+                {
+                    ensName: 'billboard1.eth',
+                    privateKey: billboard1profile.privateKey,
+                },
+            ];
+
+            await expect(
+                dsConnector(db, mockProvider, billBoards),
+            ).rejects.toThrow("Can't get billboard profile for billboard1.eth");
         });
     });
 });

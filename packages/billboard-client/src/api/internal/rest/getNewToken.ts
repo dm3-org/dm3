@@ -7,7 +7,7 @@ export async function getNewToken(
     ensName: string,
     signature: string,
 ): Promise<string | null> {
-    const url = `${dsUrl}auth/${normalizeEnsName(ensName)}`;
+    const url = `${dsUrl}/auth/${normalizeEnsName(ensName)}`;
     try {
         const { data } = await axios.post(url, { signature });
         return data.token;
