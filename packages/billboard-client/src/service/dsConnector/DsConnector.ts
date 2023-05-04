@@ -1,17 +1,17 @@
 import { EncryptionEnvelop } from 'dm3-lib-messaging';
-import { getDeliveryServiceWSClient } from '../../api/internal/ws/getDeliveryServiceWSConnections';
-import { IDatabase } from '../../persitance/getDatabase';
 import {
     DeliveryServiceProfile,
     SignedUserProfile,
-    UserProfile,
     getDeliveryServiceProfile,
     getUserProfile,
 } from 'dm3-lib-profile';
+import { log } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
-import { log, stringify } from 'dm3-lib-shared';
-import { getNewToken } from '../../api/internal/rest/getNewToken';
+import { io, Socket } from 'socket.io-client';
 import { getChallenge } from '../../api/internal/rest/getChallenge';
+import { getNewToken } from '../../api/internal/rest/getNewToken';
+import { getDeliveryServiceWSClient } from '../../api/internal/ws/getDeliveryServiceWSConnections';
+import { IDatabase } from '../../persitance/getDatabase';
 
 interface Billboard {
     ensName: string;
@@ -25,25 +25,51 @@ type BillboardWithDsProfile = BillboardWithProfile & {
 type AuthenticatedBillboard = BillboardWithDsProfile & {
     dsProfile: (DeliveryServiceProfile & { token: string })[];
 };
+type AuthenticatedBillboardWithSocket = AuthenticatedBillboard & {
+    dsProfile: (DeliveryServiceProfile & {
+        token: string;
+        socket: Socket;
+    })[];
+};
 
-export async function dsConnector(
+export function dsConnector(
     db: IDatabase,
     provider: ethers.providers.JsonRpcProvider,
     billboards: Billboard[],
 ) {
-    //Get all delivery service profiles
-    const billboardsWithProfile: BillboardWithProfile[] =
-        await getBillboardProfile();
+    let _connectedBillboards: AuthenticatedBillboardWithSocket[] = [];
 
-    //Get all delivery service profiles
-    const billboardsWithDsProfile = await Promise.all(
-        billboardsWithProfile.map(getDsProfile),
-    );
-    //For each delivery service profile we've to exercise the login flow
-    const authenticatedBillboards = await signInAtDs(billboardsWithDsProfile);
+    async function connect() {
+        //Get all delivery service profiles
+        const billboardsWithProfile: BillboardWithProfile[] =
+            await getBillboardProfile();
 
-    //For each billboard and their delivryServices we establish a websocket connection
-    // await establishWsConnections(billboardsWithDsProfile);
+        //Get all delivery service profiles
+        const billboardsWithDsProfile = await Promise.all(
+            billboardsWithProfile.map(getDsProfile),
+        );
+        //For each delivery service profile we've to exercise the login flow
+        const authenticatedBillboards = await signInAtDs(
+            billboardsWithDsProfile,
+        );
+
+        const bbws = await establishWsConnections(authenticatedBillboards);
+        _connectedBillboards = bbws;
+
+        //For each billboard and their delivryServices we establish a websocket connection
+        // await establishWsConnections(billboardsWithDsProfile);
+    }
+
+    function disconnect() {
+
+        _connectedBillboards.forEach((billboard) => {
+            billboard.dsProfile.forEach(
+                (ds: DeliveryServiceProfile & { socket: Socket }) => {
+                    ds.socket.close();
+                },
+            );
+        });
+    }
 
     async function getBillboardProfile() {
         return await Promise.all(
@@ -133,17 +159,34 @@ export async function dsConnector(
         );
     }
 
-    function establishWsConnections(
-        billboardsWithDsProfile: BillboardWithDsProfile[],
-    ) {
-        billboardsWithDsProfile.map((billboardWithDsProfile) => {
-            const connections = getDeliveryServiceWSClient(
-                billboardWithDsProfile.dsProfile.map(
-                    (ds: DeliveryServiceProfile) => ds.url,
-                ),
-                encryptAndStoreMessage,
-            );
-        });
+    async function establishWsConnections(
+        billboardsWithDsProfile: AuthenticatedBillboard[],
+    ): Promise<AuthenticatedBillboardWithSocket[]> {
+        return await Promise.all(
+            billboardsWithDsProfile.map(async (billboardWithDsProfile) => {
+                const sockets = await getDeliveryServiceWSClient(
+                    billboardWithDsProfile.dsProfile.map(
+                        (ds: DeliveryServiceProfile) => ds.url,
+                    ),
+                    encryptAndStoreMessage,
+                );
+
+                return {
+                    ...billboardWithDsProfile,
+                    dsProfile: billboardWithDsProfile.dsProfile.map(
+                        (
+                            dsProfile: DeliveryServiceProfile & {
+                                token: string;
+                            },
+                            idx,
+                        ) => ({
+                            ...dsProfile,
+                            socket: sockets[idx],
+                        }),
+                    ),
+                };
+            }),
+        );
     }
 
     function encryptAndStoreMessage(message: EncryptionEnvelop) {}
@@ -154,4 +197,6 @@ export async function dsConnector(
         //TODO implement
         return '123';
     }
+
+    return { connect, disconnect };
 }

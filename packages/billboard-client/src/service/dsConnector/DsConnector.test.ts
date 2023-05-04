@@ -3,14 +3,26 @@ import { IDatabase } from '../../persitance/getDatabase';
 import { dsConnector } from './DsConnector';
 import { mockUserProfile } from '../../../test/helper/mockUserProfile';
 import { mockDeliveryServiceProfile } from '../../../test/helper/mockDeliveryServiceProfile';
+import { wait } from '../../../test/helper/utils/wait';
 import { UserProfile } from 'dm3-lib-profile';
 import axios, { Axios } from 'axios';
 import MockAdapter from 'axios-mock-adapter';
+import { mockHttpServer } from '../../../test/helper/mockHttpServer';
+import { createServer, Server as HttpServerType } from 'http';
+import { io as Client, SocketOptions } from 'socket.io-client';
+import { mockWsServer } from '../../../test/helper/mockWsServer';
 
 describe('DsConnector', () => {
     describe('Establish connection', () => {
+        //Billboard 1 httpServer
+        //HttpServer that serves delivery service
+        let ds1httpServer: HttpServerType;
+        //Billboard 1 profile
         let billboard1profile;
+        //DeliveryService 1 profile
         let ds1Profile;
+        //DeliveryService 1 wsSocket client
+        let ds1WsServer;
         beforeEach(async () => {
             billboard1profile = await mockUserProfile(
                 ethers.Wallet.createRandom(),
@@ -18,18 +30,29 @@ describe('DsConnector', () => {
                 ['ds1.eth'],
             );
 
+            //DS 1
             ds1Profile = await mockDeliveryServiceProfile(
                 ethers.Wallet.createRandom(),
-                'localhost:3001',
+                'http://localhost:4060',
             );
+            ds1httpServer = await mockHttpServer(4060);
+            ds1WsServer = await mockWsServer(ds1httpServer);
             const axiosMock = new MockAdapter(axios);
 
-            axiosMock.onGet('localhost:3001/auth/billboard1.eth').reply(200, {
-                challenge: 'mock-challenge',
-            });
-            axiosMock.onPost('localhost:3001/auth/billboard1.eth').reply(200, {
-                token: 'mock-token',
-            });
+            axiosMock
+                .onGet('http://localhost:4060/auth/billboard1.eth')
+                .reply(200, {
+                    challenge: 'mock-challenge',
+                });
+            axiosMock
+                .onPost('http://localhost:4060/auth/billboard1.eth')
+                .reply(200, {
+                    token: 'mock-token',
+                });
+        });
+
+        afterEach(() => {
+            ds1httpServer.close();
         });
 
         it.only('Establish connections happy path', async () => {
@@ -57,7 +80,19 @@ describe('DsConnector', () => {
                 },
             ];
 
-            await dsConnector(db, mockProvider, billBoards);
+            const { connect, disconnect } = dsConnector(
+                db,
+                mockProvider,
+                billBoards,
+            );
+
+            let conn;
+            ds1WsServer.on('connect', (cb) => {
+                conn = true;
+            });
+            await connect();
+            expect(conn).toBe(true);
+            await disconnect();
         });
         it('Throws if billboard has no profile', async () => {
             const db = {} as IDatabase;
@@ -85,7 +120,7 @@ describe('DsConnector', () => {
             ];
 
             await expect(
-                dsConnector(db, mockProvider, billBoards),
+                dsConnector(db, mockProvider, billBoards).connect(),
             ).rejects.toThrow("Can't get billboard profile for billboard1.eth");
         });
         it('Throws if billboard has invalid profile', async () => {
@@ -115,7 +150,7 @@ describe('DsConnector', () => {
             ];
 
             await expect(
-                dsConnector(db, mockProvider, billBoards),
+                dsConnector(db, mockProvider, billBoards).connect(),
             ).rejects.toThrow("Can't get billboard profile for billboard1.eth");
         });
     });
