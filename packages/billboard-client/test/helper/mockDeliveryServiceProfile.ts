@@ -6,8 +6,8 @@ export const mockDeliveryServiceProfile = async (
     url: string,
 ): Promise<{
     address: string;
-
     wallet: ethers.Wallet;
+    profile: DeliveryServiceProfile;
     stringified: string;
 }> => {
     const profile: DeliveryServiceProfile = {
@@ -19,7 +19,7 @@ export const mockDeliveryServiceProfile = async (
     return {
         wallet,
         address: wallet.address,
-
+        profile,
         stringified:
             'data:application/json,' +
             JSON.stringify({

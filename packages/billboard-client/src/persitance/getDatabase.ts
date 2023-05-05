@@ -30,13 +30,11 @@ export async function getRedisClient(logger: winston.Logger) {
 
     client.on('reconnecting', () => logger.info('Redis reconnection'));
 
-    return await new Promise(async (res, rej) => {
-        client.on('ready', () => {
-            () => logger.info('Redis ready');
-            res(client);
-        });
-        await client.connect();
+    client.on('ready', () => {
+        () => logger.info('Redis ready');
     });
+    await client.connect();
+    return client;
 }
 
 export async function getDatabase(

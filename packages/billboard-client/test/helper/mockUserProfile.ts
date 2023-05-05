@@ -1,6 +1,7 @@
 import { createStorageKey, getStorageKeyCreationMessage } from 'dm3-lib-crypto';
 import {
     Account,
+    ProfileKeys,
     SignedUserProfile,
     UserProfile,
     createProfileKeys,
@@ -15,7 +16,9 @@ export const mockUserProfile = async (
     deliveryServices: string[],
 ): Promise<{
     address: string;
+    privateKey: string;
     signedUserProfile: SignedUserProfile;
+    profileKeys: ProfileKeys;
     account: Account;
     wallet: ethers.Wallet;
     stringified: string;
@@ -40,6 +43,7 @@ export const mockUserProfile = async (
     return {
         wallet,
         address: wallet.address,
+        privateKey: wallet.privateKey,
         account: {
             ensName,
             profile,
@@ -49,6 +53,7 @@ export const mockUserProfile = async (
             profile,
             signature: userProfileSig,
         },
+        profileKeys,
         stringified:
             'data:application/json,' +
             JSON.stringify({

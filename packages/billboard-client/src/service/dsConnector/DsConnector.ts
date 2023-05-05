@@ -1,6 +1,7 @@
-import { EncryptionEnvelop } from 'dm3-lib-messaging';
+import { EncryptionEnvelop, Message, Postmark } from 'dm3-lib-messaging';
 import {
     DeliveryServiceProfile,
+    ProfileKeys,
     SignedUserProfile,
     createProfileKeys,
     getDeliveryServiceProfile,
@@ -15,6 +16,7 @@ import { getDeliveryServiceWSClient } from '../../api/internal/ws/getDeliverySer
 import { IDatabase } from '../../persitance/getDatabase';
 import {
     createStorageKey,
+    decryptAsymmetric,
     getStorageKeyCreationMessage,
     sign,
 } from 'dm3-lib-crypto';
@@ -24,7 +26,8 @@ interface Billboard {
     privateKey: string;
 }
 
-type BillboardWithProfile = Billboard & SignedUserProfile;
+type BillboardWithProfile = Billboard &
+    SignedUserProfile & { profileKeys: ProfileKeys };
 type BillboardWithDsProfile = BillboardWithProfile & {
     dsProfile: DeliveryServiceProfile[];
 };
@@ -47,8 +50,7 @@ export function dsConnector(
 
     async function connect() {
         //Get all delivery service profiles
-        const billboardsWithProfile: BillboardWithProfile[] =
-            await getBillboardProfile();
+        const billboardsWithProfile = await getBillboardProfile();
 
         //Get all delivery service profiles
         const billboardsWithDsProfile = await Promise.all(
@@ -81,6 +83,17 @@ export function dsConnector(
         return await Promise.all(
             billboards.map(async (billboard) => {
                 log('Get User profile for ' + billboard.ensName);
+                const wallet = new ethers.Wallet(billboard.privateKey);
+
+                const storageKeyCreationMessage =
+                    getStorageKeyCreationMessage(0);
+                const storageKeySig = await wallet.signMessage(
+                    storageKeyCreationMessage,
+                );
+
+                const storageKey = await createStorageKey(storageKeySig);
+                //TODO Do thosse keys have to match the ones provvied with the profile
+                const profileKeys = await createProfileKeys(storageKey, 0);
                 try {
                     const billboardProfile = await getUserProfile(
                         provider,
@@ -89,6 +102,7 @@ export function dsConnector(
                     return {
                         ...billboard,
                         ...billboardProfile!,
+                        profileKeys,
                         dsProfile: [],
                     };
                 } catch (e: any) {
@@ -130,7 +144,7 @@ export function dsConnector(
     ): Promise<AuthenticatedBillboard[]> {
         return await Promise.all(
             billboardsWithDsProfile.map(async (billboard) => {
-                const { ensName, privateKey, dsProfile } = billboard;
+                const { ensName, profileKeys, dsProfile } = billboard;
                 //Get the auth token for each delivery service. By doing the challenge using the billboards private key
                 const tokens = await Promise.all(
                     dsProfile.map(async (ds) => {
@@ -139,10 +153,9 @@ export function dsConnector(
                         if (!challenge) {
                             throw Error('No challenge received from ' + ds.url);
                         }
-
                         const signature = await _signChallenge(
                             challenge,
-                            privateKey,
+                            profileKeys.signingKeyPair.privateKey,
                         );
 
                         const token = await getNewToken(
@@ -177,7 +190,11 @@ export function dsConnector(
                     billboardWithDsProfile.dsProfile.map(
                         (ds: DeliveryServiceProfile) => ds.url,
                     ),
-                    encryptAndStoreMessage,
+                    (encryptionEnvelop: EncryptionEnvelop) =>
+                        encryptAndStoreMessage(
+                            billboardWithDsProfile,
+                            encryptionEnvelop,
+                        ),
                 );
 
                 return {
@@ -198,23 +215,27 @@ export function dsConnector(
         );
     }
 
-    function encryptAndStoreMessage(message: EncryptionEnvelop) {}
+    async function encryptAndStoreMessage(
+        billboardWithDsProfile: BillboardWithDsProfile,
+        encryptionEnvelop: EncryptionEnvelop,
+    ) {
+        console.log('Start decrypting');
+        const decryptedMessage = JSON.parse(
+            await decryptAsymmetric(
+                billboardWithDsProfile.profileKeys.encryptionKeyPair,
+                JSON.parse(encryptionEnvelop.message),
+            ),
+        ) as Message;
 
-    async function establishWsConnection() {}
+        await db.createMessage(
+            billboardWithDsProfile.ensName,
+            decryptedMessage,
+        );
+    }
 
     //TODO Heiko please double check if this is the correct way to sign the challenge of the delivery service
     async function _signChallenge(challenge: string, privateKey: string) {
-        const wallet = new ethers.Wallet(privateKey);
-
-        const storageKeyCreationMessage = getStorageKeyCreationMessage(0);
-        const storageKeySig = await wallet.signMessage(
-            storageKeyCreationMessage,
-        );
-
-        const storageKey = await createStorageKey(storageKeySig);
-        const profileKeys = await createProfileKeys(storageKey, 0);
-
-        return await sign(profileKeys.signingKeyPair.privateKey, challenge);
+        return await sign(privateKey, challenge);
     }
 
     return { connect, disconnect };
