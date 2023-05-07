@@ -111,12 +111,18 @@ describe('Profile creation and sending a message', () => {
     it('should send a message from Alice to Bob', async () => {
         expect.assertions(2);
 
+        // Function to get HTTP Ressoucres, only needed for IPFS or HTTP profiles (deprecated)
+        // Use CCIP instead of IPFS or HTTP profiles
+        const getRessource = async (uri: string) => null as any;
+
+        // ------
         //
-        // Delivery service setup
+        // Delivery services setup
         //
+        // ------
 
         // The following function calls returns the profile, the keys,
-        // and the nonce for delivery service A and B
+        // and the nonce for delivery services A and B
         // 'http://a' and 'http://b' are the URLs pointing to the delivery service endpoint
         const {
             deliveryServiceProfile: deliveryServiceProfileA,
@@ -134,7 +140,7 @@ describe('Profile creation and sending a message', () => {
         const profileJsonDataUriB = createJsonDataUri(deliveryServiceProfileB);
 
         // The profiles must be published on-chain as ENS 'network.dm3.deliveryService' text record.
-        // In this case a text record mock is used insted of setting
+        // In this case, a text record mock is used instead of setting
         // the actual 'network.dm3.deliveryService' text record of a.eth and b.eth
         textRecordPublishMock(
             'a.eth',
@@ -148,14 +154,16 @@ describe('Profile creation and sending a message', () => {
             profileJsonDataUriB,
         );
 
+        // ------
         //
         // Creating and publishing user profiles
         //
+        // ------
 
-        // Every dm3 user needs to creat and publish a profile containing:
+        // Every dm3 user needs to create and publish a profile containing:
         // - the public signing key,
         // - the public encryption key,
-        // - and a list of the ENS names refrencing the delivery service the user subscribed to
+        // - and a list of the ENS names referencing the delivery service the user subscribed to
         // The following function calls will return the user profile, the keys, and the nonce.
         const {
             signedProfile: aliceProfile,
@@ -175,9 +183,9 @@ describe('Profile creation and sending a message', () => {
         const profileJsonDataUriBob = createJsonDataUri(bobProfile);
 
         // The profiles must be published on-chain or made available via CCIP.
-        // Therefor the ENS 'network.dm3.profile' text record needs to be set to the data URI
-        // containting the user profile.
-        // In this case a text record mock is used insted of setting
+        // Therefore the ENS 'network.dm3.profile' text record needs to be set to the data URI
+        // containing the user profile.
+        // In this case a text record mock is used instead of setting
         // the actual 'network.dm3.deliveryService' text record of alice.eth and bob.eth
 
         textRecordPublishMock(
@@ -192,9 +200,12 @@ describe('Profile creation and sending a message', () => {
             profileJsonDataUriBob,
         );
 
+        // ------
         //
         // Sending and receiving messages
+        // [ Sender Client ] -> Receiver Delivery Service -> Receiver Client
         //
+        // ------
 
         // To receive messages the dm3 clients can subscribe to a "new message" event
         // via a WebSocket that is provided by the delivery service.
@@ -203,6 +214,13 @@ describe('Profile creation and sending a message', () => {
         onMessageReg('alice.eth', async (envelop: EncryptionEnvelop) => {});
 
         onMessageReg('bob.eth', async (encryptedEnvelop: EncryptionEnvelop) => {
+            // ------
+            //
+            // Message Processing on the receiver client
+            // Sender Client -> Receiver Delivery Service -> [ Receiver Client ]
+            //
+            // ------
+
             // The client will decrypt a received message
             const envelop = await decryptEnvelop(
                 encryptedEnvelop,
@@ -221,7 +239,7 @@ describe('Profile creation and sending a message', () => {
             expect(validMessage).toStrictEqual(true);
         });
 
-        // The follwing lines will create a message with the content 'Test Message'
+        // The following lines will create a message with the content 'Test Message'
         const messageAliceToBob = await createMessage(
             'bob.eth',
             'alice.eth',
@@ -234,7 +252,7 @@ describe('Profile creation and sending a message', () => {
         // The createEnvelop function will return an encrypted and unencrypted version of the envelope.
         // The unencrypted version could be used for storing it
         // with a chunk of other received and send messages in a message store.
-        // The message store could be encrypted with the generated symmeatarical key.
+        // The message store could be encrypted with the generated symmetrical key.
         const {
             encryptedEnvelop: encyptedEnvelopAliceToBob,
             envelop: envelopAliceToBob,
@@ -243,7 +261,7 @@ describe('Profile creation and sending a message', () => {
             messageAliceToBob,
             provider,
             aliceKeys,
-            async (uri: string) => null as any, // not needed
+            getRessource,
         );
 
         // The following function returns then JSON RPC Request
@@ -257,15 +275,19 @@ describe('Profile creation and sending a message', () => {
             jsonRpcRequest,
         );
 
+        // ------
         //
         // Message Processing on the deliavery service
+        // Sender Client -> [ Receiver Delivery Service ] -> Receiver Client
         //
+        // ------
+
         const messagesOnDeliveryService = getMessagesMock(
             deliveryServiceProfileB.url,
         );
 
         // handleMessageOnDeliveryService() will decrypt the delivery information
-        // and add a postmark (incomming timestamp) to the envelop
+        // and add a postmark (incoming timestamp) to the envelop
         const processedMessages = await Promise.all(
             messagesOnDeliveryService.map(
                 async (encryptedEnvelop) =>
@@ -277,7 +299,7 @@ describe('Profile creation and sending a message', () => {
             ),
         );
 
-        // after processing the envelop, the delivery service forwards the message to the receiver
+        // After processing the envelope, the delivery service forwards the message to the receiver
         processedMessages.forEach((envelopContainer) =>
             pushMessage(
                 envelopContainer.decryptedDeliveryInformation.to,

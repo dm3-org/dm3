@@ -39,6 +39,43 @@ export interface DeliveryInformation {
     deliveryInstruction?: string;
 }
 
+export async function createSendDependencies(
+    toEnsName: string,
+    fromEnsName: string,
+    provider: ethers.providers.JsonRpcProvider,
+    keys: ProfileKeys,
+    getRessource: GetResource<DeliveryServiceProfile>,
+    sendDependenciesCache?: Partial<SendDependencies>,
+): Promise<SendDependencies> {
+    const to = sendDependenciesCache?.to ?? {
+        ensName: toEnsName,
+        profile: (await getUserProfile(provider, toEnsName))?.profile,
+    };
+    if (!to.profile) {
+        throw Error(`No profile for ${to.ensName}`);
+    }
+    const deliverServiceProfile =
+        sendDependenciesCache?.deliverServiceProfile ??
+        (await getDeliveryServiceProfile(
+            to.profile.deliveryServices[0],
+            provider,
+            getRessource,
+        ));
+    if (!deliverServiceProfile) {
+        throw Error(`No profile for ${to.profile.deliveryServices[0]}`);
+    }
+
+    return {
+        to,
+        from: sendDependenciesCache?.from ?? {
+            ensName: fromEnsName,
+            profile: (await getUserProfile(provider, fromEnsName))?.profile,
+        },
+        deliverServiceProfile,
+        keys,
+    };
+}
+
 export async function createEnvelop(
     message: Message,
     provider: ethers.providers.JsonRpcProvider,
@@ -50,36 +87,14 @@ export async function createEnvelop(
     envelop: Envelop;
     sendDependencies: SendDependencies;
 }> {
-    const to = sendDependenciesCache?.to ?? {
-        ensName: message.metadata.to,
-        profile: (await getUserProfile(provider, message.metadata.to))?.profile,
-    };
-
-    if (!to.profile) {
-        throw Error(`No profile for ${to.ensName}`);
-    }
-
-    const deliverServiceProfile =
-        sendDependenciesCache?.deliverServiceProfile ??
-        (await getDeliveryServiceProfile(
-            to.profile.deliveryServices[0],
-            provider,
-            getRessource,
-        ));
-
-    if (!deliverServiceProfile) {
-        throw Error(`Couldn't get delivery service profile`);
-    }
-    const sendDependencies: SendDependencies = {
-        to,
-        from: sendDependenciesCache?.from ?? {
-            ensName: message.metadata.from,
-            profile: (await getUserProfile(provider, message.metadata.from))
-                ?.profile,
-        },
-        deliverServiceProfile,
+    const sendDependencies = await createSendDependencies(
+        message.metadata.to,
+        message.metadata.from,
+        provider,
         keys,
-    };
+        getRessource,
+        sendDependenciesCache,
+    );
 
     return {
         ...(await buildEnvelop(message, encryptAsymmetric, sendDependencies)),
