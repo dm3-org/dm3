@@ -33,6 +33,12 @@ export interface Account {
     profileSignature?: string;
 }
 
+export interface CreateProfileOptions {
+    nonce: string;
+    storageKey?: string;
+    signer: (msg: string, address: string) => Promise<string>;
+}
+
 export const PROFILE_RECORD_NAME = 'network.dm3.profile';
 
 /**
@@ -208,25 +214,31 @@ async function createKeyPairsFromSig(
  * @param accountAddress wallet address used to sign the profile
  * @param deiveryServiceNames list of delviery service ENS names
  * @param provider ethers JsonRpcProvider
- * @param nonce profile nonce
- * @param nonce existing storage key
+ * @param options Optional creation settings
  */
 export async function createProfile(
     accountAddress: string,
     deiveryServiceNames: string[],
     provider: ethers.providers.JsonRpcProvider,
-    nonce?: string,
-    storageKey?: string,
+    options?: Partial<CreateProfileOptions>,
 ): Promise<{
     signedProfile: SignedUserProfile;
     keys: ProfileKeys;
     nonce: string;
 }> {
-    const nonceToUse = nonce ?? (await getRandomNonce());
+    const { nonce, storageKey, signer }: CreateProfileOptions = {
+        nonce: options?.nonce ?? (await getRandomNonce()),
+        storageKey: options?.storageKey,
+        signer:
+            options?.signer ??
+            ((msg: string, accountAddress: string) =>
+                provider.send('personal_sign', [msg, accountAddress])),
+    };
+
     const keys = await createKeyPairsFromSig(
         provider,
         accountAddress,
-        nonceToUse,
+        nonce,
         storageKey,
     );
 
@@ -239,13 +251,10 @@ export async function createProfile(
     const profileCreationMessage = getProfileCreationMessage(
         stringify(profile),
     );
-    const profileSig = await provider.send('personal_sign', [
-        profileCreationMessage,
-        accountAddress,
-    ]);
+    const profileSig = await signer(profileCreationMessage, accountAddress);
     return {
         signedProfile: { profile, signature: profileSig },
         keys,
-        nonce: nonceToUse,
+        nonce,
     };
 }
