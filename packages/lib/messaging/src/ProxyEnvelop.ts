@@ -1,9 +1,15 @@
-import { EncryptAsymmetric } from 'dm3-lib-crypto';
-import { EncryptionEnvelop, buildEnvelop } from './Envelop';
+import { EncryptAsymmetric, encryptAsymmetric } from 'dm3-lib-crypto';
+import {
+    EncryptionEnvelop,
+    buildEnvelop,
+    createEnvelop,
+    createSendDependencies,
+} from './Envelop';
 import { Message, SendDependencies } from './Message';
 import {
     DeliveryServiceProfile,
     GetResource,
+    ProfileKeys,
     getDeliveryServiceProfile,
 } from 'dm3-lib-profile';
 import { ethers } from 'ethers';
@@ -19,14 +25,23 @@ export interface ProxyEnvelop {
 }
 
 export async function createProxyEnvelop(
-    provider: ethers.providers.JsonRpcProvider,
     message: Message,
-    encryptAsymmetric: EncryptAsymmetric,
-    sendDependencies: Omit<SendDependencies, 'deliveryServiceEncryptionPubKey'>,
+    provider: ethers.providers.JsonRpcProvider,
+    keys: ProfileKeys,
     getRessource: GetResource<DeliveryServiceProfile>,
+    sendDependenciesCache?: Partial<SendDependencies>,
 ): Promise<ProxyEnvelop> {
+    const sendDependencies = await createSendDependencies(
+        message.metadata.to,
+        message.metadata.from,
+        provider,
+        keys,
+        getRessource,
+        sendDependenciesCache,
+    );
+
     if (!sendDependencies.to.profile) {
-        throw Error('No profile');
+        throw Error(`No receiver profile.`);
     }
 
     const isFulfilled = <T>(

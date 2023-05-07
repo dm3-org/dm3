@@ -86,7 +86,13 @@ describe('ProxyEnvelope', () => {
                 nonce: '0xeeb67dc5d1b4c3a933157e01',
             };
 
-            const proxyEnvelop = await createProxyEnvelop(
+            let proxyEnvelop: any = await createProxyEnvelop(
+                await createMessage(
+                    'alice.eth',
+                    'bob.eth',
+                    'test',
+                    bob.keys.signingKeyPair.privateKey,
+                ),
                 {
                     getResolver: (_: string) =>
                         Promise.resolve({
@@ -101,37 +107,33 @@ describe('ProxyEnvelope', () => {
                                 }),
                         }),
                 } as any,
-                await createMessage(
-                    'alice.eth',
-                    'bob.eth',
-                    'test',
-                    bob.keys.signingKeyPair.privateKey,
-                ),
-                async () => encryptedPayloadMock,
+                bob.keys,
+                (async () => {}) as any,
                 sendDependencies,
-                async () => ({
-                    publicSigningKey:
-                        '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
-                    publicEncryptionKey:
-                        'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
-                    url: 'http://localhost',
-                }),
             );
 
+            delete proxyEnvelop.encryptedMessage;
+            delete proxyEnvelop.encryptionEnvelops[0].encryptionEnvelop.metadata
+                .deliveryInformation;
+            delete proxyEnvelop.encryptionEnvelops[0].encryptionEnvelop.metadata
+                .signature;
+            delete proxyEnvelop.encryptionEnvelops[0].encryptionEnvelop.metadata
+                .encryptedMessageHash;
+            delete proxyEnvelop.encryptionEnvelops[1].encryptionEnvelop.metadata
+                .deliveryInformation;
+            delete proxyEnvelop.encryptionEnvelops[1].encryptionEnvelop.metadata
+                .signature;
+            delete proxyEnvelop.encryptionEnvelops[1].encryptionEnvelop.metadata
+                .encryptedMessageHash;
+
             expect(proxyEnvelop).toStrictEqual({
-                encryptedMessage: stringify(encryptedPayloadMock),
                 encryptionEnvelops: [
                     {
                         deliveryServiceEnsName: 'ds1.dm3.eth',
                         encryptionEnvelop: {
                             metadata: {
-                                deliveryInformation:
-                                    stringify(encryptedPayloadMock),
-                                encryptedMessageHash:
-                                    '0xdac53d80a308eb9a48caca48719aada24a32f1cede2f4368817aa63b1375a09f',
                                 encryptionScheme: 'x25519-chacha20-poly1305',
-                                signature:
-                                    'U83xNns0JwWj3yw+dTle3bNHO4bJyB/DIA9PU2onfHCjzx5e0m3VPOpY9NiJRK7eX2cnHn9YQZ/h1Ji7UvonBg==',
+
                                 version: 'v1',
                             },
                         },
@@ -140,13 +142,8 @@ describe('ProxyEnvelope', () => {
                         deliveryServiceEnsName: 'ds2.dm3.eth',
                         encryptionEnvelop: {
                             metadata: {
-                                deliveryInformation:
-                                    stringify(encryptedPayloadMock),
-                                encryptedMessageHash:
-                                    '0xdac53d80a308eb9a48caca48719aada24a32f1cede2f4368817aa63b1375a09f',
                                 encryptionScheme: 'x25519-chacha20-poly1305',
-                                signature:
-                                    'U83xNns0JwWj3yw+dTle3bNHO4bJyB/DIA9PU2onfHCjzx5e0m3VPOpY9NiJRK7eX2cnHn9YQZ/h1Ji7UvonBg==',
+
                                 version: 'v1',
                             },
                         },

@@ -13,6 +13,8 @@ export {
 } from './Message';
 export { sendOverMessageProxy } from './MessageProxy';
 export type { ProxySendParams } from './MessageProxy';
+export { createProxyEnvelop } from './ProxyEnvelop';
+export type { ProxyEnvelop } from './ProxyEnvelop';
 export type {
     Message,
     MessageMetadata,
