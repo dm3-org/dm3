@@ -1,3 +1,8 @@
+:root {
+  --timeoutActiveForeground: #D9D9D9;
+  --timeoutActiveBackground: #81828D;
+}
+
 .btn-round {
   border-radius: 18px;
   width: 36px;
@@ -41,14 +46,15 @@
 }
 
 .circle-chart__circle {
-  stroke: #D9D9D9;
+  stroke: var(--timeoutActiveForeground);
   transform: rotate(-90deg);
   transform-origin: center;
   opacity: 0.2;
   transition: opacity .5s;
 }
 .circle-chart__background {
-  stroke: #81828D;
+  stroke: var(--timeoutActiveBackground);
+  transform: rotate(-90deg);
   opacity: 0.2;
   transition: opacity .5s;
 }
