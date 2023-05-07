@@ -212,13 +212,13 @@ async function createKeyPairsFromSig(
 /**
  * creates a dm3 profile
  * @param accountAddress wallet address used to sign the profile
- * @param deiveryServiceNames list of delviery service ENS names
+ * @param deliveryServiceNames list of delviery service ENS names
  * @param provider ethers JsonRpcProvider
  * @param options Optional creation settings
  */
 export async function createProfile(
     accountAddress: string,
-    deiveryServiceNames: string[],
+    deliveryServiceNames: string[],
     provider: ethers.providers.JsonRpcProvider,
     options?: Partial<CreateProfileOptions>,
 ): Promise<{
@@ -245,7 +245,7 @@ export async function createProfile(
     const profile: UserProfile = {
         publicEncryptionKey: keys.encryptionKeyPair.publicKey,
         publicSigningKey: keys.signingKeyPair.publicKey,
-        deliveryServices: deiveryServiceNames,
+        deliveryServices: deliveryServiceNames,
     };
 
     const profileCreationMessage = getProfileCreationMessage(
