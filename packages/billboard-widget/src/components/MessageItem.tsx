@@ -1,13 +1,22 @@
 import { Message } from 'dm3-lib-messaging';
-import { formatDate } from '../utils/formatter';
+import { format, formatRelative } from 'date-fns';
 import Avatar from './Avatar';
+import { useMemo } from 'react';
 
 interface Props {
     message: Message;
+    dateFormat: string;
+    relativeDate: boolean;
 }
 
 function MessageItem(props: Props) {
-    const { message } = props;
+    const { message, dateFormat = 'P', relativeDate = true } = props;
+
+    const formattedDate = useMemo(() => {
+        return relativeDate
+            ? formatRelative(message.metadata.timestamp, new Date())
+            : format(message.metadata.timestamp, dateFormat);
+    }, [relativeDate, message.metadata.timestamp, dateFormat]);
 
     return (
         <div className="container">
@@ -16,9 +25,7 @@ function MessageItem(props: Props) {
                 <div className="content">{message.message}</div>
                 <div className="meta">
                     <div className="sender">"{message.metadata.from}"</div>
-                    <div className="time">
-                        {formatDate(new Date(message.metadata.timestamp))}
-                    </div>
+                    <div className="time">{formattedDate}</div>
                 </div>
             </div>
         </div>
