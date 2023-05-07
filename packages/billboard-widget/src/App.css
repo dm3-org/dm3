@@ -10,6 +10,22 @@
   --textColorSecondary: #81828D;
 }
 
+.text-sm {
+  font-size: 0.875em; /* 14px */
+}
+
+.text-xs {
+  font-size: 0.75em /* 12px */
+}
+
+.text-xxs {
+  font-size: 0.625em /* 10px */
+}
+
+.text-tiny {
+  font-size: 0.375em; /* 6px */
+}
+
 .widget {
   background-color: var(--mainBg);
   border-radius: 16px;
@@ -19,6 +35,13 @@
   .widget-container {
     max-height: 600px;
     overflow: auto;
+    margin-right: 8px;
+  }
+
+  .header {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
   }
 }
 
@@ -27,7 +50,7 @@
     margin: 0;
     padding: 16px 0;
 
-    .container {
+    .item-container {
       display: flex;
       flex-direction: row;
       margin: 16px;
@@ -174,5 +197,53 @@ button {
   &::-moz-focus-inner {
     border: 0;
     padding: 0;
+  }
+}
+
+.branding-items {
+  display: flex;
+  flex-direction: column;
+  width: 32px;
+  margin: 32px;
+
+  .branding-slogan {
+    color: var(--textColorSecondary);
+    line-height: 2em;
+    white-space: nowrap;
+  }
+}
+
+.viewers-count {
+  max-width: 128px;
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+
+  & img {
+    width: 20px;
+    height: auto;
+    margin-right: 8px;
+  }
+}
+
+.empty-view {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+
+  & > div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  & img {
+    width: 30%;
+  }
+
+  .empty-info {
+    text-align: center;
   }
 }

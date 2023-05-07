@@ -6,6 +6,10 @@ import { Message } from 'dm3-lib-messaging';
 import ListMessages from './components/MessagesList';
 import AutoScrollContainer from './components/AutoScrollContainer';
 import CreateMessage from './components/CreateMessage';
+import Branding from './components/Branding';
+import EmptyView from './components/EmptyView';
+import ViewersCount from './components/ViewersCount';
+import dm3Logo from './assets/dm3-logo.png';
 
 const client = getBillboardApiClient({ mock: true });
 
@@ -23,7 +27,7 @@ function App() {
     }, []);
 
     const simulateNewMessage = () => {
-        if (!messages) {
+        if (!messages || messages.length === 0) {
             return;
         }
         setMessages([...messages, messages[0]]);
@@ -32,16 +36,27 @@ function App() {
     return (
         <>
             <div className="widget">
-                <AutoScrollContainer containerClassName="widget-container styled-scrollbars">
-                    <div className="gradient-shadow"></div>
-                    {loading ? <div>loading ...</div> : null}
-                    {messages && messages.length > 0 ? (
-                        <div>
-                            <ListMessages messages={messages} />
+                {messages?.length ? (
+                    <div>
+                        <div className="header">
+                            <Branding imgSrc={dm3Logo} slogan="powered by" />
+                            <ViewersCount viewers={123} />
                         </div>
-                    ) : null}
-                </AutoScrollContainer>
-                <CreateMessage />
+
+                        <AutoScrollContainer containerClassName="widget-container styled-scrollbars">
+                            <div className="gradient-shadow"></div>
+                            {loading ? <div>loading ...</div> : null}
+                            {messages && messages.length > 0 ? (
+                                <div>
+                                    <ListMessages messages={messages} />
+                                </div>
+                            ) : null}
+                        </AutoScrollContainer>
+                        <CreateMessage />
+                    </div>
+                ) : (
+                    <EmptyView info="This is the DM3 Billboard Widget" />
+                )}
             </div>
             <button onClick={simulateNewMessage}>Send</button>
         </>

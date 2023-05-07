@@ -11,7 +11,7 @@ export default function MessagesList({ messages }: IMessagesListProps) {
             <ul className="message-list">
                 {messages.map((msgObj) => (
                     <li>
-                        <div className="container">
+                        <div className="list-container">
                             <MessageItem message={msgObj} />
                         </div>
                     </li>

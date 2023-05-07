@@ -5,8 +5,8 @@ import { useMemo } from 'react';
 
 interface Props {
     message: Message;
-    dateFormat: string;
-    relativeDate: boolean;
+    dateFormat?: string;
+    relativeDate?: boolean;
 }
 
 function MessageItem(props: Props) {
@@ -19,7 +19,7 @@ function MessageItem(props: Props) {
     }, [relativeDate, message.metadata.timestamp, dateFormat]);
 
     return (
-        <div className="container">
+        <div className="item-container">
             <Avatar identifier={message.metadata.from} />
             <div className="message">
                 <div className="content">{message.message}</div>
