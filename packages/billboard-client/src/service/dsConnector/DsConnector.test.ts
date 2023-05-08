@@ -43,6 +43,11 @@ describe('DsConnector', () => {
             'billboard1.eth',
             ['ds1.eth', 'ds2.eth', 'ds3.eth'],
         );
+        billboard2profile = await mockUserProfile(
+            ethers.Wallet.createRandom(),
+            'billboard2.eth',
+            ['ds1.eth', 'ds2.eth', 'ds3.eth'],
+        );
 
         //DS 1
         ds1Profile = await mockDeliveryServiceProfile(
@@ -60,6 +65,17 @@ describe('DsConnector', () => {
             });
         axiosMock
             .onPost('http://localhost:4060/auth/billboard1.eth')
+            .reply(200, {
+                token: 'mock-token',
+            });
+
+        axiosMock
+            .onGet('http://localhost:4060/auth/billboard2.eth')
+            .reply(200, {
+                challenge: 'mock-challenge',
+            });
+        axiosMock
+            .onPost('http://localhost:4060/auth/billboard2.eth')
             .reply(200, {
                 token: 'mock-token',
             });
@@ -82,6 +98,16 @@ describe('DsConnector', () => {
             .reply(200, {
                 token: 'mock-token',
             });
+        axiosMock
+            .onGet('http://localhost:4061/auth/billboard2.eth')
+            .reply(200, {
+                challenge: 'mock-challenge',
+            });
+        axiosMock
+            .onPost('http://localhost:4061/auth/billboard2.eth')
+            .reply(200, {
+                token: 'mock-token',
+            });
         //DS 3
         ds3Profile = await mockDeliveryServiceProfile(
             ethers.Wallet.createRandom(),
@@ -97,6 +123,16 @@ describe('DsConnector', () => {
             });
         axiosMock
             .onPost('http://localhost:4062/auth/billboard1.eth')
+            .reply(200, {
+                token: 'mock-token',
+            });
+        axiosMock
+            .onGet('http://localhost:4062/auth/billboard2.eth')
+            .reply(200, {
+                challenge: 'mock-challenge',
+            });
+        axiosMock
+            .onPost('http://localhost:4062/auth/billboard2.eth')
             .reply(200, {
                 token: 'mock-token',
             });
@@ -199,10 +235,7 @@ describe('DsConnector', () => {
         });
         it('Throws if billboard has invalid profile', async () => {
             const db = {
-                createMessage: (id: string, msg: Message) => {
-                    console.log("MSSSSG");
-                    return Promise.resolve();
-                },
+                createMessage: jest.fn(),
             } as IDatabase;
             const mockProvider = {
                 resolveName: () => billboard1profile.address,
@@ -236,23 +269,46 @@ describe('DsConnector', () => {
 
     describe('Store messages', () => {
         //Alice profile
-
         let aliceProfile;
+
+        //Bob profile
+        let bobProfile;
+
         beforeEach(async () => {
             aliceProfile = await mockUserProfile(
                 ethers.Wallet.createRandom(),
                 'alice.eth',
-                ['ds1.eth'],
+                ['ds1.eth', 'ds2.eth'],
+            );
+            bobProfile = await mockUserProfile(
+                ethers.Wallet.createRandom(),
+                'bob.eth',
+                ['ds2.eth'],
             );
         });
-        it.only('stores incomming messages from ws', async () => {
-            const db = {} as IDatabase;
+        it('stores incomming messages from ws', async () => {
+            const mockCreateMessage = jest.fn();
+            const db = {
+                createMessage: mockCreateMessage,
+            } as IDatabase;
             const mockProvider = {
-                resolveName: () => billboard1profile.address,
+                resolveName: (ensName: string) => {
+                    if (ensName === 'billboard1.eth') {
+                        return billboard1profile.address;
+                    }
+                    if (ensName === 'billboard2.eth') {
+                        return billboard2profile.address;
+                    }
+                },
                 getResolver: (ensName: string) => {
                     if (ensName === 'billboard1.eth') {
                         return {
                             getText: () => billboard1profile.stringified,
+                        } as unknown as ethers.providers.Resolver;
+                    }
+                    if (ensName === 'billboard2.eth') {
+                        return {
+                            getText: () => billboard2profile.stringified,
                         } as unknown as ethers.providers.Resolver;
                     }
                     if (ensName === 'ds1.eth') {
@@ -279,6 +335,10 @@ describe('DsConnector', () => {
                     ensName: 'billboard1.eth',
                     privateKey: billboard1profile.privateKey,
                 },
+                {
+                    ensName: 'billboard2.eth',
+                    privateKey: billboard2profile.privateKey,
+                },
             ];
 
             const { connect, disconnect } = dsConnector(
@@ -288,7 +348,7 @@ describe('DsConnector', () => {
             );
             //Ws is now ready to deal with incoming messages
             await connect();
-            const messageFactory = MockMessageFactory({
+            const mockChat1 = MockMessageFactory({
                 sender: {
                     ensName: 'alice.eth',
                     signedUserProfile: aliceProfile.signedUserProfile,
@@ -301,9 +361,80 @@ describe('DsConnector', () => {
                 },
                 dsKey: ds1Profile.profile.publicEncryptionKey,
             });
-            messageFactory.createMessage('hello');
-            ds1WsServer.emit('message', messageFactory.createMessage('hello'));
-            // ds1WsServer.emit('message', messageFactory.sendMessage('world'));
+            const mockChat2 = MockMessageFactory({
+                sender: {
+                    ensName: 'bob.eth',
+                    signedUserProfile: bobProfile.signedUserProfile,
+                    profileKeys: bobProfile.profileKeys,
+                },
+                receiver: {
+                    ensName: 'billboard2.eth',
+                    signedUserProfile: billboard2profile.signedUserProfile,
+                    profileKeys: billboard2profile.profileKeys,
+                },
+                dsKey: ds2Profile.profile.publicEncryptionKey,
+            });
+
+            const ds1Socketes: string[] = [];
+            for (const [key] of ds1WsServer.sockets.sockets.entries()) {
+                ds1Socketes.push(key);
+            }
+            const ds2Socketes: string[] = [];
+            for (const [key] of ds2WsServer.sockets.sockets.entries()) {
+                ds2Socketes.push(key);
+            }
+
+            const [billboard1Ds1Socket, billboard2Ds1Socket] = ds1Socketes;
+            const [billboard1Ds2Socket, billboard2Ds2Socket] = ds2Socketes;
+
+            ds1WsServer
+                .to(billboard1Ds1Socket)
+                .emit('message', await mockChat1.createMessage('hello'));
+            ds1WsServer
+                .to(billboard1Ds1Socket)
+                .emit('message', await mockChat1.createMessage('world'));
+
+            ds2WsServer
+                .to(billboard2Ds2Socket)
+                .emit(
+                    'message',
+                    await mockChat2.createMessage('hello from bob'),
+                );
+            //Wait to ensure all async operations are done
+            await wait(100);
+
+            expect(mockCreateMessage).toHaveBeenCalledTimes(3);
+            expect(mockCreateMessage).toHaveBeenCalledWith(
+                'billboard1.eth',
+                expect.objectContaining({
+                    message: 'hello',
+                    metadata: expect.objectContaining({
+                        from: 'alice.eth',
+                        to: 'billboard1.eth',
+                    }),
+                }),
+            );
+            expect(mockCreateMessage).toHaveBeenCalledWith(
+                'billboard1.eth',
+                expect.objectContaining({
+                    message: 'world',
+                    metadata: expect.objectContaining({
+                        from: 'alice.eth',
+                        to: 'billboard1.eth',
+                    }),
+                }),
+            );
+            expect(mockCreateMessage).toHaveBeenCalledWith(
+                'billboard2.eth',
+                expect.objectContaining({
+                    message: 'hello from bob',
+                    metadata: expect.objectContaining({
+                        from: 'bob.eth',
+                        to: 'billboard2.eth',
+                    }),
+                }),
+            );
+
             await disconnect();
         });
     });
@@ -348,9 +479,6 @@ const MockMessageFactory = ({ sender, receiver, dsKey }: MockChatArgs) => {
             deliveryServiceEncryptionPubKey: dsKey,
             keys: sender.profileKeys,
         };
-        console.log('BUILD ENV');
-        console.log(message);
-        console.log(sendDependencies);
 
         const { encryptedEnvelop } = await buildEnvelop(
             message,

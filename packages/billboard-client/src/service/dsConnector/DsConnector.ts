@@ -61,12 +61,10 @@ export function dsConnector(
             billboardsWithDsProfile,
         );
 
+        //For each billboard and their delivryServices we establish a websocket connection
         _connectedBillboards = await establishWsConnections(
             authenticatedBillboards,
         );
-
-        //For each billboard and their delivryServices we establish a websocket connection
-        // await establishWsConnections(billboardsWithDsProfile);
     }
 
     function disconnect() {
@@ -219,18 +217,21 @@ export function dsConnector(
         billboardWithDsProfile: BillboardWithDsProfile,
         encryptionEnvelop: EncryptionEnvelop,
     ) {
-        console.log('Start decrypting');
-        const decryptedMessage = JSON.parse(
-            await decryptAsymmetric(
-                billboardWithDsProfile.profileKeys.encryptionKeyPair,
-                JSON.parse(encryptionEnvelop.message),
-            ),
-        ) as Message;
-
-        await db.createMessage(
-            billboardWithDsProfile.ensName,
-            decryptedMessage,
-        );
+        try {
+            const decryptedMessage = JSON.parse(
+                await decryptAsymmetric(
+                    billboardWithDsProfile.profileKeys.encryptionKeyPair,
+                    JSON.parse(encryptionEnvelop.message),
+                ),
+            ) as Message;
+            await db.createMessage(
+                billboardWithDsProfile.ensName,
+                decryptedMessage,
+            );
+        } catch (err: any) {
+            log("Can't decrypt message");
+            log(err);
+        }
     }
 
     //TODO Heiko please double check if this is the correct way to sign the challenge of the delivery service
