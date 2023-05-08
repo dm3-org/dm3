@@ -401,7 +401,7 @@ describe('DsConnector', () => {
                     await mockChat2.createMessage('hello from bob'),
                 );
             //Wait to ensure all async operations are done
-            await wait(100);
+            await wait(500);
 
             expect(mockCreateMessage).toHaveBeenCalledTimes(3);
             expect(mockCreateMessage).toHaveBeenCalledWith(
@@ -431,6 +431,116 @@ describe('DsConnector', () => {
                     metadata: expect.objectContaining({
                         from: 'bob.eth',
                         to: 'billboard2.eth',
+                    }),
+                }),
+            );
+
+            await disconnect();
+        });
+        it('dont crash when invalid messages are submitted', async () => {
+            const mockCreateMessage = jest.fn();
+            const db = {
+                createMessage: mockCreateMessage,
+            } as IDatabase;
+            const mockProvider = {
+                resolveName: (ensName: string) => {
+                    if (ensName === 'billboard1.eth') {
+                        return billboard1profile.address;
+                    }
+                    if (ensName === 'billboard2.eth') {
+                        return billboard2profile.address;
+                    }
+                },
+                getResolver: (ensName: string) => {
+                    if (ensName === 'billboard1.eth') {
+                        return {
+                            getText: () => billboard1profile.stringified,
+                        } as unknown as ethers.providers.Resolver;
+                    }
+                    if (ensName === 'billboard2.eth') {
+                        return {
+                            getText: () => billboard2profile.stringified,
+                        } as unknown as ethers.providers.Resolver;
+                    }
+                    if (ensName === 'ds1.eth') {
+                        return {
+                            getText: () => ds1Profile.stringified,
+                        } as unknown as ethers.providers.Resolver;
+                    }
+                    if (ensName === 'ds2.eth') {
+                        return {
+                            getText: () => ds2Profile.stringified,
+                        } as unknown as ethers.providers.Resolver;
+                    }
+                    if (ensName === 'ds3.eth') {
+                        return {
+                            getText: () => ds3Profile.stringified,
+                        } as unknown as ethers.providers.Resolver;
+                    }
+                    throw new Error('mock provider unknown ensName');
+                },
+            } as unknown as ethers.providers.JsonRpcProvider;
+
+            const billBoards = [
+                {
+                    ensName: 'billboard1.eth',
+                    privateKey: billboard1profile.privateKey,
+                },
+                {
+                    ensName: 'billboard2.eth',
+                    privateKey: billboard2profile.privateKey,
+                },
+            ];
+
+            const { connect, disconnect } = dsConnector(
+                db,
+                mockProvider,
+                billBoards,
+            );
+            //Ws is now ready to deal with incoming messages
+            await connect();
+            const mockChat1 = MockMessageFactory({
+                sender: {
+                    ensName: 'alice.eth',
+                    signedUserProfile: aliceProfile.signedUserProfile,
+                    profileKeys: aliceProfile.profileKeys,
+                },
+                receiver: {
+                    ensName: 'billboard1.eth',
+                    signedUserProfile: billboard1profile.signedUserProfile,
+                    profileKeys: billboard1profile.profileKeys,
+                },
+                dsKey: ds1Profile.profile.publicEncryptionKey,
+            });
+
+            const ds1Socketes: string[] = [];
+            for (const [key] of ds1WsServer.sockets.sockets.entries()) {
+                ds1Socketes.push(key);
+            }
+
+            const [billboard1Ds1Socket, billboard2Ds1Socket] = ds1Socketes;
+
+            ds1WsServer
+                .to(billboard1Ds1Socket)
+                .emit('message', 'blblblbergmrtkomgvtrkogmrtkogmtkog');
+            ds1WsServer
+                .to(billboard1Ds1Socket)
+                .emit('message', await mockChat1.createMessage('hello'));
+            ds1WsServer
+                .to(billboard1Ds1Socket)
+                .emit('message', await mockChat1.createMessage('world'));
+
+            //Wait to ensure all async operations are done
+            await wait(500);
+
+            expect(mockCreateMessage).toHaveBeenCalledTimes(2);
+            expect(mockCreateMessage).toHaveBeenCalledWith(
+                'billboard1.eth',
+                expect.objectContaining({
+                    message: 'hello',
+                    metadata: expect.objectContaining({
+                        from: 'alice.eth',
+                        to: 'billboard1.eth',
                     }),
                 }),
             );
