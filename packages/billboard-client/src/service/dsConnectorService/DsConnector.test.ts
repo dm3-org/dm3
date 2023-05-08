@@ -662,4 +662,3 @@ describe('DsConnector', () => {
         });
     });
 });
-

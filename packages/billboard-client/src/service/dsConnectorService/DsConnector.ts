@@ -97,6 +97,10 @@ Disconnects all connected billboards by closing their associated sockets.
         });
     }
 
+    function getConnectedBillboards() {
+        return _connectedBillboards.map(({ ensName }) => ensName);
+    }
+
     /**
 Encrypts and stores a message to redis using the provided billboard's keypairs and encryption envelope.
 @param billboardWithDsProfile - The billboard with delivery service profile.
@@ -125,5 +129,5 @@ Encrypts and stores a message to redis using the provided billboard's keypairs a
         }
     }
 
-    return { connect, disconnect };
+    return { connect, disconnect, getConnectedBillboards };
 }
