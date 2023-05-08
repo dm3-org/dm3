@@ -103,7 +103,7 @@ describe('Viewer Service', () => {
             expect(socket2IsConnected).toBe(true);
 
             let viewerCount = viewerService.getViewerCount();
-            await wait(100);
+            await wait(500);
             expect(viewerCount).toBe(3);
 
             await client0.close();

@@ -1,26 +1,19 @@
-import {
-    createStorageKey,
-    decryptAsymmetric,
-    getStorageKeyCreationMessage,
-    sign,
-} from 'dm3-lib-crypto';
+import { decryptAsymmetric } from 'dm3-lib-crypto';
 import { EncryptionEnvelop, Message } from 'dm3-lib-messaging';
 import {
     DeliveryServiceProfile,
     ProfileKeys,
     SignedUserProfile,
-    createProfileKeys,
-    getDeliveryServiceProfile,
-    getUserProfile,
 } from 'dm3-lib-profile';
 import { log } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import { Socket } from 'socket.io-client';
-import { getChallenge } from '../../api/internal/rest/getChallenge';
-import { getNewToken } from '../../api/internal/rest/getNewToken';
-import { getDeliveryServiceWSClient } from '../../api/internal/ws/getDeliveryServiceWSConnections';
 import { IDatabase } from '../../persitance/getDatabase';
+import { establishWsConnections } from './steps/establishWsConnection';
 import { fetchAndStoreInitialMessages } from './steps/fetchAndStoreInitialMessages';
+import { getBillboardProfile } from './steps/getBillboardProfile';
+import { getDsProfile } from './steps/getDsProfile';
+import { signInAtDs } from './steps/signInAtDs';
 
 export interface Billboard {
     ensName: string;
@@ -42,6 +35,13 @@ export type AuthenticatedBillboardWithSocket = AuthenticatedBillboard & {
     })[];
 };
 
+/**
+Creates a delivery service connector.
+@param db - The database instance.
+@param provider - The JSON-RPC provider.
+@param billboards - An array of Billboard
+@returns An object with connect and disconnect methods.
+*/
 export function dsConnector(
     db: IDatabase,
     provider: ethers.providers.JsonRpcProvider,
@@ -49,13 +49,21 @@ export function dsConnector(
 ) {
     let _connectedBillboards: AuthenticatedBillboardWithSocket[] = [];
 
+    /**
+Initializes the connection to delivery services.
+@returns A promise that resolves when the connection initialization is complete.
+*/
     async function connect() {
+        log('Start to initialize connection to delivery services');
         //Get all delivery service profiles
-        const billboardsWithProfile = await getBillboardProfile();
+        const billboardsWithProfile = await getBillboardProfile(
+            provider,
+            billboards,
+        );
 
         //Get all delivery service profiles
         const billboardsWithDsProfile = await Promise.all(
-            billboardsWithProfile.map(getDsProfile),
+            billboardsWithProfile.map(getDsProfile(provider)),
         );
         //For each delivery service profile we've to exercise the login flow
         const authenticatedBillboards = await signInAtDs(
@@ -71,9 +79,14 @@ export function dsConnector(
         //For each billboard and their delivryServices we establish a websocket connection
         _connectedBillboards = await establishWsConnections(
             authenticatedBillboards,
+            encryptAndStoreMessage,
         );
+        log('Finished delivery service initialization');
     }
 
+    /** 
+Disconnects all connected billboards by closing their associated sockets.
+*/
     function disconnect() {
         _connectedBillboards.forEach((billboard) => {
             billboard.dsProfile.forEach(
@@ -84,142 +97,13 @@ export function dsConnector(
         });
     }
 
-    async function getBillboardProfile() {
-        return await Promise.all(
-            billboards.map(async (billboard) => {
-                log('Get User profile for ' + billboard.ensName);
-                const wallet = new ethers.Wallet(billboard.privateKey);
-
-                const storageKeyCreationMessage =
-                    getStorageKeyCreationMessage(0);
-                const storageKeySig = await wallet.signMessage(
-                    storageKeyCreationMessage,
-                );
-
-                const storageKey = await createStorageKey(storageKeySig);
-                //TODO Do thosse keys have to match the ones provvied with the profile
-                const profileKeys = await createProfileKeys(storageKey, 0);
-                try {
-                    const billboardProfile = await getUserProfile(
-                        provider,
-                        billboard.ensName,
-                    );
-                    return {
-                        ...billboard,
-                        ...billboardProfile!,
-                        profileKeys,
-                        dsProfile: [],
-                    };
-                } catch (e: any) {
-                    log(e);
-                    throw Error(
-                        "Can't get billboard profile for " + billboard.ensName,
-                    );
-                }
-            }),
-        );
-    }
-
-    //The returnType of getBillboardsProfile
-    //is Promise<Billboards & SignedUserProfile>
-    async function getDsProfile(billboardsWithProfile: BillboardWithProfile) {
-        const dsProfiles = await Promise.all(
-            billboardsWithProfile.profile.deliveryServices.map(
-                async (url: string) => {
-                    log('Get DS profile for ' + url);
-                    const dsProfile = await getDeliveryServiceProfile(
-                        url,
-                        provider,
-                        (url: string) => Promise.resolve(undefined),
-                    );
-
-                    if (!dsProfile) {
-                        throw Error(
-                            "Can't get delivery service profile for " + url,
-                        );
-                    }
-                    return dsProfile;
-                },
-            ),
-        );
-        return { ...billboardsWithProfile, dsProfile: dsProfiles };
-    }
-    async function signInAtDs(
-        billboardsWithDsProfile: BillboardWithDsProfile[],
-    ): Promise<AuthenticatedBillboard[]> {
-        return await Promise.all(
-            billboardsWithDsProfile.map(async (billboard) => {
-                const { ensName, profileKeys, dsProfile } = billboard;
-                //Get the auth token for each delivery service. By doing the challenge using the billboards private key
-                const tokens = await Promise.all(
-                    dsProfile.map(async (ds) => {
-                        //Create session using the billboards private key
-                        const challenge = await getChallenge(ds.url, ensName);
-                        if (!challenge) {
-                            throw Error('No challenge received from ' + ds.url);
-                        }
-                        const signature = await _signChallenge(
-                            challenge,
-                            profileKeys.signingKeyPair.privateKey,
-                        );
-
-                        const token = await getNewToken(
-                            ds.url,
-                            ensName,
-                            signature,
-                        );
-                        log('get token for ' + ds.url);
-                        if (!token) {
-                            throw Error("Can't create session for " + ds.url);
-                        }
-                        return token;
-                    }),
-                );
-                return {
-                    ...billboard,
-                    dsProfile: tokens.map((token, idx) => ({
-                        ...billboard.dsProfile[idx],
-                        token,
-                    })),
-                };
-            }),
-        );
-    }
-
-    async function establishWsConnections(
-        billboardsWithDsProfile: AuthenticatedBillboard[],
-    ): Promise<AuthenticatedBillboardWithSocket[]> {
-        return await Promise.all(
-            billboardsWithDsProfile.map(async (billboardWithDsProfile) => {
-                const sockets = await getDeliveryServiceWSClient(
-                    billboardWithDsProfile.dsProfile.map(
-                        (ds: DeliveryServiceProfile) => ds.url,
-                    ),
-                    (encryptionEnvelop: EncryptionEnvelop) =>
-                        encryptAndStoreMessage(
-                            billboardWithDsProfile,
-                            encryptionEnvelop,
-                        ),
-                );
-
-                return {
-                    ...billboardWithDsProfile,
-                    dsProfile: billboardWithDsProfile.dsProfile.map(
-                        (
-                            dsProfile: DeliveryServiceProfile & {
-                                token: string;
-                            },
-                            idx,
-                        ) => ({
-                            ...dsProfile,
-                            socket: sockets[idx],
-                        }),
-                    ),
-                };
-            }),
-        );
-    }
-
+    /**
+Encrypts and stores a message to redis using the provided billboard's keypairs and encryption envelope.
+@param billboardWithDsProfile - The billboard with delivery service profile.
+@param encryptionEnvelop - The encryption envelope containing the message.
+@returns A promise that resolves when the message has been encrypted and stored.
+@throws If there is an error decrypting the message.
+*/
     async function encryptAndStoreMessage(
         billboardWithDsProfile: BillboardWithDsProfile,
         encryptionEnvelop: EncryptionEnvelop,
@@ -239,11 +123,6 @@ export function dsConnector(
             log("Can't decrypt message");
             log(err);
         }
-    }
-
-    //TODO Heiko please double check if this is the correct way to sign the challenge of the delivery service
-    async function _signChallenge(challenge: string, privateKey: string) {
-        return await sign(privateKey, challenge);
     }
 
     return { connect, disconnect };
