@@ -8,6 +8,9 @@
 ## Simple Summary
 dm3 Protocol enables decentral, open, and secure messaging based on established web3 services like ENS and IPFS.
 
+## Specification
+https://dm3.readthedocs.io/en/doc-latest/
+
 ## Principles 
 * **Decentral**: An dm3 client must be realizable as a real decentral application and the messages must also be stored in a decentral way. 
 * **Open**: All parts of dm3 are open source and the protocol is permissionless. Everyone should be able to write an dm3 client.
@@ -22,173 +25,155 @@ dm3 Protocol enables decentral, open, and secure messaging based on established 
 * **Registry**: A decentral service (e.g. ENS) mapping Ethereum accounts to profile registry entry URLs (e.g. using text records). 
 * **Profile Registry Entry**: A resource containing properties linked to an Ethereum account that is using dm3. E.g. public keys, the delivery service URL and spam filter configuration.
 
-## Accounts & Keys
-### Keys
-```mermaid
-flowchart TD
+## Integration Guide
+This guide explains how to make a messenger dm3 compatible. 
 
-subgraph w[Wallet e.g. Metamask]
-    
-    ea[Ethereum Account Private Key]:::pk
-    
-   end
-   w-- signs salt -->
-  sek[Storage Encryption Key]:::pk
-  sek-- encrypts / decrypts -->eus
+The integration test package contains executable integration examples:
+- [Basic example](packages/integration-tests/src/lib/CreateAndSend.test.ts)
+- [Example with a message proxy](packages/integration-tests/src/lib/CreateAndSendOverProxy.test.ts)
+### Delivery Service Setup
+The following function creates a delivery service profile and the corresponding keys. `http://a` is the URL pointing to the delivery service endpoint.
 
-  subgraph us[User Storage]
-   
-    subgraph eus[Encrypted User Storage]
-    
-      sk[Signing Private Key]:::pk
-      mek[Message Encryptioin Private Key]:::pk
-      d["Data (e.g. messages)"]:::data
-   end
-    Salt
-  end
-   subgraph r[Public Registry Entry]
-    
-    sk-.-pubSK[Signing Public Key]
-    mek-.-pubMEK[Message Encryptioin Public Key]
-    pd[Profile data]:::data
-   end
-   w-- signs / sends as tx-->r
-   style r fill:#e0ffdb,stroke:#128c00
-   style us fill:#e0ffdb,stroke:#128c00
-   classDef pk fill:#f2d0d0,stroke:#bc0000;
-   classDef data fill:#e8e8e8,stroke:#939393;
-   classDef reg fill:#e8e8e8,stroke:#939393;
+```Typescript
+const {
+    deliveryServiceProfile,
+    keys,
+} = await createDeliveryServiceProfile('http://a');
 ```
 
-### Sign In 
-To be compliant with the secure principle dm3 should never control an Ethereum account's private key. Therefore new key pairs need to be created to encrypt and sign messages. These key pairs need to be associated with an Ethereum account. 
+The delivery service profile needs to be transformed into a data URI before it can be published on-chain.
 
-There are two possibilities to associate an Ethereum account with newly created key pairs:
-
-1. **Sign a profile registry entry containing the public keys with the Ethereum account private key.** The signature and the public keys need to be submitted to the default delivery service. 
-2. **Send a transaction to an onchain registry.** This transaction should store a URL (e.g. IPFS link) onchain that points to a profile registry entry containing the public keys 
-
-The first option is good to start with because it doesn't require paying for an onchain transaction. Nevertheless, the user should be encouraged to register the public keys onchain as soon as possible because the onchain registry serves as single point of truth and makes it easy to revoke compromised keys. It also allows the user to use another delivery service as the default one.
-
-**Reference sequence for the first sign in:**
-```mermaid
-  sequenceDiagram
-    UI->>+dm3Lib: signIn()
-    dm3Lib->>+MetaMask: eth_getEncryptionPublicKey
-    MetaMask-->>-dm3Lib: encryptionPublicKey
-
-    dm3Lib->>dm3Lib: createMessageEncryptionKeyPair()
-    dm3Lib->>dm3Lib: createSigningKeyPair()
-    dm3Lib->>dm3Lib: createStorageEncryptionKey()
-  
-    dm3Lib->>+MetaMask: personal_sign
-    MetaMask-->>-dm3Lib: signature
-    dm3Lib->>+ IPFS : PUBLISH ProfileRegistryEntry
-    IPFS-->>- dm3Lib: Response
-    opt register onchain
-      dm3Lib->>+ ENSContract : setText()
-      ENSContract-->>- dm3Lib: TransactionResponse
-    end
-    dm3Lib->>+ DeliveryService: POST submitProfileRegistryEntry()
-    alt register onchain
-      DeliveryService->> DeliveryService: getProfileRegistryEntryFromChain()
-    else register offchain
-      DeliveryService->> DeliveryService: checkSubmissionNonce()
-      DeliveryService->> DeliveryService: checkSignature()
-    end
-    DeliveryService-->>- dm3Lib: token
-
-
-    dm3Lib-->>-UI: 
+```Typescript
+const profileJsonDataUri = createJsonDataUri(deliveryServiceProfileA);
 ```
 
-### Contacts
-To get a profile registry entry URL for a specific account the dm3 Dapp must at first try to retrieve the profile registry entry URL from the chain. The dm3 Dapp can fallback to the delivery service registry if there hasn't been an onchain profile registry entry registered for the queried account. 
+The data URI of the profile must be published on-chain as ENS `network.dm3.deliveryService` text record on the delivery service ENS domain.
 
-**Reference sequence for retrieving a profile registry entry:**
-```mermaid
-  sequenceDiagram
-    UI->>+dm3Lib: getContact()
-    dm3Lib->>+ ENSContract : CALL text()
-    ENSContract-->>- dm3Lib: ProfileRegistryEntry URL
-    opt Account has no ProfileRegistryEntry URL onchain
-        dm3Lib->>+ DeliveryService: getProfileRegistryEntry()
-        DeliveryService-->>- dm3Lib: ProfileRegistryEntry URL
-    end
-    dm3Lib->>+ IPFS : GET ProfileRegistryEntry
-    IPFS-->>- dm3Lib: ProfileRegistryEntry
-    dm3Lib-->>-UI: 
+### Creating and Publishing User Profiles
+Every dm3 user needs to create and publish a profile containing:
+- the public signing key,
+- the public encryption key,
+- and a list of the ENS names referencing the delivery service the user subscribed to
+
+The following function call will return the user profile, the keys, and the nonce.
+
+```Typescript
+const {
+    signedProfile,
+    keys,
+    nonce,
+} = await createProfile("0x...", ['a.eth'], provider);
 ```
 
-## Message Creation & Delivery
-A message must be signed and encrypted before it can be sent. The signature is created using the private signing key of the sending account. The message is encrypted with the public message encryption key of the receiving account. The signature must be validated by the receiving side. A message is directly sent from the dm3 Dapp to the delivery service URL defined in the profile registry entry of the receiving account. 
+The user profiles need to be transformed into a data URI before they can be published on-chain or on an off-chain resolver via CCIP.
 
-The sending dm3 Dapp keeps the message in storage but doesn't send it if the receiving account hasn't joined dm3 yet (no onchain or offchain profile registry entry). The message is encrypted and sent as soon as the receiving account joins dm3.
+```Typescript
+const profileJsonDataUriAlice = createJsonDataUri(aliceProfile);
+ ```
 
-```mermaid
-flowchart TB
-    subgraph Alice
-    id1[Write message for Bob] --> id2[Sign message using signature private key]
-    id2 --> id3[Encrypt message using Bob's public encryption key]
-    id3 --> id9[Send message to the delivery service used by Bob]
-    end
-   id9 --> b
-    subgraph d[Delivery Service]
-       b[Buffer message] --> p[Push message to receiver]
-      dm[Delete message after sync ack from Bob]
-    end
-    p --> id5
-    subgraph Bob
-    id5[Decrypt message using Bob's private encryption key]
-    id5 --> id10[Store message]
-    id10 -->id11[Send storage sync ack]
-    id11 --> dm
-    id10 --> id6[Verify Alice's signature]
-    id6 --> id7[Read message]
-    end
+The profiles must be published on-chain or made available via CCIP.
+Therefore the ENS `network.dm3.profile` text record needs to be set to the data URI containing the user profile.
+
+### Sending and Receiving Messages
+```Mermaid
+flowchart LR
+    s(Sender App) --> rds[Receiver Delivery Service] --> ra(Receiver App)
+```
+To receive messages the dm3 clients can subscribe to a "new message" event
+via a WebSocket that is provided by the delivery service.
+The messages could also be fetched via a REST request.
+
+In the following example, Bob subscribes to a push service. The callback function is called by the delivery service if there is a message for Bob. The message has to be decrypted and the message signature must be checked.
+ ```Typescript
+onMessage('bob.eth', async (encryptedEnvelop: EncryptionEnvelop) => {
+
+    // The client will decrypt a received message
+    const envelop = await decryptEnvelop(
+        encryptedEnvelop,
+        bobKeys.encryptionKeyPair,
+    );
+
+    // The client must check the signature of a received message
+    const valid = await checkMessageSignature(
+        envelop.message,
+        aliceProfile.profile.publicSigningKey,
+        'alice.eth',
+    );
+
+    if (!valid) {
+        throw Error('Signature check failed');
+    }
+});
+```
+**Note:** The communication between the receiving delivery service and receiving client app is not part of the dm3 Message Transport Protocol.
+
+The following code example will create a message with the content 'Test Message'.
+```Typescript
+const messageAliceToBob = await createMessage(
+    'bob.eth',
+    'alice.eth',
+    'Test message',
+    aliceKeys.signingKeyPair.privateKey,
+);
+```
+The message must be encrypted and put into an envelope containing the meta information needed for the delivery. The `createEnvelop` function will return an encrypted and unencrypted version of the envelope. The unencrypted version could be used for storing it with a chunk of other received and send messages in a message store. The message store could be encrypted with the generated symmetrical key.
+
+**Note**: The storage of sent or received messages is not part of the dm3 Message Transport Protocol.
+
+The following function returns a dm3 submit message JSON RPC Request.
+```Typescript
+const jsonRpcRequest = createJsonRpcCallSubmitMessage(
+    encyptedEnvelopAliceToBob,
+);
 ```
 
-## Storage
-The following list gives an overview of the possible storage locations for the encrypted user storage: 
-* **Local file system**: The user must always download the encrypted user storage file after using the dm3 Dapp but the user has full control over the data.  
-* **IPFS using web3.storage (own account)**: The user has to provide a web3.storage token to store the encrypted user storage file on IPFS. Everyone could read the conversations if the encryption is broken and the file is still pinned.
- * **IPFS using web3.storage (dm3 account)**:  Same as above besides that the user hasn't to provide a token and that the user loses control over the pinned state of the encrypted user storage file. 
- * **Cloud (e.g. google drive)**: The user stores the encrypted user storage file using a personal account on some central proprietary cloud.
+This request needs to be submitted to the URL specified in the receiver delivery service profile. 
 
+#### Message Proxy
 
-
-# Architecture 
-```mermaid
-graph TD
-    subgraph sg0[Alice]
-        id7[(UserDB)]
-        id0(Dapp)
-        id10[Profile Data]
-        
-        
-    end
-    id0 --> id9[Chain]
-    
-    id0 --> id7
-    id0 --- id1[dm3 Home Delivery Service] 
-
-
-    id4[Bob] --- id1
-    id6[Max]-.-id2
-    id1 -.- id2[Other Delivery Service] 
-    id1 --- id3[Bridges] 
-   
-   
-
-    id1 --> id9
-    id2 --> id9
-    id9 ---> id10
-     
-
-   classDef green fill:#9f6,stroke:#333
-   classDef lightgreen fill:#eaffe0,stroke:#333
-   classDef orange fill:#f96,stroke:#333
-   class id0,id7,id8,id10,sg0 green
-   class id4,id6,sg0 lightgreen
-   class id1,id3 orange
+Some messenger providers may prefer that their clients interact with a message proxy instead of directly sending messages to the receiver delivery service. 
+```Mermaid
+flowchart LR
+    s(Sender App) --> m[Message Proxy] --> rds[Receiver Delivery Service] --> ra(Receiver App)
 ```
+
+In this case, the client needs to create an envelope for every delivery service in the receiver's delivery service list. These envelopes and the message are put together in the ProxyEnvelop. To create a proxy envelope `createEnvelop` needs to be replaced with `createProxyEnvelop`.
+
+```Typescript
+const proxyEnvelope = await createProxyEnvelop(
+    messageAliceToBob,
+    provider,
+    aliceKeys,
+    getRessource,
+);
+```
+
+The message proxy forwards the message using the `sendOverMessageProxy` function
+```Typescript
+await sendOverMessageProxy({
+    getRessource,
+    provider,
+    proxyEnvelop: envelop,
+    submitMessage: async (url, envelop) => {
+        httpServerPostMock(
+            url,
+            createJsonRpcCallSubmitMessage(envelop),
+        );
+    },
+});
+```
+
+### Message Processing on the Delivery Service
+
+The function`handleMessageOnDeliveryService` will decrypt the delivery information
+and add a postmark (incoming timestamp) to the incoming envelope.
+```Typescript
+    const processedEnvelop = await handleMessageOnDeliveryService(
+        encryptedEnvelop,
+        dsKeysB,
+        bobProfile.profile,
+    );
+```
+
+After processing the envelope, the delivery service forwards the message to the receiver app.
+
