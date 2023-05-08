@@ -37,6 +37,9 @@ describe('DsConnector', () => {
     let ds2WsServer;
     //DeliveryService 3 wsSocket client
     let ds3WsServer;
+
+    //Axios mock to mock the http requests
+    let axiosMock;
     beforeEach(async () => {
         billboard1profile = await mockUserProfile(
             ethers.Wallet.createRandom(),
@@ -56,7 +59,7 @@ describe('DsConnector', () => {
         );
         ds1httpServer = await mockHttpServer(4060);
         ds1WsServer = await mockWsServer(ds1httpServer);
-        const axiosMock = new MockAdapter(axios);
+        axiosMock = new MockAdapter(axios);
 
         axiosMock
             .onGet('http://localhost:4060/auth/billboard1.eth')
@@ -285,6 +288,115 @@ describe('DsConnector', () => {
                 'bob.eth',
                 ['ds2.eth'],
             );
+        });
+        it('fetch initial messages from ds', async () => {
+            const mockCreateMessage = jest.fn();
+            const db = {
+                createMessage: mockCreateMessage,
+            } as IDatabase;
+            const mockProvider = {
+                resolveName: (ensName: string) => {
+                    if (ensName === 'billboard1.eth') {
+                        return billboard1profile.address;
+                    }
+                    if (ensName === 'billboard2.eth') {
+                        return billboard2profile.address;
+                    }
+                },
+                getResolver: (ensName: string) => {
+                    if (ensName === 'billboard1.eth') {
+                        return {
+                            getText: () => billboard1profile.stringified,
+                        } as unknown as ethers.providers.Resolver;
+                    }
+                    if (ensName === 'billboard2.eth') {
+                        return {
+                            getText: () => billboard2profile.stringified,
+                        } as unknown as ethers.providers.Resolver;
+                    }
+                    if (ensName === 'ds1.eth') {
+                        return {
+                            getText: () => ds1Profile.stringified,
+                        } as unknown as ethers.providers.Resolver;
+                    }
+                    if (ensName === 'ds2.eth') {
+                        return {
+                            getText: () => ds2Profile.stringified,
+                        } as unknown as ethers.providers.Resolver;
+                    }
+                    if (ensName === 'ds3.eth') {
+                        return {
+                            getText: () => ds3Profile.stringified,
+                        } as unknown as ethers.providers.Resolver;
+                    }
+                    throw new Error('mock provider unknown ensName');
+                },
+            } as unknown as ethers.providers.JsonRpcProvider;
+
+            const billBoards = [
+                {
+                    ensName: 'billboard1.eth',
+                    privateKey: billboard1profile.privateKey,
+                },
+                {
+                    ensName: 'billboard2.eth',
+                    privateKey: billboard2profile.privateKey,
+                },
+            ];
+
+            const { connect, disconnect } = dsConnector(
+                db,
+                mockProvider,
+                billBoards,
+            );
+            const mockChat1 = MockMessageFactory({
+                sender: {
+                    ensName: 'alice.eth',
+                    signedUserProfile: aliceProfile.signedUserProfile,
+                    profileKeys: aliceProfile.profileKeys,
+                },
+                receiver: {
+                    ensName: 'billboard1.eth',
+                    signedUserProfile: billboard1profile.signedUserProfile,
+                    profileKeys: billboard1profile.profileKeys,
+                },
+                dsKey: ds1Profile.profile.publicEncryptionKey,
+            });
+
+            axiosMock
+                .onGet('http://localhost:4060/messages/incoming/billboard1.eth')
+                .reply(200, [
+                    await mockChat1.createMessage('hello'),
+                    await mockChat1.createMessage('world'),
+                ]);
+
+            //Ws is now ready to deal with incoming messages
+            await connect();
+            await wait(500);
+            expect(mockCreateMessage).toHaveBeenCalledTimes(2);
+
+            expect(mockCreateMessage).toHaveBeenCalledWith(
+                'billboard1.eth',
+                expect.objectContaining({
+                    message: 'hello',
+                    metadata: expect.objectContaining({
+                        from: 'alice.eth',
+                        to: 'billboard1.eth',
+                    }),
+                }),
+            );
+            expect(mockCreateMessage).toHaveBeenCalledWith(
+                'billboard1.eth',
+                expect.objectContaining({
+                    message: 'world',
+                    metadata: expect.objectContaining({
+                        from: 'alice.eth',
+                        to: 'billboard1.eth',
+                    }),
+                }),
+            );
+
+            await disconnect();
         });
         it('stores incomming messages from ws', async () => {
             const mockCreateMessage = jest.fn();

@@ -1,4 +1,10 @@
-import { EncryptionEnvelop, Message, Postmark } from 'dm3-lib-messaging';
+import {
+    createStorageKey,
+    decryptAsymmetric,
+    getStorageKeyCreationMessage,
+    sign,
+} from 'dm3-lib-crypto';
+import { EncryptionEnvelop, Message } from 'dm3-lib-messaging';
 import {
     DeliveryServiceProfile,
     ProfileKeys,
@@ -14,27 +20,22 @@ import { getChallenge } from '../../api/internal/rest/getChallenge';
 import { getNewToken } from '../../api/internal/rest/getNewToken';
 import { getDeliveryServiceWSClient } from '../../api/internal/ws/getDeliveryServiceWSConnections';
 import { IDatabase } from '../../persitance/getDatabase';
-import {
-    createStorageKey,
-    decryptAsymmetric,
-    getStorageKeyCreationMessage,
-    sign,
-} from 'dm3-lib-crypto';
+import { fetchAndStoreInitialMessages } from './steps/fetchAndStoreInitialMessages';
 
-interface Billboard {
+export interface Billboard {
     ensName: string;
     privateKey: string;
 }
 
-type BillboardWithProfile = Billboard &
+export type BillboardWithProfile = Billboard &
     SignedUserProfile & { profileKeys: ProfileKeys };
-type BillboardWithDsProfile = BillboardWithProfile & {
+export type BillboardWithDsProfile = BillboardWithProfile & {
     dsProfile: DeliveryServiceProfile[];
 };
-type AuthenticatedBillboard = BillboardWithDsProfile & {
+export type AuthenticatedBillboard = BillboardWithDsProfile & {
     dsProfile: (DeliveryServiceProfile & { token: string })[];
 };
-type AuthenticatedBillboardWithSocket = AuthenticatedBillboard & {
+export type AuthenticatedBillboardWithSocket = AuthenticatedBillboard & {
     dsProfile: (DeliveryServiceProfile & {
         token: string;
         socket: Socket;
@@ -59,6 +60,12 @@ export function dsConnector(
         //For each delivery service profile we've to exercise the login flow
         const authenticatedBillboards = await signInAtDs(
             billboardsWithDsProfile,
+        );
+
+        //Fetch initial messages from every DS
+        await fetchAndStoreInitialMessages(
+            authenticatedBillboards,
+            encryptAndStoreMessage,
         );
 
         //For each billboard and their delivryServices we establish a websocket connection
