@@ -121,7 +121,7 @@ describe('Profile creation and sending a message', () => {
         //
         // ------
 
-        // The following function calls returns the profile, the keys,
+        // The following function calls returns the profile and the keys
         // and the nonce for delivery services A and B
         // 'http://a' and 'http://b' are the URLs pointing to the delivery service endpoint
         const {
