@@ -1,6 +1,6 @@
-import { log } from 'dm3-lib-shared';
-import { createServer, Server as HttpServerType } from 'http';
-import { io as Client, SocketOptions } from 'socket.io-client';
+import { io as Client } from 'socket.io-client';
+import { mockHttpServer } from '../../../test/helper/mockHttpServer';
+import { wait } from '../../../test/helper/utils/wait';
 import { ViewerService } from './viewerService';
 describe('Viewer Service', () => {
     let client0;
@@ -9,10 +9,10 @@ describe('Viewer Service', () => {
     let httpServer;
 
     beforeEach(async () => {
-        httpServer = await mockHttpServer();
-        client0 = await mockNewClient();
-        client1 = await mockNewClient();
-        client2 = await mockNewClient();
+        httpServer = await mockHttpServer(4060);
+        client0 = await Client('http://localhost:4060');
+        client1 = await Client('http://localhost:4060');
+        client2 = await Client('http://localhost:4060');
     });
 
     afterEach(() => {
@@ -57,11 +57,11 @@ describe('Viewer Service', () => {
                     }),
                 ]);
 
-            const viewerCount = viewerService.getViewerCount();
-
             expect(socket0IsConnected).toBe(true);
             expect(socket1IsConnected).toBe(true);
             expect(socket2IsConnected).toBe(true);
+
+            const viewerCount = viewerService.getViewerCount();
             expect(viewerCount).toBe(3);
         });
         it('disconnected client is no longer counted as viewer', async () => {
@@ -108,35 +108,9 @@ describe('Viewer Service', () => {
 
             await client0.close();
             //Wait for the callback function
-            await wait(100);
+            await wait(500);
             viewerCount = viewerService.getViewerCount();
             expect(viewerCount).toBe(2);
         });
     });
 });
-
-const mockHttpServer = async (): Promise<HttpServerType> => {
-    const httpServer = createServer();
-
-    await new Promise<boolean>((res, rej) => {
-        httpServer.listen(4060, () => {
-            res(true);
-        });
-    });
-
-    return httpServer;
-};
-
-const mockNewClient = async (options?: SocketOptions) => {
-    //@ts-ignore
-    const client = new Client('http://localhost:4060', options);
-
-    return client;
-};
-const wait = (time: number) => {
-    return new Promise<void>((res, rej) => {
-        setTimeout(() => {
-            res();
-        }, time);
-    });
-};
