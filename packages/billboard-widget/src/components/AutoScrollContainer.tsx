@@ -44,6 +44,7 @@ function AutoScrollContainer(props: Props) {
         (element: HTMLDivElement) => {
             element.scrollIntoView({
                 behavior,
+                block: 'nearest',
             });
         },
         [behavior],
