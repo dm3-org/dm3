@@ -19,9 +19,22 @@ export function getMessages(redis: Redis) {
                     REV: true,
                 },
             );
-            return serializedMessages.map((m) => JSON.parse(m)) as Message[];
+            return serializedMessages.map(mapToMessage).reverse();
         }
-
-        throw 'unimplemented';
+        const serializedMessages = await redis.zRange(
+            RedisPrefix.Messages + idBillboard,
+            start,
+            0,
+            {
+                REV: true,
+                BY: 'SCORE',
+                LIMIT: {
+                    offset: 0,
+                    count: limit,
+                },
+            },
+        );
+        return serializedMessages.map(mapToMessage).reverse();
     };
 }
+const mapToMessage = (message: string) => JSON.parse(message) as Message;
