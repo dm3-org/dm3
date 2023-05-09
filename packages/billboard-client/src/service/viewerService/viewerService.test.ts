@@ -79,20 +79,20 @@ describe('Viewer Service', () => {
                         });
                     }),
                     new Promise((res, rej) => {
-                        client0.on('connect_error', (err: any) => {
+                        client1.on('connect_error', (err: any) => {
                             rej(false);
                         });
 
-                        client0.on('connect', (_: any) => {
+                        client1.on('connect', (_: any) => {
                             res(true);
                         });
                     }),
                     new Promise((res, rej) => {
-                        client0.on('connect_error', (err: any) => {
+                        client2.on('connect_error', (err: any) => {
                             rej(false);
                         });
 
-                        client0.on('connect', (_: any) => {
+                        client2.on('connect', (_: any) => {
                             res(true);
                         });
                     }),
@@ -102,8 +102,8 @@ describe('Viewer Service', () => {
             expect(socket1IsConnected).toBe(true);
             expect(socket2IsConnected).toBe(true);
 
-            let viewerCount = viewerService.getViewerCount();
             await wait(500);
+            let viewerCount = viewerService.getViewerCount();
             expect(viewerCount).toBe(3);
 
             await client0.close();

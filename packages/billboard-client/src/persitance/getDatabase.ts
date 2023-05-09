@@ -1,7 +1,7 @@
 import { Message } from 'dm3-lib-messaging';
 import { RedisClientType, createClient } from 'redis';
 import winston from 'winston';
-import { createMessage } from './createMessage';
+import { createMessage } from './createMessage/createMessage';
 
 export enum RedisPrefix {
     Messages = 'messages:',
