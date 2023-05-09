@@ -29,7 +29,7 @@ export async function signIn(connection: Partial<Connection>) {
 
 export async function createKeyPairsFromSig(
     connection: Partial<Connection>,
-    nonce: number,
+    nonce: string,
 ): Promise<ProfileKeys> {
     return execCreateKeyPairsFromSig(
         connection,

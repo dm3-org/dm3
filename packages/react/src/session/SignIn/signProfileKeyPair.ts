@@ -6,7 +6,7 @@ import { ethersHelper } from 'dm3-lib-shared';
 export async function createKeyPairsFromSig(
     connection: Partial<Connection>,
     personalSign: ethersHelper.PersonalSign,
-    nonce: number,
+    nonce: string,
 ): Promise<ProfileKeys> {
     const { provider, ethAddress } = connection;
 

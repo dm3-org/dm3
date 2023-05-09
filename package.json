@@ -17,7 +17,8 @@
             "packages/react",
             "packages/web",
             "packages/offchain-resolver",
-            "packages/billboard-widget"
+            "packages/billboard-widget",
+            "packages/integration-tests"
         ],
         "nohoist": [
             "**/react",
