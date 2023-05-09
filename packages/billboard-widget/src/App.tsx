@@ -11,16 +11,27 @@ import EmptyView from './components/EmptyView';
 import ViewersCount from './components/ViewersCount';
 import dm3Logo from './assets/dm3-logo.png';
 
-const client = getBillboardApiClient({ mock: true });
+const client = getBillboardApiClient({
+    mock: import.meta.env.VITE_MOCK_BILLBOARD_API === 'true',
+});
+
+const BILLBOARD_ID = import.meta.env.VITE_BILLBOARD_ID || '';
 
 function App() {
     const [loading, setLoading] = useState<boolean>(false);
     const [messages, setMessages] = useState<Message[] | null>([]);
+    const [viewersCount, setViewersCount] = useState<number | null>(0);
     useEffect(() => {
         const load = async () => {
             setLoading(true);
-            const result = await client.getMessages('', 12323, '');
-            setMessages(result);
+            const messages = await client.getMessages(
+                BILLBOARD_ID,
+                Date.now(),
+                '',
+            );
+            setMessages(messages);
+            const viewers = await client.getActiveViewers(BILLBOARD_ID);
+            setViewersCount(viewers);
             setLoading(false);
         };
         load();
@@ -40,7 +51,7 @@ function App() {
                     <div>
                         <div className="header">
                             <Branding imgSrc={dm3Logo} slogan="powered by" />
-                            <ViewersCount viewers={123} />
+                            <ViewersCount viewers={viewersCount} />
                         </div>
 
                         <AutoScrollContainer containerClassName="widget-container styled-scrollbars">

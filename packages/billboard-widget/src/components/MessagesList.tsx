@@ -10,7 +10,7 @@ export default function MessagesList({ messages }: IMessagesListProps) {
         <div className="">
             <ul className="message-list">
                 {messages.map((msgObj) => (
-                    <li>
+                    <li key={`${msgObj.metadata.timestamp}${msgObj.metadata.from}`}>
                         <div className="list-container">
                             <MessageItem message={msgObj} />
                         </div>
