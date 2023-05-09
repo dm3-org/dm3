@@ -41,8 +41,7 @@ export const getBillboardClientApp = async (
     //Establish connection to all delivery services
 
     //Connect RPC handler with httpServer
-
-    getExternalApi(viewerService);
+    app.use(getExternalApi(db, viewerService));
 
     return app;
 };
