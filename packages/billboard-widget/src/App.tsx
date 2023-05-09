@@ -10,6 +10,7 @@ import Branding from './components/Branding';
 import EmptyView from './components/EmptyView';
 import ViewersCount from './components/ViewersCount';
 import dm3Logo from './assets/dm3-logo.png';
+import { getRandomMessage } from './utils/mockMessage';
 
 const client = getBillboardApiClient({
     mock: import.meta.env.VITE_MOCK_BILLBOARD_API === 'true',
@@ -39,9 +40,10 @@ function App() {
 
     const simulateNewMessage = () => {
         if (!messages || messages.length === 0) {
+            setMessages([getRandomMessage()]);
             return;
         }
-        setMessages([...messages, messages[0]]);
+        setMessages([...messages, getRandomMessage()]);
     };
 
     return (
