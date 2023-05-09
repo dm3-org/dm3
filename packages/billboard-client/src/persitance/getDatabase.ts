@@ -1,7 +1,8 @@
 import { Message } from 'dm3-lib-messaging';
-import { RedisClientType, createClient } from 'redis';
+import { createClient } from 'redis';
 import winston from 'winston';
 import { createMessage } from './createMessage/createMessage';
+import { getMessages } from './getMessages/getMessages';
 
 export enum RedisPrefix {
     Messages = 'messages:',
@@ -44,11 +45,17 @@ export async function getDatabase(
     const redis = _redis ?? (await getRedisClient(logger));
     return {
         createMessage: createMessage(redis),
+        getMessages: getMessages(redis),
     };
 }
 
 export interface IDatabase {
     createMessage: (idBillboard: string, message: Message) => Promise<void>;
+    getMessages: (
+        idBillboard: string,
+        time?: number,
+        idMessageCursor?: string,
+    ) => Promise<Message[]>;
 }
 
 export type Redis = Awaited<ReturnType<typeof getRedisClient>>;
