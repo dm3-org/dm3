@@ -7,6 +7,7 @@ import {
     useState,
 } from 'react';
 import { debounce } from 'lodash';
+import arrowIcon from '../assets/arrow-down-icon.svg';
 
 type Props = PropsWithChildren<{
     behavior?: 'smooth' | 'auto';
@@ -94,7 +95,12 @@ function AutoScrollContainer(props: Props) {
                         !autoScroll ? 'show' : ''
                     }`}
                 >
-                    To Bottom
+                    <img
+                        src={arrowIcon}
+                        alt="scroll to bottom icon"
+                        height="16px"
+                        width="16px"
+                    />
                 </button>
             ) : null}
         </div>
