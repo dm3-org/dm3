@@ -1,4 +1,4 @@
-import ButtonWithTimer from '../ButtonWithTimer/ButtonWithTimer';
+import ButtonWithTimer from './ButtonWithTimer/ButtonWithTimer';
 import paperPlaneIcon from '../assets/paper-plane.svg';
 import gearIcon from '../assets/gear-icon.svg';
 import Avatar from './Avatar';
