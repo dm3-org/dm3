@@ -75,6 +75,11 @@
     margin: 16px;
   }
 
+  .create-header {
+    display: flex;
+    justify-content: space-between;
+  }
+
   .message-create-area {
     display: flex;
     flex-direction: column;

@@ -1,6 +1,7 @@
 :root {
-  --timeoutActiveForeground: #D9D9D9;
-  --timeoutActiveBackground: #81828D;
+  --timeoutActiveForeground: #FFFFFF;
+  --timeoutRunningForeground: #D9D9D9;
+  --timeoutCircleBackground: #81828D;
 }
 
 .btn-round {
@@ -17,7 +18,7 @@
   position: relative;
 
   &.disabled {
-    cursor: not-allowed;
+    pointer-events: none;
 
     .circle-chart__circle {
       opacity: 1;
@@ -30,6 +31,11 @@
   &:hover {
     .circle-chart__background {
       opacity: 1;
+    }
+  }
+  &:active {
+    .circle-chart__background {
+      stroke: var(--timeoutActiveForeground);
     }
   }
 }
@@ -46,15 +52,14 @@
 }
 
 .circle-chart__circle {
-  stroke: var(--timeoutActiveForeground);
+  stroke: var(--timeoutRunningForeground);
   transform: rotate(-90deg);
   transform-origin: center;
   opacity: 0.2;
   transition: opacity .5s;
 }
 .circle-chart__background {
-  stroke: var(--timeoutActiveBackground);
-  transform: rotate(-90deg);
+  stroke: var(--timeoutCircleBackground);
   opacity: 0.2;
   transition: opacity .5s;
 }

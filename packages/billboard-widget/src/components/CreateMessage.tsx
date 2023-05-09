@@ -1,5 +1,6 @@
 import ButtonWithTimer from '../ButtonWithTimer/ButtonWithTimer';
-import Icon from '../assets/paper-plane.svg';
+import paperPlaneIcon from '../assets/paper-plane.svg';
+import gearIcon from '../assets/gear-icon.svg';
 import Avatar from './Avatar';
 interface Props {
     user?: Record<string, string>; // TODO
@@ -18,10 +19,15 @@ function CreateMessage(props: Props) {
             <div className="container">
                 <Avatar identifier={user.hash} />
                 <div className="message-create-area">
-                    <div className="info">
-                        {`Logged in as ${user.hash} ${
-                            user.ens ? `alias ${user.ens}` : ''
-                        }`}
+                    <div className="create-header">
+                        <div className="info text-xxs">
+                            {`Logged in as ${user.hash} ${
+                                user.ens ? `alias ${user.ens}` : ''
+                            }`}
+                        </div>
+                        <button className="settings-button" type="submit">
+                            <img src={gearIcon} alt="settings icon" />
+                        </button>
                     </div>
                     <div className="text-area-wrapper">
                         <textarea className="text-area-input" rows={4} />
@@ -33,7 +39,7 @@ function CreateMessage(props: Props) {
                             >
                                 {
                                     <img
-                                        src={Icon}
+                                        src={paperPlaneIcon}
                                         alt="Send message"
                                         style={{
                                             transform: 'translate(4px, 1px)',

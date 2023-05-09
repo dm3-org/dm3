@@ -22,10 +22,12 @@ function MessageItem(props: Props) {
         <div className="item-container">
             <Avatar identifier={message.metadata.from} />
             <div className="message">
-                <div className="content">{message.message}</div>
+                <div className="content text-sm">{message.message}</div>
                 <div className="meta">
-                    <div className="sender">"{message.metadata.from}"</div>
-                    <div className="time">{formattedDate}</div>
+                    <div className="sender text-xxs">
+                        "{message.metadata.from}"
+                    </div>
+                    <div className="time text-xxs">{formattedDate}</div>
                 </div>
             </div>
         </div>
