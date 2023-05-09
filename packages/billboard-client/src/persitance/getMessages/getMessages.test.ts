@@ -20,13 +20,12 @@ describe('getMessages', () => {
     it('should return the last 10 messages if neither time or idMessageCursor were provided', async () => {
         await createMockMessages(db, 15);
 
-        const messages = await db.getMessages('billboard1.eth');
+        const messages = await db.getMessages('billboard1.eth', 0, 9);
 
         expect(messages.length).toBe(10);
         expect(messages[0].metadata.timestamp).toBe(15);
         expect(messages[9].metadata.timestamp).toBe(6);
     });
-    ``;
 });
 
 const createMockMessages = async (db: IDatabase, number: number) => {

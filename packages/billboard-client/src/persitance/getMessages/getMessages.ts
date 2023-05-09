@@ -5,18 +5,16 @@ export function getMessages(redis: Redis) {
     return async (
         idBillboard: string,
         time?: number,
-        idMessageCursor?: string,
+        limit: number = 100,
     ): Promise<Message[]> => {
-        const start = idMessageCursor ?? 0; //The point the pagination should begin
-        const stop = time ?? 0; //The end where the messages should be fetched
+        const start = time ?? 0; //The point the pagination should begin at
 
-        //If start ===0 and stop ===0 fetch the latest 10 messages
-
-        if (start === 0 && stop === 0) {
+        //If start === 0 and stop === 0 fetch the latest 10 messages
+        if (start === 0) {
             const serializedMessages = await redis.zRange(
                 RedisPrefix.Messages + idBillboard,
                 0,
-                9,
+                limit,
                 {
                     REV: true,
                 },

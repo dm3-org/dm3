@@ -54,7 +54,7 @@ export interface IDatabase {
     getMessages: (
         idBillboard: string,
         time?: number,
-        idMessageCursor?: string,
+        limit?: number,
     ) => Promise<Message[]>;
 }
 
