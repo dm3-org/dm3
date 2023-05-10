@@ -20,6 +20,7 @@ export const getBillboardClientApp = async (
     provider: ethers.providers.JsonRpcProvider,
     db: IDatabase,
     port: number,
+    pkBillboard1: string,
 ) => {
     const app = express();
     app.use(express.json());
@@ -30,7 +31,12 @@ export const getBillboardClientApp = async (
     const httpServer = http.createServer(app);
 
     //Todo read billboards from config
-    const billboards: Billboard[] = [];
+    const billboards: Billboard[] = [
+        {
+            ensName: 'billboard1.eth',
+            privateKey: pkBillboard1,
+        },
+    ];
 
     //Register services
     const dsConnectorService = await DsConnectorService(
@@ -38,6 +44,7 @@ export const getBillboardClientApp = async (
         provider,
         billboards,
     );
+
     const viewerService = await ViewerService(httpServer);
 
     //Establish connection to all delivery services
@@ -49,6 +56,13 @@ export const getBillboardClientApp = async (
         log('billboard client listening at port ' + port);
     });
 
+    //In oder to finish the test everything has to be cleaned up
+    //Hence we're closing the httpServer and all connected socket
+    const disconnect = () => {
+        httpServer.close();
+        dsConnectorService.disconnect();
+    };
+
     //Return both app and httpServer because its handy to be able to access the httpServer in tests
-    return { app, httpServer };
+    return { app, disconnect };
 };

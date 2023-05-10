@@ -12,6 +12,8 @@ import { mockDeliveryServiceProfile } from '../helper/mockDeliveryServiceProfile
 import { mockHttpServer } from '../helper/mockHttpServer';
 import { mockUserProfile } from '../helper/mockUserProfile';
 import { mockWsServer } from '../helper/mockWsServer';
+import { MockMessageFactory } from '../helper/mockMessageFactory';
+import { wait } from '../helper/utils/wait';
 
 chai.use(chaiHttp);
 
@@ -25,6 +27,7 @@ describe('RpcApi', () => {
         ds1httpServer.close();
         ds2httpServer.close();
         ds3httpServer.close();
+        await redis.flushDb();
         redis.quit();
     });
     //HttpServers of the delivery services
@@ -49,6 +52,11 @@ describe('RpcApi', () => {
     let ds2WsServer;
     //DeliveryService 3 wsSocket client
     let ds3WsServer;
+
+    //Example User Alice
+    let aliceProfile;
+    //Exampe User Bob
+    let bobProfile;
 
     //Axios mock to mock the http requests
     let axiosMock;
@@ -180,16 +188,28 @@ describe('RpcApi', () => {
                 throw new Error('mock provider unknown ensName');
             },
         } as unknown as ethers.providers.JsonRpcProvider;
+
+        aliceProfile = await mockUserProfile(
+            ethers.Wallet.createRandom(),
+            'alice.eth',
+            ['ds1.eth', 'ds2.eth'],
+        );
+        bobProfile = await mockUserProfile(
+            ethers.Wallet.createRandom(),
+            'bob.eth',
+            ['ds2.eth'],
+        );
     });
 
-    describe('viewerCount', () => {
+    describe('countActiveViewers', () => {
         it('returns success with viewer count', async () => {
             const db = await getDatabase(winston, redis);
 
-            const { app, httpServer } = await getBillboardClientApp(
+            const { app, disconnect } = await getBillboardClientApp(
                 provider,
                 db,
                 4444,
+                billboard1profile.privateKey,
             );
             const viewer1 = Client('http://localhost:4444');
 
@@ -211,17 +231,18 @@ describe('RpcApi', () => {
             });
 
             expect(res.body.result.viewers).toBe(1);
-            await httpServer.close();
+            await disconnect();
             await viewer1.close();
         });
 
         it("returns empty viewers list if there aren't any", async () => {
             const db = await getDatabase(winston, redis);
 
-            const { app, httpServer } = await getBillboardClientApp(
+            const { app, disconnect } = await getBillboardClientApp(
                 provider,
                 db,
                 4444,
+                billboard1profile.privateKey,
             );
 
             const res = await chai.request(app).post('/rpc').send({
@@ -231,7 +252,221 @@ describe('RpcApi', () => {
             });
 
             expect(res.body.result.viewers).toBe(0);
-            httpServer.close();
+            disconnect();
+        });
+    });
+    describe('getMessages', () => {
+        it('return the most recent messages if no params are specified', async () => {
+            const db = await getDatabase(winston, redis);
+
+            const { app, disconnect } = await getBillboardClientApp(
+                provider,
+                db,
+                4444,
+                billboard1profile.privateKey,
+            );
+            const viewer1 = Client('http://localhost:4444');
+
+            const viewer1IsConnected = await new Promise((res, rej) => {
+                viewer1.on('connect', () => {
+                    res(true);
+                });
+                viewer1.on('connect_error', (err: any) => {
+                    rej(false);
+                });
+            });
+
+            expect(viewer1IsConnected).toBe(true);
+
+            const mockChat1 = MockMessageFactory({
+                sender: {
+                    ensName: 'alice.eth',
+                    signedUserProfile: aliceProfile.signedUserProfile,
+                    profileKeys: aliceProfile.profileKeys,
+                },
+                receiver: {
+                    ensName: 'billboard1.eth',
+                    signedUserProfile: billboard1profile.signedUserProfile,
+                    profileKeys: billboard1profile.profileKeys,
+                },
+                dsKey: ds1Profile.profile.publicEncryptionKey,
+            });
+            const ds1Socketes: string[] = [];
+            for (const [key] of ds1WsServer.sockets.sockets.entries()) {
+                ds1Socketes.push(key);
+            }
+
+            const [billboard1Ds1Socket] = ds1Socketes;
+
+            ds1WsServer
+                .to(billboard1Ds1Socket)
+                .emit('message', await mockChat1.createMessage('hello'));
+            ds1WsServer
+                .to(billboard1Ds1Socket)
+                .emit('message', await mockChat1.createMessage('world'));
+
+            await wait(1000);
+
+            const res = await chai
+                .request(app)
+                .post('/rpc')
+                .send({
+                    jsonrpc: '2.0',
+                    method: 'dm3_billboard_getMessages',
+                    params: ['billboard1.eth'],
+                });
+            expect(res.body.result.messages.length).toBe(2);
+            expect(res.body.result.messages[0].message).toBe('hello');
+            expect(res.body.result.messages[1].message).toBe('world');
+
+            disconnect();
+            await viewer1.close();
+        });
+        it('return the most recent messages considering the pagination params', async () => {
+            const db = await getDatabase(winston, redis);
+
+            const { app, disconnect } = await getBillboardClientApp(
+                provider,
+                db,
+                4444,
+                billboard1profile.privateKey,
+            );
+            const viewer1 = Client('http://localhost:4444');
+
+            const viewer1IsConnected = await new Promise((res, rej) => {
+                viewer1.on('connect', () => {
+                    res(true);
+                });
+                viewer1.on('connect_error', (err: any) => {
+                    rej(false);
+                });
+            });
+
+            expect(viewer1IsConnected).toBe(true);
+
+            const mockChat1 = MockMessageFactory({
+                sender: {
+                    ensName: 'alice.eth',
+                    signedUserProfile: aliceProfile.signedUserProfile,
+                    profileKeys: aliceProfile.profileKeys,
+                },
+                receiver: {
+                    ensName: 'billboard1.eth',
+                    signedUserProfile: billboard1profile.signedUserProfile,
+                    profileKeys: billboard1profile.profileKeys,
+                },
+                dsKey: ds1Profile.profile.publicEncryptionKey,
+            });
+            const ds1Socketes: string[] = [];
+            for (const [key] of ds1WsServer.sockets.sockets.entries()) {
+                ds1Socketes.push(key);
+            }
+
+            const [billboard1Ds1Socket] = ds1Socketes;
+
+            ds1WsServer
+                .to(billboard1Ds1Socket)
+                .emit('message', await mockChat1.createMessage('msg1'));
+            ds1WsServer
+                .to(billboard1Ds1Socket)
+                .emit('message', await mockChat1.createMessage('msg2'));
+            ds1WsServer
+                .to(billboard1Ds1Socket)
+                .emit('message', await mockChat1.createMessage('msg3'));
+            ds1WsServer
+                .to(billboard1Ds1Socket)
+                .emit('message', await mockChat1.createMessage('msg4'));
+            ds1WsServer
+                .to(billboard1Ds1Socket)
+                .emit('message', await mockChat1.createMessage('msg5'));
+
+            await wait(1000);
+
+            const res = await chai
+                .request(app)
+                .post('/rpc')
+                .send({
+                    jsonrpc: '2.0',
+                    method: 'dm3_billboard_getMessages',
+                    params: ['billboard1.eth'],
+                });
+            const startTime = res.body.result.messages[2].metadata.timestamp;
+
+            const paginatedRes = await chai
+                .request(app)
+                .post('/rpc')
+                .send({
+                    jsonrpc: '2.0',
+                    method: 'dm3_billboard_getMessages',
+                    params: ['billboard1.eth', startTime, 2],
+                });
+            expect(paginatedRes.body.result.messages.length).toBe(2);
+            expect(paginatedRes.body.result.messages[0].message).toBe('msg2');
+            expect(paginatedRes.body.result.messages[1].message).toBe('msg3');
+
+            disconnect();
+            await viewer1.close();
+        });
+        it('fails if params are invalid', async () => {
+            const db = await getDatabase(winston, redis);
+
+            const { app, disconnect } = await getBillboardClientApp(
+                provider,
+                db,
+                4444,
+                billboard1profile.privateKey,
+            );
+            const viewer1 = Client('http://localhost:4444');
+
+            const viewer1IsConnected = await new Promise((res, rej) => {
+                viewer1.on('connect', () => {
+                    res(true);
+                });
+                viewer1.on('connect_error', (err: any) => {
+                    rej(false);
+                });
+            });
+
+            expect(viewer1IsConnected).toBe(true);
+
+            const mockChat1 = MockMessageFactory({
+                sender: {
+                    ensName: 'alice.eth',
+                    signedUserProfile: aliceProfile.signedUserProfile,
+                    profileKeys: aliceProfile.profileKeys,
+                },
+                receiver: {
+                    ensName: 'billboard1.eth',
+                    signedUserProfile: billboard1profile.signedUserProfile,
+                    profileKeys: billboard1profile.profileKeys,
+                },
+                dsKey: ds1Profile.profile.publicEncryptionKey,
+            });
+
+            const res1 = await chai
+                .request(app)
+                .post('/rpc')
+                .send({
+                    jsonrpc: '2.0',
+                    method: 'dm3_billboard_getMessages',
+                    params: ['billboard1.eth', 'foo'],
+                });
+
+            expect(res1.body.error).toBe('invalid params');
+
+            const res2 = await chai
+                .request(app)
+                .post('/rpc')
+                .send({
+                    jsonrpc: '2.0',
+                    method: 'dm3_billboard_getMessages',
+                    params: ['billboard1.eth', 1, 'foo'],
+                });
+
+            expect(res2.body.error).toBe('invalid params');
+
+            disconnect();
+            await viewer1.close();
         });
     });
 });

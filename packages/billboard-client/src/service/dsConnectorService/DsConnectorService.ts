@@ -13,6 +13,6 @@ export async function DsConnectorService(
     // of the DsConnectorService
     await _instance.connect();
 
-    const { getConnectedBillboards } = _instance;
-    return { getConnectedBillboards };
+    const { getConnectedBillboards, disconnect } = _instance;
+    return { getConnectedBillboards, disconnect };
 }

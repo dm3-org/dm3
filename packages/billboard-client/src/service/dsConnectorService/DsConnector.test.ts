@@ -236,6 +236,7 @@ describe('DsConnector', () => {
         it('Throws if billboard has invalid profile', async () => {
             const db = {
                 createMessage: jest.fn(),
+                getMessages: jest.fn(),
             } as IDatabase;
             const mockProvider = {
                 resolveName: () => billboard1profile.address,
@@ -290,6 +291,7 @@ describe('DsConnector', () => {
             const mockCreateMessage = jest.fn();
             const db = {
                 createMessage: mockCreateMessage,
+                getMessages: jest.fn(),
             } as IDatabase;
             const mockProvider = {
                 resolveName: (ensName: string) => {
@@ -399,6 +401,7 @@ describe('DsConnector', () => {
             const mockCreateMessage = jest.fn();
             const db = {
                 createMessage: mockCreateMessage,
+                getMessages: jest.fn(),
             } as IDatabase;
             const mockProvider = {
                 resolveName: (ensName: string) => {
