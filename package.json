@@ -12,7 +12,7 @@
             "packages/lib/offchainResolver",
             "packages/lib/offchainResolver-api",
             "packages/offchainResolver-backend",
-            "packages/lib/dm3-lib-billboard-api",
+            "packages/lib/lib-billboard-api",
             "packages/backend",
             "packages/react",
             "packages/web",
@@ -41,16 +41,16 @@
     },
     "scripts": {
         "docker:up": "cd packages/backend && docker-compose up -d",
-        "build": "yarn workspaces run build",
+        "build": " yarn workspaces foreach -pt run build",
         "start": "cd packages/backend && yarn start",
         "resolver": "cd packages/offchain-resolver && yarn start",
         "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
         "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
         "format:check": "prettier --check '*/**/*.{js,ts,tsx,json}'",
         "prepare": "husky install",
-        "test": "yarn workspaces run test"
+        "test": "yarn workspaces foreach -p run test"
     },
-    "packageManager": "yarn@1.22.19",
+    "packageManager": "yarn@3.5.1",
     "resolutions": {
         "autoprefixer": "10.4.5"
     }

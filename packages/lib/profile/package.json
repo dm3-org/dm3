@@ -46,8 +46,8 @@
     },
     "scripts": {
         "build:schema": "sh ./schemas.sh",
-        "build": "yarn install && yarn build:schema && tsc --declaration && tsc --declaration -p tsconfig.backend.json ",
-        "test": "jest --coverage"
+        "build": "yarn build:schema && yarn tsc --declaration && yarn tsc --declaration -p tsconfig.backend.json ",
+        "test": "jest --coverage --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'"
     },
     "files": [
         "dist",

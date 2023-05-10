@@ -311,6 +311,7 @@ function Chat() {
     };
 
     const widget = (
+        // @ts-ignore
         <Widget
             emojis={false}
             launcher={() => null}
