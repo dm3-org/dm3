@@ -11,6 +11,7 @@ import { ViewerService } from './service/viewerService/ViewerService';
 import { getExternaApi as getExternalApi } from './api/external/getExternalApi';
 import { DsConnectorService } from './service/DsConnectorService/DsConnectorService';
 import { log } from 'dm3-lib-shared';
+import { ConfigService } from './service/ConfigService/ConfigService';
 
 /**
  * An express app that sets up a basic webserver
@@ -20,7 +21,6 @@ export const getBillboardClientApp = async (
     provider: ethers.providers.JsonRpcProvider,
     db: IDatabase,
     port: number,
-    pkBillboard1: string,
 ) => {
     const app = express();
     app.use(express.json());
@@ -30,13 +30,16 @@ export const getBillboardClientApp = async (
     //create http server
     const httpServer = http.createServer(app);
 
-    //Todo read billboards from config
-    const billboards: Billboard[] = [
-        {
-            ensName: 'billboard1.eth',
-            privateKey: pkBillboard1,
-        },
-    ];
+    //Readng the ENV config file
+    const config = ConfigService().readConfigFromEnv();
+
+    //Each Ens name provided in the config file is an billboard instance
+    //Right now we're using one profile and hence one private key for all billboards
+    //This might change later though
+    const billboards: Billboard[] = config.ensNames.map((ensName) => ({
+        ensName,
+        privateKey: config.privateKey,
+    }));
 
     //Register services
     const dsConnectorService = await DsConnectorService(

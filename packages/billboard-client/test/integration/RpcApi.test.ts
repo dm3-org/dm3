@@ -204,12 +204,18 @@ describe('RpcApi', () => {
     describe('countActiveViewers', () => {
         it('returns success with viewer count', async () => {
             const db = await getDatabase(winston, redis);
+            process.env = {
+                ...process.env,
+                ensNames: JSON.stringify(['billboard1.eth']),
+                privateKey: billboard1profile.privateKey,
+                mediators: JSON.stringify([]),
+                time: '0',
+            };
 
             const { app, disconnect } = await getBillboardClientApp(
                 provider,
                 db,
                 4444,
-                billboard1profile.privateKey,
             );
             const viewer1 = Client('http://localhost:4444');
 
@@ -238,11 +244,18 @@ describe('RpcApi', () => {
         it("returns empty viewers list if there aren't any", async () => {
             const db = await getDatabase(winston, redis);
 
+            process.env = {
+                ...process.env,
+                ensNames: JSON.stringify(['billboard1.eth']),
+                privateKey: billboard1profile.privateKey,
+                mediators: JSON.stringify([]),
+                time: '0',
+            };
+
             const { app, disconnect } = await getBillboardClientApp(
                 provider,
                 db,
                 4444,
-                billboard1profile.privateKey,
             );
 
             const res = await chai.request(app).post('/rpc').send({
@@ -258,12 +271,18 @@ describe('RpcApi', () => {
     describe('getMessages', () => {
         it('return the most recent messages if no params are specified', async () => {
             const db = await getDatabase(winston, redis);
+            process.env = {
+                ...process.env,
+                ensNames: JSON.stringify(['billboard1.eth']),
+                privateKey: billboard1profile.privateKey,
+                mediators: JSON.stringify([]),
+                time: '0',
+            };
 
             const { app, disconnect } = await getBillboardClientApp(
                 provider,
                 db,
                 4444,
-                billboard1profile.privateKey,
             );
             const viewer1 = Client('http://localhost:4444');
 
@@ -325,11 +344,18 @@ describe('RpcApi', () => {
         it('return the most recent messages considering the pagination params', async () => {
             const db = await getDatabase(winston, redis);
 
+            process.env = {
+                ...process.env,
+                ensNames: JSON.stringify(['billboard1.eth']),
+                privateKey: billboard1profile.privateKey,
+                mediators: JSON.stringify([]),
+                time: '0',
+            };
+
             const { app, disconnect } = await getBillboardClientApp(
                 provider,
                 db,
                 4444,
-                billboard1profile.privateKey,
             );
             const viewer1 = Client('http://localhost:4444');
 
@@ -409,12 +435,18 @@ describe('RpcApi', () => {
         });
         it('fails if params are invalid', async () => {
             const db = await getDatabase(winston, redis);
+            process.env = {
+                ...process.env,
+                ensNames: JSON.stringify(['billboard1.eth']),
+                privateKey: billboard1profile.privateKey,
+                mediators: JSON.stringify([]),
+                time: '0',
+            };
 
             const { app, disconnect } = await getBillboardClientApp(
                 provider,
                 db,
                 4444,
-                billboard1profile.privateKey,
             );
             const viewer1 = Client('http://localhost:4444');
 
@@ -428,20 +460,6 @@ describe('RpcApi', () => {
             });
 
             expect(viewer1IsConnected).toBe(true);
-
-            const mockChat1 = MockMessageFactory({
-                sender: {
-                    ensName: 'alice.eth',
-                    signedUserProfile: aliceProfile.signedUserProfile,
-                    profileKeys: aliceProfile.profileKeys,
-                },
-                receiver: {
-                    ensName: 'billboard1.eth',
-                    signedUserProfile: billboard1profile.signedUserProfile,
-                    profileKeys: billboard1profile.profileKeys,
-                },
-                dsKey: ds1Profile.profile.publicEncryptionKey,
-            });
 
             const res1 = await chai
                 .request(app)
