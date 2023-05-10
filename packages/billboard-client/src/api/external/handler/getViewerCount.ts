@@ -3,12 +3,12 @@ export function getViewerCountHandler(
 ): IRpcCallHandler {
     return {
         method: 'dm3_billboard_countActiveViewers',
-        handle: (params: string[]) => {
+        handle: async (params: string[]) => {
             const viewerCount = viewerService.getViewerCount();
-            return Promise.resolve({
+            return {
                 status: 'success',
-                value: viewerService,
-            });
+                value: { viewers: viewerCount },
+            };
         },
     };
 }

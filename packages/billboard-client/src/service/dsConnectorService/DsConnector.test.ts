@@ -1,19 +1,15 @@
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
 import { ethers } from 'ethers';
+import { Server as HttpServerType } from 'http';
+import { mockDeliveryServiceProfile } from '../../../test/helper/mockDeliveryServiceProfile';
+import { mockHttpServer } from '../../../test/helper/mockHttpServer';
+import { MockMessageFactory } from '../../../test/helper/mockMessageFactory';
+import { mockUserProfile } from '../../../test/helper/mockUserProfile';
+import { mockWsServer } from '../../../test/helper/mockWsServer';
+import { wait } from '../../../test/helper/utils/wait';
 import { IDatabase } from '../../persitance/getDatabase';
 import { dsConnector } from './DsConnector';
-import { mockUserProfile } from '../../../test/helper/mockUserProfile';
-import { mockDeliveryServiceProfile } from '../../../test/helper/mockDeliveryServiceProfile';
-import { wait } from '../../../test/helper/utils/wait';
-import { ProfileKeys, SignedUserProfile, UserProfile } from 'dm3-lib-profile';
-import axios, { Axios } from 'axios';
-import MockAdapter from 'axios-mock-adapter';
-import { mockHttpServer } from '../../../test/helper/mockHttpServer';
-import { createServer, Server as HttpServerType } from 'http';
-import { io as Client, SocketOptions } from 'socket.io-client';
-import { mockWsServer } from '../../../test/helper/mockWsServer';
-import { buildEnvelop, Message, SendDependencies } from 'dm3-lib-messaging';
-import { encryptAsymmetric } from 'dm3-lib-crypto';
-import { MockMessageFactory } from '../../../test/helper/mockMessageFactory';
 
 describe('DsConnector', () => {
     //HttpServers of the delivery services
