@@ -10,6 +10,7 @@ import {
 import { ViewerService } from './service/viewerService/ViewerService';
 import { getExternaApi as getExternalApi } from './api/external/getExternalApi';
 import { DsConnectorService } from './service/DsConnectorService/DsConnectorService';
+import { log } from 'dm3-lib-shared';
 
 /**
  * An express app that sets up a basic webserver
@@ -18,6 +19,7 @@ import { DsConnectorService } from './service/DsConnectorService/DsConnectorServ
 export const getBillboardClientApp = async (
     provider: ethers.providers.JsonRpcProvider,
     db: IDatabase,
+    port: number,
 ) => {
     const app = express();
     app.use(express.json());
@@ -43,5 +45,10 @@ export const getBillboardClientApp = async (
     //Connect RPC handler with httpServer
     app.use(getExternalApi(db, viewerService));
 
-    return app;
+    httpServer.listen(port, () => {
+        log('billboard client listening at port ' + port);
+    });
+
+    //Return both app and httpServer because its handy to be able to access the httpServer in tests
+    return { app, httpServer };
 };

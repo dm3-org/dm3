@@ -9,7 +9,7 @@ const main = async () => {
 
     const database = await getDatabase(winston.createLogger());
 
-    return getBillboardClientApp(provider, database);
+    await getBillboardClientApp(provider, database, 1234);
 };
 
 main();
