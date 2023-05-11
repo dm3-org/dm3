@@ -13,6 +13,10 @@ import { getDatabase, getRedisClient, Redis } from '../persistance/getDatabase';
 import { IDatabase } from '../persistance/IDatabase';
 import { profile } from './profile';
 
+import * as dotenv from 'dotenv';
+
+dotenv.config();
+
 const { expect } = require('chai');
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 
