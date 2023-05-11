@@ -7580,7 +7580,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^10.0.0":
+"commander@npm:^10.0.0, commander@npm:^10.0.1":
   version: 10.0.1
   resolution: "commander@npm:10.0.1"
   checksum: 436901d64a818295803c1996cd856621a74f30b9f9e28a588e726b2b1670665bccd7c1a77007ebf328729f0139838a88a19265858a0fa7a8728c4656796db948
@@ -8625,6 +8625,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"dm3-cli@workspace:packages/cli":
+  version: 0.0.0-use.local
+  resolution: "dm3-cli@workspace:packages/cli"
+  dependencies:
+    commander: ^10.0.1
+    dm3-lib-profile: "workspace:^"
+    ethers: 5.7.2
+    typescript: ^4.4.2
+  languageName: unknown
+  linkType: soft
+
 "dm3-integration-tests@workspace:packages/integration-tests":
   version: 0.0.0-use.local
   resolution: "dm3-integration-tests@workspace:packages/integration-tests"
@@ -8769,7 +8780,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"dm3-lib-profile@^0.1.0, dm3-lib-profile@^0.1.1, dm3-lib-profile@workspace:packages/lib/profile":
+"dm3-lib-profile@^0.1.0, dm3-lib-profile@^0.1.1, dm3-lib-profile@workspace:^, dm3-lib-profile@workspace:packages/lib/profile":
   version: 0.0.0-use.local
   resolution: "dm3-lib-profile@workspace:packages/lib/profile"
   dependencies:

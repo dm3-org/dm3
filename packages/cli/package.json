@@ -1,0 +1,20 @@
+{
+    "name": "dm3-cli",
+    "version": "0.1.3",
+    "main": "dist/index.js",
+    "devDependencies": {
+        "typescript": "^4.4.2"
+    },
+    "scripts": {
+        "build": "yarn tsc --declaration",
+        "test": "echo 'no tests"
+    },
+    "files": [
+        "dist"
+    ],
+    "dependencies": {
+        "commander": "^10.0.1",
+        "dm3-lib-profile": "workspace:^",
+        "ethers": "5.7.2"
+    }
+}
