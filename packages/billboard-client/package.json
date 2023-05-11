@@ -32,8 +32,8 @@
         "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
         "format:check": "prettier --check '*/**/*.{js,ts,tsx,json}'"
     },
-    "jest":{
-        "maxWorkers":1
+    "jest": {
+        "maxWorkers": 1
     },
     "devDependencies": {
         "@babel/core": "^7.19.6",
