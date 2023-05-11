@@ -80,4 +80,6 @@ jobs:
                   NODE_AUTH_TOKEN: ${{ secrets.PACKAGE_PAT }}
 
             - name: Unit Tests
-              run: yarn test --ci --watchAll=false
+              run: yarn test
+              env:
+                  REACT_APP_ADDR_ENS_SUBDOMAIN: 'test.dm3.eth'
