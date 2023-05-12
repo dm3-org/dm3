@@ -183,6 +183,7 @@ describe('DsConnector', () => {
                 db,
                 mockProvider,
                 billBoards,
+                
             );
 
             let conn1;
@@ -553,6 +554,7 @@ describe('DsConnector', () => {
             const mockCreateMessage = jest.fn();
             const db = {
                 createMessage: mockCreateMessage,
+                getMessages: jest.fn(),
             } as IDatabase;
             const mockProvider = {
                 resolveName: (ensName: string) => {

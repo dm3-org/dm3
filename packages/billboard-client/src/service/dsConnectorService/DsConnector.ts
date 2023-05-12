@@ -46,7 +46,7 @@ export function dsConnector(
     db: IDatabase,
     provider: ethers.providers.JsonRpcProvider,
     billboards: Billboard[],
-    onMessage: (message: Message) => Promise<void>,
+    onMessage: (message: Message) => Promise<void> = () => Promise.resolve(),
 ) {
     let _connectedBillboards: AuthenticatedBillboardWithSocket[] = [];
 
