@@ -5,7 +5,7 @@ import { getMessagesHandler } from './handler/getMessages';
 import { IDatabase } from '../../persitance/getDatabase';
 import { IViewerService } from '../../service/viewerService/IViewerService';
 
-export function getExternaApi(db: IDatabase, viewerService: IViewerService) {
+export function getExternalApi(db: IDatabase, viewerService: IViewerService) {
     const app = express();
 
     app.post('/rpc', async (req: express.Request, res: express.Response) => {

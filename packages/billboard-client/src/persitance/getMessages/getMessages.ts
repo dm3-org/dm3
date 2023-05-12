@@ -9,11 +9,10 @@ export function getMessages(redis: Redis) {
         time?: number,
         limit?: number,
     ): Promise<Message[]> => {
-        const start = time ?? 0;
         const _limit = !!limit ? limit : DEFAULT_PAGE_SIZE;
 
-        //If start === 0 and stop === 0 fetch the latest 10 messages
-        if (start === 0) {
+        //If start === 0 and fetch the latest 10 messages
+        if (!time) {
             const serializedMessages = await redis.zRange(
                 RedisPrefix.Messages + idBillboard,
                 0,
@@ -26,7 +25,7 @@ export function getMessages(redis: Redis) {
         }
         const serializedMessages = await redis.zRange(
             RedisPrefix.Messages + idBillboard,
-            start,
+            time ?? 0,
             0,
             {
                 REV: true,

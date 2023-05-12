@@ -28,8 +28,6 @@
         "docker:up": "docker-compose up -d",
         "start": "ts-node --transpile-only  ./src/index.ts",
         "test": "npm run docker:up && jest --coverage --runInBand --forceExit",
-        "build": "tsc && cp ./config.yml ./dist/config.yml | true",
-        "createDeliveryServiceProfile": "node --no-warnings ./cli.js",
         "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
         "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
         "format:check": "prettier --check '*/**/*.{js,ts,tsx,json}'"

@@ -3,7 +3,7 @@ import { log } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import express from 'express';
 import http from 'http';
-import { getExternaApi as getExternalApi } from './api/external/getExternalApi';
+import { getExternalApi as getExternalApi } from './api/external/getExternalApi';
 import { IDatabase } from './persitance/getDatabase';
 import { ConfigService } from './service/ConfigService/ConfigService';
 import { Billboard } from './service/dsManager/DsManagerImpl';
