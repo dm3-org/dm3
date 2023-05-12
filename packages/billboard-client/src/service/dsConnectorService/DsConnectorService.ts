@@ -8,7 +8,7 @@ export async function DsConnectorService(
     db: IDatabase,
     provider: ethers.providers.JsonRpcProvider,
     billboards: Billboard[],
-    onMessage: (message: Message) => Promise<void>,
+    onMessage: (idBillboard: string, message: Message) => Promise<void>,
 ): Promise<IDsConnectorService> {
     const _instance = dsConnector(db, provider, billboards, onMessage);
     //We've to wait for the connection to be established before we can return an instance

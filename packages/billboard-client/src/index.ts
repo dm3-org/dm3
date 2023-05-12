@@ -5,11 +5,19 @@ import { getDatabase } from './persitance/getDatabase';
 
 const main = async () => {
     const rpcUrl = process.env['RPC'];
+    const port = process.env['PORT'];
+
+    if (!rpcUrl) {
+        throw new Error('RPC url not provided');
+    }
+    if (!port) {
+        throw new Error('Port not provided');
+    }
     const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
 
     const database = await getDatabase(winston.createLogger());
 
-    await getBillboardClientApp(provider, database, 1234);
+    await getBillboardClientApp(provider, database, Number(port));
 };
 
 main();
