@@ -2,7 +2,7 @@ import { getStorageKeyCreationMessage, createStorageKey } from 'dm3-lib-crypto';
 import { createProfileKeys, getUserProfile } from 'dm3-lib-profile';
 import { log } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
-import { Billboard } from '../DsConnector';
+import { Billboard } from '../DsConnectorImpl';
 
 /**
 Retrieves the profiles of billboards.

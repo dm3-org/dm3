@@ -1,6 +1,9 @@
 import { log } from 'dm3-lib-shared';
 import { getIncomingMessages } from '../../../api/internal/rest/getIncomingMessages';
-import { AuthenticatedBillboard, BillboardWithDsProfile } from '../DsConnector';
+import {
+    AuthenticatedBillboard,
+    BillboardWithDsProfile,
+} from '../DsConnectorImpl';
 import { EncryptionEnvelop } from 'dm3-lib-messaging';
 
 /**

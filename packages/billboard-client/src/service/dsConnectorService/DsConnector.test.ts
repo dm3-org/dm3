@@ -9,7 +9,7 @@ import { mockUserProfile } from '../../../test/helper/mockUserProfile';
 import { mockWsServer } from '../../../test/helper/mockWsServer';
 import { wait } from '../../../test/helper/utils/wait';
 import { IDatabase } from '../../persitance/getDatabase';
-import { dsConnector } from './DsConnector';
+import { dsConnector } from './DsConnectorImpl';
 
 describe('DsConnector', () => {
     //HttpServers of the delivery services

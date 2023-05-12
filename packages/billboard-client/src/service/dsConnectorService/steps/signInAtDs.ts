@@ -1,7 +1,10 @@
 import { log } from 'dm3-lib-shared';
 import { getChallenge } from '../../../api/internal/rest/getChallenge';
 import { getNewToken } from '../../../api/internal/rest/getNewToken';
-import { BillboardWithDsProfile, AuthenticatedBillboard } from '../DsConnector';
+import {
+    BillboardWithDsProfile,
+    AuthenticatedBillboard,
+} from '../DsConnectorImpl';
 import { sign } from 'dm3-lib-crypto';
 
 /**

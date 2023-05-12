@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { Billboard, dsConnector } from './DsConnector';
+import { Billboard, dsConnector } from './DsConnectorImpl';
 import { IDatabase } from '../../persitance/getDatabase';
 import { IDsConnectorService } from './IDsConnectorService';
 import { Message } from 'dm3-lib-messaging';

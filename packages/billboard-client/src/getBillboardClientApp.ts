@@ -6,7 +6,7 @@ import http from 'http';
 import { getExternaApi as getExternalApi } from './api/external/getExternalApi';
 import { IDatabase } from './persitance/getDatabase';
 import { ConfigService } from './service/ConfigService/ConfigService';
-import { Billboard } from './service/DsConnectorService/DsConnector';
+import { Billboard } from './service/DsConnectorService/DsConnectorImpl';
 import { DsConnectorService } from './service/DsConnectorService/DsConnectorService';
 import { ViewerService } from './service/viewerService/viewerService';
 
