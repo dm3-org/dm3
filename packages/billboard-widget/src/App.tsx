@@ -9,6 +9,7 @@ import CreateMessage from './components/CreateMessage';
 import Branding from './components/Branding';
 import EmptyView from './components/EmptyView';
 import ViewersCount from './components/ViewersCount';
+import ConnectWithMetaMask from './components/ConnectWithMetaMask';
 import dm3Logo from './assets/dm3-logo.png';
 import { getRandomMessage } from './utils/mockMessage';
 
@@ -21,7 +22,7 @@ const BILLBOARD_ID = import.meta.env.VITE_BILLBOARD_ID || '';
 function App() {
     const [loading, setLoading] = useState<boolean>(false);
     const [messages, setMessages] = useState<Message[] | null>([]);
-    const [viewersCount, setViewersCount] = useState<number | null>(0);
+    const [viewersCount, setViewersCount] = useState<number>(0);
     useEffect(() => {
         const load = async () => {
             setLoading(true);
@@ -32,7 +33,7 @@ function App() {
             );
             setMessages(messages);
             const viewers = await client.getActiveViewers(BILLBOARD_ID);
-            setViewersCount(viewers);
+            setViewersCount(viewers || 0);
             setLoading(false);
         };
         load();
@@ -72,6 +73,8 @@ function App() {
                 )}
             </div>
             <button onClick={simulateNewMessage}>Send</button>
+
+            <ConnectWithMetaMask />
         </>
     );
 }

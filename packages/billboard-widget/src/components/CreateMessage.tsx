@@ -4,6 +4,7 @@ import gearIcon from '../assets/gear-icon.svg';
 import Avatar from './Avatar';
 interface Props {
     user?: Record<string, string>; // TODO
+    onClickSettings?: () => void;
 }
 
 function CreateMessage(props: Props) {
@@ -12,6 +13,7 @@ function CreateMessage(props: Props) {
             hash: '0x123456789',
             ens: 'Bob',
         },
+        onClickSettings,
     } = props;
 
     return (
@@ -25,12 +27,17 @@ function CreateMessage(props: Props) {
                                 user.ens ? `alias ${user.ens}` : ''
                             }`}
                         </div>
-                        <button className="settings-button" type="submit">
-                            <img src={gearIcon} alt="settings icon" />
-                        </button>
+                        {typeof onClickSettings === 'function' ? (
+                            <button className="settings-button">
+                                <img src={gearIcon} alt="settings icon" />
+                            </button>
+                        ) : null}
                     </div>
                     <div className="text-area-wrapper">
-                        <textarea className="text-area-input" rows={4} />
+                        <textarea
+                            className="text-area-input text-sm"
+                            rows={4}
+                        />
                         <div className="button-wrapper">
                             <ButtonWithTimer
                                 onClick={() => {
