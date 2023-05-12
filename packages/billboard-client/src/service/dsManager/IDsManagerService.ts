@@ -1,4 +1,4 @@
-export interface IDsConnectorService {
+export interface IDsManagerService {
     getConnectedBillboards: () => string[];
     disconnect: () => void;
 }

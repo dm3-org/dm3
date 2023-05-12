@@ -1,5 +1,5 @@
 import { getDeliveryServiceProfile } from 'dm3-lib-profile';
-import { BillboardWithProfile } from '../DsConnectorImpl';
+import { BillboardWithProfile } from '../DsManagerImpl';
 import { log } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 

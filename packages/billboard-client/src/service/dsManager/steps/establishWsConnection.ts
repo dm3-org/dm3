@@ -6,7 +6,7 @@ import {
     AuthenticatedBillboard,
     AuthenticatedBillboardWithSocket,
     BillboardWithDsProfile,
-} from '../DsConnectorImpl';
+} from '../DsManagerImpl';
 import { log } from 'dm3-lib-shared';
 
 /**

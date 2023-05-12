@@ -42,7 +42,7 @@ Creates a delivery service connector.
 @param billboards - An array of Billboard
 @returns An object with connect and disconnect methods.
 */
-export function dsConnector(
+export function dsManager(
     db: IDatabase,
     provider: ethers.providers.JsonRpcProvider,
     billboards: Billboard[],

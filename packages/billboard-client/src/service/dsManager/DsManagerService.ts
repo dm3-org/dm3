@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
-import { Billboard, dsConnector } from './DsConnectorImpl';
+import { Billboard, dsManager } from './DsManagerImpl';
 import { IDatabase } from '../../persitance/getDatabase';
-import { IDsConnectorService } from './IDsConnectorService';
+import { IDsManagerService } from './IDsManagerService';
 import { Message } from 'dm3-lib-messaging';
 
 /**
@@ -14,13 +14,13 @@ import { Message } from 'dm3-lib-messaging';
  * @param onMessage - A function that handles incoming messages.
  * @returns A promise that resolves to an instance of a delivery service connector service.
  */
-export async function DsConnectorService(
+export async function DsManagerService(
     db: IDatabase,
     provider: ethers.providers.JsonRpcProvider,
     billboards: Billboard[],
     onMessage: (idBillboard: string, message: Message) => Promise<void>,
-): Promise<IDsConnectorService> {
-    const _instance = dsConnector(db, provider, billboards, onMessage);
+): Promise<IDsManagerService> {
+    const _instance = dsManager(db, provider, billboards, onMessage);
     //We've to wait for the connection to be established before we can return an instance
     // of the DsConnectorService
     await _instance.connect();

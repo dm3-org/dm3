@@ -4,7 +4,7 @@ import { getNewToken } from '../../../api/internal/rest/getNewToken';
 import {
     BillboardWithDsProfile,
     AuthenticatedBillboard,
-} from '../DsConnectorImpl';
+} from '../DsManagerImpl';
 import { sign } from 'dm3-lib-crypto';
 
 /**

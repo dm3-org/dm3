@@ -9,9 +9,9 @@ import { mockUserProfile } from '../../../test/helper/mockUserProfile';
 import { mockWsServer } from '../../../test/helper/mockWsServer';
 import { wait } from '../../../test/helper/utils/wait';
 import { IDatabase } from '../../persitance/getDatabase';
-import { dsConnector } from './DsConnectorImpl';
+import { dsManager } from './DsManagerImpl';
 
-describe('DsConnector', () => {
+describe('DsManager', () => {
     //HttpServers of the delivery services
     let ds1httpServer: HttpServerType;
     let ds2httpServer: HttpServerType;
@@ -179,7 +179,7 @@ describe('DsConnector', () => {
                 },
             ];
 
-            const { connect, disconnect } = dsConnector(
+            const { connect, disconnect } = dsManager(
                 db,
                 mockProvider,
                 billBoards,
@@ -230,7 +230,7 @@ describe('DsConnector', () => {
             ];
 
             await expect(
-                dsConnector(db, mockProvider, billBoards).connect(),
+                dsManager(db, mockProvider, billBoards).connect(),
             ).rejects.toThrow("Can't get billboard profile for billboard1.eth");
         });
         it('Throws if billboard has invalid profile', async () => {
@@ -263,7 +263,7 @@ describe('DsConnector', () => {
             ];
 
             await expect(
-                dsConnector(db, mockProvider, billBoards).connect(),
+                dsManager(db, mockProvider, billBoards).connect(),
             ).rejects.toThrow("Can't get billboard profile for billboard1.eth");
         });
     });
@@ -343,7 +343,7 @@ describe('DsConnector', () => {
                 },
             ];
 
-            const { connect, disconnect } = dsConnector(
+            const { connect, disconnect } = dsManager(
                 db,
                 mockProvider,
                 billBoards,
@@ -453,7 +453,7 @@ describe('DsConnector', () => {
                 },
             ];
 
-            const { connect, disconnect } = dsConnector(
+            const { connect, disconnect } = dsManager(
                 db,
                 mockProvider,
                 billBoards,
@@ -605,7 +605,7 @@ describe('DsConnector', () => {
                 },
             ];
 
-            const { connect, disconnect } = dsConnector(
+            const { connect, disconnect } = dsManager(
                 db,
                 mockProvider,
                 billBoards,

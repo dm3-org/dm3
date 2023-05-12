@@ -6,8 +6,8 @@ import http from 'http';
 import { getExternaApi as getExternalApi } from './api/external/getExternalApi';
 import { IDatabase } from './persitance/getDatabase';
 import { ConfigService } from './service/ConfigService/ConfigService';
-import { Billboard } from './service/DsConnectorService/DsConnectorImpl';
-import { DsConnectorService } from './service/DsConnectorService/DsConnectorService';
+import { Billboard } from './service/dsManager/DsManagerImpl';
+import { DsManagerService } from './service/dsManager/DsManagerService';
 import { ViewerService } from './service/viewerService/viewerService';
 
 /**
@@ -40,7 +40,7 @@ export const getBillboardClientApp = async (
 
     //Register services
     const viewerService = await ViewerService(httpServer);
-    const dsConnectorService = await DsConnectorService(
+    const dsConnectorService = await DsManagerService(
         db,
         provider,
         billboards,

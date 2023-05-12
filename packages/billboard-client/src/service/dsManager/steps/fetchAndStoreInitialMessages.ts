@@ -3,7 +3,7 @@ import { getIncomingMessages } from '../../../api/internal/rest/getIncomingMessa
 import {
     AuthenticatedBillboard,
     BillboardWithDsProfile,
-} from '../DsConnectorImpl';
+} from '../DsManagerImpl';
 import { EncryptionEnvelop } from 'dm3-lib-messaging';
 
 /**
