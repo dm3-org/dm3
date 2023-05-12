@@ -308,7 +308,7 @@ describe('RpcApi', () => {
                     signedUserProfile: billboard1profile.signedUserProfile,
                     profileKeys: billboard1profile.profileKeys,
                 },
-                dsKey: ds1Profile.profile.publicEncryptionKey,
+                dsProfile: ds1Profile.profile,
             });
             const ds1Socketes: string[] = [];
             for (const [key] of ds1WsServer.sockets.sockets.entries()) {
@@ -381,7 +381,7 @@ describe('RpcApi', () => {
                     signedUserProfile: billboard1profile.signedUserProfile,
                     profileKeys: billboard1profile.profileKeys,
                 },
-                dsKey: ds1Profile.profile.publicEncryptionKey,
+                dsProfile: ds1Profile.profile,
             });
             const ds1Socketes: string[] = [];
             for (const [key] of ds1WsServer.sockets.sockets.entries()) {
@@ -547,7 +547,7 @@ describe('RpcApi', () => {
                     signedUserProfile: billboard1profile.signedUserProfile,
                     profileKeys: billboard1profile.profileKeys,
                 },
-                dsKey: ds1Profile.profile.publicEncryptionKey,
+                dsProfile: ds1Profile.profile,
             });
             const mockChat2 = MockMessageFactory({
                 sender: {
@@ -560,7 +560,7 @@ describe('RpcApi', () => {
                     signedUserProfile: billboard2profile.signedUserProfile,
                     profileKeys: billboard2profile.profileKeys,
                 },
-                dsKey: ds2Profile.profile.publicEncryptionKey,
+                dsProfile: ds2Profile.profile,
             });
 
             const receivedMessagesViewer1: Message[] = [];
@@ -573,9 +573,9 @@ describe('RpcApi', () => {
                 receivedMessagesViewer2.push(msg),
             );
 
-            ds1WsServer
-                .to(billboard1Ds1Socket)
-                .emit('message', await mockChat1.createMessage('hello'));
+            const msg = await mockChat1.createMessage('hello');
+
+            ds1WsServer.to(billboard1Ds1Socket).emit('message', msg);
             ds1WsServer
                 .to(billboard1Ds1Socket)
                 .emit('message', await mockChat1.createMessage('billboard1'));
@@ -589,9 +589,11 @@ describe('RpcApi', () => {
 
             await wait(1000);
 
-            await disconnect();
-            await viewer1.close();
-            await viewer2.close();
+            disconnect();
+
+            viewer1.close();
+
+            viewer2.close();
 
             expect(receivedMessagesViewer1.length).toBe(2);
             expect(receivedMessagesViewer1[0].message).toBe('hello');

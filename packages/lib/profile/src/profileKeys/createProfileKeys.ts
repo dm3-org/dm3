@@ -3,7 +3,7 @@ import { ProfileKeys } from '../Profile';
 
 export async function createProfileKeys(
     nonceMsgSig: string,
-    nonce: number,
+    nonce: string,
 ): Promise<ProfileKeys> {
     return {
         encryptionKeyPair: await createKeyPair(nonceMsgSig),

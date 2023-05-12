@@ -19,7 +19,7 @@ export async function getBillboardProfile(
         billboards.map(async (billboard) => {
             log('Get DM3 User Profile for ' + billboard.ensName);
             const wallet = new ethers.Wallet(billboard.privateKey);
-            const storageKeyCreationMessage = getStorageKeyCreationMessage(0);
+            const storageKeyCreationMessage = getStorageKeyCreationMessage('0');
             const storageKeySig = await wallet.signMessage(
                 storageKeyCreationMessage,
             );
@@ -27,7 +27,7 @@ export async function getBillboardProfile(
             const storageKey = await createStorageKey(storageKeySig);
             //TODO Do thoose keys have to match the ones provided with the profile.
             //Shall we throw if that is not the case?
-            const profileKeys = await createProfileKeys(storageKey, 0);
+            const profileKeys = await createProfileKeys(storageKey, '0');
             try {
                 const billboardProfile = await getUserProfile(
                     provider,

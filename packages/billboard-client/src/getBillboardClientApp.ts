@@ -7,11 +7,11 @@ import {
     Billboard,
     dsConnector,
 } from './service/DsConnectorService/DsConnector';
-import { ViewerService } from './service/viewerService/ViewerService';
 import { getExternaApi as getExternalApi } from './api/external/getExternalApi';
 import { DsConnectorService } from './service/DsConnectorService/DsConnectorService';
 import { log } from 'dm3-lib-shared';
 import { ConfigService } from './service/ConfigService/ConfigService';
+import { ViewerService } from './service/viewerService/viewerService';
 
 /**
  * An express app that sets up a basic webserver
@@ -61,8 +61,12 @@ export const getBillboardClientApp = async (
 
     //In oder to finish the test everything has to be cleaned up
     //Hence we're closing the httpServer and all connected socket
-    const disconnect = () => {
+    const disconnect = async () => {
         httpServer.close();
+        setImmediate(function () {
+            httpServer.emit('close');
+        });
+
         dsConnectorService.disconnect();
     };
 

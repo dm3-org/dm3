@@ -1,6 +1,6 @@
 {
     "name": "dm3-lib-delivery",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "license": "MIT",
     "main": "dist/index.js",
     "module": "dist-backend/index.js",
@@ -16,43 +16,42 @@
         }
     },
     "dependencies": {
-      "@types/libsodium-wrappers": "^0.7.10",
-      "ajv": "^8.11.0",
-      "axios": "^0.25.0",
-      "ethers": "5.7.2",
-      "googleapis": "^100.0.0",
-      "dm3-lib-crypto":"^0.1.1",
-      "dm3-lib-profile":"^0.1.1",
-      "dm3-lib-messaging":"^0.1.1",
-      "libsodium-wrappers": "^0.7.10",
-      "query-string": "^7.1.1",
-      "safe-stable-stringify": "^2.4.1",
-      "socket.io": "^4.4.1",
-      "socket.io-client": "^4.4.1",
-      "uuid": "^8.3.2",
-      "web3.storage": "^3.5.7",
-      "whatwg-encoding": "^2.0.0"
-  },
-  "devDependencies": {
-      "@types/data-urls": "^3.0.1",
-      "@types/jest": "^28.1.1",
-      "@types/node": "^16.7.13",
-      "@types/uuid": "^8.3.4",
-      "@types/whatwg-encoding": "^2.0.0",
-      "axios-mock-adapter": "^1.21.2",
-      "jest": "^28.1.1",
-      "ts-jest": "^28.0.4",
-      "ts-json-schema-generator": "^0.98.0",
-      "typescript": "^4.4.2"
-  },
-  "scripts": {
-      "build:schema": "sh ./schemas.sh",
-      "build": "yarn build:schema && tsc --declaration && tsc --declaration -p tsconfig.backend.json ",
-      "test": "jest --coverage"
-  },
-  "files": [
-    "dist",
-    "dist.backend"
-  ]
-  }
-  
+        "@types/libsodium-wrappers": "^0.7.10",
+        "ajv": "^8.11.0",
+        "axios": "^0.25.0",
+        "dm3-lib-crypto": "^0.1.1",
+        "dm3-lib-messaging": "^0.1.1",
+        "dm3-lib-profile": "^0.1.1",
+        "ethers": "5.7.2",
+        "googleapis": "^100.0.0",
+        "libsodium-wrappers": "^0.7.10",
+        "query-string": "^7.1.1",
+        "safe-stable-stringify": "^2.4.1",
+        "socket.io": "^4.4.1",
+        "socket.io-client": "^4.4.1",
+        "uuid": "^8.3.2",
+        "web3.storage": "^3.5.7",
+        "whatwg-encoding": "^2.0.0"
+    },
+    "devDependencies": {
+        "@types/data-urls": "^3.0.1",
+        "@types/jest": "^28.1.1",
+        "@types/node": "^16.7.13",
+        "@types/uuid": "^8.3.4",
+        "@types/whatwg-encoding": "^2.0.0",
+        "axios-mock-adapter": "^1.21.2",
+        "jest": "^28.1.1",
+        "ts-jest": "^28.0.4",
+        "ts-json-schema-generator": "^0.98.0",
+        "typescript": "^4.4.2"
+    },
+    "scripts": {
+        "build:schema": "sh ./schemas.sh",
+        "build": "yarn build:schema && tsc --declaration && tsc --declaration -p tsconfig.backend.json ",
+        "test": "jest --coverage --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'"
+    },
+    "files": [
+        "dist",
+        "dist.backend"
+    ]
+}

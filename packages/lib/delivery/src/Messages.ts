@@ -1,6 +1,11 @@
 import { ethers } from 'ethers';
 import stringify from 'safe-stable-stringify';
-import { normalizeEnsName } from 'dm3-lib-profile';
+import {
+    DeliveryServiceProfileKeys,
+    normalizeEnsName,
+    ProfileKeys,
+    UserProfile,
+} from 'dm3-lib-profile';
 
 import {
     decryptAsymmetric,
@@ -105,12 +110,8 @@ export async function incomingMessage(
         throw Error('Message is too large');
     }
     //Decryptes the encrypted DeliveryInformation with the KeyPair of the deliveryService
-    const deliveryInformation: DeliveryInformation = JSON.parse(
-        await decryptAsymmetric(
-            encryptionKeyPair,
-            JSON.parse(envelop.metadata.deliveryInformation as string),
-        ),
-    );
+    const deliveryInformation: DeliveryInformation =
+        await decryptDeliveryInformation(envelop, encryptionKeyPair);
 
     const conversationId = getConversationId(
         await getIdEnsName(deliveryInformation.from),
@@ -172,6 +173,31 @@ function messageIsToLarge(
     return Buffer.byteLength(JSON.stringify(envelop), 'utf-8') > sizeLimit;
 }
 
+export async function handleIncomingMessage(
+    encryptedEnvelop: EncryptionEnvelop,
+    deliveryServiceKeys: DeliveryServiceProfileKeys,
+    receiverProfile: UserProfile,
+): Promise<{
+    encryptedEnvelop: Required<EncryptionEnvelop>;
+    decryptedDeliveryInformation: DeliveryInformation;
+}> {
+    const postmark = await addPostmark(
+        encryptedEnvelop,
+        receiverProfile.publicEncryptionKey,
+        deliveryServiceKeys.signingKeyPair.privateKey,
+    );
+    return {
+        encryptedEnvelop: {
+            ...encryptedEnvelop,
+            postmark: stringify(postmark),
+        },
+        decryptedDeliveryInformation: await decryptDeliveryInformation(
+            encryptedEnvelop,
+            deliveryServiceKeys.encryptionKeyPair,
+        ),
+    };
+}
+
 async function addPostmark(
     { message }: EncryptionEnvelop,
     receiverEncryptionKey: string,
@@ -198,6 +224,18 @@ async function addPostmark(
         ciphertext,
         ephemPublicKey,
     };
+}
+
+export async function decryptDeliveryInformation(
+    encryptedEnvelop: EncryptionEnvelop,
+    encryptionKeyPair: KeyPair,
+): Promise<DeliveryInformation> {
+    return JSON.parse(
+        await decryptAsymmetric(
+            encryptionKeyPair,
+            JSON.parse(encryptedEnvelop.metadata.deliveryInformation as string),
+        ),
+    );
 }
 
 function signPostmark(

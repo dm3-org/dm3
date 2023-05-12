@@ -183,7 +183,6 @@ describe('DsConnector', () => {
                 db,
                 mockProvider,
                 billBoards,
-                
             );
 
             let conn1;
@@ -360,7 +359,7 @@ describe('DsConnector', () => {
                     signedUserProfile: billboard1profile.signedUserProfile,
                     profileKeys: billboard1profile.profileKeys,
                 },
-                dsKey: ds1Profile.profile.publicEncryptionKey,
+                dsProfile: ds1Profile.profile,
             });
 
             axiosMock
@@ -472,7 +471,7 @@ describe('DsConnector', () => {
                     signedUserProfile: billboard1profile.signedUserProfile,
                     profileKeys: billboard1profile.profileKeys,
                 },
-                dsKey: ds1Profile.profile.publicEncryptionKey,
+                dsProfile: ds1Profile.profile,
             });
             const mockChat2 = MockMessageFactory({
                 sender: {
@@ -485,7 +484,7 @@ describe('DsConnector', () => {
                     signedUserProfile: billboard2profile.signedUserProfile,
                     profileKeys: billboard2profile.profileKeys,
                 },
-                dsKey: ds2Profile.profile.publicEncryptionKey,
+                dsProfile: ds2Profile.profile,
             });
 
             const ds1Socketes: string[] = [];
@@ -624,7 +623,7 @@ describe('DsConnector', () => {
                     signedUserProfile: billboard1profile.signedUserProfile,
                     profileKeys: billboard1profile.profileKeys,
                 },
-                dsKey: ds1Profile.profile.publicEncryptionKey,
+                dsProfile: ds1Profile.profile,
             });
 
             const ds1Socketes: string[] = [];

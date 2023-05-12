@@ -10,12 +10,15 @@ export {
     isSameEnsName,
     PROFILE_RECORD_NAME,
     formatAddress,
+    createProfile,
 } from './Profile';
+
 export type { Account, ProfileKeys, GetResource } from './Profile';
 export type {
     SignedUserProfile,
     UserProfile,
     DeliveryServiceProfile,
+    DeliveryServiceProfileKeys,
 } from './types';
 export * from './profileResolver';
 
@@ -25,5 +28,7 @@ export { getUserProfile } from './userProfile/getUserProfile';
 export {
     getDeliveryServiceClient,
     getDeliveryServiceProfile,
+    createDeliveryServiceProfile,
 } from './deliveryServiceProfile/Delivery';
 export * from './profileKeys/createProfileKeys';
+export * from './profileLink';

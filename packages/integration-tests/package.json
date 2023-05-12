@@ -1,0 +1,25 @@
+{
+    "name": "dm3-integration-tests",
+    "version": "0.1.1",
+    "license": "MIT",
+    "dependencies": {
+        "dm3-lib-delivery": "^0.1.1",
+        "dm3-lib-messaging": "^0.1.1",
+        "dm3-lib-profile": "^0.1.1",
+        "dm3-lib-shared": "^0.1.1",
+        "ethers": "5.7.2"
+    },
+    "devDependencies": {
+        "@types/data-urls": "^3.0.1",
+        "@types/jest": "^28.1.1",
+        "@types/node": "^16.7.13",
+        "jest": "^28.1.1",
+        "ts-jest": "^28.0.4",
+        "ts-json-schema-generator": "^1.2.0",
+        "typescript": "^4.4.2"
+    },
+    "scripts": {
+        "build": "echo 'no build script for this packackage'",
+        "test": "jest --coverage --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'"
+    }
+}

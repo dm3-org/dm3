@@ -1,3 +1,5 @@
+import { IViewerService } from '../../../service/viewerService/IViewerService';
+
 export function getViewerCountHandler(
     viewerService: IViewerService,
 ): IRpcCallHandler {

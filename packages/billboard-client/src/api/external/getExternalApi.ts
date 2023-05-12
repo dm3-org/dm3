@@ -3,6 +3,7 @@ import { v4 } from 'uuid';
 import { getViewerCountHandler } from './handler/getViewerCount';
 import { getMessagesHandler } from './handler/getMessages';
 import { IDatabase } from '../../persitance/getDatabase';
+import { IViewerService } from '../../service/viewerService/IViewerService';
 
 export function getExternaApi(db: IDatabase, viewerService: IViewerService) {
     const app = express();

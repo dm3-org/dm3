@@ -1,6 +1,10 @@
-import { encryptAsymmetric } from "dm3-lib-crypto";
-import { Message, SendDependencies, buildEnvelop } from "dm3-lib-messaging";
-import { SignedUserProfile, ProfileKeys } from "dm3-lib-profile";
+import { encryptAsymmetric } from 'dm3-lib-crypto';
+import { Message, SendDependencies, buildEnvelop } from 'dm3-lib-messaging';
+import {
+    SignedUserProfile,
+    ProfileKeys,
+    DeliveryServiceProfile,
+} from 'dm3-lib-profile';
 
 interface MockChatArgs {
     sender: {
@@ -13,9 +17,13 @@ interface MockChatArgs {
         signedUserProfile: SignedUserProfile;
         profileKeys: ProfileKeys;
     };
-    dsKey: string;
+    dsProfile: DeliveryServiceProfile;
 }
-export const MockMessageFactory = ({ sender, receiver, dsKey }: MockChatArgs) => {
+export const MockMessageFactory = ({
+    sender,
+    receiver,
+    dsProfile,
+}: MockChatArgs) => {
     const sendMessage = async (msg: string) => {
         const message: Message = {
             message: msg,
@@ -38,16 +46,20 @@ export const MockMessageFactory = ({ sender, receiver, dsKey }: MockChatArgs) =>
                 profile: receiver.signedUserProfile.profile,
                 profileSignature: receiver.signedUserProfile.signature,
             },
-            deliveryServiceEncryptionPubKey: dsKey,
+            deliverServiceProfile: dsProfile,
             keys: sender.profileKeys,
         };
 
-        const { encryptedEnvelop } = await buildEnvelop(
-            message,
-            encryptAsymmetric,
-            sendDependencies,
-        );
-        return encryptedEnvelop;
+        try {
+            const { encryptedEnvelop } = await buildEnvelop(
+                message,
+                encryptAsymmetric,
+                sendDependencies,
+            );
+            return encryptedEnvelop;
+        } catch (err) {
+            throw err;
+        }
     };
     return {
         createMessage: sendMessage,

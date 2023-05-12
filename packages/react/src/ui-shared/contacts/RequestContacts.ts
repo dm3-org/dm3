@@ -172,9 +172,8 @@ export async function requestContacts(
                         connection,
                         deliveryServiceToken,
                         {
-                            deliveryServiceEncryptionPubKey:
-                                contact.deliveryServiceProfile!
-                                    .publicEncryptionKey,
+                            deliverServiceProfile:
+                                contact.deliveryServiceProfile!,
                             from: connection.account!,
                             keys: userDb.keys,
                             to: contact.account,

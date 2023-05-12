@@ -2,6 +2,7 @@ import {
     KeyPair,
     createStorageKey,
     getStorageKeyCreationMessage,
+    getRandomNonce,
 } from 'dm3-lib-crypto';
 import { sha256, stringify } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
@@ -18,7 +19,7 @@ export interface ProfileKeys {
     encryptionKeyPair: KeyPair;
     signingKeyPair: KeyPair;
     storageEncryptionKey: string;
-    storageEncryptionNonce: number;
+    storageEncryptionNonce: string;
 }
 
 export interface PrivateKeys {
@@ -30,6 +31,12 @@ export interface Account {
     ensName: string;
     profile?: UserProfile;
     profileSignature?: string;
+}
+
+export interface CreateProfileOptions {
+    nonce: string;
+    storageKey?: string;
+    signer: (msg: string, address: string) => Promise<string>;
 }
 
 export const PROFILE_RECORD_NAME = 'network.dm3.profile';
@@ -186,39 +193,48 @@ export function isSameEnsName(
 async function createKeyPairsFromSig(
     provider: ethers.providers.JsonRpcProvider,
     accountAddress: string,
-    nonce?: number,
+    nonce: string,
     storageKey?: string,
 ): Promise<ProfileKeys> {
     if (!storageKey) {
-        const storageKeyCreationMessage = getStorageKeyCreationMessage(
-            nonce ?? 0,
-        );
+        const storageKeyCreationMessage = getStorageKeyCreationMessage(nonce);
         const signature = await provider.send('personal_sign', [
             storageKeyCreationMessage,
             accountAddress,
         ]);
         const newStorageKey = await createStorageKey(signature);
-        return await createProfileKeys(newStorageKey, nonce ?? 0);
+        return await createProfileKeys(newStorageKey, nonce);
     } else {
-        return await createProfileKeys(storageKey, nonce ?? 0);
+        return await createProfileKeys(storageKey, nonce);
     }
 }
 
 /**
  * creates a dm3 profile
  * @param accountAddress wallet address used to sign the profile
- * @param deiveryServiceNames list of delviery service ENS names
+ * @param deliveryServiceNames list of delviery service ENS names
  * @param provider ethers JsonRpcProvider
- * @param nonce profile nonce
- * @param nonce existing storage key
+ * @param options Optional creation settings
  */
 export async function createProfile(
     accountAddress: string,
-    deiveryServiceNames: string[],
+    deliveryServiceNames: string[],
     provider: ethers.providers.JsonRpcProvider,
-    nonce?: number,
-    storageKey?: string,
-): Promise<{ signedProfile: SignedUserProfile; keys: ProfileKeys }> {
+    options?: Partial<CreateProfileOptions>,
+): Promise<{
+    signedProfile: SignedUserProfile;
+    keys: ProfileKeys;
+    nonce: string;
+}> {
+    const { nonce, storageKey, signer }: CreateProfileOptions = {
+        nonce: options?.nonce ?? (await getRandomNonce()),
+        storageKey: options?.storageKey,
+        signer:
+            options?.signer ??
+            ((msg: string, accountAddress: string) =>
+                provider.send('personal_sign', [msg, accountAddress])),
+    };
+
     const keys = await createKeyPairsFromSig(
         provider,
         accountAddress,
@@ -229,16 +245,16 @@ export async function createProfile(
     const profile: UserProfile = {
         publicEncryptionKey: keys.encryptionKeyPair.publicKey,
         publicSigningKey: keys.signingKeyPair.publicKey,
-        deliveryServices: deiveryServiceNames,
+        deliveryServices: deliveryServiceNames,
     };
 
     const profileCreationMessage = getProfileCreationMessage(
         stringify(profile),
     );
-    const profileSig = await provider.send('personal_sign', [
-        profileCreationMessage,
-        accountAddress,
-    ]);
-
-    return { signedProfile: { profile, signature: profileSig }, keys };
+    const profileSig = await signer(profileCreationMessage, accountAddress);
+    return {
+        signedProfile: { profile, signature: profileSig },
+        keys,
+        nonce,
+    };
 }
