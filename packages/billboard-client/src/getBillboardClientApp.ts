@@ -1,16 +1,13 @@
 import bodyParser from 'body-parser';
+import { log } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import express from 'express';
 import http from 'http';
-import { IDatabase } from './persitance/getDatabase';
-import {
-    Billboard,
-    dsConnector,
-} from './service/DsConnectorService/DsConnector';
 import { getExternaApi as getExternalApi } from './api/external/getExternalApi';
-import { DsConnectorService } from './service/DsConnectorService/DsConnectorService';
-import { log } from 'dm3-lib-shared';
+import { IDatabase } from './persitance/getDatabase';
 import { ConfigService } from './service/ConfigService/ConfigService';
+import { Billboard } from './service/DsConnectorService/DsConnector';
+import { DsConnectorService } from './service/DsConnectorService/DsConnectorService';
 import { ViewerService } from './service/viewerService/viewerService';
 
 /**
