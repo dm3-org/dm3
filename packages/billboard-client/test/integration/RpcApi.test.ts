@@ -339,7 +339,7 @@ describe('RpcApi', () => {
             expect(res.body.result.messages[1].message).toBe('world');
 
             disconnect();
-            await viewer1.close();
+            viewer1.close();
         });
         it('return the most recent messages considering the pagination params', async () => {
             const db = await getDatabase(winston, redis);
@@ -431,7 +431,7 @@ describe('RpcApi', () => {
             expect(paginatedRes.body.result.messages[1].message).toBe('msg3');
 
             disconnect();
-            await viewer1.close();
+            viewer1.close();
         });
         it('fails if params are invalid', async () => {
             const db = await getDatabase(winston, redis);
@@ -484,7 +484,7 @@ describe('RpcApi', () => {
             expect(res2.body.error).toBe('invalid params');
 
             disconnect();
-            await viewer1.close();
+            viewer1.close();
         });
         it('send incoming message to connect viewers', async () => {
             const db = await getDatabase(winston, redis);
