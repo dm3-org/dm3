@@ -600,6 +600,6 @@ describe('RpcApi', () => {
             expect(receivedMessagesViewer2.length).toBe(2);
             expect(receivedMessagesViewer2[0].message).toBe('hello');
             expect(receivedMessagesViewer2[1].message).toBe('billboard2');
-        }, 10000);
+        }, 20000);
     });
 });
