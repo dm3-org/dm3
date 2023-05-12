@@ -4,6 +4,12 @@ import { getNewToken } from '../../../api/internal/rest/getNewToken';
 import { BillboardWithDsProfile, AuthenticatedBillboard } from '../DsConnector';
 import { sign } from 'dm3-lib-crypto';
 
+/**
+ * Sign in at the delivery service for each billboard in the given array.
+ *
+ * @param billboardsWithDsProfile - Array of billboards with their respective delivery service profiles.
+ * @returns Promise that resolves to an array of authenticated billboards.
+ */
 export async function signInAtDs(
     billboardsWithDsProfile: BillboardWithDsProfile[],
 ): Promise<AuthenticatedBillboard[]> {

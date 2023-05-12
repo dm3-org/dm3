@@ -107,6 +107,7 @@ Disconnects all connected billboards by closing their associated sockets.
 Encrypts and stores a message to redis using the provided billboard's keypairs and encryption envelope.
 @param billboardWithDsProfile - The billboard with delivery service profile.
 @param encryptionEnvelop - The encryption envelope containing the message.
+@param broadcastMessage - A callback function that can be used to broadcast the decrypted message i.E a WebSocket.
 @returns A promise that resolves when the message has been encrypted and stored.
 @throws If there is an error decrypting the message.
 */

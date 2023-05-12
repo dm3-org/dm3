@@ -3,6 +3,12 @@ import http from 'http';
 import { Server, Socket } from 'socket.io';
 import { IViewerService } from './IViewerService';
 
+/**
+ * Creates and returns an instance of a viewer service that manages viewer connections and message broadcasting.
+ *
+ * @param httpServer - The HTTP server instance.
+ * @returns An instance of a viewer service.
+ */
 export function ViewerService(httpServer: http.Server): IViewerService {
     //Establish Ws
     const server = new Server(httpServer, {

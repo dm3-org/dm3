@@ -4,6 +4,16 @@ import { IDatabase } from '../../persitance/getDatabase';
 import { IDsConnectorService } from './IDsConnectorService';
 import { Message } from 'dm3-lib-messaging';
 
+/**
+ * Creates and returns an instance of a delivery service connector service that connects to and manages
+ * delivery service connections for billboards.
+ *
+ * @param db - The database instance used to store messages.
+ * @param provider - The Ethereum JSON RPC provider instance.
+ * @param billboards - An array of billboards to connect to.
+ * @param onMessage - A function that handles incoming messages.
+ * @returns A promise that resolves to an instance of a delivery service connector service.
+ */
 export async function DsConnectorService(
     db: IDatabase,
     provider: ethers.providers.JsonRpcProvider,
