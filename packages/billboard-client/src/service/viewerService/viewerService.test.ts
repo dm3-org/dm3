@@ -1,7 +1,7 @@
 import { io as Client } from 'socket.io-client';
 import { mockHttpServer } from '../../../test/helper/mockHttpServer';
 import { wait } from '../../../test/helper/utils/wait';
-import { ViewerService } from './ViewerService';
+import { ViewerService } from './viewerService';
 describe('Viewer Service', () => {
     let client0;
     let client1;
