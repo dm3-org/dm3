@@ -29,9 +29,9 @@ export function ViewerService(httpServer: http.Server): IViewerService {
         return connections.size;
     };
 
-    const broadcastMessage = async (message: Message) => {
+    const broadcastMessage = async (idBillboard: string, message: Message) => {
         connections.forEach((connection) => {
-            connection.emit('message', message);
+            connection.emit(`message-${idBillboard}`, message);
         });
     };
 

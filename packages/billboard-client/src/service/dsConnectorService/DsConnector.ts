@@ -46,7 +46,8 @@ export function dsConnector(
     db: IDatabase,
     provider: ethers.providers.JsonRpcProvider,
     billboards: Billboard[],
-    onMessage: (message: Message) => Promise<void> = () => Promise.resolve(),
+    onMessage: (idBillboard: string, message: Message) => Promise<void> = () =>
+        Promise.resolve(),
 ) {
     let _connectedBillboards: AuthenticatedBillboardWithSocket[] = [];
 
@@ -110,7 +111,10 @@ Encrypts and stores a message to redis using the provided billboard's keypairs a
 @throws If there is an error decrypting the message.
 */
     function encryptAndStoreMessage(
-        broadcastMessage: (message: Message) => void = () => {},
+        broadcastMessage: (
+            idBillboard: string,
+            message: Message,
+        ) => void = () => {},
     ) {
         return async (
             billboardWithDsProfile: BillboardWithDsProfile,
@@ -123,7 +127,10 @@ Encrypts and stores a message to redis using the provided billboard's keypairs a
                         JSON.parse(encryptionEnvelop.message),
                     ),
                 ) as Message;
-                broadcastMessage(decryptedMessage);
+                broadcastMessage(
+                    billboardWithDsProfile.ensName,
+                    decryptedMessage,
+                );
                 await db.createMessage(
                     billboardWithDsProfile.ensName,
                     decryptedMessage,

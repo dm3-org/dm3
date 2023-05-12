@@ -14,6 +14,7 @@ import { mockUserProfile } from '../helper/mockUserProfile';
 import { mockWsServer } from '../helper/mockWsServer';
 import { MockMessageFactory } from '../helper/mockMessageFactory';
 import { wait } from '../helper/utils/wait';
+import { Message } from 'dm3-lib-messaging';
 
 chai.use(chaiHttp);
 
@@ -23,53 +24,33 @@ describe('RpcApi', () => {
     let redis;
     let provider;
 
-    afterEach(async () => {
-        ds1httpServer.close();
-        ds2httpServer.close();
-        ds3httpServer.close();
-        await redis.flushDb();
-        redis.quit();
-    });
     //HttpServers of the delivery services
-    let ds1httpServer: HttpServerType;
-    let ds2httpServer: HttpServerType;
-    let ds3httpServer: HttpServerType;
-    //Billboard 1 profile
-    let billboard1profile;
-    //Billboard 2 profile
-    let billboard2profile;
+    let ds1httpServer, ds2httpServer, ds3httpServer: HttpServerType;
+    //Billboard 1+2 profile
+    let billboard1profile, billboard2profile;
 
-    //DeliveryService 1 profile
-    let ds1Profile;
-    //DeliveryService 2 profile
-    let ds2Profile;
-    //DeliveryService 3 profile
-    let ds3Profile;
+    //DeliveryService 1,2,3 profile
+    let ds1Profile, ds2Profile, ds3Profile;
 
-    //DeliveryService 1 wsSocket client
-    let ds1WsServer;
-    //DeliveryService 2 wsSocket client
-    let ds2WsServer;
-    //DeliveryService 3 wsSocket client
-    let ds3WsServer;
+    //DeliveryService 1,2,3 wsSocket client
+    let ds1WsServer, ds2WsServer, ds3WsServer;
 
-    //Example User Alice
-    let aliceProfile;
-    //Exampe User Bob
-    let bobProfile;
+    //Example User Alice and bob
+    let aliceProfile, bobProfile;
 
     //Axios mock to mock the http requests
     let axiosMock;
     beforeEach(async () => {
         winston = _winston.createLogger();
         redis = await getRedisClient(winston);
+        const billboardOwner = ethers.Wallet.createRandom();
         billboard1profile = await mockUserProfile(
-            ethers.Wallet.createRandom(),
+            billboardOwner,
             'billboard1.eth',
             ['ds1.eth', 'ds2.eth', 'ds3.eth'],
         );
         billboard2profile = await mockUserProfile(
-            ethers.Wallet.createRandom(),
+            billboardOwner,
             'billboard2.eth',
             ['ds1.eth', 'ds2.eth', 'ds3.eth'],
         );
@@ -163,11 +144,23 @@ describe('RpcApi', () => {
             });
 
         provider = {
-            resolveName: () => billboard1profile.address,
+            resolveName: (ensName: string) => {
+                if (ensName === 'billboard1.eth') {
+                    return billboard1profile.address;
+                }
+                if (ensName === 'billboard2.eth') {
+                    return billboard2profile.address;
+                }
+            },
             getResolver: (ensName: string) => {
                 if (ensName === 'billboard1.eth') {
                     return {
                         getText: () => billboard1profile.stringified,
+                    } as unknown as ethers.providers.Resolver;
+                }
+                if (ensName === 'billboard2.eth') {
+                    return {
+                        getText: () => billboard2profile.stringified,
                     } as unknown as ethers.providers.Resolver;
                 }
                 if (ensName === 'ds1.eth') {
@@ -199,6 +192,13 @@ describe('RpcApi', () => {
             'bob.eth',
             ['ds2.eth'],
         );
+    });
+    afterEach(async () => {
+        ds1httpServer.close();
+        ds2httpServer.close();
+        ds3httpServer.close();
+        await redis.flushDb();
+        redis.quit();
     });
 
     describe('countActiveViewers', () => {
@@ -486,5 +486,120 @@ describe('RpcApi', () => {
             disconnect();
             await viewer1.close();
         });
+        it('send incoming message to connect viewers', async () => {
+            const db = await getDatabase(winston, redis);
+            process.env = {
+                ...process.env,
+                ensNames: JSON.stringify(['billboard1.eth', 'billboard2.eth']),
+                privateKey: billboard1profile.privateKey,
+                mediators: JSON.stringify([]),
+                time: '0',
+            };
+
+            const { app, disconnect } = await getBillboardClientApp(
+                provider,
+                db,
+                4444,
+            );
+            const viewer1 = Client('http://localhost:4444');
+            const viewer2 = Client('http://localhost:4444');
+
+            const viewer1IsConnected = await new Promise((res, rej) => {
+                viewer1.on('connect', () => {
+                    res(true);
+                });
+                viewer1.on('connect_error', (err: any) => {
+                    rej(false);
+                });
+            });
+            const viewer2IsConnected = await new Promise((res, rej) => {
+                viewer2.on('connect', () => {
+                    res(true);
+                });
+                viewer2.on('connect_error', (err: any) => {
+                    rej(false);
+                });
+            });
+
+            expect(viewer1IsConnected).toBe(true);
+            expect(viewer2IsConnected).toBe(true);
+
+            const ds1Socketes: string[] = [];
+            for (const [key] of ds1WsServer.sockets.sockets.entries()) {
+                ds1Socketes.push(key);
+            }
+            const ds2Socketes: string[] = [];
+            for (const [key] of ds2WsServer.sockets.sockets.entries()) {
+                ds2Socketes.push(key);
+            }
+
+            const [billboard1Ds1Socket] = ds1Socketes;
+            const [_, billboard2Ds2Socket] = ds2Socketes;
+
+            const mockChat1 = MockMessageFactory({
+                sender: {
+                    ensName: 'alice.eth',
+                    signedUserProfile: aliceProfile.signedUserProfile,
+                    profileKeys: aliceProfile.profileKeys,
+                },
+                receiver: {
+                    ensName: 'billboard1.eth',
+                    signedUserProfile: billboard1profile.signedUserProfile,
+                    profileKeys: billboard1profile.profileKeys,
+                },
+                dsKey: ds1Profile.profile.publicEncryptionKey,
+            });
+            const mockChat2 = MockMessageFactory({
+                sender: {
+                    ensName: 'alice.eth',
+                    signedUserProfile: aliceProfile.signedUserProfile,
+                    profileKeys: aliceProfile.profileKeys,
+                },
+                receiver: {
+                    ensName: 'billboard2.eth',
+                    signedUserProfile: billboard2profile.signedUserProfile,
+                    profileKeys: billboard2profile.profileKeys,
+                },
+                dsKey: ds2Profile.profile.publicEncryptionKey,
+            });
+
+            const receivedMessagesViewer1: Message[] = [];
+            viewer1.on('message-billboard1.eth', (msg: Message) =>
+                receivedMessagesViewer1.push(msg),
+            );
+
+            const receivedMessagesViewer2: Message[] = [];
+            viewer2.on('message-billboard2.eth', (msg: Message) =>
+                receivedMessagesViewer2.push(msg),
+            );
+
+            ds1WsServer
+                .to(billboard1Ds1Socket)
+                .emit('message', await mockChat1.createMessage('hello'));
+            ds1WsServer
+                .to(billboard1Ds1Socket)
+                .emit('message', await mockChat1.createMessage('billboard1'));
+
+            ds2WsServer
+                .to(billboard2Ds2Socket)
+                .emit('message', await mockChat2.createMessage('hello'));
+            ds2WsServer
+                .to(billboard2Ds2Socket)
+                .emit('message', await mockChat2.createMessage('billboard2'));
+
+            await wait(1000);
+
+            await disconnect();
+            await viewer1.close();
+            await viewer2.close();
+
+            expect(receivedMessagesViewer1.length).toBe(2);
+            expect(receivedMessagesViewer1[0].message).toBe('hello');
+            expect(receivedMessagesViewer1[1].message).toBe('billboard1');
+
+            expect(receivedMessagesViewer2.length).toBe(2);
+            expect(receivedMessagesViewer2[0].message).toBe('hello');
+            expect(receivedMessagesViewer2[1].message).toBe('billboard2');
+        }, 10000);
     });
 });
