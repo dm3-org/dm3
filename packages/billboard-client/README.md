@@ -18,5 +18,5 @@ yarn start
 
 npm 
 ```
-npm start
+yarn start
 ```
