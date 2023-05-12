@@ -46,6 +46,7 @@ export function dsConnector(
     db: IDatabase,
     provider: ethers.providers.JsonRpcProvider,
     billboards: Billboard[],
+    onMessage: (message: Message) => Promise<void>,
 ) {
     let _connectedBillboards: AuthenticatedBillboardWithSocket[] = [];
 
@@ -73,13 +74,13 @@ Initializes the connection to delivery services.
         //Fetch initial messages from every DS
         await fetchAndStoreInitialMessages(
             authenticatedBillboards,
-            encryptAndStoreMessage,
+            encryptAndStoreMessage(onMessage),
         );
 
         //For each billboard and their delivryServices we establish a websocket connection
         _connectedBillboards = await establishWsConnections(
             authenticatedBillboards,
-            encryptAndStoreMessage,
+            encryptAndStoreMessage(onMessage),
         );
         log('Finished delivery service initialization');
     }
@@ -108,25 +109,30 @@ Encrypts and stores a message to redis using the provided billboard's keypairs a
 @returns A promise that resolves when the message has been encrypted and stored.
 @throws If there is an error decrypting the message.
 */
-    async function encryptAndStoreMessage(
-        billboardWithDsProfile: BillboardWithDsProfile,
-        encryptionEnvelop: EncryptionEnvelop,
+    function encryptAndStoreMessage(
+        broadcastMessage: (message: Message) => void = () => {},
     ) {
-        try {
-            const decryptedMessage = JSON.parse(
-                await decryptAsymmetric(
-                    billboardWithDsProfile.profileKeys.encryptionKeyPair,
-                    JSON.parse(encryptionEnvelop.message),
-                ),
-            ) as Message;
-            await db.createMessage(
-                billboardWithDsProfile.ensName,
-                decryptedMessage,
-            );
-        } catch (err: any) {
-            log("Can't decrypt message");
-            log(err);
-        }
+        return async (
+            billboardWithDsProfile: BillboardWithDsProfile,
+            encryptionEnvelop: EncryptionEnvelop,
+        ) => {
+            try {
+                const decryptedMessage = JSON.parse(
+                    await decryptAsymmetric(
+                        billboardWithDsProfile.profileKeys.encryptionKeyPair,
+                        JSON.parse(encryptionEnvelop.message),
+                    ),
+                ) as Message;
+                broadcastMessage(decryptedMessage);
+                await db.createMessage(
+                    billboardWithDsProfile.ensName,
+                    decryptedMessage,
+                );
+            } catch (err: any) {
+                log("Can't decrypt message");
+                log(err);
+            }
+        };
     }
 
     return { connect, disconnect, getConnectedBillboards };

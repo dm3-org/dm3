@@ -42,13 +42,13 @@ export const getBillboardClientApp = async (
     }));
 
     //Register services
+    const viewerService = await ViewerService(httpServer);
     const dsConnectorService = await DsConnectorService(
         db,
         provider,
         billboards,
+        viewerService.broadcastMessage,
     );
-
-    const viewerService = await ViewerService(httpServer);
 
     //Establish connection to all delivery services
 
