@@ -1,5 +1,7 @@
+import { Message } from 'dm3-lib-messaging';
 import http from 'http';
 import { Server, Socket } from 'socket.io';
+import { IViewerService } from './IViewerService';
 
 export function ViewerService(httpServer: http.Server): IViewerService {
     //Establish Ws
@@ -27,9 +29,15 @@ export function ViewerService(httpServer: http.Server): IViewerService {
         return connections.size;
     };
 
+    const broadcastMessage = async (message: Message) => {
+        connections.forEach((connection) => {
+            connection.emit('message', message);
+        });
+    };
+
     //Register listener
     server.on('connection', addConnection);
     server.on('disconnect', removeConnection);
 
-    return { getViewerCount };
+    return { getViewerCount, broadcastMessage };
 }
