@@ -122,6 +122,8 @@
 }
 
 .message {
+  width: 100%;
+
   .content {
     padding: 16px 8px;
     border-radius: 6px;
@@ -129,6 +131,7 @@
     overflow: hidden;
     white-space: wrap;
   }
+
   .meta {
     display: flex;
     justify-content: space-between;

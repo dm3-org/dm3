@@ -1,8 +1,12 @@
 import { Message } from 'dm3-lib-messaging';
 import MessageItem from './MessageItem';
 
+export interface MessageWithKey extends Message {
+    reactKey: string;
+}
+
 export interface IMessagesListProps {
-    messages: Message[];
+    messages: MessageWithKey[];
 }
 
 export default function MessagesList({ messages }: IMessagesListProps) {
@@ -10,7 +14,7 @@ export default function MessagesList({ messages }: IMessagesListProps) {
         <div className="">
             <ul className="message-list">
                 {messages.map((msgObj) => (
-                    <li key={`${msgObj.metadata.timestamp}${msgObj.metadata.from}`}>
+                    <li key={msgObj.reactKey}>
                         <div className="list-container">
                             <MessageItem message={msgObj} />
                         </div>

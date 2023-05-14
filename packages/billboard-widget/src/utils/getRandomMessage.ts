@@ -12,7 +12,7 @@ function randomTimestamp() {
     const now = Date.now();
     const threeDaysAgo = now - 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
 
-    return new Date(randomInt(threeDaysAgo, now)).getMilliseconds();
+    return randomInt(threeDaysAgo, now);
 }
 
 function loremIpsum(numWords: number) {

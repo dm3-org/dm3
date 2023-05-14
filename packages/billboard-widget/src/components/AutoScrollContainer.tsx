@@ -9,11 +9,13 @@ import {
 import { debounce } from 'lodash';
 import arrowIcon from '../assets/arrow-down-icon.svg';
 
-type Props = PropsWithChildren<{
+export interface ContainerProps {
     behavior?: 'smooth' | 'auto';
     containerClassName?: string;
     withToBottomButton?: boolean;
-}>;
+}
+
+type Props = PropsWithChildren<ContainerProps>;
 
 /**
  * A component that keep scrolling to the bottom of the container while
