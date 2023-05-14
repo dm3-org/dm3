@@ -20,6 +20,6 @@
     },
     "scripts": {
         "build": "echo 'no build script for this packackage'",
-        "test": "jest --coverage"
+        "test": "jest --coverage --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'"
     }
 }

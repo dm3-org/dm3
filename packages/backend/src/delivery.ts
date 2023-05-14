@@ -63,6 +63,21 @@ export default () => {
             }
         },
     );
+
+    /**
+     * Retrieves incoming messages for a specific ENS name.
+     *
+     * @route GET /messages/incoming/:ensName
+     * @param {express.Request & { app: WithLocals }} req - The request object, including the ENS name as a parameter
+     * @param {express.Response} res - The response object.
+     * @param {express.NextFunction} next - The next middleware function.
+     * @returns {Promise<void>} - A promise that resolves with the incoming messages as a JSON response.
+     * @throws {Error} - If an error occurs while retrieving the incoming messages.
+     *
+     * @example
+     * GET /messages/incoming/example.ens
+     */
+
     router.get(
         '/messages/incoming/:ensName',
         //@ts-ignore
