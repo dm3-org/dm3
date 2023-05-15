@@ -13,10 +13,10 @@ import dm3Logo from './assets/dm3-logo.png';
 import useBillboard, { ClientProps } from './hooks/useBillboard';
 
 export interface BillboardWidgetProps {
-    websocketUrl: string;
     options?: {
         className?: string;
         withToBottomButton?: boolean;
+        avatarSrc: string;
     };
     clientOptions: ClientProps;
     scrollOptions?: ContainerProps;
@@ -32,7 +32,7 @@ const defaultClientProps: ClientProps = {
     billboardId: 'billboard.eth',
     fetchSince: undefined,
     idMessageCursor: undefined,
-    baseUrl: 'localhost:8080',
+    websocketUrl: 'http://localhost:3000',
 };
 
 function App(props: BillboardWidgetProps) {
@@ -43,7 +43,7 @@ function App(props: BillboardWidgetProps) {
         clientOptions = defaultClientProps,
     } = props;
 
-    const { loading, messages, viewersCount, addRandomMessage } =
+    const { loading, messages, viewersCount, addRandomMessage, online } =
         useBillboard(clientOptions);
 
     return (
@@ -81,6 +81,10 @@ function App(props: BillboardWidgetProps) {
                         }
                     />
                 )}
+            </div>
+
+            <div style={{ color: online ? 'green' : 'red' }}>
+                {online ? 'online' : 'offline'}
             </div>
             <button onClick={addRandomMessage}>Send</button>
 

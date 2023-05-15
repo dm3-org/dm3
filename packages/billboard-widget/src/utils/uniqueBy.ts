@@ -5,6 +5,9 @@ const uniqBy = <T>(array: T[], key: keyof T): T[] => {
         const keyValue = item[key];
         if (!uniqueMap.has(keyValue)) {
             uniqueMap.set(keyValue, item);
+        } else {
+            // eslint-disable-next-line no-console
+            console.warn('skipping duplicate key for:', keyValue);
         }
     }
     return Array.from(uniqueMap.values());

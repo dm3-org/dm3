@@ -87,7 +87,6 @@ function AutoScrollContainer(props: Props) {
     return (
         <div className={containerClassName} ref={containerRef}>
             {children}
-            <div ref={bottomRef} />
             {withToBottomButton && bottomRef.current ? (
                 <button
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -105,6 +104,7 @@ function AutoScrollContainer(props: Props) {
                     />
                 </button>
             ) : null}
+            <div ref={bottomRef} />
         </div>
     );
 }

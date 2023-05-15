@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { MessageWithKey } from '../components/MessagesList';
-
-import uniqBy from '../utils/uniqueBy';
 import { Message } from 'dm3-lib-messaging';
+
+import { MessageWithKey } from '../components/MessagesList';
+import uniqBy from '../utils/uniqueBy';
 
 const addKey = (msg: Message): MessageWithKey => {
     return {
@@ -21,17 +21,22 @@ const useMessages = () => {
      * @param msg - Message
      */
     const addMessage = (msg: Message) => {
-        const messageWithKey = addKey(msg);
+        try {
+            const messageWithKey = addKey(msg);
 
-        if (messages?.length) {
-            _setMessages(
-                uniqBy([...(messages || []), messageWithKey], 'reactKey'),
-            );
+            if (messages?.length) {
+                _setMessages(
+                    uniqBy([...(messages || []), messageWithKey], 'reactKey'),
+                );
 
-            return;
+                return;
+            }
+
+            _setMessages([messageWithKey]);
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error(error);
         }
-
-        _setMessages([messageWithKey]);
     };
 
     /**

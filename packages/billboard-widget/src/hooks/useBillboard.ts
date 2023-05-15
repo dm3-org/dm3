@@ -1,17 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Message } from 'dm3-lib-messaging';
 import { getBillboardApiClient } from 'dm3-lib-billboard-api';
+import { io, Socket } from 'socket.io-client';
 
-import { MessageWithKey } from '../components/MessagesList';
 import { getRandomMessage } from '../utils/getRandomMessage';
 import useMessages from './useMessages';
-
-const addKey = (msg: Message): MessageWithKey => {
-    return {
-        ...msg,
-        reactKey: `${msg.metadata.timestamp}${msg.metadata.from}${msg.signature}`,
-    };
-};
 
 export type ClientProps =
     | {
@@ -19,12 +11,12 @@ export type ClientProps =
           billboardId?: string;
           fetchSince?: Date;
           idMessageCursor?: string;
-          baseUrl?: string;
+          websocketUrl?: string;
       }
     | {
           mockedApi?: false;
           billboardId: string;
-          baseUrl: string;
+          websocketUrl: string;
           fetchSince?: Date;
           idMessageCursor?: string;
       };
@@ -38,14 +30,16 @@ const useBillboard = ({
     billboardId,
     fetchSince,
     idMessageCursor,
-    baseUrl,
+    websocketUrl,
 }: ClientProps) => {
     const { messages, setMessages, addMessage } = useMessages();
     const [loading, setLoading] = useState<boolean>(false);
+    const [online, setOnline] = useState<boolean>(false);
+    const [socket, setSocket] = useState<Socket | null>(null);
     const [viewersCount, setViewersCount] = useState<number>(0);
 
     const reconnectWhenChanged = [
-        baseUrl,
+        websocketUrl,
         billboardId,
         fetchSince,
         idMessageCursor,
@@ -55,7 +49,7 @@ const useBillboard = ({
     useEffect(() => {
         const client = getBillboardApiClient({
             mock: mockedApi,
-            baseUrl,
+            websocketUrl,
         });
 
         const load = async () => {
@@ -78,36 +72,59 @@ const useBillboard = ({
     }, reconnectWhenChanged);
 
     useEffect(() => {
-        // Create WebSocket connection.
-        const socket = new WebSocket(`ws://${baseUrl}`);
+        if (!websocketUrl) {
+            return;
+        }
 
-        socket.addEventListener('open', function () {
-            // Connection opened, TODO: needed?
-        });
-
-        socket.addEventListener('message', function (event) {
-            addMessage(JSON.parse(event.data));
-        });
+        setSocket(io(websocketUrl));
 
         return () => {
-            socket.close();
+            socket?.close();
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [baseUrl, addMessage]);
+    }, [websocketUrl]);
+
+    useEffect(() => {
+        if (!socket) {
+            return;
+        }
+
+        socket.on('connect', function () {
+            setOnline(true);
+        });
+
+        socket.on('disconnect', function () {
+            setOnline(false);
+        });
+
+        socket.on('message', function (data) {
+            addMessage(data);
+        });
+
+        socket.on('viewers', function (data) {
+            setViewersCount(data);
+        });
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [addMessage]);
 
     /**
      * Add a random message only to the UI for testing purposes.
      * @returns
      */
     const addRandomMessage = () => {
+        const newMessage = getRandomMessage();
+
         if (!messages || messages.length === 0) {
-            setMessages([addKey(getRandomMessage())]);
+            setMessages([newMessage]);
             return;
         }
-        setMessages([...messages, addKey(getRandomMessage())]);
+
+        addMessage(newMessage);
     };
 
     return {
+        online,
         loading,
         messages,
         viewersCount,
