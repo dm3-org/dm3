@@ -11,12 +11,13 @@ import ViewersCount from './components/ViewersCount';
 import ConnectWithMetaMask from './components/ConnectWithMetaMask';
 import dm3Logo from './assets/dm3-logo.png';
 import useBillboard, { ClientProps } from './hooks/useBillboard';
+import OptionsContext from './hooks/optionsContext';
 
 export interface BillboardWidgetProps {
     options?: {
         className?: string;
         withToBottomButton?: boolean;
-        avatarSrc: string;
+        avatarSrc?: string | ((hash?: string) => string);
     };
     clientOptions: ClientProps;
     scrollOptions?: ContainerProps;
@@ -35,9 +36,15 @@ const defaultClientProps: ClientProps = {
     websocketUrl: 'http://localhost:3000',
 };
 
+const defaultOptions: BillboardWidgetProps['options'] = {
+    avatarSrc: (hash) => {
+        return `https://robohash.org/${hash}?size=38x38`;
+    },
+};
+
 function App(props: BillboardWidgetProps) {
     const {
-        options,
+        options = defaultOptions,
         branding,
         scrollOptions,
         clientOptions = defaultClientProps,
@@ -47,7 +54,7 @@ function App(props: BillboardWidgetProps) {
         useBillboard(clientOptions);
 
     return (
-        <>
+        <OptionsContext.Provider value={options}>
             <div className={`widget ${options?.className}`}>
                 {messages?.length ? (
                     <div>
@@ -89,7 +96,7 @@ function App(props: BillboardWidgetProps) {
             <button onClick={addRandomMessage}>Send</button>
 
             <ConnectWithMetaMask />
-        </>
+        </OptionsContext.Provider>
     );
 }
 

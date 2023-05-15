@@ -180,6 +180,7 @@
     left: 100%;
     opacity: 0;
     transition: opacity 0.5s;
+    cursor: pointer;
     &.show {
         opacity: 0.6;
     }
