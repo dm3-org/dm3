@@ -4,6 +4,7 @@ import { IDatabase } from '../IDatabase';
 import { setUserProfile } from './setUserProfile';
 import { ethers } from 'ethers';
 import winston from 'winston';
+import { SignedUserProfile } from 'dm3-lib-profile';
 const { expect } = require('chai');
 
 describe('setUserProfile', () => {
@@ -29,16 +30,27 @@ describe('setUserProfile', () => {
         const { address } = ethers.Wallet.createRandom();
 
         expect(
-            setUserProfile(redisClient)('foo.eth', {} as UserProfile, address),
+            setUserProfile(redisClient)(
+                'foo.eth',
+                {} as SignedUserProfile,
+                address,
+            ),
         ).rejectedWith(Error('Invalid user profile'));
     });
     it('Stores valid user profile', async () => {
         const { address } = ethers.Wallet.createRandom();
 
-        const profile: UserProfile = {
-            publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
-            publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
-            deliveryServices: [''],
+        const profile: SignedUserProfile = {
+            signature:
+                '0x0a46a1cc2a44c28f7415ba4b5a7d0af313a88ea2283f7374edecc705eece8' +
+                '97009cbf930d6f7d63dc915de219f717accb4acca10cf2b38845d1bfd20649bb1fa1b',
+            profile: {
+                publicSigningKey:
+                    '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
+                publicEncryptionKey:
+                    'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
+                deliveryServices: [''],
+            },
         };
 
         const writeResult = await setUserProfile(redisClient)(
@@ -52,12 +64,18 @@ describe('setUserProfile', () => {
     it('Rejects if a name already has profile attached', async () => {
         const { address } = ethers.Wallet.createRandom();
 
-        const profile: UserProfile = {
-            publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
-            publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
-            deliveryServices: [''],
+        const profile: SignedUserProfile = {
+            signature:
+                '0x0a46a1cc2a44c28f7415ba4b5a7d0af313a88ea2283f7374ed' +
+                'ecc705eece897009cbf930d6f7d63dc915de219f717accb4acca10cf2b38845d1bfd20649bb1fa1b',
+            profile: {
+                publicSigningKey:
+                    '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
+                publicEncryptionKey:
+                    'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
+                deliveryServices: [''],
+            },
         };
-
         //This should pass
         const firstWrite = await setUserProfile(redisClient)(
             'foo.eth',

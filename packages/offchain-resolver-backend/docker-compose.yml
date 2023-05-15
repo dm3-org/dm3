@@ -5,7 +5,7 @@ services:
   db:
     image: redis
     restart: always
-    container_name: redis_offchain_resolver
+    container_name: redis_offchain_resolver_backend
     ports:
       - '6308:6308'
 

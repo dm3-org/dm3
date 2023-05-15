@@ -10,11 +10,11 @@
         "dm3-lib-crypto": "^0.1.1",
         "dm3-lib-delivery": "^0.1.1",
         "dm3-lib-messaging": "^0.1.1",
-        "dm3-lib-offchain-resolver":"^0.1.1",
+        "dm3-lib-offchain-resolver": "^0.1.1",
         "dm3-lib-profile": "^0.1.1",
         "dm3-lib-shared": "^0.1.1",
         "dm3-lib-storage": "^0.1.1",
-        "dotenv": "^16.0.1",
+        "dotenv": "^16.0.3",
         "eslint": "^8.17.0",
         "ethers": "5.7.2",
         "express": "^4.18.1",
@@ -33,7 +33,7 @@
         "start": "ts-node --transpile-only  ./src/index.ts",
         "test": " npm run docker:up && nyc hardhat test test/**test.ts src/**/**.test.ts  ",
         "test:local": "nyc hardhat test test/**test.ts src/**/**.test.ts ",
-        "build": "tsc && cp ./config.yml ./dist/config.yml | true"
+        "build": "echo 'no build script'"
     },
     "devDependencies": {
         "@babel/core": "^7.19.6",
