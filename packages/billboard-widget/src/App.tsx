@@ -1,5 +1,3 @@
-import './App.css';
-
 import ListMessages from './components/MessagesList';
 import AutoScrollContainer, {
     ContainerProps,
@@ -13,13 +11,15 @@ import dm3Logo from './assets/dm3-logo.png';
 import useBillboard, { ClientProps } from './hooks/useBillboard';
 import OptionsContext from './hooks/optionsContext';
 
+import './styles/app.pcss';
+
 export interface BillboardWidgetProps {
     options?: {
         className?: string;
         withToBottomButton?: boolean;
         avatarSrc?: string | ((hash?: string) => string);
     };
-    clientOptions: ClientProps;
+    clientOptions?: ClientProps;
     scrollOptions?: ContainerProps;
     branding?: {
         imageSrc?: string;
@@ -55,7 +55,7 @@ function App(props: BillboardWidgetProps) {
 
     return (
         <OptionsContext.Provider value={options}>
-            <div className={`widget ${options?.className}`}>
+            <div className={`widget common-styles ${options?.className}`}>
                 {messages?.length ? (
                     <div>
                         <div className="header">

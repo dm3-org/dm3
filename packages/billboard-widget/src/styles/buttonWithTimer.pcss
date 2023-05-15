@@ -1,19 +1,14 @@
-:root {
+.dm3-loading-btn {
   --timeoutActiveForeground: #FFFFFF;
   --timeoutRunningForeground: #D9D9D9;
   --timeoutCircleBackground: #81828D;
-}
 
-.btn-round {
   border-radius: 18px;
   width: 36px;
   height: 36px;
   appearance: none;
   overflow: hidden;
   padding: 0;
-}
-
-.send-button {
   background: transparent;
   position: relative;
 
@@ -38,30 +33,29 @@
       stroke: var(--timeoutActiveForeground);
     }
   }
-}
+  .button-icon {
+    position: absolute;
+    width: 100%;
+    transform: translateY(-50%) scale(0.5);
+  }
 
-.button-icon {
-  position: absolute;
-  width: 100%;
-  transform: translateY(-50%) scale(0.5);
-}
+  .circle-chart {
+    position: absolute;
+    transform: translate(-50%, -50%);
+  }
 
-.circle-chart {
-  position: absolute;
-  transform: translate(-50%, -50%);
-}
-
-.circle-chart__circle {
-  stroke: var(--timeoutRunningForeground);
-  transform: rotate(-90deg);
-  transform-origin: center;
-  opacity: 0.2;
-  transition: opacity .5s;
-}
-.circle-chart__background {
-  stroke: var(--timeoutCircleBackground);
-  opacity: 0.2;
-  transition: opacity .5s;
+  .circle-chart__circle {
+    stroke: var(--timeoutRunningForeground);
+    transform: rotate(-90deg);
+    transform-origin: center;
+    opacity: 0.2;
+    transition: opacity .5s;
+  }
+  .circle-chart__background {
+    stroke: var(--timeoutCircleBackground);
+    opacity: 0.2;
+    transition: opacity .5s;
+  }
 }
 
 

@@ -5,7 +5,6 @@ import React, {
     useMemo,
     PropsWithChildren,
 } from 'react';
-import './ButtonWithTimer.pcss';
 
 interface ButtonWithTimerProps extends PropsWithChildren {
     onClick: (e?: React.MouseEvent<HTMLInputElement>) => void;
@@ -81,7 +80,7 @@ const ButtonWithTimer: React.FC<ButtonWithTimerProps> = ({
 
     return (
         <button
-            className={`send-button btn-round ${disabled ? 'disabled' : ''}`}
+            className={`dm3-loading-btn ${disabled ? 'disabled' : ''}`}
             onClick={handleClick}
             disabled={disabled}
         >
