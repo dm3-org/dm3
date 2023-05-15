@@ -224,7 +224,7 @@ describe('Account', () => {
     });
 
     describe('createProfile', () => {
-        test('Should create a correct user profile', async () => {
+        test('Should create a correct user profile (provider sign)', async () => {
             const profileData = await getProfileData();
             const profile = await createProfile(
                 profileData.address,
@@ -234,6 +234,25 @@ describe('Account', () => {
                         return profileData.wallet.signMessage(params[0]);
                     },
                 } as any,
+            );
+            expect(
+                checkUserProfileWithAddress(
+                    profile.signedProfile,
+                    profileData.address,
+                ),
+            ).toStrictEqual(true);
+        });
+
+        test('Should create a correct user profile', async () => {
+            const profileData = await getProfileData();
+            const profile = await createProfile(
+                profileData.address,
+                profileData.signedUserProfile.profile.deliveryServices,
+                {} as any,
+                {
+                    signer: (msg, address) =>
+                        profileData.wallet.signMessage(msg),
+                },
             );
             expect(
                 checkUserProfileWithAddress(
