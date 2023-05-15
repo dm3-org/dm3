@@ -191,17 +191,15 @@ export function isSameEnsName(
 }
 
 async function createKeyPairsFromSig(
-    provider: ethers.providers.JsonRpcProvider,
-    accountAddress: string,
+    sign: (msg: string) => Promise<string>,
+
     nonce: string,
     storageKey?: string,
 ): Promise<ProfileKeys> {
     if (!storageKey) {
         const storageKeyCreationMessage = getStorageKeyCreationMessage(nonce);
-        const signature = await provider.send('personal_sign', [
-            storageKeyCreationMessage,
-            accountAddress,
-        ]);
+        const signature = await sign(storageKeyCreationMessage);
+
         const newStorageKey = await createStorageKey(signature);
         return await createProfileKeys(newStorageKey, nonce);
     } else {
@@ -236,8 +234,7 @@ export async function createProfile(
     };
 
     const keys = await createKeyPairsFromSig(
-        provider,
-        accountAddress,
+        (msg: string) => signer(msg, accountAddress),
         nonce,
         storageKey,
     );
