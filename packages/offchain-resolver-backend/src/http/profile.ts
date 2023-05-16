@@ -20,18 +20,16 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
         //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const {
-                    signedUserProfile,
-                    name,
+                const { signedUserProfile, siweMessage, siweSig, hotAddr } =
+                    req.body;
 
-                    siweMessage,
-                    siweSig,
-                } = req.body;
-
+                //Get the address that signed the siwe message
                 const address = ethers.utils.recoverAddress(
                     ethers.utils.hashMessage(siweMessage),
                     siweSig,
                 );
+                // eslint-disable-next-line max-len
+                //The address has to be the same as the one in the siwe message to ensure the user has not signed an arbitrary message
                 const isAddressVailid =
                     ethers.utils.getAddress(
                         siweMessage.substring(MSG_START, MSG_END),
@@ -47,22 +45,16 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     signedUserProfile,
                 );
 
-                if (!address) {
-                    req.app.locals.logger.warn(`Couldn't get address`);
-                    return res
-                        .status(400)
-                        .send({ error: `Couldn't get address` });
-                }
-
                 //Check if schema is valid
                 if (!isSchemaValid) {
                     req.app.locals.logger.warn('invalid schema');
                     return res.status(400).send({ error: 'invalid schema' });
                 }
 
+                //Check if the profile was signed by hot wallet address
                 const profileIsValid = checkUserProfileWithAddress(
                     signedUserProfile,
-                    address,
+                    hotAddr,
                 );
 
                 //Check if profile sig is correcet
@@ -71,8 +63,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     return res.status(400).send({ error: 'invalid profile' });
                 }
 
-                //One address can only claim one subdomain
-
+                //One spam protection
                 if (req.app.locals.config.spamProtection) {
                     req.app.locals.logger.warn('Quota reached');
 
@@ -82,7 +73,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 }
 
                 await req.app.locals.db.setUserProfile(
-                    name,
+                    `${address}.beta-addr.dm3.eth}`,
                     signedUserProfile,
                     address,
                 );
