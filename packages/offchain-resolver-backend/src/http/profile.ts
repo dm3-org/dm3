@@ -7,9 +7,92 @@ import { ethers } from 'ethers';
 import express from 'express';
 import { WithLocals } from './types';
 
+//The test msg should just be the sg of an ethereum address
+const MSG_START = 0;
+const MSG_END = 42;
+
 export function profile(web3Provider: ethers.providers.BaseProvider) {
     const router = express.Router();
 
+    //Special route for eth prague
+    router.post(
+        '/nameP',
+        //@ts-ignore
+        async (req: express.Request & { app: WithLocals }, res, next) => {
+            try {
+                const {
+                    signedUserProfile,
+                    name,
+
+                    siweMessage,
+                    siweSig,
+                } = req.body;
+
+                const address = ethers.utils.recoverAddress(
+                    ethers.utils.hashMessage(siweMessage),
+                    siweSig,
+                );
+                const isAddressVailid =
+                    ethers.utils.getAddress(
+                        siweMessage.substring(MSG_START, MSG_END),
+                    ) === address;
+
+                if (!isAddressVailid) {
+                    req.app.locals.logger.warn(`Invalid siwe sig`);
+                    return res.status(400).send({ error: `Invaid siwe sig` });
+                }
+
+                const isSchemaValid = validateSchema(
+                    schema.SignedUserProfile,
+                    signedUserProfile,
+                );
+
+                if (!address) {
+                    req.app.locals.logger.warn(`Couldn't get address`);
+                    return res
+                        .status(400)
+                        .send({ error: `Couldn't get address` });
+                }
+
+                //Check if schema is valid
+                if (!isSchemaValid) {
+                    req.app.locals.logger.warn('invalid schema');
+                    return res.status(400).send({ error: 'invalid schema' });
+                }
+
+                const profileIsValid = checkUserProfileWithAddress(
+                    signedUserProfile,
+                    address,
+                );
+
+                //Check if profile sig is correcet
+                if (!profileIsValid) {
+                    req.app.locals.logger.warn('invalid profile');
+                    return res.status(400).send({ error: 'invalid profile' });
+                }
+
+                //One address can only claim one subdomain
+
+                if (req.app.locals.config.spamProtection) {
+                    req.app.locals.logger.warn('Quota reached');
+
+                    return res.status(400).send({
+                        error: 'address has already claimed a subdomain',
+                    });
+                }
+
+                await req.app.locals.db.setUserProfile(
+                    name,
+                    signedUserProfile,
+                    address,
+                );
+
+                return res.sendStatus(200);
+            } catch (e) {
+                next(e);
+            }
+        },
+    );
     router.post(
         '/name',
         //@ts-ignore
