@@ -20,6 +20,9 @@ export async function handleSubmitMessage(
     const envelop = JSON.parse(stringifiedEnvelop);
 
     if (!envelop || !token) {
+        console.log('envelop token check');
+        console.log(JSON.stringify(envelop));
+        console.log(token);
         return res.send(400);
     }
 
@@ -58,6 +61,8 @@ export async function handleSubmitMessage(
             method: 'RPC SUBMIT MESSAGE',
             error,
         });
+        console.log('general error');
+        console.log(error);
 
         return res.send(400);
     }

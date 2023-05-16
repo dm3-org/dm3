@@ -105,19 +105,22 @@ export async function incomingMessage(
     provider: ethers.providers.JsonRpcProvider,
     getIdEnsName: (name: string) => Promise<string>,
 ): Promise<void> {
+    console.log('a1');
     //Checks the size of the incoming message
     if (messageIsToLarge(envelop, sizeLimit)) {
         throw Error('Message is too large');
     }
+    console.log('a2');
     //Decryptes the encrypted DeliveryInformation with the KeyPair of the deliveryService
+
     const deliveryInformation: DeliveryInformation =
         await decryptDeliveryInformation(envelop, encryptionKeyPair);
-
+    console.log('a3');
     const conversationId = getConversationId(
         await getIdEnsName(deliveryInformation.from),
         await getIdEnsName(deliveryInformation.to),
     );
-
+    console.log('a4');
     //Checks if the sender is authenticated
     const tokenIsValid = await checkToken(
         provider,
@@ -125,23 +128,26 @@ export async function incomingMessage(
         deliveryInformation.from,
         token,
     );
+    console.log('a5');
     if (!tokenIsValid) {
         //Token is invalid
         throw Error('Token check failed');
     }
+    console.log('a6');
     //Retrives the session of the receiver
     const receiverSession = await getSession(deliveryInformation.to);
     if (!receiverSession) {
         throw Error('unknown session');
     }
+    console.log('a7');
     //Checkes if the message is spam
     if (await isSpam(provider, receiverSession, deliveryInformation)) {
         throw Error('Message does not match spam criteria');
     }
-
+    console.log('a8');
     const receiverEncryptionKey =
         receiverSession.signedUserProfile.profile.publicEncryptionKey;
-
+    console.log('a9');
     const envelopWithPostmark: EncryptionEnvelop = {
         ...envelop,
         metadata: {
@@ -157,7 +163,9 @@ export async function incomingMessage(
             ),
         ),
     };
+    console.log('a10');
     await storeNewMessage(conversationId, envelopWithPostmark);
+    console.log('a11');
 
     //If there is currently a webSocket connection open to the receiver, the message will be directly send.
     if (receiverSession.socketId) {
