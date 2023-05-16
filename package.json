@@ -12,7 +12,7 @@
             "packages/lib/offchainResolver",
             "packages/lib/offchainResolver-api",
             "packages/offchain-resolver-backend",
-            "packages/lib/lib-billboard-api",
+            "packages/lib/billboard-api",
             "packages/backend",
             "packages/billboard-client",
             "packages/react",

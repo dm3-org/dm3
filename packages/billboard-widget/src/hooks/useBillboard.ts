@@ -17,9 +17,13 @@ export type ClientProps =
     | {
           mockedApi: true;
           billboardId?: string;
+          baseUrl?: string;
           fetchSince?: Date;
           idMessageCursor?: string;
-          baseUrl?: string;
+          deliveryServiceUrl: string;
+          offchainResolverUrl: string;
+          siweAddress: string;
+          siweSig: string;
       }
     | {
           mockedApi?: false;
@@ -27,6 +31,10 @@ export type ClientProps =
           baseUrl: string;
           fetchSince?: Date;
           idMessageCursor?: string;
+          deliveryServiceUrl: string;
+          offchainResolverUrl: string;
+          siweAddress: string;
+          siweSig: string;
       };
 
 /**
