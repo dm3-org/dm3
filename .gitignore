@@ -58,3 +58,5 @@ packages/lib/**/dist
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+packages/**/.yarn

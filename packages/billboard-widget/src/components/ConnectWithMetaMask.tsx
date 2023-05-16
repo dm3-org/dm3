@@ -1,4 +1,6 @@
-import { useMetaMask } from '../hooks/metaMaskProvider';
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
+import { useEffect } from 'react'
 
 export interface Props {
     noProviderMessage?: string;
@@ -6,21 +8,19 @@ export interface Props {
 }
 
 function ConnectWithMetaMask(props: Props) {
-    const {
-        noProviderMessage = 'You need to install MetaMask',
-        buttonTitle = 'Connect MetaMask',
-    } = props;
-    const { hasProvider, handleConnect } = useMetaMask();
+    const { buttonTitle = 'Login with Web3' } = props;
 
+    const { getProfileKeys } = useContext(AuthContext);
+
+    useEffect(() => {
+        const x = async () => {
+            console.log(await getProfileKeys());
+        };
+        x();
+    }, []);
     return (
         <div className="connectMetaMask">
-            {hasProvider ? (
-                <button onClick={handleConnect} className="connectButton">
-                    {buttonTitle}
-                </button>
-            ) : (
-                <p>{noProviderMessage}</p>
-            )}
+            <button onClick={() => {}}>{buttonTitle}</button>
         </div>
     );
 }

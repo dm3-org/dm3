@@ -5,6 +5,6 @@ import 'normalize.css';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
-        <App />
+        <App web3Provider={window.ethereum} />
     </React.StrictMode>,
 );

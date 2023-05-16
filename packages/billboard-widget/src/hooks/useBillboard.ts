@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getBillboardApiClient } from 'dm3-lib-billboard-api';
 import { io, Socket } from 'socket.io-client';
-
-import { getRandomMessage } from '../utils/getRandomMessage';
 import useMessages from './useMessages';
 
 export type ClientProps =
@@ -10,7 +8,7 @@ export type ClientProps =
           mockedApi: true;
           billboardId?: string;
           fetchSince?: Date;
-          idMessageCursor?: string;
+          limit?: number;
           websocketUrl?: string;
       }
     | {
@@ -18,7 +16,7 @@ export type ClientProps =
           billboardId: string;
           websocketUrl: string;
           fetchSince?: Date;
-          idMessageCursor?: string;
+          limit?: number;
       };
 
 /**
@@ -29,7 +27,7 @@ const useBillboard = ({
     mockedApi,
     billboardId,
     fetchSince,
-    idMessageCursor,
+    limit,
     websocketUrl,
 }: ClientProps) => {
     const { messages, setMessages, addMessage } = useMessages();
@@ -42,7 +40,7 @@ const useBillboard = ({
         websocketUrl,
         billboardId,
         fetchSince,
-        idMessageCursor,
+        limit,
         mockedApi,
     ];
 
@@ -58,7 +56,7 @@ const useBillboard = ({
             const messages = await client.getMessages(
                 billboardId || '',
                 fetchSince?.getTime() || Date.now(),
-                idMessageCursor || '',
+                limit !== undefined ? `${limit}` : '', // TODO: change type to number?
             );
             if (messages) {
                 setMessages(messages);
@@ -112,7 +110,8 @@ const useBillboard = ({
      * Add a random message only to the UI for testing purposes.
      * @returns
      */
-    const addRandomMessage = () => {
+    const addRandomMessage = async () => {
+        const { getRandomMessage } = await import('../utils/getRandomMessage');
         const newMessage = getRandomMessage();
 
         if (!messages || messages.length === 0) {
