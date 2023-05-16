@@ -73,9 +73,9 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 }
 
                 await req.app.locals.db.setUserProfile(
-                    `${address}.beta-addr.dm3.eth`,
+                    `${address}.user.ethprague.dm3.eth`,
                     signedUserProfile,
-                    address,
+                    hotAddr,
                 );
 
                 return res.sendStatus(200);

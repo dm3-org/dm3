@@ -6,6 +6,8 @@ export async function handleAddr(db: IDatabase, request: any) {
     const { name } = request;
 
     const interceptResult = interceptAddr(name);
+    console.log('addr interceptResult');
+    console.log(interceptResult);
 
     return (
         interceptResult ??

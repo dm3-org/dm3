@@ -11,6 +11,8 @@ export async function handleText(db: IDatabase, request: any) {
     }
 
     const interceptResult = interceptTextRecord(name, record);
+    console.log('text interceptResult');
+    console.log(interceptResult);
 
     if (interceptResult) {
         return interceptResult;

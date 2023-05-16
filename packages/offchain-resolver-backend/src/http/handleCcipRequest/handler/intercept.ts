@@ -7,9 +7,17 @@ export interface Interceptor {
 }
 
 function getInterceptor(ensName: string) {
+    console.log('ensName');
+    console.log(ensName);
+    console.log('process.env.interceptor');
+    console.log(process.env.interceptor);
     if (process.env.interceptor) {
         const interceptor: Interceptor = JSON.parse(process.env.interceptor);
+        console.log('interceptor');
+        console.log(interceptor);
         const higherLevelDomain = ensName.split('.').splice(1).join('.');
+        console.log('higherLevelDomain');
+        console.log(higherLevelDomain);
         return interceptor.ensName === higherLevelDomain ? interceptor : null;
     }
 }
