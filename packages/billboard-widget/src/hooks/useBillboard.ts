@@ -30,7 +30,11 @@ const useBillboard = () => {
 
             setMessages([]);
             setLoading(true);
-            const newMessages = await client.getMessages(billboardId);
+            const newMessages = await client.getMessages(
+                billboardId,
+                Date.now(),
+                '0',
+            );
             if (newMessages) {
                 setMessages(newMessages);
             }

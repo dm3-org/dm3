@@ -12,7 +12,7 @@ export const MessengerView = () => {
     const { loading, messages, viewersCount, sendDm3Message } = useBillboard();
     const { options, branding, scrollOptions } = useContext(GlobalContext);
     return (
-        <div className={`widget ${options?.className}`}>
+        <div className={`widget common-styles ${options?.className}`}>
             {messages?.length ? (
                 <div>
                     <div className="header">
