@@ -1,4 +1,4 @@
-import './App.css';
+import './styles/app.pcss';
 
 import { AuthContextProvider } from './context/AuthContext';
 import { GlobalContextProvider } from './context/GlobalContext';

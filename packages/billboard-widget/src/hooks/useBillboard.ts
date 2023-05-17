@@ -3,29 +3,23 @@ import { useContext, useEffect, useState } from 'react';
 
 import { GlobalContext } from '../context/GlobalContext';
 import useMessages from './useMessages';
+import { Message } from 'dm3-lib-messaging';
+import { Socket, io } from 'socket.io-client';
 
-/**
- *
- * @returns
- */
 const useBillboard = () => {
     const {
-        clientProps: {
-            mockedApi,
-            billboardId,
-            fetchSince,
-            idMessageCursor,
-            baseUrl,
-        },
+        clientProps: { mockedApi, billboardId, baseUrl },
     } = useContext(GlobalContext);
     const { messages, setMessages, addMessage, sendDm3Message } = useMessages();
     const [loading, setLoading] = useState<boolean>(false);
+    const [online, setOnline] = useState<boolean>(false);
+    const [socket, setSocket] = useState<Socket | null>(null);
     const [viewersCount, setViewersCount] = useState<number>(0);
 
     useEffect(() => {
         const client = getBillboardApiClient({
             mock: !!mockedApi,
-            baseUrl,
+            baseURL: baseUrl,
         });
 
         const getInitialMessages = async () => {
@@ -35,11 +29,7 @@ const useBillboard = () => {
             }
             setMessages([]);
             setLoading(true);
-            const newMessages = await client.getMessages(
-                billboardId || '',
-                fetchSince?.getTime() || Date.now(),
-                idMessageCursor || '',
-            );
+            const newMessages = await client.getMessages(billboardId);
             if (newMessages) {
                 setMessages(newMessages);
             }
@@ -48,34 +38,43 @@ const useBillboard = () => {
             setLoading(false);
         };
         getInitialMessages();
-    }, [
-        baseUrl,
-        billboardId,
-        fetchSince,
-        idMessageCursor,
-        mockedApi,
-        messages,
-        setMessages,
-    ]);
+    }, [baseUrl, billboardId, mockedApi, messages, setMessages]);
 
     useEffect(() => {
-        // Create WebSocket connection.
-        const socket = new WebSocket(`ws://${baseUrl}`);
-
-        socket.addEventListener('open', function () {
-            // Connection opened, TODO: needed?
-        });
-
-        socket.addEventListener('message', function (event) {
-            addMessage(JSON.parse(event.data));
-        });
+        if (!baseUrl || socket) {
+            return;
+        }
+        setSocket(io(baseUrl));
 
         return () => {
-            socket.close();
+            //socket?.close();
         };
-    }, [baseUrl, addMessage]);
+    }, [baseUrl, socket]);
+
+    useEffect(() => {
+        if (!socket) {
+            return;
+        }
+
+        socket.on('connect', function () {
+            setOnline(true);
+        });
+
+        socket.on('disconnect', function () {
+            setOnline(false);
+        });
+
+        socket.on('message', function (data: Message) {
+            addMessage(data);
+        });
+
+        socket.on('viewers', function (data: number) {
+            setViewersCount(data);
+        });
+    }, [addMessage, socket]);
 
     return {
+        online,
         loading,
         messages,
         viewersCount,

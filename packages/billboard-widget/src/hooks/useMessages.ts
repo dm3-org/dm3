@@ -1,10 +1,11 @@
 import axios from 'axios';
 import { Message, createEnvelop, createMessage } from 'dm3-lib-messaging';
 import { useContext, useState } from 'react';
-import { MessageWithKey } from '../components/MessagesList';
 import { AuthContext } from '../context/AuthContext';
 import { GlobalContext } from '../context/GlobalContext';
 import { DeliveryServiceClient } from '../http/DeliveryServiceClient';
+
+import { MessageWithKey } from '../components/MessagesList';
 import uniqBy from '../utils/uniqueBy';
 
 const addKey = (msg: Message): MessageWithKey => {
@@ -56,7 +57,6 @@ const useMessages = () => {
                 profileKeys,
                 (url: string) => axios.get(url),
             );
-        console.log(envelop);
 
         //Submit msg
         await DeliveryServiceClient(

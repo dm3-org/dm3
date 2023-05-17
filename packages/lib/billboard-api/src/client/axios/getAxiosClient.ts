@@ -7,11 +7,7 @@ import { deleteMessage } from './methods/deleteMessage';
 import { suspendSender } from './methods/suspendSender';
 import { getActiveViewers } from './methods/getActiveSenders';
 
-export function getAxiosClient(): IBillboardApiClient {
-    const baseURL = process.env.REACT_APP_BILLBOARD_BACKEND;
-    if (!baseURL) {
-        throw Error('REACT_APP_BILLBOARD_BACKEND not set');
-    }
+export function getAxiosClient(baseURL: string): IBillboardApiClient {
     const axios = Axios.create({
         baseURL,
     });

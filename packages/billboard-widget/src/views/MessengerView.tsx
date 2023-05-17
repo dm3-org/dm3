@@ -47,5 +47,4 @@ export const MessengerView = () => {
             )}
         </div>
     );
-    ƒ;
 };

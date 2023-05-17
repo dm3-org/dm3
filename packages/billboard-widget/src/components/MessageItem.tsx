@@ -1,7 +1,8 @@
 import { Message } from 'dm3-lib-messaging';
 import { format, formatRelative } from 'date-fns';
-import Avatar from './Avatar';
 import { useMemo } from 'react';
+
+import Avatar from './Avatar';
 
 interface Props {
     message: Message;

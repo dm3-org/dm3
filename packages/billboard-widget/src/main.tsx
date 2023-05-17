@@ -2,11 +2,15 @@ import 'normalize.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
-import './index.css';
-
+import 'normalize.css';
+import { defaultClientProps, defaultOptions } from './types.ts';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
-        <App web3Provider={window.ethereum} />
+        <App
+            clientProps={defaultClientProps}
+            options={defaultOptions}
+            web3Provider={window.ethereum}
+        />
     </React.StrictMode>,
 );

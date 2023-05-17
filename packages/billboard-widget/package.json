@@ -1,11 +1,18 @@
 {
   "name": "billboard-widget",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "http://localhost:4873"
+  },
   "type": "module",
+  "files": [
+    "dist"
+  ],
+  "module": "./dist/billboard-widget.js",
   "scripts": {
     "dev": "vite",
-    "build": "no build",
+    "build": "echo 'no build'",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -13,7 +20,7 @@
     "@metamask/detect-provider": "^2.0.0",
     "@metamask/providers": "^11.0.0",
     "date-fns": "^2.30.0",
-    "dm3-lib-billboard-api": "^0.1.1",
+    "dm3-lib-billboard-api": "^0.1.2",
     "dm3-lib-delivery-api": "^0.1.3",
     "dm3-lib-offchain-resolver-api": "^0.1.3",
     "ethers": "^5.7.2",
@@ -21,6 +28,7 @@
     "normalize.css": "^8.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "socket.io-client": "^4.6.1",
     "uuid4": "^2.0.3",
     "uuidv4": "^6.2.13"
   },
@@ -36,6 +44,7 @@
     "eslint-plugin-react-refresh": "^0.3.4",
     "postcss-nesting": "^11.2.2",
     "typescript": "^5.0.2",
-    "vite": "^4.3.2"
+    "vite": "^4.3.2",
+    "vite-plugin-dts": "^2.3.0"
   }
 }

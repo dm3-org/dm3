@@ -1,14 +1,17 @@
 import { ethers } from 'ethers';
 import React from 'react';
 import { ContainerProps } from '../components/AutoScrollContainer';
-import { BillboardWidgetProps, ClientProps, defaultClientProps } from '../types';
+import {
+    BillboardWidgetProps,
+    ClientProps,
+    defaultClientProps,
+} from '../types';
 
 export type GlobalContextxtType = {
     web3Provider: ethers.providers.JsonRpcProvider;
-    websocketUrl: string;
     options?: {
         className?: string;
-        withToBottomButton?: boolean;
+        avatarSrc?: string | ((hash?: string) => string);
     };
     scrollOptions?: ContainerProps;
     branding?: {
@@ -20,11 +23,12 @@ export type GlobalContextxtType = {
 };
 
 export const GlobalContext = React.createContext<GlobalContextxtType>({
-    websocketUrl: 'localhost:8080',
     web3Provider: window.ethereum,
     options: {
         className: 'billboard-widget',
-        withToBottomButton: true,
+        avatarSrc: (hash) => {
+            return `https://robohash.org/${hash}?size=38x38`;
+        },
     },
     clientProps: defaultClientProps,
 });

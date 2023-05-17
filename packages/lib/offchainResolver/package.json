@@ -32,7 +32,7 @@
         "typescript": "^4.4.2"
     },
     "scripts": {
-        "build": "tsc --declaration && tsc --declaration -p tsconfig.backend.json ",
+        "build": "yarn tsc --declaration && yarn tsc --declaration -p tsconfig.backend.json ",
         "test": "jest --coverage --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'"
     },
     "files": [
