@@ -24,7 +24,7 @@ interface ButtonWithTimerProps extends PropsWithChildren {
  */
 const ButtonWithTimer: React.FC<ButtonWithTimerProps> = ({
     onClick,
-    timeout = 30000,
+    timeout = 0,
     size = 40,
     children,
 }) => {

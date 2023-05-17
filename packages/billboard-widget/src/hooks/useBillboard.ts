@@ -1,89 +1,62 @@
-import { useEffect, useState } from 'react';
-import { Message } from 'dm3-lib-messaging';
 import { getBillboardApiClient } from 'dm3-lib-billboard-api';
+import { useContext, useEffect, useState } from 'react';
 
-import { MessageWithKey } from '../components/MessagesList';
-import { getRandomMessage } from '../utils/getRandomMessage';
+import { GlobalContext } from '../context/GlobalContext';
 import useMessages from './useMessages';
-
-const addKey = (msg: Message): MessageWithKey => {
-    return {
-        ...msg,
-        reactKey: `${msg.metadata.timestamp}${msg.metadata.from}${msg.signature}`,
-    };
-};
-
-export type ClientProps =
-    | {
-          mockedApi: true;
-          billboardId?: string;
-          baseUrl?: string;
-          fetchSince?: Date;
-          idMessageCursor?: string;
-          deliveryServiceUrl: string;
-          offchainResolverUrl: string;
-          siweAddress: string;
-          siweSig: string;
-      }
-    | {
-          mockedApi?: false;
-          billboardId: string;
-          baseUrl: string;
-          fetchSince?: Date;
-          idMessageCursor?: string;
-          deliveryServiceUrl: string;
-          offchainResolverUrl: string;
-          siweAddress: string;
-          siweSig: string;
-      };
 
 /**
  *
  * @returns
  */
-const useBillboard = ({
-    mockedApi,
-    billboardId,
-    fetchSince,
-    idMessageCursor,
-    baseUrl,
-}: ClientProps) => {
-    const { messages, setMessages, addMessage } = useMessages();
+const useBillboard = () => {
+    const {
+        clientProps: {
+            mockedApi,
+            billboardId,
+            fetchSince,
+            idMessageCursor,
+            baseUrl,
+        },
+    } = useContext(GlobalContext);
+    const { messages, setMessages, addMessage, sendDm3Message } = useMessages();
     const [loading, setLoading] = useState<boolean>(false);
     const [viewersCount, setViewersCount] = useState<number>(0);
 
-    const reconnectWhenChanged = [
-        baseUrl,
-        billboardId,
-        fetchSince,
-        idMessageCursor,
-        mockedApi,
-    ];
-
     useEffect(() => {
         const client = getBillboardApiClient({
-            mock: mockedApi,
+            mock: !!mockedApi,
             baseUrl,
         });
 
-        const load = async () => {
-            setMessages(null);
+        const getInitialMessages = async () => {
+            //Initial message are already fetched
+            if (messages.length > 0) {
+                return;
+            }
+            setMessages([]);
             setLoading(true);
-            const messages = await client.getMessages(
+            const newMessages = await client.getMessages(
                 billboardId || '',
                 fetchSince?.getTime() || Date.now(),
                 idMessageCursor || '',
             );
-            if (messages) {
-                setMessages(messages);
+            if (newMessages) {
+                setMessages(newMessages);
             }
             const viewers = await client.getActiveViewers(billboardId || '');
             setViewersCount(viewers || 0);
             setLoading(false);
         };
-        load();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, reconnectWhenChanged);
+        getInitialMessages();
+    }, [
+        baseUrl,
+        billboardId,
+        fetchSince,
+        idMessageCursor,
+        mockedApi,
+        messages,
+        setMessages,
+    ]);
 
     useEffect(() => {
         // Create WebSocket connection.
@@ -100,26 +73,13 @@ const useBillboard = ({
         return () => {
             socket.close();
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [baseUrl, addMessage]);
-
-    /**
-     * Add a random message only to the UI for testing purposes.
-     * @returns
-     */
-    const addRandomMessage = () => {
-        if (!messages || messages.length === 0) {
-            setMessages([addKey(getRandomMessage())]);
-            return;
-        }
-        setMessages([...messages, addKey(getRandomMessage())]);
-    };
 
     return {
         loading,
         messages,
         viewersCount,
-        addRandomMessage,
+        sendDm3Message,
     };
 };
 

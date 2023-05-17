@@ -1,22 +1,27 @@
-import { claimAddress, claimSubdomain } from 'dm3-lib-offchain-resolver-api';
+import { claimAddress } from 'dm3-lib-offchain-resolver-api';
 import {
     ProfileKeys,
-    checkUserProfileWithAddress,
-    createProfile,
+    createProfile
 } from 'dm3-lib-profile';
 import { ethers } from 'ethers';
-import { ClientProps } from './useBillboard';
+import { OffchainResolverClient } from '../http/OffchainResolverClient';
+import { ClientProps } from '../types';
 
-const RANDOM_KEYPAIR_KEY = 'Billboard-Random-Keypair-Key';
+const RANDOM_HOTWALLET_KEY = 'Billboard-Random-Hotwallet-Key';
+
+interface BillboardHotWallet {
+    keys: ProfileKeys;
+    ensName: string;
+}
 export const useAuth = (
     web3Provider: ethers.providers.JsonRpcProvider,
     clientProps: ClientProps,
 ) => {
-    const getProfileKeys = async (): Promise<ProfileKeys> => {
-        const keyPair = localStorage.getItem(RANDOM_KEYPAIR_KEY);
+    const getWallet = async (): Promise<BillboardHotWallet> => {
+        const hotWallet = localStorage.getItem(RANDOM_HOTWALLET_KEY);
         //User has used the widget before hence we have a keypair in the local storage
-        if (keyPair) {
-            return JSON.parse(keyPair) as ProfileKeys;
+        if (hotWallet) {
+            return JSON.parse(hotWallet) as BillboardHotWallet;
         }
 
         //We need to create a new wallet hot wallet for the user
@@ -37,22 +42,30 @@ export const useAuth = (
             clientProps.offchainResolverUrl,
             signedProfile,
         );
-        const ensName = `${wallet.address}.beta-addr.dm3.eth}`;
+
         //After we've claimed the address we can claim the subdomain
-        await claimSubdomain(
-            {
-                ensName: ensName,
-                profile: signedProfile.profile,
-            },
+        await OffchainResolverClient(
             clientProps.offchainResolverUrl,
-            clientProps.siweAddress,
+        ).claimSubdomain(
             signedProfile,
+            clientProps.siweMessage,
+            clientProps.siweSig,
+            wallet.address,
         );
 
+        const ensName = `${clientProps.siweAddress}.beta-addr.dm3.eth`;
+        const newHotWallet: BillboardHotWallet = {
+            ensName,
+            keys,
+        };
+
         //Keep the KeyPair we just generated in the local storage so we can use them later
-        localStorage.setItem(RANDOM_KEYPAIR_KEY, JSON.stringify(keys));
-        return keys;
+        localStorage.setItem(
+            RANDOM_HOTWALLET_KEY,
+            JSON.stringify(newHotWallet),
+        );
+        return newHotWallet;
     };
 
-    return { getProfileKeys };
+    return { getWallet };
 };

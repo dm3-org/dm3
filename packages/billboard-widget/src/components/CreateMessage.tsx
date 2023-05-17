@@ -1,31 +1,32 @@
-import ButtonWithTimer from './ButtonWithTimer/ButtonWithTimer';
-import paperPlaneIcon from '../assets/paper-plane.svg';
+import { ethers } from 'ethers';
+import { useContext, useState } from 'react';
 import gearIcon from '../assets/gear-icon.svg';
+import paperPlaneIcon from '../assets/paper-plane.svg';
+import { AuthContext } from '../context/AuthContext';
 import Avatar from './Avatar';
+import ButtonWithTimer from './ButtonWithTimer/ButtonWithTimer';
 interface Props {
-    user?: Record<string, string>; // TODO
     onClickSettings?: () => void;
+    onCreateMsg: (msg: string) => void;
 }
 
 function CreateMessage(props: Props) {
-    const {
-        user = {
-            hash: '0x123456789',
-            ens: 'Bob',
-        },
-        onClickSettings,
-    } = props;
+    const { ensName } = useContext(AuthContext);
+    const { onCreateMsg, onClickSettings } = props;
+    const [textAreaContent, setTextAreaContent] = useState('');
 
     return (
         <div className="create-message">
             <div className="container">
-                <Avatar identifier={user.hash} />
+                <Avatar
+                    identifier={ethers.utils.keccak256(
+                        ethers.utils.toUtf8Bytes(ensName),
+                    )}
+                />
                 <div className="message-create-area">
                     <div className="create-header">
                         <div className="info text-xxs">
-                            {`Logged in as ${user.hash} ${
-                                user.ens ? `alias ${user.ens}` : ''
-                            }`}
+                            {`Logged in as ${ensName}`}
                         </div>
                         {typeof onClickSettings === 'function' ? (
                             <button className="settings-button">
@@ -35,13 +36,18 @@ function CreateMessage(props: Props) {
                     </div>
                     <div className="text-area-wrapper">
                         <textarea
+                            value={textAreaContent}
+                            onChange={(e) => {
+                                setTextAreaContent(e.target.value);
+                            }}
                             className="text-area-input text-sm"
                             rows={4}
                         />
                         <div className="button-wrapper">
                             <ButtonWithTimer
                                 onClick={() => {
-                                    console.log('sent msg: TODO');
+                                    onCreateMsg(textAreaContent);
+                                    setTextAreaContent('');
                                 }}
                             >
                                 {

@@ -1,29 +1,50 @@
-import { ethers } from 'ethers';
-import React from 'react';
-import { useAuth } from '../hooks/useAuth';
-import { ClientProps } from '../hooks/useBillboard';
 import { ProfileKeys } from 'dm3-lib-profile';
+import React, { useContext, useEffect, useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
+import { GlobalContext } from './GlobalContext';
 
 export type AuthContextType = {
-    getProfileKeys: () => Promise<ProfileKeys>;
+    profileKeys: ProfileKeys;
+    ensName: string;
+    initialized: boolean;
 };
 
 export const AuthContext = React.createContext<AuthContextType>({
-    getProfileKeys: () => Promise.reject('unimplemented'),
+    profileKeys: {} as ProfileKeys,
+    ensName: '',
+    initialized: false,
 });
 
-export const AuthContextProvider = ({
-    web3Provider,
-    clientProps,
-    children,
-}: {
-    web3Provider: ethers.providers.JsonRpcProvider;
-    clientProps: ClientProps;
-    children?: any;
-}) => {
-    const { getProfileKeys } = useAuth(web3Provider, clientProps);
+export const AuthContextProvider = ({ children }: { children?: any }) => {
+    const { clientProps,web3Provider } = useContext(GlobalContext);
+    const { getWallet } = useAuth(web3Provider, clientProps);
+
+    const [initialized, setInitialized] = useState(false);
+    const [initializing, setInitializing] = useState(false);
+
+    const [profileKeys, setprofileKeys] = useState<ProfileKeys>(
+        {} as ProfileKeys,
+    );
+    const [ensName, setEnsName] = useState<string>('');
+
+    useEffect(() => {
+        const init = async () => {
+            setInitializing(true);
+            const { keys, ensName } = await getWallet();
+            setInitialized(true);
+            setprofileKeys(keys);
+            setEnsName(ensName);
+            setInitializing(false);
+        };
+        if (initializing || initialized) {
+            return;
+        }
+
+        init();
+    }, [getWallet, initialized, initializing]);
+
     return (
-        <AuthContext.Provider value={{ getProfileKeys }}>
+        <AuthContext.Provider value={{ profileKeys, ensName, initialized }}>
             {children}
         </AuthContext.Provider>
     );

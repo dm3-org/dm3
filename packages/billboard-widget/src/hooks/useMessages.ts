@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import axios from 'axios';
+import { Message, createEnvelop, createMessage } from 'dm3-lib-messaging';
+import { useContext, useState } from 'react';
 import { MessageWithKey } from '../components/MessagesList';
-
+import { AuthContext } from '../context/AuthContext';
+import { GlobalContext } from '../context/GlobalContext';
+import { DeliveryServiceClient } from '../http/DeliveryServiceClient';
 import uniqBy from '../utils/uniqueBy';
-import { Message } from 'dm3-lib-messaging';
 
 const addKey = (msg: Message): MessageWithKey => {
     return {
@@ -12,8 +15,12 @@ const addKey = (msg: Message): MessageWithKey => {
 };
 
 const useMessages = () => {
-    const [messages, _setMessages] = useState<MessageWithKey[] | null>([]);
-
+    const [messages, _setMessages] = useState<MessageWithKey[]>([]);
+    const { ensName, profileKeys } = useContext(AuthContext);
+    const {
+        web3Provider,
+        clientProps: { billboardId },
+    } = useContext(GlobalContext);
     /**
      * Add a message to list.
      * Ensure the message has not already ben fetched.
@@ -22,16 +29,7 @@ const useMessages = () => {
      */
     const addMessage = (msg: Message) => {
         const messageWithKey = addKey(msg);
-
-        if (messages?.length) {
-            _setMessages(
-                uniqBy([...(messages || []), messageWithKey], 'reactKey'),
-            );
-
-            return;
-        }
-
-        _setMessages([messageWithKey]);
+        _setMessages(uniqBy([...messages, messageWithKey], 'reactKey'));
     };
 
     /**
@@ -39,16 +37,38 @@ const useMessages = () => {
      *
      * @param msgs
      */
-    const setMessages = (msgs: Message[] | null) => {
-        if (messages) {
-            _setMessages(msgs?.map(addKey) || null);
-        }
+    const setMessages = (msgs: Message[]) => {
+        _setMessages(msgs?.map(addKey));
+    };
+
+    const sendDm3Message = async (text: string) => {
+        const message = await createMessage(
+            ensName,
+            billboardId,
+            text,
+            profileKeys.signingKeyPair.privateKey,
+        );
+        //Build envelop
+        const { encryptedEnvelop: envelop, sendDependencies } =
+            await createEnvelop(
+                message,
+                web3Provider,
+                profileKeys,
+                (url: string) => axios.get(url),
+            );
+        console.log(envelop);
+
+        //Submit msg
+        await DeliveryServiceClient(
+            sendDependencies.deliverServiceProfile.url,
+        ).submitMessage(envelop);
     };
 
     return {
         messages,
         setMessages,
         addMessage,
+        sendDm3Message,
     };
 };
 
