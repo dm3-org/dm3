@@ -10,6 +10,9 @@ interface Props {
     onCreateMsg: (msg: string) => void;
 }
 
+const SEND_TIMEOUT = 6000; // 6 seconds
+const MIN_MESSAGE_LENGTH = 5;
+
 function CreateMessage(props: Props) {
     const { ensName } = useContext(AuthContext);
     const { onCreateMsg, onClickSettings } = props;
@@ -45,6 +48,10 @@ function CreateMessage(props: Props) {
                         />
                         <div className="button-wrapper">
                             <ButtonWithTimer
+                                disabled={
+                                    textAreaContent?.length < MIN_MESSAGE_LENGTH
+                                }
+                                timeout={SEND_TIMEOUT}
                                 onClick={() => {
                                     onCreateMsg(textAreaContent);
                                     setTextAreaContent('');

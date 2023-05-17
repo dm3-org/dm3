@@ -11,8 +11,14 @@
   padding: 0;
   background: transparent;
   position: relative;
+  transition: opacity .5s;
 
   &.disabled {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  &.active-timeout {
     pointer-events: none;
 
     .circle-chart__circle {

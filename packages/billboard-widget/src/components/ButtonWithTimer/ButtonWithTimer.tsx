@@ -10,6 +10,7 @@ interface ButtonWithTimerProps extends PropsWithChildren {
     onClick: (e?: React.MouseEvent<HTMLInputElement>) => void;
     timeout?: number;
     size?: number;
+    disabled?: boolean;
 }
 
 /**
@@ -26,15 +27,16 @@ const ButtonWithTimer: React.FC<ButtonWithTimerProps> = ({
     timeout = 0,
     size = 40,
     children,
+    disabled = false,
 }) => {
-    const [disabled, setDisabled] = useState(false);
+    const [activeTimeout, setActiveTimeout] = useState(false);
     const circleRef = useRef<SVGCircleElement | null>(null);
 
     const handleClick = () => {
         onClick();
-        setDisabled(true);
+        setActiveTimeout(true);
         setTimeout(() => {
-            setDisabled(false);
+            setActiveTimeout(false);
         }, timeout);
     };
 
@@ -46,7 +48,7 @@ const ButtonWithTimer: React.FC<ButtonWithTimerProps> = ({
         let requestId: number;
         let startTime: number | null = null;
 
-        if (!disabled) {
+        if (!activeTimeout) {
             return;
         }
 
@@ -76,13 +78,15 @@ const ButtonWithTimer: React.FC<ButtonWithTimerProps> = ({
         return () => {
             cancelAnimationFrame(requestId);
         };
-    }, [disabled, timeout]);
+    }, [activeTimeout, timeout]);
 
     return (
         <button
-            className={`dm3-loading-btn ${disabled ? 'disabled' : ''}`}
+            className={`dm3-loading-btn ${
+                activeTimeout ? 'active-timeout' : ''
+            } ${disabled ? 'disabled' : ''}`}
             onClick={handleClick}
-            disabled={disabled}
+            disabled={activeTimeout || disabled}
         >
             <div className="button-icon">{children}</div>
             <div className="svg-wrapper">
