@@ -2,12 +2,10 @@ import { Message } from 'dm3-lib-messaging';
 import MessageItem from './MessageItem';
 import { v4 as uuid } from 'uuid';
 
-export interface MessageWithKey extends Message {
-    reactKey: string;
-}
+
 
 export interface IMessagesListProps {
-    messages: MessageWithKey[];
+    messages: Message[];
 }
 export default function MessagesList({ messages }: IMessagesListProps) {
     return (

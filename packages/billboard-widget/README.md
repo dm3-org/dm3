@@ -91,7 +91,7 @@ Common billboard widget options:
 
 Config for the billboard message fetching part:
 
--   `mockedApi`: A boolean flag indicating whether to use a mocked version of the client API. Useful for testing or when a client is not available.
+-   `mockedApi`: A boolean flag indicating whether to use a mocked version of the client API. Useful for testing or when a client is not available. The default value is true.
 
 -   `billboardId`: A string identifier for the billboard.
 

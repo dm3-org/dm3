@@ -1,10 +1,10 @@
 import { getBillboardApiClient } from 'dm3-lib-billboard-api';
 import { useContext, useEffect, useState } from 'react';
 
-import { GlobalContext } from '../context/GlobalContext';
-import useMessages from './useMessages';
 import { Message } from 'dm3-lib-messaging';
 import { Socket, io } from 'socket.io-client';
+import { GlobalContext } from '../context/GlobalContext';
+import useMessages from './useMessages';
 
 const useBillboard = () => {
     const {
@@ -24,9 +24,10 @@ const useBillboard = () => {
 
         const getInitialMessages = async () => {
             //Initial message are already fetched
-            if (messages.length > 0) {
+            if (messages.length > 0 || loading) {
                 return;
             }
+
             setMessages([]);
             setLoading(true);
             const newMessages = await client.getMessages(billboardId);
@@ -38,10 +39,10 @@ const useBillboard = () => {
             setLoading(false);
         };
         getInitialMessages();
-    }, [baseUrl, billboardId, mockedApi, messages, setMessages]);
+    }, [baseUrl, billboardId, mockedApi, messages, setMessages, loading]);
 
     useEffect(() => {
-        if (!baseUrl || socket) {
+        if (!baseUrl || socket || mockedApi) {
             return;
         }
         setSocket(io(baseUrl));
@@ -49,7 +50,7 @@ const useBillboard = () => {
         return () => {
             //socket?.close();
         };
-    }, [baseUrl, socket]);
+    }, [baseUrl, socket, mockedApi]);
 
     useEffect(() => {
         if (!socket) {

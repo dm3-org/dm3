@@ -68,7 +68,7 @@ export const defaultClientProps: ClientProps = {
     mockedApi: true,
     billboardId: 'billboard1.billboard.ethprague.dm3.eth',
     baseUrl: 'localhost:8080', //TBD add  billboard url
-    deliveryServiceUrl: 'beta-ds.dm3.eth',
+    deliveryServiceUrl: 'ethprague-ds.dm3.eth',
     offchainResolverUrl: 'https://billboard-ethprague.herokuapp.com',
 
     siweAddress: dummySiweOwner.address,

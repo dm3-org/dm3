@@ -7,7 +7,7 @@ import {
 export const DeliveryServiceClient = (url: string) => {
     const submitMessage = (envelop: EncryptionEnvelop) => {
         const req = createJsonRpcCallSubmitMessage(envelop);
-        return axios.post(url, req);
+        return axios.post(`${url}rpc`, req);
     };
 
     return {

@@ -5,51 +5,36 @@ import { AuthContext } from '../context/AuthContext';
 import { GlobalContext } from '../context/GlobalContext';
 import { DeliveryServiceClient } from '../http/DeliveryServiceClient';
 
-import { MessageWithKey } from '../components/MessagesList';
-import uniqBy from '../utils/uniqueBy';
-
-const addKey = (msg: Message): MessageWithKey => {
-    return {
-        ...msg,
-        reactKey: `${msg.metadata.timestamp}${msg.metadata.from}${msg.signature}`,
-    };
-};
-
 const useMessages = () => {
-    const [messages, _setMessages] = useState<MessageWithKey[]>([]);
+    const [messages, _setMessages] = useState<Message[]>([]);
     const { ensName, profileKeys } = useContext(AuthContext);
     const {
         web3Provider,
-        clientProps: { billboardId },
+        clientProps: { billboardId, mockedApi },
     } = useContext(GlobalContext);
-    /**
-     * Add a message to list.
-     * Ensure the message has not already ben fetched.
-     *
-     * @param msg - Message
-     */
-    const addMessage = (msg: Message) => {
-        const messageWithKey = addKey(msg);
-        _setMessages(uniqBy([...messages, messageWithKey], 'reactKey'));
+
+    const setMessages = (msgs: Message[]) => {
+        _setMessages(msgs);
     };
 
-    /**
-     * Set messages, ensuring they have a unique reactKey property.
-     *
-     * @param msgs
-     */
-    const setMessages = (msgs: Message[]) => {
-        _setMessages(msgs?.map(addKey));
+    const addMessage = (msg: Message) => {
+        _setMessages((prev) => [...prev, msg]);
     };
 
     const sendDm3Message = async (text: string) => {
         const message = await createMessage(
-            ensName,
             billboardId,
+            ensName,
             text,
             profileKeys.signingKeyPair.privateKey,
         );
+        if (mockedApi) {
+            addMessage(message);
+            return;
+        }
+
         //Build envelop
+
         const { encryptedEnvelop: envelop, sendDependencies } =
             await createEnvelop(
                 message,

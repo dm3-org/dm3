@@ -16,7 +16,7 @@ export const AuthContext = React.createContext<AuthContextType>({
 });
 
 export const AuthContextProvider = ({ children }: { children?: any }) => {
-    const { clientProps,web3Provider } = useContext(GlobalContext);
+    const { clientProps, web3Provider } = useContext(GlobalContext);
     const { getWallet } = useAuth(web3Provider, clientProps);
 
     const [initialized, setInitialized] = useState(false);
@@ -36,6 +36,7 @@ export const AuthContextProvider = ({ children }: { children?: any }) => {
             setEnsName(ensName);
             setInitializing(false);
         };
+
         if (initializing || initialized) {
             return;
         }

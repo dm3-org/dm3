@@ -1,8 +1,5 @@
 import { claimAddress } from 'dm3-lib-offchain-resolver-api';
-import {
-    ProfileKeys,
-    createProfile
-} from 'dm3-lib-profile';
+import { ProfileKeys, createProfile } from 'dm3-lib-profile';
 import { ethers } from 'ethers';
 import { OffchainResolverClient } from '../http/OffchainResolverClient';
 import { ClientProps } from '../types';
@@ -27,7 +24,7 @@ export const useAuth = (
         //We need to create a new wallet hot wallet for the user
         const wallet = ethers.Wallet.createRandom();
         //Create new profile at the DS
-        const { keys, signedProfile } = await createProfile(
+        const profile = await createProfile(
             wallet.address,
             [clientProps.deliveryServiceUrl],
             web3Provider,
@@ -35,6 +32,8 @@ export const useAuth = (
                 signer: (msg: string) => wallet.signMessage(msg),
             },
         );
+
+        const { keys, signedProfile } = profile;
 
         //Before we can claim a subdomain we've to claim an address first
         await claimAddress(
@@ -53,7 +52,7 @@ export const useAuth = (
             wallet.address,
         );
 
-        const ensName = `${clientProps.siweAddress}.beta-addr.dm3.eth`;
+        const ensName = `${clientProps.siweAddress}.user.ethprague.dm3.eth`;
         const newHotWallet: BillboardHotWallet = {
             ensName,
             keys,
