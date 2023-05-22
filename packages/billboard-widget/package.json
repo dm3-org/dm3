@@ -1,10 +1,6 @@
 {
-  "name": "billboard-widget",
+  "name": "dm3-billboard-widget",
   "version": "0.1.0",
-  "publishConfig": {
-    "access": "restricted",
-    "registry": "http://localhost:4873"
-  },
   "type": "module",
   "files": [
     "dist"
