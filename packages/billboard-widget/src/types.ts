@@ -45,7 +45,7 @@ export type ClientProps =
           mockedApi: true;
           billboardId: string;
           baseUrl: string;
-          deliveryServiceUrl: string;
+          deliveryServiceEnsName: string;
           offchainResolverUrl: string;
           siweAddress: string;
           siweSig: string;
@@ -55,7 +55,7 @@ export type ClientProps =
           mockedApi: false;
           billboardId: string;
           baseUrl: string;
-          deliveryServiceUrl: string;
+          deliveryServiceEnsName: string;
           offchainResolverUrl: string;
           siweAddress: string;
           siweSig: string;
@@ -65,10 +65,10 @@ const dummySiweOwner = new ethers.Wallet(
     '0xa3366f151f21907c765632ae41498c3863ef15a1e7350f95b453c32743b6fa3d',
 );
 export const defaultClientProps: ClientProps = {
-    mockedApi: true,
+    mockedApi: false,
     billboardId: 'billboard1.billboard.ethprague.dm3.eth',
     baseUrl: 'localhost:8080', //TBD add  billboard url
-    deliveryServiceUrl: 'ethprague-ds.dm3.eth',
+    deliveryServiceEnsName: 'ethprague-ds.dm3.eth',
     offchainResolverUrl: 'https://billboard-ethprague.herokuapp.com',
 
     siweAddress: dummySiweOwner.address,

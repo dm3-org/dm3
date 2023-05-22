@@ -7,7 +7,7 @@ import { DeliveryServiceClient } from '../http/DeliveryServiceClient';
 
 const useMessages = () => {
     const [messages, _setMessages] = useState<Message[]>([]);
-    const { ensName, profileKeys } = useContext(AuthContext);
+    const { ensName, profileKeys, token } = useContext(AuthContext);
     const {
         web3Provider,
         clientProps: { billboardId, mockedApi },
@@ -46,7 +46,7 @@ const useMessages = () => {
         //Submit msg
         await DeliveryServiceClient(
             sendDependencies.deliverServiceProfile.url,
-        ).submitMessage(envelop);
+        ).submitMessage(envelop, token);
     };
 
     return {

@@ -18,7 +18,8 @@ const useBillboard = () => {
 
     useEffect(() => {
         const client = getBillboardApiClient({
-            mock: !!mockedApi,
+            //mock: !!mockedApi,
+            mock: true,
             baseURL: baseUrl,
         });
 
@@ -46,7 +47,7 @@ const useBillboard = () => {
     }, [baseUrl, billboardId, mockedApi, messages, setMessages, loading]);
 
     useEffect(() => {
-        if (!baseUrl || socket || mockedApi) {
+        if (true||!baseUrl || socket || mockedApi) {
             return;
         }
         setSocket(io(baseUrl));
