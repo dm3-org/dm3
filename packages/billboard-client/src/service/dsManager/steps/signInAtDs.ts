@@ -6,6 +6,8 @@ import {
     AuthenticatedBillboard,
 } from '../DsManagerImpl';
 import { sign } from 'dm3-lib-crypto';
+import { UserProfile } from 'dm3-lib-profile';
+import { submitUserProfile } from '../../../api/internal/rest/submitUserProfile';
 
 /**
  * Sign in at the delivery service for each billboard in the given array.
@@ -22,6 +24,26 @@ export async function signInAtDs(
             //Get the auth token for each delivery service. By doing the challenge using the billboards private key
             const tokens = await Promise.all(
                 dsProfile.map(async (ds) => {
+                    {
+                        // eslint-disable-next-line max-len
+                        //If it's the very first time the billboard connects to the delivery service, we need to submit the profile first
+                        const token = await submitUserProfile(
+                            ds.url,
+                            billboard.ensName,
+                            {
+                                profile: billboard.profile,
+                                signature: billboard.signature,
+                            },
+                        );
+                        // eslint-disable-next-line max-len
+                        //If the profile was already submitted, we get a token back. Otherwise we've to perform the challenge response flow
+                        if (token) {
+                            log(
+                                `Submitted profilte for ${billboard.ensName} to ${ds.url}}`,
+                            );
+                            return token;
+                        }
+                    }
                     log(
                         `Create session for ${billboard.ensName} at ${ds.url}}`,
                     );
