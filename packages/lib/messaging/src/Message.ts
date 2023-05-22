@@ -114,11 +114,12 @@ export async function checkMessageSignature(
 
 export function createJsonRpcCallSubmitMessage(
     encryptedEnvelop: EncryptionEnvelop,
-): JsonRpcRequest<EncryptionEnvelop> {
+    token: string,
+): JsonRpcRequest<string> {
     return {
         jsonrpc: '2.0',
         method: 'dm3_submitMessage',
-        params: [encryptedEnvelop],
+        params: [JSON.stringify(encryptedEnvelop), token],
     };
 }
 
