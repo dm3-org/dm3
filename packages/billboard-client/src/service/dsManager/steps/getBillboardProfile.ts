@@ -19,7 +19,9 @@ export async function getBillboardProfile(
         billboards.map(async (billboard) => {
             log('Get DM3 User Profile for ' + billboard.ensName);
             const wallet = new ethers.Wallet(billboard.privateKey);
-            const storageKeyCreationMessage = getStorageKeyCreationMessage('0');
+            const storageKeyCreationMessage = getStorageKeyCreationMessage(
+                '0xca8f04fdc80d659997f69b02',
+            );
             const storageKeySig = await wallet.signMessage(
                 storageKeyCreationMessage,
             );

@@ -16,14 +16,10 @@ export async function getRedisClient(logger: winston.Logger) {
             rejectUnauthorized: false,
         },
     };
-    const client = createClient(
-        process.env.NODE_ENV === 'production'
-            ? {
-                  url,
-                  ...socketConf,
-              }
-            : {},
-    );
+    const client = createClient({
+        url,
+        ...socketConf,
+    });
 
     client.on('error', (err) => {
         logger.error('Redis error: ' + (err as Error).message);

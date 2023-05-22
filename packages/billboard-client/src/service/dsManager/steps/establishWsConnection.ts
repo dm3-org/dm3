@@ -33,15 +33,15 @@ export async function establishWsConnections(
                 `Establish WS connection for ${billboardWithDsProfile.ensName}`,
             );
             //For each billboard, establish a WebSocket connection with each delivery service profile.
+
             const sockets = await getDeliveryServiceWSClient(
-                billboardWithDsProfile.dsProfile.map(
-                    (ds: DeliveryServiceProfile) => ds.url,
-                ),
+                billboardWithDsProfile.dsProfile,
                 (encryptionEnvelop: EncryptionEnvelop) =>
                     encryptAndStoreMessage(
                         billboardWithDsProfile,
                         encryptionEnvelop,
                     ),
+                billboardWithDsProfile.ensName,
             );
 
             return {

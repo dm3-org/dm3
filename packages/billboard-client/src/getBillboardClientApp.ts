@@ -29,7 +29,8 @@ export const getBillboardClientApp = async (
 
     //Readng the ENV config file
     const config = ConfigService().readConfigFromEnv();
-
+    console.log('config');
+    console.log(config);
     //Each Ens name provided in the config file is an billboard instance
     //Right now we're using one profile and hence one private key for all billboards
     //This might change later though
@@ -37,6 +38,8 @@ export const getBillboardClientApp = async (
         ensName,
         privateKey: config.privateKey,
     }));
+    console.log('billboards');
+    console.log(billboards);
 
     //Register services
     const viewerService = await ViewerService(httpServer);

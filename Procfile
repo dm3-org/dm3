@@ -1,1 +1,1 @@
-web: yarn start
+web: yarn workspace dm3-billboard-client start

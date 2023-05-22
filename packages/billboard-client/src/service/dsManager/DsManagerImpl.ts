@@ -128,6 +128,7 @@ Encrypts and stores a message to redis using the provided billboard's keypairs a
                         JSON.parse(encryptionEnvelop.message),
                     ),
                 ) as Message;
+                log('decryptedMessage' + JSON.stringify(decryptedMessage));
                 broadcastMessage(
                     billboardWithDsProfile.ensName,
                     decryptedMessage,
