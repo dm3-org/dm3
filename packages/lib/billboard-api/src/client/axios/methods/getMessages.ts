@@ -5,12 +5,16 @@ import { makeRpcRequest } from '../makeRpcRequest';
 export function getMessages(axios: Axios) {
     return async (
         idBillboard: string,
-        time: number,
-        idMessageCursor: string,
+        time?: number,
+        limit?: string,
     ): Promise<Message[] | null> =>
         makeRpcRequest<Message[]>({
             axios,
             method: 'dm3_billboard_getMessages',
-            params: [idBillboard, time.toString(), idMessageCursor],
+            params: [
+                idBillboard,
+                time ? time.toString() : Date.now().toString(),
+                limit ?? '50',
+            ],
         });
 }

@@ -12,7 +12,7 @@ export async function getNewToken(
         const { data } = await axios.post(url, { signature });
         return data.token;
     } catch (e) {
-        log("can't get new token from ds");
+        log("can't get new token from ds: " + JSON.stringify(e), 'error');
         return null;
     }
 }

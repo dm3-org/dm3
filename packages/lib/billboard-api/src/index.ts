@@ -4,11 +4,13 @@ import { getMockClient } from './client/axios/getMockClient';
 
 export function getBillboardApiClient({
     mock,
+    baseURL,
 }: {
     mock: boolean;
+    baseURL: string;
 }): IBillboardApiClient {
     if (mock) {
         return getMockClient();
     }
-    return getAxiosClient();
+    return getAxiosClient(baseURL);
 }

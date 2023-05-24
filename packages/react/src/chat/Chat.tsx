@@ -304,7 +304,7 @@ function Chat() {
                 },
             );
         } catch (e) {
-            log(e as string);
+            log('[handleNewUserMessage] ' + JSON.stringify(e), 'error');
             messageStates.set(messageId, MessageState.FailedToSend);
             setMessageStates(new Map(messageStates));
         }

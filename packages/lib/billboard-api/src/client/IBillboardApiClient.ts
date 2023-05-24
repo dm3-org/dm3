@@ -10,8 +10,8 @@ export interface IBillboardApiClient {
     //Messages
     getMessages: (
         idBillboard: string,
-        time: number,
-        idMessageCursor: string,
+        time?: number,
+        limit?: string,
     ) => Promise<Message[] | null>;
     deleteMessage: (
         idBillboard: string,

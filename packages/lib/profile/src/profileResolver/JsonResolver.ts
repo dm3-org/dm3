@@ -29,7 +29,7 @@ function isProfile(textRecord: string) {
 
 function resolveProfile<T>(validate: (objectToCheck: T) => boolean) {
     return async <T>(textRecord: string): Promise<T> => {
-        log(`[getUserProfile] Resolve User Json profile `);
+        log(`[getUserProfile] Resolve User Json profile `, 'info');
 
         const dataUrl = parseDataUrl(textRecord);
 

@@ -11,15 +11,26 @@ import { log } from 'dm3-lib-shared';
 export async function getIncomingMessages(
     dsUrl: string,
     ensName: string,
+    token: string,
 ): Promise<EncryptionEnvelop[] | null> {
     try {
         const response: AxiosResponse<EncryptionEnvelop[]> = await axios.get(
-            `${dsUrl}/messages/incoming/${ensName}`,
+            `${dsUrl}/delivery/messages/incoming/${ensName}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
         );
 
         return response.data;
     } catch (e) {
-        log(`Failed to retrieve incoming messages for ds ${dsUrl}`);
+        log(
+            `Failed to retrieve incoming messages for ds ${dsUrl}` +
+                JSON.stringify(e),
+
+            'error',
+        );
         return null;
     }
 }

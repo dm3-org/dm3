@@ -1,0 +1,15 @@
+.styled-scrollbars {
+  --scrollbar-foreground: #4A4C60;
+  --scrollbar-background:  rgba(58, 60, 80, 0.3);
+  scrollbar-color: var(--scrollbar-foreground) var(--scrollbar-background);
+}
+.styled-scrollbars::-webkit-scrollbar {
+  width: 12px;
+}
+.styled-scrollbars::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-foreground);
+  border-radius: 6px;
+}
+.styled-scrollbars::-webkit-scrollbar-track {
+  background: var(--scrollbar-background);
+}

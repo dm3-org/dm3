@@ -15,7 +15,7 @@ export function getDsProfile(provider: ethers.providers.JsonRpcProvider) {
         const dsProfiles = await Promise.all(
             billboardsWithProfile.profile.deliveryServices.map(
                 async (url: string) => {
-                    log('Get DS profile for ' + url);
+                    log('Get DS profile for ' + url, 'info');
                     const dsProfile = await getDeliveryServiceProfile(
                         url,
                         provider,

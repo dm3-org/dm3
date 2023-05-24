@@ -36,7 +36,7 @@ export async function connectEthAccount(
             ? await connectOnchainAccount(connection, ensName, address)
             : await connectOffchainAccount(connection, address);
     } catch (e) {
-        log((e as Error).message);
+        log('[connectEthAccount] ' + JSON.stringify(e), 'error');
         return {
             existingAccount: false,
             connectionState: ConnectionState.ConnectionRejected,
@@ -109,7 +109,7 @@ async function connectOffchainAccount(connection: Connection, address: string) {
             profile,
         };
     } catch (e) {
-        log(`Profile not found `);
+        log(`Profile not found ` + JSON.stringify(e), 'error');
         /**
          * If there is no profile on the delivery service we start the sign in process
          */

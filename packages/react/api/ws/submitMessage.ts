@@ -20,10 +20,10 @@ export async function sendMessage(
         },
         (result: any) => {
             if (result.response === 'success') {
-                log(`- success`);
+                log(`[sendMessage] success`, 'info');
                 onSuccess();
             } else {
-                log(`- error`);
+                log(`[sendMessage] error `, 'error');
                 onError();
             }
         },

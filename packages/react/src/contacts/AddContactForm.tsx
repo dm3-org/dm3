@@ -64,7 +64,7 @@ function AddContactForm(props: AddContactFormProps) {
             setAccountToAdd('');
             dispatch({ type: UiStateType.SetShowAddContact, payload: false });
         } catch (e) {
-            log(e as string);
+            log('[add] ' + JSON.stringify(e), 'error');
             setErrorIndication(true);
         }
     };

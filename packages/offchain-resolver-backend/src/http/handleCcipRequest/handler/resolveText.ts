@@ -2,6 +2,7 @@ import { IDatabase } from '../../../persistance/IDatabase';
 import { PROFILE_RECORD_NAME } from 'dm3-lib-profile/dist.backend';
 import { stringify } from 'dm3-lib-shared/dist.backend';
 import { interceptTextRecord } from './intercept';
+import { log } from 'dm3-lib-shared';
 
 export async function handleText(db: IDatabase, request: any) {
     const { record, name } = request;
@@ -11,6 +12,10 @@ export async function handleText(db: IDatabase, request: any) {
     }
 
     const interceptResult = interceptTextRecord(name, record);
+    log(
+        '[Interceptor handleText] result ' + JSON.stringify(interceptResult),
+        'debug',
+    );
 
     if (interceptResult) {
         return interceptResult;

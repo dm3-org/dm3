@@ -72,6 +72,7 @@ export async function connectAccount(
         accountConnection.existingAccount
             ? '[Connection] connected to existing profile'
             : '[Connection] connected to new profile',
+        'info',
     );
     if (accountConnection.account && !accountConnection.existingAccount) {
         await localforage.removeItem(

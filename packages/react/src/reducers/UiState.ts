@@ -49,7 +49,7 @@ export function uiStateReducer(
             if (state.showAddContact === action.payload) {
                 return state;
             } else {
-                log(`[UI] Set show add contact form ${action.payload}`);
+                log(`[UI] Set show add contact form ${action.payload}`, 'info');
                 return {
                     ...state,
                     showAddContact: action.payload,
@@ -60,7 +60,7 @@ export function uiStateReducer(
             if (state.selectedRightView === action.payload) {
                 return state;
             } else {
-                log(`[UI] Change right view to ${action.payload}`);
+                log(`[UI] Change right view to ${action.payload}`, 'info');
                 return {
                     ...state,
                     selectedRightView: action.payload,
@@ -68,35 +68,38 @@ export function uiStateReducer(
             }
 
         case UiStateType.SetMaxLeftView:
-            log(`[UI] maxLeftView: ${action.payload}`);
+            log(`[UI] maxLeftView: ${action.payload}`, 'info');
             return {
                 ...state,
                 maxLeftView: action.payload,
             };
 
         case UiStateType.ToggleShow:
-            log(`[UI] toggle show`);
+            log(`[UI] toggle show`, 'info');
             return {
                 ...state,
                 show: !state.show,
             };
 
         case UiStateType.SetLastMessagePull:
-            log(`[UI] set timestamp of last message pull`);
+            log(`[UI] set timestamp of last message pull`, 'info');
             return {
                 ...state,
                 lastMessagePull: action.payload,
             };
 
         case UiStateType.SetProfileExists:
-            log(`[UI] set profile exists to ${action.payload}`);
+            log(`[UI] set profile exists to ${action.payload}`, 'info');
             return {
                 ...state,
                 proflieExists: action.payload,
             };
 
         case UiStateType.SetBrowserStorageBackup:
-            log(`[UI] set create browser storage backups to ${action.payload}`);
+            log(
+                `[UI] set create browser storage backups to ${action.payload}`,
+                'info',
+            );
             return {
                 ...state,
                 browserStorageBackup: action.payload,

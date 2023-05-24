@@ -7,16 +7,90 @@ import { ethers } from 'ethers';
 import express from 'express';
 import { WithLocals } from './types';
 
+//The test msg should just be the sg of an ethereum address
+const MSG_START = 0;
+const MSG_END = 42;
+
 export function profile(web3Provider: ethers.providers.BaseProvider) {
     const router = express.Router();
 
+    //Special route for eth prague
+    router.post(
+        '/nameP',
+        //@ts-ignore
+        async (req: express.Request & { app: WithLocals }, res, next) => {
+            try {
+                const { signedUserProfile, siweMessage, siweSig, hotAddr } =
+                    req.body;
+
+                //Get the address that signed the siwe message
+                const address = ethers.utils.recoverAddress(
+                    ethers.utils.hashMessage(siweMessage),
+                    siweSig,
+                );
+                // eslint-disable-next-line max-len
+                //The address has to be the same as the one in the siwe message to ensure the user has not signed an arbitrary message
+                const isAddressVailid =
+                    ethers.utils.getAddress(
+                        siweMessage.substring(MSG_START, MSG_END),
+                    ) === address;
+
+                if (!isAddressVailid) {
+                    req.app.locals.logger.warn(`Invalid siwe sig`);
+                    return res.status(400).send({ error: `Invaid siwe sig` });
+                }
+
+                const isSchemaValid = validateSchema(
+                    schema.SignedUserProfile,
+                    signedUserProfile,
+                );
+
+                //Check if schema is valid
+                if (!isSchemaValid) {
+                    req.app.locals.logger.warn('invalid schema');
+                    return res.status(400).send({ error: 'invalid schema' });
+                }
+
+                //Check if the profile was signed by hot wallet address
+                const profileIsValid = checkUserProfileWithAddress(
+                    signedUserProfile,
+                    hotAddr,
+                );
+
+                //Check if profile sig is correcet
+                if (!profileIsValid) {
+                    req.app.locals.logger.warn('invalid profile');
+                    return res.status(400).send({ error: 'invalid profile' });
+                }
+
+                //One spam protection
+                if (req.app.locals.config.spamProtection) {
+                    req.app.locals.logger.warn('Quota reached');
+
+                    return res.status(400).send({
+                        error: 'address has already claimed a subdomain',
+                    });
+                }
+
+                await req.app.locals.db.setUserProfile(
+                    `${address}.user.ethprague.dm3.eth`,
+                    signedUserProfile,
+                    hotAddr,
+                );
+
+                return res.sendStatus(200);
+            } catch (e) {
+                next(e);
+            }
+        },
+    );
     router.post(
         '/name',
         //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
                 const { signedUserProfile, name, ensName } = req.body;
-                log(`POST name ${name} `);
+                log(`POST name ${name} `, 'info');
 
                 const isSchemaValid = validateSchema(
                     schema.SignedUserProfile,

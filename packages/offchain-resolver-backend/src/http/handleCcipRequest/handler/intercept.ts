@@ -7,9 +7,19 @@ export interface Interceptor {
 }
 
 function getInterceptor(ensName: string) {
+    log(
+        `[getInterceptor] for ${ensName} (env: ${process.env.interceptor})`,
+        'debug',
+    );
+
     if (process.env.interceptor) {
         const interceptor: Interceptor = JSON.parse(process.env.interceptor);
+        log(
+            `[getInterceptor] interceptor ${JSON.stringify(interceptor)}`,
+            'debug',
+        );
         const higherLevelDomain = ensName.split('.').splice(1).join('.');
+        log(`[getInterceptor] higherLevelDomain ${higherLevelDomain}`, 'debug');
         return interceptor.ensName === higherLevelDomain ? interceptor : null;
     }
 }
@@ -23,7 +33,7 @@ export function interceptTextRecord(ensName: string, textRecordName: string) {
             ? interceptor.textRecords[textRecordName]
             : null;
     } catch (e) {
-        log('Error while intercepting');
+        log('Error while intercepting ' + JSON.stringify(e), 'error');
     }
 }
 
@@ -34,6 +44,6 @@ export function interceptAddr(ensName: string) {
         const interceptor = getInterceptor(ensName);
         return interceptor ? interceptor.addr : null;
     } catch (e) {
-        log('Error while intercepting');
+        log('Error while intercepting' + JSON.stringify(e), 'error');
     }
 }

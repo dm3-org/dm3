@@ -53,7 +53,7 @@ export async function googleStore(
         throw Error('No google api object');
     }
 
-    log('Sync with google drive');
+    log('Sync with google drive', 'info');
 
     const syncResult = await sync(userDb, deliveryServiceToken);
     await createGoogleDriveFile(
@@ -75,7 +75,7 @@ export async function googleLoad(gapi: any): Promise<string | undefined> {
         })
     ).result.files;
 
-    log(`Google storage found ${files.length} data files`);
+    log(`Google storage found ${files.length} data files`, 'info');
 
     if (files.length < 1) {
         throw Error('No dm3 data found on google drive');

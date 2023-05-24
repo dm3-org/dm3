@@ -29,6 +29,7 @@ export const getBillboardClientApp = async (
 
     //Readng the ENV config file
     const config = ConfigService().readConfigFromEnv();
+    log('[getBillboardClientApp] config ' + JSON.stringify(config), 'debug');
 
     //Each Ens name provided in the config file is an billboard instance
     //Right now we're using one profile and hence one private key for all billboards
@@ -37,6 +38,10 @@ export const getBillboardClientApp = async (
         ensName,
         privateKey: config.privateKey,
     }));
+    log(
+        '[getBillboardClientApp] billboards ' + JSON.stringify(billboards),
+        'debug',
+    );
 
     //Register services
     const viewerService = await ViewerService(httpServer);
@@ -53,7 +58,7 @@ export const getBillboardClientApp = async (
     app.use(getExternalApi(db, viewerService));
 
     httpServer.listen(port, () => {
-        log('billboard client listening at port ' + port);
+        log('billboard client listening at port ' + port, 'info');
     });
 
     //In oder to finish the test everything has to be cleaned up
