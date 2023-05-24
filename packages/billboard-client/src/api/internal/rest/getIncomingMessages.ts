@@ -25,7 +25,12 @@ export async function getIncomingMessages(
 
         return response.data;
     } catch (e) {
-        log(`Failed to retrieve incoming messages for ds ${dsUrl} ${e}`);
+        log(
+            `Failed to retrieve incoming messages for ds ${dsUrl}` +
+                JSON.stringify(e),
+
+            'error',
+        );
         return null;
     }
 }

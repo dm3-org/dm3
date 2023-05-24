@@ -235,7 +235,7 @@ export async function load(
     data: UserStorage,
     storageEncryptionKey: string,
 ): Promise<UserDB> {
-    log('[storage] Loading user storage');
+    log('[storage] Loading user storage', 'info');
 
     const decryptedPayload: UserStoragePayload = JSON.parse(
         await decrypt(storageEncryptionKey, data.payload),

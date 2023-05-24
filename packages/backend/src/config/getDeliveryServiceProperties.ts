@@ -19,7 +19,7 @@ export function getDeliveryServiceProperties(
     defaultDeliveryServiceProperties: DeliveryServiceProperties = DEFAULT_DELIVERY_SERVICE_PROPERTIES,
 ): DeliveryServiceProperties {
     if (!existsSync(path)) {
-        log('Config file not found. Default Config is used');
+        log('Config file not found. Default Config is used', 'info');
         return defaultDeliveryServiceProperties;
     }
     const yamlString = readFileSync(path, { encoding: 'utf-8' });

@@ -17,7 +17,7 @@ export async function getBillboardProfile(
 ) {
     return await Promise.all(
         billboards.map(async (billboard) => {
-            log('Get DM3 User Profile for ' + billboard.ensName);
+            log('Get DM3 User Profile for ' + billboard.ensName, 'info');
             const wallet = new ethers.Wallet(billboard.privateKey);
             const storageKeyCreationMessage = getStorageKeyCreationMessage(
                 '0xca8f04fdc80d659997f69b02',
@@ -42,7 +42,7 @@ export async function getBillboardProfile(
                     dsProfile: [],
                 };
             } catch (e: any) {
-                log(e);
+                log('[getBillboardProfile] ' + JSON.stringify(e), 'error');
                 throw Error(
                     "Can't get billboard profile for " + billboard.ensName,
                 );

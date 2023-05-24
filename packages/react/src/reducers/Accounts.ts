@@ -27,6 +27,7 @@ export function accountsReducer(state: Accounts, action: AccountsActions) {
             } else {
                 log(
                     `[Accounts] Set selected account to ${action.payload?.account.ensName}`,
+                    'info',
                 );
 
                 return {
@@ -48,6 +49,7 @@ export function accountsReducer(state: Accounts, action: AccountsActions) {
                 `[Accounts] Set ${
                     action.payload ? action.payload.length : '0'
                 } contacts`,
+                'info',
             );
             return {
                 ...state,
@@ -58,7 +60,10 @@ export function accountsReducer(state: Accounts, action: AccountsActions) {
             if (state.accountInfoView === action.payload) {
                 return state;
             } else {
-                log(`[Accounts] Set account info view ${action.payload}`);
+                log(
+                    `[Accounts] Set account info view ${action.payload}`,
+                    'info',
+                );
                 return {
                     ...state,
                     accountInfoView: action.payload,

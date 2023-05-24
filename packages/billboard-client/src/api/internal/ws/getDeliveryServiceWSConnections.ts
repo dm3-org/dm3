@@ -21,21 +21,23 @@ export const getDeliveryServiceWSClient = (
                     },
                 });
                 c.on('connect', () => {
-                    log(`Connected to Delivery Service ${ds.url}`);
+                    log(`Connected to Delivery Service ${ds.url}`, 'info');
                     res(c);
                 });
                 c.on('connect_error', (err: any) => {
                     log(
-                        `Connection error to Delivery Service ${ds.url} ${err}`,
+                        `Connection error to Delivery Service ${ds.url} ` +
+                            JSON.stringify(err),
+                        'error',
                     );
 
                     rej(err);
                 });
             });
-            log(`Register listener`);
+            log(`Register listener`, 'info');
             //register listners
             client.on('disconnect', () => {
-                log(`disconnected from deliveryService ${ds.url}`);
+                log(`disconnected from deliveryService ${ds.url}`, 'info');
             });
             client.on('message', onMessage);
 

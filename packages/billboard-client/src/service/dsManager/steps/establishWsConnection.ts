@@ -31,6 +31,7 @@ export async function establishWsConnections(
         billboardsWithDsProfile.map(async (billboardWithDsProfile) => {
             log(
                 `Establish WS connection for ${billboardWithDsProfile.ensName}`,
+                'info',
             );
             //For each billboard, establish a WebSocket connection with each delivery service profile.
 

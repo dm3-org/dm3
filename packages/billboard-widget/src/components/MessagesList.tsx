@@ -2,8 +2,6 @@ import { Message } from 'dm3-lib-messaging';
 import MessageItem from './MessageItem';
 import { v4 as uuid } from 'uuid';
 
-
-
 export interface IMessagesListProps {
     messages: Message[];
 }

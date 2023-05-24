@@ -19,7 +19,7 @@
         "typescript": "^4.4.2"
     },
     "scripts": {
-        "build": "echo 'no build script for this packackage'",
+        "build": "echo 'no build script'",
         "test": "jest --coverage --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'"
     }
 }

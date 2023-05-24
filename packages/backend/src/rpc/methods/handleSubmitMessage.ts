@@ -4,10 +4,7 @@ import { validateSchema } from 'dm3-lib-shared/dist.backend';
 import 'dotenv/config';
 import express from 'express';
 import { WithLocals } from '../../types';
-
-interface SubmitMessage {
-    token: string;
-}
+import { log } from 'dm3-lib-shared';
 
 export async function handleSubmitMessage(
     req: express.Request & { app: WithLocals },
@@ -19,11 +16,15 @@ export async function handleSubmitMessage(
 
     const envelop = JSON.parse(stringifiedEnvelop);
 
-    if (!envelop || !token) {
-        console.log('envelop token check');
-        console.log(JSON.stringify(envelop));
-        console.log(token);
-        return res.send(400);
+    if (!token) {
+        log('Auth token missing', 'error');
+        return res.status(400).send('Auth token missing');
+    }
+
+    if (!envelop) {
+        log('Envelop missing', 'error');
+
+        return res.status(400).send('Envelop missing');
     }
 
     const isSchemaValid = validateSchema(schema.MessageSubmission, {
@@ -61,9 +62,8 @@ export async function handleSubmitMessage(
             method: 'RPC SUBMIT MESSAGE',
             error,
         });
-        console.log('general error');
-        console.log(error);
+        log('[handleSubmitMessage]' + error, 'error');
 
-        return res.send(400);
+        return res.status(400).send();
     }
 }

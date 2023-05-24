@@ -9,17 +9,21 @@ export enum RedisPrefix {
 }
 
 export async function getRedisClient(logger: winston.Logger) {
-    const url = process.env.REDIS_URL || 'redis://127.0.0.1:6368';
+    const url = process.env.REDIS_URL ?? 'redis://127.0.0.1:6368';
     const socketConf = {
         socket: {
             tls: true,
             rejectUnauthorized: false,
         },
     };
-    const client = createClient({
-        url,
-        ...socketConf,
-    });
+    const client = createClient(
+        process.env.NODE_ENV === 'production'
+            ? {
+                  url,
+                  ...socketConf,
+              }
+            : {},
+    );
 
     client.on('error', (err) => {
         logger.error('Redis error: ' + (err as Error).message);

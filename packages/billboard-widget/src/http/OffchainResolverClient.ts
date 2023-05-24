@@ -16,7 +16,6 @@ export function OffchainResolverClient(baseUrl: string) {
             hotAddr,
         };
 
-
         const { status } = await axios.post(url, data);
         return status === 200;
     }

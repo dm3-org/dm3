@@ -21,7 +21,7 @@ export async function checkSignature(
     ) {
         return true;
     } else {
-        log(`Signature check for ${ensName} failed.`);
+        log(`Signature check for ${ensName} failed.`, 'error');
         return false;
     }
 }

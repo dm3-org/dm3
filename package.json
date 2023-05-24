@@ -44,9 +44,8 @@
     "scripts": {
         "docker:up": "cd packages/backend && docker-compose up -d",
         "build": " yarn workspaces foreach -pt run build",
-        "start": "cd packages/backend && yarn start",
-        "start:heroku": "yarn workspace dm3-offchain-resolver-backend start",
-        "resolver": "cd packages/offchain-resolver && yarn start",
+        "start": "yarn workspace dm3-backend start",
+        "resolver": "yarn workspace dm3-offchain-resolver-backend start",
         "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
         "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
         "format:check": "prettier --check '*/**/*.{js,ts,tsx,json}'",

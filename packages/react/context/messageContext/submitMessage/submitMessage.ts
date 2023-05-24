@@ -21,7 +21,7 @@ export async function submitMessage(
     storeMessages: (envelops: StorageEnvelopContainer[]) => void,
     onSuccess?: (envelop: Envelop) => void,
 ) {
-    log('Submitting message');
+    log('Submitting message', 'info');
     /*
      * A Pending entry indicates the receiver that there is a new message
      * for them
@@ -40,7 +40,7 @@ export async function submitMessage(
      * has created themself a profile
      */
     if (haltDelivery) {
-        log('- Halt delivery');
+        log('- Halt delivery', 'info');
         storeMessages([
             {
                 envelop: {
@@ -73,11 +73,11 @@ export async function submitMessage(
         deliveryServiceToken,
         encryptedEnvelop,
         allOnSuccess,
-        () => log('submit message error'),
+        () => log('submit message error', 'info'),
     );
 
     storeMessages([{ envelop, messageState: MessageState.Send }]);
-    log('- Message sent');
+    log('- Message sent', 'info');
 }
 
 export type SubmitMessageType = typeof submitMessage;

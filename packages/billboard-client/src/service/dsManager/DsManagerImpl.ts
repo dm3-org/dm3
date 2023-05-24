@@ -56,7 +56,7 @@ Initializes the connection to delivery services.
 @returns A promise that resolves when the connection initialization is complete.
 */
     async function connect() {
-        log('Start to initialize connection to delivery services');
+        log('Start to initialize connection to delivery services', 'info');
         //Get all delivery service profiles
         const billboardsWithProfile = await getBillboardProfile(
             provider,
@@ -83,7 +83,7 @@ Initializes the connection to delivery services.
             authenticatedBillboards,
             encryptAndStoreMessage(onMessage),
         );
-        log('Finished delivery service initialization');
+        log('Finished delivery service initialization', 'info');
     }
 
     /** 
@@ -128,7 +128,10 @@ Encrypts and stores a message to redis using the provided billboard's keypairs a
                         JSON.parse(encryptionEnvelop.message),
                     ),
                 ) as Message;
-                log('decryptedMessage' + JSON.stringify(decryptedMessage));
+                log(
+                    'decryptedMessage' + JSON.stringify(decryptedMessage),
+                    'debug',
+                );
                 broadcastMessage(
                     billboardWithDsProfile.ensName,
                     decryptedMessage,
@@ -138,8 +141,7 @@ Encrypts and stores a message to redis using the provided billboard's keypairs a
                     decryptedMessage,
                 );
             } catch (err: any) {
-                log("Can't decrypt message");
-                log(err);
+                log("Can't decrypt message " + JSON.stringify(err), 'error');
             }
         };
     }

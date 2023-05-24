@@ -32,8 +32,11 @@ export function decodeRequest(calldata: string): DecodedCcipRequest {
                 throw Error(`${signature} is not supported`);
         }
     } catch (err: any) {
-        log("[Decode Calldata] Can't decode calldata ");
-        log(err);
+        log(
+            `[Decode Calldata] Can't decode calldata ` + JSON.stringify(err),
+            'error',
+        );
+
         throw err;
     }
 }

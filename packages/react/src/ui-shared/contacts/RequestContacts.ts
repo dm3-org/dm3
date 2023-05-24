@@ -22,7 +22,10 @@ function fetchDeliveryServiceProfile(connection: Connection) {
         //This is most likely the case when the profile can't be fetched at all.
 
         if (!deliveryServiceUrl) {
-            log('[fetchDeliverServicePorfile] Cant resolve deliveryServiceUrl');
+            log(
+                '[fetchDeliverServicePorfile] Cant resolve deliveryServiceUrl',
+                'info',
+            );
             return {
                 account,
             };

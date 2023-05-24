@@ -105,7 +105,10 @@ export function userDbReducer(
             if (!hasChanged) {
                 return state;
             } else {
-                log(`[DB] Add message (timestamp: ${lastChangeTimestamp})`);
+                log(
+                    `[DB] Add message (timestamp: ${lastChangeTimestamp})`,
+                    'info',
+                );
                 return {
                     ...state,
                     conversations: newConversations,
@@ -117,7 +120,7 @@ export function userDbReducer(
             }
 
         case UserDbType.setDB:
-            log(`[DB] Set db (timestamp: ${lastChangeTimestamp})`);
+            log(`[DB] Set db (timestamp: ${lastChangeTimestamp})`, 'info');
             return {
                 ...action.payload,
                 lastChangeTimestamp,
@@ -131,11 +134,13 @@ export function userDbReducer(
             if (state.conversations.has(normalizeEnsName(action.payload))) {
                 log(
                     `[DB] Converation exists already (timestamp: ${lastChangeTimestamp})`,
+                    'info',
                 );
                 return state;
             }
             log(
                 `[DB] Create empty conversation (timestamp: ${lastChangeTimestamp})`,
+                'info',
             );
 
             const conversations = new Map(state.conversations);
@@ -158,6 +163,7 @@ export function userDbReducer(
             } else {
                 log(
                     `[DB] Set synced to ${action.payload} (timestamp: ${lastChangeTimestamp})`,
+                    'info',
                 );
 
                 return {
@@ -172,7 +178,7 @@ export function userDbReducer(
                 throw Error(`UserDB hasn't been created.`);
             }
 
-            log(`[DB] Set config viewed`);
+            log(`[DB] Set config viewed`, 'info');
 
             return {
                 ...state,
@@ -189,6 +195,7 @@ export function userDbReducer(
             } else {
                 log(
                     `[DB] Set sync process state to ${action.payload} (timestamp: ${lastChangeTimestamp}) `,
+                    'info',
                 );
 
                 return {
@@ -209,10 +216,10 @@ export function userDbReducer(
                         contact === action.payload,
                 )
             ) {
-                log(`[DB] Contact ${action.payload} already hidden`);
+                log(`[DB] Contact ${action.payload} already hidden`, 'info');
                 return state;
             } else {
-                log(`[DB] Hide contact ${action.payload} `);
+                log(`[DB] Hide contact ${action.payload} `, 'info');
 
                 return {
                     ...state,
@@ -232,10 +239,10 @@ export function userDbReducer(
                     (contact) => contact.ensName === action.payload,
                 )
             ) {
-                log(`[DB] Contact ${action.payload} not hidden`);
+                log(`[DB] Contact ${action.payload} not hidden`, 'info');
                 return state;
             } else {
-                log(`[DB] Unhide contact ${action.payload} `);
+                log(`[DB] Unhide contact ${action.payload} `, 'info');
 
                 return {
                     ...state,
