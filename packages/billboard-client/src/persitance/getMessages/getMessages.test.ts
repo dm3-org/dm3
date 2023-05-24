@@ -7,8 +7,17 @@ describe('getMessages', () => {
     let redisClient: Redis;
     let db: IDatabase;
     beforeEach(async () => {
-        redisClient = await getRedisClient(winston.createLogger());
-        db = await getDatabase(winston.createLogger(), redisClient);
+        redisClient = await getRedisClient(
+            winston.createLogger({
+                transports: [new winston.transports.Console()],
+            }),
+        );
+        db = await getDatabase(
+            winston.createLogger({
+                transports: [new winston.transports.Console()],
+            }),
+            redisClient,
+        );
         await redisClient.flushDb();
     });
 

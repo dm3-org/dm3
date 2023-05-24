@@ -9,7 +9,7 @@ export enum RedisPrefix {
 }
 
 export async function getRedisClient(logger: winston.Logger) {
-    const url = process.env.REDIS_URL || 'redis://127.0.0.1:6368';
+    const url = process.env.REDIS_URL ?? 'redis://127.0.0.1:6368';
     const socketConf = {
         socket: {
             tls: true,

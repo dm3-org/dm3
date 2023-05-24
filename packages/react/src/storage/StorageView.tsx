@@ -112,7 +112,7 @@ function StorageView() {
                 payload: SyncProcessState.Idle,
             });
         } catch (e) {
-            log(e as string);
+            log('[sync] ' + JSON.stringify(e), 'error');
             dispatch({
                 type: UserDbType.setSyncProcessState,
                 payload: SyncProcessState.Failed,
@@ -132,6 +132,7 @@ function StorageView() {
         ) {
             log(
                 `[DB] Create user storage external snapshot at timestamp ${state.userDb?.lastChangeTimestamp}`,
+                'info',
             );
             sync();
         }
@@ -152,6 +153,7 @@ function StorageView() {
         if (state.uiState.browserStorageBackup) {
             log(
                 `[DB/Browser] Create user storage browser snapshot at timestamp ${state.userDb?.lastChangeTimestamp}`,
+                'info',
             );
             setBroserStorage();
         }
@@ -182,6 +184,7 @@ function StorageView() {
                                 log(
                                     `Manually create user storage external snapshot` +
                                         ` at timestamp ${state.userDb?.lastChangeTimestamp}`,
+                                    'info',
                                 );
                                 sync();
                             }}

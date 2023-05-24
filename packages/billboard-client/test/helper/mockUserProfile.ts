@@ -23,12 +23,17 @@ export const mockUserProfile = async (
     wallet: ethers.Wallet;
     stringified: string;
 }> => {
-    const storageKeyCreationMessage = getStorageKeyCreationMessage(0);
+    const storageKeyCreationMessage = getStorageKeyCreationMessage(
+        '0xca8f04fdc80d659997f69b02',
+    );
 
     const storageKeySig = await wallet.signMessage(storageKeyCreationMessage);
 
     const storageKey = await createStorageKey(storageKeySig);
-    const profileKeys = await createProfileKeys(storageKey, 0);
+    const profileKeys = await createProfileKeys(
+        storageKey,
+        '0xca8f04fdc80d659997f69b02',
+    );
 
     const profile: UserProfile = {
         publicSigningKey: profileKeys.signingKeyPair.publicKey,

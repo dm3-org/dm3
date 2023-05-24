@@ -12,7 +12,7 @@ export async function getChallenge(
         const { data } = await axios.get(url);
         return data.challenge;
     } catch (e) {
-        log("can't get challenge from ds " + dsUrl);
+        log("can't get challenge from ds " + dsUrl, 'error');
         return null;
     }
 }

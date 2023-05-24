@@ -9,11 +9,7 @@ export function getMockClient(): IBillboardApiClient {
 }
 
 class MockClient implements IBillboardApiClient {
-    public getMessages(
-        idBillboard: string,
-        time: number,
-        idMessageCursor: string,
-    ) {
+    public getMessages(idBillboard: string, time?: number, limit?: string) {
         const message: Message = {
             message:
                 // eslint-disable-next-line max-len
@@ -21,7 +17,7 @@ class MockClient implements IBillboardApiClient {
             metadata: {
                 to: 'billboard.eth',
                 from: 'alice.eth',
-                timestamp: time,
+                timestamp: time ?? Date.now(),
                 referenceMessageHash: '',
                 replyDeliveryInstruction: '',
                 type: 'NEW',

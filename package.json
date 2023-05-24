@@ -12,12 +12,13 @@
             "packages/lib/offchainResolver",
             "packages/lib/offchainResolver-api",
             "packages/offchain-resolver-backend",
-            "packages/lib/lib-billboard-api",
+            "packages/lib/billboard-api",
             "packages/backend",
             "packages/billboard-client",
             "packages/react",
             "packages/web",
             "packages/offchain-resolver",
+            "packages/billboard-widget",
             "packages/integration-tests"
         ],
         "nohoist": [
@@ -43,8 +44,8 @@
     "scripts": {
         "docker:up": "cd packages/backend && docker-compose up -d",
         "build": " yarn workspaces foreach -pt run build",
-        "start": "cd packages/backend && yarn start",
-        "resolver": "cd packages/offchain-resolver && yarn start",
+        "start": "yarn workspace dm3-backend start",
+        "resolver": "yarn workspace dm3-offchain-resolver-backend start",
         "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
         "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
         "format:check": "prettier --check '*/**/*.{js,ts,tsx,json}'",

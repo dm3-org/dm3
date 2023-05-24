@@ -27,7 +27,7 @@ export async function useDm3Storage(
     token: string,
 ): Promise<Acknoledgment[]> {
     const syncResult = await sync(userDb, token);
-    log(`[dm3 Storage] Saving user storage`);
+    log(`[dm3 Storage] Saving user storage`, 'info');
 
     const { profile, ensName } = account;
 
@@ -46,7 +46,7 @@ export async function getDm3Storage(
     account: Account,
     token: string,
 ): Promise<string | undefined> {
-    log(`[dm3 Storage] Get user storage`);
+    log(`[dm3 Storage] Get user storage`, 'info');
 
     const { profile, ensName } = account!;
 

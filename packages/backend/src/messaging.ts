@@ -9,6 +9,7 @@ import {
     checkToken,
     incomingMessage,
 } from 'dm3-lib-delivery/dist.backend';
+import { log } from 'dm3-lib-shared';
 const pendingMessageSchema = {
     type: 'object',
     properties: {
@@ -23,7 +24,6 @@ const pendingMessageSchema = {
 export function onConnection(app: express.Application & WithLocals) {
     return (socket: Socket) => {
         socket.on('disconnect', () => {
-            app;
             app.locals.logger.info({
                 method: 'WS DISCONNECT',
                 socketId: socket.id,

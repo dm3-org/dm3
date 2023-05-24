@@ -100,7 +100,7 @@ function ConfigView() {
             ethersHelper.formatAddress(state.connection.ethAddress!)
         ) {
             setIsValidEnsName(false);
-            log("Ens name doesn't match the address");
+            log("Ens name doesn't match the address", 'info');
             return;
         }
 

@@ -363,7 +363,9 @@ describe('DsManager', () => {
             });
 
             axiosMock
-                .onGet('http://localhost:4060/messages/incoming/billboard1.eth')
+                .onGet(
+                    'http://localhost:4060/delivery/messages/incoming/billboard1.eth',
+                )
                 .reply(200, [
                     await mockChat1.createMessage('hello'),
                     await mockChat1.createMessage('world'),

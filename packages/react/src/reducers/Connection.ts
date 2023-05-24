@@ -45,6 +45,7 @@ export function connectionReducer(
                     `[Connection] New connection state ${
                         ConnectionState[action.payload]
                     }`,
+                    'info',
                 );
                 return {
                     ...state,
@@ -52,7 +53,7 @@ export function connectionReducer(
                 };
             }
         case ConnectionType.ChangeSocket:
-            log(`[Connection] New socket`);
+            log(`[Connection] New socket`, 'info');
             return {
                 ...state,
                 //@ts-ignore
@@ -60,14 +61,14 @@ export function connectionReducer(
             };
 
         case ConnectionType.ChangeAccount:
-            log(`[Connection] Set account ${action.payload.ensName}`);
+            log(`[Connection] Set account ${action.payload.ensName}`, 'info');
             return {
                 ...state,
                 account: action.payload,
             };
 
         case ConnectionType.ChangeEthAddress:
-            log(`[Connection] Set eth address to ${action.payload}`);
+            log(`[Connection] Set eth address to ${action.payload}`, 'info');
             return {
                 ...state,
                 ethAddress: action.payload,
@@ -77,7 +78,10 @@ export function connectionReducer(
             if (state.storageLocation === action.payload) {
                 return state;
             } else {
-                log(`[Connection] Set storage location to ${action.payload}`);
+                log(
+                    `[Connection] Set storage location to ${action.payload}`,
+                    'info',
+                );
 
                 return {
                     ...state,
@@ -85,7 +89,7 @@ export function connectionReducer(
                 };
             }
         case ConnectionType.ChangeProvider:
-            log(`[Connection] Set provider`);
+            log(`[Connection] Set provider`, 'info');
             return {
                 ...state,
                 //@ts-ignore
@@ -96,7 +100,7 @@ export function connectionReducer(
             if (state.storageToken === action.payload) {
                 return state;
             } else {
-                log(`[Connection] Set sorage token`);
+                log(`[Connection] Set sorage token`, 'info');
                 return {
                     ...state,
                     storageToken: action.payload,
@@ -104,7 +108,10 @@ export function connectionReducer(
             }
 
         case ConnectionType.SetDefaultServiceUrl:
-            log(`[Connection] set default service url ${action.payload}`);
+            log(
+                `[Connection] set default service url ${action.payload}`,
+                'info',
+            );
             return {
                 ...state,
                 defaultServiceUrl: action.payload,

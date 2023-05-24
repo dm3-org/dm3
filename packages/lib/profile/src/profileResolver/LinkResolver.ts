@@ -16,7 +16,7 @@ function resolveProfile<T extends Dm3Profile>(
     validate: (objectToCheck: T) => boolean,
 ) {
     return async (textRecord: string) => {
-        log(`[getUserProfile] resolve link ${textRecord}`);
+        log(`[getUserProfile] resolve link ${textRecord}`, 'info');
         const profile = await getResource(textRecord);
 
         if (!profile) {

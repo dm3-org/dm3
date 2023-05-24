@@ -1,5 +1,6 @@
 import express from 'express';
 import { v4 } from 'uuid';
+import cors from 'cors';
 import { getViewerCountHandler } from './handler/getViewerCount';
 import { getMessagesHandler } from './handler/getMessages';
 import { IDatabase } from '../../persitance/getDatabase';
@@ -7,6 +8,7 @@ import { IViewerService } from '../../service/viewerService/IViewerService';
 
 export function getExternalApi(db: IDatabase, viewerService: IViewerService) {
     const app = express();
+    app.use(cors());
 
     app.post('/rpc', async (req: express.Request, res: express.Response) => {
         const { method, params } = req.body;
