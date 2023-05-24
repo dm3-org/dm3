@@ -27,7 +27,7 @@ export async function makeRpcRequest<T>({
         params,
     };
 
-    const { data } = await axios.post<RpcResponse<T>>(url, { data: body });
+    const { data } = await axios.post<RpcResponse<T>>(url, body);
 
     const { error, result } = data;
 

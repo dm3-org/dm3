@@ -67,7 +67,7 @@ const dummySiweOwner = new ethers.Wallet(
 export const defaultClientProps: ClientProps = {
     mockedApi: false,
     billboardId: 'billboard1.billboard.ethprague.dm3.eth',
-    baseUrl: 'localhost:8080', //TBD add  billboard url
+    baseUrl: 'https://billboard-ethprague-client.herokuapp.com/', //TBD add  billboard url
     deliveryServiceEnsName: 'ethprague-ds.dm3.eth',
     offchainResolverUrl: 'https://billboard-ethprague.herokuapp.com',
 

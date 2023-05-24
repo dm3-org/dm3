@@ -122,6 +122,7 @@ Encrypts and stores a message to redis using the provided billboard's keypairs a
             encryptionEnvelop: EncryptionEnvelop,
         ) => {
             try {
+                //Add log
                 const decryptedMessage = JSON.parse(
                     await decryptAsymmetric(
                         billboardWithDsProfile.profileKeys.encryptionKeyPair,

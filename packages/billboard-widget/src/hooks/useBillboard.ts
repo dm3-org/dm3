@@ -19,7 +19,7 @@ const useBillboard = () => {
     useEffect(() => {
         const client = getBillboardApiClient({
             //mock: !!mockedApi,
-            mock: true,
+            mock: false,
             baseURL: baseUrl,
         });
 
@@ -31,13 +31,14 @@ const useBillboard = () => {
 
             setMessages([]);
             setLoading(true);
-            const newMessages = await client.getMessages(
+            const initialMessages = await client.getMessages(
                 billboardId,
                 Date.now(),
                 '0',
             );
-            if (newMessages) {
-                setMessages(newMessages);
+
+            if (initialMessages) {
+                setMessages(initialMessages);
             }
             const viewers = await client.getActiveViewers(billboardId || '');
             setViewersCount(viewers || 0);
@@ -47,7 +48,7 @@ const useBillboard = () => {
     }, [baseUrl, billboardId, mockedApi, messages, setMessages, loading]);
 
     useEffect(() => {
-        if (true||!baseUrl || socket || mockedApi) {
+        if (!baseUrl || socket || mockedApi) {
             return;
         }
         setSocket(io(baseUrl));
@@ -70,14 +71,14 @@ const useBillboard = () => {
             setOnline(false);
         });
 
-        socket.on('message', function (data: Message) {
+        socket.on(`message-${billboardId}`, function (data: Message) {
             addMessage(data);
         });
 
         socket.on('viewers', function (data: number) {
             setViewersCount(data);
         });
-    }, [addMessage, socket]);
+    }, [addMessage, socket, billboardId]);
 
     return {
         online,

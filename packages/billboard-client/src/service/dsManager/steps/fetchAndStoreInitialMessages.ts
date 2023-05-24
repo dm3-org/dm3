@@ -5,6 +5,7 @@ import {
     BillboardWithDsProfile,
 } from '../DsManagerImpl';
 import { EncryptionEnvelop } from 'dm3-lib-messaging';
+import { DeliveryServiceProfile } from 'dm3-lib-profile';
 
 /**
 Fetches and stores initial messages for authenticated billboards.
@@ -22,28 +23,32 @@ export async function fetchAndStoreInitialMessages(
     return await Promise.all(
         authenticatedBillboards.map(async (billboard) => {
             return await Promise.all(
-                billboard.dsProfile.map(async (ds) => {
-                    log(
-                        `Fetch initial messages for ${billboard.ensName} from  ${ds.url}`,
-                    );
-                    const messages = await getIncomingMessages(
-                        ds.url,
-                        billboard.ensName,
-                    );
-                    if (!messages) {
-                        log('cant fetch initial messages for ds ' + ds.url);
-                        return;
-                    }
-                    log(
-                        `Got ${messages?.length} for ${billboard.ensName} from ${ds.url}`,
-                    );
-                    //Encrypt and store each message in the billboardclient's db
-                    await Promise.all(
-                        messages.map((m) =>
-                            encryptAndStoreMessage(billboard, m),
-                        ),
-                    );
-                }),
+                billboard.dsProfile.map(
+                    async (ds: DeliveryServiceProfile & { token: string }) => {
+                        log(
+                            `Fetch initial messages for ${billboard.ensName} from  ${ds.url}`,
+                        );
+
+                        const messages = await getIncomingMessages(
+                            ds.url,
+                            billboard.ensName,
+                            ds.token,
+                        );
+                        if (!messages) {
+                            log('cant fetch initial messages for ds ' + ds.url);
+                            return;
+                        }
+                        log(
+                            `Got ${messages?.length} for ${billboard.ensName} from ${ds.url}`,
+                        );
+                        //Encrypt and store each message in the billboardclient's db
+                        await Promise.all(
+                            messages.map((m) =>
+                                encryptAndStoreMessage(billboard, m),
+                            ),
+                        );
+                    },
+                ),
             );
         }),
     );

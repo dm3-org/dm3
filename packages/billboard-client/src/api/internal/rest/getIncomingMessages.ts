@@ -11,10 +11,11 @@ import { log } from 'dm3-lib-shared';
 export async function getIncomingMessages(
     dsUrl: string,
     ensName: string,
+    token: string,
 ): Promise<EncryptionEnvelop[] | null> {
     try {
         const response: AxiosResponse<EncryptionEnvelop[]> = await axios.get(
-            `${dsUrl}/messages/incoming/${ensName}`,
+            `${dsUrl}/delivery/messages/incoming/${ensName}`,
         );
 
         return response.data;

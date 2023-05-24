@@ -8,6 +8,7 @@ import {
 import { sign } from 'dm3-lib-crypto';
 import { UserProfile } from 'dm3-lib-profile';
 import { submitUserProfile } from '../../../api/internal/rest/submitUserProfile';
+import { profile } from 'winston';
 
 /**
  * Sign in at the delivery service for each billboard in the given array.
