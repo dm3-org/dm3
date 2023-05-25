@@ -17,7 +17,7 @@ export const AuthContext = React.createContext<AuthContextType>({
     initialized: false,
 });
 
-export const AuthContextProvider = ({ children }: { children?: any }) => {
+export const AuthContextProvider = ({ children }: { children?: React.ReactNode }) => {
     const { clientProps, web3Provider } = useContext(GlobalContext);
     const { getWallet } = useAuth(web3Provider, clientProps);
 

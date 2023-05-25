@@ -33,7 +33,7 @@ export const useAuth = (
             web3Provider,
             //For now just JSON profiles hosted on ENS are supported.
             //Hence we're not implementing the GetResource here
-            (_: string) => Promise.resolve(undefined),
+            () => Promise.resolve(undefined),
         );
 
         if (!deliverServiceProfile) {

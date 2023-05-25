@@ -30,7 +30,7 @@ export const GlobalContext = React.createContext<GlobalContextxtType>({
 });
 
 export const GlobalContextProvider = (
-    props: BillboardWidgetProps & { children: any },
+    props: BillboardWidgetProps & { children: React.ReactNode },
 ) => {
     const { children, ...rest } = props;
     return (

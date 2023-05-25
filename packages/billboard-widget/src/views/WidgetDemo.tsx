@@ -1,12 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import '@rainbow-me/rainbowkit/styles.css';
+import { useMemo } from 'react';
+import { useAccount, useSignMessage } from 'wagmi';
 import App from '..';
 import EmptyView from '../components/EmptyView';
 import { defaultOptions } from '../main';
 import { ClientProps } from '../types';
-import '@rainbow-me/rainbowkit/styles.css';
-import { WagmiWrapper } from './WagmiWrapper';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount, useSignMessage } from 'wagmi';
 
 const defaultClientProps: Omit<
     ClientProps,
@@ -20,7 +19,7 @@ const defaultClientProps: Omit<
 };
 export const WidgetDemo = () => {
     const { address } = useAccount();
-    const { data, error, isLoading, signMessage, variables } = useSignMessage();
+    const { data, signMessage } = useSignMessage();
 
     const clientProps: ClientProps = useMemo(
         () => ({
@@ -33,9 +32,11 @@ export const WidgetDemo = () => {
     );
 
     const singIn = () => {
-        signMessage({ message: address!.toString() });
+        if (!address) {
+            throw 'Address is not defined';
+        }
+        signMessage({ message: address.toString() });
     };
-
 
     return (
         <>
