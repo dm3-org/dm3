@@ -15,7 +15,11 @@ const main = async () => {
     }
     const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
 
-    const database = await getDatabase(winston.createLogger());
+    const database = await getDatabase(
+        winston.createLogger({
+            transports: [new winston.transports.Console()],
+        }),
+    );
 
     await getBillboardClientApp(provider, database, Number(port));
 };

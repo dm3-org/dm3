@@ -7,7 +7,7 @@ export function validateSchema(schema: any, data: any) {
         const validate = ajv.compile(schema);
         return validate(data);
     } catch (e) {
-        log(e as string);
+        log(e as string, 'error');
         return false;
     }
 }

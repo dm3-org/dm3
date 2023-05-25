@@ -42,7 +42,8 @@ export function tokenBalanceFilterFactory(): SpamFilterFactory {
             } catch (err) {
                 log(
                     '[Token Balance Filter] Cant fetch balance from ERC20 Token. Return 0 as default' +
-                        err,
+                        JSON.stringify(err),
+                    'error',
                 );
                 return ethers.constants.Zero;
             }

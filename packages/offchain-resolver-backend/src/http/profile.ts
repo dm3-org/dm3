@@ -73,9 +73,9 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 }
 
                 await req.app.locals.db.setUserProfile(
-                    `${address}.beta-addr.dm3.eth`,
+                    `${address}.user.ethprague.dm3.eth`,
                     signedUserProfile,
-                    address,
+                    hotAddr,
                 );
 
                 return res.sendStatus(200);
@@ -90,7 +90,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
                 const { signedUserProfile, name, ensName } = req.body;
-                log(`POST name ${name} `);
+                log(`POST name ${name} `, 'info');
 
                 const isSchemaValid = validateSchema(
                     schema.SignedUserProfile,

@@ -41,7 +41,10 @@ describe('RpcApi', () => {
     //Axios mock to mock the http requests
     let axiosMock;
     beforeEach(async () => {
-        winston = _winston.createLogger();
+        winston = _winston.createLogger({
+            transports: [new _winston.transports.Console()],
+        });
+
         redis = await getRedisClient(winston);
         const billboardOwner = ethers.Wallet.createRandom();
         billboard1profile = await mockUserProfile(
@@ -587,7 +590,7 @@ describe('RpcApi', () => {
                 .to(billboard2Ds2Socket)
                 .emit('message', await mockChat2.createMessage('billboard2'));
 
-            await wait(1000);
+            await wait(2000);
 
             disconnect();
 

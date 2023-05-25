@@ -33,7 +33,7 @@ export function ccipGateway(signer: Signer, resolverAddr: string) {
                 );
 
                 if (!response) {
-                    log('Record not found');
+                    log('Record not found', 'error');
                     res.status(404).send({ message: 'Record not found' });
                 } else {
                     const data = await encodeResponse(

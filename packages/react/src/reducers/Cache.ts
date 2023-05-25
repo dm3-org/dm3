@@ -30,6 +30,7 @@ export function cacheReducer(state: Cache, action: CacheActions): Cache {
 
             log(
                 `[Cache] Add avatar url ${action.payload.url} for ${action.payload.ensName}`,
+                'info',
             );
 
             const avatarUrls = new Map<string, string>(state.avatarUrls);
@@ -45,9 +46,9 @@ export function cacheReducer(state: Cache, action: CacheActions): Cache {
             action.payload.forEach((abiContainer) => {
                 const address = formatAddress(abiContainer.address);
                 if (state.abis.has(address)) {
-                    log(`[Cache] ABI for ${address} already in cache`);
+                    log(`[Cache] ABI for ${address} already in cache`, 'info');
                 } else {
-                    log(`[Cache] Adding ABI for ${address}`);
+                    log(`[Cache] Adding ABI for ${address}`, 'info');
                     abis.set(address, abiContainer.abi);
                 }
             });

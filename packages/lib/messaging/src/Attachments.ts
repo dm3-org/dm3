@@ -9,7 +9,7 @@ function uriCheck(url: URL | undefined): url is URL {
             (protocol) => protocol + ':' === url.protocol,
         );
         if (!usesSupportedProtocol) {
-            log(`unsupported attachment protocol: ${url.href}`);
+            log(`unsupported attachment protocol: ${url.href}`, 'warning');
         }
         return usesSupportedProtocol;
     } else {
@@ -27,7 +27,7 @@ export function getAttachments(envelop: Envelop): URL[] {
             try {
                 return new URL(attachmentURI);
             } catch (e) {
-                log(`couldn't prarse URI: ${attachmentURI}`);
+                log(`couldn't prarse URI: ${attachmentURI}`, 'error');
                 return undefined;
             }
         })

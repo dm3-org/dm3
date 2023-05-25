@@ -13,7 +13,10 @@ export async function submitUserProfile(
         const { data } = await axios.post(url, signedUserProfile);
         return data;
     } catch (e) {
-        log("can't submit userProfile to ds " + dsUrl);
+        log(
+            "can't submit userProfile to ds " + dsUrl + ' ' + JSON.stringify(e),
+            'error',
+        );
         return null;
     }
 }

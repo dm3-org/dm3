@@ -16,11 +16,21 @@ export async function getIncomingMessages(
     try {
         const response: AxiosResponse<EncryptionEnvelop[]> = await axios.get(
             `${dsUrl}/delivery/messages/incoming/${ensName}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            },
         );
 
         return response.data;
     } catch (e) {
-        log(`Failed to retrieve incoming messages for ds ${dsUrl}`);
+        log(
+            `Failed to retrieve incoming messages for ds ${dsUrl}` +
+                JSON.stringify(e),
+
+            'error',
+        );
         return null;
     }
 }

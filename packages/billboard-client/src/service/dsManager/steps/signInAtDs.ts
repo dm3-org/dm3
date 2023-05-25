@@ -8,7 +8,6 @@ import {
 import { sign } from 'dm3-lib-crypto';
 import { UserProfile } from 'dm3-lib-profile';
 import { submitUserProfile } from '../../../api/internal/rest/submitUserProfile';
-import { profile } from 'winston';
 
 /**
  * Sign in at the delivery service for each billboard in the given array.
@@ -41,12 +40,14 @@ export async function signInAtDs(
                         if (token) {
                             log(
                                 `Submitted profilte for ${billboard.ensName} to ${ds.url}}`,
+                                'info',
                             );
                             return token;
                         }
                     }
                     log(
                         `Create session for ${billboard.ensName} at ${ds.url}}`,
+                        'info',
                     );
                     //Create session using the billboards private key
                     const challenge = await getChallenge(ds.url, ensName);
@@ -59,7 +60,7 @@ export async function signInAtDs(
                     );
 
                     const token = await getNewToken(ds.url, ensName, signature);
-                    log('get token for ' + ds.url);
+                    log('get token for ' + ds.url, 'info');
                     if (!token) {
                         throw Error("Can't create session for " + ds.url);
                     }

@@ -10,7 +10,7 @@ export async function createPendingEntry(
     onError: () => void,
 ): Promise<void> {
     if (connection.socket) {
-        log(`Create pending entry`);
+        log(`Create pending entry`, 'info');
         connection.socket.emit(
             'pendingMessage',
             {
@@ -20,10 +20,10 @@ export async function createPendingEntry(
             },
             (result: any) => {
                 if (result.response === 'success') {
-                    log(`- success`);
+                    log(`Create pending entry: success`, 'info');
                     onSuccess();
                 } else {
-                    log(`- error`);
+                    log(`Create pending entry: error`, 'error');
                     onError();
                 }
             },

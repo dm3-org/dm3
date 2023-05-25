@@ -7,7 +7,7 @@ const DEFAULT_CLEANUP_INTERVAL = 86400000;
 async function onCleanUpPendingMessages(db: IDatabase, ttl: number) {
     const now = new Date().getTime();
     const expiryDate = now - ttl;
-    log('[Clean up] Delete expired messages');
+    log('[Clean up] Delete expired messages', 'info');
     await db.deleteExpiredMessages(expiryDate);
 }
 
@@ -21,7 +21,7 @@ export function startCleanUpPendingMessagesJob(
     if (ttl <= 0) {
         return;
     }
-    log('[Clean up] Start Clean up job');
+    log('[Clean up] Start Clean up job', 'info');
     return setInterval(() => {
         onCleanUpPendingMessages(db, ttl);
     }, cleaningInterval);

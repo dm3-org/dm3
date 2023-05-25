@@ -19,6 +19,7 @@
     "dm3-lib-billboard-api": "^0.1.2",
     "dm3-lib-delivery-api": "^0.1.3",
     "dm3-lib-offchain-resolver-api": "^0.1.3",
+    "dm3-lib-shared": "^0.1.3",
     "ethers": "^5.7.2",
     "lodash": "^4.17.21",
     "normalize.css": "^8.0.1",

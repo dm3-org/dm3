@@ -177,7 +177,7 @@ function dm3(props: dm3Props) {
             );
         }
 
-        log('[getContacts]');
+        log('[getContacts]', 'info');
 
         return requestContacts(
             state,
@@ -188,7 +188,7 @@ function dm3(props: dm3Props) {
     };
 
     const handleNewMessage = async (envelop: EncryptionEnvelop) => {
-        log('New messages');
+        log('New messages', 'info');
 
         const message = JSON.parse(
             await decryptAsymmetric(

@@ -50,7 +50,8 @@ async function trySend(
         return true;
     } catch (e) {
         log(
-            `Failed to send message using: ${dsName} (${(e as Error).message})`,
+            `Failed to send message using: ${dsName} ` + JSON.stringify(e),
+            'error',
         );
         return false;
     }

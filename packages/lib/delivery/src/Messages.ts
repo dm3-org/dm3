@@ -19,7 +19,7 @@ import {
     EncryptionEnvelop,
     Postmark,
 } from 'dm3-lib-messaging';
-import { sha256 } from 'dm3-lib-shared';
+import { log, sha256 } from 'dm3-lib-shared';
 import { checkToken, Session } from './Session';
 import { isSpam } from './spam-filter';
 import { SpamFilterRules } from './spam-filter/SpamFilterRules';
@@ -109,14 +109,18 @@ export async function incomingMessage(
     if (messageIsToLarge(envelop, sizeLimit)) {
         throw Error('Message is too large');
     }
+
     //Decryptes the encrypted DeliveryInformation with the KeyPair of the deliveryService
+
     const deliveryInformation: DeliveryInformation =
         await decryptDeliveryInformation(envelop, encryptionKeyPair);
+    log('deliveryInformation ' + JSON.stringify(deliveryInformation), 'debug');
 
     const conversationId = getConversationId(
         await getIdEnsName(deliveryInformation.from),
         await getIdEnsName(deliveryInformation.to),
     );
+    log('conversationId ' + conversationId, 'debug');
 
     //Checks if the sender is authenticated
     const tokenIsValid = await checkToken(
@@ -125,15 +129,20 @@ export async function incomingMessage(
         deliveryInformation.from,
         token,
     );
+
     if (!tokenIsValid) {
         //Token is invalid
         throw Error('Token check failed');
     }
+
     //Retrives the session of the receiver
     const receiverSession = await getSession(deliveryInformation.to);
     if (!receiverSession) {
         throw Error('unknown session');
     }
+
+    log('receiverSession ' + JSON.stringify(receiverSession), 'debug');
+
     //Checkes if the message is spam
     if (await isSpam(provider, receiverSession, deliveryInformation)) {
         throw Error('Message does not match spam criteria');
@@ -157,12 +166,16 @@ export async function incomingMessage(
             ),
         ),
     };
+
+    log('envelopWithPostmark ' + JSON.stringify(envelopWithPostmark), 'debug');
+
     await storeNewMessage(conversationId, envelopWithPostmark);
 
     //If there is currently a webSocket connection open to the receiver, the message will be directly send.
     if (receiverSession.socketId) {
         //Client is already connect to the delivery service and the message can be dispatched
         send(receiverSession.socketId, envelopWithPostmark);
+        log('WS send to socketId ' + receiverSession.socketId, 'debug');
     }
 }
 

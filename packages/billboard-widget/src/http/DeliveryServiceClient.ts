@@ -25,7 +25,7 @@ export const DeliveryServiceClient = (url: string) => {
             });
             return data;
         } catch (e) {
-            log("can't submit userProfile to ds " + path);
+            log("can't submit userProfile to ds " + path, 'error');
             return null;
         }
     };

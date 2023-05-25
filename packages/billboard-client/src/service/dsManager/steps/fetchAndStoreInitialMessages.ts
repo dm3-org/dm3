@@ -27,19 +27,23 @@ export async function fetchAndStoreInitialMessages(
                     async (ds: DeliveryServiceProfile & { token: string }) => {
                         log(
                             `Fetch initial messages for ${billboard.ensName} from  ${ds.url}`,
+                            'info',
                         );
-
                         const messages = await getIncomingMessages(
                             ds.url,
                             billboard.ensName,
                             ds.token,
                         );
                         if (!messages) {
-                            log('cant fetch initial messages for ds ' + ds.url);
+                            log(
+                                'cant fetch initial messages for ds ' + ds.url,
+                                'info',
+                            );
                             return;
                         }
                         log(
                             `Got ${messages?.length} for ${billboard.ensName} from ${ds.url}`,
+                            'info',
                         );
                         //Encrypt and store each message in the billboardclient's db
                         await Promise.all(
