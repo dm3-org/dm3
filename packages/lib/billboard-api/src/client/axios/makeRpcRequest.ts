@@ -32,7 +32,7 @@ export async function makeRpcRequest<T>({
     const { error, result } = data;
 
     if (error) {
-        log('[makeRpcRequest] ' + JSON.stringify(error), 'error');
+        //log('[makeRpcRequest] ' + JSON.stringify(error), 'error');
         return null;
     }
     return result;
