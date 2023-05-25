@@ -36,7 +36,6 @@ export const MessengerView = () => {
                         ) : null}
                     </AutoScrollContainer>
                     <CreateMessage onCreateMsg={sendDm3Message} />
-                    
                 </div>
             ) : (
                 <EmptyView
