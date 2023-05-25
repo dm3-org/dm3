@@ -6,6 +6,7 @@ import { GlobalContext } from '../context/GlobalContext';
 import { DeliveryServiceClient } from '../http/DeliveryServiceClient';
 import { sha256, stringify } from 'dm3-lib-shared';
 
+export const hashMessage = (msg: Message) => sha256(stringify(msg));
 const useMessages = () => {
     const [messages, _setMessages] = useState<Message[]>([]);
     const existingMessagesSet = useRef(new Set());
@@ -15,8 +16,6 @@ const useMessages = () => {
         web3Provider,
         clientProps: { billboardId, mockedApi },
     } = useContext(GlobalContext);
-
-    const hashMessage = (msg: Message) => sha256(stringify(msg));
 
     const setMessages = (msgs: Message[]) => {
         _setMessages(msgs);

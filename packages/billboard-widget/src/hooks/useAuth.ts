@@ -1,5 +1,9 @@
 import { claimAddress } from 'dm3-lib-offchain-resolver-api';
-import { ProfileKeys, createProfile, getDeliveryServiceProfile } from 'dm3-lib-profile';
+import {
+    ProfileKeys,
+    createProfile,
+    getDeliveryServiceProfile,
+} from 'dm3-lib-profile';
 import { ethers } from 'ethers';
 import { DeliveryServiceClient } from '../http/DeliveryServiceClient';
 import { OffchainResolverClient } from '../http/OffchainResolverClient';
@@ -50,8 +54,6 @@ export const useAuth = (
                 signer: (msg: string) => wallet.signMessage(msg),
             },
         );
-
-        console.log(deliverServiceProfile)
 
         const { keys, signedProfile } = profile;
 

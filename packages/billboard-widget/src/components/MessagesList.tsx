@@ -1,8 +1,6 @@
 import { Message } from 'dm3-lib-messaging';
+import { hashMessage } from '../hooks/useMessages';
 import MessageItem from './MessageItem';
-import { v4 as uuid } from 'uuid';
-
-
 
 export interface IMessagesListProps {
     messages: Message[];
@@ -12,7 +10,7 @@ export default function MessagesList({ messages }: IMessagesListProps) {
         <div className="">
             <ul className="message-list">
                 {messages.map((msgObj) => (
-                    <li key={uuid()}>
+                    <li key={hashMessage(msgObj)}>
                         <div className="list-container">
                             <MessageItem message={msgObj} />
                         </div>

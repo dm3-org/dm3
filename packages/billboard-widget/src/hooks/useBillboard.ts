@@ -8,7 +8,7 @@ import useMessages from './useMessages';
 
 const useBillboard = () => {
     const {
-        clientProps: { mockedApi, billboardId, baseUrl },
+        clientProps: { mockedApi, billboardId, billboardClientUrl },
     } = useContext(GlobalContext);
     const { messages, setMessages, addMessage, sendDm3Message } = useMessages();
     const [loading, setLoading] = useState<boolean>(false);
@@ -20,7 +20,7 @@ const useBillboard = () => {
         const client = getBillboardApiClient({
             //mock: !!mockedApi,
             mock: false,
-            baseURL: baseUrl,
+            baseURL: billboardClientUrl,
         });
 
         const getInitialMessages = async () => {
@@ -45,18 +45,21 @@ const useBillboard = () => {
             setLoading(false);
         };
         getInitialMessages();
-    }, [baseUrl, billboardId, mockedApi, messages, setMessages, loading]);
+    }, [
+        billboardClientUrl,
+        billboardId,
+        mockedApi,
+        messages,
+        setMessages,
+        loading,
+    ]);
 
     useEffect(() => {
-        if (!baseUrl || socket || mockedApi) {
+        if (socket || mockedApi) {
             return;
         }
-        setSocket(io(baseUrl));
-
-        return () => {
-            //socket?.close();
-        };
-    }, [baseUrl, socket, mockedApi]);
+        setSocket(io(billboardClientUrl));
+    }, [billboardClientUrl, socket, mockedApi]);
 
     useEffect(() => {
         if (!socket) {
@@ -73,10 +76,6 @@ const useBillboard = () => {
 
         socket.on(`message-${billboardId}`, function (data: Message) {
             addMessage(data);
-        });
-
-        socket.on('viewers', function (data: number) {
-            setViewersCount(data);
         });
     }, [addMessage, socket, billboardId]);
 

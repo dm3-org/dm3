@@ -1,11 +1,7 @@
 import { ethers } from 'ethers';
 import React from 'react';
 import { ContainerProps } from '../components/AutoScrollContainer';
-import {
-    BillboardWidgetProps,
-    ClientProps,
-    defaultClientProps,
-} from '../types';
+import { BillboardWidgetProps, ClientProps } from '../types';
 
 export type GlobalContextxtType = {
     web3Provider: ethers.providers.JsonRpcProvider;
@@ -30,7 +26,7 @@ export const GlobalContext = React.createContext<GlobalContextxtType>({
             return `https://robohash.org/${hash}?size=38x38`;
         },
     },
-    clientProps: defaultClientProps,
+    clientProps: {} as ClientProps,
 });
 
 export const GlobalContextProvider = (
