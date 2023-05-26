@@ -2,7 +2,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
 import { useMemo } from 'react';
 import { useAccount, useSignMessage } from 'wagmi';
-import App from '..';
+import App from '../App';
 import EmptyView from '../components/EmptyView';
 import { defaultOptions } from '../main';
 import { ClientProps } from '../types';
