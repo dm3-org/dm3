@@ -1,3 +1,3 @@
-import App from './App';
+import * as DM3Widget from './App';
 
-export default App;
+export default DM3Widget;
