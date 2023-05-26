@@ -19,7 +19,7 @@ export type GlobalContextxtType = {
 };
 
 export const GlobalContext = React.createContext<GlobalContextxtType>({
-    web3Provider: new ethers.providers.Web3Provider(window.ethereum),
+    web3Provider: {} as ethers.providers.JsonRpcProvider,
     options: {
         className: 'billboard-widget',
         avatarSrc: (hash) => {
