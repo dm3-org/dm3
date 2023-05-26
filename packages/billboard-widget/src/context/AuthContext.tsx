@@ -6,16 +6,22 @@ import { GlobalContext } from './GlobalContext';
 export type AuthContextType = {
     profileKeys: ProfileKeys;
     ensName: string;
+    token: string;
     initialized: boolean;
 };
 
 export const AuthContext = React.createContext<AuthContextType>({
     profileKeys: {} as ProfileKeys,
     ensName: '',
+    token: '',
     initialized: false,
 });
 
-export const AuthContextProvider = ({ children }: { children?: any }) => {
+export const AuthContextProvider = ({
+    children,
+}: {
+    children?: React.ReactNode;
+}) => {
     const { clientProps, web3Provider } = useContext(GlobalContext);
     const { getWallet } = useAuth(web3Provider, clientProps);
 
@@ -26,14 +32,16 @@ export const AuthContextProvider = ({ children }: { children?: any }) => {
         {} as ProfileKeys,
     );
     const [ensName, setEnsName] = useState<string>('');
+    const [token, setToken] = useState<string>('');
 
     useEffect(() => {
         const init = async () => {
             setInitializing(true);
-            const { keys, ensName } = await getWallet();
+            const { keys, ensName, token } = await getWallet();
             setInitialized(true);
             setprofileKeys(keys);
             setEnsName(ensName);
+            setToken(token);
             setInitializing(false);
         };
 
@@ -45,7 +53,9 @@ export const AuthContextProvider = ({ children }: { children?: any }) => {
     }, [getWallet, initialized, initializing]);
 
     return (
-        <AuthContext.Provider value={{ profileKeys, ensName, initialized }}>
+        <AuthContext.Provider
+            value={{ profileKeys, ensName, initialized, token }}
+        >
             {children}
         </AuthContext.Provider>
     );

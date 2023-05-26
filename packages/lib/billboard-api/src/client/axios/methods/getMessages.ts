@@ -7,8 +7,8 @@ export function getMessages(axios: Axios) {
         idBillboard: string,
         time?: number,
         limit?: string,
-    ): Promise<Message[] | null> =>
-        makeRpcRequest<Message[]>({
+    ): Promise<Message[] | null> => {
+        const result = await makeRpcRequest<{ messages: Message[] }>({
             axios,
             method: 'dm3_billboard_getMessages',
             params: [
@@ -17,4 +17,10 @@ export function getMessages(axios: Axios) {
                 limit ?? '50',
             ],
         });
+
+        if (!result) {
+            return null;
+        }
+        return result.messages;
+    };
 }
