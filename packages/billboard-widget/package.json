@@ -1,6 +1,6 @@
 {
   "name": "dm3-billboard-widget",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "files": [
     "dist"
   ],
@@ -12,12 +12,6 @@
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
-  "exports": {
-    ".": {
-        "import": "./dist/billboard-widget.js",
-        "require": "./dist/billboard-widget.js"
-    }
-},
   "dependencies": {
     "@metamask/detect-provider": "^2.0.0",
     "@metamask/providers": "^11.0.0",
