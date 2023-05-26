@@ -1,4 +1,4 @@
-import { getBillboardApiClient } from 'dm3-lib-billboard-api';
+import { getBillboardApiClient } from 'dm3-lib-billboard-client-api';
 import { useContext, useEffect, useState } from 'react';
 
 import { Message } from 'dm3-lib-messaging';
