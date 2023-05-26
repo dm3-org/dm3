@@ -13,7 +13,7 @@ export const MessengerView = () => {
     const { options, branding, scrollOptions } = useContext(GlobalContext);
     return (
         <div className={`widget common-styles ${options?.className}`}>
-            {messages?.length ? (
+            {messages.length ? (
                 <div>
                     <div className="header">
                         <Branding
