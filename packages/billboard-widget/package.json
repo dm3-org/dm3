@@ -1,11 +1,11 @@
 {
   "name": "dm3-billboard-widget",
   "version": "0.2.0",
-  "type": "module",
   "files": [
     "dist"
   ],
-  "module": "./dist/billboard-widget.js",
+  "module": "./dist/index.mjs",
+  "main": "./dist/index.js",
   "scripts": {
     "dev": "vite",
     "build": "yarn tsc && yarn vite build",
