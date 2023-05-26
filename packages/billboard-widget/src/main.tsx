@@ -1,15 +1,21 @@
 import 'normalize.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App.tsx';
-import 'normalize.css';
-import { defaultClientProps, defaultOptions } from './types.ts';
+import './styles/app.pcss';
+import { BillboardWidgetProps } from './types.ts';
+import { WidgetDemo } from './views/WidgetDemo.tsx';
+import { WagmiWrapper } from './views/WagmiWrapper.tsx';
+
+export const defaultOptions: BillboardWidgetProps['options'] = {
+    avatarSrc: (hash) => {
+        return `https://robohash.org/${hash}?size=38x38`;
+    },
+};
+
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
-        <App
-            clientProps={defaultClientProps}
-            options={defaultOptions}
-            web3Provider={window.ethereum}
-        />
+        <WagmiWrapper>
+            <WidgetDemo />
+        </WagmiWrapper>
     </React.StrictMode>,
 );

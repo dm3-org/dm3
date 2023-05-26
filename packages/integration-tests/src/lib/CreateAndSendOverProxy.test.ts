@@ -20,7 +20,7 @@ describe('Profile creation and sending a message using a message proxy', () => {
     let bobWallet: ethers.Wallet;
     let signer: Record<string, ethers.Wallet>;
     let textRecordMockReg: Record<string, Record<string, string>>;
-    let httpPostRequests: Record<string, JsonRpcRequest<EncryptionEnvelop>[]>;
+    let httpPostRequests: Record<string, JsonRpcRequest<string>[]>;
     let httpProxyPostRequests: Record<string, ProxyEnvelop[]>;
     let pushReg: Record<string, (envelop: EncryptionEnvelop) => Promise<void>>;
 
@@ -35,10 +35,7 @@ describe('Profile creation and sending a message using a message proxy', () => {
         textRecordMockReg[ensName][recordName] = text;
     };
 
-    const httpServerPostMock = (
-        url: string,
-        body: JsonRpcRequest<EncryptionEnvelop>,
-    ) => {
+    const httpServerPostMock = (url: string, body: JsonRpcRequest<string>) => {
         if (!httpPostRequests[url]) {
             httpPostRequests[url] = [];
         }
@@ -290,7 +287,7 @@ describe('Profile creation and sending a message using a message proxy', () => {
                     submitMessage: async (url, envelop) => {
                         httpServerPostMock(
                             url,
-                            createJsonRpcCallSubmitMessage(envelop),
+                            createJsonRpcCallSubmitMessage(envelop, ''),
                         );
                     },
                 });
@@ -314,7 +311,7 @@ describe('Profile creation and sending a message using a message proxy', () => {
             messagesOnDeliveryService.map(
                 async (encryptedEnvelop) =>
                     await handleMessageOnDeliveryService(
-                        encryptedEnvelop,
+                        JSON.parse(encryptedEnvelop),
                         dsKeysB,
                         bobProfile.profile,
                     ),
