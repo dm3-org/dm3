@@ -12,9 +12,7 @@ function App(props: BillboardWidgetProps) {
             <GlobalContextProvider
                 {...props}
                 clientProps={props.clientProps}
-                web3Provider={
-                    new ethers.providers.Web3Provider(window.ethereum)
-                }
+                web3Provider={props.clientProps}
             >
                 <AuthContextProvider>
                     <MessengerView />
