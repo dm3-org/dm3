@@ -1,5 +1,7 @@
 import App from './App';
-import { BillboardWidgetProps } from './types';
+import { BillboardWidgetProps, ClientProps } from './types';
+import 'normalize.css';
+import './styles/app.pcss';
 
 export function Dm3Widget(props: BillboardWidgetProps) {
     return (
@@ -8,3 +10,4 @@ export function Dm3Widget(props: BillboardWidgetProps) {
         </>
     );
 }
+export type { ClientProps, BillboardWidgetProps };
