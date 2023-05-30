@@ -45,6 +45,7 @@ export const WidgetDemo = () => {
                     clientProps={clientProps}
                     options={defaultOptions}
                     web3Provider={window.ethereum}
+                    branding={{ slogan: 'LIVE CHAT' }}
                 />
             ) : (
                 <div className={`widget common-styles `}>
