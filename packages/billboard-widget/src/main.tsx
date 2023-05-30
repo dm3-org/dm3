@@ -2,6 +2,7 @@ import 'normalize.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './styles/app.pcss';
+import './styles/classic.pcss';
 import { BillboardWidgetProps } from './types.ts';
 import { WidgetDemo } from './views/WidgetDemo.tsx';
 import { WagmiWrapper } from './views/WagmiWrapper.tsx';
