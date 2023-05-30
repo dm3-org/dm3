@@ -12,6 +12,19 @@ export interface BillboardWidgetProps {
          * identifier and returns the url. `(identifier: string) => url`
          **/
         avatarSrc?: string | ((hash?: string) => string);
+        /** A custom user name resolver function that takes the users
+         * identifier and returns a new string. `(identifier: string) => MayBePromise<username>`
+         **/
+        userNameResolver?:
+            | string
+            | ((hash?: string) => string | Promise<string>);
+        /** Formatting string for the date of each message, using date-fns formatter function:
+         * see: https://date-fns.org/v2.30.0/docs/format
+         * Default: `P`
+         */
+        dateFormat?: string;
+        /** Display a relative date, for recent dates. Default is `true`.  */
+        relativeDate?: boolean;
     };
     /** Config for the billboard message fetching part.
      *  - mockedApi: boolean; if you don't have a client yet you can use a mocked version.
