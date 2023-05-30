@@ -6,6 +6,7 @@ import App from '../App';
 import EmptyView from '../components/EmptyView';
 import { defaultOptions } from '../main';
 import { ClientProps } from '../types';
+import { ethers } from 'ethers';
 
 const defaultClientProps: Omit<
     ClientProps,
@@ -44,7 +45,9 @@ export const WidgetDemo = () => {
                 <App
                     clientProps={clientProps}
                     options={defaultOptions}
-                    web3Provider={window.ethereum}
+                    web3Provider={
+                        new ethers.providers.Web3Provider(window.ethereum)
+                    }
                     branding={{ slogan: 'LIVE CHAT' }}
                 />
             ) : (
