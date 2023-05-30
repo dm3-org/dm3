@@ -1,30 +1,17 @@
 import { ethers } from 'ethers';
 import React from 'react';
-import { ContainerProps } from '../components/AutoScrollContainer';
 import { BillboardWidgetProps, ClientProps } from '../types';
 
-export type GlobalContextxtType = {
-    web3Provider: ethers.providers.JsonRpcProvider;
-    options?: {
-        className?: string;
-        avatarSrc?: string | ((hash?: string) => string);
-    };
-    scrollOptions?: ContainerProps;
-    branding?: {
-        imageSrc?: string;
-        slogan?: string;
-        emptyViewText?: string;
-    };
-    clientProps: ClientProps;
-};
-
-export const GlobalContext = React.createContext<GlobalContextxtType>({
+export const GlobalContext = React.createContext<BillboardWidgetProps>({
     web3Provider: {} as ethers.providers.JsonRpcProvider,
     options: {
         className: 'billboard-widget',
         avatarSrc: (hash) => {
             return `https://robohash.org/${hash}?size=38x38`;
         },
+        userNameResolver: undefined,
+        dateFormat: 'P',
+        relativeDate: true,
     },
     clientProps: {} as ClientProps,
 });
