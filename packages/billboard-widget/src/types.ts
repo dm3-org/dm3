@@ -61,7 +61,7 @@ export type ClientProps = {
     billboardClientUrl: string;
     deliveryServiceEnsName: string;
     offchainResolverUrl: string;
-    siweAddress: string;
-    siweSig: string;
-    siweMessage: string;
+    siweAddress?: string;
+    siweSig?: string;
+    siweMessage?: string;
 };

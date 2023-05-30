@@ -8,9 +8,11 @@ import ViewersCount from '../components/ViewersCount';
 import { GlobalContext } from '../context/GlobalContext';
 import useBillboard from '../hooks/useBillboard';
 import dm3Logo from './../assets/dm3-logo.png';
+import { AuthContext } from '../context/AuthContext';
 export const MessengerView = () => {
     const { loading, messages, viewersCount, sendDm3Message } = useBillboard();
     const { options, branding, scrollOptions } = useContext(GlobalContext);
+    const { initialized } = useContext(AuthContext);
     return (
         <div className={`widget common-styles ${options?.className}`}>
             {messages.length ? (
@@ -35,7 +37,11 @@ export const MessengerView = () => {
                             </div>
                         ) : null}
                     </AutoScrollContainer>
-                    <CreateMessage onCreateMsg={sendDm3Message} />
+                    {initialized ? (
+                        <CreateMessage onCreateMsg={sendDm3Message} />
+                    ) : (
+                        <p>Please Connect your wallet to use DM3</p>
+                    )}
                 </div>
             ) : (
                 <EmptyView
