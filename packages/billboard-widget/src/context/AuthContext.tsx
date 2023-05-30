@@ -1,5 +1,5 @@
 import { ProfileKeys } from 'dm3-lib-profile';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { GlobalContext } from './GlobalContext';
 
@@ -22,7 +22,7 @@ export const AuthContextProvider = ({
 }: {
     children?: React.ReactNode;
 }) => {
-    const { clientProps, web3Provider } = useContext(GlobalContext);
+    const { clientProps, web3Provider } = React.useContext(GlobalContext);
     const { getWallet } = useAuth(web3Provider, clientProps);
 
     const [initialized, setInitialized] = useState(false);
@@ -36,6 +36,14 @@ export const AuthContextProvider = ({
 
     useEffect(() => {
         const init = async () => {
+            //If the user is not signed in with SIWE, we're using the view only mode
+            if (
+                !clientProps.siweAddress ||
+                !clientProps.siweMessage ||
+                !clientProps.siweSig
+            ) {
+                return;
+            }
             setInitializing(true);
             const { keys, ensName, token } = await getWallet();
             setInitialized(true);
@@ -50,7 +58,14 @@ export const AuthContextProvider = ({
         }
 
         init();
-    }, [getWallet, initialized, initializing]);
+    }, [
+        clientProps.siweAddress,
+        clientProps.siweMessage,
+        clientProps.siweSig,
+        getWallet,
+        initialized,
+        initializing,
+    ]);
 
     return (
         <AuthContext.Provider
