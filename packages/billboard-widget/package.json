@@ -8,7 +8,8 @@
   "main": "./dist/index.js",
   "scripts": {
     "dev": "vite",
-    "build": "yarn tsc && yarn vite build",
+    "build": "yarn tsc && yarn vite build && yarn build:css",
+    "build:css": "node ./buildCss.js",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
