@@ -1,3 +1,13 @@
-import * as DM3Widget from './App';
+import App from './App';
+import { BillboardWidgetProps, ClientProps } from './types';
+import 'normalize.css';
+import './styles/app.pcss';
 
-export default DM3Widget;
+export function Dm3Widget(props: BillboardWidgetProps) {
+    return (
+        <>
+            <App {...props} />
+        </>
+    );
+}
+export type { ClientProps, BillboardWidgetProps };
