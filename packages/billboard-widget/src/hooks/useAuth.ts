@@ -27,6 +27,13 @@ export const useAuth = (
         if (hotWallet) {
             return JSON.parse(hotWallet) as BillboardHotWallet;
         }
+        if (
+            !clientProps.siweAddress ||
+            !clientProps.siweSig ||
+            !clientProps.siweMessage
+        ) {
+            throw 'user is not logged in yet';
+        }
 
         const deliverServiceProfile = await getDeliveryServiceProfile(
             clientProps.deliveryServiceEnsName,
