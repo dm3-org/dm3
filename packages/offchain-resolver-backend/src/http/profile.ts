@@ -8,10 +8,6 @@ import express from 'express';
 import { WithLocals } from './types';
 import { SiweMessage } from 'siwe';
 
-//The test msg should just be the sg of an ethereum address
-const MSG_START = 0;
-const MSG_END = 42;
-
 export function profile(web3Provider: ethers.providers.BaseProvider) {
     const router = express.Router();
 
@@ -24,20 +20,40 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 const { signedUserProfile, siweMessage, siweSig, hotAddr } =
                     req.body;
 
-                const siwe = new SiweMessage(JSON.parse(siweMessage));
+                let parsedSiwe;
+                try {
+                    parsedSiwe = JSON.parse(siweMessage);
+                } catch (e) {
+                    req.app.locals.logger.error({
+                        message: 'Could not parse SIWE JSON string',
+                        error: JSON.stringify(e),
+                    });
+                    return res
+                        .status(400)
+                        .send({ error: 'Could not parse SIWE JSON string' });
+                }
+
+                const siwe = new SiweMessage(parsedSiwe);
 
                 //Get the address that signed the siwe message
                 const address = siwe.address;
 
-                // eslint-disable-next-line max-len
-                //The address has to be the same as the one in the siwe message to ensure the user has not signed an arbitrary message
-                const isAddressVailid = (
-                    await siwe.verify({ signature: siweSig })
-                ).success;
+                // Check if the signature fits to the siwe message
+                const verification = await siwe.verify({ signature: siweSig });
 
-                if (!isAddressVailid) {
-                    req.app.locals.logger.warn(`Invalid siwe sig`);
-                    return res.status(400).send({ error: `Invaid siwe sig` });
+                if (!verification.success) {
+                    req.app.locals.logger.error({
+                        message: `Invalid siwe sig`,
+                        error: verification.error,
+                    });
+                    return res
+                        .status(400)
+                        .send({ error: `SIWE verification failed` });
+                } else {
+                    req.app.locals.logger.debug({
+                        message: `Valid siwe`,
+                        data: verification.data,
+                    });
                 }
 
                 const isSchemaValid = validateSchema(
