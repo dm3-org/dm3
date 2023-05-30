@@ -6,6 +6,7 @@ import {
 import { ethers } from 'ethers';
 import express from 'express';
 import { WithLocals } from './types';
+import { SiweMessage } from 'siwe';
 
 //The test msg should just be the sg of an ethereum address
 const MSG_START = 0;
@@ -23,17 +24,16 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 const { signedUserProfile, siweMessage, siweSig, hotAddr } =
                     req.body;
 
+                const siwe = new SiweMessage(JSON.parse(siweMessage));
+
                 //Get the address that signed the siwe message
-                const address = ethers.utils.recoverAddress(
-                    ethers.utils.hashMessage(siweMessage),
-                    siweSig,
-                );
+                const address = siwe.address;
+
                 // eslint-disable-next-line max-len
                 //The address has to be the same as the one in the siwe message to ensure the user has not signed an arbitrary message
-                const isAddressVailid =
-                    ethers.utils.getAddress(
-                        siweMessage.substring(MSG_START, MSG_END),
-                    ) === address;
+                const isAddressVailid = (
+                    await siwe.verify({ signature: siweSig })
+                ).success;
 
                 if (!isAddressVailid) {
                     req.app.locals.logger.warn(`Invalid siwe sig`);

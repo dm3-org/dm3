@@ -1,6 +1,6 @@
 {
     "name": "dm3-offchain-resolver-backend",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "dependencies": {
@@ -21,6 +21,7 @@
         "lint-staged": "^13.0.0",
         "prettier": "^2.6.2",
         "redis": "^4.1.0",
+        "siwe": "^2.1.4",
         "ts-node": "^10.8.1",
         "winston": "^3.8.1",
         "yaml": "^2.1.3"
