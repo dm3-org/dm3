@@ -1,6 +1,6 @@
 {
   "name": "dm3-billboard-widget",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "files": [
     "dist"
   ],
@@ -27,6 +27,7 @@
     "normalize.css": "^8.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "siwe": "^2.1.4",
     "socket.io-client": "^4.6.1",
     "uuid4": "^2.0.3",
     "uuidv4": "^6.2.13",
@@ -46,6 +47,7 @@
     "postcss-nesting": "^11.2.2",
     "typescript": "^5.0.2",
     "vite": "^4.3.2",
-    "vite-plugin-dts": "^2.3.0"
+    "vite-plugin-dts": "^2.3.0",
+    "vite-plugin-node-polyfills": "^0.8.2"
   }
 }

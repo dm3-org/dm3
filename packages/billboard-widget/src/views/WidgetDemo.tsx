@@ -1,12 +1,13 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
+import { ethers } from 'ethers';
 import { useMemo } from 'react';
+import { SiweMessage } from 'siwe';
 import { useAccount, useSignMessage } from 'wagmi';
 import App from '../App';
 import EmptyView from '../components/EmptyView';
 import { defaultOptions } from '../main';
 import { ClientProps } from '../types';
-import { ethers } from 'ethers';
 
 const defaultClientProps: Omit<
     ClientProps,
@@ -22,63 +23,79 @@ export const WidgetDemo = () => {
     const { address } = useAccount();
     const { data, signMessage } = useSignMessage();
 
+    const message = useMemo(
+        () =>
+            new SiweMessage({
+                domain: window.location.host,
+                address: address,
+                statement: 'Sign in with Ethereum to the app.',
+                uri: window.location.origin,
+                version: '1',
+                chainId: 1,
+                nonce: '0x123456789',
+                expirationTime: new Date(100000000000000).toISOString(),
+            }),
+        [address],
+    );
     const clientProps: ClientProps = useMemo(
         () => ({
             ...defaultClientProps,
             siweAddress: address?.toString() ?? '',
-            siweMessage: address?.toString() ?? '',
+            siweMessage: JSON.stringify(message),
             siweSig: data ?? '',
         }),
-        [address, data],
+        [address, data, message],
     );
 
     const singIn = () => {
         if (!address) {
             throw 'Address is not defined';
         }
-        signMessage({ message: address.toString() });
+
+        signMessage({ message: message.prepareMessage() });
     };
 
     return (
         <>
-            {clientProps.siweSig !== '' ? (
-                <App
-                    clientProps={clientProps}
-                    options={defaultOptions}
-                    web3Provider={
-                        new ethers.providers.Web3Provider(window.ethereum)
-                    }
-                    branding={{ slogan: 'LIVE CHAT' }}
-                />
-            ) : (
-                <div className={`widget common-styles `}>
-                    <EmptyView info={'Please sign in with Ethereum'} />
-                    <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            padding: '16px',
-                        }}
-                    >
-                        {!address ? (
-                            <ConnectButton />
-                        ) : (
-                            <button
-                                className="container"
-                                style={{
-                                    borderRadius: '16px',
-                                    padding: '1rem',
-                                    color: 'black',
-                                    backgroundColor: '#ffffff',
-                                }}
-                                onClick={singIn}
-                            >
-                                Sign In with Ethereum
-                            </button>
-                        )}
-                    </div>
-                </div>
-            )}
+            <App
+                clientProps={clientProps}
+                options={defaultOptions}
+                web3Provider={
+                    new ethers.providers.Web3Provider(window.ethereum)
+                }
+            />
+
+            <div className={`widget common-styles `}>
+                {!data && (
+                    <>
+                        <EmptyView info={'Please sign in with Ethereum'} />
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                padding: '16px',
+                            }}
+                        >
+                            {!address ? (
+                                <ConnectButton />
+                            ) : (
+                                <button
+                                    className="container"
+                                    style={{
+                                        borderRadius: '16px',
+                                        padding: '1rem',
+                                        color: 'black',
+                                        backgroundColor: '#ffffff',
+                                    }}
+                                    onClick={singIn}
+                                >
+                                    Sign In with Ethereum
+                                </button>
+                            )}
+                        </div>
+                    </>
+                )}
+            </div>
         </>
     );
 };

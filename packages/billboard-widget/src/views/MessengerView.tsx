@@ -7,10 +7,10 @@ import MessagesList from '../components/MessagesList';
 import ViewersCount from '../components/ViewersCount';
 import { GlobalContext } from '../context/GlobalContext';
 import useBillboard from '../hooks/useBillboard';
-import dm3Logo from './../assets/dm3-logo.png';
+import dm3Logo from './../assets/dm3_dark.png';
 import { AuthContext } from '../context/AuthContext';
 export const MessengerView = () => {
-    const { loading, messages, viewersCount, sendDm3Message } = useBillboard();
+    const { loading, messages, sendDm3Message } = useBillboard();
     const { options, branding, scrollOptions } = useContext(GlobalContext);
     const { initialized } = useContext(AuthContext);
     return (
@@ -22,7 +22,7 @@ export const MessengerView = () => {
                             imgSrc={branding?.imageSrc || dm3Logo}
                             slogan={branding?.slogan || 'powered by'}
                         />
-                        <ViewersCount viewers={viewersCount} />
+                        <ViewersCount />
                     </div>
 
                     <AutoScrollContainer

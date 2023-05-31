@@ -14,12 +14,10 @@ const useBillboard = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [online, setOnline] = useState<boolean>(false);
     const [socket, setSocket] = useState<Socket | null>(null);
-    const [viewersCount, setViewersCount] = useState<number>(0);
 
     useEffect(() => {
         const client = getBillboardApiClient({
-            //mock: !!mockedApi,
-            mock: false,
+            mock: !!mockedApi,
             baseURL: billboardClientUrl,
         });
 
@@ -40,8 +38,7 @@ const useBillboard = () => {
             if (initialMessages) {
                 setMessages(initialMessages);
             }
-            const viewers = await client.getActiveViewers(billboardId || '');
-            setViewersCount(viewers || 0);
+
             setLoading(false);
         };
         getInitialMessages();
@@ -83,7 +80,6 @@ const useBillboard = () => {
         online,
         loading,
         messages,
-        viewersCount,
         sendDm3Message,
     };
 };
