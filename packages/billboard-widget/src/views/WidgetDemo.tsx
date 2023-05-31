@@ -1,12 +1,13 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
-import { useMemo } from 'react';
+import { useEffect, useImperativeHandle, useMemo } from 'react';
 import { useAccount, useSignMessage } from 'wagmi';
 import App from '../App';
 import EmptyView from '../components/EmptyView';
 import { defaultOptions } from '../main';
 import { ClientProps } from '../types';
 import { ethers } from 'ethers';
+import { SiweMessage } from 'siwe';
 
 const defaultClientProps: Omit<
     ClientProps,
@@ -22,21 +23,36 @@ export const WidgetDemo = () => {
     const { address } = useAccount();
     const { data, signMessage } = useSignMessage();
 
+    const message = useMemo(
+        () =>
+            new SiweMessage({
+                domain: window.location.host,
+                address: address,
+                statement: 'Sign in with Ethereum to the app.',
+                uri: window.location.origin,
+                version: '1',
+                chainId: 1,
+                nonce: '0x123456789',
+                expirationTime: new Date(100000000000000).toISOString(),
+            }),
+        [address],
+    );
     const clientProps: ClientProps = useMemo(
         () => ({
             ...defaultClientProps,
             siweAddress: address?.toString() ?? '',
-            siweMessage: address?.toString() ?? '',
+            siweMessage: JSON.stringify(message),
             siweSig: data ?? '',
         }),
-        [address, data],
+        [address, data, message],
     );
 
     const singIn = () => {
         if (!address) {
             throw 'Address is not defined';
         }
-        signMessage({ message: address.toString() });
+
+        signMessage({ message: message.prepareMessage() });
     };
 
     return (
