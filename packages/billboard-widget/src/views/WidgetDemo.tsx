@@ -1,13 +1,13 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
-import { useEffect, useImperativeHandle, useMemo } from 'react';
+import { ethers } from 'ethers';
+import { useMemo } from 'react';
+import { SiweMessage } from 'siwe';
 import { useAccount, useSignMessage } from 'wagmi';
 import App from '../App';
 import EmptyView from '../components/EmptyView';
 import { defaultOptions } from '../main';
 import { ClientProps } from '../types';
-import { ethers } from 'ethers';
-import { SiweMessage } from 'siwe';
 
 const defaultClientProps: Omit<
     ClientProps,
@@ -63,7 +63,6 @@ export const WidgetDemo = () => {
                 web3Provider={
                     new ethers.providers.Web3Provider(window.ethereum)
                 }
-                branding={{ slogan: 'LIVE CHAT' }}
             />
 
             <div className={`widget common-styles `}>

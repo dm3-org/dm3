@@ -52,22 +52,14 @@
 }
 
 .branding-items {
-    width: auto;
+    display: flex;
+    flex-direction: column;
+    width: 100px;
+    margin: 32px;
+
     .branding-slogan {
-        font-size: 18px;
-        line-height: 24px;
-        padding: 12px 24px;
-        background: #FFF390;
-        color: #FF0050;
-
-        font-family: 'Archivo', Montserat, Arial;
-        font-style: normal;
-        font-weight: 700;
-        font-size: 18px;
-        font-stretch: 125;
-    }
-
-    & img {
-        display: none;
+        color: var(--textColorSecondary);
+        line-height: 2em;
+        white-space: nowrap;
     }
 }
