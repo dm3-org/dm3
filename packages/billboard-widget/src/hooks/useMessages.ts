@@ -14,7 +14,7 @@ const useMessages = () => {
     const { ensName, profileKeys, token } = useContext(AuthContext);
     const {
         web3Provider,
-        clientProps: { billboardId, mockedApi },
+        clientProps: { billboardId },
     } = useContext(GlobalContext);
 
     const setMessages = (msgs: Message[]) => {
@@ -42,10 +42,8 @@ const useMessages = () => {
             text,
             profileKeys.signingKeyPair.privateKey,
         );
-        if (mockedApi) {
-            addMessage(message);
-            return;
-        }
+
+        addMessage(message);
         //Build envelop
         const { encryptedEnvelop: envelop, sendDependencies } =
             await createEnvelop(
