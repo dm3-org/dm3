@@ -41,44 +41,46 @@ export const WidgetDemo = () => {
 
     return (
         <>
-            {clientProps.siweSig !== '' ? (
-                <App
-                    clientProps={clientProps}
-                    options={defaultOptions}
-                    web3Provider={
-                        new ethers.providers.Web3Provider(window.ethereum)
-                    }
-                    branding={{ slogan: 'LIVE CHAT' }}
-                />
-            ) : (
-                <div className={`widget common-styles `}>
-                    <EmptyView info={'Please sign in with Ethereum'} />
-                    <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            padding: '16px',
-                        }}
-                    >
-                        {!address ? (
-                            <ConnectButton />
-                        ) : (
-                            <button
-                                className="container"
-                                style={{
-                                    borderRadius: '16px',
-                                    padding: '1rem',
-                                    color: 'black',
-                                    backgroundColor: '#ffffff',
-                                }}
-                                onClick={singIn}
-                            >
-                                Sign In with Ethereum
-                            </button>
-                        )}
-                    </div>
-                </div>
-            )}
+            <App
+                clientProps={clientProps}
+                options={defaultOptions}
+                web3Provider={
+                    new ethers.providers.Web3Provider(window.ethereum)
+                }
+                branding={{ slogan: 'LIVE CHAT' }}
+            />
+
+            <div className={`widget common-styles `}>
+                {!data && (
+                    <>
+                        <EmptyView info={'Please sign in with Ethereum'} />
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                padding: '16px',
+                            }}
+                        >
+                            {!address ? (
+                                <ConnectButton />
+                            ) : (
+                                <button
+                                    className="container"
+                                    style={{
+                                        borderRadius: '16px',
+                                        padding: '1rem',
+                                        color: 'black',
+                                        backgroundColor: '#ffffff',
+                                    }}
+                                    onClick={singIn}
+                                >
+                                    Sign In with Ethereum
+                                </button>
+                            )}
+                        </div>
+                    </>
+                )}
+            </div>
         </>
     );
 };
