@@ -1,6 +1,6 @@
 import { getStorageKeyCreationMessage, createStorageKey } from 'dm3-lib-crypto';
 import { createProfileKeys, getUserProfile } from 'dm3-lib-profile';
-import { log } from 'dm3-lib-shared';
+import { logError, logInfo } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import { Billboard } from '../DsManagerImpl';
 
@@ -17,7 +17,10 @@ export async function getBillboardProfile(
 ) {
     return await Promise.all(
         billboards.map(async (billboard) => {
-            log('Get DM3 User Profile for ' + billboard.ensName, 'info');
+            logInfo({
+                text: 'Get DM3 User Profile',
+                billboardEnsName: billboard.ensName,
+            });
             const wallet = new ethers.Wallet(billboard.privateKey);
             const storageKeyCreationMessage = getStorageKeyCreationMessage(
                 '0xca8f04fdc80d659997f69b02',
@@ -41,8 +44,8 @@ export async function getBillboardProfile(
                     profileKeys,
                     dsProfile: [],
                 };
-            } catch (e: any) {
-                log('[getBillboardProfile] ' + JSON.stringify(e), 'error');
+            } catch (error: any) {
+                logError({ text: '[getBillboardProfile] ', error });
                 throw Error(
                     "Can't get billboard profile for " + billboard.ensName,
                 );

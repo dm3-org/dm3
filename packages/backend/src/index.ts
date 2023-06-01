@@ -15,7 +15,7 @@ import { getDatabase } from './persistance/getDatabase';
 import Profile from './profile';
 import RpcProxy from './rpc/rpc-proxy';
 import Storage from './storage';
-import { log } from 'dm3-lib-shared/dist.backend';
+import { logInfo } from 'dm3-lib-shared/dist.backend';
 
 import {
     errorHandler,
@@ -83,5 +83,9 @@ app.use(express.static(path.join(__dirname, '../../web/build')));
 const port = process.env.PORT || '8080';
 
 server.listen(port, () => {
-    log('[Server] listening at port ' + port + ' and dir ' + __dirname, 'info');
+    logInfo({
+        text: '[Server] listening',
+        port,
+        dir: __dirname,
+    });
 });

@@ -1,6 +1,6 @@
 import { EncryptionEnvelop } from 'dm3-lib-messaging';
 import { DeliveryServiceProfile } from 'dm3-lib-profile';
-import { log } from 'dm3-lib-shared';
+import { logError, logInfo } from 'dm3-lib-shared';
 
 import { io, Socket } from 'socket.io-client';
 
@@ -21,23 +21,29 @@ export const getDeliveryServiceWSClient = (
                     },
                 });
                 c.on('connect', () => {
-                    log(`Connected to Delivery Service ${ds.url}`, 'info');
+                    logInfo({
+                        text: `Connected to Delivery Service`,
+                        dsUrl: ds.url,
+                    });
                     res(c);
                 });
-                c.on('connect_error', (err: any) => {
-                    log(
-                        `Connection error to Delivery Service ${ds.url} ` +
-                            JSON.stringify(err),
-                        'error',
-                    );
+                c.on('connect_error', (error: any) => {
+                    logError({
+                        text: `Connection error to Delivery Service`,
+                        dsUrl: ds.url,
+                        error,
+                    });
 
-                    rej(err);
+                    rej(error);
                 });
             });
-            log(`Register listener`, 'info');
+            logInfo(`Register listener`);
             //register listners
             client.on('disconnect', () => {
-                log(`disconnected from deliveryService ${ds.url}`, 'info');
+                logInfo({
+                    text: `disconnected from deliveryService `,
+                    dsUrl: ds.url,
+                });
             });
             client.on('message', onMessage);
 

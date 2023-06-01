@@ -2,7 +2,7 @@ import { Account, normalizeEnsName, ProfileKeys } from 'dm3-lib-profile';
 import { decrypt, encrypt, EncryptedPayload } from 'dm3-lib-crypto';
 import { Acknoledgment } from 'dm3-lib-delivery';
 import { Envelop, MessageState } from 'dm3-lib-messaging';
-import { log, stringify } from 'dm3-lib-shared';
+import { logInfo, stringify } from 'dm3-lib-shared';
 import { createTimestamp } from './Utils';
 
 export enum StorageLocation {
@@ -235,7 +235,7 @@ export async function load(
     data: UserStorage,
     storageEncryptionKey: string,
 ): Promise<UserDB> {
-    log('[storage] Loading user storage', 'info');
+    logInfo('[storage] Loading user storage');
 
     const decryptedPayload: UserStoragePayload = JSON.parse(
         await decrypt(storageEncryptionKey, data.payload),

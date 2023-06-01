@@ -5,7 +5,7 @@ import {
     ProfileKeys,
     SignedUserProfile,
 } from 'dm3-lib-profile';
-import { log } from 'dm3-lib-shared';
+import { logDebug, logError, logInfo } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import { Socket } from 'socket.io-client';
 import { IDatabase } from '../../persitance/getDatabase';
@@ -56,7 +56,7 @@ Initializes the connection to delivery services.
 @returns A promise that resolves when the connection initialization is complete.
 */
     async function connect() {
-        log('Start to initialize connection to delivery services', 'info');
+        logInfo('Start to initialize connection to delivery services');
         //Get all delivery service profiles
         const billboardsWithProfile = await getBillboardProfile(
             provider,
@@ -83,7 +83,7 @@ Initializes the connection to delivery services.
             authenticatedBillboards,
             encryptAndStoreMessage(onMessage),
         );
-        log('Finished delivery service initialization', 'info');
+        logInfo('Finished delivery service initialization');
     }
 
     /** 
@@ -129,10 +129,14 @@ Encrypts and stores a message to redis using the provided billboard's keypairs a
                         JSON.parse(encryptionEnvelop.message),
                     ),
                 ) as Message;
-                log(
-                    'decryptedMessage' + JSON.stringify(decryptedMessage),
-                    'debug',
-                );
+                logInfo({
+                    msg: 'encryptAndStoreMessage',
+                    metadata: decryptedMessage.metadata,
+                });
+                logDebug({
+                    msg: 'encryptAndStoreMessage',
+                    decryptedMessage,
+                });
                 broadcastMessage(
                     billboardWithDsProfile.ensName,
                     decryptedMessage,
@@ -141,8 +145,11 @@ Encrypts and stores a message to redis using the provided billboard's keypairs a
                     billboardWithDsProfile.ensName,
                     decryptedMessage,
                 );
-            } catch (err: any) {
-                log("Can't decrypt message " + JSON.stringify(err), 'error');
+            } catch (error: any) {
+                logError({
+                    text: `Can't decrypt message`,
+                    error,
+                });
             }
         };
     }

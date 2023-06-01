@@ -1,4 +1,4 @@
-import { log } from 'dm3-lib-shared';
+import { logInfo } from 'dm3-lib-shared';
 import { Dm3Profile, ProfileResolver } from './ProfileResolver';
 import { GetResource } from '../Profile';
 
@@ -16,7 +16,7 @@ export function resolveProfile<T extends Dm3Profile>(
     validate: (objectToCheck: T) => boolean,
 ) {
     return async (textRecord: string) => {
-        log(`[getUserProfile] resolve ipfs link ${textRecord}`, 'info');
+        logInfo({ text: `[getUserProfile] resolve ipfs link`, textRecord });
 
         const ipfsGatewayUrl = 'https://www.ipfs.io/ipfs';
         const cid = textRecord.substring(7);

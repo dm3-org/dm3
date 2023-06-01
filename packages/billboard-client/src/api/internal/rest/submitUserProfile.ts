@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { SignedUserProfile, normalizeEnsName } from 'dm3-lib-profile';
-import { log } from 'dm3-lib-shared';
+import { logError } from 'dm3-lib-shared';
 
 export async function submitUserProfile(
     dsUrl: string,
@@ -12,11 +12,8 @@ export async function submitUserProfile(
     try {
         const { data } = await axios.post(url, signedUserProfile);
         return data;
-    } catch (e) {
-        log(
-            "can't submit userProfile to ds " + dsUrl + ' ' + JSON.stringify(e),
-            'error',
-        );
+    } catch (error) {
+        logError({ text: "can't submit userProfile to ds ", dsUrl, error });
         return null;
     }
 }

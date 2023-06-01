@@ -1,4 +1,4 @@
-import { log } from 'dm3-lib-shared';
+import { logInfo } from 'dm3-lib-shared';
 import { getChallenge } from '../../../api/internal/rest/getChallenge';
 import { getNewToken } from '../../../api/internal/rest/getNewToken';
 import {
@@ -6,7 +6,6 @@ import {
     AuthenticatedBillboard,
 } from '../DsManagerImpl';
 import { sign } from 'dm3-lib-crypto';
-import { UserProfile } from 'dm3-lib-profile';
 import { submitUserProfile } from '../../../api/internal/rest/submitUserProfile';
 
 /**
@@ -38,17 +37,20 @@ export async function signInAtDs(
                         // eslint-disable-next-line max-len
                         //If the profile was already submitted, we get a token back. Otherwise we've to perform the challenge response flow
                         if (token) {
-                            log(
-                                `Submitted profilte for ${billboard.ensName} to ${ds.url}}`,
-                                'info',
-                            );
+                            logInfo({
+                                text: `Submitted profile`,
+                                billboardEnsName: billboard.ensName,
+                                dsUrl: ds.url,
+                            });
                             return token;
                         }
                     }
-                    log(
-                        `Create session for ${billboard.ensName} at ${ds.url}}`,
-                        'info',
-                    );
+                    logInfo({
+                        text: `Create session `,
+                        billboardEnsName: billboard.ensName,
+                        dsUrl: ds.url,
+                    });
+
                     //Create session using the billboards private key
                     const challenge = await getChallenge(ds.url, ensName);
                     if (!challenge) {
@@ -60,7 +62,12 @@ export async function signInAtDs(
                     );
 
                     const token = await getNewToken(ds.url, ensName, signature);
-                    log('get token for ' + ds.url, 'info');
+                    logInfo({
+                        text: `get token for`,
+                        billboardEnsName: billboard.ensName,
+                        dsUrl: ds.url,
+                    });
+
                     if (!token) {
                         throw Error("Can't create session for " + ds.url);
                     }
