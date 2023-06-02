@@ -5,6 +5,7 @@ import { getViewerCountHandler } from './handler/getViewerCount';
 import { getMessagesHandler } from './handler/getMessages';
 import { IDatabase } from '../../persitance/getDatabase';
 import { IViewerService } from '../../service/viewerService/IViewerService';
+import { logDebug, logInfo } from 'dm3-lib-shared';
 
 export function getExternalApi(db: IDatabase, viewerService: IViewerService) {
     const app = express();
@@ -12,6 +13,9 @@ export function getExternalApi(db: IDatabase, viewerService: IViewerService) {
 
     app.post('/rpc', async (req: express.Request, res: express.Response) => {
         const { method, params } = req.body;
+
+        logInfo({ msg: '/rpc', method });
+        logDebug({ msg: '/rpc', method, params });
 
         //Create Json Rpc request Id
         const id = v4();

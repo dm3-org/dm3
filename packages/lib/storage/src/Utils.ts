@@ -1,4 +1,4 @@
-import { log } from 'dm3-lib-shared';
+import { logError, logInfo } from 'dm3-lib-shared';
 
 export const FILE_NAME_PREFIX = 'dm3';
 
@@ -16,7 +16,7 @@ export function getTimestamp(file: { name: string }): number | undefined {
 
     //In order to extract the timeStamp, a file has to corresponds to the dm3 storage file naming pattern
     if (!isValidFileName) {
-        log('Invalid filename', 'error');
+        logError('Invalid filename');
         return undefined;
     }
     //If a float number was provided as a timestamp only the int part will be returned
@@ -25,7 +25,7 @@ export function getTimestamp(file: { name: string }): number | undefined {
     const timeStamp = parseInt(integerString);
     //The timestamp has to be a number in order to get parsed
     if (isNaN(timeStamp)) {
-        log('timestamp has to be a number. Given: ' + integerString, 'info');
+        logInfo({ text: 'timestamp has to be a number.', integerString });
         return undefined;
     }
 

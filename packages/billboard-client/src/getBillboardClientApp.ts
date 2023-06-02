@@ -1,5 +1,5 @@
 import bodyParser from 'body-parser';
-import { log } from 'dm3-lib-shared';
+import { logDebug, logInfo } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import express from 'express';
 import http from 'http';
@@ -29,7 +29,10 @@ export const getBillboardClientApp = async (
 
     //Readng the ENV config file
     const config = ConfigService().readConfigFromEnv();
-    log('[getBillboardClientApp] config ' + JSON.stringify(config), 'debug');
+    logDebug({
+        text: '[getBillboardClientApp] config ',
+        config,
+    });
 
     //Each Ens name provided in the config file is an billboard instance
     //Right now we're using one profile and hence one private key for all billboards
@@ -38,10 +41,10 @@ export const getBillboardClientApp = async (
         ensName,
         privateKey: config.privateKey,
     }));
-    log(
-        '[getBillboardClientApp] billboards ' + JSON.stringify(billboards),
-        'debug',
-    );
+    logDebug({
+        text: '[getBillboardClientApp] billboards',
+        billboards,
+    });
 
     //Register services
     const viewerService = await ViewerService(httpServer);
@@ -58,7 +61,10 @@ export const getBillboardClientApp = async (
     app.use(getExternalApi(db, viewerService));
 
     httpServer.listen(port, () => {
-        log('billboard client listening at port ' + port, 'info');
+        logInfo({
+            text: 'billboard client listening at port ',
+            port,
+        });
     });
 
     //In oder to finish the test everything has to be cleaned up

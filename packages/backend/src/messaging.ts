@@ -9,7 +9,7 @@ import {
     checkToken,
     incomingMessage,
 } from 'dm3-lib-delivery/dist.backend';
-import { log } from 'dm3-lib-shared';
+
 const pendingMessageSchema = {
     type: 'object',
     properties: {
