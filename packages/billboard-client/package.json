@@ -30,6 +30,7 @@
         "docker:up": "docker-compose up -d",
         "start": "yarn ts-node --transpile-only  ./src/index.ts",
         "test": "npm run docker:up && jest --coverage --runInBand --forceExit",
+        "test:load": "npm run docker:up && jest -t 'Load test' --coverage --runInBand --forceExit",
         "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
         "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
         "format:check": "prettier --check '*/**/*.{js,ts,tsx,json}'"
@@ -52,6 +53,7 @@
         "chai": "^4.3.7",
         "chai-http": "^4.3.0",
         "jest": "^29.2.2",
+        "lorem-ipsum": "^2.0.8",
         "redis-mock": "^0.56.3",
         "superagent": "^8.0.3",
         "supertest": "^6.3.1"
