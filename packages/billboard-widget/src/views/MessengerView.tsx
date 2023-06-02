@@ -15,16 +15,15 @@ export const MessengerView = () => {
     const { initialized } = useContext(AuthContext);
     return (
         <div className={`widget common-styles ${options?.className}`}>
-            {messages.length ? (
-                <div>
-                    <div className="header">
-                        <Branding
-                            imgSrc={branding?.imageSrc || dm3Logo}
-                            slogan={branding?.slogan || 'powered by'}
-                        />
-                        <ViewersCount />
-                    </div>
-
+            <div>
+                <div className="header">
+                    <Branding
+                        imgSrc={branding?.imageSrc || dm3Logo}
+                        slogan={branding?.slogan || 'powered by'}
+                    />
+                    <ViewersCount />
+                </div>
+                {messages.length ? (
                     <AutoScrollContainer
                         containerClassName="widget-container styled-scrollbars"
                         {...scrollOptions}
@@ -37,20 +36,22 @@ export const MessengerView = () => {
                             </div>
                         ) : null}
                     </AutoScrollContainer>
-                    {initialized ? (
-                        <CreateMessage onCreateMsg={sendDm3Message} />
-                    ) : (
-                        <p>Please Connect your wallet to use DM3</p>
-                    )}
-                </div>
-            ) : (
-                <EmptyView
-                    info={
-                        branding?.emptyViewText ||
-                        'This is the DM3 Billboard Widget'
-                    }
-                />
-            )}
+                ) : (
+                    <EmptyView
+                        info={
+                            branding?.emptyViewText ||
+                            'This is the DM3 Billboard Widget'
+                        }
+                    />
+                )}
+                {initialized ? (
+                    <CreateMessage onCreateMsg={sendDm3Message} />
+                ) : (
+                    <p style={{ textAlign: 'center' }}>
+                        Please Sign in with Ethereum to send a message with DM3
+                    </p>
+                )}
+            </div>
         </div>
     );
 };
