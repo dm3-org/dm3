@@ -1,4 +1,4 @@
-import { stringify, log } from 'dm3-lib-shared';
+import { stringify, logInfo } from 'dm3-lib-shared';
 import { UserDB } from '..';
 import { Acknoledgment } from 'dm3-lib-delivery';
 import { sync, UserStorage } from '../Storage';
@@ -53,7 +53,7 @@ export async function googleStore(
         throw Error('No google api object');
     }
 
-    log('Sync with google drive', 'info');
+    logInfo('Sync with google drive');
 
     const syncResult = await sync(userDb, deliveryServiceToken);
     await createGoogleDriveFile(
@@ -75,7 +75,7 @@ export async function googleLoad(gapi: any): Promise<string | undefined> {
         })
     ).result.files;
 
-    log(`Google storage found ${files.length} data files`, 'info');
+    logInfo({ text: `Google storage`, filesLength: files.length });
 
     if (files.length < 1) {
         throw Error('No dm3 data found on google drive');

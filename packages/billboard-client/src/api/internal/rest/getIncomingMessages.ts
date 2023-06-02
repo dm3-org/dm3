@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 import { EncryptionEnvelop } from 'dm3-lib-messaging';
-import { log } from 'dm3-lib-shared';
+import { logError } from 'dm3-lib-shared';
 
 /**
  * Retrieves incoming messages for a specific ENS name.
@@ -24,13 +24,12 @@ export async function getIncomingMessages(
         );
 
         return response.data;
-    } catch (e) {
-        log(
-            `Failed to retrieve incoming messages for ds ${dsUrl}` +
-                JSON.stringify(e),
-
-            'error',
-        );
+    } catch (error) {
+        logError({
+            text: `Failed to retrieve incoming messages for ds`,
+            dsUrl,
+            error,
+        });
         return null;
     }
 }

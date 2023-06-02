@@ -1,4 +1,4 @@
-import { log } from 'dm3-lib-shared';
+import { logInfo } from 'dm3-lib-shared';
 import { decode, labelToName } from 'whatwg-encoding';
 import { Dm3Profile, ProfileResolver } from './ProfileResolver';
 
@@ -29,7 +29,7 @@ function isProfile(textRecord: string) {
 
 function resolveProfile<T>(validate: (objectToCheck: T) => boolean) {
     return async <T>(textRecord: string): Promise<T> => {
-        log(`[getUserProfile] Resolve User Json profile `, 'info');
+        logInfo(`[getUserProfile] Resolve User Json profile `);
 
         const dataUrl = parseDataUrl(textRecord);
 

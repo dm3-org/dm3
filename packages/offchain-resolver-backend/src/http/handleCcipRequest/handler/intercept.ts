@@ -1,4 +1,4 @@
-import { log } from 'dm3-lib-shared';
+import { logDebug, logError } from 'dm3-lib-shared';
 
 export interface Interceptor {
     ensName: string;
@@ -7,19 +7,29 @@ export interface Interceptor {
 }
 
 function getInterceptor(ensName: string) {
-    log(
-        `[getInterceptor] for ${ensName} (env: ${process.env.interceptor})`,
-        'debug',
-    );
+    logDebug({
+        text: `[getInterceptor]`,
+        ensName,
+        envInterceptor: process.env.interceptor,
+    });
 
     if (process.env.interceptor) {
         const interceptor: Interceptor = JSON.parse(process.env.interceptor);
-        log(
-            `[getInterceptor] interceptor ${JSON.stringify(interceptor)}`,
-            'debug',
-        );
+        logDebug({
+            text: `[getInterceptor] interceptor`,
+            ensName,
+            envInterceptor: process.env.interceptor,
+            interceptor,
+        });
+
         const higherLevelDomain = ensName.split('.').splice(1).join('.');
-        log(`[getInterceptor] higherLevelDomain ${higherLevelDomain}`, 'debug');
+
+        logDebug({
+            text: `[getInterceptor] higherLevelDomain`,
+            ensName,
+            envInterceptor: process.env.interceptor,
+            higherLevelDomain,
+        });
         return interceptor.ensName === higherLevelDomain ? interceptor : null;
     }
 }
@@ -32,8 +42,8 @@ export function interceptTextRecord(ensName: string, textRecordName: string) {
         return interceptor?.textRecords
             ? interceptor.textRecords[textRecordName]
             : null;
-    } catch (e) {
-        log('Error while intercepting ' + JSON.stringify(e), 'error');
+    } catch (error) {
+        logError({ text: 'Error while intercepting ', error });
     }
 }
 
@@ -43,7 +53,10 @@ export function interceptAddr(ensName: string) {
     try {
         const interceptor = getInterceptor(ensName);
         return interceptor ? interceptor.addr : null;
-    } catch (e) {
-        log('Error while intercepting' + JSON.stringify(e), 'error');
+    } catch (error) {
+        logError({
+            text: 'Error while intercepting',
+            error,
+        });
     }
 }

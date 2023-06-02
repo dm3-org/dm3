@@ -1,4 +1,4 @@
-import { log } from 'dm3-lib-shared';
+import { logError } from 'dm3-lib-shared';
 import { DecodedCcipRequest } from '../types';
 import { decodeAddr } from './decode/decodeAddr';
 import { decodeText } from './decode/decodeText';
@@ -31,12 +31,9 @@ export function decodeRequest(calldata: string): DecodedCcipRequest {
             default:
                 throw Error(`${signature} is not supported`);
         }
-    } catch (err: any) {
-        log(
-            `[Decode Calldata] Can't decode calldata ` + JSON.stringify(err),
-            'error',
-        );
+    } catch (error: any) {
+        logError({ text: `[Decode Calldata] Can't decode calldata`, error });
 
-        throw err;
+        throw error;
     }
 }

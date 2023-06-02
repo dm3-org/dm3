@@ -6,7 +6,7 @@ import {
     Account,
 } from 'dm3-lib-profile';
 import { Acknoledgment } from 'dm3-lib-delivery';
-import { log } from 'dm3-lib-shared';
+import { logInfo } from 'dm3-lib-shared';
 import { sync } from '../Storage';
 import { ethers } from 'ethers';
 
@@ -27,7 +27,7 @@ export async function useDm3Storage(
     token: string,
 ): Promise<Acknoledgment[]> {
     const syncResult = await sync(userDb, token);
-    log(`[dm3 Storage] Saving user storage`, 'info');
+    logInfo(`[dm3 Storage] Saving user storage`);
 
     const { profile, ensName } = account;
 
@@ -46,7 +46,7 @@ export async function getDm3Storage(
     account: Account,
     token: string,
 ): Promise<string | undefined> {
-    log(`[dm3 Storage] Get user storage`, 'info');
+    logInfo(`[dm3 Storage] Get user storage`);
 
     const { profile, ensName } = account!;
 
