@@ -20,6 +20,7 @@
 .common-styles {
     --mainBg: #1f2029;
     --messageBg: #3a3c50;
+    --messageBgOwn: #3a3c50;
     --messageBg25: rgba(58, 60, 80, 0.25);
     --borderInputColor: #b4b8c9;
     --inputBg: #434450;
@@ -158,6 +159,9 @@
         white-space: wrap;
     }
 
+    .own {
+        background-color: var(--messageBgOwn);
+    }
     .meta {
         display: flex;
         justify-content: space-between;
