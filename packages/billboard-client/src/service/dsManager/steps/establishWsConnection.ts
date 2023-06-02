@@ -7,7 +7,7 @@ import {
     AuthenticatedBillboardWithSocket,
     BillboardWithDsProfile,
 } from '../DsManagerImpl';
-import { log } from 'dm3-lib-shared';
+import { logInfo } from 'dm3-lib-shared';
 
 /**
  * Establishes WebSocket connections for authenticated billboards with delivery service profiles, and returns an array of authenticated billboards with their associated WebSocket clients.
@@ -29,10 +29,10 @@ export async function establishWsConnections(
 ): Promise<AuthenticatedBillboardWithSocket[]> {
     return await Promise.all(
         billboardsWithDsProfile.map(async (billboardWithDsProfile) => {
-            log(
-                `Establish WS connection for ${billboardWithDsProfile.ensName}`,
-                'info',
-            );
+            logInfo({
+                text: `Establish WS connection for`,
+                billboardWithDsProfileensName: billboardWithDsProfile.ensName,
+            });
             //For each billboard, establish a WebSocket connection with each delivery service profile.
 
             const sockets = await getDeliveryServiceWSClient(

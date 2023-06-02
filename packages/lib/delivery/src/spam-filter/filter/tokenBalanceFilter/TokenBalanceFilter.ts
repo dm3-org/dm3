@@ -3,7 +3,7 @@ import { DeliveryInformation } from 'dm3-lib-messaging';
 import { SpamFilterRule } from '../../SpamFilterRules';
 import { SpamFilterFactory } from '../SpamFilter';
 import ERC20Abi from './Erc20Abi.json';
-import { log } from 'dm3-lib-shared';
+import { logError } from 'dm3-lib-shared';
 
 export type TokenBalanceFilterSettings = {
     address: string;
@@ -39,12 +39,11 @@ export function tokenBalanceFilterFactory(): SpamFilterFactory {
                 );
                 const balanceOfHex = await contract.balanceOf(from);
                 return BigNumber.from(balanceOfHex);
-            } catch (err) {
-                log(
-                    '[Token Balance Filter] Cant fetch balance from ERC20 Token. Return 0 as default' +
-                        JSON.stringify(err),
-                    'error',
-                );
+            } catch (error) {
+                logError({
+                    text: '[Token Balance Filter] Cant fetch balance from ERC20 Token. Return 0 as default',
+                    error,
+                });
                 return ethers.constants.Zero;
             }
         };

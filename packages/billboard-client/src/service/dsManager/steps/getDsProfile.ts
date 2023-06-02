@@ -1,6 +1,6 @@
 import { getDeliveryServiceProfile } from 'dm3-lib-profile';
 import { BillboardWithProfile } from '../DsManagerImpl';
-import { log } from 'dm3-lib-shared';
+import { logInfo } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 
 /**
@@ -15,7 +15,7 @@ export function getDsProfile(provider: ethers.providers.JsonRpcProvider) {
         const dsProfiles = await Promise.all(
             billboardsWithProfile.profile.deliveryServices.map(
                 async (url: string) => {
-                    log('Get DS profile for ' + url, 'info');
+                    logInfo({ text: 'Get DS profile for ', url });
                     const dsProfile = await getDeliveryServiceProfile(
                         url,
                         provider,

@@ -6,7 +6,7 @@ import {
 } from 'dm3-lib-profile';
 import { ProxyEnvelop } from './ProxyEnvelop';
 import { ethers } from 'ethers';
-import { log } from 'dm3-lib-shared';
+import { logError } from 'dm3-lib-shared';
 import { EncryptionEnvelop } from './Envelop';
 
 export type ProxySendParams = {
@@ -48,11 +48,12 @@ async function trySend(
         });
 
         return true;
-    } catch (e) {
-        log(
-            `Failed to send message using: ${dsName} ` + JSON.stringify(e),
-            'error',
-        );
+    } catch (error) {
+        logError({
+            text: `Failed to send message`,
+            dsName,
+            error,
+        });
         return false;
     }
 }

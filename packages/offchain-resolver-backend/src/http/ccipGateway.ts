@@ -2,7 +2,7 @@ import {
     decodeRequest,
     encodeResponse,
 } from 'dm3-lib-offchain-resolver/dist.backend';
-import { log } from 'dm3-lib-shared/dist.backend';
+import { logError } from 'dm3-lib-shared/dist.backend';
 import { Signer } from 'ethers';
 import express from 'express';
 import { handleCcipRequest } from './handleCcipRequest/handleCcipRequest';
@@ -33,7 +33,7 @@ export function ccipGateway(signer: Signer, resolverAddr: string) {
                 );
 
                 if (!response) {
-                    log('Record not found', 'error');
+                    logError('Record not found');
                     res.status(404).send({ message: 'Record not found' });
                 } else {
                     const data = await encodeResponse(

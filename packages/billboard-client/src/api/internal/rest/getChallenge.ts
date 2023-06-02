@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { normalizeEnsName } from 'dm3-lib-profile';
-import { log } from 'dm3-lib-shared';
+import { logError } from 'dm3-lib-shared';
 
 export async function getChallenge(
     dsUrl: string,
@@ -11,8 +11,12 @@ export async function getChallenge(
     try {
         const { data } = await axios.get(url);
         return data.challenge;
-    } catch (e) {
-        log("can't get challenge from ds " + dsUrl, 'error');
+    } catch (error) {
+        logError({
+            text: "can't get challenge from ds",
+            error,
+            dsUrl,
+        });
         return null;
     }
 }
