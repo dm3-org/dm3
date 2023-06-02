@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { GlobalContext } from '../context/GlobalContext';
+import AvatarPlaceholder from '../assets/avatar-placeholder.svg';
 interface Props {
     identifier: string;
 }
@@ -20,9 +21,16 @@ function Avatar(props: Props) {
                             ? avatarSrc
                             : avatarSrc(identifier)
                     }
-                    alt={`cute robot avatar of dm3 user: ${identifier}`}
+                    alt={`avatar of  ${identifier}`}
                 />
-            ) : null}
+            ) : (
+                <img
+                    width="38px"
+                    height="38px"
+                    src={AvatarPlaceholder}
+                    alt="Avatar image"
+                />
+            )}
         </div>
     );
 }
