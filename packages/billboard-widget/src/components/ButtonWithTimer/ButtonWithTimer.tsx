@@ -5,6 +5,7 @@ import React, {
     useMemo,
     PropsWithChildren,
 } from 'react';
+import { SubmitMessageIcon } from './SubmitMessageIcon';
 
 interface ButtonWithTimerProps extends PropsWithChildren {
     onClick: (e?: React.MouseEvent<HTMLInputElement>) => void;
@@ -81,44 +82,50 @@ const ButtonWithTimer: React.FC<ButtonWithTimerProps> = ({
     }, [activeTimeout, timeout]);
 
     return (
-        <button
-            className={`dm3-loading-btn ${
-                activeTimeout ? 'active-timeout' : ''
-            } ${disabled ? 'disabled' : ''}`}
-            onClick={handleClick}
-            disabled={activeTimeout || disabled}
-        >
-            <div className="button-icon">{children}</div>
-            <div className="svg-wrapper">
-                <svg
-                    className="circle-chart"
-                    viewBox="0 0 100 100"
-                    width={size}
-                    height={size}
-                    xmlns="http://www.w3.org/2000/svg"
+        <>
+            {!activeTimeout ? (
+                <div >
+                    <SubmitMessageIcon onClick={handleClick} disabled={disabled} />
+                </div>
+            ) : (
+                <button
+                    className={`dm3-loading-btn ${
+                        activeTimeout ? 'active-timeout' : ''
+                    } ${disabled ? 'disabled' : ''}`}
+                    disabled={activeTimeout || disabled}
                 >
-                    <circle
-                        className="circle-chart__background"
-                        strokeWidth={strokeWidth}
-                        fill="none"
-                        cx="50"
-                        cy="50"
-                        r="48"
-                    />
-                    <circle
-                        className="circle-chart__circle"
-                        id="send-button-progress-circle"
-                        strokeWidth={strokeWidth}
-                        fill="none"
-                        cx="50"
-                        cy="50"
-                        r="46"
-                        strokeDasharray="0,300"
-                        ref={circleRef}
-                    />
-                </svg>
-            </div>
-        </button>
+                    <div className="svg-wrapper">
+                        <svg
+                            className="circle-chart"
+                            viewBox="0 0 100 100"
+                            width={size}
+                            height={size}
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <circle
+                                className="circle-chart__background"
+                                strokeWidth={strokeWidth}
+                                fill="none"
+                                cx="50"
+                                cy="50"
+                                r="48"
+                            />
+                            <circle
+                                className="circle-chart__circle"
+                                id="send-button-progress-circle"
+                                strokeWidth={strokeWidth}
+                                fill="none"
+                                cx="50"
+                                cy="50"
+                                r="46"
+                                strokeDasharray="0,300"
+                                ref={circleRef}
+                            />
+                        </svg>
+                    </div>
+                </button>
+            )}
+        </>
     );
 };
 
