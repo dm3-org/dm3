@@ -1,9 +1,9 @@
 import React, {
+    PropsWithChildren,
     useEffect,
+    useMemo,
     useRef,
     useState,
-    useMemo,
-    PropsWithChildren,
 } from 'react';
 import { SubmitMessageIcon } from './SubmitMessageIcon';
 
@@ -27,7 +27,6 @@ const ButtonWithTimer: React.FC<ButtonWithTimerProps> = ({
     onClick,
     timeout = 0,
     size = 40,
-    children,
     disabled = false,
 }) => {
     const [activeTimeout, setActiveTimeout] = useState(false);
@@ -84,8 +83,11 @@ const ButtonWithTimer: React.FC<ButtonWithTimerProps> = ({
     return (
         <>
             {!activeTimeout ? (
-                <div >
-                    <SubmitMessageIcon onClick={handleClick} disabled={disabled} />
+                <div>
+                    <SubmitMessageIcon
+                        onClick={handleClick}
+                        disabled={disabled}
+                    />
                 </div>
             ) : (
                 <button
