@@ -5,7 +5,6 @@ import gearIcon from '../assets/gear-icon.svg';
 import { AuthContext } from '../context/AuthContext';
 import Avatar from './Avatar';
 import ButtonWithTimer from './ButtonWithTimer/ButtonWithTimer';
-import { SubmitMessageIcon } from './ButtonWithTimer/SubmitMessageIcon';
 interface Props {
     onClickSettings?: () => void;
     onCreateMsg: (msg: string) => void;
