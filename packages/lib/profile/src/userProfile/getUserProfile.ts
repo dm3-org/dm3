@@ -1,4 +1,3 @@
-import { log } from 'dm3-lib-shared';
 import axios from 'axios';
 import {
     ProfileResolver,

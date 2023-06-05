@@ -19,7 +19,7 @@ import {
     EncryptionEnvelop,
     Postmark,
 } from 'dm3-lib-messaging';
-import { log, sha256 } from 'dm3-lib-shared';
+import { logDebug, sha256 } from 'dm3-lib-shared';
 import { checkToken, Session } from './Session';
 import { isSpam } from './spam-filter';
 import { SpamFilterRules } from './spam-filter/SpamFilterRules';
@@ -114,13 +114,13 @@ export async function incomingMessage(
 
     const deliveryInformation: DeliveryInformation =
         await decryptDeliveryInformation(envelop, encryptionKeyPair);
-    log('deliveryInformation ' + JSON.stringify(deliveryInformation), 'debug');
+    logDebug({ text: 'incomingMessage', deliveryInformation });
 
     const conversationId = getConversationId(
         await getIdEnsName(deliveryInformation.from),
         await getIdEnsName(deliveryInformation.to),
     );
-    log('conversationId ' + conversationId, 'debug');
+    logDebug({ text: 'incomingMessage', conversationId, deliveryInformation });
 
     //Checks if the sender is authenticated
     const tokenIsValid = await checkToken(
@@ -140,8 +140,12 @@ export async function incomingMessage(
     if (!receiverSession) {
         throw Error('unknown session');
     }
-
-    log('receiverSession ' + JSON.stringify(receiverSession), 'debug');
+    logDebug({
+        text: 'incomingMessage',
+        conversationId,
+        deliveryInformation,
+        receiverSession,
+    });
 
     //Checkes if the message is spam
     if (await isSpam(provider, receiverSession, deliveryInformation)) {
@@ -166,8 +170,11 @@ export async function incomingMessage(
             ),
         ),
     };
-
-    log('envelopWithPostmark ' + JSON.stringify(envelopWithPostmark), 'debug');
+    logDebug({
+        text: 'incomingMessage',
+        conversationId,
+        envelopWithPostmark,
+    });
 
     await storeNewMessage(conversationId, envelopWithPostmark);
 
@@ -175,7 +182,10 @@ export async function incomingMessage(
     if (receiverSession.socketId) {
         //Client is already connect to the delivery service and the message can be dispatched
         send(receiverSession.socketId, envelopWithPostmark);
-        log('WS send to socketId ' + receiverSession.socketId, 'debug');
+        logDebug({
+            text: 'WS send to socketId ',
+            receiverSessionSocketId: receiverSession.socketId,
+        });
     }
 }
 

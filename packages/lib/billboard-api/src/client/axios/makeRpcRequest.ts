@@ -1,5 +1,5 @@
 import { Axios } from 'axios';
-import { log } from 'dm3-lib-shared';
+import { logError } from 'dm3-lib-shared';
 
 interface RpcRequest {
     axios: Axios;
@@ -32,7 +32,7 @@ export async function makeRpcRequest<T>({
     const { error, result } = data;
 
     if (error) {
-        log('[makeRpcRequest] ' + JSON.stringify(error), 'error');
+        logError({ text: '[makeRpcRequest] ', error });
         return null;
     }
     return result;

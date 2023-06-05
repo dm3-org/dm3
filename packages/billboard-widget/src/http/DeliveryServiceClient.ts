@@ -4,7 +4,7 @@ import {
     createJsonRpcCallSubmitMessage,
 } from 'dm3-lib-messaging';
 import { SignedUserProfile, normalizeEnsName } from 'dm3-lib-profile';
-import { log } from 'dm3-lib-shared';
+import { logError } from 'dm3-lib-shared';
 
 export const DeliveryServiceClient = (url: string) => {
     const submitMessage = (envelop: EncryptionEnvelop, token: string) => {
@@ -24,8 +24,8 @@ export const DeliveryServiceClient = (url: string) => {
                 baseURL: url,
             });
             return data;
-        } catch (e) {
-            log("can't submit userProfile to ds " + path, 'error');
+        } catch (error) {
+            logError({ text: "can't submit userProfile to ds ", error, path });
             return null;
         }
     };
