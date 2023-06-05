@@ -1,4 +1,4 @@
-import { log } from 'dm3-lib-shared';
+import { logInfo } from 'dm3-lib-shared';
 import { checkProfileHash, GetResource } from '../Profile';
 import { Dm3Profile, ProfileResolver } from './ProfileResolver';
 
@@ -16,7 +16,7 @@ function resolveProfile<T extends Dm3Profile>(
     validate: (objectToCheck: T) => boolean,
 ) {
     return async (textRecord: string) => {
-        log(`[getUserProfile] resolve link ${textRecord}`, 'info');
+        logInfo({ text: `[getUserProfile] resolve link`, textRecord });
         const profile = await getResource(textRecord);
 
         if (!profile) {

@@ -9,7 +9,11 @@ import { DeliveryServiceClient } from '../http/DeliveryServiceClient';
 import { OffchainResolverClient } from '../http/OffchainResolverClient';
 import { ClientProps } from '../types';
 
-const RANDOM_HOTWALLET_KEY = 'Billboard-Random-Hotwallet-Key';
+const RANDOM_HOTWALLET_KEY = 'DM3-Hotwallet-Key-';
+
+const getDm3HotWalletKey = (address: string) => {
+    return RANDOM_HOTWALLET_KEY + address;
+};
 
 interface BillboardHotWallet {
     keys: ProfileKeys;
@@ -22,17 +26,20 @@ export const useAuth = (
     clientProps: ClientProps,
 ) => {
     const getWallet = async (): Promise<BillboardHotWallet> => {
-        const hotWallet = localStorage.getItem(RANDOM_HOTWALLET_KEY);
-        //User has used the widget before hence we have a keypair in the local storage
-        if (hotWallet) {
-            return JSON.parse(hotWallet) as BillboardHotWallet;
-        }
         if (
             !clientProps.siweAddress ||
             !clientProps.siweSig ||
             !clientProps.siweMessage
         ) {
             throw 'user is not logged in yet';
+        }
+
+        const hotWallet = localStorage.getItem(
+            getDm3HotWalletKey(clientProps.siweAddress),
+        );
+        //User has used the widget before hence we have a keypair in the local storage
+        if (hotWallet) {
+            return JSON.parse(hotWallet) as BillboardHotWallet;
         }
 
         const deliverServiceProfile = await getDeliveryServiceProfile(
@@ -102,7 +109,7 @@ export const useAuth = (
 
         //Keep the KeyPair we just generated in the local storage so we can use them later
         localStorage.setItem(
-            RANDOM_HOTWALLET_KEY,
+            getDm3HotWalletKey(clientProps.siweAddress),
             JSON.stringify(newHotWallet),
         );
         return newHotWallet;

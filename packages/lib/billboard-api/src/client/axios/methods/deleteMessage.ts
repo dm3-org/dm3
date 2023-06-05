@@ -1,5 +1,4 @@
 import { Axios } from 'axios';
-import { log } from 'dm3-lib-shared';
 import { makeRpcRequest } from '../makeRpcRequest';
 
 export function deleteMessage(axios: Axios) {

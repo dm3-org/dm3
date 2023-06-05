@@ -1,6 +1,6 @@
 /* eslint no-console: 0 */
 export interface LogOptions {
-    customLogger?: (msg: string, level: string) => void;
+    customLogger?: (msg: any, level: string) => void;
 }
 
 const levels: Record<string, number> = {
@@ -14,32 +14,37 @@ const levels: Record<string, number> = {
 };
 
 function execLog(
-    msg: string,
+    message: any,
     level: string,
     currentLevel: number,
     options?: LogOptions,
 ) {
+    const msgObject = JSON.stringify({
+        message,
+        level,
+    });
+
     if (options?.customLogger) {
-        options.customLogger(msg, level);
+        options.customLogger(message, level);
     } else if (levels[level] !== undefined && levels[level] <= currentLevel) {
         switch (level) {
             case 'error':
-                console.error(msg);
+                console.error(msgObject);
                 break;
 
             case 'warning':
-                console.warn(msg);
+                console.warn(msgObject);
                 break;
 
             case 'info':
             case 'debug':
             default:
-                console.log(msg);
+                console.log(msgObject);
         }
     }
 }
 
-export function log(msg: string, level: string, options?: LogOptions) {
+export function log(msg: any, level: string, options?: LogOptions) {
     let currentLevel = 2;
     try {
         const envLevel = process.env.LOG_LEVEL;
@@ -58,18 +63,18 @@ export function log(msg: string, level: string, options?: LogOptions) {
     execLog(msg, level, currentLevel, options);
 }
 
-export function logInfo(msg: string, options?: LogOptions) {
+export function logInfo(msg: any, options?: LogOptions) {
     log(msg, 'info', options);
 }
 
-export function logError(msg: string, options?: LogOptions) {
+export function logError(msg: any, options?: LogOptions) {
     log(msg, 'info', options);
 }
 
-export function logWarning(msg: string, options?: LogOptions) {
+export function logWarning(msg: any, options?: LogOptions) {
     log(msg, 'warning', options);
 }
 
-export function logDebug(msg: string, options?: LogOptions) {
+export function logDebug(msg: any, options?: LogOptions) {
     log(msg, 'debug', options);
 }
