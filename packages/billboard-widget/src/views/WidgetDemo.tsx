@@ -8,6 +8,7 @@ import App from '../App';
 import EmptyView from '../components/EmptyView';
 import { defaultOptions } from '../main';
 import { ClientProps } from '../types';
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 
 const defaultClientProps: Omit<
     ClientProps,
@@ -57,6 +58,7 @@ export const WidgetDemo = () => {
 
     return (
         <>
+            <div style={{ width: 200, height: 200 }}></div>
             <App
                 clientProps={clientProps}
                 options={defaultOptions}
@@ -64,7 +66,6 @@ export const WidgetDemo = () => {
                     new ethers.providers.Web3Provider(window.ethereum)
                 }
             />
-
             <div className={`widget common-styles `}>
                 {!data && (
                     <>

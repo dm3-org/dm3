@@ -1,10 +1,9 @@
 import React, {
     PropsWithChildren,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
+    useState
 } from 'react';
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import ProgressProvider from './ProgressProvider';
 import { SubmitMessageIcon } from './SubmitMessageIcon';
 
 interface ButtonWithTimerProps extends PropsWithChildren {
@@ -30,7 +29,6 @@ const ButtonWithTimer: React.FC<ButtonWithTimerProps> = ({
     disabled = false,
 }) => {
     const [activeTimeout, setActiveTimeout] = useState(false);
-    const circleRef = useRef<SVGCircleElement | null>(null);
 
     const handleClick = () => {
         onClick();
@@ -39,46 +37,6 @@ const ButtonWithTimer: React.FC<ButtonWithTimerProps> = ({
             setActiveTimeout(false);
         }, timeout);
     };
-
-    const strokeWidth = useMemo(() => {
-        return 600 / size;
-    }, [size]);
-
-    useEffect(() => {
-        let requestId: number;
-        let startTime: number | null = null;
-
-        if (!activeTimeout) {
-            return;
-        }
-
-        /**
-         * Do the SVG Magic:
-         * - progress * 2.89 because full perimeter is about 289 (46 * 2 * PI)
-         *
-         * @param timestamp
-         */
-        function animate(timestamp: number) {
-            if (!startTime) {
-                startTime = timestamp;
-            }
-            const runningTime = timestamp - startTime;
-            const progress = (runningTime / timeout) * 100;
-
-            circleRef?.current?.setAttribute(
-                'stroke-dasharray',
-                `${progress * 2.89},300`,
-            );
-
-            requestId = requestAnimationFrame(animate);
-        }
-
-        requestId = requestAnimationFrame(animate);
-
-        return () => {
-            cancelAnimationFrame(requestId);
-        };
-    }, [activeTimeout, timeout]);
 
     return (
         <>
@@ -97,33 +55,23 @@ const ButtonWithTimer: React.FC<ButtonWithTimerProps> = ({
                     disabled={activeTimeout || disabled}
                 >
                     <div className="svg-wrapper">
-                        <svg
-                            className="circle-chart"
-                            viewBox="0 0 100 100"
-                            width={size}
-                            height={size}
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <circle
-                                className="circle-chart__background"
-                                strokeWidth={strokeWidth}
-                                fill="none"
-                                cx="50"
-                                cy="50"
-                                r="48"
-                            />
-                            <circle
-                                className="circle-chart__circle"
-                                id="send-button-progress-circle"
-                                strokeWidth={strokeWidth}
-                                fill="none"
-                                cx="50"
-                                cy="50"
-                                r="46"
-                                strokeDasharray="0,300"
-                                ref={circleRef}
-                            />
-                        </svg>
+                        <ProgressProvider valueStart={0} valueEnd={100}>
+                            {(value: number) => (
+                                <CircularProgressbar
+                                    styles={buildStyles({
+                                        rotation: 1,
+                                        pathTransitionDuration: 6,
+
+                                        // Colors
+                                        pathColor: `#ffcada`,
+                                        textColor: '#f88',
+                                        trailColor: '#81828d',
+                                        backgroundColor: '#81828d',
+                                    })}
+                                    value={value}
+                                />
+                            )}
+                        </ProgressProvider>
                     </div>
                 </button>
             )}
