@@ -1,23 +1,31 @@
+import { Message } from 'dm3-lib-messaging';
+import { claimAddress } from 'dm3-lib-offchain-resolver-api';
 import {
     ProfileKeys,
     createProfile,
     getDeliveryServiceProfile,
     getUserProfile,
 } from 'dm3-lib-profile';
+import { logInfo } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
-import { DeliveryServiceClient } from './DeliveryServiceClient';
-import { MockMessageFactory } from '../helper/mockMessageFactory';
 import { loremIpsum } from 'lorem-ipsum';
-import { log, logInfo } from 'dm3-lib-shared';
-import { claimAddress } from 'dm3-lib-offchain-resolver-api';
+import { io } from 'socket.io-client';
+import { MockMessageFactory } from '../helper/mockMessageFactory';
+import { wait } from '../helper/utils/wait';
+import { DeliveryServiceClient } from './DeliveryServiceClient';
 
 const DELIVERY_SERVICE_NAME = 'ethprague-ds.dm3.eth';
 const OFFCHAIN_RESOLVER_URL = 'https://billboard-ethprague.herokuapp.com';
-const BILLBOARD_CLIENT_ENS_NAMES = ['billboard1.billboard.ethprague.dm3.eth'];
+const BILLBOARD_CLIENT_URL =
+    'https://billboard-ethprague-client.herokuapp.com/';
+const BILLBOARD_CLIENT_ENS_NAMES = [
+    'billboard1.billboard.ethprague.dm3.eth',
+    'billboard2.billboard.ethprague.dm3.eth',
+];
 
-const MESSENGES_PER_SECOND = 4;
+const MESSENGES_PER_SECOND = 20;
 //Duration in seconds
-const DURATION = 60;
+const DURATION = 20 * 60;
 
 describe('Load test', () => {
     it('Sends 1000 messages per second to the billboard client', async () => {
@@ -57,9 +65,9 @@ describe('Load test', () => {
         await claimAddress(
             wallet.address,
             OFFCHAIN_RESOLVER_URL,
-            senderProfile.signedProfile
+            senderProfile.signedProfile,
         );
-        const ensName = `${wallet.address}.user.ethprague.dm3.eth`;
+        const ensName = `${wallet.address}.addr.ethprague.dm3.eth`;
         const token = await DeliveryServiceClient(
             deliverServiceProfile.url,
         ).submitUserProfile(ensName, senderProfile.signedProfile);
@@ -93,37 +101,59 @@ describe('Load test', () => {
                 dsProfile: deliverServiceProfile,
             });
         });
+
+        const receivedMessages: Message[] = [];
+        //Add websocket listner to ensure that the messages are received
+        BILLBOARD_CLIENT_ENS_NAMES.forEach((billboardId) => {
+            io(BILLBOARD_CLIENT_URL).on(`message-${billboardId}`, (message) => {
+                receivedMessages.push(message);
+            });
+        });
+
+        //Submit the messages
         let secondsRunning = 0;
-        const interval = setInterval(async () => {
-            logInfo('Starting load test');
-            if (secondsRunning >= DURATION) {
-                //We're done
-                clearInterval(interval);
-            }
+        const passed = await new Promise((resolve) => {
+            const interval = setInterval(async () => {
+                logInfo('Starting load test');
+                if (secondsRunning >= DURATION) {
+                    //We're done
+                    clearInterval(interval);
+                    //Wait for the messages to be received
+                    await wait(5000);
+                    logInfo('Received ' + receivedMessages.length);
 
-            secondsRunning++;
-            //dispatch messages equally to all message billboards
-            const batchSize = MESSENGES_PER_SECOND / messageFactories.length;
+                    const allMeessagesReceived =
+                        receivedMessages.length ===
+                        DURATION * MESSENGES_PER_SECOND;
+                    resolve(allMeessagesReceived);
+                }
 
-            //Create and send messages
-            await Promise.all(
-                messageFactories.map(async (factory, idx) => {
-                    const messages = await Promise.all(
-                        Array.from({ length: batchSize }).map(() =>
-                            factory.createMessage(loremIpsum()),
-                        ),
-                    );
-                    logInfo(
-                        `Send ${messages.length} messages to ${BILLBOARD_CLIENT_ENS_NAMES[idx]}}`,
-                    );
+                secondsRunning++;
+                //dispatch messages equally to all message billboards
+                const batchSize =
+                    MESSENGES_PER_SECOND / messageFactories.length;
 
-                    messages.forEach((message) => {
-                        return DeliveryServiceClient(
-                            deliverServiceProfile.url,
-                        ).submitMessage(message, token);
-                    });
-                }),
-            );
-        }, 1000);
-    }, 100000);
+                //Create and send messages
+                await Promise.all(
+                    messageFactories.map(async (factory, idx) => {
+                        const messages = await Promise.all(
+                            Array.from({ length: batchSize }).map(() =>
+                                factory.createMessage(loremIpsum()),
+                            ),
+                        );
+                        logInfo(
+                            `Send ${messages.length} messages to ${BILLBOARD_CLIENT_ENS_NAMES[idx]}}`,
+                        );
+
+                        messages.forEach((message) => {
+                            return DeliveryServiceClient(
+                                deliverServiceProfile.url,
+                            ).submitMessage(message, token);
+                        });
+                    }),
+                );
+            }, 1000);
+        });
+        expect(passed).toBeTruthy();
+    }, 1000000000);
 });
