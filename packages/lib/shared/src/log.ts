@@ -23,6 +23,14 @@ function execLog(
         message,
         level,
     });
+    console.log({
+        MSG: {
+            message,
+            level,
+        },
+        l1: levels[level],
+        l2: currentLevel,
+    });
 
     if (options?.customLogger) {
         options.customLogger(message, level);
@@ -47,9 +55,9 @@ function execLog(
 export function log(msg: any, level: string, options?: LogOptions) {
     let currentLevel = 2;
     try {
-        const envLevel = process.env.LOG_LEVEL;
-        if (envLevel) {
-            currentLevel = parseInt(envLevel);
+        const envLevel: string | undefined = process.env.LOG_LEVEL as string;
+        if (envLevel && levels[envLevel] !== undefined) {
+            currentLevel = levels[envLevel] ?? 2;
         }
     } catch (e) {
         execLog(
@@ -68,7 +76,7 @@ export function logInfo(msg: any, options?: LogOptions) {
 }
 
 export function logError(msg: any, options?: LogOptions) {
-    log(msg, 'info', options);
+    log(msg, 'error', options);
 }
 
 export function logWarning(msg: any, options?: LogOptions) {

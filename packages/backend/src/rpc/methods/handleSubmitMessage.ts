@@ -4,12 +4,13 @@ import { validateSchema } from 'dm3-lib-shared/dist.backend';
 import 'dotenv/config';
 import express from 'express';
 import { WithLocals } from '../../types';
-import { logError } from 'dm3-lib-shared';
+import { logDebug, logError, logInfo } from 'dm3-lib-shared';
 
 export async function handleSubmitMessage(
     req: express.Request & { app: WithLocals },
     res: express.Response,
 ) {
+    logInfo({ text: 'handleSubmitMessagee' });
     const {
         params: [stringifiedEnvelop, token],
     } = req.body;
@@ -43,6 +44,10 @@ export async function handleSubmitMessage(
     }
 
     try {
+        console.log('pre incomingMessage console.log');
+        logInfo({ text: 'pre incomingMessage' });
+        logDebug({ text: 'pre incomingMessage', token });
+
         await incomingMessage(
             { envelop, token },
             req.app.locals.keys.signing,
