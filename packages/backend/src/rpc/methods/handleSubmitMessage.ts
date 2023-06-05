@@ -10,7 +10,6 @@ export async function handleSubmitMessage(
     req: express.Request & { app: WithLocals },
     res: express.Response,
 ) {
-    logInfo({ text: 'handleSubmitMessagee' });
     const {
         params: [stringifiedEnvelop, token],
     } = req.body;
@@ -44,10 +43,6 @@ export async function handleSubmitMessage(
     }
 
     try {
-        console.log('pre incomingMessage console.log');
-        logInfo({ text: 'pre incomingMessage' });
-        logDebug({ text: 'pre incomingMessage', token });
-
         await incomingMessage(
             { envelop, token },
             req.app.locals.keys.signing,
