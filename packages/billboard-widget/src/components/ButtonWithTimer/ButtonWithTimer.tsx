@@ -22,7 +22,6 @@ interface ButtonWithTimerProps extends PropsWithChildren {
 const ButtonWithTimer: React.FC<ButtonWithTimerProps> = ({
     onClick,
     timeout = 0,
-    size = 40,
     disabled = false,
 }) => {
     const [activeTimeout, setActiveTimeout] = useState(false);

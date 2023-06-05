@@ -26,7 +26,6 @@ export const AuthContextProvider = ({
     const { getWallet } = useAuth(web3Provider, clientProps);
 
     const [initialized, setInitialized] = useState(false);
-    const [initializing, setInitializing] = useState(false);
 
     const [profileKeys, setprofileKeys] = useState<ProfileKeys>(
         {} as ProfileKeys,

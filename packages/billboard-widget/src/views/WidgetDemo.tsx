@@ -8,7 +8,6 @@ import App from '../App';
 import EmptyView from '../components/EmptyView';
 import { defaultOptions } from '../main';
 import { ClientProps } from '../types';
-import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 
 const defaultClientProps: Omit<
     ClientProps,
