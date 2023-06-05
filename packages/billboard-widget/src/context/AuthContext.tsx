@@ -31,7 +31,7 @@ export const AuthContextProvider = ({
     const [profileKeys, setprofileKeys] = useState<ProfileKeys>(
         {} as ProfileKeys,
     );
-    const [ensName, setEnsName] = useState<string>('');
+    const [_ensName, setEnsName] = useState<string>('');
     const [token, setToken] = useState<string>('');
 
     useEffect(() => {
@@ -40,22 +40,19 @@ export const AuthContextProvider = ({
             if (
                 !clientProps.siweAddress ||
                 !clientProps.siweMessage ||
-                !clientProps.siweSig
+                !clientProps.siweSig ||
+                //We want to init the AuthContext again when the user decides to changes his account.
+                //We can detect that by checking wether the siweAddress alters from the previous one.
+                _ensName.includes(clientProps.siweAddress)
             ) {
                 return;
             }
-            setInitializing(true);
             const { keys, ensName, token } = await getWallet();
-            setInitialized(true);
             setprofileKeys(keys);
             setEnsName(ensName);
             setToken(token);
-            setInitializing(false);
+            setInitialized(true);
         };
-
-        if (initializing || initialized) {
-            return;
-        }
 
         init();
     }, [
@@ -63,13 +60,12 @@ export const AuthContextProvider = ({
         clientProps.siweMessage,
         clientProps.siweSig,
         getWallet,
-        initialized,
-        initializing,
+        _ensName,
     ]);
 
     return (
         <AuthContext.Provider
-            value={{ profileKeys, ensName, initialized, token }}
+            value={{ profileKeys, ensName: _ensName, initialized, token }}
         >
             {children}
         </AuthContext.Provider>
