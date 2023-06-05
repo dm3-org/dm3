@@ -1,6 +1,42 @@
+.dm3-loading-btn {
+    --timeoutActiveForeground: #ffffff;
+    --timeoutRunningForeground: #d9d9d9;
+    --timeoutCircleBackground: #81828d;
+
+    border-radius: 18px;
+    width: 36px;
+    height: 36px;
+    appearance: none;
+    overflow: hidden;
+    padding: 0;
+    background: transparent;
+    position: relative;
+    transition: opacity 0.5s;
+
+    &.disabled {
+        pointer-events: none;
+        opacity: 0.6;
+    }
+
+    .button-icon {
+        position: absolute;
+        width: 100%;
+        transform: translateY(-50%) scale(0.5);
+    }
+}
+
 .dm3-send-message-btn {
     background-color: #b4b8c9;
 }
 .dm3-send-message-btn:disabled {
     background-color: #e1e2e9;
+}
+.CircularProgressbar-background {
+  fill: #81828d;
+}
+.CircularProgressbar-path {
+  stroke: #ffcada;
+}
+.CircularProgressbar-trail {
+  stroke: #81828d;
 }

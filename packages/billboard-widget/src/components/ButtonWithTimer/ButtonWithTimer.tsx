@@ -1,7 +1,4 @@
-import React, {
-    PropsWithChildren,
-    useState
-} from 'react';
+import React, { PropsWithChildren, useState } from 'react';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import ProgressProvider from './ProgressProvider';
 import { SubmitMessageIcon } from './SubmitMessageIcon';
@@ -61,12 +58,6 @@ const ButtonWithTimer: React.FC<ButtonWithTimerProps> = ({
                                     styles={buildStyles({
                                         rotation: 1,
                                         pathTransitionDuration: 6,
-
-                                        // Colors
-                                        pathColor: `#ffcada`,
-                                        textColor: '#f88',
-                                        trailColor: '#81828d',
-                                        backgroundColor: '#81828d',
                                     })}
                                     value={value}
                                 />
