@@ -29,8 +29,7 @@ const DURATION = 20 * 60;
 
 describe('Load test', () => {
     it('Sends 1000 messages per second to the billboard client', async () => {
-        const rpcUrl =
-            'https://eth-mainnet.g.alchemy.com/v2/L1PIhq_TFU7sofEqd2IJwWqhBsJYah1S';
+        const rpcUrl = process.env.RPC_URL || '';
 
         if (!rpcUrl) {
             throw new Error('RPC url not provided');
