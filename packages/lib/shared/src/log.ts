@@ -47,9 +47,9 @@ function execLog(
 export function log(msg: any, level: string, options?: LogOptions) {
     let currentLevel = 2;
     try {
-        const envLevel = process.env.LOG_LEVEL;
-        if (envLevel) {
-            currentLevel = parseInt(envLevel);
+        const envLevel: string | undefined = process.env.LOG_LEVEL;
+        if (envLevel && levels[envLevel] !== undefined) {
+            currentLevel = levels[envLevel] ?? 2;
         }
     } catch (e) {
         execLog(
@@ -68,7 +68,7 @@ export function logInfo(msg: any, options?: LogOptions) {
 }
 
 export function logError(msg: any, options?: LogOptions) {
-    log(msg, 'info', options);
+    log(msg, 'error', options);
 }
 
 export function logWarning(msg: any, options?: LogOptions) {
