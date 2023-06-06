@@ -55,5 +55,9 @@
     "packageManager": "yarn@3.5.1",
     "resolutions": {
         "autoprefixer": "10.4.5"
+    },
+    "dependencies": {
+        "react-circular-progressbar": "^2.1.0",
+        "react-spinners": "^0.13.8"
     }
 }

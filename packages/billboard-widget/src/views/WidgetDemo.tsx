@@ -57,6 +57,7 @@ export const WidgetDemo = () => {
 
     return (
         <>
+            <div style={{ width: 200, height: 200 }}></div>
             <App
                 clientProps={clientProps}
                 options={defaultOptions}
@@ -64,7 +65,6 @@ export const WidgetDemo = () => {
                     new ethers.providers.Web3Provider(window.ethereum)
                 }
             />
-
             <div className={`widget common-styles `}>
                 {!data && (
                     <>
