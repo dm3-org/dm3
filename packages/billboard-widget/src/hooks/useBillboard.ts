@@ -14,6 +14,7 @@ const useBillboard = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [online, setOnline] = useState<boolean>(false);
     const [socket, setSocket] = useState<Socket | null>(null);
+    const [initialized, setInitialized] = useState(false);
 
     useEffect(() => {
         const client = getBillboardApiClient({
@@ -23,7 +24,7 @@ const useBillboard = () => {
 
         const getInitialMessages = async () => {
             //Initial message are already fetched
-            if (messages.length > 0 || loading) {
+            if (messages.length > 0 || loading || initialized) {
                 return;
             }
 
@@ -40,6 +41,7 @@ const useBillboard = () => {
             }
 
             setLoading(false);
+            setInitialized(true);
         };
         getInitialMessages();
     }, [
@@ -49,6 +51,7 @@ const useBillboard = () => {
         messages,
         setMessages,
         loading,
+        initialized,
     ]);
 
     useEffect(() => {

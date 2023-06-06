@@ -11716,6 +11716,7 @@ __metadata:
     normalize.css: ^8.0.1
     postcss-nesting: ^11.2.2
     react: ^18.2.0
+    react-circular-progressbar: ^2.1.0
     react-dom: ^18.2.0
     siwe: ^2.1.4
     socket.io-client: ^4.6.1
@@ -23424,6 +23425,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-circular-progressbar@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "react-circular-progressbar@npm:2.1.0"
+  peerDependencies:
+    react: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+  checksum: dc118010a8f94733daafac586c969f7e889ad0736d96a0fda79406ee62e9410848abfd3dee4887bb0ff46b99e1f8c86ee1afabc88dfbf4dcb95107b22de1d6d7
+  languageName: node
+  linkType: hard
+
 "react-dev-utils@npm:^12.0.0, react-dev-utils@npm:^12.0.1":
   version: 12.0.1
   resolution: "react-dev-utils@npm:12.0.1"
@@ -23706,6 +23716,16 @@ __metadata:
   bin:
     react-scripts: bin/react-scripts.js
   checksum: 92afa2f245c7092ccc97d5609dc7a2130616262e34da7f15072d9442e2d2e1d4909a91022abd1faac1336eb17c5525a10d9bd43e1ae374c7ec941ca20addca68
+  languageName: node
+  linkType: hard
+
+"react-spinners@npm:^0.13.8":
+  version: 0.13.8
+  resolution: "react-spinners@npm:0.13.8"
+  peerDependencies:
+    react: ^16.0.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0
+  checksum: cb58f916bbf00c4f7fc33c1a75a8c0f91a98a42af26944340a0e29e4b3a97937a03f0292bc444eb5f5f0bea099344b580f9c04a81524246dadbf0571bdb57e62
   languageName: node
   linkType: hard
 
@@ -24632,6 +24652,8 @@ __metadata:
     husky: ^8.0.1
     lint-staged: ^13.0.0
     prettier: ^2.6.2
+    react-circular-progressbar: ^2.1.0
+    react-spinners: ^0.13.8
   languageName: unknown
   linkType: soft
 

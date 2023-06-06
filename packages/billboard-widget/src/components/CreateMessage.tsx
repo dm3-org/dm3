@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { useContext, useState } from 'react';
 import gearIcon from '../assets/gear-icon.svg';
-import paperPlaneIcon from '../assets/paper-plane.svg';
+
 import { AuthContext } from '../context/AuthContext';
 import Avatar from './Avatar';
 import ButtonWithTimer from './ButtonWithTimer/ButtonWithTimer';
@@ -44,29 +44,22 @@ function CreateMessage(props: Props) {
                                 setTextAreaContent(e.target.value);
                             }}
                             className="text-area-input text-sm"
-                            rows={4}
+                            rows={2}
                         />
                         <div className="button-wrapper">
-                            <ButtonWithTimer
-                                disabled={
-                                    textAreaContent?.length < MIN_MESSAGE_LENGTH
-                                }
-                                timeout={SEND_TIMEOUT}
-                                onClick={() => {
-                                    onCreateMsg(textAreaContent);
-                                    setTextAreaContent('');
-                                }}
-                            >
-                                {
-                                    <img
-                                        src={paperPlaneIcon}
-                                        alt="Send message"
-                                        style={{
-                                            transform: 'translate(4px, 1px)',
-                                        }}
-                                    />
-                                }
-                            </ButtonWithTimer>
+                            {
+                                <ButtonWithTimer
+                                    disabled={
+                                        textAreaContent?.length <
+                                        MIN_MESSAGE_LENGTH
+                                    }
+                                    timeout={SEND_TIMEOUT}
+                                    onClick={() => {
+                                        onCreateMsg(textAreaContent);
+                                        setTextAreaContent('');
+                                    }}
+                                ></ButtonWithTimer>
+                            }
                         </div>
                     </div>
                 </div>
