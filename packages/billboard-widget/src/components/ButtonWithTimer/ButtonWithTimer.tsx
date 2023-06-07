@@ -56,7 +56,7 @@ const ButtonWithTimer: React.FC<ButtonWithTimerProps> = ({
                                 <CircularProgressbar
                                     styles={buildStyles({
                                         rotation: 1,
-                                        pathTransitionDuration: timeout/1000,
+                                        pathTransitionDuration: timeout / 1000,
                                     })}
                                     value={value}
                                 />

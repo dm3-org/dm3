@@ -60,7 +60,7 @@ export const WidgetDemo = () => {
             <div style={{ width: 200, height: 200 }}></div>
             <App
                 clientProps={clientProps}
-                options={{...defaultOptions,timeout:5000}}
+                options={{ ...defaultOptions, timeout: 5000 }}
                 web3Provider={
                     new ethers.providers.Web3Provider(window.ethereum)
                 }
