@@ -42,7 +42,13 @@ export async function submitUserProfile(
     if (!(await checkUserProfile(provider, signedUserProfile, account))) {
         throw Error('Signature invalid.');
     }
-    if (await getSession(account)) {
+
+    //TODO: remvoe DISABLE_SESSION_CHECK
+    // DISABLE_SESSION_CHECK is a special solution for ETH Prague
+    if (
+        process.env.DISABLE_SESSION_CHECK !== 'true' &&
+        (await getSession(account))
+    ) {
         throw Error('Profile exists already');
     }
 
