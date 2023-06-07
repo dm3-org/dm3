@@ -1,5 +1,10 @@
 import axios from 'axios';
-import { Message, createEnvelop, createMessage } from 'dm3-lib-messaging';
+import {
+    Message,
+    SendDependencies,
+    createEnvelop,
+    createMessage,
+} from 'dm3-lib-messaging';
 import { useContext, useRef, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { GlobalContext } from '../context/GlobalContext';
@@ -10,6 +15,7 @@ export const hashMessage = (msg: Message) => sha256(stringify(msg));
 const useMessages = () => {
     const [messages, _setMessages] = useState<Message[]>([]);
     const existingMessagesSet = useRef(new Set());
+    const sendDependenciesCache = useRef(new Map<string, SendDependencies>());
 
     const { ensName, profileKeys, token } = useContext(AuthContext);
     const {
@@ -51,7 +57,10 @@ const useMessages = () => {
                 web3Provider,
                 profileKeys,
                 (url: string) => axios.get(url),
+                sendDependenciesCache.current.get(billboardId),
             );
+
+        sendDependenciesCache.current.set(billboardId, sendDependencies);
 
         //Submit msg
         await DeliveryServiceClient(

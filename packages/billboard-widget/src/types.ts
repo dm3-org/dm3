@@ -25,6 +25,8 @@ export interface BillboardWidgetProps {
         dateFormat?: string;
         /** Display a relative date, for recent dates. Default is `true`.  */
         relativeDate?: boolean;
+        /**The timeout after a new message can be sent in ms  */
+        timeout?: number;
     };
     /** Config for the billboard message fetching part.
      *  - mockedApi: boolean; if you don't have a client yet you can use a mocked version.

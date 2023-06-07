@@ -5,18 +5,19 @@ import gearIcon from '../assets/gear-icon.svg';
 import { AuthContext } from '../context/AuthContext';
 import Avatar from './Avatar';
 import ButtonWithTimer from './ButtonWithTimer/ButtonWithTimer';
+import { GlobalContext } from '../context/GlobalContext';
 interface Props {
     onClickSettings?: () => void;
     onCreateMsg: (msg: string) => void;
 }
 
-const SEND_TIMEOUT = 6000; // 6 seconds
 const MIN_MESSAGE_LENGTH = 5;
 
 function CreateMessage(props: Props) {
     const { ensName } = useContext(AuthContext);
     const { onCreateMsg, onClickSettings } = props;
     const [textAreaContent, setTextAreaContent] = useState('');
+    const { options } = useContext(GlobalContext);
 
     return (
         <div className="create-message">
@@ -53,7 +54,7 @@ function CreateMessage(props: Props) {
                                         textAreaContent?.length <
                                         MIN_MESSAGE_LENGTH
                                     }
-                                    timeout={SEND_TIMEOUT}
+                                    timeout={options?.timeout}
                                     onClick={() => {
                                         onCreateMsg(textAreaContent);
                                         setTextAreaContent('');
