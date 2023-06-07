@@ -21,7 +21,7 @@ interface ButtonWithTimerProps extends PropsWithChildren {
  */
 const ButtonWithTimer: React.FC<ButtonWithTimerProps> = ({
     onClick,
-    timeout = 0,
+    timeout = 60000,
     disabled = false,
 }) => {
     const [activeTimeout, setActiveTimeout] = useState(false);
@@ -56,7 +56,7 @@ const ButtonWithTimer: React.FC<ButtonWithTimerProps> = ({
                                 <CircularProgressbar
                                     styles={buildStyles({
                                         rotation: 1,
-                                        pathTransitionDuration: 6,
+                                        pathTransitionDuration: timeout / 1000,
                                     })}
                                     value={value}
                                 />
