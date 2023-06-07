@@ -11,7 +11,7 @@ export interface BillboardWidgetProps {
         /** A custom url for all user avatars or a function that takes the users
          * identifier and returns the url. `(identifier: string) => url`
          **/
-        avatarSrc?: string | ((hash?: string) => string);
+        avatarSrc?: string | ((hash?: string) => string | Promise<string>);
         /** A custom user name resolver function that takes the users
          * identifier and returns a new string. `(identifier: string) => MayBePromise<username>`
          **/
