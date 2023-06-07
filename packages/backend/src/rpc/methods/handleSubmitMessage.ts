@@ -4,7 +4,7 @@ import { validateSchema } from 'dm3-lib-shared/dist.backend';
 import 'dotenv/config';
 import express from 'express';
 import { WithLocals } from '../../types';
-import { logError } from 'dm3-lib-shared';
+import { logDebug, logError, logInfo } from 'dm3-lib-shared';
 
 export async function handleSubmitMessage(
     req: express.Request & { app: WithLocals },

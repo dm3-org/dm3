@@ -19,7 +19,7 @@ import {
     EncryptionEnvelop,
     Postmark,
 } from 'dm3-lib-messaging';
-import { logDebug, sha256 } from 'dm3-lib-shared';
+import { logDebug, logInfo, sha256 } from 'dm3-lib-shared';
 import { checkToken, Session } from './Session';
 import { isSpam } from './spam-filter';
 import { SpamFilterRules } from './spam-filter/SpamFilterRules';
@@ -105,6 +105,7 @@ export async function incomingMessage(
     provider: ethers.providers.JsonRpcProvider,
     getIdEnsName: (name: string) => Promise<string>,
 ): Promise<void> {
+    logDebug({ text: 'incomingMessage', token });
     //Checks the size of the incoming message
     if (messageIsToLarge(envelop, sizeLimit)) {
         throw Error('Message is too large');
@@ -176,7 +177,12 @@ export async function incomingMessage(
         envelopWithPostmark,
     });
 
-    await storeNewMessage(conversationId, envelopWithPostmark);
+    if (process.env.DISABLE_MSG_BUFFER !== 'true') {
+        logDebug({ text: 'storeNewMessage', conversationId });
+        await storeNewMessage(conversationId, envelopWithPostmark);
+    } else {
+        logDebug({ text: 'skip storeNewMessage', conversationId });
+    }
 
     //If there is currently a webSocket connection open to the receiver, the message will be directly send.
     if (receiverSession.socketId) {
