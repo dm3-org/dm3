@@ -1,11 +1,10 @@
-import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import gearIcon from '../assets/gear-icon.svg';
 
 import { AuthContext } from '../context/AuthContext';
+import { GlobalContext } from '../context/GlobalContext';
 import Avatar from './Avatar';
 import ButtonWithTimer from './ButtonWithTimer/ButtonWithTimer';
-import { GlobalContext } from '../context/GlobalContext';
 interface Props {
     onClickSettings?: () => void;
     onCreateMsg: (msg: string) => void;
