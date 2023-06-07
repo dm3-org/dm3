@@ -60,7 +60,17 @@ export const WidgetDemo = () => {
             <div style={{ width: 200, height: 200 }}></div>
             <App
                 clientProps={clientProps}
-                options={defaultOptions}
+                options={{
+                    ...defaultOptions,
+                    avatarSrc: async (address?: string) => {
+                        return await new Promise((res) => {
+                            setTimeout(
+                                () => res(`https://robohash.org/${address}`),
+                                1000,
+                            );
+                        });
+                    },
+                }}
                 web3Provider={
                     new ethers.providers.Web3Provider(window.ethereum)
                 }
