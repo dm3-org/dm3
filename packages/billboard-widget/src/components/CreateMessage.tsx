@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import gearIcon from '../assets/gear-icon.svg';
 
 import { AuthContext } from '../context/AuthContext';
@@ -19,18 +19,29 @@ function CreateMessage(props: Props) {
     const [textAreaContent, setTextAreaContent] = useState('');
     const { options } = useContext(GlobalContext);
 
+    const [userName, setUserName] = useState('');
+    useEffect(() => {
+        const resolveUserName = async () => {
+            if (typeof options?.userNameResolver === 'function') {
+                const resolvedUserName = await options.userNameResolver(
+                    ensName,
+                );
+                setUserName(resolvedUserName);
+            } else {
+                setUserName(ensName);
+            }
+        };
+
+        resolveUserName();
+    }, [ensName, options]);
     return (
         <div className="create-message">
             <div className="container">
-                <Avatar
-                    identifier={ethers.utils.keccak256(
-                        ethers.utils.toUtf8Bytes(ensName),
-                    )}
-                />
+                <Avatar identifier={ensName} />
                 <div className="message-create-area">
                     <div className="create-header">
                         <div className="info text-xxs">
-                            {`Logged in as ${ensName}`}
+                            {`Logged in as ${userName}`}
                         </div>
                         {typeof onClickSettings === 'function' ? (
                             <button className="settings-button">

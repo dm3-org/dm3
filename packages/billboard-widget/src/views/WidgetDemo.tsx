@@ -70,6 +70,9 @@ export const WidgetDemo = () => {
                             );
                         });
                     },
+                    userNameResolver :(address?: string) =>{
+                        return Promise.resolve(`User xxx`);
+                    }
                 }}
                 web3Provider={
                     new ethers.providers.Web3Provider(window.ethereum)
