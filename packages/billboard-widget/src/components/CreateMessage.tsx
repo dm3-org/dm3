@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, KeyboardEvent, useMemo } from 'react';
 import gearIcon from '../assets/gear-icon.svg';
 
 import { AuthContext } from '../context/AuthContext';
@@ -12,11 +12,37 @@ interface Props {
 
 const MIN_MESSAGE_LENGTH = 5;
 
+// Workaround since TS complains about the about enterkeyhint attribute.
+// TODO: should actually be fixed in current react/TS versions.
+declare module 'react' {
+    interface TextareaHTMLAttributes<T>
+        extends AriaAttributes,
+            DOMAttributes<T> {
+        enterkeyhint?: string;
+    }
+}
+
 function CreateMessage(props: Props) {
     const { ensName } = useContext(AuthContext);
     const { onCreateMsg, onClickSettings } = props;
     const [textAreaContent, setTextAreaContent] = useState('');
     const { options } = useContext(GlobalContext);
+
+    const submitMessage = () => {
+        if (!canSend) {
+            return;
+        }
+        onCreateMsg(textAreaContent);
+        setTextAreaContent('');
+    };
+
+    // send message on ENTER key
+    const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            submitMessage();
+        }
+    };
 
     const [userName, setUserName] = useState('');
     useEffect(() => {
@@ -33,6 +59,10 @@ function CreateMessage(props: Props) {
 
         resolveUserName();
     }, [ensName, options]);
+
+    const canSend = useMemo(() => {
+        return textAreaContent?.length >= MIN_MESSAGE_LENGTH;
+    }, [textAreaContent]);
     return (
         <div className="create-message">
             <div className="container">
@@ -50,26 +80,24 @@ function CreateMessage(props: Props) {
                     </div>
                     <div className="text-area-wrapper">
                         <textarea
+                            enterkeyhint="send"
                             value={textAreaContent}
                             onChange={(e) => {
                                 setTextAreaContent(e.target.value);
                             }}
+                            onKeyDown={(e) => handleKeyDown(e)}
                             className="text-area-input text-sm"
                             rows={2}
                         />
                         <div className="button-wrapper">
                             {
                                 <ButtonWithTimer
-                                    disabled={
-                                        textAreaContent?.length <
-                                        MIN_MESSAGE_LENGTH
-                                    }
+                                    disabled={!canSend}
                                     timeout={options?.timeout}
                                     onClick={() => {
-                                        onCreateMsg(textAreaContent);
-                                        setTextAreaContent('');
+                                        submitMessage();
                                     }}
-                                ></ButtonWithTimer>
+                                />
                             }
                         </div>
                     </div>
