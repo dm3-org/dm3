@@ -18,6 +18,31 @@ export interface ContainerProps {
 type Props = PropsWithChildren<ContainerProps>;
 
 /**
+ * Scrolls element into view, scrolling only the parent container.
+ *
+ * @param element
+ * @param behavior
+ * @returns
+ */
+function customScrollIntoView(
+    element: HTMLDivElement,
+    behavior: 'smooth' | 'auto' = 'auto',
+) {
+    const parent = element.parentElement;
+    if (!parent) {
+        return;
+    }
+    const parentRect = parent.getBoundingClientRect();
+    const elementRect = element.getBoundingClientRect();
+    const scrollPos = parent.scrollTop + (elementRect.top - parentRect.top);
+
+    parent.scrollTo({
+        top: scrollPos,
+        behavior,
+    });
+}
+
+/**
  * A component that keep scrolling to the bottom of the container while
  * inserting items.
  * - Stops after scrolled up once.
@@ -45,10 +70,7 @@ function AutoScrollContainer(props: Props) {
 
     const scrollToBottom = useCallback(
         (element: HTMLDivElement) => {
-            element.scrollIntoView({
-                behavior,
-                block: 'nearest',
-            });
+            customScrollIntoView(element, behavior);
         },
         [behavior],
     );
