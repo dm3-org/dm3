@@ -99,12 +99,18 @@
     .create-header {
         display: flex;
         justify-content: space-between;
+        > div {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+        }
     }
 
     .message-create-area {
         display: flex;
         flex-direction: column;
-        width: 100%;
+        width: calc(100% - var(--avatarSize));
         padding-right: 32px;
 
         .text-area-wrapper {
@@ -149,14 +155,13 @@
 }
 
 .message {
-    width: 100%;
+    width: calc(100% - 54px);
 
     .content {
         padding: 16px 8px;
         border-radius: var(--borderRadiusM);
         background-color: var(--messageBg);
         overflow: hidden;
-        white-space: wrap;
     }
 
     .own {
@@ -169,10 +174,15 @@
         .sender {
             color: var(--textColorSecondary);
             font-weight: 700;
+            flex-shrink: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: 8px;
         }
         .time {
             color: var(--textColorSecondary);
             font-weight: 300;
+            flex-shrink: 0;
         }
     }
 }
@@ -291,3 +301,23 @@ button {
         text-align: center;
     }
 }
+
+@media (max-width: 480px) {
+    .message-list {
+        .item-container {
+            margin: 16px 0px;
+        }
+
+        .avatar {
+            padding-right: 4px;
+            scale: 0.8;
+        }
+    }
+    .message {
+        width: calc(100% - 54px);
+
+        .content {
+            padding: 4px 8px;
+        }
+    }
+  }
