@@ -15,7 +15,7 @@ import { ethers as hreEthers } from 'hardhat';
 import request from 'supertest';
 import winston from 'winston';
 import { OffchainResolver } from '../../typechain';
-import { getDatabase, getRedisClient, Redis } from '../persistance/getDatabase';
+import { getDatabase, getDbClient } from '../persistance/getDatabase';
 import { IDatabase } from '../persistance/IDatabase';
 import { ccipGateway } from './ccipGateway';
 import { profile } from './profile';
@@ -25,10 +25,13 @@ import {
     getProfileCreationMessage,
 } from 'dm3-lib-profile/dist.backend';
 import { Interceptor } from './handleCcipRequest/handler/intercept';
+import { PrismaClient } from '@prisma/client';
+import { clearDb } from '../persistance/clearDb';
 const { expect } = require('chai');
 
 describe('CCIP Gateway', () => {
-    let redisClient: Redis;
+    let prismaClient: PrismaClient;
+
     let db: IDatabase;
     let ccipApp: express.Express;
     let profileApp: express.Express;
@@ -56,9 +59,9 @@ describe('CCIP Gateway', () => {
             [signer.address],
         );
 
-        redisClient = await getRedisClient(logger);
-        db = await getDatabase(logger, redisClient);
-        await redisClient.flushDb();
+        prismaClient = await getDbClient(logger);
+        db = await getDatabase(logger, prismaClient);
+        await clearDb(prismaClient);
 
         ccipApp = express();
         ccipApp.use(bodyParser.json());
@@ -95,8 +98,8 @@ describe('CCIP Gateway', () => {
     });
 
     afterEach(async () => {
-        await redisClient.flushDb();
-        await redisClient.disconnect();
+        await clearDb(prismaClient);
+        prismaClient.$disconnect();
     });
 
     describe('Interceptor', () => {

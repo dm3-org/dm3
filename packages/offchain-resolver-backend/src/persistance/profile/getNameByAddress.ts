@@ -1,18 +1,14 @@
-import { ADDRESS_TO_NAME_KEY } from '.';
+import { PrismaClient } from '@prisma/client';
 import { ethersHelper } from 'dm3-lib-shared/dist.backend';
-import { Redis } from '../getDatabase';
 
-export function getNameByAddress(redis: Redis) {
+export function getNameByAddress(db: PrismaClient) {
     return async (address: string) => {
-        const isMember = await redis.exists(
-            ADDRESS_TO_NAME_KEY + ethersHelper.formatAddress(address),
-        );
-        if (!isMember) {
-            return null;
-        }
+        const profileContainer = await db.profileContainer.findUnique({
+            where: {
+                address: ethersHelper.formatAddress(address),
+            },
+        });
 
-        return await redis.get(
-            ADDRESS_TO_NAME_KEY + ethersHelper.formatAddress(address),
-        );
+        return profileContainer ? profileContainer.ensName : null;
     };
 }

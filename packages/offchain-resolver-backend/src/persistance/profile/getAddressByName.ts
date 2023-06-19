@@ -1,13 +1,13 @@
-import { NAME_TO_ADDRESS_KEY } from '.';
-import { Redis } from '../getDatabase';
+import { PrismaClient } from '@prisma/client';
 
-export function getAddressByName(redis: Redis) {
+export function getAddressByName(db: PrismaClient) {
     return async (nameHash: string) => {
-        const isMember = await redis.exists(NAME_TO_ADDRESS_KEY + nameHash);
-        if (!isMember) {
-            return null;
-        }
+        const profileContainer = await db.profileContainer.findUnique({
+            where: {
+                nameHash,
+            },
+        });
 
-        return await redis.get(NAME_TO_ADDRESS_KEY + nameHash);
+        return profileContainer ? profileContainer.address : null;
     };
 }

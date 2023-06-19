@@ -2,10 +2,12 @@ version: '3.6'
 
 # The containers that compose the project
 services:
-  db:
-    image: redis
-    restart: always
-    container_name: redis_offchain_resolver_backend
-    ports:
-      - '6308:6308'
 
+  db: 
+    image: postgres
+    restart: always
+    container_name: offchain_resolver_backend_db
+    environment:
+      POSTGRES_PASSWORD: example
+    ports:
+      - '5432:5432'
