@@ -9,11 +9,13 @@ import express from 'express';
 import { ethers as hreEthers } from 'hardhat';
 import request from 'supertest';
 import winston from 'winston';
-import { getDatabase, getRedisClient, Redis } from '../persistance/getDatabase';
+import { getDatabase, getDbClient } from '../persistance/getDatabase';
 import { IDatabase } from '../persistance/IDatabase';
 import { profile } from './profile';
 
 import * as dotenv from 'dotenv';
+import { PrismaClient } from '@prisma/client';
+import { clearDb } from '../persistance/clearDb';
 
 dotenv.config();
 
@@ -21,7 +23,7 @@ const { expect } = require('chai');
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 
 describe('Profile', () => {
-    let redisClient: Redis;
+    let prismaClient: PrismaClient;
     let db: IDatabase;
     let app: express.Express;
 
@@ -30,9 +32,9 @@ describe('Profile', () => {
     });
 
     beforeEach(async () => {
-        redisClient = await getRedisClient(logger);
-        db = await getDatabase(logger, redisClient);
-        await redisClient.flushDb();
+        prismaClient = await getDbClient(logger);
+        db = await getDatabase(logger, prismaClient);
+        await clearDb(prismaClient);
 
         app = express();
         app.use(bodyParser.json());
@@ -60,9 +62,10 @@ describe('Profile', () => {
     });
 
     afterEach(async () => {
-        await redisClient.flushDb();
-        await redisClient.disconnect();
+        await clearDb(prismaClient);
+        prismaClient.$disconnect();
     });
+
     describe('Store UserProfile by ens name', () => {
         it('Rejects invalid schema', async () => {
             const { status, body } = await request(app).post(`/name`).send({
