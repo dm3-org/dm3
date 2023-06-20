@@ -1,15 +1,16 @@
-import { Redis, getRedisClient, getDatabase } from '../getDatabase';
+import { getDatabase, getDbClient } from '../getDatabase';
 import { IDatabase } from '../IDatabase';
 import { setUserProfile } from './setUserProfile';
 import { ethers } from 'ethers';
 import { hasAddressProfile } from './hasAddressProfile';
 import winston from 'winston';
-import { UserProfile } from 'dm3-lib-profile/dist.backend';
 import { SignedUserProfile } from 'dm3-lib-profile';
+import { PrismaClient } from '@prisma/client';
 const { expect } = require('chai');
+import { clearDb } from '../clearDb';
 
 describe('hasAddressProfile', () => {
-    let redisClient: Redis;
+    let prismaClient: PrismaClient;
     let db: IDatabase;
 
     const logger = winston.createLogger({
@@ -17,18 +18,19 @@ describe('hasAddressProfile', () => {
     });
 
     beforeEach(async () => {
-        redisClient = await getRedisClient(logger);
-        db = await getDatabase(logger, redisClient);
-        await redisClient.flushDb();
+        prismaClient = await getDbClient(logger);
+        db = await getDatabase(logger, prismaClient);
+        await clearDb(prismaClient);
     });
 
     afterEach(async () => {
-        await redisClient.flushDb();
-        await redisClient.disconnect();
+        await clearDb(prismaClient);
+        prismaClient.$disconnect();
     });
+
     it('Returns false if the requesting address has no profile created yet', async () => {
         const { address } = ethers.Wallet.createRandom();
-        const hasProfile = await hasAddressProfile(redisClient)(address);
+        const hasProfile = await hasAddressProfile(prismaClient)(address);
 
         expect(hasProfile).to.equal(false);
     });
@@ -50,8 +52,8 @@ describe('hasAddressProfile', () => {
             },
         };
 
-        await setUserProfile(redisClient)(name, profile, address);
-        const hasProfile = await hasAddressProfile(redisClient)(address);
+        await setUserProfile(prismaClient)(name, profile, address);
+        const hasProfile = await hasAddressProfile(prismaClient)(address);
 
         expect(hasProfile).to.equal(true);
     });

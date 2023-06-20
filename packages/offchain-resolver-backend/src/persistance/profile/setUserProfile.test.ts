@@ -1,14 +1,15 @@
-import { UserProfile } from 'dm3-lib-profile/dist.backend';
-import { getRedisClient, Redis, getDatabase } from '../getDatabase';
+import { getDatabase, getDbClient } from '../getDatabase';
 import { IDatabase } from '../IDatabase';
 import { setUserProfile } from './setUserProfile';
 import { ethers } from 'ethers';
 import winston from 'winston';
 import { SignedUserProfile } from 'dm3-lib-profile';
+import { PrismaClient } from '@prisma/client';
+import { clearDb } from '../clearDb';
 const { expect } = require('chai');
 
 describe('setUserProfile', () => {
-    let redisClient: Redis;
+    let prismaClient: PrismaClient;
     let db: IDatabase;
 
     const logger = winston.createLogger({
@@ -16,21 +17,21 @@ describe('setUserProfile', () => {
     });
 
     beforeEach(async () => {
-        redisClient = await getRedisClient(logger);
-        db = await getDatabase(logger, redisClient);
-        await redisClient.flushDb();
+        prismaClient = await getDbClient(logger);
+        db = await getDatabase(logger, prismaClient);
+        await clearDb(prismaClient);
     });
 
     afterEach(async () => {
-        await redisClient.flushDb();
-        await redisClient.disconnect();
+        await clearDb(prismaClient);
+        prismaClient.$disconnect();
     });
 
     it('Rejects invalid user profile', async () => {
         const { address } = ethers.Wallet.createRandom();
 
         expect(
-            setUserProfile(redisClient)(
+            setUserProfile(prismaClient)(
                 'foo.eth',
                 {} as SignedUserProfile,
                 address,
@@ -53,7 +54,7 @@ describe('setUserProfile', () => {
             },
         };
 
-        const writeResult = await setUserProfile(redisClient)(
+        const writeResult = await setUserProfile(prismaClient)(
             'foo.eth',
             profile,
             address,
@@ -77,14 +78,15 @@ describe('setUserProfile', () => {
             },
         };
         //This should pass
-        const firstWrite = await setUserProfile(redisClient)(
+        const firstWrite = await setUserProfile(prismaClient)(
             'foo.eth',
             profile,
             address,
         );
         expect(firstWrite).to.be.true;
+
         //This should reject bc the subdomain already has a profile
-        const secondWrite = await setUserProfile(redisClient)(
+        const secondWrite = await setUserProfile(prismaClient)(
             'foo.eth',
             profile,
             address,
