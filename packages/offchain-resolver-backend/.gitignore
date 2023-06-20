@@ -5,3 +5,4 @@ config.yml
 cache
 artifacts
 /.nyc_output/**
+migrations

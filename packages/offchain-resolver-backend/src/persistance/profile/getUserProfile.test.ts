@@ -1,19 +1,16 @@
-import {
-    getProfileCreationMessage,
-    SignedUserProfile,
-    UserProfile,
-} from 'dm3-lib-profile';
+import { SignedUserProfile } from 'dm3-lib-profile';
 import { ethers } from 'ethers';
 import winston from 'winston';
 import { setUserProfile } from '.';
 import { IDatabase } from '../IDatabase';
-import { getDatabase, getRedisClient, Redis } from './../getDatabase';
+import { getDatabase, getDbClient } from './../getDatabase';
 import { getUserProfile } from './getUserProfile';
-import { stringify } from 'dm3-lib-shared';
+import { PrismaClient } from '@prisma/client';
+import { clearDb } from '../clearDb';
 const { expect } = require('chai');
 
 describe('getUserProfile', () => {
-    let redisClient: Redis;
+    let prismaClient: PrismaClient;
     let db: IDatabase;
 
     const logger = winston.createLogger({
@@ -21,18 +18,18 @@ describe('getUserProfile', () => {
     });
 
     beforeEach(async () => {
-        redisClient = await getRedisClient(logger);
-        db = await getDatabase(logger, redisClient);
-        await redisClient.flushDb();
+        prismaClient = await getDbClient(logger);
+        db = await getDatabase(logger, prismaClient);
+        await clearDb(prismaClient);
     });
 
     afterEach(async () => {
-        await redisClient.flushDb();
-        await redisClient.disconnect();
+        await clearDb(prismaClient);
+        prismaClient.$disconnect();
     });
 
     it('Returns null if the name has no profile yet', async () => {
-        const profile = await getUserProfile(redisClient)('foo');
+        const profile = await getUserProfile(prismaClient)('foo');
         expect(profile).to.be.null;
     });
 
@@ -53,8 +50,8 @@ describe('getUserProfile', () => {
             },
         };
 
-        await setUserProfile(redisClient)(name, profile, address);
-        const retrivedProfile = await getUserProfile(redisClient)(name);
+        await setUserProfile(prismaClient)(name, profile, address);
+        const retrivedProfile = await getUserProfile(prismaClient)(name);
 
         expect(retrivedProfile).to.eql(profile);
     });
