@@ -223,7 +223,6 @@ describe('CCIP Gateway', () => {
                     .send();
 
                 expect(status).to.equal(200);
-
                 const resultString = await offchainResolver.resolveWithProof(
                     body.data,
                     callData,
