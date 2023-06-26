@@ -10,10 +10,7 @@ export async function signingHandler(
     configEntry: SigningConfigEntry,
 ) {
     const result = (
-        await axios.post(configEntry.handlerUrl, {
-            calldata,
-            resolverAddr,
-        })
+        await axios.get(`${configEntry.handlerUrl}/${resolverAddr}/${calldata}`)
     ).data;
 
     const signer = new ethers.Wallet(process.env.SIGNER_PRIVATE_KEY as string);
