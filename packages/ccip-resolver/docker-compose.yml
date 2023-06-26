@@ -1,0 +1,9 @@
+version: '3.6'
+
+services:
+  resolver: 
+    image: ccip-resolver
+    restart: always
+    container_name: ccip-resolver
+    ports:
+      - '8081:8081'
