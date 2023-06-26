@@ -11,7 +11,6 @@
             "packages/lib/delivery-api",
             "packages/lib/offchainResolver",
             "packages/lib/offchainResolver-api",
-            "packages/offchain-resolver-backend",
             "packages/lib/billboard-api",
             "packages/backend",
             "packages/billboard-client",
@@ -19,7 +18,8 @@
             "packages/web",
             "packages/offchain-resolver",
             "packages/billboard-widget",
-            "packages/integration-tests"
+            "packages/integration-tests",
+            "packages/ccip-resolver"
         ],
         "nohoist": [
             "**/react",
