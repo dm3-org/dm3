@@ -55,7 +55,12 @@ describe('CCIP Gateway', () => {
 
         const result = '0x1234';
 
-        mock.onPost('http://test').reply(200, result);
+        const callData = '0x4567';
+
+        mock.onGet(`http://test/${offchainResolver.address}/${callData}`).reply(
+            200,
+            result,
+        );
 
         const ccipConfig = {};
         ccipConfig[offchainResolver.address] = {
@@ -65,7 +70,6 @@ describe('CCIP Gateway', () => {
 
         config[offchainResolver.address] = ccipApp.use(ccipGateway(ccipConfig));
 
-        const callData = '0x4567';
         const sender = offchainResolver.address;
 
         //You the url returned by he contract to fetch the profile from the ccip gateway
