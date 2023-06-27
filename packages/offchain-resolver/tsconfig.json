@@ -10,14 +10,13 @@
         "forceConsistentCasingInFileNames": true,
         "noFallthroughCasesInSwitch": true,
         "module": "CommonJS",
-        "moduleResolution": "Node",
+        "moduleResolution": "node",
         "resolveJsonModule": true,
         "isolatedModules": true,
         "outDir": "dist",
-        "noEmit": false,
-        "jsx": "react-jsx"
+        "sourceMap": true
     },
-    "include": ["src", "hardhat.config.ts", "tests", "scripts"],
+    "include": ["src"],
     "exclude": ["src/**/*.test.ts"],
-    "files": ["./hardhat.config.ts"]
+
 }

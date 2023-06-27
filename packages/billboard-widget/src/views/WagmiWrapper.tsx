@@ -7,6 +7,7 @@ const { chains, publicClient } = configureChains([goerli], [publicProvider()]);
 
 const { connectors } = getDefaultWallets({
     appName: 'BillboardwidgetDemo',
+    projectId: 'BillboardwidgetDemo',
     chains,
 });
 

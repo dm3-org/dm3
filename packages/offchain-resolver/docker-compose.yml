@@ -1,0 +1,13 @@
+version: '3.6'
+
+# The containers that compose the project
+services:
+
+  db: 
+    image: postgres
+    restart: always
+    container_name: offchain_resolver_db
+    environment:
+      POSTGRES_PASSWORD: example
+    ports:
+      - '5432:5432'

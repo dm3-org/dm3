@@ -6,7 +6,10 @@ import winston from 'winston';
 import { SignedUserProfile } from 'dm3-lib-profile';
 import { PrismaClient } from '@prisma/client';
 import { clearDb } from '../clearDb';
-const { expect } = require('chai');
+import chai, { expect } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+
+chai.use(chaiAsPromised);
 
 describe('setUserProfile', () => {
     let prismaClient: PrismaClient;
@@ -36,7 +39,7 @@ describe('setUserProfile', () => {
                 {} as SignedUserProfile,
                 address,
             ),
-        ).rejectedWith(Error('Invalid user profile'));
+        ).to.be.rejectedWith(Error('Invalid user profile'));
     });
     it('Stores valid user profile', async () => {
         const { address } = ethers.Wallet.createRandom();
