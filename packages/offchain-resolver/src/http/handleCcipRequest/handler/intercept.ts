@@ -30,6 +30,7 @@ function getInterceptor(ensName: string) {
             envInterceptor: process.env.interceptor,
             higherLevelDomain,
         });
+
         return interceptor.ensName === higherLevelDomain ? interceptor : null;
     }
 }

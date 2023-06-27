@@ -1,14 +1,10 @@
-import {
-    decodeRequest,
-    encodeResponse,
-} from 'dm3-lib-offchain-resolver/dist.backend';
 import { logError } from 'dm3-lib-shared/dist.backend';
-import { Signer } from 'ethers';
 import express from 'express';
 import { handleCcipRequest } from './handleCcipRequest/handleCcipRequest';
 import { WithLocals } from './types';
+import { decodeRequest } from './handleCcipRequest/encoding/decodeRequest';
 
-export function ccipGateway(signer: Signer, resolverAddr: string) {
+export function resolverEndpoint() {
     const router = express.Router();
 
     router.get(
@@ -19,6 +15,7 @@ export function ccipGateway(signer: Signer, resolverAddr: string) {
             res: express.Response,
         ) => {
             const { resolverAddr } = req.params;
+
             const calldata = req.params.calldata.replace('.json', '');
 
             req.app.locals.logger.info(`GET ${resolverAddr}`);
@@ -34,20 +31,14 @@ export function ccipGateway(signer: Signer, resolverAddr: string) {
 
                 if (!response) {
                     logError('Record not found');
+
                     res.status(404).send({ message: 'Record not found' });
                 } else {
-                    const data = await encodeResponse(
-                        signer,
-                        resolverAddr,
-                        response,
-                        calldata,
-                        signature,
-                    );
-
-                    res.send({ data });
+                    res.send({ response });
                 }
             } catch (e) {
                 req.app.locals.logger.warn((e as Error).message);
+
                 res.status(400).send({ message: 'Unknown error' });
             }
         },
