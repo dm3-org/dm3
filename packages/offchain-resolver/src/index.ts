@@ -5,7 +5,7 @@ import http from 'http';
 import cors from 'cors';
 import winston from 'winston';
 import { getDatabase } from './persistance/getDatabase';
-import { ccipGateway } from './http/ccipGateway';
+import { resolverEndpoint } from './http/resolverEndpoint';
 import { getWeb3Provider } from './utils/getWeb3Provider';
 import { getSigner } from './utils/getSigner';
 import { readKeyFromEnv } from './utils/readKeyEnv';
@@ -32,10 +32,7 @@ app.use(bodyParser.json());
         spamProtection: process.env.SPAM_PROTECTION === 'true',
     };
 
-    const signer = getSigner();
-    const resolverAddress = readKeyFromEnv('RESOLVER_ADDR');
-
-    app.use('/', ccipGateway(signer, resolverAddress));
+    app.use('/', resolverEndpoint());
     app.use('/profile', profile(getWeb3Provider()));
 })();
 const port = process.env.PORT || '8081';
