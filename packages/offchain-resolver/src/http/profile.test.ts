@@ -6,7 +6,7 @@ import {
 import { stringify } from 'dm3-lib-shared/dist.backend';
 import { ethers } from 'ethers';
 import express from 'express';
-import { ethers as hreEthers } from 'hardhat';
+
 import request from 'supertest';
 import winston from 'winston';
 import { getDatabase, getDbClient } from '../persistance/getDatabase';
@@ -17,9 +17,10 @@ import * as dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 import { clearDb } from '../persistance/clearDb';
 
+import { expect } from 'chai';
+
 dotenv.config();
 
-const { expect } = require('chai');
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 
 describe('Profile', () => {
@@ -31,6 +32,26 @@ describe('Profile', () => {
         transports: [new winston.transports.Console()],
     });
 
+    const getSigners = () => {
+        return [
+            ethers.Wallet.fromMnemonic(
+                'test test test test test test test test test test test junk',
+                `m/44'/60'/0'/0/0`,
+            ),
+        ];
+    };
+    const provider: ethers.providers.JsonRpcProvider = new Proxy(
+        {
+            getBalance: async () => ethers.BigNumber.from(1),
+        } as any,
+        {
+            get(target, prop) {
+                const resolveName = async () => app.locals.forTests.signer;
+                return prop === 'resolveName' ? resolveName : target[prop];
+            },
+        },
+    );
+
     beforeEach(async () => {
         prismaClient = await getDbClient(logger);
         db = await getDatabase(logger, prismaClient);
@@ -38,18 +59,9 @@ describe('Profile', () => {
 
         app = express();
         app.use(bodyParser.json());
-        app.locals.forTests = await getSignedUserProfile();
-        const provider: ethers.providers.JsonRpcProvider = new Proxy(
-            hreEthers.provider,
-            {
-                get(target, prop) {
-                    const resolveName = async () => app.locals.forTests.signer;
-                    return prop === 'resolveName' ? resolveName : target[prop];
-                },
-            },
-        );
 
-        app.use(profile(provider));
+        app.locals.forTests = await getSignedUserProfile();
+
         app.locals.config = { spamProtection: true };
         app.locals.db = db;
 
@@ -68,6 +80,7 @@ describe('Profile', () => {
 
     describe('Store UserProfile by ens name', () => {
         it('Rejects invalid schema', async () => {
+            app.use(profile(provider));
             const { status, body } = await request(app).post(`/name`).send({
                 name: 'foo.dm3.eth',
                 address: SENDER_ADDRESS,
@@ -78,7 +91,8 @@ describe('Profile', () => {
             expect(body.error).to.equal('invalid schema');
         });
         it('Rejects invalid profile', async () => {
-            const profile: UserProfile = {
+            app.use(profile(provider));
+            const userProfile: UserProfile = {
                 publicSigningKey:
                     '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
                 publicEncryptionKey:
@@ -86,24 +100,32 @@ describe('Profile', () => {
                 deliveryServices: [''],
             };
 
-            const wallet = hreEthers.Wallet.createRandom();
+            const wallet = ethers.Wallet.createRandom();
 
             const signature = await wallet.signMessage('foo');
 
-            const { status, body } = await request(app).post(`/name`).send({
-                name: 'foo.dm3.eth',
-                address: wallet.address,
-                signedUserProfile: {
-                    profile,
-                    signature,
-                },
-            });
+            const { status, body } = await request(app)
+                .post(`/name`)
+                .send({
+                    name: 'foo.dm3.eth',
+                    address: wallet.address,
+                    signedUserProfile: {
+                        profile: userProfile,
+                        signature,
+                    },
+                });
 
             expect(status).to.equal(400);
             expect(body.error).to.equal('invalid profile');
         });
 
         it('Rejects address with an empty eth balance', async () => {
+            app.use(
+                profile({
+                    getBalance: async () => ethers.BigNumber.from(0),
+                    resolveName: async () => offChainProfile.signer,
+                } as any),
+            );
             const offChainProfile = app.locals.forTests;
             const { status, body } = await request(app)
                 .post(`/name`)
@@ -121,6 +143,7 @@ describe('Profile', () => {
         });
 
         it('Rejects if subdomain has already a profile', async () => {
+            app.use(profile(provider));
             const profile2: UserProfile = {
                 publicSigningKey: '',
                 publicEncryptionKey: '',
@@ -128,13 +151,6 @@ describe('Profile', () => {
             };
 
             const offChainProfile1 = app.locals.forTests;
-
-            //Fund wallets so their balance is not zero
-            const [wale] = await hreEthers.getSigners();
-            await wale.sendTransaction({
-                to: offChainProfile1.signer,
-                value: hreEthers.BigNumber.from(1),
-            });
 
             const res1 = await request(app)
                 .post(`/name`)
@@ -151,23 +167,16 @@ describe('Profile', () => {
 
             app.locals.forTests = await getSignedUserProfile(profile2);
             const offChainProfile2 = app.locals.forTests;
-            const provider: ethers.providers.JsonRpcProvider = new Proxy(
-                hreEthers.provider,
-                {
-                    get(target, prop) {
-                        const resolveName = async () =>
-                            app.locals.forTests.signer;
-                        return prop === 'resolveName'
-                            ? resolveName
-                            : target[prop];
-                    },
-                },
-            );
 
             const app2 = express();
             app2.use(bodyParser.json());
 
-            app2.use(profile(provider));
+            app2.use(
+                profile({
+                    getBalance: async () => ethers.BigNumber.from(1),
+                    resolveName: async () => app.locals.forTests.signer,
+                } as any),
+            );
             app2.locals.config = { spamProtection: true };
             app2.locals.db = db;
 
@@ -177,10 +186,6 @@ describe('Profile', () => {
                 // eslint-disable-next-line no-console
                 warn: (msg: string) => console.log(msg),
             };
-            await wale.sendTransaction({
-                to: offChainProfile2.signer,
-                value: hreEthers.BigNumber.from(1),
-            });
 
             const res2 = await request(app2)
                 .post(`/name`)
@@ -197,14 +202,8 @@ describe('Profile', () => {
             expect(res2.body.error).to.eql('subdomain already claimed');
         });
         it('Rejects if address already claimed a subdomain', async () => {
+            app.use(profile(provider));
             const offChainProfile1 = app.locals.forTests;
-
-            //Fund wallets so their balance is not zero
-            const [wale] = await hreEthers.getSigners();
-            await wale.sendTransaction({
-                to: offChainProfile1.signer,
-                value: hreEthers.BigNumber.from(1),
-            });
 
             const res1 = await request(app)
                 .post(`/name`)
@@ -237,51 +236,56 @@ describe('Profile', () => {
             );
         });
         it('Rejects if name has the address format', async () => {
-            const { signer, profile, signature } = app.locals.forTests;
+            app.use(profile(provider));
+            const {
+                signer,
+                profile: userProfile,
+                signature,
+            } = app.locals.forTests;
 
             //Fund wallet so their balance is not zero
-            const [wale] = await hreEthers.getSigners();
-            await wale.sendTransaction({
-                to: signer,
-                value: hreEthers.BigNumber.from(1),
-            });
+            const [wale] = getSigners();
 
-            const { status, body } = await request(app).post(`/name`).send({
-                name: signer,
-                address: signer,
-                signedUserProfile: {
-                    signature,
-                    profile,
-                },
-            });
+            const { status, body } = await request(app)
+                .post(`/name`)
+                .send({
+                    name: signer,
+                    address: signer,
+                    signedUserProfile: {
+                        signature,
+                        profile: userProfile,
+                    },
+                });
 
             expect(status).to.equal(400);
             expect(body.error).to.equal('Invalid ENS name');
         });
         it('Stores a valid profile', async () => {
-            const { signer, profile, signature } = app.locals.forTests;
+            app.use(profile(provider));
+            const {
+                signer,
+                profile: userProfile,
+                signature,
+            } = app.locals.forTests;
 
-            //Fund wallet so their balance is not zero
-            const [wale] = await hreEthers.getSigners();
-            await wale.sendTransaction({
-                to: signer,
-                value: hreEthers.BigNumber.from(1),
-            });
-
-            const { status } = await request(app).post(`/name`).send({
-                name: 'foo.dm3.eth',
-                address: signer,
-                signedUserProfile: {
-                    signature,
-                    profile,
-                },
-            });
+            const { status } = await request(app)
+                .post(`/name`)
+                .send({
+                    name: 'foo.dm3.eth',
+                    address: signer,
+                    signedUserProfile: {
+                        signature,
+                        profile: userProfile,
+                    },
+                });
 
             expect(status).to.equal(200);
         });
     });
+
     describe('Store UserProfile by address', () => {
         it('Rejects invalid schema', async () => {
+            app.use(profile(provider));
             const { status, body } = await request(app).post(`/address`).send({
                 address: SENDER_ADDRESS,
                 signedUserProfile: {},
@@ -291,7 +295,8 @@ describe('Profile', () => {
             expect(body.error).to.equal('invalid schema');
         });
         it('Rejects invalid profile', async () => {
-            const profile: UserProfile = {
+            app.use(profile(provider));
+            const userProfile: UserProfile = {
                 publicSigningKey:
                     '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
                 publicEncryptionKey:
@@ -299,23 +304,26 @@ describe('Profile', () => {
                 deliveryServices: [''],
             };
 
-            const wallet = hreEthers.Wallet.createRandom();
+            const wallet = ethers.Wallet.createRandom();
 
             const signature = await wallet.signMessage('foo');
 
-            const { status, body } = await request(app).post(`/address`).send({
-                address: wallet.address,
-                signedUserProfile: {
-                    profile,
-                    signature,
-                },
-            });
+            const { status, body } = await request(app)
+                .post(`/address`)
+                .send({
+                    address: wallet.address,
+                    signedUserProfile: {
+                        profile: userProfile,
+                        signature,
+                    },
+                });
 
             expect(status).to.equal(400);
             expect(body.error).to.equal('invalid profile');
         });
 
         it('Rejects if subdomain has already a profile', async () => {
+            app.use(profile(provider));
             const profile2: UserProfile = {
                 publicSigningKey: '',
                 publicEncryptionKey: '',
@@ -326,15 +334,6 @@ describe('Profile', () => {
             const offChainProfile2 = await getSignedUserProfile(profile2);
 
             //Fund wallets so their balance is not zero
-            const [wale] = await hreEthers.getSigners();
-            await wale.sendTransaction({
-                to: offChainProfile1.signer,
-                value: hreEthers.BigNumber.from(1),
-            });
-            await wale.sendTransaction({
-                to: offChainProfile2.signer,
-                value: hreEthers.BigNumber.from(1),
-            });
 
             const res1 = await request(app)
                 .post(`/address`)
@@ -364,14 +363,8 @@ describe('Profile', () => {
             );
         });
         it('Rejects if address already claimed a subdomain', async () => {
+            app.use(profile(provider));
             const offChainProfile1 = app.locals.forTests;
-
-            //Fund wallets so their balance is not zero
-            const [wale] = await hreEthers.getSigners();
-            await wale.sendTransaction({
-                to: offChainProfile1.signer,
-                value: hreEthers.BigNumber.from(1),
-            });
 
             const res1 = await request(app)
                 .post(`/address`)
@@ -401,33 +394,35 @@ describe('Profile', () => {
             );
         });
         it('Stores a valid profile', async () => {
-            const { signer, profile, signature } = app.locals.forTests;
+            app.use(profile(provider));
+            const {
+                signer,
+                profile: userProfile,
+                signature,
+            } = app.locals.forTests;
 
-            //Fund wallet so their balance is not zero
-            const [wale] = await hreEthers.getSigners();
-            await wale.sendTransaction({
-                to: signer,
-                value: hreEthers.BigNumber.from(1),
-            });
-
-            const { status } = await request(app).post(`/address`).send({
-                address: signer,
-                signedUserProfile: {
-                    signature,
-                    profile,
-                },
-            });
+            const { status } = await request(app)
+                .post(`/address`)
+                .send({
+                    address: signer,
+                    signedUserProfile: {
+                        signature,
+                        profile: userProfile,
+                    },
+                });
 
             expect(status).to.equal(200);
         });
     });
     describe('Get User By Account', () => {
         it('Returns 400 if address in invalid', async () => {
+            app.use(profile(provider));
             const { status, body } = await request(app).get(`/fooo`).send();
             expect(status).to.equal(400);
         });
 
         it('Returns 404 if profile does not exists', async () => {
+            app.use(profile(provider));
             const { status, body } = await request(app)
                 .get(`/${SENDER_ADDRESS}`)
                 .send();
@@ -435,23 +430,23 @@ describe('Profile', () => {
         });
 
         it('Returns the profile linked to ', async () => {
-            const { signer, profile, signature } = app.locals.forTests;
+            app.use(profile(provider));
+            const {
+                signer,
+                profile: userProfile,
+                signature,
+            } = app.locals.forTests;
 
-            //Fund wallet so their balance is not zero
-            const [wale] = await hreEthers.getSigners();
-            await wale.sendTransaction({
-                to: signer,
-                value: hreEthers.BigNumber.from(1),
-            });
-
-            const writeRes = await request(app).post(`/name`).send({
-                name: 'foo.dm3.eth',
-                address: signer,
-                signedUserProfile: {
-                    signature,
-                    profile,
-                },
-            });
+            const writeRes = await request(app)
+                .post(`/name`)
+                .send({
+                    name: 'foo.dm3.eth',
+                    address: signer,
+                    signedUserProfile: {
+                        signature,
+                        profile: userProfile,
+                    },
+                });
             expect(writeRes.status).to.equal(200);
 
             const { status, body } = await request(app)
@@ -461,7 +456,7 @@ describe('Profile', () => {
             expect(status).to.equal(200);
             expect(body).to.eql({
                 signature,
-                profile,
+                profile: userProfile,
             });
         });
     });
@@ -474,7 +469,7 @@ const getSignedUserProfile = async (overwriteProfile?: UserProfile) => {
         deliveryServices: [''],
     };
 
-    const wallet = hreEthers.Wallet.createRandom();
+    const wallet = ethers.Wallet.createRandom();
 
     const createUserProfileMessage = getProfileCreationMessage(
         stringify(profile),

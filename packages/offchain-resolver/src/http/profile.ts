@@ -208,6 +208,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
                 const { signedUserProfile, address } = req.body;
+
                 const isSchemaValid = validateSchema(
                     schema.SignedUserProfile,
                     signedUserProfile,
