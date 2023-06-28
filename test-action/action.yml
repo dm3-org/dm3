@@ -1,0 +1,43 @@
+name: 'test action'
+
+description: 'Yarn workspace test action'
+inputs:
+  workspace-name:
+    description: 'The name of the workspace that should be tested'
+    required: true
+  package-pat:  
+    required: true
+runs-on: ubuntu-latest
+runs:
+  using: "composite"
+  steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+            registry-url: 'https://npm.pkg.github.com'
+            node-version: 18.0.0
+            cache: 'yarn'
+      - uses: actions/download-artifact@master
+        with:
+            name: lib-builds
+            path: packages/lib
+      - uses: actions/download-artifact@master
+        with:
+            name: lib-schema
+            path: packages/lib
+      - uses: actions/download-artifact@master
+        with:
+            name: lib-backend-builds
+            path: packages/lib
+      - name: Install
+        shell: bash
+        run: yarn install
+        env:
+            NODE_AUTH_TOKEN: ${{ inputs.package-pat }}
+
+      - name: Unit Tests
+        shell: bash
+        run:  yarn workspace ${{ inputs.workspace-name }} test
+        env:
+            REACT_APP_ADDR_ENS_SUBDOMAIN: 'test.dm3.eth'
+            DATABASE_URL: 'postgresql://postgres:example@127.0.0.1:5432'
