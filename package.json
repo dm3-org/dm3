@@ -17,7 +17,6 @@
             "packages/web",
             "packages/billboard-widget",
             "packages/integration-tests",
-            "packages/ccip-resolver",
             "packages/offchain-resolver"
         ],
         "nohoist": [
