@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { getNameForAddress } from 'dm3-lib-delivery-api';
 import {
     SignedUserProfile,
     checkUserProfile,
@@ -7,6 +6,7 @@ import {
 } from 'dm3-lib-profile';
 import { ethersHelper, globalConfig, log } from 'dm3-lib-shared';
 import { Connection, ConnectionState } from '../web3provider/Web3Provider';
+import { getNameForAddress } from 'dm3-lib-offchain-resolver-api';
 
 export function getAliasForAddress(address: string) {
     return address + globalConfig.ADDR_ENS_SUBDOMAIN();
@@ -95,8 +95,12 @@ async function connectOffchainAccount(connection: Connection, address: string) {
          * if so we can use that account
          * Otherwise we use the addr_ens_subdomain
          */
+
         const ensName =
-            (await getNameForAddress(address)) ?? getAliasForAddress(address);
+            (await getNameForAddress(
+                address,
+                process.env.REACT_APP_RESOLVER_BACKEND as string,
+            )) ?? getAliasForAddress(address);
 
         //We're trying to get the profile from the delivery service
         const profile = await getUserProfile(connection.provider!, ensName);

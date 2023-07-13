@@ -10881,6 +10881,7 @@ __metadata:
     dm3-lib-profile: ^0.2.0
     ethers: 5.7.2
     jest: ^28.1.1
+    socket.io-client: ^4.6.1
     ts-jest: ^28.0.4
     ts-json-schema-generator: ^0.98.0
     typescript: ^4.4.2
@@ -10910,7 +10911,7 @@ __metadata:
     query-string: ^7.1.1
     safe-stable-stringify: ^2.4.1
     socket.io: ^4.4.1
-    socket.io-client: ^4.4.1
+    socket.io-client: ^4.7.1
     ts-jest: ^28.0.4
     ts-json-schema-generator: ^0.98.0
     typescript: ^4.4.2
@@ -11525,6 +11526,19 @@ __metadata:
     ws: ~8.11.0
     xmlhttprequest-ssl: ~2.0.0
   checksum: 280435a93d5ba9441c9f0018311eb9aa0c1c1bb3ad840970729f474c388c7066a7811d43bb06b5c7bd306e2b898c9dc70a42847dde079ccf43220f55b637f0f9
+  languageName: node
+  linkType: hard
+
+"engine.io-client@npm:~6.5.1":
+  version: 6.5.1
+  resolution: "engine.io-client@npm:6.5.1"
+  dependencies:
+    "@socket.io/component-emitter": ~3.1.0
+    debug: ~4.3.1
+    engine.io-parser: ~5.1.0
+    ws: ~8.11.0
+    xmlhttprequest-ssl: ~2.0.0
+  checksum: 411a4f1d2ef8c624fa2d6499ea31bc1da9609e0aaa07aee6e0b713084ab534e1db02b76cf9e80a625bf8d4432ae6088438a40a3748e4746179753a639c5054dc
   languageName: node
   linkType: hard
 
@@ -23194,6 +23208,18 @@ __metadata:
     engine.io-client: ~6.5.0
     socket.io-parser: ~4.2.4
   checksum: bcc0c7959ec49cb738957d353ceba2d794d743c597255110d49ec17c28f33005368ce46519f360135843b93b2270b20fab70691ce48c05c1c4f1cdcf75b36c11
+  languageName: node
+  linkType: hard
+
+"socket.io-client@npm:^4.7.1":
+  version: 4.7.1
+  resolution: "socket.io-client@npm:4.7.1"
+  dependencies:
+    "@socket.io/component-emitter": ~3.1.0
+    debug: ~4.3.2
+    engine.io-client: ~6.5.1
+    socket.io-parser: ~4.2.4
+  checksum: 5e606ebe01eab4a034ef982b2fc9936a6d98ce9fa7940dd7dcd93f1473a8c273ee69d045c087ac534f0d232285e81c16644de4f28d1731ee864402a9ee3059ee
   languageName: node
   linkType: hard
 
