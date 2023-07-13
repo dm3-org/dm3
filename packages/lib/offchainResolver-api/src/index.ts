@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Account, SignedUserProfile } from 'dm3-lib-profile';
+import { Account, SignedUserProfile, formatAddress } from 'dm3-lib-profile';
 
 function checkAccount(account: Account | undefined): Required<Account> {
     if (!account) {
@@ -10,6 +10,15 @@ function checkAccount(account: Account | undefined): Required<Account> {
     }
     return account as Required<Account>;
 }
+
+/**
+ * claims a dm3.eth subdomain
+ * @param account dm3 account
+ * @param offchainResolverUrl The offchain resolver endpoint url
+ * @param name The subdomain name
+ * @param signedUserProfile The signed dm3 user profile
+ */
+
 export async function claimSubdomain(
     account: Account,
     offchainResolverUrl: string,
@@ -29,6 +38,12 @@ export async function claimSubdomain(
     return status === 200;
 }
 
+/**
+ * claims an address based ENS subdomain name
+ * @param address The ethereum address
+ * @param offchainResolverUrl The offchain resolver endpoint url
+ * @param signedUserProfile The signed dm3 user profile
+ */
 export async function claimAddress(
     address: string,
     offchainResolverUrl: string,
@@ -43,3 +58,22 @@ export async function claimAddress(
     const { status } = await axios.post(url, data);
     return status === 200;
 }
+
+/**
+ * returns the linked ENS name for an eth address
+ * @param address The ethereum address
+ * @param offchainResolverUrl The offchain resolver endpoint url
+ */
+export async function getNameForAddress(
+    address: string,
+    offchainResolverUrl: string,
+): Promise<string | undefined> {
+    const url = `${offchainResolverUrl}/name/${formatAddress(address)}`;
+    try {
+        const { data } = await axios.get(url);
+        return data.name;
+    } catch (e) {
+        return;
+    }
+}
+export type GetNameForAddress = typeof getNameForAddress;
