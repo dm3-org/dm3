@@ -70,16 +70,31 @@ export interface JsonRpcRequest<T> {
     params: Array<T>;
 }
 
+/**
+ * creates and signs a new message
+ * @param to sender ENS name
+ * @param from receiver ENS name
+ * @param message the message content
+ * @param privateKey sender signing key
+ * @param type the type of the message,
+ * @param attachments URI array of attachments e.g. data URIs
+ * @param referenceMessageHash reference to previous message
+ */
 export async function createMessage(
     to: string,
     from: string,
     message: string,
     privateKey: string,
+    type?: MessageType,
+    attachments?: string[],
+    referenceMessageHash?: string,
 ): Promise<Message> {
     const messgeWithoutSig: Omit<Message, 'signature'> = {
         message,
+        attachments,
         metadata: {
-            type: 'NEW',
+            referenceMessageHash,
+            type: type ?? 'NEW',
             to,
             from,
             timestamp: new Date().getTime(),
