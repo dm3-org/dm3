@@ -109,11 +109,19 @@ export async function getDefaultEnsTextRecord(
     if (!resolver) {
         throw Error(`No resolver for ${ensName}`);
     }
+
+    const getTextRecord = async (key: string) => {
+        try {
+            return resolver.getText(key);
+        } catch (e) {
+            return undefined;
+        }
+    };
     return {
-        email: await resolver.getText('email'),
-        url: await resolver.getText('url'),
-        twitter: await resolver.getText('com.twitter'),
-        github: await resolver.getText('com.github'),
+        email: await getTextRecord('email'),
+        url: await getTextRecord('url'),
+        twitter: await getTextRecord('com.twitter'),
+        github: await getTextRecord('com.github'),
     };
 }
 export type GetDefaultEnsTextRecord = typeof getDefaultEnsTextRecord;

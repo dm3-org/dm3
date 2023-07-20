@@ -1,0 +1,16 @@
+undecided:
+  - dm3-backend
+  - dm3-billboard-client
+  - dm3-billboard-widget
+  - dm3-integration-tests
+  - dm3-lib-billboard-client-api
+  - dm3-lib-crypto
+  - dm3-lib-delivery
+  - dm3-lib-delivery-api
+  - dm3-lib-messaging
+  - dm3-lib-offchain-resolver-api
+  - dm3-lib-profile
+  - dm3-lib-shared
+  - dm3-lib-storage
+  - dm3-offchain-resolver
+  - dm3-react

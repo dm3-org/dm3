@@ -6,7 +6,7 @@
         "dm3-lib-delivery": "^0.2.0",
         "dm3-lib-messaging": "^0.2.0",
         "dm3-lib-profile": "^0.2.0",
-        "dm3-lib-shared": "^0.2.0",
+        "dm3-lib-shared": "^0.2.1",
         "ethers": "5.7.2"
     },
     "devDependencies": {
