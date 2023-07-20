@@ -80,13 +80,13 @@ function dm3(props: dm3Props) {
     useEffect(() => {
         if (state.connection.provider) {
             if (
-                window.ethereum &&
+                (window as any).ethereum &&
                 state.connection.connectionState === ConnectionState.SignedIn
             ) {
-                (window.ethereum as any).on('accountsChanged', () => {
+                (window as any).ethereum.on('accountsChanged', () => {
                     window.location.reload();
                 });
-                (window.ethereum as any).on('chainChanged', () => {
+                (window as any).ethereum.on('chainChanged', () => {
                     window.location.reload();
                 });
             }
