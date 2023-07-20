@@ -22,27 +22,29 @@ function Avatar(props: AvatarProps) {
     const { state, dispatch } = useContext(GlobalContext);
 
     const getAvatar = async () => {
-        const ensName = normalizeEnsName(props.ensName);
+        try {
+            const ensName = normalizeEnsName(props.ensName);
 
-        let url = state.cache.avatarUrls.get(ensName);
+            let url = state.cache.avatarUrls.get(ensName);
 
-        if (url) {
-            return url;
+            if (url) {
+                return url;
+            }
+
+            const urlResponse = await state.connection.provider!.getAvatar(
+                props.ensName,
+            );
+
+            if (urlResponse) {
+                dispatch({
+                    type: CacheType.AddAvatarUrl,
+                    payload: { ensName, url: urlResponse },
+                });
+                return url;
+            }
+        } catch (e) {
+            return undefined;
         }
-
-        const urlResponse = await state.connection.provider!.getAvatar(
-            props.ensName,
-        );
-
-        if (urlResponse) {
-            dispatch({
-                type: CacheType.AddAvatarUrl,
-                payload: { ensName, url: urlResponse },
-            });
-            return url;
-        }
-
-        return undefined;
     };
 
     useAsync(
