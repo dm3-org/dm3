@@ -54,22 +54,35 @@ export async function fetchAndStoreMessages(
 
     //Flatten the message arrays of each delivery service to one message array
     const allMessages = messages.reduce((agg, cur) => [...agg, ...cur], []);
+    const isFulfilled = <T>(
+        p: PromiseSettledResult<T>,
+    ): p is PromiseFulfilledResult<T> => p.status === 'fulfilled';
 
-    const envelops = await Promise.all(
-        /**
-         * Decrypts every message using the receivers encryptionKey
-         */
-        allMessages.map(async (envelop): Promise<StorageEnvelopContainer> => {
-            const decryptedEnvelop = await decryptMessages([envelop], userDb);
+    const envelops = (
+        await Promise.allSettled(
+            /**
+             * Decrypts every message using the receivers encryptionKey
+             */
+            allMessages.map(
+                async (envelop): Promise<StorageEnvelopContainer> => {
+                    const decryptedEnvelop = await decryptMessages(
+                        [envelop],
+                        userDb,
+                    );
 
-            return {
-                envelop: decryptedEnvelop[0],
-                messageState: MessageState.Send,
-                deliveryServiceIncommingTimestamp:
-                    decryptedEnvelop[0].postmark?.incommingTimestamp,
-            };
-        }),
-    );
+                    return {
+                        envelop: decryptedEnvelop[0],
+                        messageState: MessageState.Send,
+                        deliveryServiceIncommingTimestamp:
+                            decryptedEnvelop[0].postmark?.incommingTimestamp,
+                    };
+                },
+            ),
+        )
+    )
+        .filter(isFulfilled)
+        .map((settledResult) => settledResult.value);
+
     //Storing the newly fetched messages in the userDb
     storeMessages(envelops);
 

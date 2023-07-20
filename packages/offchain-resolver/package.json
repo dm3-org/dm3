@@ -7,7 +7,7 @@
         "@prisma/client": "^4.15.0",
         "body-parser": "^1.20.1",
         "dm3-lib-profile": "^0.2.0",
-        "dm3-lib-shared": "^0.2.0",
+        "dm3-lib-shared": "^0.2.1",
         "dotenv": "^16.0.3",
         "eslint": "^8.17.0",
         "ethers": "5.7.2",

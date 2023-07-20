@@ -1,6 +1,6 @@
 {
     "name": "dm3-lib-profile",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "license": "MIT",
     "main": "dist/index.js",
     "module": "dist-backend/index.js",
@@ -20,7 +20,7 @@
         "ajv": "^8.11.0",
         "axios": "^0.25.0",
         "dm3-lib-crypto": "^0.2.0",
-        "dm3-lib-shared": "^0.2.0",
+        "dm3-lib-shared": "^0.2.1",
         "ethers": "5.7.2",
         "googleapis": "^100.0.0",
         "libsodium-wrappers": "^0.7.10",
