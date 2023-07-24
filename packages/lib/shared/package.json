@@ -24,7 +24,8 @@
     },
     "scripts": {
         "build": "yarn tsc --declaration &&yarn tsc --declaration -p tsconfig.backend.json",
-        "test": "echo 'no tests'"
+        "test": "echo 'no tests'",
+        "publish": "echo 'publish'"
     },
     "files": [
         "dist",
