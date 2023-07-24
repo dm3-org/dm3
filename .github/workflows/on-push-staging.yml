@@ -1,6 +1,8 @@
 name: Push Workflow
-on: push
-
+on:
+   push:
+    tags:
+      - staging-build-**
 jobs:
     code-quality:
         runs-on: ubuntu-latest
@@ -107,7 +109,7 @@ jobs:
             run:
                 working-directory: 'packages/lib'
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - id: workspace-test
               uses: ./test-action
               with:
@@ -120,7 +122,7 @@ jobs:
             run:
                 working-directory: 'packages/lib'
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - id: workspace-test
               uses: ./test-action
               with:
@@ -133,7 +135,7 @@ jobs:
             run:
                 working-directory: 'packages/lib'
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - id: workspace-test
               uses: ./test-action
               with:
@@ -164,3 +166,24 @@ jobs:
               uses: ./test-action
               with:
                   workspace-name: 'dm3-offchain-resolver'
+                  package-pat: ${{ secrets.PACKAGE_PAT }}
+    web-staging-deploy:
+        runs-on: ubuntu-latest
+        needs:
+            [
+                # offchain-resolver-test,
+                # lib-storage-test,
+                # lib-shared-test,
+                # lib-profile-test,
+                # lib-messaging-test,
+                # lib-delivery-test,
+                # lib-crypto-test,
+                # integration-test,
+                # backend-test,
+                code-quality
+            ]
+        environment: staging
+        steps:
+            - uses: actions/checkout@v2
+            - name: Test
+              run: echo "staging"
