@@ -1,3 +1,51 @@
 .outer-container {
     min-height: 100vh;
 }
+
+.base-background {
+    background: var(--base-background);
+}
+
+.background-container {
+    background: var(--background-container);
+}
+
+.normal-btn {
+    background-color: var(--normal-btn);
+}
+
+.normal-btn-hover {
+    background-color: var(--normal-btn-hover);
+}
+
+.text-primary-color {
+    color: var(--text-primary-color);
+}
+
+.normal-btn-inactive {
+    background-color: var(--normal-btn-inactive);
+}
+
+.text-secondary-color {
+    color: var(--text-secondary-color);
+}
+
+.background-active-contact {
+    background: var(--background-active-contact);
+}
+
+.background-config-box {
+    background: var(--background-config-box);
+}
+
+.background-config-box-border {
+    border: var(--background-config-box-border);
+}
+
+.normal-btn-border {
+    border: var(--normal-btn-border);
+}
+
+.config-box-border {
+    border: var(--config-box-border);
+}
