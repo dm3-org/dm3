@@ -1,0 +1,8 @@
+{
+    "short_name": "dm3",
+    "name": "dm3 enables decentralized, open, and secure messaging using established web3 services",
+    "start_url": ".",
+    "display": "standalone",
+    "theme_color": "#000000",
+    "background_color": "#000000"
+}
