@@ -83,12 +83,12 @@ function Chat() {
                 )
             ) {
                 addUserMessage(
-                    container.envelop.message.message,
+                    container.envelop.message.message!,
                     container.envelop.message.metadata.timestamp.toString(),
                 );
             } else {
                 addResponseMessage(
-                    container.envelop.message.message,
+                    container.envelop.message.message!,
                     container.envelop.message.metadata.timestamp.toString(),
                 );
             }
