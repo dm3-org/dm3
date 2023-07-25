@@ -1,19 +1,14 @@
 .account-header-text {
     cursor: pointer;
-   
-  }
-  .account-name {
+}
+.account-name {
     height: fit-content;
     font-size: 1.2rem;
     font-weight: 400;
-
-  }
-
-
-
+}
 
 .header-buttons > div {
-    padding: 0px !important
+    padding: 0px !important;
 }
 
 .show-add-btn {

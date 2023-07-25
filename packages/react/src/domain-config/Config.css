@@ -1,16 +1,14 @@
 .config-banner {
-    background-color: #3A3C50;
+    background-color: #3a3c50;
     color: #ffffff;
     margin: 10px;
     border-radius: 10px;
-
 }
 
 .config-btn {
     color: #ffffff;
 
     border-color: #ffffff;
-
 }
 
 /* .config-btn:hover {
@@ -33,14 +31,13 @@
 
 .user-info input {
     color: #ffffff;
-    background-color: #3A3C50 !important;
+    background-color: #3a3c50 !important;
     border-style: none;
     height: 3rem;
 }
 
 .user-info input:focus {
     color: #ffffff;
-  
 }
 
 .user-info-text-muted {
@@ -53,7 +50,7 @@
 
 .user-info .input-group-text {
     color: #8f8f93;
-    background-color: #1F2029 !important;
+    background-color: #1f2029 !important;
 }
 
 .user-info * {
@@ -62,9 +59,8 @@
 
 .user-info .form-check-input {
     width: 3rem;
-   
-    background-color: #1F2029 !important;
 
+    background-color: #1f2029 !important;
 }
 
 .user-info .explain-text-sm {
@@ -74,7 +70,6 @@
 
 .value-text {
     color: #8f8f93;
-    
 }
 
 .user-info .explain-text {
@@ -84,13 +79,12 @@
 }
 
 .config-text {
-   color: #8f8f93 !important;
+    color: #8f8f93 !important;
 }
 
 .user-info .form-control {
     border-radius: 0.25rem !important;
 }
-
 
 .check-container {
     padding: 0;
@@ -98,7 +92,7 @@
 }
 
 .submit-btn {
-    border-color: #6773DD !important;
+    border-color: #6773dd !important;
     color: #ffffff;
     border-style: solid;
     border-radius: 10px;
@@ -106,25 +100,16 @@
     width: 300px !important;
 }
 
+.submit-btn:hover {
+    background-color: #6773dd !important;
+}
 
-  
-  .submit-btn:hover {
-  
-    background-color: #6773DD !important;
-
-  
-  }
-
-  .submit-btn:hover:disabled {
-  
+.submit-btn:hover:disabled {
     background-color: transparent !important;
     border-color: #6c757d !important;
-  
-  }
+}
 
-  .submit-btn:disabled {
-  
+.submit-btn:disabled {
     background-color: transparent !important;
     border-color: #6c757d !important;
-  
-  }
+}

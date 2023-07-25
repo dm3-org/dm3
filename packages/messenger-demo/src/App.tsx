@@ -4,9 +4,15 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { DM3 } from 'messenger-widget';
 
 function App() {
+    const props: any = {
+        defaultContact: 'help.dm3.eth',
+        defaultServiceUrl: process.env.REACT_APP_DEFAULT_SERVICE,
+        showAlways: true,
+    };
+
     return (
         <>
-            <DM3 />
+            <DM3 {...props} />
         </>
     );
 }
