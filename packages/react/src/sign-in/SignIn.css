@@ -1,85 +1,78 @@
 .help-text {
-
-  color: #6c757d;
+    color: #6c757d;
 }
 
 .sign-in-main {
-  overflow: overlay;
+    overflow: overlay;
 }
 
-
 .sign-in-help {
-  margin-top: 0.2rem !important;
+    margin-top: 0.2rem !important;
 }
 
 .sign-in-help-1 {
     margin-top: 2.5rem !important;
-  }
+}
 .sign-in-help-2 {
     margin-top: 2.2rem !important;
 }
 
 .store-token {
-  margin-top: 0.5rem;
+    margin-top: 0.5rem;
 }
 
 .explanation {
-  font-size: 0.8rem;
+    font-size: 0.8rem;
 }
 
 .sign-in {
-  padding-left: 1rem;
+    padding-left: 1rem;
 }
 
 .storage-item {
-  background-color: var(--mainDark);
-  color: #DCE1E7 !important;
-  border-style: none;
-  border-radius: 8px !important;
-  margin-bottom: 0.5rem;
+    background-color: var(--mainDark);
+    color: #dce1e7 !important;
+    border-style: none;
+    border-radius: 8px !important;
+    margin-bottom: 0.5rem;
 }
 
 .storage-item:focus {
-  background-color: var(--btnColorLeft);
+    background-color: var(--btnColorLeft);
 
-  color: #fff !important;
+    color: #fff !important;
 }
 
 .storage-item-selected {
-  background-color: var(--btnColorLeft);
+    background-color: var(--btnColorLeft);
 
-  color: #fff !important;
+    color: #fff !important;
 }
 
-
 .storage-item:hover {
-  background-color: var(--btnColorLeftSecondary);
+    background-color: var(--btnColorLeftSecondary);
 
-  color: #fff !important;
-
+    color: #fff !important;
 }
 
 .sign-in-btn {
-  width: 350px !important;
-  height: 75px;
-  font-size: 1.7rem;
-  border-color: #6773DD !important;
-  color: #ffffff !important;
-  border-radius: 15px;
+    width: 350px !important;
+    height: 75px;
+    font-size: 1.7rem;
+    border-color: #6773dd !important;
+    color: #ffffff !important;
+    border-radius: 15px;
 }
 
 .sign-in-btn:hover {
-
-  background-color: #6773DD !important;
-
+    background-color: #6773dd !important;
 }
 
 .sign-in-logo {
-  padding-top: 6rem;
-  padding-bottom: 6rem;
+    padding-top: 6rem;
+    padding-bottom: 6rem;
 }
 
 .miniSignInBtn {
-  width: 10rem !important;
+    width: 10rem !important;
 }
-
