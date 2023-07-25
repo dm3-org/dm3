@@ -1,16 +1,8 @@
-
-  
 .header-row-left {
-    background-color: var(--mainDark);;
+    background-color: var(--mainDark);
     color: #ffffffd5;
+}
 
-
-    
-  }
-
-  .header-row-right {
+.header-row-right {
     background-color: var(--mainLight);
-
-
-    
-  }
+}
