@@ -1,0 +1,55 @@
+.border-radius-8 {
+    border-radius: 8px;
+}
+
+.border-radius-6 {
+    border-radius: 6px;
+}
+
+.border-radius-4 {
+    border-radius: 4px;
+}
+
+.pointer-cursor {
+    cursor: pointer;
+}
+
+.font-weight-400 {
+    font-weight: 400;
+}
+
+.font-weight-500 {
+    font-weight: 500;
+}
+
+.font-weight-800 {
+    font-weight: 800;
+}
+
+.right-float {
+    float: right;
+}
+
+.left-float {
+    float: left;
+}
+
+.height-fill {
+    height: -webkit-fill-available;
+}
+
+.width-fill {
+    width: -webkit-fill-available;
+}
+
+.width-fit {
+    width: fit-content;
+}
+
+.font-size-12 {
+    font-size: 12px;
+}
+
+.display-none {
+    display: none;
+}
