@@ -6,6 +6,10 @@ export type {
 export {
     MessageState,
     createMessage,
+    createDeleteRequestMessage,
+    createEditMessage,
+    createReactionMessage,
+    createReplyMessage,
     createJsonRpcCallSubmitMessage,
     handleMessageOnDeliveryService,
     decryptEnvelop,

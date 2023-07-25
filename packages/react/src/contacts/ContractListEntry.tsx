@@ -46,7 +46,7 @@ function ContactListEntry(props: ContactListProps) {
 
             if (messages.length > 0) {
                 const message =
-                    messages[messages.length - 1].envelop.message.message;
+                    messages[messages.length - 1].envelop.message.message!;
                 setTeaser(
                     message.slice(0, 25) + (message.length > 25 ? '...' : ''),
                 );
