@@ -21972,8 +21972,9 @@ __metadata:
     bootstrap: ^5.1.3
     buffer: ^6.0.3
     crypto-browserify: ^3.12.0
+    express: ^4.18.2
     https-browserify: ^1.0.0
-    messenger-widget: 0.2.0
+    messenger-widget: "workspace:^"
     os-browserify: ^0.3.0
     path-browserify: ^1.0.1
     postcss: ^8.4.24
@@ -21989,7 +21990,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"messenger-widget@0.2.0, messenger-widget@workspace:packages/messenger-widget":
+"messenger-widget@workspace:^, messenger-widget@workspace:packages/messenger-widget":
   version: 0.0.0-use.local
   resolution: "messenger-widget@workspace:packages/messenger-widget"
   dependencies:
