@@ -348,7 +348,6 @@ export async function signProfile(
             getProfileCreationMessage(stringifiedProfile);
         return await personalSign(provider, address, profileCreationMessage);
     } catch (error: any) {
-        console.log('error ====', error);
         const err = error?.message.split(':');
         throw Error(err.length > 1 ? err[1] : err[0]);
     }
@@ -565,14 +564,11 @@ export async function signIn(
         });
     } catch (error: any) {
         setSignInBtnContent(SignInBtnValues.SignIn);
-        console.log('error 0000', error);
-        const errorMessage = error.message ? error.message.split(':') : error;
         changeSignInButtonStyle(
             'sign-in-btn',
             'normal-btn-hover',
             'normal-btn',
         );
-        console.log('error ---->', errorMessage);
     }
 }
 
@@ -776,7 +772,6 @@ export async function connectAccount(
             'normal-btn-hover',
             'normal-btn',
         );
-        console.log('Error connecting account : ', error);
     }
 }
 
@@ -855,7 +850,6 @@ export async function getProvider(
         const web3Provider = await getWeb3Provider(provider);
         handleNewProvider(web3Provider, dispatch);
     } catch (error) {
-        console.log('provider error : ', error);
         changeSignInButtonStyle(
             'sign-in-btn',
             'normal-btn-hover',
