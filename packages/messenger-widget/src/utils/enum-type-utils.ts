@@ -19,13 +19,13 @@ import { Connection } from '../interfaces/web3';
 
 export type ActionMap<M extends { [index: string]: any }> = {
     [Key in keyof M]: M[Key] extends undefined
-    ? {
-        type: Key;
-    }
-    : {
-        type: Key;
-        payload: M[Key];
-    };
+        ? {
+              type: Key;
+          }
+        : {
+              type: Key;
+              payload: M[Key];
+          };
 };
 
 export type Accounts = {
@@ -181,7 +181,7 @@ export enum UiStateType {
     SetLastMessagePull = 'SET_LAST_MESSAGE_PULL',
     SetProfileExists = 'SET_PROFILE_EXISTS',
     SetBrowserStorageBackup = 'SET_BROWSER_STORAGE_BACKUP',
-    SetShowContactList = 'SET_SHOW_CONTACT_LIST'
+    SetShowContactList = 'SET_SHOW_CONTACT_LIST',
 }
 
 export enum ConnectionState {
