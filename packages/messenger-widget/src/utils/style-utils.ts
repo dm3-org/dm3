@@ -62,3 +62,13 @@ export const selectTheme = (theme: string | undefined | null): object => {
             return themeOne;
     }
 };
+
+// Updates the button style
+export function changeButtonStyle(
+    event: React.MouseEvent,
+    classOne: string,
+    classTwo: string,
+) {
+    event.currentTarget.classList.remove(classOne);
+    event.currentTarget.classList.add(classTwo);
+}

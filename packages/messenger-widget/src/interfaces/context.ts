@@ -32,6 +32,7 @@ export interface UiState {
     lastMessagePull: number;
     proflieExists: boolean;
     browserStorageBackup: boolean;
+    showContactList: boolean;
 }
 
 export interface GlobalContextProviderProps {
