@@ -67,6 +67,13 @@ export function uiStateReducer(
                 browserStorageBackup: action.payload,
             };
 
+        case UiStateType.SetShowContactList:
+            log(`[UI] set contact list view`, 'info');
+            return {
+                ...state,
+                showContactList: action.payload,
+            };
+
         default:
             return state;
     }
