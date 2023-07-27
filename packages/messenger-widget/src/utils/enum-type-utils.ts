@@ -107,6 +107,7 @@ export type UiStatePayload = {
     [UiStateType.SetLastMessagePull]: number;
     [UiStateType.SetProfileExists]: boolean;
     [UiStateType.SetBrowserStorageBackup]: boolean;
+    [UiStateType.SetShowContactList]: boolean;
 };
 
 export type UiStateActions =
@@ -180,6 +181,7 @@ export enum UiStateType {
     SetLastMessagePull = 'SET_LAST_MESSAGE_PULL',
     SetProfileExists = 'SET_PROFILE_EXISTS',
     SetBrowserStorageBackup = 'SET_BROWSER_STORAGE_BACKUP',
+    SetShowContactList = 'SET_SHOW_CONTACT_LIST',
 }
 
 export enum ConnectionState {
