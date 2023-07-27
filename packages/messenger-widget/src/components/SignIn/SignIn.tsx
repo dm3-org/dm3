@@ -16,10 +16,20 @@ import {
     connectAccount,
     getButtonState,
     getIcon,
+    getProvider,
     getStorageLocation,
     initToken,
     signIn,
 } from './bl';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { watchAccount, disconnect, watchNetwork } from '@wagmi/core';
+import {
+    ACCOUNT_CHANGE_POPUP_MESSAGE,
+    INVALID_NETWORK_POPUP_MESSAGE,
+    INVALID_SESSION_POPUP_MESSAGE,
+    REACT_APP_SUPPORTED_CHAIN_ID,
+    openErrorModal,
+} from '../../utils/common-utils';
 
 export function SignIn(props: SignInProps) {
     // state to handle button text
@@ -51,6 +61,9 @@ export function SignIn(props: SignInProps) {
     // state to track sign in button is clicked or not
     const [isSignInBtnClicked, setIsSignInBtnClicked] =
         useState<boolean>(false);
+
+    // open rainbow wallet modal function
+    const { openConnectModal } = useConnectModal();
 
     // state to handle the ethereum account connected
     const [accountConnected, setAccountConnected] = useState<any>(null);
@@ -120,16 +133,49 @@ export function SignIn(props: SignInProps) {
         }
     }, [state.connection.provider, state.connection.connectionState]);
 
+    // handles account change
+    watchAccount(async (account: any) => {
+        setAccountConnected(account);
+        if (
+            accountConnected &&
+            accountConnected.address &&
+            account.address !== accountConnected.address
+        ) {
+            openErrorModal(ACCOUNT_CHANGE_POPUP_MESSAGE, true, disconnect);
+        }
+        if (isSignInBtnClicked && account.connector) {
+            setSignInBtnContent(SignInBtnValues.WaitingForSigature);
+            const provider = await account.connector.getProvider();
+            getProvider(provider, dispatch);
+            setIsSignInBtnClicked(false);
+        }
+    });
+
+    // handles network change
+    watchNetwork(async (data: any) => {
+        if (
+            data.chain?.id &&
+            REACT_APP_SUPPORTED_CHAIN_ID !== data.chain.id &&
+            accountConnected &&
+            accountConnected.address
+        ) {
+            openErrorModal(INVALID_NETWORK_POPUP_MESSAGE, true, disconnect);
+        }
+    });
+
     // handle sign in button click
     const handleSignIn = async () => {
         if (accountConnected && accountConnected.address) {
             setIsSignInBtnClicked(true);
+            openErrorModal(INVALID_SESSION_POPUP_MESSAGE, true, disconnect);
         } else {
             changeSignInButtonStyle(
                 'sign-in-btn',
                 'normal-btn',
                 'normal-btn-hover',
             );
+            openConnectModal && openConnectModal();
+            setIsSignInBtnClicked(true);
         }
     };
 

@@ -1,6 +1,5 @@
 import './DM3.css';
 import axios from 'axios';
-// import { SignIn } from '../SignIn/SignIn';
 import socketIOClient from 'socket.io-client';
 import { EncryptionEnvelop } from 'dm3-lib-messaging';
 import { Connection } from '../../interfaces/web3';
@@ -15,6 +14,7 @@ import {
     UiStateType,
 } from '../../utils/enum-type-utils';
 import { SignIn } from '../SignIn/SignIn';
+import Dashboard from '../../views/Dashboard/Dashboard';
 
 function DM3(props: Dm3Props) {
     // fetches context storage
@@ -157,7 +157,9 @@ function DM3(props: Dm3Props) {
                     miniSignIn={props.config.miniSignIn}
                 />
             ) : (
-                <div className="mt-3 ml-3 rounded dashboard-container background-container"></div>
+                <div className="mt-3 ml-3 rounded dashboard-container background-container">
+                    <Dashboard />
+                </div>
             )}
         </div>
     );
