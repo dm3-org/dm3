@@ -1,4 +1,5 @@
 import './index.css';
+import './common.css';
 import 'react-app-polyfill/stable';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';

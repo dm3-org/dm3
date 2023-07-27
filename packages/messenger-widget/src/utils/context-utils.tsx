@@ -3,7 +3,7 @@ import { accountsReducer } from '../contexts/Accounts';
 import { authReducer } from '../contexts/Auth';
 import { cacheReducer } from '../contexts/Cache';
 import { connectionReducer } from '../contexts/Connection';
-import { initialState } from '../contexts/shared';
+import { initialState } from '../contexts/Shared';
 import { uiStateReducer } from '../contexts/UiState';
 import { userDbReducer } from '../contexts/UserDB';
 import { GlobalContextProviderProps } from '../interfaces/context';
