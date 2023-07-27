@@ -30,6 +30,7 @@ export const initialState: GlobalState = {
         lastMessagePull: 0,
         proflieExists: false,
         browserStorageBackup: false,
+        showContactList: true,
     },
     auth: {
         currentSession: undefined,
