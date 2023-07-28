@@ -142,9 +142,7 @@ export function SignIn(props: SignInProps) {
             account.address !== accountConnected.address
         ) {
             openErrorModal(ACCOUNT_CHANGE_POPUP_MESSAGE, true, disconnect);
-            return;
-        }
-        if (isSignInBtnClicked && account.connector) {
+        } else if (isSignInBtnClicked && account.connector) {
             setSignInBtnContent(SignInBtnValues.WaitingForSigature);
             const provider = await account.connector.getProvider();
             getProvider(provider, dispatch);
@@ -166,8 +164,8 @@ export function SignIn(props: SignInProps) {
 
     // handle sign in button click
     const handleSignIn = async () => {
+        setIsSignInBtnClicked(true);
         if (accountConnected && accountConnected.address) {
-            setIsSignInBtnClicked(true);
             openErrorModal(INVALID_SESSION_POPUP_MESSAGE, true, disconnect);
         } else {
             changeSignInButtonStyle(
@@ -176,7 +174,6 @@ export function SignIn(props: SignInProps) {
                 'normal-btn-hover',
             );
             openConnectModal && openConnectModal();
-            setIsSignInBtnClicked(true);
         }
     };
 
@@ -184,10 +181,7 @@ export function SignIn(props: SignInProps) {
         <>
             <div className="row p-4">
                 <div className="col-lg-7 col-md-7 col-sm-12 p-0 home-image-container background-container">
-                    <img
-                        src={homeImage}
-                        className="img-fluid home-image"
-                    />
+                    <img src={homeImage} className="img-fluid home-image" />
                 </div>
                 {/*  eslint-disable */}
                 <div className="col-lg-5 col-md-5 col-sm-12 p-0 d-flex flex-column justify-content-center signin-container background-container">
