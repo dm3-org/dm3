@@ -9,6 +9,7 @@ import { setTheme } from './utils/style-utils';
 import { Config } from './interfaces/config';
 import { getConfig } from './utils/config-utils';
 import GlobalContextProvider from './utils/context-utils';
+import ErrorModal from './components/ErrorModal/ErrorModal';
 
 export function DM3(props: Partial<Config>) {
     const propsData: Config = getConfig(props);
@@ -16,6 +17,7 @@ export function DM3(props: Partial<Config>) {
 
     return (
         <div className="container-fluid outer-container base-background">
+            <ErrorModal />
             <GlobalContextProvider>
                 <Home config={propsData} />
             </GlobalContextProvider>
