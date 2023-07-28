@@ -16,6 +16,8 @@ const DefaultConfig: Config = {
     browserStorageBackup: false,
     showHelp: false,
     theme: 'default',
+    ethereumProvider: '' as string,
+    walletConnectProjectId: '' as string,
 };
 
 export function getConfig(overwrite: Partial<Config>): Config {
