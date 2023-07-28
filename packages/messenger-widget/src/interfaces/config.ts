@@ -15,6 +15,8 @@ export interface Config {
     browserStorageBackup: boolean;
     showHelp: boolean;
     theme: string | undefined | null;
+    ethereumProvider: string;
+    walletConnectProjectId: string;
 }
 
 export interface Dm3Props {

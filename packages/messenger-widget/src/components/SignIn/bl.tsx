@@ -49,6 +49,7 @@ import {
 import { ethers } from 'ethers';
 import { claimAddress, getNameForAddress } from 'dm3-lib-offchain-resolver-api';
 import axios from 'axios';
+import { openErrorModal } from '../../utils/common-utils';
 
 const DEFAULT_NONCE = '0';
 
@@ -564,6 +565,11 @@ export async function signIn(
         });
     } catch (error: any) {
         setSignInBtnContent(SignInBtnValues.SignIn);
+        const errorMessage = error.message ? error.message.split(':') : error;
+        openErrorModal(
+            errorMessage.length > 1 ? errorMessage[1] : errorMessage[0],
+            false,
+        );
         changeSignInButtonStyle(
             'sign-in-btn',
             'normal-btn-hover',
