@@ -142,13 +142,14 @@ export function SignIn(props: SignInProps) {
             account.address !== accountConnected.address
         ) {
             openErrorModal(ACCOUNT_CHANGE_POPUP_MESSAGE, true, disconnect);
+            return;
         }
         if (isSignInBtnClicked && account.connector) {
             setSignInBtnContent(SignInBtnValues.WaitingForSigature);
             const provider = await account.connector.getProvider();
             getProvider(provider, dispatch);
-            setIsSignInBtnClicked(false);
         }
+        setIsSignInBtnClicked(false);
     });
 
     // handles network change
@@ -182,18 +183,18 @@ export function SignIn(props: SignInProps) {
     return (
         <>
             <div className="row p-4">
-                <div className="col-lg-6 col-md-6 col-sm-12 p-0 home-image-container background-container">
+                <div className="col-lg-7 col-md-7 col-sm-12 p-0 home-image-container background-container">
                     <img
                         src={homeImage}
-                        className="img-fluid h-100 w-100 home-image"
+                        className="img-fluid home-image"
                     />
                 </div>
                 {/*  eslint-disable */}
-                <div className="col-lg-6 col-md-6 col-sm-12 p-0 d-flex flex-column justify-content-center signin-container background-container">
+                <div className="col-lg-5 col-md-5 col-sm-12 p-0 d-flex flex-column justify-content-center signin-container background-container">
                     <div className="d-flex flex-column justify-content-center height-fill content-data-container">
                         <div className="d-flex flex-column justify-content-center">
                             <img
-                                className="w-100 h-auto"
+                                className="h-auto sign-in-logo"
                                 src={dm3Logo}
                                 alt="DM3 logo"
                             />

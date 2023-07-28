@@ -10,7 +10,7 @@ import {
 } from '@rainbow-me/rainbowkit';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
 import { mainnet } from 'wagmi/chains';
-import { rainbowWallet } from '@rainbow-me/rainbowkit/wallets';
+import { metaMaskWallet, rainbowWallet } from '@rainbow-me/rainbowkit/wallets';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { useEffect, useState } from 'react';
 import { openErrorModal } from '../../utils/common-utils';
@@ -42,8 +42,13 @@ export function Home(props: Dm3Props) {
                         rainbowWallet({
                             projectId: props.config
                                 .walletConnectProjectId as string,
-                            chains,
+                            chains
                         }),
+                        metaMaskWallet({
+                            projectId: props.config
+                                .walletConnectProjectId as string,
+                            chains
+                        })
                     ],
                 },
             ]);
