@@ -75,7 +75,7 @@ export function Home(props: Dm3Props) {
             openErrorModal('Please provide a valid Ethereum provider', false);
             return false;
         } else if (!projectId || projectId.length < 5) {
-            openErrorModal('Please provide a valid Ethereum provider', false);
+            openErrorModal('Please provide a valid  Wallet Connect project ID', false);
             return false;
         } else {
             return true;
