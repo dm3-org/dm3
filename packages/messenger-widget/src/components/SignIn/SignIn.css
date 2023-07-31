@@ -9,7 +9,7 @@
 }
 
 .content-data-container {
-    padding: 3rem 12rem 3rem 12rem;
+    padding: 3rem 8.25rem 3rem 8.25rem;
 }
 
 .details {
@@ -38,20 +38,18 @@
     border-radius: 13px;
 }
 
-@media only screen and (max-width: 850px) {
-    .content-data-container {
-        padding: 2rem;
-    }
+.sign-in-logo {
+    width: fit-content !important;
 }
 
 @media only screen and (max-width: 1100px) {
     .content-data-container {
-        padding: 5rem;
+        padding: 1rem;
     }
 }
 
 @media only screen and (min-width: 1101px) and (max-width: 1250px) {
     .content-data-container {
-        padding: 8rem;
+        padding: 2rem;
     }
 }
