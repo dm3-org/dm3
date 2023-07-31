@@ -5,7 +5,6 @@
     "module": "./dist/cjs/index.js",
     "dependencies": {
         "@babel/core": "^7.22.5",
-        "@fortawesome/fontawesome-free": "^5.15.4",
         "@popperjs/core": "^2.11.8",
         "@rainbow-me/rainbowkit": "^1.0.6",
         "@testing-library/dom": "^9.3.1",
