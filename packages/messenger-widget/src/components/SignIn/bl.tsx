@@ -50,6 +50,7 @@ import { ethers } from 'ethers';
 import { claimAddress, getNameForAddress } from 'dm3-lib-offchain-resolver-api';
 import axios from 'axios';
 import { openErrorModal } from '../../utils/common-utils';
+import loader from '../../assets/images/loader.svg';
 
 const DEFAULT_NONCE = '0';
 
@@ -868,11 +869,11 @@ export async function getProvider(
 export const getIcon = (btnState: ButtonState) => {
     switch (btnState) {
         case ButtonState.Failed:
-            return <i className="fas fa-exclamation-circle"></i>;
+            return null;
         case ButtonState.Loading:
-            return <i className="fas fa-spinner fa-spin"></i>;
+            return <img className="rotating" src={loader} alt="loader" />;
         case ButtonState.Success:
-            return <i className="fas fa-spinner fa-spin"></i>;
+            return <img className="rotating" src={loader} alt="loader" />;
         case ButtonState.Ideal:
         case ButtonState.Disabled:
         default:

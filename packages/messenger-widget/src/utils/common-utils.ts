@@ -16,8 +16,14 @@ export const openErrorModal = (
 
     btn.style.display = 'block';
 
+    // set error message on popup modal
     let data = document.getElementById('error-message') as HTMLElement;
     data.innerText = message;
+
+    // set error loader style on popup modal
+    let errorLoader = document.getElementById(
+        'error-modal-spinner',
+    ) as HTMLElement;
 
     if (!action) {
         btn.onclick = function () {
@@ -25,6 +31,8 @@ export const openErrorModal = (
         };
     } else {
         btn.onclick = async function () {
+            errorLoader.classList.remove('error-modal-spinner');
+            errorLoader.style.display = 'flex';
             await method();
             clearStorageAndReload();
         };
