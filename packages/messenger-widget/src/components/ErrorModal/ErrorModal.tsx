@@ -1,4 +1,5 @@
 import { changeButtonStyle } from '../../utils/style-utils';
+import loader from '../../assets/images/loader.svg';
 import './ErrorModal.css';
 
 export default function ErrorModal() {
@@ -12,8 +13,13 @@ export default function ErrorModal() {
                     <div className="d-flex align-items-center justify-content-evenly">
                         <p id="error-message" className="text-center"></p>
                     </div>
-                    <br />
-                    <div className="d-flex justify-content-center">
+                    <div
+                        id="error-modal-spinner"
+                        className="justify-content-center pt-3 error-modal-spinner"
+                    >
+                        <img className="rotating" src={loader} alt="loader" />
+                    </div>
+                    <div className="d-flex justify-content-center mt-3">
                         <button
                             id="ok-btn"
                             className="border-radius-6 display-none normal-btn-border normal-btn text-primary-color"

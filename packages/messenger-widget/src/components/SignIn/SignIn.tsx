@@ -133,6 +133,18 @@ export function SignIn(props: SignInProps) {
         }
     }, [state.connection.provider, state.connection.connectionState]);
 
+    useEffect(() => {
+        if (
+            isSignInBtnClicked &&
+            accountConnected &&
+            accountConnected.connector
+        ) {
+            setSignInBtnContent(SignInBtnValues.WaitingForSigature);
+            connectToProvider();
+            setIsSignInBtnClicked(false);
+        }
+    }, [accountConnected]);
+
     // handles account change
     watchAccount(async (account: any) => {
         setAccountConnected(account);
@@ -142,12 +154,7 @@ export function SignIn(props: SignInProps) {
             account.address !== accountConnected.address
         ) {
             openErrorModal(ACCOUNT_CHANGE_POPUP_MESSAGE, true, disconnect);
-        } else if (isSignInBtnClicked && account.connector) {
-            setSignInBtnContent(SignInBtnValues.WaitingForSigature);
-            const provider = await account.connector.getProvider();
-            getProvider(provider, dispatch);
         }
-        setIsSignInBtnClicked(false);
     });
 
     // handles network change
@@ -161,6 +168,12 @@ export function SignIn(props: SignInProps) {
             openErrorModal(INVALID_NETWORK_POPUP_MESSAGE, true, disconnect);
         }
     });
+
+    // fetches provider from rainbow kit
+    const connectToProvider = async () => {
+        const provider = await accountConnected.connector.getProvider();
+        getProvider(provider, dispatch);
+    };
 
     // handle sign in button click
     const handleSignIn = async () => {
