@@ -28,7 +28,6 @@ export default {
         'react-chat-widget',
         '@metamask/detect-provider',
         '@walletconnect/web3-provider',
-        '@fortawesome/fontawesome-free/css/all.min.css',
         'ethereum-blockies-base64',
     ],
     plugins: [
