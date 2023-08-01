@@ -38,3 +38,12 @@ export interface UiState {
 export interface GlobalContextProviderProps {
     children: JSX.Element;
 }
+
+export interface RightView {
+    showDefaultChat: boolean;
+    showHeader: boolean;
+    showProfile: boolean;
+    showContact: boolean;
+    showChat: boolean;
+    showProfileConfigPopup: boolean;
+}

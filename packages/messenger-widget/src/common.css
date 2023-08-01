@@ -10,6 +10,10 @@
     border-radius: 4px;
 }
 
+.border-radius-3 {
+    border-radius: 3px;
+}
+
 .pointer-cursor {
     cursor: pointer;
 }
@@ -52,6 +56,17 @@
 
 .display-none {
     display: none;
+}
+
+.common-btn {
+    font-size: 1.125rem;
+    line-height: 1.5rem;
+    padding: 1rem 3rem 1rem 3rem;
+    width: 100%;
+}
+
+.common-btn:hover {
+    background-color: var(--normal-btn-hover);
 }
 
 /* CSS to rotate the spinner svg image */

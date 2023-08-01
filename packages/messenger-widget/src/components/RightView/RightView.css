@@ -1,0 +1,8 @@
+.chat-screen-container {
+  min-height: 35rem;
+  border-radius: 0px 0px 8px 0px;
+}
+
+.right-view-outer-container {
+  margin-left: 0rem;
+}

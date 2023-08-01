@@ -2,7 +2,6 @@ import './DM3.css';
 import axios from 'axios';
 import socketIOClient from 'socket.io-client';
 import { EncryptionEnvelop } from 'dm3-lib-messaging';
-import { Connection } from '../../interfaces/web3';
 import { Dm3Props } from '../../interfaces/config';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
@@ -111,7 +110,6 @@ function DM3(props: Dm3Props) {
             });
             socket.on('joined', () => {
                 getContacts(
-                    state.connection as Connection,
                     state,
                     dispatch,
                     props,
@@ -139,7 +137,6 @@ function DM3(props: Dm3Props) {
 
             state.connection.socket.on('joined', () => {
                 getContacts(
-                    state.connection as Connection,
                     state,
                     dispatch,
                     props,
@@ -150,17 +147,19 @@ function DM3(props: Dm3Props) {
 
     return (
         <div className="border-radius-8">
-            {showSignIn(state.connection.connectionState) ? (
-                <SignIn
-                    hideStorageSelection={props.config.hideStorageSelection}
-                    defaultStorageLocation={props.config.defaultStorageLocation}
-                    miniSignIn={props.config.miniSignIn}
-                />
-            ) : (
-                <div className="mt-3 ml-3 rounded dashboard-container background-container">
-                    <Dashboard />
-                </div>
-            )}
+            {
+                showSignIn(state.connection.connectionState) ? (
+                    <SignIn
+                        hideStorageSelection={props.config.hideStorageSelection}
+                        defaultStorageLocation={props.config.defaultStorageLocation}
+                        miniSignIn={props.config.miniSignIn}
+                    />
+                ) :
+                    (
+                        <div className="mt-3 ml-3 h-auto rounded dashboard-container background-container">
+                            <Dashboard getContacts={getContacts} dm3Props={props} />
+                        </div>
+                    )}
         </div>
     );
 }

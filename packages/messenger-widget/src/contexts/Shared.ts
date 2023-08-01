@@ -37,4 +37,12 @@ export const initialState: GlobalState = {
         recentlyUsedSession: undefined,
         allSessions: {},
     },
+    rightView: {
+        showDefaultChat: true,
+        showContact: false,
+        showHeader: true,
+        showProfile: false,
+        showChat: false,
+        showProfileConfigPopup: false
+    }
 };

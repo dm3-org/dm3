@@ -3,6 +3,7 @@ import {
     AuthState,
     Cache,
     Contact,
+    RightView,
     UiState,
 } from '../interfaces/context';
 import { ethers } from 'ethers';
@@ -19,13 +20,13 @@ import { Connection } from '../interfaces/web3';
 
 export type ActionMap<M extends { [index: string]: any }> = {
     [Key in keyof M]: M[Key] extends undefined
-        ? {
-              type: Key;
-          }
-        : {
-              type: Key;
-              payload: M[Key];
-          };
+    ? {
+        type: Key;
+    }
+    : {
+        type: Key;
+        payload: M[Key];
+    };
 };
 
 export type Accounts = {
@@ -80,6 +81,7 @@ export type GlobalState = {
     userDb: UserDB | undefined;
     uiState: UiState;
     auth: AuthState;
+    rightView: RightView
 };
 
 export type UserDbPayload = {
@@ -119,7 +121,8 @@ export type Actions =
     | AccountsActions
     | UserDbActions
     | UiStateActions
-    | AuthStateActions;
+    | AuthStateActions
+    | RightViewStateActions;
 
 export enum AccountsType {
     SetSelectedContact = 'SET_SELECTED_CONTACT',
@@ -215,3 +218,24 @@ export enum SignInBtnValues {
     WaitingForSigature = 'Waiting for signature...',
     SigningIn = 'Signing In',
 }
+
+export enum RightViewStateType {
+    ShowDefaultChat = 'SHOW_DEFAULT_CHAT',
+    ShowHeader = 'SHOW_HEADER',
+    ShowProfile = 'SHOW_PROFILE',
+    ShowContact = 'SHOW_CONTACT',
+    ShowChat = 'SHOW_CHAT',
+    ShowProfileConfigPopup = 'SHOW_PROFILE_CONFIG_POPUP'
+}
+
+export type RightViewStatePayload = {
+    [RightViewStateType.ShowDefaultChat]: boolean;
+    [RightViewStateType.ShowContact]: boolean;
+    [RightViewStateType.ShowHeader]: boolean;
+    [RightViewStateType.ShowProfile]: boolean;
+    [RightViewStateType.ShowChat]: boolean;
+    [RightViewStateType.ShowProfileConfigPopup]: boolean;
+};
+
+export type RightViewStateActions =
+    ActionMap<RightViewStatePayload>[keyof ActionMap<RightViewStatePayload>];

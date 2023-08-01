@@ -1,4 +1,3 @@
-.dashboard {
-    min-height: 83.6vh;
-    padding: 0.5rem 0rem 0rem 0rem;
+.dashboard-right-view-highlight {
+    border-left: 2px solid var(--normal-btn-hover);
 }
