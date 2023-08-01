@@ -15,6 +15,10 @@
     width: 40%;
 }
 
+.error-modal-spinner {
+    display: none !important;
+}
+
 .error-close:hover,
 .error-close:focus {
     text-decoration: none;
