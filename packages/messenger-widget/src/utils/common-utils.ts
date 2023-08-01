@@ -4,7 +4,9 @@ export const openErrorModal = (
     action: boolean,
     method?: any,
 ) => {
-    let modal: HTMLElement = document.getElementById('error-modal') as HTMLElement;
+    let modal: HTMLElement = document.getElementById(
+        'error-modal',
+    ) as HTMLElement;
     modal.style.display = 'flex';
 
     let btn: HTMLElement = document.getElementById('ok-btn') as HTMLElement;
@@ -47,7 +49,9 @@ const clearStorageAndReload = () => {
 
 // method to close the error modal
 export const closeErrorModal = () => {
-    let modal: HTMLElement = document.getElementById('error-modal') as HTMLElement;
+    let modal: HTMLElement = document.getElementById(
+        'error-modal',
+    ) as HTMLElement;
     modal.style.display = 'none';
     let data = document.getElementById('error-message') as HTMLElement;
     data.innerText = '';
@@ -66,4 +70,4 @@ export const INVALID_SESSION_POPUP_MESSAGE =
 export const ACCOUNT_CHANGE_POPUP_MESSAGE =
     'Please sign in with the new account selected to use DM3 app!';
 
-export const ENS_PROFILE_BASE_URL = "https://app.ens.domains/";
+export const ENS_PROFILE_BASE_URL = 'https://app.ens.domains/';

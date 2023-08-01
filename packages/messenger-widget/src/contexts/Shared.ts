@@ -43,6 +43,6 @@ export const initialState: GlobalState = {
         showHeader: true,
         showProfile: false,
         showChat: false,
-        showProfileConfigPopup: false
-    }
+        showProfileConfigPopup: false,
+    },
 };

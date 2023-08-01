@@ -16,7 +16,7 @@ import {
     GlobalState,
     UiStateActions,
     UserDbActions,
-    RightViewStateActions
+    RightViewStateActions,
 } from './enum-type-utils';
 import { rightViewReducer } from '../contexts/RightView';
 
@@ -37,7 +37,10 @@ const mainReducer = (state: GlobalState, action: Actions): GlobalState => ({
     userDb: userDbReducer(state.userDb, action as UserDbActions),
     uiState: uiStateReducer(state.uiState, action as UiStateActions),
     auth: authReducer(state.auth, action as AuthStateActions),
-    rightView: rightViewReducer(state.rightView , action as RightViewStateActions)
+    rightView: rightViewReducer(
+        state.rightView,
+        action as RightViewStateActions,
+    ),
 });
 
 // global context provider to handle state sharing

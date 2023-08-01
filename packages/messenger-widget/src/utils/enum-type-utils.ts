@@ -20,13 +20,13 @@ import { Connection } from '../interfaces/web3';
 
 export type ActionMap<M extends { [index: string]: any }> = {
     [Key in keyof M]: M[Key] extends undefined
-    ? {
-        type: Key;
-    }
-    : {
-        type: Key;
-        payload: M[Key];
-    };
+        ? {
+              type: Key;
+          }
+        : {
+              type: Key;
+              payload: M[Key];
+          };
 };
 
 export type Accounts = {
@@ -81,7 +81,7 @@ export type GlobalState = {
     userDb: UserDB | undefined;
     uiState: UiState;
     auth: AuthState;
-    rightView: RightView
+    rightView: RightView;
 };
 
 export type UserDbPayload = {
@@ -225,7 +225,7 @@ export enum RightViewStateType {
     ShowProfile = 'SHOW_PROFILE',
     ShowContact = 'SHOW_CONTACT',
     ShowChat = 'SHOW_CHAT',
-    ShowProfileConfigPopup = 'SHOW_PROFILE_CONFIG_POPUP'
+    ShowProfileConfigPopup = 'SHOW_PROFILE_CONFIG_POPUP',
 }
 
 export type RightViewStatePayload = {
