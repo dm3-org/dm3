@@ -1,5 +1,6 @@
 .outer-container {
     min-height: 100vh;
+    padding-bottom: 2rem;
 }
 
 .base-background {
@@ -48,4 +49,8 @@
 
 .config-box-border {
     border: var(--config-box-border);
+}
+
+.background-chat {
+    background: var(--background-chat);
 }
