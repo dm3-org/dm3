@@ -105,7 +105,7 @@ export function Contacts(props: DashboardProps) {
                             onMouseOver={(e: React.MouseEvent) =>
                                 MouseOver(
                                     e,
-                                    'normal-btn-hover',
+                                    'normal-btn',
                                     index,
                                     contactSelected !== null
                                         ? contactSelected
@@ -113,7 +113,7 @@ export function Contacts(props: DashboardProps) {
                                 )
                             }
                             onMouseOut={(e: React.MouseEvent) =>
-                                MouseOut(e, 'normal-btn-hover', index)
+                                MouseOut(e, 'normal-btn', index)
                             }
                             onClick={(e: any) => {
                                 setContactSelected(index);
