@@ -34,7 +34,6 @@ export function connectionPhase(connectionState: ConnectionState): boolean {
 
 // method to fetch entire contact list of connected account
 export const getContacts = (
-    connection: Connection,
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
     props: Dm3Props,
