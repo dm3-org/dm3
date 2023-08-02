@@ -48,6 +48,10 @@ export const setTheme = (theme: string | undefined | null) => {
         '--background-config-box-border',
         themeDetails.backgroundConfigBoxBorder,
     );
+    document.body.style.setProperty(
+        '--background-chat',
+        themeDetails.chatBackground,
+    );
 };
 
 // Method to get all css style class based on theme selected
