@@ -3,7 +3,11 @@ import { useContext, useEffect, useState } from 'react';
 import profPic from '../../assets/images/profile-pic.jpg';
 import { GlobalContext } from '../../utils/context-utils';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
-import { RightViewStateType } from '../../utils/enum-type-utils';
+import {
+    AccountsType,
+    RightViewSelected,
+    UiViewStateType,
+} from '../../utils/enum-type-utils';
 
 export function RightHeader() {
     // fetches context storage
@@ -22,16 +26,22 @@ export function RightHeader() {
         );
     };
 
-    // method to open or close profile page
+    // method to set profile page and set contact
     const updateView = () => {
-        const profileActive: boolean = state.rightView.showProfile;
+        let profileActive: RightViewSelected = state.uiView.selectedRightView;
+        profileActive =
+            profileActive === RightViewSelected.Profile
+                ? RightViewSelected.Default
+                : RightViewSelected.Profile;
+
         dispatch({
-            type: RightViewStateType.ShowProfile,
-            payload: !profileActive,
+            type: UiViewStateType.SetSelectedRightView,
+            payload: profileActive,
         });
+
         dispatch({
-            type: RightViewStateType.ShowDefaultChat,
-            payload: !profileActive ? false : true,
+            type: AccountsType.SetSelectedContact,
+            payload: undefined,
         });
     };
 
@@ -42,10 +52,12 @@ export function RightHeader() {
 
     return (
         <div
-            className={
-                'col-12 d-flex align-items-end justify-content-end pr-0 profile-name-container' +
-                (state.rightView.showProfile ? ' background-chat' : '')
-            }
+            className={'col-12 d-flex align-items-end justify-content-end pr-0 profile-name-container'.concat(
+                ' ',
+                state.uiView.selectedRightView === RightViewSelected.Profile
+                    ? 'background-chat'
+                    : 'background-container',
+            )}
         >
             <span
                 onClick={() => updateView()}
