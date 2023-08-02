@@ -13,4 +13,5 @@ export const themeOne: any = {
         'linear-gradient(89.87deg, rgba(84, 67, 147, 0.5) 1.99%, rgba(31, 32, 41, 0.5) 90.93%)',
     backgroundConfigBox: '#3A3C50',
     backgroundConfigBoxBorder: '1px solid #666876',
+    chatBackground: '#1F2029',
 };
