@@ -3,6 +3,8 @@ import {
     AccountInfo,
     ConnectionState,
     GlobalState,
+    LeftViewSelected,
+    RightViewSelected,
     SelectedRightView,
 } from '../utils/enum-type-utils';
 
@@ -37,12 +39,11 @@ export const initialState: GlobalState = {
         recentlyUsedSession: undefined,
         allSessions: {},
     },
-    rightView: {
-        showDefaultChat: true,
-        showContact: false,
-        showHeader: true,
-        showProfile: false,
-        showChat: false,
-        showProfileConfigPopup: false,
+    uiView: {
+        selectedLeftView: LeftViewSelected.Contacts,
+        selectedRightView: RightViewSelected.Default,
+    },
+    modal: {
+        loaderContent: '',
     },
 };

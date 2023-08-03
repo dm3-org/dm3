@@ -16,6 +16,7 @@ import {
     walletConnectWallet,
 } from '@rainbow-me/rainbowkit/wallets';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
+import { Loader } from '../../components/Loader/Loader';
 
 export function Home(props: Dm3Props) {
     const { chains, publicClient } = configureChains(
@@ -57,6 +58,7 @@ export function Home(props: Dm3Props) {
 
     return (
         <div>
+            <Loader />
             <div className="logo-container">
                 <img className="dm3-logo" src={dm3Logo} alt="DM3 logo" />
             </div>
