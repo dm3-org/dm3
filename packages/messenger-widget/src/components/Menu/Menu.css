@@ -1,0 +1,30 @@
+.menu-container {
+    padding-top: 1rem;
+}
+
+.menu-items {
+    font-size: 1.2rem;
+    line-height: 1.5rem;
+    padding: 0.7rem 0.5rem 0.7rem 0.8rem;
+}
+
+.menu-items:hover {
+    background-color: var(--normal-btn);
+}
+
+.menu-item-icon {
+    padding: 0rem 0.5rem 0rem 1rem;
+}
+
+.menu-item-cancel {
+    padding: 0.1rem 0.5rem 0.45rem 0.5rem;
+}
+
+.version-container {
+    position: absolute;
+    bottom: 0;
+}
+
+.line-separator {
+    height: 0.1rem;
+}
