@@ -5,7 +5,6 @@ import addIcon from '../../assets/images/add.svg';
 import settingsIcon from '../../assets/images/settings.svg';
 import {
     LeftViewSelected,
-    RightViewSelected,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
 import { GlobalContext } from '../../utils/context-utils';
