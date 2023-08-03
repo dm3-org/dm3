@@ -1,0 +1,7 @@
+.highlight-chat-border {
+    border-top: 2px solid var(--normal-btn-hover);
+}
+
+.highlight-chat-border-none {
+    border-top: none;
+}
