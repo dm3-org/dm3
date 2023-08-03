@@ -1,14 +1,19 @@
 import { ENS_PROFILE_BASE_URL } from '../../utils/common-utils';
-import { Actions, RightViewStateType } from '../../utils/enum-type-utils';
+import {
+    AccountsType,
+    Actions,
+    RightViewSelected,
+    UiViewStateType,
+} from '../../utils/enum-type-utils';
 
 export const onClose = (dispatch: React.Dispatch<Actions>) => {
     dispatch({
-        type: RightViewStateType.ShowProfile,
-        payload: false,
+        type: UiViewStateType.SetSelectedRightView,
+        payload: RightViewSelected.Default,
     });
     dispatch({
-        type: RightViewStateType.ShowDefaultChat,
-        payload: true,
+        type: AccountsType.SetSelectedContact,
+        payload: undefined,
     });
 };
 
@@ -17,8 +22,5 @@ export const openEnsProfile = (ensName: string) => {
 };
 
 export const openProfileConfigureBox = (dispatch: React.Dispatch<Actions>) => {
-    dispatch({
-        type: RightViewStateType.ShowProfileConfigPopup,
-        payload: true,
-    });
+    // Body will be added when "Configure Profile" task will be picked up
 };

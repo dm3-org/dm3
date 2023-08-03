@@ -1,5 +1,9 @@
 import { Account, DeliveryServiceProfile } from 'dm3-lib-profile';
-import { SelectedRightView } from '../utils/enum-type-utils';
+import {
+    LeftViewSelected,
+    RightViewSelected,
+    SelectedRightView,
+} from '../utils/enum-type-utils';
 
 export interface Contact {
     account: Account;
@@ -39,11 +43,11 @@ export interface GlobalContextProviderProps {
     children: JSX.Element;
 }
 
-export interface RightView {
-    showDefaultChat: boolean;
-    showHeader: boolean;
-    showProfile: boolean;
-    showContact: boolean;
-    showChat: boolean;
-    showProfileConfigPopup: boolean;
+export interface Modal {
+    loaderContent: string;
+}
+
+export interface UiViewState {
+    selectedLeftView: LeftViewSelected;
+    selectedRightView: RightViewSelected;
 }
