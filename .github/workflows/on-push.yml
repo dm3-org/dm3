@@ -4,6 +4,7 @@ on: push
 jobs:
     code-quality:
         runs-on: ubuntu-latest
+        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         steps:
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v3
@@ -22,7 +23,7 @@ jobs:
 
     build:
         runs-on: ubuntu-latest
-
+        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         steps:
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v3
@@ -50,6 +51,7 @@ jobs:
                   path: packages/lib/**/schema/
     backend-test:
         runs-on: ubuntu-latest
+        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         needs: build
         defaults:
             run:
@@ -63,6 +65,7 @@ jobs:
                   package-pat: ${{ secrets.PACKAGE_PAT }}
     integration-test:
         runs-on: ubuntu-latest
+        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         needs: build
         defaults:
             run:
@@ -76,6 +79,7 @@ jobs:
                   package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-crypto-test:
         runs-on: ubuntu-latest
+        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         needs: build
         defaults:
             run:
@@ -89,6 +93,7 @@ jobs:
                   package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-delivery-test:
         runs-on: ubuntu-latest
+        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         needs: build
         defaults:
             run:
@@ -102,6 +107,7 @@ jobs:
                   package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-messaging-test:
         runs-on: ubuntu-latest
+        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         needs: build
         defaults:
             run:
@@ -115,6 +121,7 @@ jobs:
                   package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-profile-test:
         runs-on: ubuntu-latest
+        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         needs: build
         defaults:
             run:
@@ -128,6 +135,7 @@ jobs:
                   package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-shared-test:
         runs-on: ubuntu-latest
+        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         needs: build
         defaults:
             run:
@@ -141,6 +149,7 @@ jobs:
                   package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-storage-test:
         runs-on: ubuntu-latest
+        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         needs: build
         defaults:
             run:
@@ -154,6 +163,7 @@ jobs:
                   package-pat: ${{ secrets.PACKAGE_PAT }}
     offchain-resolver-test:
         runs-on: ubuntu-latest
+        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         needs: build
         defaults:
             run:
@@ -165,52 +175,3 @@ jobs:
               with:
                   workspace-name: 'dm3-offchain-resolver'
                   package-pat: ${{ secrets.PACKAGE_PAT }}
-    messenger-demo-deploy:
-        runs-on: ubuntu-latest
-        if: github.ref == 'refs/heads/new-ui'
-        steps:
-            # Check-out your repository.
-            - name: Checkout
-              uses: actions/checkout@v2
-            - name: Create env file
-              run: |
-                echo "REACT_APP_ADDR_ENS_SUBDOMAIN=.beta-addr.dm3.eth" >> ./packages/messenger-demo/.env
-                echo "REACT_APP_BACKEND=https://dm3-beta2.herokuapp.com" >> ./packages/messenger-demo/.env
-                echo "REACT_APP_DEFAULT_DELIVERY_SERVICE=beta-ds.dm3.eth" >> ./packages/messenger-demo/.env
-                echo "REACT_APP_DEFAULT_SERVICE=https://dm3-beta2.herokuapp.com" >> ./packages/messenger-demo/.env
-                echo "REACT_APP_ETHEREUM_PROVIDER=${{ secrets.REACT_APP_ETHEREUM_PROVIDER }}" >> ./packages/messenger-demo/.env
-                echo "REACT_APP_PROFILE_BASE_URL=https://dm3-beta2-resolver.herokuapp.com" >> ./packages/messenger-demo/.env
-                echo "REACT_APP_RESOLVER_BACKEND=https://dm3-beta2-resolver.herokuapp.com" >> ./packages/messenger-demo/.env
-                echo "REACT_APP_USER_ENS_SUBDOMAIN=.beta-user.dm3.eth" >> ./packages/messenger-demo/.env
-                echo "REACT_APP_WALLET_CONNECT_PROJECT_ID=${{ secrets.REACT_APP_WALLET_CONNECT_PROJECT_ID }}" >> ./packages/messenger-demo/.env
-                echo "RESOLVER_ADDR=0x45F7Ed7d05c563D408898A80d9C705CC3328D2EF" >> ./packages/messenger-demo/.env
-            - name: Build, Push and Release a Docker container to Heroku. # Your custom step name
-              uses: gonuit/heroku-docker-deploy@v1.3.3 # GitHub action name (leave it as it is).
-              with:
-                  # Below you must provide variables for your Heroku app.
-
-                  # The email address associated with your Heroku account.
-                  # If you don't want to use repository secrets (which is recommended) you can do:
-                  # email: my.email@example.com
-                  email: ${{ secrets.HEROKU_EMAIL }}
-
-                  # Heroku API key associated with provided user's email.
-                  # Api Key is available under your Heroku account settings.
-                  heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-
-                  # Name of the heroku application to which the build is to be sent.
-                  heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
-
-                  # (Optional, default: "./")
-                  # Dockerfile directory.
-                  # For example, if you have a Dockerfile in the root of your project, leave it as follows:
-                  dockerfile_directory: ./
-
-                  # (Optional, default: "Dockerfile")
-                  # Dockerfile name.
-                  dockerfile_name: ./packages/messenger-demo/Dockerfile
-                  # (Optional, default: "web")
-                  # Select the process type for which you want the docker container to be uploaded.
-                  # By default, this argument is set to "web".
-                  # For more information look at https://devcenter.heroku.com/articles/process-model
-                  process_type: web

@@ -7,8 +7,7 @@ import winston from 'winston';
 import { getDatabase } from './persistance/getDatabase';
 import { resolverEndpoint } from './http/resolverEndpoint';
 import { getWeb3Provider } from './utils/getWeb3Provider';
-import { getSigner } from './utils/getSigner';
-import { readKeyFromEnv } from './utils/readKeyEnv';
+
 import { profile } from './http/profile';
 
 dotenv.config();
