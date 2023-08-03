@@ -7,8 +7,8 @@
 }
 
 .profile-name-container {
-    padding: 0.75rem 0.75rem 0.75rem 0rem;
-    border-radius: 0.25rem;
+    padding: 0.8rem;
+    border-top-right-radius: 8px;
 }
 
 .default-profile-pic {

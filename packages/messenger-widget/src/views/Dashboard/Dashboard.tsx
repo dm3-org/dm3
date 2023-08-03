@@ -1,10 +1,11 @@
 import './Dashboard.css';
 import { useContext } from 'react';
-import LeftView from '../../components/LeftView/LeftView';
-import RightView from '../../components/RightView/RightView';
+import LeftView from '../LeftView/LeftView';
+import RightView from '../RightView/RightView';
 import Storage from '../../components/Storage/Storage';
 import { DashboardProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
+import { RightViewSelected } from '../../utils/enum-type-utils';
 
 export default function Dashboard(props: DashboardProps) {
     const { state } = useContext(GlobalContext);
@@ -14,12 +15,13 @@ export default function Dashboard(props: DashboardProps) {
             <Storage />
             <div className="row m-0 h-auto">
                 <div className="col-lg-3 col-md-3 col-sm-12 p-0">
-                    <LeftView />
+                    <LeftView {...props} />
                 </div>
                 <div
                     className={
                         'col-lg-9 col-md-9 col-sm-12 p-0 h-auto' +
-                        (state.rightView.showProfile
+                        (state.uiView.selectedRightView ===
+                        RightViewSelected.Profile
                             ? ' dashboard-right-view-highlight'
                             : '')
                     }

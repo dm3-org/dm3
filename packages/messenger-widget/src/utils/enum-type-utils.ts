@@ -3,8 +3,9 @@ import {
     AuthState,
     Cache,
     Contact,
-    RightView,
+    Modal,
     UiState,
+    UiViewState,
 } from '../interfaces/context';
 import { ethers } from 'ethers';
 import { Socket } from 'socket.io-client';
@@ -81,7 +82,8 @@ export type GlobalState = {
     userDb: UserDB | undefined;
     uiState: UiState;
     auth: AuthState;
-    rightView: RightView;
+    uiView: UiViewState;
+    modal: Modal;
 };
 
 export type UserDbPayload = {
@@ -122,7 +124,8 @@ export type Actions =
     | UserDbActions
     | UiStateActions
     | AuthStateActions
-    | RightViewStateActions;
+    | UiViewStateActions
+    | ModalStateActions;
 
 export enum AccountsType {
     SetSelectedContact = 'SET_SELECTED_CONTACT',
@@ -219,23 +222,38 @@ export enum SignInBtnValues {
     SigningIn = 'Signing In',
 }
 
-export enum RightViewStateType {
-    ShowDefaultChat = 'SHOW_DEFAULT_CHAT',
-    ShowHeader = 'SHOW_HEADER',
-    ShowProfile = 'SHOW_PROFILE',
-    ShowContact = 'SHOW_CONTACT',
-    ShowChat = 'SHOW_CHAT',
-    ShowProfileConfigPopup = 'SHOW_PROFILE_CONFIG_POPUP',
+export enum RightViewSelected {
+    Chat,
+    ContactInfo,
+    Profile,
+    Default,
 }
 
-export type RightViewStatePayload = {
-    [RightViewStateType.ShowDefaultChat]: boolean;
-    [RightViewStateType.ShowContact]: boolean;
-    [RightViewStateType.ShowHeader]: boolean;
-    [RightViewStateType.ShowProfile]: boolean;
-    [RightViewStateType.ShowChat]: boolean;
-    [RightViewStateType.ShowProfileConfigPopup]: boolean;
+export enum LeftViewSelected {
+    Contacts,
+    Menu,
+}
+
+export enum UiViewStateType {
+    SetSelectedRightView = 'SET_SELECTED_RIGHT_VIEW',
+    SetSelectedLeftView = 'SET_SELECTED_LEFT_VIEW',
+}
+
+export type UiViewStatePayload = {
+    [UiViewStateType.SetSelectedLeftView]: LeftViewSelected;
+    [UiViewStateType.SetSelectedRightView]: RightViewSelected;
 };
 
-export type RightViewStateActions =
-    ActionMap<RightViewStatePayload>[keyof ActionMap<RightViewStatePayload>];
+export type UiViewStateActions =
+    ActionMap<UiViewStatePayload>[keyof ActionMap<UiViewStatePayload>];
+
+export enum ModalStateType {
+    LoaderContent = 'LOADER_CONTENT',
+}
+
+export type ModalStatePayload = {
+    [ModalStateType.LoaderContent]: string;
+};
+
+export type ModalStateActions =
+    ActionMap<ModalStatePayload>[keyof ActionMap<ModalStatePayload>];

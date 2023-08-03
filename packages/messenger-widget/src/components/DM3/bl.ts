@@ -46,7 +46,7 @@ export const getContacts = (
 
     log('[getContacts]', 'info');
 
-    return requestContacts(state, dispatch, props.config.defaultContact);
+    return requestContacts(state, dispatch);
 };
 
 // method to handle new messages received

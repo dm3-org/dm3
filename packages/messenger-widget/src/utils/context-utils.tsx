@@ -16,9 +16,11 @@ import {
     GlobalState,
     UiStateActions,
     UserDbActions,
-    RightViewStateActions,
+    ModalStateActions,
+    UiViewStateActions,
 } from './enum-type-utils';
-import { rightViewReducer } from '../contexts/RightView';
+import { modalReducer } from '../contexts/Modal';
+import { uiViewReducer } from '../contexts/UiView';
 
 // custom context
 export const GlobalContext = React.createContext<{
@@ -37,10 +39,8 @@ const mainReducer = (state: GlobalState, action: Actions): GlobalState => ({
     userDb: userDbReducer(state.userDb, action as UserDbActions),
     uiState: uiStateReducer(state.uiState, action as UiStateActions),
     auth: authReducer(state.auth, action as AuthStateActions),
-    rightView: rightViewReducer(
-        state.rightView,
-        action as RightViewStateActions,
-    ),
+    uiView: uiViewReducer(state.uiView, action as UiViewStateActions),
+    modal: modalReducer(state.modal, action as ModalStateActions),
 });
 
 // global context provider to handle state sharing
