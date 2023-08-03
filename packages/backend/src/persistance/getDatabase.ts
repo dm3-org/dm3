@@ -36,7 +36,7 @@ export async function getRedisClient(logger: winston.Logger) {
                   url,
                   ...socketConf,
               }
-            : {},
+            : { url },
     );
 
     client.on('error', (err) => {
