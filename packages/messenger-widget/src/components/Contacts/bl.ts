@@ -187,3 +187,16 @@ const getMessagesFromUser = (
 
     return null;
 };
+
+export const setContactSelectedFromCache = (
+    state: GlobalState,
+    cacheContacts: ContactPreview[],
+): number | null => {
+    const name = state.accounts.selectedContact?.account.ensName;
+    for (let index = 0; index < cacheContacts.length; index++) {
+        if (cacheContacts[index].name === name) {
+            return index;
+        }
+    }
+    return null;
+};
