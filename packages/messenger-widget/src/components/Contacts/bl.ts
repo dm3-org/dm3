@@ -18,11 +18,14 @@ export function MouseOver(
     className: string,
     index: number,
     selectedContactIndex: number | null,
+    closeContactMenu: Function
 ) {
     // highlight background only if contact is not selected
     if (selectedContactIndex !== index) {
         event.currentTarget.classList.add(className);
         event.currentTarget.classList.add('contact-details-container-hover');
+        // close the contact menu option 
+        closeContactMenu();
     }
     // show three dots icon only when contact is selected and remove hover class
     if (selectedContactIndex === index) {
@@ -36,7 +39,7 @@ export function MouseOver(
 export function MouseOut(
     event: React.MouseEvent,
     className: string,
-    index: number,
+    index: number
 ) {
     event.currentTarget.classList.remove(className);
     const actionItem: any = document.getElementById('contact-' + index);
@@ -67,8 +70,9 @@ export const onContactSelected = (
     classOne: string,
     classTwo: string,
     dispatch: React.Dispatch<Actions>,
-    contact: Contact,
+    contact: Contact
 ) => {
+
     // remove normal hover css
     event.currentTarget.classList.remove(classOne);
 
@@ -86,7 +90,7 @@ export const onContactSelected = (
     // add click css
     event.currentTarget.classList.add(classTwo);
     const actionItem: any = document.getElementById('contact-' + index);
-    actionItem.style.display = 'none';
+    // actionItem.style.display = 'none';
     actionItem.classList.add('contact-hover-effect');
 
     // show chat screen
@@ -135,13 +139,13 @@ export const fetchAndSetContacts = async (
     // fetch contacts list
     const contactList = state.accounts.contacts
         ? state.accounts.contacts.filter(
-              (contact) =>
-                  !state.userDb?.hiddenContacts.find(
-                      (hiddenContact) =>
-                          normalizeEnsName(hiddenContact.ensName) ===
-                          normalizeEnsName(contact.account.ensName),
-                  ),
-          )
+            (contact) =>
+                !state.userDb?.hiddenContacts.find(
+                    (hiddenContact) =>
+                        normalizeEnsName(hiddenContact.ensName) ===
+                        normalizeEnsName(contact.account.ensName),
+                ),
+        )
         : [];
 
     if (contactList.length) {
@@ -192,9 +196,9 @@ export const setContactSelectedFromCache = (
     state: GlobalState,
     cacheContacts: ContactPreview[],
 ): number | null => {
-    const name = state.accounts.selectedContact?.account.ensName;
+    const key = state.accounts.selectedContact?.account.profile?.publicEncryptionKey;
     for (let index = 0; index < cacheContacts.length; index++) {
-        if (cacheContacts[index].name === name) {
+        if (cacheContacts[index].contactDetails.account.profile?.publicEncryptionKey === key) {
             return index;
         }
     }
