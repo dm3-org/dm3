@@ -52,7 +52,7 @@ export function Profile() {
             <div className="d-flex align-items-center justify-content-between profile-heading text-primary-color font-weight-500">
                 Profile
                 <img
-                    className="pointer-cursor"
+                    className="pointer-cursor close-icon"
                     src={closeIcon}
                     alt="close"
                     onClick={() => onClose(dispatch)}

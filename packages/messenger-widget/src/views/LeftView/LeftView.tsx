@@ -5,13 +5,19 @@ import ConfigureProfileBox from '../../components/ConfigureProfileBox/ConfigureP
 import { DashboardProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
 import { useContext, useEffect } from 'react';
-import { ModalStateType } from '../../utils/enum-type-utils';
+import {
+    LeftViewSelected,
+    ModalStateType,
+    UiViewStateType,
+} from '../../utils/enum-type-utils';
 import { startLoader } from '../../components/Loader/Loader';
+import Menu from '../../components/Menu/Menu';
 
 export default function LeftView(props: DashboardProps) {
     // fetches context api data
-    const { dispatch } = useContext(GlobalContext);
+    const { state, dispatch } = useContext(GlobalContext);
 
+    // handles starting loader on page load
     useEffect(() => {
         dispatch({
             type: ModalStateType.LoaderContent,
@@ -20,13 +26,32 @@ export default function LeftView(props: DashboardProps) {
         startLoader();
     }, []);
 
+    // method to open menu item
+    const openMenuItem = () => {
+        dispatch({
+            type: UiViewStateType.SetSelectedLeftView,
+            payload: LeftViewSelected.Menu,
+        });
+    };
+
     return (
-        <div className="position-relative h-auto d-flex flex-column align-items-start">
-            <div className="menu-icon-container">
-                <img src={menuIcon} className="pointer-cursor" alt="menu" />
-            </div>
-            <Contacts {...props} />
-            <ConfigureProfileBox />
+        <div className="position-relative h-100 d-flex flex-column align-items-start">
+            {state.uiView.selectedLeftView === LeftViewSelected.Contacts ? (
+                <>
+                    <div className="menu-icon-container">
+                        <img
+                            src={menuIcon}
+                            className="pointer-cursor"
+                            alt="menu"
+                            onClick={() => openMenuItem()}
+                        />
+                    </div>
+                    <Contacts {...props} />
+                    <ConfigureProfileBox />
+                </>
+            ) : (
+                <Menu />
+            )}
         </div>
     );
 }
