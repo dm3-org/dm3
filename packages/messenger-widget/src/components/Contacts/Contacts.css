@@ -1,8 +1,15 @@
 .contacts-scroller {
     height: 73vh;
-    overflow: auto;
     padding-left: 1rem;
     margin-top: 2px;
+}
+
+.scroller-hidden {
+    overflow: hidden;
+}
+
+.scroller-active {
+    overflow: auto;
 }
 
 .contacts-scroller::-webkit-scrollbar {
@@ -23,6 +30,7 @@
 
 .pic {
     height: 3.125rem;
+    width: 3.125rem;
 }
 
 .content {

@@ -54,6 +54,10 @@
     font-size: 12px;
 }
 
+.font-size-14 {
+    font-size: 14px;
+}
+
 .display-none {
     display: none;
 }
@@ -63,6 +67,11 @@
     line-height: 1.5rem;
     padding: 1rem 3rem 1rem 3rem;
     width: 100%;
+}
+
+.close-icon {
+    height: 1.875rem;
+    width: 1.875rem;
 }
 
 .common-btn:hover {
@@ -128,7 +137,6 @@
 ::-webkit-scrollbar {
     width: 10px;
     background-color: var(--background-config-box);
-    border-radius: 15px;
 }
 
 ::-webkit-scrollbar-thumb {
