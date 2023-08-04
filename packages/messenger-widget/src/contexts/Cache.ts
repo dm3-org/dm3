@@ -40,6 +40,12 @@ export function cacheReducer(state: Cache, action: CacheActions): Cache {
                 abis,
             };
 
+        case CacheType.Contacts:
+            return {
+                ...state,
+                contacts: action.payload,
+            };
+
         default:
             return state;
     }

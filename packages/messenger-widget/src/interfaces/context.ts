@@ -4,6 +4,7 @@ import {
     RightViewSelected,
     SelectedRightView,
 } from '../utils/enum-type-utils';
+import { ContactPreview } from './utils';
 
 export interface Contact {
     account: Account;
@@ -26,6 +27,7 @@ export interface AuthSession {
 export interface Cache {
     abis: Map<string, string>;
     avatarUrls: Map<string, string>;
+    contacts: ContactPreview[] | null;
 }
 
 export interface UiState {

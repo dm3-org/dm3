@@ -18,6 +18,7 @@ import {
 } from 'dm3-lib-storage';
 import { Account } from 'dm3-lib-profile';
 import { Connection } from '../interfaces/web3';
+import { ContactPreview } from '../interfaces/utils';
 
 export type ActionMap<M extends { [index: string]: any }> = {
     [Key in keyof M]: M[Key] extends undefined
@@ -56,6 +57,7 @@ export type AuthStateActions =
 export type CachePayload = {
     [CacheType.AddAbis]: { address: string; abi: string }[];
     [CacheType.AddAvatarUrl]: { ensName: string; url: string };
+    [CacheType.Contacts]: ContactPreview[] | null;
 };
 
 export type CacheActions =
@@ -149,6 +151,7 @@ export enum CacheType {
     AddEnsName = 'ADD_ENS_NAME',
     AddAbis = 'ADD_ABIS',
     AddAvatarUrl = 'ADD_AVATAR_URL',
+    Contacts = 'CONTACTS',
 }
 
 export enum ConnectionType {

@@ -8,6 +8,7 @@ import {
     onContactSelected,
     removedSelectedContact,
     setContactHeightToMaximum,
+    setContactSelectedFromCache,
     updateStickyStyleOnSelect,
 } from './bl';
 import { useContext, useEffect, useState } from 'react';
@@ -15,7 +16,7 @@ import { GlobalContext } from '../../utils/context-utils';
 import { DashboardProps } from '../../interfaces/props';
 import { closeLoader } from '../Loader/Loader';
 import { globalConfig } from 'dm3-lib-shared';
-import { RightViewSelected } from '../../utils/enum-type-utils';
+import { CacheType, RightViewSelected } from '../../utils/enum-type-utils';
 
 export function Contacts(props: DashboardProps) {
     // fetches context api data
@@ -27,7 +28,12 @@ export function Contacts(props: DashboardProps) {
 
     // fetches and sets contact
     const setContactList = async () => {
-        setContacts(await fetchAndSetContacts(state));
+        const data: ContactPreview[] = await fetchAndSetContacts(state);
+        dispatch({
+            type: CacheType.Contacts,
+            payload: data,
+        });
+        setContacts(data);
     };
 
     // fetches sub domain of ENS
@@ -85,11 +91,30 @@ export function Contacts(props: DashboardProps) {
         }
     }, [contacts]);
 
+    // fetched contacts from the cache
+    useEffect(() => {
+        const cacheContacts = state.cache.contacts;
+        if (cacheContacts) {
+            setContacts(cacheContacts);
+            if (state.accounts.selectedContact) {
+                setContactSelected(
+                    setContactSelectedFromCache(state, cacheContacts),
+                );
+            }
+        }
+    }, []);
+
     /* Hidden content for highlighting css */
     const hiddenData: number[] = Array.from({ length: 14 }, (_, i) => i + 1);
 
     return (
-        <div className="contacts-scroller width-fill">
+        /*  eslint-disable */
+        <div
+            className={'contacts-scroller width-fill'.concat(
+                ' ',
+                contacts.length > 6 ? 'scroller-active' : 'scroller-hidden',
+            )}
+        >
             {contacts.length > 0 &&
                 contacts.map((data, index) => (
                     <div key={index} id={'contact-container-' + index}>
@@ -174,8 +199,9 @@ export function Contacts(props: DashboardProps) {
 
             {/* Hidden content for highlighting css */}
             {contacts.length < 10 &&
-                hiddenData.map(() => (
+                hiddenData.map((data) => (
                     <div
+                        key={data}
                         className={
                             contactSelected !== null
                                 ? 'highlight-right-border'
