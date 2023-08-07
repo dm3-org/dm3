@@ -47,7 +47,7 @@ function fetchDeliveryServiceProfile(connection: Connection) {
 export async function requestContacts(
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
-    defaultContact?: string,
+    defaultContacts: string[],
 ) {
     const connection = state.connection;
     const deliveryServiceToken = state.auth.currentSession?.token!;
@@ -74,7 +74,7 @@ export async function requestContacts(
                 },
             }),
         );
-
+    //Get the users contact list from the delivery service
     let retrievedContacts = await getContacts(
         connection,
         userDb,
@@ -82,29 +82,36 @@ export async function requestContacts(
         createEmptyConversationEntry,
     );
 
-    if (
-        defaultContact &&
-        !retrievedContacts.find(
-            (account: Account) =>
-                normalizeEnsName(account.ensName) ===
-                normalizeEnsName(defaultContact),
-        )
-    ) {
-        createEmptyConversationEntry(defaultContact);
+    //If there are no contacts, we need to create a conversation entry for the default contact
+    await Promise.all(
+        defaultContacts.map(async (defaultContact) => {
+            if (
+                !retrievedContacts.find(
+                    (account: Account) =>
+                        normalizeEnsName(account.ensName) ===
+                        normalizeEnsName(defaultContact),
+                )
+            ) {
+                createEmptyConversationEntry(defaultContact);
 
-        retrievedContacts = await getContacts(
-            connection,
-            userDb,
-            deliveryServiceToken,
-            createEmptyConversationEntry,
-        );
-    }
-
+                //For whatever reason we're retriving all contacts again
+                //TODO check if that can be omited
+                retrievedContacts = await getContacts(
+                    connection,
+                    userDb,
+                    deliveryServiceToken,
+                    createEmptyConversationEntry,
+                );
+            }
+        }),
+    );
+    //Fetch the delivery service profile for each contact
     const contacts: Contact[] = await Promise.all(
         retrievedContacts.map(fetchDeliveryServiceProfile(connection)),
     );
-
+    // Loop through each contact
     contacts.forEach((contact) => {
+        // Find a contact with the same profile as the current contact
         const found = contacts.find(
             (innerContact) =>
                 innerContact.account.profile &&
@@ -112,7 +119,10 @@ export async function requestContacts(
                 stringify(innerContact.account.profile) ===
                     stringify(contact.account.profile),
         );
+
+        // If a contact with the same profile was found and it is not the same contact
         if (found && found?.account.ensName !== contact.account.ensName) {
+            // Determine which contact has the shorter ENS name
             dispatch({
                 type: UserDbType.hideContact,
                 payload:
@@ -131,7 +141,8 @@ export async function requestContacts(
     });
 
     dispatch({ type: AccountsType.SetContacts, payload: contacts });
-
+    // If there is a contract already selected in the state and that contract contains a profile
+    // with a public encryption key and a public signing key. We're going to use that contact
     if (
         selectedContact &&
         !selectedContact?.account.profile?.publicEncryptionKey &&
@@ -148,13 +159,14 @@ export async function requestContacts(
                     normalizeEnsName(selectedContact.account.ensName),
             ),
         );
-    } else if (!selectedContact && defaultContact) {
+        //If there is no selected contact and there is a default contact, we're going to use that contact
+    } else if (!selectedContact && defaultContacts.length > 0) {
         const contactToSelect = contacts.find(
             (account: Contact) =>
                 normalizeEnsName(account.account.ensName) ===
-                normalizeEnsName(defaultContact),
+                normalizeEnsName(defaultContacts[0]),
         );
-
+        //The first default contract will be selected
         setSelectedContact(contactToSelect);
     }
 
