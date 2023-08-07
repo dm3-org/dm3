@@ -17,6 +17,7 @@ import { DashboardProps } from '../../interfaces/props';
 import { closeLoader } from '../Loader/Loader';
 import { globalConfig } from 'dm3-lib-shared';
 import { CacheType, RightViewSelected } from '../../utils/enum-type-utils';
+import { ContactMenu } from '../ContactMenu/ContactMenu';
 
 export function Contacts(props: DashboardProps) {
     // fetches context api data
@@ -25,6 +26,7 @@ export function Contacts(props: DashboardProps) {
     // state to handle contact activeness
     const [contactSelected, setContactSelected] = useState<number | null>(null);
     const [contacts, setContacts] = useState<ContactPreview[]>([]);
+    const [openMenu, setOpenMenu] = useState<boolean>(false);
 
     // fetches and sets contact
     const setContactList = async () => {
@@ -40,6 +42,11 @@ export function Contacts(props: DashboardProps) {
     const isAddrEnsName = state.connection.account?.ensName?.endsWith(
         globalConfig.ADDR_ENS_SUBDOMAIN(),
     );
+
+    // handles closing of contact menu list
+    const closeContactMenu = () => {
+        setOpenMenu(false);
+    };
 
     // handles contact box view
     useEffect(() => {
@@ -108,7 +115,6 @@ export function Contacts(props: DashboardProps) {
     const hiddenData: number[] = Array.from({ length: 14 }, (_, i) => i + 1);
 
     return (
-        /*  eslint-disable */
         <div
             className={'contacts-scroller width-fill'.concat(
                 ' ',
@@ -135,6 +141,7 @@ export function Contacts(props: DashboardProps) {
                                     contactSelected !== null
                                         ? contactSelected
                                         : null,
+                                    closeContactMenu,
                                 )
                             }
                             onMouseOut={(e: React.MouseEvent) =>
@@ -181,7 +188,22 @@ export function Contacts(props: DashboardProps) {
                                                     className="action-dot"
                                                     src={threeDotsIcon}
                                                     alt="action"
+                                                    onClick={() => {
+                                                        setOpenMenu(!openMenu);
+                                                    }}
                                                 />
+                                                {openMenu &&
+                                                    index ===
+                                                        contactSelected && (
+                                                        <ContactMenu
+                                                            closeContactMenu={
+                                                                closeContactMenu
+                                                            }
+                                                            contactDetails={
+                                                                data
+                                                            }
+                                                        />
+                                                    )}
                                             </div>
                                         </div>
                                     </div>
