@@ -196,8 +196,10 @@ export function SignIn(props: SignInProps) {
                 <div className="col-lg-7 col-md-7 col-sm-12 p-0 home-image-container background-container">
                     <img src={homeImage} className="img-fluid home-image" />
                 </div>
-                {/*  eslint-disable */}
-                <div className="col-lg-5 col-md-5 col-sm-12 p-0 d-flex flex-column justify-content-center signin-container background-container">
+                <div
+                    className="col-lg-5 col-md-5 col-sm-12 p-0 d-flex flex-column 
+                justify-content-center signin-container background-container"
+                >
                     <div className="d-flex flex-column justify-content-center height-fill content-data-container">
                         <div className="d-flex flex-column justify-content-center">
                             <img
@@ -227,8 +229,8 @@ export function SignIn(props: SignInProps) {
                                 disabled={
                                     signInBtnContent !== SignInBtnValues.SignIn
                                 }
-                                /* eslint-disable */
-                                className="signin-btn w-100 font-weight-400 border-radius-4 normal-btn text-primary-color normal-btn-border"
+                                className="signin-btn w-100 font-weight-400 border-radius-4 
+                                normal-btn text-primary-color normal-btn-border"
                                 onClick={() => handleSignIn()}
                             >
                                 {signInBtnContent === SignInBtnValues.SigningIn

@@ -6,6 +6,7 @@ import { RightHeader } from '../../components/RightHeader/RightHeader';
 import { GlobalContext } from '../../utils/context-utils';
 import { Chat } from '../../components/Chat/Chat';
 import { RightViewSelected } from '../../utils/enum-type-utils';
+import { ContactInfo } from '../../components/ContactInfo/ContactInfo';
 
 export default function RightView() {
     // fetches context storage
@@ -26,6 +27,10 @@ export default function RightView() {
                 )}
                 {state.uiView.selectedRightView ===
                     RightViewSelected.Profile && <Profile />}
+                {state.uiView.selectedRightView ===
+                    RightViewSelected.ContactInfo && (
+                    <ContactInfo />
+                )}
             </div>
         </>
     );

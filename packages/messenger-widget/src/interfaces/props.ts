@@ -20,3 +20,9 @@ export interface ContactMenu {
     contactDetails: ContactPreview;
     closeContactMenu: Function;
 }
+
+export interface ContactInfo {
+    name: string;
+    address: string;
+    image: string;
+}

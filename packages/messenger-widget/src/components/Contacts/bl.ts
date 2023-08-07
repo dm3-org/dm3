@@ -69,6 +69,7 @@ export const onContactSelected = (
     index: number,
     classOne: string,
     classTwo: string,
+    state: GlobalState,
     dispatch: React.Dispatch<Actions>,
     contact: Contact,
 ) => {
@@ -89,14 +90,7 @@ export const onContactSelected = (
     // add click css
     event.currentTarget.classList.add(classTwo);
     const actionItem: any = document.getElementById('contact-' + index);
-    // actionItem.style.display = 'none';
     actionItem.classList.add('contact-hover-effect');
-
-    // show chat screen
-    dispatch({
-        type: UiViewStateType.SetSelectedRightView,
-        payload: RightViewSelected.Chat,
-    });
 
     // set selected contact
     dispatch({
@@ -109,6 +103,14 @@ export const onContactSelected = (
         type: AccountsType.SetAccountInfoView,
         payload: AccountInfo.None,
     });
+
+    if (state.uiView.selectedRightView !== RightViewSelected.Chat) {
+        // show chat screen
+        dispatch({
+            type: UiViewStateType.SetSelectedRightView,
+            payload: RightViewSelected.Chat,
+        });
+    }
 };
 
 // removes active contact style
