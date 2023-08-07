@@ -1,5 +1,6 @@
 import { Actions, GlobalState } from '../utils/enum-type-utils';
 import { Dm3Props } from './config';
+import { ContactPreview } from './utils';
 
 export interface DashboardProps {
     getContacts: (
@@ -13,4 +14,9 @@ export interface DashboardProps {
 export interface EnsDetails {
     propertyKey: string;
     propertyValue: string;
+}
+
+export interface ContactMenu {
+    contactDetails: ContactPreview;
+    closeContactMenu: Function;
 }
