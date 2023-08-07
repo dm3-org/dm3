@@ -183,7 +183,7 @@ function dm3(props: dm3Props) {
             state,
             dispatch,
 
-            props.config.defaultContact,
+            props.config.defaultContacts,
         );
     };
 

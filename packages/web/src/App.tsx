@@ -7,7 +7,7 @@ function App() {
     return (
         <>
             <DM3
-                defaultContact="help.dm3.eth"
+                defaultContacts={['help.dm3.eth']}
                 defaultServiceUrl={process.env.REACT_APP_DEFAULT_SERVICE}
                 showAlways={true}
                 // connectionStateChange={(state: ConnectionState) =>
