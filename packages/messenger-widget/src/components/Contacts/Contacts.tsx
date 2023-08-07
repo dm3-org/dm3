@@ -46,7 +46,7 @@ export function Contacts(props: DashboardProps) {
     // handles closing of contact menu list
     const closeContactMenu = () => {
         setOpenMenu(false);
-    }
+    };
 
     // handles contact box view
     useEffect(() => {
@@ -105,7 +105,7 @@ export function Contacts(props: DashboardProps) {
             setContacts(cacheContacts);
             if (state.accounts.selectedContact) {
                 setContactSelected(
-                    setContactSelectedFromCache(state, cacheContacts)
+                    setContactSelectedFromCache(state, cacheContacts),
                 );
             }
         }
@@ -141,7 +141,7 @@ export function Contacts(props: DashboardProps) {
                                     contactSelected !== null
                                         ? contactSelected
                                         : null,
-                                    closeContactMenu
+                                    closeContactMenu,
                                 )
                             }
                             onMouseOut={(e: React.MouseEvent) =>
@@ -156,7 +156,7 @@ export function Contacts(props: DashboardProps) {
                                     'normal-btn-hover',
                                     'background-active-contact',
                                     dispatch,
-                                    data.contactDetails
+                                    data.contactDetails,
                                 );
                             }}
                         >
@@ -192,11 +192,18 @@ export function Contacts(props: DashboardProps) {
                                                         setOpenMenu(!openMenu);
                                                     }}
                                                 />
-                                                {
-                                                    openMenu &&
-                                                    index === contactSelected &&
-                                                    <ContactMenu closeContactMenu={closeContactMenu} contactDetails={data} />
-                                                }
+                                                {openMenu &&
+                                                    index ===
+                                                        contactSelected && (
+                                                        <ContactMenu
+                                                            closeContactMenu={
+                                                                closeContactMenu
+                                                            }
+                                                            contactDetails={
+                                                                data
+                                                            }
+                                                        />
+                                                    )}
                                             </div>
                                         </div>
                                     </div>

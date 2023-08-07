@@ -18,13 +18,13 @@ export function MouseOver(
     className: string,
     index: number,
     selectedContactIndex: number | null,
-    closeContactMenu: Function
+    closeContactMenu: Function,
 ) {
     // highlight background only if contact is not selected
     if (selectedContactIndex !== index) {
         event.currentTarget.classList.add(className);
         event.currentTarget.classList.add('contact-details-container-hover');
-        // close the contact menu option 
+        // close the contact menu option
         closeContactMenu();
     }
     // show three dots icon only when contact is selected and remove hover class
@@ -39,7 +39,7 @@ export function MouseOver(
 export function MouseOut(
     event: React.MouseEvent,
     className: string,
-    index: number
+    index: number,
 ) {
     event.currentTarget.classList.remove(className);
     const actionItem: any = document.getElementById('contact-' + index);
@@ -70,9 +70,8 @@ export const onContactSelected = (
     classOne: string,
     classTwo: string,
     dispatch: React.Dispatch<Actions>,
-    contact: Contact
+    contact: Contact,
 ) => {
-
     // remove normal hover css
     event.currentTarget.classList.remove(classOne);
 
@@ -139,13 +138,13 @@ export const fetchAndSetContacts = async (
     // fetch contacts list
     const contactList = state.accounts.contacts
         ? state.accounts.contacts.filter(
-            (contact) =>
-                !state.userDb?.hiddenContacts.find(
-                    (hiddenContact) =>
-                        normalizeEnsName(hiddenContact.ensName) ===
-                        normalizeEnsName(contact.account.ensName),
-                ),
-        )
+              (contact) =>
+                  !state.userDb?.hiddenContacts.find(
+                      (hiddenContact) =>
+                          normalizeEnsName(hiddenContact.ensName) ===
+                          normalizeEnsName(contact.account.ensName),
+                  ),
+          )
         : [];
 
     if (contactList.length) {
@@ -196,9 +195,13 @@ export const setContactSelectedFromCache = (
     state: GlobalState,
     cacheContacts: ContactPreview[],
 ): number | null => {
-    const key = state.accounts.selectedContact?.account.profile?.publicEncryptionKey;
+    const key =
+        state.accounts.selectedContact?.account.profile?.publicEncryptionKey;
     for (let index = 0; index < cacheContacts.length; index++) {
-        if (cacheContacts[index].contactDetails.account.profile?.publicEncryptionKey === key) {
+        if (
+            cacheContacts[index].contactDetails.account.profile
+                ?.publicEncryptionKey === key
+        ) {
             return index;
         }
     }
