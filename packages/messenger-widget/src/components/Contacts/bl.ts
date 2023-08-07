@@ -89,7 +89,6 @@ export const onContactSelected = (
     // add click css
     event.currentTarget.classList.add(classTwo);
     const actionItem: any = document.getElementById('contact-' + index);
-    // actionItem.style.display = 'none';
     actionItem.classList.add('contact-hover-effect');
 
     // show chat screen
@@ -197,13 +196,10 @@ export const setContactSelectedFromCache = (
 ): number | null => {
     const key =
         state.accounts.selectedContact?.account.profile?.publicEncryptionKey;
-    for (let index = 0; index < cacheContacts.length; index++) {
-        if (
-            cacheContacts[index].contactDetails.account.profile
-                ?.publicEncryptionKey === key
-        ) {
+    const index = cacheContacts.findIndex((data, index) => {
+        if (data.contactDetails.account.profile?.publicEncryptionKey === key) {
             return index;
         }
-    }
-    return null;
+    });
+    return index > -1 ? index : null;
 };
