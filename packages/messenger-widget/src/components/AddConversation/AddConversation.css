@@ -1,0 +1,14 @@
+.conversation-modal-content {
+  margin: auto;
+  padding: 20px;
+  border: none;
+  width: fit-content;
+  top: 15%;
+  position: relative;
+  height: auto;
+}
+
+.conversation-close-icon{
+  width: 1.8rem;
+  height: auto;
+}

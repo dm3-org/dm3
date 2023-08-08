@@ -109,6 +109,10 @@
     background-color: var(--normal-btn);
 }
 
+.line-separator {
+    height: 0.1rem;
+}
+
 /* CSS to rotate the spinner svg image */
 @-webkit-keyframes rotating {
     from {

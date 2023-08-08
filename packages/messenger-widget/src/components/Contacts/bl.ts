@@ -199,10 +199,9 @@ export const setContactSelectedFromCache = (
 ): number | null => {
     const key =
         state.accounts.selectedContact?.account.profile?.publicEncryptionKey;
-    const index = cacheContacts.findIndex((data, index) => {
-        if (data.contactDetails.account.profile?.publicEncryptionKey === key) {
-            return index;
-        }
-    });
+    const index = cacheContacts.findIndex(
+        (data) =>
+            data.contactDetails.account.profile?.publicEncryptionKey === key,
+    );
     return index > -1 ? index : null;
 };
