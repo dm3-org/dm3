@@ -1,8 +1,16 @@
-import { GlobalState } from './enum-type-utils';
+import {
+    AccountsType,
+    Actions,
+    GlobalState,
+    RightViewSelected,
+    UiViewStateType,
+} from './enum-type-utils';
 import profilePic from '../assets/images/profile-pic.jpg';
 import { EnsProfileDetails } from '../interfaces/utils';
 import { log } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
+import { ENS_PROFILE_BASE_URL } from './common-utils';
+import { ContactInfo } from '../interfaces/utils';
 
 // method to get avatar/image url
 export const getAvatar = async (
@@ -53,4 +61,62 @@ export const getEnsProfileDetails = async (
         log(error, 'Error in fetching ENS profile details');
         return details;
     }
+};
+
+// method to open ENS details in new tab
+export const openEnsProfile = (ensName: string) => {
+    window.open(ENS_PROFILE_BASE_URL + ensName, '_blank');
+};
+
+// method to hide contact from contact list
+export const hideContact = (
+    state: GlobalState,
+    dispatch: React.Dispatch<Actions>,
+) => {
+    // Body will be added when "Hide contact" task will be picked up
+};
+
+// method to close profile/contact info page
+export const onClose = (dispatch: React.Dispatch<Actions>) => {
+    dispatch({
+        type: UiViewStateType.SetSelectedRightView,
+        payload: RightViewSelected.Default,
+    });
+    dispatch({
+        type: AccountsType.SetSelectedContact,
+        payload: undefined,
+    });
+};
+
+export const openProfileConfigureBox = (dispatch: React.Dispatch<Actions>) => {
+    // Body will be added when "Configure profile" task will be picked up
+};
+
+// method to fetch selected contact
+export const getContactSelected = async (
+    state: GlobalState,
+): Promise<ContactInfo | null> => {
+    const key =
+        state.accounts.selectedContact?.account.profile?.publicEncryptionKey;
+    const cacheContacts = state.cache.contacts;
+    if (cacheContacts) {
+        const selectedAccount = cacheContacts.filter(
+            (data) =>
+                data.contactDetails.account.profile?.publicEncryptionKey ===
+                key,
+        );
+        if (selectedAccount.length) {
+            const provider = state.connection.provider;
+            const address = await provider?.resolveName(
+                selectedAccount[0].contactDetails.account.ensName,
+            );
+            const info: ContactInfo = {
+                name: selectedAccount[0].contactDetails.account.ensName,
+                address: address ? address : '',
+                image: selectedAccount[0].image,
+            };
+            return info;
+        }
+    }
+    return null;
 };
