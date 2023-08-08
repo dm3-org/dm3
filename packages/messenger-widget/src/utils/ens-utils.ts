@@ -100,22 +100,22 @@ export const getContactSelected = async (
         state.accounts.selectedContact?.account.profile?.publicEncryptionKey;
     const cacheContacts = state.cache.contacts;
     if (cacheContacts) {
-        for (let index = 0; index < cacheContacts.length; index++) {
-            if (
-                cacheContacts[index].contactDetails.account.profile
-                    ?.publicEncryptionKey === key
-            ) {
-                const provider = state.connection.provider;
-                const address = await provider?.resolveName(
-                    cacheContacts[index].contactDetails.account.ensName,
-                );
-                const info: ContactInfo = {
-                    name: cacheContacts[index].contactDetails.account.ensName,
-                    address: address ? address : '',
-                    image: cacheContacts[index].image,
-                };
-                return info;
-            }
+        const selectedAccount = cacheContacts.filter(
+            (data) =>
+                data.contactDetails.account.profile?.publicEncryptionKey ===
+                key,
+        );
+        if (selectedAccount.length) {
+            const provider = state.connection.provider;
+            const address = await provider?.resolveName(
+                selectedAccount[0].contactDetails.account.ensName,
+            );
+            const info: ContactInfo = {
+                name: selectedAccount[0].contactDetails.account.ensName,
+                address: address ? address : '',
+                image: selectedAccount[0].image,
+            };
+            return info;
         }
     }
     return null;

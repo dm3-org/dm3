@@ -12,6 +12,8 @@ import {
 } from '../../utils/ens-utils';
 import { ContactInfo } from '../../interfaces/props';
 import profilePic from '../../assets/images/profile-pic.jpg';
+import { closeLoader, startLoader } from '../Loader/Loader';
+import { ModalStateType } from '../../utils/enum-type-utils';
 
 export function ContactInfo() {
     const { state, dispatch } = useContext(GlobalContext);
@@ -21,9 +23,15 @@ export function ContactInfo() {
 
     const fetchContactDetails = async () => {
         setContactDetails(await getContactSelected(state));
+        closeLoader();
     };
 
     useEffect(() => {
+        dispatch({
+            type: ModalStateType.LoaderContent,
+            payload: 'Fetching contact information...',
+        });
+        startLoader();
         fetchContactDetails();
     }, []);
 
