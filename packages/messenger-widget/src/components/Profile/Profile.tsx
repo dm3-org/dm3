@@ -1,4 +1,4 @@
-import './Profile.css';
+import '../../styles/profile-contact.css';
 import { Button } from '../Button/Button';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
@@ -8,8 +8,10 @@ import { EnsProfileDetails } from '../../interfaces/utils';
 import {
     getAvatarProfilePic,
     getEnsProfileDetails,
+    onClose,
+    openEnsProfile,
+    openProfileConfigureBox,
 } from '../../utils/ens-utils';
-import { onClose, openEnsProfile, openProfileConfigureBox } from './bl';
 import { EnsDetails } from '../EnsDetails/EnsDetails';
 
 export function Profile() {
@@ -48,8 +50,10 @@ export function Profile() {
 
     return (
         <>
-            {/*  eslint-disable */}
-            <div className="d-flex align-items-center justify-content-between profile-heading text-primary-color font-weight-500">
+            <div
+                className="d-flex align-items-center justify-content-between 
+            profile-heading text-primary-color font-weight-500"
+            >
                 Profile
                 <img
                     className="pointer-cursor close-icon"
