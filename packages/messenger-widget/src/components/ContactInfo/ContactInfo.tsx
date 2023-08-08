@@ -10,7 +10,7 @@ import {
     onClose,
     openEnsProfile,
 } from '../../utils/ens-utils';
-import { ContactInfo } from '../../interfaces/props';
+import { ContactInfo } from '../../interfaces/utils';
 import profilePic from '../../assets/images/profile-pic.jpg';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { ModalStateType } from '../../utils/enum-type-utils';

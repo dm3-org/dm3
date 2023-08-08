@@ -10,7 +10,7 @@ import { EnsProfileDetails } from '../interfaces/utils';
 import { log } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import { ENS_PROFILE_BASE_URL } from './common-utils';
-import { ContactInfo } from '../interfaces/props';
+import { ContactInfo } from '../interfaces/utils';
 
 // method to get avatar/image url
 export const getAvatar = async (

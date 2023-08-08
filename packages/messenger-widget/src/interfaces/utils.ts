@@ -17,3 +17,9 @@ export interface ContactPreview {
     image: string;
     contactDetails: Contact;
 }
+
+export interface ContactInfo {
+    name: string;
+    address: string;
+    image: string;
+}

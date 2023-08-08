@@ -28,9 +28,7 @@ export default function RightView() {
                 {state.uiView.selectedRightView ===
                     RightViewSelected.Profile && <Profile />}
                 {state.uiView.selectedRightView ===
-                    RightViewSelected.ContactInfo && (
-                    <ContactInfo />
-                )}
+                    RightViewSelected.ContactInfo && <ContactInfo />}
             </div>
         </>
     );

@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 import detailsIcon from '../../assets/images/details.svg';
 import hideIcon from '../../assets/images/hide.svg';
 import { ContactMenu } from '../../interfaces/props';

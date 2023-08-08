@@ -50,8 +50,10 @@ export function Profile() {
 
     return (
         <>
-            <div className="d-flex align-items-center justify-content-between 
-            profile-heading text-primary-color font-weight-500">
+            <div
+                className="d-flex align-items-center justify-content-between 
+            profile-heading text-primary-color font-weight-500"
+            >
                 Profile
                 <img
                     className="pointer-cursor close-icon"
