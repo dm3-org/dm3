@@ -69,6 +69,7 @@ export const onContactSelected = (
     index: number,
     classOne: string,
     classTwo: string,
+    state: GlobalState,
     dispatch: React.Dispatch<Actions>,
     contact: Contact,
 ) => {
@@ -91,12 +92,6 @@ export const onContactSelected = (
     const actionItem: any = document.getElementById('contact-' + index);
     actionItem.classList.add('contact-hover-effect');
 
-    // show chat screen
-    dispatch({
-        type: UiViewStateType.SetSelectedRightView,
-        payload: RightViewSelected.Chat,
-    });
-
     // set selected contact
     dispatch({
         type: AccountsType.SetSelectedContact,
@@ -108,6 +103,14 @@ export const onContactSelected = (
         type: AccountsType.SetAccountInfoView,
         payload: AccountInfo.None,
     });
+
+    if (state.uiView.selectedRightView !== RightViewSelected.Chat) {
+        // show chat screen
+        dispatch({
+            type: UiViewStateType.SetSelectedRightView,
+            payload: RightViewSelected.Chat,
+        });
+    }
 };
 
 // removes active contact style
@@ -196,10 +199,9 @@ export const setContactSelectedFromCache = (
 ): number | null => {
     const key =
         state.accounts.selectedContact?.account.profile?.publicEncryptionKey;
-    const index = cacheContacts.findIndex((data, index) => {
-        if (data.contactDetails.account.profile?.publicEncryptionKey === key) {
-            return index;
-        }
-    });
+    const index = cacheContacts.findIndex(
+        (data) =>
+            data.contactDetails.account.profile?.publicEncryptionKey === key,
+    );
     return index > -1 ? index : null;
 };

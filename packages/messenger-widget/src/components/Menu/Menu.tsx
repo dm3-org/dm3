@@ -29,8 +29,10 @@ export default function Menu() {
                     onClick={() => showContactList()}
                 />
             </div>
-            {/*  eslint-disable */}
-            <div className="d-flex align-items-center justify-content-start pointer-cursor menu-items font-weight-400 text-primary-color">
+            <div
+                className="d-flex align-items-center justify-content-start pointer-cursor 
+            menu-items font-weight-400 text-primary-color"
+            >
                 <img
                     src={addIcon}
                     alt="close"
@@ -38,8 +40,10 @@ export default function Menu() {
                 />
                 Add Conversation
             </div>
-            {/*  eslint-disable */}
-            <div className="d-flex align-items-center justify-content-start pointer-cursor menu-items font-weight-400 text-primary-color">
+            <div
+                className="d-flex align-items-center justify-content-start pointer-cursor 
+            menu-items font-weight-400 text-primary-color"
+            >
                 <img
                     src={settingsIcon}
                     alt="close"

@@ -84,7 +84,8 @@ export function Contacts(props: DashboardProps) {
     useEffect(() => {
         if (
             contactSelected !== null &&
-            state.uiView.selectedRightView !== RightViewSelected.Chat
+            state.uiView.selectedRightView !== RightViewSelected.Chat &&
+            state.uiView.selectedRightView !== RightViewSelected.ContactInfo
         ) {
             removedSelectedContact(contactSelected);
             setContactSelected(null);
@@ -155,6 +156,7 @@ export function Contacts(props: DashboardProps) {
                                     index,
                                     'normal-btn-hover',
                                     'background-active-contact',
+                                    state,
                                     dispatch,
                                     data.contactDetails,
                                 );
@@ -173,8 +175,10 @@ export function Contacts(props: DashboardProps) {
                                 </div>
 
                                 <div className="d-flex flex-column font-size-12 width-fill content">
-                                    {/*  eslint-disable */}
-                                    <div className="d-flex flex-row font-weight-500 justify-content-between text-primary-color">
+                                    <div
+                                        className="d-flex flex-row font-weight-500 justify-content-between 
+                                    text-primary-color"
+                                    >
                                         <div>
                                             <p>{data.name}</p>
                                         </div>
