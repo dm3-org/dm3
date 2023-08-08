@@ -1,10 +1,21 @@
-import { useEffect } from 'react';
+import { useContext } from 'react';
 import detailsIcon from '../../assets/images/details.svg';
 import hideIcon from '../../assets/images/hide.svg';
 import { ContactMenu } from '../../interfaces/props';
+import { GlobalContext } from '../../utils/context-utils';
+import {
+    RightViewSelected,
+    UiViewStateType,
+} from '../../utils/enum-type-utils';
 
 export function ContactMenu(props: ContactMenu) {
+    const { dispatch } = useContext(GlobalContext);
+
     const onClickOfShowDetails = () => {
+        dispatch({
+            type: UiViewStateType.SetSelectedRightView,
+            payload: RightViewSelected.ContactInfo,
+        });
         props.closeContactMenu();
     };
 

@@ -47,19 +47,6 @@ function DM3(props: Dm3Props) {
         });
     }, [props.config.browserStorageBackup]);
 
-    // handles contact selected by the user from the list
-    useEffect(() => {
-        if (
-            props.config.showContacts === false &&
-            state.accounts.selectedContact
-        ) {
-            dispatch({
-                type: UiStateType.SetMaxLeftView,
-                payload: false,
-            });
-        }
-    }, [state.accounts.selectedContact]);
-
     // handles profile fetching and setting
     useEffect(() => {
         const getDeliveryServiceUrl = async () => {

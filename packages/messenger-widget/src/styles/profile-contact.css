@@ -1,0 +1,29 @@
+.profile-heading {
+  font-size: 1.25rem;
+  padding-left: 2rem;
+  padding-right: 0.5rem;
+}
+
+.profile-details-container {
+  padding: 3rem 2rem 4rem 6rem;
+}
+
+.profile-detail-items {
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+}
+
+.ens-btn-container {
+  width: 18rem;
+  margin-top: 2rem;
+}
+
+.configure-btn-container {
+  width: 18rem;
+  margin-top: 1rem;
+}
+
+.profile-image {
+  width: 8rem;
+  height: auto;
+}
