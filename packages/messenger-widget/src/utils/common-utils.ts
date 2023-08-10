@@ -71,3 +71,5 @@ export const ACCOUNT_CHANGE_POPUP_MESSAGE =
     'Please sign in with the new account selected to use DM3 app!';
 
 export const ENS_PROFILE_BASE_URL = 'https://app.ens.domains/';
+
+export const SPACE_REGEX = /\s/g;

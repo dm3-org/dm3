@@ -3,7 +3,11 @@ import { useContext } from 'react';
 import closeIcon from '../../assets/images/cross.svg';
 import addIcon from '../../assets/images/add.svg';
 import settingsIcon from '../../assets/images/settings.svg';
-import { LeftViewSelected, UiViewStateType } from '../../utils/enum-type-utils';
+import {
+    LeftViewSelected,
+    ModalStateType,
+    UiViewStateType,
+} from '../../utils/enum-type-utils';
 import { GlobalContext } from '../../utils/context-utils';
 import { startLoader } from '../Loader/Loader';
 import { openConversationModal } from '../AddConversation/bl';
@@ -14,10 +18,14 @@ export default function Menu() {
 
     const showContactList = () => {
         dispatch({
+            type: ModalStateType.LoaderContent,
+            payload: 'Fetching contacts...',
+        });
+        startLoader();
+        dispatch({
             type: UiViewStateType.SetSelectedLeftView,
             payload: LeftViewSelected.Contacts,
         });
-        startLoader();
     };
 
     return (

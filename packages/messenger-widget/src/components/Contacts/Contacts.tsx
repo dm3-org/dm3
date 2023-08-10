@@ -14,9 +14,13 @@ import {
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import { DashboardProps } from '../../interfaces/props';
-import { closeLoader } from '../Loader/Loader';
+import { closeLoader, startLoader } from '../Loader/Loader';
 import { globalConfig } from 'dm3-lib-shared';
-import { CacheType, RightViewSelected } from '../../utils/enum-type-utils';
+import {
+    CacheType,
+    ModalStateType,
+    RightViewSelected,
+} from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
 
 export function Contacts(props: DashboardProps) {
@@ -62,6 +66,12 @@ export function Contacts(props: DashboardProps) {
             state.auth?.currentSession?.token &&
             state.connection.socket
         ) {
+            // start loader
+            dispatch({
+                type: ModalStateType.LoaderContent,
+                payload: 'Fetching contacts...',
+            });
+            startLoader();
             props.getContacts(state, dispatch, props.dm3Props);
             setContactList();
         }
@@ -70,6 +80,11 @@ export function Contacts(props: DashboardProps) {
     // handles changes in conversation
     useEffect(() => {
         if (state.userDb?.conversations && state.userDb?.conversationsCount) {
+            dispatch({
+                type: ModalStateType.LoaderContent,
+                payload: 'Fetching contacts...',
+            });
+            startLoader();
             props.getContacts(state, dispatch, props.dm3Props);
             setContactList();
         }
@@ -106,11 +121,11 @@ export function Contacts(props: DashboardProps) {
             setContacts(cacheContacts);
             if (state.accounts.selectedContact) {
                 setContactSelected(
-                    setContactSelectedFromCache(state, cacheContacts),
+                    setContactSelectedFromCache(state, dispatch, cacheContacts),
                 );
             }
         }
-    }, []);
+    }, [state.cache.contacts]);
 
     /* Hidden content for highlighting css */
     const hiddenData: number[] = Array.from({ length: 14 }, (_, i) => i + 1);

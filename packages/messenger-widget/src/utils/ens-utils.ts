@@ -98,23 +98,39 @@ export const getContactSelected = async (
 ): Promise<ContactInfo | null> => {
     const key =
         state.accounts.selectedContact?.account.profile?.publicEncryptionKey;
+    const name = state.accounts.selectedContact?.account.ensName;
     const cacheContacts = state.cache.contacts;
+
     if (cacheContacts) {
         const selectedAccount = cacheContacts.filter(
             (data) =>
-                data.contactDetails.account.profile?.publicEncryptionKey ===
-                key,
+                (key &&
+                    data.contactDetails.account.profile?.publicEncryptionKey ===
+                        key) ||
+                name === data.contactDetails.account.ensName,
         );
+
         if (selectedAccount.length) {
+            let address;
             const provider = state.connection.provider;
-            const address = await provider?.resolveName(
-                selectedAccount[0].contactDetails.account.ensName,
-            );
+
+            try {
+                address = await provider?.resolveName(
+                    selectedAccount[0].contactDetails.account.ensName,
+                );
+            } catch (error) {
+                address =
+                    selectedAccount[0].contactDetails.account.ensName.split(
+                        '.',
+                    )[0];
+            }
+
             const info: ContactInfo = {
                 name: selectedAccount[0].contactDetails.account.ensName,
                 address: address ? address : '',
                 image: selectedAccount[0].image,
             };
+
             return info;
         }
     }
