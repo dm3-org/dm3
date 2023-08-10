@@ -15,5 +15,5 @@ export const themeOne: any = {
     backgroundConfigBoxBorder: '1px solid #666876',
     chatBackground: '#1F2029',
     disabledBtnText: '#666876',
-    textError: '#C30F1A'
+    textError: '#C30F1A',
 };

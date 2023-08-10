@@ -137,7 +137,6 @@ const updateStates = (
         type: UiViewStateType.SetSelectedRightView,
         payload: RightViewSelected.Chat,
     });
-
 };
 
 // updates hidden contact states

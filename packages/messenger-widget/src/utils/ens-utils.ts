@@ -130,7 +130,6 @@ export const getContactSelected = async (
                 address: address ? address : '',
                 image: selectedAccount[0].image,
             };
-
             return info;
         }
     }
