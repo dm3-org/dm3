@@ -17,7 +17,8 @@
             "packages/web",
             "packages/billboard-widget",
             "packages/integration-tests",
-            "packages/offchain-resolver"
+            "packages/offchain-resolver",
+            "packages/dm3-safe"
         ],
         "nohoist": [
             "**/react",
