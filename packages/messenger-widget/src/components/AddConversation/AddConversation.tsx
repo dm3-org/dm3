@@ -40,7 +40,7 @@ export default function AddConversation() {
         setName(e.target.value);
     };
 
-    // restes name to default
+    // resets name to default
     const resetName = () => {
         setName('');
     };
