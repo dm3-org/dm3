@@ -1,13 +1,14 @@
 import { changeButtonStyle } from '../../utils/style-utils';
 import loader from '../../assets/images/loader.svg';
 import './ErrorModal.css';
+import '../../styles/modal.css';
 
 export default function ErrorModal() {
     return (
-        <div className="error-modal-outer-container">
+        <div>
             <div
                 id="error-modal"
-                className="error-modal display-none position-fixed w-100 h-100 pointer-cursor"
+                className="modal-container display-none position-fixed w-100 h-100 pointer-cursor"
             >
                 <div className="error-modal-content border-radius-6 background-container text-primary-color">
                     <div className="d-flex align-items-center justify-content-evenly">
