@@ -215,14 +215,22 @@ export async function getContacts(
                     : normalizeEnsName(ensNames[0]),
             )
             .map(async (ensName) => {
-                const profile = await getUserProfile(
-                    connection.provider!,
-                    ensName,
-                );
-                return {
-                    ensName,
-                    profile: profile,
-                };
+                let profile;
+                try {
+                    profile = await getUserProfile(
+                        connection.provider!,
+                        ensName,
+                    );
+                    return {
+                        ensName,
+                        profile: profile,
+                    };
+                } catch (error) {
+                    return {
+                        ensName,
+                        profile: undefined,
+                    };
+                }
             }),
     );
 
