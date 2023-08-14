@@ -52,6 +52,11 @@ export const setTheme = (theme: string | undefined | null) => {
         '--background-chat',
         themeDetails.chatBackground,
     );
+    document.body.style.setProperty(
+        '--disabled-btn-text',
+        themeDetails.disabledBtnText,
+    );
+    document.body.style.setProperty('--error-text', themeDetails.textError);
 };
 
 // Method to get all css style class based on theme selected

@@ -103,7 +103,7 @@ export function userDbReducer(
 
             if (state.conversations.has(normalizeEnsName(action.payload))) {
                 log(
-                    `[DB] Converation exists already (timestamp: ${lastChangeTimestamp})`,
+                    `[DB] Conversation exists already (timestamp: ${lastChangeTimestamp})`,
                     'info',
                 );
                 return state;

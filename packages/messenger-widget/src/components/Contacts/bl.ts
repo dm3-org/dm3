@@ -6,11 +6,13 @@ import {
     AccountsType,
     Actions,
     GlobalState,
+    ModalStateType,
     RightViewSelected,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
 import { Contact } from '../../interfaces/context';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
+import { closeLoader, startLoader } from '../Loader/Loader';
 
 // Updates the style of particular contact item on hover
 export function MouseOver(
@@ -55,12 +57,16 @@ export const updateStickyStyleOnSelect = (index: number) => {
 
     // remove sticky css from last selected contact
     const allElements = document.querySelectorAll('*');
-    allElements.forEach((element) => {
-        element.classList.remove('sticky-on-selected-contact');
-    });
+    if (allElements && allElements.length) {
+        allElements.forEach((element) => {
+            element.classList.remove('sticky-on-selected-contact');
+        });
+    }
 
-    // add sticky css
-    item.classList.add('sticky-on-selected-contact');
+    if (item) {
+        // add sticky css
+        item.classList.add('sticky-on-selected-contact');
+    }
 };
 
 // Updates the style of particular contact item on click
@@ -96,12 +102,6 @@ export const onContactSelected = (
     dispatch({
         type: AccountsType.SetSelectedContact,
         payload: contact,
-    });
-
-    // set account info to none
-    dispatch({
-        type: AccountsType.SetAccountInfoView,
-        payload: AccountInfo.None,
     });
 
     if (state.uiView.selectedRightView !== RightViewSelected.Chat) {
@@ -193,15 +193,32 @@ const getMessagesFromUser = (
     return null;
 };
 
-export const setContactSelectedFromCache = (
+export const setContactIndexSelectedFromCache = (
     state: GlobalState,
+    dispatch: React.Dispatch<Actions>,
     cacheContacts: ContactPreview[],
 ): number | null => {
+    // start loader
+    dispatch({
+        type: ModalStateType.LoaderContent,
+        payload: 'Fetching contacts...',
+    });
+    startLoader();
+
     const key =
         state.accounts.selectedContact?.account.profile?.publicEncryptionKey;
+    const name = state.accounts.selectedContact?.account.ensName;
+
     const index = cacheContacts.findIndex(
         (data) =>
-            data.contactDetails.account.profile?.publicEncryptionKey === key,
+            (key &&
+                data.contactDetails.account.profile?.publicEncryptionKey ===
+                    key) ||
+            name === data.contactDetails.account.ensName,
     );
+
+    // close the loader
+    closeLoader();
+
     return index > -1 ? index : null;
 };
