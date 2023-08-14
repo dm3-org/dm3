@@ -43,7 +43,7 @@
     "scripts": {
         "docker:up": "cd packages/backend && docker-compose up -d",
         "build": " yarn workspaces foreach -pt run build",
-        "start": "yarn start-dm3-safe",
+        "start": "npm run start-dm3-safe",
         "start-dm3-safe": "yarn workspace dm3-safe start",
         "resolver": "yarn workspace dm3-offchain-resolver-backend start",
         "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
