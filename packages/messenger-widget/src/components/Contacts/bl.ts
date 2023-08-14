@@ -12,6 +12,7 @@ import {
 } from '../../utils/enum-type-utils';
 import { Contact } from '../../interfaces/context';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
+import { closeLoader, startLoader } from '../Loader/Loader';
 
 export const onContactSelected = (
     state: GlobalState,
@@ -45,7 +46,7 @@ export const setContactHeightToMaximum = (isProfileConfigured: boolean) => {
 export const fetchAndSetContacts = async (
     state: GlobalState,
 ): Promise<ContactPreview[]> => {
-    let actualContactList: ContactPreview[] = [];
+    const actualContactList: ContactPreview[] = [];
 
     // fetch contacts list
     const contactList = state.accounts.contacts
@@ -102,8 +103,16 @@ export const getMessagesFromUser = (
 
 export const setContactIndexSelectedFromCache = (
     state: GlobalState,
+    dispatch: React.Dispatch<Actions>,
     cacheContacts: ContactPreview[],
 ): number | null => {
+    // start loader
+    dispatch({
+        type: ModalStateType.LoaderContent,
+        payload: 'Fetching contacts...',
+    });
+    startLoader();
+
     const key =
         state.accounts.selectedContact?.account.profile?.publicEncryptionKey;
     const name = state.accounts.selectedContact?.account.ensName;
@@ -115,6 +124,9 @@ export const setContactIndexSelectedFromCache = (
                     key) ||
             name === data.contactDetails.account.ensName,
     );
+
+    // close the loader
+    closeLoader();
 
     return index > -1 ? index : null;
 };
@@ -150,7 +162,7 @@ export const updateSelectedContact = (
             payload: state.cache.contacts[index].contactDetails,
         });
         setContactFromList(index);
-        let stateData = state.modal.addConversation;
+        const stateData = state.modal.addConversation;
         stateData.processed = true;
         dispatch({
             type: ModalStateType.AddConversationData,
@@ -176,8 +188,8 @@ export const updateContactOnAccountChange = async (
         if (itemList.length && state.cache.contacts) {
             // fetch last added contact
             const lastIndex = state.cache.contacts.length - 1;
-            let items = [...state.cache.contacts];
-            let item = { ...items[lastIndex] };
+            const items = [...state.cache.contacts];
+            const item = { ...items[lastIndex] };
 
             // update the contact details
             item.contactDetails = itemList[0];
@@ -199,12 +211,12 @@ export const updateContactOnAccountChange = async (
             });
 
             // update the current contact list
-            let newList = [...contacts];
+            const newList = [...contacts];
             newList[lastIndex] = item;
             setListOfContacts(newList);
 
             // update the modal data as conversation is added
-            let stateData = state.modal.addConversation;
+            const stateData = state.modal.addConversation;
             stateData.active = false;
             stateData.processed = false;
             dispatch({

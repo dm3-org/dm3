@@ -4,12 +4,12 @@ export const openErrorModal = (
     action: boolean,
     method?: any,
 ) => {
-    let modal: HTMLElement = document.getElementById(
+    const modal: HTMLElement = document.getElementById(
         'error-modal',
     ) as HTMLElement;
     modal.style.display = 'flex';
 
-    let btn: HTMLElement = document.getElementById('ok-btn') as HTMLElement;
+    const btn: HTMLElement = document.getElementById('ok-btn') as HTMLElement;
 
     // if popup is already open then don't change any state
     if (btn.style.display === 'block') {
@@ -19,11 +19,11 @@ export const openErrorModal = (
     btn.style.display = 'block';
 
     // set error message on popup modal
-    let data = document.getElementById('error-message') as HTMLElement;
+    const data = document.getElementById('error-message') as HTMLElement;
     data.innerText = message;
 
     // set error loader style on popup modal
-    let errorLoader = document.getElementById(
+    const errorLoader = document.getElementById(
         'error-modal-spinner',
     ) as HTMLElement;
 
@@ -49,11 +49,11 @@ const clearStorageAndReload = () => {
 
 // method to close the error modal
 export const closeErrorModal = () => {
-    let modal: HTMLElement = document.getElementById(
+    const modal: HTMLElement = document.getElementById(
         'error-modal',
     ) as HTMLElement;
     modal.style.display = 'none';
-    let data = document.getElementById('error-message') as HTMLElement;
+    const data = document.getElementById('error-message') as HTMLElement;
     data.innerText = '';
 };
 

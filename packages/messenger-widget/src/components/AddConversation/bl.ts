@@ -25,7 +25,7 @@ export const INPUT_FIELD_CLASS =
 
 // method to open the conversation modal
 export const openConversationModal = () => {
-    let modal: HTMLElement = document.getElementById(
+    const modal: HTMLElement = document.getElementById(
         'conversation-modal',
     ) as HTMLElement;
     modal.style.display = 'block';
@@ -37,7 +37,7 @@ export const closeConversationModal = (
     showErrorMessage: Function,
     resetInputFieldClass: Function,
 ) => {
-    let modal: HTMLElement = document.getElementById(
+    const modal: HTMLElement = document.getElementById(
         'conversation-modal',
     ) as HTMLElement;
     modal.style.display = 'none';
@@ -136,7 +136,7 @@ const updateStates = (
     resetInputFieldClass: Function,
     normalizedAccountName: string,
 ) => {
-    // set contact to none
+    // remove selected contact
     dispatch({
         type: AccountsType.SetSelectedContact,
         payload: undefined,

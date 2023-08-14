@@ -75,6 +75,11 @@ export function Contacts(props: DashboardProps) {
     // handles changes in conversation
     useEffect(() => {
         if (state.userDb?.conversations && state.userDb?.conversationsCount) {
+            dispatch({
+                type: ModalStateType.LoaderContent,
+                payload: 'Fetching contacts...',
+            });
+            startLoader();
             props.getContacts(state, dispatch, props.dm3Props);
         }
     }, [state.userDb?.conversations, state.userDb?.conversationsCount]);
@@ -113,7 +118,11 @@ export function Contacts(props: DashboardProps) {
                 updateSelectedContact(state, dispatch, setContactFromList);
             } else if (state.accounts.selectedContact) {
                 setContactSelected(
-                    setContactIndexSelectedFromCache(state, cacheContacts),
+                    setContactIndexSelectedFromCache(
+                        state,
+                        dispatch,
+                        cacheContacts,
+                    ),
                 );
             }
         }
@@ -144,7 +153,11 @@ export function Contacts(props: DashboardProps) {
             setContacts(cacheContacts);
             if (state.accounts.selectedContact) {
                 setContactSelected(
-                    setContactIndexSelectedFromCache(state, cacheContacts),
+                    setContactIndexSelectedFromCache(
+                        state,
+                        dispatch,
+                        cacheContacts,
+                    ),
                 );
             }
         }
