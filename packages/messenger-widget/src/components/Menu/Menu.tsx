@@ -11,6 +11,7 @@ import {
 import { GlobalContext } from '../../utils/context-utils';
 import { startLoader } from '../Loader/Loader';
 import { openConversationModal } from '../AddConversation/bl';
+import { openPreferencesModal } from '../Preferences/bl';
 
 export default function Menu() {
     // fetches context api data
@@ -53,6 +54,7 @@ export default function Menu() {
             <div
                 className="d-flex align-items-center justify-content-start pointer-cursor 
             menu-items font-weight-400 text-primary-color"
+                onClick={() => openPreferencesModal()}
             >
                 <img
                     src={settingsIcon}

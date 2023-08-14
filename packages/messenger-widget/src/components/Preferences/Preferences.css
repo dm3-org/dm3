@@ -1,0 +1,27 @@
+.preferences-modal-content {
+    margin: auto;
+    padding: 2rem;
+    border: none;
+    top: 10%;
+    position: relative;
+    width: 80%;
+    height: 78%;
+}
+
+.preferences-close-icon {
+    width: 1.8rem;
+    height: auto;
+    cursor: pointer;
+}
+
+.preferences-name {
+    border: 1px solid var(--text-secondary-color);
+    padding: 0.3rem 1rem 0.3rem 1rem;
+    color: var(--text-primary-color);
+    background: var(--background-chat);
+    margin: 0rem 0rem 0rem 1rem;
+}
+
+.preferences-separator {
+    margin: 1rem 0rem 2rem 0rem;
+}
