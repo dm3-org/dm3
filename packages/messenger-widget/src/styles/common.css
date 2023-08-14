@@ -18,6 +18,10 @@
     cursor: pointer;
 }
 
+.font-weight-300 {
+    font-weight: 300;
+}
+
 .font-weight-400 {
     font-weight: 400;
 }
@@ -62,6 +66,10 @@
     display: none;
 }
 
+.line-height-24 {
+    line-height: 24px;
+}
+
 .common-btn {
     font-size: 1rem;
     line-height: 1.25rem;
@@ -86,6 +94,10 @@
     border-right: none;
 }
 
+input:focus {
+    outline-width: 0;
+}
+
 /* CSS for all drop down items */
 .dropdown-content {
     flex-direction: column;
@@ -107,6 +119,10 @@
 
 .dropdown-content div:hover {
     background-color: var(--normal-btn);
+}
+
+.line-separator {
+    height: 0.1rem;
 }
 
 /* CSS to rotate the spinner svg image */

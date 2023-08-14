@@ -54,3 +54,11 @@
 .background-chat {
     background: var(--background-chat);
 }
+
+.disabled-btn-text {
+    background: var(--disabled-btn-text);
+}
+
+.error-text {
+    color: var(--error-text);
+}
