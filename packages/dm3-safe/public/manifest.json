@@ -1,12 +1,12 @@
 {
   "short_name": "DM3",
   "name": "DM3",
-  "description": "Describe your Safe App here",
+  "description": "The web3 messaging protocol",
   "icons": [
     {
-      "src": "logo.svg",
+      "src": "dark-logo.png",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/png"
     },
     {
       "src": "favicon.ico",
