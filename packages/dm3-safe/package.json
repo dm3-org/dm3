@@ -27,7 +27,19 @@
         "styled-components": "^6.0.7",
         "three": "^0.142.0",
         "typescript": "^4.7.3",
-        "web-vitals": "^2.1.4"
+        "web-vitals": "^2.1.4",
+        "@testing-library/dom": "^9.3.1",
+        "@types/three": "^0.141.0",
+        "add": "^2.0.6",
+        "assert": "^2.0.0",
+        "buffer": "^6.0.3",
+        "os-browserify": "^0.3.0",
+        "path-browserify": "^1.0.1",
+        "process": "^0.11.10",
+        "stream-browserify": "^3.0.0",
+        "stream-http": "^3.2.0",
+        "url": "^0.11.0",
+        "yarn": "^1.22.19"
     },
     "scripts": {
         "start": "react-app-rewired start",
