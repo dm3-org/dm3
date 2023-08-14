@@ -15,10 +15,10 @@
         "@types/react": "^18.0.13",
         "@types/react-dom": "^18.0.5",
         "autoprefixer": "10.4.5",
-        "crypto-browserify": "^3.12.0",
-        "https-browserify": "^1.0.0",
         "bootstrap": "^5.1.3",
+        "crypto-browserify": "^3.12.0",
         "dm3-react": "^0.2.6",
+        "https-browserify": "^1.0.0",
         "postcss": "^8.4.24",
         "react": "^18.2.0",
         "react-app-rewired": "^2.2.1",
@@ -61,9 +61,9 @@
         "buffer": "^6.0.3",
         "os-browserify": "^0.3.0",
         "path-browserify": "^1.0.1",
+        "process": "^0.11.10",
         "stream-browserify": "^3.0.0",
         "stream-http": "^3.2.0",
-        "process": "^0.11.10",
         "url": "^0.11.0",
         "yarn": "^1.22.19"
     }
