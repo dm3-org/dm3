@@ -8,7 +8,7 @@ import {
     onContactSelected,
     removedSelectedContact,
     setContactHeightToMaximum,
-    setContactSelectedFromCache,
+    setContactIndexSelectedFromCache,
     updateStickyStyleOnSelect,
 } from './bl';
 import { useContext, useEffect, useState } from 'react';
@@ -121,7 +121,11 @@ export function Contacts(props: DashboardProps) {
             setContacts(cacheContacts);
             if (state.accounts.selectedContact) {
                 setContactSelected(
-                    setContactSelectedFromCache(state, dispatch, cacheContacts),
+                    setContactIndexSelectedFromCache(
+                        state,
+                        dispatch,
+                        cacheContacts,
+                    ),
                 );
             }
         }

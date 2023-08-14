@@ -193,7 +193,7 @@ const getMessagesFromUser = (
     return null;
 };
 
-export const setContactSelectedFromCache = (
+export const setContactIndexSelectedFromCache = (
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
     cacheContacts: ContactPreview[],
@@ -209,7 +209,7 @@ export const setContactSelectedFromCache = (
         state.accounts.selectedContact?.account.profile?.publicEncryptionKey;
     const name = state.accounts.selectedContact?.account.ensName;
 
-    let index = cacheContacts.findIndex(
+    const index = cacheContacts.findIndex(
         (data) =>
             (key &&
                 data.contactDetails.account.profile?.publicEncryptionKey ===
