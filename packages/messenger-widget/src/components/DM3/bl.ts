@@ -3,7 +3,6 @@ import { EncryptionEnvelop, Postmark, MessageState } from 'dm3-lib-messaging';
 import { log } from 'dm3-lib-shared';
 import { UserDB } from 'dm3-lib-storage';
 import { requestContacts } from '../../adapters/contacts';
-import { Dm3Props } from '../../interfaces/config';
 import { Connection } from '../../interfaces/web3';
 import {
     Actions,
@@ -36,7 +35,6 @@ export function connectionPhase(connectionState: ConnectionState): boolean {
 export const getContacts = (
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
-    props: Dm3Props,
 ) => {
     if (!state.userDb) {
         throw Error(
