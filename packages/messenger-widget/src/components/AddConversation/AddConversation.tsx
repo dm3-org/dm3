@@ -4,7 +4,6 @@ import closeIcon from '../../assets/images/cross.svg';
 import { INPUT_FIELD_CLASS, addContact, closeConversationModal } from './bl';
 import { FormEvent, useContext, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
-import { SPACE_REGEX } from '../../utils/common-utils';
 
 export default function AddConversation() {
     const { state, dispatch } = useContext(GlobalContext);
@@ -18,7 +17,7 @@ export default function AddConversation() {
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
         setName(name.trim());
-        if (name.replace(SPACE_REGEX, '').length) {
+        if (name.length) {
             addContact(
                 name,
                 state,

@@ -140,7 +140,6 @@ export async function getContacts(
         ensName: profileContainer.ensName,
         profile: profileContainer.profile?.profile,
     }));
-
 }
 
 export async function addContact(

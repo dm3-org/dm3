@@ -136,7 +136,6 @@ const updateStates = (
     resetInputFieldClass: Function,
     normalizedAccountName: string,
 ) => {
-
     // set contact to none
     dispatch({
         type: AccountsType.SetSelectedContact,

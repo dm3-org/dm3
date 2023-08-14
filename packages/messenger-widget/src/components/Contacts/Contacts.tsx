@@ -5,7 +5,7 @@ import {
     onContactSelected,
     setContactHeightToMaximum,
     setContactList,
-    setContactSelectedFromCache,
+    setContactIndexSelectedFromCache,
     updateContactOnAccountChange,
     updateSelectedContact,
 } from './bl';
@@ -113,7 +113,7 @@ export function Contacts(props: DashboardProps) {
                 updateSelectedContact(state, dispatch, setContactFromList);
             } else if (state.accounts.selectedContact) {
                 setContactSelected(
-                    setContactSelectedFromCache(state, cacheContacts),
+                    setContactIndexSelectedFromCache(state, cacheContacts),
                 );
             }
         }
@@ -144,7 +144,7 @@ export function Contacts(props: DashboardProps) {
             setContacts(cacheContacts);
             if (state.accounts.selectedContact) {
                 setContactSelected(
-                    setContactSelectedFromCache(state, cacheContacts),
+                    setContactIndexSelectedFromCache(state, cacheContacts),
                 );
             }
         }

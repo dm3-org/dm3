@@ -100,7 +100,7 @@ export const getMessagesFromUser = (
     return null;
 };
 
-export const setContactSelectedFromCache = (
+export const setContactIndexSelectedFromCache = (
     state: GlobalState,
     cacheContacts: ContactPreview[],
 ): number | null => {
