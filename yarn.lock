@@ -6924,9 +6924,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001517":
-  version: 1.0.30001519
-  resolution: "caniuse-lite@npm:1.0.30001519"
-  checksum: 66085133ede05d947e30b62fed2cbae18e5767afda8b0de38840883e1cfe5846bf1568ddbafd31647544e59112355abedaf9c867ac34541bfc20d69e7a19d94c
+  version: 1.0.30001520
+  resolution: "caniuse-lite@npm:1.0.30001520"
+  checksum: 59991ad8f36cf282f81abbcc6074c3097c21914cdd54bd2b3f73ac9462f57fc74e90371cd22bcdff4d085d09da42a07dcea384cb81e4ac260496e1bd79e1fe7c
   languageName: node
   linkType: hard
 
@@ -8443,9 +8443,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"dm3-safe@workspace:packages/dm3-safe":
+"dm3-web@workspace:packages/dm3-safe":
   version: 0.0.0-use.local
-  resolution: "dm3-safe@workspace:packages/dm3-safe"
+  resolution: "dm3-web@workspace:packages/dm3-safe"
   dependencies:
     "@gnosis.pm/safe-react-components": ^1.2.0
     "@material-ui/core": ^4.12.4
@@ -8724,9 +8724,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.477":
-  version: 1.4.490
-  resolution: "electron-to-chromium@npm:1.4.490"
-  checksum: c81bf177ff64ceb54fa90f715f1d52fb9106b0ef4426b816c4ae0471c562d8f4d110531df1a164ce17eda13ad9481f6bcd15f1368b6d5442a1d2f93102ef221a
+  version: 1.4.491
+  resolution: "electron-to-chromium@npm:1.4.491"
+  checksum: 8d96c720c808a694b907b7a9d63da89f739374f90adb9db3d2b065a8e05de5548caf1b6ab0eade3150947cdefc962d342edc6d69c68ef489ecdd45e92a17677c
   languageName: node
   linkType: hard
 
