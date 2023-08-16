@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import {
     AccountsType,
     Actions,
+    CacheType,
     GlobalState,
     LeftViewSelected,
     ModalStateType,
@@ -9,8 +10,14 @@ import {
     UiViewStateType,
     UserDbType,
 } from '../../utils/enum-type-utils';
-import { formatAddress, normalizeEnsName } from 'dm3-lib-profile';
+import {
+    formatAddress,
+    getAccountDisplayName,
+    normalizeEnsName,
+} from 'dm3-lib-profile';
 import { closeLoader, startLoader } from '../Loader/Loader';
+import { ContactPreview, NewContact } from '../../interfaces/utils';
+import humanIcon from '../../assets/images/human.svg';
 
 // class for input field
 export const INPUT_FIELD_CLASS =
@@ -18,7 +25,7 @@ export const INPUT_FIELD_CLASS =
 
 // method to open the conversation modal
 export const openConversationModal = () => {
-    let modal: HTMLElement = document.getElementById(
+    const modal: HTMLElement = document.getElementById(
         'conversation-modal',
     ) as HTMLElement;
     modal.style.display = 'block';
@@ -30,7 +37,7 @@ export const closeConversationModal = (
     showErrorMessage: Function,
     resetInputFieldClass: Function,
 ) => {
-    let modal: HTMLElement = document.getElementById(
+    const modal: HTMLElement = document.getElementById(
         'conversation-modal',
     ) as HTMLElement;
     modal.style.display = 'none';
@@ -83,10 +90,12 @@ export const addContact = async (
 
         // update states
         updateStates(
+            state,
             dispatch,
             resetName,
             showErrorMessage,
             resetInputFieldClass,
+            normalizedAccountName,
         );
     } else {
         // check if contact already exists else create new conversation
@@ -101,10 +110,12 @@ export const addContact = async (
         } else {
             // update states
             updateStates(
+                state,
                 dispatch,
                 resetName,
                 showErrorMessage,
                 resetInputFieldClass,
+                normalizedAccountName,
             );
 
             // create empty conversation
@@ -118,13 +129,56 @@ export const addContact = async (
 
 // updates states and closes modal
 const updateStates = (
+    state: GlobalState,
     dispatch: React.Dispatch<Actions>,
     resetName: Function,
     showErrorMessage: Function,
     resetInputFieldClass: Function,
+    normalizedAccountName: string,
 ) => {
+    // remove selected contact
+    dispatch({
+        type: AccountsType.SetSelectedContact,
+        payload: undefined,
+    });
+
+    // add new contact item in the list
+    const newContact: ContactPreview = {
+        name: getAccountDisplayName(normalizedAccountName, 25),
+        message: null,
+        image: humanIcon,
+        contactDetails: {
+            account: {
+                ensName: normalizedAccountName,
+                profile: undefined,
+                profileSignature: undefined,
+            },
+            deliveryServiceProfile: undefined,
+        },
+    };
+
+    // add new contact in cached contact list
+    dispatch({
+        type: CacheType.Contacts,
+        payload: state.cache.contacts
+            ? [...state.cache.contacts, newContact]
+            : [newContact],
+    });
+
     // close the modal
     closeConversationModal(resetName, showErrorMessage, resetInputFieldClass);
+
+    const addConversationData: NewContact = {
+        active: true,
+        ensName: normalizedAccountName,
+        processed: false,
+    };
+
+    // set new contact data
+    dispatch({
+        type: ModalStateType.AddConversationData,
+        payload: addConversationData,
+    });
 
     // set left view to contacts
     dispatch({

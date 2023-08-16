@@ -79,12 +79,12 @@ export const hideContact = (
 // method to close profile/contact info page
 export const onClose = (dispatch: React.Dispatch<Actions>) => {
     dispatch({
-        type: UiViewStateType.SetSelectedRightView,
-        payload: RightViewSelected.Default,
-    });
-    dispatch({
         type: AccountsType.SetSelectedContact,
         payload: undefined,
+    });
+    dispatch({
+        type: UiViewStateType.SetSelectedRightView,
+        payload: RightViewSelected.Default,
     });
 };
 
