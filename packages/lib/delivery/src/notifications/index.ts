@@ -1,38 +1,73 @@
+/* eslint-disable max-len */
 import { DeliveryInformation } from 'dm3-lib-messaging';
-import { logError } from 'dm3-lib-shared';
+import { DeliveryServiceProperties } from '../Delivery';
+import { Email } from './channels/Email';
+import {
+    GetNotificationChannels,
+    INotificationBroker,
+    INotificationChannel,
+    NotifificationChannelType,
+} from './types';
 
-export const setupNotficationBroker = (supportedChannels: {
-    [key in NotifificationChannelType]: SubmitNotification;
-}) => {
+/**
+ * Sets up the notification broker with supported notification channels.
+ * Separated from the NotificationBroker function to make it testable.
+ * @param {INotificationChannel[]} supportedChannels - List of supported notification channels by the deliveryService.
+ * @returns {INotificationBroker} Object with a method to send notifications.
+ */
+export const _setupNotficationBroker = (
+    supportedChannels: INotificationChannel[],
+): INotificationBroker => {
     async function sendNotification(
         deliveryInformation: DeliveryInformation,
         getNotificationChannels: GetNotificationChannels,
     ) {
-        const channels = await getNotificationChannels(deliveryInformation.to);
+        //Get users notification channels from DB
+        const usersNotificationChannels = await getNotificationChannels(
+            deliveryInformation.to,
+        );
 
-        channels.forEach((channel) => {
-            const send = supportedChannels[channel.type];
-            if (!send) {
-                logError(`Channel type ${channel.type} is not supported`);
-                return;
-            }
-            send(channel.data);
-        });
+        await Promise.all(
+            usersNotificationChannels.map(async (channel) => {
+                const c = supportedChannels.find(
+                    (c) => c.type === channel.type,
+                );
+                //User specified a channel that is not supported.
+                //This should be prevented by refusing any schema that allows to provide a channel that is not supported
+                if (!c) {
+                    throw new Error(
+                        `Channel type ${channel.type} is not supported`,
+                    );
+                }
+                return c.send(channel.config, deliveryInformation);
+            }),
+        );
     }
-
     return { sendNotification };
 };
 
-export enum NotifificationChannelType {
-    EMAIL,
-}
+/**
+ * Creates a notification broker based on the provided notification channels.
+ * @param {DeliveryServiceProperties} options - Delivery service properties including notification channels.
+ * @returns {INotificationBroker} An instance of the notification broker.
+ * @throws {Error} If an unsupported channel type is encountered.
+ */
+export const NotficationBroker = ({
+    notificationChannel,
+}: DeliveryServiceProperties): INotificationBroker => {
+    const channels = notificationChannel.map((channel) => {
+        switch (channel.type) {
+            case NotifificationChannelType.EMAIL:
+                return {
+                    type: NotifificationChannelType.EMAIL,
+                    send: Email(channel.config).send,
+                };
+            default:
+                throw new Error(
+                    `Channel type ${channel.type} is not supported`,
+                );
+        }
+    });
 
-export interface INotificatationChannel {
-    type: NotifificationChannelType;
-    data: any;
-}
-export type SubmitNotification = (data: any) => void;
-
-export type GetNotificationChannels = (
-    user: string,
-) => Promise<INotificatationChannel[]>;
+    return _setupNotficationBroker(channels);
+};
