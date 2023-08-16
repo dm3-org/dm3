@@ -18,7 +18,7 @@ import {
 } from 'dm3-lib-storage';
 import { Account } from 'dm3-lib-profile';
 import { Connection } from '../interfaces/web3';
-import { ContactPreview } from '../interfaces/utils';
+import { ContactPreview, NewContact } from '../interfaces/utils';
 
 export type ActionMap<M extends { [index: string]: any }> = {
     [Key in keyof M]: M[Key] extends undefined
@@ -252,10 +252,12 @@ export type UiViewStateActions =
 
 export enum ModalStateType {
     LoaderContent = 'LOADER_CONTENT',
+    AddConversationData = 'ADD_CONVERSATION_DATA',
 }
 
 export type ModalStatePayload = {
     [ModalStateType.LoaderContent]: string;
+    [ModalStateType.AddConversationData]: NewContact;
 };
 
 export type ModalStateActions =

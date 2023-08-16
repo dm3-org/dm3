@@ -4,7 +4,7 @@ import {
     RightViewSelected,
     SelectedRightView,
 } from '../utils/enum-type-utils';
-import { ContactPreview } from './utils';
+import { ContactPreview, NewContact } from './utils';
 
 export interface Contact {
     account: Account;
@@ -47,6 +47,7 @@ export interface GlobalContextProviderProps {
 
 export interface Modal {
     loaderContent: string;
+    addConversation: NewContact;
 }
 
 export interface UiViewState {
