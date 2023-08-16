@@ -2,44 +2,39 @@ import './Contacts.css';
 import threeDotsIcon from '../../assets/images/three-dots.svg';
 import { ContactPreview } from '../../interfaces/utils';
 import {
-    MouseOut,
-    MouseOver,
-    fetchAndSetContacts,
     onContactSelected,
-    removedSelectedContact,
     setContactHeightToMaximum,
+    setContactList,
     setContactIndexSelectedFromCache,
-    updateStickyStyleOnSelect,
+    updateContactOnAccountChange,
+    updateSelectedContact,
 } from './bl';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import { DashboardProps } from '../../interfaces/props';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { globalConfig } from 'dm3-lib-shared';
-import {
-    CacheType,
-    ModalStateType,
-    RightViewSelected,
-} from '../../utils/enum-type-utils';
+import { ModalStateType, RightViewSelected } from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
+import loader from '../../assets/images/loader.svg';
 
 export function Contacts(props: DashboardProps) {
     // fetches context api data
     const { state, dispatch } = useContext(GlobalContext);
 
-    // state to handle contact activeness
+    // local states to handle contact list and active contact
     const [contactSelected, setContactSelected] = useState<number | null>(null);
     const [contacts, setContacts] = useState<ContactPreview[]>([]);
     const [openMenu, setOpenMenu] = useState<boolean>(false);
 
-    // fetches and sets contact
-    const setContactList = async () => {
-        const data: ContactPreview[] = await fetchAndSetContacts(state);
-        dispatch({
-            type: CacheType.Contacts,
-            payload: data,
-        });
-        setContacts(data);
+    // sets contact list to show on UI
+    const setListOfContacts = (list: ContactPreview[]) => {
+        setContacts(list);
+    };
+
+    // sets contact selected from the list
+    const setContactFromList = (index: number | null) => {
+        setContactSelected(index);
     };
 
     // fetches sub domain of ENS
@@ -73,7 +68,7 @@ export function Contacts(props: DashboardProps) {
             });
             startLoader();
             props.getContacts(state, dispatch, props.dm3Props);
-            setContactList();
+            setContactList(state, dispatch, setListOfContacts);
         }
     }, [state.auth?.currentSession?.token, state.connection.socket]);
 
@@ -86,14 +81,52 @@ export function Contacts(props: DashboardProps) {
             });
             startLoader();
             props.getContacts(state, dispatch, props.dm3Props);
-            setContactList();
         }
     }, [state.userDb?.conversations, state.userDb?.conversationsCount]);
 
     // handles change in accounts
     useEffect(() => {
-        setContactList();
-    }, [state.accounts]);
+        if (
+            !state.accounts.selectedContact &&
+            (state.uiView.selectedRightView === RightViewSelected.Chat ||
+                state.uiView.selectedRightView === RightViewSelected.Default)
+        ) {
+            setContactList(state, dispatch, setListOfContacts);
+        } else if (
+            state.modal.addConversation.active &&
+            state.modal.addConversation.processed
+        ) {
+            updateContactOnAccountChange(
+                state,
+                dispatch,
+                contacts,
+                setListOfContacts,
+            );
+        }
+    }, [state.accounts.contacts]);
+
+    // handles contact selected
+    useEffect(() => {
+        const cacheContacts = state.cache.contacts;
+
+        if (cacheContacts) {
+            setContacts(cacheContacts);
+            if (
+                state.modal.addConversation.active &&
+                !state.modal.addConversation.processed
+            ) {
+                updateSelectedContact(state, dispatch, setContactFromList);
+            } else if (state.accounts.selectedContact) {
+                setContactSelected(
+                    setContactIndexSelectedFromCache(
+                        state,
+                        dispatch,
+                        cacheContacts,
+                    ),
+                );
+            }
+        }
+    }, [state.accounts.selectedContact]);
 
     // handles active contact removal
     useEffect(() => {
@@ -102,7 +135,6 @@ export function Contacts(props: DashboardProps) {
             state.uiView.selectedRightView !== RightViewSelected.Chat &&
             state.uiView.selectedRightView !== RightViewSelected.ContactInfo
         ) {
-            removedSelectedContact(contactSelected);
             setContactSelected(null);
         }
     }, [state.uiView.selectedRightView]);
@@ -117,7 +149,7 @@ export function Contacts(props: DashboardProps) {
     // fetched contacts from the cache
     useEffect(() => {
         const cacheContacts = state.cache.contacts;
-        if (cacheContacts) {
+        if (cacheContacts && !contacts) {
             setContacts(cacheContacts);
             if (state.accounts.selectedContact) {
                 setContactSelected(
@@ -131,6 +163,17 @@ export function Contacts(props: DashboardProps) {
         }
     }, [state.cache.contacts]);
 
+    // handles UI view on contact select
+    useEffect(() => {
+        if (contactSelected !== null) {
+            onContactSelected(
+                state,
+                dispatch,
+                contacts[contactSelected].contactDetails,
+            );
+        }
+    }, [contactSelected]);
+
     /* Hidden content for highlighting css */
     const hiddenData: number[] = Array.from({ length: 14 }, (_, i) => i + 1);
 
@@ -143,81 +186,54 @@ export function Contacts(props: DashboardProps) {
         >
             {contacts.length > 0 &&
                 contacts.map((data, index) => (
-                    <div key={index} id={'contact-container-' + index}>
+                    <div
+                        key={index}
+                        className={'pointer-cursor width-fill contact-details-container'.concat(
+                            ' ',
+                            contactSelected != null
+                                ? contactSelected !== index
+                                    ? 'highlight-right-border'
+                                    : 'contact-details-container-active'
+                                : '',
+                        )}
+                        onClick={() => setContactSelected(index)}
+                    >
                         <div
-                            className={'pointer-cursor width-fill contact-details-container'.concat(
-                                ' ',
-                                contactSelected !== null
-                                    ? contactSelected === index
-                                        ? 'active-contact-border background-active-contact'
-                                        : 'highlight-right-border'
-                                    : '',
-                            )}
-                            onMouseOver={(e: React.MouseEvent) =>
-                                MouseOver(
-                                    e,
-                                    'normal-btn',
-                                    index,
-                                    contactSelected !== null
-                                        ? contactSelected
-                                        : null,
-                                    closeContactMenu,
-                                )
-                            }
-                            onMouseOut={(e: React.MouseEvent) =>
-                                MouseOut(e, 'normal-btn', index)
-                            }
-                            onClick={(e: any) => {
-                                setContactSelected(index);
-                                updateStickyStyleOnSelect(index);
-                                onContactSelected(
-                                    e,
-                                    index,
-                                    'normal-btn-hover',
-                                    'background-active-contact',
-                                    state,
-                                    dispatch,
-                                    data.contactDetails,
-                                );
-                            }}
+                            className="col-12 d-flex flex-row align-items-center 
+                                justify-content-start width-fill"
                         >
-                            <div
-                                className="col-12 d-flex flex-row align-items-center justify-content-start width-fill"
-                                key={index}
-                            >
-                                <div>
-                                    <img
-                                        src={data.image}
-                                        alt="profile-pic"
-                                        className="border-radius-6 pic"
-                                    />
-                                </div>
+                            <div>
+                                <img
+                                    src={data.image}
+                                    alt="profile-pic"
+                                    className="border-radius-6 pic"
+                                />
+                            </div>
 
-                                <div className="d-flex flex-column font-size-12 width-fill content">
-                                    <div
-                                        className="d-flex flex-row font-weight-500 justify-content-between 
+                            <div className="d-flex flex-column font-size-12 width-fill content">
+                                <div
+                                    className="d-flex flex-row font-weight-500 justify-content-between 
                                     text-primary-color"
-                                    >
-                                        <div>
-                                            <p>{data.name}</p>
-                                        </div>
+                                >
+                                    <div>
+                                        <p>{data.name}</p>
+                                    </div>
 
-                                        <div
-                                            className="display-none"
-                                            id={'contact-' + index}
-                                        >
-                                            <div className="action-container">
-                                                <img
-                                                    className="action-dot"
-                                                    src={threeDotsIcon}
-                                                    alt="action"
-                                                    onClick={() => {
-                                                        setOpenMenu(!openMenu);
-                                                    }}
-                                                />
-                                                {openMenu &&
-                                                    index ===
-                                                        contactSelected && (
+                                    {contactSelected === index ? (
+                                        !state.modal.addConversation.active ? (
+                                            <div>
+                                                <div className="action-container">
+                                                    <img
+                                                        className="action-dot"
+                                                        src={threeDotsIcon}
+                                                        alt="action"
+                                                        onClick={() => {
+                                                            setOpenMenu(
+                                                                !openMenu,
+                                                            );
+                                                        }}
+                                                    />
+                                                    {openMenu && (
                                                         <ContactMenu
                                                             closeContactMenu={
                                                                 closeContactMenu
@@ -227,15 +243,26 @@ export function Contacts(props: DashboardProps) {
                                                             }
                                                         />
                                                     )}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
+                                        ) : (
+                                            <div className="pe-2">
+                                                <img
+                                                    className="rotating"
+                                                    src={loader}
+                                                    alt="loader"
+                                                />
+                                            </div>
+                                        )
+                                    ) : (
+                                        <></>
+                                    )}
+                                </div>
 
-                                    <div className="text-primary-color">
-                                        <p className="contacts-msg">
-                                            {data.message}
-                                        </p>
-                                    </div>
+                                <div className="text-primary-color">
+                                    <p className="contacts-msg">
+                                        {data.message}
+                                    </p>
                                 </div>
                             </div>
                         </div>

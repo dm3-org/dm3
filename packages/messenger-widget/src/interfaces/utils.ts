@@ -23,3 +23,9 @@ export interface ContactInfo {
     address: string;
     image: string;
 }
+
+export interface NewContact {
+    active: boolean;
+    ensName: string | undefined;
+    processed: boolean;
+}

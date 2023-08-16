@@ -108,7 +108,7 @@ input:focus {
     z-index: 1;
     border: 1px solid #000000;
     border-radius: 5px;
-    margin-top: 1.2rem;
+    margin-top: 0.5rem;
     margin-left: -9rem;
 }
 

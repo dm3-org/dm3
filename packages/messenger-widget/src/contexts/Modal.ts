@@ -11,6 +11,16 @@ export function modalReducer(state: Modal, action: ModalStateActions): Modal {
                 loaderContent: action.payload,
             };
 
+        case ModalStateType.AddConversationData:
+            log(
+                `[New Conversation] set new conversation content ${action.payload}`,
+                'info',
+            );
+            return {
+                ...state,
+                addConversation: action.payload,
+            };
+
         default:
             return state;
     }
