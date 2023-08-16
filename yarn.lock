@@ -5284,6 +5284,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/nodemailer@npm:^6.4.9":
+  version: 6.4.9
+  resolution: "@types/nodemailer@npm:6.4.9"
+  dependencies:
+    "@types/node": "*"
+  checksum: fd903f38af782c4d3ac0aedc7e6b26bd91bf38183da0027559dfd269e956401114d977a903c69a90897c5b773e76fd9c8f261e787643ca4231edba91f209fa8d
+  languageName: node
+  linkType: hard
+
 "@types/normalize-package-data@npm:^2.4.0":
   version: 2.4.1
   resolution: "@types/normalize-package-data@npm:2.4.1"
@@ -10896,6 +10905,7 @@ __metadata:
     "@types/jest": ^28.1.1
     "@types/libsodium-wrappers": ^0.7.10
     "@types/node": ^16.7.13
+    "@types/nodemailer": ^6.4.9
     "@types/uuid": ^8.3.4
     "@types/whatwg-encoding": ^2.0.0
     ajv: ^8.11.0
@@ -10908,6 +10918,7 @@ __metadata:
     googleapis: ^100.0.0
     jest: ^28.1.1
     libsodium-wrappers: ^0.7.10
+    nodemailer: ^6.9.4
     query-string: ^7.1.1
     safe-stable-stringify: ^2.4.1
     socket.io: ^4.4.1
@@ -19125,6 +19136,13 @@ __metadata:
     util: ^0.12.4
     vm-browserify: ^1.0.1
   checksum: fe491f0839319fd9bb95964c6f7da81fc7fde4c3ac9062aa367f19bc5a6060d0d9e423d3de4196cb51f8259d6aaf6cf380048c48a86eb3721c6223dd0dcc5bfd
+  languageName: node
+  linkType: hard
+
+"nodemailer@npm:^6.9.4":
+  version: 6.9.4
+  resolution: "nodemailer@npm:6.9.4"
+  checksum: 1a61039c9c6041ee9ed423c7fa3685cb300679f1ef8dcfd912fc58d9b8c429c34ac1187eebd4d86baf7158222f6e3a1ea2b4fd2a29630fb9ef0027cef46e90bb
   languageName: node
   linkType: hard
 
