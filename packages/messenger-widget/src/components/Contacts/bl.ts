@@ -2,9 +2,9 @@ import { normalizeEnsName, getAccountDisplayName } from 'dm3-lib-profile';
 import { UserDB, getConversation } from 'dm3-lib-storage';
 import { ContactPreview } from '../../interfaces/utils';
 import {
-    AccountInfo,
     AccountsType,
     Actions,
+    CacheType,
     GlobalState,
     ModalStateType,
     RightViewSelected,
@@ -14,90 +14,11 @@ import { Contact } from '../../interfaces/context';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
 import { closeLoader, startLoader } from '../Loader/Loader';
 
-// Updates the style of particular contact item on hover
-export function MouseOver(
-    event: React.MouseEvent,
-    className: string,
-    index: number,
-    selectedContactIndex: number | null,
-    closeContactMenu: Function,
-) {
-    // highlight background only if contact is not selected
-    if (selectedContactIndex !== index) {
-        event.currentTarget.classList.add(className);
-        event.currentTarget.classList.add('contact-details-container-hover');
-        // close the contact menu option
-        closeContactMenu();
-    }
-    // show three dots icon only when contact is selected and remove hover class
-    if (selectedContactIndex === index) {
-        const actionItem: any = document.getElementById('contact-' + index);
-        event.currentTarget.classList.remove('contact-details-container-hover');
-        actionItem.style.display = 'block';
-    }
-}
-
-// Updates the style of particular contact item on hover removal
-export function MouseOut(
-    event: React.MouseEvent,
-    className: string,
-    index: number,
-) {
-    event.currentTarget.classList.remove(className);
-    const actionItem: any = document.getElementById('contact-' + index);
-    actionItem.style.display = 'none';
-}
-
-// updates the style of sticky to top and bottom
-export const updateStickyStyleOnSelect = (index: number) => {
-    // fetch element to be marked as sticky
-    const item: HTMLElement = document.getElementById(
-        'contact-container-' + index,
-    ) as HTMLElement;
-
-    // remove sticky css from last selected contact
-    const allElements = document.querySelectorAll('*');
-    if (allElements && allElements.length) {
-        allElements.forEach((element) => {
-            element.classList.remove('sticky-on-selected-contact');
-        });
-    }
-
-    if (item) {
-        // add sticky css
-        item.classList.add('sticky-on-selected-contact');
-    }
-};
-
-// Updates the style of particular contact item on click
 export const onContactSelected = (
-    event: any,
-    index: number,
-    classOne: string,
-    classTwo: string,
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
     contact: Contact,
 ) => {
-    // remove normal hover css
-    event.currentTarget.classList.remove(classOne);
-
-    // remove highlighted css
-    event.currentTarget.classList.remove('contact-details-container-hover');
-
-    // remove click css from entire list
-    const allElements = document.querySelectorAll('*');
-    allElements.forEach((element) => {
-        element.classList.remove(classOne);
-        element.classList.remove(classTwo);
-        element.classList.remove('contact-hover-effect');
-    });
-
-    // add click css
-    event.currentTarget.classList.add(classTwo);
-    const actionItem: any = document.getElementById('contact-' + index);
-    actionItem.classList.add('contact-hover-effect');
-
     // set selected contact
     dispatch({
         type: AccountsType.SetSelectedContact,
@@ -113,16 +34,6 @@ export const onContactSelected = (
     }
 };
 
-// removes active contact style
-export const removedSelectedContact = (index: number) => {
-    const item: HTMLElement = document.getElementById(
-        'contact-container-' + index,
-    ) as HTMLElement;
-    item.classList.remove('sticky-on-selected-contact');
-    const innerItem = item.firstChild as HTMLElement;
-    innerItem.classList.remove('background-active-contact');
-};
-
 // sets height of the left view according to content
 export const setContactHeightToMaximum = (isProfileConfigured: boolean) => {
     const element = document.getElementsByClassName(
@@ -135,7 +46,7 @@ export const setContactHeightToMaximum = (isProfileConfigured: boolean) => {
 export const fetchAndSetContacts = async (
     state: GlobalState,
 ): Promise<ContactPreview[]> => {
-    let actualContactList: ContactPreview[] = [];
+    const actualContactList: ContactPreview[] = [];
 
     // fetch contacts list
     const contactList = state.accounts.contacts
@@ -151,22 +62,19 @@ export const fetchAndSetContacts = async (
 
     if (contactList.length) {
         // iterate each record and set data fetched from provider
-        for (let index = 0; index < contactList.length; index++) {
+        for (const contact of contactList) {
             actualContactList.push({
-                name: getAccountDisplayName(
-                    contactList[index].account.ensName,
-                    25,
-                ),
+                name: getAccountDisplayName(contact.account.ensName, 25),
                 message: getMessagesFromUser(
-                    contactList[index].account.ensName,
+                    contact.account.ensName,
                     state.userDb as UserDB,
                     contactList,
                 ),
                 image: await getAvatarProfilePic(
                     state,
-                    contactList[index].account.ensName,
+                    contact.account.ensName,
                 ),
-                contactDetails: contactList[index],
+                contactDetails: contact,
             });
         }
     }
@@ -174,7 +82,7 @@ export const fetchAndSetContacts = async (
     return actualContactList;
 };
 
-const getMessagesFromUser = (
+export const getMessagesFromUser = (
     ensName: string,
     userDB: UserDB,
     contacts: Contact[],
@@ -221,4 +129,100 @@ export const setContactIndexSelectedFromCache = (
     closeLoader();
 
     return index > -1 ? index : null;
+};
+
+// fetches and sets contact
+export const setContactList = async (
+    state: GlobalState,
+    dispatch: React.Dispatch<Actions>,
+    setListOfContacts: Function,
+) => {
+    const cacheList = state.cache.contacts;
+    if (cacheList && cacheList.length) {
+        setListOfContacts(cacheList);
+    } else {
+        const data: ContactPreview[] = await fetchAndSetContacts(state);
+        dispatch({
+            type: CacheType.Contacts,
+            payload: data,
+        });
+        setListOfContacts(data);
+    }
+};
+
+export const updateSelectedContact = (
+    state: GlobalState,
+    dispatch: React.Dispatch<Actions>,
+    setContactFromList: Function,
+) => {
+    if (state.cache.contacts) {
+        const index = state.cache.contacts?.length - 1;
+        dispatch({
+            type: AccountsType.SetSelectedContact,
+            payload: state.cache.contacts[index].contactDetails,
+        });
+        setContactFromList(index);
+        const stateData = state.modal.addConversation;
+        stateData.processed = true;
+        dispatch({
+            type: ModalStateType.AddConversationData,
+            payload: stateData,
+        });
+    }
+};
+
+// updates contact list on account change when new contact is added
+export const updateContactOnAccountChange = async (
+    state: GlobalState,
+    dispatch: React.Dispatch<Actions>,
+    contacts: ContactPreview[],
+    setListOfContacts: Function,
+) => {
+    if (state.accounts.contacts) {
+        // filter out the new conversation added
+        const itemList = state.accounts.contacts.filter(
+            (data) =>
+                data.account.ensName === state.modal.addConversation.ensName,
+        );
+
+        if (itemList.length && state.cache.contacts) {
+            // fetch last added contact
+            const lastIndex = state.cache.contacts.length - 1;
+            const items = [...state.cache.contacts];
+            const item = { ...items[lastIndex] };
+
+            // update the contact details
+            item.contactDetails = itemList[0];
+            item.message = getMessagesFromUser(
+                state.modal.addConversation.ensName as string,
+                state.userDb as UserDB,
+                state.accounts.contacts,
+            );
+            item.image = await getAvatarProfilePic(
+                state,
+                state.modal.addConversation.ensName as string,
+            );
+            items[lastIndex] = item;
+
+            // update cached contact list
+            dispatch({
+                type: CacheType.Contacts,
+                payload: items,
+            });
+
+            // update the current contact list
+            const newList = [...contacts];
+            newList[lastIndex] = item;
+            setListOfContacts(newList);
+
+            // update the modal data as conversation is added
+            const stateData = state.modal.addConversation;
+            stateData.active = false;
+            stateData.processed = false;
+            dispatch({
+                type: ModalStateType.AddConversationData,
+                payload: stateData,
+            });
+        }
+    }
 };

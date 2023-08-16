@@ -18,14 +18,6 @@
 
 .contact-details-container {
     padding: 0.5rem 0.5rem 0.5rem 1rem;
-    border-top-left-radius: 8px;
-    border-bottom-left-radius: 8px;
-}
-
-.contact-details-container-hover {
-    border-radius: 0px !important;
-    padding-left: 2.5rem;
-    margin-left: -1.5rem;
 }
 
 .pic {
@@ -41,18 +33,11 @@
     margin-bottom: 0;
 }
 
-.contact-hover-effect {
-    margin-left: -1rem;
-    padding-left: 1rem;
-}
-
 .action-container {
-    height: fit-content;
-    width: fit-content;
-    display: flex;
     border-radius: 3px;
     border: 1px solid var(--text-primary-color);
     position: relative;
+    padding: 0px 2px 0px 2px;
 }
 
 .action-container:hover {
@@ -60,8 +45,8 @@
 }
 
 .action-dot {
-    height: 0.9rem;
-    width: 0.9rem;
+    height: 0.8rem;
+    width: 0.8rem;
 }
 
 .contacts-msg {
@@ -70,22 +55,6 @@
     -webkit-line-clamp: 2;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-}
-
-.sticky-on-selected-contact {
-    top: 0;
-    bottom: 0;
-    position: sticky;
-    background-image: linear-gradient(
-        to right top,
-        #000000,
-        #0e0a0d,
-        #171317,
-        #1c1920,
-        #1f2029
-    );
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
 }
 
 .hidden-data {
@@ -97,4 +66,25 @@
     border-top: 2px solid var(--normal-btn-hover);
     border-left: 2px solid var(--normal-btn-hover);
     border-bottom: 2px solid var(--normal-btn-hover);
+}
+
+.contact-details-container:hover {
+    border-radius: 0px;
+    padding-left: 2.5rem;
+    margin-left: -1.5rem;
+    background-color: var(--normal-btn);
+}
+
+.contact-details-container-active {
+    border-top: 2px solid var(--normal-btn-hover) !important;
+    border-left: 2px solid var(--normal-btn-hover) !important;
+    border-bottom: 2px solid var(--normal-btn-hover) !important;
+    background: linear-gradient(-259deg, #544393, #1F2029) !important;
+    top: 0;
+    bottom: 0;
+    position: sticky;
+    border-top-left-radius: 10px !important;
+    border-bottom-left-radius: 10px !important;
+    padding-left: 0.5rem !important;
+    margin-left: 0.5rem !important;
 }

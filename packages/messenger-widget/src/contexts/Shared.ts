@@ -46,5 +46,10 @@ export const initialState: GlobalState = {
     },
     modal: {
         loaderContent: '',
+        addConversation: {
+            active: false,
+            ensName: undefined,
+            processed: false,
+        },
     },
 };
