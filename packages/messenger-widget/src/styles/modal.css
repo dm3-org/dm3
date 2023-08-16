@@ -41,3 +41,7 @@
 .err-background {
     background: var(--error-text) !important;
 }
+
+.invisible {
+    visibility: hidden;
+}
