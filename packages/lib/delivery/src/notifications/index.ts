@@ -5,9 +5,15 @@ import { Email } from './channels/Email';
 import {
     GetNotificationChannels,
     INotificationBroker,
-    INotificationChannel,
+    NotificationChannel,
     NotifificationChannelType,
 } from './types';
+
+// An interface for a notification channel.
+interface INotificationChannel {
+    type: NotifificationChannelType;
+    send: (config: any, deliveryInformation: DeliveryInformation) => void;
+}
 
 /**
  * Sets up the notification broker with supported notification channels.
@@ -29,17 +35,19 @@ export const _setupNotficationBroker = (
 
         await Promise.all(
             usersNotificationChannels.map(async (channel) => {
-                const c = supportedChannels.find(
-                    (c) => c.type === channel.type,
-                );
+                const deliveryServiceNotificationChannel =
+                    supportedChannels.find((c) => c.type === channel.type);
                 //User specified a channel that is not supported.
                 //This should be prevented by refusing any schema that allows to provide a channel that is not supported
-                if (!c) {
+                if (!deliveryServiceNotificationChannel) {
                     throw new Error(
                         `Channel type ${channel.type} is not supported`,
                     );
                 }
-                return c.send(channel.config, deliveryInformation);
+                return deliveryServiceNotificationChannel.send(
+                    channel.config,
+                    deliveryInformation,
+                );
             }),
         );
     }
@@ -52,9 +60,9 @@ export const _setupNotficationBroker = (
  * @returns {INotificationBroker} An instance of the notification broker.
  * @throws {Error} If an unsupported channel type is encountered.
  */
-export const NotficationBroker = ({
-    notificationChannel,
-}: DeliveryServiceProperties): INotificationBroker => {
+export const NotificationBroker = (
+    notificationChannel: NotificationChannel[],
+): INotificationBroker => {
     const channels = notificationChannel.map((channel) => {
         switch (channel.type) {
             case NotifificationChannelType.EMAIL:

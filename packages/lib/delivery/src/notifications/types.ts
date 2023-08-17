@@ -7,20 +7,13 @@ export enum NotifificationChannelType {
 
 //The properties of a notification channel.
 // Those properties are stored in the DB to let the user specify their notificatin channels
-export interface NotificatationChannelProperties {
+export interface NotificationChannel {
     type: NotifificationChannelType;
     config: any;
 }
-
-// An interface for a notification channel.
-export interface INotificationChannel {
-    type: NotifificationChannelType;
-    send: (config: any, deliveryInformation: DeliveryInformation) => void;
-}
-
 export type GetNotificationChannels = (
     user: string,
-) => Promise<NotificatationChannelProperties[]>;
+) => Promise<NotificationChannel[]>;
 
 export interface INotificationBroker {
     sendNotification: (
