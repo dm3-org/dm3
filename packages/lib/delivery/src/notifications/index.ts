@@ -44,7 +44,7 @@ export const _setupNotficationBroker = (
                         `Channel type ${channel.type} is not supported`,
                     );
                 }
-                return deliveryServiceNotificationChannel.send(
+                return await deliveryServiceNotificationChannel.send(
                     channel.config,
                     deliveryInformation,
                 );
