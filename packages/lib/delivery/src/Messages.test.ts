@@ -1,13 +1,19 @@
+import { decryptAsymmetric } from 'dm3-lib-crypto';
+import { DeliveryInformation, EncryptionEnvelop } from 'dm3-lib-messaging';
+import { UserProfile, normalizeEnsName } from 'dm3-lib-profile';
 import { BigNumber, ethers } from 'ethers';
 import { testData } from '../../../../test-data/encrypted-envelops.test';
-import { normalizeEnsName, UserProfile } from 'dm3-lib-profile';
-import { decryptAsymmetric } from 'dm3-lib-crypto';
-import { EncryptionEnvelop } from 'dm3-lib-messaging';
 import { stringify } from '../../shared/src/stringify';
 
 import { getConversationId, getMessages, incomingMessage } from './Messages';
 import { Session } from './Session';
 import { SpamFilterRules } from './spam-filter/SpamFilterRules';
+
+import realNodemailer, { createTransport } from 'nodemailer';
+import { NotifificationChannelType } from './notifications/types';
+import { NotificationBroker } from './notifications';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { MAIL_HTML, MAIL_SUBJECT } from './notifications/channels/Email';
 
 const SENDER_NAME = 'alice.eth';
 const RECEIVER_NAME = 'bob.eth';
@@ -93,6 +99,19 @@ const getSession = async (
     return null;
 };
 
+const getNotificationChannels = (user: string) => {
+    return Promise.resolve([]);
+};
+jest.mock('nodemailer');
+
+const sendMailMock = jest.fn();
+
+const nodemailer = require('nodemailer'); //doesn't work with import. idk why
+nodemailer.createTransport.mockReturnValue({
+    sendMail: sendMailMock,
+    close: () => {},
+});
+
 describe('Messages', () => {
     describe('incomingMessage', () => {
         it('rejctes an incoming message if the token is not valid', async () => {
@@ -123,6 +142,7 @@ describe('Messages', () => {
                     keysA.signingKeyPair,
                     keysA.encryptionKeyPair,
                     2 ** 14,
+                    [],
                     getSession,
                     storeNewMessage,
                     () => {},
@@ -131,6 +151,7 @@ describe('Messages', () => {
                             '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
                     } as any,
                     async () => '',
+                    getNotificationChannels,
                 ),
             ).rejects.toEqual(Error('Token check failed'));
         });
@@ -161,11 +182,13 @@ describe('Messages', () => {
                     keysA.signingKeyPair,
                     keysA.encryptionKeyPair,
                     1,
+                    [],
                     getSession,
                     storeNewMessage,
                     () => {},
                     {} as ethers.providers.JsonRpcProvider,
                     async () => '',
+                    getNotificationChannels,
                 ),
             ).rejects.toEqual(Error('Message is too large'));
         });
@@ -197,6 +220,7 @@ describe('Messages', () => {
                     keysA.signingKeyPair,
                     keysA.encryptionKeyPair,
                     2 ** 14,
+                    [],
                     getSession,
                     storeNewMessage,
                     () => {},
@@ -205,6 +229,7 @@ describe('Messages', () => {
                             '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
                     } as any,
                     async () => '',
+                    getNotificationChannels,
                 ),
             ).rejects.toEqual(Error('unknown session'));
         });
@@ -257,11 +282,13 @@ describe('Messages', () => {
                     keysA.signingKeyPair,
                     keysA.encryptionKeyPair,
                     2 ** 14,
+                    [],
                     session,
                     storeNewMessage,
                     () => {},
                     provider,
                     async () => '',
+                    getNotificationChannels,
                 );
                 fail();
             } catch (err: any) {
@@ -271,7 +298,7 @@ describe('Messages', () => {
             }
         });
         //TODO remove skip once spam-filter is implemented
-        it.skip('rejects message if the senders eth balance is below the threshold', async () => {
+        it('rejects message if the senders eth balance is below the threshold', async () => {
             //Mock the time so we can test the message with the incomming timestamp
             jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
 
@@ -320,11 +347,13 @@ describe('Messages', () => {
                     keysA.signingKeyPair,
                     keysA.encryptionKeyPair,
                     2 ** 14,
+                    [],
                     session,
                     storeNewMessage,
                     () => {},
                     provider,
                     async () => '',
+                    getNotificationChannels,
                 );
                 fail();
             } catch (err: any) {
@@ -390,11 +419,13 @@ describe('Messages', () => {
                     keysA.signingKeyPair,
                     keysA.encryptionKeyPair,
                     2 ** 14,
+                    [],
                     session,
                     storeNewMessage,
                     () => {},
                     provider,
                     async () => '',
+                    getNotificationChannels,
                 );
                 fail();
             } catch (err: any) {
@@ -404,9 +435,90 @@ describe('Messages', () => {
             }
         });
 
+        it('send mail after incoming message', async () => {
+            //Value stored at config
+            let messageContainer: {
+                conversationId?: string;
+                envelop?: EncryptionEnvelop;
+            } = {};
+
+            const storeNewMessage = async (
+                conversationId: string,
+                envelop: EncryptionEnvelop,
+            ) => {
+                messageContainer = { conversationId, envelop };
+            };
+
+            const sendMessageViaSocketMock = jest.fn();
+
+            const getNotificationChannels = (user: string) => {
+                return Promise.resolve([
+                    {
+                        type: NotifificationChannelType.EMAIL,
+                        config: { recipientAddress: 'joe@example.io' },
+                    },
+                ]);
+            };
+
+            await incomingMessage(
+                {
+                    envelop: {
+                        message: '',
+                        metadata: {
+                            version: '',
+                            encryptedMessageHash: '',
+                            signature: '',
+                            encryptionScheme: 'x25519-chacha20-poly1305',
+                            deliveryInformation: stringify(
+                                testData.deliveryInformation,
+                            ),
+                        },
+                    },
+                    token: '123',
+                },
+                keysA.signingKeyPair,
+                keysA.encryptionKeyPair,
+                2 ** 14,
+                [
+                    {
+                        type: NotifificationChannelType.EMAIL,
+                        config: {
+                            host: 'exmaple.host',
+                            port: 1234,
+                            secure: true,
+                            auth: {
+                                user: 'foo',
+                                pass: 'bar',
+                            },
+                            senderAddress: 'mail@dm3.org',
+                        },
+                    },
+                ],
+                getSession,
+                storeNewMessage,
+                sendMessageViaSocketMock,
+                {
+                    resolveName: async () =>
+                        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                } as any,
+                async (ensName) => ensName,
+                getNotificationChannels,
+            );
+
+            expect(sendMailMock).toHaveBeenCalledWith({
+                from: 'mail@dm3.org',
+                html: MAIL_HTML(testData.delvieryInformationBUnecrypted),
+                subject: MAIL_SUBJECT,
+                to: 'joe@example.io',
+            });
+            //Check if the message was submitted to the socket
+            expect(sendMessageViaSocketMock).not.toBeCalled();
+        });
         it('stores proper incoming message', async () => {
             //Mock the time so we can test the message with the incomming timestamp
             jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
+
+            //Value stored at config
 
             let messageContainer: {
                 conversationId?: string;
@@ -441,6 +553,7 @@ describe('Messages', () => {
                 keysA.signingKeyPair,
                 keysA.encryptionKeyPair,
                 2 ** 14,
+                [],
                 getSession,
                 storeNewMessage,
                 sendMock,
@@ -449,6 +562,7 @@ describe('Messages', () => {
                         '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
                 } as any,
                 async (ensName) => ensName,
+                getNotificationChannels,
             );
 
             const conversationId = getConversationId('alice.eth', 'bob.eth');
@@ -528,6 +642,7 @@ describe('Messages', () => {
                 keysA.signingKeyPair,
                 keysA.encryptionKeyPair,
                 2 ** 14,
+                [],
                 _getSession,
                 storeNewMessage,
                 sendMock,
@@ -536,6 +651,7 @@ describe('Messages', () => {
                         '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
                 } as any,
                 async (ensName) => ensName,
+                getNotificationChannels,
             );
 
             const conversationId = getConversationId('alice.eth', 'bob.eth');

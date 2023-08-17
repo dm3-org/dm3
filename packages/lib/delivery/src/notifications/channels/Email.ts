@@ -12,6 +12,17 @@ export type EmailNotificationUserConfig = {
     //The address the user has specified to receive notifications.
     recipientAddress: string;
 };
+export const MAIL_SUBJECT = 'New DM3 Message';
+export const MAIL_HTML = (
+    deliveryInformation: DeliveryInformation,
+) => `<html lang="en">
+<body>
+<p>You have received a new DM3 message from ${deliveryInformation.from}.
+<br/>
+ Open  <a href = "app.dm3.network">DM3</a> to read it</p>
+  <script src="index.js"></script>
+</body>
+</html>`;
 
 export function Email(config: EmailNotificationServerConfig) {
     const send = async (
@@ -21,21 +32,14 @@ export function Email(config: EmailNotificationServerConfig) {
         nodemailer.createTestAccount();
         const transport = nodemailer.createTransport(new SMTPTransport(config));
 
-        const html = () => `<html lang="en">
-        <body>
-        <p>You have received a new DM3 message from ${deliveryInformation.from}.
-        <br/>
-         Open  <a href = "app.dm3.network">DM3</a> to read it</p>
-          <script src="index.js"></script>
-        </body>
-      </html>`;
         try {
-            await transport.sendMail({
+            const t = await transport.sendMail({
                 from: config.senderAddress,
                 to: mailConfig.recipientAddress,
-                subject: 'New DM3 Message',
-                html: html(),
+                subject: MAIL_SUBJECT,
+                html: MAIL_HTML(deliveryInformation),
             });
+            transport.close();
         } catch (err) {
             logError('Send mail failed ' + err);
         }
