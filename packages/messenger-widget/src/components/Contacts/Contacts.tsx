@@ -49,9 +49,7 @@ export function Contacts(props: DashboardProps) {
 
     // handles contact box view
     useEffect(() => {
-        setContactHeightToMaximum(
-            !state.connection.account?.ensName || isAddrEnsName ? true : false,
-        );
+        setContactHeightToMaximum(!isAddrEnsName ? true : false);
     }, [state.connection.account?.ensName]);
 
     // handles any change in socket or session

@@ -2,6 +2,7 @@ import './ConfigureProfileBox.css';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import { globalConfig } from 'dm3-lib-shared';
+import { openConfigurationModal } from '../ConfigureProfile/bl';
 
 export default function ConfigureProfileBox() {
     const { state } = useContext(GlobalContext);
@@ -34,7 +35,10 @@ export default function ConfigureProfileBox() {
                     You have not yet configured your profile.
                 </div>
                 <div className="d-flex justify-content-center config-btn-container">
-                    <button className="border-radius-6 background-config-box text-primary-color config-box-border">
+                    <button
+                        className="border-radius-6 background-config-box text-primary-color config-box-border"
+                        onClick={() => openConfigurationModal()}
+                    >
                         Configure Profile
                     </button>
                 </div>
