@@ -1,9 +1,47 @@
 .modal-container {
-  z-index: 1;
-  left: 0;
-  top: 0;
-  overflow: auto;
-  background-color: rgb(0, 0, 0);
-  background-color: rgba(0, 0, 0, 0.4);
-  backdrop-filter: brightness(0.3);
+    z-index: 1;
+    left: 0;
+    top: 0;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: brightness(0.3);
+}
+
+.close-modal-icon {
+    width: 1.8rem;
+    height: auto;
+    cursor: pointer;
+}
+
+.modal-btn-disabled {
+    background: var(--normal-btn-inactive);
+    color: var(--disabled-btn-text);
+    border: none;
+}
+
+.modal-btn-active {
+    background-color: var(--normal-btn);
+    border: var(--normal-btn-border);
+    color: var(--text-primary-color);
+}
+
+.modal-btn-active:hover {
+    background-color: var(--normal-btn-hover);
+}
+
+.show-error {
+    display: flex;
+}
+
+.hide-error {
+    display: none;
+}
+
+.err-background {
+    background: var(--error-text) !important;
+}
+
+.invisible {
+    visibility: hidden;
 }
