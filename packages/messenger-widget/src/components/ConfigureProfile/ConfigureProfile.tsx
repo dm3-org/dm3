@@ -74,12 +74,7 @@ export function ConfigureProfile() {
                 setShowError(NAME_TYPE.DM3_NAME);
                 return;
             }
-            await submitDm3UsernameClaim(
-                state,
-                name,
-                dispatch,
-                setError,
-            );
+            await submitDm3UsernameClaim(state, name, dispatch, setError);
         } else {
             setExistingDm3Name(null);
         }
