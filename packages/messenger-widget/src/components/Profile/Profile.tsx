@@ -10,9 +10,9 @@ import {
     getEnsProfileDetails,
     onClose,
     openEnsProfile,
-    openProfileConfigureBox,
 } from '../../utils/ens-utils';
 import { EnsDetails } from '../EnsDetails/EnsDetails';
+import { openConfigurationModal } from '../ConfigureProfile/bl';
 
 export function Profile() {
     const { state, dispatch } = useContext(GlobalContext);
@@ -102,9 +102,7 @@ export function Profile() {
                     <div className="configure-btn-container">
                         <Button
                             buttonText="Configure dm3 profile"
-                            actionMethod={() =>
-                                openProfileConfigureBox(dispatch)
-                            }
+                            actionMethod={() => openConfigurationModal()}
                         />
                     </div>
                 </div>

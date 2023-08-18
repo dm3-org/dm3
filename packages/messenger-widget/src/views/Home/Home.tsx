@@ -19,6 +19,7 @@ import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { Loader } from '../../components/Loader/Loader';
 import AddConversation from '../../components/AddConversation/AddConversation';
 import { Preferences } from '../../components/Preferences/Preferences';
+import { ConfigureProfile } from '../../components/ConfigureProfile/ConfigureProfile';
 
 export function Home(props: Dm3Props) {
     const { chains, publicClient } = configureChains(
@@ -63,6 +64,7 @@ export function Home(props: Dm3Props) {
             <Loader />
             <AddConversation />
             <Preferences />
+            <ConfigureProfile />
             <div className="logo-container">
                 <img className="dm3-logo" src={dm3Logo} alt="DM3 logo" />
             </div>

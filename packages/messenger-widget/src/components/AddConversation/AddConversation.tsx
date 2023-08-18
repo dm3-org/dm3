@@ -76,7 +76,7 @@ export default function AddConversation() {
                             </div>
                         </div>
                         <img
-                            className="conversation-close-icon"
+                            className="close-modal-icon"
                             src={closeIcon}
                             alt="close"
                             onClick={() =>
@@ -147,8 +147,8 @@ export default function AddConversation() {
                                 className={'add-btn font-weight-400 font-size-12 border-radius-4 line-height-24'.concat(
                                     ' ',
                                     !name || !name.length
-                                        ? 'add-btn-disabled'
-                                        : 'add-btn-active',
+                                        ? 'modal-btn-disabled'
+                                        : 'modal-btn-active',
                                 )}
                                 onClick={(e: FormEvent) => submit(e)}
                             >
