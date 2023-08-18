@@ -8,12 +8,6 @@
     height: auto;
 }
 
-.conversation-close-icon {
-    width: 1.8rem;
-    height: auto;
-    cursor: pointer;
-}
-
 .conversation-description {
     width: 30rem;
     font-size: 10px;
@@ -43,22 +37,6 @@
     margin-top: 1.3rem;
 }
 
-.add-btn-disabled {
-    background: var(--normal-btn-inactive);
-    color: var(--disabled-btn-text);
-    border: none;
-}
-
-.add-btn-active {
-    background-color: var(--normal-btn);
-    border: var(--normal-btn-border);
-    color: var(--text-primary-color);
-}
-
-.add-btn-active:hover {
-    background-color: var(--normal-btn-hover);
-}
-
 .separator {
     margin: 1rem 0rem 2rem 0rem;
 }
@@ -68,16 +46,4 @@
     line-height: 14px;
     font-style: italic;
     color: var(--error-text);
-}
-
-.show-error {
-    display: flex;
-}
-
-.hide-error {
-    display: none;
-}
-
-.err-background {
-    background: var(--error-text);
 }

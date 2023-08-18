@@ -88,10 +88,6 @@ export const onClose = (dispatch: React.Dispatch<Actions>) => {
     });
 };
 
-export const openProfileConfigureBox = (dispatch: React.Dispatch<Actions>) => {
-    // Body will be added when "Configure profile" task will be picked up
-};
-
 // method to fetch selected contact
 export const getContactSelected = async (
     state: GlobalState,
