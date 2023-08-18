@@ -9,21 +9,23 @@ import {
     NAME_TYPE,
     PROFILE_INPUT_FIELD_CLASS,
     closeConfigurationModal,
+    getAddrEnsName,
+    getEnsName,
+    submitDm3UsernameClaim,
+    submitEnsNameTransaction,
 } from './bl';
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { GlobalContext } from '../../utils/context-utils';
+import { globalConfig } from 'dm3-lib-shared';
 
 export function ConfigureProfile() {
-    // context API states
-    const [address, setAddress] = useState<string | null>(
-        '0x11Ee133A1408FE2d7c62296D7eB23F234b774503.address.dm3.eth',
-    );
+    // global context state
+    const { state, dispatch } = useContext(GlobalContext);
 
-    const [originalDm3Name, setOriginalDm3Name] = useState<string | undefined>(
-        undefined,
-    );
-    const [originalEnsName, setOriginalEnsName] = useState<string | undefined>(
-        undefined,
-    );
+    // existing profile details states
+    const [address, setAddress] = useState<string | undefined>(undefined);
+    const [existingDm3Name, setExistingDm3Name] = useState<string | null>(null);
+    const [existingEnsName, setExistingEnsName] = useState<string | null>(null);
 
     // input field states
     const [dm3Name, setDm3Name] = useState<string>('');
@@ -34,6 +36,23 @@ export function ConfigureProfile() {
         undefined,
     );
     const [errorMsg, setErrorMsg] = useState<string>('');
+
+    const setAddressFromContext = (addressFetched: string | undefined) => {
+        setAddress(addressFetched);
+    };
+
+    const setNewDm3Name = (dm3NameFetched: string | null) => {
+        setExistingDm3Name(dm3NameFetched);
+    };
+
+    const setEnsNameFromResolver = (ensNameFetched: string | null) => {
+        setExistingEnsName(ensNameFetched);
+    };
+
+    const setError = (error: string, type: NAME_TYPE) => {
+        setErrorMsg(error);
+        setShowError(type);
+    };
 
     // handles name change event
     const handleNameChange = (
@@ -51,48 +70,70 @@ export function ConfigureProfile() {
     };
 
     // handles claim or delete DM3 user name
-    const handleClaimOrRemoveDm3Name = (type: ACTION_TYPE) => {
+    const handleClaimOrRemoveDm3Name = async (type: ACTION_TYPE) => {
         if (type === ACTION_TYPE.CONFIGURE) {
             const name = dm3Name.trim();
             if (!name.length) {
                 setErrorMsg('DM3 name cannot be empty');
-                // setErrorMsg(
-                //     'Name is not available. or Name must not have blancs.',
-                // );
                 setShowError(NAME_TYPE.DM3_NAME);
                 return;
             }
-            setOriginalDm3Name(name.concat('.user.dm3.eth'));
-            setDm3Name('');
-            setShowError(undefined);
+            await submitDm3UsernameClaim(
+                state,
+                name,
+                dispatch,
+                setNewDm3Name,
+                setError,
+            );
         } else {
-            setOriginalDm3Name(undefined);
+            setExistingDm3Name(null);
         }
     };
 
     // handles configure or remove ENS name
-    const handlePublishOrRemoveProfile = (type: ACTION_TYPE) => {
+    const handlePublishOrRemoveProfile = async (type: ACTION_TYPE) => {
         if (type === ACTION_TYPE.CONFIGURE) {
             const name = ensName.trim();
             if (!name.length) {
                 setErrorMsg('ENS name cannot be empty');
-                // setErrorMsg('You are not the owner/manager of this name.');
                 setShowError(NAME_TYPE.ENS_NAME);
                 return;
             }
-            setOriginalEnsName(name);
-            setEnsName('');
-            setShowError(undefined);
+            await submitEnsNameTransaction(
+                state,
+                dispatch,
+                name,
+                setEnsNameFromResolver,
+                setError,
+            );
         } else {
-            setOriginalEnsName(undefined);
+            setExistingEnsName(null);
         }
     };
+
+    // handles existing ENS name
+    useEffect(() => {
+        if (
+            state.connection.account?.ensName &&
+            state.connection.account?.ensName.endsWith(
+                globalConfig.USER_ENS_SUBDOMAIN(),
+            )
+        ) {
+            setExistingDm3Name(state.connection.account.ensName);
+        }
+    }, [state.connection.account?.ensName]);
+
+    // handles ENS name and address
+    useEffect(() => {
+        getEnsName(state, setEnsNameFromResolver);
+        getAddrEnsName(state, setAddressFromContext);
+    }, [state.connection.ethAddress, state.connection.provider]);
 
     return (
         <div>
             <div
                 id="configuration-modal"
-                className="modal-container position-fixed w-100 h-100"
+                className="modal-container display-none position-fixed w-100 h-100"
             >
                 <div
                     className="configuration-modal-content border-radius-6 
@@ -177,14 +218,14 @@ export function ConfigureProfile() {
                         </div>
                         <div className="d-flex ps-4 align-items-baseline">
                             <div className="configuration-items-align">
-                                {originalDm3Name && <img src={tickIcon} />}
+                                {existingDm3Name && <img src={tickIcon} />}
                             </div>
                             <div className="dm3-name-container">
                                 <div className="d-flex align-items-center">
                                     <p className="m-0 font-size-14 font-weight-500 line-height-24 title-content">
                                         DM3 Name
                                     </p>
-                                    {!originalDm3Name ? (
+                                    {!existingDm3Name ? (
                                         <>
                                             <input
                                                 className={PROFILE_INPUT_FIELD_CLASS.concat(
@@ -210,7 +251,7 @@ export function ConfigureProfile() {
                                                 className="mb-0 ms-1 font-size-14 font-weight-500 
                                             line-height-24 grey-text"
                                             >
-                                                .user.dm3.eth
+                                                {globalConfig.USER_ENS_SUBDOMAIN()}
                                             </p>
                                         </>
                                     ) : (
@@ -219,7 +260,7 @@ export function ConfigureProfile() {
                                                 className="m-0 font-size-14 font-weight-500 line-height-24 
                                             grey-text d-flex"
                                             >
-                                                {originalDm3Name}
+                                                {existingDm3Name}
                                                 <img
                                                     className="ms-4 pointer-cursor"
                                                     src={deleteIcon}
@@ -250,7 +291,7 @@ export function ConfigureProfile() {
                                 </div>
                             </div>
                             <div>
-                                {!originalDm3Name && (
+                                {!existingDm3Name && (
                                     <button
                                         disabled={!dm3Name || !dm3Name.length}
                                         className={BUTTON_CLASS.concat(
@@ -297,14 +338,14 @@ export function ConfigureProfile() {
                         </div>
                         <div className="d-flex ps-4 pb-3 align-items-baseline">
                             <div className="configuration-items-align">
-                                {originalEnsName && <img src={tickIcon} />}
+                                {existingEnsName && <img src={tickIcon} />}
                             </div>
                             <div className="dm3-name-container">
                                 <div className="d-flex align-items-center">
                                     <p className="m-0 font-size-14 font-weight-500 line-height-24 title-content">
                                         ENS Name
                                     </p>
-                                    {!originalEnsName ? (
+                                    {!existingEnsName ? (
                                         <input
                                             className={PROFILE_INPUT_FIELD_CLASS.concat(
                                                 ' ',
@@ -326,7 +367,7 @@ export function ConfigureProfile() {
                                         />
                                     ) : (
                                         <p className="m-0 font-size-14 font-weight-500 line-height-24 grey-text">
-                                            {originalEnsName}
+                                            {existingEnsName}
                                         </p>
                                     )}
                                 </div>
@@ -347,25 +388,25 @@ export function ConfigureProfile() {
                             <div>
                                 <button
                                     disabled={
-                                        !originalEnsName &&
+                                        !existingEnsName &&
                                         (!ensName || !ensName.length)
                                     }
                                     className={BUTTON_CLASS.concat(
                                         ' ',
-                                        !originalEnsName &&
+                                        !existingEnsName &&
                                             (!ensName || !ensName.length)
                                             ? 'modal-btn-disabled'
                                             : 'modal-btn-active',
                                     )}
                                     onClick={() =>
                                         handlePublishOrRemoveProfile(
-                                            originalEnsName
+                                            existingEnsName
                                                 ? ACTION_TYPE.REMOVE
                                                 : ACTION_TYPE.CONFIGURE,
                                         )
                                     }
                                 >
-                                    {!originalEnsName
+                                    {!existingEnsName
                                         ? ' Publish Profile'
                                         : 'Rename Profile'}
                                 </button>
