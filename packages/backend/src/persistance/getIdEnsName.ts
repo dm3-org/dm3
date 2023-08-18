@@ -1,4 +1,4 @@
-import { Redis, RedisPrefix } from '../getDatabase';
+import { Redis, RedisPrefix } from './getDatabase';
 import { normalizeEnsName } from 'dm3-lib-profile/dist.backend';
 
 export function getIdEnsName(redis: Redis) {

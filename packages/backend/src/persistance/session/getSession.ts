@@ -1,6 +1,6 @@
 import { Redis, RedisPrefix } from '../getDatabase';
 import { Session, spamFilter } from 'dm3-lib-delivery/dist.backend';
-import { getIdEnsName } from './getIdEnsName';
+import { getIdEnsName } from '../getIdEnsName';
 
 export function getSession(redis: Redis) {
     return async (ensName: string) => {

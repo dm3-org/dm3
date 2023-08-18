@@ -1,5 +1,5 @@
 import { decryptAsymmetric } from 'dm3-lib-crypto';
-import { DeliveryInformation, EncryptionEnvelop } from 'dm3-lib-messaging';
+import { EncryptionEnvelop } from 'dm3-lib-messaging';
 import { UserProfile, normalizeEnsName } from 'dm3-lib-profile';
 import { BigNumber, ethers } from 'ethers';
 import { testData } from '../../../../test-data/encrypted-envelops.test';
@@ -9,11 +9,8 @@ import { getConversationId, getMessages, incomingMessage } from './Messages';
 import { Session } from './Session';
 import { SpamFilterRules } from './spam-filter/SpamFilterRules';
 
-import realNodemailer, { createTransport } from 'nodemailer';
-import { NotifificationChannelType } from './notifications/types';
-import { NotificationBroker } from './notifications';
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { MAIL_HTML, MAIL_SUBJECT } from './notifications/channels/Email';
+import { NotifificationChannelType } from './notifications/types';
 
 const SENDER_NAME = 'alice.eth';
 const RECEIVER_NAME = 'bob.eth';

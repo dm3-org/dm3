@@ -10,13 +10,7 @@ import { ethersHelper } from 'dm3-lib-shared/dist.backend';
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
-// eslint-disable-next-line no-console
-const log = (toLog: any) => console.log(toLog);
-
-const logger = {
-    warn: log,
-    info: log,
-};
+const logger = console;
 
 const keysA = {
     encryptionKeyPair: {
@@ -68,8 +62,66 @@ describe('Messaging', () => {
                         createMessage: () => {},
                         getIdEnsName: async (ensName: string) => ensName,
                     },
-                    redisClient: {
-                        zAdd: () => {},
+                    io: {
+                        sockets: {
+                            to: (_: any) => ({
+                                emit: (_: any, __any: any) => {},
+                            }),
+                        },
+                    },
+                } as any,
+            } as express.Express & WithLocals;
+
+            //The same data used in Messages.test
+            const data = {
+                envelop: testData.envelopA,
+                token: '123',
+            };
+
+            const getSocketMock = () => {
+                return {
+                    on: async (name: string, onSubmitMessage: any) => {
+                        //We just want to test the submitMessage callback fn
+                        if (name === 'submitMessage') {
+                            await onSubmitMessage(data, callback);
+                        }
+                    },
+                } as unknown as Socket;
+            };
+
+            onConnection(app)(getSocketMock());
+        });
+        it('sends notification after message was submitted', (done: any) => {
+            //We expect the callback functions called once witht he value 'success'
+            expect.assertions(1);
+            const callback = (e: any) => {
+                // eslint-disable-next-line max-len
+                //Even though the method fails jest dosen't recognize it becuase of the catch block used in messaging.ts. So we have to throw another error if the callback returns anything else then the expected result.
+                if (e.response !== 'success') {
+                    throw Error(e);
+                }
+                expect(e.response).toBe('success');
+                done();
+            };
+            //We provide an mocked express app with all needes locals vars
+            const app = {
+                locals: {
+                    logger,
+                    keys: {
+                        signing: keysA.signingKeyPair,
+                        encryption: keysA.encryptionKeyPair,
+                    },
+
+                    deliveryServiceProperties: { sizeLimit: 2 ** 14 },
+                    web3Provider: {
+                        resolveName: async () =>
+                            '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                    },
+
+                    db: {
+                        getSession,
+                        createMessage: () => {},
+                        getIdEnsName: async (ensName: string) => ensName,
                     },
                     io: {
                         sockets: {
