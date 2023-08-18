@@ -1,6 +1,5 @@
 /* eslint-disable max-len */
 import { DeliveryInformation } from 'dm3-lib-messaging';
-import { DeliveryServiceProperties } from '../Delivery';
 import { Email } from './channels/Email';
 import {
     GetNotificationChannels,
@@ -79,3 +78,5 @@ export const NotificationBroker = (
 
     return _setupNotficationBroker(channels);
 };
+
+export * from './types';

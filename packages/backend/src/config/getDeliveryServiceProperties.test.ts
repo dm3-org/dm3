@@ -2,6 +2,7 @@ import { getDeliveryServiceProperties } from './getDeliveryServiceProperties';
 import { writeFileSync, unlinkSync, existsSync } from 'fs';
 import { stringify } from 'yaml';
 import { resolve } from 'path';
+import { NotifificationChannelType } from 'dm3-lib-delivery';
 
 describe('ReadDeliveryServiceProperties', () => {
     let path: string;
@@ -19,9 +20,14 @@ describe('ReadDeliveryServiceProperties', () => {
         const config = getDeliveryServiceProperties('/unknown-path', {
             messageTTL: 12345,
             sizeLimit: 456,
+            notificationChannel: [],
         });
 
-        expect(config).toStrictEqual({ messageTTL: 12345, sizeLimit: 456 });
+        expect(config).toStrictEqual({
+            messageTTL: 12345,
+            sizeLimit: 456,
+            notificationChannel: [],
+        });
     });
 
     it('Returns Config from path', () => {
@@ -30,6 +36,21 @@ describe('ReadDeliveryServiceProperties', () => {
             stringify({
                 messageTTL: 12345,
                 sizeLimit: 456,
+                notificationChannel: [
+                    {
+                        type: NotifificationChannelType.EMAIL,
+                        config: {
+                            host: 'mail.alice.com',
+                            port: 465,
+                            secure: true,
+                            auth: {
+                                user: 'foo',
+                                pass: 'bar',
+                            },
+                            senderAddress: 'mail@dm3.io',
+                        },
+                    },
+                ],
             }),
             { encoding: 'utf-8' },
         );
@@ -38,6 +59,21 @@ describe('ReadDeliveryServiceProperties', () => {
         expect(config).toStrictEqual({
             messageTTL: 12345,
             sizeLimit: 456,
+            notificationChannel: [
+                {
+                    type: NotifificationChannelType.EMAIL,
+                    config: {
+                        host: 'mail.alice.com',
+                        port: 465,
+                        secure: true,
+                        auth: {
+                            user: 'foo',
+                            pass: 'bar',
+                        },
+                        senderAddress: 'mail@dm3.io',
+                    },
+                },
+            ],
         });
     });
     it('Adds default properties if config.yml is not fully specified', () => {
@@ -53,6 +89,7 @@ describe('ReadDeliveryServiceProperties', () => {
         expect(config).toStrictEqual({
             messageTTL: 12345,
             sizeLimit: 100000,
+            notificationChannel: [],
         });
     });
 });
