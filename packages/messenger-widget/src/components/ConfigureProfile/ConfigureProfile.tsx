@@ -41,10 +41,6 @@ export function ConfigureProfile() {
         setAddress(addressFetched);
     };
 
-    const setNewDm3Name = (dm3NameFetched: string | null) => {
-        setExistingDm3Name(dm3NameFetched);
-    };
-
     const setEnsNameFromResolver = (ensNameFetched: string | null) => {
         setExistingEnsName(ensNameFetched);
     };
@@ -82,7 +78,6 @@ export function ConfigureProfile() {
                 state,
                 name,
                 dispatch,
-                setNewDm3Name,
                 setError,
             );
         } else {

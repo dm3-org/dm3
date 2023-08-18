@@ -89,7 +89,6 @@ export const submitDm3UsernameClaim = async (
     state: GlobalState,
     dm3UserEnsName: string,
     dispatch: React.Dispatch<Actions>,
-    setNewDm3Name: Function,
     setError: Function,
 ) => {
     try {
