@@ -129,7 +129,7 @@ export function Contacts(props: DashboardProps) {
                         cacheContacts,
                     ),
                 );
-            } else if (state.modal) {
+            } else if (state.modal.contactToHide) {
                 resetContactListOnHide(state, dispatch, setListOfContacts);
             }
         }
