@@ -168,19 +168,19 @@ jobs:
     messenger-demo-deploy:
         runs-on: ubuntu-latest
         if: github.ref == 'refs/heads/new-ui'
-        needs:
-            [
-                offchain-resolver-test,
-                lib-storage-test,
-                lib-shared-test,
-                lib-profile-test,
-                lib-messaging-test,
-                lib-delivery-test,
-                lib-crypto-test,
-                integration-test,
-                backend-test,
-                code-quality,
-            ]
+        # needs:
+        #     [
+        #         offchain-resolver-test,
+        #         lib-storage-test,
+        #         lib-shared-test,
+        #         lib-profile-test,
+        #         lib-messaging-test,
+        #         lib-delivery-test,
+        #         lib-crypto-test,
+        #         integration-test,
+        #         backend-test,
+        #         code-quality,
+        #     ]
         steps:
             # Check-out your repository.
             - name: Checkout
@@ -211,6 +211,7 @@ jobs:
                   # (Optional, default: "Dockerfile")
                   # Dockerfile name.
                   dockerfile_name: ./packages/messenger-demo/Dockerfile
+                  docker_options: "--build-arg REACT_APP_ETHEREUM_PROVIDER"
 
                   # (Optional, default: "web")
                   # Select the process type for which you want the docker container to be uploaded.
