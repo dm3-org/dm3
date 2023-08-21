@@ -46,6 +46,7 @@ export const initialState: GlobalState = {
     },
     modal: {
         loaderContent: '',
+        contactToHide: undefined,
         addConversation: {
             active: false,
             ensName: undefined,

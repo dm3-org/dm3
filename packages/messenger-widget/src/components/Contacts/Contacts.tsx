@@ -8,6 +8,7 @@ import {
     setContactIndexSelectedFromCache,
     updateContactOnAccountChange,
     updateSelectedContact,
+    resetContactListOnHide,
 } from './bl';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
@@ -25,7 +26,6 @@ export function Contacts(props: DashboardProps) {
     // local states to handle contact list and active contact
     const [contactSelected, setContactSelected] = useState<number | null>(null);
     const [contacts, setContacts] = useState<ContactPreview[]>([]);
-    const [openMenu, setOpenMenu] = useState<boolean>(false);
 
     // sets contact list to show on UI
     const setListOfContacts = (list: ContactPreview[]) => {
@@ -41,11 +41,6 @@ export function Contacts(props: DashboardProps) {
     const isAddrEnsName = state.connection.account?.ensName?.endsWith(
         globalConfig.ADDR_ENS_SUBDOMAIN(),
     );
-
-    // handles closing of contact menu list
-    const closeContactMenu = () => {
-        setOpenMenu(false);
-    };
 
     // handles contact box view
     useEffect(() => {
@@ -67,7 +62,7 @@ export function Contacts(props: DashboardProps) {
                 payload: 'Fetching contacts...',
             });
             startLoader();
-            props.getContacts(state, dispatch, props.dm3Props);
+            props.getContacts(state, dispatch, props.dm3Props.config);
             setContactList(state, dispatch, setListOfContacts);
         }
     }, [state.auth?.currentSession?.token, state.connection.socket]);
@@ -80,7 +75,7 @@ export function Contacts(props: DashboardProps) {
                 payload: 'Fetching contacts...',
             });
             startLoader();
-            props.getContacts(state, dispatch, props.dm3Props);
+            props.getContacts(state, dispatch, props.dm3Props.config);
         }
     }, [state.userDb?.conversations, state.userDb?.conversationsCount]);
 
@@ -92,7 +87,9 @@ export function Contacts(props: DashboardProps) {
                 state.uiView.selectedRightView === RightViewSelected.Default)
         ) {
             setContactList(state, dispatch, setListOfContacts);
-        } else if (
+        }
+
+        if (
             state.modal.addConversation.active &&
             state.modal.addConversation.processed
         ) {
@@ -116,6 +113,16 @@ export function Contacts(props: DashboardProps) {
                 !state.modal.addConversation.processed
             ) {
                 updateSelectedContact(state, dispatch, setContactFromList);
+            } else if (
+                state.modal.addConversation.active &&
+                state.modal.addConversation.processed
+            ) {
+                updateContactOnAccountChange(
+                    state,
+                    dispatch,
+                    contacts,
+                    setListOfContacts,
+                );
             } else if (state.accounts.selectedContact) {
                 setContactSelected(
                     setContactIndexSelectedFromCache(
@@ -124,6 +131,8 @@ export function Contacts(props: DashboardProps) {
                         cacheContacts,
                     ),
                 );
+            } else if (state.modal) {
+                resetContactListOnHide(state, dispatch, setListOfContacts);
             }
         }
     }, [state.accounts.selectedContact]);
@@ -227,22 +236,15 @@ export function Contacts(props: DashboardProps) {
                                                         className="action-dot"
                                                         src={threeDotsIcon}
                                                         alt="action"
-                                                        onClick={() => {
-                                                            setOpenMenu(
-                                                                !openMenu,
-                                                            );
-                                                        }}
                                                     />
-                                                    {openMenu && (
+                                                    {
                                                         <ContactMenu
-                                                            closeContactMenu={
-                                                                closeContactMenu
-                                                            }
                                                             contactDetails={
                                                                 data
                                                             }
+                                                            index={index}
                                                         />
-                                                    )}
+                                                    }
                                                 </div>
                                             </div>
                                         ) : (

@@ -226,3 +226,27 @@ export const updateContactOnAccountChange = async (
         }
     }
 };
+
+// reset's the contact list on hiding any contact
+export const resetContactListOnHide = (
+    state: GlobalState,
+    dispatch: React.Dispatch<Actions>,
+    setListOfContacts: Function,
+) => {
+    if (state.modal.contactToHide) {
+        const cachedContactList = state.cache.contacts?.filter(
+            (data) =>
+                data.contactDetails.account.ensName !==
+                state.modal.contactToHide,
+        );
+        dispatch({
+            type: CacheType.Contacts,
+            payload: cachedContactList as [],
+        });
+        setListOfContacts(cachedContactList);
+        dispatch({
+            type: ModalStateType.ContactToHide,
+            payload: undefined,
+        });
+    }
+};

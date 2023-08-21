@@ -20,10 +20,12 @@ import {
     UserDbType,
 } from '../utils/enum-type-utils';
 import { fetchPendingConversations } from './messages';
+import { Config } from '../interfaces/config';
 
 export async function requestContacts(
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
+    config: Config,
 ) {
     const connection = state.connection;
     const deliveryServiceToken = state.auth.currentSession?.token!;
@@ -40,6 +42,25 @@ export async function requestContacts(
         deliveryServiceToken,
         createEmptyConversationEntry,
     );
+
+    // adds default contact in the list if it's not present (help.dm3.eth)
+    if (
+        config.defaultContact &&
+        !retrievedContacts.find(
+            (account: Account) =>
+                normalizeEnsName(account.ensName) ===
+                normalizeEnsName(config.defaultContact as string),
+        )
+    ) {
+        createEmptyConversationEntry(config.defaultContact);
+
+        retrievedContacts = await getContacts(
+            connection,
+            userDb,
+            deliveryServiceToken,
+            createEmptyConversationEntry,
+        );
+    }
 
     const contacts: Contact[] = await Promise.all(
         retrievedContacts.map(fetchDeliveryServiceProfile(connection)),
