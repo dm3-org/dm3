@@ -44,6 +44,10 @@
     background-color: var(--normal-btn-hover);
 }
 
+.action-container:hover > .dropdown-content {
+    display: flex;
+}
+
 .action-dot {
     height: 0.8rem;
     width: 0.8rem;
@@ -79,7 +83,7 @@
     border-top: 2px solid var(--normal-btn-hover) !important;
     border-left: 2px solid var(--normal-btn-hover) !important;
     border-bottom: 2px solid var(--normal-btn-hover) !important;
-    background: linear-gradient(-259deg, #544393, #1F2029) !important;
+    background: linear-gradient(-259deg, #544393, #1f2029) !important;
     top: 0;
     bottom: 0;
     position: sticky;

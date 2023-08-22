@@ -10,6 +10,7 @@ import {
     GlobalState,
     UserDbType,
 } from '../../utils/enum-type-utils';
+import { Config } from '../../interfaces/config';
 
 export function showSignIn(connectionState: ConnectionState): boolean {
     return (
@@ -35,6 +36,7 @@ export function connectionPhase(connectionState: ConnectionState): boolean {
 export const getContacts = (
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
+    config: Config,
 ) => {
     if (!state.userDb) {
         throw Error(
@@ -44,7 +46,7 @@ export const getContacts = (
 
     log('[getContacts]', 'info');
 
-    return requestContacts(state, dispatch);
+    return requestContacts(state, dispatch, config);
 };
 
 // method to handle new messages received

@@ -2,8 +2,10 @@ import {
     AccountsType,
     Actions,
     GlobalState,
+    ModalStateType,
     RightViewSelected,
     UiViewStateType,
+    UserDbType,
 } from './enum-type-utils';
 import profilePic from '../assets/images/profile-pic.jpg';
 import { EnsProfileDetails } from '../interfaces/utils';
@@ -73,7 +75,28 @@ export const hideContact = (
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
 ) => {
-    // Body will be added when "Hide contact" task will be picked up
+    const ensName = state.accounts.selectedContact?.account.ensName;
+
+    if (ensName) {
+        dispatch({
+            type: ModalStateType.ContactToHide,
+            payload: ensName,
+        });
+        dispatch({
+            type: UserDbType.hideContact,
+            payload: {
+                ensName: ensName,
+            },
+        });
+        dispatch({
+            type: UiViewStateType.SetSelectedRightView,
+            payload: RightViewSelected.Default,
+        });
+        dispatch({
+            type: AccountsType.SetSelectedContact,
+            payload: undefined,
+        });
+    }
 };
 
 // method to close profile/contact info page
