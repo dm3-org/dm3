@@ -108,8 +108,13 @@ input:focus {
     z-index: 1;
     border: 1px solid #000000;
     border-radius: 5px;
-    margin-top: 0.5rem;
+    margin-top: 0.1rem;
     margin-left: -9rem;
+    display: none;
+}
+
+.dropdown-content-top-align {
+    margin-top: -6.9rem !important;
 }
 
 .dropdown-content div {

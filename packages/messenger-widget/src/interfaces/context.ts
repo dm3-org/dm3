@@ -48,6 +48,7 @@ export interface GlobalContextProviderProps {
 export interface Modal {
     loaderContent: string;
     addConversation: NewContact;
+    contactToHide: string | undefined;
 }
 
 export interface UiViewState {

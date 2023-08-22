@@ -7,24 +7,33 @@ import {
     RightViewSelected,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
+import { hideContact } from '../../utils/ens-utils';
 
 export function ContactMenu(props: ContactMenu) {
-    const { dispatch } = useContext(GlobalContext);
+    const { state, dispatch } = useContext(GlobalContext);
 
     const onClickOfShowDetails = () => {
         dispatch({
             type: UiViewStateType.SetSelectedRightView,
             payload: RightViewSelected.ContactInfo,
         });
-        props.closeContactMenu();
     };
 
     const onClickOfHideContact = () => {
-        props.closeContactMenu();
+        hideContact(state, dispatch);
     };
 
     return (
-        <div className="dropdown-content d-flex font-size-14 font-weight-400">
+        <div
+            className={'dropdown-content font-size-14 font-weight-400'.concat(
+                ' ',
+                state.cache.contacts &&
+                    props.index > 0 &&
+                    props.index >= state.cache.contacts?.length - 2
+                    ? 'dropdown-content-top-align'
+                    : '',
+            )}
+        >
             <div
                 className="d-flex align-items-center justify-content-start"
                 onClick={() => onClickOfShowDetails()}

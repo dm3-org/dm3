@@ -1,12 +1,12 @@
 import { Actions, GlobalState } from '../utils/enum-type-utils';
-import { Dm3Props } from './config';
+import { Config, Dm3Props } from './config';
 import { ContactPreview } from './utils';
 
 export interface DashboardProps {
     getContacts: (
         state: GlobalState,
         dispatch: React.Dispatch<Actions>,
-        props: Dm3Props,
+        props: Config,
     ) => Promise<void>;
     dm3Props: Dm3Props;
 }
@@ -18,5 +18,5 @@ export interface EnsDetails {
 
 export interface ContactMenu {
     contactDetails: ContactPreview;
-    closeContactMenu: Function;
+    index: number;
 }
