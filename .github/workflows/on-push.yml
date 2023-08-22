@@ -168,24 +168,22 @@ jobs:
     messenger-demo-deploy:
         runs-on: ubuntu-latest
         if: github.ref == 'refs/heads/new-ui'
-        # needs:
-        #     [
-        #         offchain-resolver-test,
-        #         lib-storage-test,
-        #         lib-shared-test,
-        #         lib-profile-test,
-        #         lib-messaging-test,
-        #         lib-delivery-test,
-        #         lib-crypto-test,
-        #         integration-test,
-        #         backend-test,
-        #         code-quality,
-        #     ]
         steps:
             # Check-out your repository.
             - name: Checkout
               uses: actions/checkout@v2
-
+            - name: Create env file
+              run: |
+                echo "REACT_APP_ADDR_ENS_SUBDOMAIN=.beta-addr.dm3.eth" >> ./packages/messenger-demo/.env
+                echo "REACT_APP_BACKEND=https://dm3-beta2.herokuapp.com" >> ./packages/messenger-demo/.env
+                echo "REACT_APP_DEFAULT_DELIVERY_SERVICE=beta-ds.dm3.eth" >> ./packages/messenger-demo/.env
+                echo "REACT_APP_DEFAULT_SERVICE=https://dm3-beta2.herokuapp.com" >> ./packages/messenger-demo/.env
+                echo "REACT_APP_ETHEREUM_PROVIDER=${{ secrets.REACT_APP_ETHEREUM_PROVIDER }}" >> ./packages/messenger-demo/.env
+                echo "REACT_APP_PROFILE_BASE_URL=https://dm3-beta2-resolver.herokuapp.com" >> ./packages/messenger-demo/.env
+                echo "REACT_APP_RESOLVER_BACKEND=https://dm3-beta2-resolver.herokuapp.com" >> ./packages/messenger-demo/.env
+                echo "REACT_APP_USER_ENS_SUBDOMAIN=.beta-user.dm3.eth" >> ./packages/messenger-demo/.env
+                echo "REACT_APP_WALLET_CONNECT_PROJECT_ID=${{ secrets.REACT_APP_WALLET_CONNECT_PROJECT_ID }}" >> ./packages/messenger-demo/.env
+                echo "RESOLVER_ADDR=0x45F7Ed7d05c563D408898A80d9C705CC3328D2EF" >> ./packages/messenger-demo/.env
             - name: Build, Push and Release a Docker container to Heroku. # Your custom step name
               uses: gonuit/heroku-docker-deploy@v1.3.3 # GitHub action name (leave it as it is).
               with:
@@ -211,8 +209,6 @@ jobs:
                   # (Optional, default: "Dockerfile")
                   # Dockerfile name.
                   dockerfile_name: ./packages/messenger-demo/Dockerfile
-                  docker_options: "--build-arg REACT_APP_ETHEREUM_PROVIDER"
-
                   # (Optional, default: "web")
                   # Select the process type for which you want the docker container to be uploaded.
                   # By default, this argument is set to "web".
