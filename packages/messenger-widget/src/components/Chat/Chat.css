@@ -5,3 +5,45 @@
 .highlight-chat-border-none {
     border-top: none;
 }
+
+.chat-container {
+    min-height: 83vh;
+}
+
+.chat-items {
+    overflow-y: scroll;
+    margin-top: 0.5rem;
+}
+
+.chat-height-small {
+    height: 63vh;
+}
+
+.chat-height-high {
+    height: 75vh;
+}
+
+.chat-action {
+    bottom: 0;
+}
+
+.chat-action-items {
+    border: 1px solid var(--text-secondary-color);
+    padding: 0.2rem;
+}
+
+.chat-svg-icon {
+    height: 24px;
+}
+
+.smile-icon {
+    margin-left: 0.3rem;
+    font-size: x-large;
+}
+
+.text-input-field {
+    border: none;
+    outline: none;
+    padding-left: 0.3rem;
+    padding-right: 0.9rem;
+}
