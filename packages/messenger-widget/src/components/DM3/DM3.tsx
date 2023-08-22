@@ -96,7 +96,7 @@ function DM3(props: Dm3Props) {
                 handleNewMessage(envelop, state, dispatch);
             });
             socket.on('joined', () => {
-                getContacts(state, dispatch);
+                getContacts(state, dispatch, props.config);
             });
             dispatch({ type: ConnectionType.ChangeSocket, payload: socket });
         }
@@ -119,7 +119,7 @@ function DM3(props: Dm3Props) {
             );
 
             state.connection.socket.on('joined', () => {
-                getContacts(state, dispatch);
+                getContacts(state, dispatch, props.config);
             });
         }
     }, [state.connection.socket, state.userDb?.conversations]);
