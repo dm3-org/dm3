@@ -21,6 +21,13 @@ export function modalReducer(state: Modal, action: ModalStateActions): Modal {
                 addConversation: action.payload,
             };
 
+        case ModalStateType.ContactToHide:
+            log(`[Contact to hide] Contact content ${action.payload}`, 'info');
+            return {
+                ...state,
+                contactToHide: action.payload,
+            };
+
         default:
             return state;
     }

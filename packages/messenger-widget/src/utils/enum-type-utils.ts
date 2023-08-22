@@ -253,11 +253,13 @@ export type UiViewStateActions =
 export enum ModalStateType {
     LoaderContent = 'LOADER_CONTENT',
     AddConversationData = 'ADD_CONVERSATION_DATA',
+    ContactToHide = 'CONTACT_TO_HIDE',
 }
 
 export type ModalStatePayload = {
     [ModalStateType.LoaderContent]: string;
     [ModalStateType.AddConversationData]: NewContact;
+    [ModalStateType.ContactToHide]: string | undefined;
 };
 
 export type ModalStateActions =
