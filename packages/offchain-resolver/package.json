@@ -1,13 +1,14 @@
 {
     "name": "dm3-offchain-resolver",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "dependencies": {
         "@prisma/client": "^4.15.0",
         "body-parser": "^1.20.1",
-        "dm3-lib-profile": "^0.2.0",
-        "dm3-lib-shared": "^0.2.1",
+        "dm3-lib-crypto": "workspace:^",
+        "dm3-lib-profile": "workspace:^",
+        "dm3-lib-shared": "workspace:^",
         "dotenv": "^16.0.3",
         "eslint": "^8.17.0",
         "ethers": "5.7.2",
@@ -18,6 +19,7 @@
         "siwe": "^2.1.4",
         "ts-node": "^10.8.1",
         "typescript": "^4.4.2",
+        "uuid": "^9.0.0",
         "winston": "^3.8.1",
         "yaml": "^2.1.3"
     },
