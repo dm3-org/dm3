@@ -111,16 +111,11 @@ function ConfigView() {
         setLoadingTopicName('dm3UserName');
         setError(undefined);
         try {
-            const signedProfile = await getUserProfile(
-                state.connection.provider!,
-                state.connection.account!.ensName,
-            );
-
             await claimSubdomain(
-                state.connection.account!,
-                process.env.REACT_APP_RESOLVER_BACKEND as string,
                 dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN(),
-                signedProfile!,
+                process.env.REACT_APP_RESOLVER_BACKEND as string,
+                state.connection.account!.ensName,
+                state.userDb!.keys.signingKeyPair.privateKey,
             );
 
             await createAlias(

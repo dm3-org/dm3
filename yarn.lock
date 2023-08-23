@@ -13219,7 +13219,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"dm3-lib-profile@^0.2.0, dm3-lib-profile@^0.2.2, dm3-lib-profile@workspace:packages/lib/profile":
+"dm3-lib-profile@^0.2.0, dm3-lib-profile@^0.2.2, dm3-lib-profile@workspace:^, dm3-lib-profile@workspace:packages/lib/profile":
   version: 0.0.0-use.local
   resolution: "dm3-lib-profile@workspace:packages/lib/profile"
   dependencies:
@@ -13251,7 +13251,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"dm3-lib-shared@^0.2.0, dm3-lib-shared@^0.2.1, dm3-lib-shared@workspace:packages/lib/shared":
+"dm3-lib-shared@^0.2.0, dm3-lib-shared@^0.2.1, dm3-lib-shared@workspace:^, dm3-lib-shared@workspace:packages/lib/shared":
   version: 0.0.0-use.local
   resolution: "dm3-lib-shared@workspace:packages/lib/shared"
   dependencies:
@@ -13295,8 +13295,9 @@ __metadata:
     body-parser: ^1.20.1
     chai: ^4.3.7
     chai-as-promised: ^7.1.1
-    dm3-lib-profile: ^0.2.0
-    dm3-lib-shared: ^0.2.1
+    dm3-lib-crypto: "workspace:^"
+    dm3-lib-profile: "workspace:^"
+    dm3-lib-shared: "workspace:^"
     dotenv: ^16.0.3
     eslint: ^8.17.0
     ethers: 5.7.2
@@ -13309,6 +13310,7 @@ __metadata:
     siwe: ^2.1.4
     ts-node: ^10.8.1
     typescript: ^4.4.2
+    uuid: ^9.0.0
     winston: ^3.8.1
     yaml: ^2.1.3
   languageName: unknown

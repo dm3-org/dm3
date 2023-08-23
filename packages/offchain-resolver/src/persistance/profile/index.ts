@@ -1,6 +1,6 @@
-export { getUserProfile } from './getUserProfile';
+export { getProfileContainer } from './getProfileContainer';
+export { getProfileContainerByAddress } from './getProfileContainerByAddress';
+export { removeUserProfile } from './removeUserProfile';
+export { setAlias } from './setAlias';
+export { getProfileContainerForAlias } from './getProfileContainerForAlias';
 export { setUserProfile } from './setUserProfile';
-export { hasAddressProfile } from './hasAddressProfile';
-export { getUserProfileByAddress } from './getUserProfileByAddress';
-export { getAddressByName } from './getAddressByName';
-export { getNameByAddress } from './getNameByAddress';
