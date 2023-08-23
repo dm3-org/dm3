@@ -57,6 +57,7 @@ export async function requestContacts(
             type: AccountsType.SetSelectedContact,
             payload: contact,
         });
+
     const userDb = state.userDb!;
     const createEmptyConversationEntry = (id: string) =>
         dispatch({
@@ -92,7 +93,7 @@ export async function requestContacts(
                         normalizeEnsName(defaultContact),
                 )
             ) {
-                createEmptyConversationEntry(defaultContact);
+                createEmptyConversationEntry(normalizeEnsName(defaultContact));
 
                 //For whatever reason we're retriving all contacts again
                 //TODO check if that can be omited
