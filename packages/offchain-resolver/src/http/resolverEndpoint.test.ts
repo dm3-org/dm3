@@ -1,5 +1,5 @@
 import bodyParser from 'body-parser';
-import { stringify } from 'dm3-lib-shared/dist.backend';
+import { globalConfig, stringify } from 'dm3-lib-shared/dist.backend';
 import { ethers } from 'ethers';
 import express from 'express';
 import request from 'supertest';
@@ -17,6 +17,7 @@ import { clearDb } from '../persistance/clearDb';
 import { resolverEndpoint } from './resolverEndpoint';
 import { expect } from 'chai';
 import { encodeEnsName } from './handleCcipRequest/dns/encodeEnsName';
+import { sign } from 'dm3-lib-crypto';
 
 describe('Resolver Endpoint', () => {
     let prismaClient: PrismaClient;
@@ -55,6 +56,12 @@ describe('Resolver Endpoint', () => {
         profileApp.use(profile(provider));
         profileApp.locals.db = db;
         profileApp.locals.config = { spamProtection: true };
+        profileApp.locals.logger = {
+            // eslint-disable-next-line no-console
+            info: (msg: string) => console.log(msg),
+            // eslint-disable-next-line no-console
+            warn: (msg: string) => console.log(msg),
+        };
     });
 
     afterEach(async () => {
@@ -134,24 +141,34 @@ describe('Resolver Endpoint', () => {
     describe('Get UserProfile Offchain', () => {
         describe('ResolveText', () => {
             it('Returns valid Offchain profile', async () => {
-                const { signature, profile, signer } =
+                const { signature, profile, signer, privateSigningKey } =
                     profileApp.locals.forTests;
 
                 const name = 'foo.dm3.eth';
 
                 //Create the profile in the first place
                 const writeRes = await request(profileApp)
-                    .post(`/name`)
+                    .post(`/address`)
                     .send({
-                        name,
-                        ensName: signer + '.addr.dm3.eth',
                         address: signer,
                         signedUserProfile: {
-                            profile,
                             signature,
+                            profile,
                         },
                     });
+                expect(writeRes.status).to.equal(200);
 
+                const writeRes2 = await request(profileApp)
+                    .post(`/name`)
+                    .send({
+                        alias: 'foo.dm3.eth',
+                        name: signer + '.' + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                        signature: await sign(
+                            privateSigningKey,
+                            'alias: foo.dm3.eth',
+                        ),
+                    });
+                expect(writeRes2.status).to.equal(200);
                 expect(writeRes.status).to.equal(200);
                 // the inner call requesting the network.dm3.profile text record
                 // for the ENS name foo.test.eth
@@ -336,7 +353,7 @@ describe('Resolver Endpoint', () => {
 
 const getSignedUserProfile = async (overwriteProfile?: UserProfile) => {
     const profile: UserProfile = overwriteProfile ?? {
-        publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
+        publicSigningKey: 'JLCk6OPLzIn/Fye/0UW4XfP2Q7CoffEhVLveBYBh8CI=',
         publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
         deliveryServices: [''],
     };
@@ -350,7 +367,14 @@ const getSignedUserProfile = async (overwriteProfile?: UserProfile) => {
 
     const signer = wallet.address;
 
-    return { signature, profile, signer };
+    return {
+        signature,
+        profile,
+        signer,
+        wallet,
+        privateSigningKey:
+            'x8DPXL+cNC21Voi69Rg/GG9ZoGVEHkT8uVfoBrgfgdwksKTo48vMif8XJ7/RRbhd8/ZDsKh98SFUu94FgGHwIg==',
+    };
 };
 
 function getResolverInterface() {
