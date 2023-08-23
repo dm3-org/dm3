@@ -1,3 +1,4 @@
+import { MessageState } from 'dm3-lib-messaging';
 import { Actions, GlobalState } from '../utils/enum-type-utils';
 import { Config, Dm3Props } from './config';
 import { ContactPreview } from './utils';
@@ -19,4 +20,16 @@ export interface EnsDetails {
 export interface ContactMenu {
     contactDetails: ContactPreview;
     index: number;
+}
+
+export interface MessageProps {
+    message: string;
+    time: string;
+    messageState: MessageState;
+    ownMessage: boolean;
+}
+
+export interface MessageInputProps {
+    messageList: any;
+    setMessageList: Function;
 }
