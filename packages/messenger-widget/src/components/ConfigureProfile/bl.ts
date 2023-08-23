@@ -100,18 +100,13 @@ export const submitDm3UsernameClaim = async (
 
         startLoader();
 
-        const signedProfile = await getUserProfile(
-            state.connection.provider!,
-            state.connection.account!.ensName,
-        );
-
         const ensName = dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN();
 
         await claimSubdomain(
-            state.connection.account!,
+            dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN(),
             process.env.REACT_APP_RESOLVER_BACKEND as string,
-            ensName,
-            signedProfile!,
+            state.connection.account!.ensName,
+            state.userDb!.keys.signingKeyPair.privateKey,
         );
 
         await createAlias(

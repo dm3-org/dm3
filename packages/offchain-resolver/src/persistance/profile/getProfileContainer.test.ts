@@ -1,10 +1,10 @@
 import { SignedUserProfile } from 'dm3-lib-profile';
 import { ethers } from 'ethers';
 import winston from 'winston';
-import { setUserProfile } from '.';
+import { getProfileContainer, setUserProfile } from '.';
 import { IDatabase } from '../IDatabase';
-import { getDatabase, getDbClient } from './../getDatabase';
-import { getUserProfile } from './getUserProfile';
+import { getDatabase, getDbClient } from '../getDatabase';
+
 import { PrismaClient } from '@prisma/client';
 import { clearDb } from '../clearDb';
 const { expect } = require('chai');
@@ -29,7 +29,7 @@ describe('getUserProfile', () => {
     });
 
     it('Returns null if the name has no profile yet', async () => {
-        const profile = await getUserProfile(prismaClient)('foo');
+        const profile = await getProfileContainer(prismaClient)('foo');
         expect(profile).to.be.null;
     });
 
@@ -51,8 +51,8 @@ describe('getUserProfile', () => {
         };
 
         await setUserProfile(prismaClient)(name, profile, address);
-        const retrivedProfile = await getUserProfile(prismaClient)(name);
+        const retrivedProfile = await getProfileContainer(prismaClient)(name);
 
-        expect(retrivedProfile).to.eql(profile);
+        expect(retrivedProfile?.profile).to.eql(profile);
     });
 });
