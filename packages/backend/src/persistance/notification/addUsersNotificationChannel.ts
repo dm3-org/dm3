@@ -11,7 +11,7 @@ import { stringify } from 'dm3-lib-shared';
 export function addUsersNotificationChannel(redis: Redis) {
     return async (ensName: string, channel: NotificationChannel) => {
         // Check if the input matches the general NotificationChannel schema
-        const isValid = validateSchema(schema.NotifcationChannel, channel);
+        const isValid = validateSchema(schema.NotificationChannel, channel);
 
         if (!isValid) {
             throw Error('Invalid NotificationChannel');

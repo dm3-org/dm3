@@ -5,7 +5,7 @@ import { getIdEnsName } from '../getIdEnsName';
 export function getUsersNotificationChannels(redis: Redis) {
     return async (ensName: string): Promise<NotificationChannel[]> => {
         const notifationChannels = await redis.get(
-            RedisPrefix.NotifcationChannel +
+            RedisPrefix.NotificationChannel +
                 (await getIdEnsName(redis)(ensName)),
         );
         return notifationChannels
