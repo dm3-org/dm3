@@ -243,8 +243,12 @@ export async function fetchAndStoreMessages(
     //Storing the newly fetched messages in the userDb
     storeMessages(envelops);
 
-    //Return all messages from the conversation between the user and their contact
-    return getConversation(contact, contacts, userDb);
+    try {
+        //Return all messages from the conversation between the user and their contact
+        return getConversation(contact, contacts, userDb);
+    } catch (error) {
+        return [];
+    }
 }
 
 async function decryptMessages(

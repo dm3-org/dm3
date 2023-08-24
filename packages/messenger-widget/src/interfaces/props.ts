@@ -28,8 +28,3 @@ export interface MessageProps {
     messageState: MessageState;
     ownMessage: boolean;
 }
-
-export interface MessageInputProps {
-    messageList: any;
-    setMessageList: Function;
-}

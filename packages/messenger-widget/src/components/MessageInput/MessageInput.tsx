@@ -2,53 +2,18 @@ import './MessageInput.css';
 import sendBtnIcon from '../../assets/images/send-btn.svg';
 import fileIcon from '../../assets/images/file.svg';
 import emojiIcon from '../../assets/images/emoji.svg';
-import { MessageInputProps } from '../../interfaces/props';
-import { MessageState } from 'dm3-lib-messaging';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import { GlobalContext } from '../../utils/context-utils';
+import { handleSubmit } from './bl';
 
-export function MessageInput(props: MessageInputProps) {
+export function MessageInput() {
     const [message, setMessage] = useState('');
+
+    const { state, dispatch } = useContext(GlobalContext);
 
     function setMessageContent(e: React.ChangeEvent<HTMLInputElement>) {
         setMessage(e.target.value);
     }
-
-    const handleSubmit = (
-        event:
-            | React.FormEvent<HTMLFormElement>
-            | React.MouseEvent<HTMLImageElement, MouseEvent>,
-    ) => {
-        event.preventDefault();
-        sendMessage();
-    };
-
-    const sendMessage = () => {
-        // check message validity
-        if (!message.trim().length) {
-            return;
-        }
-
-        props.setMessageList([
-            ...props.messageList,
-            // add new message
-            {
-                message: message,
-                time: '21/09/2022, 15:09:46',
-                messageState: MessageState.Read,
-                ownMessage: true,
-            },
-            // add receivers message
-            {
-                message: 'Received automatically '.concat(message),
-                time: '22/01/2023, 09:09:13',
-                messageState: MessageState.Read,
-                ownMessage: false,
-            },
-        ]);
-
-        // empty input field
-        setMessage('');
-    };
 
     return (
         <>
@@ -75,7 +40,15 @@ export function MessageInput(props: MessageInputProps) {
                         </div>
                         <form
                             className="width-fill"
-                            onSubmit={(e) => handleSubmit(e)}
+                            onSubmit={(event) =>
+                                handleSubmit(
+                                    message,
+                                    state,
+                                    dispatch,
+                                    setMessage,
+                                    event,
+                                )
+                            }
                         >
                             <input
                                 id="msg-input"
@@ -96,11 +69,19 @@ export function MessageInput(props: MessageInputProps) {
                                 src={sendBtnIcon}
                                 alt="send"
                                 onClick={(
-                                    e: React.MouseEvent<
+                                    event: React.MouseEvent<
                                         HTMLImageElement,
                                         MouseEvent
                                     >,
-                                ) => handleSubmit(e)}
+                                ) =>
+                                    handleSubmit(
+                                        message,
+                                        state,
+                                        dispatch,
+                                        setMessage,
+                                        event,
+                                    )
+                                }
                             />
                         </span>
                     </div>

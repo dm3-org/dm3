@@ -31,7 +31,7 @@ export function Message(props: MessageProps) {
                     props.ownMessage ? 'ms-3' : '',
                 )}
             >
-                {props.time}
+                {new Date(Number(props.time)).toLocaleString()}
                 <span className="tick-icon readed-tick-icon">
                     {!props.ownMessage ? (
                         <img src={tickIcon} alt="read" />
