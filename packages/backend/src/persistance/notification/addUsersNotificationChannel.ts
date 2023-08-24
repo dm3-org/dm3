@@ -1,6 +1,6 @@
 import {
     NotificationChannel,
-    NotifificationChannelType,
+    NotificationChannelType,
     schema,
 } from 'dm3-lib-delivery';
 import { Redis, RedisPrefix } from '../getDatabase';
@@ -18,7 +18,7 @@ export function addUsersNotificationChannel(redis: Redis) {
         }
         //Secondly we check if the type specific config matches
         switch (channel.type) {
-            case NotifificationChannelType.EMAIL: {
+            case NotificationChannelType.EMAIL: {
                 const isValidConfig = validateSchema(
                     {
                         ...schema.EmailNotificationUserConfig,
@@ -31,6 +31,8 @@ export function addUsersNotificationChannel(redis: Redis) {
                                     ...schema.EmailNotificationUserConfig
                                         .definitions.EmailNotificationUserConfig
                                         .properties,
+                                    //We use the schema validation to also verify the email address
+                                    //This cannot be done with the general NotificationChannel schema
                                     recipientAddress: {
                                         type: 'string',
                                         format: 'email',

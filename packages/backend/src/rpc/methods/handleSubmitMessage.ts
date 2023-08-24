@@ -48,6 +48,7 @@ export async function handleSubmitMessage(
             req.app.locals.keys.signing,
             req.app.locals.keys.encryption,
             req.app.locals.deliveryServiceProperties.sizeLimit,
+            req.app.locals.deliveryServiceProperties.notificationChannel,
             req.app.locals.db.getSession,
             req.app.locals.db.createMessage,
             (socketId: string, envelop: EncryptionEnvelop) => {
@@ -55,6 +56,7 @@ export async function handleSubmitMessage(
             },
             req.app.locals.web3Provider,
             req.app.locals.db.getIdEnsName,
+            req.app.locals.db.getUsersNotificationChannels,
         );
         res.send(200);
     } catch (error) {

@@ -1,7 +1,4 @@
-import {
-    NotificationChannel,
-    NotifificationChannelType,
-} from 'dm3-lib-delivery';
+import { NotificationChannel, NotificationChannelType } from 'dm3-lib-delivery';
 import winston from 'winston';
 import { IDatabase, Redis, getDatabase, getRedisClient } from '../getDatabase';
 
@@ -28,7 +25,7 @@ describe('Set Users NotificationChannel', () => {
 
     it('Add Email Notification Channel ', async () => {
         const notificationChannel: NotificationChannel = {
-            type: NotifificationChannelType.EMAIL,
+            type: NotificationChannelType.EMAIL,
             config: {
                 recipientAddress: 'foo@bar.de',
             },
@@ -50,7 +47,7 @@ describe('Set Users NotificationChannel', () => {
     it('Rejcts Notification Channel with an invalid schema', async () => {
         try {
             const notificationChannel: any = {
-                foo: NotifificationChannelType.EMAIL,
+                foo: NotificationChannelType.EMAIL,
                 config: {
                     recipientAddress: 'foo@bar.de',
                 },
@@ -68,7 +65,7 @@ describe('Set Users NotificationChannel', () => {
     it('Rejcts Email Notification Channel with an invalid config', async () => {
         try {
             const notificationChannel: any = {
-                type: NotifificationChannelType.EMAIL,
+                type: NotificationChannelType.EMAIL,
                 config: {
                     foo: 'foo@bar.de',
                 },
@@ -86,7 +83,7 @@ describe('Set Users NotificationChannel', () => {
     it('Rejcts Email Notification Channel with an invalid email address', async () => {
         try {
             const notificationChannel: any = {
-                type: NotifificationChannelType.EMAIL,
+                type: NotificationChannelType.EMAIL,
                 config: {
                     recipientAddress: '12345',
                 },

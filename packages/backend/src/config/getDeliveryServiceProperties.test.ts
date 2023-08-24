@@ -1,8 +1,8 @@
-import { getDeliveryServiceProperties } from './getDeliveryServiceProperties';
-import { writeFileSync, unlinkSync, existsSync } from 'fs';
-import { stringify } from 'yaml';
+import { existsSync, unlinkSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
-import { NotifificationChannelType } from 'dm3-lib-delivery';
+import { stringify } from 'yaml';
+import { getDeliveryServiceProperties } from './getDeliveryServiceProperties';
+import { NotificationChannelType } from 'dm3-lib-delivery';
 
 describe('ReadDeliveryServiceProperties', () => {
     let path: string;
@@ -38,7 +38,7 @@ describe('ReadDeliveryServiceProperties', () => {
                 sizeLimit: 456,
                 notificationChannel: [
                     {
-                        type: NotifificationChannelType.EMAIL,
+                        type: NotificationChannelType.EMAIL,
                         config: {
                             host: 'mail.alice.com',
                             port: 465,
@@ -61,7 +61,7 @@ describe('ReadDeliveryServiceProperties', () => {
             sizeLimit: 456,
             notificationChannel: [
                 {
-                    type: NotifificationChannelType.EMAIL,
+                    type: NotificationChannelType.EMAIL,
                     config: {
                         host: 'mail.alice.com',
                         port: 465,

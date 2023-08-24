@@ -51,7 +51,10 @@ describe('Messaging', () => {
                         encryption: keysA.encryptionKeyPair,
                     },
 
-                    deliveryServiceProperties: { sizeLimit: 2 ** 14 },
+                    deliveryServiceProperties: {
+                        sizeLimit: 2 ** 14,
+                        notificationChannel: [],
+                    },
                     web3Provider: {
                         resolveName: async () =>
                             '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
@@ -61,6 +64,7 @@ describe('Messaging', () => {
                         getSession,
                         createMessage: () => {},
                         getIdEnsName: async (ensName: string) => ensName,
+                        getUsersNotificationChannels: () => Promise.resolve([]),
                     },
                     io: {
                         sockets: {
@@ -112,7 +116,10 @@ describe('Messaging', () => {
                         encryption: keysA.encryptionKeyPair,
                     },
 
-                    deliveryServiceProperties: { sizeLimit: 2 ** 14 },
+                    deliveryServiceProperties: {
+                        sizeLimit: 2 ** 14,
+                        notificationChannel: [],
+                    },
                     web3Provider: {
                         resolveName: async () =>
                             '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
@@ -122,6 +129,7 @@ describe('Messaging', () => {
                         getSession,
                         createMessage: () => {},
                         getIdEnsName: async (ensName: string) => ensName,
+                        getUsersNotificationChannels: () => Promise.resolve([]),
                     },
                     io: {
                         sockets: {
@@ -152,7 +160,6 @@ describe('Messaging', () => {
 
             onConnection(app)(getSocketMock());
         });
-        //TODO remove skip once spam-filter is implemented
         it.skip('returns error if message is spam', (done: any) => {
             //We expect the callback functions called once witht he value 'success'
             expect.assertions(1);
@@ -181,12 +188,16 @@ describe('Messaging', () => {
                         encryption: keysA.encryptionKeyPair,
                     },
 
-                    deliveryServiceProperties: { sizeLimit: 2 ** 14 },
+                    deliveryServiceProperties: {
+                        sizeLimit: 2 ** 14,
+                        notificationChannel: [],
+                    },
 
                     db: {
                         getSession: session,
                         createMessage: () => {},
                         getIdEnsName: async (ensName: string) => ensName,
+                        getUsersNotificationChannels: () => Promise.resolve([]),
                     },
                     web3Provider: {
                         getTransactionCount: (_: string) => Promise.resolve(0),
@@ -255,6 +266,7 @@ describe('Messaging', () => {
                     db: {
                         getSession,
                         getIdEnsName: async (ensName: string) => ensName,
+                        getUsersNotificationChannels: () => Promise.resolve([]),
                     },
                 } as any,
             } as express.Express & WithLocals;

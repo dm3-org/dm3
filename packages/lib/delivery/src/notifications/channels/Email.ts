@@ -33,7 +33,7 @@ export function Email(config: EmailNotificationServerConfig) {
         const transport = nodemailer.createTransport(new SMTPTransport(config));
 
         try {
-            const t = await transport.sendMail({
+            await transport.sendMail({
                 from: config.senderAddress,
                 to: mailConfig.recipientAddress,
                 subject: MAIL_SUBJECT,
