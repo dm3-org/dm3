@@ -25,6 +25,7 @@ import {
     readKeysFromEnv,
     socketAuth,
 } from './utils';
+import Notifications from './notifications';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -64,6 +65,7 @@ app.use(bodyParser.json());
     app.use('/storage', Storage());
     app.use('/auth', Auth());
     app.use('/delivery', Delivery());
+    app.use('/notifications', Notifications());
     app.use('/rpc', RpcProxy(new Axios({ url: process.env.RPC })));
     app.use(logError);
     app.use(errorHandler);

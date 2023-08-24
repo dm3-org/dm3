@@ -5,12 +5,12 @@ import {
     GetNotificationChannels,
     INotificationBroker,
     NotificationChannel,
-    NotifificationChannelType,
+    NotificationChannelType,
 } from './types';
 
 // An interface for a notification channel.
 interface INotificationChannel {
-    type: NotifificationChannelType;
+    type: NotificationChannelType;
     send: (config: any, deliveryInformation: DeliveryInformation) => void;
 }
 
@@ -64,9 +64,9 @@ export const NotificationBroker = (
 ): INotificationBroker => {
     const channels = notificationChannel.map((channel) => {
         switch (channel.type) {
-            case NotifificationChannelType.EMAIL:
+            case NotificationChannelType.EMAIL:
                 return {
-                    type: NotifificationChannelType.EMAIL,
+                    type: NotificationChannelType.EMAIL,
                     send: Email(channel.config).send,
                 };
             default:

@@ -1,14 +1,14 @@
 import { DeliveryInformation } from 'dm3-lib-messaging';
 
 //Every notification channel that is supported by the delivery service must be listed here
-export enum NotifificationChannelType {
+export enum NotificationChannelType {
     EMAIL = 'EMAIL',
 }
 
 //The properties of a notification channel.
 // Those properties are stored in the DB to let the user specify their notificatin channels
 export interface NotificationChannel {
-    type: NotifificationChannelType;
+    type: NotificationChannelType;
     config: any;
 }
 export type GetNotificationChannels = (
