@@ -10,7 +10,7 @@ import { Session } from './Session';
 import { SpamFilterRules } from './spam-filter/SpamFilterRules';
 
 import { MAIL_HTML, MAIL_SUBJECT } from './notifications/channels/Email';
-import { NotifificationChannelType } from './notifications/types';
+import { NotificationChannelType } from './notifications/types';
 
 const SENDER_NAME = 'alice.eth';
 const RECEIVER_NAME = 'bob.eth';
@@ -294,7 +294,6 @@ describe('Messages', () => {
                 );
             }
         });
-        //TODO remove skip once spam-filter is implemented
         it('rejects message if the senders eth balance is below the threshold', async () => {
             //Mock the time so we can test the message with the incomming timestamp
             jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
@@ -451,7 +450,7 @@ describe('Messages', () => {
             const getNotificationChannels = (user: string) => {
                 return Promise.resolve([
                     {
-                        type: NotifificationChannelType.EMAIL,
+                        type: NotificationChannelType.EMAIL,
                         config: { recipientAddress: 'joe@example.io' },
                     },
                 ]);
@@ -478,7 +477,7 @@ describe('Messages', () => {
                 2 ** 14,
                 [
                     {
-                        type: NotifificationChannelType.EMAIL,
+                        type: NotificationChannelType.EMAIL,
                         config: {
                             host: 'exmaple.host',
                             port: 1234,

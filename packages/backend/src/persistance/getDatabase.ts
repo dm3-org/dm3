@@ -22,7 +22,7 @@ export enum RedisPrefix {
     Session = 'session:',
     UserStorage = 'user.storage:',
     Pending = 'pending:',
-    NotifcationChannel = 'notificationChannel:',
+    NotificationChannel = 'notificationChannel:',
 }
 
 export async function getRedisClient(logger: winston.Logger) {
