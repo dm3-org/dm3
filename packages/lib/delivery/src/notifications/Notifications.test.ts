@@ -1,5 +1,6 @@
 import { DeliveryInformation } from 'dm3-lib-messaging';
-import { NotifificationChannelType, setupNotficationBroker } from '.';
+import { NotificationChannelType } from './types';
+import { _setupNotficationBroker } from './broker/NotificationBroker';
 
 describe('Notifications', () => {
     it('send notifications to channel', async () => {
@@ -11,22 +12,22 @@ describe('Notifications', () => {
         };
 
         const channel1 = {
-            type: NotifificationChannelType.EMAIL,
-            data: {},
+            type: NotificationChannelType.EMAIL,
+            config: {},
         };
 
         const channel2 = {
-            type: NotifificationChannelType.EMAIL,
-            data: {},
+            type: NotificationChannelType.EMAIL,
+            config: {},
         };
 
         const getUsersNotificationChannels = (user: string) => {
             return Promise.resolve([channel1, channel2]);
         };
 
-        const { sendNotification } = setupNotficationBroker({
-            [NotifificationChannelType.EMAIL]: mailMock,
-        });
+        const { sendNotification } = _setupNotficationBroker([
+            { type: NotificationChannelType.EMAIL, send: mailMock },
+        ]);
 
         await sendNotification(
             deliveryInformation,

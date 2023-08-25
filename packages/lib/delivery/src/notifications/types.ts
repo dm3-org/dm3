@@ -21,3 +21,9 @@ export interface INotificationBroker {
         getNotificationChannels: GetNotificationChannels,
     ) => Promise<void>;
 }
+
+// An interface for a notification channel.
+export interface INotificationChannel {
+    type: NotificationChannelType;
+    send: (config: any, deliveryInformation: DeliveryInformation) => void;
+}
