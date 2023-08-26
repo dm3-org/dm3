@@ -4,8 +4,6 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { DM3 } from 'messenger-widget';
 
 function App() {
-    console.log(process.env.REACT_APP_ETHEREUM_PROVIDER);
-    console.log(process.env.REACT_APP_DEFAULT_SERVICE);
     const props: any = {
         defaultContact: 'help.dm3.eth',
         defaultServiceUrl: process.env.REACT_APP_DEFAULT_SERVICE,
