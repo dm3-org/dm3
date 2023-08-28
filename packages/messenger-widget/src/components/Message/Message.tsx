@@ -1,16 +1,30 @@
 import './Message.css';
-import { MessageProps } from '../../interfaces/props';
-import tickIcon from '../../assets/images/tick.svg';
+import { useState } from 'react';
 import { MessageState } from 'dm3-lib-messaging';
+import tickIcon from '../../assets/images/tick.svg';
+import { MessageProps } from '../../interfaces/props';
+import threeDotsIcon from '../../assets/images/three-dots.svg';
+import { MessageAction } from '../MessageAction/MessageAction';
 
 export function Message(props: MessageProps) {
+    // state to show action items three dots
+    const [isHovered, setIsHovered] = useState(false);
+
+    const handleMouseOver = () => {
+        setIsHovered(true);
+    };
+
+    const handleMouseOut = () => {
+        setIsHovered(false);
+    };
+
     return (
         <span
-            className={'text-primary-color d-grid'.concat(
+            className={'text-primary-color d-grid msg'.concat(
                 ' ',
                 props.ownMessage
-                    ? 'me-3 justify-content-end'
-                    : 'ms-3 justify-content-start',
+                    ? 'me-2 justify-content-end'
+                    : 'ms-2 justify-content-start',
             )}
         >
             <div className="d-flex">
@@ -23,6 +37,20 @@ export function Message(props: MessageProps) {
                     )}
                 >
                     {props.message}
+                </div>
+                <div
+                    className="msg-action-container d-flex pointer-cursor border-radius-3 position-relative"
+                    onMouseOver={handleMouseOver}
+                    onMouseLeave={handleMouseOut}
+                >
+                    <img
+                        className="msg-action-dot"
+                        src={threeDotsIcon}
+                        alt="action"
+                    />
+                    {isHovered && (
+                        <MessageAction ownMessage={props.ownMessage} />
+                    )}
                 </div>
             </div>
             <div

@@ -1,15 +1,14 @@
 import './Chat.css';
-import { useContext, useEffect, useState } from 'react';
-import { GlobalContext } from '../../utils/context-utils';
-import ConfigProfileAlertBox from '../ContactProfileAlertBox/ContactProfileAlertBox';
 import { Message } from '../Message/Message';
-import { MessageProps } from '../../interfaces/props';
-import { MessageInput } from '../MessageInput/MessageInput';
 import { getConversation } from 'dm3-lib-storage';
 import { globalConfig, log } from 'dm3-lib-shared';
+import { MessageProps } from '../../interfaces/props';
+import { useContext, useEffect, useState } from 'react';
+import { GlobalContext } from '../../utils/context-utils';
+import { MessageInput } from '../MessageInput/MessageInput';
+import ConfigProfileAlertBox from '../ContactProfileAlertBox/ContactProfileAlertBox';
 import {
     checkUserProfileConfigured,
-    getPastMessages,
     handleMessages,
     scrollToBottomOfChat,
 } from './bl';
@@ -33,6 +32,7 @@ export function Chat() {
         setMessageList(msgs);
     };
 
+    // handles messages list
     useEffect(() => {
         checkUserProfileConfigured(
             state,
@@ -62,16 +62,9 @@ export function Chat() {
                 log(error, 'error');
             }
         }
-    }, [
-        state.userDb?.conversations,
-        state.accounts.selectedContact,
-        state.accounts.contacts,
-    ]);
+    }, [state.userDb?.conversations, state.accounts.selectedContact]);
 
-    useEffect(() => {
-        getPastMessages(state, dispatch, alias, setListOfMessages);
-    }, [state.accounts.selectedContact]);
-
+    // scrolls to bottom on any new message arrival
     useEffect(() => {
         scrollToBottomOfChat();
     }, [messageList]);

@@ -28,3 +28,7 @@ export interface MessageProps {
     messageState: MessageState;
     ownMessage: boolean;
 }
+
+export interface MessageActionProps {
+    ownMessage: boolean;
+}
