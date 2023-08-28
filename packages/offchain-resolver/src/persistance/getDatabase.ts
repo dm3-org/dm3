@@ -10,12 +10,14 @@ export async function getDatabase(
     const prismaClient = db ?? (await getDbClient(logger));
 
     return {
-        getUserProfile: Profile.getUserProfile(prismaClient),
         setUserProfile: Profile.setUserProfile(prismaClient),
-        getUserProfileByAddress: Profile.getUserProfileByAddress(prismaClient),
-        hasAddressProfile: Profile.hasAddressProfile(prismaClient),
-        getAddressByName: Profile.getAddressByName(prismaClient),
-        getNameByAddress: Profile.getNameByAddress(prismaClient),
+        getProfileContainer: Profile.getProfileContainer(prismaClient),
+        getProfileContainerByAddress:
+            Profile.getProfileContainerByAddress(prismaClient),
+        removeUserProfile: Profile.removeUserProfile(prismaClient),
+        setAlias: Profile.setAlias(prismaClient),
+        getProfileContainerForAlias:
+            Profile.getProfileContainerForAlias(prismaClient),
     };
 }
 
