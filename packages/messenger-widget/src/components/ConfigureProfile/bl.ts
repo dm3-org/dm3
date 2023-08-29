@@ -1,7 +1,9 @@
 import {
+    Account,
     formatAddress,
     getUserProfile,
     SignedUserProfile,
+    UserProfile,
 } from 'dm3-lib-profile';
 import {
     Actions,
@@ -103,10 +105,13 @@ export const submitDm3UsernameClaim = async (
         const ensName = dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN();
 
         await claimSubdomain(
-            dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN(),
+            state.connection.account as Account,
             process.env.REACT_APP_RESOLVER_BACKEND as string,
-            state.connection.account!.ensName,
-            state.userDb!.keys.signingKeyPair.privateKey,
+            ensName,
+            {
+                profile: state.connection.account?.profile as UserProfile,
+                signature: state.connection.account?.profileSignature as string,
+            },
         );
 
         await createAlias(
