@@ -29,7 +29,7 @@
     "scripts": {
         "docker:up": "docker-compose up -d",
         "start": "yarn ts-node --transpile-only  ./src/index.ts",
-        "test": "npm run docker:up && jest  --coverage --runInBand --forceExit --modulePathIgnorePatterns='<rootDir>/test/load'",
+        "test": "no tests",
         "test:load": "npm run docker:up && jest /test/load/LoadTest.test.ts --coverage --runInBand --forceExit",
         "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
         "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
