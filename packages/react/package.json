@@ -1,6 +1,6 @@
 {
     "name": "dm3-react",
-    "version": "0.2.9",
+    "version": "0.2.11",
     "main": "./dist/cjs/index.js",
     "module": "./dist/cjs/inedx.js",
     "dependencies": {
