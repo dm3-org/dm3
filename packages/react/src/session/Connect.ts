@@ -4,7 +4,7 @@ import {
     checkUserProfile,
     getUserProfile,
 } from 'dm3-lib-profile';
-import { ethersHelper, globalConfig, log } from 'dm3-lib-shared';
+import { ethersHelper, globalConfig, log, logError } from 'dm3-lib-shared';
 import { Connection, ConnectionState } from '../web3provider/Web3Provider';
 import { getNameForAddress } from 'dm3-lib-offchain-resolver-api';
 
@@ -36,7 +36,7 @@ export async function connectEthAccount(
             ? await connectOnchainAccount(connection, ensName, address)
             : await connectOffchainAccount(connection, address);
     } catch (e) {
-        log('[connectEthAccount] ' + JSON.stringify(e), 'error');
+        logError('[connectEthAccount] ' + e);
         return {
             existingAccount: false,
             connectionState: ConnectionState.ConnectionRejected,
