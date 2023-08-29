@@ -1,8 +1,4 @@
-import {
-    formatAddress,
-    getUserProfile,
-    SignedUserProfile,
-} from 'dm3-lib-profile';
+import { formatAddress, SignedUserProfile } from 'dm3-lib-profile';
 import {
     Actions,
     ConnectionType,

@@ -68,11 +68,6 @@ export function Contacts(props: DashboardProps) {
     // handles changes in conversation
     useEffect(() => {
         if (state.userDb?.conversations && state.userDb?.conversationsCount) {
-            dispatch({
-                type: ModalStateType.LoaderContent,
-                payload: 'Fetching contacts...',
-            });
-            startLoader();
             props.getContacts(state, dispatch, props.dm3Props.config);
         }
     }, [state.userDb?.conversations, state.userDb?.conversationsCount]);
@@ -259,7 +254,7 @@ export function Contacts(props: DashboardProps) {
                                     )}
                                 </div>
 
-                                <div className="text-primary-color">
+                                <div className="text-primary-color pe-3">
                                     <p className="contacts-msg">
                                         {data.message}
                                     </p>

@@ -5,3 +5,20 @@
 .highlight-chat-border-none {
     border-top: none;
 }
+
+.chat-container {
+    min-height: 86vh;
+}
+
+.chat-items {
+    overflow-y: scroll;
+    margin-top: 0.5rem;
+}
+
+.chat-height-small {
+    height: 63vh;
+}
+
+.chat-height-high {
+    height: 75vh;
+}
