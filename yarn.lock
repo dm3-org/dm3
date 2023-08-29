@@ -10958,7 +10958,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"dm3-lib-profile@^0.2.0, dm3-lib-profile@^0.2.1, dm3-lib-profile@workspace:packages/lib/profile":
+"dm3-lib-profile@^0.2.0, dm3-lib-profile@^0.2.2, dm3-lib-profile@workspace:packages/lib/profile":
   version: 0.0.0-use.local
   resolution: "dm3-lib-profile@workspace:packages/lib/profile"
   dependencies:
@@ -11083,7 +11083,7 @@ __metadata:
     dm3-lib-delivery-api: ^0.2.0
     dm3-lib-messaging: ^0.2.0
     dm3-lib-offchain-resolver-api: ^0.2.4
-    dm3-lib-profile: ^0.2.1
+    dm3-lib-profile: ^0.2.2
     dm3-lib-shared: ^0.2.1
     dm3-lib-storage: ^0.2.0
     esbuild: ^0.14.44
