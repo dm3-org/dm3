@@ -1,6 +1,6 @@
 {
     "name": "dm3-lib-profile",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "license": "MIT",
     "main": "dist/index.js",
     "module": "dist-backend/index.js",
