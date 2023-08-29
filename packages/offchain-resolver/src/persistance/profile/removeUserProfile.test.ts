@@ -1,15 +1,18 @@
 import { getDatabase, getDbClient } from '../getDatabase';
 import { IDatabase } from '../IDatabase';
 import { setUserProfile } from './setUserProfile';
+import { removeUserProfile } from './removeUserProfile';
 import { ethers } from 'ethers';
-import { hasAddressProfile } from './hasAddressProfile';
 import winston from 'winston';
 import { SignedUserProfile } from 'dm3-lib-profile';
 import { PrismaClient } from '@prisma/client';
-const { expect } = require('chai');
 import { clearDb } from '../clearDb';
+import chai, { expect } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 
-describe('hasAddressProfile', () => {
+chai.use(chaiAsPromised);
+
+describe('setUserProfile', () => {
     let prismaClient: PrismaClient;
     let db: IDatabase;
 
@@ -28,21 +31,13 @@ describe('hasAddressProfile', () => {
         prismaClient.$disconnect();
     });
 
-    it('Returns false if the requesting address has no profile created yet', async () => {
-        const { address } = ethers.Wallet.createRandom();
-        const hasProfile = await hasAddressProfile(prismaClient)(address);
-
-        expect(hasProfile).to.equal(false);
-    });
-
-    it('Returns true after a profile was created', async () => {
-        const name = 'foo.eth';
+    it('Removes a profile', async () => {
         const { address } = ethers.Wallet.createRandom();
 
         const profile: SignedUserProfile = {
             signature:
-                '0x0a46a1cc2a44c28f7415ba4b5a7d0af313a88ea2283f7374ede' +
-                'cc705eece897009cbf930d6f7d63dc915de219f717accb4acca10cf2b38845d1bfd20649bb1fa1b',
+                '0x0a46a1cc2a44c28f7415ba4b5a7d0af313a88ea2283f7374edecc705eece8' +
+                '97009cbf930d6f7d63dc915de219f717accb4acca10cf2b38845d1bfd20649bb1fa1b',
             profile: {
                 publicSigningKey:
                     '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
@@ -52,9 +47,22 @@ describe('hasAddressProfile', () => {
             },
         };
 
-        await setUserProfile(prismaClient)(name, profile, address);
-        const hasProfile = await hasAddressProfile(prismaClient)(address);
+        const writeResult = await setUserProfile(prismaClient)(
+            'foo.eth',
+            profile,
+            address,
+        );
 
-        expect(hasProfile).to.equal(true);
+        expect(writeResult).to.be.true;
+
+        const writeResult2 = await removeUserProfile(prismaClient)('foo.eth');
+
+        expect(writeResult2).to.be.true;
+    });
+
+    it('should not remove a non existing profile', async () => {
+        const writeResult = await removeUserProfile(prismaClient)('bar.eth');
+
+        expect(writeResult).to.be.false;
     });
 });
