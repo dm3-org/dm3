@@ -168,11 +168,7 @@ export async function addContact(
     userDb: UserDB,
     createEmptyConversationEntry: (id: string) => void,
 ) {
-    if (
-        !createEmptyConversation(ensName, userDb, createEmptyConversationEntry)
-    ) {
-        throw Error('Contact exists already.');
-    }
+    createEmptyConversation(ensName, userDb, createEmptyConversationEntry);
 }
 
 function fetchDeliveryServiceProfile(connection: Connection) {
