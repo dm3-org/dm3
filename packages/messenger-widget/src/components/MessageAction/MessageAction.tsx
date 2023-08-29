@@ -21,19 +21,13 @@ export function MessageAction(props: MessageProps) {
                 actionType: action,
             },
         });
-        if (action === MessageActionType.EDIT) {
-            const element = document.getElementById('msg-input') as HTMLElement;
-            if (element) {
-                element.focus();
-            }
-        }
     };
 
     return (
         <div
             className={'msg-dropdown-content font-size-14 font-weight-400'.concat(
                 ' ',
-                props.ownMessage ? 'own-msg' : 'contact-msg',
+                props.ownMessage ? 'own-msg' : '',
             )}
         >
             {props.ownMessage && (

@@ -1,4 +1,4 @@
-import { MessageState } from 'dm3-lib-messaging';
+import { Envelop, MessageState } from 'dm3-lib-messaging';
 import {
     Actions,
     GlobalState,
@@ -31,7 +31,7 @@ export interface MessageProps {
     time: string;
     messageState: MessageState;
     ownMessage: boolean;
-    referenceMessageHash: string | undefined;
+    envelop: Envelop;
 }
 
 export interface MessageAction {

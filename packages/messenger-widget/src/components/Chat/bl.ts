@@ -79,7 +79,7 @@ const handleMessageContainer = (
             time: container.envelop.message.metadata.timestamp.toString(),
             messageState: container.messageState,
             ownMessage: false,
-            referenceMessageHash: container.envelop.metadata?.encryptedMessageHash
+            envelop: container.envelop,
         };
         if (
             isSameEnsName(
@@ -128,7 +128,7 @@ export const handleMessages = (
     });
 
     const newMessages = checkedContainers
-        .filter((conatier) => conatier.messageState === MessageState.Send)
+        .filter((container) => container.messageState === MessageState.Send)
         .map((container) => ({
             ...container,
             messageState: MessageState.Read,

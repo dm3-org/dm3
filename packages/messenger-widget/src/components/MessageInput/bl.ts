@@ -1,13 +1,12 @@
 import {
-    buildEnvelop,
     createEditMessage,
     createMessage,
-    Envelop,
+    Message,
     SendDependencies,
 } from 'dm3-lib-messaging';
 import { log } from 'dm3-lib-shared';
-import { getConversation, StorageEnvelopContainer } from 'dm3-lib-storage';
-import { sendMessage, submitMessage } from '../../adapters/messages';
+import { StorageEnvelopContainer } from 'dm3-lib-storage';
+import { submitMessage } from '../../adapters/messages';
 import {
     Actions,
     GlobalState,
@@ -15,7 +14,7 @@ import {
     UiViewStateType,
     UserDbType,
 } from '../../utils/enum-type-utils';
-import { encryptAsymmetric } from 'dm3-lib-crypto';
+import { Account, ProfileKeys } from 'dm3-lib-profile';
 
 const handleNewUserMessage = async (
     message: string,
@@ -33,12 +32,6 @@ const handleNewUserMessage = async (
         throw Error('no contact selected');
     }
 
-    const haltDelivery =
-        state.accounts.selectedContact?.account.profile?.publicEncryptionKey &&
-        state.connection.account?.profile?.publicEncryptionKey
-            ? false
-            : true;
-
     const messageData = await createMessage(
         state.accounts.selectedContact.account.ensName,
         state.connection.account!.ensName,
@@ -46,14 +39,120 @@ const handleNewUserMessage = async (
         userDb.keys.signingKeyPair.privateKey,
     );
 
-    const sendDependencies: SendDependencies = {
-        deliverServiceProfile:
-            state.accounts.selectedContact.deliveryServiceProfile!,
-        from: state.connection.account!,
-        to: state.accounts.selectedContact.account,
-        keys: userDb.keys,
-    };
+    const haltDelivery = getHaltDelivery(state);
+    const sendDependencies: SendDependencies = getDependencies(state);
 
+    await sendMessage(
+        state,
+        sendDependencies,
+        messageData,
+        haltDelivery,
+        dispatch,
+    );
+
+    setMessage('');
+};
+
+export const handleSubmit = async (
+    message: string,
+    state: GlobalState,
+    dispatch: React.Dispatch<Actions>,
+    setMessage: Function,
+    event:
+        | React.FormEvent<HTMLFormElement>
+        | React.MouseEvent<HTMLImageElement, MouseEvent>,
+) => {
+    event.preventDefault();
+
+    if (!message.trim().length) {
+        return;
+    }
+
+    if (
+        state.uiView.selectedMessageView.actionType === MessageActionType.EDIT
+    ) {
+        await editMessage(state, dispatch, message, setMessage);
+    } else {
+        await handleNewUserMessage(message, setMessage, state, dispatch);
+    }
+};
+
+const editMessage = async (
+    state: GlobalState,
+    dispatch: React.Dispatch<Actions>,
+    message: string,
+    setMessage: Function,
+) => {
+    const userDb = state.userDb;
+
+    if (!userDb) {
+        throw Error('userDB not found');
+    }
+
+    if (!state.accounts.selectedContact) {
+        throw Error('no contact selected');
+    }
+
+    const referenceMessageHash =
+        state.uiView.selectedMessageView.messageData?.envelop.metadata
+            ?.encryptedMessageHash;
+
+    dispatch({
+        type: UiViewStateType.SetMessageView,
+        payload: {
+            actionType: MessageActionType.NONE,
+            messageData: undefined,
+        },
+    });
+
+    // edit the original message
+    const messageData = await createEditMessage(
+        state.accounts.selectedContact?.account.ensName as string,
+        state.connection.account!.ensName,
+        message,
+        userDb.keys.signingKeyPair.privateKey as string,
+        referenceMessageHash as string,
+    );
+
+    const haltDelivery = getHaltDelivery(state);
+    const sendDependencies: SendDependencies = getDependencies(state);
+
+    await sendMessage(
+        state,
+        sendDependencies,
+        messageData,
+        haltDelivery,
+        dispatch,
+    );
+
+    setMessage('');
+};
+
+const getHaltDelivery = (state: GlobalState): boolean => {
+    return state.accounts.selectedContact?.account.profile
+        ?.publicEncryptionKey &&
+        state.connection.account?.profile?.publicEncryptionKey
+        ? false
+        : true;
+};
+
+const getDependencies = (state: GlobalState): SendDependencies => {
+    return {
+        deliverServiceProfile:
+            state.accounts.selectedContact?.deliveryServiceProfile!,
+        from: state.connection.account!,
+        to: state.accounts.selectedContact?.account as Account,
+        keys: state.userDb?.keys as ProfileKeys,
+    };
+};
+
+const sendMessage = async (
+    state: GlobalState,
+    sendDependencies: SendDependencies,
+    messageData: Message,
+    haltDelivery: boolean,
+    dispatch: React.Dispatch<Actions>,
+) => {
     try {
         await submitMessage(
             state.connection,
@@ -72,121 +171,7 @@ const handleNewUserMessage = async (
                     }),
                 ),
         );
-
-        // empty input field
-        setMessage('');
     } catch (e) {
         log('[handleNewUserMessage] ' + JSON.stringify(e), 'error');
-    }
-};
-
-export const handleSubmit = async (
-    message: string,
-    state: GlobalState,
-    dispatch: React.Dispatch<Actions>,
-    setMessage: Function,
-    event:
-        | React.FormEvent<HTMLFormElement>
-        | React.MouseEvent<HTMLImageElement, MouseEvent>,
-) => {
-    event.preventDefault();
-    if (!message.trim().length) {
-        return;
-    }
-    if (
-        state.uiView.selectedMessageView.actionType === MessageActionType.EDIT
-    ) {
-        const userDb = state.userDb;
-
-        if (!userDb) {
-            throw Error('userDB not found');
-        }
-
-        if (!state.accounts.selectedContact) {
-            throw Error('no contact selected');
-        }
-
-        const referenceMessageHash =
-            state.uiView.selectedMessageView.messageData?.referenceMessageHash;
-
-        // set message action to NONE
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                actionType: MessageActionType.NONE,
-                messageData: undefined,
-            },
-        });
-
-        // edit the original message
-        const messageData = await createEditMessage(
-            state.accounts.selectedContact?.account.ensName as string,
-            state.connection.account!.ensName,
-            message,
-            state.userDb?.keys.signingKeyPair.privateKey as string,
-            referenceMessageHash as string,
-        );
-
-        setMessage('');
-
-        dispatch({
-            type: UserDbType.editMessage,
-            payload: {
-                container: messageData,
-                connection: state.connection,
-            },
-        }),
-            // if (state.accounts.contacts) {
-            //     // eslint-disable-next-line no-console
-            //     console.log("--0--0",
-            //         getConversation(
-            //             state.accounts.selectedContact.account.ensName,
-            //             state.accounts.contacts.map((contact) => contact.account),
-            //             userDb,
-            //         ),
-            //     );
-            // }
-            // const haltDelivery =
-            //     state.accounts.selectedContact?.account.profile
-            //         ?.publicEncryptionKey &&
-            //     state.connection.account?.profile?.publicEncryptionKey
-            //         ? false
-            //         : true;
-
-            // const sendDependencies: SendDependencies = {
-            //     deliverServiceProfile:
-            //         state.accounts.selectedContact.deliveryServiceProfile!,
-            //     from: state.connection.account!,
-            //     to: state.accounts.selectedContact.account,
-            //     keys: userDb.keys,
-            // };
-
-            // try {
-            //     await submitMessage(
-            //         state.connection,
-            //         state.auth.currentSession?.token!,
-            //         sendDependencies,
-            //         messageData,
-            //         haltDelivery,
-            //         (envelops: StorageEnvelopContainer[]) =>
-            //             envelops.forEach((envelop) =>
-            //                 dispatch({
-            //                     type: UserDbType.addMessage,
-            //                     payload: {
-            //                         container: envelop,
-            //                         connection: state.connection,
-            //                     },
-            //                 }),
-            //             ),
-            //     );
-
-            //     // empty input field
-            //     setMessage('');
-            // } catch (e) {
-            //     log('[handleNewUserMessage] ' + JSON.stringify(e), 'error');
-            // }
-            setMessage('');
-    } else {
-        await handleNewUserMessage(message, setMessage, state, dispatch);
     }
 };

@@ -54,10 +54,38 @@ export function userDbReducer(
                     .metadata.timestamp <
                 container.envelop.message.metadata.timestamp
             ) {
-                newConversations.set(contactEnsName, [
-                    ...prevContainers,
-                    container,
-                ]);
+                if (container.envelop.message.metadata.referenceMessageHash) {
+                    const editedContainer = prevContainers.map(
+                        (prevContainer) => {
+                            if (
+                                prevContainer.envelop.metadata
+                                    ?.encryptedMessageHash ===
+                                container.envelop.message.metadata
+                                    .referenceMessageHash
+                            ) {
+                                prevContainer.envelop.message.message =
+                                    container.envelop.message.message;
+                            }
+                            return prevContainer;
+                        },
+                    );
+
+                    newConversations.set(contactEnsName, [...editedContainer]);
+                    log(
+                        `[DB] Edit message (timestamp: ${lastChangeTimestamp})`,
+                        'info',
+                    );
+                } else {
+                    newConversations.set(contactEnsName, [
+                        ...prevContainers,
+                        container,
+                    ]);
+                    log(
+                        `[DB] Add message (timestamp: ${lastChangeTimestamp})`,
+                        'info',
+                    );
+                }
+
                 hasChanged = true;
             } else {
                 const otherContainer = prevContainers.filter(
@@ -69,16 +97,17 @@ export function userDbReducer(
                     contactEnsName,
                     sortEnvelops([...otherContainer, container]),
                 );
+
                 hasChanged = true;
+                log(
+                    `[DB] Add message (timestamp: ${lastChangeTimestamp})`,
+                    'info',
+                );
             }
 
             if (!hasChanged) {
                 return state;
             } else {
-                log(
-                    `[DB] Add message (timestamp: ${lastChangeTimestamp})`,
-                    'info',
-                );
                 return {
                     ...state,
                     conversations: newConversations,
@@ -88,58 +117,6 @@ export function userDbReducer(
                     lastChangeTimestamp,
                 };
             }
-
-        case UserDbType.editMessage:
-            if (!state) {
-                throw Error(`UserDB hasn't been created.`);
-            }
-
-            log(
-                `[DB] Edit message (timestamp: ${lastChangeTimestamp})`,
-                'info',
-            );
-
-            const msgContainer = action.payload.container;
-            const connectionData = action.payload.connection;
-            const existingConversations = new Map<
-                string,
-                StorageEnvelopContainer[]
-            >(state.conversations);
-
-            const friendEnsName = normalizeEnsName(
-                msgContainer.metadata.from === connectionData.account!.ensName
-                    ? msgContainer.metadata.to
-                    : msgContainer.metadata.from,
-            );
-
-            const previousContainers: StorageEnvelopContainer[] =
-                getConversation(
-                    friendEnsName,
-                    [{ ensName: friendEnsName }],
-                    state,
-                );
-
-            const otherContainer = previousContainers.filter(
-                (prevContainer) =>
-                    prevContainer.envelop.metadata?.encryptedMessageHash ===
-                    msgContainer.metadata.referenceMessageHash,
-            );
-
-            otherContainer[0].envelop.message.message = msgContainer.message;
-
-            existingConversations.set(
-                friendEnsName,
-                sortEnvelops([...otherContainer]),
-            );
-
-            return {
-                ...state,
-                conversations: existingConversations,
-                conversationsCount: Array.from(existingConversations.keys())
-                    .length,
-                synced: false,
-                lastChangeTimestamp,
-            };
 
         case UserDbType.setDB:
             log(`[DB] Set db (timestamp: ${lastChangeTimestamp})`, 'info');
