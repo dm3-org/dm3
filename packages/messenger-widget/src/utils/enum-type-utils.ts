@@ -19,6 +19,7 @@ import {
 import { Account } from 'dm3-lib-profile';
 import { Connection } from '../interfaces/web3';
 import { ContactPreview, NewContact } from '../interfaces/utils';
+import { MessageAction } from '../interfaces/props';
 
 export type ActionMap<M extends { [index: string]: any }> = {
     [Key in keyof M]: M[Key] extends undefined
@@ -240,11 +241,13 @@ export enum LeftViewSelected {
 export enum UiViewStateType {
     SetSelectedRightView = 'SET_SELECTED_RIGHT_VIEW',
     SetSelectedLeftView = 'SET_SELECTED_LEFT_VIEW',
+    SetMessageView = 'SET_MESSAGE_VIEW',
 }
 
 export type UiViewStatePayload = {
     [UiViewStateType.SetSelectedLeftView]: LeftViewSelected;
     [UiViewStateType.SetSelectedRightView]: RightViewSelected;
+    [UiViewStateType.SetMessageView]: MessageAction;
 };
 
 export type UiViewStateActions =
@@ -264,3 +267,10 @@ export type ModalStatePayload = {
 
 export type ModalStateActions =
     ActionMap<ModalStatePayload>[keyof ActionMap<ModalStatePayload>];
+
+export enum MessageActionType {
+    EDIT = 'EDIT',
+    DELETE = 'DELETE',
+    REPLY = 'REPLY',
+    NONE = 'NONE',
+}

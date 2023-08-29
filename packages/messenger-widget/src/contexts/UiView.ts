@@ -21,6 +21,13 @@ export function uiViewReducer(
                 selectedRightView: action.payload,
             };
 
+        case UiViewStateType.SetMessageView:
+            log(`[UI] set message view ${action.payload}`, 'info');
+            return {
+                ...state,
+                selectedMessageView: action.payload,
+            };
+
         default:
             return state;
     }

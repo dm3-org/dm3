@@ -1,5 +1,9 @@
 import { MessageState } from 'dm3-lib-messaging';
-import { Actions, GlobalState } from '../utils/enum-type-utils';
+import {
+    Actions,
+    GlobalState,
+    MessageActionType,
+} from '../utils/enum-type-utils';
 import { Config, Dm3Props } from './config';
 import { ContactPreview } from './utils';
 
@@ -27,8 +31,10 @@ export interface MessageProps {
     time: string;
     messageState: MessageState;
     ownMessage: boolean;
+    referenceMessageHash: string | undefined;
 }
 
-export interface MessageActionProps {
-    ownMessage: boolean;
+export interface MessageAction {
+    messageData: MessageProps | undefined;
+    actionType: MessageActionType;
 }
