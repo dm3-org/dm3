@@ -6,7 +6,7 @@ import {
     SendDependencies,
 } from 'dm3-lib-messaging';
 import { log } from 'dm3-lib-shared';
-import { StorageEnvelopContainer } from 'dm3-lib-storage';
+import { getConversation, StorageEnvelopContainer } from 'dm3-lib-storage';
 import { sendMessage, submitMessage } from '../../adapters/messages';
 import {
     Actions,
@@ -127,46 +127,65 @@ export const handleSubmit = async (
             referenceMessageHash as string,
         );
 
-        const haltDelivery =
-            state.accounts.selectedContact?.account.profile
-                ?.publicEncryptionKey &&
-            state.connection.account?.profile?.publicEncryptionKey
-                ? false
-                : true;
-
-        const sendDependencies: SendDependencies = {
-            deliverServiceProfile:
-                state.accounts.selectedContact.deliveryServiceProfile!,
-            from: state.connection.account!,
-            to: state.accounts.selectedContact.account,
-            keys: userDb.keys,
-        };
-
-        try {
-            await submitMessage(
-                state.connection,
-                state.auth.currentSession?.token!,
-                sendDependencies,
-                messageData,
-                haltDelivery,
-                (envelops: StorageEnvelopContainer[]) =>
-                    envelops.forEach((envelop) =>
-                        dispatch({
-                            type: UserDbType.addMessage,
-                            payload: {
-                                container: envelop,
-                                connection: state.connection,
-                            },
-                        }),
-                    ),
-            );
-
-            // empty input field
-            setMessage('');
-        } catch (e) {
-            log('[handleNewUserMessage] ' + JSON.stringify(e), 'error');
-        }
         setMessage('');
+
+        dispatch({
+            type: UserDbType.editMessage,
+            payload: {
+                container: messageData,
+                connection: state.connection,
+            },
+        }),
+            // if (state.accounts.contacts) {
+            //     // eslint-disable-next-line no-console
+            //     console.log("--0--0",
+            //         getConversation(
+            //             state.accounts.selectedContact.account.ensName,
+            //             state.accounts.contacts.map((contact) => contact.account),
+            //             userDb,
+            //         ),
+            //     );
+            // }
+            // const haltDelivery =
+            //     state.accounts.selectedContact?.account.profile
+            //         ?.publicEncryptionKey &&
+            //     state.connection.account?.profile?.publicEncryptionKey
+            //         ? false
+            //         : true;
+
+            // const sendDependencies: SendDependencies = {
+            //     deliverServiceProfile:
+            //         state.accounts.selectedContact.deliveryServiceProfile!,
+            //     from: state.connection.account!,
+            //     to: state.accounts.selectedContact.account,
+            //     keys: userDb.keys,
+            // };
+
+            // try {
+            //     await submitMessage(
+            //         state.connection,
+            //         state.auth.currentSession?.token!,
+            //         sendDependencies,
+            //         messageData,
+            //         haltDelivery,
+            //         (envelops: StorageEnvelopContainer[]) =>
+            //             envelops.forEach((envelop) =>
+            //                 dispatch({
+            //                     type: UserDbType.addMessage,
+            //                     payload: {
+            //                         container: envelop,
+            //                         connection: state.connection,
+            //                     },
+            //                 }),
+            //             ),
+            //     );
+
+            //     // empty input field
+            //     setMessage('');
+            // } catch (e) {
+            //     log('[handleNewUserMessage] ' + JSON.stringify(e), 'error');
+            // }
+            setMessage('');
     } else {
         await handleNewUserMessage(message, setMessage, state, dispatch);
     }

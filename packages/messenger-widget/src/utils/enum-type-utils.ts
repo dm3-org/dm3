@@ -20,6 +20,7 @@ import { Account } from 'dm3-lib-profile';
 import { Connection } from '../interfaces/web3';
 import { ContactPreview, NewContact } from '../interfaces/utils';
 import { MessageAction } from '../interfaces/props';
+import { Message } from 'dm3-lib-messaging';
 
 export type ActionMap<M extends { [index: string]: any }> = {
     [Key in keyof M]: M[Key] extends undefined
@@ -92,6 +93,10 @@ export type GlobalState = {
 export type UserDbPayload = {
     [UserDbType.addMessage]: {
         container: StorageEnvelopContainer;
+        connection: Connection;
+    };
+    [UserDbType.editMessage]: {
+        container: Message;
         connection: Connection;
     };
     [UserDbType.setDB]: UserDB;
@@ -168,6 +173,7 @@ export enum ConnectionType {
 
 export enum UserDbType {
     addMessage = 'ADD_MESSAGE',
+    editMessage = 'EDIT_MESSAGE',
     setDB = 'SET_DB',
     createEmptyConversation = 'CREATE_EMPTY_CONVERSATION',
     setSynced = 'SET_SYNCED',

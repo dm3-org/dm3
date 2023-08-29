@@ -89,6 +89,58 @@ export function userDbReducer(
                 };
             }
 
+        case UserDbType.editMessage:
+            if (!state) {
+                throw Error(`UserDB hasn't been created.`);
+            }
+
+            log(
+                `[DB] Edit message (timestamp: ${lastChangeTimestamp})`,
+                'info',
+            );
+
+            const msgContainer = action.payload.container;
+            const connectionData = action.payload.connection;
+            const existingConversations = new Map<
+                string,
+                StorageEnvelopContainer[]
+            >(state.conversations);
+
+            const friendEnsName = normalizeEnsName(
+                msgContainer.metadata.from === connectionData.account!.ensName
+                    ? msgContainer.metadata.to
+                    : msgContainer.metadata.from,
+            );
+
+            const previousContainers: StorageEnvelopContainer[] =
+                getConversation(
+                    friendEnsName,
+                    [{ ensName: friendEnsName }],
+                    state,
+                );
+
+            const otherContainer = previousContainers.filter(
+                (prevContainer) =>
+                    prevContainer.envelop.metadata?.encryptedMessageHash ===
+                    msgContainer.metadata.referenceMessageHash,
+            );
+
+            otherContainer[0].envelop.message.message = msgContainer.message;
+
+            existingConversations.set(
+                friendEnsName,
+                sortEnvelops([...otherContainer]),
+            );
+
+            return {
+                ...state,
+                conversations: existingConversations,
+                conversationsCount: Array.from(existingConversations.keys())
+                    .length,
+                synced: false,
+                lastChangeTimestamp,
+            };
+
         case UserDbType.setDB:
             log(`[DB] Set db (timestamp: ${lastChangeTimestamp})`, 'info');
             return {
