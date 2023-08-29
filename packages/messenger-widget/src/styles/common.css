@@ -181,6 +181,7 @@ input:focus {
 ::-webkit-scrollbar {
     width: 10px;
     background-color: var(--background-config-box);
+    border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
