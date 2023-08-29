@@ -1,10 +1,10 @@
 import './MessageAction.css';
 import editIcon from '../../assets/images/edit.svg';
 import replyIcon from '../../assets/images/reply.svg';
-import { MessageActionProps } from '../../interfaces/props';
 import deleteIcon from '../../assets/images/chat-delete.svg';
+import { MessageProps } from '../../interfaces/props';
 
-export function MessageAction(props: MessageActionProps) {
+export function MessageAction(props: MessageProps) {
     return (
         <div
             className={'msg-dropdown-content font-size-14 font-weight-400'.concat(

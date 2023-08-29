@@ -48,9 +48,7 @@ export function Message(props: MessageProps) {
                         src={threeDotsIcon}
                         alt="action"
                     />
-                    {isHovered && (
-                        <MessageAction ownMessage={props.ownMessage} />
-                    )}
+                    {isHovered && <MessageAction {...props} />}
                 </div>
             </div>
             <div
