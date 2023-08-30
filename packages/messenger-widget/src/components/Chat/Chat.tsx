@@ -92,9 +92,11 @@ export function Chat() {
                     )}
                 >
                     {messageList.length > 0 &&
-                        messageList.map((messageData, index) => (
+                        messageList.map((messageData: MessageProps, index) => (
                             <div key={index} className="mt-2">
-                                <Message {...(messageData as MessageProps)} />
+                                {messageData.message && (
+                                    <Message {...messageData} />
+                                )}
                             </div>
                         ))}
                     <br />

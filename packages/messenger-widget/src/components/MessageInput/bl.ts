@@ -1,20 +1,19 @@
 import {
     createEditMessage,
     createMessage,
-    Message,
     SendDependencies,
 } from 'dm3-lib-messaging';
-import { log } from 'dm3-lib-shared';
-import { StorageEnvelopContainer } from 'dm3-lib-storage';
-import { submitMessage } from '../../adapters/messages';
 import {
     Actions,
     GlobalState,
     MessageActionType,
     UiViewStateType,
-    UserDbType,
 } from '../../utils/enum-type-utils';
-import { Account, ProfileKeys } from 'dm3-lib-profile';
+import {
+    getHaltDelivery,
+    getDependencies,
+    sendMessage,
+} from '../../utils/common-utils';
 
 const handleNewUserMessage = async (
     message: string,
@@ -126,52 +125,4 @@ const editMessage = async (
     );
 
     setMessage('');
-};
-
-const getHaltDelivery = (state: GlobalState): boolean => {
-    return state.accounts.selectedContact?.account.profile
-        ?.publicEncryptionKey &&
-        state.connection.account?.profile?.publicEncryptionKey
-        ? false
-        : true;
-};
-
-const getDependencies = (state: GlobalState): SendDependencies => {
-    return {
-        deliverServiceProfile:
-            state.accounts.selectedContact?.deliveryServiceProfile!,
-        from: state.connection.account!,
-        to: state.accounts.selectedContact?.account as Account,
-        keys: state.userDb?.keys as ProfileKeys,
-    };
-};
-
-const sendMessage = async (
-    state: GlobalState,
-    sendDependencies: SendDependencies,
-    messageData: Message,
-    haltDelivery: boolean,
-    dispatch: React.Dispatch<Actions>,
-) => {
-    try {
-        await submitMessage(
-            state.connection,
-            state.auth.currentSession?.token!,
-            sendDependencies,
-            messageData,
-            haltDelivery,
-            (envelops: StorageEnvelopContainer[]) =>
-                envelops.forEach((envelop) =>
-                    dispatch({
-                        type: UserDbType.addMessage,
-                        payload: {
-                            container: envelop,
-                            connection: state.connection,
-                        },
-                    }),
-                ),
-        );
-    } catch (e) {
-        log('[handleNewUserMessage] ' + JSON.stringify(e), 'error');
-    }
 };

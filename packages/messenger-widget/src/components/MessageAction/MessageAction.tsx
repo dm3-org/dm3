@@ -21,10 +21,13 @@ export function MessageAction(props: MessageProps) {
                 actionType: action,
             },
         });
+        const element = document.getElementById('msg-dropdown') as HTMLElement;
+        element && (element.style.display = 'none');
     };
 
     return (
         <div
+            id="msg-dropdown"
             className={'msg-dropdown-content font-size-14 font-weight-400'.concat(
                 ' ',
                 props.ownMessage ? 'own-msg' : '',
@@ -39,7 +42,10 @@ export function MessageAction(props: MessageProps) {
                         <img src={editIcon} alt="edit" className="me-2" />
                         Edit
                     </div>
-                    <div className="d-flex align-items-center justify-content-start">
+                    <div
+                        className="d-flex align-items-center justify-content-start"
+                        onClick={() => setAction(MessageActionType.DELETE)}
+                    >
                         <img src={deleteIcon} alt="delete" className="me-2" />
                         Delete
                     </div>

@@ -1,12 +1,17 @@
 import './Message.css';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { MessageState } from 'dm3-lib-messaging';
 import tickIcon from '../../assets/images/tick.svg';
 import { MessageProps } from '../../interfaces/props';
 import threeDotsIcon from '../../assets/images/three-dots.svg';
 import { MessageAction } from '../MessageAction/MessageAction';
+import { GlobalContext } from '../../utils/context-utils';
+import { MessageActionType } from '../../utils/enum-type-utils';
+import DeleteMessage from '../DeleteMessage/DeleteMessage';
 
 export function Message(props: MessageProps) {
+    const { state } = useContext(GlobalContext);
+
     // state to show action items three dots
     const [isHovered, setIsHovered] = useState(false);
 
@@ -27,6 +32,10 @@ export function Message(props: MessageProps) {
                     : 'ms-2 justify-content-start',
             )}
         >
+            {/* Delete message popup */}
+            {state.uiView.selectedMessageView.actionType ===
+                MessageActionType.DELETE && <DeleteMessage />}
+
             <div className="d-flex">
                 <div
                     className={'width-fill text-left font-size-14 border-radius-6 content-style'.concat(
