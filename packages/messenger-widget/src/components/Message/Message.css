@@ -18,7 +18,7 @@
 .time-style {
     margin-top: 3px;
     font-size: 10px;
-    margin-right: 0.3rem;
+    margin-right: 1.6rem;
 }
 
 .readed-tick-icon {
@@ -31,4 +31,24 @@
 
 .second-tick {
     margin-left: -5px;
+}
+
+.msg-action-container {
+    height: fit-content;
+    width: fit-content;
+    border: 1px solid var(--text-primary-color);
+    visibility: hidden;
+}
+
+.msg-action-dot {
+    height: 0.9rem;
+    width: 0.9rem;
+}
+
+.msg-action-container:hover {
+    background-color: var(--normal-btn-hover);
+}
+
+.msg:hover div .content-style + .msg-action-container {
+    visibility: visible !important;
 }
