@@ -50,5 +50,15 @@
 }
 
 .msg:hover div .content-style + .msg-action-container {
-    visibility: visible !important;
+    visibility: visible;
+}
+
+.hide-action {
+    visibility: hidden !important;
+}
+
+.msg-editing-active {
+    background-color: var(--text-secondary-color) !important;
+    color: var(--text-primary-color) !important;
+    border: 1px solid var(--text-primary-color) !important;
 }

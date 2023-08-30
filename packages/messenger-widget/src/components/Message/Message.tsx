@@ -23,6 +23,17 @@ export function Message(props: MessageProps) {
         setIsHovered(false);
     };
 
+    const getMessageChangeText = (): string => {
+        switch (props.envelop.message.metadata.type) {
+            case 'EDIT':
+                return '(edited) ';
+            case 'DELETE_REQUEST':
+                return '(deleted) ';
+            default:
+                return '';
+        }
+    };
+
     return (
         <span
             className={'text-primary-color d-grid msg'.concat(
@@ -41,14 +52,22 @@ export function Message(props: MessageProps) {
                     className={'width-fill text-left font-size-14 border-radius-6 content-style'.concat(
                         ' ',
                         props.ownMessage
-                            ? 'ms-3 normal-btn-hover'
+                            ? state.uiView.selectedMessageView.actionType ===
+                                  MessageActionType.EDIT &&
+                              state.uiView.selectedMessageView.messageData
+                                  ?.envelop.id === props.envelop.id
+                                ? 'msg-editing-active'
+                                : 'ms-3 normal-btn-hover'
                             : 'background-config-box',
                     )}
                 >
-                    {props.message}
+                    {props.message ? props.message : 'This message is deleted'}
                 </div>
                 <div
-                    className="msg-action-container d-flex pointer-cursor border-radius-3 position-relative"
+                    className={'msg-action-container d-flex pointer-cursor border-radius-3 position-relative'.concat(
+                        ' ',
+                        !props.message ? 'hide-action' : '',
+                    )}
                     onMouseOver={handleMouseOver}
                     onMouseLeave={handleMouseOut}
                 >
@@ -66,6 +85,7 @@ export function Message(props: MessageProps) {
                     props.ownMessage ? 'ms-3' : '',
                 )}
             >
+                {getMessageChangeText()}
                 {new Date(Number(props.time)).toLocaleString()}
                 <span className="tick-icon readed-tick-icon">
                     {!props.ownMessage ? (
