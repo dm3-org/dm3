@@ -5,6 +5,7 @@ import tickIcon from '../../assets/images/tick.svg';
 import { MessageProps } from '../../interfaces/props';
 import threeDotsIcon from '../../assets/images/three-dots.svg';
 import { MessageAction } from '../MessageAction/MessageAction';
+import { MessageActionType } from '../../utils/enum-type-utils';
 
 export function Message(props: MessageProps) {
     // state to show action items three dots
@@ -57,6 +58,9 @@ export function Message(props: MessageProps) {
                     props.ownMessage ? 'ms-3' : '',
                 )}
             >
+                {props.envelop.message.metadata.type === MessageActionType.EDIT
+                    ? '(edited) '
+                    : ''}
                 {new Date(Number(props.time)).toLocaleString()}
                 <span className="tick-icon readed-tick-icon">
                     {!props.ownMessage ? (

@@ -5,7 +5,11 @@ import {
     getConversation,
     sortEnvelops,
 } from 'dm3-lib-storage';
-import { UserDbActions, UserDbType } from '../utils/enum-type-utils';
+import {
+    MessageActionType,
+    UserDbActions,
+    UserDbType,
+} from '../utils/enum-type-utils';
 import { normalizeEnsName } from 'dm3-lib-profile';
 import { getId } from 'dm3-lib-messaging';
 import { log } from 'dm3-lib-shared';
@@ -65,6 +69,8 @@ export function userDbReducer(
                             ) {
                                 prevContainer.envelop.message.message =
                                     container.envelop.message.message;
+                                prevContainer.envelop.message.metadata.type =
+                                    MessageActionType.EDIT;
                             }
                             return prevContainer;
                         },

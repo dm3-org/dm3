@@ -21,10 +21,13 @@ export function MessageAction(props: MessageProps) {
                 actionType: action,
             },
         });
+        const element = document.getElementById('msg-dropdown') as HTMLElement;
+        element && (element.style.display = 'none');
     };
 
     return (
         <div
+            id="msg-dropdown"
             className={'msg-dropdown-content font-size-14 font-weight-400'.concat(
                 ' ',
                 props.ownMessage ? 'own-msg' : '',
