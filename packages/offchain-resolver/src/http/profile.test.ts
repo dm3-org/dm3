@@ -66,6 +66,8 @@ describe('Profile', () => {
         };
 
         app.locals.config.spamProtection = true;
+
+        process.env.REACT_APP_ADDR_ENS_SUBDOMAIN = '.beta-addr.dm3.eth';
     });
 
     afterEach(async () => {
@@ -80,10 +82,7 @@ describe('Profile', () => {
                 .post(`/name`)
                 .send({
                     alias: 'foo.dm3.eth',
-                    name:
-                        SENDER_ADDRESS +
-                        '.' +
-                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    name: SENDER_ADDRESS + globalConfig.ADDR_ENS_SUBDOMAIN(),
                     signature: await app.locals.forTests.wallet.signMessage(
                         'alias: foo.dm3.eth',
                     ),
@@ -116,7 +115,6 @@ describe('Profile', () => {
                     alias: 'foo.dm3.eth',
                     name:
                         offChainProfile1.signer +
-                        '.' +
                         globalConfig.ADDR_ENS_SUBDOMAIN(),
                     signature: await sign(
                         offChainProfile1.privateSigningKey,
@@ -152,7 +150,6 @@ describe('Profile', () => {
                     alias: 'foo.dm3.eth',
                     name:
                         offChainProfile.signer +
-                        '.' +
                         globalConfig.ADDR_ENS_SUBDOMAIN(),
                     signature: await sign(
                         offChainProfile.privateSigningKey,
@@ -192,7 +189,6 @@ describe('Profile', () => {
                     alias: 'foo.dm3.eth',
                     name:
                         offChainProfile1.signer +
-                        '.' +
                         globalConfig.ADDR_ENS_SUBDOMAIN(),
                     signature: await sign(
                         offChainProfile1.privateSigningKey,
@@ -229,7 +225,6 @@ describe('Profile', () => {
                     alias: 'foo.dm3.eth',
                     name:
                         offChainProfile1.signer +
-                        '.' +
                         globalConfig.ADDR_ENS_SUBDOMAIN(),
                     signature: await sign(
                         offChainProfile1.privateSigningKey,
@@ -369,7 +364,7 @@ describe('Profile', () => {
                 .post(`/name`)
                 .send({
                     alias: 'foo.dm3.eth',
-                    name: signer + '.' + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    name: signer + globalConfig.ADDR_ENS_SUBDOMAIN(),
                     signature: await sign(
                         privateSigningKey,
                         'alias: foo.dm3.eth',
@@ -428,7 +423,7 @@ describe('Profile', () => {
                 .post(`/name`)
                 .send({
                     alias: 'foo.dm3.eth',
-                    name: signer + '.' + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    name: signer + globalConfig.ADDR_ENS_SUBDOMAIN(),
                     signature: await sign(
                         privateSigningKey,
                         'alias: foo.dm3.eth',

@@ -250,7 +250,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     });
                 }
 
-                const name = `${address}.${globalConfig.ADDR_ENS_SUBDOMAIN()}`;
+                const name = `${address}${globalConfig.ADDR_ENS_SUBDOMAIN()}`;
 
                 const profileExists =
                     !!(await req.app.locals.db.getProfileContainer(name));
