@@ -1,0 +1,32 @@
+.msg-dropdown-content {
+    flex-direction: column;
+    position: absolute;
+    background-color: var(--background-container);
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border: 1px solid #000000;
+    border-radius: 5px;
+}
+
+.own-msg {
+    margin-top: 1rem;
+    margin-left: -9rem;
+}
+
+.contact-msg {
+    margin-top: 1rem;
+}
+
+.msg-dropdown-content-top-align {
+    margin-top: -6.9rem !important;
+}
+
+.msg-dropdown-content div {
+    color: var(--text-primary-color);
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
+}
+
+.msg-dropdown-content div:hover {
+    background-color: var(--normal-btn);
+}
