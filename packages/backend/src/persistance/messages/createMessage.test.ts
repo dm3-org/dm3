@@ -5,6 +5,10 @@ import { DeliveryInformation, EncryptionEnvelop } from 'dm3-lib-messaging';
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
+global.logger = winston.createLogger({
+    transports: [new winston.transports.Console()],
+});
+
 describe('Create Message', () => {
     let redisClient: Redis;
     let db: IDatabase;
@@ -13,8 +17,8 @@ describe('Create Message', () => {
     });
 
     beforeEach(async () => {
-        redisClient = await getRedisClient(logger);
-        db = await getDatabase(logger, redisClient);
+        redisClient = await getRedisClient();
+        db = await getDatabase(redisClient);
         await redisClient.flushDb();
     });
 

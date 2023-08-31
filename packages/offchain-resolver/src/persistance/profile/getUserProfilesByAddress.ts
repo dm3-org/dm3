@@ -10,8 +10,19 @@ export function getUserProfileByAddress(db: PrismaClient) {
             },
         });
 
-        return profileContainer && profileContainer.profile
-            ? (JSON.parse(profileContainer.profile?.toString()) as UserProfile)
-            : null;
+        const userProfile =
+            profileContainer && profileContainer.profile
+                ? (JSON.parse(
+                      profileContainer.profile?.toString(),
+                  ) as UserProfile)
+                : null;
+
+        global.logger.debug({
+            message: 'getUserProfileByAddress',
+            address: ethersHelper.formatAddress(address),
+            userProfile,
+        });
+
+        return userProfile;
     };
 }
