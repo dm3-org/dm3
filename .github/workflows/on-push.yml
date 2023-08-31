@@ -42,127 +42,122 @@ jobs:
                   path: packages/lib/**/dist/
             - uses: actions/upload-artifact@master
               with:
-                  name: lib-backend-builds
-                  path: packages/lib/**/dist.backend/
-            - uses: actions/upload-artifact@master
-              with:
                   name: lib-schema
                   path: packages/lib/**/schema/
     backend-test:
-      runs-on: ubuntu-latest
-      needs: build
-      defaults:
-          run:
-              working-directory: 'packages/lib'
-      steps:
-      
-        - uses: actions/checkout@v1
-        - id: workspace-test
-          uses: ./test-action
-          with:
-            workspace-name: 'dm3-backend'
-            package-pat: ${{ secrets.PACKAGE_PAT }}
+        runs-on: ubuntu-latest
+        needs: build
+        defaults:
+            run:
+                working-directory: 'packages/lib'
+        steps:
+            - uses: actions/checkout@v1
+            - id: workspace-test
+              uses: ./test-action
+              with:
+                  workspace-name: 'dm3-backend'
+                  package-pat: ${{ secrets.PACKAGE_PAT }}
     integration-test:
-      runs-on: ubuntu-latest
-      needs: build
-      defaults:
-          run:
-              working-directory: 'packages/lib'
-      steps:
-        - uses: actions/checkout@v1
-        - id: workspace-test
-          uses: ./test-action
-          with:
-            workspace-name: 'dm3-integration-tests'
-            package-pat: ${{ secrets.PACKAGE_PAT }}
+        runs-on: ubuntu-latest
+        needs: build
+        defaults:
+            run:
+                working-directory: 'packages/lib'
+        steps:
+            - uses: actions/checkout@v1
+            - id: workspace-test
+              uses: ./test-action
+              with:
+                  workspace-name: 'dm3-integration-tests'
+                  package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-crypto-test:
-      runs-on: ubuntu-latest
-      needs: build
-      defaults:
-          run:
-              working-directory: 'packages/lib'
-      steps:
-        - uses: actions/checkout@v1
-        - id: workspace-test
-          uses: ./test-action
-          with:
-            workspace-name: 'dm3-lib-crypto'
-            package-pat: ${{ secrets.PACKAGE_PAT }}
+        runs-on: ubuntu-latest
+        needs: build
+        defaults:
+            run:
+                working-directory: 'packages/lib'
+        steps:
+            - uses: actions/checkout@v1
+            - id: workspace-test
+              uses: ./test-action
+              with:
+                  workspace-name: 'dm3-lib-crypto'
+                  package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-delivery-test:
-      runs-on: ubuntu-latest
-      needs: build
-      defaults:
-          run:
-              working-directory: 'packages/lib'
-      steps:
-        - uses: actions/checkout@v1
-        - id: workspace-test
-          uses: ./test-action
-          with:
-            workspace-name: 'dm3-lib-delivery'
-            package-pat: ${{ secrets.PACKAGE_PAT }}
+        runs-on: ubuntu-latest
+        needs: build
+        defaults:
+            run:
+                working-directory: 'packages/lib'
+        steps:
+            - uses: actions/checkout@v1
+            - id: workspace-test
+              uses: ./test-action
+              with:
+                  workspace-name: 'dm3-lib-delivery'
+                  package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-messaging-test:
-      runs-on: ubuntu-latest
-      needs: build
-      defaults:
-          run:
-              working-directory: 'packages/lib'
-      steps:
-        - uses: actions/checkout@v1
-        - id: workspace-test
-          uses: ./test-action
-          with:
-            workspace-name: 'dm3-lib-messaging'
-            package-pat: ${{ secrets.PACKAGE_PAT }}
+        runs-on: ubuntu-latest
+        needs: build
+        defaults:
+            run:
+                working-directory: 'packages/lib'
+        steps:
+            - uses: actions/checkout@v1
+            - id: workspace-test
+              uses: ./test-action
+              with:
+                  workspace-name: 'dm3-lib-messaging'
+                  package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-profile-test:
-      runs-on: ubuntu-latest
-      needs: build
-      defaults:
-          run:
-              working-directory: 'packages/lib'
-      steps:
-        - uses: actions/checkout@v1
-        - id: workspace-test
-          uses: ./test-action
-          with:
-            workspace-name: 'dm3-lib-profile'
-            package-pat: ${{ secrets.PACKAGE_PAT }}
+        runs-on: ubuntu-latest
+        needs: build
+        defaults:
+            run:
+                working-directory: 'packages/lib'
+        steps:
+            - uses: actions/checkout@v1
+            - id: workspace-test
+              uses: ./test-action
+              with:
+                  workspace-name: 'dm3-lib-profile'
+                  package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-shared-test:
-      runs-on: ubuntu-latest
-      needs: build
-      defaults:
-          run:
-              working-directory: 'packages/lib'
-      steps:
-        - uses: actions/checkout@v1
-        - id: workspace-test
-          uses: ./test-action
-          with:
-            workspace-name: 'dm3-lib-shared'
-            package-pat: ${{ secrets.PACKAGE_PAT }}
+        runs-on: ubuntu-latest
+        needs: build
+        defaults:
+            run:
+                working-directory: 'packages/lib'
+        steps:
+            - uses: actions/checkout@v1
+            - id: workspace-test
+              uses: ./test-action
+              with:
+                  workspace-name: 'dm3-lib-shared'
+                  package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-storage-test:
-      runs-on: ubuntu-latest
-      needs: build
-      defaults:
-          run:
-              working-directory: 'packages/lib'
-      steps:
-        - uses: actions/checkout@v1
-        - id: workspace-test
-          uses: ./test-action
-          with:
-            workspace-name: 'dm3-lib-storage'
-            package-pat: ${{ secrets.PACKAGE_PAT }}
+        runs-on: ubuntu-latest
+        needs: build
+        defaults:
+            run:
+                working-directory: 'packages/lib'
+        steps:
+            - uses: actions/checkout@v1
+            - id: workspace-test
+              uses: ./test-action
+              with:
+                  workspace-name: 'dm3-lib-storage'
+                  package-pat: ${{ secrets.PACKAGE_PAT }}
     offchain-resolver-test:
-      runs-on: ubuntu-latest
-      needs: build
-      defaults:
-          run:
-              working-directory: 'packages/lib'
-      steps:
-        - uses: actions/checkout@v1
-        - id: workspace-test
-          uses: ./test-action
-          with:
-            workspace-name: 'dm3-offchain-resolver'
-            package-pat: ${{ secrets.PACKAGE_PAT }}
+        runs-on: ubuntu-latest
+        needs: build
+        defaults:
+            run:
+                working-directory: 'packages/lib'
+        steps:
+            - uses: actions/checkout@v1
+            - id: workspace-test
+              uses: ./test-action
+              with:
+                  workspace-name: 'dm3-offchain-resolver'
+                  package-pat: ${{ secrets.PACKAGE_PAT }}
