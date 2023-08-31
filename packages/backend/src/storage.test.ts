@@ -3,6 +3,7 @@ import express from 'express';
 import auth from './auth';
 import storage from './storage';
 import request from 'supertest';
+import winston from 'winston';
 
 const keysA = {
     encryptionKeyPair: {
@@ -17,6 +18,10 @@ const keysA = {
     storageEncryptionKey: '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJU=',
     storageEncryptionNonce: 0,
 };
+
+global.logger = winston.createLogger({
+    transports: [new winston.transports.Console()],
+});
 
 describe('Storage', () => {
     describe('getUserStorage', () => {

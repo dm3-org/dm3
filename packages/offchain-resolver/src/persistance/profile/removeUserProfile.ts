@@ -27,6 +27,13 @@ export function removeUserProfile(db: PrismaClient) {
                     nameHash: profileContainer.nameHash,
                 },
             });
+
+            global.logger.debug({
+                message: 'removeUserProfile',
+                profileContainerId: profileContainer.id,
+                nameHash: profileContainer.nameHash,
+            });
+
             return true;
         } catch (e) {
             return false;

@@ -12,5 +12,5 @@ export async function handleAddr(db: IDatabase, request: any) {
         interceptResult,
     });
 
-    return interceptResult ?? (await db.getProfileContainer(name));
+    return interceptResult ?? (await db.getProfileContainer(name))?.address;
 }
