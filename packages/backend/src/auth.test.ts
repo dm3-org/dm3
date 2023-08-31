@@ -3,6 +3,12 @@ import express from 'express';
 import request from 'supertest';
 import auth from './auth';
 import { ethers } from 'ethers';
+import winston from 'winston';
+
+global.logger = winston.createLogger({
+    transports: [new winston.transports.Console()],
+});
+
 describe('Auth', () => {
     const keysA = {
         encryptionKeyPair: {

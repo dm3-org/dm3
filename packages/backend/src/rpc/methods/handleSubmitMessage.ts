@@ -35,7 +35,7 @@ export async function handleSubmitMessage(
     if (!isSchemaValid) {
         const error = 'invalid schema';
 
-        req.app.locals.logger.warn({
+        global.logger.warn({
             method: 'WS SUBMIT MESSAGE',
             error,
         });
@@ -58,7 +58,7 @@ export async function handleSubmitMessage(
         );
         res.send(200);
     } catch (error) {
-        req.app.locals.logger.warn({
+        global.logger.warn({
             method: 'RPC SUBMIT MESSAGE',
             error,
         });

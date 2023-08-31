@@ -21,6 +21,15 @@ const server = http.createServer(app);
 app.use(cors());
 app.use(bodyParser.json());
 
+declare global {
+    var logger: winston.Logger;
+}
+
+global.logger = winston.createLogger({
+    level: process.env.LOG_LEVEL ?? 'info',
+    transports: [new winston.transports.Console()],
+});
+
 (async () => {
     app.locals.logger = winston.createLogger({
         transports: [new winston.transports.Console()],

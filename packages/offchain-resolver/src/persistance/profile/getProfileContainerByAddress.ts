@@ -10,13 +10,22 @@ export function getProfileContainerByAddress(db: PrismaClient) {
             },
         });
 
-        return profileContainer && profileContainer.profile
-            ? {
-                  ...profileContainer,
-                  profile: JSON.parse(
-                      profileContainer.profile.toString(),
-                  ) as SignedUserProfile,
-              }
-            : null;
+        const profileContainerResult =
+            profileContainer && profileContainer.profile
+                ? {
+                      ...profileContainer,
+                      profile: JSON.parse(
+                          profileContainer.profile.toString(),
+                      ) as SignedUserProfile,
+                  }
+                : null;
+
+        global.logger.debug({
+            message: 'getProfileContainerByAddress',
+            address,
+            profileContainerResult,
+        });
+
+        return profileContainerResult;
     };
 }
