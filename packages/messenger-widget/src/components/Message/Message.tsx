@@ -61,7 +61,7 @@ export function Message(props: MessageProps) {
                             : 'background-config-box',
                     )}
                 >
-                    {props.message ? props.message : 'This message is deleted'}
+                    {props.message ? props.message : 'This message was deleted'}
                 </div>
                 <div
                     className={'msg-action-container d-flex pointer-cursor border-radius-3 position-relative'.concat(
