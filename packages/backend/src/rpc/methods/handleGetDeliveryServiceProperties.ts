@@ -8,7 +8,7 @@ export function handleGetDeliveryServiceProperties(
     const response = req.app.locals.deliveryServiceProperties;
 
     if (!response) {
-        req.app.locals.logger.error({
+        global.logger.error({
             method: 'RPC GET DELIVERY SERVICE PROPERTIES',
             error: 'No Delivery Service Properties Set',
         });

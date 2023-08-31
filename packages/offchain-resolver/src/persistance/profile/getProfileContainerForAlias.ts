@@ -20,20 +20,33 @@ export function getProfileContainerForAlias(db: PrismaClient) {
             where: { alias: normalizeEnsName(alias) },
         });
         if (!aliasContainer) {
+            global.logger.debug({
+                message: 'getProfileContainerForAlias',
+                alias: normalizeEnsName(alias),
+            });
             return null;
         } else {
             const profileContainer = await db.profileContainer.findUnique({
                 where: { id: aliasContainer.profileContainerId },
             });
 
-            return profileContainer && profileContainer.profile
-                ? {
-                      ...profileContainer,
-                      profile: JSON.parse(
-                          profileContainer.profile.toString(),
-                      ) as SignedUserProfile,
-                  }
-                : null;
+            const profileContainerResult =
+                profileContainer && profileContainer.profile
+                    ? {
+                          ...profileContainer,
+                          profile: JSON.parse(
+                              profileContainer.profile.toString(),
+                          ) as SignedUserProfile,
+                      }
+                    : null;
+
+            global.logger.debug({
+                message: 'getProfileContainerForAlias',
+                id: aliasContainer.profileContainerId,
+                profileContainerResult,
+            });
+
+            return profileContainerResult;
         }
     };
 }

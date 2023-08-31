@@ -12,9 +12,9 @@
         }
     },
     "dependencies": {
-        "dm3-lib-crypto": "^0.2.0",
-        "dm3-lib-profile": "^0.2.0",
-        "dm3-lib-shared": "^0.2.1",
+        "dm3-lib-crypto": "workspace:^",
+        "dm3-lib-profile": "workspace:^",
+        "dm3-lib-shared": "workspace:^",
         "ethers": "5.7.2",
         "safe-stable-stringify": "^2.4.1"
     },

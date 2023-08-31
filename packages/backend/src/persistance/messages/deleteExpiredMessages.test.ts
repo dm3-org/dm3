@@ -1,15 +1,17 @@
 import winston from 'winston';
 import { getDatabase, getRedisClient, IDatabase, Redis } from '../getDatabase';
+
+global.logger = winston.createLogger({
+    transports: [new winston.transports.Console()],
+});
+
 describe('Delete Expired messages', () => {
     let redisClient: Redis;
     let db: IDatabase;
-    const logger = winston.createLogger({
-        transports: [new winston.transports.Console()],
-    });
 
     beforeEach(async () => {
-        redisClient = await getRedisClient(logger);
-        db = await getDatabase(logger, redisClient);
+        redisClient = await getRedisClient();
+        db = await getDatabase(redisClient);
         await redisClient.flushDb();
     });
 

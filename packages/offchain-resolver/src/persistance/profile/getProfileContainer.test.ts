@@ -17,6 +17,8 @@ describe('getUserProfile', () => {
         transports: [new winston.transports.Console()],
     });
 
+    global.logger = logger;
+
     beforeEach(async () => {
         prismaClient = await getDbClient(logger);
         db = await getDatabase(logger, prismaClient);

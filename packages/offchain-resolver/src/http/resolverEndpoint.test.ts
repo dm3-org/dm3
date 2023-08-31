@@ -94,12 +94,13 @@ describe('Resolver Endpoint', () => {
                 'resolve',
                 [encodeEnsName(ensName), innerCall],
             );
-            const { body, status } = await request(ccipApp)
+            const { text, status } = await request(ccipApp)
                 .get(`/${ethers.constants.AddressZero}/${outerCall}`)
                 .send();
             expect(status).to.equal(200);
-            expect(body.response).to.equal(
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+
+            expect(text.toLowerCase()).to.equal(
+                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292'.toLowerCase(),
             );
         });
 
@@ -127,7 +128,7 @@ describe('Resolver Endpoint', () => {
                 'resolve',
                 [encodeEnsName(ensName), innerCall],
             );
-            const { body, status } = await request(ccipApp)
+            const { text, status } = await request(ccipApp)
                 .get(`/${ethers.constants.AddressZero}/${outerCall}`)
                 .send();
 
@@ -135,7 +136,7 @@ describe('Resolver Endpoint', () => {
 
             const [decoded] = ethers.utils.defaultAbiCoder.decode(
                 ['string'],
-                body.response,
+                text,
             );
             expect(decoded).to.equal('test');
         });
@@ -185,13 +186,13 @@ describe('Resolver Endpoint', () => {
                     'resolve',
                     [encodeEnsName(name), innerCall],
                 );
-                const { body, status } = await request(ccipApp)
+                const { text, status } = await request(ccipApp)
                     .get(`/${ethers.constants.AddressZero}/${outerCall}`)
                     .send();
 
                 const [decoded] = ethers.utils.defaultAbiCoder.decode(
                     ['string'],
-                    body.response,
+                    text,
                 );
 
                 expect(status).to.equal(200);
@@ -220,11 +221,12 @@ describe('Resolver Endpoint', () => {
                 );
 
                 //You the url returned by he contract to fetch the profile from the ccip gateway
-                const { status } = await request(ccipApp)
+                const { status, text } = await request(ccipApp)
                     .get(`/${ethers.constants.AddressZero}/${outerCall}`)
                     .send();
 
-                expect(status).to.equal(404);
+                expect(status).to.equal(200);
+                expect(text).to.equal('0x');
             });
 
             it('Returns 400 if record is not network.dm3.profile', async () => {

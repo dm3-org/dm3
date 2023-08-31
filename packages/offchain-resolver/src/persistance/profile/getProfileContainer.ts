@@ -21,15 +21,27 @@ export function getProfileContainer(db: PrismaClient) {
         });
 
         if (profileContainer) {
-            return profileContainer && profileContainer.profile
-                ? {
-                      ...profileContainer,
-                      profile: JSON.parse(
-                          profileContainer.profile.toString(),
-                      ) as SignedUserProfile,
-                  }
-                : null;
+            const profileContainerResult =
+                profileContainer && profileContainer.profile
+                    ? {
+                          ...profileContainer,
+                          profile: JSON.parse(
+                              profileContainer.profile.toString(),
+                          ) as SignedUserProfile,
+                      }
+                    : null;
+            global.logger.debug({
+                message: 'getProfileContainer',
+                nameHash: ethers.utils.namehash(name),
+                profileContainerResult,
+            });
+
+            return profileContainerResult;
         } else {
+            global.logger.debug({
+                message: 'getProfileContainer',
+                nameHash: ethers.utils.namehash(name),
+            });
             // try to find an alias which equlas name
             return await getProfileContainerForAlias(db)(name);
         }
