@@ -25,10 +25,6 @@ runs:
         with:
             name: lib-schema
             path: packages/lib
-      - uses: actions/download-artifact@master
-        with:
-            name: lib-backend-builds
-            path: packages/lib
       - name: Install
         shell: bash
         run: yarn install
