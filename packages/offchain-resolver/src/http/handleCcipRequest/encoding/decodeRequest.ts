@@ -3,6 +3,7 @@ import { DecodedCcipRequest } from '../types';
 import { decodeAddr } from './decode/decodeAddr';
 import { decodeText } from './decode/decodeText';
 import { getResolverInterface } from './getResolverInterface';
+import { TransactionDescription } from 'ethers/lib/utils';
 
 /**
 Decodes a given calldata string and returns a DecodedCcipRequest object containing the signature and request.
@@ -14,14 +15,16 @@ export function decodeRequest(calldata: string): DecodedCcipRequest {
     try {
         const textResolver = getResolverInterface();
 
-        //Parse the calldata returned by a contra
-        const [ensName, data] = textResolver.parseTransaction({
-            data: calldata,
-        }).args;
+        //Parse the calldata returned by a contrat
+        const [ensName, data] = (
+            textResolver.parseTransaction({
+                data: calldata,
+            }) as TransactionDescription
+        ).args;
 
         const { signature, args } = textResolver.parseTransaction({
             data,
-        });
+        }) as TransactionDescription;
 
         switch (signature) {
             case 'text(bytes32,string)':

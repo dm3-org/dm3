@@ -7,6 +7,7 @@ import {
 } from 'dm3-lib-profile';
 import { validateSchema } from 'dm3-lib-shared';
 import { PrismaClient } from '@prisma/client';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  *
@@ -36,12 +37,14 @@ export function setUserProfile(db: PrismaClient) {
         try {
             await db.profileContainer.create({
                 data: {
+                    id: uuidv4(),
                     nameHash,
                     profile: JSON.stringify(profile),
                     address: formatAddress(address),
                     ensName: normalizeEnsName(name),
                 },
             });
+
             return true;
         } catch (e) {
             return false;

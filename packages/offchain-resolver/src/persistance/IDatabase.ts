@@ -1,14 +1,19 @@
-import { SignedUserProfile, UserProfile } from 'dm3-lib-profile';
+import { SignedUserProfile } from 'dm3-lib-profile';
+import { ProfileContainer } from './profile/getProfileContainer';
 
 export interface IDatabase {
-    getUserProfile(name: string): Promise<UserProfile | null>;
-    getUserProfileByAddress(address: string): Promise<UserProfile | null>;
+    getProfileContainerByAddress(
+        address: string,
+    ): Promise<ProfileContainer | null>;
+    getProfileContainer(address: string): Promise<ProfileContainer | null>;
     setUserProfile(
         ensName: string,
         offchainUserProfile: SignedUserProfile,
         address: string,
     ): Promise<boolean>;
-    hasAddressProfile(name: string): Promise<boolean>;
-    getAddressByName(nameHash: string): Promise<string | null>;
-    getNameByAddress(address: string): Promise<string | null>;
+    removeUserProfile(ensName: string): Promise<boolean>;
+    setAlias(name: string, alias: string): Promise<boolean>;
+    getProfileContainerForAlias(
+        alias: string,
+    ): Promise<ProfileContainer | null>;
 }

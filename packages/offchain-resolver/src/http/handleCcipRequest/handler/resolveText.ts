@@ -17,9 +17,9 @@ export async function handleText(db: IDatabase, request: any) {
         throw Error(`${record} Record is not supported by this resolver`);
     }
 
-    const userProfile = await db.getUserProfile(name);
+    const profileContainer = await db.getProfileContainer(name);
 
-    return userProfile
-        ? 'data:application/json,' + stringify(userProfile)
+    return profileContainer
+        ? 'data:application/json,' + stringify(profileContainer.profile)
         : null;
 }

@@ -1,0 +1,94 @@
+.contacts-scroller {
+    height: 73vh;
+    padding-left: 1rem;
+    margin-top: 2px;
+}
+
+.scroller-hidden {
+    overflow: hidden;
+}
+
+.scroller-active {
+    overflow: auto;
+}
+
+.contacts-scroller::-webkit-scrollbar {
+    display: none;
+}
+
+.contact-details-container {
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
+}
+
+.pic {
+    height: 3rem;
+    width: 3rem;
+}
+
+.content {
+    padding-left: 0.5rem;
+}
+
+.content p {
+    margin-bottom: 0;
+}
+
+.action-container {
+    border-radius: 3px;
+    border: 1px solid var(--text-primary-color);
+    position: relative;
+    padding: 0px 2px 0px 2px;
+}
+
+.action-container:hover {
+    background-color: var(--normal-btn-hover);
+}
+
+.action-container:hover > .dropdown-content {
+    display: flex;
+}
+
+.action-dot {
+    height: 0.8rem;
+    width: 0.8rem;
+}
+
+.contacts-msg {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
+
+.hidden-data {
+    height: 4rem;
+    visibility: hidden;
+}
+
+.active-contact-border {
+    border-top: 2px solid var(--normal-btn-hover);
+    border-left: 2px solid var(--normal-btn-hover);
+    border-bottom: 2px solid var(--normal-btn-hover);
+}
+
+.contact-details-container:hover {
+    border-radius: 0px;
+    padding-left: 2.5rem;
+    margin-left: -1.5rem;
+    background-color: var(--normal-btn);
+}
+
+.contact-details-container-active {
+    border-top: 2px solid var(--normal-btn-hover) !important;
+    border-left: 2px solid var(--normal-btn-hover) !important;
+    border-bottom: 2px solid var(--normal-btn-hover) !important;
+    background: linear-gradient(-259deg, #544393, #1f2029) !important;
+    top: 0;
+    bottom: 0;
+    position: sticky;
+    border-top-left-radius: 10px !important;
+    border-bottom-left-radius: 10px !important;
+    padding-left: 0.5rem !important;
+    margin-left: 0.5rem !important;
+}

@@ -18,8 +18,11 @@ export function getUserProfile(db: PrismaClient) {
             },
         });
 
+        // profileContainer.profile may be a string or an object.
         return profileContainer && profileContainer.profile
-            ? (JSON.parse(profileContainer.profile.toString()) as UserProfile)
+            ? (JSON.parse(
+                  JSON.stringify(profileContainer.profile),
+              ) as UserProfile)
             : null;
     };
 }

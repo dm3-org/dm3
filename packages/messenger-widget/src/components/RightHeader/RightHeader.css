@@ -1,0 +1,16 @@
+.profile-name {
+    margin-right: 0.7rem;
+}
+
+.profile-name:hover {
+    text-decoration: underline;
+}
+
+.profile-name-container {
+    padding: 0.8rem;
+    border-top-right-radius: 8px;
+}
+
+.default-profile-pic {
+    height: 1.75rem;
+}
