@@ -1,15 +1,18 @@
 version: "3.1"
 services:
 
-  # nginx:
-  #   container_name: nginx
-  #   image: nginx:latest
-  #   restart: always
-  #   volumes:
-  #     - ./nginx.conf:/etc/nginx/nginx.conf
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    restart: always
+    depends_on:
+      - offchain-resolver
+      - web
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+      - "443:443"
 
   backend:
     image: dm3-backend
@@ -23,6 +26,8 @@ services:
       ENCRYPTION_PUBLIC_KEY: ${ENCRYPTION_PUBLIC_KEY}
       ENCRYPTION_PRIVATE_KEY: ${ENCRYPTION_PUBLIC_KEY}
       RPC: ${RPC}
+    ports:
+      - '8081:8081'
 
   db:
     image: redis
@@ -63,7 +68,7 @@ services:
       REACT_APP_WALLET_CONNECT_PROJECT_ID: ${REACT_APP_WALLET_CONNECT_PROJECT_ID}
       RESOLVER_ADDR: ${RESOLVER_ADDR}
     ports:
-      - '${WEB_PORT}:8080'
+      - '8080:8080'
 
   ccip-resolver:
     image: dm3org/ccip-resolver:v0.2.2
@@ -75,7 +80,7 @@ services:
       LOG_LEVEL: debug
       CONFIG: |
         {
-          "0x5e0F81D5ca51D309B3A046FAeea70C4C70Df8079": {
+          "0x4283441191a27513c2160c1e7BC1aa02Ab84D900": {
             "type": "signing",
             "handlerUrl": "http://offchain-resolver:8081"
           }

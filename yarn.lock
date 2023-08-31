@@ -7060,6 +7060,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "axios@npm:1.5.0"
+  dependencies:
+    follow-redirects: ^1.15.0
+    form-data: ^4.0.0
+    proxy-from-env: ^1.1.0
+  checksum: e7405a5dbbea97760d0e6cd58fecba311b0401ddb4a8efbc4108f5537da9b3f278bde566deb777935a960beec4fa18e7b8353881f2f465e4f2c0e949fead35be
+  languageName: node
+  linkType: hard
+
 "axobject-query@npm:^3.1.1":
   version: 3.2.1
   resolution: "axobject-query@npm:3.2.1"
@@ -10420,7 +10431,7 @@ __metadata:
     "@types/node": ^16.7.13
     "@types/uuid": ^8.3.4
     "@types/whatwg-encoding": ^2.0.0
-    axios: ^1.3.4
+    axios: ^1.5.0
     axios-mock-adapter: ^1.21.2
     dm3-lib-profile: ^0.2.0
     ethers: 5.7.2

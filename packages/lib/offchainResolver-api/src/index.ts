@@ -22,8 +22,8 @@ export async function claimSubdomain(
         name,
         signature: await wallet.signMessage('alias: ' + alias),
     };
-
-    const { status } = await axios.post(url, data);
+    const instance = axios.create();
+    const { status } = await instance.post(url, data);
     return status === 200;
 }
 
@@ -44,8 +44,8 @@ export async function removeAlias(
         name: alias,
         signature: await wallet.signMessage('remove: ' + alias),
     };
-
-    const { status } = await axios.post(url, data);
+    const instance = axios.create();
+    const { status } = await instance.post(url, data);
     return status === 200;
 }
 
@@ -65,8 +65,8 @@ export async function claimAddress(
         signedUserProfile,
         address,
     };
-
-    const { status } = await axios.post(url, data);
+    const instance = axios.create();
+    const { status } = await instance.post(url, data);
     return status === 200;
 }
 
@@ -81,7 +81,8 @@ export async function getNameForAddress(
 ): Promise<string | undefined> {
     const url = `${offchainResolverUrl}/name/${formatAddress(address)}`;
     try {
-        const { data } = await axios.get(url);
+        const instance = axios.create();
+        const { data } = await instance.get(url);
         return data.name;
     } catch (e) {
         return;
