@@ -1,12 +1,5 @@
-import {
-    globalConfig,
-    logInfo,
-    validateSchema,
-} from 'dm3-lib-shared/dist.backend';
-import {
-    schema,
-    checkUserProfileWithAddress,
-} from 'dm3-lib-profile/dist.backend';
+import { globalConfig, logInfo, validateSchema } from 'dm3-lib-shared';
+import { schema, checkUserProfileWithAddress } from 'dm3-lib-profile';
 import { ethers } from 'ethers';
 import express from 'express';
 import { WithLocals } from './types';

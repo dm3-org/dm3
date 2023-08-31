@@ -1,4 +1,4 @@
-import { SignedUserProfile, UserProfile } from 'dm3-lib-profile/dist.backend';
+import { SignedUserProfile, UserProfile } from 'dm3-lib-profile';
 
 export interface IDatabase {
     getUserProfile(name: string): Promise<UserProfile | null>;

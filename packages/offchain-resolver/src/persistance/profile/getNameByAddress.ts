@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { ethersHelper } from 'dm3-lib-shared/dist.backend';
+import { ethersHelper } from 'dm3-lib-shared';
 
 export function getNameByAddress(db: PrismaClient) {
     return async (address: string) => {

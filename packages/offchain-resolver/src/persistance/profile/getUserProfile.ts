@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { ethers } from 'ethers';
 import { PrismaClient, Prisma } from '@prisma/client';
-import { UserProfile } from 'dm3-lib-profile/dist.backend';
+import { UserProfile } from 'dm3-lib-profile';
 
 /**
  *
