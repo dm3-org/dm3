@@ -28,7 +28,7 @@ export async function auth(
     ) {
         next();
     } else {
-        req.app.locals.logger.warn({
+        global.logger.warn({
             method: 'AUTH',
             error: 'Token check failed',
             normalizedEnsName,
@@ -81,7 +81,7 @@ export function socketAuth(app: Express & WithLocals) {
 }
 
 export function logRequest(req: Request, res: Response, next: NextFunction) {
-    req.app.locals.logger.info({
+    global.logger.info({
         method: req.method,
         url: req.url,
         timestamp: new Date().getTime(),
@@ -95,7 +95,7 @@ export function logError(
     res: Response,
     next: NextFunction,
 ) {
-    req.app.locals.logger.error({
+    global.logger.error({
         method: req.method,
         url: req.url,
         error: error.toString(),

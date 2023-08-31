@@ -648,8 +648,10 @@ async function connectOffchainAccount(connection: Connection, address: string) {
          * Otherwise we use the addr_ens_subdomain
          */
         const ensName =
-            (await getNameForAddress(address, connection.defaultServiceUrl)) ??
-            getAliasForAddress(address);
+            (await getNameForAddress(
+                address,
+                process.env.REACT_APP_RESOLVER_BACKEND as string,
+            )) ?? getAliasForAddress(address);
 
         //We're trying to get the profile from the delivery service
         const profile = await getUserProfile(connection.provider!, ensName);
