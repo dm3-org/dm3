@@ -8446,7 +8446,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.3.4, axios@npm:^1.4.0":
+"axios@npm:^1.3.4, axios@npm:^1.4.0, axios@npm:^1.5.0":
   version: 1.5.0
   resolution: "axios@npm:1.5.0"
   dependencies:
@@ -12211,12 +12211,12 @@ __metadata:
     babel-preset-env: ^1.7.0
     body-parser: ^1.20.1
     connect-redis: ^6.1.3
-    dm3-lib-crypto: ^0.2.0
-    dm3-lib-delivery: ^0.2.0
-    dm3-lib-messaging: ^0.2.0
-    dm3-lib-profile: ^0.2.0
-    dm3-lib-shared: ^0.2.1
-    dm3-lib-storage: ^0.2.0
+    dm3-lib-crypto: "workspace:^"
+    dm3-lib-delivery: "workspace:^"
+    dm3-lib-messaging: "workspace:^"
+    dm3-lib-profile: "workspace:^"
+    dm3-lib-shared: "workspace:^"
+    dm3-lib-storage: "workspace:^"
     dotenv: ^16.0.1
     eslint: ^8.17.0
     ethers: 5.7.2
@@ -12262,10 +12262,10 @@ __metadata:
     "@types/data-urls": ^3.0.1
     "@types/jest": ^28.1.1
     "@types/node": ^16.7.13
-    dm3-lib-delivery: ^0.2.0
-    dm3-lib-messaging: ^0.2.0
-    dm3-lib-profile: ^0.2.0
-    dm3-lib-shared: ^0.2.1
+    dm3-lib-delivery: "workspace:^"
+    dm3-lib-messaging: "workspace:^"
+    dm3-lib-profile: "workspace:^"
+    dm3-lib-shared: "workspace:^"
     ethers: 5.7.2
     jest: ^28.1.1
     ts-jest: ^28.0.4
@@ -12285,8 +12285,8 @@ __metadata:
     "@types/whatwg-encoding": ^2.0.0
     axios: ^1.3.4
     axios-mock-adapter: ^1.21.2
-    dm3-lib-messaging: ^0.2.0
-    dm3-lib-shared: ^0.2.1
+    dm3-lib-messaging: "workspace:^"
+    dm3-lib-shared: "workspace:^"
     ethers: 5.7.2
     jest: ^28.1.1
     ts-jest: ^28.0.4
@@ -12295,7 +12295,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"dm3-lib-crypto@^0.2.0, dm3-lib-crypto@workspace:^, dm3-lib-crypto@workspace:packages/lib/crypto":
+"dm3-lib-crypto@workspace:^, dm3-lib-crypto@workspace:packages/lib/crypto":
   version: 0.0.0-use.local
   resolution: "dm3-lib-crypto@workspace:packages/lib/crypto"
   dependencies:
@@ -12309,7 +12309,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"dm3-lib-delivery-api@^0.2.0, dm3-lib-delivery-api@workspace:packages/lib/delivery-api":
+"dm3-lib-delivery-api@workspace:^, dm3-lib-delivery-api@workspace:packages/lib/delivery-api":
   version: 0.0.0-use.local
   resolution: "dm3-lib-delivery-api@workspace:packages/lib/delivery-api"
   dependencies:
@@ -12320,8 +12320,8 @@ __metadata:
     "@types/whatwg-encoding": ^2.0.0
     axios: ^1.3.4
     axios-mock-adapter: ^1.21.2
-    dm3-lib-delivery: ^0.2.0
-    dm3-lib-profile: ^0.2.0
+    dm3-lib-delivery: "workspace:^"
+    dm3-lib-profile: "workspace:^"
     ethers: 5.7.2
     jest: ^28.1.1
     socket.io-client: ^4.6.1
@@ -12331,7 +12331,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"dm3-lib-delivery@^0.2.0, dm3-lib-delivery@workspace:packages/lib/delivery":
+"dm3-lib-delivery@workspace:^, dm3-lib-delivery@workspace:packages/lib/delivery":
   version: 0.0.0-use.local
   resolution: "dm3-lib-delivery@workspace:packages/lib/delivery"
   dependencies:
@@ -12344,9 +12344,9 @@ __metadata:
     ajv: ^8.11.0
     axios: ^0.25.0
     axios-mock-adapter: ^1.21.2
-    dm3-lib-crypto: ^0.2.0
-    dm3-lib-messaging: ^0.2.0
-    dm3-lib-profile: ^0.2.0
+    dm3-lib-crypto: "workspace:^"
+    dm3-lib-messaging: "workspace:^"
+    dm3-lib-profile: "workspace:^"
     ethers: 5.7.2
     googleapis: ^100.0.0
     jest: ^28.1.1
@@ -12364,14 +12364,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"dm3-lib-messaging@^0.2.0, dm3-lib-messaging@workspace:packages/lib/messaging":
+"dm3-lib-messaging@workspace:^, dm3-lib-messaging@workspace:packages/lib/messaging":
   version: 0.0.0-use.local
   resolution: "dm3-lib-messaging@workspace:packages/lib/messaging"
   dependencies:
     axios-mock-adapter: ^1.21.2
-    dm3-lib-crypto: ^0.2.0
-    dm3-lib-profile: ^0.2.0
-    dm3-lib-shared: ^0.2.1
+    dm3-lib-crypto: "workspace:^"
+    dm3-lib-profile: "workspace:^"
+    dm3-lib-shared: "workspace:^"
     ethers: 5.7.2
     jest: ^28.1.1
     safe-stable-stringify: ^2.4.1
@@ -12381,7 +12381,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"dm3-lib-offchain-resolver-api@^0.2.4, dm3-lib-offchain-resolver-api@workspace:packages/lib/offchainResolver-api":
+"dm3-lib-offchain-resolver-api@workspace:^, dm3-lib-offchain-resolver-api@workspace:packages/lib/offchainResolver-api":
   version: 0.0.0-use.local
   resolution: "dm3-lib-offchain-resolver-api@workspace:packages/lib/offchainResolver-api"
   dependencies:
@@ -12390,18 +12390,18 @@ __metadata:
     "@types/node": ^16.7.13
     "@types/uuid": ^8.3.4
     "@types/whatwg-encoding": ^2.0.0
-    axios: ^1.3.4
+    axios: ^1.5.0
     axios-mock-adapter: ^1.21.2
-    dm3-lib-profile: ^0.2.0
+    dm3-lib-profile: "workspace:^"
     ethers: 5.7.2
     jest: ^28.1.1
     ts-jest: ^28.0.4
     ts-json-schema-generator: ^0.98.0
-    typescript: ^4.4.2
+    typescript: ^4.7.0
   languageName: unknown
   linkType: soft
 
-"dm3-lib-profile@^0.2.0, dm3-lib-profile@^0.2.2, dm3-lib-profile@workspace:^, dm3-lib-profile@workspace:packages/lib/profile":
+"dm3-lib-profile@workspace:^, dm3-lib-profile@workspace:packages/lib/profile":
   version: 0.0.0-use.local
   resolution: "dm3-lib-profile@workspace:packages/lib/profile"
   dependencies:
@@ -12414,8 +12414,8 @@ __metadata:
     ajv: ^8.11.0
     axios: ^0.25.0
     axios-mock-adapter: ^1.21.2
-    dm3-lib-crypto: ^0.2.0
-    dm3-lib-shared: ^0.2.1
+    dm3-lib-crypto: "workspace:^"
+    dm3-lib-shared: "workspace:^"
     ethers: 5.7.2
     googleapis: ^100.0.0
     jest: ^28.1.1
@@ -12433,7 +12433,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"dm3-lib-shared@^0.2.0, dm3-lib-shared@^0.2.1, dm3-lib-shared@workspace:^, dm3-lib-shared@workspace:packages/lib/shared":
+"dm3-lib-shared@workspace:^, dm3-lib-shared@workspace:packages/lib/shared":
   version: 0.0.0-use.local
   resolution: "dm3-lib-shared@workspace:packages/lib/shared"
   dependencies:
@@ -12444,16 +12444,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"dm3-lib-storage@^0.2.0, dm3-lib-storage@workspace:packages/lib/storage":
+"dm3-lib-storage@workspace:^, dm3-lib-storage@workspace:packages/lib/storage":
   version: 0.0.0-use.local
   resolution: "dm3-lib-storage@workspace:packages/lib/storage"
   dependencies:
     "@types/libsodium-wrappers": ^0.7.10
-    dm3-lib-crypto: ^0.2.0
-    dm3-lib-delivery: ^0.2.0
-    dm3-lib-messaging: ^0.2.0
-    dm3-lib-profile: ^0.2.0
-    dm3-lib-shared: ^0.2.1
+    dm3-lib-crypto: "workspace:^"
+    dm3-lib-delivery: "workspace:^"
+    dm3-lib-messaging: "workspace:^"
+    dm3-lib-profile: "workspace:^"
+    dm3-lib-shared: "workspace:^"
     ethers: 5.7.2
     jest: ^28.1.1
     libsodium-wrappers: ^0.7.10
@@ -12498,7 +12498,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"dm3-react@^0.2.12, dm3-react@workspace:packages/react":
+"dm3-react@workspace:^, dm3-react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "dm3-react@workspace:packages/react"
   dependencies:
@@ -12524,13 +12524,13 @@ __metadata:
     "@types/react-dom": ^17.0.9
     axios: ^0.25.0
     bootstrap: 5.1.3
-    dm3-lib-crypto: ^0.2.0
-    dm3-lib-delivery-api: ^0.2.0
-    dm3-lib-messaging: ^0.2.0
-    dm3-lib-offchain-resolver-api: ^0.2.4
-    dm3-lib-profile: ^0.2.2
-    dm3-lib-shared: ^0.2.1
-    dm3-lib-storage: ^0.2.0
+    dm3-lib-crypto: "workspace:^"
+    dm3-lib-delivery-api: "workspace:^"
+    dm3-lib-messaging: "workspace:^"
+    dm3-lib-offchain-resolver-api: "workspace:^"
+    dm3-lib-profile: "workspace:^"
+    dm3-lib-shared: "workspace:^"
+    dm3-lib-storage: "workspace:^"
     esbuild: ^0.14.44
     ethereum-blockies-base64: ^1.0.2
     ethers: 5.7.2
@@ -12583,7 +12583,7 @@ __metadata:
     bootstrap: ^5.1.3
     buffer: ^6.0.3
     crypto-browserify: ^3.12.0
-    dm3-react: ^0.2.12
+    dm3-react: "workspace:^"
     https-browserify: ^1.0.0
     os-browserify: ^0.3.0
     path-browserify: ^1.0.1
@@ -12940,13 +12940,6 @@ __metadata:
   peerDependencies:
     react: ^0.14.0 || ^15.0.0-0 || ^16.0.0 || ^17.0.0
   checksum: 6282c6bfea0b183941c63bf20aee53a317503465266cf634819fd5aab84c42c867ee8b412dca8628dd8a74acdf5bd2006dbac6ac024f8f6a07596471f7bbd35d
-  languageName: node
-  linkType: hard
-
-"emoji-mart@npm:^5.5.2":
-  version: 5.5.2
-  resolution: "emoji-mart@npm:5.5.2"
-  checksum: a9d8db731443581baebafbcb8494086e9d02b1475ddee9901fc657a7e8f08c14594a810605a3abe8d52627b75f5d78ea19adf3166fb0f38cea174694f86635f9
   languageName: node
   linkType: hard
 
@@ -21050,11 +21043,10 @@ __metadata:
     axios: ^0.25.0
     bootstrap: 5.1.3
     dm3-lib-crypto: "workspace:^"
-    dm3-lib-messaging: ^0.2.0
-    dm3-lib-profile: ^0.2.0
-    dm3-lib-shared: ^0.2.0
-    dm3-lib-storage: ^0.2.0
-    emoji-mart: ^5.5.2
+    dm3-lib-messaging: "workspace:^"
+    dm3-lib-profile: "workspace:^"
+    dm3-lib-shared: "workspace:^"
+    dm3-lib-storage: "workspace:^"
     esbuild: ^0.14.44
     ethereum-blockies-base64: ^1.0.2
     ethers: 5.7.2
@@ -28319,7 +28311,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.4.2, typescript@npm:^4.7.3":
+"typescript@npm:^4.4.2, typescript@npm:^4.7.0, typescript@npm:^4.7.3":
   version: 4.9.5
   resolution: "typescript@npm:4.9.5"
   bin:
@@ -28349,7 +28341,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.4.2#~builtin<compat/typescript>, typescript@patch:typescript@^4.7.3#~builtin<compat/typescript>":
+"typescript@patch:typescript@^4.4.2#~builtin<compat/typescript>, typescript@patch:typescript@^4.7.0#~builtin<compat/typescript>, typescript@patch:typescript@^4.7.3#~builtin<compat/typescript>":
   version: 4.9.5
   resolution: "typescript@patch:typescript@npm%3A4.9.5#~builtin<compat/typescript>::version=4.9.5&hash=289587"
   bin:

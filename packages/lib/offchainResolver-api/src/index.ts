@@ -79,7 +79,7 @@ export async function getNameForAddress(
     address: string,
     offchainResolverUrl: string,
 ): Promise<string | undefined> {
-    const url = `${offchainResolverUrl}/name/${formatAddress(address)}`;
+    const url = `${offchainResolverUrl}/profile/name/${formatAddress(address)}`;
     try {
         const { data } = await axios.get(url);
         return data.name;

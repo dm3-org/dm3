@@ -21,7 +21,7 @@ export function handleResolveProfileExtension(axios: Axios) {
         //The requesito ens-name it not known to the delivery service
         if (!session) {
             const error = 'unknown user';
-            req.app.locals.logger.warn({
+            global.logger.warn({
                 method: 'RPC - RESOLVE PROFILE',
                 error,
             });

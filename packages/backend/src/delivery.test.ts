@@ -3,6 +3,7 @@ import express from 'express';
 import request from 'supertest';
 import auth from './auth';
 import delivery from './delivery';
+import winston from 'winston';
 
 const keysA = {
     encryptionKeyPair: {
@@ -18,6 +19,9 @@ const keysA = {
     storageEncryptionNonce: 0,
 };
 
+global.logger = winston.createLogger({
+    transports: [new winston.transports.Console()],
+});
 describe('Delivery', () => {
     describe('getMessages', () => {
         it('Returns 200 if schema is valid', async () => {

@@ -26,7 +26,8 @@ export async function checkToken(
     const address = await provider.resolveName(ensName);
 
     if (!address) {
-        throw Error(`Couln't resolve ENS name`);
+        // Couln't resolve ENS name
+        return false;
     }
 
     const session = await getSession(ensName.toLocaleLowerCase());
