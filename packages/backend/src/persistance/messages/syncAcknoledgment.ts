@@ -1,5 +1,5 @@
 import { Redis, RedisPrefix } from '../getDatabase';
-import { normalizeEnsName } from 'dm3-lib-profile/dist.backend';
+import { normalizeEnsName } from 'dm3-lib-profile';
 export function syncAcknoledgment(redis: Redis) {
     return async (
         conversationId: string,

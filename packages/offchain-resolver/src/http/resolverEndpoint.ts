@@ -1,4 +1,4 @@
-import { logError } from 'dm3-lib-shared/dist.backend';
+import { logError } from 'dm3-lib-shared';
 import express from 'express';
 import { handleCcipRequest } from './handleCcipRequest/handleCcipRequest';
 import { WithLocals } from './types';
