@@ -53,9 +53,9 @@ export function Message(props: MessageProps) {
                         ' ',
                         props.ownMessage
                             ? state.uiView.selectedMessageView.actionType ===
-                                MessageActionType.EDIT &&
-                                state.uiView.selectedMessageView.messageData
-                                    ?.envelop.id === props.envelop.id
+                                  MessageActionType.EDIT &&
+                              state.uiView.selectedMessageView.messageData
+                                  ?.envelop.id === props.envelop.id
                                 ? 'msg-editing-active'
                                 : 'ms-3 background-config-box'
                             : 'normal-btn-hover',
@@ -65,7 +65,7 @@ export function Message(props: MessageProps) {
                     {props.replyToMsg &&
                         props.replyToMsgFrom &&
                         props.envelop.message.metadata.type ===
-                        MessageActionType.REPLY && (
+                            MessageActionType.REPLY && (
                             <div className="reply-preview d-flex border-radius-4 normal-btn-inactive ">
                                 <div className="user-name">
                                     {props.replyToMsgFrom.concat(': ')}
