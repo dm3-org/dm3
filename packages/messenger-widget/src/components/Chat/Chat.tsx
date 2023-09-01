@@ -17,6 +17,8 @@ export function Chat() {
     const { state, dispatch } = useContext(GlobalContext);
 
     const [messageList, setMessageList] = useState([]);
+    const [isMessageListInitialized, setIsMessageListInitialized] =
+        useState<boolean>(false);
     const [isProfileConfigured, setIsProfileConfigured] =
         useState<boolean>(false);
 
@@ -31,6 +33,14 @@ export function Chat() {
     const setListOfMessages = (msgs: []) => {
         setMessageList(msgs);
     };
+
+    const updateIsMessageListInitialized = (action: boolean) => {
+        setIsMessageListInitialized(action);
+    };
+
+    useEffect(() => {
+        setIsMessageListInitialized(false);
+    }, [state.accounts.selectedContact]);
 
     // handles messages list
     useEffect(() => {
@@ -57,6 +67,8 @@ export function Chat() {
                     ),
                     alias,
                     setListOfMessages,
+                    isMessageListInitialized,
+                    updateIsMessageListInitialized,
                 );
             } catch (error) {
                 log(error, 'error');

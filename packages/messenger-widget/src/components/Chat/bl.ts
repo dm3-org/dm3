@@ -10,11 +10,13 @@ import {
     Actions,
     GlobalState,
     MessageActionType,
+    ModalStateType,
     UserDbType,
 } from '../../utils/enum-type-utils';
 import { StorageEnvelopContainer, UserDB } from 'dm3-lib-storage';
 import { fetchAndStoreMessages } from '../../adapters/messages';
 import { MessageProps } from '../../interfaces/props';
+import { closeLoader, startLoader } from '../Loader/Loader';
 
 // method to check message signature
 export async function checkSignature(
@@ -117,13 +119,44 @@ const handleMessageContainer = (
 };
 
 // method to set the message list
-export const handleMessages = (
+export const handleMessages = async (
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
     containers: StorageEnvelopContainer[],
     alias: string | undefined,
     setListOfMessages: Function,
-): void => {
+    isMessageListInitialized: boolean,
+    updateIsMessageListInitialized: Function,
+) => {
+    if (!isMessageListInitialized && state.accounts.selectedContact) {
+        dispatch({
+            type: ModalStateType.LoaderContent,
+            payload: 'Fetching messages',
+        });
+        startLoader();
+        await fetchAndStoreMessages(
+            state.connection,
+            state.auth.currentSession?.token!,
+            state.accounts.selectedContact.account.ensName,
+            state.userDb as UserDB,
+            (envelops) => {
+                envelops.forEach((envelop) =>
+                    dispatch({
+                        type: UserDbType.addMessage,
+                        payload: {
+                            container: envelop,
+                            connection: state.connection,
+                        },
+                    }),
+                );
+            },
+            state.accounts.contacts
+                ? state.accounts.contacts.map((contact) => contact.account)
+                : [],
+        );
+        updateIsMessageListInitialized(true);
+    }
+
     const checkedContainers = containers.filter((container) => {
         if (!state.accounts.selectedContact) {
             throw Error('No selected contact');
@@ -179,42 +212,8 @@ export const handleMessages = (
             }),
         );
     }
-};
 
-// method to fetch old messages
-export const getPastMessages = async (
-    state: GlobalState,
-    dispatch: React.Dispatch<Actions>,
-    alias: string | undefined,
-    setListOfMessages: Function,
-) => {
-    if (!state.accounts.selectedContact) {
-        throw Error('no contact selected');
-    }
-    const messages = await fetchAndStoreMessages(
-        state.connection,
-        state.auth.currentSession?.token!,
-        state.accounts.selectedContact.account.ensName,
-        state.userDb as UserDB,
-        (envelops) => {
-            envelops.forEach((envelop) =>
-                dispatch({
-                    type: UserDbType.addMessage,
-                    payload: {
-                        container: envelop,
-                        connection: state.connection,
-                    },
-                }),
-            );
-        },
-        state.accounts.contacts
-            ? state.accounts.contacts.map((contact) => contact.account)
-            : [],
-    );
-
-    if (messages.length > 0) {
-        handleMessages(state, dispatch, messages, alias, setListOfMessages);
-    }
+    closeLoader();
 };
 
 // method specific envelop
