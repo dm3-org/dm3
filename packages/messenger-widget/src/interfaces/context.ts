@@ -5,6 +5,7 @@ import {
     SelectedRightView,
 } from '../utils/enum-type-utils';
 import { ContactPreview, NewContact } from './utils';
+import { MessageAction } from './props';
 
 export interface Contact {
     account: Account;
@@ -54,4 +55,5 @@ export interface Modal {
 export interface UiViewState {
     selectedLeftView: LeftViewSelected;
     selectedRightView: RightViewSelected;
+    selectedMessageView: MessageAction;
 }

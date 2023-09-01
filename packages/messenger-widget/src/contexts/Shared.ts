@@ -4,6 +4,7 @@ import {
     ConnectionState,
     GlobalState,
     LeftViewSelected,
+    MessageActionType,
     RightViewSelected,
     SelectedRightView,
 } from '../utils/enum-type-utils';
@@ -43,6 +44,10 @@ export const initialState: GlobalState = {
     uiView: {
         selectedLeftView: LeftViewSelected.Contacts,
         selectedRightView: RightViewSelected.Default,
+        selectedMessageView: {
+            messageData: undefined,
+            actionType: MessageActionType.NONE,
+        },
     },
     modal: {
         loaderContent: '',
