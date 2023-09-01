@@ -2,9 +2,13 @@ import './MessageInput.css';
 import sendBtnIcon from '../../assets/images/send-btn.svg';
 import fileIcon from '../../assets/images/file.svg';
 import emojiIcon from '../../assets/images/emoji.svg';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import { handleSubmit } from './bl';
+import {
+    MessageActionType,
+    UiViewStateType,
+} from '../../utils/enum-type-utils';
 
 export function MessageInput() {
     const [message, setMessage] = useState('');
@@ -12,8 +16,29 @@ export function MessageInput() {
     const { state, dispatch } = useContext(GlobalContext);
 
     function setMessageContent(e: React.ChangeEvent<HTMLInputElement>) {
+        // if message action is edit and message length is 0, update message action
+        if (!e.target.value.length) {
+            dispatch({
+                type: UiViewStateType.SetMessageView,
+                payload: {
+                    actionType: MessageActionType.NONE,
+                    messageData: undefined,
+                },
+            });
+        }
         setMessage(e.target.value);
     }
+
+    useEffect(() => {
+        if (
+            state.uiView.selectedMessageView.actionType ===
+            MessageActionType.EDIT
+        ) {
+            setMessage(
+                state.uiView.selectedMessageView.messageData?.message as string,
+            );
+        }
+    }, [state.uiView.selectedMessageView]);
 
     return (
         <>

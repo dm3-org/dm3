@@ -7,15 +7,11 @@
     z-index: 1;
     border: 1px solid #000000;
     border-radius: 5px;
+    margin-top: 1rem;
 }
 
 .own-msg {
-    margin-top: 1rem;
     margin-left: -9rem;
-}
-
-.contact-msg {
-    margin-top: 1rem;
 }
 
 .msg-dropdown-content-top-align {
