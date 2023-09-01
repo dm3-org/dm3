@@ -79,6 +79,7 @@ const handleMessageContainer = (
             time: container.envelop.message.metadata.timestamp.toString(),
             messageState: container.messageState,
             ownMessage: false,
+            envelop: container.envelop,
         };
         if (
             isSameEnsName(
@@ -127,16 +128,16 @@ export const handleMessages = (
     });
 
     const newMessages = checkedContainers
-        .filter((conatier) => conatier.messageState === MessageState.Send)
+        .filter((container) => container.messageState === MessageState.Send)
         .map((container) => ({
             ...container,
             messageState: MessageState.Read,
         }));
 
     const oldMessages = checkedContainers.filter(
-        (conatier) =>
-            conatier.messageState === MessageState.Read ||
-            conatier.messageState === MessageState.Created,
+        (container) =>
+            container.messageState === MessageState.Read ||
+            container.messageState === MessageState.Created,
     );
 
     handleMessageContainer(state, oldMessages, alias, setListOfMessages);
