@@ -1,5 +1,5 @@
 import bodyParser from 'body-parser';
-import { stringify } from 'dm3-lib-shared';
+import { globalConfig, stringify } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import express from 'express';
 import request from 'supertest';
