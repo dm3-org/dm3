@@ -1,8 +1,5 @@
-import { validateSchema } from 'dm3-lib-shared/dist.backend';
-import {
-    createChallenge,
-    createNewSessionToken,
-} from 'dm3-lib-delivery/dist.backend';
+import { validateSchema } from 'dm3-lib-shared';
+import { createChallenge, createNewSessionToken } from 'dm3-lib-delivery';
 
 import express from 'express';
 import cors from 'cors';

@@ -1,5 +1,5 @@
 import bodyParser from 'body-parser';
-import { globalConfig, stringify } from 'dm3-lib-shared/dist.backend';
+import { globalConfig, stringify } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import express from 'express';
 import request from 'supertest';
@@ -7,10 +7,7 @@ import winston from 'winston';
 import { getDatabase, getDbClient } from '../persistance/getDatabase';
 import { IDatabase } from '../persistance/IDatabase';
 import { profile } from './profile';
-import {
-    UserProfile,
-    getProfileCreationMessage,
-} from 'dm3-lib-profile/dist.backend';
+import { UserProfile, getProfileCreationMessage } from 'dm3-lib-profile';
 import { Interceptor } from './handleCcipRequest/handler/intercept';
 import { PrismaClient } from '@prisma/client';
 import { clearDb } from '../persistance/clearDb';

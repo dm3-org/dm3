@@ -1,9 +1,6 @@
-import {
-    Session as DSSession,
-    spamFilter,
-} from 'dm3-lib-delivery/dist.backend';
-import { EncryptionEnvelop } from 'dm3-lib-messaging/dist.backend';
-import { UserStorage } from 'dm3-lib-storage/dist.backend';
+import { Session as DSSession, spamFilter } from 'dm3-lib-delivery';
+import { EncryptionEnvelop } from 'dm3-lib-messaging';
+import { UserStorage } from 'dm3-lib-storage';
 import { createClient } from 'redis';
 import winston from 'winston';
 import Messages from './messages';

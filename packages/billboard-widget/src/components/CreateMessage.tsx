@@ -19,6 +19,8 @@ declare module 'react' {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore
         extends AriaAttributes,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-ignore
             DOMAttributes<T> {
         enterkeyhint?: string;
     }
