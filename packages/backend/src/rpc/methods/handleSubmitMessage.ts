@@ -1,6 +1,6 @@
-import { schema, incomingMessage } from 'dm3-lib-delivery/dist.backend';
-import { EncryptionEnvelop } from 'dm3-lib-messaging/dist.backend';
-import { validateSchema } from 'dm3-lib-shared/dist.backend';
+import { schema, incomingMessage } from 'dm3-lib-delivery';
+import { EncryptionEnvelop } from 'dm3-lib-messaging';
+import { validateSchema } from 'dm3-lib-shared';
 import 'dotenv/config';
 import express from 'express';
 import { WithLocals } from '../../types';

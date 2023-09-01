@@ -1,6 +1,6 @@
 import { IDatabase } from '../../../persistance/IDatabase';
-import { PROFILE_RECORD_NAME } from 'dm3-lib-profile/dist.backend';
-import { stringify } from 'dm3-lib-shared/dist.backend';
+import { PROFILE_RECORD_NAME } from 'dm3-lib-profile';
+import { stringify } from 'dm3-lib-shared';
 import { interceptTextRecord } from './intercept';
 import { logDebug } from 'dm3-lib-shared';
 

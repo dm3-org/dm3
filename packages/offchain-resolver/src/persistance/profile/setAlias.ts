@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaClient } from '@prisma/client';
-import { normalizeEnsName } from 'dm3-lib-profile/dist.backend';
+import { normalizeEnsName } from 'dm3-lib-profile';
 
 /**
  *
