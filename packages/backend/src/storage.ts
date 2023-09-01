@@ -3,7 +3,7 @@ import express from 'express';
 import stringify from 'safe-stable-stringify';
 import { WithLocals } from './types';
 import { auth } from './utils';
-import { normalizeEnsName } from 'dm3-lib-profile/dist.backend';
+import { normalizeEnsName } from 'dm3-lib-profile';
 
 export default () => {
     const router = express.Router();

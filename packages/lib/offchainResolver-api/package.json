@@ -32,7 +32,6 @@
         "test": "echo 'no tests'"
     },
     "files": [
-        "dist",
-        "dist.backend"
+        "dist"
     ]
 }

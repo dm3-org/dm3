@@ -6,7 +6,7 @@ module.exports = {
     },
     extends: ['prettier'],
     plugins: ['no-only-tests'],
-    ignorePatterns: ['package.json', '**/*.js'],
+    ignorePatterns: ['package.json', '**/*.js', '**/billboard-widget/**'],
     rules: {
         'max-len': ['error', { code: 120 }],
         'no-console': ['error'],
