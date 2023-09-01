@@ -8,10 +8,6 @@
         ".": {
             "import": "./dist/index.js",
             "require": "./dist/index.js"
-        },
-        "./dist.backend": {
-            "import": "./dist.backend/index.js",
-            "require": "./dist.backend/index.js"
         }
     },
     "dependencies": {
@@ -35,7 +31,6 @@
         "test": "jest --coverage --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'"
     },
     "files": [
-        "dist",
-        "dist.backend"
+        "dist"
     ]
 }

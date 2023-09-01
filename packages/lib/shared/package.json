@@ -8,10 +8,6 @@
         ".": {
             "import": "./dist/index.js",
             "require": "./dist/index.js"
-        },
-        "./dist.backend": {
-            "import": "./dist.backend/index.js",
-            "require": "./dist.backend/index.js"
         }
     },
     "dependencies": {
@@ -27,7 +23,6 @@
         "test": "echo 'no tests'"
     },
     "files": [
-        "dist",
-        "dist.backend"
+        "dist"
     ]
 }
