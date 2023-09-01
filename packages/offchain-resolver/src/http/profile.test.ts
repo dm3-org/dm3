@@ -10,12 +10,13 @@ import { getDatabase, getDbClient } from '../persistance/getDatabase';
 import { IDatabase } from '../persistance/IDatabase';
 import { profile } from './profile';
 
-import * as dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
+import * as dotenv from 'dotenv';
 import { clearDb } from '../persistance/clearDb';
 
 import { expect } from 'chai';
-import { createSigningKeyPair, sign } from 'dm3-lib-crypto';
+import { sign } from 'dm3-lib-crypto';
+import { ADDR_ENS_SUBDOMAIN } from 'dm3-lib-shared/dist/GlobalConfig';
 
 dotenv.config();
 
@@ -79,7 +80,7 @@ describe('Profile', () => {
                 .post(`/name`)
                 .send({
                     alias: 'foo.dm3.eth',
-                    name: SENDER_ADDRESS + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    name: SENDER_ADDRESS + ADDR_ENS_SUBDOMAIN(),
                     signature: await app.locals.forTests.wallet.signMessage(
                         'alias: foo.dm3.eth',
                     ),
@@ -110,9 +111,7 @@ describe('Profile', () => {
                 .post(`/name`)
                 .send({
                     alias: 'foo.dm3.eth',
-                    name:
-                        offChainProfile1.signer +
-                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    name: offChainProfile1.signer + ADDR_ENS_SUBDOMAIN(),
                     signature: await sign(
                         offChainProfile1.privateSigningKey,
                         'alias: bar.dm3.eth',
@@ -145,9 +144,7 @@ describe('Profile', () => {
                 .post(`/name`)
                 .send({
                     alias: 'foo.dm3.eth',
-                    name:
-                        offChainProfile.signer +
-                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    name: offChainProfile.signer + ADDR_ENS_SUBDOMAIN(),
                     signature: await sign(
                         offChainProfile.privateSigningKey,
                         'alias: foo.dm3.eth',
@@ -184,9 +181,7 @@ describe('Profile', () => {
                 .post(`/name`)
                 .send({
                     alias: 'foo.dm3.eth',
-                    name:
-                        offChainProfile1.signer +
-                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    name: offChainProfile1.signer + ADDR_ENS_SUBDOMAIN(),
                     signature: await sign(
                         offChainProfile1.privateSigningKey,
                         'alias: foo.dm3.eth',
@@ -220,9 +215,7 @@ describe('Profile', () => {
                 .post(`/name`)
                 .send({
                     alias: 'foo.dm3.eth',
-                    name:
-                        offChainProfile1.signer +
-                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    name: offChainProfile1.signer + ADDR_ENS_SUBDOMAIN(),
                     signature: await sign(
                         offChainProfile1.privateSigningKey,
                         'alias: foo.dm3.eth',
@@ -361,7 +354,7 @@ describe('Profile', () => {
                 .post(`/name`)
                 .send({
                     alias: 'foo.dm3.eth',
-                    name: signer + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    name: signer + ADDR_ENS_SUBDOMAIN(),
                     signature: await sign(
                         privateSigningKey,
                         'alias: foo.dm3.eth',
@@ -420,7 +413,7 @@ describe('Profile', () => {
                 .post(`/name`)
                 .send({
                     alias: 'foo.dm3.eth',
-                    name: signer + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    name: signer + ADDR_ENS_SUBDOMAIN(),
                     signature: await sign(
                         privateSigningKey,
                         'alias: foo.dm3.eth',
