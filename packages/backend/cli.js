@@ -1,4 +1,4 @@
-const lib = require('dm3-lib/dist.backend');
+const lib = require('dm3-lib');
 
 const main = async () => {
     const encryptionKeyPair = await lib.crypto.createKeyPair();

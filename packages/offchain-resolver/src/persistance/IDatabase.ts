@@ -1,4 +1,4 @@
-import { SignedUserProfile, UserProfile } from 'dm3-lib-profile/dist.backend';
+import { SignedUserProfile } from 'dm3-lib-profile';
 import { ProfileContainer } from './profile/getProfileContainer';
 
 export interface IDatabase {

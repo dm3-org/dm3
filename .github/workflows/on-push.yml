@@ -43,10 +43,6 @@ jobs:
                   path: packages/lib/**/dist/
             - uses: actions/upload-artifact@master
               with:
-                  name: lib-backend-builds
-                  path: packages/lib/**/dist.backend/
-            - uses: actions/upload-artifact@master
-              with:
                   name: lib-schema
                   path: packages/lib/**/schema/
     backend-test:
