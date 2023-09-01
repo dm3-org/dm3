@@ -54,10 +54,40 @@ export function userDbReducer(
                     .metadata.timestamp <
                 container.envelop.message.metadata.timestamp
             ) {
-                newConversations.set(contactEnsName, [
-                    ...prevContainers,
-                    container,
-                ]);
+                if (container.envelop.message.metadata.referenceMessageHash) {
+                    const editedContainer = prevContainers.map(
+                        (prevContainer) => {
+                            if (
+                                prevContainer.envelop.metadata
+                                    ?.encryptedMessageHash ===
+                                container.envelop.message.metadata
+                                    .referenceMessageHash
+                            ) {
+                                prevContainer.envelop.message.message =
+                                    container.envelop.message.message;
+                                prevContainer.envelop.message.metadata.type =
+                                    container.envelop.message.metadata.type;
+                            }
+                            return prevContainer;
+                        },
+                    );
+
+                    newConversations.set(contactEnsName, [...editedContainer]);
+                    log(
+                        `[DB] Edit message (timestamp: ${lastChangeTimestamp})`,
+                        'info',
+                    );
+                } else {
+                    newConversations.set(contactEnsName, [
+                        ...prevContainers,
+                        container,
+                    ]);
+                    log(
+                        `[DB] Add message (timestamp: ${lastChangeTimestamp})`,
+                        'info',
+                    );
+                }
+
                 hasChanged = true;
             } else {
                 const otherContainer = prevContainers.filter(
@@ -69,16 +99,17 @@ export function userDbReducer(
                     contactEnsName,
                     sortEnvelops([...otherContainer, container]),
                 );
+
                 hasChanged = true;
+                log(
+                    `[DB] Add message (timestamp: ${lastChangeTimestamp})`,
+                    'info',
+                );
             }
 
             if (!hasChanged) {
                 return state;
             } else {
-                log(
-                    `[DB] Add message (timestamp: ${lastChangeTimestamp})`,
-                    'info',
-                );
                 return {
                     ...state,
                     conversations: newConversations,

@@ -1,12 +1,16 @@
 import './Message.css';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { MessageState } from 'dm3-lib-messaging';
 import tickIcon from '../../assets/images/tick.svg';
 import { MessageProps } from '../../interfaces/props';
 import threeDotsIcon from '../../assets/images/three-dots.svg';
 import { MessageAction } from '../MessageAction/MessageAction';
+import { MessageActionType } from '../../utils/enum-type-utils';
+import { GlobalContext } from '../../utils/context-utils';
 
 export function Message(props: MessageProps) {
+    const { state } = useContext(GlobalContext);
+
     // state to show action items three dots
     const [isHovered, setIsHovered] = useState(false);
 
@@ -16,6 +20,17 @@ export function Message(props: MessageProps) {
 
     const handleMouseOut = () => {
         setIsHovered(false);
+    };
+
+    const getMessageChangeText = (): string => {
+        switch (props.envelop.message.metadata.type) {
+            case 'EDIT':
+                return '(edited) ';
+            case 'DELETE_REQUEST':
+                return '(deleted) ';
+            default:
+                return '';
+        }
     };
 
     return (
@@ -32,14 +47,22 @@ export function Message(props: MessageProps) {
                     className={'width-fill text-left font-size-14 border-radius-6 content-style'.concat(
                         ' ',
                         props.ownMessage
-                            ? 'ms-3 normal-btn-hover'
+                            ? state.uiView.selectedMessageView.actionType ===
+                                  MessageActionType.EDIT &&
+                              state.uiView.selectedMessageView.messageData
+                                  ?.envelop.id === props.envelop.id
+                                ? 'msg-editing-active'
+                                : 'ms-3 normal-btn-hover'
                             : 'background-config-box',
                     )}
                 >
-                    {props.message}
+                    {props.message ? props.message : 'This message is deleted'}
                 </div>
                 <div
-                    className="msg-action-container d-flex pointer-cursor border-radius-3 position-relative"
+                    className={'msg-action-container d-flex pointer-cursor border-radius-3 position-relative'.concat(
+                        ' ',
+                        !props.message ? 'hide-action' : '',
+                    )}
                     onMouseOver={handleMouseOver}
                     onMouseLeave={handleMouseOut}
                 >
@@ -57,6 +80,7 @@ export function Message(props: MessageProps) {
                     props.ownMessage ? 'ms-3' : '',
                 )}
             >
+                {getMessageChangeText()}
                 {new Date(Number(props.time)).toLocaleString()}
                 <span className="tick-icon readed-tick-icon">
                     {!props.ownMessage ? (
