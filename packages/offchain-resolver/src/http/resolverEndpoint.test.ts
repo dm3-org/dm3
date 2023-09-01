@@ -1,5 +1,5 @@
 import bodyParser from 'body-parser';
-import { globalConfig, stringify } from 'dm3-lib-shared/dist.backend';
+import { globalConfig, stringify } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import express from 'express';
 import request from 'supertest';
@@ -7,10 +7,7 @@ import winston from 'winston';
 import { getDatabase, getDbClient } from '../persistance/getDatabase';
 import { IDatabase } from '../persistance/IDatabase';
 import { profile } from './profile';
-import {
-    UserProfile,
-    getProfileCreationMessage,
-} from 'dm3-lib-profile/dist.backend';
+import { UserProfile, getProfileCreationMessage } from 'dm3-lib-profile';
 import { Interceptor } from './handleCcipRequest/handler/intercept';
 import { PrismaClient } from '@prisma/client';
 import { clearDb } from '../persistance/clearDb';
@@ -62,6 +59,8 @@ describe('Resolver Endpoint', () => {
             // eslint-disable-next-line no-console
             warn: (msg: string) => console.log(msg),
         };
+
+        process.env.REACT_APP_ADDR_ENS_SUBDOMAIN = '.beta-addr.dm3.eth';
     });
 
     afterEach(async () => {
@@ -98,7 +97,6 @@ describe('Resolver Endpoint', () => {
             const { body, status } = await request(ccipApp)
                 .get(`/${ethers.constants.AddressZero}/${outerCall}`)
                 .send();
-
             expect(status).to.equal(200);
             expect(body.response).to.equal(
                 '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
@@ -134,7 +132,12 @@ describe('Resolver Endpoint', () => {
                 .send();
 
             expect(status).to.equal(200);
-            expect(body.response).to.equal('test');
+
+            const [decoded] = ethers.utils.defaultAbiCoder.decode(
+                ['string'],
+                body.response,
+            );
+            expect(decoded).to.equal('test');
         });
     });
 
@@ -162,7 +165,7 @@ describe('Resolver Endpoint', () => {
                     .post(`/name`)
                     .send({
                         alias: 'foo.dm3.eth',
-                        name: signer + '.' + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                        name: signer + globalConfig.ADDR_ENS_SUBDOMAIN(),
                         signature: await sign(
                             privateSigningKey,
                             'alias: foo.dm3.eth',
@@ -186,8 +189,13 @@ describe('Resolver Endpoint', () => {
                     .get(`/${ethers.constants.AddressZero}/${outerCall}`)
                     .send();
 
+                const [decoded] = ethers.utils.defaultAbiCoder.decode(
+                    ['string'],
+                    body.response,
+                );
+
                 expect(status).to.equal(200);
-                expect(body.response).to.equal(
+                expect(decoded).to.equal(
                     'data:application/json,' +
                         stringify({
                             profile,

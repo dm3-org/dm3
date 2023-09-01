@@ -3,10 +3,10 @@ import { Socket } from 'socket.io';
 import { onConnection } from './messaging';
 import { testData } from '../../../test-data/encrypted-envelops.test';
 import { WithLocals } from './types';
-import { Session } from 'dm3-lib-delivery/dist.backend';
-import { UserProfile } from 'dm3-lib-profile/dist.backend';
-import { createKeyPair } from 'dm3-lib-crypto/dist.backend';
-import { ethersHelper } from 'dm3-lib-shared/dist.backend';
+import { Session } from 'dm3-lib-delivery';
+import { UserProfile } from 'dm3-lib-profile';
+import { createKeyPair } from 'dm3-lib-crypto';
+import { ethersHelper } from 'dm3-lib-shared';
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 

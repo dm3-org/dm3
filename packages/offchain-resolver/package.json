@@ -24,9 +24,9 @@
         "yaml": "^2.1.3"
     },
     "scripts": {
-        "docker:up": "docker-compose up -d",
+        "docker:up": "docker compose up -d",
         "test": "yarn docker:up &&  yarn prisma:migrate && yarn mocha --require ts-node/register --extension .test.ts --recursive ./src",
-        "start": "yarn ts-node --transpile-only  ./src/index.ts",
+        "start": "yarn prisma:migrate && yarn ts-node --transpile-only  ./src/index.ts",
         "build": "yarn prisma generate --schema=./src/persistance/schema.prisma && yarn tsc",
         "prisma:migrate": "yarn prisma migrate dev --name init --schema src/persistance/schema.prisma"
     },

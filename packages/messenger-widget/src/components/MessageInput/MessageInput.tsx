@@ -66,31 +66,31 @@ export function MessageInput() {
             {/* Edit message preview */}
             {state.uiView.selectedMessageView.actionType ===
                 MessageActionType.REPLY && (
-                <div
-                    className="reply-content text-primary-color background-config-box font-size-14 
+                    <div
+                        className="reply-content text-primary-color background-config-box font-size-14 
                 font-weight-400 d-flex justify-content-between"
-                >
-                    <div className="user-name">
-                        {
-                            state.uiView.selectedMessageView.messageData
-                                ?.envelop.message.metadata.from
-                        }
-                        :
-                        <div className="text-primary-color">
-                            {' ' +
-                                state.uiView.selectedMessageView.messageData?.message
-                                    .substring(0, 20)
-                                    .concat('...')}
+                    >
+                        <div className="user-name">
+                            {
+                                state.uiView.selectedMessageView.messageData
+                                    ?.envelop.message.metadata.from
+                            }
+                            :
+                            <div className="text-primary-color">
+                                {' ' +
+                                    state.uiView.selectedMessageView.messageData?.message
+                                        .substring(0, 20)
+                                        .concat('...')}
+                            </div>
                         </div>
+                        <img
+                            className="reply-close-icon pointer-cursor"
+                            src={closeIcon}
+                            alt="close"
+                            onClick={() => cancelReply()}
+                        />
                     </div>
-                    <img
-                        className="reply-close-icon pointer-cursor"
-                        src={closeIcon}
-                        alt="close"
-                        onClick={() => cancelReply()}
-                    />
-                </div>
-            )}
+                )}
             {/* Message emoji, file & input window */}
             <div className="d-flex chat-action width-fill position-absolute">
                 <div

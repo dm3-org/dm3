@@ -1,6 +1,6 @@
 {
     "name": "dm3-react",
-    "version": "0.2.6",
+    "version": "0.2.12",
     "main": "./dist/cjs/index.js",
     "module": "./dist/cjs/inedx.js",
     "dependencies": {
@@ -15,7 +15,7 @@
         "dm3-lib-delivery-api": "^0.2.0",
         "dm3-lib-messaging": "^0.2.0",
         "dm3-lib-offchain-resolver-api": "^0.2.4",
-        "dm3-lib-profile": "^0.2.1",
+        "dm3-lib-profile": "^0.2.2",
         "dm3-lib-shared": "^0.2.1",
         "dm3-lib-storage": "^0.2.0",
         "ethereum-blockies-base64": "^1.0.2",

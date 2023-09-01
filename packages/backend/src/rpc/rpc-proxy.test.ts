@@ -5,9 +5,9 @@ import request from 'supertest';
 import RpcProxy from './rpc-proxy';
 import { testData } from '../../../../test-data/encrypted-envelops.test';
 
-import { createKeyPair } from 'dm3-lib-crypto/dist.backend';
-import { normalizeEnsName, UserProfile } from 'dm3-lib-profile/dist.backend';
-import { stringify } from 'dm3-lib-shared/dist.backend';
+import { createKeyPair } from 'dm3-lib-crypto';
+import { normalizeEnsName, UserProfile } from 'dm3-lib-profile';
+import { stringify } from 'dm3-lib-shared';
 
 // eslint-disable-next-line no-console
 const log = (toLog: any) => console.log(toLog);

@@ -28,7 +28,7 @@
     },
     "scripts": {
         "docker:up": "docker-compose up -d",
-        "start": "ts-node --transpile-only  ./src/index.ts",
+        "start": "node  ./dist/index.js",
         "test": "npm run docker:up && jest --coverage --runInBand --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'",
         "build": "yarn tsc && cp ./config.yml ./dist/config.yml | true",
         "createDeliveryServiceProfile": "node --no-warnings ./cli.js"

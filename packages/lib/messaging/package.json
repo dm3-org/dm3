@@ -9,10 +9,6 @@
         ".": {
             "import": "./dist/index.js",
             "require": "./dist/index.js"
-        },
-        "./dist.backend": {
-            "import": "./dist.backend/index.js",
-            "require": "./dist.backend/index.js"
         }
     },
     "dependencies": {
@@ -31,11 +27,10 @@
     },
     "scripts": {
         "build:schema": "sh ./schemas.sh",
-        "build": "yarn build:schema &&yarn tsc --declaration &&yarn tsc --declaration -p tsconfig.backend.json ",
+        "build": "yarn build:schema &&yarn tsc --declaration",
         "test": "jest --coverage --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'"
     },
     "files": [
-        "dist",
-        "dist.backend"
+        "dist"
     ]
 }

@@ -1,13 +1,5 @@
-import {
-    globalConfig,
-    logInfo,
-    validateSchema,
-} from 'dm3-lib-shared/dist.backend';
-import {
-    schema,
-    checkUserProfileWithAddress,
-    formatAddress,
-} from 'dm3-lib-profile/dist.backend';
+import { globalConfig, logInfo, validateSchema } from 'dm3-lib-shared';
+import { schema, checkUserProfileWithAddress } from 'dm3-lib-profile';
 import { ethers } from 'ethers';
 import express from 'express';
 import { WithLocals } from './types';
@@ -250,7 +242,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     });
                 }
 
-                const name = `${address}.${globalConfig.ADDR_ENS_SUBDOMAIN()}`;
+                const name = `${address}${globalConfig.ADDR_ENS_SUBDOMAIN()}`;
 
                 const profileExists =
                     !!(await req.app.locals.db.getProfileContainer(name));

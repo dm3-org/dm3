@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { UserProfile } from 'dm3-lib-profile';
-import { ethersHelper } from 'dm3-lib-shared/dist.backend';
+import { ethersHelper } from 'dm3-lib-shared';
 
 export function getUserProfileByAddress(db: PrismaClient) {
     return async (address: string) => {
