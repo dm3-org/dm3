@@ -62,3 +62,8 @@
     color: var(--text-primary-color) !important;
     border: 1px solid var(--text-primary-color) !important;
 }
+
+.reply-preview {
+    padding: 0.5rem;
+    margin: -7px -7px 7px -7px;
+}

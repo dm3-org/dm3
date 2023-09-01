@@ -6,7 +6,12 @@ import {
     normalizeEnsName,
 } from 'dm3-lib-profile';
 import { log, stringify } from 'dm3-lib-shared';
-import { Actions, GlobalState, UserDbType } from '../../utils/enum-type-utils';
+import {
+    Actions,
+    GlobalState,
+    MessageActionType,
+    UserDbType,
+} from '../../utils/enum-type-utils';
 import { StorageEnvelopContainer, UserDB } from 'dm3-lib-storage';
 import { fetchAndStoreMessages } from '../../adapters/messages';
 import { MessageProps } from '../../interfaces/props';
@@ -71,15 +76,30 @@ const handleMessageContainer = (
     alias: string | undefined,
     setListOfMessages: Function,
 ) => {
-    const msgList: any = [];
+    const msgList: MessageProps[] = [];
     let msg: MessageProps;
+    let replyToEnvelop: StorageEnvelopContainer | undefined;
     messageContainers.forEach((container: StorageEnvelopContainer) => {
+        if (
+            container.envelop.message.metadata.type ===
+                MessageActionType.REPLY &&
+            container.envelop.message.metadata.referenceMessageHash
+        ) {
+            replyToEnvelop = fetchEnvelop(
+                messageContainers,
+                container.envelop.message.metadata.referenceMessageHash,
+            );
+        } else {
+            replyToEnvelop = undefined;
+        }
         msg = {
             message: container.envelop.message.message!,
             time: container.envelop.message.metadata.timestamp.toString(),
             messageState: container.messageState,
             ownMessage: false,
             envelop: container.envelop,
+            replyToMsg: replyToEnvelop?.envelop.message.message,
+            replyToMsgFrom: replyToEnvelop?.envelop.message.metadata.from,
         };
         if (
             isSameEnsName(
@@ -195,4 +215,17 @@ export const getPastMessages = async (
     if (messages.length > 0) {
         handleMessages(state, dispatch, messages, alias, setListOfMessages);
     }
+};
+
+// method specific envelop
+const fetchEnvelop = (
+    containerList: StorageEnvelopContainer[],
+    replyToMsgHash: string,
+) => {
+    const replyEnvelop = containerList.filter(
+        (data) =>
+            data.envelop.metadata?.encryptedMessageHash &&
+            data.envelop.metadata.encryptedMessageHash === replyToMsgHash,
+    );
+    return replyEnvelop.length ? replyEnvelop[0] : undefined;
 };

@@ -270,7 +270,7 @@ export type ModalStateActions =
 
 export enum MessageActionType {
     EDIT = 'EDIT',
-    DELETE = 'DELETE',
+    DELETE = 'DELETE_REQUEST',
     REPLY = 'REPLY',
     NONE = 'NONE',
 }

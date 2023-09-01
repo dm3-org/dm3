@@ -9,6 +9,7 @@ import {
     MessageActionType,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
+import closeIcon from '../../assets/images/cross.svg';
 
 export function MessageInput() {
     const [message, setMessage] = useState('');
@@ -29,6 +30,16 @@ export function MessageInput() {
         setMessage(e.target.value);
     }
 
+    function cancelReply() {
+        dispatch({
+            type: UiViewStateType.SetMessageView,
+            payload: {
+                messageData: undefined,
+                actionType: MessageActionType.NONE,
+            },
+        });
+    }
+
     useEffect(() => {
         if (
             state.uiView.selectedMessageView.actionType ===
@@ -40,11 +51,57 @@ export function MessageInput() {
         }
     }, [state.uiView.selectedMessageView]);
 
+    useEffect(() => {
+        dispatch({
+            type: UiViewStateType.SetMessageView,
+            payload: {
+                actionType: MessageActionType.NONE,
+                messageData: undefined,
+            },
+        });
+        setMessage('');
+    }, [state.accounts.selectedContact]);
     return (
         <>
+            {/* Edit message preview */}
+            {state.uiView.selectedMessageView.actionType ===
+                MessageActionType.REPLY && (
+                <div
+                    className="reply-content text-primary-color background-config-box font-size-14 
+                font-weight-400 d-flex justify-content-between"
+                >
+                    <div className="user-name">
+                        {
+                            state.uiView.selectedMessageView.messageData
+                                ?.envelop.message.metadata.from
+                        }
+                        :
+                        <div className="text-primary-color">
+                            {' ' +
+                                state.uiView.selectedMessageView.messageData?.message
+                                    .substring(0, 20)
+                                    .concat('...')}
+                        </div>
+                    </div>
+                    <img
+                        className="reply-close-icon pointer-cursor"
+                        src={closeIcon}
+                        alt="close"
+                        onClick={() => cancelReply()}
+                    />
+                </div>
+            )}
             {/* Message emoji, file & input window */}
             <div className="d-flex chat-action width-fill position-absolute">
-                <div className="chat-action-items width-fill border-radius-6">
+                <div
+                    className={'chat-action-items width-fill border-radius-6'.concat(
+                        ' ',
+                        state.uiView.selectedMessageView.actionType ===
+                            MessageActionType.REPLY
+                            ? 'reply-msg-active'
+                            : '',
+                    )}
+                >
                     <div className="d-flex align-items-center width-fill">
                         <div className="d-flex align-items-center text-secondary-color">
                             <span className="d-flex">
@@ -63,6 +120,7 @@ export function MessageInput() {
                             </span>
                             <span className="d-flex smile-icon">|</span>
                         </div>
+                        {/* Input msg form */}
                         <form
                             className="width-fill"
                             onSubmit={(event) =>
@@ -88,6 +146,7 @@ export function MessageInput() {
                                 ) => setMessageContent(e)}
                             ></input>
                         </form>
+                        {/* Send button */}
                         <span className="d-flex align-items-center pointer-cursor text-secondary-color">
                             <img
                                 className="chat-svg-icon"

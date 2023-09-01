@@ -43,7 +43,7 @@ export function Message(props: MessageProps) {
                     : 'ms-2 justify-content-start',
             )}
         >
-            {/* Delete message popup */}
+            {/* delete message popup */}
             {state.uiView.selectedMessageView.actionType ===
                 MessageActionType.DELETE && <DeleteMessage />}
 
@@ -57,12 +57,28 @@ export function Message(props: MessageProps) {
                               state.uiView.selectedMessageView.messageData
                                   ?.envelop.id === props.envelop.id
                                 ? 'msg-editing-active'
-                                : 'ms-3 normal-btn-hover'
-                            : 'background-config-box',
+                                : 'ms-3 background-config-box'
+                            : 'normal-btn-hover',
                     )}
                 >
+                    {/* show the preview of reply message */}
+                    {props.replyToMsg &&
+                        props.replyToMsgFrom &&
+                        props.envelop.message.metadata.type ===
+                            MessageActionType.REPLY && (
+                            <div className="reply-preview d-flex border-radius-4 normal-btn-inactive ">
+                                <div className="user-name">
+                                    {props.replyToMsgFrom.concat(': ')}
+                                </div>
+                                {props.replyToMsg
+                                    .substring(0, 20)
+                                    .concat('...')}
+                            </div>
+                        )}
+                    {/* actual message */}
                     {props.message ? props.message : 'This message was deleted'}
                 </div>
+                {/* action item */}
                 <div
                     className={'msg-action-container d-flex pointer-cursor border-radius-3 position-relative'.concat(
                         ' ',
@@ -85,8 +101,11 @@ export function Message(props: MessageProps) {
                     props.ownMessage ? 'ms-3' : '',
                 )}
             >
+                {/* message date */}
                 {getMessageChangeText()}
                 {new Date(Number(props.time)).toLocaleString()}
+
+                {/* readed message tick indicator */}
                 <span className="tick-icon readed-tick-icon">
                     {!props.ownMessage ? (
                         <img src={tickIcon} alt="read" />

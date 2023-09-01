@@ -58,7 +58,12 @@ export function userDbReducer(
                     .metadata.timestamp <
                 container.envelop.message.metadata.timestamp
             ) {
-                if (container.envelop.message.metadata.referenceMessageHash) {
+                if (
+                    container.envelop.message.metadata.type ===
+                        MessageActionType.EDIT ||
+                    container.envelop.message.metadata.type ===
+                        MessageActionType.DELETE
+                ) {
                     const editedContainer = prevContainers.map(
                         (prevContainer) => {
                             if (

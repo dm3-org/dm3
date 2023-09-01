@@ -51,7 +51,10 @@ export function MessageAction(props: MessageProps) {
                     </div>
                 </>
             )}
-            <div className="d-flex align-items-center justify-content-start">
+            <div
+                className="d-flex align-items-center justify-content-start"
+                onClick={() => setAction(MessageActionType.REPLY)}
+            >
                 <img src={replyIcon} alt="delete" className="me-2" />
                 Reply
             </div>

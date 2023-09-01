@@ -32,6 +32,8 @@ export interface MessageProps {
     messageState: MessageState;
     ownMessage: boolean;
     envelop: Envelop;
+    replyToMsg: string | undefined;
+    replyToMsgFrom: string | undefined;
 }
 
 export interface MessageAction {
