@@ -34,7 +34,7 @@ export function resolverEndpoint() {
 
                     res.status(404).send({ message: 'Record not found' });
                 } else {
-                    res.send({ response });
+                    res.status(200).send({ response });
                 }
             } catch (e) {
                 req.app.locals.logger.warn((e as Error).message);
