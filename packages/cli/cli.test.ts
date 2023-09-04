@@ -9,31 +9,41 @@ describe('cli', () => {
             Promise.resolve(subprocess).then(resolve).catch(resolve);
         });
 
-    describe('sanizite input', () => {
-        it('reverts for unknown input', async () => {
-            const res = await cli('--efeh');
-            expect(res.stderr).toBe("error: unknown option '--efeh'");
-        });
+    describe('setup', () => {
+        describe('sanitize input', () => {
+            it('reverts for unknown input', async () => {
+                const res = await cli('setup --efeh');
+                expect(res.stderr).toBe("error: unknown option '--efeh'");
+            });
 
-        it('reverts if privateKey is undefined', async () => {
-            const res = await cli('--domain test.eth');
-            expect(res.stderr).toBe('error: option --pk <pk> argument missing');
-        });
-        it('reverts if domain is undefined', async () => {
-            const wallet = ethers.Wallet.createRandom();
-            const res = await cli(`--pk ${wallet.privateKey}}`);
-            expect(res.stderr).toBe(
-                'error: option --domain <domain> argument missing',
-            );
-        });
-        it('reverts if gateway url is undefined', async () => {
-            const wallet = ethers.Wallet.createRandom();
-            const res = await cli(
-                `--pk ${wallet.privateKey}} --domain test.eth`,
-            );
-            expect(res.stderr).toBe(
-                'error: option --gateway <gateway> argument missing',
-            );
+            it('reverts if privateKey is undefined', async () => {
+                const res = await cli('setup --domain test.eth');
+                expect(res.stderr).toBe(
+                    'error: option --pk <pk> argument missing',
+                );
+            });
+            it('reverts if privateKey is invalid', async () => {
+                const res = await cli('setup --domain test.eth --pk 123');
+                expect(res.stderr).toBe(
+                    'error: option --pk <pk> argument invalid',
+                );
+            });
+            it('reverts if domain is undefined', async () => {
+                const wallet = ethers.Wallet.createRandom();
+                const res = await cli(`setup --pk ${wallet.privateKey}`);
+                expect(res.stderr).toBe(
+                    'error: option --domain <domain> argument missing',
+                );
+            });
+            it('reverts if gateway url is undefined', async () => {
+                const wallet = ethers.Wallet.createRandom();
+                const res = await cli(
+                    `setup --pk ${wallet.privateKey} --domain test.eth`,
+                );
+                expect(res.stderr).toBe(
+                    'error: option --gateway <gateway> argument missing',
+                );
+            });
         });
     });
 });
