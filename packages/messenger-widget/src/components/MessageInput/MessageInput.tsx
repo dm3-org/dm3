@@ -10,13 +10,16 @@ import {
     UiViewStateType,
 } from '../../utils/enum-type-utils';
 import closeIcon from '../../assets/images/cross.svg';
+import { EmojiModal } from '../EmojiModal/EmojiModal';
 
 export function MessageInput() {
     const [message, setMessage] = useState('');
+    const [openEmojiPopup, setOpenEmojiPopup] = useState<boolean>(false);
 
     const { state, dispatch } = useContext(GlobalContext);
 
     function setMessageContent(e: React.ChangeEvent<HTMLInputElement>) {
+        setOpenEmojiPopup(false);
         // if message action is edit and message length is 0, update message action
         if (!e.target.value.length) {
             dispatch({
@@ -61,6 +64,7 @@ export function MessageInput() {
         });
         setMessage('');
     }, [state.accounts.selectedContact]);
+
     return (
         <>
             {/* Edit message preview */}
@@ -91,6 +95,16 @@ export function MessageInput() {
                     />
                 </div>
             )}
+
+            {/* Emoji popup modal */}
+            {openEmojiPopup && (
+                <EmojiModal
+                    message={message}
+                    setMessage={setMessage}
+                    setOpenEmojiPopup={setOpenEmojiPopup}
+                />
+            )}
+
             {/* Message emoji, file & input window */}
             <div className="d-flex chat-action width-fill position-absolute">
                 <div
@@ -113,9 +127,12 @@ export function MessageInput() {
                             </span>
                             <span className="d-flex smile-icon">
                                 <img
-                                    className="chat-svg-icon"
+                                    className="chat-svg-icon pointer-cursor"
                                     src={emojiIcon}
                                     alt="emoji"
+                                    onClick={() => {
+                                        setOpenEmojiPopup(!openEmojiPopup);
+                                    }}
                                 />
                             </span>
                             <span className="d-flex smile-icon">|</span>
@@ -129,6 +146,7 @@ export function MessageInput() {
                                     state,
                                     dispatch,
                                     setMessage,
+                                    setOpenEmojiPopup,
                                     event,
                                 )
                             }
@@ -163,6 +181,7 @@ export function MessageInput() {
                                         state,
                                         dispatch,
                                         setMessage,
+                                        setOpenEmojiPopup,
                                         event,
                                     )
                                 }

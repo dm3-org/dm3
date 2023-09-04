@@ -1901,6 +1901,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@emoji-mart/data@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "@emoji-mart/data@npm:1.1.2"
+  checksum: 1216ac85e05bddfebaccd79710b70d5a4efd68ca6eef632c94ce9688c288de5f2ba2e98a694c024568e9eb2d1cd63e7a5e3c4a2979e10aa2d501b019ee2f1fda
+  languageName: node
+  linkType: hard
+
+"@emoji-mart/react@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@emoji-mart/react@npm:1.1.1"
+  peerDependencies:
+    emoji-mart: ^5.2
+    react: ^16.8 || ^17 || ^18
+  checksum: def4dddaa01ce88c396510d84d1878b881fe0f9c484a836a50e3db784a91ab98edf94816cff503b4d1cab7b00400a01c87e32d19dee2d950f64ef9243f79101e
+  languageName: node
+  linkType: hard
+
 "@emotion/hash@npm:^0.8.0":
   version: 0.8.0
   resolution: "@emotion/hash@npm:0.8.0"
@@ -10926,6 +10943,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"emoji-mart@npm:^5.5.2":
+  version: 5.5.2
+  resolution: "emoji-mart@npm:5.5.2"
+  checksum: a9d8db731443581baebafbcb8494086e9d02b1475ddee9901fc657a7e8f08c14594a810605a3abe8d52627b75f5d78ea19adf3166fb0f38cea174694f86635f9
+  languageName: node
+  linkType: hard
+
 "emoji-regex@npm:^8.0.0":
   version: 8.0.0
   resolution: "emoji-regex@npm:8.0.0"
@@ -17663,6 +17687,8 @@ __metadata:
   dependencies:
     "@babel/core": ^7.22.5
     "@babel/preset-typescript": ^7.18.6
+    "@emoji-mart/data": ^1.1.2
+    "@emoji-mart/react": ^1.1.1
     "@popperjs/core": ^2.11.8
     "@rainbow-me/rainbowkit": ^1.0.6
     "@rollup/plugin-commonjs": ^22.0.0
@@ -17689,6 +17715,7 @@ __metadata:
     dm3-lib-profile: ^0.2.0
     dm3-lib-shared: ^0.2.0
     dm3-lib-storage: ^0.2.0
+    emoji-mart: ^5.5.2
     esbuild: ^0.14.44
     ethereum-blockies-base64: ^1.0.2
     ethers: 5.7.2
@@ -17700,7 +17727,6 @@ __metadata:
     postcss: ^8.4.25
     prettier: ^2.6.2
     react-beforeunload: ^2.5.2
-    react-chat-widget: ^3.1.4
     react-scripts: 5.0.0
     rollup: ^2.75.6
     rollup-plugin-dts: ^4.2.2

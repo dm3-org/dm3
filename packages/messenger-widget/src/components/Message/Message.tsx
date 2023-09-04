@@ -68,7 +68,11 @@ export function Message(props: MessageProps) {
                             MessageActionType.REPLY && (
                             <div className="reply-preview d-flex border-radius-4 normal-btn-inactive ">
                                 <div className="user-name">
-                                    {props.replyToMsgFrom.concat(': ')}
+                                    {props.replyToMsgFrom.length > 25
+                                        ? props.replyToMsgFrom
+                                              .substring(0, 25)
+                                              .concat(': ')
+                                        : props.replyToMsgFrom.concat(':')}
                                 </div>
                                 {props.replyToMsg
                                     .substring(0, 20)

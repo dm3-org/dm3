@@ -58,10 +58,12 @@ export const handleSubmit = async (
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
     setMessage: Function,
+    setOpenEmojiPopup: Function,
     event:
         | React.FormEvent<HTMLFormElement>
         | React.MouseEvent<HTMLImageElement, MouseEvent>,
 ) => {
+    setOpenEmojiPopup(false);
     event.preventDefault();
 
     if (!message.trim().length) {

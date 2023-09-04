@@ -40,3 +40,9 @@ export interface MessageAction {
     messageData: MessageProps | undefined;
     actionType: MessageActionType;
 }
+
+export interface EmojiProps {
+    message: string;
+    setMessage: Function;
+    setOpenEmojiPopup: Function;
+}

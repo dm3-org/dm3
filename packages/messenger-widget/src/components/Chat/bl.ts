@@ -154,7 +154,6 @@ export const handleMessages = async (
                 ? state.accounts.contacts.map((contact) => contact.account)
                 : [],
         );
-        updateIsMessageListInitialized(true);
     }
 
     const checkedContainers = containers.filter((container) => {
@@ -214,6 +213,7 @@ export const handleMessages = async (
     }
 
     closeLoader();
+    updateIsMessageListInitialized(true);
 };
 
 // method specific envelop
