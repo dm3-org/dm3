@@ -8,6 +8,7 @@ import {
     Actions,
     GlobalState,
     MessageActionType,
+    ModalStateType,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
 import {
@@ -58,12 +59,15 @@ export const handleSubmit = async (
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
     setMessage: Function,
-    setOpenEmojiPopup: Function,
     event:
         | React.FormEvent<HTMLFormElement>
         | React.MouseEvent<HTMLImageElement, MouseEvent>,
 ) => {
-    setOpenEmojiPopup(false);
+    dispatch({
+        type: ModalStateType.OpenEmojiPopup,
+        payload: { action: false, data: undefined },
+    });
+
     event.preventDefault();
 
     if (!message.trim().length) {
@@ -74,12 +78,24 @@ export const handleSubmit = async (
         state.uiView.selectedMessageView.actionType === MessageActionType.EDIT
     ) {
         await editMessage(state, dispatch, message, setMessage);
+        dispatch({
+            type: ModalStateType.LastMessageAction,
+            payload: MessageActionType.EDIT,
+        });
     } else if (
         state.uiView.selectedMessageView.actionType === MessageActionType.REPLY
     ) {
         await replyMessage(state, dispatch, message, setMessage);
+        dispatch({
+            type: ModalStateType.LastMessageAction,
+            payload: MessageActionType.REPLY,
+        });
     } else {
         await handleNewUserMessage(message, setMessage, state, dispatch);
+        dispatch({
+            type: ModalStateType.LastMessageAction,
+            payload: MessageActionType.NEW,
+        });
     }
 };
 
@@ -183,4 +199,9 @@ const replyMessage = async (
     );
 
     setMessage('');
+};
+
+export const hideMsgActionDropdown = () => {
+    const element = document.getElementById('msg-dropdown') as HTMLElement;
+    element && (element.style.display = 'none');
 };

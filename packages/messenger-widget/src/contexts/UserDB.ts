@@ -62,7 +62,10 @@ export function userDbReducer(
                     container.envelop.message.metadata.type ===
                         MessageActionType.EDIT ||
                     container.envelop.message.metadata.type ===
-                        MessageActionType.DELETE
+                        MessageActionType.DELETE ||
+                    (container.envelop.message.metadata.type ===
+                        MessageActionType.REACT &&
+                        !container.envelop.message.message)
                 ) {
                     const editedContainer = prevContainers.map(
                         (prevContainer) => {
@@ -83,7 +86,7 @@ export function userDbReducer(
 
                     newConversations.set(contactEnsName, [...editedContainer]);
                     log(
-                        `[DB] Edit message (timestamp: ${lastChangeTimestamp})`,
+                        `[DB] ${container.envelop.message.metadata.type} message (timestamp: ${lastChangeTimestamp})`,
                         'info',
                     );
                 } else {
@@ -92,7 +95,7 @@ export function userDbReducer(
                         container,
                     ]);
                     log(
-                        `[DB] Add message (timestamp: ${lastChangeTimestamp})`,
+                        `[DB] ${container.envelop.message.metadata.type} message (timestamp: ${lastChangeTimestamp})`,
                         'info',
                     );
                 }

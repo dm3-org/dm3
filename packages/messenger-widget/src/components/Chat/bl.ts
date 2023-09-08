@@ -81,40 +81,79 @@ const handleMessageContainer = (
     const msgList: MessageProps[] = [];
     let msg: MessageProps;
     let replyToEnvelop: StorageEnvelopContainer | undefined;
+    let reactionToIndex: number | null;
+    const messagesMap = new Map<
+        string,
+        { msgDetails: MessageProps; index: number }
+    >();
     messageContainers.forEach((container: StorageEnvelopContainer) => {
+        // fetch reply messages
         if (
-            container.envelop.message.metadata.type ===
-                MessageActionType.REPLY &&
-            container.envelop.message.metadata.referenceMessageHash
+            container.envelop.message.metadata.referenceMessageHash &&
+            container.envelop.message.metadata.type === MessageActionType.REPLY
         ) {
-            replyToEnvelop = fetchEnvelop(
-                messageContainers,
+            const data = messagesMap.get(
                 container.envelop.message.metadata.referenceMessageHash,
             );
+            if (data) {
+                replyToEnvelop = data.msgDetails;
+            }
         } else {
             replyToEnvelop = undefined;
         }
-        msg = {
-            message: container.envelop.message.message!,
-            time: container.envelop.message.metadata.timestamp.toString(),
-            messageState: container.messageState,
-            ownMessage: false,
-            envelop: container.envelop,
-            replyToMsg: replyToEnvelop?.envelop.message.message,
-            replyToMsgFrom: replyToEnvelop?.envelop.message.metadata.from,
-        };
+
+        // fetch react messages
         if (
-            isSameEnsName(
-                container.envelop.message.metadata.from,
-                state.connection.account!.ensName,
-                alias,
-            )
+            container.envelop.message.metadata.referenceMessageHash &&
+            container.envelop.message.metadata.type === MessageActionType.REACT
         ) {
-            msg.ownMessage = true;
+            const data = messagesMap.get(
+                container.envelop.message.metadata.referenceMessageHash,
+            );
+            if (data) {
+                reactionToIndex = data.index;
+                if (container.envelop.message.message) {
+                    msgList[reactionToIndex].reactions.push(container.envelop);
+                }
+            }
+        } else {
+            reactionToIndex = null;
         }
 
-        msgList.push(msg);
+        // add message only if its not of REACTION type
+        if (!reactionToIndex) {
+            msg = {
+                message: container.envelop.message.message!,
+                time: container.envelop.message.metadata.timestamp.toString(),
+                messageState: container.messageState,
+                ownMessage: false,
+                envelop: container.envelop,
+                replyToMsg: replyToEnvelop?.envelop.message.message,
+                replyToMsgFrom: replyToEnvelop?.envelop.message.metadata.from,
+                reactions: [],
+            };
+            if (
+                isSameEnsName(
+                    container.envelop.message.metadata.from,
+                    state.connection.account!.ensName,
+                    alias,
+                )
+            ) {
+                msg.ownMessage = true;
+            }
+
+            messagesMap.set(
+                msg.envelop.metadata?.encryptedMessageHash as string,
+                {
+                    msgDetails: msg,
+                    index: msgList.length,
+                },
+            );
+            msgList.push(msg);
+        }
     });
+
+    msgList.length && (msgList[msgList.length - 1].isLastMessage = true);
     setListOfMessages(msgList);
 };
 
@@ -214,17 +253,4 @@ export const handleMessages = async (
 
     closeLoader();
     updateIsMessageListInitialized(true);
-};
-
-// method specific envelop
-const fetchEnvelop = (
-    containerList: StorageEnvelopContainer[],
-    replyToMsgHash: string,
-) => {
-    const replyEnvelop = containerList.filter(
-        (data) =>
-            data.envelop.metadata?.encryptedMessageHash &&
-            data.envelop.metadata.encryptedMessageHash === replyToMsgHash,
-    );
-    return replyEnvelop.length ? replyEnvelop[0] : undefined;
 };

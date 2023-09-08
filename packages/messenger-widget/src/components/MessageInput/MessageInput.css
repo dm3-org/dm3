@@ -24,7 +24,7 @@
 }
 
 .user-name {
-    color: #81828d;
+    color: var(--text-secondary-color);
     padding-right: 3px;
     display: flex;
 }

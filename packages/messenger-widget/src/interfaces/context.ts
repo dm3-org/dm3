@@ -1,11 +1,12 @@
 import { Account, DeliveryServiceProfile } from 'dm3-lib-profile';
 import {
     LeftViewSelected,
+    MessageActionType,
     RightViewSelected,
     SelectedRightView,
 } from '../utils/enum-type-utils';
 import { ContactPreview, NewContact } from './utils';
-import { MessageAction } from './props';
+import { MessageAction, MessageProps } from './props';
 
 export interface Contact {
     account: Account;
@@ -50,6 +51,8 @@ export interface Modal {
     loaderContent: string;
     addConversation: NewContact;
     contactToHide: string | undefined;
+    openEmojiPopup: { action: boolean; data: MessageProps | undefined };
+    lastMessageAction: MessageActionType;
 }
 
 export interface UiViewState {

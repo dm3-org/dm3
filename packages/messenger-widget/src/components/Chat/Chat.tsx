@@ -12,11 +12,12 @@ import {
     handleMessages,
     scrollToBottomOfChat,
 } from './bl';
+import { MessageActionType } from '../../utils/enum-type-utils';
 
 export function Chat() {
     const { state, dispatch } = useContext(GlobalContext);
 
-    const [messageList, setMessageList] = useState([]);
+    const [messageList, setMessageList] = useState<MessageProps[]>([]);
     const [isMessageListInitialized, setIsMessageListInitialized] =
         useState<boolean>(false);
     const [isProfileConfigured, setIsProfileConfigured] =
@@ -76,9 +77,15 @@ export function Chat() {
         }
     }, [state.userDb?.conversations, state.accounts.selectedContact]);
 
-    // scrolls to bottom on any new message arrival
     useEffect(() => {
-        scrollToBottomOfChat();
+        if (
+            messageList.length &&
+            (state.modal.lastMessageAction === MessageActionType.NONE ||
+                state.modal.lastMessageAction === MessageActionType.REPLY ||
+                state.modal.lastMessageAction === MessageActionType.NEW)
+        ) {
+            scrollToBottomOfChat();
+        }
     }, [messageList]);
 
     return (
@@ -106,7 +113,7 @@ export function Chat() {
                     {messageList.length > 0 &&
                         messageList.map((messageData: MessageProps, index) => (
                             <div key={index} className="mt-2">
-                                {<Message {...messageData} />}
+                                <Message {...messageData} />
                             </div>
                         ))}
                     <br />

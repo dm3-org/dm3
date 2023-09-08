@@ -5,6 +5,7 @@ import { useContext } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import {
     MessageActionType,
+    ModalStateType,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
 import {
@@ -41,7 +42,7 @@ export default function DeleteMessage() {
             throw Error('no contact selected');
         }
 
-        const referenceMessageHash =
+        const messageHash =
             state.uiView.selectedMessageView.messageData?.envelop.metadata
                 ?.encryptedMessageHash;
 
@@ -58,7 +59,7 @@ export default function DeleteMessage() {
             state.accounts.selectedContact?.account.ensName as string,
             state.connection.account!.ensName,
             userDb.keys.signingKeyPair.privateKey as string,
-            referenceMessageHash as string,
+            messageHash as string,
         );
 
         const haltDelivery = getHaltDelivery(state);
@@ -71,6 +72,11 @@ export default function DeleteMessage() {
             haltDelivery,
             dispatch,
         );
+
+        dispatch({
+            type: ModalStateType.LastMessageAction,
+            payload: MessageActionType.EDIT,
+        });
     };
 
     return (

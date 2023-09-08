@@ -26,3 +26,26 @@
 .msg-dropdown-content div:hover {
     background-color: var(--normal-btn);
 }
+
+.msg-reaction {
+    padding: 0.2rem 0.2rem 0.2rem 0.2rem !important;
+}
+
+.msg-reaction:hover {
+    background-color: var(--background-container) !important;
+}
+
+.msg-reaction-container {
+    font-size: 1.2rem;
+    padding: 0.2rem 0.5rem 0.2rem 0.5rem !important;
+}
+
+.msg-reaction-container:hover {
+    background-color: var(--normal-btn);
+}
+
+.msg-react-separator {
+    height: 1px;
+    width: 95%;
+    margin: 0rem 0rem 0rem 0.3rem;
+}

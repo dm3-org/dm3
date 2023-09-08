@@ -7,6 +7,7 @@ import { GlobalContext } from '../../utils/context-utils';
 import { handleSubmit } from './bl';
 import {
     MessageActionType,
+    ModalStateType,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
 import closeIcon from '../../assets/images/cross.svg';
@@ -14,12 +15,14 @@ import { EmojiModal } from '../EmojiModal/EmojiModal';
 
 export function MessageInput() {
     const [message, setMessage] = useState('');
-    const [openEmojiPopup, setOpenEmojiPopup] = useState<boolean>(false);
 
     const { state, dispatch } = useContext(GlobalContext);
 
     function setMessageContent(e: React.ChangeEvent<HTMLInputElement>) {
-        setOpenEmojiPopup(false);
+        dispatch({
+            type: ModalStateType.OpenEmojiPopup,
+            payload: { action: false, data: undefined },
+        });
         // if message action is edit and message length is 0, update message action
         if (!e.target.value.length) {
             dispatch({
@@ -97,12 +100,8 @@ export function MessageInput() {
             )}
 
             {/* Emoji popup modal */}
-            {openEmojiPopup && (
-                <EmojiModal
-                    message={message}
-                    setMessage={setMessage}
-                    setOpenEmojiPopup={setOpenEmojiPopup}
-                />
+            {state.modal.openEmojiPopup.action && (
+                <EmojiModal message={message} setMessage={setMessage} />
             )}
 
             {/* Message emoji, file & input window */}
@@ -127,11 +126,19 @@ export function MessageInput() {
                             </span>
                             <span className="d-flex smile-icon">
                                 <img
+                                    id="emoji-modal-handler"
                                     className="chat-svg-icon pointer-cursor"
                                     src={emojiIcon}
                                     alt="emoji"
                                     onClick={() => {
-                                        setOpenEmojiPopup(!openEmojiPopup);
+                                        dispatch({
+                                            type: ModalStateType.OpenEmojiPopup,
+                                            payload: {
+                                                action: !state.modal
+                                                    .openEmojiPopup.action,
+                                                data: undefined,
+                                            },
+                                        });
                                     }}
                                 />
                             </span>
@@ -146,7 +153,6 @@ export function MessageInput() {
                                     state,
                                     dispatch,
                                     setMessage,
-                                    setOpenEmojiPopup,
                                     event,
                                 )
                             }
@@ -181,7 +187,6 @@ export function MessageInput() {
                                         state,
                                         dispatch,
                                         setMessage,
-                                        setOpenEmojiPopup,
                                         event,
                                     )
                                 }

@@ -34,6 +34,8 @@ export interface MessageProps {
     envelop: Envelop;
     replyToMsg: string | undefined;
     replyToMsgFrom: string | undefined;
+    reactions: Envelop[];
+    isLastMessage?: boolean;
 }
 
 export interface MessageAction {
@@ -44,5 +46,4 @@ export interface MessageAction {
 export interface EmojiProps {
     message: string;
     setMessage: Function;
-    setOpenEmojiPopup: Function;
 }

@@ -16,9 +16,9 @@
 }
 
 .time-style {
-    margin-top: 3px;
     font-size: 10px;
-    margin-right: 1.6rem;
+    margin-right: 1.45rem;
+    margin-top: -2px;
 }
 
 .readed-tick-icon {
@@ -66,4 +66,20 @@
 .reply-preview {
     padding: 0.5rem;
     margin: -7px -7px 7px -7px;
+}
+
+.contact-reacted-msg {
+    border-bottom-left-radius: 0px !important;
+}
+
+.own-reacted-msg {
+    border-bottom-right-radius: 0px !important;
+}
+
+.reacted {
+    padding: 2px 6px 2px 6px;
+    width: fit-content;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    font-size: 14px;
 }
