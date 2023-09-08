@@ -110,7 +110,7 @@ const handleMessageContainer = (
             const data = messagesMap.get(
                 container.envelop.message.metadata.referenceMessageHash,
             );
-            if (data) {
+            if (data && data.msgDetails.message) {
                 reactionToIndex = data.index;
                 if (container.envelop.message.message) {
                     msgList[reactionToIndex].reactions.push(container.envelop);
