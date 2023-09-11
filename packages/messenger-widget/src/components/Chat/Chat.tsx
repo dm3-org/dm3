@@ -12,11 +12,14 @@ import {
     handleMessages,
     scrollToBottomOfChat,
 } from './bl';
+import { MessageActionType } from '../../utils/enum-type-utils';
 
 export function Chat() {
     const { state, dispatch } = useContext(GlobalContext);
 
-    const [messageList, setMessageList] = useState([]);
+    const [messageList, setMessageList] = useState<MessageProps[]>([]);
+    const [isMessageListInitialized, setIsMessageListInitialized] =
+        useState<boolean>(false);
     const [isProfileConfigured, setIsProfileConfigured] =
         useState<boolean>(false);
 
@@ -31,6 +34,14 @@ export function Chat() {
     const setListOfMessages = (msgs: []) => {
         setMessageList(msgs);
     };
+
+    const updateIsMessageListInitialized = (action: boolean) => {
+        setIsMessageListInitialized(action);
+    };
+
+    useEffect(() => {
+        setIsMessageListInitialized(false);
+    }, [state.accounts.selectedContact]);
 
     // handles messages list
     useEffect(() => {
@@ -57,6 +68,8 @@ export function Chat() {
                     ),
                     alias,
                     setListOfMessages,
+                    isMessageListInitialized,
+                    updateIsMessageListInitialized,
                 );
             } catch (error) {
                 log(error, 'error');
@@ -64,9 +77,15 @@ export function Chat() {
         }
     }, [state.userDb?.conversations, state.accounts.selectedContact]);
 
-    // scrolls to bottom on any new message arrival
     useEffect(() => {
-        scrollToBottomOfChat();
+        if (
+            messageList.length &&
+            (state.modal.lastMessageAction === MessageActionType.NONE ||
+                state.modal.lastMessageAction === MessageActionType.REPLY ||
+                state.modal.lastMessageAction === MessageActionType.NEW)
+        ) {
+            scrollToBottomOfChat();
+        }
     }, [messageList]);
 
     return (
@@ -92,9 +111,9 @@ export function Chat() {
                     )}
                 >
                     {messageList.length > 0 &&
-                        messageList.map((messageData, index) => (
+                        messageList.map((messageData: MessageProps, index) => (
                             <div key={index} className="mt-2">
-                                <Message {...(messageData as MessageProps)} />
+                                <Message {...messageData} />
                             </div>
                         ))}
                     <br />

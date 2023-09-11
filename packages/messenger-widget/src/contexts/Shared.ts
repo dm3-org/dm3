@@ -57,5 +57,7 @@ export const initialState: GlobalState = {
             ensName: undefined,
             processed: false,
         },
+        openEmojiPopup: { action: false, data: undefined },
+        lastMessageAction: MessageActionType.NONE,
     },
 };

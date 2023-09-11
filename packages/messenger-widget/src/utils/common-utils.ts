@@ -1,3 +1,10 @@
+import { SendDependencies, Message } from 'dm3-lib-messaging';
+import { Account, ProfileKeys } from 'dm3-lib-profile';
+import { log } from 'dm3-lib-shared';
+import { StorageEnvelopContainer } from 'dm3-lib-storage';
+import { submitMessage } from '../adapters/messages';
+import { GlobalState, Actions, UserDbType } from './enum-type-utils';
+
 // method to open the error modal
 export const openErrorModal = (
     message: string,
@@ -55,6 +62,54 @@ export const closeErrorModal = () => {
     modal.style.display = 'none';
     const data = document.getElementById('error-message') as HTMLElement;
     data.innerText = '';
+};
+
+export const getHaltDelivery = (state: GlobalState): boolean => {
+    return state.accounts.selectedContact?.account.profile
+        ?.publicEncryptionKey &&
+        state.connection.account?.profile?.publicEncryptionKey
+        ? false
+        : true;
+};
+
+export const getDependencies = (state: GlobalState): SendDependencies => {
+    return {
+        deliverServiceProfile:
+            state.accounts.selectedContact?.deliveryServiceProfile!,
+        from: state.connection.account!,
+        to: state.accounts.selectedContact?.account as Account,
+        keys: state.userDb?.keys as ProfileKeys,
+    };
+};
+
+export const sendMessage = async (
+    state: GlobalState,
+    sendDependencies: SendDependencies,
+    messageData: Message,
+    haltDelivery: boolean,
+    dispatch: React.Dispatch<Actions>,
+) => {
+    try {
+        await submitMessage(
+            state.connection,
+            state.auth.currentSession?.token!,
+            sendDependencies,
+            messageData,
+            haltDelivery,
+            (envelops: StorageEnvelopContainer[]) =>
+                envelops.forEach((envelop) =>
+                    dispatch({
+                        type: UserDbType.addMessage,
+                        payload: {
+                            container: envelop,
+                            connection: state.connection,
+                        },
+                    }),
+                ),
+        );
+    } catch (e) {
+        log('[handleNewUserMessage] ' + JSON.stringify(e), 'error');
+    }
 };
 
 // Constants

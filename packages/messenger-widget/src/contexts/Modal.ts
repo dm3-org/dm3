@@ -28,6 +28,20 @@ export function modalReducer(state: Modal, action: ModalStateActions): Modal {
                 contactToHide: action.payload,
             };
 
+        case ModalStateType.OpenEmojiPopup:
+            log(`[Emoji Popup] open ${action.payload}`, 'info');
+            return {
+                ...state,
+                openEmojiPopup: action.payload,
+            };
+
+        case ModalStateType.LastMessageAction:
+            log(`[Last message action] type ${action.payload}`, 'info');
+            return {
+                ...state,
+                lastMessageAction: action.payload,
+            };
+
         default:
             return state;
     }
