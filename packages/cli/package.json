@@ -1,17 +1,20 @@
 {
   "name": "dm3-cli",
-  "packageManager": "yarn@3.5.1",
   "version": "0.0.1",
   "scripts": {
     "start": "ts-node index.ts",
     "test": "jest --coverage --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'"
   },
   "dependencies": {
+    "ccip-resolver": "^0.2.2",
     "commander": "^11.0.0",
     "ethers": "^5.7.2",
     "ts-node": "^10.9.1"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "hardhat": "^2.7.2",
     "jest": "^28.1.1",
     "ts-jest": "^28.0.4",
     "typescript": "^4.4.2"

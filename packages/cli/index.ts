@@ -8,13 +8,14 @@ const cli = async () => {
     program.option('--pk <pk>', 'ENS domain manger PK');
     program.option('--domain <domain>', 'ENS domain name e.g. yourdomain.eth');
     program.option(
-        '--gateway url <gateway>',
+        '--gateway gateway  <gateway url>',
         'gateway url used to resolve CCIP requests',
     );
     program.option(
         '--mnemonic <mnemonic>',
         'Custom mnemonic for the account that will be used as an owner. If omitted, a random mnemonic will be generated.',
     );
+    program.option('--rpc <rpc>', 'Ethereum RPC provider');
     program.parse();
 
     const [mode] = program.args;
@@ -23,7 +24,11 @@ const cli = async () => {
         case 'setup': {
             const args = program.opts();
 
-            const { pk, domain, gateway } = args;
+            const { pk, domain, gateway, rpc } = args;
+
+            if (!rpc) {
+                program.error('error: option --rpc <rpc> argument missing');
+            }
 
             const wallet = getSanitizedWallet(program, pk);
             if (!domain) {
