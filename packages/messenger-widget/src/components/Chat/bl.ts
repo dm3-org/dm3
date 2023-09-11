@@ -6,10 +6,17 @@ import {
     normalizeEnsName,
 } from 'dm3-lib-profile';
 import { log, stringify } from 'dm3-lib-shared';
-import { Actions, GlobalState, UserDbType } from '../../utils/enum-type-utils';
+import {
+    Actions,
+    GlobalState,
+    MessageActionType,
+    ModalStateType,
+    UserDbType,
+} from '../../utils/enum-type-utils';
 import { StorageEnvelopContainer, UserDB } from 'dm3-lib-storage';
 import { fetchAndStoreMessages } from '../../adapters/messages';
 import { MessageProps } from '../../interfaces/props';
+import { closeLoader, startLoader } from '../Loader/Loader';
 
 // method to check message signature
 export async function checkSignature(
@@ -71,39 +78,123 @@ const handleMessageContainer = (
     alias: string | undefined,
     setListOfMessages: Function,
 ) => {
-    const msgList: any = [];
+    const msgList: MessageProps[] = [];
     let msg: MessageProps;
+    let replyToEnvelop: StorageEnvelopContainer | undefined;
+    let reactionToIndex: number | null;
+    const messagesMap = new Map<
+        string,
+        { msgDetails: MessageProps; index: number }
+    >();
     messageContainers.forEach((container: StorageEnvelopContainer) => {
-        msg = {
-            message: container.envelop.message.message!,
-            time: container.envelop.message.metadata.timestamp.toString(),
-            messageState: container.messageState,
-            ownMessage: false,
-            envelop: container.envelop,
-        };
+        // fetch reply messages
         if (
-            isSameEnsName(
-                container.envelop.message.metadata.from,
-                state.connection.account!.ensName,
-                alias,
-            )
+            container.envelop.message.metadata.referenceMessageHash &&
+            container.envelop.message.metadata.type === MessageActionType.REPLY
         ) {
-            msg.ownMessage = true;
+            const data = messagesMap.get(
+                container.envelop.message.metadata.referenceMessageHash,
+            );
+            if (data) {
+                replyToEnvelop = data.msgDetails;
+            }
+        } else {
+            replyToEnvelop = undefined;
         }
 
-        msgList.push(msg);
+        // fetch react messages
+        if (
+            container.envelop.message.metadata.referenceMessageHash &&
+            container.envelop.message.metadata.type === MessageActionType.REACT
+        ) {
+            const data = messagesMap.get(
+                container.envelop.message.metadata.referenceMessageHash,
+            );
+            if (data && data.msgDetails.message) {
+                reactionToIndex = data.index;
+                if (container.envelop.message.message) {
+                    msgList[reactionToIndex].reactions.push(container.envelop);
+                }
+            }
+        } else {
+            reactionToIndex = null;
+        }
+
+        // add message only if its not of REACTION type
+        if (!reactionToIndex) {
+            msg = {
+                message: container.envelop.message.message!,
+                time: container.envelop.message.metadata.timestamp.toString(),
+                messageState: container.messageState,
+                ownMessage: false,
+                envelop: container.envelop,
+                replyToMsg: replyToEnvelop?.envelop.message.message,
+                replyToMsgFrom: replyToEnvelop?.envelop.message.metadata.from,
+                reactions: [],
+            };
+            if (
+                isSameEnsName(
+                    container.envelop.message.metadata.from,
+                    state.connection.account!.ensName,
+                    alias,
+                )
+            ) {
+                msg.ownMessage = true;
+            }
+
+            messagesMap.set(
+                msg.envelop.metadata?.encryptedMessageHash as string,
+                {
+                    msgDetails: msg,
+                    index: msgList.length,
+                },
+            );
+            msgList.push(msg);
+        }
     });
+
+    msgList.length && (msgList[msgList.length - 1].isLastMessage = true);
     setListOfMessages(msgList);
 };
 
 // method to set the message list
-export const handleMessages = (
+export const handleMessages = async (
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
     containers: StorageEnvelopContainer[],
     alias: string | undefined,
     setListOfMessages: Function,
-): void => {
+    isMessageListInitialized: boolean,
+    updateIsMessageListInitialized: Function,
+) => {
+    if (!isMessageListInitialized && state.accounts.selectedContact) {
+        dispatch({
+            type: ModalStateType.LoaderContent,
+            payload: 'Fetching messages',
+        });
+        startLoader();
+        await fetchAndStoreMessages(
+            state.connection,
+            state.auth.currentSession?.token!,
+            state.accounts.selectedContact.account.ensName,
+            state.userDb as UserDB,
+            (envelops) => {
+                envelops.forEach((envelop) =>
+                    dispatch({
+                        type: UserDbType.addMessage,
+                        payload: {
+                            container: envelop,
+                            connection: state.connection,
+                        },
+                    }),
+                );
+            },
+            state.accounts.contacts
+                ? state.accounts.contacts.map((contact) => contact.account)
+                : [],
+        );
+    }
+
     const checkedContainers = containers.filter((container) => {
         if (!state.accounts.selectedContact) {
             throw Error('No selected contact');
@@ -159,40 +250,7 @@ export const handleMessages = (
             }),
         );
     }
-};
 
-// method to fetch old messages
-export const getPastMessages = async (
-    state: GlobalState,
-    dispatch: React.Dispatch<Actions>,
-    alias: string | undefined,
-    setListOfMessages: Function,
-) => {
-    if (!state.accounts.selectedContact) {
-        throw Error('no contact selected');
-    }
-    const messages = await fetchAndStoreMessages(
-        state.connection,
-        state.auth.currentSession?.token!,
-        state.accounts.selectedContact.account.ensName,
-        state.userDb as UserDB,
-        (envelops) => {
-            envelops.forEach((envelop) =>
-                dispatch({
-                    type: UserDbType.addMessage,
-                    payload: {
-                        container: envelop,
-                        connection: state.connection,
-                    },
-                }),
-            );
-        },
-        state.accounts.contacts
-            ? state.accounts.contacts.map((contact) => contact.account)
-            : [],
-    );
-
-    if (messages.length > 0) {
-        handleMessages(state, dispatch, messages, alias, setListOfMessages);
-    }
+    closeLoader();
+    updateIsMessageListInitialized(true);
 };

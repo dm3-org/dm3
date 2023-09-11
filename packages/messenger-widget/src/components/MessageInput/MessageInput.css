@@ -1,5 +1,5 @@
 .chat-action {
-    bottom: 0;
+    bottom: -5px;
 }
 
 .chat-action-items {
@@ -21,4 +21,30 @@
     outline: none;
     padding-left: 0.3rem;
     padding-right: 0.9rem;
+}
+
+.user-name {
+    color: var(--text-secondary-color);
+    padding-right: 3px;
+    display: flex;
+}
+
+.reply-content {
+    border: 1px solid var(--text-secondary-color);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom: none;
+    padding: 0.4rem 0.5rem 0.2rem 0.5rem;
+    text-align: left;
+}
+
+.reply-close-icon {
+    width: 1rem;
+    height: auto;
+}
+
+.reply-msg-active {
+    border-top: none !important;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
 }
