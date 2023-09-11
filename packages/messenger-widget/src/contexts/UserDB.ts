@@ -5,7 +5,11 @@ import {
     getConversation,
     sortEnvelops,
 } from 'dm3-lib-storage';
-import { UserDbActions, UserDbType } from '../utils/enum-type-utils';
+import {
+    MessageActionType,
+    UserDbActions,
+    UserDbType,
+} from '../utils/enum-type-utils';
 import { normalizeEnsName } from 'dm3-lib-profile';
 import { getId } from 'dm3-lib-messaging';
 import { log } from 'dm3-lib-shared';
@@ -54,7 +58,15 @@ export function userDbReducer(
                     .metadata.timestamp <
                 container.envelop.message.metadata.timestamp
             ) {
-                if (container.envelop.message.metadata.referenceMessageHash) {
+                if (
+                    container.envelop.message.metadata.type ===
+                        MessageActionType.EDIT ||
+                    container.envelop.message.metadata.type ===
+                        MessageActionType.DELETE ||
+                    (container.envelop.message.metadata.type ===
+                        MessageActionType.REACT &&
+                        !container.envelop.message.message)
+                ) {
                     const editedContainer = prevContainers.map(
                         (prevContainer) => {
                             if (
@@ -74,7 +86,7 @@ export function userDbReducer(
 
                     newConversations.set(contactEnsName, [...editedContainer]);
                     log(
-                        `[DB] Edit message (timestamp: ${lastChangeTimestamp})`,
+                        `[DB] ${container.envelop.message.metadata.type} message (timestamp: ${lastChangeTimestamp})`,
                         'info',
                     );
                 } else {
@@ -83,7 +95,7 @@ export function userDbReducer(
                         container,
                     ]);
                     log(
-                        `[DB] Add message (timestamp: ${lastChangeTimestamp})`,
+                        `[DB] ${container.envelop.message.metadata.type} message (timestamp: ${lastChangeTimestamp})`,
                         'info',
                     );
                 }
@@ -102,7 +114,7 @@ export function userDbReducer(
 
                 hasChanged = true;
                 log(
-                    `[DB] Add message (timestamp: ${lastChangeTimestamp})`,
+                    `[DB] Delete message (timestamp: ${lastChangeTimestamp})`,
                     'info',
                 );
             }
