@@ -32,9 +32,18 @@ export interface MessageProps {
     messageState: MessageState;
     ownMessage: boolean;
     envelop: Envelop;
+    replyToMsg: string | undefined;
+    replyToMsgFrom: string | undefined;
+    reactions: Envelop[];
+    isLastMessage?: boolean;
 }
 
 export interface MessageAction {
     messageData: MessageProps | undefined;
     actionType: MessageActionType;
+}
+
+export interface EmojiProps {
+    message: string;
+    setMessage: Function;
 }

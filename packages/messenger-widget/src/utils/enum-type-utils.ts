@@ -19,7 +19,7 @@ import {
 import { Account } from 'dm3-lib-profile';
 import { Connection } from '../interfaces/web3';
 import { ContactPreview, NewContact } from '../interfaces/utils';
-import { MessageAction } from '../interfaces/props';
+import { MessageAction, MessageProps } from '../interfaces/props';
 
 export type ActionMap<M extends { [index: string]: any }> = {
     [Key in keyof M]: M[Key] extends undefined
@@ -257,20 +257,29 @@ export enum ModalStateType {
     LoaderContent = 'LOADER_CONTENT',
     AddConversationData = 'ADD_CONVERSATION_DATA',
     ContactToHide = 'CONTACT_TO_HIDE',
+    OpenEmojiPopup = 'OPEN_EMOJI_MODAL',
+    LastMessageAction = 'LAST_MESSAGE_ACTION',
 }
 
 export type ModalStatePayload = {
     [ModalStateType.LoaderContent]: string;
     [ModalStateType.AddConversationData]: NewContact;
     [ModalStateType.ContactToHide]: string | undefined;
+    [ModalStateType.OpenEmojiPopup]: {
+        action: boolean;
+        data: MessageProps | undefined;
+    };
+    [ModalStateType.LastMessageAction]: MessageActionType;
 };
 
 export type ModalStateActions =
     ActionMap<ModalStatePayload>[keyof ActionMap<ModalStatePayload>];
 
 export enum MessageActionType {
+    NEW = 'NEW',
     EDIT = 'EDIT',
-    DELETE = 'DELETE',
+    DELETE = 'DELETE_REQUEST',
     REPLY = 'REPLY',
+    REACT = 'REACTION',
     NONE = 'NONE',
 }

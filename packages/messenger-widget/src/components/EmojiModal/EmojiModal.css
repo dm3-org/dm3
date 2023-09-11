@@ -1,0 +1,5 @@
+.emoji-modal-container {
+    position: absolute;
+    z-index: 1;
+    bottom: 3rem;
+}
