@@ -2015,6 +2015,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ensdomains/buffer@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "@ensdomains/buffer@npm:0.1.1"
+  checksum: 196cf0a6a34e473a13b47458c56b4db1a9db226e5939af77497da02cb60ccfabff24613380e66154a64c8c372526e7ee8fa790bffaa55a70ddfe5b6c199ec9f7
+  languageName: node
+  linkType: hard
+
 "@ensdomains/dnssec-oracle@npm:0.1.2":
   version: 0.1.2
   resolution: "@ensdomains/dnssec-oracle@npm:0.1.2"
@@ -2033,6 +2040,18 @@ __metadata:
     "@openzeppelin/contracts": ^4.1.0
     dns-packet: ^5.3.0
   checksum: 21aef4f0e82ec98cb50b7798d20985b08637e861426688946e47d2fdf60381659652d6c7f7dfbe8c459f706e102bf2aebab833de2d5d4d420d68bfcec267810a
+  languageName: node
+  linkType: hard
+
+"@ensdomains/ens-contracts@npm:^0.0.22":
+  version: 0.0.22
+  resolution: "@ensdomains/ens-contracts@npm:0.0.22"
+  dependencies:
+    "@ensdomains/buffer": ^0.1.1
+    "@ensdomains/solsha1": 0.0.3
+    "@openzeppelin/contracts": ^4.1.0
+    dns-packet: ^5.3.0
+  checksum: ff91f09ad714647f670306630d194a6ee629c29909f5a71f228e1248f2604d4fe2616f62b87ecd3bc61c6c3ec104eda848fd5297592657f6f58936ddee117086
   languageName: node
   linkType: hard
 
@@ -12786,6 +12805,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "dm3-cli@workspace:packages/cli"
   dependencies:
+    "@ensdomains/ens-contracts": ^0.0.22
     "@nomicfoundation/hardhat-chai-matchers": ^2.0.2
     "@nomiclabs/hardhat-ethers": ^2.2.3
     ccip-resolver: ^0.2.2
@@ -12793,6 +12813,7 @@ __metadata:
     ethers: ^5.7.2
     hardhat: ^2.7.2
     jest: ^28.1.1
+    prettier: ^3.0.3
     ts-jest: ^28.0.4
     ts-node: ^10.9.1
     typescript: ^4.4.2
@@ -24655,6 +24676,15 @@ __metadata:
   bin:
     prettier: bin-prettier.js
   checksum: b49e409431bf129dd89238d64299ba80717b57ff5a6d1c1a8b1a28b590d998a34e083fa13573bc732bb8d2305becb4c9a4407f8486c81fa7d55100eb08263cf8
+  languageName: node
+  linkType: hard
+
+"prettier@npm:^3.0.3":
+  version: 3.0.3
+  resolution: "prettier@npm:3.0.3"
+  bin:
+    prettier: bin/prettier.cjs
+  checksum: e10b9af02b281f6c617362ebd2571b1d7fc9fb8a3bd17e371754428cda992e5e8d8b7a046e8f7d3e2da1dcd21aa001e2e3c797402ebb6111b5cd19609dd228e0
   languageName: node
   linkType: hard
 

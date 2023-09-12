@@ -1,3 +1,4 @@
+import { logInfo } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 
 export const EnsResolver = (address: string) => {
@@ -5,7 +6,12 @@ export const EnsResolver = (address: string) => {
         'function setText(bytes32 node, string calldata key, string calldata value)',
     ]);
 
-    const setText = (domain: string, key: string, value: string) => {
+    const setText = (
+        domain: string,
+        key: string,
+        value: string,
+        nonce: number,
+    ) => {
         const node = ethers.utils.namehash(domain);
 
         const data = iFace.encodeFunctionData('setText', [node, key, value]);
@@ -13,7 +19,12 @@ export const EnsResolver = (address: string) => {
         const tx: ethers.providers.TransactionRequest = {
             to: address,
             data,
+            nonce,
+            gasLimit: 350000,
         };
+        logInfo(
+            `Publish delivery service profile for ${domain} at nonce ${nonce}`,
+        );
         return tx;
     };
 

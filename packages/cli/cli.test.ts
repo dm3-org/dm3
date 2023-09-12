@@ -1,19 +1,105 @@
-import { ethers } from 'hardhat';
+/* eslint-disable max-len */
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
+import {
+    ENSRegistry__factory,
+    ERC3668Resolver__factory,
+} from 'ccip-resolver/dist/typechain/';
 import { expect } from 'chai';
+import { Wallet } from 'ethers';
+import execa from 'execa';
+import { ethers } from 'hardhat';
 
+import publicResolverArtifact from '@ensdomains/resolver/build/contracts/PublicResolver.json';
+import {
+    createKeyPair,
+    createSigningKeyPair,
+    createStorageKey,
+} from 'dm3-lib-crypto';
 describe('cli', () => {
-    let owner;
-    let rpc;
+    let alice, owner: Wallet;
+    let rpc: string;
+    let ensRegistry, publicResolver, erc3668Resolver;
+
     beforeEach(async () => {
-        [owner] = await ethers.getSigners();
         rpc = ethers.provider.connection.url;
+
+        const provider = new ethers.providers.JsonRpcProvider(
+            'http://127.0.0.1:8545/',
+        );
+
+        alice = new Wallet(
+            '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
+        );
+
+        owner = new Wallet(
+            '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
+        );
+
+        const ownerWithProvider = owner.connect(provider);
+        const aliceWithProvider = alice.connect(provider);
+
+        ensRegistry = await new ENSRegistry__factory()
+            .connect(ownerWithProvider)
+            .deploy();
+        erc3668Resolver = await new ERC3668Resolver__factory()
+            .connect(ownerWithProvider)
+            .deploy(
+                ensRegistry.address,
+                ethers.constants.AddressZero,
+                ethers.constants.AddressZero,
+                [],
+            );
+
+        publicResolver = await new ethers.ContractFactory(
+            publicResolverArtifact.abi,
+            publicResolverArtifact.bytecode,
+            ownerWithProvider,
+        ).deploy(ensRegistry.address, {
+            gasLimit: 5000000,
+        });
+
+        await ensRegistry
+            .connect(ownerWithProvider)
+            .setOwner(ethers.constants.HashZero, alice.address);
+
+        await ensRegistry
+            .connect(aliceWithProvider)
+            .setSubnodeOwner(
+                ethers.constants.HashZero,
+                ethers.utils.keccak256(ethers.utils.toUtf8Bytes('eth')),
+                alice.address,
+                {
+                    gasLimit: 500000,
+                },
+            );
+
+        await ensRegistry
+            .connect(aliceWithProvider)
+            .setSubnodeOwner(
+                ethers.utils.namehash('eth'),
+                ethers.utils.keccak256(ethers.utils.toUtf8Bytes('alice')),
+                alice.address,
+                {
+                    gasLimit: 500000,
+                },
+            );
+        await ensRegistry
+            .connect(aliceWithProvider)
+            .setSubnodeOwner(
+                ethers.utils.namehash('alice.eth'),
+                ethers.utils.keccak256(ethers.utils.toUtf8Bytes('a')),
+                alice.address,
+                {
+                    gasLimit: 500000,
+                },
+            );
     });
-    const execa = require('execa');
+
     const cli = (argv = ''): any =>
         new Promise((resolve, reject) => {
             const subprocess = execa.command(`yarn start ${argv}`);
-            subprocess.stdout.pipe(process.stdout);
-            subprocess.stderr.pipe(process.stderr);
+            subprocess.stdout!.pipe(process.stdout);
+            subprocess.stderr!.pipe(process.stderr);
             Promise.resolve(subprocess).then(resolve).catch(resolve);
         });
 
@@ -71,10 +157,66 @@ describe('cli', () => {
         });
         describe('setupAll', () => {
             it('test all', async () => {
-                const wallet = ethers.Wallet.createRandom();
+                const owner = ethers.Wallet.createRandom();
+
                 const res = await cli(
-                    `setup --rpc ${rpc} --pk ${wallet.privateKey} --domain test.eth --gateway https://gateway.io/`,
+                    `setup 
+                    --rpc  http://127.0.0.1:8545
+                    --pk ${alice.privateKey} 
+                    --domain alice.eth 
+                    --gateway https://gateway.io/  
+                    --deliveryService https://ds.io/ 
+                    --profilePk ${owner.privateKey} 
+                    --ensRegistry ${ensRegistry.address} 
+                    --ensResolver ${publicResolver.address} 
+                    --erc3668Resolver ${erc3668Resolver.address}`,
                 );
+                expect(
+                    await ensRegistry.owner(
+                        ethers.utils.namehash('user.alice.eth'),
+                    ),
+                ).to.equal(alice.address);
+                expect(
+                    await ensRegistry.owner(
+                        ethers.utils.namehash('addr.alice.eth'),
+                    ),
+                ).to.equal(alice.address);
+                expect(
+                    await ensRegistry.owner(
+                        ethers.utils.namehash('ds.alice.eth'),
+                    ),
+                ).to.equal(alice.address);
+
+                const profile = await publicResolver.text(
+                    ethers.utils.namehash('ds.alice.eth'),
+                    'network.dm3.deliveryService',
+                );
+                expect(JSON.parse(profile).url).to.equal('https://ds.io/');
+
+                const encryptionKeyPair = await createKeyPair(
+                    await createStorageKey(owner.privateKey),
+                );
+                const signingKeyPair = await createSigningKeyPair(
+                    await createStorageKey(owner.privateKey),
+                );
+
+                expect(JSON.parse(profile).publicEncryptionKey).to.equal(
+                    encryptionKeyPair.publicKey,
+                );
+                expect(JSON.parse(profile).publicSigningKey).to.equal(
+                    signingKeyPair.publicKey,
+                );
+
+                expect(
+                    await erc3668Resolver.ccipVerifier(
+                        ethers.utils.namehash('user.alice.eth'),
+                    ),
+                ).to.not.equal(ethers.constants.AddressZero);
+                expect(
+                    await erc3668Resolver.ccipVerifier(
+                        ethers.utils.namehash('addr.alice.eth'),
+                    ),
+                ).to.not.equal(ethers.constants.AddressZero);
             });
         });
     });
