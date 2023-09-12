@@ -218,6 +218,92 @@ describe('cli', () => {
                     ),
                 ).to.not.equal(ethers.constants.AddressZero);
             });
+            it('test all with random profile wallet', async () => {
+                const res = await cli(
+                    `setup 
+                    --rpc  http://127.0.0.1:8545
+                    --pk ${alice.privateKey} 
+                    --domain alice.eth 
+                    --gateway https://gateway.io/  
+                    --deliveryService https://ds.io/ 
+                    --ensRegistry ${ensRegistry.address} 
+                    --ensResolver ${publicResolver.address} 
+                    --erc3668Resolver ${erc3668Resolver.address}`,
+                );
+                expect(
+                    await ensRegistry.owner(
+                        ethers.utils.namehash('user.alice.eth'),
+                    ),
+                ).to.equal(alice.address);
+                expect(
+                    await ensRegistry.owner(
+                        ethers.utils.namehash('addr.alice.eth'),
+                    ),
+                ).to.equal(alice.address);
+                expect(
+                    await ensRegistry.owner(
+                        ethers.utils.namehash('ds.alice.eth'),
+                    ),
+                ).to.equal(alice.address);
+
+                const profile = await publicResolver.text(
+                    ethers.utils.namehash('ds.alice.eth'),
+                    'network.dm3.deliveryService',
+                );
+                expect(JSON.parse(profile).url).to.equal('https://ds.io/');
+
+                expect(JSON.parse(profile).publicEncryptionKey).to.not.be
+                    .undefined;
+                expect(JSON.parse(profile).publicSigningKey).to.not.be
+                    .undefined;
+
+                expect(
+                    await erc3668Resolver.ccipVerifier(
+                        ethers.utils.namehash('user.alice.eth'),
+                    ),
+                ).to.not.equal(ethers.constants.AddressZero);
+                expect(
+                    await erc3668Resolver.ccipVerifier(
+                        ethers.utils.namehash('addr.alice.eth'),
+                    ),
+                ).to.not.equal(ethers.constants.AddressZero);
+            });
+            it('rejects with underfunded balance', async () => {
+                const provider = new ethers.providers.JsonRpcProvider(
+                    'http://127.0.0.1:8545/',
+                );
+
+                const underfundedWallet = ethers.Wallet.createRandom();
+                //Send a little bit of ETH to the wallet. Although its to little to pay for the transactions
+                await owner.connect(provider).sendTransaction({
+                    to: underfundedWallet.address,
+                    value: ethers.utils.parseEther('0.0001'),
+                });
+                const balanceBefore = await provider.getBalance(
+                    underfundedWallet.address,
+                );
+
+                const res = await cli(
+                    `setup 
+                    --rpc  http://127.0.0.1:8545
+                    --pk ${underfundedWallet.privateKey} 
+                    --domain alice.eth 
+                    --gateway https://gateway.io/  
+                    --deliveryService https://ds.io/ 
+                    --ensRegistry ${ensRegistry.address} 
+                    --ensResolver ${publicResolver.address} 
+                    --erc3668Resolver ${erc3668Resolver.address}`,
+                );
+
+                const balanceAfter = await provider.getBalance(
+                    underfundedWallet.address,
+                );
+
+                expect(balanceAfter._hex).to.equal(balanceBefore._hex);
+                expect(res.stderr).to.include(
+                    'has insufficient funds to send 7 transactions with total cost of',
+                );
+            });
         });
     });
 });

@@ -14,6 +14,6 @@ export const getSanitizedWallet = (
         const wallet = new ethers.Wallet(pk);
         return wallet;
     } catch (err) {
-        program.error(`error: option --${type} <${type}> argument missing`);
+        program.error(`error: option --${type} <${type}> argument invalid`);
     }
 };
