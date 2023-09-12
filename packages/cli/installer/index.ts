@@ -6,6 +6,7 @@ import { EnsRegistry } from './transactions/EnsRegistry';
 import { EnsResolver } from './transactions/EnsResolver';
 import { SignatureVerifier } from './transactions/SignatureVerifier';
 import { InstallerArgs } from './types';
+import { printEnv } from './tasks/printEnv';
 
 const ENS_REGISTRY_ADDRESS = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e';
 const ENS_PUBLIC_RESOLVER_ADDRESS =
@@ -35,7 +36,7 @@ const setupAll = async (args: InstallerArgs) => {
     const erc3668Resolver = ERC3668Resolver(erc3668ResolverAddress);
 
     //Create ds profile
-    const profile = await createDsProfile(args);
+    const { profile, keys } = await createDsProfile(args);
 
     const provider = new ethers.providers.StaticJsonRpcProvider(args.rpc);
 
@@ -108,5 +109,6 @@ const setupAll = async (args: InstallerArgs) => {
     ];
 
     await sendTransactions(args, tx);
+    printEnv(args, keys);
 };
 export { setupAll };

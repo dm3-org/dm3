@@ -29,5 +29,5 @@ export const createDsProfile = async (args: InstallerArgs) => {
     logInfo('Create DeliveryServiceProfile:');
     logInfo(profile);
 
-    return profile;
+    return { profile, keys };
 };

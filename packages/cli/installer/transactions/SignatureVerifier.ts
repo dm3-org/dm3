@@ -36,7 +36,9 @@ export const SignatureVerifier = (deployer: string) => {
             nonce,
             gasLimit: 2000000,
         };
-        logInfo(`Deploy SignatureVerifier at nonce ${nonce}`);
+        logInfo(
+            `Deploy SignatureVerifier at ${verifierAddress} with nonce ${nonce}`,
+        );
         return { verifierAddress, signatureVerifierDeployTransaction };
     };
     return {
