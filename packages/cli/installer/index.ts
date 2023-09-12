@@ -64,7 +64,7 @@ const setupAll = async (args: InstallerArgs) => {
             args.domain,
             'user',
             args.wallet.address,
-            ensPublicResolverAddress,
+            erc3668ResolverAddress,
             transactionCount + 1,
         ),
         // Set the owner of the addr domain to the wallet address
@@ -72,7 +72,7 @@ const setupAll = async (args: InstallerArgs) => {
             args.domain,
             'addr',
             args.wallet.address,
-            ensPublicResolverAddress,
+            erc3668ResolverAddress,
             transactionCount + 2,
         ),
         // Set the owner of the ds domain to the wallet address
