@@ -1,5 +1,3 @@
-/* eslint-disable max-len */
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import {
     ENSRegistry__factory,
     ERC3668Resolver__factory,
@@ -20,7 +18,23 @@ describe('cli', () => {
     let rpc: string;
     let ensRegistry, publicResolver, erc3668Resolver;
 
+    afterEach(async () => {
+        await execa.command(`lsof -ti :8545 | xargs kill -9`, {
+            shell: true,
+        });
+    });
+
     beforeEach(async () => {
+        execa.command(`yarn start-hh-node`, {
+            detached: true,
+        });
+
+        const wait = (ms: number) =>
+            new Promise((resolve) => setTimeout(resolve, ms));
+
+        //Wait unitl hh node has started
+        await wait(2000);
+
         rpc = ethers.provider.connection.url;
 
         const provider = new ethers.providers.JsonRpcProvider(
