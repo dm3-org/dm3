@@ -9,14 +9,14 @@ import { InstallerArgs } from './types';
 import { printEnv } from './tasks/printEnv';
 
 const ENS_REGISTRY_ADDRESS = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e';
-const ENS_PUBLIC_RESOLVER_ADDRESS =
-    '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e';
+
 const ERC3668RESOLVER_ADDRESSS = ethers.constants.AddressZero;
 
 const setupAll = async (args: InstallerArgs) => {
     const graphQlurl = '';
     const resolverChainId = '1';
     const resolverName = 'SignatureCcipVerifier';
+    const provider = new ethers.providers.StaticJsonRpcProvider(args.rpc);
 
     //Override default addresses with optional arguments
     const ensRegistryAddress = args.ensRegistry
@@ -25,7 +25,7 @@ const setupAll = async (args: InstallerArgs) => {
 
     const ensPublicResolverAddress = args.ensResolver
         ? args.ensResolver
-        : ENS_PUBLIC_RESOLVER_ADDRESS;
+        : (await provider.getResolver(args.wallet.address))!.address;
 
     const erc3668ResolverAddress = args.erc3668Resolver
         ? args.erc3668Resolver
@@ -37,8 +37,6 @@ const setupAll = async (args: InstallerArgs) => {
 
     //Create ds profile
     const { profile, keys } = await createDsProfile(args);
-
-    const provider = new ethers.providers.StaticJsonRpcProvider(args.rpc);
 
     //Get the transaction count of the wallet. To be used as nonce for the transactions
     const transactionCount = await provider.getTransactionCount(
