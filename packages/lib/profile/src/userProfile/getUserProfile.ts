@@ -47,9 +47,9 @@ export async function getUserProfile(
         contact,
         PROFILE_RECORD_NAME,
     );
-    //The user has no dm3-Profile text record set. Hence we need to fetch the profile offChain
     if (!textRecord) {
-        throw Error('Account has no dm3 profile');
+        //The user has no dm3-Profile text record set. Hence we need to fetch the profile offChain
+        return undefined;
     }
     /**
      * The Text record can contain either
