@@ -54,6 +54,11 @@ jobs:
                 rsync -avz -e 'ssh -i ./ssh-key' ./dm3-backend.tar app@${{ secrets.STAGING_HOST }}:/home/app/dm3 
                 rsync -avz -e 'ssh -i ./ssh-key' ./nginx.conf app@${{ secrets.STAGING_HOST }}:/home/app/dm3
                 rsync -avz -e 'ssh -i ./ssh-key' ./docker/docker-compose.yml app@${{ secrets.STAGING_HOST }}:/home/app/dm3                
+            - name: Prepare docker
+              run: |
+                  ssh -i ./ssh-key root@${{ secrets.STAGING_HOST }} "\
+                  docker system prune -af; \
+                  systemctl restart docker.service"
             - name: Load docker image
               run: |
                   ssh -i ./ssh-key app@${{ secrets.STAGING_HOST }} "\
