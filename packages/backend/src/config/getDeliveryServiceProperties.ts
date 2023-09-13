@@ -1,11 +1,8 @@
 import { parse } from 'yaml';
 import { existsSync, readFileSync } from 'fs';
 import { resolve } from 'path';
-import { logInfo, validateSchema } from 'dm3-lib-shared/dist.backend';
-import {
-    schema,
-    DeliveryServiceProperties,
-} from 'dm3-lib-delivery/dist.backend';
+import { logInfo, validateSchema } from 'dm3-lib-shared';
+import { schema, DeliveryServiceProperties } from 'dm3-lib-delivery';
 
 const DEFAULT_CONFIG_FILE_PATH = resolve(__dirname, './../config.yml');
 const DEFAULT_DELIVERY_SERVICE_PROPERTIES: DeliveryServiceProperties = {

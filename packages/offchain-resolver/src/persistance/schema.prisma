@@ -8,11 +8,19 @@ generator client {
 }
 
 model ProfileContainer {
-  id Int @id @default(autoincrement())
+  id String @db.Uuid @id 
   nameHash String @unique
   profile Json
   ensName String @unique
   address String @unique
+  aliases Alias[]
 
+}
+
+model Alias {
+    id String @db.Uuid @id
+    profile ProfileContainer @relation(fields: [profileContainerId], references: [id])
+    profileContainerId String @unique @db.Uuid
+    alias String @unique
 }
 

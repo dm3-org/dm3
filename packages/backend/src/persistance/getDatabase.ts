@@ -1,10 +1,6 @@
-import {
-    Session as DSSession,
-    spamFilter,
-    NotificationChannel,
-} from 'dm3-lib-delivery/dist.backend';
-import { EncryptionEnvelop } from 'dm3-lib-messaging/dist.backend';
-import { UserStorage } from 'dm3-lib-storage/dist.backend';
+import { Session as DSSession, spamFilter } from 'dm3-lib-delivery';
+import { EncryptionEnvelop } from 'dm3-lib-messaging';
+import { UserStorage } from 'dm3-lib-storage';
 import { createClient } from 'redis';
 import winston from 'winston';
 import Messages from './messages';
@@ -25,7 +21,7 @@ export enum RedisPrefix {
     NotificationChannel = 'notificationChannel:',
 }
 
-export async function getRedisClient(logger: winston.Logger) {
+export async function getRedisClient() {
     const url = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
     const socketConf = {
         socket: {
@@ -39,26 +35,23 @@ export async function getRedisClient(logger: winston.Logger) {
                   url,
                   ...socketConf,
               }
-            : {},
+            : { url },
     );
 
     client.on('error', (err) => {
-        logger.error('Redis error: ' + (err as Error).message);
+        global.logger.error('Redis error: ' + (err as Error).message);
     });
 
-    client.on('reconnecting', () => logger.info('Redis reconnection'));
-    client.on('ready', () => logger.info('Redis ready'));
+    client.on('reconnecting', () => global.logger.info('Redis reconnection'));
+    client.on('ready', () => global.logger.info('Redis ready'));
 
     await client.connect();
 
     return client;
 }
 
-export async function getDatabase(
-    logger: winston.Logger,
-    _redis?: Redis,
-): Promise<IDatabase> {
-    const redis = _redis ?? (await getRedisClient(logger));
+export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
+    const redis = _redis ?? (await getRedisClient());
 
     return {
         //Messages

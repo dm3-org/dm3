@@ -1,0 +1,85 @@
+.content-style {
+    padding: 10px;
+    max-width: 38rem;
+    margin-right: 0.4rem;
+}
+
+.action-container {
+    height: fit-content;
+    width: fit-content;
+    border: 1px solid var(--text-primary-color);
+}
+
+.chat-action-dot {
+    height: 0.9rem;
+    width: 0.7rem;
+}
+
+.time-style {
+    font-size: 10px;
+    margin-right: 1.45rem;
+    margin-top: -2px;
+}
+
+.readed-tick-icon {
+    color: var(--normal-btn-hover);
+}
+
+.tick-icon {
+    margin-left: 2px;
+}
+
+.second-tick {
+    margin-left: -5px;
+}
+
+.msg-action-container {
+    height: fit-content;
+    width: fit-content;
+    border: 1px solid var(--text-primary-color);
+    visibility: hidden;
+}
+
+.msg-action-dot {
+    height: 0.9rem;
+    width: 0.9rem;
+}
+
+.msg-action-container:hover {
+    background-color: var(--normal-btn-hover);
+}
+
+.msg:hover div .content-style + .msg-action-container {
+    visibility: visible;
+}
+
+.hide-action {
+    visibility: hidden !important;
+}
+
+.msg-editing-active {
+    background-color: var(--text-secondary-color) !important;
+    color: var(--text-primary-color) !important;
+    border: 1px solid var(--text-primary-color) !important;
+}
+
+.reply-preview {
+    padding: 0.5rem;
+    margin: -7px -7px 7px -7px;
+}
+
+.contact-reacted-msg {
+    border-bottom-left-radius: 0px !important;
+}
+
+.own-reacted-msg {
+    border-bottom-right-radius: 0px !important;
+}
+
+.reacted {
+    padding: 2px 6px 2px 6px;
+    width: fit-content;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    font-size: 14px;
+}

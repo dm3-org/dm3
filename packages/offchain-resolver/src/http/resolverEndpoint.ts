@@ -1,4 +1,4 @@
-import { logError } from 'dm3-lib-shared/dist.backend';
+import { logError, logWarning } from 'dm3-lib-shared';
 import express from 'express';
 import { handleCcipRequest } from './handleCcipRequest/handleCcipRequest';
 import { WithLocals } from './types';
@@ -18,7 +18,7 @@ export function resolverEndpoint() {
 
             const calldata = req.params.calldata.replace('.json', '');
 
-            req.app.locals.logger.info(`GET ${resolverAddr}`);
+            global.logger.info(`GET ${resolverAddr}`);
 
             try {
                 const { request, signature } = decodeRequest(calldata);
@@ -30,14 +30,13 @@ export function resolverEndpoint() {
                 );
 
                 if (!response) {
-                    logError('Record not found');
-
-                    res.status(404).send({ message: 'Record not found' });
+                    logWarning('Record not found');
+                    res.status(200).send('0x');
                 } else {
-                    res.send({ response });
+                    res.status(200).send(response);
                 }
             } catch (e) {
-                req.app.locals.logger.warn((e as Error).message);
+                global.logger.warn((e as Error).message);
 
                 res.status(400).send({ message: 'Unknown error' });
             }

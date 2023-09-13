@@ -1,0 +1,24 @@
+.error-modal-content {
+    margin: auto;
+    padding: 20px;
+    border: none;
+    width: 40%;
+}
+
+.error-modal-spinner {
+    display: none !important;
+}
+
+.error-close:hover,
+.error-close:focus {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#error-message {
+    margin: 0px;
+}
+
+#ok-btn {
+    padding: 0.3rem 2rem 0.3rem 2rem;
+}

@@ -1,4 +1,4 @@
-import { stringify } from 'dm3-lib-shared/dist.backend';
+import { stringify } from 'dm3-lib-shared';
 import { Redis, RedisPrefix } from '../getDatabase';
 import { getIdEnsName } from '../getIdEnsName';
 

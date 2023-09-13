@@ -6,7 +6,6 @@
 .address-info {
     font-family: monospace;
     font-size: 1rem;
-
 }
 
 .extended-space {
@@ -16,12 +15,10 @@
 .info-value {
     color: #ffffff;
     word-break: break-all;
-
 }
 
 .info-value div a {
     color: #ffffff;
-    
 }
 
 .user-info-row {

@@ -1,6 +1,6 @@
 .start-btn {
     background-color: #00000000;
-    color: #DBDFE5 !important;
+    color: #dbdfe5 !important;
     font-size: 30px;
     border: none !important;
     height: 60px !important;
@@ -11,4 +11,3 @@
     right: 40px;
     z-index: 1001;
 }
-

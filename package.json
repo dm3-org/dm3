@@ -13,12 +13,12 @@
             "packages/lib/offchainResolver-api",
             "packages/lib/billboard-api",
             "packages/backend",
-            "packages/billboard-client",
             "packages/react",
             "packages/web",
-            "packages/billboard-widget",
             "packages/integration-tests",
-            "packages/offchain-resolver"
+            "packages/offchain-resolver",
+            "packages/messenger-widget",
+            "packages/messenger-demo"
         ],
         "nohoist": [
             "**/react",

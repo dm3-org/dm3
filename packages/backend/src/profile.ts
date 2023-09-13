@@ -1,9 +1,6 @@
-import {
-    getUserProfile,
-    submitUserProfile,
-} from 'dm3-lib-delivery/dist.backend';
-import { normalizeEnsName, schema } from 'dm3-lib-profile/dist.backend';
-import { validateSchema } from 'dm3-lib-shared/dist.backend';
+import { getUserProfile, submitUserProfile } from 'dm3-lib-delivery';
+import { normalizeEnsName, schema } from 'dm3-lib-profile';
+import { validateSchema } from 'dm3-lib-shared';
 import express, { NextFunction } from 'express';
 import { WithLocals } from './types';
 import { auth } from './utils';
@@ -44,9 +41,15 @@ export default () => {
                 );
 
                 if (!schemaIsValid) {
+                    global.logger.error({ message: 'invalid schema' });
                     return res.status(400).send({ error: 'invalid schema' });
                 }
                 const ensName = normalizeEnsName(req.params.ensName);
+                global.logger.debug({
+                    method: 'POST',
+                    url: req.url,
+                    ensName,
+                });
 
                 const data = await submitUserProfile(
                     req.app.locals.web3Provider,
@@ -58,10 +61,18 @@ export default () => {
                     (socketId: string) =>
                         req.app.locals.io.sockets.to(socketId).emit('joined'),
                 );
+                global.logger.debug({
+                    message: 'POST profile',
+                    ensName,
+                    data,
+                });
 
                 res.json(data);
             } catch (e) {
-                next(e);
+                res.status(400).send({
+                    message: `Couldn't store profile`,
+                    error: JSON.stringify(e),
+                });
             }
         },
     );

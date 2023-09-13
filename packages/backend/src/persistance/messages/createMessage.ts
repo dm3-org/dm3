@@ -3,8 +3,8 @@ import {
     schema,
     DeliveryInformation,
     EncryptionEnvelop,
-} from 'dm3-lib-messaging/dist.backend';
-import { validateSchema, stringify } from 'dm3-lib-shared/dist.backend';
+} from 'dm3-lib-messaging';
+import { validateSchema, stringify } from 'dm3-lib-shared';
 export function createMessage(redis: Redis) {
     return async (
         conversationId: string,

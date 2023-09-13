@@ -1,5 +1,5 @@
 import bodyParser from 'body-parser';
-import { stringify } from 'dm3-lib-shared/dist.backend';
+import { globalConfig, stringify } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import express from 'express';
 import request from 'supertest';
@@ -7,16 +7,14 @@ import winston from 'winston';
 import { getDatabase, getDbClient } from '../persistance/getDatabase';
 import { IDatabase } from '../persistance/IDatabase';
 import { profile } from './profile';
-import {
-    UserProfile,
-    getProfileCreationMessage,
-} from 'dm3-lib-profile/dist.backend';
+import { UserProfile, getProfileCreationMessage } from 'dm3-lib-profile';
 import { Interceptor } from './handleCcipRequest/handler/intercept';
 import { PrismaClient } from '@prisma/client';
 import { clearDb } from '../persistance/clearDb';
 import { resolverEndpoint } from './resolverEndpoint';
 import { expect } from 'chai';
 import { encodeEnsName } from './handleCcipRequest/dns/encodeEnsName';
+import { sign } from 'dm3-lib-crypto';
 
 describe('Resolver Endpoint', () => {
     let prismaClient: PrismaClient;
@@ -55,6 +53,14 @@ describe('Resolver Endpoint', () => {
         profileApp.use(profile(provider));
         profileApp.locals.db = db;
         profileApp.locals.config = { spamProtection: true };
+        profileApp.locals.logger = {
+            // eslint-disable-next-line no-console
+            info: (msg: string) => console.log(msg),
+            // eslint-disable-next-line no-console
+            warn: (msg: string) => console.log(msg),
+        };
+
+        process.env.REACT_APP_ADDR_ENS_SUBDOMAIN = '.beta-addr.dm3.eth';
     });
 
     afterEach(async () => {
@@ -88,13 +94,13 @@ describe('Resolver Endpoint', () => {
                 'resolve',
                 [encodeEnsName(ensName), innerCall],
             );
-            const { body, status } = await request(ccipApp)
+            const { text, status } = await request(ccipApp)
                 .get(`/${ethers.constants.AddressZero}/${outerCall}`)
                 .send();
-
             expect(status).to.equal(200);
-            expect(body.response).to.equal(
-                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+
+            expect(text.toLowerCase()).to.equal(
+                '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292'.toLowerCase(),
             );
         });
 
@@ -122,36 +128,51 @@ describe('Resolver Endpoint', () => {
                 'resolve',
                 [encodeEnsName(ensName), innerCall],
             );
-            const { body, status } = await request(ccipApp)
+            const { text, status } = await request(ccipApp)
                 .get(`/${ethers.constants.AddressZero}/${outerCall}`)
                 .send();
 
             expect(status).to.equal(200);
-            expect(body.response).to.equal('test');
+
+            const [decoded] = ethers.utils.defaultAbiCoder.decode(
+                ['string'],
+                text,
+            );
+            expect(decoded).to.equal('test');
         });
     });
 
     describe('Get UserProfile Offchain', () => {
         describe('ResolveText', () => {
             it('Returns valid Offchain profile', async () => {
-                const { signature, profile, signer } =
+                const { signature, profile, signer, privateSigningKey } =
                     profileApp.locals.forTests;
 
                 const name = 'foo.dm3.eth';
 
                 //Create the profile in the first place
                 const writeRes = await request(profileApp)
-                    .post(`/name`)
+                    .post(`/address`)
                     .send({
-                        name,
-                        ensName: signer + '.addr.dm3.eth',
                         address: signer,
                         signedUserProfile: {
-                            profile,
                             signature,
+                            profile,
                         },
                     });
+                expect(writeRes.status).to.equal(200);
 
+                const writeRes2 = await request(profileApp)
+                    .post(`/name`)
+                    .send({
+                        alias: 'foo.dm3.eth',
+                        name: signer + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                        signature: await sign(
+                            privateSigningKey,
+                            'alias: foo.dm3.eth',
+                        ),
+                    });
+                expect(writeRes2.status).to.equal(200);
                 expect(writeRes.status).to.equal(200);
                 // the inner call requesting the network.dm3.profile text record
                 // for the ENS name foo.test.eth
@@ -165,12 +186,17 @@ describe('Resolver Endpoint', () => {
                     'resolve',
                     [encodeEnsName(name), innerCall],
                 );
-                const { body, status } = await request(ccipApp)
+                const { text, status } = await request(ccipApp)
                     .get(`/${ethers.constants.AddressZero}/${outerCall}`)
                     .send();
 
+                const [decoded] = ethers.utils.defaultAbiCoder.decode(
+                    ['string'],
+                    text,
+                );
+
                 expect(status).to.equal(200);
-                expect(body.response).to.equal(
+                expect(decoded).to.equal(
                     'data:application/json,' +
                         stringify({
                             profile,
@@ -195,11 +221,12 @@ describe('Resolver Endpoint', () => {
                 );
 
                 //You the url returned by he contract to fetch the profile from the ccip gateway
-                const { status } = await request(ccipApp)
+                const { status, text } = await request(ccipApp)
                     .get(`/${ethers.constants.AddressZero}/${outerCall}`)
                     .send();
 
-                expect(status).to.equal(404);
+                expect(status).to.equal(200);
+                expect(text).to.equal('0x');
             });
 
             it('Returns 400 if record is not network.dm3.profile', async () => {
@@ -336,7 +363,7 @@ describe('Resolver Endpoint', () => {
 
 const getSignedUserProfile = async (overwriteProfile?: UserProfile) => {
     const profile: UserProfile = overwriteProfile ?? {
-        publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
+        publicSigningKey: 'JLCk6OPLzIn/Fye/0UW4XfP2Q7CoffEhVLveBYBh8CI=',
         publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
         deliveryServices: [''],
     };
@@ -350,7 +377,14 @@ const getSignedUserProfile = async (overwriteProfile?: UserProfile) => {
 
     const signer = wallet.address;
 
-    return { signature, profile, signer };
+    return {
+        signature,
+        profile,
+        signer,
+        wallet,
+        privateSigningKey:
+            'x8DPXL+cNC21Voi69Rg/GG9ZoGVEHkT8uVfoBrgfgdwksKTo48vMif8XJ7/RRbhd8/ZDsKh98SFUu94FgGHwIg==',
+    };
 };
 
 function getResolverInterface() {
