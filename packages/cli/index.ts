@@ -5,21 +5,39 @@ import * as Installer from './installer';
 import { getSanitizedWallet } from './sanitizer/getSanitizedWallet';
 
 const cli = async () => {
-    program.option('--rpc <rpc>', 'Ethereum RPC provider');
-    program.option('--pk <pk>', 'ENS domain manger PK');
-    program.option('--domain <domain>', 'ENS domain name e.g. yourdomain.eth');
+    program.option('--rpc <rpc>', 'The Ethereum RPC URL to connect to');
+    program.option(
+        '--pk <pk>',
+        'The private key of the account owning the domain. That account will be used to execute the tx and has to be funded accordingly',
+    );
+    program.option(
+        '--domain <domain>',
+        'The ENS (Ethereum Name Service) domain associated with dm3. It has to be owned by the account used as Private Key',
+    );
     program.option(
         '--gateway gateway  <gateway url>',
-        'gateway url used to resolve CCIP requests',
+        'The URL of the gateway service used for ccip data retrieval',
     );
     program.option(
         '--deliveryService <deliveryService>  ',
-        'delivery service url',
+        'The URL of the delivery service',
     );
-    program.option('--profilePk <profilePk>', 'Profile PK');
-    program.option('--ensRegistry <ensRegistry>', 'ENS registry');
-    program.option('--ensResolver <ensResolver>', 'ENS public resolver');
-    program.option('--erc3668Resolver <erc3668Resolver>', 'CCIP Resolver');
+    program.option(
+        '--profilePk <profilePk>',
+        'The private key used as a seed to create the delivery service. When omitted, a random private key will be created.',
+    );
+    program.option(
+        '--ensRegistry <ensRegistry>',
+        'The address of the ENS registry contract',
+    );
+    program.option(
+        '--ensResolver <ensResolver>',
+        'The address of the ENS public resolver contract',
+    );
+    program.option(
+        '--erc3668Resolver <erc3668Resolver>',
+        'The address of the ERC3668 resolver contract',
+    );
     program.parse();
 
     const [mode] = program.args;

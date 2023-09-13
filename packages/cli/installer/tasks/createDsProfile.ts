@@ -19,7 +19,6 @@ export const createDsProfile = async (args: InstallerArgs) => {
             await createStorageKey(args.profileWallet.privateKey),
         ),
     };
-    //TODO create ds profile
     const profile: DeliveryServiceProfile = {
         publicEncryptionKey: keys.encryptionKeyPair.publicKey,
         publicSigningKey: keys.signingKeyPair.publicKey,

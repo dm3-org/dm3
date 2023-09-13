@@ -12,7 +12,7 @@ The CLI command "setup" is used to configure a DM3 delivery service for your dom
 
 ### OPTIONS
 
--   --rpc <RPC_URL>: The Ethereum RPC URL to connect to (e.g., http://127.0.0.1:8545).
+-   --rpc <RPC_URL>: The Ethereum RPC URL to connect to.
 -   --pk <PRIVATE_KEY>: The private key of the account owning the domain. That account will be used to execute the tx and has to be funded accordingly.
 -   --domain <ENS_DOMAIN>: The ENS (Ethereum Name Service) domain associated with dm3. It has to be owned by the account used as Private Key.
 -   --gateway <GATEWAY_URL>: The URL of the gateway service used for ccip data retrieval.
