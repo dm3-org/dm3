@@ -1,15 +1,18 @@
-import { Session as DSSession, spamFilter } from 'dm3-lib-delivery';
+import {
+    Session as DSSession,
+    NotificationChannel,
+    spamFilter,
+} from 'dm3-lib-delivery';
 import { EncryptionEnvelop } from 'dm3-lib-messaging';
 import { UserStorage } from 'dm3-lib-storage';
 import { createClient } from 'redis';
-import winston from 'winston';
+import { getIdEnsName } from './getIdEnsName';
 import Messages from './messages';
 import { syncAcknoledgment } from './messages/syncAcknoledgment';
+import Notification from './notification';
 import Pending from './pending';
 import Session from './session';
-import { getIdEnsName } from './getIdEnsName';
 import Storage from './storage';
-import Notification from './notification';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
