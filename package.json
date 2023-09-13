@@ -2,6 +2,7 @@
     "private": true,
     "workspaces": {
         "packages": [
+            "packages/cli",
             "packages/lib/shared",
             "packages/lib/crypto",
             "packages/lib/profile",
