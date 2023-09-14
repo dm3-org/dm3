@@ -16,12 +16,61 @@ import {
     getDependencies,
     sendMessage,
 } from '../../utils/common-utils';
+import { Attachment } from '../../interfaces/utils';
+
+export const hideMsgActionDropdown = () => {
+    const element = document.getElementById('msg-dropdown') as HTMLElement;
+    element && (element.style.display = 'none');
+};
+
+export const isFileAImage = (type: string): boolean => {
+    if (type.toLowerCase() === 'jpg') {
+        return true;
+    } else if (type.toLowerCase() === 'jpeg') {
+        return true;
+    } else if (type.toLowerCase() === 'png') {
+        return true;
+    } else if (type.toLowerCase() === 'svg') {
+        return true;
+    } else {
+        return false;
+    }
+};
+
+export const setAttachmentsOnEditMessage = (
+    state: GlobalState,
+    setFiles: Function,
+) => {
+    const attachments =
+        state.uiView.selectedMessageView.messageData?.envelop.message
+            .attachments;
+    if (attachments && attachments.length) {
+        const fileList: Attachment[] = [];
+        let fileType;
+        let id;
+        for (const attachment of attachments) {
+            id = Math.random().toString(36).substring(2, 12);
+            fileType = attachment.substring(
+                attachment.indexOf('/') + 1,
+                attachment.indexOf(';base64'),
+            );
+            fileList.push({
+                id: id,
+                name: id.substring(0, 5).concat('.', fileType),
+                data: attachment,
+                isImage: isFileAImage(fileType),
+            });
+        }
+        setFiles(fileList);
+    }
+};
 
 const handleNewUserMessage = async (
     message: string,
     setMessage: Function,
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
+    attachments: string[],
 ) => {
     const userDb = state.userDb;
 
@@ -38,6 +87,7 @@ const handleNewUserMessage = async (
         state.connection.account!.ensName,
         message,
         userDb.keys.signingKeyPair.privateKey,
+        attachments,
     );
 
     const haltDelivery = getHaltDelivery(state);
@@ -54,56 +104,11 @@ const handleNewUserMessage = async (
     setMessage('');
 };
 
-export const handleSubmit = async (
-    message: string,
-    state: GlobalState,
-    dispatch: React.Dispatch<Actions>,
-    setMessage: Function,
-    event:
-        | React.FormEvent<HTMLFormElement>
-        | React.MouseEvent<HTMLImageElement, MouseEvent>,
-) => {
-    dispatch({
-        type: ModalStateType.OpenEmojiPopup,
-        payload: { action: false, data: undefined },
-    });
-
-    event.preventDefault();
-
-    if (!message.trim().length) {
-        return;
-    }
-
-    if (
-        state.uiView.selectedMessageView.actionType === MessageActionType.EDIT
-    ) {
-        await editMessage(state, dispatch, message, setMessage);
-        dispatch({
-            type: ModalStateType.LastMessageAction,
-            payload: MessageActionType.EDIT,
-        });
-    } else if (
-        state.uiView.selectedMessageView.actionType === MessageActionType.REPLY
-    ) {
-        await replyMessage(state, dispatch, message, setMessage);
-        dispatch({
-            type: ModalStateType.LastMessageAction,
-            payload: MessageActionType.REPLY,
-        });
-    } else {
-        await handleNewUserMessage(message, setMessage, state, dispatch);
-        dispatch({
-            type: ModalStateType.LastMessageAction,
-            payload: MessageActionType.NEW,
-        });
-    }
-};
-
 const editMessage = async (
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
     message: string,
-    setMessage: Function,
+    attachments: string[],
 ) => {
     const userDb = state.userDb;
 
@@ -134,6 +139,7 @@ const editMessage = async (
         message,
         userDb.keys.signingKeyPair.privateKey as string,
         referenceMessageHash as string,
+        attachments,
     );
 
     const haltDelivery = getHaltDelivery(state);
@@ -146,15 +152,13 @@ const editMessage = async (
         haltDelivery,
         dispatch,
     );
-
-    setMessage('');
 };
 
 const replyMessage = async (
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
     message: string,
-    setMessage: Function,
+    attachments: string[],
 ) => {
     const userDb = state.userDb;
 
@@ -185,6 +189,7 @@ const replyMessage = async (
         message,
         userDb.keys.signingKeyPair.privateKey as string,
         referenceMessageHash as string,
+        attachments,
     );
 
     const haltDelivery = getHaltDelivery(state);
@@ -197,11 +202,71 @@ const replyMessage = async (
         haltDelivery,
         dispatch,
     );
-
-    setMessage('');
 };
 
-export const hideMsgActionDropdown = () => {
-    const element = document.getElementById('msg-dropdown') as HTMLElement;
-    element && (element.style.display = 'none');
+export const handleSubmit = async (
+    message: string,
+    state: GlobalState,
+    dispatch: React.Dispatch<Actions>,
+    setMessage: Function,
+    event:
+        | React.FormEvent<HTMLFormElement>
+        | React.MouseEvent<HTMLImageElement, MouseEvent>,
+    filesSelected: Attachment[],
+    setFiles: Function,
+) => {
+    let attachments: string[] = [];
+    const messageText = message;
+
+    dispatch({
+        type: ModalStateType.OpenEmojiPopup,
+        payload: { action: false, data: undefined },
+    });
+
+    event.preventDefault();
+
+    // if attachments are selected then get the URI of each attachment
+    if (filesSelected.length) {
+        attachments = filesSelected.map(function (item) {
+            return item['data'];
+        });
+    } else if (!messageText.trim().length) {
+        return;
+    }
+
+    // empty the message
+    setMessage('');
+
+    // remove the attachments from state
+    setFiles([]);
+
+    if (
+        state.uiView.selectedMessageView.actionType === MessageActionType.EDIT
+    ) {
+        await editMessage(state, dispatch, messageText, attachments);
+        dispatch({
+            type: ModalStateType.LastMessageAction,
+            payload: MessageActionType.EDIT,
+        });
+    } else if (
+        state.uiView.selectedMessageView.actionType === MessageActionType.REPLY
+    ) {
+        await replyMessage(state, dispatch, messageText, attachments);
+        dispatch({
+            type: ModalStateType.LastMessageAction,
+            payload: MessageActionType.REPLY,
+        });
+    } else {
+        await handleNewUserMessage(
+            messageText,
+            setMessage,
+            state,
+            dispatch,
+            attachments,
+        );
+        dispatch({
+            type: ModalStateType.LastMessageAction,
+            payload: MessageActionType.NEW,
+        });
+    }
 };

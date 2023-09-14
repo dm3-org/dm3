@@ -5,7 +5,7 @@ import {
     MessageActionType,
 } from '../utils/enum-type-utils';
 import { Config, Dm3Props } from './config';
-import { ContactPreview } from './utils';
+import { Attachment, ContactPreview } from './utils';
 
 export interface DashboardProps {
     getContacts: (
@@ -34,6 +34,7 @@ export interface MessageProps {
     envelop: Envelop;
     replyToMsg: string | undefined;
     replyToMsgFrom: string | undefined;
+    replyToMsgId: string | undefined;
     reactions: Envelop[];
     isLastMessage?: boolean;
 }
@@ -46,4 +47,20 @@ export interface MessageAction {
 export interface EmojiProps {
     message: string;
     setMessage: Function;
+}
+
+export interface ReplyMessagePreviewProps {
+    setFiles: Function;
+}
+
+export interface AttachmentProps {
+    filesSelected: Attachment[];
+    setFiles: Function;
+}
+
+export interface MessageDataProps {
+    message: string;
+    filesSelected: Attachment[];
+    setFiles: Function;
+    setMessageText: Function;
 }

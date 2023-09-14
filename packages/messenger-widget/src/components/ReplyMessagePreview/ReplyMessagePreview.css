@@ -1,0 +1,19 @@
+.reply-content {
+    border: 1px solid var(--text-secondary-color);
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom: none;
+    padding: 0.4rem 0.5rem 0.2rem 0.5rem;
+    text-align: left;
+}
+
+.user-name {
+    color: var(--text-secondary-color);
+    padding-right: 3px;
+    display: flex;
+}
+
+.reply-close-icon {
+    width: 1rem;
+    height: auto;
+}
