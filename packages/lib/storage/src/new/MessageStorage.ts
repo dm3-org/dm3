@@ -24,12 +24,21 @@ export const MessageStorage = async (
     return { addMessage };
 };
 
+type Leaf = Node | Envelop;
+
 abstract class Node {
     public readonly key: string;
     public readonly db: IStorageDatabase;
     public readonly enc: IStorageEncryption;
 
-    protected readonly children: (Node | Envelop)[];
+    private readonly leafs: Leaf[];
+
+    public getLeafs<T extends Leaf>() {
+        return this.leafs as T[];
+    }
+    public addLeaf(leaf: Leaf) {
+        this.leafs.push(leaf);
+    }
 
     constructor(
         db: IStorageDatabase,
@@ -40,7 +49,7 @@ abstract class Node {
         this.key = key;
         this.db = db;
         this.enc = enc;
-        this.children = children;
+        this.leafs = children;
     }
     protected async save() {
         const encrypted = await this.enc.encrypt(this.serialize());
@@ -48,7 +57,7 @@ abstract class Node {
     }
 
     protected serialize() {
-        return JSON.stringify(this.children);
+        return JSON.stringify(this.leafs);
     }
 
     static async deserialize(enc: IStorageEncryption, serialized: string) {
@@ -82,9 +91,9 @@ class Root extends Node {
     }
 
     public async add(envelop: Envelop) {
-        let conversation = this.children.find(
+        let conversation = this.getLeafs<Node>().find(
             (c) =>
-                (c as Node).key ===
+                c.key ===
                 Conversation.computeKey(this.key, envelop.message.metadata.to),
         );
         if (!conversation) {
@@ -101,9 +110,9 @@ class Root extends Node {
 
 class Conversation extends Node {
     protected override serialize() {
-        const mapped = this.chunks.map((c) => ({
+        const mapped = this.getLeafs<Node>().map((c) => ({
             id: c.key,
-            timestamp: c.messages[0].message.metadata.timestamp,
+            timestamp: c.getLeafs<Envelop>()[0].message.metadata.timestamp,
         }));
 
         return JSON.stringify(mapped);
@@ -120,7 +129,6 @@ class Conversation extends Node {
         );
         return new Conversation(this.db, this.enc, this.key, chunks);
     }
-    public readonly chunks: Chunk[] = [];
 
     public static computeKey(rootKey: string, to: string) {
         return sha256(rootKey + to);
@@ -128,16 +136,14 @@ class Conversation extends Node {
 
     public async add(message: Envelop) {
         //If message fits into the existing chunk add it
-        this.chunks[this.chunks.length - 1].add(message);
+        this.getLeafs<Node>()[this.getLeafs<Node>().length - 1].add(message);
         //Else add new chunk
         //And add it there
     }
 }
 
 class Chunk extends Node {
-    public readonly messages: Envelop[] = [];
-
     public async add(message: Envelop) {
-        this.children.push(message);
+        this.addLeaf(message);
     }
 }
