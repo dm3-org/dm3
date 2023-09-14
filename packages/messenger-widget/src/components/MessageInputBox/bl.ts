@@ -17,6 +17,9 @@ import {
     sendMessage,
 } from '../../utils/common-utils';
 import { Attachment } from '../../interfaces/utils';
+import { getDeliveryServiceProperties } from 'dm3-lib-delivery-api';
+import { ethers } from 'ethers';
+import { Account } from 'dm3-lib-profile';
 
 export const hideMsgActionDropdown = () => {
     const element = document.getElementById('msg-dropdown') as HTMLElement;
@@ -224,6 +227,11 @@ export const handleSubmit = async (
     });
 
     event.preventDefault();
+
+    const deliveryServiceProperties = await getDeliveryServiceProperties(
+        state.connection.provider as ethers.providers.JsonRpcProvider,
+        state.connection.account as Account,
+    );
 
     // if attachments are selected then get the URI of each attachment
     if (filesSelected.length) {
