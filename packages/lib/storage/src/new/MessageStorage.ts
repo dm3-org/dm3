@@ -17,11 +17,12 @@ export const MessageStorage = async (
     enc: IStorageEncryption,
     rootKey: string,
 ) => {
-    const root = await Root.instance(db, enc, rootKey);
+    const root = await Root.createAndSafe(db, enc, rootKey);
 
     const addMessage = (envelop: Envelop) => root.add(envelop);
+    const getConversations = () => root.conversationNames;
 
-    return { addMessage };
+    return { addMessage, getConversations };
 };
 
 type Leaf = Node | Envelop;
@@ -40,7 +41,7 @@ abstract class Node {
         this.leafs.push(leaf);
     }
 
-    constructor(
+    protected constructor(
         db: IStorageDatabase,
         enc: IStorageEncryption,
         key: string,
@@ -70,45 +71,81 @@ abstract class Node {
 }
 
 class Root extends Node {
-    static async instance(
+    public readonly conversationNames: string[];
+
+    private constructor(
+        db: IStorageDatabase,
+        enc: IStorageEncryption,
+        key: string,
+        children: Node[],
+        conversationNames: string[] = [],
+    ) {
+        super(db, enc, key, children);
+        this.conversationNames = conversationNames;
+    }
+
+    static async createAndSafe(
         db: IStorageDatabase,
         enc: IStorageEncryption,
         key: string,
     ) {
-        //Get the serialized and encrypted root node from the database
+        //Get the serialized and encrypted root node from the database (that is the conversation list)
         const serialized = await db.getNode(key);
         // If the root does not exist now we're creating a new instance and return it
         if (!serialized) {
-            const instance = new Root(db, enc, key, []);
+            const instance = new Root(db, enc, key, [], []);
             //Safe the newly created instance to the database
             await instance.save();
             return instance;
         }
+        // deserialized valueis the conversation list as a string[]
+        const conversationNames = await this.deserialize(enc, serialized);
 
-        const deserialized = await this.deserialize(enc, serialized);
+        const conversationInstances = conversationNames.map(
+            (conversationKey: string) =>
+                new Conversation(db, enc, conversationKey, []),
+        );
 
-        return new Root(db, enc, key, deserialized);
+        return new Root(db, enc, key, conversationInstances, conversationNames);
     }
 
     public async add(envelop: Envelop) {
-        let conversation = this.getLeafs<Node>().find(
+        let conversation = this.getLeafs<Conversation>().find(
             (c) =>
                 c.key ===
                 Conversation.computeKey(this.key, envelop.message.metadata.to),
         );
+        //Conversation does not exist yet
         if (!conversation) {
-            conversation = new Conversation(
+            //Conversation name is the recipient
+            const conversationName = envelop.message.metadata.to;
+            //Add new conversation to the storage
+            conversation = await Conversation.createAndSafe(
                 this.db,
                 this.enc,
-                Conversation.computeKey(this.key, envelop.message.metadata.to),
+                Conversation.computeKey(this.key, conversationName),
                 [],
             );
+            //Add the conversation to the root
+            this.addLeaf(conversation);
+            //Add the conversation name to the conversation list
+            this.conversationNames.push(conversationName);
         }
-        return (conversation as Node).add(envelop);
+        // return (conversation as Node).add(envelop);
     }
 }
 
 class Conversation extends Node {
+    public static async createAndSafe(
+        db: IStorageDatabase,
+        enc: IStorageEncryption,
+        key: string,
+        children: Node[] | Envelop[],
+    ) {
+        const instance = new Conversation(db, enc, key, children);
+        await instance.save();
+        return instance;
+    }
     protected override serialize() {
         const mapped = this.getLeafs<Node>().map((c) => ({
             id: c.key,
