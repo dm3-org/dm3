@@ -22,7 +22,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 try {
                     parsedSiwe = JSON.parse(siweMessage);
                 } catch (e) {
-                    req.app.locals.logger.error({
+                    global.logger.error({
                         message: 'Could not parse SIWE JSON string',
                         error: JSON.stringify(e),
                     });
@@ -40,7 +40,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 const verification = await siwe.verify({ signature: siweSig });
 
                 if (!verification.success) {
-                    req.app.locals.logger.error({
+                    global.logger.error({
                         message: `Invalid siwe sig`,
                         error: verification.error,
                     });
@@ -48,7 +48,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                         .status(400)
                         .send({ error: `SIWE verification failed` });
                 } else {
-                    req.app.locals.logger.debug({
+                    global.logger.debug({
                         message: `Valid siwe`,
                         data: verification.data,
                     });
@@ -61,7 +61,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
 
                 //Check if schema is valid
                 if (!isSchemaValid) {
-                    req.app.locals.logger.warn('invalid schema');
+                    global.logger.warn('invalid schema');
                     return res.status(400).send({ error: 'invalid schema' });
                 }
 
@@ -73,13 +73,13 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
 
                 //Check if profile sig is correcet
                 if (!profileIsValid) {
-                    req.app.locals.logger.warn('invalid profile');
+                    global.logger.warn('invalid profile');
                     return res.status(400).send({ error: 'invalid profile' });
                 }
 
                 //One spam protection
                 if (req.app.locals.config.spamProtection) {
-                    req.app.locals.logger.warn('Quota reached');
+                    global.logger.warn('Quota reached');
 
                     return res.status(400).send({
                         error: 'address has already claimed a subdomain',
@@ -111,7 +111,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
 
                 // check if there is a profile
                 if (!profileContainer) {
-                    req.app.locals.logger.warn('Could not find profile');
+                    global.logger.warn('Could not find profile');
                     return res
                         .status(400)
                         .send({ error: 'Could not find profile' });
@@ -125,7 +125,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 );
 
                 if (!sigCheck) {
-                    req.app.locals.logger.warn('signature invalid');
+                    global.logger.warn('signature invalid');
 
                     return res.status(400).send({
                         error: 'signature invalid',
@@ -143,7 +143,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     req.app.locals.config.spamProtection &&
                     sendersBalance.isZero()
                 ) {
-                    req.app.locals.logger.warn('Insuficient ETH balance');
+                    global.logger.warn('Insuficient ETH balance');
                     return res
                         .status(400)
                         .send({ error: 'Insuficient ETH balance' });
@@ -174,7 +174,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
 
                 // Check if name has a connected address
                 if (!profileContainer || !profileContainer.address) {
-                    req.app.locals.logger.warn(`Couldn't get address`);
+                    global.logger.warn(`Couldn't get address`);
                     return res
                         .status(400)
                         .send({ error: `Couldn't get address` });
@@ -187,7 +187,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     signature,
                 );
                 if (!sigCheck) {
-                    req.app.locals.logger.warn('signature invalid');
+                    global.logger.warn('signature invalid');
 
                     return res.status(400).send({
                         error: 'signature invalid',
@@ -258,7 +258,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     signedUserProfile,
                     address,
                 );
-                req.app.locals.logger.info(`Registered ${name}`);
+                global.logger.info(`Registered ${name}`);
 
                 return res.sendStatus(200);
             } catch (e) {
@@ -272,7 +272,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
         //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res, next) => {
             const { address } = req.params;
-            req.app.locals.logger.info(`POST addr ${address} `);
+            global.logger.info(`POST addr ${address} `);
             if (!ethers.utils.isAddress(address)) {
                 return res.status(400).send();
             }
@@ -300,7 +300,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
         //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res) => {
             const { address } = req.params;
-            req.app.locals.logger.info(`GET name for ${address} `);
+            global.logger.info(`GET name for ${address} `);
             if (!ethers.utils.isAddress(address)) {
                 return res.status(400).send();
             }

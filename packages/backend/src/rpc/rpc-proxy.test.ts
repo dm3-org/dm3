@@ -8,15 +8,14 @@ import { testData } from '../../../../test-data/encrypted-envelops.test';
 import { createKeyPair } from 'dm3-lib-crypto';
 import { normalizeEnsName, UserProfile } from 'dm3-lib-profile';
 import { stringify } from 'dm3-lib-shared';
+<<<<<<< HEAD
+=======
+import winston from 'winston';
+>>>>>>> 4bdf0d7f5a0bb95b948c66e6c6ba098ec114ddec
 
-// eslint-disable-next-line no-console
-const log = (toLog: any) => console.log(toLog);
-
-const logger = {
-    warn: log,
-    info: log,
-    error: log,
-};
+global.logger = winston.createLogger({
+    transports: [new winston.transports.Console()],
+});
 
 const SENDER_NAME = 'alice.eth';
 const RECEIVER_NAME = 'bob.eth';
@@ -55,9 +54,7 @@ describe('rpc-Proxy', () => {
             app.use(bodyParser.json());
             app.use(RpcProxy(axiosMock as Axios));
 
-            app.locals = {
-                logger,
-            };
+            global.logger = logger;
 
             const { body } = await request(app)
                 .post('/')

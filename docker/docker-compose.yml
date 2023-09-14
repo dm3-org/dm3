@@ -1,15 +1,18 @@
 version: "3.1"
 services:
 
-  # nginx:
-  #   container_name: nginx
-  #   image: nginx:latest
-  #   restart: always
-  #   volumes:
-  #     - ./nginx.conf:/etc/nginx/nginx.conf
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    restart: always
+    depends_on:
+      - offchain-resolver
+      - web
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+      - "443:443"
 
   backend:
     image: dm3-backend
@@ -23,6 +26,8 @@ services:
       ENCRYPTION_PUBLIC_KEY: ${ENCRYPTION_PUBLIC_KEY}
       ENCRYPTION_PRIVATE_KEY: ${ENCRYPTION_PUBLIC_KEY}
       RPC: ${RPC}
+      PORT: 8081
+      LOG_LEVEL: 'debug'
 
   db:
     image: redis
@@ -34,8 +39,6 @@ services:
     container_name: offchain_resolver_db
     environment:
         POSTGRES_PASSWORD: example
-    ports:
-      - '5432:5432'
 
   offchain-resolver:
     image: dm3-backend
@@ -44,9 +47,8 @@ services:
       - offchain-resolver-db
     environment:
       DATABASE_URL: postgresql://postgres:example@offchain-resolver-db:5432
-
-    ports:
-      - '8082:8082'
+      PORT: 8082
+      LOG_LEVEL: 'debug'
 
   web:
     image: dm3-backend
@@ -62,11 +64,9 @@ services:
       REACT_APP_USER_ENS_SUBDOMAIN: ${REACT_APP_USER_ENS_SUBDOMAIN}
       REACT_APP_WALLET_CONNECT_PROJECT_ID: ${REACT_APP_WALLET_CONNECT_PROJECT_ID}
       RESOLVER_ADDR: ${RESOLVER_ADDR}
-    ports:
-      - '${WEB_PORT}:8080'
 
   ccip-resolver:
-    image: dm3org/ccip-resolver:v0.2.2
+    image: dm3org/ccip-resolver:v0.2.7
     restart: always
     depends_on:
       - offchain-resolver
@@ -75,11 +75,10 @@ services:
       LOG_LEVEL: debug
       CONFIG: |
         {
-          "0x5e0F81D5ca51D309B3A046FAeea70C4C70Df8079": {
+          "0xae6646c22d8ee6479ee0a39bf63b9bd9e57bad9d": {
             "type": "signing",
-            "handlerUrl": "http://offchain-resolver:8081"
+            "handlerUrl": "http://offchain-resolver:8082"
           }
         }
       PORT: 8181
-    ports:
-      - '8181:8181'
+      

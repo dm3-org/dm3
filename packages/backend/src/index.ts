@@ -36,11 +36,16 @@ const server = http.createServer(app);
 app.use(cors());
 app.use(bodyParser.json());
 
-(async () => {
-    app.locals.logger = winston.createLogger({
-        transports: [new winston.transports.Console()],
-    });
+declare global {
+    var logger: winston.Logger;
+}
 
+global.logger = winston.createLogger({
+    level: process.env.LOG_LEVEL ?? 'info',
+    transports: [new winston.transports.Console()],
+});
+
+(async () => {
     const io = new Server(server, {
         cors: {
             origin: '*',
@@ -56,7 +61,7 @@ app.use(bodyParser.json());
 
     app.locals.deliveryServiceProperties = getDeliveryServiceProperties();
 
-    app.locals.db = await getDatabase(app.locals.logger);
+    app.locals.db = await getDatabase();
     app.locals.web3Provider = getWeb3Provider(process.env);
 
     app.use(logRequest);

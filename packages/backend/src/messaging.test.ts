@@ -7,17 +7,16 @@ import { Session } from 'dm3-lib-delivery';
 import { UserProfile } from 'dm3-lib-profile';
 import { createKeyPair } from 'dm3-lib-crypto';
 import { ethersHelper } from 'dm3-lib-shared';
+<<<<<<< HEAD
+=======
+import winston from 'winston';
+>>>>>>> 4bdf0d7f5a0bb95b948c66e6c6ba098ec114ddec
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
-// eslint-disable-next-line no-console
-const log = (toLog: any) => console.log(toLog);
-
-const logger = {
-    warn: log,
-    info: log,
-};
-
+global.logger = winston.createLogger({
+    transports: [new winston.transports.Console()],
+});
 const keysA = {
     encryptionKeyPair: {
         publicKey: 'eHmMq29FeiPKfNPkSctPuZGXvV0sKeO/KZkX2nXvMgw=',

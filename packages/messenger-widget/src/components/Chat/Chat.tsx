@@ -121,7 +121,7 @@ export function Chat() {
 
                 {/* Message, emoji and file attachments */}
                 <MessageInputBox />
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }

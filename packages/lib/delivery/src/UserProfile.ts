@@ -42,7 +42,6 @@ export async function submitUserProfile(
     if (!(await checkUserProfile(provider, signedUserProfile, account))) {
         throw Error('Signature invalid.');
     }
-
     //TODO: remvoe DISABLE_SESSION_CHECK
     // DISABLE_SESSION_CHECK is a special solution for ETH Prague
     if (
@@ -51,7 +50,6 @@ export async function submitUserProfile(
     ) {
         throw Error('Profile exists already');
     }
-
     const session: Session = {
         account,
         signedUserProfile,

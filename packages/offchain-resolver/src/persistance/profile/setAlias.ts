@@ -26,6 +26,15 @@ export function setAlias(db: PrismaClient) {
                 },
             });
 
+<<<<<<< HEAD
+=======
+            global.logger.debug({
+                message: 'setAlias',
+                id: uuidv4(),
+                alias: normalizeEnsName(alias),
+            });
+
+>>>>>>> 4bdf0d7f5a0bb95b948c66e6c6ba098ec114ddec
             return true;
         } catch (e) {
             return false;

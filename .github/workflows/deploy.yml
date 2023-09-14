@@ -24,24 +24,25 @@ jobs:
                 TARGET_HOST: ${{ secrets.STAGING_HOST }}
               run: |
                   echo "REACT_APP_ADDR_ENS_SUBDOMAIN=.beta-addr.dm3.eth" >> ./.env.react
-                  echo "REACT_APP_BACKEND=http://${{ secrets.STAGING_HOST }}" >> ./.env.react
+                  echo "REACT_APP_BACKEND=http://${{ secrets.STAGING_HOST }}/api" >> ./.env.react
                   echo "REACT_APP_DEFAULT_DELIVERY_SERVICE=beta-ds.dm3.eth" >> ./.env.react
-                  echo "REACT_APP_DEFAULT_SERVICE=http://${{ secrets.STAGING_HOST }}" >> ./.env.react
+                  echo "REACT_APP_DEFAULT_SERVICE=http://${{ secrets.STAGING_HOST }}/api" >> ./.env.react
                   echo "REACT_APP_ETHEREUM_PROVIDER=${{ secrets.REACT_APP_ETHEREUM_PROVIDER }}" >> ./.env.react
-                  echo "REACT_APP_PROFILE_BASE_URL=http://dm3-beta2-resolver.herokuapp.com" >> ./.env.react
-                  echo "REACT_APP_RESOLVER_BACKEND=http://dm3-beta2-resolver.herokuapp.com" >> ./.env.react
+                  echo "REACT_APP_PROFILE_BASE_URL=http://${{ secrets.STAGING_HOST }}/api" >> ./.env.react
+                  echo "REACT_APP_RESOLVER_BACKEND=http://${{ secrets.STAGING_HOST }}/resolver-handler" >> ./.env.react
                   echo "REACT_APP_USER_ENS_SUBDOMAIN=.beta-user.dm3.eth" >> ./.env.react
                   echo "REACT_APP_WALLET_CONNECT_PROJECT_ID=${{ secrets.REACT_APP_WALLET_CONNECT_PROJECT_ID }}" >> ./.env.react
-                  echo "RESOLVER_ADDR=0x45F7Ed7d05c563D408898A80d9C705CC3328D2EF" >> ./.env
-                  echo "WEB_PORT=80" >> ./.env
+                  cat ./.env.react >> ./.env
+                  echo "RESOLVER_ADDR=0xae6646c22D8eE6479eE0a39Bf63B9bD9e57bAD9d" >> ./.env
                   echo "SIGNING_PUBLIC_KEY=${{ secrets.SIGNING_PUBLIC_KEY }}" >> ./.env
                   echo "SIGNING_PRIVATE_KEY=${{ secrets.SIGNING_PRIVATE_KEY }}" >> ./.env
                   echo "SIGNER_PRIVATE_KEY=${{ secrets.SIGNER_PRIVATE_KEY }}" >> ./.env
                   echo "SPAM_PROTECTION=${{ secrets.SPAM_PROTECTION }}" >> ./.env
                   echo "ENCRYPTION_PUBLIC_KEY=${{ secrets.ENCRYPTION_PUBLIC_KEY }}" >> ./.env
                   echo "ENCRYPTION_PRIVATE_KEY=${{ secrets.ENCRYPTION_PRIVATE_KEY }}" >> ./.env
-                  echo "RPC=${{ secrets.RPC }}" >> ./.env
+                  echo "RPC=${{ secrets.STAGING_RPC }}" >> ./.env
                   envsubst '${SSL_CERTIFICATE_BASE_LOC} ${TLS_CERTIFICATE_LOCATION} ${TARGET_HOST}' < ./docker/nginx.conf > ./nginx.conf
+                  cat ./.env
             - name: Build docker image
               run: |
                 cp ./.env.react packages/messenger-demo/.env
@@ -53,10 +54,20 @@ jobs:
                 rsync -avz -e 'ssh -i ./ssh-key' ./dm3-backend.tar app@${{ secrets.STAGING_HOST }}:/home/app/dm3 
                 rsync -avz -e 'ssh -i ./ssh-key' ./nginx.conf app@${{ secrets.STAGING_HOST }}:/home/app/dm3
                 rsync -avz -e 'ssh -i ./ssh-key' ./docker/docker-compose.yml app@${{ secrets.STAGING_HOST }}:/home/app/dm3                
-            - name: Load image
+            - name: Prepare docker
+              run: |
+                  ssh -i ./ssh-key root@${{ secrets.STAGING_HOST }} "\
+                  docker system prune -af; \
+                  systemctl restart docker.service"
+            - name: Load docker image
               run: |
                   ssh -i ./ssh-key app@${{ secrets.STAGING_HOST }} "\
-                  cd dm3 && docker load -i dm3-backend.tar"
+                  cd dm3 && docker load -i dm3-backend.tar; \
+                  rm dm3-backend.tar"
+            - name: Firewall config
+              run: |
+                  ssh -i ./ssh-key root@${{ secrets.STAGING_HOST }} "\
+                  ufw allow from 172.18.0.1/16 proto tcp to ${{ secrets.STAGING_HOST }} port 80"
             - name: Start
               run: |
                   ssh -i ./ssh-key app@${{ secrets.STAGING_HOST }} "\
