@@ -98,8 +98,8 @@ export const checkState = async (
     const browserDataFile =
         state.connection.account && state.uiState.browserStorageBackup
             ? await localforage.getItem(
-                getBrowserStorageKey(state.connection.account.ensName),
-            )
+                  getBrowserStorageKey(state.connection.account.ensName),
+              )
             : null;
 
     const isCollectingSignInData =
@@ -481,12 +481,12 @@ export async function getDatabase(
 }> {
     return profileExists
         ? getExistingDatebase(
-            storageLocation,
-            storageToken,
-            state,
-            dispatch,
-            setSignInBtnContent,
-        )
+              storageLocation,
+              storageToken,
+              state,
+              dispatch,
+              setSignInBtnContent,
+          )
         : createNewDatabase(state, setSignInBtnContent);
 }
 
@@ -811,16 +811,16 @@ export async function getWeb3Provider(provider: unknown): Promise<{
 }> {
     return provider
         ? {
-            provider: new ethers.providers.Web3Provider(
-                provider as
-                | ethers.providers.ExternalProvider
-                | ethers.providers.JsonRpcFetchFunc,
-            ),
-            connectionState: ConnectionState.AccountConnectReady,
-        }
+              provider: new ethers.providers.Web3Provider(
+                  provider as
+                      | ethers.providers.ExternalProvider
+                      | ethers.providers.JsonRpcFetchFunc,
+              ),
+              connectionState: ConnectionState.AccountConnectReady,
+          }
         : {
-            connectionState: ConnectionState.ConnectionRejected,
-        };
+              connectionState: ConnectionState.ConnectionRejected,
+          };
 }
 
 function handleNewProvider(

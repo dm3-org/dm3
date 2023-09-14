@@ -44,8 +44,6 @@ export function setUserProfile(db: PrismaClient) {
                     ensName: normalizeEnsName(name),
                 },
             });
-<<<<<<< HEAD
-=======
             global.logger.debug({
                 message: 'setUserProfile',
                 id: uuidv4(),
@@ -54,7 +52,6 @@ export function setUserProfile(db: PrismaClient) {
                 address: formatAddress(address),
                 ensName: normalizeEnsName(name),
             });
->>>>>>> 4bdf0d7f5a0bb95b948c66e6c6ba098ec114ddec
 
             return true;
         } catch (e) {

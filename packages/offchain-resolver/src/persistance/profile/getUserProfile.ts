@@ -18,14 +18,6 @@ export function getUserProfile(db: PrismaClient) {
             },
         });
 
-<<<<<<< HEAD
-        // profileContainer.profile may be a string or an object.
-        return profileContainer && profileContainer.profile
-            ? (JSON.parse(
-                  JSON.stringify(profileContainer.profile),
-              ) as UserProfile)
-            : null;
-=======
         const userProfile =
             profileContainer && profileContainer.profile
                 ? (JSON.parse(
@@ -41,6 +33,5 @@ export function getUserProfile(db: PrismaClient) {
 
         // profileContainer.profile may be a string or an object.
         return userProfile;
->>>>>>> 4bdf0d7f5a0bb95b948c66e6c6ba098ec114ddec
     };
 }

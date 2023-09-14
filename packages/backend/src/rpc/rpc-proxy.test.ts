@@ -8,10 +8,7 @@ import { testData } from '../../../../test-data/encrypted-envelops.test';
 import { createKeyPair } from 'dm3-lib-crypto';
 import { normalizeEnsName, UserProfile } from 'dm3-lib-profile';
 import { stringify } from 'dm3-lib-shared';
-<<<<<<< HEAD
-=======
 import winston from 'winston';
->>>>>>> 4bdf0d7f5a0bb95b948c66e6c6ba098ec114ddec
 
 global.logger = winston.createLogger({
     transports: [new winston.transports.Console()],

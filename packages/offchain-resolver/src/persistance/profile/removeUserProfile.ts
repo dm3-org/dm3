@@ -27,8 +27,6 @@ export function removeUserProfile(db: PrismaClient) {
                     nameHash: profileContainer.nameHash,
                 },
             });
-<<<<<<< HEAD
-=======
 
             global.logger.debug({
                 message: 'removeUserProfile',
@@ -36,7 +34,6 @@ export function removeUserProfile(db: PrismaClient) {
                 nameHash: profileContainer.nameHash,
             });
 
->>>>>>> 4bdf0d7f5a0bb95b948c66e6c6ba098ec114ddec
             return true;
         } catch (e) {
             return false;
