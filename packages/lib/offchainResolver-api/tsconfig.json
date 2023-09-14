@@ -9,13 +9,8 @@
         "strict": true,
         "forceConsistentCasingInFileNames": true,
         "noFallthroughCasesInSwitch": true,
-<<<<<<< HEAD
-        "module": "CommonJS",
-        "moduleResolution": "node",
-=======
         "module": "node16",
         "moduleResolution": "node16",
->>>>>>> 4bdf0d7f5a0bb95b948c66e6c6ba098ec114ddec
         "resolveJsonModule": true,
         "isolatedModules": true,
         "outDir": "dist",
