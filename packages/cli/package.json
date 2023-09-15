@@ -9,7 +9,7 @@
   "dependencies": {
     "ccip-resolver": "^0.2.2",
     "commander": "^11.0.0",
-    "ethers": "^5.7.2",
+    "ethers": "5.7.2",
     "ts-node": "^10.9.1"
   },
   "devDependencies": {

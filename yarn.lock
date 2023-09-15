@@ -12254,7 +12254,7 @@ __metadata:
     "@nomiclabs/hardhat-ethers": ^2.2.3
     ccip-resolver: ^0.2.2
     commander: ^11.0.0
-    ethers: ^5.7.2
+    ethers: 5.7.2
     hardhat: ^2.7.2
     jest: ^28.1.1
     prettier: ^3.0.3
@@ -12403,8 +12403,8 @@ __metadata:
     "@types/whatwg-encoding": ^2.0.0
     axios: ^1.5.0
     axios-mock-adapter: ^1.21.2
+    dm3-lib-crypto: "workspace:^"
     dm3-lib-profile: "workspace:^"
-    ethers: 5.7.2
     jest: ^28.1.1
     ts-jest: ^28.0.4
     ts-json-schema-generator: ^0.98.0
