@@ -60,6 +60,8 @@ export function onConnection(app: express.Application & WithLocals) {
                         app.locals.keys.signing,
                         app.locals.keys.encryption,
                         app.locals.deliveryServiceProperties.sizeLimit,
+                        app.locals.deliveryServiceProperties
+                            .notificationChannel,
                         app.locals.db.getSession,
                         app.locals.db.createMessage,
                         (socketId: string, envelop: EncryptionEnvelop) => {
@@ -69,6 +71,7 @@ export function onConnection(app: express.Application & WithLocals) {
                         },
                         app.locals.web3Provider,
                         app.locals.db.getIdEnsName,
+                        app.locals.db.getUsersNotificationChannels,
                     ),
                         callback({ response: 'success' });
                 } catch (error: any) {

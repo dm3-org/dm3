@@ -1,6 +1,5 @@
 import bodyParser from 'body-parser';
 import express from 'express';
-import profile from './profile';
 import { auth } from './utils';
 import request from 'supertest';
 import winston from 'winston';
