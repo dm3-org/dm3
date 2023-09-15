@@ -16,8 +16,9 @@ export const MessageStorage = async (
     db: IStorageDatabase,
     enc: IStorageEncryption,
     rootKey: string,
+    sizeLimit: number = DEFAULT_SIZE_LIMIT,
 ) => {
-    const root = await Root.createAndSafe(db, enc, rootKey, DEFAULT_SIZE_LIMIT);
+    const root = await Root.initialize(db, enc, rootKey, sizeLimit);
 
     const addMessage = (envelop: Envelop) => root.add(envelop);
     const getConversations = () => root.conversationNames;
@@ -133,7 +134,7 @@ class Root extends Node {
         this.conversationNames = conversationNames;
     }
 
-    static async createAndSafe(
+    static async initialize(
         db: IStorageDatabase,
         enc: IStorageEncryption,
         rootKey: string,
