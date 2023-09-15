@@ -1,20 +1,20 @@
 import { NotificationChannel, NotificationChannelType } from 'dm3-lib-delivery';
-import winston from 'winston';
 import { IDatabase, Redis, getDatabase, getRedisClient } from '../getDatabase';
+import winston from 'winston';
 
 const USER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
+
+global.logger = winston.createLogger({
+    transports: [new winston.transports.Console()],
+});
 
 describe('Set Users NotificationChannel', () => {
     let redisClient: Redis;
     let db: IDatabase;
 
-    const logger = winston.createLogger({
-        transports: [new winston.transports.Console()],
-    });
-
     beforeEach(async () => {
-        redisClient = await getRedisClient(logger);
-        db = await getDatabase(logger, redisClient);
+        redisClient = await getRedisClient();
+        db = await getDatabase(redisClient);
         await redisClient.flushDb();
     });
 
