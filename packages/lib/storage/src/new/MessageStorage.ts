@@ -21,8 +21,28 @@ export const MessageStorage = async (
 
     const addMessage = (envelop: Envelop) => root.add(envelop);
     const getConversations = () => root.conversationNames;
+    const getMessages = async (conversationName: string, page: number) => {
+        const conversation = root
+            .getLeafs<Conversation>()
+            .find(
+                (c) =>
+                    c.key ===
+                    Conversation.computeKey(rootKey, conversationName),
+            );
+        if (!conversation) {
+            return [];
+        }
+        await conversation.fetch();
+        const chunks = conversation.getLeafs<Chunk>();
+        const chunk = chunks[page];
+        if (!chunk) {
+            return [];
+        }
+        await chunk.fetch();
+        return chunk.getLeafs<Envelop>();
+    };
 
-    return { addMessage, getConversations, _tree: root };
+    return { addMessage, getMessages, getConversations, _tree: root };
 };
 
 type Leaf = Node | Envelop;
@@ -114,13 +134,13 @@ class Root extends Node {
     static async createAndSafe(
         db: IStorageDatabase,
         enc: IStorageEncryption,
-        key: string,
+        rootKey: string,
     ) {
         //Get the serialized and encrypted root node from the database (that is the conversation list)
-        const serialized = await db.getNode(key);
+        const serialized = await db.getNode(rootKey);
         // If the root does not exist now we're creating a new instance and return it
         if (!serialized) {
-            const instance = new Root(db, enc, key, [], []);
+            const instance = new Root(db, enc, rootKey, [], []);
             //Safe the newly created instance to the database
             await instance.save();
             return instance;
@@ -129,11 +149,22 @@ class Root extends Node {
         const conversationNames = await this.deserialize(enc, serialized);
 
         const conversationInstances = conversationNames.map(
-            (conversationKey: string) =>
-                new Conversation(db, enc, conversationKey, []),
+            (ensName: string) =>
+                new Conversation(
+                    db,
+                    enc,
+                    Conversation.computeKey(rootKey, ensName),
+                    [],
+                ),
         );
 
-        return new Root(db, enc, key, conversationInstances, conversationNames);
+        return new Root(
+            db,
+            enc,
+            rootKey,
+            conversationInstances,
+            conversationNames,
+        );
     }
 
     public async add(envelop: Envelop) {
@@ -147,6 +178,10 @@ class Root extends Node {
         return conversation
             ? await conversation.add(envelop)
             : await this.createNewConversationAndAddMessage(envelop);
+    }
+
+    protected override serialize() {
+        return JSON.stringify(this.conversationNames);
     }
 
     private async createNewConversationAndAddMessage(envelop: Envelop) {
@@ -164,6 +199,7 @@ class Root extends Node {
         //Add the conversation name to the conversation list
         this.conversationNames.push(conversationName);
         await newConversation.add(envelop);
+        await this.save();
     }
 }
 
