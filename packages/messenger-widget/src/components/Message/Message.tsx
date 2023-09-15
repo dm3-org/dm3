@@ -158,8 +158,6 @@ export function Message(props: MessageProps) {
                                     .concat('...')}
                             </div>
                         )}
-                    {/* Add attachments here later, if attachments & messages both are not 
-                    there then it is deleted, else set files and messages both */}
                     {/* actual message */}
                     {props.message ? props.message : 'This message was deleted'}
                 </div>

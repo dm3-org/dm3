@@ -1,6 +1,6 @@
 {
     "name": "dm3-lib-delivery",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "license": "MIT",
     "main": "dist/index.js",
     "module": "dist-backend/index.js",
@@ -21,6 +21,7 @@
         "ethers": "5.7.2",
         "googleapis": "^100.0.0",
         "libsodium-wrappers": "^0.7.10",
+        "nodemailer": "^6.9.4",
         "query-string": "^7.1.1",
         "safe-stable-stringify": "^2.4.1",
         "socket.io": "^4.4.1",
@@ -33,6 +34,7 @@
         "@types/data-urls": "^3.0.1",
         "@types/jest": "^28.1.1",
         "@types/node": "^16.7.13",
+        "@types/nodemailer": "^6.4.9",
         "@types/uuid": "^8.3.4",
         "@types/whatwg-encoding": "^2.0.0",
         "axios-mock-adapter": "^1.21.2",

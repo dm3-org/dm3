@@ -9,7 +9,7 @@ import {
     RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
-import { mainnet, goerli } from 'wagmi/chains';
+import { mainnet } from 'wagmi/chains';
 import {
     metaMaskWallet,
     rainbowWallet,

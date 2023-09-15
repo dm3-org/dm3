@@ -14,3 +14,6 @@ export { checkToken } from './Session';
 export type { Session } from './Session';
 
 export type { DeliveryServiceProperties } from './Delivery';
+
+export * from './notifications';
+export { NotificationChannelType } from './notifications';

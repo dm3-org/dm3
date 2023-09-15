@@ -88,7 +88,10 @@ describe('rpc-Proxy', () => {
                     signing: keysA.signingKeyPair,
                     encryption: keysA.encryptionKeyPair,
                 },
-                deliveryServiceProperties: { sizeLimit: 2 ** 14 },
+                deliveryServiceProperties: {
+                    sizeLimit: 2 ** 14,
+                    notificationChannel: [],
+                },
                 web3Provider: {
                     resolveName: async () =>
                         '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
@@ -101,6 +104,7 @@ describe('rpc-Proxy', () => {
                     createMessage: () => {},
                     getSession,
                     getIdEnsName: async (ensName: string) => ensName,
+                    getUsersNotificationChannels: () => Promise.resolve([]),
                 },
                 io: {
                     sockets: {
@@ -151,7 +155,11 @@ describe('rpc-Proxy', () => {
 
             app.locals = {
                 logger,
-                deliveryServiceProperties: { messageTTL: 0, sizeLimit: 0 },
+                deliveryServiceProperties: {
+                    messageTTL: 0,
+                    sizeLimit: 0,
+                    notificationChannel: [],
+                },
             };
 
             const { status, body } = await request(app).post('/').send({
@@ -162,10 +170,11 @@ describe('rpc-Proxy', () => {
 
             expect(mockPost).not.toBeCalled();
             expect(status).toBe(200);
-            expect(body).toStrictEqual({
+            expect(body).toEqual({
                 jsonrpc: '2.0',
                 result: JSON.stringify({
                     messageTTL: 0,
+                    notificationChannel: [],
                     sizeLimit: 0,
                 }),
             });
@@ -213,6 +222,7 @@ describe('rpc-Proxy', () => {
                 db: {
                     getIdEnsName: async (ensName: string) => ensName,
                     getSession: (_: string) => Promise.resolve(null),
+                    getUsersNotificationChannels: () => Promise.resolve([]),
                 },
             };
 
@@ -270,6 +280,7 @@ describe('rpc-Proxy', () => {
                                 notSupportedMessageTypes: ['NEW'],
                             },
                         }),
+                    getUsersNotificationChannels: () => Promise.resolve([]),
                 },
             };
 
