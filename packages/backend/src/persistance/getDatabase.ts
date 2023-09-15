@@ -1,13 +1,17 @@
-import { Session as DSSession, spamFilter } from 'dm3-lib-delivery';
+import {
+    Session as DSSession,
+    NotificationChannel,
+    spamFilter,
+} from 'dm3-lib-delivery';
 import { EncryptionEnvelop } from 'dm3-lib-messaging';
 import { UserStorage } from 'dm3-lib-storage';
 import { createClient } from 'redis';
-import winston from 'winston';
+import { getIdEnsName } from './getIdEnsName';
 import Messages from './messages';
 import { syncAcknoledgment } from './messages/syncAcknoledgment';
+import Notification from './notification';
 import Pending from './pending';
 import Session from './session';
-import { getIdEnsName } from './session/getIdEnsName';
 import Storage from './storage';
 
 export enum RedisPrefix {
@@ -17,6 +21,7 @@ export enum RedisPrefix {
     Session = 'session:',
     UserStorage = 'user.storage:',
     Pending = 'pending:',
+    NotificationChannel = 'notificationChannel:',
 }
 
 export async function getRedisClient() {
@@ -70,6 +75,11 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
         deletePending: Pending.deletePending(redis),
         getIdEnsName: getIdEnsName(redis),
         syncAcknoledgment: syncAcknoledgment(redis),
+        //Notification
+        getUsersNotificationChannels:
+            Notification.getUsersNotificationChannels(redis),
+        addUsersNotificationChannel:
+            Notification.addUsersNotificationChannel(redis),
     };
 }
 
@@ -110,6 +120,13 @@ export interface IDatabase {
         conversationId: string,
         ensName: string,
         lastMessagePull: string,
+    ) => Promise<void>;
+    getUsersNotificationChannels: (
+        ensName: string,
+    ) => Promise<NotificationChannel[]>;
+    addUsersNotificationChannel: (
+        ensName: string,
+        channel: NotificationChannel,
     ) => Promise<void>;
 }
 

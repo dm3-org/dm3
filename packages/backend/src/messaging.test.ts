@@ -53,7 +53,10 @@ describe('Messaging', () => {
                         encryption: keysA.encryptionKeyPair,
                     },
 
-                    deliveryServiceProperties: { sizeLimit: 2 ** 14 },
+                    deliveryServiceProperties: {
+                        sizeLimit: 2 ** 14,
+                        notificationChannel: [],
+                    },
                     web3Provider: {
                         resolveName: async () =>
                             '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
@@ -63,9 +66,7 @@ describe('Messaging', () => {
                         getSession,
                         createMessage: () => {},
                         getIdEnsName: async (ensName: string) => ensName,
-                    },
-                    redisClient: {
-                        zAdd: () => {},
+                        getUsersNotificationChannels: () => Promise.resolve([]),
                     },
                     io: {
                         sockets: {
@@ -96,7 +97,71 @@ describe('Messaging', () => {
 
             onConnection(app)(getSocketMock());
         });
-        //TODO remove skip once spam-filter is implemented
+        it('sends notification after message was submitted', (done: any) => {
+            //We expect the callback functions called once witht he value 'success'
+            expect.assertions(1);
+            const callback = (e: any) => {
+                // eslint-disable-next-line max-len
+                //Even though the method fails jest dosen't recognize it becuase of the catch block used in messaging.ts. So we have to throw another error if the callback returns anything else then the expected result.
+                if (e.response !== 'success') {
+                    throw Error(e);
+                }
+                expect(e.response).toBe('success');
+                done();
+            };
+            //We provide an mocked express app with all needes locals vars
+            const app = {
+                locals: {
+                    logger,
+                    keys: {
+                        signing: keysA.signingKeyPair,
+                        encryption: keysA.encryptionKeyPair,
+                    },
+
+                    deliveryServiceProperties: {
+                        sizeLimit: 2 ** 14,
+                        notificationChannel: [],
+                    },
+                    web3Provider: {
+                        resolveName: async () =>
+                            '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                    },
+
+                    db: {
+                        getSession,
+                        createMessage: () => {},
+                        getIdEnsName: async (ensName: string) => ensName,
+                        getUsersNotificationChannels: () => Promise.resolve([]),
+                    },
+                    io: {
+                        sockets: {
+                            to: (_: any) => ({
+                                emit: (_: any, __any: any) => {},
+                            }),
+                        },
+                    },
+                } as any,
+            } as express.Express & WithLocals;
+
+            //The same data used in Messages.test
+            const data = {
+                envelop: testData.envelopA,
+                token: '123',
+            };
+
+            const getSocketMock = () => {
+                return {
+                    on: async (name: string, onSubmitMessage: any) => {
+                        //We just want to test the submitMessage callback fn
+                        if (name === 'submitMessage') {
+                            await onSubmitMessage(data, callback);
+                        }
+                    },
+                } as unknown as Socket;
+            };
+
+            onConnection(app)(getSocketMock());
+        });
         it.skip('returns error if message is spam', (done: any) => {
             //We expect the callback functions called once witht he value 'success'
             expect.assertions(1);
@@ -125,12 +190,16 @@ describe('Messaging', () => {
                         encryption: keysA.encryptionKeyPair,
                     },
 
-                    deliveryServiceProperties: { sizeLimit: 2 ** 14 },
+                    deliveryServiceProperties: {
+                        sizeLimit: 2 ** 14,
+                        notificationChannel: [],
+                    },
 
                     db: {
                         getSession: session,
                         createMessage: () => {},
                         getIdEnsName: async (ensName: string) => ensName,
+                        getUsersNotificationChannels: () => Promise.resolve([]),
                     },
                     web3Provider: {
                         getTransactionCount: (_: string) => Promise.resolve(0),
@@ -199,6 +268,7 @@ describe('Messaging', () => {
                     db: {
                         getSession,
                         getIdEnsName: async (ensName: string) => ensName,
+                        getUsersNotificationChannels: () => Promise.resolve([]),
                     },
                 } as any,
             } as express.Express & WithLocals;

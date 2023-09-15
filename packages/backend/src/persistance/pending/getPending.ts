@@ -1,5 +1,5 @@
 import { Redis, RedisPrefix } from '../getDatabase';
-import { getIdEnsName } from '../session/getIdEnsName';
+import { getIdEnsName } from '../getIdEnsName';
 
 export function getPending(redis: Redis) {
     return async (ensName: string): Promise<string[]> => {
