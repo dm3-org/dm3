@@ -204,6 +204,7 @@ class Conversation extends Node {
         const chunkInstances = chunkIdentifier.map(
             (chunk: any) => new Chunk(this.db, this.enc, chunk.id, []),
         );
+
         //update the conversation with the latest list of chunks
         this.setLeafs(chunkInstances);
 
@@ -220,10 +221,12 @@ class Conversation extends Node {
                 this.db,
                 this.enc,
                 Chunk.computeKey(this.key, emptyChunIdentifer),
-                [],
             );
             //Add the chunk to the conversation
             this.addLeaf(chunk);
+            await chunk.add(message);
+            await this.save();
+            return;
         }
 
         //get the latest chunk
@@ -249,12 +252,12 @@ class Conversation extends Node {
             this.db,
             this.enc,
             Chunk.computeKey(this.key, emptyChunkIdentifer),
-            [],
         );
         //Add the chunk to the conversation
         this.addLeaf(emptyChunk);
         //finally the chunk that'll contain the message has been created and sits at the end of the list
         await emptyChunk.add(message);
+        await await this.save();
     }
 }
 
@@ -263,9 +266,8 @@ class Chunk extends Node {
         db: IStorageDatabase,
         enc: IStorageEncryption,
         key: string,
-        children: Node[] | Envelop[],
     ) {
-        const instance = new Chunk(db, enc, key, children);
+        const instance = new Chunk(db, enc, key, []);
         await instance.save();
         return instance;
     }
