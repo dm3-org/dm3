@@ -25,19 +25,19 @@ export function MessageInputField(props: MessageDataProps) {
         props.setMessageText(e.target.value);
     }
 
+    function submit(event: React.FormEvent<HTMLFormElement>) {
+        const files = props.filesSelected;
+        const msg = props.message;
+        props.setMessageText('');
+        props.setFiles([]);
+        handleSubmit(msg, state, dispatch, event, files);
+    }
+
     return (
         <form
             className="width-fill"
-            onSubmit={(event) =>
-                handleSubmit(
-                    props.message,
-                    state,
-                    dispatch,
-                    props.setMessageText,
-                    event,
-                    props.filesSelected,
-                    props.setFiles,
-                )
+            onSubmit={(event: React.FormEvent<HTMLFormElement>) =>
+                submit(event)
             }
         >
             <input

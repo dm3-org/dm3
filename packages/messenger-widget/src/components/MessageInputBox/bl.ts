@@ -15,6 +15,8 @@ import {
     getHaltDelivery,
     getDependencies,
     sendMessage,
+    openErrorModal,
+    closeErrorModal,
 } from '../../utils/common-utils';
 import { Attachment } from '../../interfaces/utils';
 import { getDeliveryServiceProperties } from 'dm3-lib-delivery-api';
@@ -70,7 +72,6 @@ export const setAttachmentsOnEditMessage = (
 
 const handleNewUserMessage = async (
     message: string,
-    setMessage: Function,
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
     attachments: string[],
@@ -103,8 +104,6 @@ const handleNewUserMessage = async (
         haltDelivery,
         dispatch,
     );
-
-    setMessage('');
 };
 
 const editMessage = async (
@@ -211,15 +210,12 @@ export const handleSubmit = async (
     message: string,
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
-    setMessage: Function,
     event:
         | React.FormEvent<HTMLFormElement>
         | React.MouseEvent<HTMLImageElement, MouseEvent>,
     filesSelected: Attachment[],
-    setFiles: Function,
 ) => {
     let attachments: string[] = [];
-    const messageText = message;
 
     dispatch({
         type: ModalStateType.OpenEmojiPopup,
@@ -228,30 +224,53 @@ export const handleSubmit = async (
 
     event.preventDefault();
 
-    const deliveryServiceProperties = await getDeliveryServiceProperties(
-        state.connection.provider as ethers.providers.JsonRpcProvider,
-        state.connection.account as Account,
-    );
-
     // if attachments are selected then get the URI of each attachment
     if (filesSelected.length) {
         attachments = filesSelected.map(function (item) {
             return item['data'];
         });
-    } else if (!messageText.trim().length) {
+    } else if (!message.trim().length) {
         return;
     }
 
-    // empty the message
-    setMessage('');
+    const deliveryServiceProperties = await getDeliveryServiceProperties(
+        state.connection.provider as ethers.providers.JsonRpcProvider,
+        state.connection.account as Account,
+    );
 
-    // remove the attachments from state
-    setFiles([]);
+    const sizeCheck = isMessageWithinSizeLimit(
+        message,
+        attachments,
+        deliveryServiceProperties.sizeLimit,
+    );
+
+    if (!sizeCheck) {
+        dispatch({
+            type: UiViewStateType.SetMessageView,
+            payload: {
+                actionType: MessageActionType.NONE,
+                messageData: undefined,
+            },
+        });
+
+        openErrorModal(
+            'The size of the message is larger than limit '
+                .concat(
+                    deliveryServiceProperties.sizeLimit.toString(),
+                    ' bytes. ',
+                )
+                .concat('Please reduce the message size.'),
+            false,
+            closeErrorModal,
+        );
+
+        return;
+    }
 
     if (
         state.uiView.selectedMessageView.actionType === MessageActionType.EDIT
     ) {
-        await editMessage(state, dispatch, messageText, attachments);
+        await editMessage(state, dispatch, message, attachments);
         dispatch({
             type: ModalStateType.LastMessageAction,
             payload: MessageActionType.EDIT,
@@ -259,22 +278,31 @@ export const handleSubmit = async (
     } else if (
         state.uiView.selectedMessageView.actionType === MessageActionType.REPLY
     ) {
-        await replyMessage(state, dispatch, messageText, attachments);
+        await replyMessage(state, dispatch, message, attachments);
         dispatch({
             type: ModalStateType.LastMessageAction,
             payload: MessageActionType.REPLY,
         });
     } else {
-        await handleNewUserMessage(
-            messageText,
-            setMessage,
-            state,
-            dispatch,
-            attachments,
-        );
+        await handleNewUserMessage(message, state, dispatch, attachments);
         dispatch({
             type: ModalStateType.LastMessageAction,
             payload: MessageActionType.NEW,
         });
     }
+};
+
+const isMessageWithinSizeLimit = (
+    message: string | undefined,
+    attachments: string[],
+    maximumSize: number,
+): boolean => {
+    let size = 0;
+    if (message) {
+        size = new Blob([message]).size;
+    }
+    attachments.forEach((file) => {
+        size += new Blob([file]).size;
+    });
+    return size > maximumSize ? false : true;
 };

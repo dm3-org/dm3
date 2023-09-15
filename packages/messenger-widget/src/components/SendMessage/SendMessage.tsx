@@ -7,6 +7,14 @@ import { handleSubmit } from '../MessageInputBox/bl';
 export function SendMessage(props: MessageDataProps) {
     const { state, dispatch } = useContext(GlobalContext);
 
+    function submit(event: React.MouseEvent<HTMLImageElement, MouseEvent>) {
+        const files = props.filesSelected;
+        const msg = props.message;
+        props.setMessageText('');
+        props.setFiles([]);
+        handleSubmit(msg, state, dispatch, event, files);
+    }
+
     return (
         <span className="d-flex align-items-center pointer-cursor text-secondary-color">
             <img
@@ -15,17 +23,7 @@ export function SendMessage(props: MessageDataProps) {
                 alt="send"
                 onClick={(
                     event: React.MouseEvent<HTMLImageElement, MouseEvent>,
-                ) =>
-                    handleSubmit(
-                        props.message,
-                        state,
-                        dispatch,
-                        props.setMessageText,
-                        event,
-                        props.filesSelected,
-                        props.setFiles,
-                    )
-                }
+                ) => submit(event)}
             />
         </span>
     );
