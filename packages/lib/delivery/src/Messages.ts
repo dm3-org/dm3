@@ -1,11 +1,10 @@
-import { ethers } from 'ethers';
-import stringify from 'safe-stable-stringify';
 import {
     DeliveryServiceProfileKeys,
     normalizeEnsName,
-    ProfileKeys,
     UserProfile,
 } from 'dm3-lib-profile';
+import { ethers } from 'ethers';
+import stringify from 'safe-stable-stringify';
 
 import {
     decryptAsymmetric,
@@ -19,7 +18,12 @@ import {
     EncryptionEnvelop,
     Postmark,
 } from 'dm3-lib-messaging';
-import { logDebug, logInfo, sha256 } from 'dm3-lib-shared';
+import { logDebug, sha256 } from 'dm3-lib-shared';
+import { NotificationBroker } from './notifications';
+import {
+    GetNotificationChannels,
+    NotificationChannel,
+} from './notifications/types';
 import { checkToken, Session } from './Session';
 import { isSpam } from './spam-filter';
 import { SpamFilterRules } from './spam-filter/SpamFilterRules';
@@ -94,6 +98,7 @@ export async function incomingMessage(
     signingKeyPair: KeyPair,
     encryptionKeyPair: KeyPair,
     sizeLimit: number,
+    dsNotificationChannels: NotificationChannel[],
     getSession: (
         accountAddress: string,
     ) => Promise<(Session & { spamFilterRules: SpamFilterRules }) | null>,
@@ -104,6 +109,7 @@ export async function incomingMessage(
     send: (socketId: string, envelop: EncryptionEnvelop) => void,
     provider: ethers.providers.JsonRpcProvider,
     getIdEnsName: (name: string) => Promise<string>,
+    getUsersNotificationChannels: GetNotificationChannels,
 ): Promise<void> {
     logDebug({ text: 'incomingMessage', token });
     //Checks the size of the incoming message
@@ -192,6 +198,13 @@ export async function incomingMessage(
             text: 'WS send to socketId ',
             receiverSessionSocketId: receiverSession.socketId,
         });
+        //If not we're notifing the user that there is a new message waiting for them
+    } else {
+        const { sendNotification } = NotificationBroker(dsNotificationChannels);
+        await sendNotification(
+            deliveryInformation,
+            getUsersNotificationChannels,
+        );
     }
 }
 
