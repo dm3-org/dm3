@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { SignedUserProfile, formatAddress } from 'dm3-lib-profile';
-import { ethers } from 'ethers';
+import { sign } from 'dm3-lib-crypto';
 
 /**
  * claims a dm3.eth subdomain
@@ -15,12 +15,11 @@ export async function claimSubdomain(
     name: string,
     privateKey: string,
 ): Promise<boolean> {
-    const wallet = new ethers.Wallet(privateKey);
     const url = `${offchainResolverUrl}/profile/name`;
     const data = {
         alias,
         name,
-        signature: await wallet.signMessage('alias: ' + alias),
+        signature: await sign(privateKey, 'alias: ' + alias),
     };
 
     const { status } = await axios.post(url, data);
@@ -38,11 +37,10 @@ export async function removeAlias(
     offchainResolverUrl: string,
     privateKey: string,
 ): Promise<boolean> {
-    const wallet = new ethers.Wallet(privateKey);
     const url = `${offchainResolverUrl}/profile/name`;
     const data = {
         name: alias,
-        signature: await wallet.signMessage('remove: ' + alias),
+        signature: await sign(privateKey, 'remove: ' + alias),
     };
 
     const { status } = await axios.post(url, data);
