@@ -175,6 +175,78 @@ describe('MessageStorage', () => {
             makeEnvelop('alice.eth', 'bob.eth', 'hello4', 126),
         );
     });
+    it('multiple conversations, add messages to the corrospending chunk', async () => {
+        const keyB = '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJU=';
+
+        const db = testDb();
+        const rootKey = sha256('alice.eth');
+
+        const enc = {
+            //encrypt: (val: any) => val,
+            encrypt: (val: any) => encrypt(keyB, val),
+            //decrypt: (val: any) => val,
+            decrypt: (val: any) => decrypt(keyB, val),
+        };
+        const storage = await MessageStorage(
+            {
+                getNode: db.getNode,
+                addNode: db.addNode,
+            },
+            enc,
+            rootKey,
+        );
+        await storage.addMessage(
+            makeEnvelop('alice.eth', 'bob.eth', 'hello1', 123),
+        );
+        await storage.addMessage(
+            makeEnvelop('alice.eth', 'vitalik.eth', 'hello2', 124),
+        );
+        await storage.addMessage(
+            makeEnvelop('alice.eth', 'vitalik.eth', 'hello3', 125),
+        );
+        await storage.addMessage(
+            makeEnvelop('alice.eth', 'bob.eth', 'hello4', 126),
+        );
+        await storage.addMessage(
+            makeEnvelop('alice.eth', 'vitalik.eth', 'hello5', 127),
+        );
+        await storage.addMessage(
+            makeEnvelop('alice.eth', 'bob.eth', 'hello6', 128),
+        );
+        const conversations = storage.getConversations();
+        expect(conversations).toEqual(['bob.eth', 'vitalik.eth']);
+
+        const [conversationBob, conversationVitalik] =
+            storage._tree.getLeafs<any>();
+
+        expect(conversationBob.getLeafs().length).toBe(1);
+        expect(conversationVitalik.getLeafs().length).toBe(1);
+        const chunkNode1 = conversationBob.getLeafs()[0];
+        const chunkNode2 = conversationVitalik.getLeafs()[0];
+
+        expect(chunkNode1.getLeafs().length).toBe(3);
+        expect(chunkNode2.getLeafs().length).toBe(3);
+
+        expect(chunkNode1.getLeafs()[0]).toEqual(
+            makeEnvelop('alice.eth', 'bob.eth', 'hello1', 123),
+        );
+        expect(chunkNode1.getLeafs()[1]).toEqual(
+            makeEnvelop('alice.eth', 'bob.eth', 'hello4', 126),
+        );
+        expect(chunkNode1.getLeafs()[2]).toEqual(
+            makeEnvelop('alice.eth', 'bob.eth', 'hello6', 128),
+        );
+
+        expect(chunkNode2.getLeafs()[0]).toEqual(
+            makeEnvelop('alice.eth', 'vitalik.eth', 'hello2', 124),
+        );
+        expect(chunkNode2.getLeafs()[1]).toEqual(
+            makeEnvelop('alice.eth', 'vitalik.eth', 'hello3', 125),
+        );
+        expect(chunkNode2.getLeafs()[2]).toEqual(
+            makeEnvelop('alice.eth', 'vitalik.eth', 'hello5', 127),
+        );
+    });
     it('gets conversations', async () => {
         const db = testDb();
         const rootKey = sha256('alice.eth');
