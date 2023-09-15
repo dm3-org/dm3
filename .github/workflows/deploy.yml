@@ -56,6 +56,8 @@ jobs:
                 rsync -avz -e 'ssh -i ./ssh-key' ./docker/docker-compose.yml app@${{ secrets.STAGING_HOST }}:/home/app/dm3                
             - name: Prepare docker
               run: |
+                  ssh -i ./ssh-key app@${{ secrets.STAGING_HOST }} "\
+                  cd dm3 && docker compose down"
                   ssh -i ./ssh-key root@${{ secrets.STAGING_HOST }} "\
                   docker system prune -af; \
                   systemctl restart docker.service"
@@ -71,4 +73,4 @@ jobs:
             - name: Start
               run: |
                   ssh -i ./ssh-key app@${{ secrets.STAGING_HOST }} "\
-                  cd dm3 && docker compose down && docker compose --env-file .env up -d"
+                  cd dm3 && docker compose --env-file .env up -d"
