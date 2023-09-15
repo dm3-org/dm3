@@ -63,7 +63,7 @@ abstract class Node {
     public setLeafs(leafs: Leaf[]) {
         this.leafs = leafs;
     }
-
+    public abstract add(envelop: Envelop): Promise<void>;
     public hasSpace(newLeaf: Leaf) {
         const newLeafs = JSON.stringify([...this.leafs, newLeaf]);
         return Buffer.byteLength(newLeafs, 'utf-8') < this.sizeLimit;
@@ -73,18 +73,28 @@ abstract class Node {
         const encrypted = await this.enc.encrypt(this.serialize());
         await this.db.addNode(this.key, encrypted);
     }
+    protected async load() {
+        const serializedEnvelops = await this.db.getNode(this.key);
+        if (!serializedEnvelops) {
+            //Shold not happen in because the chunk is always created before
+            throw 'Chunk does not exist yet';
+        }
+        return await Node.deserialize(this.enc, serializedEnvelops);
+    }
 
     protected serialize() {
         return JSON.stringify(this.leafs);
     }
 
-    static async deserialize(enc: IStorageEncryption, serialized: string) {
+    protected static async deserialize(
+        enc: IStorageEncryption,
+        serialized: string,
+    ) {
         //Decrypt the serialized node
         const decrypted = await enc.decrypt(serialized);
         //Parse the decrypted node
         return JSON.parse(decrypted);
     }
-    public abstract add(envelop: Envelop): Promise<void>;
 }
 
 class Root extends Node {
@@ -127,28 +137,33 @@ class Root extends Node {
     }
 
     public async add(envelop: Envelop) {
-        let conversation = this.getLeafs<Conversation>().find(
+        const conversation = this.getLeafs<Conversation>().find(
             (c) =>
                 c.key ===
                 Conversation.computeKey(this.key, envelop.message.metadata.to),
         );
-        //Conversation does not exist yet
-        if (!conversation) {
-            //Conversation name is the recipient
-            const conversationName = envelop.message.metadata.to;
-            //Add new conversation to the storage
-            conversation = await Conversation.createAndSafe(
-                this.db,
-                this.enc,
-                Conversation.computeKey(this.key, conversationName),
-                [],
-            );
-            //Add the conversation to the root
-            this.addLeaf(conversation);
-            //Add the conversation name to the conversation list
-            this.conversationNames.push(conversationName);
-        }
-        return await conversation.add(envelop);
+        //If the conversation exists add the message to the conversation.
+        //Otherwise create a new conversation and add the message
+        return conversation
+            ? await conversation.add(envelop)
+            : await this.createNewConversationAndAddMessage(envelop);
+    }
+
+    private async createNewConversationAndAddMessage(envelop: Envelop) {
+        //Conversation name is the recipient
+        const conversationName = envelop.message.metadata.to;
+        //Add new conversation to the storage
+        const newConversation = await Conversation.createAndSafe(
+            this.db,
+            this.enc,
+            Conversation.computeKey(this.key, conversationName),
+            [],
+        );
+        //Add the conversation to the root
+        this.addLeaf(newConversation);
+        //Add the conversation name to the conversation list
+        this.conversationNames.push(conversationName);
+        await newConversation.add(envelop);
     }
 }
 
@@ -172,60 +187,15 @@ class Conversation extends Node {
         return JSON.stringify(mapped);
     }
 
-    protected async parse(serialized: any): Promise<Node> {
-        const decrypted = await this.enc.decrypt(serialized);
-        const parsed = JSON.parse(decrypted);
-        const chunks = await Promise.all(
-            parsed.map(async (c: any) => {
-                const chunk = await this.db.getNode(c.id);
-                return this.parse(chunk);
-            }),
-        );
-        return new Conversation(this.db, this.enc, this.key, chunks);
-    }
-
     public static computeKey(rootKey: string, to: string) {
         return sha256(rootKey + to);
     }
 
     public async add(message: Envelop) {
-        //Fetch conversatin chunks to get the last lists of chunks
-        const serializedChunks = await this.db.getNode(this.key);
-        if (!serializedChunks) {
-            //Shold not happen in because a conversation is always created before
-            throw 'Conversation does not exist yet';
-        }
-        // deserialize the encrypted chunks
-        const chunkIdentifier = await Chunk.deserialize(
-            this.enc,
-            serializedChunks,
-        );
-        //map the chunk identifier to chunk instances
-        const chunkInstances = chunkIdentifier.map(
-            (chunk: any) => new Chunk(this.db, this.enc, chunk.id, []),
-        );
-
-        //update the conversation with the latest list of chunks
-        this.setLeafs(chunkInstances);
-
+        const conversationIsEmpty = this.getLeafs<Node>().length === 0;
         // the first chunk has to be created
-        if (this.getLeafs<Node>().length === 0) {
-            //Create the first chunk
-            const emptyChunIdentifer: ChunkIdentifier = {
-                //0 is the first index
-                id: 0,
-                //the timestamp of the first message
-                timestamp: message.message.metadata.timestamp,
-            };
-            const chunk = await Chunk.createAndSafe(
-                this.db,
-                this.enc,
-                Chunk.computeKey(this.key, emptyChunIdentifer),
-            );
-            //Add the chunk to the conversation
-            this.addLeaf(chunk);
-            await chunk.add(message);
-            await this.save();
+        if (conversationIsEmpty) {
+            await this.createNewChunkAndAddMessage(message);
             return;
         }
 
@@ -234,12 +204,28 @@ class Conversation extends Node {
         //Fetch all envelops of the chunk to determine if the chunk is full
         await latestChunk.fetch();
 
-        if (latestChunk.hasSpace(message)) {
+        //Check if the chunk is full if the message would be added
+        const chunkIsFull = !latestChunk.hasSpace(message);
+        //If the chunk is full create a new chunk
+        if (chunkIsFull) {
             //Add the message to the chunk
-            await latestChunk.add(message);
+            await this.createNewChunkAndAddMessage(message);
             return;
         }
+        //If the chunk is not full add the message to the chunk
+        await latestChunk.add(message);
+    }
+    public async fetch() {
+        const chunkIdentifier = await this.load();
+        //map the chunk identifier to chunk instances
+        const chunkInstances = chunkIdentifier.map(
+            (chunk: any) => new Chunk(this.db, this.enc, chunk.id, []),
+        );
 
+        //update the conversation with the latest list of chunks
+        this.setLeafs(chunkInstances);
+    }
+    private async createNewChunkAndAddMessage(message: Envelop) {
         //If the chunk is full create a new chunk
         const emptyChunkIdentifer: ChunkIdentifier = {
             //the id is the number of chunks
@@ -257,7 +243,7 @@ class Conversation extends Node {
         this.addLeaf(emptyChunk);
         //finally the chunk that'll contain the message has been created and sits at the end of the list
         await emptyChunk.add(message);
-        await await this.save();
+        await this.save();
     }
 }
 
@@ -279,14 +265,7 @@ class Chunk extends Node {
     }
 
     public async fetch() {
-        const serializedEnvelops = await this.db.getNode(this.key);
-        if (!serializedEnvelops) {
-            //Shold not happen in because the chunk is always created before
-            throw 'Chunk does not exist yet';
-        }
-        // deserialize the encrypted chunks
-        const envelops = await Node.deserialize(this.enc, serializedEnvelops);
-
+        const envelops = await this.load();
         //update the conversation with the latest list of chunks
         this.setLeafs(envelops);
     }
