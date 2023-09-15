@@ -17,7 +17,7 @@ export const MessageStorage = async (
     enc: IStorageEncryption,
     rootKey: string,
 ) => {
-    const root = await Root.createAndSafe(db, enc, rootKey);
+    const root = await Root.createAndSafe(db, enc, rootKey, DEFAULT_SIZE_LIMIT);
 
     const addMessage = (envelop: Envelop) => root.add(envelop);
     const getConversations = () => root.conversationNames;
@@ -58,15 +58,15 @@ abstract class Node {
     public readonly db: IStorageDatabase;
     public readonly enc: IStorageEncryption;
 
-    private readonly sizeLimit: number;
+    public readonly sizeLimit: number;
     private leafs: Leaf[];
 
     protected constructor(
         db: IStorageDatabase,
         enc: IStorageEncryption,
+        sizeLimit: number,
         key: string,
         children: Node[] | Envelop[],
-        sizeLimit = DEFAULT_SIZE_LIMIT,
     ) {
         this.key = key;
         this.db = db;
@@ -84,6 +84,7 @@ abstract class Node {
         this.leafs = leafs;
     }
     public abstract add(envelop: Envelop): Promise<void>;
+
     public hasSpace(newLeaf: Leaf) {
         const newLeafs = JSON.stringify([...this.leafs, newLeaf]);
         return Buffer.byteLength(newLeafs, 'utf-8') < this.sizeLimit;
@@ -123,11 +124,12 @@ class Root extends Node {
     private constructor(
         db: IStorageDatabase,
         enc: IStorageEncryption,
+        sizeLimit: number,
         key: string,
         children: Node[],
         conversationNames: string[] = [],
     ) {
-        super(db, enc, key, children);
+        super(db, enc, sizeLimit, key, children);
         this.conversationNames = conversationNames;
     }
 
@@ -135,12 +137,13 @@ class Root extends Node {
         db: IStorageDatabase,
         enc: IStorageEncryption,
         rootKey: string,
+        sizeLimit: number,
     ) {
         //Get the serialized and encrypted root node from the database (that is the conversation list)
         const serialized = await db.getNode(rootKey);
         // If the root does not exist now we're creating a new instance and return it
         if (!serialized) {
-            const instance = new Root(db, enc, rootKey, [], []);
+            const instance = new Root(db, enc, sizeLimit, rootKey, [], []);
             //Safe the newly created instance to the database
             await instance.save();
             return instance;
@@ -153,6 +156,7 @@ class Root extends Node {
                 new Conversation(
                     db,
                     enc,
+                    sizeLimit,
                     Conversation.computeKey(rootKey, ensName),
                     [],
                 ),
@@ -161,6 +165,7 @@ class Root extends Node {
         return new Root(
             db,
             enc,
+            sizeLimit,
             rootKey,
             conversationInstances,
             conversationNames,
@@ -191,6 +196,7 @@ class Root extends Node {
         const newConversation = await Conversation.createAndSafe(
             this.db,
             this.enc,
+            this.sizeLimit,
             Conversation.computeKey(this.key, conversationName),
             [],
         );
@@ -207,10 +213,11 @@ class Conversation extends Node {
     public static async createAndSafe(
         db: IStorageDatabase,
         enc: IStorageEncryption,
+        sizeLimit: number,
         key: string,
         children: Node[] | Envelop[],
     ) {
-        const instance = new Conversation(db, enc, key, children);
+        const instance = new Conversation(db, enc, sizeLimit, key, children);
         await instance.save();
         return instance;
     }
@@ -255,7 +262,8 @@ class Conversation extends Node {
         const chunkIdentifier = await this.load();
         //map the chunk identifier to chunk instances
         const chunkInstances = chunkIdentifier.map(
-            (chunk: any) => new Chunk(this.db, this.enc, chunk.id, []),
+            (chunk: any) =>
+                new Chunk(this.db, this.enc, this.sizeLimit, chunk.id, []),
         );
 
         //update the conversation with the latest list of chunks
@@ -273,6 +281,7 @@ class Conversation extends Node {
         const emptyChunk = await Chunk.createAndSafe(
             this.db,
             this.enc,
+            this.sizeLimit,
             Chunk.computeKey(this.key, emptyChunkIdentifer),
         );
         //Add the chunk to the conversation
@@ -287,9 +296,10 @@ class Chunk extends Node {
     public static async createAndSafe(
         db: IStorageDatabase,
         enc: IStorageEncryption,
+        sizeLimit: number,
         key: string,
     ) {
-        const instance = new Chunk(db, enc, key, []);
+        const instance = new Chunk(db, enc, sizeLimit, key, []);
         await instance.save();
         return instance;
     }
