@@ -12954,6 +12954,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"emoji-mart@npm:^5.5.2":
+  version: 5.5.2
+  resolution: "emoji-mart@npm:5.5.2"
+  checksum: a9d8db731443581baebafbcb8494086e9d02b1475ddee9901fc657a7e8f08c14594a810605a3abe8d52627b75f5d78ea19adf3166fb0f38cea174694f86635f9
+  languageName: node
+  linkType: hard
+
 "emoji-regex@npm:^8.0.0":
   version: 8.0.0
   resolution: "emoji-regex@npm:8.0.0"
@@ -21058,6 +21065,7 @@ __metadata:
     dm3-lib-profile: "workspace:^"
     dm3-lib-shared: "workspace:^"
     dm3-lib-storage: "workspace:^"
+    emoji-mart: ^5.5.2
     esbuild: ^0.14.44
     ethereum-blockies-base64: ^1.0.2
     ethers: 5.7.2

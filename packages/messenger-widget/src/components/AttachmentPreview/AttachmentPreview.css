@@ -1,0 +1,9 @@
+.file-preview-selected {
+    height: 1.25rem;
+    width: 1.25rem;
+}
+
+.unselect-file {
+    height: auto;
+    width: 1.2rem;
+}
