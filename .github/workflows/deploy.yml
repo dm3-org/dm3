@@ -57,15 +57,14 @@ jobs:
             - name: Prepare docker
               run: |
                   ssh -i ./ssh-key app@${{ secrets.STAGING_HOST }} "\
-                  cd dm3 && docker compose down"
+                  cd dm3 && docker compose down && docker system prune -af"
                   ssh -i ./ssh-key root@${{ secrets.STAGING_HOST }} "\
-                  docker system prune -af; \
                   systemctl restart docker.service"
             - name: Load docker image
               run: |
                   ssh -i ./ssh-key app@${{ secrets.STAGING_HOST }} "\
                   cd dm3 && docker load -i dm3-backend.tar; \
-                  rm dm3-backend.tar"
+                  rm dm3-backend.tar || true"
             - name: Firewall config
               run: |
                   ssh -i ./ssh-key root@${{ secrets.STAGING_HOST }} "\

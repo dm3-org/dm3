@@ -305,11 +305,12 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 return res.status(400).send();
             }
 
-            const profileContainer =
-                await req.app.locals.db.getProfileContainerByAddress(address);
+            const alias = await req.app.locals.db.getProfileAliasByAddress(
+                address,
+            );
 
-            return profileContainer
-                ? res.status(200).send({ name: profileContainer.ensName })
+            return alias
+                ? res.status(200).send({ name: alias })
                 : res.status(404).send();
         },
     );
