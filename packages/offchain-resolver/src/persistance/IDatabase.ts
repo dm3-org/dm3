@@ -2,6 +2,7 @@ import { SignedUserProfile } from 'dm3-lib-profile';
 import { ProfileContainer } from './profile/getProfileContainer';
 
 export interface IDatabase {
+    getProfileAliasByAddress(address: string): Promise<string | null>;
     getProfileContainerByAddress(
         address: string,
     ): Promise<ProfileContainer | null>;
