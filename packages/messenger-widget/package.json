@@ -19,6 +19,7 @@
         "dm3-lib-profile": "workspace:^",
         "dm3-lib-shared": "workspace:^",
         "dm3-lib-storage": "workspace:^",
+        "emoji-mart": "^5.5.2",
         "ethereum-blockies-base64": "^1.0.2",
         "ethers": "5.7.2",
         "file-loader": "^6.2.0",
