@@ -9,3 +9,4 @@ export { removeUserProfile } from './removeUserProfile';
 export { setAlias } from './setAlias';
 export { getProfileContainerForAlias } from './getProfileContainerForAlias';
 export { setUserProfile } from './setUserProfile';
+export { getProfileAliasByAddress } from './getProfileAliasByAddress';

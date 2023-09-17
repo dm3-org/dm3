@@ -647,6 +647,7 @@ async function connectOffchainAccount(connection: Connection, address: string) {
          * if so we can use that account
          * Otherwise we use the addr_ens_subdomain
          */
+
         const ensName =
             (await getNameForAddress(address, connection.defaultServiceUrl)) ??
             getAliasForAddress(address);
