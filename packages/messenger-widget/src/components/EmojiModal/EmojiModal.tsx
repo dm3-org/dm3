@@ -19,7 +19,7 @@ import {
     getDependencies,
     sendMessage,
 } from '../../utils/common-utils';
-import { hideMsgActionDropdown } from '../MessageInput/bl';
+import { hideMsgActionDropdown } from '../MessageInputBox/bl';
 
 export function EmojiModal(props: EmojiProps) {
     const emojiRef: any = useRef();

@@ -36,7 +36,9 @@ export const openErrorModal = (
 
     if (!action) {
         btn.onclick = function () {
-            clearStorageAndReload();
+            // on successful if condition, close the modal else clear local storage & reload the page
+            if (method) closeErrorModal();
+            else clearStorageAndReload();
         };
     } else {
         btn.onclick = async function () {

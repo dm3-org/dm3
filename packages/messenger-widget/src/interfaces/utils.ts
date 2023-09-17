@@ -29,3 +29,10 @@ export interface NewContact {
     ensName: string | undefined;
     processed: boolean;
 }
+
+export interface Attachment {
+    id: string;
+    data: string;
+    name: string;
+    isImage: boolean;
+}

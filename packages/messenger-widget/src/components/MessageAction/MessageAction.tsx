@@ -17,7 +17,7 @@ import {
     sendMessage,
 } from '../../utils/common-utils';
 import { SendDependencies, createReactionMessage } from 'dm3-lib-messaging';
-import { hideMsgActionDropdown } from '../MessageInput/bl';
+import { hideMsgActionDropdown } from '../MessageInputBox/bl';
 
 export function MessageAction(props: MessageProps) {
     const { state, dispatch } = useContext(GlobalContext);

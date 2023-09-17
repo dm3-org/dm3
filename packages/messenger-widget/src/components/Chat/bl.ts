@@ -110,6 +110,7 @@ const handleMessageContainer = (
             const data = messagesMap.get(
                 container.envelop.message.metadata.referenceMessageHash,
             );
+            // This has to be modified, because reactions can be done on attachments also
             if (data && data.msgDetails.message) {
                 reactionToIndex = data.index;
                 if (container.envelop.message.message) {
@@ -130,6 +131,8 @@ const handleMessageContainer = (
                 envelop: container.envelop,
                 replyToMsg: replyToEnvelop?.envelop.message.message,
                 replyToMsgFrom: replyToEnvelop?.envelop.message.metadata.from,
+                replyToMsgId:
+                    replyToEnvelop?.envelop.metadata?.encryptedMessageHash,
                 reactions: [],
             };
             if (
@@ -249,6 +252,10 @@ export const handleMessages = async (
                 },
             }),
         );
+    }
+
+    if (!isMessageListInitialized) {
+        scrollToBottomOfChat();
     }
 
     closeLoader();

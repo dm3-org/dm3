@@ -5,7 +5,7 @@ import { globalConfig, log } from 'dm3-lib-shared';
 import { MessageProps } from '../../interfaces/props';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
-import { MessageInput } from '../MessageInput/MessageInput';
+import { MessageInputBox } from '../MessageInputBox/MessageInputBox';
 import ConfigProfileAlertBox from '../ContactProfileAlertBox/ContactProfileAlertBox';
 import {
     checkUserProfileConfigured,
@@ -120,7 +120,7 @@ export function Chat() {
                 </div>
 
                 {/* Message, emoji and file attachments */}
-                <MessageInput />
+                <MessageInputBox />
             </div>
         </div>
     );

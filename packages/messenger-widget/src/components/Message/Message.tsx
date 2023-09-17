@@ -90,8 +90,16 @@ export function Message(props: MessageProps) {
         }
     };
 
+    function scrollToMessage(replyFromMessageId: string) {
+        const element = document.getElementById(
+            replyFromMessageId,
+        ) as HTMLElement;
+        element && element.scrollIntoView();
+    }
+
     return (
         <span
+            id={props.envelop.metadata?.encryptedMessageHash}
             className={'text-primary-color d-grid msg'.concat(
                 ' ',
                 props.ownMessage
@@ -130,7 +138,14 @@ export function Message(props: MessageProps) {
                         props.replyToMsgFrom &&
                         props.envelop.message.metadata.type ===
                             MessageActionType.REPLY && (
-                            <div className="reply-preview d-flex border-radius-4 normal-btn-inactive ">
+                            <div
+                                className="reply-preview d-flex border-radius-4 normal-btn-inactive pointer-cursor"
+                                onClick={() =>
+                                    scrollToMessage(
+                                        props.replyToMsgId as string,
+                                    )
+                                }
+                            >
                                 <div className="user-name">
                                     {props.replyToMsgFrom.length > 25
                                         ? props.replyToMsgFrom
