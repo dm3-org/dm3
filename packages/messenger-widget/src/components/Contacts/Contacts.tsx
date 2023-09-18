@@ -22,9 +22,6 @@ import {
 } from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
 import loader from '../../assets/images/loader.svg';
-import { fetchAndStoreMessages } from '../../adapters/messages';
-import { UserDB } from 'dm3-lib-storage';
-import { Contact } from '../../interfaces/context';
 
 export function Contacts(props: DashboardProps) {
     // fetches context api data
@@ -69,33 +66,6 @@ export function Contacts(props: DashboardProps) {
             startLoader();
             props.getContacts(state, dispatch, props.dm3Props.config);
             setContactList(state, dispatch, setListOfContacts);
-
-            // loads the messages of all contacts initially
-            if (state.accounts.contacts) {
-                const contactData = state.accounts.contacts
-                    ? (state.accounts.contacts as Contact[])
-                    : [];
-                fetchAndStoreMessages(
-                    state.connection,
-                    state.auth.currentSession?.token!,
-                    contactData[0].account.ensName,
-                    state.userDb as UserDB,
-                    (envelops) => {
-                        envelops.forEach((envelop) =>
-                            dispatch({
-                                type: UserDbType.addMessage,
-                                payload: {
-                                    container: envelop,
-                                    connection: state.connection,
-                                },
-                            }),
-                        );
-                    },
-                    contactData
-                        ? contactData.map((contact) => contact.account)
-                        : [],
-                );
-            }
         }
     }, [state.auth?.currentSession?.token, state.connection.socket]);
 

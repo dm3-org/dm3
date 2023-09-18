@@ -4,6 +4,7 @@ import replyIcon from '../../assets/images/reply.svg';
 import { MessageProps } from '../../interfaces/props';
 import deleteIcon from '../../assets/images/chat-delete.svg';
 import threeDotsIcon from '../../assets/images/three-dots.svg';
+import saveIcon from '../../assets/images/save.svg';
 import { GlobalContext } from '../../utils/context-utils';
 import { useContext } from 'react';
 import {
@@ -107,15 +108,19 @@ export function MessageAction(props: MessageProps) {
         });
     };
 
+    const saveAttachments = () => {
+        // download all the attachments in the message
+    };
+
     return (
         <div
             id="msg-dropdown"
-            className={'msg-dropdown-content font-size-14 font-weight-400'.concat(
+            className={'msg-dropdown-content font-size-12 font-weight-400'.concat(
                 ' ',
                 props.ownMessage ? 'own-msg' : '',
             )}
         >
-            {props.ownMessage && (
+            {props.ownMessage && props.message && (
                 <>
                     <div
                         className="d-flex align-items-center justify-content-start"
@@ -154,9 +159,11 @@ export function MessageAction(props: MessageProps) {
                     />
                 </div>
             )}
+
             {!props.ownMessage && (
                 <hr className="line-separator msg-react-separator" />
             )}
+
             <div
                 className="d-flex align-items-center justify-content-start"
                 onClick={() => setAction(MessageActionType.REPLY)}
@@ -164,6 +171,17 @@ export function MessageAction(props: MessageProps) {
                 <img src={replyIcon} alt="delete" className="me-2" />
                 Reply
             </div>
+
+            {props.envelop.message.attachments &&
+                props.envelop.message.attachments.length > 0 && (
+                    <div
+                        className="d-flex align-items-center justify-content-start"
+                        onClick={() => saveAttachments()}
+                    >
+                        <img src={saveIcon} alt="save" className="me-2" />
+                        Save attachments
+                    </div>
+                )}
         </div>
     );
 }

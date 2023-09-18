@@ -45,6 +45,7 @@ export function Chat() {
 
     // handles messages list
     useEffect(() => {
+        setIsProfileConfigured(true);
         checkUserProfileConfigured(
             state,
             state.accounts.selectedContact?.account.ensName as string,
