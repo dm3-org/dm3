@@ -14,7 +14,6 @@ import {
     UserDbType,
 } from '../../utils/enum-type-utils';
 import { StorageEnvelopContainer, UserDB } from 'dm3-lib-storage';
-import { fetchAndStoreMessages } from '../../adapters/messages';
 import { MessageProps } from '../../interfaces/props';
 import { closeLoader, startLoader } from '../Loader/Loader';
 
@@ -170,33 +169,11 @@ export const handleMessages = async (
     isMessageListInitialized: boolean,
     updateIsMessageListInitialized: Function,
 ) => {
-    if (!isMessageListInitialized && state.accounts.selectedContact) {
-        dispatch({
-            type: ModalStateType.LoaderContent,
-            payload: 'Fetching messages',
-        });
-        startLoader();
-        await fetchAndStoreMessages(
-            state.connection,
-            state.auth.currentSession?.token!,
-            state.accounts.selectedContact.account.ensName,
-            state.userDb as UserDB,
-            (envelops) => {
-                envelops.forEach((envelop) =>
-                    dispatch({
-                        type: UserDbType.addMessage,
-                        payload: {
-                            container: envelop,
-                            connection: state.connection,
-                        },
-                    }),
-                );
-            },
-            state.accounts.contacts
-                ? state.accounts.contacts.map((contact) => contact.account)
-                : [],
-        );
-    }
+    dispatch({
+        type: ModalStateType.LoaderContent,
+        payload: 'Fetching messages',
+    });
+    startLoader();
 
     const checkedContainers = containers.filter((container) => {
         if (!state.accounts.selectedContact) {
@@ -259,5 +236,6 @@ export const handleMessages = async (
     }
 
     closeLoader();
-    updateIsMessageListInitialized(true);
+
+    !isMessageListInitialized && updateIsMessageListInitialized(true);
 };
