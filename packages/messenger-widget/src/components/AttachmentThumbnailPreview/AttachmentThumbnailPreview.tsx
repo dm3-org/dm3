@@ -2,11 +2,20 @@ import './AttachmentThumbnailPreview.css';
 import attachmentIcon from '../../assets/images/attachment.svg';
 import { AttachmentPreviewProps } from '../../interfaces/props';
 import { Attachment } from '../../interfaces/utils';
+import { useState } from 'react';
+import { ImageViewModal } from '../ImageViewModal/ImageViewModal';
 
 export function AttachmentThumbnailPreview(props: AttachmentPreviewProps) {
+    // popup to show image
+    const [imageUri, setImageUri] = useState<string | null>(null);
+
+    function setImageToShow(uri: string) {
+        setImageUri(uri);
+    }
+
     function showImagePreview(item: Attachment) {
         if (item.isImage) {
-            // open popup modal
+            setImageUri(item.data);
         }
     }
 
@@ -19,6 +28,11 @@ export function AttachmentThumbnailPreview(props: AttachmentPreviewProps) {
                     : 'justify-content-start',
             )}
         >
+            {/* Show image modal */}
+            {imageUri && (
+                <ImageViewModal setUri={setImageToShow} uri={imageUri} />
+            )}
+
             {props.filesSelected.length == 1 &&
             props.filesSelected[0].isImage ? (
                 // if only one attachment is present and it's a image

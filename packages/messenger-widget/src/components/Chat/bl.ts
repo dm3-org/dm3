@@ -261,9 +261,8 @@ export const handleMessages = async (
 
     if (!isMessageListInitialized) {
         scrollToBottomOfChat();
+        updateIsMessageListInitialized(true);
     }
 
     closeLoader();
-
-    !isMessageListInitialized && updateIsMessageListInitialized(true);
 };

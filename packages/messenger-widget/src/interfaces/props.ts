@@ -69,3 +69,8 @@ export interface AttachmentPreviewProps {
     filesSelected: Attachment[];
     isMyMessage: boolean;
 }
+
+export interface ImageModal {
+    uri: string;
+    setUri: Function;
+}
