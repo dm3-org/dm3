@@ -61,7 +61,6 @@ export function Message(props: MessageProps) {
                     : 'ms-2 justify-content-start',
             )}
         >
-
             {/* delete message popup */}
             {state.uiView.selectedMessageView.actionType ===
                 MessageActionType.DELETE && <DeleteMessage />}
