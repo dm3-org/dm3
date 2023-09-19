@@ -23,6 +23,7 @@ export const MessageStorage = async (
     const addMessage = (envelop: Envelop) => root.add(envelop);
     const getConversations = () => root.conversationNames;
     const getMessages = async (conversationName: string, page: number) => {
+        //First get the corosponding conversation
         const conversation = root
             .getLeafs<Conversation>()
             .find(
@@ -30,16 +31,21 @@ export const MessageStorage = async (
                     c.key ===
                     Conversation.computeKey(rootKey, conversationName),
             );
+        //If the conversation does not exist return an empty array
         if (!conversation) {
             return [];
         }
+        //Fetch the conversation nodes from the database
         await conversation.fetch();
+        //Get the chunks of the conversation
         const chunks = conversation.getLeafs<Chunk>();
         const chunk = chunks[page];
         if (!chunk) {
             return [];
         }
+        //Fetch the chunk nodes from the database to get the actual messages
         await chunk.fetch();
+        //Return the messages
         return chunk.getLeafs<Envelop>();
     };
 
@@ -87,27 +93,51 @@ abstract class Node {
     public abstract add(envelop: Envelop): Promise<void>;
 
     public hasSpace(newLeaf: Leaf) {
+        //newLeafs is the structure that is about to get stored in the database
+        //it has to be smaller than the size limit. Otherwise the chunk would be too big
         const newLeafs = JSON.stringify([...this.leafs, newLeaf]);
         return Buffer.byteLength(newLeafs, 'utf-8') < this.sizeLimit;
     }
 
     protected async save() {
+        //encrypt the serialized node using the provided encryption function
         const encrypted = await this.enc.encrypt(this.serialize());
+        //save the encrypted node to the database
         await this.db.addNode(this.key, encrypted);
     }
+    /**
+     * Asynchronously loads and deserializes a node from the database.
+     *
+     * @throws {string} Throws an error if the node does not exist in the database.
+     * @returns {Promise<Node>} A Promise that resolves to the deserialized node.
+     */
     protected async load() {
-        const serializedEnvelops = await this.db.getNode(this.key);
-        if (!serializedEnvelops) {
+        //Get the serialized and encrypted node from the database
+        const serializedNode = await this.db.getNode(this.key);
+        if (!serializedNode) {
             //Shold not happen in because the chunk is always created before
-            throw 'Chunk does not exist yet';
+            throw 'Node does not exist yet';
         }
-        return await Node.deserialize(this.enc, serializedEnvelops);
+        //Decrypt the serialized node
+        return await Node.deserialize(this.enc, serializedNode);
     }
 
+    /**
+     * Serializes the node to a string representation.
+     *
+     * @returns {string} The serialized representation of the object.
+     */
     protected serialize() {
+        //default serialization is JSON.stringify the leafs
         return JSON.stringify(this.leafs);
     }
-
+    /**
+     * Deserializes a string representation into an Node object.
+     *
+     * @param {IStorageEncryption} enc - The encryption service to use for decryption.
+     * @param {string} serialized - The string representation to deserialize.
+     * @returns {Promise<any>} A Promise that resolves to the deserialized object.
+     */
     protected static async deserialize(
         enc: IStorageEncryption,
         serialized: string,
