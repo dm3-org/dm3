@@ -504,6 +504,368 @@ describe('MessageStorage', () => {
     });
     describe('Api', () => {
         describe('getConversations', () => {
+            describe('from exisitng root', () => {
+                it('can retrive messages', async () => {
+                    const keyB = '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJU=';
+
+                    const db = testDb();
+                    const rootKey = sha256('alice.eth');
+
+                    const enc = {
+                        //encrypt: (val: any) => val,
+                        encrypt: (val: any) => encrypt(keyB, val),
+                        //decrypt: (val: any) => val,
+                        decrypt: (val: any) => decrypt(keyB, val),
+                    };
+                    const storage = await MessageStorage(
+                        {
+                            getNode: db.getNode,
+                            addNode: db.addNode,
+                        },
+                        enc,
+                        rootKey,
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello1', 123),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello2', 124),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello3', 125),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello4', 126),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello5', 127),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello6', 128),
+                    );
+                    const readStorage = await MessageStorage(
+                        {
+                            getNode: db.getNode,
+                            addNode: db.addNode,
+                        },
+                        enc,
+                        rootKey,
+                    );
+                    const conversations = readStorage.getConversations();
+                    expect(conversations).toEqual(['bob.eth', 'vitalik.eth']);
+
+                    const messages = await readStorage.getMessages(
+                        'bob.eth',
+                        0,
+                    );
+                    expect(messages.length).toBe(3);
+                    expect(messages[0]).toEqual(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello1', 123),
+                    );
+                    expect(messages[1]).toEqual(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello4', 126),
+                    );
+                    expect(messages[2]).toEqual(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello6', 128),
+                    );
+
+                    const messages2 = await storage.getMessages(
+                        'vitalik.eth',
+                        0,
+                    );
+                    expect(messages2.length).toBe(3);
+                    expect(messages2[0]).toEqual(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello2', 124),
+                    );
+                    expect(messages2[1]).toEqual(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello3', 125),
+                    );
+                    expect(messages2[2]).toEqual(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello5', 127),
+                    );
+                });
+                it('can paginate messages', async () => {
+                    const keyB = '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJU=';
+
+                    const db = testDb();
+                    const rootKey = sha256('alice.eth');
+
+                    const enc = {
+                        //encrypt: (val: any) => val,
+                        encrypt: (val: any) => encrypt(keyB, val),
+                        //decrypt: (val: any) => val,
+                        decrypt: (val: any) => decrypt(keyB, val),
+                    };
+                    const storage = await MessageStorage(
+                        {
+                            getNode: db.getNode,
+                            addNode: db.addNode,
+                        },
+                        enc,
+                        rootKey,
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello1', 123),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello2', 124),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello3', 125),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello4', 126),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello5', 127),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello6', 128),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello7', 129),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello8', 130),
+                    );
+
+                    const readStorage = await MessageStorage(
+                        {
+                            getNode: db.getNode,
+                            addNode: db.addNode,
+                        },
+                        enc,
+                        rootKey,
+                    );
+
+                    const conversations = readStorage.getConversations();
+                    expect(conversations).toEqual(['bob.eth', 'vitalik.eth']);
+
+                    const bobMessagesPage0 = await readStorage.getMessages(
+                        'bob.eth',
+                        0,
+                    );
+                    expect(bobMessagesPage0.length).toBe(3);
+                    expect(bobMessagesPage0[0]).toEqual(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello1', 123),
+                    );
+                    expect(bobMessagesPage0[1]).toEqual(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello4', 126),
+                    );
+                    expect(bobMessagesPage0[2]).toEqual(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello6', 128),
+                    );
+                    const bobMessagesPage1 = await readStorage.getMessages(
+                        'bob.eth',
+                        1,
+                    );
+                    expect(bobMessagesPage1[0]).toEqual(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello7', 129),
+                    );
+                    expect(bobMessagesPage1[1]).toEqual(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello8', 130),
+                    );
+
+                    const vitaliksMessages = await readStorage.getMessages(
+                        'vitalik.eth',
+                        0,
+                    );
+                    expect(vitaliksMessages.length).toBe(3);
+                    expect(vitaliksMessages[0]).toEqual(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello2', 124),
+                    );
+                    expect(vitaliksMessages[1]).toEqual(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello3', 125),
+                    );
+                    expect(vitaliksMessages[2]).toEqual(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello5', 127),
+                    );
+                });
+                it('returns empty array if all messages have been fetched ', async () => {
+                    const keyB = '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJU=';
+
+                    const db = testDb();
+                    const rootKey = sha256('alice.eth');
+
+                    const enc = {
+                        //encrypt: (val: any) => val,
+                        encrypt: (val: any) => encrypt(keyB, val),
+                        //decrypt: (val: any) => val,
+                        decrypt: (val: any) => decrypt(keyB, val),
+                    };
+                    const storage = await MessageStorage(
+                        {
+                            getNode: db.getNode,
+                            addNode: db.addNode,
+                        },
+                        enc,
+                        rootKey,
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello1', 123),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello2', 124),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello3', 125),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello4', 126),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello5', 127),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello6', 128),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello7', 129),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello8', 130),
+                    );
+
+                    const readStorage = await MessageStorage(
+                        {
+                            getNode: db.getNode,
+                            addNode: db.addNode,
+                        },
+                        enc,
+                        rootKey,
+                    );
+
+                    const conversations = readStorage.getConversations();
+                    expect(conversations).toEqual(['bob.eth', 'vitalik.eth']);
+
+                    const bobMessagesPage0 = await readStorage.getMessages(
+                        'bob.eth',
+                        0,
+                    );
+                    expect(bobMessagesPage0.length).toBe(3);
+                    expect(bobMessagesPage0[0]).toEqual(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello1', 123),
+                    );
+                    expect(bobMessagesPage0[1]).toEqual(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello4', 126),
+                    );
+                    expect(bobMessagesPage0[2]).toEqual(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello6', 128),
+                    );
+                    const bobMessagesPage1 = await readStorage.getMessages(
+                        'bob.eth',
+                        1,
+                    );
+                    expect(bobMessagesPage1[0]).toEqual(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello7', 129),
+                    );
+                    expect(bobMessagesPage1[1]).toEqual(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello8', 130),
+                    );
+
+                    const bobMessagesPage2 = await readStorage.getMessages(
+                        'bob.eth',
+                        2,
+                    );
+                    expect(bobMessagesPage2).toEqual([]);
+                });
+                it('can use different size limit ', async () => {
+                    const keyB = '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJU=';
+
+                    const db = testDb();
+                    const rootKey = sha256('alice.eth');
+
+                    const enc = {
+                        //encrypt: (val: any) => val,
+                        encrypt: (val: any) => encrypt(keyB, val),
+                        //decrypt: (val: any) => val,
+                        decrypt: (val: any) => decrypt(keyB, val),
+                    };
+                    const storage = await MessageStorage(
+                        {
+                            getNode: db.getNode,
+                            addNode: db.addNode,
+                        },
+                        enc,
+                        rootKey,
+                        1000000,
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello1', 123),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello2', 124),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello3', 125),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello4', 126),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello5', 127),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello6', 128),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello7', 129),
+                    );
+                    await storage.addMessage(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello8', 130),
+                    );
+
+                    const readStorage = await MessageStorage(
+                        {
+                            getNode: db.getNode,
+                            addNode: db.addNode,
+                        },
+                        enc,
+                        rootKey,
+                        1000000,
+                    );
+
+                    const conversations = readStorage.getConversations();
+                    expect(conversations).toEqual(['bob.eth', 'vitalik.eth']);
+
+                    const bobMessagesPage0 = await readStorage.getMessages(
+                        'bob.eth',
+                        0,
+                    );
+                    expect(bobMessagesPage0.length).toBe(5);
+                    expect(bobMessagesPage0[0]).toEqual(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello1', 123),
+                    );
+                    expect(bobMessagesPage0[1]).toEqual(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello4', 126),
+                    );
+                    expect(bobMessagesPage0[2]).toEqual(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello6', 128),
+                    );
+
+                    expect(bobMessagesPage0[3]).toEqual(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello7', 129),
+                    );
+                    expect(bobMessagesPage0[4]).toEqual(
+                        makeEnvelop('alice.eth', 'bob.eth', 'hello8', 130),
+                    );
+
+                    const vitaliksMessages = await readStorage.getMessages(
+                        'vitalik.eth',
+                        0,
+                    );
+                    expect(vitaliksMessages.length).toBe(3);
+                    expect(vitaliksMessages[0]).toEqual(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello2', 124),
+                    );
+                    expect(vitaliksMessages[1]).toEqual(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello3', 125),
+                    );
+                    expect(vitaliksMessages[2]).toEqual(
+                        makeEnvelop('alice.eth', 'vitalik.eth', 'hello5', 127),
+                    );
+                });
+            });
             it("returns empty array if there's no conversations", async () => {
                 const keyB = '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJU=';
 
@@ -560,7 +922,7 @@ describe('MessageStorage', () => {
                 expect(await storage.getMessages('random.eth', 0)).toEqual([]);
             });
 
-            it('can retrive messages from new root', async () => {
+            it('can retrive messages', async () => {
                 const keyB = '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJU=';
 
                 const db = testDb();
@@ -625,167 +987,7 @@ describe('MessageStorage', () => {
                     makeEnvelop('alice.eth', 'vitalik.eth', 'hello5', 127),
                 );
             });
-            it('can retrive messages from existing root', async () => {
-                const keyB = '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJU=';
 
-                const db = testDb();
-                const rootKey = sha256('alice.eth');
-
-                const enc = {
-                    //encrypt: (val: any) => val,
-                    encrypt: (val: any) => encrypt(keyB, val),
-                    //decrypt: (val: any) => val,
-                    decrypt: (val: any) => decrypt(keyB, val),
-                };
-                const storage = await MessageStorage(
-                    {
-                        getNode: db.getNode,
-                        addNode: db.addNode,
-                    },
-                    enc,
-                    rootKey,
-                );
-                await storage.addMessage(
-                    makeEnvelop('alice.eth', 'bob.eth', 'hello1', 123),
-                );
-                await storage.addMessage(
-                    makeEnvelop('alice.eth', 'vitalik.eth', 'hello2', 124),
-                );
-                await storage.addMessage(
-                    makeEnvelop('alice.eth', 'vitalik.eth', 'hello3', 125),
-                );
-                await storage.addMessage(
-                    makeEnvelop('alice.eth', 'bob.eth', 'hello4', 126),
-                );
-                await storage.addMessage(
-                    makeEnvelop('alice.eth', 'vitalik.eth', 'hello5', 127),
-                );
-                await storage.addMessage(
-                    makeEnvelop('alice.eth', 'bob.eth', 'hello6', 128),
-                );
-                const readStorage = await MessageStorage(
-                    {
-                        getNode: db.getNode,
-                        addNode: db.addNode,
-                    },
-                    enc,
-                    rootKey,
-                );
-                const conversations = readStorage.getConversations();
-                expect(conversations).toEqual(['bob.eth', 'vitalik.eth']);
-
-                const messages = await readStorage.getMessages('bob.eth', 0);
-                expect(messages.length).toBe(3);
-                expect(messages[0]).toEqual(
-                    makeEnvelop('alice.eth', 'bob.eth', 'hello1', 123),
-                );
-                expect(messages[1]).toEqual(
-                    makeEnvelop('alice.eth', 'bob.eth', 'hello4', 126),
-                );
-                expect(messages[2]).toEqual(
-                    makeEnvelop('alice.eth', 'bob.eth', 'hello6', 128),
-                );
-
-                const messages2 = await storage.getMessages('vitalik.eth', 0);
-                expect(messages2.length).toBe(3);
-                expect(messages2[0]).toEqual(
-                    makeEnvelop('alice.eth', 'vitalik.eth', 'hello2', 124),
-                );
-                expect(messages2[1]).toEqual(
-                    makeEnvelop('alice.eth', 'vitalik.eth', 'hello3', 125),
-                );
-                expect(messages2[2]).toEqual(
-                    makeEnvelop('alice.eth', 'vitalik.eth', 'hello5', 127),
-                );
-            });
-            it('can paginate messages ', async () => {
-                const keyB = '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJU=';
-
-                const db = testDb();
-                const rootKey = sha256('alice.eth');
-
-                const enc = {
-                    //encrypt: (val: any) => val,
-                    encrypt: (val: any) => encrypt(keyB, val),
-                    //decrypt: (val: any) => val,
-                    decrypt: (val: any) => decrypt(keyB, val),
-                };
-                const storage = await MessageStorage(
-                    {
-                        getNode: db.getNode,
-                        addNode: db.addNode,
-                    },
-                    enc,
-                    rootKey,
-                );
-                await storage.addMessage(
-                    makeEnvelop('alice.eth', 'bob.eth', 'hello1', 123),
-                );
-                await storage.addMessage(
-                    makeEnvelop('alice.eth', 'vitalik.eth', 'hello2', 124),
-                );
-                await storage.addMessage(
-                    makeEnvelop('alice.eth', 'vitalik.eth', 'hello3', 125),
-                );
-                await storage.addMessage(
-                    makeEnvelop('alice.eth', 'bob.eth', 'hello4', 126),
-                );
-                await storage.addMessage(
-                    makeEnvelop('alice.eth', 'vitalik.eth', 'hello5', 127),
-                );
-                await storage.addMessage(
-                    makeEnvelop('alice.eth', 'bob.eth', 'hello6', 128),
-                );
-                await storage.addMessage(
-                    makeEnvelop('alice.eth', 'bob.eth', 'hello7', 129),
-                );
-                await storage.addMessage(
-                    makeEnvelop('alice.eth', 'bob.eth', 'hello8', 130),
-                );
-
-                const conversations = storage.getConversations();
-                expect(conversations).toEqual(['bob.eth', 'vitalik.eth']);
-
-                const bobMessagesPage0 = await storage.getMessages(
-                    'bob.eth',
-                    0,
-                );
-                expect(bobMessagesPage0.length).toBe(3);
-                expect(bobMessagesPage0[0]).toEqual(
-                    makeEnvelop('alice.eth', 'bob.eth', 'hello1', 123),
-                );
-                expect(bobMessagesPage0[1]).toEqual(
-                    makeEnvelop('alice.eth', 'bob.eth', 'hello4', 126),
-                );
-                expect(bobMessagesPage0[2]).toEqual(
-                    makeEnvelop('alice.eth', 'bob.eth', 'hello6', 128),
-                );
-                const bobMessagesPage1 = await storage.getMessages(
-                    'bob.eth',
-                    1,
-                );
-                expect(bobMessagesPage1[0]).toEqual(
-                    makeEnvelop('alice.eth', 'bob.eth', 'hello7', 129),
-                );
-                expect(bobMessagesPage1[1]).toEqual(
-                    makeEnvelop('alice.eth', 'bob.eth', 'hello8', 130),
-                );
-
-                const vitaliksMessages = await storage.getMessages(
-                    'vitalik.eth',
-                    0,
-                );
-                expect(vitaliksMessages.length).toBe(3);
-                expect(vitaliksMessages[0]).toEqual(
-                    makeEnvelop('alice.eth', 'vitalik.eth', 'hello2', 124),
-                );
-                expect(vitaliksMessages[1]).toEqual(
-                    makeEnvelop('alice.eth', 'vitalik.eth', 'hello3', 125),
-                );
-                expect(vitaliksMessages[2]).toEqual(
-                    makeEnvelop('alice.eth', 'vitalik.eth', 'hello5', 127),
-                );
-            });
             it('returns empty array if all messages have been fetched ', async () => {
                 const keyB = '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJU=';
 
