@@ -6,6 +6,8 @@ import {
 } from '../deliveryServiceProfile/Delivery';
 import { SignedUserProfile } from '../types';
 import axios from 'axios';
+import { sign } from 'dm3-lib-crypto';
+import { stringify } from 'dm3-lib-shared';
 
 export type StoreLsp = (lsp: LimitedScopeProfile) => Promise<void>;
 
@@ -100,6 +102,29 @@ export async function createLsp(
     return newHotWallet;
 }
 
+export async function linkLsp(
+    web3Provider: ethers.providers.JsonRpcProvider,
+    deliveryServiceUrl: string,
+    deliveryServiceToken: string,
+    ownerAddr: string,
+    lspAddr: string,
+    lspProfileKeys: ProfileKeys,
+) {
+    const msg = await createLinkMessage(
+        ownerAddr,
+        lspAddr,
+        'TBD add message payload',
+        lspProfileKeys.signingKeyPair.privateKey,
+    );
+    const { encryptedEnvelop: envelop, sendDependencies } = await createEnvelop(
+        msg,
+        web3Provider,
+        lspProfileKeys,
+        (url: string) => axios.get(url),
+    );
+    await submitMessage(deliveryServiceUrl, envelop, deliveryServiceToken);
+}
+
 const RANDOM_HOTWALLET_KEY = 'DM3-Limited-Scope-Key';
 
 export const getLocalStorageIdentifier = (address: string, appId: string) => {
@@ -136,4 +161,31 @@ export async function claimAddress(
 
     const { status } = await axios.post(url, data);
     return status === 200;
+}
+
+async function createLinkMessage(
+    to: string,
+    from: string,
+    message: string,
+    privateKey: string,
+): Promise<any> {
+    const messgeWithoutSig = {
+        message,
+        attachments: [],
+        metadata: {
+            type: 'LINK',
+            to,
+            from,
+            timestamp: new Date().getTime(),
+        },
+    };
+    return {
+        ...messgeWithoutSig,
+        signature: await sign(privateKey, stringify(messgeWithoutSig)),
+    };
+}
+
+function submitMessage(url: string, envelop: EncryptionEnvelop, token: string) {
+    const req = createJsonRpcCallSubmitMessage(envelop, token);
+    return axios.post(`/rpc`, req, { baseURL: url });
 }
