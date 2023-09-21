@@ -13,7 +13,9 @@ import {
     UiViewStateType,
 } from '../../utils/enum-type-utils';
 import {
+    createNameForFile,
     getDependencies,
+    getFileTypeFromBase64,
     getHaltDelivery,
     sendMessage,
 } from '../../utils/common-utils';
@@ -108,8 +110,20 @@ export function MessageAction(props: MessageProps) {
         });
     };
 
+    // download all the attachments in the message
     const saveAttachments = () => {
-        // download all the attachments in the message
+        hideMsgActionDropdown();
+        if (props.envelop.message.attachments) {
+            const link = document.createElement('a');
+            props.envelop.message.attachments.forEach((base64, index) => {
+                link.href = base64;
+                link.download = createNameForFile(
+                    index,
+                    getFileTypeFromBase64(base64),
+                );
+                link.click();
+            });
+        }
     };
 
     return (
@@ -164,13 +178,15 @@ export function MessageAction(props: MessageProps) {
                 <hr className="line-separator msg-react-separator" />
             )}
 
-            <div
-                className="d-flex align-items-center justify-content-start"
-                onClick={() => setAction(MessageActionType.REPLY)}
-            >
-                <img src={replyIcon} alt="delete" className="me-2" />
-                Reply
-            </div>
+            {props.message && (
+                <div
+                    className="d-flex align-items-center justify-content-start"
+                    onClick={() => setAction(MessageActionType.REPLY)}
+                >
+                    <img src={replyIcon} alt="delete" className="me-2" />
+                    Reply
+                </div>
+            )}
 
             {props.envelop.message.attachments &&
                 props.envelop.message.attachments.length > 0 && (

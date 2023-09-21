@@ -176,7 +176,7 @@ export const handleMessages = async (
     if (!isMessageListInitialized && state.accounts.selectedContact) {
         dispatch({
             type: ModalStateType.LoaderContent,
-            payload: 'Fetching messages',
+            payload: 'Fetching messages...',
         });
 
         startLoader();

@@ -5,6 +5,21 @@ import { StorageEnvelopContainer } from 'dm3-lib-storage';
 import { submitMessage } from '../adapters/messages';
 import { GlobalState, Actions, UserDbType } from './enum-type-utils';
 
+// returns the file extension by extracting from base64
+export const getFileTypeFromBase64 = (file: string): string => {
+    return file.substring(file.indexOf('/') + 1, file.indexOf(';base64'));
+};
+
+// returns a temporary string as id
+export const generateRandomStringForId = (): string => {
+    return Math.random().toString(36).substring(2, 12);
+};
+
+// returns a temporary string as id
+export const createNameForFile = (index: number, fileType: string): string => {
+    return `file${index}`.concat('.', fileType.toLowerCase());
+};
+
 // method to open the error modal
 export const openErrorModal = (
     message: string,

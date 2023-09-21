@@ -13,7 +13,10 @@ import {
     ModalStateType,
 } from '../../utils/enum-type-utils';
 import {
+    createNameForFile,
+    generateRandomStringForId,
     getDependencies,
+    getFileTypeFromBase64,
     getHaltDelivery,
     sendMessage,
 } from '../../utils/common-utils';
@@ -25,13 +28,10 @@ export const setFilesData = async (
     let data: Attachment[] = [];
     let fileType;
     files.forEach((file, index) => {
-        fileType = file.substring(
-            file.indexOf('/') + 1,
-            file.indexOf(';base64'),
-        );
+        fileType = getFileTypeFromBase64(file);
         data.push({
-            id: Math.random().toString(36).substring(2, 12),
-            name: `file${index}`.concat('.', fileType),
+            id: generateRandomStringForId(),
+            name: createNameForFile(index, fileType),
             data: file,
             isImage: isFileAImage(fileType),
         });
