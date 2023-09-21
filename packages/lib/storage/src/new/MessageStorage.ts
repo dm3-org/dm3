@@ -1,17 +1,58 @@
 import { Envelop } from 'dm3-lib-messaging';
 import { sha256 } from 'dm3-lib-shared';
-
+/**
+ * Interface for a storage database module.
+ */
 export interface IStorageDatabase {
+    /**
+     * Adds a key-value pair to the database asynchronously.
+     *
+     * @param key - The key to use for storing the value.
+     * @param value - The value to store in the database.
+     * @returns A promise that resolves when the operation is complete.
+     */
     addNode: (key: string, value: any) => Promise<void>;
+    /**
+     * Retrieves the value associated with the provided key from the database asynchronously.
+     *
+     * @param key - The key to use for retrieving the value.
+     * @returns A promise that resolves to the value associated with the key or `undefined` if the key is not found.
+     */
     getNode: (key: string) => Promise<string | undefined>;
 }
 
+/**
+ * Interface for a storage encryption module.
+ */
 export interface IStorageEncryption {
+    /**
+     * Encrypts the provided data asynchronously.
+     *
+     * @param data - The data to encrypt.
+     * @returns A promise that resolves to the encrypted data.
+     */
     encrypt: (string: any) => Promise<any>;
+    /**
+     * Decrypts the provided encrypted data asynchronously.
+     *
+     * @param encryptedData - The encrypted data to decrypt.
+     * @returns A promise that resolves to the decrypted data.
+     */
+
     decrypt: (string: any) => Promise<any>;
 }
 
-//The Sturct used in the frontend to store the messages
+/**
+ * A utility for storing and managing messages using a hierarchical storage structure.
+ * According to the DM3 message storage specification
+ * https://dm3.readthedocs.io/en/doc-latest/specification/message-storage/msp-datastructure.html#architecture
+ *
+ * @param db - The storage database to use. @see {IStorageDatabase}
+ * @param enc - The storage encryption module to use. @see {IStorageEncryption}
+ * @param rootKey - The root key for the message storage.
+ * @param sizeLimit - (Optional) The size limit for the message storage.
+ * @returns An object containing functions for adding messages, retrieving conversations, and retrieving messages.
+ */
 export const MessageStorage = async (
     db: IStorageDatabase,
     enc: IStorageEncryption,
@@ -73,7 +114,7 @@ abstract class Node {
         enc: IStorageEncryption,
         sizeLimit: number,
         key: string,
-        children: Node[] | Envelop[],
+        children: Leaf[],
     ) {
         this.key = key;
         this.db = db;
@@ -81,6 +122,8 @@ abstract class Node {
         this.leafs = children;
         this.sizeLimit = sizeLimit;
     }
+    public abstract add(envelop: Envelop): Promise<void>;
+
     public getLeafs<T extends Leaf>() {
         return this.leafs as T[];
     }
@@ -90,7 +133,6 @@ abstract class Node {
     public setLeafs(leafs: Leaf[]) {
         this.leafs = leafs;
     }
-    public abstract add(envelop: Envelop): Promise<void>;
 
     public hasSpace(newLeaf: Leaf) {
         //newLeafs is the structure that is about to get stored in the database
@@ -217,6 +259,7 @@ class Root extends Node {
     }
 
     protected override serialize() {
+        //Default serialization is JSON.stringify the leafs
         return JSON.stringify(this.conversationNames);
     }
 
@@ -253,6 +296,7 @@ class Conversation extends Node {
         return instance;
     }
     protected override serialize() {
+        //Conversations are serialited according the the spec
         const mapped = this.getLeafs<Node>().map((c) => ({
             id: c.key,
             timestamp: c.getLeafs<Envelop>()[0].message.metadata.timestamp,
