@@ -141,7 +141,6 @@ export const removeAliasFromDm3Name = async (
     setError: Function,
 ) => {
     try {
-
         dispatch({
             type: ModalStateType.LoaderContent,
             payload: 'Removing alias...',
@@ -167,10 +166,7 @@ export const removeAliasFromDm3Name = async (
 
         setContactHeightToMaximum(true);
     } catch (e) {
-        setError(
-            'Failed to remove alias',
-            e,
-        );
+        setError('Failed to remove alias', e);
     }
 
     closeLoader();
