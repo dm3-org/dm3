@@ -57,7 +57,7 @@ jobs:
             - name: Prepare docker
               run: |
                   ssh -i ./ssh-key app@${{ secrets.STAGING_HOST }} "\
-                  cd dm3 && docker compose down && docker system prune -af"
+                  cd dm3 && docker compose down && docker system prune --volumes -af"
                   ssh -i ./ssh-key root@${{ secrets.STAGING_HOST }} "\
                   systemctl restart docker.service"
             - name: Load docker image

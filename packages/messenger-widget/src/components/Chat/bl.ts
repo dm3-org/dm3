@@ -28,7 +28,11 @@ export async function checkSignature(
 ): Promise<boolean> {
     const sigCheck = await _checkSignature(
         publicSigningKey,
-        stringify(message)!,
+        stringify({
+            message: message.message,
+            metadata: message.metadata,
+            attachments: message.attachments,
+        })!,
         signature,
     );
 
