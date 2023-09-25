@@ -1,15 +1,49 @@
-import { ethers } from 'ethers';
-import { ProfileKeys, createProfile, normalizeEnsName } from '../Profile';
 import {
+    ProfileKeys,
+    createProfile,
     getDeliveryServiceClient,
     getDeliveryServiceProfile,
-} from '../deliveryServiceProfile/Delivery';
-import { SignedUserProfile } from '../types';
+    normalizeEnsName,
+} from 'dm3-lib-profile';
+import { ethers } from 'ethers';
+
 import axios from 'axios';
 import { sign } from 'dm3-lib-crypto';
+import { SignedUserProfile } from 'dm3-lib-profile';
 import { stringify } from 'dm3-lib-shared';
 
+import {
+    EncryptionEnvelop,
+    createEnvelop,
+    createJsonRpcCallSubmitMessage,
+} from 'dm3-lib-messaging';
+
 export type StoreLsp = (lsp: LimitedScopeProfile) => Promise<void>;
+
+export async function createLspFromAccount(
+    web3Provider: ethers.providers.JsonRpcProvider,
+    storeLsp: StoreLsp,
+    offchainResolverUrl: string,
+    deliveryServiceEnsName: string,
+    appID: string,
+    siweMessage: string,
+    sig: string,
+    addr: string,
+    entropy: string,
+) {
+    const wallet = ethers.Wallet.createRandom({
+        extraEntropy: entropy,
+    });
+    return createLsp(
+        web3Provider,
+        storeLsp,
+        offchainResolverUrl,
+        deliveryServiceEnsName,
+        wallet,
+        addr,
+        appID,
+    );
+}
 
 export function createLspFromRandomWallet(
     web3Provider: ethers.providers.JsonRpcProvider,
@@ -28,6 +62,7 @@ export function createLspFromRandomWallet(
         offchainResolverUrl,
         deliveryServiceEnsName,
         wallet,
+        wallet.address,
         appID,
     );
 }
@@ -44,7 +79,8 @@ export async function createLsp(
     storeLsp: StoreLsp,
     offchainResolverUrl: string,
     deliveryServiceEnsName: string,
-    wallet: ethers.Wallet,
+    lspWallet: ethers.Wallet,
+    ownerAddress: string,
     appID: string,
 ) {
     const deliverServiceProfile = await getDeliveryServiceProfile(
@@ -61,20 +97,27 @@ export async function createLsp(
     }
 
     const profile = await createProfile(
-        wallet.address,
+        ownerAddress,
         [deliveryServiceEnsName],
         //provider is not used when a signer is used for signing
         undefined!,
         {
-            signer: (msg: string) => wallet.signMessage(msg),
+            signer: (msg: string) => lspWallet.signMessage(msg),
         },
     );
     const { keys, signedProfile } = profile;
 
     //Before we can claim a subdomain we've to claim an address first
-    await claimAddress(wallet.address, offchainResolverUrl, signedProfile);
+    await claimAddress(lspWallet.address, offchainResolverUrl, signedProfile);
+    //TBD figure out how to claim subdomain
+    /*    claimSubdomain(
+        signedProfile,
+        clientProps.siweMessage,
+        clientProps.siweSig,
+        wallet.address,
+    ); */
 
-    const ensName = `${wallet.address}.${appID}.dm3.eth`;
+    const ensName = `lsp.${ownerAddress}.${appID}.dm3.eth`;
 
     //Finally we've to submmit the profile to the deliveryService
     const token = await submitUserProfile(
@@ -139,13 +182,13 @@ async function submitUserProfile(
 ) {
     const url = `${baseUrl}/profile/${normalizeEnsName(ensName)}`;
 
-    const { data } = await getDeliveryServiceClient(
+    const result = await getDeliveryServiceClient(
         signedUserProfile.profile,
         web3Provider,
         async (url: string) => (await axios.get(url)).data,
     ).post(url, signedUserProfile);
 
-    return data;
+    return result.data;
 }
 
 export async function claimAddress(
@@ -157,6 +200,24 @@ export async function claimAddress(
     const data = {
         signedUserProfile,
         address,
+    };
+
+    const { status } = await axios.post(url, data);
+    return status === 200;
+}
+async function claimSubdomain(
+    offchainResolverUrl: string,
+    signedUserProfile: SignedUserProfile,
+    siweMessage: string,
+    siweSig: string,
+    hotAddr: string,
+): Promise<boolean> {
+    const url = `${offchainResolverUrl}/profile/nameP`;
+    const data = {
+        signedUserProfile,
+        siweMessage,
+        siweSig,
+        hotAddr,
     };
 
     const { status } = await axios.post(url, data);

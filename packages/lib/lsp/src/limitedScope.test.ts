@@ -1,10 +1,10 @@
 import { ethers } from 'ethers';
 
 import { createLsp } from './index';
-import { mockDeliveryServiceProfile } from '../../../../billboard-client/test/helper/mockDeliveryServiceProfile';
+import { mockDeliveryServiceProfile } from '../../../billboard-client/test/helper/mockDeliveryServiceProfile';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { normalizeEnsName } from '../Profile';
+import { normalizeEnsName } from 'dm3-lib-profile';
 
 describe('LimitedScopeProfile', () => {
     let ds1: any;
@@ -21,7 +21,7 @@ describe('LimitedScopeProfile', () => {
 
             axiosMock
                 .onPost(
-                    `${deliveryServiceUrl}/profile/${normalizeEnsName(
+                    `${deliveryServiceUrl}/profile/lsp.${normalizeEnsName(
                         wallet.address,
                     )}.gashawk.dm3.eth`,
                 )
@@ -52,11 +52,12 @@ describe('LimitedScopeProfile', () => {
                 offchainResolverUrl,
                 deliveryServiceEnsName,
                 wallet,
+                wallet.address,
                 'gashawk',
             );
 
             expect(lsp).toEqual({
-                ensName: `${wallet.address}.gashawk.dm3.eth`,
+                ensName: `lsp.${wallet.address}.gashawk.dm3.eth`,
                 keys: {
                     encryptionKeyPair: expect.anything(),
                     signingKeyPair: expect.anything(),
