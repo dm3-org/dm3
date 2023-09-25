@@ -57,6 +57,10 @@ export const setTheme = (theme: string | undefined | null) => {
         themeDetails.disabledBtnText,
     );
     document.body.style.setProperty('--error-text', themeDetails.textError);
+    document.body.style.setProperty(
+        '--attachment-background',
+        themeDetails.attachmentBackground,
+    );
 };
 
 // Method to get all css style class based on theme selected

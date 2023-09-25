@@ -64,3 +64,13 @@ export interface MessageDataProps {
     setFiles: Function;
     setMessageText: Function;
 }
+
+export interface AttachmentPreviewProps {
+    filesSelected: Attachment[];
+    isMyMessage: boolean;
+}
+
+export interface ImageModal {
+    uri: string;
+    setUri: Function;
+}

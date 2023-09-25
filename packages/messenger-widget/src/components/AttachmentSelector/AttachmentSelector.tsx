@@ -3,6 +3,7 @@ import fileIcon from '../../assets/images/file.svg';
 import { Attachment } from '../../interfaces/utils';
 import { isFileAImage } from '../MessageInputBox/bl';
 import { AttachmentProps } from '../../interfaces/props';
+import { generateRandomStringForId } from '../../utils/common-utils';
 
 export function AttachmentSelector(props: AttachmentProps) {
     // method to open system default file chooser
@@ -38,7 +39,7 @@ export function AttachmentSelector(props: AttachmentProps) {
                 const files = Array.from(filesData);
                 for (const file of files) {
                     fileList.push({
-                        id: Math.random().toString(36).substring(2, 12),
+                        id: generateRandomStringForId(),
                         name: file.name,
                         data: (await convertFileToURI(file)) as string,
                         isImage: isFileAImage(getFileType(file)),

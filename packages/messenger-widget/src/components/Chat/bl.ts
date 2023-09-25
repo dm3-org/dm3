@@ -14,9 +14,10 @@ import {
     UserDbType,
 } from '../../utils/enum-type-utils';
 import { StorageEnvelopContainer, UserDB } from 'dm3-lib-storage';
-import { fetchAndStoreMessages } from '../../adapters/messages';
 import { MessageProps } from '../../interfaces/props';
 import { closeLoader, startLoader } from '../Loader/Loader';
+import { Contact } from '../../interfaces/context';
+import { fetchAndStoreMessages } from '../../adapters/messages';
 
 // method to check message signature
 export async function checkSignature(
@@ -53,11 +54,9 @@ export const checkUserProfileConfigured = async (
             state.connection.provider!,
             ensName,
         );
-        setProfileCheck(
-            profileDetails && profileDetails.profile.publicEncryptionKey
-                ? true
-                : false,
-        );
+        if (!profileDetails || !profileDetails.profile.publicEncryptionKey) {
+            setProfileCheck(false);
+        }
     } catch (error) {
         setProfileCheck(false);
     }
@@ -110,8 +109,12 @@ const handleMessageContainer = (
             const data = messagesMap.get(
                 container.envelop.message.metadata.referenceMessageHash,
             );
-            // This has to be modified, because reactions can be done on attachments also
-            if (data && data.msgDetails.message) {
+            if (
+                data &&
+                (data.msgDetails.message ||
+                    (data.msgDetails.envelop.message.attachments &&
+                        data.msgDetails.envelop.message.attachments.length))
+            ) {
                 reactionToIndex = data.index;
                 if (container.envelop.message.message) {
                     msgList[reactionToIndex].reactions.push(container.envelop);
@@ -173,9 +176,11 @@ export const handleMessages = async (
     if (!isMessageListInitialized && state.accounts.selectedContact) {
         dispatch({
             type: ModalStateType.LoaderContent,
-            payload: 'Fetching messages',
+            payload: 'Fetching messages...',
         });
+
         startLoader();
+
         await fetchAndStoreMessages(
             state.connection,
             state.auth.currentSession?.token!,
@@ -256,8 +261,8 @@ export const handleMessages = async (
 
     if (!isMessageListInitialized) {
         scrollToBottomOfChat();
+        updateIsMessageListInitialized(true);
     }
 
     closeLoader();
-    updateIsMessageListInitialized(true);
 };

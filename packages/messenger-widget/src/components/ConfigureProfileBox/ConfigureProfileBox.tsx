@@ -23,7 +23,7 @@ export default function ConfigureProfileBox() {
 
     return showConfigBox ? (
         <div
-            className={'config-box-main position-absolute width-fill'.concat(
+            className={'config-box-main position-absolute width-fill background-container'.concat(
                 ' ',
                 state.accounts.selectedContact
                     ? 'highlight-right-border'

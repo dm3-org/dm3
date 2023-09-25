@@ -15,7 +15,11 @@ import { GlobalContext } from '../../utils/context-utils';
 import { DashboardProps } from '../../interfaces/props';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { globalConfig } from 'dm3-lib-shared';
-import { ModalStateType, RightViewSelected } from '../../utils/enum-type-utils';
+import {
+    ModalStateType,
+    RightViewSelected,
+    UserDbType,
+} from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
 import loader from '../../assets/images/loader.svg';
 
