@@ -62,3 +62,7 @@
 .error-text {
     color: var(--error-text);
 }
+
+.attachment-background {
+    background: var(--attachment-background);
+}

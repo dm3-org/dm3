@@ -1,30 +1,31 @@
 import './Message.css';
-import { useContext, useState } from 'react';
-import {
-    Envelop,
-    MessageState,
-    SendDependencies,
-    createDeleteRequestMessage,
-} from 'dm3-lib-messaging';
+import { useContext, useEffect, useState } from 'react';
+import { MessageState } from 'dm3-lib-messaging';
 import tickIcon from '../../assets/images/tick.svg';
 import { MessageProps } from '../../interfaces/props';
 import threeDotsIcon from '../../assets/images/three-dots.svg';
 import { MessageAction } from '../MessageAction/MessageAction';
 import { GlobalContext } from '../../utils/context-utils';
-import { MessageActionType, ModalStateType } from '../../utils/enum-type-utils';
+import { MessageActionType } from '../../utils/enum-type-utils';
 import DeleteMessage from '../DeleteMessage/DeleteMessage';
-import {
-    getDependencies,
-    getHaltDelivery,
-    sendMessage,
-} from '../../utils/common-utils';
 import { scrollToBottomOfChat } from '../Chat/bl';
+import { Attachment } from '../../interfaces/utils';
+import { AttachmentThumbnailPreview } from '../AttachmentThumbnailPreview/AttachmentThumbnailPreview';
+import {
+    deleteEmoji,
+    getMessageChangeText,
+    scrollToMessage,
+    setFilesData,
+} from './bl';
 
 export function Message(props: MessageProps) {
     const { state, dispatch } = useContext(GlobalContext);
 
     // state to show action items three dots
     const [isHovered, setIsHovered] = useState(false);
+
+    // attachments
+    const [attachments, setAttachments] = useState<Attachment[]>([]);
 
     const handleMouseOver = () => {
         setIsHovered(true);
@@ -37,65 +38,18 @@ export function Message(props: MessageProps) {
         setIsHovered(false);
     };
 
-    const getMessageChangeText = (): string => {
-        switch (props.envelop.message.metadata.type) {
-            case 'EDIT':
-                return '(edited) ';
-            case 'DELETE_REQUEST':
-                return '(deleted) ';
-            default:
-                return '';
-        }
-    };
-
-    const deleteEmoji = async (deleteEmojiData: Envelop) => {
-        if (!props.ownMessage) {
-            const userDb = state.userDb;
-
-            if (!userDb) {
-                throw Error('userDB not found');
-            }
-
-            if (!state.accounts.selectedContact) {
-                throw Error('no contact selected');
-            }
-
-            const messageHash = deleteEmojiData.metadata?.encryptedMessageHash;
-
-            // delete the message
-            const messageData = await createDeleteRequestMessage(
-                state.accounts.selectedContact?.account.ensName as string,
-                state.connection.account!.ensName,
-                userDb.keys.signingKeyPair.privateKey as string,
-                messageHash as string,
-            );
-
-            messageData.metadata.type = MessageActionType.REACT;
-
-            const haltDelivery = getHaltDelivery(state);
-            const sendDependencies: SendDependencies = getDependencies(state);
-
-            await sendMessage(
-                state,
-                sendDependencies,
-                messageData,
-                haltDelivery,
-                dispatch,
-            );
-
-            dispatch({
-                type: ModalStateType.LastMessageAction,
-                payload: MessageActionType.DELETE,
-            });
-        }
-    };
-
-    function scrollToMessage(replyFromMessageId: string) {
-        const element = document.getElementById(
-            replyFromMessageId,
-        ) as HTMLElement;
-        element && element.scrollIntoView();
+    function setAttachmentsData(data: Attachment[]) {
+        setAttachments(data);
     }
+
+    useEffect(() => {
+        if (
+            props.envelop.message.attachments &&
+            props.envelop.message.attachments.length
+        ) {
+            setFilesData(props.envelop.message.attachments, setAttachmentsData);
+        }
+    }, [props]);
 
     return (
         <span
@@ -158,14 +112,29 @@ export function Message(props: MessageProps) {
                                     .concat('...')}
                             </div>
                         )}
+
+                    {/* Attachments preview */}
+                    {attachments.length > 0 && (
+                        <AttachmentThumbnailPreview
+                            filesSelected={attachments}
+                            isMyMessage={props.ownMessage}
+                        />
+                    )}
+
                     {/* actual message */}
-                    {props.message ? props.message : 'This message was deleted'}
+                    {props.message
+                        ? props.message
+                        : attachments.length > 0
+                        ? ''
+                        : 'This message was deleted'}
                 </div>
                 {/* action item */}
                 <div
                     className={'msg-action-container d-flex pointer-cursor border-radius-3 position-relative'.concat(
                         ' ',
-                        !props.message ? 'hide-action' : '',
+                        !props.message && attachments.length === 0
+                            ? 'hide-action'
+                            : '',
                     )}
                     onMouseOver={handleMouseOver}
                     onMouseLeave={handleMouseOut}
@@ -194,7 +163,7 @@ export function Message(props: MessageProps) {
                 {/* Own message */}
                 {props.ownMessage && (
                     <div className="d-flex justify-content-end pt-1 ps-1 pe-1">
-                        {getMessageChangeText()}
+                        {getMessageChangeText(props)}
                         {new Date(Number(props.time)).toLocaleString()}
 
                         {/* readed message tick indicator */}
@@ -232,7 +201,12 @@ export function Message(props: MessageProps) {
                                         key={index}
                                         className="pointer-cursor"
                                         onClick={() => {
-                                            deleteEmoji(item);
+                                            deleteEmoji(
+                                                item,
+                                                props,
+                                                state,
+                                                dispatch,
+                                            );
                                         }}
                                     >
                                         {item.message.message}
@@ -246,7 +220,7 @@ export function Message(props: MessageProps) {
                 {/* Contact's message */}
                 {!props.ownMessage && (
                     <div className="d-flex justify-content-end pt-1 ps-1 pe-1">
-                        {getMessageChangeText()}
+                        {getMessageChangeText(props)}
                         {new Date(Number(props.time)).toLocaleString()}
                         {/* readed message tick indicator */}
                         <span className="tick-icon readed-tick-icon">

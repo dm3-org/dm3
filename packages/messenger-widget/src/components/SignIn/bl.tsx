@@ -444,11 +444,11 @@ export async function execSignIn(
         profileSignature: signature,
     };
 
-    const lol = createDB(profileKeys);
+    const db = createDB(profileKeys);
 
     return {
         connectionState: ConnectionState.SignedIn,
-        db: lol,
+        db: db,
         deliveryServiceToken,
         account,
     };

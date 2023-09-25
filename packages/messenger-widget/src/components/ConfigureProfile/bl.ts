@@ -5,7 +5,7 @@ import {
     GlobalState,
     ModalStateType,
 } from '../../utils/enum-type-utils';
-import { claimSubdomain } from 'dm3-lib-offchain-resolver-api';
+import { claimSubdomain, removeAlias } from 'dm3-lib-offchain-resolver-api';
 import { createAlias } from 'dm3-lib-delivery-api';
 import { Connection } from '../../interfaces/web3';
 import { globalConfig, ethersHelper, stringify } from 'dm3-lib-shared';
@@ -130,6 +130,45 @@ export const submitDm3UsernameClaim = async (
     }
 
     // stop loader
+    closeLoader();
+};
+
+// method to remove aliad
+export const removeAliasFromDm3Name = async (
+    state: GlobalState,
+    dm3UserEnsName: string,
+    dispatch: React.Dispatch<Actions>,
+    setError: Function,
+) => {
+    try {
+        dispatch({
+            type: ModalStateType.LoaderContent,
+            payload: 'Removing alias...',
+        });
+
+        startLoader();
+
+        const ensName = dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN();
+
+        await removeAlias(
+            dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN(),
+            process.env.REACT_APP_RESOLVER_BACKEND as string,
+            state.userDb!.keys.signingKeyPair.privateKey,
+        );
+
+        dispatch({
+            type: ConnectionType.ChangeAccount,
+            payload: {
+                ...state.connection.account!,
+                ensName: ensName,
+            },
+        });
+
+        setContactHeightToMaximum(true);
+    } catch (e) {
+        setError('Failed to remove alias', e);
+    }
+
     closeLoader();
 };
 
