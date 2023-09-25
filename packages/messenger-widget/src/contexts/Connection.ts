@@ -74,7 +74,7 @@ export function connectionReducer(
             if (state.storageToken === action.payload) {
                 return state;
             } else {
-                log(`[Connection] Set sorage token`, 'info');
+                log(`[Connection] Set storage token`, 'info');
                 return {
                     ...state,
                     storageToken: action.payload,
