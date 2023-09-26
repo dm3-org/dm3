@@ -77,6 +77,8 @@ export async function createLspFromRandomWallet(
 
 export interface LimitedScopeProfile {
     ensName: string;
+    privateKey: string;
+    nonce: string;
     keys: ProfileKeys;
     token: string;
     deliveryServiceUrl: string;
@@ -127,17 +129,18 @@ export async function createLsp(
             signer: (msg: string) => lspWallet.signMessage(msg),
         },
     );
-    const { keys, signedProfile } = profile;
+    const { keys, signedProfile, nonce } = profile;
 
     //Before we can claim a subdomain we've to claim an address first
     await claimAddress(lspWallet.address, offchainResolverUrl, signedProfile);
     //TBD figure out how to claim subdomain
-    /*    claimSubdomain(
+    await claimSubdomainForLsp(
+        offchainResolverUrl,
         signedProfile,
-        clientProps.siweMessage,
-        clientProps.siweSig,
-        wallet.address,
-    ); */
+        authMessage,
+        authSig,
+        lspWallet.address,
+    );
 
     const ensName = `lsp.${ownerAddress}.${appID}.dm3.eth`;
 
@@ -157,6 +160,8 @@ export async function createLsp(
     const newHotWallet: LimitedScopeProfile = {
         ensName,
         keys,
+        privateKey: lspWallet.privateKey,
+        nonce,
         token,
         deliveryServiceUrl: deliverServiceProfile.url,
     };
@@ -226,18 +231,18 @@ export async function claimAddress(
     const { status } = await axios.post(url, data);
     return status === 200;
 }
-async function claimSubdomain(
+async function claimSubdomainForLsp(
     offchainResolverUrl: string,
     signedUserProfile: SignedUserProfile,
-    siweMessage: string,
-    siweSig: string,
+    authMessage: string,
+    authSig: string,
     hotAddr: string,
 ): Promise<boolean> {
-    const url = `${offchainResolverUrl}/profile/nameP`;
+    const url = `${offchainResolverUrl}/profile/nameLsp`;
     const data = {
         signedUserProfile,
-        siweMessage,
-        siweSig,
+        authMessage,
+        authSig,
         hotAddr,
     };
 

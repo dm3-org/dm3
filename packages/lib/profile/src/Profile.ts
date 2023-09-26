@@ -190,7 +190,7 @@ export function isSameEnsName(
     );
 }
 
-async function createKeyPairsFromSig(
+export async function createKeyPairsFromSig(
     sign: (msg: string) => Promise<string>,
 
     nonce: string,
