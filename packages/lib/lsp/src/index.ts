@@ -23,30 +23,31 @@ export type StoreLsp = (lsp: LimitedScopeProfile) => Promise<void>;
 
 export const createLspMessage = (owner: string) => `creating LSP for ${owner}`;
 
-/* export async function createLspFromAccount(
+export async function createLspFromDappSig(
     web3Provider: ethers.providers.JsonRpcProvider,
     offchainResolverUrl: string,
     deliveryServiceEnsName: string,
     appID: string,
+    ownerAddress: string,
     authMessage: string,
     sig: string,
-    addr: string,
-    entropy: string,
+    entropy?: string,
 ) {
-    const wallet = ethers.Wallet.createRandom({
-        extraEntropy: entropy,
-    });
-    return createLsp(
+    const lsp = await createLsp(
         web3Provider,
         offchainResolverUrl,
         deliveryServiceEnsName,
-        wallet,
-        addr,
         appID,
+        authMessage,
+        ownerAddress,
+        sig,
+        entropy,
     );
-} */
 
-export async function createLspFromRandomWallet(
+    return { lsp };
+}
+
+export async function createLspFromWalletSig(
     web3Provider: ethers.providers.JsonRpcProvider,
     offchainResolverUrl: string,
     deliveryServiceEnsName: string,
@@ -54,9 +55,6 @@ export async function createLspFromRandomWallet(
     ownerAddress: string,
     entropy?: string,
 ) {
-    const lspWallet = ethers.Wallet.createRandom({
-        extraEntropy: entropy,
-    });
     const sig = await web3Provider.send('personal_sign', [
         createLspMessage(ownerAddress),
         ownerAddress,
@@ -67,12 +65,11 @@ export async function createLspFromRandomWallet(
         offchainResolverUrl,
         deliveryServiceEnsName,
         appID,
-        lspWallet,
         createLspMessage(ownerAddress),
         ownerAddress,
         sig,
     );
-    return { lsp, wallet: lspWallet };
+    return { lsp };
 }
 
 export interface LimitedScopeProfile {
@@ -89,11 +86,14 @@ export async function createLsp(
     offchainResolverUrl: string,
     deliveryServiceEnsName: string,
     appID: string,
-    lspWallet: ethers.Wallet,
     authMessage: string,
     ownerAddress: string,
     authSig: string,
+    entropy?: string,
 ) {
+    const lspWallet = ethers.Wallet.createRandom({
+        extraEntropy: entropy,
+    });
     //We've to ensure that the creating of the LSP is intended by the owner¸
     const sigIsValid = await ethersHelper.checkSignature(
         authMessage,

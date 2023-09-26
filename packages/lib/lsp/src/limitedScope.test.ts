@@ -3,12 +3,12 @@ import { ethers } from 'ethers';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { mockDeliveryServiceProfile } from '../../../billboard-client/test/helper/mockDeliveryServiceProfile';
-import { createLspFromRandomWallet } from './index';
+import { createLspFromDappSig, createLspFromWalletSig } from './index';
 import { createKeyPairsFromSig, createProfileKeys } from 'dm3-lib-profile';
 
 describe('LimitedScopeProfile', () => {
     let ds1: any;
-    describe('Defaut auth', () => {
+    describe('user auth', () => {
         it('creates new lsp for owner', async () => {
             const deliveryServiceUrl = 'http://ds.dm3.io';
             const offchainResolverUrl = 'http://resolver.dm3.io';
@@ -45,7 +45,7 @@ describe('LimitedScopeProfile', () => {
                 },
             } as unknown as ethers.providers.JsonRpcProvider;
 
-            const { lsp } = await createLspFromRandomWallet(
+            const { lsp } = await createLspFromWalletSig(
                 mockProvider,
                 offchainResolverUrl,
                 deliveryServiceEnsName,
@@ -103,7 +103,7 @@ describe('LimitedScopeProfile', () => {
                 },
             } as unknown as ethers.providers.JsonRpcProvider;
 
-            const { lsp } = await createLspFromRandomWallet(
+            const { lsp } = await createLspFromWalletSig(
                 mockProvider,
                 offchainResolverUrl,
                 deliveryServiceEnsName,
@@ -164,7 +164,7 @@ describe('LimitedScopeProfile', () => {
             } as unknown as ethers.providers.JsonRpcProvider;
 
             await expect(
-                createLspFromRandomWallet(
+                createLspFromWalletSig(
                     mockProvider,
                     offchainResolverUrl,
                     deliveryServiceEnsName,
@@ -210,7 +210,7 @@ describe('LimitedScopeProfile', () => {
             } as unknown as ethers.providers.JsonRpcProvider;
 
             await expect(
-                createLspFromRandomWallet(
+                createLspFromWalletSig(
                     mockProvider,
                     offchainResolverUrl,
                     deliveryServiceEnsName,
@@ -218,6 +218,71 @@ describe('LimitedScopeProfile', () => {
                     ownerWallet.address,
                 ),
             ).rejects.toThrow();
+        });
+    });
+    describe('dapp auth', () => {
+        it('creates new lsp from signature provided by dapp', async () => {
+            const deliveryServiceUrl = 'http://ds.dm3.io';
+            const offchainResolverUrl = 'http://resolver.dm3.io';
+            const deliveryServiceEnsName = 'ds1.dm3.eth';
+
+            const axiosMock = new MockAdapter(axios);
+
+            const ownerWallet = ethers.Wallet.createRandom();
+
+            axiosMock.onPost().reply(200, 'token');
+
+            axiosMock
+                .onPost(`${offchainResolverUrl}/profile/address`)
+                .reply(200);
+
+            ds1 = await mockDeliveryServiceProfile(
+                ethers.Wallet.createRandom(),
+                deliveryServiceUrl,
+            );
+
+            const mockProvider = {
+                send: (method: string, [msg, acc]: any[]) => {
+                    if (method === 'personal_sign') {
+                        return ownerWallet.signMessage(msg);
+                    }
+                    throw new Error('Method not implemented.');
+                },
+                getResolver: (ensName: string) => {
+                    return {
+                        getText: (record: string) => {
+                            return ds1.stringified;
+                        },
+                    } as unknown as ethers.providers.Resolver;
+                },
+            } as unknown as ethers.providers.JsonRpcProvider;
+
+            const dappAuthMessage = 'hello from dapp';
+            const dappAuthSig = await ownerWallet.signMessage(dappAuthMessage);
+
+            const { lsp } = await createLspFromDappSig(
+                mockProvider,
+                offchainResolverUrl,
+                deliveryServiceEnsName,
+                'gashawk',
+                ownerWallet.address,
+                dappAuthMessage,
+                dappAuthSig,
+            );
+
+            expect(lsp).toEqual({
+                ensName: `lsp.${ownerWallet.address}.gashawk.dm3.eth`,
+                keys: {
+                    encryptionKeyPair: expect.anything(),
+                    signingKeyPair: expect.anything(),
+                    storageEncryptionKey: expect.anything(),
+                    storageEncryptionNonce: expect.anything(),
+                },
+                nonce: expect.anything(),
+                privateKey: expect.anything(),
+                token: 'token',
+                deliveryServiceUrl: 'http://ds.dm3.io',
+            });
         });
     });
 });
