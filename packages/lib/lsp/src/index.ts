@@ -1,23 +1,20 @@
 import {
     ProfileKeys,
     createProfile,
-    getDeliveryServiceClient,
     getDeliveryServiceProfile,
-    normalizeEnsName,
 } from 'dm3-lib-profile';
 import { ethers } from 'ethers';
 
 import axios from 'axios';
 import { sign } from 'dm3-lib-crypto';
-import { SignedUserProfile } from 'dm3-lib-profile';
 import { stringify } from 'dm3-lib-shared';
 
-import {
-    EncryptionEnvelop,
-    createEnvelop,
-    createJsonRpcCallSubmitMessage,
-} from 'dm3-lib-messaging';
+import { createEnvelop } from 'dm3-lib-messaging';
 import { ethersHelper } from 'dm3-lib-shared';
+import { claimAddress } from './api/claimAddress';
+import { claimSubdomainForLsp } from './api/claimSubdomainForLsp';
+import { submitUserProfile } from './api/claimUserProfile';
+import { submitMessage } from './api/submitMessage';
 
 export type StoreLsp = (lsp: LimitedScopeProfile) => Promise<void>;
 
@@ -200,56 +197,6 @@ export const getLocalStorageIdentifier = (address: string, appId: string) => {
     return `${RANDOM_HOTWALLET_KEY}-${appId}-${address}`;
 };
 
-async function submitUserProfile(
-    web3Provider: ethers.providers.JsonRpcProvider,
-    baseUrl: string,
-    ensName: string,
-    signedUserProfile: SignedUserProfile,
-) {
-    const url = `${baseUrl}/profile/${normalizeEnsName(ensName)}`;
-
-    const result = await getDeliveryServiceClient(
-        signedUserProfile.profile,
-        web3Provider,
-        async (url: string) => (await axios.get(url)).data,
-    ).post(url, signedUserProfile);
-
-    return result.data;
-}
-
-export async function claimAddress(
-    address: string,
-    offchainResolverUrl: string,
-    signedUserProfile: SignedUserProfile,
-) {
-    const url = `${offchainResolverUrl}/profile/address`;
-    const data = {
-        signedUserProfile,
-        address,
-    };
-
-    const { status } = await axios.post(url, data);
-    return status === 200;
-}
-async function claimSubdomainForLsp(
-    offchainResolverUrl: string,
-    signedUserProfile: SignedUserProfile,
-    authMessage: string,
-    authSig: string,
-    hotAddr: string,
-): Promise<boolean> {
-    const url = `${offchainResolverUrl}/profile/nameLsp`;
-    const data = {
-        signedUserProfile,
-        authMessage,
-        authSig,
-        hotAddr,
-    };
-
-    const { status } = await axios.post(url, data);
-    return status === 200;
-}
-
 async function createLinkMessage(
     to: string,
     from: string,
@@ -270,9 +217,4 @@ async function createLinkMessage(
         ...messgeWithoutSig,
         signature: await sign(privateKey, stringify(messgeWithoutSig)),
     };
-}
-
-function submitMessage(url: string, envelop: EncryptionEnvelop, token: string) {
-    const req = createJsonRpcCallSubmitMessage(envelop, token);
-    return axios.post(`/rpc`, req, { baseURL: url });
 }
