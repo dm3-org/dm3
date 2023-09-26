@@ -1,31 +1,23 @@
 import { ethers } from 'ethers';
 
-import { createLsp } from './index';
-import { mockDeliveryServiceProfile } from '../../../billboard-client/test/helper/mockDeliveryServiceProfile';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { normalizeEnsName } from 'dm3-lib-profile';
+import { mockDeliveryServiceProfile } from '../../../billboard-client/test/helper/mockDeliveryServiceProfile';
+import { createLspFromRandomWallet } from './index';
 
 describe('LimitedScopeProfile', () => {
     let ds1: any;
-    describe('from random wallet', () => {
-        it('retuns a new profile', async () => {
+    describe('Defaut auth', () => {
+        it('creates new lsp for owner', async () => {
             const deliveryServiceUrl = 'http://ds.dm3.io';
             const offchainResolverUrl = 'http://resolver.dm3.io';
             const deliveryServiceEnsName = 'ds1.dm3.eth';
 
             const axiosMock = new MockAdapter(axios);
 
-            const mockSetItem = jest.fn();
-            const wallet = ethers.Wallet.createRandom();
+            const ownerWallet = ethers.Wallet.createRandom();
 
-            axiosMock
-                .onPost(
-                    `${deliveryServiceUrl}/profile/lsp.${normalizeEnsName(
-                        wallet.address,
-                    )}.gashawk.dm3.eth`,
-                )
-                .reply(200, 'token');
+            axiosMock.onPost().reply(200, 'token');
 
             axiosMock
                 .onPost(`${offchainResolverUrl}/profile/address`)
@@ -37,6 +29,12 @@ describe('LimitedScopeProfile', () => {
             );
 
             const mockProvider = {
+                send: (method: string, [msg, acc]: any[]) => {
+                    if (method === 'personal_sign') {
+                        return ownerWallet.signMessage(msg);
+                    }
+                    throw new Error('Method not implemented.');
+                },
                 getResolver: (ensName: string) => {
                     return {
                         getText: (record: string) => {
@@ -46,18 +44,16 @@ describe('LimitedScopeProfile', () => {
                 },
             } as unknown as ethers.providers.JsonRpcProvider;
 
-            const lsp = await createLsp(
+            const { lsp } = await createLspFromRandomWallet(
                 mockProvider,
-                mockSetItem,
                 offchainResolverUrl,
                 deliveryServiceEnsName,
-                wallet,
-                wallet.address,
                 'gashawk',
+                ownerWallet.address,
             );
 
             expect(lsp).toEqual({
-                ensName: `lsp.${wallet.address}.gashawk.dm3.eth`,
+                ensName: `lsp.${ownerWallet.address}.gashawk.dm3.eth`,
                 keys: {
                     encryptionKeyPair: expect.anything(),
                     signingKeyPair: expect.anything(),
@@ -67,7 +63,98 @@ describe('LimitedScopeProfile', () => {
                 token: 'token',
                 deliveryServiceUrl: 'http://ds.dm3.io',
             });
-            expect(mockSetItem).toBeCalled();
+        });
+        it('throws if personal sign was rejected', async () => {
+            const deliveryServiceUrl = 'http://ds.dm3.io';
+            const offchainResolverUrl = 'http://resolver.dm3.io';
+            const deliveryServiceEnsName = 'ds1.dm3.eth';
+
+            const axiosMock = new MockAdapter(axios);
+
+            const ownerWallet = ethers.Wallet.createRandom();
+
+            axiosMock.onPost().reply(200, 'token');
+
+            axiosMock
+                .onPost(`${offchainResolverUrl}/profile/address`)
+                .reply(200);
+
+            ds1 = await mockDeliveryServiceProfile(
+                ethers.Wallet.createRandom(),
+                deliveryServiceUrl,
+            );
+
+            const mockProvider = {
+                send: (method: string, [msg, acc]: any[]) => {
+                    if (method === 'personal_sign') {
+                        throw new Error('');
+                    }
+                    throw new Error('Method not implemented.');
+                },
+                getResolver: (ensName: string) => {
+                    return {
+                        getText: (record: string) => {
+                            return ds1.stringified;
+                        },
+                    } as unknown as ethers.providers.Resolver;
+                },
+            } as unknown as ethers.providers.JsonRpcProvider;
+
+            await expect(
+                createLspFromRandomWallet(
+                    mockProvider,
+                    offchainResolverUrl,
+                    deliveryServiceEnsName,
+                    'gashawk',
+                    ownerWallet.address,
+                ),
+            ).rejects.toThrow();
+        });
+        it('throws if sig does not match ownerAddress', async () => {
+            const deliveryServiceUrl = 'http://ds.dm3.io';
+            const offchainResolverUrl = 'http://resolver.dm3.io';
+            const deliveryServiceEnsName = 'ds1.dm3.eth';
+
+            const axiosMock = new MockAdapter(axios);
+
+            const ownerWallet = ethers.Wallet.createRandom();
+
+            axiosMock.onPost().reply(200, 'token');
+
+            axiosMock
+                .onPost(`${offchainResolverUrl}/profile/address`)
+                .reply(200);
+
+            ds1 = await mockDeliveryServiceProfile(
+                ethers.Wallet.createRandom(),
+                deliveryServiceUrl,
+            );
+
+            const mockProvider = {
+                send: (method: string, [msg, acc]: any[]) => {
+                    if (method === 'personal_sign') {
+                        return ethers.Wallet.createRandom().signMessage(msg);
+                    }
+                    throw new Error('Method not implemented.');
+                },
+                getResolver: (ensName: string) => {
+                    return {
+                        getText: (record: string) => {
+                            return ds1.stringified;
+                        },
+                    } as unknown as ethers.providers.Resolver;
+                },
+            } as unknown as ethers.providers.JsonRpcProvider;
+
+            await expect(
+                createLspFromRandomWallet(
+                    mockProvider,
+                    offchainResolverUrl,
+                    deliveryServiceEnsName,
+                    'gashawk',
+                    ownerWallet.address,
+                ),
+            ).rejects.toThrow();
         });
     });
 });

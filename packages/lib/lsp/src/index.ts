@@ -17,16 +17,18 @@ import {
     createEnvelop,
     createJsonRpcCallSubmitMessage,
 } from 'dm3-lib-messaging';
+import { ethersHelper } from 'dm3-lib-shared';
 
 export type StoreLsp = (lsp: LimitedScopeProfile) => Promise<void>;
 
-export async function createLspFromAccount(
+export const createLspMessage = (owner: string) => `creating LSP for ${owner}`;
+
+/* export async function createLspFromAccount(
     web3Provider: ethers.providers.JsonRpcProvider,
-    storeLsp: StoreLsp,
     offchainResolverUrl: string,
     deliveryServiceEnsName: string,
     appID: string,
-    siweMessage: string,
+    authMessage: string,
     sig: string,
     addr: string,
     entropy: string,
@@ -36,35 +38,41 @@ export async function createLspFromAccount(
     });
     return createLsp(
         web3Provider,
-        storeLsp,
         offchainResolverUrl,
         deliveryServiceEnsName,
         wallet,
         addr,
         appID,
     );
-}
+} */
 
-export function createLspFromRandomWallet(
+export async function createLspFromRandomWallet(
     web3Provider: ethers.providers.JsonRpcProvider,
-    storeLsp: StoreLsp,
     offchainResolverUrl: string,
     deliveryServiceEnsName: string,
     appID: string,
+    ownerAddress: string,
     entropy?: string,
 ) {
-    const wallet = ethers.Wallet.createRandom({
+    const lspWallet = ethers.Wallet.createRandom({
         extraEntropy: entropy,
     });
-    return createLsp(
+    const sig = await web3Provider.send('personal_sign', [
+        createLspMessage(ownerAddress),
+        ownerAddress,
+    ]);
+
+    const lsp = await createLsp(
         web3Provider,
-        storeLsp,
         offchainResolverUrl,
         deliveryServiceEnsName,
-        wallet,
-        wallet.address,
         appID,
+        lspWallet,
+        createLspMessage(ownerAddress),
+        ownerAddress,
+        sig,
     );
+    return { lsp, wallet: lspWallet };
 }
 
 export interface LimitedScopeProfile {
@@ -76,13 +84,27 @@ export interface LimitedScopeProfile {
 
 export async function createLsp(
     web3Provider: ethers.providers.JsonRpcProvider,
-    storeLsp: StoreLsp,
     offchainResolverUrl: string,
     deliveryServiceEnsName: string,
-    lspWallet: ethers.Wallet,
-    ownerAddress: string,
     appID: string,
+    lspWallet: ethers.Wallet,
+    authMessage: string,
+    ownerAddress: string,
+    authSig: string,
 ) {
+    //We've to ensure that the creating of the LSP is intended by the owner¸
+    const sigIsValid = await ethersHelper.checkSignature(
+        authMessage,
+        ownerAddress,
+        authSig,
+    );
+
+    if (!sigIsValid) {
+        throw new Error(
+            'Invalid signature, auth message was not signed by owner',
+        );
+    }
+
     const deliverServiceProfile = await getDeliveryServiceProfile(
         deliveryServiceEnsName,
         web3Provider,
@@ -139,7 +161,6 @@ export async function createLsp(
         deliveryServiceUrl: deliverServiceProfile.url,
     };
 
-    await storeLsp(newHotWallet);
     //Keep the KeyPair we just generated in the local storage so we can use them later
 
     return newHotWallet;
