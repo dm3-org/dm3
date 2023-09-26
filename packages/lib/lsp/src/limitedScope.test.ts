@@ -2,9 +2,10 @@ import { ethers } from 'ethers';
 
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
+import { createKeyPairsFromSig } from 'dm3-lib-profile';
 import { mockDeliveryServiceProfile } from '../../../billboard-client/test/helper/mockDeliveryServiceProfile';
-import { createLspFromDappSig, createLspFromWalletSig } from './index';
-import { createKeyPairsFromSig, createProfileKeys } from 'dm3-lib-profile';
+import { createLspFromDappSig } from './create/createLspFromDappSig';
+import { createLspFromWalletSig } from './create/createLspFromWalletSig';
 
 describe('LimitedScopeProfile', () => {
     let ds1: any;
@@ -45,7 +46,7 @@ describe('LimitedScopeProfile', () => {
                 },
             } as unknown as ethers.providers.JsonRpcProvider;
 
-            const { lsp } = await createLspFromWalletSig(
+            const lsp = await createLspFromWalletSig(
                 mockProvider,
                 offchainResolverUrl,
                 deliveryServiceEnsName,
@@ -63,8 +64,6 @@ describe('LimitedScopeProfile', () => {
                 },
                 nonce: expect.anything(),
                 privateKey: expect.anything(),
-                token: 'token',
-                deliveryServiceUrl: 'http://ds.dm3.io',
             });
         });
         it('can recover profile with wallet privateKey', async () => {
@@ -103,7 +102,7 @@ describe('LimitedScopeProfile', () => {
                 },
             } as unknown as ethers.providers.JsonRpcProvider;
 
-            const { lsp } = await createLspFromWalletSig(
+            const lsp = await createLspFromWalletSig(
                 mockProvider,
                 offchainResolverUrl,
                 deliveryServiceEnsName,
@@ -260,7 +259,7 @@ describe('LimitedScopeProfile', () => {
             const dappAuthMessage = 'hello from dapp';
             const dappAuthSig = await ownerWallet.signMessage(dappAuthMessage);
 
-            const { lsp } = await createLspFromDappSig(
+            const lsp = await createLspFromDappSig(
                 mockProvider,
                 offchainResolverUrl,
                 deliveryServiceEnsName,
@@ -280,8 +279,6 @@ describe('LimitedScopeProfile', () => {
                 },
                 nonce: expect.anything(),
                 privateKey: expect.anything(),
-                token: 'token',
-                deliveryServiceUrl: 'http://ds.dm3.io',
             });
         });
     });
