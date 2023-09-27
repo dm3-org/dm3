@@ -145,7 +145,14 @@ export function ConfigureProfile() {
                             className="close-modal-icon"
                             src={closeIcon}
                             alt="close"
-                            onClick={() => closeConfigurationModal()}
+                            onClick={() =>
+                                closeConfigurationModal(
+                                    setDm3Name,
+                                    setEnsName,
+                                    setErrorMsg,
+                                    setShowError,
+                                )
+                            }
                         />
                     </div>
 

@@ -46,6 +46,12 @@ export function cacheReducer(state: Cache, action: CacheActions): Cache {
                 contacts: action.payload,
             };
 
+        case CacheType.LastConversation:
+            return {
+                ...state,
+                lastConversation: action.payload,
+            };
+
         default:
             return state;
     }

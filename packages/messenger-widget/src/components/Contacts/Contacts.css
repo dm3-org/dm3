@@ -85,10 +85,11 @@
     border-bottom: 2px solid var(--normal-btn-hover) !important;
     background: linear-gradient(-259deg, #544393, #1f2029) !important;
     top: 0;
-    bottom: 0;
+    bottom: 4rem !important;
     position: sticky;
     border-top-left-radius: 10px !important;
     border-bottom-left-radius: 10px !important;
     padding-left: 0.5rem !important;
     margin-left: 0.5rem !important;
+    margin-right: -1px !important;
 }

@@ -59,6 +59,10 @@ export type CachePayload = {
     [CacheType.AddAbis]: { address: string; abi: string }[];
     [CacheType.AddAvatarUrl]: { ensName: string; url: string };
     [CacheType.Contacts]: ContactPreview[] | null;
+    [CacheType.LastConversation]: {
+        account: Account | null;
+        message: string | null;
+    };
 };
 
 export type CacheActions =
@@ -153,6 +157,7 @@ export enum CacheType {
     AddAbis = 'ADD_ABIS',
     AddAvatarUrl = 'ADD_AVATAR_URL',
     Contacts = 'CONTACTS',
+    LastConversation = 'LAST_CONVERSATION',
 }
 
 export enum ConnectionType {

@@ -16,6 +16,7 @@ import { DashboardProps } from '../../interfaces/props';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { globalConfig } from 'dm3-lib-shared';
 import {
+    CacheType,
     ModalStateType,
     RightViewSelected,
     UserDbType,
@@ -151,6 +152,28 @@ export function Contacts(props: DashboardProps) {
             closeLoader();
         }
     }, [contacts]);
+
+    // updates the last message in contact list
+    useEffect(() => {
+        if (
+            state.cache.lastConversation.account &&
+            state.cache.lastConversation.message &&
+            state.cache.contacts &&
+            contactSelected
+        ) {
+            const items = [...state.cache.contacts];
+            const item = {
+                ...items[contactSelected],
+                message: state.cache.lastConversation.message,
+            };
+            items[contactSelected] = item;
+            dispatch({
+                type: CacheType.Contacts,
+                payload: items,
+            });
+            setContacts(items);
+        }
+    }, [state.cache.lastConversation]);
 
     // fetched contacts from the cache
     useEffect(() => {

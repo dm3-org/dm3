@@ -73,6 +73,7 @@ export function Chat() {
                     updateIsMessageListInitialized,
                 );
             } catch (error) {
+                setListOfMessages([]);
                 log(error, 'error');
             }
         }
@@ -104,7 +105,7 @@ export function Chat() {
                 {/* Chat messages */}
                 <div
                     id="chat-box"
-                    className={'chat-items position-relative'.concat(
+                    className={'chat-items position-relative mb-2'.concat(
                         ' ',
                         !isProfileConfigured
                             ? 'chat-height-small'
@@ -117,7 +118,6 @@ export function Chat() {
                                 <Message {...messageData} />
                             </div>
                         ))}
-                    <br />
                 </div>
 
                 {/* Message, emoji and file attachments */}

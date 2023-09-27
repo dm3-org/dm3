@@ -24,6 +24,10 @@ export const initialState: GlobalState = {
         abis: new Map<string, string>(),
         avatarUrls: new Map<string, string>(),
         contacts: null,
+        lastConversation: {
+            account: null,
+            message: null,
+        },
     },
     userDb: undefined,
     uiState: {

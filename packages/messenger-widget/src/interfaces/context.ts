@@ -30,6 +30,10 @@ export interface Cache {
     abis: Map<string, string>;
     avatarUrls: Map<string, string>;
     contacts: ContactPreview[] | null;
+    lastConversation: {
+        account: Account | null;
+        message: string | null;
+    };
 }
 
 export interface UiState {
