@@ -1,12 +1,14 @@
-import { ProfileKeys, createKeyPairsFromSig } from 'dm3-lib-profile';
+import { ProfileKeys } from 'dm3-lib-profile';
+import { ethers } from 'ethers';
 import { getLspFromResolver } from './api/getLspFromResolver';
 import { createLspFromDappSig } from './create/createLspFromDappSig';
-import { ethers } from 'ethers';
 import { recoverLsp } from './create/recoverLsp';
 
-export type StoreLsp = (lsp: LimitedScopeProfile) => Promise<void>;
-
 export const createLspMessage = (owner: string) => `creating LSP for ${owner}`;
+export const lspLinkMessage = (owner: string, lsp: string) =>
+    `Linking LSP ${lsp} to ${owner}`;
+export const lspLinkAcceptMessage = (owner: string, lsp: string) =>
+    `Accept Linking LSP ${lsp} to ${owner}`;
 
 export interface LimitedScopeProfile {
     ensName: string;

@@ -2,33 +2,36 @@ import axios from 'axios';
 import { createEnvelop } from 'dm3-lib-messaging';
 import { ProfileKeys } from 'dm3-lib-profile';
 import { ethers } from 'ethers';
-import { lspLinkMessage } from '..';
+import { lspLinkAcceptMessage } from '..';
 import { submitMessage } from '../api/submitMessage';
-import { createLinkMessage } from './messages/createLinkMessage';
+import { createLinkAcceptMessage } from './messages/createLinkAcceptMessage';
 
-export async function linkLsp(
+export async function linkAccept(
     web3Provider: ethers.providers.JsonRpcProvider,
     deliveryServiceUrl: string,
     deliveryServiceToken: string,
     ownerAddr: string,
     lspAddr: string,
-    lspProfileKeys: ProfileKeys,
+    ownerProfileKeys: ProfileKeys,
+    linkMessage: string,
+    lspEnsName: string,
 ) {
     const lspLinkSig = await web3Provider.send('personal_sign', [
-        lspLinkMessage(ownerAddr, lspAddr),
+        lspLinkAcceptMessage(ownerAddr, lspAddr),
         lspAddr,
     ]);
-    const msg = await createLinkMessage(
-        ownerAddr,
+    const msg = await createLinkAcceptMessage(
         lspAddr,
-        'TBD add message payload',
-        lspProfileKeys.signingKeyPair.privateKey,
+        ownerAddr,
+        ownerProfileKeys.signingKeyPair.privateKey,
+        linkMessage,
+        lspEnsName,
         lspLinkSig,
     );
     const { encryptedEnvelop: envelop, sendDependencies } = await createEnvelop(
         msg,
         web3Provider,
-        lspProfileKeys,
+        ownerProfileKeys,
         (url: string) => axios.get(url),
     );
     await submitMessage(deliveryServiceUrl, envelop, deliveryServiceToken);
