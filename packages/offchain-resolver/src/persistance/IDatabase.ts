@@ -14,6 +14,7 @@ export interface IDatabase {
     ): Promise<boolean>;
     removeUserProfile(ensName: string): Promise<boolean>;
     setAlias(name: string, alias: string): Promise<boolean>;
+    setLink(name: string, link: string): Promise<boolean>;
     getProfileContainerForAlias(
         alias: string,
     ): Promise<ProfileContainer | null>;
