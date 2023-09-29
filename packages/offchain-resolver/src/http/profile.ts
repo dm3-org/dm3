@@ -173,6 +173,12 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
                 const { ownerName, lspName, linkMessage, signature } = req.body;
+
+                if (!ownerName || !lspName || !linkMessage || !signature) {
+                    return res.status(400).send({
+                        error: 'invalid schema',
+                    });
+                }
                 logInfo({ text: `POST link`, ensName: lspName });
 
                 //check owner address to ensure that ownerName and the signed signature belong together
@@ -180,7 +186,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
 
                 if (!ownerAddress) {
                     return res.status(400).send({
-                        error: 'Could not resolve owner address',
+                        error: 'could not resolve owner address',
                     });
                 }
 
@@ -199,7 +205,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     });
                 }
 
-                if (!(await req.app.locals.db.setLink(lspName, ownerName))) {
+                if (!(await req.app.locals.db.setLink(ownerName, lspName))) {
                     return res
                         .status(400)
                         .send({ error: 'Could not create alias' });

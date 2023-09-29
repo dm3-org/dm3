@@ -9,6 +9,7 @@ import winston from 'winston';
 import { getDatabase, getDbClient } from '../persistance/getDatabase';
 import { IDatabase } from '../persistance/IDatabase';
 import { profile } from './profile';
+import { link } from './link';
 
 import { PrismaClient } from '@prisma/client';
 import * as dotenv from 'dotenv';
@@ -234,55 +235,88 @@ describe('Profile', () => {
             expect(res2.body.error).to.eql('Could not create alias');
         });
     });
-    describe.only('Create Link', () => {
-        it('Rejects if there is no Profile', async () => {
-            app.use(profile(provider));
-            const { status, body } = await request(app)
-                .post(`/name`)
-                .send({
-                    alias: 'foo.dm3.eth',
-                    name: SENDER_ADDRESS + globalConfig.ADDR_ENS_SUBDOMAIN(),
-                    signature: await app.locals.forTests.wallet.signMessage(
-                        'alias: foo.dm3.eth',
-                    ),
-                });
+    describe('Create Link', () => {
+        it('Rejects invalid schema', async () => {
+            app.use(link(provider));
+            const { status, body } = await request(app).post(`/`).send();
 
             expect(status).to.equal(400);
-            expect(body.error).to.equal('Could not find profile');
+            expect(body.error).to.equal('invalid schema');
+        });
+        it('rejects if owner is unknown', async () => {
+            const provider = {
+                resolveName: async () => null,
+            } as unknown as ethers.providers.JsonRpcProvider;
+
+            app.use(link(provider));
+            const ownerWallet = ethers.Wallet.createRandom();
+            const ownerAddr = ownerWallet.address;
+
+            const ownerName = 'owner.eth';
+            const lspName = `lsp.${ownerAddr}.myApp.dm3.eth`;
+            const linkMessage = 'Link message';
+            const signature = await ownerWallet.signMessage(linkMessage);
+
+            const { status, body } = await request(app)
+                .post(`/`)
+                .send({ ownerName, lspName, linkMessage, signature });
+
+            expect(status).to.equal(400);
+            expect(body.error).to.equal('could not resolve owner address');
         });
 
         it('Rejects invalid signature', async () => {
-            app.use(profile(provider));
+            app.use(link(provider));
+            const ownerWallet = ethers.Wallet.createRandom();
+            const ownerAddr = ownerWallet.address;
+
+            const ownerName = 'owner.eth';
+            const lspName = `lsp.${ownerAddr}.myApp.dm3.eth`;
+            const linkMessage = 'Link message';
+            const signature = await ownerWallet.signMessage(linkMessage);
 
             const offChainProfile1 = app.locals.forTests;
 
-            const { status } = await request(app)
-                .post(`/address`)
+            const { status, body } = await request(app)
+                .post(`/`)
+                .send({ ownerName, lspName, linkMessage, signature });
+
+            expect(status).to.equal(400);
+            expect(body.error).to.equal('signature invalid');
+        });
+
+        it('stores link at database', async () => {
+            app.use('/profile', profile(provider));
+            app.use('/link', link(provider));
+            const {
+                signer,
+                profile: userProfile,
+                signature,
+                wallet,
+            } = app.locals.forTests;
+
+            const createProfileRes = await request(app)
+                .post(`/profile/address`)
                 .send({
-                    address: offChainProfile1.signer,
+                    address: signer,
                     signedUserProfile: {
-                        signature: offChainProfile1.signature,
-                        profile: offChainProfile1.profile,
+                        signature,
+                        profile: userProfile,
                     },
                 });
 
+            expect(createProfileRes.status).to.equal(200);
+
+            const ownerName = `${signer}.beta-addr.dm3.eth`;
+            const lspName = `lsp.${signer}.myApp.dm3.eth`;
+            const linkMessage = 'Link message';
+            const lspSig = await wallet.signMessage(linkMessage);
+
+            const { status } = await request(app)
+                .post(`/link`)
+                .send({ ownerName, lspName, linkMessage, signature: lspSig });
+
             expect(status).to.equal(200);
-
-            const res1 = await request(app)
-                .post(`/name`)
-                .send({
-                    alias: 'foo.dm3.eth',
-                    name:
-                        offChainProfile1.signer +
-                        globalConfig.ADDR_ENS_SUBDOMAIN(),
-                    signature: await sign(
-                        offChainProfile1.privateSigningKey,
-                        'alias: bar.dm3.eth',
-                    ),
-                });
-
-            expect(res1.status).to.equal(400);
-            expect(res1.body.error).to.equal('signature invalid');
         });
     });
 
