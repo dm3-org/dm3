@@ -234,6 +234,57 @@ describe('Profile', () => {
             expect(res2.body.error).to.eql('Could not create alias');
         });
     });
+    describe.only('Create Link', () => {
+        it('Rejects if there is no Profile', async () => {
+            app.use(profile(provider));
+            const { status, body } = await request(app)
+                .post(`/name`)
+                .send({
+                    alias: 'foo.dm3.eth',
+                    name: SENDER_ADDRESS + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    signature: await app.locals.forTests.wallet.signMessage(
+                        'alias: foo.dm3.eth',
+                    ),
+                });
+
+            expect(status).to.equal(400);
+            expect(body.error).to.equal('Could not find profile');
+        });
+
+        it('Rejects invalid signature', async () => {
+            app.use(profile(provider));
+
+            const offChainProfile1 = app.locals.forTests;
+
+            const { status } = await request(app)
+                .post(`/address`)
+                .send({
+                    address: offChainProfile1.signer,
+                    signedUserProfile: {
+                        signature: offChainProfile1.signature,
+                        profile: offChainProfile1.profile,
+                    },
+                });
+
+            expect(status).to.equal(200);
+
+            const res1 = await request(app)
+                .post(`/name`)
+                .send({
+                    alias: 'foo.dm3.eth',
+                    name:
+                        offChainProfile1.signer +
+                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    signature: await sign(
+                        offChainProfile1.privateSigningKey,
+                        'alias: bar.dm3.eth',
+                    ),
+                });
+
+            expect(res1.status).to.equal(400);
+            expect(res1.body.error).to.equal('signature invalid');
+        });
+    });
 
     describe('Store UserProfile by address', () => {
         it('Rejects invalid schema', async () => {

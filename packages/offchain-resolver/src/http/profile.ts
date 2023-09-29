@@ -1,10 +1,16 @@
-import { globalConfig, logInfo, validateSchema } from 'dm3-lib-shared';
+import {
+    ethersHelper,
+    globalConfig,
+    logInfo,
+    validateSchema,
+} from 'dm3-lib-shared';
 import { schema, checkUserProfileWithAddress } from 'dm3-lib-profile';
 import { ethers } from 'ethers';
 import express from 'express';
 import { WithLocals } from './types';
 import { SiweMessage } from 'siwe';
 import { checkSignature } from 'dm3-lib-crypto';
+import { sign } from 'crypto';
 
 export function profile(web3Provider: ethers.providers.BaseProvider) {
     const router = express.Router();
@@ -150,6 +156,50 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 }
 
                 if (!(await req.app.locals.db.setAlias(name, alias))) {
+                    return res
+                        .status(400)
+                        .send({ error: 'Could not create alias' });
+                }
+
+                return res.sendStatus(200);
+            } catch (e) {
+                next(e);
+            }
+        },
+    );
+    router.post(
+        '/link',
+        //@ts-ignore
+        async (req: express.Request & { app: WithLocals }, res, next) => {
+            try {
+                const { ownerName, lspName, linkMessage, signature } = req.body;
+                logInfo({ text: `POST link`, ensName: lspName });
+
+                //check owner address to ensure that ownerName and the signed signature belong together
+                const ownerAddress = await web3Provider.resolveName(ownerName);
+
+                if (!ownerAddress) {
+                    return res.status(400).send({
+                        error: 'Could not resolve owner address',
+                    });
+                }
+
+                //Check if the request comes from the owner of the name
+                const sigIsValid = await ethersHelper.checkSignature(
+                    linkMessage,
+                    ownerAddress,
+                    signature,
+                );
+
+                if (!sigIsValid) {
+                    global.logger.warn('signature invalid');
+
+                    return res.status(400).send({
+                        error: 'signature invalid',
+                    });
+                }
+
+                if (!(await req.app.locals.db.setLink(lspName, ownerName))) {
                     return res
                         .status(400)
                         .send({ error: 'Could not create alias' });
