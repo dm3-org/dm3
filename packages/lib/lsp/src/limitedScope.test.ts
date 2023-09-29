@@ -2,11 +2,10 @@ import { ethers } from 'ethers';
 
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { createKeyPairsFromSig } from 'dm3-lib-profile';
 import { mockDeliveryServiceProfile } from '../../../billboard-client/test/helper/mockDeliveryServiceProfile';
 import { createLspFromDappSig } from './create/createLspFromDappSig';
 import { createLspFromWalletSig } from './create/createLspFromWalletSig';
-
+import { createKeyPairsFromSig } from 'dm3-lib-profile';
 describe('LimitedScopeProfile', () => {
     let ds1: any;
     describe('user auth', () => {
