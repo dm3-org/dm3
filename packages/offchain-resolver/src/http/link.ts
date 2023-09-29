@@ -56,6 +56,25 @@ export function link(web3Provider: ethers.providers.BaseProvider) {
             }
         },
     );
+    router.get(
+        '/:name',
+        //@ts-ignore
+        async (req: express.Request & { app: WithLocals }, res, next) => {
+            const { address } = req.params;
+            if (!ethers.utils.isAddress(address)) {
+                return res.status(400).send();
+            }
+
+            const profileContainer =
+                await req.app.locals.db.getProfileContainerByAddress(address);
+
+            if (!profileContainer) {
+                return res.send(404);
+            }
+
+            return res.status(200).send(profileContainer.links);
+        },
+    );
 
     return router;
 }

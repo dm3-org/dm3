@@ -10,6 +10,7 @@ export type ProfileContainer = {
     profile: SignedUserProfile;
     ensName: string;
     address: string;
+    links: string[];
 };
 
 export function getProfileContainer(db: PrismaClient) {
