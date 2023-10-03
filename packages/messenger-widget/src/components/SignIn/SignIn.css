@@ -1,11 +1,11 @@
 .home-image-container {
-    border-top-left-radius: 13px;
-    border-bottom-left-radius: 13px;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
 }
 
 .signin-container {
-    border-top-right-radius: 13px;
-    border-bottom-right-radius: 13px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
 }
 
 .content-data-container {
@@ -35,11 +35,15 @@
 }
 
 .home-image {
-    border-radius: 13px;
+    border-radius: 20px;
 }
 
 .sign-in-logo {
     width: fit-content !important;
+}
+
+.content-data {
+    margin-top: 3rem;
 }
 
 @media only screen and (max-width: 1100px) {
@@ -51,5 +55,11 @@
 @media only screen and (min-width: 1101px) and (max-width: 1250px) {
     .content-data-container {
         padding: 2rem;
+    }
+}
+
+@media only screen and (min-width: 1450px) {
+    .content-data {
+        margin-top: 6rem !important;
     }
 }
