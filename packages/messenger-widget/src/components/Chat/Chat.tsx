@@ -46,6 +46,19 @@ export function Chat() {
     // handles messages list
     useEffect(() => {
         setIsProfileConfigured(true);
+        let isInitialized = false;
+
+        // fetch the messages from local storage is exists
+        if (state.accounts.selectedContact) {
+            const msgDetails = localStorage.getItem(
+                state.accounts.selectedContact?.account.ensName,
+            );
+            if (msgDetails) {
+                isInitialized = true;
+                setListOfMessages(JSON.parse(msgDetails));
+            }
+        }
+
         checkUserProfileConfigured(
             state,
             state.accounts.selectedContact?.account.ensName as string,
@@ -69,7 +82,7 @@ export function Chat() {
                     ),
                     alias,
                     setListOfMessages,
-                    isMessageListInitialized,
+                    isInitialized,
                     updateIsMessageListInitialized,
                 );
             } catch (error) {

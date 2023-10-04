@@ -19,7 +19,6 @@ import {
     CacheType,
     ModalStateType,
     RightViewSelected,
-    UserDbType,
 } from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
 import loader from '../../assets/images/loader.svg';
