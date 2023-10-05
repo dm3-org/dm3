@@ -28,7 +28,6 @@ export interface AuthSession {
 
 export interface Cache {
     abis: Map<string, string>;
-    avatarUrls: Map<string, string>;
     contacts: ContactPreview[] | null;
     lastConversation: {
         account: Account | null;
@@ -37,14 +36,9 @@ export interface Cache {
 }
 
 export interface UiState {
-    showAddContact: boolean;
-    selectedRightView: SelectedRightView;
-    maxLeftView: boolean;
-    show: boolean;
     lastMessagePull: number;
     proflieExists: boolean;
     browserStorageBackup: boolean;
-    showContactList: boolean;
 }
 
 export interface GlobalContextProviderProps {
