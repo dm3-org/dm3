@@ -114,17 +114,21 @@ export function Message(props: MessageProps) {
                         )}
 
                     {/* Attachments preview */}
-                    {attachments.length > 0 && (
-                        <AttachmentThumbnailPreview
-                            filesSelected={attachments}
-                            isMyMessage={props.ownMessage}
-                        />
-                    )}
+                    {attachments.length > 0 &&
+                        props.envelop.message.metadata.type !==
+                            MessageActionType.DELETE && (
+                            <AttachmentThumbnailPreview
+                                filesSelected={attachments}
+                                isMyMessage={props.ownMessage}
+                            />
+                        )}
 
                     {/* actual message */}
                     {props.message
                         ? props.message
-                        : attachments.length > 0
+                        : attachments.length > 0 &&
+                          props.envelop.message.metadata.type !==
+                              MessageActionType.DELETE
                         ? ''
                         : 'This message was deleted'}
                 </div>

@@ -16,5 +16,6 @@ export const themeOne: any = {
     chatBackground: '#1F2029',
     disabledBtnText: '#666876',
     textError: '#C30F1A',
+    errorBackground: '#830B12',
     attachmentBackground: '#202129',
 };

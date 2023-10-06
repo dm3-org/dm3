@@ -39,7 +39,7 @@
 }
 
 .err-background {
-    background: var(--error-text) !important;
+    background: var(--error-background) !important;
 }
 
 .invisible {

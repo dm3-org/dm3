@@ -29,6 +29,7 @@ export function ContactMenu(props: ContactMenu) {
                 ' ',
                 state.cache.contacts &&
                     props.index > 0 &&
+                    state.cache.contacts?.length >= 11 &&
                     props.index >= state.cache.contacts?.length - 2
                     ? 'dropdown-content-top-align'
                     : '',
