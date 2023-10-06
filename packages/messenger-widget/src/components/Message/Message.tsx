@@ -71,9 +71,9 @@ export function Message(props: MessageProps) {
                         ' ',
                         (props.ownMessage
                             ? state.uiView.selectedMessageView.actionType ===
-                                  MessageActionType.EDIT &&
-                              state.uiView.selectedMessageView.messageData
-                                  ?.envelop.id === props.envelop.id
+                                MessageActionType.EDIT &&
+                                state.uiView.selectedMessageView.messageData
+                                    ?.envelop.id === props.envelop.id
                                 ? 'msg-editing-active'
                                 : 'ms-3 background-config-box'
                             : 'normal-btn-hover'
@@ -91,7 +91,7 @@ export function Message(props: MessageProps) {
                     {props.replyToMsg &&
                         props.replyToMsgFrom &&
                         props.envelop.message.metadata.type ===
-                            MessageActionType.REPLY && (
+                        MessageActionType.REPLY && (
                             <div
                                 className="reply-preview d-flex border-radius-4 normal-btn-inactive pointer-cursor"
                                 onClick={() =>
@@ -103,8 +103,8 @@ export function Message(props: MessageProps) {
                                 <div className="user-name">
                                     {props.replyToMsgFrom.length > 25
                                         ? props.replyToMsgFrom
-                                              .substring(0, 25)
-                                              .concat(': ')
+                                            .substring(0, 25)
+                                            .concat(': ')
                                         : props.replyToMsgFrom.concat(':')}
                                 </div>
                                 {props.replyToMsg
@@ -116,7 +116,7 @@ export function Message(props: MessageProps) {
                     {/* Attachments preview */}
                     {attachments.length > 0 &&
                         props.envelop.message.metadata.type !==
-                            MessageActionType.DELETE && (
+                        MessageActionType.DELETE && (
                             <AttachmentThumbnailPreview
                                 filesSelected={attachments}
                                 isMyMessage={props.ownMessage}
@@ -127,16 +127,17 @@ export function Message(props: MessageProps) {
                     {props.message
                         ? props.message
                         : attachments.length > 0 &&
-                          props.envelop.message.metadata.type !==
-                              MessageActionType.DELETE
-                        ? ''
-                        : 'This message was deleted'}
+                            props.envelop.message.metadata.type !==
+                            MessageActionType.DELETE
+                            ? ''
+                            : 'This message was deleted'}
                 </div>
                 {/* action item */}
                 <div
                     className={'msg-action-container d-flex pointer-cursor border-radius-3 position-relative'.concat(
                         ' ',
-                        !props.message && attachments.length === 0
+                        ((!props.message && attachments.length) === 0 ||
+                            props.envelop.message.metadata.type === MessageActionType.DELETE)
                             ? 'hide-action'
                             : '',
                     )}
@@ -160,8 +161,8 @@ export function Message(props: MessageProps) {
                             ? 'justify-content-between'
                             : 'ms-3 justify-content-end'
                         : props.ownMessage
-                        ? 'ms-3'
-                        : '',
+                            ? 'ms-3'
+                            : '',
                 )}
             >
                 {/* Own message */}

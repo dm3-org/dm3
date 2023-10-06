@@ -57,8 +57,8 @@ export function MessageInputBox() {
             {/* Reply message preview */}
             {state.uiView.selectedMessageView.actionType ===
                 MessageActionType.REPLY && (
-                <ReplyMessagePreview setFiles={setFiles} />
-            )}
+                    <ReplyMessagePreview setFiles={setFiles} />
+                )}
 
             {/* Emoji popup modal */}
             {state.modal.openEmojiPopup.action && (
@@ -94,8 +94,6 @@ export function MessageInputBox() {
 
                             {/* Emoji selector modal  */}
                             <EmojiSelector />
-
-                            <span className="d-flex smile-icon">|</span>
                         </div>
 
                         {/* Input msg form */}
