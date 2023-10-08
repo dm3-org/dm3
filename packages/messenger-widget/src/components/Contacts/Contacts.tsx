@@ -8,8 +8,7 @@ import {
     setContactIndexSelectedFromCache,
     updateContactOnAccountChange,
     updateSelectedContact,
-    resetContactListOnHide,
-    fetchContactsFromLocalStorage,
+    resetContactListOnHide
 } from './bl';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
@@ -79,9 +78,6 @@ export function Contacts(props: DashboardProps) {
 
     // handles change in accounts
     useEffect(() => {
-        const contactsFromLocalStorage = fetchContactsFromLocalStorage();
-        contactsFromLocalStorage &&
-            setContacts(JSON.parse(contactsFromLocalStorage));
         if (
             !state.accounts.selectedContact &&
             (state.uiView.selectedRightView === RightViewSelected.Chat ||
@@ -109,7 +105,6 @@ export function Contacts(props: DashboardProps) {
 
         if (cacheContacts) {
             setContacts(cacheContacts);
-            localStorage.setItem('contacts', JSON.stringify(cacheContacts));
             if (
                 state.modal.addConversation.active &&
                 !state.modal.addConversation.processed
@@ -176,7 +171,6 @@ export function Contacts(props: DashboardProps) {
                 payload: items,
             });
             setContacts(items);
-            localStorage.setItem('contacts', JSON.stringify(items));
         }
     }, [state.cache.lastConversation]);
 
@@ -207,14 +201,6 @@ export function Contacts(props: DashboardProps) {
             );
         }
     }, [contactSelected]);
-
-    // fetches contact list from local storage
-    useEffect(() => {
-        startLoader();
-        const contactsFromLocalStorage = fetchContactsFromLocalStorage();
-        contactsFromLocalStorage &&
-            setContacts(JSON.parse(contactsFromLocalStorage));
-    }, []);
 
     /* Hidden content for highlighting css */
     const hiddenData: number[] = Array.from({ length: 14 }, (_, i) => i + 1);

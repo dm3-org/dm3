@@ -140,7 +140,6 @@ export const setContactList = async (
     const cacheList = state.cache.contacts;
     if (cacheList && cacheList.length) {
         setListOfContacts(cacheList);
-        localStorage.setItem('contacts', JSON.stringify(cacheList));
     } else {
         const data: ContactPreview[] = await fetchAndSetContacts(state);
         dispatch({
@@ -148,7 +147,6 @@ export const setContactList = async (
             payload: data,
         });
         setListOfContacts(data);
-        if (data.length) localStorage.setItem('contacts', JSON.stringify(data));
     }
 };
 
@@ -216,7 +214,6 @@ export const updateContactOnAccountChange = async (
             const newList = [...contacts];
             newList[lastIndex] = item;
             setListOfContacts(newList);
-            localStorage.setItem('contacts', JSON.stringify(newList));
 
             // update the modal data as conversation is added
             const stateData = state.modal.addConversation;
@@ -249,15 +246,10 @@ export const resetContactListOnHide = (
         });
 
         setListOfContacts(cachedContactList);
-        localStorage.setItem('contacts', JSON.stringify(cachedContactList));
 
         dispatch({
             type: ModalStateType.ContactToHide,
             payload: undefined,
         });
     }
-};
-
-export const fetchContactsFromLocalStorage = () => {
-    return localStorage.getItem('contacts');
 };
