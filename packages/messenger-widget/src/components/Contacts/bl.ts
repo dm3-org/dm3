@@ -39,7 +39,7 @@ export const setContactHeightToMaximum = (isProfileConfigured: boolean) => {
     const element = document.getElementsByClassName(
         'contacts-scroller',
     )[0] as HTMLElement;
-    element.style.height = isProfileConfigured ? '76vh' : '80vh';
+    element.style.height = isProfileConfigured ? '76vh' : '88vh';
 };
 
 // fetches contact list and sets data according to view on UI
@@ -140,6 +140,7 @@ export const setContactList = async (
     const cacheList = state.cache.contacts;
     if (cacheList && cacheList.length) {
         setListOfContacts(cacheList);
+        localStorage.setItem('contacts', JSON.stringify(cacheList));
     } else {
         const data: ContactPreview[] = await fetchAndSetContacts(state);
         dispatch({
@@ -147,6 +148,7 @@ export const setContactList = async (
             payload: data,
         });
         setListOfContacts(data);
+        if (data.length) localStorage.setItem('contacts', JSON.stringify(data));
     }
 };
 
@@ -214,6 +216,7 @@ export const updateContactOnAccountChange = async (
             const newList = [...contacts];
             newList[lastIndex] = item;
             setListOfContacts(newList);
+            localStorage.setItem('contacts', JSON.stringify(newList));
 
             // update the modal data as conversation is added
             const stateData = state.modal.addConversation;
@@ -239,14 +242,22 @@ export const resetContactListOnHide = (
                 data.contactDetails.account.ensName !==
                 state.modal.contactToHide,
         );
+
         dispatch({
             type: CacheType.Contacts,
             payload: cachedContactList as [],
         });
+
         setListOfContacts(cachedContactList);
+        localStorage.setItem('contacts', JSON.stringify(cachedContactList));
+
         dispatch({
             type: ModalStateType.ContactToHide,
             payload: undefined,
         });
     }
+};
+
+export const fetchContactsFromLocalStorage = () => {
+    return localStorage.getItem('contacts');
 };

@@ -43,20 +43,6 @@ export function accountsReducer(state: Accounts, action: AccountsActions) {
                 contacts: action.payload,
             };
 
-        case AccountsType.SetAccountInfoView:
-            if (state.accountInfoView === action.payload) {
-                return state;
-            } else {
-                log(
-                    `[Accounts] Set account info view ${action.payload}`,
-                    'info',
-                );
-                return {
-                    ...state,
-                    accountInfoView: action.payload,
-                };
-            }
-
         default:
             return state;
     }

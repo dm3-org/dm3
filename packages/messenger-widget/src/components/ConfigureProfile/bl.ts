@@ -38,11 +38,20 @@ export const openConfigurationModal = () => {
 };
 
 // method to close the profile configuration modal
-export const closeConfigurationModal = () => {
+export const closeConfigurationModal = (
+    setDm3Name: Function,
+    setEnsName: Function,
+    setErrorMsg: Function,
+    setShowError: Function,
+) => {
     const modal: HTMLElement = document.getElementById(
         'configuration-modal',
     ) as HTMLElement;
     modal.style.display = 'none';
+    setDm3Name('');
+    setEnsName('');
+    setErrorMsg('');
+    setShowError(undefined);
 };
 
 // method to fetch address ENS name

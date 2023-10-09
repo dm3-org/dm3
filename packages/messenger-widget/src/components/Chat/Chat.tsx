@@ -46,6 +46,19 @@ export function Chat() {
     // handles messages list
     useEffect(() => {
         setIsProfileConfigured(true);
+        let isInitialized = false;
+
+        // fetch the messages from local storage is exists
+        if (state.accounts.selectedContact) {
+            const msgDetails = localStorage.getItem(
+                state.accounts.selectedContact?.account.ensName,
+            );
+            if (msgDetails) {
+                isInitialized = true;
+                setListOfMessages(JSON.parse(msgDetails));
+            }
+        }
+
         checkUserProfileConfigured(
             state,
             state.accounts.selectedContact?.account.ensName as string,
@@ -69,10 +82,11 @@ export function Chat() {
                     ),
                     alias,
                     setListOfMessages,
-                    isMessageListInitialized,
+                    isInitialized,
                     updateIsMessageListInitialized,
                 );
             } catch (error) {
+                setListOfMessages([]);
                 log(error, 'error');
             }
         }
@@ -104,7 +118,7 @@ export function Chat() {
                 {/* Chat messages */}
                 <div
                     id="chat-box"
-                    className={'chat-items position-relative'.concat(
+                    className={'chat-items position-relative mb-2'.concat(
                         ' ',
                         !isProfileConfigured
                             ? 'chat-height-small'
@@ -117,7 +131,6 @@ export function Chat() {
                                 <Message {...messageData} />
                             </div>
                         ))}
-                    <br />
                 </div>
 
                 {/* Message, emoji and file attachments */}

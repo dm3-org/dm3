@@ -65,9 +65,17 @@ export const openErrorModal = (
     }
 };
 
-// method to clear local storage and reload page on error
+// method to clear local storage related to wallet connection and reload page on error
 const clearStorageAndReload = () => {
-    localStorage.clear();
+    localStorage.removeItem('wagmi.store');
+    localStorage.removeItem('rk-version');
+    localStorage.removeItem('wc@2:core:0.3//keychain');
+    localStorage.removeItem('WCM_VERSION');
+    localStorage.removeItem('wagmi.cache');
+    localStorage.removeItem('wagmi.metaMask.shimDisconnect');
+    localStorage.removeItem('wagmi.wallet');
+    localStorage.removeItem('wagmi.connected');
+    localStorage.removeItem('rk-recent');
     window.location.reload();
 };
 
