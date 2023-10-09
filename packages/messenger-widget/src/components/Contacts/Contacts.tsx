@@ -8,7 +8,7 @@ import {
     setContactIndexSelectedFromCache,
     updateContactOnAccountChange,
     updateSelectedContact,
-    resetContactListOnHide
+    resetContactListOnHide,
 } from './bl';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
@@ -293,6 +293,20 @@ export function Contacts(props: DashboardProps) {
             {/* Hidden content for highlighting css */}
             {contacts.length < 10 &&
                 hiddenData.map((data) => (
+                    <div
+                        key={data}
+                        className={
+                            contactSelected !== null
+                                ? 'highlight-right-border'
+                                : 'highlight-right-border-none'
+                        }
+                    >
+                        <div className="hidden-data"></div>
+                    </div>
+                ))}
+
+            {contacts.length >= 10 &&
+                hiddenData.slice(11).map((data) => (
                     <div
                         key={data}
                         className={

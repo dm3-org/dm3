@@ -202,14 +202,17 @@ export const handleMessages = async (
     setListOfMessages: Function,
     isMessageListInitialized: boolean,
     updateIsMessageListInitialized: Function,
+    showLoader: boolean,
 ) => {
     if (!isMessageListInitialized && state.accounts.selectedContact) {
-        dispatch({
-            type: ModalStateType.LoaderContent,
-            payload: 'Fetching messages...',
-        });
+        if (showLoader) {
+            dispatch({
+                type: ModalStateType.LoaderContent,
+                payload: 'Fetching messages...',
+            });
 
-        startLoader();
+            startLoader();
+        }
 
         await fetchAndStoreMessages(
             state.connection,

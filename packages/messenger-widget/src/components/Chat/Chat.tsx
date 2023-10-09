@@ -46,7 +46,7 @@ export function Chat() {
     // handles messages list
     useEffect(() => {
         setIsProfileConfigured(true);
-        let isInitialized = false;
+        let showLoader: boolean = true;
 
         // fetch the messages from local storage is exists
         if (state.accounts.selectedContact) {
@@ -54,7 +54,7 @@ export function Chat() {
                 state.accounts.selectedContact?.account.ensName,
             );
             if (msgDetails) {
-                isInitialized = true;
+                showLoader = false;
                 setListOfMessages(JSON.parse(msgDetails));
             }
         }
@@ -82,8 +82,9 @@ export function Chat() {
                     ),
                     alias,
                     setListOfMessages,
-                    isInitialized,
+                    isMessageListInitialized,
                     updateIsMessageListInitialized,
+                    showLoader,
                 );
             } catch (error) {
                 setListOfMessages([]);

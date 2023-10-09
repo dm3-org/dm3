@@ -57,8 +57,8 @@ export function MessageInputBox() {
             {/* Reply message preview */}
             {state.uiView.selectedMessageView.actionType ===
                 MessageActionType.REPLY && (
-                    <ReplyMessagePreview setFiles={setFiles} />
-                )}
+                <ReplyMessagePreview setFiles={setFiles} />
+            )}
 
             {/* Emoji popup modal */}
             {state.modal.openEmojiPopup.action && (
