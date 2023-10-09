@@ -209,9 +209,7 @@ export function SignIn(props: SignInProps) {
                             />
                         </div>
 
-                        <br />
-
-                        <div>
+                        <div className="mt-4">
                             <div className="encrypted-details font-weight-800 font-size-12 text-primary-color">
                                 web3 messaging.
                                 <p className="encrypted-details font-weight-400 font-size-12 text-primary-color">
@@ -220,8 +218,6 @@ export function SignIn(props: SignInProps) {
                                 </p>
                             </div>
                         </div>
-
-                        <br />
 
                         <div className="content-data">
                             <button
@@ -250,9 +246,7 @@ export function SignIn(props: SignInProps) {
                             </button>
                         </div>
 
-                        <br />
-
-                        <div className="para-div">
+                        <div className="content-data para-div">
                             <p className="text-primary-color details font-size-12">
                                 Connect the dm3 messenger with your wallet and
                                 sign in with a signature. No need for a username

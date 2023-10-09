@@ -85,6 +85,7 @@ function DM3(props: Dm3Props) {
 
             const socket = socketIOClient(deliveryServiceUrl, {
                 autoConnect: false,
+                transports: ['websocket'],
             });
 
             socket.auth = {

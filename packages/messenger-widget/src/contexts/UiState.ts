@@ -7,42 +7,6 @@ export function uiStateReducer(
     action: UiStateActions,
 ): UiState {
     switch (action.type) {
-        case UiStateType.SetShowAddContact:
-            if (state.showAddContact === action.payload) {
-                return state;
-            } else {
-                log(`[UI] Set show add contact form ${action.payload}`, 'info');
-                return {
-                    ...state,
-                    showAddContact: action.payload,
-                };
-            }
-
-        case UiStateType.SetSelectedRightView:
-            if (state.selectedRightView === action.payload) {
-                return state;
-            } else {
-                log(`[UI] Change right view to ${action.payload}`, 'info');
-                return {
-                    ...state,
-                    selectedRightView: action.payload,
-                };
-            }
-
-        case UiStateType.SetMaxLeftView:
-            log(`[UI] maxLeftView: ${action.payload}`, 'info');
-            return {
-                ...state,
-                maxLeftView: action.payload,
-            };
-
-        case UiStateType.ToggleShow:
-            log(`[UI] toggle show`, 'info');
-            return {
-                ...state,
-                show: !state.show,
-            };
-
         case UiStateType.SetLastMessagePull:
             log(`[UI] set timestamp of last message pull`, 'info');
             return {
@@ -65,13 +29,6 @@ export function uiStateReducer(
             return {
                 ...state,
                 browserStorageBackup: action.payload,
-            };
-
-        case UiStateType.SetShowContactList:
-            log(`[UI] set contact list view`, 'info');
-            return {
-                ...state,
-                showContactList: action.payload,
             };
 
         default:
