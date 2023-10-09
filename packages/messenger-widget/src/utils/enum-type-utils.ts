@@ -35,13 +35,11 @@ export type ActionMap<M extends { [index: string]: any }> = {
 export type Accounts = {
     contacts: Contact[] | undefined;
     selectedContact: Contact | undefined;
-    accountInfoView: AccountInfo;
 };
 
 export type AccountsPayload = {
     [AccountsType.SetSelectedContact]: Contact | undefined;
     [AccountsType.SetContacts]: Contact[] | undefined;
-    [AccountsType.SetAccountInfoView]: AccountInfo;
     [AccountsType.RemoveContact]: string;
 };
 
@@ -59,6 +57,10 @@ export type CachePayload = {
     [CacheType.AddAbis]: { address: string; abi: string }[];
     [CacheType.AddAvatarUrl]: { ensName: string; url: string };
     [CacheType.Contacts]: ContactPreview[] | null;
+    [CacheType.LastConversation]: {
+        account: Account | null;
+        message: string | null;
+    };
 };
 
 export type CacheActions =
@@ -107,14 +109,9 @@ export type UserDbActions =
     ActionMap<UserDbPayload>[keyof ActionMap<UserDbPayload>];
 
 export type UiStatePayload = {
-    [UiStateType.SetShowAddContact]: boolean;
-    [UiStateType.SetSelectedRightView]: SelectedRightView;
-    [UiStateType.SetMaxLeftView]: boolean;
-    [UiStateType.ToggleShow]: undefined;
     [UiStateType.SetLastMessagePull]: number;
     [UiStateType.SetProfileExists]: boolean;
     [UiStateType.SetBrowserStorageBackup]: boolean;
-    [UiStateType.SetShowContactList]: boolean;
 };
 
 export type UiStateActions =
@@ -133,7 +130,6 @@ export type Actions =
 export enum AccountsType {
     SetSelectedContact = 'SET_SELECTED_CONTACT',
     SetContacts = 'SET_CONTACTS',
-    SetAccountInfoView = 'ACCOUNT_INFO_VIEW',
     RemoveContact = 'REMOVE_CONTACT',
 }
 
@@ -153,6 +149,7 @@ export enum CacheType {
     AddAbis = 'ADD_ABIS',
     AddAvatarUrl = 'ADD_AVATAR_URL',
     Contacts = 'CONTACTS',
+    LastConversation = 'LAST_CONVERSATION',
 }
 
 export enum ConnectionType {
@@ -184,14 +181,9 @@ export enum SelectedRightView {
 }
 
 export enum UiStateType {
-    SetShowAddContact = 'SET_SHOW_ADD_CONTACT',
-    SetSelectedRightView = 'SET_SELECTED_RIGHT_VIEW',
-    SetMaxLeftView = 'SET_MAX_LEFT_VIEW',
-    ToggleShow = 'ToggleShow',
     SetLastMessagePull = 'SET_LAST_MESSAGE_PULL',
     SetProfileExists = 'SET_PROFILE_EXISTS',
     SetBrowserStorageBackup = 'SET_BROWSER_STORAGE_BACKUP',
-    SetShowContactList = 'SET_SHOW_CONTACT_LIST',
 }
 
 export enum ConnectionState {

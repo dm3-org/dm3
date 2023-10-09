@@ -18,23 +18,20 @@ export const initialState: GlobalState = {
     accounts: {
         contacts: undefined,
         selectedContact: undefined,
-        accountInfoView: AccountInfo.None,
     },
     cache: {
         abis: new Map<string, string>(),
-        avatarUrls: new Map<string, string>(),
         contacts: null,
+        lastConversation: {
+            account: null,
+            message: null,
+        },
     },
     userDb: undefined,
     uiState: {
-        showAddContact: false,
-        selectedRightView: SelectedRightView.Chat,
-        maxLeftView: true,
-        show: false,
         lastMessagePull: 0,
         proflieExists: false,
         browserStorageBackup: false,
-        showContactList: true,
     },
     auth: {
         currentSession: undefined,

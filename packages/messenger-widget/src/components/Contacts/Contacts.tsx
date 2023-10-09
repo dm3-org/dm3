@@ -9,6 +9,7 @@ import {
     updateContactOnAccountChange,
     updateSelectedContact,
     resetContactListOnHide,
+    fetchContactsFromLocalStorage,
 } from './bl';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
@@ -16,9 +17,9 @@ import { DashboardProps } from '../../interfaces/props';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { globalConfig } from 'dm3-lib-shared';
 import {
+    CacheType,
     ModalStateType,
     RightViewSelected,
-    UserDbType,
 } from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
 import loader from '../../assets/images/loader.svg';
@@ -78,6 +79,9 @@ export function Contacts(props: DashboardProps) {
 
     // handles change in accounts
     useEffect(() => {
+        const contactsFromLocalStorage = fetchContactsFromLocalStorage();
+        contactsFromLocalStorage &&
+            setContacts(JSON.parse(contactsFromLocalStorage));
         if (
             !state.accounts.selectedContact &&
             (state.uiView.selectedRightView === RightViewSelected.Chat ||
@@ -105,6 +109,7 @@ export function Contacts(props: DashboardProps) {
 
         if (cacheContacts) {
             setContacts(cacheContacts);
+            localStorage.setItem('contacts', JSON.stringify(cacheContacts));
             if (
                 state.modal.addConversation.active &&
                 !state.modal.addConversation.processed
@@ -152,6 +157,29 @@ export function Contacts(props: DashboardProps) {
         }
     }, [contacts]);
 
+    // updates the last message in contact list
+    useEffect(() => {
+        if (
+            state.cache.lastConversation.account &&
+            state.cache.lastConversation.message &&
+            state.cache.contacts &&
+            contactSelected
+        ) {
+            const items = [...state.cache.contacts];
+            const item = {
+                ...items[contactSelected],
+                message: state.cache.lastConversation.message,
+            };
+            items[contactSelected] = item;
+            dispatch({
+                type: CacheType.Contacts,
+                payload: items,
+            });
+            setContacts(items);
+            localStorage.setItem('contacts', JSON.stringify(items));
+        }
+    }, [state.cache.lastConversation]);
+
     // fetched contacts from the cache
     useEffect(() => {
         const cacheContacts = state.cache.contacts;
@@ -179,6 +207,14 @@ export function Contacts(props: DashboardProps) {
             );
         }
     }, [contactSelected]);
+
+    // fetches contact list from local storage
+    useEffect(() => {
+        startLoader();
+        const contactsFromLocalStorage = fetchContactsFromLocalStorage();
+        contactsFromLocalStorage &&
+            setContacts(JSON.parse(contactsFromLocalStorage));
+    }, []);
 
     /* Hidden content for highlighting css */
     const hiddenData: number[] = Array.from({ length: 14 }, (_, i) => i + 1);
