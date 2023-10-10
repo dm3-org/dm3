@@ -13,7 +13,6 @@ import {
     scrollToBottomOfChat,
 } from './bl';
 import { MessageActionType } from '../../utils/enum-type-utils';
-import loader from '../../assets/images/loader.svg';
 
 export function Chat() {
     const { state, dispatch } = useContext(GlobalContext);
@@ -133,6 +132,7 @@ export function Chat() {
                     {shimmerData.map((item, index) => {
                         return (
                             <span
+                                key={index}
                                 className={'text-primary-color d-grid msg'.concat(
                                     ' ',
                                     index % 2

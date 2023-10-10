@@ -27,12 +27,7 @@ export function ContactMenu(props: ContactMenu) {
         <div
             className={'dropdown-content font-size-14 font-weight-400'.concat(
                 ' ',
-                state.cache.contacts &&
-                    props.index > 0 &&
-                    state.cache.contacts?.length >= 11 &&
-                    props.index >= state.cache.contacts?.length - 2
-                    ? 'dropdown-content-top-align'
-                    : '',
+                props.isMenuAlignedAtBottom ? '' : 'dropdown-content-top-align',
             )}
         >
             <div

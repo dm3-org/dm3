@@ -9,6 +9,7 @@ import {
     updateContactOnAccountChange,
     updateSelectedContact,
     resetContactListOnHide,
+    showMenuInBottom,
 } from './bl';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
@@ -30,6 +31,10 @@ export function Contacts(props: DashboardProps) {
     // local states to handle contact list and active contact
     const [contactSelected, setContactSelected] = useState<number | null>(null);
     const [contacts, setContacts] = useState<ContactPreview[]>([]);
+
+    const [isMenuAlignedAtBottom, setIsMenuAlignedAtBottom] = useState<
+        boolean | null
+    >(null);
 
     // sets contact list to show on UI
     const setListOfContacts = (list: ContactPreview[]) => {
@@ -199,14 +204,26 @@ export function Contacts(props: DashboardProps) {
                 dispatch,
                 contacts[contactSelected].contactDetails,
             );
+            setIsMenuAlignedAtBottom(showMenuInBottom(contactSelected));
         }
     }, [contactSelected]);
 
     /* Hidden content for highlighting css */
     const hiddenData: number[] = Array.from({ length: 14 }, (_, i) => i + 1);
 
+    const scroller = document.getElementById('chat-scroller');
+
+    if (scroller) {
+        scroller.addEventListener('scroll', () => {
+            if (contactSelected != null) {
+                setIsMenuAlignedAtBottom(showMenuInBottom(contactSelected));
+            }
+        });
+    }
+
     return (
         <div
+            id="chat-scroller"
             className={'contacts-scroller width-fill'.concat(
                 ' ',
                 contacts.length > 6 ? 'scroller-active' : 'scroller-hidden',
@@ -215,6 +232,7 @@ export function Contacts(props: DashboardProps) {
             {contacts.length > 0 &&
                 contacts.map((data, index) => (
                     <div
+                        id={`chat-item-id-${index}`}
                         key={index}
                         className={'pointer-cursor width-fill contact-details-container'.concat(
                             ' ',
@@ -262,6 +280,14 @@ export function Contacts(props: DashboardProps) {
                                                                 data
                                                             }
                                                             index={index}
+                                                            isMenuAlignedAtBottom={
+                                                                isMenuAlignedAtBottom ===
+                                                                null
+                                                                    ? showMenuInBottom(
+                                                                          contactSelected,
+                                                                      )
+                                                                    : isMenuAlignedAtBottom
+                                                            }
                                                         />
                                                     }
                                                 </div>
