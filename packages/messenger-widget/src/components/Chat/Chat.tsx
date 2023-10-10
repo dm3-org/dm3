@@ -13,6 +13,7 @@ import {
     scrollToBottomOfChat,
 } from './bl';
 import { MessageActionType } from '../../utils/enum-type-utils';
+import loader from '../../assets/images/loader.svg';
 
 export function Chat() {
     const { state, dispatch } = useContext(GlobalContext);
@@ -22,6 +23,7 @@ export function Chat() {
         useState<boolean>(false);
     const [isProfileConfigured, setIsProfileConfigured] =
         useState<boolean>(false);
+    const [showShimEffect, setShowShimEffect] = useState(true);
 
     const alias =
         state.connection.ethAddress &&
@@ -29,6 +31,10 @@ export function Chat() {
 
     const setProfileCheck = (status: boolean) => {
         setIsProfileConfigured(status);
+    };
+
+    const updateShowShimEffect = (action: boolean) => {
+        setShowShimEffect(action);
     };
 
     const setListOfMessages = (msgs: []) => {
@@ -46,16 +52,16 @@ export function Chat() {
     // handles messages list
     useEffect(() => {
         setIsProfileConfigured(true);
-        let showLoader: boolean = true;
-
         // fetch the messages from local storage is exists
         if (state.accounts.selectedContact) {
             const msgDetails = localStorage.getItem(
                 state.accounts.selectedContact?.account.ensName,
             );
             if (msgDetails) {
-                showLoader = false;
+                setShowShimEffect(false);
                 setListOfMessages(JSON.parse(msgDetails));
+            } else {
+                setShowShimEffect(true);
             }
         }
 
@@ -84,9 +90,10 @@ export function Chat() {
                     setListOfMessages,
                     isMessageListInitialized,
                     updateIsMessageListInitialized,
-                    showLoader,
+                    updateShowShimEffect,
                 );
             } catch (error) {
+                setShowShimEffect(false);
                 setListOfMessages([]);
                 log(error, 'error');
             }
@@ -104,6 +111,9 @@ export function Chat() {
         }
     }, [messageList]);
 
+    /* shimmer effect contacts css */
+    const shimmerData: number[] = Array.from({ length: 50 }, (_, i) => i + 1);
+
     return (
         <div
             className={
@@ -112,31 +122,65 @@ export function Chat() {
                     : 'highlight-chat-border-none'
             }
         >
-            <div className="m-2 text-primary-color position-relative chat-container">
-                {/* To show information box that contact has not created profile */}
-                {!isProfileConfigured && <ConfigProfileAlertBox />}
-
-                {/* Chat messages */}
+            {/* Shimmer effect while messages are loading */}
+            {showShimEffect && (
                 <div
                     id="chat-box"
-                    className={'chat-items position-relative mb-2'.concat(
-                        ' ',
-                        !isProfileConfigured
-                            ? 'chat-height-small'
-                            : 'chat-height-high',
-                    )}
+                    className={
+                        'chat-items position-relative mb-2 skeletion-chat-height'
+                    }
                 >
-                    {messageList.length > 0 &&
-                        messageList.map((messageData: MessageProps, index) => (
-                            <div key={index} className="mt-2">
-                                <Message {...messageData} />
-                            </div>
-                        ))}
+                    {shimmerData.map((item, index) => {
+                        return (
+                            <span
+                                className={'text-primary-color d-grid msg'.concat(
+                                    ' ',
+                                    index % 2
+                                        ? 'me-2 justify-content-end'
+                                        : 'ms-2 justify-content-start',
+                                )}
+                            >
+                                <div className="d-flex">
+                                    <div
+                                        className="width-fill text-left font-size-14 border-radius-6 content-style 
+                                        ms-3 background-config-box skeleton-message"
+                                    ></div>
+                                </div>
+                            </span>
+                        );
+                    })}
                 </div>
+            )}
 
-                {/* Message, emoji and file attachments */}
-                <MessageInputBox />
-            </div>
+            {!showShimEffect && (
+                <div className="m-2 text-primary-color position-relative chat-container">
+                    {/* To show information box that contact has not created profile */}
+                    {!isProfileConfigured && <ConfigProfileAlertBox />}
+
+                    {/* Chat messages */}
+                    <div
+                        id="chat-box"
+                        className={'chat-items position-relative mb-2'.concat(
+                            ' ',
+                            !isProfileConfigured
+                                ? 'chat-height-small'
+                                : 'chat-height-high',
+                        )}
+                    >
+                        {messageList.length > 0 &&
+                            messageList.map(
+                                (messageData: MessageProps, index) => (
+                                    <div key={index} className="mt-2">
+                                        <Message {...messageData} />
+                                    </div>
+                                ),
+                            )}
+                    </div>
+
+                    {/* Message, emoji and file attachments */}
+                    <MessageInputBox />
+                </div>
+            )}
         </div>
     );
 }

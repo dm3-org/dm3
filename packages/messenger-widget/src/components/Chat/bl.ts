@@ -11,13 +11,10 @@ import {
     CacheType,
     GlobalState,
     MessageActionType,
-    ModalStateType,
     UserDbType,
 } from '../../utils/enum-type-utils';
 import { StorageEnvelopContainer, UserDB } from 'dm3-lib-storage';
 import { MessageProps } from '../../interfaces/props';
-import { closeLoader, startLoader } from '../Loader/Loader';
-import { Contact } from '../../interfaces/context';
 import { fetchAndStoreMessages } from '../../adapters/messages';
 
 // method to check message signature
@@ -202,18 +199,9 @@ export const handleMessages = async (
     setListOfMessages: Function,
     isMessageListInitialized: boolean,
     updateIsMessageListInitialized: Function,
-    showLoader: boolean,
+    updateShowShimEffect: Function,
 ) => {
     if (!isMessageListInitialized && state.accounts.selectedContact) {
-        if (showLoader) {
-            dispatch({
-                type: ModalStateType.LoaderContent,
-                payload: 'Fetching messages...',
-            });
-
-            startLoader();
-        }
-
         await fetchAndStoreMessages(
             state.connection,
             state.auth.currentSession?.token!,
@@ -303,5 +291,5 @@ export const handleMessages = async (
         updateIsMessageListInitialized(true);
     }
 
-    closeLoader();
+    updateShowShimEffect(false);
 };
