@@ -58,6 +58,10 @@ export const setTheme = (theme: string | undefined | null) => {
     );
     document.body.style.setProperty('--error-text', themeDetails.textError);
     document.body.style.setProperty(
+        '--error-background',
+        themeDetails.errorBackground,
+    );
+    document.body.style.setProperty(
         '--attachment-background',
         themeDetails.attachmentBackground,
     );

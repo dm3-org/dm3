@@ -9,7 +9,7 @@ import {
     updateContactOnAccountChange,
     updateSelectedContact,
     resetContactListOnHide,
-    fetchContactsFromLocalStorage,
+    showMenuInBottom,
 } from './bl';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
@@ -31,6 +31,10 @@ export function Contacts(props: DashboardProps) {
     // local states to handle contact list and active contact
     const [contactSelected, setContactSelected] = useState<number | null>(null);
     const [contacts, setContacts] = useState<ContactPreview[]>([]);
+
+    const [isMenuAlignedAtBottom, setIsMenuAlignedAtBottom] = useState<
+        boolean | null
+    >(null);
 
     // sets contact list to show on UI
     const setListOfContacts = (list: ContactPreview[]) => {
@@ -79,9 +83,6 @@ export function Contacts(props: DashboardProps) {
 
     // handles change in accounts
     useEffect(() => {
-        const contactsFromLocalStorage = fetchContactsFromLocalStorage();
-        contactsFromLocalStorage &&
-            setContacts(JSON.parse(contactsFromLocalStorage));
         if (
             !state.accounts.selectedContact &&
             (state.uiView.selectedRightView === RightViewSelected.Chat ||
@@ -109,7 +110,6 @@ export function Contacts(props: DashboardProps) {
 
         if (cacheContacts) {
             setContacts(cacheContacts);
-            localStorage.setItem('contacts', JSON.stringify(cacheContacts));
             if (
                 state.modal.addConversation.active &&
                 !state.modal.addConversation.processed
@@ -176,7 +176,6 @@ export function Contacts(props: DashboardProps) {
                 payload: items,
             });
             setContacts(items);
-            localStorage.setItem('contacts', JSON.stringify(items));
         }
     }, [state.cache.lastConversation]);
 
@@ -205,22 +204,26 @@ export function Contacts(props: DashboardProps) {
                 dispatch,
                 contacts[contactSelected].contactDetails,
             );
+            setIsMenuAlignedAtBottom(showMenuInBottom(contactSelected));
         }
     }, [contactSelected]);
-
-    // fetches contact list from local storage
-    useEffect(() => {
-        startLoader();
-        const contactsFromLocalStorage = fetchContactsFromLocalStorage();
-        contactsFromLocalStorage &&
-            setContacts(JSON.parse(contactsFromLocalStorage));
-    }, []);
 
     /* Hidden content for highlighting css */
     const hiddenData: number[] = Array.from({ length: 14 }, (_, i) => i + 1);
 
+    const scroller = document.getElementById('chat-scroller');
+
+    if (scroller) {
+        scroller.addEventListener('scroll', () => {
+            if (contactSelected != null) {
+                setIsMenuAlignedAtBottom(showMenuInBottom(contactSelected));
+            }
+        });
+    }
+
     return (
         <div
+            id="chat-scroller"
             className={'contacts-scroller width-fill'.concat(
                 ' ',
                 contacts.length > 6 ? 'scroller-active' : 'scroller-hidden',
@@ -229,6 +232,7 @@ export function Contacts(props: DashboardProps) {
             {contacts.length > 0 &&
                 contacts.map((data, index) => (
                     <div
+                        id={`chat-item-id-${index}`}
                         key={index}
                         className={'pointer-cursor width-fill contact-details-container'.concat(
                             ' ',
@@ -276,6 +280,14 @@ export function Contacts(props: DashboardProps) {
                                                                 data
                                                             }
                                                             index={index}
+                                                            isMenuAlignedAtBottom={
+                                                                isMenuAlignedAtBottom ===
+                                                                null
+                                                                    ? showMenuInBottom(
+                                                                          contactSelected,
+                                                                      )
+                                                                    : isMenuAlignedAtBottom
+                                                            }
                                                         />
                                                     }
                                                 </div>
@@ -307,6 +319,20 @@ export function Contacts(props: DashboardProps) {
             {/* Hidden content for highlighting css */}
             {contacts.length < 10 &&
                 hiddenData.map((data) => (
+                    <div
+                        key={data}
+                        className={
+                            contactSelected !== null
+                                ? 'highlight-right-border'
+                                : 'highlight-right-border-none'
+                        }
+                    >
+                        <div className="hidden-data"></div>
+                    </div>
+                ))}
+
+            {contacts.length >= 10 &&
+                hiddenData.slice(11).map((data) => (
                     <div
                         key={data}
                         className={

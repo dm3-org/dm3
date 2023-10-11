@@ -1,6 +1,6 @@
 .chat-action-items {
     border: 1px solid var(--text-secondary-color);
-    padding: 0.2rem;
+    padding: 0.3rem;
 }
 
 .chat-svg-icon {
@@ -13,10 +13,13 @@
 }
 
 .text-input-field {
+    border-left: 2px solid var(--text-secondary-color) !important;
     border: none;
     outline: none;
     padding-left: 0.3rem;
     padding-right: 0.9rem;
+    padding-top: 0rem;
+    padding-bottom: 0rem;
 }
 
 .reply-msg-active {

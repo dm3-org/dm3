@@ -6,8 +6,10 @@ import { DashboardProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
 import { useContext, useEffect } from 'react';
 import {
+    AccountsType,
     LeftViewSelected,
     ModalStateType,
+    RightViewSelected,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
 import { startLoader } from '../../components/Loader/Loader';
@@ -31,6 +33,14 @@ export default function LeftView(props: DashboardProps) {
         dispatch({
             type: UiViewStateType.SetSelectedLeftView,
             payload: LeftViewSelected.Menu,
+        });
+        dispatch({
+            type: UiViewStateType.SetSelectedRightView,
+            payload: RightViewSelected.Default,
+        });
+        dispatch({
+            type: AccountsType.SetSelectedContact,
+            payload: undefined,
         });
     };
 

@@ -140,7 +140,6 @@ export const setContactList = async (
     const cacheList = state.cache.contacts;
     if (cacheList && cacheList.length) {
         setListOfContacts(cacheList);
-        localStorage.setItem('contacts', JSON.stringify(cacheList));
     } else {
         const data: ContactPreview[] = await fetchAndSetContacts(state);
         dispatch({
@@ -148,7 +147,6 @@ export const setContactList = async (
             payload: data,
         });
         setListOfContacts(data);
-        if (data.length) localStorage.setItem('contacts', JSON.stringify(data));
     }
 };
 
@@ -216,7 +214,6 @@ export const updateContactOnAccountChange = async (
             const newList = [...contacts];
             newList[lastIndex] = item;
             setListOfContacts(newList);
-            localStorage.setItem('contacts', JSON.stringify(newList));
 
             // update the modal data as conversation is added
             const stateData = state.modal.addConversation;
@@ -249,7 +246,6 @@ export const resetContactListOnHide = (
         });
 
         setListOfContacts(cachedContactList);
-        localStorage.setItem('contacts', JSON.stringify(cachedContactList));
 
         dispatch({
             type: ModalStateType.ContactToHide,
@@ -258,6 +254,21 @@ export const resetContactListOnHide = (
     }
 };
 
-export const fetchContactsFromLocalStorage = () => {
-    return localStorage.getItem('contacts');
+export const showMenuInBottom = (index: number | null): boolean => {
+    const scroller: HTMLElement = document.getElementById(
+        'chat-scroller',
+    ) as HTMLElement;
+    if (index != null && scroller) {
+        const contact: HTMLElement = document.getElementById(
+            `chat-item-id-${index}`,
+        ) as HTMLElement;
+        if (contact) {
+            const scrollerBottom: number =
+                scroller.getBoundingClientRect().bottom;
+            const contactBottom: number =
+                contact.getBoundingClientRect().bottom;
+            return scrollerBottom - contactBottom >= 156 ? true : false;
+        }
+    }
+    return true;
 };

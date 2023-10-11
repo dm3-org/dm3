@@ -18,7 +18,7 @@ export default function RightView() {
                 <RightHeader />
                 {state.uiView.selectedRightView ===
                     RightViewSelected.Default && (
-                    <div className="d-flex justify-content-center align-items-center h-100">
+                    <div className="d-flex justify-content-center align-items-center default-screen">
                         <img className="img-fluid" src={logo} alt="logo" />
                     </div>
                 )}
