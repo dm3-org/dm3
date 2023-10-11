@@ -6,7 +6,7 @@ export interface EnsProfileDetails {
     twitter: string | null;
 }
 
-export interface Button {
+export interface IButton {
     buttonText: string;
     actionMethod: Function;
 }
