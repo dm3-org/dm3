@@ -10,7 +10,7 @@ export function AttachmentPreview(props: AttachmentProps) {
     }
 
     return (
-        <div className="d-flex pt-1 align-items-center">
+        <div className="d-flex pb-2 pt-1 align-items-center">
             {props.filesSelected.map((item) => {
                 return (
                     <div

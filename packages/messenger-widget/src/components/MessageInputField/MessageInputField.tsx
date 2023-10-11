@@ -35,7 +35,7 @@ export function MessageInputField(props: MessageDataProps) {
 
     return (
         <form
-            className="width-fill"
+            className="width-fill ms-2 d-flex"
             onSubmit={(event: React.FormEvent<HTMLFormElement>) =>
                 submit(event)
             }

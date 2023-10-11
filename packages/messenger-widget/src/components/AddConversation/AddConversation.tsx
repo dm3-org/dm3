@@ -4,6 +4,7 @@ import closeIcon from '../../assets/images/cross.svg';
 import { INPUT_FIELD_CLASS, addContact, closeConversationModal } from './bl';
 import { FormEvent, useContext, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
+import { showContactList } from '../../utils/common-utils';
 
 export default function AddConversation() {
     const { state, dispatch } = useContext(GlobalContext);
@@ -79,13 +80,14 @@ export default function AddConversation() {
                             className="close-modal-icon"
                             src={closeIcon}
                             alt="close"
-                            onClick={() =>
+                            onClick={() => {
                                 closeConversationModal(
                                     resetName,
                                     showErrorMessage,
                                     resetInputFieldClass,
-                                )
-                            }
+                                );
+                                showContactList(dispatch);
+                            }}
                         />
                     </div>
 

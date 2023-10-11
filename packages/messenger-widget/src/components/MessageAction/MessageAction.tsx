@@ -134,8 +134,9 @@ export function MessageAction(props: MessageProps) {
                 props.ownMessage ? 'own-msg' : '',
             )}
         >
-            {props.ownMessage && props.message && (
-                <>
+            {props.ownMessage &&
+                props.message &&
+                props.envelop.metadata?.encryptedMessageHash && (
                     <div
                         className="d-flex align-items-center justify-content-start"
                         onClick={() => setAction(MessageActionType.EDIT)}
@@ -143,6 +144,10 @@ export function MessageAction(props: MessageProps) {
                         <img src={editIcon} alt="edit" className="me-2" />
                         Edit
                     </div>
+                )}
+
+            {props.ownMessage &&
+                props.envelop.metadata?.encryptedMessageHash && (
                     <div
                         className="d-flex align-items-center justify-content-start"
                         onClick={() => setAction(MessageActionType.DELETE)}
@@ -150,8 +155,8 @@ export function MessageAction(props: MessageProps) {
                         <img src={deleteIcon} alt="delete" className="me-2" />
                         Delete
                     </div>
-                </>
-            )}
+                )}
+
             {!props.ownMessage && (
                 <div className="msg-reaction d-flex align-items-center justify-content-start p-0">
                     {reactionEmojis.map((item, index) => {
