@@ -21,6 +21,7 @@ export function AttachmentThumbnailPreview(props: AttachmentPreviewProps) {
 
     return (
         <div
+            data-testid="thumbnail-container"
             className={'d-flex pt-1 mb-2 align-items-center'.concat(
                 ' ',
                 props.isMyMessage
@@ -37,6 +38,7 @@ export function AttachmentThumbnailPreview(props: AttachmentPreviewProps) {
             props.filesSelected[0].isImage ? (
                 // if only one attachment is present and it's a image
                 <img
+                    data-testid="single-image"
                     className="border-radius-6 image-thumbnail-preview pointer-cursor"
                     src={props.filesSelected[0].data}
                     alt="image"
@@ -47,6 +49,7 @@ export function AttachmentThumbnailPreview(props: AttachmentPreviewProps) {
                 props.filesSelected.map((item) => {
                     return (
                         <div
+                            data-testid={item.id}
                             className="d-flex attachment-background border-radius-6 width-fit 
                         align-items-center p-2 me-1 pointer-cursor"
                             key={item.id}

@@ -9,7 +9,9 @@ describe('Button test cases', () => {
     };
 
     it('Renders Button component', () => {
-        expect(render(<Button {...props} />));
+        const { getByTestId } = render(<Button {...props} />);
+        const data = getByTestId('common-button');
+        expect(data).toBeInTheDocument();
     });
 
     it('Renders a button with the provided label', () => {
