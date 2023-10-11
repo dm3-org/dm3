@@ -24,3 +24,40 @@
     position: absolute;
     bottom: 0;
 }
+
+.menu-container {
+    animation: zoom-in-zoom-out 0.7s ease 1;
+}
+
+@keyframes zoom-in-zoom-out {
+    10% {
+        transform: scale(0.1, 0.1);
+    }
+    20% {
+        transform: scale(0.2, 0.2);
+    }
+    30% {
+        transform: scale(0.3, 0.3);
+    }
+    40% {
+        transform: scale(0.4, 0.4);
+    }
+    50% {
+        transform: scale(0.5, 0.5);
+    }
+    60% {
+        transform: scale(0.6, 0.6);
+    }
+    70% {
+        transform: scale(0.7, 0.7);
+    }
+    80% {
+        transform: scale(0.8, 0.8);
+    }
+    90% {
+        transform: scale(0.9, 0.9);
+    }
+    100% {
+        transform: scale(1, 1);
+    }
+}

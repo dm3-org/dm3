@@ -1,8 +1,13 @@
 import './Preferences.css';
 import closeIcon from '../../assets/images/cross.svg';
 import { closePreferencesModal } from './bl';
+import { useContext } from 'react';
+import { GlobalContext } from '../../utils/context-utils';
+import { showContactList } from '../../utils/common-utils';
 
 export function Preferences() {
+    const { dispatch } = useContext(GlobalContext);
+
     return (
         <div>
             <div
@@ -23,7 +28,10 @@ export function Preferences() {
                             className="preferences-close-icon"
                             src={closeIcon}
                             alt="close"
-                            onClick={() => closePreferencesModal()}
+                            onClick={() => {
+                                closePreferencesModal();
+                                showContactList(dispatch);
+                            }}
                         />
                     </div>
 

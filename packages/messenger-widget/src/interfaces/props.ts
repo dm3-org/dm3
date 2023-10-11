@@ -24,6 +24,7 @@ export interface EnsDetails {
 export interface ContactMenu {
     contactDetails: ContactPreview;
     index: number;
+    isMenuAlignedAtBottom: boolean;
 }
 
 export interface MessageProps {

@@ -3,7 +3,15 @@ import { Account, ProfileKeys } from 'dm3-lib-profile';
 import { log } from 'dm3-lib-shared';
 import { StorageEnvelopContainer } from 'dm3-lib-storage';
 import { submitMessage } from '../adapters/messages';
-import { GlobalState, Actions, UserDbType } from './enum-type-utils';
+import {
+    GlobalState,
+    Actions,
+    UserDbType,
+    LeftViewSelected,
+    ModalStateType,
+    UiViewStateType,
+} from './enum-type-utils';
+import { startLoader } from '../components/Loader/Loader';
 
 // returns the file extension by extracting from base64
 export const getFileTypeFromBase64 = (file: string): string => {
@@ -135,6 +143,18 @@ export const sendMessage = async (
     } catch (e) {
         log('[handleNewUserMessage] ' + JSON.stringify(e), 'error');
     }
+};
+
+export const showContactList = (dispatch: React.Dispatch<Actions>) => {
+    dispatch({
+        type: ModalStateType.LoaderContent,
+        payload: 'Fetching contacts...',
+    });
+    startLoader();
+    dispatch({
+        type: UiViewStateType.SetSelectedLeftView,
+        payload: LeftViewSelected.Contacts,
+    });
 };
 
 // Constants
