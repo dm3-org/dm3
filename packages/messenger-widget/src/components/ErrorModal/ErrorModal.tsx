@@ -7,12 +7,17 @@ export default function ErrorModal() {
     return (
         <div>
             <div
+                data-testid="error-modal"
                 id="error-modal"
                 className="modal-container display-none position-fixed w-100 h-100 pointer-cursor"
             >
                 <div className="error-modal-content border-radius-6 background-container text-primary-color">
                     <div className="d-flex align-items-center justify-content-evenly">
-                        <p id="error-message" className="text-center"></p>
+                        <p
+                            data-testid="error-message"
+                            id="error-message"
+                            className="text-center"
+                        ></p>
                     </div>
                     <div
                         id="error-modal-spinner"

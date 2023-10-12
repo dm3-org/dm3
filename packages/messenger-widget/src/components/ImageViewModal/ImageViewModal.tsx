@@ -10,11 +10,13 @@ export function ImageViewModal(props: ImageModal) {
             <div className="d-flex justify-content-center align-items-center height-fill">
                 <div className="d-flex align-items-start">
                     <img
+                        data-testid="image-modal"
                         src={props.uri}
                         alt="image"
                         style={{ maxHeight: '80vh' }}
                     />
                     <img
+                        data-testid="close-img"
                         className="preferences-close-icon"
                         src={closeIcon}
                         alt="close"

@@ -16,7 +16,7 @@ export interface DashboardProps {
     dm3Props: Dm3Props;
 }
 
-export interface EnsDetails {
+export interface IEnsDetails {
     propertyKey: string;
     propertyValue: string;
 }

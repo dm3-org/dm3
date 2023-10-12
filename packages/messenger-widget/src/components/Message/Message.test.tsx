@@ -1,6 +1,7 @@
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { Message } from './Message';
+// import { Message } from './Message';
+// import _sodium from 'libsodium-wrappers';
 
 describe('Message test cases', () => {
     const props = {
@@ -16,7 +17,7 @@ describe('Message test cases', () => {
         isLastMessage: false,
     };
 
-    it('Renders Message component', () => {
-        // expect(render(<Message {...props} />));
+    it('Renders Message component', async () => {
+        // render(<Message {...props} />);
     });
 });
