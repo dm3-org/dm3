@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import detailsIcon from '../../assets/images/details.svg';
 import hideIcon from '../../assets/images/hide.svg';
-import { ContactMenu } from '../../interfaces/props';
+import { IContactMenu } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
 import {
     RightViewSelected,
@@ -9,7 +9,7 @@ import {
 } from '../../utils/enum-type-utils';
 import { hideContact } from '../../utils/ens-utils';
 
-export function ContactMenu(props: ContactMenu) {
+export function ContactMenu(props: IContactMenu) {
     const { state, dispatch } = useContext(GlobalContext);
 
     const onClickOfShowDetails = () => {

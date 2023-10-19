@@ -18,7 +18,7 @@ export interface ContactPreview {
     contactDetails: Contact;
 }
 
-export interface ContactInfo {
+export interface IContactInfo {
     name: string;
     address: string;
     image: string;

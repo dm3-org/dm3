@@ -5,6 +5,7 @@ import { INPUT_FIELD_CLASS, addContact, closeConversationModal } from './bl';
 import { FormEvent, useContext, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import { showContactList } from '../../utils/common-utils';
+import { ethers } from 'ethers';
 
 export default function AddConversation() {
     const { state, dispatch } = useContext(GlobalContext);
@@ -38,6 +39,10 @@ export default function AddConversation() {
         setErrorMsg('');
         setShowError(false);
         setName(e.target.value);
+        if (!ethers.utils.isValidName(e.target.value)) {
+            setErrorMsg('Invalid address or ENS name');
+            setShowError(true);
+        }
     };
 
     // resets name to default

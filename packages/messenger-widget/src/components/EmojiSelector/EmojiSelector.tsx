@@ -9,6 +9,7 @@ export function EmojiSelector() {
     return (
         <span className="d-flex smile-icon">
             <img
+                data-testid="emoji-modal-handler"
                 id="emoji-modal-handler"
                 className="chat-svg-icon pointer-cursor"
                 src={emojiIcon}

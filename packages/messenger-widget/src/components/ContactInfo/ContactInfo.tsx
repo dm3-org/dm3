@@ -10,14 +10,14 @@ import {
     onClose,
     openEnsProfile,
 } from '../../utils/ens-utils';
-import { ContactInfo } from '../../interfaces/utils';
+import { IContactInfo } from '../../interfaces/utils';
 import profilePic from '../../assets/images/profile-pic.jpg';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { ModalStateType } from '../../utils/enum-type-utils';
 
 export function ContactInfo() {
     const { state, dispatch } = useContext(GlobalContext);
-    const [contactDetails, setContactDetails] = useState<ContactInfo | null>(
+    const [contactDetails, setContactDetails] = useState<IContactInfo | null>(
         null,
     );
 

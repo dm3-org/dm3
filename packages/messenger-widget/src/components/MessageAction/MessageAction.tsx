@@ -138,6 +138,7 @@ export function MessageAction(props: MessageProps) {
                 props.message &&
                 props.envelop.metadata?.encryptedMessageHash && (
                     <div
+                        data-testid="edit-msg"
                         className="d-flex align-items-center justify-content-start"
                         onClick={() => setAction(MessageActionType.EDIT)}
                     >
@@ -149,6 +150,7 @@ export function MessageAction(props: MessageProps) {
             {props.ownMessage &&
                 props.envelop.metadata?.encryptedMessageHash && (
                     <div
+                        data-testid="delete-msg"
                         className="d-flex align-items-center justify-content-start"
                         onClick={() => setAction(MessageActionType.DELETE)}
                     >
@@ -162,6 +164,7 @@ export function MessageAction(props: MessageProps) {
                     {reactionEmojis.map((item, index) => {
                         return (
                             <div
+                                data-testid={`reaction-emoji-${index}`}
                                 className="msg-reaction-container"
                                 onClick={() => reactedWithEmoji(item)}
                                 key={index}
@@ -183,8 +186,9 @@ export function MessageAction(props: MessageProps) {
                 <hr className="line-separator msg-react-separator" />
             )}
 
-            {props.message && (
+            {props.message && props.envelop.metadata?.encryptedMessageHash && (
                 <div
+                    data-testid="reply-msg"
                     className="d-flex align-items-center justify-content-start"
                     onClick={() => setAction(MessageActionType.REPLY)}
                 >
@@ -196,6 +200,7 @@ export function MessageAction(props: MessageProps) {
             {props.envelop.message.attachments &&
                 props.envelop.message.attachments.length > 0 && (
                     <div
+                        data-testid="attachments-msg"
                         className="d-flex align-items-center justify-content-start"
                         onClick={() => saveAttachments()}
                     >

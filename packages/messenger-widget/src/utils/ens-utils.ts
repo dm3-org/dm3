@@ -12,7 +12,7 @@ import { EnsProfileDetails } from '../interfaces/utils';
 import { log } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import { ENS_PROFILE_BASE_URL } from './common-utils';
-import { ContactInfo } from '../interfaces/utils';
+import { IContactInfo } from '../interfaces/utils';
 
 // method to get avatar/image url
 export const getAvatar = async (
@@ -114,7 +114,7 @@ export const onClose = (dispatch: React.Dispatch<Actions>) => {
 // method to fetch selected contact
 export const getContactSelected = async (
     state: GlobalState,
-): Promise<ContactInfo | null> => {
+): Promise<IContactInfo | null> => {
     const key =
         state.accounts.selectedContact?.account.profile?.publicEncryptionKey;
     const name = state.accounts.selectedContact?.account.ensName;
@@ -137,14 +137,16 @@ export const getContactSelected = async (
                 address = await provider?.resolveName(
                     selectedAccount[0].contactDetails.account.ensName,
                 );
-            } catch (error) {
+            } catch (error) {}
+
+            if (!address) {
                 address =
                     selectedAccount[0].contactDetails.account.ensName.split(
                         '.',
                     )[0];
             }
 
-            const info: ContactInfo = {
+            const info: IContactInfo = {
                 name: selectedAccount[0].contactDetails.account.ensName,
                 address: address ? address : '',
                 image: selectedAccount[0].image,

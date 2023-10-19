@@ -21,7 +21,7 @@ export interface IEnsDetails {
     propertyValue: string;
 }
 
-export interface ContactMenu {
+export interface IContactMenu {
     contactDetails: ContactPreview;
     index: number;
     isMenuAlignedAtBottom: boolean;

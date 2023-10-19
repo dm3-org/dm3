@@ -9,10 +9,10 @@ import {
     NAME_TYPE,
     PROFILE_INPUT_FIELD_CLASS,
     closeConfigurationModal,
-    getAddrEnsName,
     getEnsName,
     submitDm3UsernameClaim,
     submitEnsNameTransaction,
+    validateName,
 } from './bl';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
@@ -23,7 +23,6 @@ export function ConfigureProfile() {
     const { state, dispatch } = useContext(GlobalContext);
 
     // existing profile details states
-    const [address, setAddress] = useState<string | undefined>(undefined);
     const [existingDm3Name, setExistingDm3Name] = useState<string | null>(null);
     const [existingEnsName, setExistingEnsName] = useState<string | null>(null);
 
@@ -36,10 +35,6 @@ export function ConfigureProfile() {
         undefined,
     );
     const [errorMsg, setErrorMsg] = useState<string>('');
-
-    const setAddressFromContext = (addressFetched: string | undefined) => {
-        setAddress(addressFetched);
-    };
 
     const setEnsNameFromResolver = (ensNameFetched: string | null) => {
         setExistingEnsName(ensNameFetched);
@@ -56,12 +51,15 @@ export function ConfigureProfile() {
         type: NAME_TYPE,
     ) => {
         setShowError(undefined);
+        const check = validateName(e.target.value);
         if (type === NAME_TYPE.DM3_NAME) {
             setDm3Name(e.target.value);
             setEnsName('');
+            !check && setError('Invalid name', NAME_TYPE.DM3_NAME);
         } else {
             setEnsName(e.target.value);
             setDm3Name('');
+            !check && setError('Invalid ENS name', NAME_TYPE.ENS_NAME);
         }
     };
 
@@ -116,7 +114,6 @@ export function ConfigureProfile() {
     // handles ENS name and address
     useEffect(() => {
         getEnsName(state, setEnsNameFromResolver);
-        getAddrEnsName(state, setAddressFromContext);
     }, [state.connection.ethAddress, state.connection.provider]);
 
     return (
@@ -236,6 +233,7 @@ export function ConfigureProfile() {
                                             }}
                                         >
                                             <input
+                                                data-testid="dm3-name"
                                                 className={PROFILE_INPUT_FIELD_CLASS.concat(
                                                     ' ',
                                                     showError ===
@@ -301,6 +299,7 @@ export function ConfigureProfile() {
                             <div>
                                 {!existingDm3Name && (
                                     <button
+                                        data-testid="claim-publish"
                                         disabled={!dm3Name || !dm3Name.length}
                                         className={BUTTON_CLASS.concat(
                                             ' ',
@@ -366,6 +365,7 @@ export function ConfigureProfile() {
                                             }}
                                         >
                                             <input
+                                                data-testid="ens-name"
                                                 className={PROFILE_INPUT_FIELD_CLASS.concat(
                                                     ' ',
                                                     showError ===
@@ -408,6 +408,7 @@ export function ConfigureProfile() {
                             </div>
                             <div>
                                 <button
+                                    data-testid="publish-profile"
                                     disabled={
                                         !existingEnsName &&
                                         (!ensName || !ensName.length)

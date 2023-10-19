@@ -53,6 +53,7 @@ export function AttachmentSelector(props: AttachmentProps) {
     return (
         <span className="d-flex">
             <input
+                data-testid="attachments"
                 id="attachments"
                 className="display-none"
                 type="file"
@@ -63,6 +64,7 @@ export function AttachmentSelector(props: AttachmentProps) {
                 }
             />
             <img
+                data-testid="attachment-selector"
                 className="chat-svg-icon pointer-cursor"
                 src={fileIcon}
                 alt="file"

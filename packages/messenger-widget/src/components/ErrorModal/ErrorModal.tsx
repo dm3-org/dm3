@@ -27,6 +27,7 @@ export default function ErrorModal() {
                     </div>
                     <div className="d-flex justify-content-center mt-3">
                         <button
+                            data-testid="ok-btn"
                             id="ok-btn"
                             className="border-radius-6 display-none normal-btn-border normal-btn text-primary-color"
                             onMouseOver={(e: React.MouseEvent) =>
