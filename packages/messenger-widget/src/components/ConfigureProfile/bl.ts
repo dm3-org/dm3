@@ -110,10 +110,7 @@ export const submitDm3UsernameClaim = async (
 
         setContactHeightToMaximum(true);
     } catch (e) {
-        setError(
-            'Name is not available or Name must not have blancs',
-            NAME_TYPE.DM3_NAME,
-        );
+        setError('Name is not available', NAME_TYPE.DM3_NAME);
     }
 
     // stop loader

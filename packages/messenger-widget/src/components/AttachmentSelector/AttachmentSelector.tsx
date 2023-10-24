@@ -46,6 +46,10 @@ export function AttachmentSelector(props: AttachmentProps) {
                     });
                 }
                 props.setFiles([...props.filesSelected, ...fileList]);
+                const element = document.getElementById(
+                    'attachments',
+                ) as HTMLInputElement;
+                element && (element.value = '');
             }
         }
     };

@@ -66,6 +66,17 @@ export const addContact = async (
     // check if its a valid address or a valid name
     const { normalizedAccountName, check } = await isEnsNameValid(name, state);
 
+    if (
+        state.connection.ethAddress &&
+        name.split('.')[0] &&
+        state.connection.ethAddress.toLowerCase() ===
+            name.split('.')[0].toLowerCase()
+    ) {
+        showErrorMessage(true, 'Invalid ENS name');
+        closeLoader();
+        return;
+    }
+
     if (!check) {
         showErrorMessage(true, 'Invalid ENS name');
         closeLoader();

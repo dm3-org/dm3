@@ -54,6 +54,8 @@ export const checkUserProfileConfigured = async (
         );
         if (!profileDetails || !profileDetails.profile.publicEncryptionKey) {
             setProfileCheck(false);
+        } else {
+            setProfileCheck(true);
         }
     } catch (error) {
         setProfileCheck(false);

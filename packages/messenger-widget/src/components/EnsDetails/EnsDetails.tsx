@@ -7,7 +7,15 @@ export function EnsDetails(props: IEnsDetails) {
             <p data-testid="ens-details-key" className="mb-0 profile-key">
                 {props.propertyKey}:
             </p>
-            <span data-testid="ens-details-value" className="ens-details">
+            <span
+                data-testid="ens-details-value"
+                className={'ens-details'.concat(
+                    props.action
+                        ? ' pointer-cursor text-decoration-underline'
+                        : '',
+                )}
+                onClick={() => (props.action ? props.action() : () => {})}
+            >
                 {props.propertyValue}
             </span>
         </div>

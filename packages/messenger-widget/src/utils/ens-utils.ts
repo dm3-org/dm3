@@ -11,7 +11,7 @@ import profilePic from '../assets/images/profile-pic.jpg';
 import { EnsProfileDetails } from '../interfaces/utils';
 import { log } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
-import { ENS_PROFILE_BASE_URL } from './common-utils';
+import { ENS_PROFILE_BASE_URL, ETHERSCAN_URL } from './common-utils';
 import { IContactInfo } from '../interfaces/utils';
 
 // method to get avatar/image url
@@ -68,6 +68,11 @@ export const getEnsProfileDetails = async (
 // method to open ENS details in new tab
 export const openEnsProfile = (ensName: string) => {
     window.open(ENS_PROFILE_BASE_URL + ensName, '_blank');
+};
+
+// method to open etherscan in new tab
+export const openEtherscan = (address: string) => {
+    window.open(ETHERSCAN_URL + address, '_blank');
 };
 
 // method to hide contact from contact list

@@ -192,7 +192,7 @@ export function SignIn(props: SignInProps) {
 
     return (
         <>
-            <div className="row p-4">
+            <div className="row">
                 <div className="col-lg-7 col-md-7 col-sm-12 p-0 home-image-container background-container">
                     <img src={homeImage} className="img-fluid home-image" />
                 </div>

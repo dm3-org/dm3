@@ -19,6 +19,7 @@ export interface DashboardProps {
 export interface IEnsDetails {
     propertyKey: string;
     propertyValue: string;
+    action?: Function;
 }
 
 export interface IContactMenu {
@@ -74,4 +75,9 @@ export interface AttachmentPreviewProps {
 export interface ImageModal {
     uri: string;
     setUri: Function;
+}
+
+export interface DeleteDM3NameProps {
+    setDeleteDM3NameConfirmation: Function;
+    removeDm3Name: Function;
 }

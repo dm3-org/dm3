@@ -1,7 +1,6 @@
 import './Home.css';
 import DM3 from '../../components/DM3/DM3';
 import { Dm3Props } from '../../interfaces/config';
-import dm3Logo from '../../assets/images/dm3-logo.png';
 import '@rainbow-me/rainbowkit/styles.css';
 import {
     connectorsForWallets,
@@ -9,7 +8,7 @@ import {
     RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
-import { goerli } from 'wagmi/chains';
+import { mainnet } from 'wagmi/chains';
 import {
     metaMaskWallet,
     rainbowWallet,
@@ -23,7 +22,7 @@ import { ConfigureProfile } from '../../components/ConfigureProfile/ConfigurePro
 
 export function Home(props: Dm3Props) {
     const { chains, publicClient } = configureChains(
-        [goerli],
+        [mainnet],
         [
             jsonRpcProvider({
                 rpc: () => ({
@@ -65,9 +64,6 @@ export function Home(props: Dm3Props) {
             <AddConversation />
             <Preferences />
             <ConfigureProfile />
-            <div className="logo-container">
-                <img className="dm3-logo" src={dm3Logo} alt="DM3 logo" />
-            </div>
             <WagmiConfig config={wagmiConfig}>
                 <RainbowKitProvider chains={chains} theme={darkTheme()}>
                     <DM3 config={props.config} />

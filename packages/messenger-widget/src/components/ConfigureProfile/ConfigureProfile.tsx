@@ -17,6 +17,7 @@ import {
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import { globalConfig } from 'dm3-lib-shared';
+import DeleteDM3Name from '../DeleteDM3Name/DeleteDM3Name';
 
 export function ConfigureProfile() {
     // global context state
@@ -35,6 +36,13 @@ export function ConfigureProfile() {
         undefined,
     );
     const [errorMsg, setErrorMsg] = useState<string>('');
+
+    const [showDeleteConfirmation, setShowDeleteConfirmation] =
+        useState<boolean>(false);
+
+    const updateDeleteConfirmation = (action: boolean) => {
+        setShowDeleteConfirmation(action);
+    };
 
     const setEnsNameFromResolver = (ensNameFetched: string | null) => {
         setExistingEnsName(ensNameFetched);
@@ -126,6 +134,16 @@ export function ConfigureProfile() {
                     className="configuration-modal-content border-radius-6 
         background-container text-primary-color"
                 >
+                    {/* Delete DM3 name confirmation popup modal */}
+                    {showDeleteConfirmation && (
+                        <DeleteDM3Name
+                            setDeleteDM3NameConfirmation={
+                                updateDeleteConfirmation
+                            }
+                            removeDm3Name={handleClaimOrRemoveDm3Name}
+                        />
+                    )}
+
                     {/* Header */}
                     <div className="d-flex align-items-start">
                         <div className="width-fill">
@@ -272,8 +290,8 @@ export function ConfigureProfile() {
                                                     src={deleteIcon}
                                                     alt="remove"
                                                     onClick={() =>
-                                                        handleClaimOrRemoveDm3Name(
-                                                            ACTION_TYPE.REMOVE,
+                                                        setShowDeleteConfirmation(
+                                                            true,
                                                         )
                                                     }
                                                 />

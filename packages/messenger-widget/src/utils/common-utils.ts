@@ -41,16 +41,16 @@ export const openErrorModal = (
 
     const btn: HTMLElement = document.getElementById('ok-btn') as HTMLElement;
 
+    // set error message on popup modal
+    const data = document.getElementById('error-message') as HTMLElement;
+    data.innerText = message;
+
     // if popup is already open then don't change any state
     if (btn.style.display === 'block') {
         return;
     }
 
     btn.style.display = 'block';
-
-    // set error message on popup modal
-    const data = document.getElementById('error-message') as HTMLElement;
-    data.innerText = message;
 
     // set error loader style on popup modal
     const errorLoader = document.getElementById(
@@ -171,3 +171,5 @@ export const ACCOUNT_CHANGE_POPUP_MESSAGE =
     'Please sign in with the new account selected to use DM3 app!';
 
 export const ENS_PROFILE_BASE_URL = 'https://app.ens.domains/';
+
+export const ETHERSCAN_URL = 'https://goerli.etherscan.io/address/';
