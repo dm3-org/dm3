@@ -47,7 +47,7 @@ export function socketAuth(app: Express & WithLocals) {
                 socket.handshake.auth.account.ensName,
             );
 
-            app.locals.logger.info({
+            global.logger.info({
                 method: 'WS CONNECT',
                 ensName,
                 socketId: socket.id,
