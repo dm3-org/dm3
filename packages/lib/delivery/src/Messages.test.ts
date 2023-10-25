@@ -707,9 +707,8 @@ describe('Messages', () => {
                               message: '',
                               metadata: {
                                   encryptionScheme: 'x25519-chacha20-poly1305',
-                                  deliveryInformation: stringify(
-                                      testData.deliveryInformation,
-                                  ),
+                                  deliveryInformation:
+                                      testData.deliveryInformationUnecrypted,
                                   version: '',
                                   encryptedMessageHash: '',
                                   signature: '',
@@ -719,9 +718,8 @@ describe('Messages', () => {
                               message: '',
                               metadata: {
                                   encryptionScheme: 'x25519-chacha20-poly1305',
-                                  deliveryInformation: stringify(
-                                      testData.deliveryInformation,
-                                  ),
+                                  deliveryInformation:
+                                      testData.deliveryInformationUnecrypted,
                                   version: '',
                                   encryptedMessageHash: '',
                                   signature: '',
@@ -731,9 +729,8 @@ describe('Messages', () => {
                               message: '',
                               metadata: {
                                   encryptionScheme: 'x25519-chacha20-poly1305',
-                                  deliveryInformation: stringify(
-                                      testData.deliveryInformationB,
-                                  ),
+                                  deliveryInformation:
+                                      testData.delvieryInformationBUnecrypted,
                                   version: '',
                                   encryptedMessageHash: '',
                                   signature: '',
@@ -755,9 +752,8 @@ describe('Messages', () => {
                     message: '',
                     metadata: {
                         encryptionScheme: 'x25519-chacha20-poly1305',
-                        deliveryInformation: stringify(
-                            testData.deliveryInformation,
-                        ),
+                        deliveryInformation:
+                            testData.deliveryInformationUnecrypted,
                         encryptedMessageHash: '',
                         signature: '',
                         version: '',
@@ -767,9 +763,8 @@ describe('Messages', () => {
                     message: '',
                     metadata: {
                         encryptionScheme: 'x25519-chacha20-poly1305',
-                        deliveryInformation: stringify(
-                            testData.deliveryInformation,
-                        ),
+                        deliveryInformation:
+                            testData.deliveryInformationUnecrypted,
                         version: '',
                         encryptedMessageHash: '',
                         signature: '',
