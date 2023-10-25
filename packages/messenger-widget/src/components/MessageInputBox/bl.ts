@@ -213,6 +213,8 @@ export const handleSubmit = async (
         | React.FormEvent<HTMLFormElement>
         | React.MouseEvent<HTMLImageElement, MouseEvent>,
     filesSelected: Attachment[],
+    setMessageText: Function,
+    setFiles: Function,
 ) => {
     let attachments: string[] = [];
 
@@ -265,6 +267,10 @@ export const handleSubmit = async (
 
         return;
     }
+
+    // clear the message text & files selected from input field
+    setMessageText('');
+    setFiles([]);
 
     if (
         state.uiView.selectedMessageView.actionType === MessageActionType.EDIT

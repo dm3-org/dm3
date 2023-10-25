@@ -9,21 +9,27 @@ import {
     hideContact,
     onClose,
     openEnsProfile,
+    openEtherscan,
 } from '../../utils/ens-utils';
-import { ContactInfo } from '../../interfaces/utils';
+import { IContactInfo } from '../../interfaces/utils';
 import profilePic from '../../assets/images/profile-pic.jpg';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { ModalStateType } from '../../utils/enum-type-utils';
+import copyIcon from '../../assets/images/copy.svg';
 
 export function ContactInfo() {
     const { state, dispatch } = useContext(GlobalContext);
-    const [contactDetails, setContactDetails] = useState<ContactInfo | null>(
+    const [contactDetails, setContactDetails] = useState<IContactInfo | null>(
         null,
     );
 
     const fetchContactDetails = async () => {
         setContactDetails(await getContactSelected(state));
         closeLoader();
+    };
+
+    const copyText = async (text: string) => {
+        await navigator.clipboard.writeText(text);
     };
 
     useEffect(() => {
@@ -58,18 +64,56 @@ export function ContactInfo() {
                 />
 
                 <div className="profile-detail-items mt-3">
-                    <EnsDetails
-                        propertyKey={'Name'}
-                        propertyValue={
-                            contactDetails ? contactDetails.name : ''
-                        }
-                    />
-                    <EnsDetails
-                        propertyKey={'Address'}
-                        propertyValue={
-                            contactDetails ? contactDetails.address : ''
-                        }
-                    />
+                    <div className="d-flex align-items-center">
+                        <EnsDetails
+                            propertyKey={'Name'}
+                            propertyValue={
+                                contactDetails ? contactDetails.name : ''
+                            }
+                            action={() =>
+                                openEnsProfile(
+                                    contactDetails ? contactDetails.name : '',
+                                )
+                            }
+                        />
+                        <img
+                            src={copyIcon}
+                            alt=""
+                            className="copy-btn pointer-cursor"
+                            onClick={() => {
+                                copyText(
+                                    contactDetails ? contactDetails.name : '',
+                                );
+                            }}
+                        />
+                    </div>
+                    <div className="d-flex align-items-center">
+                        <EnsDetails
+                            propertyKey={'Address'}
+                            propertyValue={
+                                contactDetails ? contactDetails.address : ''
+                            }
+                            action={() =>
+                                openEtherscan(
+                                    contactDetails
+                                        ? contactDetails.address
+                                        : '',
+                                )
+                            }
+                        />
+                        <img
+                            src={copyIcon}
+                            alt=""
+                            className="copy-btn pointer-cursor"
+                            onClick={() => {
+                                copyText(
+                                    contactDetails
+                                        ? contactDetails.address
+                                        : '',
+                                );
+                            }}
+                        />
+                    </div>
 
                     <div className="ens-btn-container pt-4">
                         <Button

@@ -209,7 +209,7 @@ export function Contacts(props: DashboardProps) {
     }, [contactSelected]);
 
     /* Hidden content for highlighting css */
-    const hiddenData: number[] = Array.from({ length: 14 }, (_, i) => i + 1);
+    const hiddenData: number[] = Array.from({ length: 22 }, (_, i) => i + 1);
 
     const scroller = document.getElementById('chat-scroller');
 

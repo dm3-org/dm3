@@ -10,9 +10,15 @@ export function SendMessage(props: MessageDataProps) {
     function submit(event: React.MouseEvent<HTMLImageElement, MouseEvent>) {
         const files = props.filesSelected;
         const msg = props.message;
-        props.setMessageText('');
-        props.setFiles([]);
-        handleSubmit(msg, state, dispatch, event, files);
+        handleSubmit(
+            msg,
+            state,
+            dispatch,
+            event,
+            files,
+            props.setMessageText,
+            props.setFiles,
+        );
     }
 
     return (
