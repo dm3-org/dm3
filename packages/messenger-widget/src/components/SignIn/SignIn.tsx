@@ -26,7 +26,6 @@ import { watchAccount, disconnect, watchNetwork } from '@wagmi/core';
 import {
     ACCOUNT_CHANGE_POPUP_MESSAGE,
     INVALID_NETWORK_POPUP_MESSAGE,
-    INVALID_SESSION_POPUP_MESSAGE,
     REACT_APP_SUPPORTED_CHAIN_ID,
     openErrorModal,
 } from '../../utils/common-utils';
@@ -63,10 +62,13 @@ export function SignIn(props: SignInProps) {
         useState<boolean>(false);
 
     // open rainbow wallet modal function
-    const { openConnectModal } = useConnectModal();
+    const { openConnectModal, connectModalOpen } = useConnectModal();
 
     // state to handle the ethereum account connected
     const [accountConnected, setAccountConnected] = useState<any>(null);
+
+    // state to handle disconnect from rainbow kit
+    const [checkDisconnected, setCheckDisconnected] = useState<boolean>(false);
 
     useEffect(() => {
         checkState(
@@ -145,16 +147,40 @@ export function SignIn(props: SignInProps) {
         }
     }, [accountConnected]);
 
+    // opens connection modal when account is disconnected from rainbow kit
+    useEffect(() => {
+        if (checkDisconnected) {
+            openConnectionModal();
+        }
+    }, [checkDisconnected]);
+
+    // updates button style based on closing connection modal
+    useEffect(() => {
+        if (!connectModalOpen) {
+            setIsSignInBtnClicked(false);
+            setCheckDisconnected(false);
+            changeSignInButtonStyle(
+                'sign-in-btn',
+                'normal-btn-hover',
+                'normal-btn',
+            );
+        }
+    }, [connectModalOpen]);
+
+    // updates Sign In button style
+    useEffect(() => {
+        if (signInBtnContent && signInBtnContent !== SignInBtnValues.SignIn) {
+            changeSignInButtonStyle(
+                'sign-in-btn',
+                'normal-btn',
+                'normal-btn-hover',
+            );
+        }
+    }, [signInBtnContent]);
+
     // handles account change
     watchAccount(async (account: any) => {
-        setAccountConnected(account);
-        if (
-            accountConnected &&
-            accountConnected.address &&
-            account.address !== accountConnected.address
-        ) {
-            openErrorModal(ACCOUNT_CHANGE_POPUP_MESSAGE, true, disconnect);
-        }
+        updateAccount(account);
     });
 
     // handles network change
@@ -169,6 +195,21 @@ export function SignIn(props: SignInProps) {
         }
     });
 
+    // updates account connected
+    const updateAccount = (account: any) => {
+        if (
+            account &&
+            account.address &&
+            accountConnected &&
+            accountConnected.address &&
+            account.address !== accountConnected.address
+        ) {
+            openErrorModal(ACCOUNT_CHANGE_POPUP_MESSAGE, true, disconnect);
+        } else {
+            setAccountConnected(account);
+        }
+    };
+
     // fetches provider from rainbow kit
     const connectToProvider = async () => {
         const provider = await accountConnected.connector.getProvider();
@@ -177,17 +218,20 @@ export function SignIn(props: SignInProps) {
 
     // handle sign in button click
     const handleSignIn = async () => {
+        disconnect().then(() => {
+            setCheckDisconnected(true);
+        });
+    };
+
+    // method to open connection modal
+    const openConnectionModal = () => {
         setIsSignInBtnClicked(true);
-        if (accountConnected && accountConnected.address) {
-            openErrorModal(INVALID_SESSION_POPUP_MESSAGE, true, disconnect);
-        } else {
-            changeSignInButtonStyle(
-                'sign-in-btn',
-                'normal-btn',
-                'normal-btn-hover',
-            );
-            openConnectModal && openConnectModal();
-        }
+        changeSignInButtonStyle(
+            'sign-in-btn',
+            'normal-btn',
+            'normal-btn-hover',
+        );
+        openConnectModal && openConnectModal();
     };
 
     return (
