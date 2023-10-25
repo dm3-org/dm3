@@ -153,7 +153,7 @@ export default function AddConversation() {
                                 disabled={!name || !name.length || showError}
                                 className={'add-btn font-weight-400 font-size-12 border-radius-4 line-height-24'.concat(
                                     ' ',
-                                    (!name || !name.length || showError)
+                                    !name || !name.length || showError
                                         ? 'modal-btn-disabled'
                                         : 'modal-btn-active',
                                 )}
