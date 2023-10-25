@@ -66,6 +66,17 @@ export const addContact = async (
     // check if its a valid address or a valid name
     const { normalizedAccountName, check } = await isEnsNameValid(name, state);
 
+    if (
+        state.connection.ethAddress &&
+        name.split('.')[0] &&
+        state.connection.ethAddress.toLowerCase() ===
+            name.split('.')[0].toLowerCase()
+    ) {
+        showErrorMessage(true, 'Invalid ENS name');
+        closeLoader();
+        return;
+    }
+
     if (!check) {
         showErrorMessage(true, 'Invalid ENS name');
         closeLoader();
@@ -234,14 +245,10 @@ const isEnsNameValid = async (name: string, state: GlobalState) => {
             check: true,
         };
     } else {
-        // check if its is valid ENS name
         normalizedAccountName = normalizeEnsName(name);
-        const resolvedName = await state.connection.provider?.resolveName(
-            normalizedAccountName,
-        );
         return {
             normalizedAccountName: normalizedAccountName,
-            check: resolvedName ? true : false,
+            check: true,
         };
     }
 };

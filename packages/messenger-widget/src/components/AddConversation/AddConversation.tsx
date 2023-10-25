@@ -5,6 +5,7 @@ import { INPUT_FIELD_CLASS, addContact, closeConversationModal } from './bl';
 import { FormEvent, useContext, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import { showContactList } from '../../utils/common-utils';
+import { ethers } from 'ethers';
 
 export default function AddConversation() {
     const { state, dispatch } = useContext(GlobalContext);
@@ -38,6 +39,10 @@ export default function AddConversation() {
         setErrorMsg('');
         setShowError(false);
         setName(e.target.value);
+        if (!ethers.utils.isValidName(e.target.value)) {
+            setErrorMsg('Invalid address or ENS name');
+            setShowError(true);
+        }
     };
 
     // resets name to default
@@ -145,10 +150,10 @@ export default function AddConversation() {
                         </div>
                         <div>
                             <button
-                                disabled={!name || !name.length}
+                                disabled={!name || !name.length || showError}
                                 className={'add-btn font-weight-400 font-size-12 border-radius-4 line-height-24'.concat(
                                     ' ',
-                                    !name || !name.length
+                                    !name || !name.length || showError
                                         ? 'modal-btn-disabled'
                                         : 'modal-btn-active',
                                 )}

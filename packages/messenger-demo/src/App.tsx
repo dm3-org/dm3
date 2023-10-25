@@ -13,9 +13,9 @@ function App() {
     };
 
     return (
-        <>
+        <div className="background p-1">
             <DM3 {...props} />
-        </>
+        </div>
     );
 }
 

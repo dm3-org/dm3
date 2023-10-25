@@ -9,21 +9,21 @@ import {
     NAME_TYPE,
     PROFILE_INPUT_FIELD_CLASS,
     closeConfigurationModal,
-    getAddrEnsName,
     getEnsName,
     submitDm3UsernameClaim,
     submitEnsNameTransaction,
+    validateName,
 } from './bl';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import { globalConfig } from 'dm3-lib-shared';
+import DeleteDM3Name from '../DeleteDM3Name/DeleteDM3Name';
 
 export function ConfigureProfile() {
     // global context state
     const { state, dispatch } = useContext(GlobalContext);
 
     // existing profile details states
-    const [address, setAddress] = useState<string | undefined>(undefined);
     const [existingDm3Name, setExistingDm3Name] = useState<string | null>(null);
     const [existingEnsName, setExistingEnsName] = useState<string | null>(null);
 
@@ -37,8 +37,11 @@ export function ConfigureProfile() {
     );
     const [errorMsg, setErrorMsg] = useState<string>('');
 
-    const setAddressFromContext = (addressFetched: string | undefined) => {
-        setAddress(addressFetched);
+    const [showDeleteConfirmation, setShowDeleteConfirmation] =
+        useState<boolean>(false);
+
+    const updateDeleteConfirmation = (action: boolean) => {
+        setShowDeleteConfirmation(action);
     };
 
     const setEnsNameFromResolver = (ensNameFetched: string | null) => {
@@ -56,12 +59,15 @@ export function ConfigureProfile() {
         type: NAME_TYPE,
     ) => {
         setShowError(undefined);
+        const check = validateName(e.target.value);
         if (type === NAME_TYPE.DM3_NAME) {
             setDm3Name(e.target.value);
             setEnsName('');
+            !check && setError('Invalid name', NAME_TYPE.DM3_NAME);
         } else {
             setEnsName(e.target.value);
             setDm3Name('');
+            !check && setError('Invalid ENS name', NAME_TYPE.ENS_NAME);
         }
     };
 
@@ -116,7 +122,6 @@ export function ConfigureProfile() {
     // handles ENS name and address
     useEffect(() => {
         getEnsName(state, setEnsNameFromResolver);
-        getAddrEnsName(state, setAddressFromContext);
     }, [state.connection.ethAddress, state.connection.provider]);
 
     return (
@@ -129,6 +134,16 @@ export function ConfigureProfile() {
                     className="configuration-modal-content border-radius-6 
         background-container text-primary-color"
                 >
+                    {/* Delete DM3 name confirmation popup modal */}
+                    {showDeleteConfirmation && (
+                        <DeleteDM3Name
+                            setDeleteDM3NameConfirmation={
+                                updateDeleteConfirmation
+                            }
+                            removeDm3Name={handleClaimOrRemoveDm3Name}
+                        />
+                    )}
+
                     {/* Header */}
                     <div className="d-flex align-items-start">
                         <div className="width-fill">
@@ -236,6 +251,7 @@ export function ConfigureProfile() {
                                             }}
                                         >
                                             <input
+                                                data-testid="dm3-name"
                                                 className={PROFILE_INPUT_FIELD_CLASS.concat(
                                                     ' ',
                                                     showError ===
@@ -274,8 +290,8 @@ export function ConfigureProfile() {
                                                     src={deleteIcon}
                                                     alt="remove"
                                                     onClick={() =>
-                                                        handleClaimOrRemoveDm3Name(
-                                                            ACTION_TYPE.REMOVE,
+                                                        setShowDeleteConfirmation(
+                                                            true,
                                                         )
                                                     }
                                                 />
@@ -301,6 +317,7 @@ export function ConfigureProfile() {
                             <div>
                                 {!existingDm3Name && (
                                     <button
+                                        data-testid="claim-publish"
                                         disabled={!dm3Name || !dm3Name.length}
                                         className={BUTTON_CLASS.concat(
                                             ' ',
@@ -366,6 +383,7 @@ export function ConfigureProfile() {
                                             }}
                                         >
                                             <input
+                                                data-testid="ens-name"
                                                 className={PROFILE_INPUT_FIELD_CLASS.concat(
                                                     ' ',
                                                     showError ===
@@ -408,6 +426,7 @@ export function ConfigureProfile() {
                             </div>
                             <div>
                                 <button
+                                    data-testid="publish-profile"
                                     disabled={
                                         !existingEnsName &&
                                         (!ensName || !ensName.length)

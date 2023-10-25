@@ -51,3 +51,13 @@ code {
     font-size: 0.8rem !important;
     text-decoration: none;
 }
+
+.background {
+    background: linear-gradient(
+        25deg,
+        #9341fe -437%,
+        #0d0d0d 71%,
+        #2ca6ff 145%
+    );
+    min-height: 100vh;
+}

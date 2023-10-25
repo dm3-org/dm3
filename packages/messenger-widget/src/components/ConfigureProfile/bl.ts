@@ -54,28 +54,6 @@ export const closeConfigurationModal = (
     setShowError(undefined);
 };
 
-// method to fetch address ENS name
-export const getAddrEnsName = async (
-    state: GlobalState,
-    setAddressFromContext: Function,
-) => {
-    if (state.connection.ethAddress && state.connection.provider) {
-        const addressEnsName =
-            state.connection.ethAddress + globalConfig.ADDR_ENS_SUBDOMAIN();
-        const address = await state.connection.provider.resolveName(
-            addressEnsName,
-        );
-
-        if (
-            address &&
-            formatAddress(address) ===
-                formatAddress(state.connection.ethAddress)
-        ) {
-            setAddressFromContext(addressEnsName);
-        }
-    }
-};
-
 // method to fetch ENS name
 export const getEnsName = async (
     state: GlobalState,
@@ -132,10 +110,7 @@ export const submitDm3UsernameClaim = async (
 
         setContactHeightToMaximum(true);
     } catch (e) {
-        setError(
-            'Name is not available or Name must not have blancs',
-            NAME_TYPE.DM3_NAME,
-        );
+        setError('Name is not available', NAME_TYPE.DM3_NAME);
     }
 
     // stop loader
@@ -320,4 +295,12 @@ export const submitEnsNameTransaction = async (
 
     // stop loader
     closeLoader();
+};
+
+export const validateName = (username: string): boolean => {
+    return (
+        username.length > 3 &&
+        !username.includes('.') &&
+        ethers.utils.isValidName(username)
+    );
 };
