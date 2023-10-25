@@ -149,6 +149,7 @@ export const getContactSelected = async (
                     selectedAccount[0].contactDetails.account.ensName.split(
                         '.',
                     )[0];
+                address = ethers.utils.isAddress(address) ? address : 'Not set';
             }
 
             const info: IContactInfo = {

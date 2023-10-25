@@ -10,11 +10,11 @@ export function EnsDetails(props: IEnsDetails) {
             <span
                 data-testid="ens-details-value"
                 className={'ens-details'.concat(
-                    props.action
+                    props.action && props.propertyValue !== "Not set"
                         ? ' pointer-cursor text-decoration-underline'
                         : '',
                 )}
-                onClick={() => (props.action ? props.action() : () => {})}
+                onClick={() => (props.action ? props.action() : () => { })}
             >
                 {props.propertyValue}
             </span>
