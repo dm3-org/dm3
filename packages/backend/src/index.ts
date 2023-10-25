@@ -59,7 +59,6 @@ global.logger = winston.createLogger({
     app.locals.io = io;
 
     app.locals.keys = readKeysFromEnv(process.env);
-
     app.locals.deliveryServiceProperties = getDeliveryServiceProperties();
 
     app.locals.db = await getDatabase();

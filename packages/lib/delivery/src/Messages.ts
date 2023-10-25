@@ -54,7 +54,9 @@ export async function getMessages(
     contactEnsName: string,
 ) {
     const account = normalizeEnsName(ensName);
+
     const contact = normalizeEnsName(contactEnsName);
+
     const conversationId = getConversationId(contact, account);
 
     const receivedMessages: EncryptionEnvelop[] = await loadMessages(
@@ -66,14 +68,8 @@ export async function getMessages(
     const envelopContainers = await Promise.all(
         receivedMessages.map(async (envelop) => ({
             to: normalizeEnsName(
-                JSON.parse(
-                    await decryptAsymmetric(
-                        encryptionKeyPair,
-                        JSON.parse(
-                            envelop.metadata.deliveryInformation as string,
-                        ),
-                    ),
-                ).to,
+                JSON.parse(JSON.stringify(envelop.metadata.deliveryInformation))
+                    .to,
             ),
             envelop,
         })),
@@ -111,7 +107,10 @@ export async function incomingMessage(
     getIdEnsName: (name: string) => Promise<string>,
     getUsersNotificationChannels: GetNotificationChannels,
 ): Promise<void> {
-    logDebug({ text: 'incomingMessage', token });
+    logDebug({
+        text: 'incomingMessage',
+        token,
+    });
     //Checks the size of the incoming message
     if (messageIsToLarge(envelop, sizeLimit)) {
         throw Error('Message is too large');

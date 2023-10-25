@@ -83,10 +83,13 @@ function DM3(props: Dm3Props) {
                 throw Error('Could not get account profile');
             }
 
-            const socket = socketIOClient(deliveryServiceUrl, {
-                autoConnect: false,
-                transports: ['websocket'],
-            });
+            const socket = socketIOClient(
+                deliveryServiceUrl.replace('/api', ''),
+                {
+                    autoConnect: false,
+                    transports: ['websocket'],
+                },
+            );
 
             socket.auth = {
                 account: state.connection.account,

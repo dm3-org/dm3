@@ -42,6 +42,7 @@ export default () => {
                 const idEnsName = await req.app.locals.db.getIdEnsName(
                     req.params.ensName,
                 );
+
                 const idContactEnsName = await req.app.locals.db.getIdEnsName(
                     req.params.contactEnsName,
                 );
