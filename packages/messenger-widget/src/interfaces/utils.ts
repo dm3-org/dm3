@@ -6,7 +6,7 @@ export interface EnsProfileDetails {
     twitter: string | null;
 }
 
-export interface Button {
+export interface IButton {
     buttonText: string;
     actionMethod: Function;
 }
@@ -18,7 +18,7 @@ export interface ContactPreview {
     contactDetails: Contact;
 }
 
-export interface ContactInfo {
+export interface IContactInfo {
     name: string;
     address: string;
     image: string;

@@ -110,6 +110,14 @@ export function Chat() {
         }
     }, [messageList]);
 
+    useEffect(() => {
+        checkUserProfileConfigured(
+            state,
+            state.accounts.selectedContact?.account.ensName as string,
+            setProfileCheck,
+        );
+    }, [state.modal.addConversation.active]);
+
     /* shimmer effect contacts css */
     const shimmerData: number[] = Array.from({ length: 50 }, (_, i) => i + 1);
 
