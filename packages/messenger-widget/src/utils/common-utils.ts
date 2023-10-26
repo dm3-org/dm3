@@ -166,7 +166,7 @@ export const showContactList = (dispatch: React.Dispatch<Actions>) => {
 };
 
 // Constants
-export const REACT_APP_SUPPORTED_CHAIN_ID = 1;
+export const REACT_APP_SUPPORTED_CHAIN_ID = 5;
 
 /*  eslint-disable */
 export const INVALID_NETWORK_POPUP_MESSAGE =
