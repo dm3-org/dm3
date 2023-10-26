@@ -1,4 +1,8 @@
-import { normalizeEnsName, getAccountDisplayName } from 'dm3-lib-profile';
+import {
+    normalizeEnsName,
+    getAccountDisplayName,
+    getUserProfile,
+} from 'dm3-lib-profile';
 import { UserDB, getConversation } from 'dm3-lib-storage';
 import { ContactPreview } from '../../interfaces/utils';
 import {
@@ -79,7 +83,26 @@ export const fetchAndSetContacts = async (
         }
     }
 
-    return actualContactList;
+    const profileAccounts = actualContactList.filter(
+        (item) => item.contactDetails.account.profileSignature,
+    );
+
+    const nonProfileAccounts = actualContactList.filter(
+        (item) => !item.contactDetails.account.profileSignature,
+    );
+
+    const uniqueProfileAccounts = [
+        ...new Map(
+            profileAccounts.map((item) => [
+                item.contactDetails.account.profileSignature,
+                item,
+            ]),
+        ).values(),
+    ];
+
+    const uniqueContacts = [...uniqueProfileAccounts, ...nonProfileAccounts];
+
+    return uniqueContacts;
 };
 
 export const getMessagesFromUser = (
@@ -171,12 +194,21 @@ export const updateSelectedContact = (
     }
 };
 
+const fetchesUserProfile = async (ensName: string, state: GlobalState) => {
+    try {
+        return await getUserProfile(state.connection.provider!, ensName);
+    } catch (error) {
+        return null;
+    }
+};
+
 // updates contact list on account change when new contact is added
 export const updateContactOnAccountChange = async (
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
     contacts: ContactPreview[],
     setListOfContacts: Function,
+    setContactFromList: Function,
 ) => {
     if (state.accounts.contacts) {
         // filter out the new conversation added
@@ -191,29 +223,71 @@ export const updateContactOnAccountChange = async (
             const items = [...state.cache.contacts];
             const item = { ...items[lastIndex] };
 
-            // update the contact details
-            item.contactDetails = itemList[0];
-            item.message = getMessagesFromUser(
+            const profile = await fetchesUserProfile(
                 state.modal.addConversation.ensName as string,
-                state.userDb as UserDB,
-                state.accounts.contacts,
-            );
-            item.image = await getAvatarProfilePic(
                 state,
-                state.modal.addConversation.ensName as string,
             );
-            items[lastIndex] = item;
 
-            // update cached contact list
-            dispatch({
-                type: CacheType.Contacts,
-                payload: items,
-            });
+            const profileDetails = await Promise.all(
+                state.cache.contacts.map(async (data, index) => {
+                    return {
+                        sign: await fetchesUserProfile(
+                            data.contactDetails.account.ensName,
+                            state,
+                        ),
+                        index: index,
+                    };
+                }),
+            );
 
-            // update the current contact list
-            const newList = [...contacts];
-            newList[lastIndex] = item;
-            setListOfContacts(newList);
+            const duplicateContact = profileDetails.filter(
+                (data: any) =>
+                    data.sign &&
+                    profile &&
+                    data.sign.signature === profile.signature,
+            );
+
+            if (duplicateContact.length > 1) {
+                // remove last item
+                const newList = [...contacts];
+                newList.pop();
+
+                // update contact list
+                setListOfContacts(newList);
+
+                // update cached contact list
+                dispatch({
+                    type: CacheType.Contacts,
+                    payload: newList,
+                });
+
+                // select the already existing contact
+                setContactFromList(duplicateContact[0].index);
+            } else {
+                // update the contact details
+                item.contactDetails = itemList[0];
+                item.message = getMessagesFromUser(
+                    state.modal.addConversation.ensName as string,
+                    state.userDb as UserDB,
+                    state.accounts.contacts,
+                );
+                item.image = await getAvatarProfilePic(
+                    state,
+                    state.modal.addConversation.ensName as string,
+                );
+                items[lastIndex] = item;
+
+                // update cached contact list
+                dispatch({
+                    type: CacheType.Contacts,
+                    payload: items,
+                });
+
+                // update the current contact list
+                const newList = [...contacts];
+                newList[lastIndex] = item;
+                setListOfContacts(newList);
+            }
 
             // update the modal data as conversation is added
             const stateData = state.modal.addConversation;
