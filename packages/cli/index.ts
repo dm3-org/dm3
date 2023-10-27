@@ -88,7 +88,7 @@ const cli = async () => {
             break;
         }
         default: {
-            program.error('error: unknown option');
+            program.error('error: unknown option ');
         }
     }
 };
