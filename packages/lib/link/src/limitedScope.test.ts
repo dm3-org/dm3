@@ -3,8 +3,8 @@ import { ethers } from 'ethers';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { mockDeliveryServiceProfile } from '../../../billboard-client/test/helper/mockDeliveryServiceProfile';
-import { createLspFromDappSig } from './create/createLspFromDappSig';
-import { createLspFromWalletSig } from './create/createLspFromWalletSig';
+import { createLspFromDappSig } from './create/createLinkProfileFromDappSig';
+import { createLspFromWalletSig } from './create/createLinkProfileFromWalletSig';
 import { createKeyPairsFromSig } from 'dm3-lib-profile';
 describe('LimitedScopeProfile', () => {
     let ds1: any;

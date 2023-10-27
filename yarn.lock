@@ -12305,9 +12305,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"dm3-lib-lsp@workspace:packages/lib/lsp":
+"dm3-lib-lsp@workspace:packages/lib/link":
   version: 0.0.0-use.local
-  resolution: "dm3-lib-lsp@workspace:packages/lib/lsp"
+  resolution: "dm3-lib-lsp@workspace:packages/lib/link"
   dependencies:
     "@types/data-urls": ^3.0.1
     "@types/jest": ^28.1.1

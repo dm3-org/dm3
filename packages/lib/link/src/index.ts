@@ -1,8 +1,8 @@
 import { ProfileKeys } from 'dm3-lib-profile';
 import { ethers } from 'ethers';
 import { getLspFromResolver } from './api/getLspFromResolver';
-import { createLspFromDappSig } from './create/createLspFromDappSig';
-import { recoverLsp } from './create/recoverLsp';
+import { createLspFromDappSig } from './create/createLinkProfileFromDappSig';
+import { recoverLinkProfile } from './create/recoverLinkProfile';
 
 export const createLspMessage = (owner: string) => `creating LSP for ${owner}`;
 export const lspLinkMessage = (owner: string, lsp: string) =>
@@ -37,7 +37,7 @@ export async function loginWithDapp(
 
     //user has created lsp already. Use their privateKey and nonce to create a LSP object
     if (existingLsp) {
-        return await recoverLsp(
+        return await recoverLinkProfile(
             web3Provider,
             appId,
             ownerAddr,

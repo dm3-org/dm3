@@ -1,26 +1,28 @@
 import { ethers } from 'ethers';
-import { createLsp } from './createLsp';
+import { createLspMessage } from '..';
+import { createLinkProfile } from './createLinkProfile';
 
-export async function createLspFromDappSig(
+export async function createLspFromWalletSig(
     web3Provider: ethers.providers.JsonRpcProvider,
     offchainResolverUrl: string,
     deliveryServiceEnsName: string,
     appID: string,
     ownerAddress: string,
-    authMessage: string,
-    sig: string,
     entropy?: string,
 ) {
-    const lsp = await createLsp(
+    const sig = await web3Provider.send('personal_sign', [
+        createLspMessage(ownerAddress),
+        ownerAddress,
+    ]);
+
+    const lsp = await createLinkProfile(
         web3Provider,
         offchainResolverUrl,
         deliveryServiceEnsName,
         appID,
-        authMessage,
+        createLspMessage(ownerAddress),
         ownerAddress,
         sig,
-        entropy,
     );
-
     return lsp;
 }

@@ -1,7 +1,7 @@
 import { createKeyPairsFromSig, getUserProfile } from 'dm3-lib-profile';
 import { ethers } from 'ethers';
 
-export async function recoverLsp(
+export async function recoverLinkProfile(
     web3Provider: ethers.providers.JsonRpcProvider,
     appId: string,
     ownerAddr: string,

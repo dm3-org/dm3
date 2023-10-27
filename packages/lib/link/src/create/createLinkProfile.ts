@@ -6,7 +6,7 @@ import { claimAddress } from '../api/claimAddress';
 import { claimSubdomainForLsp } from '../api/claimSubdomainForLsp';
 import { submitUserProfile } from '../api/claimUserProfile';
 
-export async function createLsp(
+export async function createLinkProfile(
     web3Provider: ethers.providers.JsonRpcProvider,
     offchainResolverUrl: string,
     deliveryServiceEnsName: string,
