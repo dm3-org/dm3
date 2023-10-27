@@ -44,10 +44,12 @@
 
 .height-fill {
     height: -webkit-fill-available;
+    height: -moz-available;
 }
 
 .width-fill {
     width: -webkit-fill-available;
+    width: -moz-available;
 }
 
 .width-fit {

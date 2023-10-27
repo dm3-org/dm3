@@ -24,3 +24,18 @@
     position: absolute;
     bottom: 0;
 }
+
+.menu-container {
+    animation: slide 0.6s ease-out 1;
+}
+
+@keyframes slide {
+    0% {
+        transform: translateX(-100px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0px);
+        opacity: 1;
+    }
+}

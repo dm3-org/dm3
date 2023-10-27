@@ -28,19 +28,26 @@ export function MessageInputField(props: MessageDataProps) {
     function submit(event: React.FormEvent<HTMLFormElement>) {
         const files = props.filesSelected;
         const msg = props.message;
-        props.setMessageText('');
-        props.setFiles([]);
-        handleSubmit(msg, state, dispatch, event, files);
+        handleSubmit(
+            msg,
+            state,
+            dispatch,
+            event,
+            files,
+            props.setMessageText,
+            props.setFiles,
+        );
     }
 
     return (
         <form
-            className="width-fill"
+            className="width-fill ms-2 d-flex"
             onSubmit={(event: React.FormEvent<HTMLFormElement>) =>
                 submit(event)
             }
         >
             <input
+                data-testid="msg-input"
                 id="msg-input"
                 className="text-input-field width-fill height-fill text-primary-color 
             font-size-14 background-chat"

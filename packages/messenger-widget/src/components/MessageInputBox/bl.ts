@@ -17,6 +17,8 @@ import {
     sendMessage,
     openErrorModal,
     closeErrorModal,
+    generateRandomStringForId,
+    getFileTypeFromBase64,
 } from '../../utils/common-utils';
 import { Attachment } from '../../interfaces/utils';
 import { getDeliveryServiceProperties } from 'dm3-lib-delivery-api';
@@ -54,11 +56,8 @@ export const setAttachmentsOnEditMessage = (
         let fileType;
         let id;
         for (const attachment of attachments) {
-            id = Math.random().toString(36).substring(2, 12);
-            fileType = attachment.substring(
-                attachment.indexOf('/') + 1,
-                attachment.indexOf(';base64'),
-            );
+            id = generateRandomStringForId();
+            fileType = getFileTypeFromBase64(attachment);
             fileList.push({
                 id: id,
                 name: id.substring(0, 5).concat('.', fileType),
@@ -214,6 +213,8 @@ export const handleSubmit = async (
         | React.FormEvent<HTMLFormElement>
         | React.MouseEvent<HTMLImageElement, MouseEvent>,
     filesSelected: Attachment[],
+    setMessageText: Function,
+    setFiles: Function,
 ) => {
     let attachments: string[] = [];
 
@@ -266,6 +267,10 @@ export const handleSubmit = async (
 
         return;
     }
+
+    // clear the message text & files selected from input field
+    setMessageText('');
+    setFiles([]);
 
     if (
         state.uiView.selectedMessageView.actionType === MessageActionType.EDIT

@@ -23,7 +23,8 @@ export default function ConfigureProfileBox() {
 
     return showConfigBox ? (
         <div
-            className={'config-box-main position-absolute width-fill'.concat(
+            data-testid="config-profile-box"
+            className={'config-box-main position-absolute width-fill background-container'.concat(
                 ' ',
                 state.accounts.selectedContact
                     ? 'highlight-right-border'
@@ -36,6 +37,7 @@ export default function ConfigureProfileBox() {
                 </div>
                 <div className="d-flex justify-content-center config-btn-container">
                     <button
+                        data-testid="config-prof-btn"
                         className="border-radius-6 background-config-box text-primary-color config-box-border"
                         onClick={() => openConfigurationModal()}
                     >

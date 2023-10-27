@@ -16,14 +16,16 @@ export interface DashboardProps {
     dm3Props: Dm3Props;
 }
 
-export interface EnsDetails {
+export interface IEnsDetails {
     propertyKey: string;
     propertyValue: string;
+    action?: Function;
 }
 
-export interface ContactMenu {
+export interface IContactMenu {
     contactDetails: ContactPreview;
     index: number;
+    isMenuAlignedAtBottom: boolean;
 }
 
 export interface MessageProps {
@@ -63,4 +65,19 @@ export interface MessageDataProps {
     filesSelected: Attachment[];
     setFiles: Function;
     setMessageText: Function;
+}
+
+export interface AttachmentPreviewProps {
+    filesSelected: Attachment[];
+    isMyMessage: boolean;
+}
+
+export interface ImageModal {
+    uri: string;
+    setUri: Function;
+}
+
+export interface DeleteDM3NameProps {
+    setDeleteDM3NameConfirmation: Function;
+    removeDm3Name: Function;
 }

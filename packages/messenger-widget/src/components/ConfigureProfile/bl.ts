@@ -5,7 +5,7 @@ import {
     GlobalState,
     ModalStateType,
 } from '../../utils/enum-type-utils';
-import { claimSubdomain } from 'dm3-lib-offchain-resolver-api';
+import { claimSubdomain, removeAlias } from 'dm3-lib-offchain-resolver-api';
 import { createAlias } from 'dm3-lib-delivery-api';
 import { Connection } from '../../interfaces/web3';
 import { globalConfig, ethersHelper, stringify } from 'dm3-lib-shared';
@@ -38,33 +38,20 @@ export const openConfigurationModal = () => {
 };
 
 // method to close the profile configuration modal
-export const closeConfigurationModal = () => {
+export const closeConfigurationModal = (
+    setDm3Name: Function,
+    setEnsName: Function,
+    setErrorMsg: Function,
+    setShowError: Function,
+) => {
     const modal: HTMLElement = document.getElementById(
         'configuration-modal',
     ) as HTMLElement;
     modal.style.display = 'none';
-};
-
-// method to fetch address ENS name
-export const getAddrEnsName = async (
-    state: GlobalState,
-    setAddressFromContext: Function,
-) => {
-    if (state.connection.ethAddress && state.connection.provider) {
-        const addressEnsName =
-            state.connection.ethAddress + globalConfig.ADDR_ENS_SUBDOMAIN();
-        const address = await state.connection.provider.resolveName(
-            addressEnsName,
-        );
-
-        if (
-            address &&
-            formatAddress(address) ===
-                formatAddress(state.connection.ethAddress)
-        ) {
-            setAddressFromContext(addressEnsName);
-        }
-    }
+    setDm3Name('');
+    setEnsName('');
+    setErrorMsg('');
+    setShowError(undefined);
 };
 
 // method to fetch ENS name
@@ -123,13 +110,49 @@ export const submitDm3UsernameClaim = async (
 
         setContactHeightToMaximum(true);
     } catch (e) {
-        setError(
-            'Name is not available or Name must not have blancs',
-            NAME_TYPE.DM3_NAME,
-        );
+        setError('Name is not available', NAME_TYPE.DM3_NAME);
     }
 
     // stop loader
+    closeLoader();
+};
+
+// method to remove aliad
+export const removeAliasFromDm3Name = async (
+    state: GlobalState,
+    dm3UserEnsName: string,
+    dispatch: React.Dispatch<Actions>,
+    setError: Function,
+) => {
+    try {
+        dispatch({
+            type: ModalStateType.LoaderContent,
+            payload: 'Removing alias...',
+        });
+
+        startLoader();
+
+        const ensName = dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN();
+
+        await removeAlias(
+            dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN(),
+            process.env.REACT_APP_RESOLVER_BACKEND as string,
+            state.userDb!.keys.signingKeyPair.privateKey,
+        );
+
+        dispatch({
+            type: ConnectionType.ChangeAccount,
+            payload: {
+                ...state.connection.account!,
+                ensName: ensName,
+            },
+        });
+
+        setContactHeightToMaximum(true);
+    } catch (e) {
+        setError('Failed to remove alias', e);
+    }
+
     closeLoader();
 };
 
@@ -272,4 +295,12 @@ export const submitEnsNameTransaction = async (
 
     // stop loader
     closeLoader();
+};
+
+export const validateName = (username: string): boolean => {
+    return (
+        username.length > 3 &&
+        !username.includes('.') &&
+        ethers.utils.isValidName(username)
+    );
 };

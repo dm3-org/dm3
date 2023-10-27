@@ -3,7 +3,6 @@ import {
     LeftViewSelected,
     MessageActionType,
     RightViewSelected,
-    SelectedRightView,
 } from '../utils/enum-type-utils';
 import { ContactPreview, NewContact } from './utils';
 import { MessageAction, MessageProps } from './props';
@@ -28,19 +27,17 @@ export interface AuthSession {
 
 export interface Cache {
     abis: Map<string, string>;
-    avatarUrls: Map<string, string>;
     contacts: ContactPreview[] | null;
+    lastConversation: {
+        account: Account | null;
+        message: string | null;
+    };
 }
 
 export interface UiState {
-    showAddContact: boolean;
-    selectedRightView: SelectedRightView;
-    maxLeftView: boolean;
-    show: boolean;
     lastMessagePull: number;
     proflieExists: boolean;
     browserStorageBackup: boolean;
-    showContactList: boolean;
 }
 
 export interface GlobalContextProviderProps {

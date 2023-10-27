@@ -5,23 +5,6 @@ import { Cache } from '../interfaces/context';
 
 export function cacheReducer(state: Cache, action: CacheActions): Cache {
     switch (action.type) {
-        case CacheType.AddAvatarUrl:
-            if (state.avatarUrls.has(action.payload.ensName)) {
-                return state;
-            }
-
-            log(
-                `[Cache] Add avatar url ${action.payload.url} for ${action.payload.ensName}`,
-                'info',
-            );
-
-            const avatarUrls = new Map<string, string>(state.avatarUrls);
-            avatarUrls.set(action.payload.ensName, action.payload.url);
-            return {
-                ...state,
-                avatarUrls,
-            };
-
         case CacheType.AddAbis:
             const abis = new Map<string, string>(state.abis);
 
@@ -44,6 +27,12 @@ export function cacheReducer(state: Cache, action: CacheActions): Cache {
             return {
                 ...state,
                 contacts: action.payload,
+            };
+
+        case CacheType.LastConversation:
+            return {
+                ...state,
+                lastConversation: action.payload,
             };
 
         default:

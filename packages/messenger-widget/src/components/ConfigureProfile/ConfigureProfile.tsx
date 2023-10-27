@@ -9,21 +9,21 @@ import {
     NAME_TYPE,
     PROFILE_INPUT_FIELD_CLASS,
     closeConfigurationModal,
-    getAddrEnsName,
     getEnsName,
     submitDm3UsernameClaim,
     submitEnsNameTransaction,
+    validateName,
 } from './bl';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import { globalConfig } from 'dm3-lib-shared';
+import DeleteDM3Name from '../DeleteDM3Name/DeleteDM3Name';
 
 export function ConfigureProfile() {
     // global context state
     const { state, dispatch } = useContext(GlobalContext);
 
     // existing profile details states
-    const [address, setAddress] = useState<string | undefined>(undefined);
     const [existingDm3Name, setExistingDm3Name] = useState<string | null>(null);
     const [existingEnsName, setExistingEnsName] = useState<string | null>(null);
 
@@ -37,8 +37,11 @@ export function ConfigureProfile() {
     );
     const [errorMsg, setErrorMsg] = useState<string>('');
 
-    const setAddressFromContext = (addressFetched: string | undefined) => {
-        setAddress(addressFetched);
+    const [showDeleteConfirmation, setShowDeleteConfirmation] =
+        useState<boolean>(false);
+
+    const updateDeleteConfirmation = (action: boolean) => {
+        setShowDeleteConfirmation(action);
     };
 
     const setEnsNameFromResolver = (ensNameFetched: string | null) => {
@@ -56,12 +59,15 @@ export function ConfigureProfile() {
         type: NAME_TYPE,
     ) => {
         setShowError(undefined);
+        const check = validateName(e.target.value);
         if (type === NAME_TYPE.DM3_NAME) {
             setDm3Name(e.target.value);
             setEnsName('');
+            !check && setError('Invalid name', NAME_TYPE.DM3_NAME);
         } else {
             setEnsName(e.target.value);
             setDm3Name('');
+            !check && setError('Invalid ENS name', NAME_TYPE.ENS_NAME);
         }
     };
 
@@ -116,7 +122,6 @@ export function ConfigureProfile() {
     // handles ENS name and address
     useEffect(() => {
         getEnsName(state, setEnsNameFromResolver);
-        getAddrEnsName(state, setAddressFromContext);
     }, [state.connection.ethAddress, state.connection.provider]);
 
     return (
@@ -129,6 +134,16 @@ export function ConfigureProfile() {
                     className="configuration-modal-content border-radius-6 
         background-container text-primary-color"
                 >
+                    {/* Delete DM3 name confirmation popup modal */}
+                    {showDeleteConfirmation && (
+                        <DeleteDM3Name
+                            setDeleteDM3NameConfirmation={
+                                updateDeleteConfirmation
+                            }
+                            removeDm3Name={handleClaimOrRemoveDm3Name}
+                        />
+                    )}
+
                     {/* Header */}
                     <div className="d-flex align-items-start">
                         <div className="width-fill">
@@ -145,7 +160,14 @@ export function ConfigureProfile() {
                             className="close-modal-icon"
                             src={closeIcon}
                             alt="close"
-                            onClick={() => closeConfigurationModal()}
+                            onClick={() =>
+                                closeConfigurationModal(
+                                    setDm3Name,
+                                    setEnsName,
+                                    setErrorMsg,
+                                    setShowError,
+                                )
+                            }
                         />
                     </div>
 
@@ -155,7 +177,9 @@ export function ConfigureProfile() {
                         {/* Wallet address */}
                         <div className="d-flex ps-4">
                             <div className="configuration-items-align">
-                                {address && <img src={tickIcon} />}
+                                {state.connection.ethAddress && (
+                                    <img src={tickIcon} />
+                                )}
                             </div>
                             <div className="profile-config-container">
                                 <div className="d-flex">
@@ -163,7 +187,9 @@ export function ConfigureProfile() {
                                         Wallet Address
                                     </p>
                                     <p className="m-0 font-size-14 font-weight-500 line-height-24 grey-text">
-                                        {address}
+                                        {state.connection.ethAddress &&
+                                            state.connection.ethAddress +
+                                                globalConfig.ADDR_ENS_SUBDOMAIN()}
                                     </p>
                                 </div>
                                 <div className="address-details">
@@ -184,27 +210,26 @@ export function ConfigureProfile() {
 
                         {/* DM3 Name */}
                         <div className="mt-5">
-                            {showError === NAME_TYPE.DM3_NAME && (
-                                <div className="d-flex ps-4 align-items-center">
-                                    <div className="configuration-items-align invisible">
-                                        <img src={tickIcon} />
-                                    </div>
-                                    <p
-                                        className="m-0 font-size-14 font-weight-500 line-height-24 
-                                        title-content invisible"
-                                    >
-                                        DM3 Name
-                                    </p>
-
-                                    <div
-                                        className={
-                                            'conversation-error font-weight-400 ms-3 show-error'
-                                        }
-                                    >
-                                        {errorMsg}
-                                    </div>
+                            <div className="d-flex ps-4 align-items-center">
+                                <div className="configuration-items-align invisible">
+                                    <img src={tickIcon} />
                                 </div>
-                            )}
+                                <p
+                                    className="m-0 font-size-14 font-weight-500 line-height-24 
+                                        title-content invisible"
+                                >
+                                    DM3 Name
+                                </p>
+
+                                <div
+                                    className={
+                                        'conversation-error font-weight-400 ms-3 show-error'
+                                    }
+                                >
+                                    {showError === NAME_TYPE.DM3_NAME &&
+                                        errorMsg}
+                                </div>
+                            </div>
                         </div>
                         <div className="d-flex ps-4 align-items-baseline">
                             <div className="configuration-items-align">
@@ -216,8 +241,17 @@ export function ConfigureProfile() {
                                         DM3 Name
                                     </p>
                                     {!existingDm3Name ? (
-                                        <>
+                                        <form
+                                            className="d-flex width-fill align-items-center"
+                                            onSubmit={(e) => {
+                                                e.preventDefault();
+                                                handleClaimOrRemoveDm3Name(
+                                                    ACTION_TYPE.CONFIGURE,
+                                                );
+                                            }}
+                                        >
                                             <input
+                                                data-testid="dm3-name"
                                                 className={PROFILE_INPUT_FIELD_CLASS.concat(
                                                     ' ',
                                                     showError ===
@@ -243,12 +277,12 @@ export function ConfigureProfile() {
                                             >
                                                 {globalConfig.USER_ENS_SUBDOMAIN()}
                                             </p>
-                                        </>
+                                        </form>
                                     ) : (
                                         <>
                                             <p
                                                 className="m-0 font-size-14 font-weight-500 line-height-24 
-                                            grey-text d-flex"
+                                            grey-text d-flex align-items-center"
                                             >
                                                 {existingDm3Name}
                                                 <img
@@ -256,8 +290,8 @@ export function ConfigureProfile() {
                                                     src={deleteIcon}
                                                     alt="remove"
                                                     onClick={() =>
-                                                        handleClaimOrRemoveDm3Name(
-                                                            ACTION_TYPE.REMOVE,
+                                                        setShowDeleteConfirmation(
+                                                            true,
                                                         )
                                                     }
                                                 />
@@ -283,6 +317,7 @@ export function ConfigureProfile() {
                             <div>
                                 {!existingDm3Name && (
                                     <button
+                                        data-testid="claim-publish"
                                         disabled={!dm3Name || !dm3Name.length}
                                         className={BUTTON_CLASS.concat(
                                             ' ',
@@ -304,28 +339,28 @@ export function ConfigureProfile() {
 
                         {/* ENS Name */}
                         <div className="mt-5">
-                            {showError === NAME_TYPE.ENS_NAME && (
-                                <div className="d-flex ps-4 align-items-center">
-                                    <div className="configuration-items-align invisible">
-                                        <img src={tickIcon} />
-                                    </div>
-                                    <p
-                                        className="m-0 font-size-14 font-weight-500 line-height-24 
-                                        title-content invisible"
-                                    >
-                                        ENS Name
-                                    </p>
-
-                                    <div
-                                        className={
-                                            'conversation-error font-weight-400 ms-3 show-error'
-                                        }
-                                    >
-                                        {errorMsg}
-                                    </div>
+                            <div className="d-flex ps-4 align-items-center">
+                                <div className="configuration-items-align invisible">
+                                    <img src={tickIcon} />
                                 </div>
-                            )}
+                                <p
+                                    className="m-0 font-size-14 font-weight-500 line-height-24 
+                                        title-content invisible"
+                                >
+                                    ENS Name
+                                </p>
+
+                                <div
+                                    className={
+                                        'conversation-error font-weight-400 ms-3 show-error'
+                                    }
+                                >
+                                    {showError === NAME_TYPE.ENS_NAME &&
+                                        errorMsg}
+                                </div>
+                            </div>
                         </div>
+
                         <div className="d-flex ps-4 pb-3 align-items-baseline">
                             <div className="configuration-items-align">
                                 {existingEnsName && <img src={tickIcon} />}
@@ -336,25 +371,39 @@ export function ConfigureProfile() {
                                         ENS Name
                                     </p>
                                     {!existingEnsName ? (
-                                        <input
-                                            className={PROFILE_INPUT_FIELD_CLASS.concat(
-                                                ' ',
-                                                showError === NAME_TYPE.ENS_NAME
-                                                    ? 'err-background'
-                                                    : '',
-                                            )}
-                                            type="text"
-                                            value={ensName}
-                                            placeholder="Enter your ENS name. It must be connected to your wallet"
-                                            onChange={(
-                                                e: React.ChangeEvent<HTMLInputElement>,
-                                            ) =>
-                                                handleNameChange(
-                                                    e,
-                                                    NAME_TYPE.ENS_NAME,
-                                                )
-                                            }
-                                        />
+                                        <form
+                                            className="d-flex width-fill"
+                                            onSubmit={(e) => {
+                                                e.preventDefault();
+                                                handlePublishOrRemoveProfile(
+                                                    existingEnsName
+                                                        ? ACTION_TYPE.REMOVE
+                                                        : ACTION_TYPE.CONFIGURE,
+                                                );
+                                            }}
+                                        >
+                                            <input
+                                                data-testid="ens-name"
+                                                className={PROFILE_INPUT_FIELD_CLASS.concat(
+                                                    ' ',
+                                                    showError ===
+                                                        NAME_TYPE.ENS_NAME
+                                                        ? 'err-background'
+                                                        : '',
+                                                )}
+                                                type="text"
+                                                value={ensName}
+                                                placeholder="Enter your ENS name. It must be connected to your wallet"
+                                                onChange={(
+                                                    e: React.ChangeEvent<HTMLInputElement>,
+                                                ) =>
+                                                    handleNameChange(
+                                                        e,
+                                                        NAME_TYPE.ENS_NAME,
+                                                    )
+                                                }
+                                            />
+                                        </form>
                                     ) : (
                                         <p className="m-0 font-size-14 font-weight-500 line-height-24 grey-text">
                                             {existingEnsName}
@@ -377,6 +426,7 @@ export function ConfigureProfile() {
                             </div>
                             <div>
                                 <button
+                                    data-testid="publish-profile"
                                     disabled={
                                         !existingEnsName &&
                                         (!ensName || !ensName.length)

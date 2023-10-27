@@ -83,9 +83,13 @@ function DM3(props: Dm3Props) {
                 throw Error('Could not get account profile');
             }
 
-            const socket = socketIOClient(deliveryServiceUrl, {
-                autoConnect: false,
-            });
+            const socket = socketIOClient(
+                deliveryServiceUrl.replace('/api', ''),
+                {
+                    autoConnect: false,
+                    transports: ['websocket'],
+                },
+            );
 
             socket.auth = {
                 account: state.connection.account,
@@ -133,7 +137,7 @@ function DM3(props: Dm3Props) {
                     miniSignIn={props.config.miniSignIn}
                 />
             ) : (
-                <div className="mt-3 ml-3 h-auto rounded dashboard-container background-container">
+                <div className="ml-3 h-auto rounded dashboard-container background-container">
                     <Dashboard getContacts={getContacts} dm3Props={props} />
                 </div>
             )}

@@ -94,8 +94,6 @@ export function MessageInputBox() {
 
                             {/* Emoji selector modal  */}
                             <EmojiSelector />
-
-                            <span className="d-flex smile-icon">|</span>
                         </div>
 
                         {/* Input msg form */}

@@ -9,13 +9,18 @@ import {
     updateContactOnAccountChange,
     updateSelectedContact,
     resetContactListOnHide,
+    showMenuInBottom,
 } from './bl';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import { DashboardProps } from '../../interfaces/props';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { globalConfig } from 'dm3-lib-shared';
-import { ModalStateType, RightViewSelected } from '../../utils/enum-type-utils';
+import {
+    CacheType,
+    ModalStateType,
+    RightViewSelected,
+} from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
 import loader from '../../assets/images/loader.svg';
 
@@ -26,6 +31,10 @@ export function Contacts(props: DashboardProps) {
     // local states to handle contact list and active contact
     const [contactSelected, setContactSelected] = useState<number | null>(null);
     const [contacts, setContacts] = useState<ContactPreview[]>([]);
+
+    const [isMenuAlignedAtBottom, setIsMenuAlignedAtBottom] = useState<
+        boolean | null
+    >(null);
 
     // sets contact list to show on UI
     const setListOfContacts = (list: ContactPreview[]) => {
@@ -91,6 +100,7 @@ export function Contacts(props: DashboardProps) {
                 dispatch,
                 contacts,
                 setListOfContacts,
+                setContactFromList,
             );
         }
     }, [state.accounts.contacts]);
@@ -115,6 +125,7 @@ export function Contacts(props: DashboardProps) {
                     dispatch,
                     contacts,
                     setListOfContacts,
+                    setContactFromList,
                 );
             } else if (state.accounts.selectedContact) {
                 setContactSelected(
@@ -148,6 +159,28 @@ export function Contacts(props: DashboardProps) {
         }
     }, [contacts]);
 
+    // updates the last message in contact list
+    useEffect(() => {
+        if (
+            state.cache.lastConversation.account &&
+            state.cache.lastConversation.message &&
+            state.cache.contacts &&
+            contactSelected
+        ) {
+            const items = [...state.cache.contacts];
+            const item = {
+                ...items[contactSelected],
+                message: state.cache.lastConversation.message,
+            };
+            items[contactSelected] = item;
+            dispatch({
+                type: CacheType.Contacts,
+                payload: items,
+            });
+            setContacts(items);
+        }
+    }, [state.cache.lastConversation]);
+
     // fetched contacts from the cache
     useEffect(() => {
         const cacheContacts = state.cache.contacts;
@@ -173,14 +206,26 @@ export function Contacts(props: DashboardProps) {
                 dispatch,
                 contacts[contactSelected].contactDetails,
             );
+            setIsMenuAlignedAtBottom(showMenuInBottom(contactSelected));
         }
     }, [contactSelected]);
 
     /* Hidden content for highlighting css */
-    const hiddenData: number[] = Array.from({ length: 14 }, (_, i) => i + 1);
+    const hiddenData: number[] = Array.from({ length: 22 }, (_, i) => i + 1);
+
+    const scroller = document.getElementById('chat-scroller');
+
+    if (scroller) {
+        scroller.addEventListener('scroll', () => {
+            if (contactSelected != null) {
+                setIsMenuAlignedAtBottom(showMenuInBottom(contactSelected));
+            }
+        });
+    }
 
     return (
         <div
+            id="chat-scroller"
             className={'contacts-scroller width-fill'.concat(
                 ' ',
                 contacts.length > 6 ? 'scroller-active' : 'scroller-hidden',
@@ -189,6 +234,7 @@ export function Contacts(props: DashboardProps) {
             {contacts.length > 0 &&
                 contacts.map((data, index) => (
                     <div
+                        id={`chat-item-id-${index}`}
                         key={index}
                         className={'pointer-cursor width-fill contact-details-container'.concat(
                             ' ',
@@ -236,6 +282,14 @@ export function Contacts(props: DashboardProps) {
                                                                 data
                                                             }
                                                             index={index}
+                                                            isMenuAlignedAtBottom={
+                                                                isMenuAlignedAtBottom ===
+                                                                null
+                                                                    ? showMenuInBottom(
+                                                                          contactSelected,
+                                                                      )
+                                                                    : isMenuAlignedAtBottom
+                                                            }
                                                         />
                                                     }
                                                 </div>
@@ -267,6 +321,20 @@ export function Contacts(props: DashboardProps) {
             {/* Hidden content for highlighting css */}
             {contacts.length < 10 &&
                 hiddenData.map((data) => (
+                    <div
+                        key={data}
+                        className={
+                            contactSelected !== null
+                                ? 'highlight-right-border'
+                                : 'highlight-right-border-none'
+                        }
+                    >
+                        <div className="hidden-data"></div>
+                    </div>
+                ))}
+
+            {contacts.length >= 10 &&
+                hiddenData.slice(11).map((data) => (
                     <div
                         key={data}
                         className={

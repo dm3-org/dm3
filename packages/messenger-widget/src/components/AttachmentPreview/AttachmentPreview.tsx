@@ -10,7 +10,10 @@ export function AttachmentPreview(props: AttachmentProps) {
     }
 
     return (
-        <div className="d-flex pt-1 align-items-center">
+        <div
+            className="d-flex pb-2 pt-1 align-items-center"
+            data-testid="attachment-preview-testid"
+        >
             {props.filesSelected.map((item) => {
                 return (
                     <div
@@ -19,12 +22,19 @@ export function AttachmentPreview(props: AttachmentProps) {
                         key={item.id}
                     >
                         <img
+                            data-testid={item.name}
                             className="border-radius-3 file-preview-selected"
                             src={item.isImage ? item.data : attachmentIcon}
                             alt="file"
                         />
-                        <div className="font-size-12 ms-1">{item.name}</div>
+                        <div
+                            data-testid={`${item.id}-${item.name}`}
+                            className="font-size-12 ms-1"
+                        >
+                            {item.name}
+                        </div>
                         <img
+                            data-testid={item.id}
                             className="pointer-cursor unselect-file"
                             src={closeIcon}
                             alt="unselect"
