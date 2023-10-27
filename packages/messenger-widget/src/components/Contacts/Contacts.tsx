@@ -100,6 +100,7 @@ export function Contacts(props: DashboardProps) {
                 dispatch,
                 contacts,
                 setListOfContacts,
+                setContactFromList,
             );
         }
     }, [state.accounts.contacts]);
@@ -124,6 +125,7 @@ export function Contacts(props: DashboardProps) {
                     dispatch,
                     contacts,
                     setListOfContacts,
+                    setContactFromList,
                 );
             } else if (state.accounts.selectedContact) {
                 setContactSelected(
