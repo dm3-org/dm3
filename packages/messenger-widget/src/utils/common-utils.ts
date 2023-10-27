@@ -33,6 +33,7 @@ export const openErrorModal = (
     message: string,
     action: boolean,
     method?: any,
+    changeAccount?: boolean,
 ) => {
     const modal: HTMLElement = document.getElementById(
         'error-modal',
@@ -57,7 +58,13 @@ export const openErrorModal = (
         'error-modal-spinner',
     ) as HTMLElement;
 
-    if (!action) {
+    if (changeAccount) {
+        errorLoader.classList.remove('error-modal-spinner');
+        errorLoader.style.display = 'flex';
+        setTimeout(() => {
+            reloadApp();
+        }, 2000);
+    } else if (!action) {
         btn.onclick = function () {
             // on successful if condition, close the modal else clear local storage & reload the page
             if (method) {
