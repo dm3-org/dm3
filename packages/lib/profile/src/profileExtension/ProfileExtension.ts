@@ -1,4 +1,3 @@
-//TODO import from message package if possbile. If not find a better way to import
 export type MessageType =
     | 'NEW'
     | 'DELETE_REQUEST'
@@ -6,7 +5,8 @@ export type MessageType =
     | 'REPLY'
     | 'REACTION'
     | 'READ_RECEIPT'
-    | 'RESEND_REQUEST';
+    | 'RESEND_REQUEST'
+    | 'LINK';
 
 export interface ProfileExtension {
     encryptionAlgorithm?: string[];

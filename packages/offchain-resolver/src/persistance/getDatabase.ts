@@ -16,6 +16,7 @@ export async function getDatabase(
             Profile.getProfileContainerByAddress(prismaClient),
         removeUserProfile: Profile.removeUserProfile(prismaClient),
         setAlias: Profile.setAlias(prismaClient),
+        setLink: Profile.setLink(prismaClient),
         getProfileContainerForAlias:
             Profile.getProfileContainerForAlias(prismaClient),
         getProfileAliasByAddress:

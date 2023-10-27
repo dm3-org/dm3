@@ -11,6 +11,7 @@ export {
     PROFILE_RECORD_NAME,
     formatAddress,
     createProfile,
+    createKeyPairsFromSig,
 } from './Profile';
 
 export type { Account, ProfileKeys, GetResource } from './Profile';

@@ -9,6 +9,7 @@ import { resolverEndpoint } from './http/resolverEndpoint';
 import { getWeb3Provider } from './utils/getWeb3Provider';
 
 import { profile } from './http/profile';
+import { link } from './http/link';
 
 dotenv.config();
 
@@ -42,6 +43,7 @@ global.logger = winston.createLogger({
 
     app.use('/', resolverEndpoint());
     app.use('/profile', profile(getWeb3Provider()));
+    app.use('/link', link(getWeb3Provider()));
 })();
 const port = process.env.PORT || '8081';
 server.listen(port, () => {

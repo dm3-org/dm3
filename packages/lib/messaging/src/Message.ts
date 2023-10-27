@@ -41,7 +41,8 @@ export type MessageType =
     | 'REPLY'
     | 'REACTION'
     | 'READ_RECEIPT'
-    | 'RESEND_REQUEST';
+    | 'RESEND_REQUEST'
+    | 'LINK';
 
 export interface Postmark {
     messageHash: string;

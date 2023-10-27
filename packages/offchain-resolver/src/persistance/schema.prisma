@@ -1,5 +1,5 @@
 datasource db {
-  url      = env("DATABASE_URL")
+  url      = "postgresql://postgres:example@localhost:5432"
   provider = "postgresql"
 }
 
@@ -14,6 +14,7 @@ model ProfileContainer {
   ensName String @unique
   address String @unique
   aliases Alias[]
+  links String[]
 
 }
 

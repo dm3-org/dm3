@@ -10,3 +10,4 @@ export { setAlias } from './setAlias';
 export { getProfileContainerForAlias } from './getProfileContainerForAlias';
 export { setUserProfile } from './setUserProfile';
 export { getProfileAliasByAddress } from './getProfileAliasByAddress';
+export { setLink } from './setLink';

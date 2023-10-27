@@ -25,6 +25,7 @@ export type {
     Postmark,
     SendDependencies,
     JsonRpcRequest,
+    MessageType,
 } from './Message';
 export * as schema from './schema';
 export { getId } from './Utils';
