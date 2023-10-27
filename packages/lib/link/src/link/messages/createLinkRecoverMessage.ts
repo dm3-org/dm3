@@ -1,27 +1,19 @@
 import { sign } from 'dm3-lib-crypto';
 import { stringify } from 'dm3-lib-shared';
 
-export async function createLinkAcceptMessage(
+export async function createLinkRecoverMessage(
     to: string,
     from: string,
-    linkMessage: string,
-    lspEnsName: string,
-    signature: string,
     sign: (msg: string) => Promise<string>,
 ): Promise<any> {
     const messgeWithoutSig = {
         message: '',
         attachments: [],
         metadata: {
-            type: 'LSP_LINK_ACCEPT',
+            type: 'LSP_RECOVER',
             to,
             from,
             timestamp: new Date().getTime(),
-            LSP: {
-                ensName: lspEnsName,
-                linkMessage,
-                signature,
-            },
         },
     };
     return {
