@@ -286,9 +286,12 @@ export const submitEnsNameTransaction = async (
         } else {
             throw Error('Error creating publish transaction');
         }
-    } catch (e) {
+    } catch (e: any) {
+        const check = e.toString().includes('user rejected transaction');
         setError(
-            'You are not the owner/manager of this name',
+            check
+                ? 'User rejected transaction'
+                : 'You are not the owner/manager of this name',
             NAME_TYPE.ENS_NAME,
         );
     }
