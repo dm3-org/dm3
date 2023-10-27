@@ -2196,7 +2196,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eth-optimism/contracts@npm:0.6.0":
+"@eth-optimism/contracts@npm:0.6.0, @eth-optimism/contracts@npm:^0.6.0":
   version: 0.6.0
   resolution: "@eth-optimism/contracts@npm:0.6.0"
   dependencies:
@@ -2206,19 +2206,6 @@ __metadata:
   peerDependencies:
     ethers: ^5
   checksum: 52e9a6cc6ad9bf3ab085d3be501fa4c89e48865baa8aee01aff39c2b007b69600304c7e8f8f4e00d67396e48a0dbfe3a260437efd3a4d7216424cece52639870
-  languageName: node
-  linkType: hard
-
-"@eth-optimism/contracts@npm:^0.5.40":
-  version: 0.5.40
-  resolution: "@eth-optimism/contracts@npm:0.5.40"
-  dependencies:
-    "@eth-optimism/core-utils": 0.12.0
-    "@ethersproject/abstract-provider": ^5.7.0
-    "@ethersproject/abstract-signer": ^5.7.0
-  peerDependencies:
-    ethers: ^5
-  checksum: 11dde466c90b886efe8b5fd123fa5893187a4ff84839213d417f90ae4e45bf00b2f62d56e4ebe23ba5dd7ec33beed22c4c41e206add35fce0db073fe2dbae6ba
   languageName: node
   linkType: hard
 
@@ -2246,7 +2233,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eth-optimism/core-utils@npm:^0.12.0, @eth-optimism/core-utils@npm:^0.12.1":
+"@eth-optimism/core-utils@npm:^0.12.0":
   version: 0.12.3
   resolution: "@eth-optimism/core-utils@npm:0.12.3"
   dependencies:
@@ -2268,7 +2255,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eth-optimism/sdk@npm:^2.0.2":
+"@eth-optimism/sdk@npm:^2.1.0":
   version: 2.1.0
   resolution: "@eth-optimism/sdk@npm:2.1.0"
   dependencies:
@@ -10452,23 +10439,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ccip-resolver@npm:^0.2.2":
-  version: 0.2.7
-  resolution: "ccip-resolver@npm:0.2.7"
+"ccip-resolver@npm:^0.2.8":
+  version: 0.2.8
+  resolution: "ccip-resolver@npm:0.2.8"
   dependencies:
     "@defi-wonderland/smock": ^2.3.4
     "@ensdomains/buffer": 0.0.10
     "@ensdomains/dnssec-oracle": 0.1.2
     "@ensdomains/ens-contracts": ^0.0.19
-    "@eth-optimism/contracts": ^0.5.40
-    "@eth-optimism/core-utils": ^0.12.1
-    "@eth-optimism/sdk": ^2.0.2
+    "@eth-optimism/contracts": ^0.6.0
+    "@eth-optimism/sdk": ^2.1.0
     axios: ^1.4.0
     body-parser: ^1.20.2
     express: ^4.18.2
     solidity-bytes-utils: ^0.8.0
     winston: ^3.9.0
-  checksum: 7ca216dc3f1d65db594b5ed0af6b8d7716df030ad9cf1767725574c74877056aec025264c18f6d835dc12563da243423d860e4e4b061997dac64e410c41e6e3e
+  checksum: 8f4c00f9d70ef8dbed620815cf81d197bc4e3c2f52edfe16d6bf7cba7fb0ae0e08eb019af0166c727fbf10f026dbe46aef0cdfabe682fafe41859bd89f83dddd
   languageName: node
   linkType: hard
 
@@ -12413,7 +12399,7 @@ __metadata:
     "@ensdomains/ens-contracts": ^0.0.22
     "@nomicfoundation/hardhat-chai-matchers": ^2.0.2
     "@nomiclabs/hardhat-ethers": ^2.2.3
-    ccip-resolver: ^0.2.2
+    ccip-resolver: ^0.2.8
     commander: ^11.0.0
     ethers: 5.7.2
     hardhat: ^2.7.2
