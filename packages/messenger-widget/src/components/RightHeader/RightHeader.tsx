@@ -8,6 +8,7 @@ import {
     RightViewSelected,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 export function RightHeader() {
     // fetches context storage
@@ -52,13 +53,16 @@ export function RightHeader() {
 
     return (
         <div
-            className={'col-12 d-flex align-items-end justify-content-end pr-0 profile-name-container'.concat(
+            className={'col-12 d-flex align-items-center justify-content-end pr-0 profile-name-container'.concat(
                 ' ',
                 state.uiView.selectedRightView === RightViewSelected.Profile
                     ? 'background-chat'
                     : 'background-container',
             )}
         >
+            <div className="me-2">
+                <ConnectButton showBalance={false} />
+            </div>
             <span
                 onClick={() => updateView()}
                 className="profile-name font-weight-500 pointer-cursor text-secondary-color"

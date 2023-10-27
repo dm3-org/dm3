@@ -21,13 +21,14 @@ import {
     initToken,
     signIn,
 } from './bl';
-import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit';
 import { watchAccount, disconnect, watchNetwork } from '@wagmi/core';
 import {
     ACCOUNT_CHANGE_POPUP_MESSAGE,
     INVALID_NETWORK_POPUP_MESSAGE,
     REACT_APP_SUPPORTED_CHAIN_ID,
     openErrorModal,
+    reloadApp,
 } from '../../utils/common-utils';
 
 export function SignIn(props: SignInProps) {
@@ -204,9 +205,23 @@ export function SignIn(props: SignInProps) {
             accountConnected.address &&
             account.address !== accountConnected.address
         ) {
-            openErrorModal(ACCOUNT_CHANGE_POPUP_MESSAGE, true, disconnect);
-        } else {
+            // account change case
+            openErrorModal(ACCOUNT_CHANGE_POPUP_MESSAGE, true, () => {}, true);
             setAccountConnected(account);
+            setIsSignInBtnClicked(true);
+        } else if (
+            (!account || !account.address) &&
+            accountConnected &&
+            accountConnected.address
+        ) {
+            // disconnect wallet case
+            setAccountConnected(null);
+            setIsSignInBtnClicked(false);
+            reloadApp();
+        } else {
+            // normal sign in case
+            setAccountConnected(account);
+            setIsSignInBtnClicked(true);
         }
     };
 
@@ -244,6 +259,17 @@ export function SignIn(props: SignInProps) {
                     className="col-lg-5 col-md-5 col-sm-12 p-0 d-flex flex-column 
                 justify-content-center signin-container background-container"
                 >
+                    <div className="row">
+                        <div className="d-flex justify-content-end rainbow-connect-btn">
+                            {accountConnected && accountConnected.address ? (
+                                <ConnectButton showBalance={false} />
+                            ) : (
+                                <div className="normal-btn wal-not-connected">
+                                    Wallet not connected
+                                </div>
+                            )}
+                        </div>
+                    </div>
                     <div className="d-flex flex-column justify-content-center height-fill content-data-container">
                         <div className="d-flex flex-column justify-content-center">
                             <img
