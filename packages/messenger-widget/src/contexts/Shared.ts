@@ -1,12 +1,10 @@
 import { StorageLocation } from 'dm3-lib-storage';
 import {
-    AccountInfo,
     ConnectionState,
     GlobalState,
     LeftViewSelected,
     MessageActionType,
     RightViewSelected,
-    SelectedRightView,
 } from '../utils/enum-type-utils';
 
 export const initialState: GlobalState = {

@@ -3,7 +3,6 @@ import {
     LeftViewSelected,
     MessageActionType,
     RightViewSelected,
-    SelectedRightView,
 } from '../utils/enum-type-utils';
 import { ContactPreview, NewContact } from './utils';
 import { MessageAction, MessageProps } from './props';
