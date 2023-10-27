@@ -10335,6 +10335,8 @@ __metadata:
     axios: ^0.25.0
     axios-mock-adapter: ^1.21.2
     dm3-lib-crypto: "workspace:^"
+    dm3-lib-messaging: "workspace:^"
+    dm3-lib-profile: "workspace:^"
     dm3-lib-shared: "workspace:^"
     ethers: 5.7.2
     googleapis: ^100.0.0
