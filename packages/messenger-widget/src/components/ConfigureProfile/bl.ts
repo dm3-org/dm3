@@ -229,9 +229,15 @@ const isEnsNameValid = async (
         return false;
     }
 
+    const owner = await ethersHelper.resolveName(
+        state.connection.provider!,
+        ensName,
+    );
+
     if (
-        ethersHelper.formatAddress(address) !==
-        ethersHelper.formatAddress(state.connection.ethAddress!)
+        owner &&
+        ethersHelper.formatAddress(owner) !==
+            ethersHelper.formatAddress(state.connection.ethAddress!)
     ) {
         setError(
             'You are not the owner/manager of this name',
@@ -306,4 +312,8 @@ export const validateName = (username: string): boolean => {
         !username.includes('.') &&
         ethers.utils.isValidName(username)
     );
+};
+
+export const validateEnsName = (username: string): boolean => {
+    return ethers.utils.isValidName(username);
 };
