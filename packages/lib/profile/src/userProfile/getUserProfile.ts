@@ -37,6 +37,13 @@ export async function getEnsTextRecord(
     }
 }
 
+export async function hasUserProfile(
+    provider: ethers.providers.JsonRpcProvider,
+    contact: string,
+): Promise<boolean> {
+    return !!getUserProfile(provider, contact);
+}
+
 export async function getUserProfile(
     provider: ethers.providers.JsonRpcProvider,
     contact: string,

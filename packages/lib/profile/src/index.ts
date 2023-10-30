@@ -24,7 +24,7 @@ export * from './profileResolver';
 
 export type { ProfileExtension } from './profileExtension';
 export * from './profileExtension';
-export { getUserProfile } from './userProfile/getUserProfile';
+export { getUserProfile, hasUserProfile } from './userProfile/getUserProfile';
 export {
     getDeliveryServiceClient,
     getDeliveryServiceProfile,
