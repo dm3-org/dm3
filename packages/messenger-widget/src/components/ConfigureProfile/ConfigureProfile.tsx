@@ -130,7 +130,7 @@ export function ConfigureProfile() {
         <div>
             <div
                 id="configuration-modal"
-                className="modal-container display-none position-fixed w-100 h-100"
+                className="modal-container position-fixed w-100 h-100"
             >
                 <div
                     className="configuration-modal-content border-radius-6 
@@ -168,6 +168,7 @@ export function ConfigureProfile() {
                                     setEnsName,
                                     setErrorMsg,
                                     setShowError,
+                                    dispatch,
                                 )
                             }
                         />

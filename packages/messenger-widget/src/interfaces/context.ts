@@ -50,6 +50,7 @@ export interface Modal {
     contactToHide: string | undefined;
     openEmojiPopup: { action: boolean; data: MessageProps | undefined };
     lastMessageAction: MessageActionType;
+    isProfileConfigurationPopupActive: boolean;
 }
 
 export interface UiViewState {

@@ -63,7 +63,6 @@ export function Home(props: Dm3Props) {
             <Loader />
             <AddConversation />
             <Preferences />
-            <ConfigureProfile />
             <WagmiConfig config={wagmiConfig}>
                 <RainbowKitProvider chains={chains} theme={darkTheme()}>
                     <DM3 config={props.config} />

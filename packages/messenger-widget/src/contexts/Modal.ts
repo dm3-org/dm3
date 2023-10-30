@@ -41,6 +41,12 @@ export function modalReducer(state: Modal, action: ModalStateActions): Modal {
                 ...state,
                 lastMessageAction: action.payload,
             };
+        case ModalStateType.IsProfileConfigurationPopupActive:
+            log(`[Profile configuration popup] open ${action.payload}`, 'info');
+            return {
+                ...state,
+                isProfileConfigurationPopupActive: action.payload,
+            };
 
         default:
             return state;
