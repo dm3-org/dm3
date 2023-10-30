@@ -191,7 +191,7 @@ export function ConfigureProfile() {
                                     <p className="m-0 font-size-14 font-weight-500 line-height-24 grey-text">
                                         {state.connection.ethAddress &&
                                             state.connection.ethAddress +
-                                            globalConfig.ADDR_ENS_SUBDOMAIN()}
+                                                globalConfig.ADDR_ENS_SUBDOMAIN()}
                                     </p>
                                 </div>
                                 <div className="address-details">
