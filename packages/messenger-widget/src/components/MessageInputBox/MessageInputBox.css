@@ -1,0 +1,29 @@
+.chat-action-items {
+    border: 1px solid var(--text-secondary-color);
+    padding: 0.3rem;
+}
+
+.chat-svg-icon {
+    height: 24px;
+}
+
+.smile-icon {
+    margin-left: 0.3rem;
+    font-size: x-large;
+}
+
+.text-input-field {
+    border-left: 2px solid var(--text-secondary-color) !important;
+    border: none;
+    outline: none;
+    padding-left: 0.3rem;
+    padding-right: 0.9rem;
+    padding-top: 0rem;
+    padding-bottom: 0rem;
+}
+
+.reply-msg-active {
+    border-top: none !important;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+}

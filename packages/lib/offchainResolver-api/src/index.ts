@@ -1,37 +1,46 @@
 import axios from 'axios';
-import { Account, SignedUserProfile, formatAddress } from 'dm3-lib-profile';
-
-function checkAccount(account: Account | undefined): Required<Account> {
-    if (!account) {
-        throw Error('No account');
-    }
-    if (!account.profile) {
-        throw Error('Account has no profile.');
-    }
-    return account as Required<Account>;
-}
+import { SignedUserProfile, formatAddress } from 'dm3-lib-profile';
+import { sign } from 'dm3-lib-crypto';
 
 /**
  * claims a dm3.eth subdomain
- * @param account dm3 account
+ * @param alias the ENS alias
  * @param offchainResolverUrl The offchain resolver endpoint url
- * @param name The subdomain name
- * @param signedUserProfile The signed dm3 user profile
+ * @param name The orignial ENS name
+ * @param privateKey The owner private key
  */
-
 export async function claimSubdomain(
-    account: Account,
+    alias: string,
     offchainResolverUrl: string,
     name: string,
-    signedUserProfile: SignedUserProfile,
+    privateKey: string,
 ): Promise<boolean> {
-    const { ensName } = checkAccount(account);
-
     const url = `${offchainResolverUrl}/profile/name`;
     const data = {
-        signedUserProfile,
+        alias,
         name,
-        ensName,
+        signature: await sign(privateKey, 'alias: ' + alias),
+    };
+
+    const { status } = await axios.post(url, data);
+    return status === 200;
+}
+
+/**
+ * removes a dm3.eth subdomain
+ * @param alias the ENS alias
+ * @param offchainResolverUrl The offchain resolver endpoint url
+ * @param privateKey The owner private key
+ */
+export async function removeAlias(
+    alias: string,
+    offchainResolverUrl: string,
+    privateKey: string,
+): Promise<boolean> {
+    const url = `${offchainResolverUrl}/profile/name`;
+    const data = {
+        name: alias,
+        signature: await sign(privateKey, 'remove: ' + alias),
     };
 
     const { status } = await axios.post(url, data);
@@ -68,7 +77,7 @@ export async function getNameForAddress(
     address: string,
     offchainResolverUrl: string,
 ): Promise<string | undefined> {
-    const url = `${offchainResolverUrl}/name/${formatAddress(address)}`;
+    const url = `${offchainResolverUrl}/profile/name/${formatAddress(address)}`;
     try {
         const { data } = await axios.get(url);
         return data.name;

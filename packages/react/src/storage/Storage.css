@@ -1,20 +1,13 @@
-
 .storage-view-container {
-    background-color: var(--mainDark);;
-
-
+    background-color: var(--mainDark);
 }
 .storage-view {
-   
     padding: 10px !important;
-
-  
 }
 
 .sync-state {
     font-size: 0.8rem;
 }
-
 
 /* 
 .storage-view-bottom {

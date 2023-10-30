@@ -1,0 +1,13 @@
+.delete-msg-modal-content {
+    margin: auto;
+    padding: 2rem;
+    border: none;
+    top: 30%;
+    position: relative;
+    width: 32%;
+    height: auto;
+}
+
+.delete-msg-btn {
+    padding: 0.5rem 2rem 0.5rem 2rem;
+}

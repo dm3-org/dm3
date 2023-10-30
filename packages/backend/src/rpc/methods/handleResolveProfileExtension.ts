@@ -1,5 +1,5 @@
 import { Axios } from 'axios';
-import { stringify } from 'dm3-lib-shared/dist.backend';
+import { stringify } from 'dm3-lib-shared';
 import express from 'express';
 import { WithLocals } from '../../types';
 
@@ -21,7 +21,7 @@ export function handleResolveProfileExtension(axios: Axios) {
         //The requesito ens-name it not known to the delivery service
         if (!session) {
             const error = 'unknown user';
-            req.app.locals.logger.warn({
+            global.logger.warn({
                 method: 'RPC - RESOLVE PROFILE',
                 error,
             });

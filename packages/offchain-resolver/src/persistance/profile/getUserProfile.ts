@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { ethers } from 'ethers';
 import { PrismaClient, Prisma } from '@prisma/client';
-import { UserProfile } from 'dm3-lib-profile/dist.backend';
+import { UserProfile } from 'dm3-lib-profile';
 
 /**
  *
@@ -18,8 +18,20 @@ export function getUserProfile(db: PrismaClient) {
             },
         });
 
-        return profileContainer && profileContainer.profile
-            ? (JSON.parse(profileContainer.profile.toString()) as UserProfile)
-            : null;
+        const userProfile =
+            profileContainer && profileContainer.profile
+                ? (JSON.parse(
+                      JSON.stringify(profileContainer.profile),
+                  ) as UserProfile)
+                : null;
+
+        global.logger.debug({
+            message: 'getUserProfile',
+            nameHash: ethers.utils.namehash(name),
+            userProfile,
+        });
+
+        // profileContainer.profile may be a string or an object.
+        return userProfile;
     };
 }

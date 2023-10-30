@@ -1,14 +1,10 @@
 import { Socket } from 'socket.io';
 import express from 'express';
 import { WithLocals } from './types';
-import { validateSchema } from 'dm3-lib-shared/dist.backend';
-import { EncryptionEnvelop } from 'dm3-lib-messaging/dist.backend';
-import { normalizeEnsName } from 'dm3-lib-profile/dist.backend';
-import {
-    schema,
-    checkToken,
-    incomingMessage,
-} from 'dm3-lib-delivery/dist.backend';
+import { validateSchema } from 'dm3-lib-shared';
+import { EncryptionEnvelop } from 'dm3-lib-messaging';
+import { normalizeEnsName } from 'dm3-lib-profile';
+import { schema, checkToken, incomingMessage } from 'dm3-lib-delivery';
 
 const pendingMessageSchema = {
     type: 'object',
@@ -24,7 +20,7 @@ const pendingMessageSchema = {
 export function onConnection(app: express.Application & WithLocals) {
     return (socket: Socket) => {
         socket.on('disconnect', () => {
-            app.locals.logger.info({
+            global.logger.info({
                 method: 'WS DISCONNECT',
                 socketId: socket.id,
             });
@@ -40,7 +36,7 @@ export function onConnection(app: express.Application & WithLocals) {
                 callback,
             ) => {
                 try {
-                    app.locals.logger.info({
+                    global.logger.info({
                         method: 'WS INCOMING MESSAGE',
                     });
 
@@ -52,18 +48,25 @@ export function onConnection(app: express.Application & WithLocals) {
                     if (!isSchemaValid) {
                         const error = 'invalid schema';
 
-                        app.locals.logger.warn({
+                        global.logger.warn({
                             method: 'WS SUBMIT MESSAGE',
                             error,
                         });
                         return callback({ error });
                     }
 
+                    global.logger.info({
+                        method: 'WS INCOMING MESSAGE',
+                        keys: app.locals.keys.encryption,
+                    });
+
                     await incomingMessage(
                         data,
                         app.locals.keys.signing,
                         app.locals.keys.encryption,
                         app.locals.deliveryServiceProperties.sizeLimit,
+                        app.locals.deliveryServiceProperties
+                            .notificationChannel,
                         app.locals.db.getSession,
                         app.locals.db.createMessage,
                         (socketId: string, envelop: EncryptionEnvelop) => {
@@ -73,10 +76,11 @@ export function onConnection(app: express.Application & WithLocals) {
                         },
                         app.locals.web3Provider,
                         app.locals.db.getIdEnsName,
+                        app.locals.db.getUsersNotificationChannels,
                     ),
                         callback({ response: 'success' });
                 } catch (error: any) {
-                    app.locals.logger.warn({
+                    global.logger.warn({
                         method: 'WS SUBMIT MESSAGE',
                         error: (error as Error).toString(),
                     });
@@ -91,7 +95,7 @@ export function onConnection(app: express.Application & WithLocals) {
             if (!isSchemaValid) {
                 const error = 'invalid schema';
 
-                app.locals.logger.warn({
+                global.logger.warn({
                     method: 'WS PENDING MESSAGE',
                     error,
                 });
@@ -110,7 +114,7 @@ export function onConnection(app: express.Application & WithLocals) {
                     contactEnsName,
                 );
             } catch (error) {
-                app.locals.logger.warn({
+                global.logger.warn({
                     method: 'WS PENDING MESSAGE',
                     error,
                 });
@@ -118,7 +122,7 @@ export function onConnection(app: express.Application & WithLocals) {
                 return callback({ error });
             }
 
-            app.locals.logger.info({
+            global.logger.info({
                 method: 'WS PENDING MESSAGE',
                 ensName,
                 contactEnsName,
@@ -133,7 +137,7 @@ export function onConnection(app: express.Application & WithLocals) {
                     ))
                 ) {
                     const error = 'Token check failed';
-                    app.locals.logger.warn({
+                    global.logger.warn({
                         method: 'WS PENDING MESSAGE',
                         error,
                     });
@@ -144,7 +148,7 @@ export function onConnection(app: express.Application & WithLocals) {
 
                 callback({ response: 'success' });
             } catch (error) {
-                app.locals.logger.warn({
+                global.logger.warn({
                     method: 'WS PENDING MESSAGE',
                     error: (error as Error).toString(),
                 });

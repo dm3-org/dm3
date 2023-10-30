@@ -28,7 +28,7 @@ export interface MessageMetadata {
 }
 
 export interface Message {
-    message: string;
+    message?: string;
     metadata: MessageMetadata;
     attachments?: string[];
     signature: string;
@@ -80,7 +80,7 @@ export interface JsonRpcRequest<T> {
  * @param attachments URI array of attachments e.g. data URIs
  * @param referenceMessageHash reference to previous message
  */
-export async function createMessage(
+async function internalCreateMessage(
     to: string,
     from: string,
     message: string,
@@ -105,6 +105,148 @@ export async function createMessage(
         ...messgeWithoutSig,
         signature: await sign(privateKey, stringify(messgeWithoutSig)),
     };
+}
+
+/**
+ * creates a new message and signs it
+ * @param to sender ENS name
+ * @param from receiver ENS name
+ * @param message the message content
+ * @param privateKey sender signing key
+ * @param type the type of the message,
+ * @param attachments URI array of attachments e.g. data URIs
+ * @param referenceMessageHash reference to previous message
+ */
+export async function createMessage(
+    to: string,
+    from: string,
+    message: string,
+    privateKey: string,
+    attachments?: string[],
+): Promise<Message> {
+    return internalCreateMessage(
+        to,
+        from,
+        message,
+        privateKey,
+        'NEW',
+        attachments,
+    );
+}
+
+/**
+ * creates a delete request message and signs it
+ * @param to sender ENS name
+ * @param from receiver ENS name
+ * @param privateKey sender signing key
+ * @param referenceMessageHash reference to previous message
+ */
+export async function createDeleteRequestMessage(
+    to: string,
+    from: string,
+    privateKey: string,
+    referenceMessageHash: string,
+): Promise<Message> {
+    const messgeWithoutSig: Omit<Message, 'signature'> = {
+        metadata: {
+            referenceMessageHash,
+            type: 'DELETE_REQUEST',
+            to,
+            from,
+            timestamp: new Date().getTime(),
+        },
+    };
+
+    return {
+        ...messgeWithoutSig,
+        signature: await sign(privateKey, stringify(messgeWithoutSig)),
+    };
+}
+
+/**
+ * creats an edit message and signs it
+ * @param to sender ENS name
+ * @param from receiver ENS name
+ * @param message the message content
+ * @param privateKey sender signing key
+ * @param type the type of the message,
+ * @param attachments URI array of attachments e.g. data URIs
+ * @param referenceMessageHash reference to previous message
+ */
+export async function createEditMessage(
+    to: string,
+    from: string,
+    message: string,
+    privateKey: string,
+    referenceMessageHash: string,
+    attachments?: string[],
+): Promise<Message> {
+    return internalCreateMessage(
+        to,
+        from,
+        message,
+        privateKey,
+        'EDIT',
+        attachments,
+        referenceMessageHash,
+    );
+}
+
+/**
+ * creats a reply message and signs it
+ * @param to sender ENS name
+ * @param from receiver ENS name
+ * @param message the message content
+ * @param privateKey sender signing key
+ * @param type the type of the message,
+ * @param attachments URI array of attachments e.g. data URIs
+ * @param referenceMessageHash reference to previous message
+ */
+export async function createReplyMessage(
+    to: string,
+    from: string,
+    message: string,
+    privateKey: string,
+    referenceMessageHash: string,
+    attachments?: string[],
+): Promise<Message> {
+    return internalCreateMessage(
+        to,
+        from,
+        message,
+        privateKey,
+        'REPLY',
+        attachments,
+        referenceMessageHash,
+    );
+}
+
+/**
+ * creats a reaction message and signs it
+ * @param to sender ENS name
+ * @param from receiver ENS name
+ * @param message the message content
+ * @param privateKey sender signing key
+ * @param type the type of the message,
+ * @param attachments URI array of attachments e.g. data URIs
+ * @param referenceMessageHash reference to previous message
+ */
+export async function createReactionMessage(
+    to: string,
+    from: string,
+    message: string,
+    privateKey: string,
+    referenceMessageHash: string,
+): Promise<Message> {
+    return internalCreateMessage(
+        to,
+        from,
+        message,
+        privateKey,
+        'REACTION',
+        [],
+        referenceMessageHash,
+    );
 }
 
 export async function checkMessageSignature(

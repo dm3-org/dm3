@@ -1,11 +1,10 @@
-import { ethers } from 'ethers';
-import stringify from 'safe-stable-stringify';
 import {
     DeliveryServiceProfileKeys,
     normalizeEnsName,
-    ProfileKeys,
     UserProfile,
 } from 'dm3-lib-profile';
+import { ethers } from 'ethers';
+import stringify from 'safe-stable-stringify';
 
 import {
     decryptAsymmetric,
@@ -19,7 +18,12 @@ import {
     EncryptionEnvelop,
     Postmark,
 } from 'dm3-lib-messaging';
-import { logDebug, logInfo, sha256 } from 'dm3-lib-shared';
+import { logDebug, sha256 } from 'dm3-lib-shared';
+import { NotificationBroker } from './notifications';
+import {
+    GetNotificationChannels,
+    NotificationChannel,
+} from './notifications/types';
 import { checkToken, Session } from './Session';
 import { isSpam } from './spam-filter';
 import { SpamFilterRules } from './spam-filter/SpamFilterRules';
@@ -50,7 +54,9 @@ export async function getMessages(
     contactEnsName: string,
 ) {
     const account = normalizeEnsName(ensName);
+
     const contact = normalizeEnsName(contactEnsName);
+
     const conversationId = getConversationId(contact, account);
 
     const receivedMessages: EncryptionEnvelop[] = await loadMessages(
@@ -62,14 +68,8 @@ export async function getMessages(
     const envelopContainers = await Promise.all(
         receivedMessages.map(async (envelop) => ({
             to: normalizeEnsName(
-                JSON.parse(
-                    await decryptAsymmetric(
-                        encryptionKeyPair,
-                        JSON.parse(
-                            envelop.metadata.deliveryInformation as string,
-                        ),
-                    ),
-                ).to,
+                JSON.parse(JSON.stringify(envelop.metadata.deliveryInformation))
+                    .to,
             ),
             envelop,
         })),
@@ -94,6 +94,7 @@ export async function incomingMessage(
     signingKeyPair: KeyPair,
     encryptionKeyPair: KeyPair,
     sizeLimit: number,
+    dsNotificationChannels: NotificationChannel[],
     getSession: (
         accountAddress: string,
     ) => Promise<(Session & { spamFilterRules: SpamFilterRules }) | null>,
@@ -104,8 +105,12 @@ export async function incomingMessage(
     send: (socketId: string, envelop: EncryptionEnvelop) => void,
     provider: ethers.providers.JsonRpcProvider,
     getIdEnsName: (name: string) => Promise<string>,
+    getUsersNotificationChannels: GetNotificationChannels,
 ): Promise<void> {
-    logDebug({ text: 'incomingMessage', token });
+    logDebug({
+        text: 'incomingMessage',
+        token,
+    });
     //Checks the size of the incoming message
     if (messageIsToLarge(envelop, sizeLimit)) {
         throw Error('Message is too large');
@@ -192,6 +197,13 @@ export async function incomingMessage(
             text: 'WS send to socketId ',
             receiverSessionSocketId: receiverSession.socketId,
         });
+        //If not we're notifing the user that there is a new message waiting for them
+    } else {
+        const { sendNotification } = NotificationBroker(dsNotificationChannels);
+        await sendNotification(
+            deliveryInformation,
+            getUsersNotificationChannels,
+        );
     }
 }
 

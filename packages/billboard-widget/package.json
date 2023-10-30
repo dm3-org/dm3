@@ -8,7 +8,7 @@
   "main": "./dist/index.js",
   "scripts": {
     "dev": "vite",
-    "build": "yarn tsc && yarn vite build && yarn build:css",
+    "build": "echo 'skip build'",
     "build:css": "node ./buildCss.js",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
@@ -18,10 +18,10 @@
     "@metamask/providers": "^11.0.0",
     "@rainbow-me/rainbowkit": "^1.0.1",
     "date-fns": "^2.30.0",
-    "dm3-lib-billboard-client-api": "^0.2.0",
-    "dm3-lib-delivery-api": "^0.2.0",
-    "dm3-lib-offchain-resolver-api": "^0.2.4",
-    "dm3-lib-shared": "^0.2.1",
+    "dm3-lib-billboard-client-api": "workspace:^",
+    "dm3-lib-delivery-api": "workspace:^",
+    "dm3-lib-offchain-resolver-api": "workspace:^",
+    "dm3-lib-shared": "workspace:^",
     "ethers": "^5.7.2",
     "lodash": "^4.17.21",
     "normalize.css": "^8.0.1",

@@ -1,0 +1,63 @@
+.background-container {
+    background: var(--background-container);
+}
+
+.normal-btn {
+    background-color: var(--normal-btn);
+}
+
+.normal-btn-hover {
+    background-color: var(--normal-btn-hover);
+}
+
+.text-primary-color {
+    color: var(--text-primary-color);
+}
+
+.normal-btn-inactive {
+    background-color: var(--normal-btn-inactive);
+}
+
+.text-secondary-color {
+    color: var(--text-secondary-color);
+}
+
+.background-active-contact {
+    background: var(--background-active-contact);
+}
+
+.background-config-box {
+    background: var(--background-config-box);
+}
+
+.background-config-box-border {
+    border: var(--background-config-box-border);
+}
+
+.normal-btn-border {
+    border: var(--normal-btn-border);
+}
+
+.config-box-border {
+    border: var(--config-box-border);
+}
+
+.background-chat {
+    background: var(--background-chat);
+}
+
+.disabled-btn-text {
+    background: var(--disabled-btn-text);
+}
+
+.error-text {
+    color: var(--error-text);
+}
+
+.error-background {
+    background: var(--error-background);
+}
+
+.attachment-background {
+    background: var(--attachment-background);
+}

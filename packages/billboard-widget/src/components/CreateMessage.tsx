@@ -16,7 +16,11 @@ const MIN_MESSAGE_LENGTH = 5;
 // TODO: should actually be fixed in current react/TS versions.
 declare module 'react' {
     interface TextareaHTMLAttributes<T>
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
         extends AriaAttributes,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-ignore
             DOMAttributes<T> {
         enterkeyhint?: string;
     }

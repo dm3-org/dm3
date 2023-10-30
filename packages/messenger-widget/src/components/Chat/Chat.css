@@ -1,0 +1,47 @@
+.highlight-chat-border {
+    border-top: 2px solid var(--normal-btn-hover);
+}
+
+.highlight-chat-border-none {
+    border-top: none;
+}
+
+.chat-container {
+    min-height: 86vh;
+}
+
+.chat-items {
+    overflow-y: scroll;
+    margin-top: 0.5rem;
+}
+
+.chat-height-small {
+    height: 68vh;
+}
+
+.chat-height-high {
+    height: 79vh;
+}
+
+.skeletion-chat-height {
+    height: 86vh;
+}
+
+.skeleton-message {
+    width: 15rem;
+    height: 2.5rem;
+    animation-iteration-count: infinite;
+    animation-name: shimmer;
+    animation-duration: 1.2s;
+    background: linear-gradient(-44deg, #3a3c50 30%, #acacac, #3a3c50 70%)
+        right/300% 100%;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -468px 0;
+    }
+    100% {
+        background-position: 468px 0;
+    }
+}

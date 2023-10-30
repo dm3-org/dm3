@@ -1,16 +1,17 @@
 import {
     Session as DSSession,
+    NotificationChannel,
     spamFilter,
-} from 'dm3-lib-delivery/dist.backend';
-import { EncryptionEnvelop } from 'dm3-lib-messaging/dist.backend';
-import { UserStorage } from 'dm3-lib-storage/dist.backend';
+} from 'dm3-lib-delivery';
+import { EncryptionEnvelop } from 'dm3-lib-messaging';
+import { UserStorage } from 'dm3-lib-storage';
 import { createClient } from 'redis';
-import winston from 'winston';
+import { getIdEnsName } from './getIdEnsName';
 import Messages from './messages';
 import { syncAcknoledgment } from './messages/syncAcknoledgment';
+import Notification from './notification';
 import Pending from './pending';
 import Session from './session';
-import { getIdEnsName } from './session/getIdEnsName';
 import Storage from './storage';
 
 export enum RedisPrefix {
@@ -20,9 +21,10 @@ export enum RedisPrefix {
     Session = 'session:',
     UserStorage = 'user.storage:',
     Pending = 'pending:',
+    NotificationChannel = 'notificationChannel:',
 }
 
-export async function getRedisClient(logger: winston.Logger) {
+export async function getRedisClient() {
     const url = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
     const socketConf = {
         socket: {
@@ -36,26 +38,23 @@ export async function getRedisClient(logger: winston.Logger) {
                   url,
                   ...socketConf,
               }
-            : {},
+            : { url },
     );
 
     client.on('error', (err) => {
-        logger.error('Redis error: ' + (err as Error).message);
+        global.logger.error('Redis error: ' + (err as Error).message);
     });
 
-    client.on('reconnecting', () => logger.info('Redis reconnection'));
-    client.on('ready', () => logger.info('Redis ready'));
+    client.on('reconnecting', () => global.logger.info('Redis reconnection'));
+    client.on('ready', () => global.logger.info('Redis ready'));
 
     await client.connect();
 
     return client;
 }
 
-export async function getDatabase(
-    logger: winston.Logger,
-    _redis?: Redis,
-): Promise<IDatabase> {
-    const redis = _redis ?? (await getRedisClient(logger));
+export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
+    const redis = _redis ?? (await getRedisClient());
 
     return {
         //Messages
@@ -76,6 +75,11 @@ export async function getDatabase(
         deletePending: Pending.deletePending(redis),
         getIdEnsName: getIdEnsName(redis),
         syncAcknoledgment: syncAcknoledgment(redis),
+        //Notification
+        getUsersNotificationChannels:
+            Notification.getUsersNotificationChannels(redis),
+        addUsersNotificationChannel:
+            Notification.addUsersNotificationChannel(redis),
     };
 }
 
@@ -116,6 +120,13 @@ export interface IDatabase {
         conversationId: string,
         ensName: string,
         lastMessagePull: string,
+    ) => Promise<void>;
+    getUsersNotificationChannels: (
+        ensName: string,
+    ) => Promise<NotificationChannel[]>;
+    addUsersNotificationChannel: (
+        ensName: string,
+        channel: NotificationChannel,
     ) => Promise<void>;
 }
 

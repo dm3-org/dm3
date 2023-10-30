@@ -1,8 +1,12 @@
 import bodyParser from 'body-parser';
 import express from 'express';
-import profile from './profile';
 import { auth } from './utils';
 import request from 'supertest';
+import winston from 'winston';
+
+global.logger = winston.createLogger({
+    transports: [new winston.transports.Console()],
+});
 
 describe('Utils', () => {
     describe('Auth', () => {
@@ -33,10 +37,6 @@ describe('Utils', () => {
             app.locals.web3Provider = {
                 resolveName: async () =>
                     '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-            };
-
-            app.locals.logger = {
-                warn: (_: string) => {},
             };
 
             const { status, body } = await request(app)

@@ -1,0 +1,51 @@
+.msg-dropdown-content {
+    flex-direction: column;
+    position: absolute;
+    background-color: var(--background-container);
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border: 1px solid #000000;
+    border-radius: 5px;
+    margin-top: 1rem;
+}
+
+.own-msg {
+    margin-left: -9rem;
+}
+
+.msg-dropdown-content-top-align {
+    margin-top: -6.9rem !important;
+}
+
+.msg-dropdown-content div {
+    color: var(--text-primary-color);
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
+}
+
+.msg-dropdown-content div:hover {
+    background-color: var(--normal-btn);
+}
+
+.msg-reaction {
+    padding: 0.2rem 0.2rem 0.2rem 0.2rem !important;
+}
+
+.msg-reaction:hover {
+    background-color: var(--background-container) !important;
+}
+
+.msg-reaction-container {
+    font-size: 1.2rem;
+    padding: 0.2rem 0.5rem 0.2rem 0.5rem !important;
+}
+
+.msg-reaction-container:hover {
+    background-color: var(--normal-btn);
+}
+
+.msg-react-separator {
+    height: 1px;
+    width: 95%;
+    margin: 0rem 0rem 0rem 0.3rem;
+}

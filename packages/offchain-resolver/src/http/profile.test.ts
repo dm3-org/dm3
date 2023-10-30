@@ -1,9 +1,6 @@
 import bodyParser from 'body-parser';
-import {
-    getProfileCreationMessage,
-    UserProfile,
-} from 'dm3-lib-profile/dist.backend';
-import { stringify } from 'dm3-lib-shared/dist.backend';
+import { getProfileCreationMessage, UserProfile } from 'dm3-lib-profile';
+import { stringify } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import express from 'express';
 
@@ -13,11 +10,13 @@ import { getDatabase, getDbClient } from '../persistance/getDatabase';
 import { IDatabase } from '../persistance/IDatabase';
 import { profile } from './profile';
 
-import * as dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
+import * as dotenv from 'dotenv';
 import { clearDb } from '../persistance/clearDb';
 
 import { expect } from 'chai';
+import { sign } from 'dm3-lib-crypto';
+import { globalConfig } from 'dm3-lib-shared';
 
 dotenv.config();
 
@@ -32,14 +31,6 @@ describe('Profile', () => {
         transports: [new winston.transports.Console()],
     });
 
-    const getSigners = () => {
-        return [
-            ethers.Wallet.fromMnemonic(
-                'test test test test test test test test test test test junk',
-                `m/44'/60'/0'/0/0`,
-            ),
-        ];
-    };
     const provider: ethers.providers.JsonRpcProvider = new Proxy(
         {
             getBalance: async () => ethers.BigNumber.from(1),
@@ -71,6 +62,10 @@ describe('Profile', () => {
             // eslint-disable-next-line no-console
             warn: (msg: string) => console.log(msg),
         };
+
+        app.locals.config.spamProtection = true;
+
+        process.env.REACT_APP_ADDR_ENS_SUBDOMAIN = '.beta-addr.dm3.eth';
     });
 
     afterEach(async () => {
@@ -78,45 +73,55 @@ describe('Profile', () => {
         prismaClient.$disconnect();
     });
 
-    describe('Store UserProfile by ens name', () => {
-        it('Rejects invalid schema', async () => {
+    describe('Create Alias', () => {
+        it('Rejects if there is no Profile', async () => {
             app.use(profile(provider));
-            const { status, body } = await request(app).post(`/name`).send({
-                name: 'foo.dm3.eth',
-                address: SENDER_ADDRESS,
-                signedUserProfile: {},
-            });
-
-            expect(status).to.equal(400);
-            expect(body.error).to.equal('invalid schema');
-        });
-        it('Rejects invalid profile', async () => {
-            app.use(profile(provider));
-            const userProfile: UserProfile = {
-                publicSigningKey:
-                    '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
-                publicEncryptionKey:
-                    'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
-                deliveryServices: [''],
-            };
-
-            const wallet = ethers.Wallet.createRandom();
-
-            const signature = await wallet.signMessage('foo');
-
             const { status, body } = await request(app)
                 .post(`/name`)
                 .send({
-                    name: 'foo.dm3.eth',
-                    address: wallet.address,
-                    signedUserProfile: {
-                        profile: userProfile,
-                        signature,
-                    },
+                    alias: 'foo.dm3.eth',
+                    name: SENDER_ADDRESS + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    signature: await app.locals.forTests.wallet.signMessage(
+                        'alias: foo.dm3.eth',
+                    ),
                 });
 
             expect(status).to.equal(400);
-            expect(body.error).to.equal('invalid profile');
+            expect(body.error).to.equal('Could not find profile');
+        });
+
+        it('Rejects invalid signature', async () => {
+            app.use(profile(provider));
+
+            const offChainProfile1 = app.locals.forTests;
+
+            const { status } = await request(app)
+                .post(`/address`)
+                .send({
+                    address: offChainProfile1.signer,
+                    signedUserProfile: {
+                        signature: offChainProfile1.signature,
+                        profile: offChainProfile1.profile,
+                    },
+                });
+
+            expect(status).to.equal(200);
+
+            const res1 = await request(app)
+                .post(`/name`)
+                .send({
+                    alias: 'foo.dm3.eth',
+                    name:
+                        offChainProfile1.signer +
+                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    signature: await sign(
+                        offChainProfile1.privateSigningKey,
+                        'alias: bar.dm3.eth',
+                    ),
+                });
+
+            expect(res1.status).to.equal(400);
+            expect(res1.body.error).to.equal('signature invalid');
         });
 
         it('Rejects address with an empty eth balance', async () => {
@@ -127,10 +132,9 @@ describe('Profile', () => {
                 } as any),
             );
             const offChainProfile = app.locals.forTests;
-            const { status, body } = await request(app)
-                .post(`/name`)
+            await request(app)
+                .post(`/address`)
                 .send({
-                    name: 'foo.dm3.eth',
                     address: offChainProfile.signer,
                     signedUserProfile: {
                         signature: offChainProfile.signature,
@@ -138,11 +142,24 @@ describe('Profile', () => {
                     },
                 });
 
+            const { status, body } = await request(app)
+                .post(`/name`)
+                .send({
+                    alias: 'foo.dm3.eth',
+                    name:
+                        offChainProfile.signer +
+                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    signature: await sign(
+                        offChainProfile.privateSigningKey,
+                        'alias: foo.dm3.eth',
+                    ),
+                });
+
             expect(status).to.equal(400);
             expect(body.error).to.equal('Insuficient ETH balance');
         });
 
-        it('Rejects if subdomain has already a profile', async () => {
+        it('Rejects if subdomain is already claimed', async () => {
             app.use(profile(provider));
             const profile2: UserProfile = {
                 publicSigningKey: '',
@@ -152,10 +169,9 @@ describe('Profile', () => {
 
             const offChainProfile1 = app.locals.forTests;
 
-            const res1 = await request(app)
-                .post(`/name`)
+            const { status } = await request(app)
+                .post(`/address`)
                 .send({
-                    name: 'foo.dm3.eth',
                     address: offChainProfile1.signer,
                     signedUserProfile: {
                         signature: offChainProfile1.signature,
@@ -163,10 +179,24 @@ describe('Profile', () => {
                     },
                 });
 
+            expect(status).to.equal(200);
+
+            const res1 = await request(app)
+                .post(`/name`)
+                .send({
+                    alias: 'foo.dm3.eth',
+                    name:
+                        offChainProfile1.signer +
+                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    signature: await sign(
+                        offChainProfile1.privateSigningKey,
+                        'alias: foo.dm3.eth',
+                    ),
+                });
+
             expect(res1.status).to.equal(200);
 
             app.locals.forTests = await getSignedUserProfile(profile2);
-            const offChainProfile2 = app.locals.forTests;
 
             const app2 = express();
             app2.use(bodyParser.json());
@@ -190,96 +220,18 @@ describe('Profile', () => {
             const res2 = await request(app2)
                 .post(`/name`)
                 .send({
-                    name: 'foo.dm3.eth',
-                    address: offChainProfile2.signer,
-                    signedUserProfile: {
-                        signature: offChainProfile2.signature,
-                        profile: offChainProfile2.profile,
-                    },
+                    alias: 'foo.dm3.eth',
+                    name:
+                        offChainProfile1.signer +
+                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    signature: await sign(
+                        offChainProfile1.privateSigningKey,
+                        'alias: foo.dm3.eth',
+                    ),
                 });
 
             expect(res2.status).to.equal(400);
-            expect(res2.body.error).to.eql('subdomain already claimed');
-        });
-        it('Rejects if address already claimed a subdomain', async () => {
-            app.use(profile(provider));
-            const offChainProfile1 = app.locals.forTests;
-
-            const res1 = await request(app)
-                .post(`/name`)
-                .send({
-                    name: 'foo.dm3.eth',
-                    address: offChainProfile1.signer,
-                    ensName: offChainProfile1.signer + '.addr.dm3.eth',
-                    signedUserProfile: {
-                        signature: offChainProfile1.signature,
-                        profile: offChainProfile1.profile,
-                    },
-                });
-
-            expect(res1.status).to.equal(200);
-
-            const res2 = await request(app)
-                .post(`/name`)
-                .send({
-                    name: 'bar.dm3.eth',
-                    address: offChainProfile1.signer,
-                    signedUserProfile: {
-                        signature: offChainProfile1.signature,
-                        profile: offChainProfile1.profile,
-                    },
-                });
-
-            expect(res2.status).to.equal(400);
-            expect(res2.body.error).to.eql(
-                'address has already claimed a subdomain',
-            );
-        });
-        it('Rejects if name has the address format', async () => {
-            app.use(profile(provider));
-            const {
-                signer,
-                profile: userProfile,
-                signature,
-            } = app.locals.forTests;
-
-            //Fund wallet so their balance is not zero
-            const [wale] = getSigners();
-
-            const { status, body } = await request(app)
-                .post(`/name`)
-                .send({
-                    name: signer,
-                    address: signer,
-                    signedUserProfile: {
-                        signature,
-                        profile: userProfile,
-                    },
-                });
-
-            expect(status).to.equal(400);
-            expect(body.error).to.equal('Invalid ENS name');
-        });
-        it('Stores a valid profile', async () => {
-            app.use(profile(provider));
-            const {
-                signer,
-                profile: userProfile,
-                signature,
-            } = app.locals.forTests;
-
-            const { status } = await request(app)
-                .post(`/name`)
-                .send({
-                    name: 'foo.dm3.eth',
-                    address: signer,
-                    signedUserProfile: {
-                        signature,
-                        profile: userProfile,
-                    },
-                });
-
-            expect(status).to.equal(200);
+            expect(res2.body.error).to.eql('Could not create alias');
         });
     });
 
@@ -324,14 +276,8 @@ describe('Profile', () => {
 
         it('Rejects if subdomain has already a profile', async () => {
             app.use(profile(provider));
-            const profile2: UserProfile = {
-                publicSigningKey: '',
-                publicEncryptionKey: '',
-                deliveryServices: [''],
-            };
 
             const offChainProfile1 = await getSignedUserProfile();
-            const offChainProfile2 = await getSignedUserProfile(profile2);
 
             //Fund wallets so their balance is not zero
 
@@ -358,41 +304,9 @@ describe('Profile', () => {
                 });
 
             expect(res2.status).to.equal(400);
-            expect(res2.body.error).to.eql(
-                'address has already claimed a subdomain',
-            );
+            expect(res2.body.error).to.eql('subdomain already claimed');
         });
-        it('Rejects if address already claimed a subdomain', async () => {
-            app.use(profile(provider));
-            const offChainProfile1 = app.locals.forTests;
 
-            const res1 = await request(app)
-                .post(`/address`)
-                .send({
-                    address: offChainProfile1.signer,
-                    signedUserProfile: {
-                        signature: offChainProfile1.signature,
-                        profile: offChainProfile1.profile,
-                    },
-                });
-
-            expect(res1.status).to.equal(200);
-
-            const res2 = await request(app)
-                .post(`/address`)
-                .send({
-                    address: offChainProfile1.signer,
-                    signedUserProfile: {
-                        signature: offChainProfile1.signature,
-                        profile: offChainProfile1.profile,
-                    },
-                });
-
-            expect(res2.status).to.equal(400);
-            expect(res2.body.error).to.eql(
-                'address has already claimed a subdomain',
-            );
-        });
         it('Stores a valid profile', async () => {
             app.use(profile(provider));
             const {
@@ -412,6 +326,60 @@ describe('Profile', () => {
                 });
 
             expect(status).to.equal(200);
+        });
+    });
+    describe('remove profile', () => {
+        it('removes an existing profile', async () => {
+            const {
+                signer,
+                profile: userProfile,
+                signature,
+                wallet,
+                privateSigningKey,
+            } = await getSignedUserProfile();
+
+            app.locals.config.spamProtection = false;
+
+            app.use(
+                profile({
+                    ...provider,
+                    resolveName: async () => signer,
+                } as any),
+            );
+
+            const writeRes = await request(app)
+                .post(`/address`)
+                .send({
+                    address: signer,
+                    signedUserProfile: {
+                        signature,
+                        profile: userProfile,
+                    },
+                });
+            expect(writeRes.status).to.equal(200);
+
+            const writeRes2 = await request(app)
+                .post(`/name`)
+                .send({
+                    alias: 'foo.dm3.eth',
+                    name: signer + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    signature: await sign(
+                        privateSigningKey,
+                        'alias: foo.dm3.eth',
+                    ),
+                });
+            expect(writeRes2.status).to.equal(200);
+
+            const writeRes3 = await request(app)
+                .post(`/deleteName`)
+                .send({
+                    name: 'foo.dm3.eth',
+                    signature: await sign(
+                        privateSigningKey,
+                        'remove: foo.dm3.eth',
+                    ),
+                });
+            expect(writeRes3.status).to.equal(200);
         });
     });
     describe('Get User By Account', () => {
@@ -435,12 +403,12 @@ describe('Profile', () => {
                 signer,
                 profile: userProfile,
                 signature,
+                privateSigningKey,
             } = app.locals.forTests;
 
             const writeRes = await request(app)
-                .post(`/name`)
+                .post(`/address`)
                 .send({
-                    name: 'foo.dm3.eth',
                     address: signer,
                     signedUserProfile: {
                         signature,
@@ -448,6 +416,18 @@ describe('Profile', () => {
                     },
                 });
             expect(writeRes.status).to.equal(200);
+
+            const writeRes2 = await request(app)
+                .post(`/name`)
+                .send({
+                    alias: 'foo.dm3.eth',
+                    name: signer + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    signature: await sign(
+                        privateSigningKey,
+                        'alias: foo.dm3.eth',
+                    ),
+                });
+            expect(writeRes2.status).to.equal(200);
 
             const { status, body } = await request(app)
                 .get(`/${signer}`)
@@ -464,7 +444,7 @@ describe('Profile', () => {
 
 const getSignedUserProfile = async (overwriteProfile?: UserProfile) => {
     const profile: UserProfile = overwriteProfile ?? {
-        publicSigningKey: '0ekgI3CBw2iXNXudRdBQHiOaMpG9bvq9Jse26dButug=',
+        publicSigningKey: 'JLCk6OPLzIn/Fye/0UW4XfP2Q7CoffEhVLveBYBh8CI=',
         publicEncryptionKey: 'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
         deliveryServices: [''],
     };
@@ -478,5 +458,12 @@ const getSignedUserProfile = async (overwriteProfile?: UserProfile) => {
 
     const signer = wallet.address;
 
-    return { signature, profile, signer };
+    return {
+        signature,
+        profile,
+        signer,
+        wallet,
+        privateSigningKey:
+            'x8DPXL+cNC21Voi69Rg/GG9ZoGVEHkT8uVfoBrgfgdwksKTo48vMif8XJ7/RRbhd8/ZDsKh98SFUu94FgGHwIg==',
+    };
 };

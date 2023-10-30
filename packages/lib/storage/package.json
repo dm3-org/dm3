@@ -8,18 +8,14 @@
         ".": {
             "import": "./dist/index.js",
             "require": "./dist/index.js"
-        },
-        "./dist.backend": {
-            "import": "./dist.backend/index.js",
-            "require": "./dist.backend/index.js"
         }
     },
     "dependencies": {
-        "dm3-lib-crypto": "^0.2.0",
-        "dm3-lib-delivery": "^0.2.0",
-        "dm3-lib-messaging": "^0.2.0",
-        "dm3-lib-profile": "^0.2.0",
-        "dm3-lib-shared": "^0.2.1",
+        "dm3-lib-crypto": "workspace:^",
+        "dm3-lib-delivery": "workspace:^",
+        "dm3-lib-messaging": "workspace:^",
+        "dm3-lib-profile": "workspace:^",
+        "dm3-lib-shared": "workspace:^",
         "ethers": "5.7.2",
         "libsodium-wrappers": "^0.7.10"
     },
@@ -31,11 +27,10 @@
         "typescript": "^4.4.2"
     },
     "scripts": {
-        "build": "yarn tsc --declaration && yarn tsc --declaration -p tsconfig.backend.json",
+        "build": "yarn tsc --declaration ",
         "test": "jest --coverage --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'"
     },
     "files": [
-        "dist",
-        "dist.backend"
+        "dist"
     ]
 }

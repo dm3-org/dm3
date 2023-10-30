@@ -1,14 +1,12 @@
 import bodyParser from 'body-parser';
 
-import {
-    UserProfile,
-    getProfileCreationMessage,
-} from 'dm3-lib-profile/dist.backend';
-import { stringify } from 'dm3-lib-shared/dist.backend';
+import { UserProfile, getProfileCreationMessage } from 'dm3-lib-profile';
+import { stringify } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import express from 'express';
 import request from 'supertest';
 import profile from './profile';
+import winston from 'winston';
 
 async function getEnsTextRecord(
     provider: ethers.providers.JsonRpcProvider,
@@ -26,6 +24,9 @@ async function getEnsTextRecord(
         return undefined;
     }
 }
+global.logger = winston.createLogger({
+    transports: [new winston.transports.Console()],
+});
 
 describe('Profile', () => {
     describe('getProfile', () => {

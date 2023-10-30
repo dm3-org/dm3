@@ -85,17 +85,17 @@ Common billboard widget options:
 
 -   `className`: A custom CSS class that will be added to the main div of the widget. This can be used for custom styling.
 
--   `avatarSrc`: A custom URL for all user avatars,  that takes the user's identifier (hash) and returns a URL. This function will be used to generate avatar images for users.
+-   `avatarSrc`: A custom URL for all user avatars, that takes the user's identifier (hash) and returns a URL. This function will be used to generate avatar images for users.
 
 -   `userNameResolver`: A custom user name resolver function that takes the user identifier and returns a new string or a promise resolving to a string.
 
 -   `dateFormat`: Formatting string for the date of each message, using date-fns formatter function.
 
-    - See: https://date-fns.org/v2.30.0/docs/format
+    -   See: https://date-fns.org/v2.30.0/docs/format
 
-    - The default is `P` which stands for _Long localized date_.
+    -   The default is `P` which stands for _Long localized date_.
 
-- `relativeDate`: Display a relative date for recent dates. Default is `true`.
+-   `relativeDate`: Display a relative date for recent dates. Default is `true`.
 
 ### clientOptions
 

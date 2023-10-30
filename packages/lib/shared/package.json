@@ -1,6 +1,6 @@
 {
     "name": "dm3-lib-shared",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "main": "dist/index.js",
     "module": "dist-backend/index.js",
     "types": "dist/index.d.ts",
@@ -8,10 +8,6 @@
         ".": {
             "import": "./dist/index.js",
             "require": "./dist/index.js"
-        },
-        "./dist.backend": {
-            "import": "./dist.backend/index.js",
-            "require": "./dist.backend/index.js"
         }
     },
     "dependencies": {
@@ -23,12 +19,10 @@
         "typescript": "^4.4.2"
     },
     "scripts": {
-        "build": "yarn tsc --declaration &&yarn tsc --declaration -p tsconfig.backend.json",
-        "test": "echo 'no tests'",
-        "publish": "yarn npm publish --otp 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"
+        "build": "yarn tsc --declaration",
+        "test": "echo 'no tests'"
     },
     "files": [
-        "dist",
-        "dist.backend"
+        "dist"
     ]
 }

@@ -1,6 +1,6 @@
-import { schema, incomingMessage } from 'dm3-lib-delivery/dist.backend';
-import { EncryptionEnvelop } from 'dm3-lib-messaging/dist.backend';
-import { validateSchema } from 'dm3-lib-shared/dist.backend';
+import { schema, incomingMessage } from 'dm3-lib-delivery';
+import { EncryptionEnvelop } from 'dm3-lib-messaging';
+import { validateSchema } from 'dm3-lib-shared';
 import 'dotenv/config';
 import express from 'express';
 import { WithLocals } from '../../types';
@@ -35,7 +35,7 @@ export async function handleSubmitMessage(
     if (!isSchemaValid) {
         const error = 'invalid schema';
 
-        req.app.locals.logger.warn({
+        global.logger.warn({
             method: 'WS SUBMIT MESSAGE',
             error,
         });
@@ -48,6 +48,7 @@ export async function handleSubmitMessage(
             req.app.locals.keys.signing,
             req.app.locals.keys.encryption,
             req.app.locals.deliveryServiceProperties.sizeLimit,
+            req.app.locals.deliveryServiceProperties.notificationChannel,
             req.app.locals.db.getSession,
             req.app.locals.db.createMessage,
             (socketId: string, envelop: EncryptionEnvelop) => {
@@ -55,10 +56,11 @@ export async function handleSubmitMessage(
             },
             req.app.locals.web3Provider,
             req.app.locals.db.getIdEnsName,
+            req.app.locals.db.getUsersNotificationChannels,
         );
         res.send(200);
     } catch (error) {
-        req.app.locals.logger.warn({
+        global.logger.warn({
             method: 'RPC SUBMIT MESSAGE',
             error,
         });

@@ -1,17 +1,15 @@
 import { parse } from 'yaml';
 import { existsSync, readFileSync } from 'fs';
 import { resolve } from 'path';
-import { logInfo, validateSchema } from 'dm3-lib-shared/dist.backend';
-import {
-    schema,
-    DeliveryServiceProperties,
-} from 'dm3-lib-delivery/dist.backend';
+import { logInfo, validateSchema } from 'dm3-lib-shared';
+import { schema, DeliveryServiceProperties } from 'dm3-lib-delivery';
 
 const DEFAULT_CONFIG_FILE_PATH = resolve(__dirname, './../config.yml');
 const DEFAULT_DELIVERY_SERVICE_PROPERTIES: DeliveryServiceProperties = {
     messageTTL: 0,
     //100Kb
     sizeLimit: 100000,
+    notificationChannel: [],
 };
 
 export function getDeliveryServiceProperties(
@@ -31,7 +29,14 @@ export function getDeliveryServiceProperties(
         //The interface DeliveryServiceProperties requires all properties to be non-null. But since we are accepting a partially filled config.yml we are overwriting the required fields so basically no property is required at all. This can be done because every missing property is replaced by a default property
         {
             ...schema.DeliveryServiceProperties,
-            required: [],
+            definitions: {
+                ...schema.DeliveryServiceProperties.definitions,
+                DeliveryServiceProperties: {
+                    ...schema.DeliveryServiceProperties.definitions
+                        .DeliveryServiceProperties,
+                    required: [],
+                },
+            },
         },
         deliveryServiceProfile,
     );
@@ -40,10 +45,8 @@ export function getDeliveryServiceProperties(
         throw Error('Invalid config.yml');
     }
 
-    const { messageTTL, sizeLimit } = {
+    return {
         ...defaultDeliveryServiceProperties,
         ...parse(yamlString),
     } as DeliveryServiceProperties;
-
-    return { messageTTL, sizeLimit };
 }

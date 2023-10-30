@@ -1,6 +1,6 @@
 import { IDatabase } from '../../../persistance/IDatabase';
-import { PROFILE_RECORD_NAME } from 'dm3-lib-profile/dist.backend';
-import { stringify } from 'dm3-lib-shared/dist.backend';
+import { PROFILE_RECORD_NAME } from 'dm3-lib-profile';
+import { stringify } from 'dm3-lib-shared';
 import { interceptTextRecord } from './intercept';
 import { logDebug } from 'dm3-lib-shared';
 
@@ -17,9 +17,9 @@ export async function handleText(db: IDatabase, request: any) {
         throw Error(`${record} Record is not supported by this resolver`);
     }
 
-    const userProfile = await db.getUserProfile(name);
+    const profileContainer = await db.getProfileContainer(name);
 
-    return userProfile
-        ? 'data:application/json,' + stringify(userProfile)
+    return profileContainer
+        ? 'data:application/json,' + stringify(profileContainer.profile)
         : null;
 }

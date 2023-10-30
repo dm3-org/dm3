@@ -1,21 +1,21 @@
 import { Redis, IDatabase, getRedisClient, getDatabase } from '../getDatabase';
-import { UserProfile } from 'dm3-lib-profile/dist.backend';
-import { Session } from 'dm3-lib-delivery/dist.backend';
+import { UserProfile } from 'dm3-lib-profile';
+import { Session } from 'dm3-lib-delivery';
 import winston from 'winston';
 
 const USER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
+
+global.logger = winston.createLogger({
+    transports: [new winston.transports.Console()],
+});
 
 describe('Set Session', () => {
     let redisClient: Redis;
     let db: IDatabase;
 
-    const logger = winston.createLogger({
-        transports: [new winston.transports.Console()],
-    });
-
     beforeEach(async () => {
-        redisClient = await getRedisClient(logger);
-        db = await getDatabase(logger, redisClient);
+        redisClient = await getRedisClient();
+        db = await getDatabase(redisClient);
         await redisClient.flushDb();
     });
 

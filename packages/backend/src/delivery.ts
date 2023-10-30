@@ -3,13 +3,9 @@ import express from 'express';
 import { IDatabase } from './persistance/getDatabase';
 import { WithLocals } from './types';
 import { auth } from './utils';
-import {
-    schema,
-    getMessages,
-    Acknoledgment,
-} from 'dm3-lib-delivery/dist.backend';
-import { validateSchema } from 'dm3-lib-shared/dist.backend';
-import { getConversationId } from 'dm3-lib-storage/dist.backend';
+import { schema, getMessages, Acknoledgment } from 'dm3-lib-delivery';
+import { validateSchema } from 'dm3-lib-shared';
+import { getConversationId } from 'dm3-lib-storage';
 
 const syncAcknoledgmentParamsSchema = {
     type: 'object',
@@ -46,6 +42,7 @@ export default () => {
                 const idEnsName = await req.app.locals.db.getIdEnsName(
                     req.params.ensName,
                 );
+
                 const idContactEnsName = await req.app.locals.db.getIdEnsName(
                     req.params.contactEnsName,
                 );

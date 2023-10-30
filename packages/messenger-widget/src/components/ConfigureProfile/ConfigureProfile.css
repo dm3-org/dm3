@@ -1,0 +1,65 @@
+.configuration-modal-content {
+    margin: auto;
+    padding: 2rem;
+    border: none;
+    width: 80%;
+    top: 4%;
+    position: relative;
+    height: auto;
+}
+
+.configuration-items-align {
+    min-width: 3rem;
+}
+
+.small-text {
+    font-size: 10px;
+    line-height: 14px;
+}
+
+.font-weight-300 {
+    font-weight: 300;
+}
+
+.font-weight-700 {
+    font-weight: 700;
+}
+
+.grey-text {
+    color: var(--disabled-btn-text);
+}
+
+.profile-config-container {
+    width: fit-content;
+}
+
+.title-content {
+    min-width: 8rem;
+}
+
+.address-details {
+    margin-top: 0.7rem;
+    width: 80%;
+}
+
+.profile-input {
+    border: 1px solid var(--text-secondary-color);
+    padding: 0.3rem 1rem 0.3rem 1rem;
+    color: var(--text-primary-color);
+    background: var(--background-chat);
+    width: 60% !important;
+}
+
+.configure-btn {
+    padding: 8px 16px 8px 16px;
+    box-shadow: 0px 0px 44px 0px #000000;
+    width: fit-content;
+}
+
+.dm3-name-container {
+    width: 80%;
+}
+
+.dm3-name-content {
+    width: 90%;
+}

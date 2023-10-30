@@ -1,16 +1,10 @@
-import {
-    globalConfig,
-    logInfo,
-    validateSchema,
-} from 'dm3-lib-shared/dist.backend';
-import {
-    schema,
-    checkUserProfileWithAddress,
-} from 'dm3-lib-profile/dist.backend';
+import { globalConfig, logInfo, validateSchema } from 'dm3-lib-shared';
+import { schema, checkUserProfileWithAddress } from 'dm3-lib-profile';
 import { ethers } from 'ethers';
 import express from 'express';
 import { WithLocals } from './types';
 import { SiweMessage } from 'siwe';
+import { checkSignature } from 'dm3-lib-crypto';
 
 export function profile(web3Provider: ethers.providers.BaseProvider) {
     const router = express.Router();
@@ -28,7 +22,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 try {
                     parsedSiwe = JSON.parse(siweMessage);
                 } catch (e) {
-                    req.app.locals.logger.error({
+                    global.logger.error({
                         message: 'Could not parse SIWE JSON string',
                         error: JSON.stringify(e),
                     });
@@ -46,7 +40,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 const verification = await siwe.verify({ signature: siweSig });
 
                 if (!verification.success) {
-                    req.app.locals.logger.error({
+                    global.logger.error({
                         message: `Invalid siwe sig`,
                         error: verification.error,
                     });
@@ -54,7 +48,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                         .status(400)
                         .send({ error: `SIWE verification failed` });
                 } else {
-                    req.app.locals.logger.debug({
+                    global.logger.debug({
                         message: `Valid siwe`,
                         data: verification.data,
                     });
@@ -67,7 +61,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
 
                 //Check if schema is valid
                 if (!isSchemaValid) {
-                    req.app.locals.logger.warn('invalid schema');
+                    global.logger.warn('invalid schema');
                     return res.status(400).send({ error: 'invalid schema' });
                 }
 
@@ -79,13 +73,13 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
 
                 //Check if profile sig is correcet
                 if (!profileIsValid) {
-                    req.app.locals.logger.warn('invalid profile');
+                    global.logger.warn('invalid profile');
                     return res.status(400).send({ error: 'invalid profile' });
                 }
 
                 //One spam protection
                 if (req.app.locals.config.spamProtection) {
-                    req.app.locals.logger.warn('Quota reached');
+                    global.logger.warn('Quota reached');
 
                     return res.status(400).send({
                         error: 'address has already claimed a subdomain',
@@ -109,92 +103,57 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
         //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const { signedUserProfile, name, ensName } = req.body;
-                logInfo({ text: `POST name`, name });
+                const { signature, name, alias } = req.body;
+                logInfo({ text: `POST name`, alias });
 
-                const isSchemaValid = validateSchema(
-                    schema.SignedUserProfile,
-                    signedUserProfile,
-                );
+                const profileContainer =
+                    await req.app.locals.db.getProfileContainer(name);
 
-                const address = await web3Provider.resolveName(ensName);
-
-                if (!address) {
-                    req.app.locals.logger.warn(`Couldn't get address`);
+                // check if there is a profile
+                if (!profileContainer) {
+                    global.logger.warn('Could not find profile');
                     return res
                         .status(400)
-                        .send({ error: `Couldn't get address` });
+                        .send({ error: 'Could not find profile' });
                 }
 
-                //Check if schema is valid
-                if (!isSchemaValid) {
-                    req.app.locals.logger.warn('invalid schema');
-                    return res.status(400).send({ error: 'invalid schema' });
-                }
-
-                const profileIsValid = checkUserProfileWithAddress(
-                    signedUserProfile,
-                    address,
+                //Check if the request comes from the owner of the name
+                const sigCheck = await checkSignature(
+                    profileContainer.profile.profile.publicSigningKey,
+                    'alias: ' + alias,
+                    signature,
                 );
 
-                //Check if profile sig is correcet
-                if (!profileIsValid) {
-                    req.app.locals.logger.warn('invalid profile');
-                    return res.status(400).send({ error: 'invalid profile' });
-                }
-
-                const hasAddressProfile =
-                    await req.app.locals.db.hasAddressProfile(address);
-
-                //One address can only claim one subdomain
-
-                if (req.app.locals.config.spamProtection && hasAddressProfile) {
-                    req.app.locals.logger.warn('Quota reached');
+                if (!sigCheck) {
+                    global.logger.warn('signature invalid');
 
                     return res.status(400).send({
-                        error: 'address has already claimed a subdomain',
+                        error: 'signature invalid',
                     });
                 }
 
-                //The /address endpoint has to be used to create an subdomain based on a address
-                const nameIsAddress = ethers.utils.isAddress(
-                    name.split('.')[0],
-                );
-
-                if (nameIsAddress) {
-                    return res.status(400).send({
-                        error: 'Invalid ENS name',
-                    });
-                }
-
-                const sendersBalance = await web3Provider.getBalance(address);
+                //TODO: One address can only claim one subdomain
 
                 //To avoid spam the user is required to have at least a non-zero balance
+                const sendersBalance = await web3Provider.getBalance(
+                    profileContainer.address,
+                );
+
                 if (
                     req.app.locals.config.spamProtection &&
                     sendersBalance.isZero()
                 ) {
-                    req.app.locals.logger.warn('Insuficient ETH balance');
+                    global.logger.warn('Insuficient ETH balance');
                     return res
                         .status(400)
                         .send({ error: 'Insuficient ETH balance' });
                 }
 
-                const profileExists = await req.app.locals.db.getUserProfile(
-                    name,
-                );
-
-                if (profileExists) {
-                    req.app.locals.logger.warn('subdomain already claimed');
+                if (!(await req.app.locals.db.setAlias(name, alias))) {
                     return res
                         .status(400)
-                        .send({ error: 'subdomain already claimed' });
+                        .send({ error: 'Could not create alias' });
                 }
-                await req.app.locals.db.setUserProfile(
-                    name,
-                    signedUserProfile,
-                    address,
-                );
 
                 return res.sendStatus(200);
             } catch (e) {
@@ -202,6 +161,50 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
             }
         },
     );
+    router.post(
+        '/deleteName',
+        //@ts-ignore
+        async (req: express.Request & { app: WithLocals }, res, next) => {
+            try {
+                const { signature, name } = req.body;
+                logInfo({ text: `POST deleteName`, name });
+
+                const profileContainer =
+                    await req.app.locals.db.getProfileContainerForAlias(name);
+
+                // Check if name has a connected address
+                if (!profileContainer || !profileContainer.address) {
+                    global.logger.warn(`Couldn't get address`);
+                    return res
+                        .status(400)
+                        .send({ error: `Couldn't get address` });
+                }
+
+                //Check if the request comes from the owner of the name
+                const sigCheck = await checkSignature(
+                    profileContainer.profile.profile.publicSigningKey,
+                    'remove: ' + name,
+                    signature,
+                );
+                if (!sigCheck) {
+                    global.logger.warn('signature invalid');
+
+                    return res.status(400).send({
+                        error: 'signature invalid',
+                    });
+                }
+
+                (await req.app.locals.db.removeUserProfile(name))
+                    ? res.sendStatus(200)
+                    : res.status(500).send({
+                          error: `Couldn't remove profile`,
+                      });
+            } catch (e) {
+                next(e);
+            }
+        },
+    );
+
     router.post(
         '/address',
         //@ts-ignore
@@ -230,7 +233,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 }
 
                 const hasAddressProfile =
-                    await req.app.locals.db.hasAddressProfile(address);
+                    !!(await req.app.locals.db.getProfileContainer(address));
 
                 //One address can only claim one subdomain
                 if (hasAddressProfile) {
@@ -241,9 +244,8 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
 
                 const name = `${address}${globalConfig.ADDR_ENS_SUBDOMAIN()}`;
 
-                const profileExists = await req.app.locals.db.getUserProfile(
-                    name,
-                );
+                const profileExists =
+                    !!(await req.app.locals.db.getProfileContainer(name));
 
                 if (profileExists) {
                     return res
@@ -256,7 +258,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     signedUserProfile,
                     address,
                 );
-                req.app.locals.logger.info(`Registered ${name}`);
+                global.logger.info(`Registered ${name}`);
 
                 return res.sendStatus(200);
             } catch (e) {
@@ -270,26 +272,26 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
         //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res, next) => {
             const { address } = req.params;
-            req.app.locals.logger.info(`POST addr ${address} `);
+            global.logger.info(`POST addr ${address} `);
             if (!ethers.utils.isAddress(address)) {
                 return res.status(400).send();
             }
 
-            const hasAddressProfile = await req.app.locals.db.hasAddressProfile(
-                address,
-            );
+            const hasAddressProfile =
+                !!(await req.app.locals.db.getProfileContainerByAddress(
+                    address,
+                ));
 
             if (!hasAddressProfile) {
                 return res.send(404);
             }
-            const userProfile = await req.app.locals.db.getUserProfileByAddress(
-                address,
-            );
-            if (!userProfile) {
+            const profileContainer =
+                await req.app.locals.db.getProfileContainerByAddress(address);
+            if (!profileContainer) {
                 return res.send(404);
             }
 
-            return res.status(200).send(userProfile);
+            return res.status(200).send(profileContainer.profile);
         },
     );
 
@@ -298,15 +300,17 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
         //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res) => {
             const { address } = req.params;
-            req.app.locals.logger.info(`GET name for ${address} `);
+            global.logger.info(`GET name for ${address} `);
             if (!ethers.utils.isAddress(address)) {
                 return res.status(400).send();
             }
 
-            const name = await req.app.locals.db.getNameByAddress(address);
+            const alias = await req.app.locals.db.getProfileAliasByAddress(
+                address,
+            );
 
-            return name
-                ? res.status(200).send({ name })
+            return alias
+                ? res.status(200).send({ name: alias })
                 : res.status(404).send();
         },
     );

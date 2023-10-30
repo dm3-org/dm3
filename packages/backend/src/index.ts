@@ -15,7 +15,7 @@ import { getDatabase } from './persistance/getDatabase';
 import Profile from './profile';
 import RpcProxy from './rpc/rpc-proxy';
 import Storage from './storage';
-import { logInfo } from 'dm3-lib-shared/dist.backend';
+import { logInfo } from 'dm3-lib-shared';
 
 import {
     errorHandler,
@@ -25,6 +25,7 @@ import {
     readKeysFromEnv,
     socketAuth,
 } from './utils';
+import Notifications from './notifications';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -36,11 +37,16 @@ const server = http.createServer(app);
 app.use(cors());
 app.use(bodyParser.json());
 
-(async () => {
-    app.locals.logger = winston.createLogger({
-        transports: [new winston.transports.Console()],
-    });
+declare global {
+    var logger: winston.Logger;
+}
 
+global.logger = winston.createLogger({
+    level: process.env.LOG_LEVEL ?? 'info',
+    transports: [new winston.transports.Console()],
+});
+
+(async () => {
     const io = new Server(server, {
         cors: {
             origin: '*',
@@ -53,10 +59,9 @@ app.use(bodyParser.json());
     app.locals.io = io;
 
     app.locals.keys = readKeysFromEnv(process.env);
-
     app.locals.deliveryServiceProperties = getDeliveryServiceProperties();
 
-    app.locals.db = await getDatabase(app.locals.logger);
+    app.locals.db = await getDatabase();
     app.locals.web3Provider = getWeb3Provider(process.env);
 
     app.use(logRequest);
@@ -64,6 +69,7 @@ app.use(bodyParser.json());
     app.use('/storage', Storage());
     app.use('/auth', Auth());
     app.use('/delivery', Delivery());
+    app.use('/notifications', Notifications());
     app.use('/rpc', RpcProxy(new Axios({ url: process.env.RPC })));
     app.use(logError);
     app.use(errorHandler);

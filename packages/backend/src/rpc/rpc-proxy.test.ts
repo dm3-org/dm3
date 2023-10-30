@@ -5,18 +5,14 @@ import request from 'supertest';
 import RpcProxy from './rpc-proxy';
 import { testData } from '../../../../test-data/encrypted-envelops.test';
 
-import { createKeyPair } from 'dm3-lib-crypto/dist.backend';
-import { normalizeEnsName, UserProfile } from 'dm3-lib-profile/dist.backend';
-import { stringify } from 'dm3-lib-shared/dist.backend';
+import { createKeyPair } from 'dm3-lib-crypto';
+import { normalizeEnsName, UserProfile } from 'dm3-lib-profile';
+import { stringify } from 'dm3-lib-shared';
+import winston from 'winston';
 
-// eslint-disable-next-line no-console
-const log = (toLog: any) => console.log(toLog);
-
-const logger = {
-    warn: log,
-    info: log,
-    error: log,
-};
+global.logger = winston.createLogger({
+    transports: [new winston.transports.Console()],
+});
 
 const SENDER_NAME = 'alice.eth';
 const RECEIVER_NAME = 'bob.eth';
@@ -55,9 +51,7 @@ describe('rpc-Proxy', () => {
             app.use(bodyParser.json());
             app.use(RpcProxy(axiosMock as Axios));
 
-            app.locals = {
-                logger,
-            };
+            global.logger = logger;
 
             const { body } = await request(app)
                 .post('/')
@@ -94,7 +88,10 @@ describe('rpc-Proxy', () => {
                     signing: keysA.signingKeyPair,
                     encryption: keysA.encryptionKeyPair,
                 },
-                deliveryServiceProperties: { sizeLimit: 2 ** 14 },
+                deliveryServiceProperties: {
+                    sizeLimit: 2 ** 14,
+                    notificationChannel: [],
+                },
                 web3Provider: {
                     resolveName: async () =>
                         '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
@@ -107,6 +104,7 @@ describe('rpc-Proxy', () => {
                     createMessage: () => {},
                     getSession,
                     getIdEnsName: async (ensName: string) => ensName,
+                    getUsersNotificationChannels: () => Promise.resolve([]),
                 },
                 io: {
                     sockets: {
@@ -157,7 +155,11 @@ describe('rpc-Proxy', () => {
 
             app.locals = {
                 logger,
-                deliveryServiceProperties: { messageTTL: 0, sizeLimit: 0 },
+                deliveryServiceProperties: {
+                    messageTTL: 0,
+                    sizeLimit: 0,
+                    notificationChannel: [],
+                },
             };
 
             const { status, body } = await request(app).post('/').send({
@@ -168,10 +170,11 @@ describe('rpc-Proxy', () => {
 
             expect(mockPost).not.toBeCalled();
             expect(status).toBe(200);
-            expect(body).toStrictEqual({
+            expect(body).toEqual({
                 jsonrpc: '2.0',
                 result: JSON.stringify({
                     messageTTL: 0,
+                    notificationChannel: [],
                     sizeLimit: 0,
                 }),
             });
@@ -219,6 +222,7 @@ describe('rpc-Proxy', () => {
                 db: {
                     getIdEnsName: async (ensName: string) => ensName,
                     getSession: (_: string) => Promise.resolve(null),
+                    getUsersNotificationChannels: () => Promise.resolve([]),
                 },
             };
 
@@ -276,6 +280,7 @@ describe('rpc-Proxy', () => {
                                 notSupportedMessageTypes: ['NEW'],
                             },
                         }),
+                    getUsersNotificationChannels: () => Promise.resolve([]),
                 },
             };
 

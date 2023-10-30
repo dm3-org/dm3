@@ -3,9 +3,9 @@ import { Express, NextFunction, Request, Response } from 'express';
 import { Socket } from 'socket.io';
 import { ExtendedError } from 'socket.io/dist/namespace';
 import { WithLocals } from './types';
-import { normalizeEnsName } from 'dm3-lib-profile/dist.backend';
-import { checkToken } from 'dm3-lib-delivery/dist.backend';
-import { KeyPair } from 'dm3-lib-crypto/dist.backend';
+import { normalizeEnsName } from 'dm3-lib-profile';
+import { checkToken } from 'dm3-lib-delivery';
+import { KeyPair } from 'dm3-lib-crypto';
 
 export async function auth(
     req: Request,
@@ -28,7 +28,7 @@ export async function auth(
     ) {
         next();
     } else {
-        req.app.locals.logger.warn({
+        global.logger.warn({
             method: 'AUTH',
             error: 'Token check failed',
             normalizedEnsName,
@@ -47,7 +47,7 @@ export function socketAuth(app: Express & WithLocals) {
                 socket.handshake.auth.account.ensName,
             );
 
-            app.locals.logger.info({
+            global.logger.info({
                 method: 'WS CONNECT',
                 ensName,
                 socketId: socket.id,
@@ -81,7 +81,7 @@ export function socketAuth(app: Express & WithLocals) {
 }
 
 export function logRequest(req: Request, res: Response, next: NextFunction) {
-    req.app.locals.logger.info({
+    global.logger.info({
         method: req.method,
         url: req.url,
         timestamp: new Date().getTime(),
@@ -95,7 +95,7 @@ export function logError(
     res: Response,
     next: NextFunction,
 ) {
-    req.app.locals.logger.error({
+    global.logger.error({
         method: req.method,
         url: req.url,
         error: error.toString(),

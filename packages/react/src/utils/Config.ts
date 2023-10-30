@@ -2,7 +2,7 @@ import { StorageLocation } from 'dm3-lib-storage';
 import { ConnectionState } from '../web3provider/Web3Provider';
 
 export interface Config {
-    defaultContact?: string;
+    defaultContacts: string[];
     showContacts: boolean;
     inline: boolean;
     defaultStorageLocation: StorageLocation;
@@ -18,6 +18,7 @@ export interface Config {
 }
 
 const DefaultConfig: Config = {
+    defaultContacts: [],
     showContacts: true,
     inline: false,
     hideStorageSelection: false,

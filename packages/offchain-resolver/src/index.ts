@@ -7,8 +7,7 @@ import winston from 'winston';
 import { getDatabase } from './persistance/getDatabase';
 import { resolverEndpoint } from './http/resolverEndpoint';
 import { getWeb3Provider } from './utils/getWeb3Provider';
-import { getSigner } from './utils/getSigner';
-import { readKeyFromEnv } from './utils/readKeyEnv';
+
 import { profile } from './http/profile';
 
 dotenv.config();
@@ -21,6 +20,15 @@ const server = http.createServer(app);
 
 app.use(cors());
 app.use(bodyParser.json());
+
+declare global {
+    var logger: winston.Logger;
+}
+
+global.logger = winston.createLogger({
+    level: process.env.LOG_LEVEL ?? 'info',
+    transports: [new winston.transports.Console()],
+});
 
 (async () => {
     app.locals.logger = winston.createLogger({
