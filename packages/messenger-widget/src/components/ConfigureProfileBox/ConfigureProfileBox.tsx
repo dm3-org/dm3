@@ -5,7 +5,7 @@ import { globalConfig } from 'dm3-lib-shared';
 import { openConfigurationModal } from '../ConfigureProfile/bl';
 
 export default function ConfigureProfileBox() {
-    const { state } = useContext(GlobalContext);
+    const { state, dispatch } = useContext(GlobalContext);
 
     const [showConfigBox, setShowConfigBox] = useState<boolean>(false);
 
@@ -39,7 +39,7 @@ export default function ConfigureProfileBox() {
                     <button
                         data-testid="config-prof-btn"
                         className="border-radius-6 background-config-box text-primary-color config-box-border"
-                        onClick={() => openConfigurationModal()}
+                        onClick={() => openConfigurationModal(dispatch)}
                     >
                         Configure Profile
                     </button>

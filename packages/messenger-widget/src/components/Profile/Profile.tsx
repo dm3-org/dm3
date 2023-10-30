@@ -102,7 +102,9 @@ export function Profile() {
                     <div className="configure-btn-container">
                         <Button
                             buttonText="Configure dm3 profile"
-                            actionMethod={() => openConfigurationModal()}
+                            actionMethod={() =>
+                                openConfigurationModal(dispatch)
+                            }
                         />
                     </div>
                 </div>
