@@ -4,7 +4,7 @@ on: push
 jobs:
     messenger-demo-deploy:
         runs-on: ubuntu-latest
-       # if: ${{ contains( github.ref, vars.STAGING_BRANCH) }}
+        if: ${{ contains( github.ref, vars.STAGING_BRANCH) }}
         steps:
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v3
@@ -12,15 +12,6 @@ jobs:
                   registry-url: 'https://npm.pkg.github.com'
                   node-version: 18.0.0
                   cache: 'yarn'
-
-            - name: Log env
-              run: echo 'refs/heads/${{ vars.STAGING_BRANCH }}'
-            - name: Log env
-              run: echo ${{ github.ref }}
-            - name: Log env actual
-              run: echo github.ref == 'refs/heads/${{ vars.STAGING_BRANCH }}'
-            - name: Log env expected
-              run: echo ${{github.ref == 'refs/heads/${{ vars.STAGING_BRANCH }}'}}
             - name: Prepare SSH
               run: |
                   mkdir ~/.ssh
