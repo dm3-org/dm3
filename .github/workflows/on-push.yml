@@ -4,7 +4,6 @@ on: push
 jobs:
     code-quality:
         runs-on: ubuntu-latest
-        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         steps:
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v3
@@ -23,7 +22,6 @@ jobs:
 
     build:
         runs-on: ubuntu-latest
-        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         steps:
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v3
@@ -47,7 +45,6 @@ jobs:
                   path: packages/lib/**/schema/
     backend-test:
         runs-on: ubuntu-latest
-        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         needs: build
         defaults:
             run:
@@ -61,7 +58,6 @@ jobs:
                   package-pat: ${{ secrets.PACKAGE_PAT }}
     integration-test:
         runs-on: ubuntu-latest
-        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         needs: build
         defaults:
             run:
@@ -75,7 +71,6 @@ jobs:
                   package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-crypto-test:
         runs-on: ubuntu-latest
-        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         needs: build
         defaults:
             run:
@@ -89,7 +84,6 @@ jobs:
                   package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-delivery-test:
         runs-on: ubuntu-latest
-        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         needs: build
         defaults:
             run:
@@ -103,7 +97,6 @@ jobs:
                   package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-messaging-test:
         runs-on: ubuntu-latest
-        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         needs: build
         defaults:
             run:
@@ -117,7 +110,6 @@ jobs:
                   package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-profile-test:
         runs-on: ubuntu-latest
-        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         needs: build
         defaults:
             run:
@@ -131,7 +123,6 @@ jobs:
                   package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-shared-test:
         runs-on: ubuntu-latest
-        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         needs: build
         defaults:
             run:
@@ -145,7 +136,6 @@ jobs:
                   package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-storage-test:
         runs-on: ubuntu-latest
-        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         needs: build
         defaults:
             run:
@@ -159,7 +149,6 @@ jobs:
                   package-pat: ${{ secrets.PACKAGE_PAT }}
     offchain-resolver-test:
         runs-on: ubuntu-latest
-        if: github.ref != 'refs/heads/${{ vars.STAGING_BRANCH }}'
         needs: build
         defaults:
             run:
