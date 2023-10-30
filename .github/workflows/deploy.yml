@@ -1,10 +1,10 @@
 name: Push Workflow
 on: push
+branches:
+    - ${{ vars.STAGING_BRANCH }}
 
 jobs:
     messenger-demo-deploy:
-        branches:
-            - ${{ vars.STAGING_BRANCH }}
         runs-on: ubuntu-latest
         if: github.ref == 'refs/heads/${{ vars.STAGING_BRANCH }}'
         steps:
@@ -14,12 +14,12 @@ jobs:
                   registry-url: 'https://npm.pkg.github.com'
                   node-version: 18.0.0
                   cache: 'yarn'
-   
+
             - name: Log env
               run: echo 'refs/heads/${{ vars.STAGING_BRANCH }}'
             - name: Log env
               run: echo ${{ github.ref }}
-            - name: Log env actual 
+            - name: Log env actual
               run: echo github.ref == 'refs/heads/${{ vars.STAGING_BRANCH }}'
             - name: Log env expected
               run: echo ${{github.ref == 'refs/heads/${{ vars.STAGING_BRANCH }}'}}
@@ -31,7 +31,7 @@ jobs:
                   chmod 600 ./ssh-key
             - name: Create .env file
               env:
-                TARGET_HOST: ${{ secrets.STAGING_HOST }}
+                  TARGET_HOST: ${{ secrets.STAGING_HOST }}
               run: |
                   echo "REACT_APP_ADDR_ENS_SUBDOMAIN=.beta-addr.dm3.eth" >> ./.env.react
                   echo "REACT_APP_BACKEND=http://${{ secrets.STAGING_HOST }}/api" >> ./.env.react
@@ -55,15 +55,15 @@ jobs:
                   cat ./.env
             - name: Build docker image
               run: |
-                cp ./.env.react packages/messenger-demo/.env
-                docker build --progress=plain -t dm3-backend:latest -f ./docker/Dockerfile .
-                docker save -o ./dm3-backend.tar dm3-backend:latest
+                  cp ./.env.react packages/messenger-demo/.env
+                  docker build --progress=plain -t dm3-backend:latest -f ./docker/Dockerfile .
+                  docker save -o ./dm3-backend.tar dm3-backend:latest
             - name: Sync files
               run: |
-                rsync -avz -e 'ssh -i ./ssh-key' ./.env app@${{ secrets.STAGING_HOST }}:/home/app/dm3
-                rsync -avz -e 'ssh -i ./ssh-key' ./dm3-backend.tar app@${{ secrets.STAGING_HOST }}:/home/app/dm3 
-                rsync -avz -e 'ssh -i ./ssh-key' ./nginx.conf app@${{ secrets.STAGING_HOST }}:/home/app/dm3
-                rsync -avz -e 'ssh -i ./ssh-key' ./docker/docker-compose.yml app@${{ secrets.STAGING_HOST }}:/home/app/dm3                
+                  rsync -avz -e 'ssh -i ./ssh-key' ./.env app@${{ secrets.STAGING_HOST }}:/home/app/dm3
+                  rsync -avz -e 'ssh -i ./ssh-key' ./dm3-backend.tar app@${{ secrets.STAGING_HOST }}:/home/app/dm3 
+                  rsync -avz -e 'ssh -i ./ssh-key' ./nginx.conf app@${{ secrets.STAGING_HOST }}:/home/app/dm3
+                  rsync -avz -e 'ssh -i ./ssh-key' ./docker/docker-compose.yml app@${{ secrets.STAGING_HOST }}:/home/app/dm3
             - name: Prepare docker
               run: |
                   ssh -i ./ssh-key app@${{ secrets.STAGING_HOST }} "\
