@@ -235,7 +235,7 @@ const isEnsNameValid = async (
     );
 
     if (
-        owner &&
+        !owner ||
         ethersHelper.formatAddress(owner) !==
             ethersHelper.formatAddress(state.connection.ethAddress!)
     ) {
