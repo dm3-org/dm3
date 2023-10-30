@@ -15,6 +15,8 @@ jobs:
    
             - name: Log env
               run: echo 'refs/heads/${{ vars.STAGING_BRANCH }}'
+              run: echo github.ref
+              run: github.ref == 'refs/heads/${{ vars.STAGING_BRANCH }}'
             - name: Prepare SSH
               run: |
                   mkdir ~/.ssh
