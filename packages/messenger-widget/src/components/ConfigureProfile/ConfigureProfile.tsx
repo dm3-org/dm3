@@ -12,6 +12,7 @@ import {
     getEnsName,
     submitDm3UsernameClaim,
     submitEnsNameTransaction,
+    validateEnsName,
     validateName,
 } from './bl';
 import { useContext, useEffect, useState } from 'react';
@@ -59,12 +60,13 @@ export function ConfigureProfile() {
         type: NAME_TYPE,
     ) => {
         setShowError(undefined);
-        const check = validateName(e.target.value);
         if (type === NAME_TYPE.DM3_NAME) {
+            const check = validateName(e.target.value);
             setDm3Name(e.target.value);
             setEnsName('');
             !check && setError('Invalid name', NAME_TYPE.DM3_NAME);
         } else {
+            const check = validateEnsName(e.target.value);
             setEnsName(e.target.value);
             setDm3Name('');
             !check && setError('Invalid ENS name', NAME_TYPE.ENS_NAME);
@@ -189,7 +191,7 @@ export function ConfigureProfile() {
                                     <p className="m-0 font-size-14 font-weight-500 line-height-24 grey-text">
                                         {state.connection.ethAddress &&
                                             state.connection.ethAddress +
-                                                globalConfig.ADDR_ENS_SUBDOMAIN()}
+                                            globalConfig.ADDR_ENS_SUBDOMAIN()}
                                     </p>
                                 </div>
                                 <div className="address-details">
