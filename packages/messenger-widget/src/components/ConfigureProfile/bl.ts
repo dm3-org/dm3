@@ -1,4 +1,4 @@
-import { formatAddress, SignedUserProfile } from 'dm3-lib-profile';
+import { hasUserProfile, SignedUserProfile } from 'dm3-lib-profile';
 import {
     Actions,
     ConnectionType,
@@ -30,11 +30,11 @@ export enum ACTION_TYPE {
 }
 
 // method to open the profile configuration modal
-export const openConfigurationModal = () => {
-    const modal: HTMLElement = document.getElementById(
-        'configuration-modal',
-    ) as HTMLElement;
-    modal.style.display = 'block';
+export const openConfigurationModal = (dispatch: React.Dispatch<Actions>) => {
+    dispatch({
+        type: ModalStateType.IsProfileConfigurationPopupActive,
+        payload: true,
+    });
 };
 
 // method to close the profile configuration modal
@@ -43,15 +43,16 @@ export const closeConfigurationModal = (
     setEnsName: Function,
     setErrorMsg: Function,
     setShowError: Function,
+    dispatch: React.Dispatch<Actions>,
 ) => {
-    const modal: HTMLElement = document.getElementById(
-        'configuration-modal',
-    ) as HTMLElement;
-    modal.style.display = 'none';
     setDm3Name('');
     setEnsName('');
     setErrorMsg('');
     setShowError(undefined);
+    dispatch({
+        type: ModalStateType.IsProfileConfigurationPopupActive,
+        payload: false,
+    });
 };
 
 // method to fetch ENS name
@@ -59,11 +60,17 @@ export const getEnsName = async (
     state: GlobalState,
     setEnsNameFromResolver: Function,
 ) => {
-    if (state.connection.ethAddress && state.connection.provider) {
-        const name = await state.connection.provider.lookupAddress(
-            state.connection.ethAddress,
+    if (state.connection.provider && state.connection.account) {
+        const hasProfile = await hasUserProfile(
+            state.connection.provider,
+            state.connection.account?.ensName,
         );
-        setEnsNameFromResolver(name);
+        if (hasProfile && state.connection.ethAddress) {
+            const name = await state.connection.provider.lookupAddress(
+                state.connection.ethAddress,
+            );
+            setEnsNameFromResolver(name);
+        }
     }
 };
 
@@ -235,7 +242,7 @@ const isEnsNameValid = async (
     );
 
     if (
-        !owner ||
+        owner &&
         ethersHelper.formatAddress(owner) !==
             ethersHelper.formatAddress(state.connection.ethAddress!)
     ) {

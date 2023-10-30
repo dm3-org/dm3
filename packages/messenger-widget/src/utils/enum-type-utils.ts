@@ -251,6 +251,7 @@ export enum ModalStateType {
     ContactToHide = 'CONTACT_TO_HIDE',
     OpenEmojiPopup = 'OPEN_EMOJI_MODAL',
     LastMessageAction = 'LAST_MESSAGE_ACTION',
+    IsProfileConfigurationPopupActive = 'IS_PROFILE_CONFIGURATION_POPUP_ACTIVE',
 }
 
 export type ModalStatePayload = {
@@ -262,6 +263,7 @@ export type ModalStatePayload = {
         data: MessageProps | undefined;
     };
     [ModalStateType.LastMessageAction]: MessageActionType;
+    [ModalStateType.IsProfileConfigurationPopupActive]: boolean;
 };
 
 export type ModalStateActions =
