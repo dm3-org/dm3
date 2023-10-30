@@ -3,6 +3,8 @@ on: push
 
 jobs:
     messenger-demo-deploy:
+        branches:
+            - ${{ vars.STAGING_BRANCH }}
         runs-on: ubuntu-latest
         if: github.ref == 'refs/heads/${{ vars.STAGING_BRANCH }}'
         steps:
