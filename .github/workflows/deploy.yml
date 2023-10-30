@@ -4,7 +4,7 @@ on: push
 jobs:
     messenger-demo-deploy:
         runs-on: ubuntu-latest
-        if: ${{ github.ref }} == 'refs/heads/${{ vars.STAGING_BRANCH }}'
+        if: ${{ ${{ github.ref }}  == 'refs/heads/${{ vars.STAGING_BRANCH }}' }}
         steps:
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v3
