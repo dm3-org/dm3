@@ -17,7 +17,8 @@
             "packages/integration-tests",
             "packages/offchain-resolver",
             "packages/messenger-widget",
-            "packages/messenger-demo"
+            "packages/messenger-demo",
+            "packages/cli"
         ],
         "nohoist": [
             "**/react",
