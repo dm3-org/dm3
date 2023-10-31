@@ -29,6 +29,8 @@ export const openConversationModal = () => {
         'conversation-modal',
     ) as HTMLElement;
     modal.style.display = 'block';
+    const inputField = document.getElementById('add-conv-input') as HTMLElement;
+    inputField.focus();
 };
 
 // method to close the add conversation modal

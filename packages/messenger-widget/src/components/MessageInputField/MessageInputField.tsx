@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import {
     MessageActionType,
@@ -38,6 +38,42 @@ export function MessageInputField(props: MessageDataProps) {
             props.setFiles,
         );
     }
+
+    // Focus on input field when user selects a msg to EEDIT or REPLY
+    useEffect(() => {
+        if (
+            state.uiView.selectedMessageView.actionType ===
+                MessageActionType.EDIT ||
+            state.uiView.selectedMessageView.actionType ===
+                MessageActionType.REPLY
+        ) {
+            const inputField = document.getElementById(
+                'msg-input',
+            ) as HTMLElement;
+            if (inputField) {
+                inputField.focus();
+            }
+        }
+    }, [state.uiView.selectedMessageView.actionType]);
+
+    // Closes EDIT MSG if ESC button is clicked
+    document.body.addEventListener('keydown', function (e) {
+        if (
+            e.key === 'Escape' &&
+            state.uiView.selectedMessageView.actionType ===
+                MessageActionType.EDIT
+        ) {
+            dispatch({
+                type: UiViewStateType.SetMessageView,
+                payload: {
+                    actionType: MessageActionType.NONE,
+                    messageData: undefined,
+                },
+            });
+            props.setFiles([]);
+            props.setMessageText('');
+        }
+    });
 
     return (
         <form
