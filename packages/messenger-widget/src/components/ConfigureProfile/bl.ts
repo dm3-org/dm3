@@ -139,10 +139,8 @@ export const removeAliasFromDm3Name = async (
 
         startLoader();
 
-        const ensName = dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN();
-
         await removeAlias(
-            dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN(),
+            dm3UserEnsName,
             process.env.REACT_APP_RESOLVER_BACKEND as string,
             state.userDb!.keys.signingKeyPair.privateKey,
         );
@@ -151,7 +149,9 @@ export const removeAliasFromDm3Name = async (
             type: ConnectionType.ChangeAccount,
             payload: {
                 ...state.connection.account!,
-                ensName: ensName,
+                ensName:
+                    state.connection.ethAddress +
+                    globalConfig.ADDR_ENS_SUBDOMAIN(),
             },
         });
 

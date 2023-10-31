@@ -10,6 +10,7 @@ import {
     updateSelectedContact,
     resetContactListOnHide,
     showMenuInBottom,
+    fetchMessageSizeLimit,
 } from './bl';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
@@ -23,6 +24,7 @@ import {
 } from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
 import loader from '../../assets/images/loader.svg';
+import { scrollToBottomOfChat } from '../Chat/bl';
 
 export function Contacts(props: DashboardProps) {
     // fetches context api data
@@ -139,6 +141,7 @@ export function Contacts(props: DashboardProps) {
                 resetContactListOnHide(state, dispatch, setListOfContacts);
             }
         }
+        scrollToBottomOfChat();
     }, [state.accounts.selectedContact]);
 
     // handles active contact removal
@@ -209,6 +212,10 @@ export function Contacts(props: DashboardProps) {
             setIsMenuAlignedAtBottom(showMenuInBottom(contactSelected));
         }
     }, [contactSelected]);
+
+    useEffect(() => {
+        fetchMessageSizeLimit(state, dispatch);
+    }, []);
 
     /* Hidden content for highlighting css */
     const hiddenData: number[] = Array.from({ length: 22 }, (_, i) => i + 1);
