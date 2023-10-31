@@ -126,6 +126,13 @@ export function ConfigureProfile() {
         getEnsName(state, setEnsNameFromResolver);
     }, [state.connection.ethAddress, state.connection.provider]);
 
+    // clears the input field on deleting the alias
+    useEffect(() => {
+        if (!showDeleteConfirmation) {
+            setDm3Name('');
+        }
+    }, [showDeleteConfirmation]);
+
     return (
         <div>
             <div

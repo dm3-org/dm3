@@ -39,9 +39,10 @@ export default function DeleteDM3Name(props: DeleteDM3NameProps) {
                         <button
                             className="delete-name-btn font-weight-400 font-size-12 border-radius-4 
                             line-height-24 modal-btn-active"
-                            onClick={() =>
-                                props.removeDm3Name(ACTION_TYPE.REMOVE)
-                            }
+                            onClick={async () => {
+                                await props.removeDm3Name(ACTION_TYPE.REMOVE);
+                                await props.setDeleteDM3NameConfirmation(false);
+                            }}
                         >
                             Delete
                         </button>
