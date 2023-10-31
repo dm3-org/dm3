@@ -60,6 +60,7 @@ export const checkUserProfileConfigured = async (
     } catch (error) {
         setProfileCheck(false);
     }
+    scrollToBottomOfChat();
 };
 
 // method to scroll down to latest message automatically
@@ -67,7 +68,9 @@ export const scrollToBottomOfChat = () => {
     const element: HTMLElement = document.getElementById(
         'chat-box',
     ) as HTMLElement;
-    if (element) element.scrollTop = element.scrollHeight;
+    if (element) {
+        element.scrollTop = element.scrollHeight + 1000;
+    }
 };
 
 // method to set message format

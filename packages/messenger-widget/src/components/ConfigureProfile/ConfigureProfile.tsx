@@ -10,6 +10,7 @@ import {
     PROFILE_INPUT_FIELD_CLASS,
     closeConfigurationModal,
     getEnsName,
+    removeAliasFromDm3Name,
     submitDm3UsernameClaim,
     submitEnsNameTransaction,
     validateEnsName,
@@ -84,6 +85,12 @@ export function ConfigureProfile() {
             }
             await submitDm3UsernameClaim(state, name, dispatch, setError);
         } else {
+            await removeAliasFromDm3Name(
+                state,
+                existingDm3Name as string,
+                dispatch,
+                setError,
+            );
             setExistingDm3Name(null);
         }
     };
