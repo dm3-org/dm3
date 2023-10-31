@@ -12,6 +12,12 @@ jobs:
                   registry-url: 'https://npm.pkg.github.com'
                   node-version: 18.0.0
                   cache: 'yarn'
+            - name: Declare some variables
+              shell: bash
+              run: |
+                echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
+                echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> "$GITHUB_ENV"
+                echo "now=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
             - name: Prepare SSH
               run: |
                   mkdir ~/.ssh
@@ -31,6 +37,9 @@ jobs:
                   echo "REACT_APP_RESOLVER_BACKEND=http://${{ secrets.STAGING_HOST }}/resolver-handler" >> ./.env.react
                   echo "REACT_APP_USER_ENS_SUBDOMAIN=.beta-user.dm3.eth" >> ./.env.react
                   echo "REACT_APP_WALLET_CONNECT_PROJECT_ID=${{ secrets.REACT_APP_WALLET_CONNECT_PROJECT_ID }}" >> ./.env.react
+                  echo "REACT_APP_COMMIT_HASH=${{ env.sha_short }}" >> ./.env.react
+                  echo "REACT_APP_BRANCH=${{ env.branch }}" >> ./.env.react
+                  echo "REACT_APP_BUILD_TIME=${{ env.now }}" >> ./.env.react
                   cat ./.env.react >> ./.env
                   echo "RESOLVER_ADDR=0xae6646c22D8eE6479eE0a39Bf63B9bD9e57bAD9d" >> ./.env
                   echo "SIGNING_PUBLIC_KEY=${{ secrets.SIGNING_PUBLIC_KEY }}" >> ./.env
