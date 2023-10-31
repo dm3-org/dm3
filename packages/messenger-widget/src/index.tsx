@@ -15,11 +15,30 @@ export function DM3(props: Partial<Config>) {
     setTheme(propsData.theme);
 
     return (
-        <div className="container-fluid">
-            <ErrorModal />
-            <GlobalContextProvider>
-                <Home config={propsData} />
-            </GlobalContextProvider>
-        </div>
+        <>
+            <div className="container-fluid">
+                <ErrorModal />
+                <GlobalContextProvider>
+                    <Home config={propsData} />
+                </GlobalContextProvider>
+            </div>
+            {process.env.REACT_APP_COMMIT_HASH && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        bottom: '0',
+                        backdropFilter: 'blur(5px)',
+                        background: 'rgba(255,174,52,.1)',
+                        color: 'rgba(255,174,52,.9)',
+                        zIndex: '9999999',
+                        fontFamily: 'monospace'
+                    }}
+                    className="w-100 text-center"
+                >
+                    STAGING {process.env.REACT_APP_BUILD_TIME}{' '}
+                    {process.env.BRANCH} {process.env.REACT_APP_COMMIT_HASH}
+                </div>
+            )}
+        </>
     );
 }
