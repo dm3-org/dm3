@@ -35,6 +35,12 @@ export function cacheReducer(state: Cache, action: CacheActions): Cache {
                 lastConversation: action.payload,
             };
 
+        case CacheType.MessageSizeLimit:
+            return {
+                ...state,
+                messageSizeLimit: action.payload,
+            };
+
         default:
             return state;
     }

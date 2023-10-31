@@ -24,6 +24,7 @@ export const initialState: GlobalState = {
             account: null,
             message: null,
         },
+        messageSizeLimit: 0,
     },
     userDb: undefined,
     uiState: {

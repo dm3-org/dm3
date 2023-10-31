@@ -93,3 +93,11 @@
     margin-left: 0.5rem !important;
     margin-right: -1px !important;
 }
+
+.content:hover .dropdown-content {
+    display: flex;
+}
+
+.content:hover .action-container {
+    background-color: var(--normal-btn-hover);
+}

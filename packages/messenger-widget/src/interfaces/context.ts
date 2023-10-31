@@ -32,6 +32,7 @@ export interface Cache {
         account: Account | null;
         message: string | null;
     };
+    messageSizeLimit: number;
 }
 
 export interface UiState {
