@@ -24,6 +24,8 @@ export function Message(props: MessageProps) {
     // state to show action items three dots
     const [isHovered, setIsHovered] = useState(false);
 
+    const [isDeletedMsg, setIsDeletedMsg] = useState<boolean>(false);
+
     // attachments
     const [attachments, setAttachments] = useState<Attachment[]>([]);
 
@@ -49,6 +51,16 @@ export function Message(props: MessageProps) {
         ) {
             setFilesData(props.envelop.message.attachments, setAttachmentsData);
         }
+        if (
+            !props.message &&
+            !(
+                props.envelop.message.attachments &&
+                props.envelop.message.attachments.length > 0 &&
+                props.envelop.message.metadata.type !== MessageActionType.DELETE
+            )
+        ) {
+            setIsDeletedMsg(true);
+        }
     }, [props]);
 
     return (
@@ -70,12 +82,16 @@ export function Message(props: MessageProps) {
                     className={'width-fill text-left font-size-14 border-radius-6 content-style'.concat(
                         ' ',
                         (props.ownMessage
-                            ? state.uiView.selectedMessageView.actionType ===
-                                  MessageActionType.EDIT &&
-                              state.uiView.selectedMessageView.messageData
-                                  ?.envelop.id === props.envelop.id
+                            ? isDeletedMsg
+                                ? 'own-deleted-msg'
+                                : state.uiView.selectedMessageView
+                                      .actionType === MessageActionType.EDIT &&
+                                  state.uiView.selectedMessageView.messageData
+                                      ?.envelop.id === props.envelop.id
                                 ? 'msg-editing-active'
                                 : 'ms-3 background-config-box'
+                            : isDeletedMsg
+                            ? 'contact-deleted-msg'
                             : 'normal-btn-hover'
                         ).concat(
                             ' ',
@@ -130,7 +146,9 @@ export function Message(props: MessageProps) {
                           props.envelop.message.metadata.type !==
                               MessageActionType.DELETE
                         ? ''
-                        : 'This message was deleted'}
+                        : props.ownMessage
+                        ? 'You deleted this message.'
+                        : 'This message was deleted.'}
                 </div>
                 {/* action item */}
                 <div

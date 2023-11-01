@@ -68,9 +68,14 @@ export const scrollToBottomOfChat = () => {
     const element: HTMLElement = document.getElementById(
         'chat-box',
     ) as HTMLElement;
-    if (element) {
-        element.scrollTop = element.scrollHeight + 1000;
-    }
+    setTimeout(() => {
+        if (element) {
+            element.scroll({
+                top: element.scrollHeight,
+                behavior: 'smooth',
+            });
+        }
+    }, 100);
 };
 
 // method to set message format
