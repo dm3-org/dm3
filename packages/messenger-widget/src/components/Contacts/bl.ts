@@ -46,7 +46,7 @@ export const setContactHeightToMaximum = (isProfileConfigured: boolean) => {
     const element = document.getElementsByClassName(
         'contacts-scroller',
     )[0] as HTMLElement;
-    element.style.height = isProfileConfigured ? '90vh' : '88vh';
+    element.style.height = isProfileConfigured ? '88.5vh' : '88.5vh';
 };
 
 // fetches contact list and sets data according to view on UI
