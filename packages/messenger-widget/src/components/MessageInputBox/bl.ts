@@ -259,6 +259,8 @@ export const handleSubmit = async (
     setMessageText('');
     setFiles([]);
 
+    scrollToBottomOfChat();
+
     if (
         state.uiView.selectedMessageView.actionType === MessageActionType.EDIT
     ) {

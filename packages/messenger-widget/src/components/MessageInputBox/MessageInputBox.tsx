@@ -53,7 +53,7 @@ export function MessageInputBox() {
     }, [state.accounts.selectedContact]);
 
     return (
-        <div className="mt-3">
+        <div className="mt-3 msg-input-box-container">
             {/* Reply message preview */}
             {state.uiView.selectedMessageView.actionType ===
                 MessageActionType.REPLY && (
