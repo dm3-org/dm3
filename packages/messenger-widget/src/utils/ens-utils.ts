@@ -7,7 +7,7 @@ import {
     UiViewStateType,
     UserDbType,
 } from './enum-type-utils';
-import profilePic from '../assets/images/profile-pic.jpg';
+import profilePic from '../assets/images/human.svg';
 import { EnsProfileDetails } from '../interfaces/utils';
 import { log } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
