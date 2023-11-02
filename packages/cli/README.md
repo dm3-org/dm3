@@ -8,7 +8,7 @@ The CLI command "setup" is used to configure a DM3 delivery service for your dom
 
 ### Usage
 
-`setup --rpc <RPC_URL> --pk <PRIVATE_KEY> --domain <ENS_DOMAIN> --gateway <GATEWAY_URL> --deliveryService <DELIVERY_SERVICE_URL> --profilePk <PROFILE_PRIVATE_KEY> --ensRegistry <ENS_REGISTRY_ADDRESS> --ensResolver <ENS_RESOLVER_ADDRESS> --erc3668Resolver <ERC3668_RESOLVER_ADDRESS>`
+`yarn cli setup --rpc <RPC_URL> --pk <PRIVATE_KEY> --domain <ENS_DOMAIN> --gateway <GATEWAY_URL> --deliveryService <DELIVERY_SERVICE_URL> --profilePk <PROFILE_PRIVATE_KEY> --ensRegistry <ENS_REGISTRY_ADDRESS> --ensResolver <ENS_RESOLVER_ADDRESS> --erc3668Resolver <ERC3668_RESOLVER_ADDRESS>`
 
 ### OPTIONS
 
@@ -25,3 +25,14 @@ The CLI command "setup" is used to configure a DM3 delivery service for your dom
 ### Example
 
 `setup --rpc http://127.0.0.1:8545 --pk 0x123456789abcdef --domain alice.eth --gateway https://gateway.io/ --deliveryService https://ds.io/ --profilePk 0x987654321fedcba --ensRegistry 0xabcdef123456789 --ensResolver 0xfedcba987654321 --erc3668Resolver 0x123456789abcdef0`
+
+
+## Profile
+
+The CLI command "setup" is used to create a dm3 user profile based on an existing privateKey or a randomly created one. 
+
+### Usage
+
+`yarn cli profile --deliveryService foo.eth --profilePk 0x123`
+-   --deliveryService <DELIVERY_SERVICE_URL>: The URL of the delivery service.
+-   --profilePk <PROFILE_PK>: Optionally, if provided, the profile will be created based on that key. Otherwise, a random key will be generated.
