@@ -14,7 +14,7 @@ export const getDeliveryServiceWSClient = (
     return Promise.all(
         deliveryServices.map(async (ds) => {
             const client = await new Promise<Socket>((res, rej) => {
-                const c = io(ds.url, {
+                const c = io(ds.url.replace('/api', ''), {
                     auth: {
                         account: { ensName },
                         token: ds.token,

@@ -41,6 +41,7 @@ jobs:
                   echo "REACT_APP_BRANCH=${{ env.branch }}" >> ./.env.react
                   echo "REACT_APP_BUILD_TIME=${{ env.now }}" >> ./.env.react
                   cat ./.env.react >> ./.env
+                  echo "BILLBOARD_SIGNER_PRIVATE_KEY=${{ secrets.BILLBOARD_SIGNER_PRIVATE_KEY }}" >> ./.env
                   echo "RESOLVER_ADDR=0xae6646c22D8eE6479eE0a39Bf63B9bD9e57bAD9d" >> ./.env
                   echo "SIGNING_PUBLIC_KEY=${{ secrets.SIGNING_PUBLIC_KEY }}" >> ./.env
                   echo "SIGNING_PRIVATE_KEY=${{ secrets.SIGNING_PRIVATE_KEY }}" >> ./.env
