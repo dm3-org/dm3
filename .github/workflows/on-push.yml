@@ -1,4 +1,4 @@
-name: Push Workflow
+name: Build and test
 on: push
 
 jobs:
