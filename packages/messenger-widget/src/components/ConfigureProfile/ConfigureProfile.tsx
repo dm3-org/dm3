@@ -85,13 +85,13 @@ export function ConfigureProfile() {
             }
             await submitDm3UsernameClaim(state, name, dispatch, setError);
         } else {
-            await removeAliasFromDm3Name(
+            const result = await removeAliasFromDm3Name(
                 state,
                 existingDm3Name as string,
                 dispatch,
                 setError,
             );
-            setExistingDm3Name(null);
+            result && setExistingDm3Name(null);
         }
     };
 

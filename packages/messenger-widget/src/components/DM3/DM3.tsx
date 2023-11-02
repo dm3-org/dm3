@@ -97,7 +97,6 @@ function DM3(props: Dm3Props) {
             };
             socket.connect();
             socket.on('message', (envelop: EncryptionEnvelop) => {
-                console.log('new msg 1:', envelop);
                 handleNewMessage(envelop, state, dispatch);
             });
             socket.on('joined', () => {
@@ -119,7 +118,6 @@ function DM3(props: Dm3Props) {
             state.connection.socket.on(
                 'message',
                 (envelop: EncryptionEnvelop) => {
-                    console.log('new msg 1:', envelop);
                     handleNewMessage(envelop, state, dispatch);
                 },
             );
