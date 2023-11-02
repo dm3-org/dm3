@@ -7,12 +7,13 @@ import {
     UiViewStateType,
     UserDbType,
 } from './enum-type-utils';
-import profilePic from '../assets/images/human.svg';
+import humanIcon from '../assets/images/human.svg';
 import { EnsProfileDetails } from '../interfaces/utils';
 import { log } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import { ENS_PROFILE_BASE_URL, ETHERSCAN_URL } from './common-utils';
 import { IContactInfo } from '../interfaces/utils';
+import makeBlockie from 'ethereum-blockies-base64';
 
 // method to get avatar/image url
 export const getAvatar = async (
@@ -26,12 +27,26 @@ export const getAvatar = async (
 export const getAvatarProfilePic = async (
     state: GlobalState,
     ensName: string,
-): Promise<string> => {
+) => {
     if (state.connection.provider && ensName) {
-        const data = await getAvatar(state.connection.provider, ensName);
-        return data ? data : profilePic;
+        const provider = state.connection.provider;
+        try {
+            if (provider) {
+                const address = await provider.resolveName(ensName);
+                if (address) {
+                    const pic = makeBlockie(address);
+                    return pic ? (pic as string) : (humanIcon as string);
+                } else {
+                    return humanIcon;
+                }
+            } else {
+                return humanIcon;
+            }
+        } catch (error) {
+            return humanIcon;
+        }
     } else {
-        return profilePic;
+        return humanIcon;
     }
 };
 

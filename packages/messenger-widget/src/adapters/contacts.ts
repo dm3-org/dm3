@@ -92,7 +92,10 @@ export async function requestContacts(
         }
     });
 
-    dispatch({ type: AccountsType.SetContacts, payload: contacts });
+    // filter out the duplicate contacts
+    const result = filterOutDuplicateContacts(contacts);
+
+    dispatch({ type: AccountsType.SetContacts, payload: result });
 }
 
 export async function getContacts(
@@ -197,3 +200,64 @@ function fetchDeliveryServiceProfile(connection: Connection) {
         };
     };
 }
+
+const filterOutDuplicateContacts = (contactList: Contact[]) => {
+    const result: Contact[] = [];
+
+    // contact with profile
+    const contactsWithProfile = contactList.filter(
+        (data: Contact) => data.account.profileSignature,
+    );
+
+    // contacts without profile
+    const contactsWithOutProfile = contactList.filter(
+        (data: Contact) => !data.account.profileSignature,
+    );
+
+    // fetch unique profiles
+    const uniqueProfiles = [
+        ...new Set(
+            contactsWithProfile.map((item) => item.account.profileSignature),
+        ),
+    ];
+
+    // filter out the profile signatures with ensName
+    uniqueProfiles.map((profile) => {
+        // fetch all contacts with same profile
+        const records = contactsWithProfile.filter(
+            (data) => data.account.profileSignature === profile,
+        );
+        if (records.length > 1) {
+            // fetch profile with eth as ens name
+            const ensNames = records.filter(
+                (item) =>
+                    item.account.profileSignature &&
+                    item.account.profileSignature.split('.').includes('.eth'),
+            );
+            if (ensNames.length) {
+                result.push(ensNames[0]);
+                return;
+            } else {
+                // fetch profile with dm3.eth as ens name
+                const dm3EnsNames = records.filter(
+                    (item) =>
+                        item.account.profileSignature &&
+                        item.account.profileSignature
+                            .split('.')
+                            .includes('.dm3.eth'),
+                );
+                if (dm3EnsNames.length) {
+                    result.push(dm3EnsNames[0]);
+                    return;
+                } else {
+                    result.push(records[0]);
+                    return;
+                }
+            }
+        } else {
+            result.push(records[0]);
+        }
+    });
+
+    return [...result, ...contactsWithOutProfile];
+};
