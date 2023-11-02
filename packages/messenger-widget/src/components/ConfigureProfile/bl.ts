@@ -139,28 +139,35 @@ export const removeAliasFromDm3Name = async (
 
         startLoader();
 
-        await removeAlias(
+        const result = await removeAlias(
             dm3UserEnsName,
             process.env.REACT_APP_RESOLVER_BACKEND as string,
             state.userDb!.keys.signingKeyPair.privateKey,
         );
 
-        dispatch({
-            type: ConnectionType.ChangeAccount,
-            payload: {
-                ...state.connection.account!,
-                ensName:
-                    state.connection.ethAddress +
-                    globalConfig.ADDR_ENS_SUBDOMAIN(),
-            },
-        });
+        if (result) {
+            dispatch({
+                type: ConnectionType.ChangeAccount,
+                payload: {
+                    ...state.connection.account!,
+                    ensName:
+                        state.connection.ethAddress +
+                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                },
+            });
 
-        setContactHeightToMaximum(true);
+            setContactHeightToMaximum(true);
+            closeLoader();
+            return true;
+        } else {
+            closeLoader();
+            return false;
+        }
     } catch (e) {
         setError('Failed to remove alias', e);
+        closeLoader();
+        return false;
     }
-
-    closeLoader();
 };
 
 // method to create transaction to add new ENS name

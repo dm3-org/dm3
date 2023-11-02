@@ -21171,6 +21171,7 @@ __metadata:
     dm3-lib-storage: "workspace:^"
     emoji-mart: ^5.5.2
     esbuild: ^0.14.44
+    ethereum-blockies-base64: ^1.0.2
     ethers: 5.7.2
     file-loader: ^6.2.0
     googleapis: ^100.0.0
