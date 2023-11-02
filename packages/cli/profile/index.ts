@@ -1,9 +1,15 @@
 /* eslint-disable no-console */
 import { Command, program } from 'commander';
 import { getStorageKeyCreationMessage, createStorageKey } from 'dm3-lib-crypto';
-import { createProfileKeys, UserProfile } from 'dm3-lib-profile';
+import {
+    createProfileKeys,
+    getProfileCreationMessage,
+    SignedUserProfile,
+    UserProfile,
+} from 'dm3-lib-profile';
 import { ethers } from 'ethers';
 import { getSanitizedWallet } from '../sanitizer/getSanitizedWallet';
+import { stringify } from 'dm3-lib-shared';
 
 const newProfile = async (program: Command) => {
     const { profilePk, deliveryService } = program.opts();
@@ -47,7 +53,14 @@ const newProfile = async (program: Command) => {
         );
     }
 
-    console.log(profile);
+    const profileCreationMessage = getProfileCreationMessage(
+        stringify(profile),
+    );
+
+    const profileSig = await profileWallet.signMessage(profileCreationMessage);
+    const signedProfile: SignedUserProfile = { profile, signature: profileSig };
+
+    console.log(signedProfile);
 };
 
 export { newProfile };
