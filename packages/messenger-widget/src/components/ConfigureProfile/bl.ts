@@ -60,16 +60,19 @@ export const getEnsName = async (
     state: GlobalState,
     setEnsNameFromResolver: Function,
 ) => {
-    if (state.connection.provider && state.connection.account) {
-        const hasProfile = await hasUserProfile(
-            state.connection.provider,
-            state.connection.account?.ensName,
+    if (state.connection.provider && state.connection.ethAddress) {
+        const isAddrEnsName = state.connection.account?.ensName?.endsWith(
+            globalConfig.ADDR_ENS_SUBDOMAIN(),
         );
-        if (hasProfile && state.connection.ethAddress) {
-            const name = await state.connection.provider.lookupAddress(
-                state.connection.ethAddress,
+        const name = await state.connection.provider.lookupAddress(
+            state.connection.ethAddress,
+        );
+        if (name && !isAddrEnsName) {
+            const hasProfile = await hasUserProfile(
+                state.connection.provider,
+                name,
             );
-            setEnsNameFromResolver(name);
+            hasProfile && setEnsNameFromResolver(name);
         }
     }
 };
