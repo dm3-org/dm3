@@ -1,6 +1,6 @@
 import './RightHeader.css';
 import { useContext, useEffect, useState } from 'react';
-import profPic from '../../assets/images/profile-pic.jpg';
+import humanIcon from '../../assets/images/human.svg';
 import { GlobalContext } from '../../utils/context-utils';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
 import {
@@ -70,7 +70,7 @@ export function RightHeader() {
                 {state.connection.account?.ensName}
             </span>
             <img
-                src={profilePic ? profilePic : profPic}
+                src={profilePic ? profilePic : humanIcon}
                 alt="menu"
                 className="pointer-cursor border-radius-3 default-profile-pic"
                 onClick={() => updateView()}

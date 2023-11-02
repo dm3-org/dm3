@@ -31,7 +31,7 @@ export function DM3(props: Partial<Config>) {
                         background: 'rgba(255,174,52,.1)',
                         color: 'rgba(255,174,52,.9)',
                         zIndex: '9999999',
-                        fontFamily: 'monospace'
+                        fontFamily: 'monospace',
                     }}
                     className="w-100 text-center"
                 >
