@@ -20,7 +20,8 @@
             "packages/messenger-widget",
             "packages/messenger-demo",
             "packages/messenger-web",
-            "packages/cli"
+            "packages/cli",
+            "packages/billboard-client"
         ],
         "nohoist": [
             "**/react",
