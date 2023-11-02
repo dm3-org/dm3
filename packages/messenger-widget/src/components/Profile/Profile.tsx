@@ -2,7 +2,7 @@ import '../../styles/profile-contact.css';
 import { Button } from '../Button/Button';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
-import profPic from '../../assets/images/profile-pic.jpg';
+import profPic from '../../assets/images/human.svg';
 import closeIcon from '../../assets/images/cross.svg';
 import { EnsProfileDetails } from '../../interfaces/utils';
 import {
