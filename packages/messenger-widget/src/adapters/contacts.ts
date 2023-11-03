@@ -5,7 +5,7 @@ import {
     getUserProfile,
     normalizeEnsName,
 } from 'dm3-lib-profile';
-import { log, stringify } from 'dm3-lib-shared';
+import { globalConfig, log, stringify } from 'dm3-lib-shared';
 import {
     getConversationId,
     UserDB,
@@ -94,7 +94,6 @@ export async function requestContacts(
 
     // filter out the duplicate contacts
     const result = filterOutDuplicateContacts(contacts);
-
     dispatch({ type: AccountsType.SetContacts, payload: result });
 }
 
@@ -163,6 +162,7 @@ export async function getContacts(
     return uncheckedProfiles.map((profileContainer) => ({
         ensName: profileContainer.ensName,
         profile: profileContainer.profile?.profile,
+        profileSignature: profileContainer.profile?.signature,
     }));
 }
 
@@ -229,29 +229,35 @@ const filterOutDuplicateContacts = (contactList: Contact[]) => {
         );
         if (records.length > 1) {
             // fetch profile with eth as ens name
-            const ensNames = records.filter(
-                (item) =>
-                    item.account.profileSignature &&
-                    item.account.profileSignature.split('.').includes('.eth'),
-            );
+            const ensNames = records.filter((item) => {
+                const ensName = item.account.ensName.split('.');
+                if (ensName.length === 2 && ensName[1] === 'eth') {
+                    return true;
+                }
+            });
             if (ensNames.length) {
                 result.push(ensNames[0]);
-                return;
             } else {
-                // fetch profile with dm3.eth as ens name
-                const dm3EnsNames = records.filter(
-                    (item) =>
-                        item.account.profileSignature &&
-                        item.account.profileSignature
-                            .split('.')
-                            .includes('.dm3.eth'),
+                // fetch profile with .user.dm3.eth as ens name
+                const userEnsDomains = records.filter((item) =>
+                    item.account.ensName.endsWith(
+                        globalConfig.USER_ENS_SUBDOMAIN(),
+                    ),
                 );
-                if (dm3EnsNames.length) {
-                    result.push(dm3EnsNames[0]);
-                    return;
+                if (userEnsDomains.length) {
+                    result.push(userEnsDomains[0]);
                 } else {
-                    result.push(records[0]);
-                    return;
+                    // fetch profile with .addr.dm3.eth as ens name
+                    const addrEnsDomains = records.filter((item) =>
+                        item.account.ensName.endsWith(
+                            globalConfig.ADDR_ENS_SUBDOMAIN(),
+                        ),
+                    );
+                    if (addrEnsDomains.length) {
+                        result.push(addrEnsDomains[0]);
+                    } else {
+                        result.push(records[0]);
+                    }
                 }
             }
         } else {
