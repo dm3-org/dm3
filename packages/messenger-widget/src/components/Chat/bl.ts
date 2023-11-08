@@ -133,13 +133,15 @@ const handleMessageContainer = (
                             container.envelop,
                         );
                     }
+                } else {
+                    reactionToIndex = -1;
                 }
             } else {
                 reactionToIndex = null;
             }
 
             // add message only if its not of REACTION type
-            if (!reactionToIndex) {
+            if (!reactionToIndex && reactionToIndex != -1) {
                 msg = {
                     message: container.envelop.message.message!,
                     time: container.envelop.message.metadata.timestamp.toString(),
