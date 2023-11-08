@@ -24,8 +24,6 @@ export function Message(props: MessageProps) {
     // state to show action items three dots
     const [isHovered, setIsHovered] = useState(false);
 
-    const [isDeletedMsg, setIsDeletedMsg] = useState<boolean>(false);
-
     // attachments
     const [attachments, setAttachments] = useState<Attachment[]>([]);
 
@@ -51,16 +49,6 @@ export function Message(props: MessageProps) {
         ) {
             setFilesData(props.envelop.message.attachments, setAttachmentsData);
         }
-        if (
-            !props.message &&
-            !(
-                props.envelop.message.attachments &&
-                props.envelop.message.attachments.length > 0 &&
-                props.envelop.message.metadata.type !== MessageActionType.DELETE
-            )
-        ) {
-            setIsDeletedMsg(true);
-        }
     }, [props]);
 
     return (
@@ -73,16 +61,15 @@ export function Message(props: MessageProps) {
                     : 'ms-2 justify-content-start',
             )}
         >
-            {/* delete message popup */}
-            {state.uiView.selectedMessageView.actionType ===
-                MessageActionType.DELETE && <DeleteMessage />}
-
             <div className="d-flex">
                 <div
                     className={'width-fill text-left font-size-14 border-radius-6 content-style'.concat(
                         ' ',
                         (props.ownMessage
-                            ? isDeletedMsg
+                            ? !props.message &&
+                              props.envelop.message.metadata.type ===
+                                  MessageActionType.DELETE &&
+                              (!attachments || !attachments.length)
                                 ? 'own-deleted-msg'
                                 : state.uiView.selectedMessageView
                                       .actionType === MessageActionType.EDIT &&
@@ -90,7 +77,10 @@ export function Message(props: MessageProps) {
                                       ?.envelop.id === props.envelop.id
                                 ? 'msg-editing-active'
                                 : 'ms-3 background-config-box'
-                            : isDeletedMsg
+                            : !props.message &&
+                              props.envelop.message.metadata.type ===
+                                  MessageActionType.DELETE &&
+                              (!attachments || !attachments.length)
                             ? 'contact-deleted-msg'
                             : 'normal-btn-hover'
                         ).concat(
@@ -156,7 +146,8 @@ export function Message(props: MessageProps) {
                         ' ',
                         (!props.message && attachments.length) === 0 ||
                             props.envelop.message.metadata.type ===
-                                MessageActionType.DELETE
+                                MessageActionType.DELETE ||
+                            !props.envelop.metadata?.encryptedMessageHash
                             ? 'hide-action'
                             : '',
                     )}

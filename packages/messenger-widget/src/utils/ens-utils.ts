@@ -9,7 +9,7 @@ import {
 } from './enum-type-utils';
 import humanIcon from '../assets/images/human.svg';
 import { EnsProfileDetails } from '../interfaces/utils';
-import { log } from 'dm3-lib-shared';
+import { globalConfig, log } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import { ENS_PROFILE_BASE_URL, ETHERSCAN_URL } from './common-utils';
 import { IContactInfo } from '../interfaces/utils';
@@ -35,6 +35,11 @@ export const getAvatarProfilePic = async (
                 const address = await provider.resolveName(ensName);
                 if (address) {
                     const pic = makeBlockie(address);
+                    return pic ? (pic as string) : (humanIcon as string);
+                } else if (
+                    ensName.endsWith(globalConfig.ADDR_ENS_SUBDOMAIN())
+                ) {
+                    const pic = makeBlockie(ensName.split('.')[0]);
                     return pic ? (pic as string) : (humanIcon as string);
                 } else {
                     return humanIcon;
