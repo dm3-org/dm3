@@ -20,6 +20,7 @@ export async function getDatabase(
             Profile.getProfileContainerForAlias(prismaClient),
         getProfileAliasByAddress:
             Profile.getProfileAliasByAddress(prismaClient),
+        removeAlias: Profile.removeAlias(prismaClient),
     };
 }
 

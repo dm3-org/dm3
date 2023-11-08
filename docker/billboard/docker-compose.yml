@@ -6,8 +6,9 @@ services:
     image: nginx:latest
     restart: always
     depends_on:
-      - offchain-resolver
       - billboard-client
+      - backend
+      - ccip-resolver
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
     ports:
@@ -25,6 +26,7 @@ services:
       SIGNING_PRIVATE_KEY: ${SIGNING_PRIVATE_KEY}
       ENCRYPTION_PUBLIC_KEY: ${ENCRYPTION_PUBLIC_KEY}
       ENCRYPTION_PRIVATE_KEY: ${ENCRYPTION_PRIVATE_KEY}
+      DISABLE_SESSION_CHECK: ${DISABLE_SESSION_CHECK}
       RPC: ${RPC}
       PORT: 8081
       LOG_LEVEL: 'debug'
@@ -33,13 +35,17 @@ services:
     image: dm3-backend
     command: yarn workspace dm3-billboard-client start
     depends_on:
-      - db
-      - ccip-resolver
+      db:
+        condition: service_started
+      ccip-resolver:
+        condition: service_started
+      offchain-resolver:
+        condition: service_healthy
     environment:
-      PORT: 8082
+      PORT: 8083
       time: 0
       privateKey: ${BILLBOARD_PRIVATE_KEY}
-      ensNames: '["billboard1.eth"]'
+      ensNames: '["billboard1.bb.dm3.eth"]'
       mediators: '[]'
       REDIS_URL: redis://db:6379
       RPC: ${RPC}
@@ -65,6 +71,11 @@ services:
       DATABASE_URL: postgresql://postgres:example@offchain-resolver-db:5432
       PORT: 8082
       LOG_LEVEL: 'debug'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/0x26139b2349282de5ee2bd9c7a53171a28d6a6c84/0xf8c30f63000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000001c0a62696c6c626f617264310762622d7573657203646d3303657468000000000000000000000000000000000000000000000000000000000000000000000000243b3b57de8d7fcfd6548aae2cdb5851741139459856caadb3b9ad3d27872ae921b2348a7d000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014bcd6de065fd7e889e3ec86aa2d2780d7553ab3cc000000000000000000000000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   # web:
   #   image: dm3-backend
@@ -85,13 +96,14 @@ services:
     image: dm3org/ccip-resolver:v0.2.7
     restart: always
     depends_on:
-      - offchain-resolver
+      offchain-resolver:
+        condition: service_healthy
     environment:
-      SIGNER_PRIVATE_KEY: ${SIGNER_PRIVATE_KEY}
+      SIGNER_PRIVATE_KEY: ${BILLBOARD_SIGNER_PRIVATE_KEY}
       LOG_LEVEL: debug
       CONFIG: |
         {
-          "0xae6646c22d8ee6479ee0a39bf63b9bd9e57bad9d": {
+          "0x26139b2349282de5ee2bd9c7a53171a28d6a6c84": {
             "type": "signing",
             "handlerUrl": "http://offchain-resolver:8082"
           }
