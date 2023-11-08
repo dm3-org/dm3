@@ -16,6 +16,7 @@ import Profile from './profile';
 import RpcProxy from './rpc/rpc-proxy';
 import Storage from './storage';
 import { logInfo } from 'dm3-lib-shared';
+import 'dotenv/config';
 
 import {
     errorHandler,

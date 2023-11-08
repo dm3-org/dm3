@@ -28,7 +28,7 @@ jobs:
               env:
                   TARGET_HOST: ${{ secrets.STAGING_HOST_BILLBOARD }}
               run: |
-                  echo "REACT_APP_ADDR_ENS_SUBDOMAIN=.beta-addr.dm3.eth" >> ./.env.react
+                  echo "REACT_APP_ADDR_ENS_SUBDOMAIN=.bb-addr.dm3.eth" >> ./.env.react
                   echo "REACT_APP_BACKEND=http://${{ secrets.STAGING_HOST_BILLBOARD }}/api" >> ./.env.react
                   echo "REACT_APP_DEFAULT_DELIVERY_SERVICE=beta-ds.dm3.eth" >> ./.env.react
                   echo "REACT_APP_DEFAULT_SERVICE=http://${{ secrets.STAGING_HOST_BILLBOARD }}/api" >> ./.env.react
@@ -52,6 +52,7 @@ jobs:
                   echo "RPC=${{ secrets.STAGING_RPC }}" >> ./.env
                   echo "BILLBOARD_PRIVATE_KEY=${{ secrets.BILLBOARD_PRIVATE_KEY}}" >> ./.env
                   echo "interceptor=${{ secrets.INTERCEPTOR}}" >> ./.env
+                  echo "DISABLE_SESSION_CHECK='true'" >> ./.env
                   envsubst '${SSL_CERTIFICATE_BASE_LOC} ${TLS_CERTIFICATE_LOCATION} ${TARGET_HOST}' < ./docker/nginx.conf > ./nginx.conf
                   cat ./.env
             - name: Build docker image
