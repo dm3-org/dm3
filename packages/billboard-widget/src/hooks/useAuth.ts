@@ -88,7 +88,7 @@ export const useAuth = (
             wallet.address,
         );
 
-        const ensName = `${clientProps.siweAddress}.user.ethprague.dm3.eth`;
+        const ensName = `${clientProps.siweAddress}.bb-user.dm3.eth`;
 
         //Finally we've to submmit the profile to the deliveryService
         const token = await DeliveryServiceClient(
