@@ -9,6 +9,8 @@ import {
     UiViewStateType,
 } from '../../utils/enum-type-utils';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { globalConfig } from 'dm3-lib-shared';
+import { hasUserProfile } from 'dm3-lib-profile';
 
 export function RightHeader() {
     // fetches context storage
@@ -16,6 +18,7 @@ export function RightHeader() {
 
     // state to store profile pic of signed in user
     const [profilePic, setProfilePic] = useState<string>('');
+    const [displayName, setDisplayName] = useState<string>('');
 
     // method to fetch profile pic
     const fetchAndSetProfilePic = async () => {
@@ -46,10 +49,56 @@ export function RightHeader() {
         });
     };
 
+    const fetchDisplayName = async () => {
+        try {
+            if (
+                state.connection.provider &&
+                state.connection.ethAddress &&
+                state.connection.account
+            ) {
+                const isAddrEnsName =
+                    state.connection.account?.ensName?.endsWith(
+                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    );
+                const name = await state.connection.provider.lookupAddress(
+                    state.connection.ethAddress,
+                );
+                if (name && !isAddrEnsName) {
+                    const hasProfile = await hasUserProfile(
+                        state.connection.provider,
+                        name,
+                    );
+                    setDisplayName(
+                        hasProfile ? name : state.connection.account?.ensName,
+                    );
+                } else {
+                    return setDisplayName(state.connection.account.ensName);
+                }
+            } else {
+                return setDisplayName(
+                    state.connection.account
+                        ? state.connection.account.ensName
+                        : '',
+                );
+            }
+        } catch (error) {
+            return setDisplayName(
+                state.connection.account
+                    ? state.connection.account.ensName
+                    : '',
+            );
+        }
+    };
+
     // loads the profile pic on page render
     useEffect(() => {
         fetchAndSetProfilePic();
+        fetchDisplayName();
     }, []);
+
+    useEffect(() => {
+        fetchDisplayName();
+    }, [state.connection.account?.ensName]);
 
     return (
         <div
@@ -67,7 +116,7 @@ export function RightHeader() {
                 onClick={() => updateView()}
                 className="profile-name font-weight-500 pointer-cursor text-secondary-color"
             >
-                {state.connection.account?.ensName}
+                {displayName}
             </span>
             <img
                 src={profilePic ? profilePic : humanIcon}

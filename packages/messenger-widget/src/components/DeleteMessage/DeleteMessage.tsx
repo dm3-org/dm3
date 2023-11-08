@@ -75,7 +75,7 @@ export default function DeleteMessage() {
 
         dispatch({
             type: ModalStateType.LastMessageAction,
-            payload: MessageActionType.EDIT,
+            payload: MessageActionType.NONE,
         });
     };
 

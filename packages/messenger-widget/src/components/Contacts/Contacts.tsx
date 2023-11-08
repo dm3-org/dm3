@@ -278,6 +278,7 @@ export function Contacts(props: DashboardProps) {
                                     </div>
 
                                     {state.cache.contacts &&
+                                        index !== contactSelected &&
                                         state.cache.contacts[index] &&
                                         state.cache.contacts[index]
                                             .unreadMsgCount > 0 && (
