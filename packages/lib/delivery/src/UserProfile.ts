@@ -38,11 +38,13 @@ export async function submitUserProfile(
     send: (socketId: string) => void,
 ): Promise<string> {
     const account = normalizeEnsName(ensName);
+    console.log('1', account, signedUserProfile);
 
     if (!(await checkUserProfile(provider, signedUserProfile, account))) {
         throw Error('Signature invalid.');
     }
-    //TODO: remvoe DISABLE_SESSION_CHECK
+    console.log('2', process.env.DISABLE_SESSION_CHECK);
+    //TODO:  remvoe DISABLE_SESSION_CHECK
     // DISABLE_SESSION_CHECK is a special solution for ETH Prague
     if (
         process.env.DISABLE_SESSION_CHECK !== 'true' &&
@@ -50,6 +52,7 @@ export async function submitUserProfile(
     ) {
         throw Error('Profile exists already');
     }
+    console.log('3');
     const session: Session = {
         account,
         signedUserProfile,
@@ -57,16 +60,17 @@ export async function submitUserProfile(
         createdAt: new Date().getTime(),
         profileExtension: getDefaultProfileExtension(),
     };
+    console.log('4', session);
 
     await setSession(account.toLocaleLowerCase(), session);
-
+    console.log('5');
     await handlePendingConversations(
         account,
         getSession,
         getPendingConversations,
         send,
     );
-
+    console.log('6');
     return session.token;
 }
 

@@ -35,26 +35,31 @@ export function setUserProfile(db: PrismaClient) {
         const nameHash = ethers.utils.namehash(name);
 
         try {
+            const id = uuidv4();
+            global.logger.debug({
+                message: 'pre setUserProfile',
+                id,
+                nameHash,
+                profile: JSON.stringify(profile),
+                address: formatAddress(address),
+                ensName: normalizeEnsName(name),
+            });
             await db.profileContainer.create({
                 data: {
-                    id: uuidv4(),
+                    id,
                     nameHash,
                     profile: JSON.stringify(profile),
                     address: formatAddress(address),
                     ensName: normalizeEnsName(name),
                 },
             });
-            global.logger.debug({
-                message: 'setUserProfile',
-                id: uuidv4(),
-                nameHash,
-                profile: JSON.stringify(profile),
-                address: formatAddress(address),
-                ensName: normalizeEnsName(name),
-            });
 
             return true;
         } catch (e) {
+            global.logger.warn({
+                message: `setUserProfile error`,
+                error: JSON.stringify(e),
+            });
             return false;
         }
     };
