@@ -11,6 +11,7 @@ import {
     Actions,
     CacheType,
     GlobalState,
+    MessageActionType,
     ModalStateType,
     RightViewSelected,
     UiViewStateType,
@@ -20,6 +21,7 @@ import { getAvatarProfilePic } from '../../utils/ens-utils';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { ethers } from 'ethers';
 import { getDeliveryServiceProperties } from 'dm3-lib-delivery-api';
+import { MessageState } from 'dm3-lib-messaging';
 
 export const onContactSelected = (
     state: GlobalState,
@@ -81,6 +83,10 @@ export const fetchAndSetContacts = async (
                     state,
                     contact.account.ensName,
                 ),
+                unreadMsgCount: fetchUnreadMessagesCount(
+                    state,
+                    contact.account.ensName,
+                ),
                 contactDetails: contact,
             });
         }
@@ -113,18 +119,26 @@ export const getMessagesFromUser = (
     userDB: UserDB,
     contacts: Contact[],
 ): string | null => {
-    const messages = getConversation(
-        ensName,
-        contacts.map((contact) => contact.account),
-        userDB,
-    );
+    try {
+        const messages = getConversation(
+            ensName,
+            contacts.map((contact) => contact.account),
+            userDB,
+        );
 
-    if (messages.length) {
-        const value = messages[messages.length - 1].envelop.message.message;
-        return value ? value : null;
+        if (messages.length) {
+            const value = messages[messages.length - 1].envelop.message.message;
+            return value &&
+                messages[messages.length - 1].envelop.message.metadata.type !==
+                    MessageActionType.DELETE
+                ? value
+                : null;
+        }
+
+        return null;
+    } catch (error) {
+        return null;
     }
-
-    return null;
 };
 
 export const setContactIndexSelectedFromCache = (
@@ -405,4 +419,67 @@ export const fetchMessageSizeLimit = async (
         type: CacheType.MessageSizeLimit,
         payload: details.sizeLimit,
     });
+};
+
+export const fetchUnreadMessagesCount = (
+    state: GlobalState,
+    ensName: string,
+) => {
+    try {
+        const messages = getConversation(
+            ensName,
+            state.accounts.contacts
+                ? state.accounts.contacts.map((contact) => contact.account)
+                : [],
+            state.userDb as UserDB,
+        );
+        return messages.filter(
+            (container) => container.messageState === MessageState.Send,
+        ).length;
+    } catch (error) {
+        return 0;
+    }
+};
+
+export const updateUnreadMsgCount = (
+    state: GlobalState,
+    dispatch: React.Dispatch<Actions>,
+    contactSelected: number | null,
+) => {
+    if (state.cache.contacts && contactSelected !== null) {
+        const items = [...state.cache.contacts];
+        const item = {
+            ...items[contactSelected],
+            unreadMsgCount: 0,
+        };
+        items[contactSelected] = item;
+        dispatch({
+            type: CacheType.Contacts,
+            payload: items,
+        });
+    }
+};
+
+export const fetchAndUpdateUnreadMsgCount = (
+    state: GlobalState,
+    dispatch: React.Dispatch<Actions>,
+) => {
+    if (state.cache.contacts && state.accounts.contacts) {
+        const items = [...state.cache.contacts];
+        items.forEach((data, index) => {
+            items[index].unreadMsgCount = fetchUnreadMessagesCount(
+                state,
+                data.contactDetails.account.ensName,
+            );
+            items[index].message = getMessagesFromUser(
+                data.contactDetails.account.ensName,
+                state.userDb as UserDB,
+                state.accounts.contacts as Contact[],
+            );
+        });
+        dispatch({
+            type: CacheType.Contacts,
+            payload: items,
+        });
+    }
 };

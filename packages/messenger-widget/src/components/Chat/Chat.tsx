@@ -46,11 +46,13 @@ export function Chat() {
 
     useEffect(() => {
         setIsMessageListInitialized(false);
+        setIsProfileConfigured(
+            state.accounts.selectedContact?.account.profile ? true : false,
+        );
     }, [state.accounts.selectedContact]);
 
     // handles messages list
     useEffect(() => {
-        setIsProfileConfigured(true);
         // fetch the messages from local storage is exists
         if (state.accounts.selectedContact) {
             const msgDetails = localStorage.getItem(
@@ -63,12 +65,6 @@ export function Chat() {
                 setShowShimEffect(true);
             }
         }
-
-        checkUserProfileConfigured(
-            state,
-            state.accounts.selectedContact?.account.ensName as string,
-            setProfileCheck,
-        );
         if (
             state.accounts.selectedContact &&
             state.userDb &&

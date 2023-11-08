@@ -3,9 +3,10 @@
     padding: 2rem;
     border: none;
     width: 80%;
-    top: 4%;
     position: relative;
     height: auto;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .configuration-items-align {

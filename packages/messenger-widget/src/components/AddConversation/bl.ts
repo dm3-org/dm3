@@ -160,6 +160,7 @@ const updateStates = (
         name: getAccountDisplayName(normalizedAccountName, 25),
         message: null,
         image: humanIcon,
+        unreadMsgCount: 0,
         contactDetails: {
             account: {
                 ensName: normalizedAccountName,

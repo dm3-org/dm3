@@ -94,10 +94,12 @@
     margin-right: -1px !important;
 }
 
-.content:hover .dropdown-content {
-    display: flex;
+.msg-count {
+    border-radius: 3px;
+    background: var(--normal-btn-hover);
+    padding: 1px 7px 1px 7px;
 }
 
-.content:hover .action-container {
-    background-color: var(--normal-btn-hover);
+.display-name {
+    font-weight: bolder;
 }
