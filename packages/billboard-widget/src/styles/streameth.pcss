@@ -1,19 +1,23 @@
 .common-styles {
     --mainBg: var(--bg-base);
     --messageBg: rgb(0 0 0 / 0.2);
-    --messageBgOwn: #dfdfdf;
-    --messageBg25: #fff;
+    --messageBgOwn: rgb(0 0 0 / 0.1);
+    --messageBg25: var(--bg-base);
     --borderInputColor: #e0e0e0;
     --inputBg: #fff;
-    --textColorPrimary: #ffffff;
+    --textColorPrimary: black;
     --textColorSecondary: #808080;
     --borderRadiusS: 0;
     --borderRadiusM: 0;
     --borderRadiusL: 0;
-    --scrollbar-background : var(--colors-accent);
+    --scrollbar-background: var(--colors-accent);
 }
 
 .styled-scrollbars {
     --scrollbar-foreground: var(--colors-accent);
     --scrollbar-background: #f8f8f8;
+}
+
+.message-create-area {
+    background-color: var(--messageBg25);
 }
