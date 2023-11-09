@@ -50,10 +50,11 @@ jobs:
                   echo "ENCRYPTION_PUBLIC_KEY=${{ secrets.ENCRYPTION_PUBLIC_KEY }}" >> ./.env
                   echo "ENCRYPTION_PRIVATE_KEY=${{ secrets.ENCRYPTION_PRIVATE_KEY }}" >> ./.env
                   echo "RPC=${{ secrets.STAGING_RPC }}" >> ./.env
-                  echo "BILLBOARD_PRIVATE_KEY=${{ secrets.BILLBOARD_PRIVATE_KEY}}" >> ./.env
-                  echo "interceptor=${{ secrets.INTERCEPTOR}}" >> ./.env
+                  echo "BILLBOARD_PRIVATE_KEY=${{ secrets.BILLBOARD_PRIVATE_KEY }}" >> ./.env
+                  echo "interceptor=${{ secrets.INTERCEPTOR }}" >> ./.env
                   echo "DISABLE_SESSION_CHECK='true'" >> ./.env
-                  envsubst '${SSL_CERTIFICATE_BASE_LOC} ${TLS_CERTIFICATE_LOCATION} ${TARGET_HOST}' < ./docker/nginx.conf > ./nginx.conf
+                  echo "BILLBOARD_NAMES=${{ secrets.BILLBOARD_NAMES }}" >> ./.env
+                  envsubst '${SSL_CERTIFICATE_BASE_LOC} ${TLS_CERTIFICATE_LOCATION} ${TARGET_HOST}' < ./docker/billboard/nginx.conf > ./nginx.conf
                   cat ./.env
             - name: Build docker image
               run: |
