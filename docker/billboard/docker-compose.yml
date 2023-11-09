@@ -45,7 +45,7 @@ services:
       PORT: 8083
       time: 0
       privateKey: ${BILLBOARD_PRIVATE_KEY}
-      ensNames: '["billboard1.bb.dm3.eth"]'
+      ensNames: ${BILLBOARD_NAMES}
       mediators: '[]'
       REDIS_URL: redis://db:6379
       RPC: ${RPC}
