@@ -58,7 +58,14 @@ const useBillboard = () => {
         if (socket || mockedApi) {
             return;
         }
-        setSocket(io(billboardClientUrl));
+        const hostname = new URL(billboardClientUrl).hostname;
+
+        const url = hostname;
+        setSocket(
+            io(url, {
+                path: '/bb-client/socket.io',
+            }),
+        );
     }, [billboardClientUrl, socket, mockedApi]);
 
     useEffect(() => {
@@ -66,17 +73,30 @@ const useBillboard = () => {
             return;
         }
 
+        socket.onAny((arg: any) => {
+            console.log('wildcard');
+            console.log(arg);
+        });
+
+        socket.on('connect_error', (err: any) => {
+            console.log(`connect_error due to ${err.message}`);
+        });
+
         socket.on('connect', function () {
+            console.log('socket connect');
             setOnline(true);
         });
 
         socket.on('disconnect', function () {
+            console.log('socket disconnect');
             setOnline(false);
         });
 
         socket.on(`message-${billboardId}`, function (data: Message) {
+            console.log('socket new msg');
             addMessage(data);
         });
+        socket.connect();
     }, [addMessage, socket, billboardId]);
 
     return {
