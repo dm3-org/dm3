@@ -36,6 +36,7 @@ export function getMessages(redis: Redis) {
                 },
             },
         );
+        console.log('sm', serializedMessages);
         return serializedMessages.map(mapToMessage).reverse();
     };
 }
