@@ -87,17 +87,17 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 }
                 global.logger.debug({
                     message: 'nameP setAlias',
-                    hotAddr: hotAddr + '.bb-addr.dm3.eth',
-                    alias: `${address}.bb-user.dm3.eth`,
+                    hotAddr: hotAddr + '.addr.devconnect.dm3.eth',
+                    alias: `${address}.user.devconnect.dm3.eth`,
                 });
 
                 await req.app.locals.db.removeAlias(
-                    `${address}.bb-user.dm3.eth`,
+                    `${address}.user.devconnect.dm3.eth`,
                 );
 
                 await req.app.locals.db.setAlias(
-                    hotAddr + '.bb-addr.dm3.eth',
-                    `${address}.bb-user.dm3.eth`,
+                    hotAddr + '.addr.devconnect.dm3.eth',
+                    `${address}.user.devconnect.dm3.eth`,
                 );
 
                 return res.sendStatus(200);

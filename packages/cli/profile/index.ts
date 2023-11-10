@@ -6,6 +6,7 @@ import {
     getProfileCreationMessage,
     SignedUserProfile,
     UserProfile,
+    DEFAULT_NONCE,
 } from 'dm3-lib-profile';
 import { ethers } from 'ethers';
 import { getSanitizedWallet } from '../sanitizer/getSanitizedWallet';
@@ -18,14 +19,15 @@ const newProfile = async (program: Command) => {
             'error: option --deliveryService <deliveryService> argument missing',
         );
     }
-    const storageKeyCreationMessage = getStorageKeyCreationMessage(
-        '0xca8f04fdc80d659997f69b02',
-    );
 
     const profileWallet = getSanitizedWallet(
         program,
         profilePk ?? ethers.Wallet.createRandom().privateKey,
         'profilePk',
+    );
+    const storageKeyCreationMessage = getStorageKeyCreationMessage(
+        DEFAULT_NONCE,
+        profileWallet.address,
     );
 
     const storageKeySig = await profileWallet.signMessage(
@@ -33,10 +35,7 @@ const newProfile = async (program: Command) => {
     );
 
     const storageKey = await createStorageKey(storageKeySig);
-    const profileKeys = await createProfileKeys(
-        storageKey,
-        '0xca8f04fdc80d659997f69b02',
-    );
+    const profileKeys = await createProfileKeys(storageKey, DEFAULT_NONCE);
 
     const profile: UserProfile = {
         publicSigningKey: profileKeys.signingKeyPair.publicKey,
@@ -55,6 +54,7 @@ const newProfile = async (program: Command) => {
 
     const profileCreationMessage = getProfileCreationMessage(
         stringify(profile),
+        profileWallet.address,
     );
 
     const profileSig = await profileWallet.signMessage(profileCreationMessage);
