@@ -138,12 +138,18 @@ export async function incomingMessage(
 
     if (!tokenIsValid) {
         //Token is invalid
+        logDebug({
+            text: 'incomingMessage token invalid',
+        });
         throw Error('Token check failed');
     }
 
     //Retrives the session of the receiver
     const receiverSession = await getSession(deliveryInformation.to);
     if (!receiverSession) {
+        logDebug({
+            text: 'incomingMessage unknown session',
+        });
         throw Error('unknown session');
     }
     logDebug({
@@ -155,6 +161,9 @@ export async function incomingMessage(
 
     //Checkes if the message is spam
     if (await isSpam(provider, receiverSession, deliveryInformation)) {
+        logDebug({
+            text: 'incomingMessage is spam',
+        });
         throw Error('Message does not match spam criteria');
     }
 

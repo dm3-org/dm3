@@ -62,7 +62,7 @@ export async function handleSubmitMessage(
     } catch (error) {
         global.logger.warn({
             method: 'RPC SUBMIT MESSAGE',
-            error,
+            error: JSON.stringify(error),
         });
         logError({
             text: '[handleSubmitMessage]',
