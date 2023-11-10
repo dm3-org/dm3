@@ -4,6 +4,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import Background from './Background';
 import Dm3Widget from './Dm3Widget';
 import Footer from './Footer';
+import Header from './Header';
 
 
 
@@ -14,6 +15,7 @@ function App() {
         <div className="App">
             <Background />
             <Dm3Widget />
+            <Header />
             <Footer />
         </div>
     );

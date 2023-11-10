@@ -6,8 +6,9 @@ const Footer: React.FC = () => {
             className="navbar fixed-bottom navbar-light "
             style={{ backgroundColor: '#000000ff !important' }}
         >
-            <div className="container-fluid text-center ">
-                <div className="w-100">
+            <div className="container-fluid text-center" style={{ justifyContent: 'flex-end', display: 'flex' }}>
+
+                <div style={{ marginRight: '10px' }}>
                     <a
                         className="text-muted legal"
                         href="https://dm3.network/privacy-policy/"

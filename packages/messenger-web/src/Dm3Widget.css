@@ -1,6 +1,6 @@
 .dm3widget {
     width: 96%;
-    height: 90%;
+    height: 80%;
     background-color: #000000;
     border: 1px solid #ff0000;
     /* Weiße Umrandung hinzugefügt */
@@ -12,4 +12,10 @@
     z-index: 10;
     box-shadow: 5px 5px 20px 0 rgba(05, 010, 020, 1);
     /* Stellen Sie sicher, dass z-index höher ist als der des Backgrounds */
+    margin-top: 30px; /* Adjust this value as needed */
+}
+
+.dm3component{
+    width: 10%;
+    height: 100%; 
 }
