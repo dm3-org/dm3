@@ -1,6 +1,7 @@
 import { createStorageKey, getStorageKeyCreationMessage } from 'dm3-lib-crypto';
 import {
     Account,
+    DEFAULT_NONCE,
     ProfileKeys,
     SignedUserProfile,
     UserProfile,
@@ -24,17 +25,14 @@ export const mockUserProfile = async (
     stringified: string;
 }> => {
     const storageKeyCreationMessage = getStorageKeyCreationMessage(
-        '0xca8f04fdc80d659997f69b02',
+        DEFAULT_NONCE,
         wallet.address,
     );
 
     const storageKeySig = await wallet.signMessage(storageKeyCreationMessage);
 
     const storageKey = await createStorageKey(storageKeySig);
-    const profileKeys = await createProfileKeys(
-        storageKey,
-        '0xca8f04fdc80d659997f69b02',
-    );
+    const profileKeys = await createProfileKeys(storageKey, DEFAULT_NONCE);
 
     const profile: UserProfile = {
         publicSigningKey: profileKeys.signingKeyPair.publicKey,
@@ -43,6 +41,7 @@ export const mockUserProfile = async (
     };
     const createUserProfileMessage = getProfileCreationMessage(
         stringify(profile),
+        wallet.address,
     );
     const userProfileSig = await wallet.signMessage(createUserProfileMessage);
 
