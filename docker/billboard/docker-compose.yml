@@ -11,6 +11,9 @@ services:
       - ccip-resolver
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
+      - web-root:/var/www/html
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
     ports:
       - "80:80"
       - "443:443"
@@ -92,6 +95,17 @@ services:
   #     REACT_APP_WALLET_CONNECT_PROJECT_ID: ${REACT_APP_WALLET_CONNECT_PROJECT_ID}
   #     RESOLVER_ADDR: ${RESOLVER_ADDR}
 
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - web-root:/var/www/html
+    depends_on:
+      - nginx
+    command: certonly --webroot --webroot-path=/var/www/html --email ${CERT_MAIL} --agree-tos --no-eff-email -d ${URL}
+
   ccip-resolver:
     image: dm3org/ccip-resolver:v0.2.7
     restart: always
@@ -103,10 +117,18 @@ services:
       LOG_LEVEL: debug
       CONFIG: |
         {
-          "0x26139b2349282de5ee2bd9c7a53171a28d6a6c84": {
+          "0xc9bf092673b3a066df088a2a911e23e9b69b82f2": {
             "type": "signing",
             "handlerUrl": "http://offchain-resolver:8082"
           }
         }
       PORT: 8181
-      
+volumes:
+  certbot-etc:
+  certbot-var:
+  web-root:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/app/dm3/webroot/
+      o: bind
