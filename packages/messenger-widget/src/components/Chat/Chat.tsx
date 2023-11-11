@@ -55,15 +55,7 @@ export function Chat(props: HideFunctionProps) {
     useEffect(() => {
         // fetch the messages from local storage is exists
         if (state.accounts.selectedContact) {
-            const msgDetails = localStorage.getItem(
-                state.accounts.selectedContact?.account.ensName,
-            );
-            if (msgDetails) {
-                setShowShimEffect(false);
-                setListOfMessages(JSON.parse(msgDetails));
-            } else {
-                setShowShimEffect(true);
-            }
+            setShowShimEffect(true);
         }
         if (
             state.accounts.selectedContact &&
@@ -86,7 +78,7 @@ export function Chat(props: HideFunctionProps) {
                     isMessageListInitialized,
                     updateIsMessageListInitialized,
                     updateShowShimEffect,
-                    props.hideFunction
+                    props.hideFunction,
                 );
             } catch (error) {
                 setShowShimEffect(false);
