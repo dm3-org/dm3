@@ -2,7 +2,7 @@ import './Chat.css';
 import { Message } from '../Message/Message';
 import { getConversation } from 'dm3-lib-storage';
 import { globalConfig, log } from 'dm3-lib-shared';
-import { MessageProps } from '../../interfaces/props';
+import { HideFunctionProps, MessageProps } from '../../interfaces/props';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import { MessageInputBox } from '../MessageInputBox/MessageInputBox';
@@ -14,7 +14,7 @@ import {
 } from './bl';
 import { MessageActionType } from '../../utils/enum-type-utils';
 
-export function Chat() {
+export function Chat(props: HideFunctionProps) {
     const { state, dispatch } = useContext(GlobalContext);
 
     const [messageList, setMessageList] = useState<MessageProps[]>([]);
@@ -86,6 +86,7 @@ export function Chat() {
                     isMessageListInitialized,
                     updateIsMessageListInitialized,
                     updateShowShimEffect,
+                    props.hideFunction
                 );
             } catch (error) {
                 setShowShimEffect(false);
@@ -182,7 +183,7 @@ export function Chat() {
                     </div>
 
                     {/* Message, emoji and file attachments */}
-                    <MessageInputBox />
+                    <MessageInputBox hideFunction={props.hideFunction} />
                 </div>
             )}
         </div>

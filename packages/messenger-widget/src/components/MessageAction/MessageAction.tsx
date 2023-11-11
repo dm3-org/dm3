@@ -136,7 +136,8 @@ export function MessageAction(props: MessageProps) {
         >
             {props.ownMessage &&
                 props.message &&
-                props.envelop.metadata?.encryptedMessageHash && (
+                props.envelop.metadata?.encryptedMessageHash &&
+                (!props.hideFunction || !props.hideFunction.split(",").includes("edit")) && (
                     <div
                         data-testid="edit-msg"
                         className="d-flex align-items-center justify-content-start"
@@ -148,7 +149,8 @@ export function MessageAction(props: MessageProps) {
                 )}
 
             {props.ownMessage &&
-                props.envelop.metadata?.encryptedMessageHash && (
+                props.envelop.metadata?.encryptedMessageHash &&
+                (!props.hideFunction || !props.hideFunction.split(",").includes("delete")) && (
                     <div
                         data-testid="delete-msg"
                         className="d-flex align-items-center justify-content-start"
