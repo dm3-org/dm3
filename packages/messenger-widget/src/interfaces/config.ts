@@ -17,6 +17,7 @@ export interface Config {
     theme: string | undefined | null;
     ethereumProvider: string;
     walletConnectProjectId: string;
+    hideFunction?: string;
 }
 
 export interface Dm3Props {

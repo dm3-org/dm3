@@ -85,6 +85,7 @@ const handleMessageContainer = (
     alias: string | undefined,
     setListOfMessages: Function,
     dispatch: React.Dispatch<Actions>,
+    hideFunction?: string,
 ) => {
     try {
         const msgList: MessageProps[] = [];
@@ -154,6 +155,7 @@ const handleMessageContainer = (
                     replyToMsgId:
                         replyToEnvelop?.envelop.metadata?.encryptedMessageHash,
                     reactions: [],
+                    hideFunction: hideFunction,
                 };
                 if (
                     isSameEnsName(
@@ -212,6 +214,7 @@ export const handleMessages = async (
     isMessageListInitialized: boolean,
     updateIsMessageListInitialized: Function,
     updateShowShimEffect: Function,
+    hideFunction?: string,
 ) => {
     if (!isMessageListInitialized && state.accounts.selectedContact) {
         const items = await fetchAndStoreMessages(
@@ -277,6 +280,7 @@ export const handleMessages = async (
             alias,
             setListOfMessages,
             dispatch,
+            hideFunction,
         );
 
         if (!state.userDb) {
@@ -346,6 +350,7 @@ export const handleMessages = async (
             alias,
             setListOfMessages,
             dispatch,
+            hideFunction,
         );
 
         if (!state.userDb) {
