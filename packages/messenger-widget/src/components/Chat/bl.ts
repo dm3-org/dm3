@@ -181,13 +181,6 @@ const handleMessageContainer = (
         msgList.length && (msgList[msgList.length - 1].isLastMessage = true);
         setListOfMessages(msgList);
 
-        if (state.accounts.selectedContact) {
-            localStorage.setItem(
-                state.accounts.selectedContact?.account.ensName,
-                JSON.stringify(msgList),
-            );
-        }
-
         if (msgList.length) {
             dispatch({
                 type: CacheType.LastConversation,
