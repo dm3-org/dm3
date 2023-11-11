@@ -13,7 +13,6 @@ import ErrorModal from './components/ErrorModal/ErrorModal';
 export function DM3(props: Partial<Config>) {
     const propsData: Config = getConfig(props);
     setTheme(propsData.theme);
-
     return (
         <>
             <div className="container-fluid">

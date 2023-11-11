@@ -33,12 +33,12 @@ export default function Dashboard(props: DashboardProps) {
                     className={
                         'col-lg-9 col-md-9 col-sm-12 p-0 h-auto' +
                         (state.uiView.selectedRightView ===
-                        RightViewSelected.Profile
+                            RightViewSelected.Profile
                             ? ' dashboard-right-view-highlight'
                             : '')
                     }
                 >
-                    <RightView />
+                    <RightView hideFunction={props.dm3Props.config.hideFunction} />
                 </div>
             </div>
         </div>

@@ -39,6 +39,7 @@ export interface MessageProps {
     replyToMsgId: string | undefined;
     reactions: Envelop[];
     isLastMessage?: boolean;
+    hideFunction?: string;
 }
 
 export interface MessageAction {
@@ -80,4 +81,8 @@ export interface ImageModal {
 export interface DeleteDM3NameProps {
     setDeleteDM3NameConfirmation: Function;
     removeDm3Name: Function;
+}
+
+export interface HideFunctionProps {
+    hideFunction?: string;
 }
