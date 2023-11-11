@@ -60,6 +60,7 @@ export interface BillboardWidgetProps {
 export type ClientProps = {
     mockedApi: boolean;
     billboardId: string;
+    userCCIPDomain: string;
     billboardClientUrl: string;
     deliveryServiceEnsName: string;
     offchainResolverUrl: string;
