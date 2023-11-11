@@ -206,7 +206,7 @@ export function ConfigureProfile() {
                                     <p className="m-0 font-size-14 font-weight-500 line-height-24 grey-text">
                                         {state.connection.ethAddress &&
                                             state.connection.ethAddress +
-                                                globalConfig.ADDR_ENS_SUBDOMAIN()}
+                                            globalConfig.ADDR_ENS_SUBDOMAIN()}
                                     </p>
                                 </div>
                                 <div className="address-details">
@@ -302,7 +302,8 @@ export function ConfigureProfile() {
                                             grey-text d-flex align-items-center"
                                             >
                                                 {existingDm3Name}
-                                                <img
+                                                {/* COMMENTED AS IT DOESN'T WORK NOW, BUT NEEDED LATER */}
+                                                {/* <img
                                                     className="ms-4 pointer-cursor"
                                                     src={deleteIcon}
                                                     alt="remove"
@@ -311,7 +312,7 @@ export function ConfigureProfile() {
                                                             true,
                                                         )
                                                     }
-                                                />
+                                                /> */}
                                             </p>
                                         </>
                                     )}
@@ -442,7 +443,7 @@ export function ConfigureProfile() {
                                 </div>
                             </div>
                             <div>
-                                <button
+                                {!existingEnsName && <button
                                     data-testid="publish-profile"
                                     disabled={
                                         !existingEnsName &&
@@ -466,7 +467,7 @@ export function ConfigureProfile() {
                                     {!existingEnsName
                                         ? ' Publish Profile'
                                         : 'Rename Profile'}
-                                </button>
+                                </button>}
                             </div>
                         </div>
                     </div>
