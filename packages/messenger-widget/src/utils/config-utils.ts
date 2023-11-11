@@ -18,6 +18,7 @@ const DefaultConfig: Config = {
     theme: 'default',
     ethereumProvider: '' as string,
     walletConnectProjectId: '' as string,
+    hideFunction: '',
 };
 
 export function getConfig(overwrite: Partial<Config>): Config {

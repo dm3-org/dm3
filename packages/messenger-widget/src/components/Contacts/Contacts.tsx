@@ -242,6 +242,7 @@ export function Contacts(props: DashboardProps) {
             {contacts.length > 0 &&
                 contacts.map((data, index) => (
                     <div
+                        title={data.contactDetails.account.ensName}
                         id={`chat-item-id-${index}`}
                         key={index}
                         className={'pointer-cursor width-fill contact-details-container'.concat(
@@ -310,10 +311,10 @@ export function Contacts(props: DashboardProps) {
                                                             index={index}
                                                             isMenuAlignedAtBottom={
                                                                 isMenuAlignedAtBottom ===
-                                                                null
+                                                                    null
                                                                     ? showMenuInBottom(
-                                                                          contactSelected,
-                                                                      )
+                                                                        contactSelected,
+                                                                    )
                                                                     : isMenuAlignedAtBottom
                                                             }
                                                         />
