@@ -61,21 +61,27 @@ export function Message(props: MessageProps) {
                     : 'ms-2 justify-content-start',
             )}
         >
-            {/* delete message popup */}
-            {state.uiView.selectedMessageView.actionType ===
-                MessageActionType.DELETE && <DeleteMessage />}
-
             <div className="d-flex">
                 <div
                     className={'width-fill text-left font-size-14 border-radius-6 content-style'.concat(
                         ' ',
                         (props.ownMessage
-                            ? state.uiView.selectedMessageView.actionType ===
-                                  MessageActionType.EDIT &&
-                              state.uiView.selectedMessageView.messageData
-                                  ?.envelop.id === props.envelop.id
+                            ? !props.message &&
+                              props.envelop.message.metadata.type ===
+                                  MessageActionType.DELETE &&
+                              (!attachments || !attachments.length)
+                                ? 'own-deleted-msg'
+                                : state.uiView.selectedMessageView
+                                      .actionType === MessageActionType.EDIT &&
+                                  state.uiView.selectedMessageView.messageData
+                                      ?.envelop.id === props.envelop.id
                                 ? 'msg-editing-active'
                                 : 'ms-3 background-config-box'
+                            : !props.message &&
+                              props.envelop.message.metadata.type ===
+                                  MessageActionType.DELETE &&
+                              (!attachments || !attachments.length)
+                            ? 'contact-deleted-msg'
                             : 'normal-btn-hover'
                         ).concat(
                             ' ',
@@ -130,7 +136,9 @@ export function Message(props: MessageProps) {
                           props.envelop.message.metadata.type !==
                               MessageActionType.DELETE
                         ? ''
-                        : 'This message was deleted'}
+                        : props.ownMessage
+                        ? 'You deleted this message.'
+                        : 'This message was deleted.'}
                 </div>
                 {/* action item */}
                 <div
@@ -138,7 +146,8 @@ export function Message(props: MessageProps) {
                         ' ',
                         (!props.message && attachments.length) === 0 ||
                             props.envelop.message.metadata.type ===
-                                MessageActionType.DELETE
+                                MessageActionType.DELETE ||
+                            !props.envelop.metadata?.encryptedMessageHash
                             ? 'hide-action'
                             : '',
                     )}

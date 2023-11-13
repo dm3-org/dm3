@@ -24,6 +24,7 @@ export const initialState: GlobalState = {
             account: null,
             message: null,
         },
+        messageSizeLimit: 0,
     },
     userDb: undefined,
     uiState: {
@@ -54,5 +55,6 @@ export const initialState: GlobalState = {
         },
         openEmojiPopup: { action: false, data: undefined },
         lastMessageAction: MessageActionType.NONE,
+        isProfileConfigurationPopupActive: false,
     },
 };

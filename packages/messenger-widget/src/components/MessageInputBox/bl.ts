@@ -21,9 +21,7 @@ import {
     getFileTypeFromBase64,
 } from '../../utils/common-utils';
 import { Attachment } from '../../interfaces/utils';
-import { getDeliveryServiceProperties } from 'dm3-lib-delivery-api';
-import { ethers } from 'ethers';
-import { Account } from 'dm3-lib-profile';
+import { scrollToBottomOfChat } from '../Chat/bl';
 
 export const hideMsgActionDropdown = () => {
     const element = document.getElementById('msg-dropdown') as HTMLElement;
@@ -234,16 +232,8 @@ export const handleSubmit = async (
         return;
     }
 
-    const deliveryServiceProperties = await getDeliveryServiceProperties(
-        state.connection.provider as ethers.providers.JsonRpcProvider,
-        state.connection.account as Account,
-    );
-
-    const sizeCheck = isMessageWithinSizeLimit(
-        message,
-        attachments,
-        deliveryServiceProperties.sizeLimit,
-    );
+    const sizeLimit = state.cache.messageSizeLimit;
+    const sizeCheck = isMessageWithinSizeLimit(message, attachments, sizeLimit);
 
     if (!sizeCheck) {
         dispatch({
@@ -256,10 +246,7 @@ export const handleSubmit = async (
 
         openErrorModal(
             'The size of the message is larger than limit '
-                .concat(
-                    deliveryServiceProperties.sizeLimit.toString(),
-                    ' bytes. ',
-                )
+                .concat(sizeLimit.toString(), ' bytes. ')
                 .concat('Please reduce the message size.'),
             false,
             closeErrorModal,
@@ -271,6 +258,8 @@ export const handleSubmit = async (
     // clear the message text & files selected from input field
     setMessageText('');
     setFiles([]);
+
+    scrollToBottomOfChat();
 
     if (
         state.uiView.selectedMessageView.actionType === MessageActionType.EDIT
@@ -284,12 +273,14 @@ export const handleSubmit = async (
         state.uiView.selectedMessageView.actionType === MessageActionType.REPLY
     ) {
         await replyMessage(state, dispatch, message, attachments);
+        scrollToBottomOfChat();
         dispatch({
             type: ModalStateType.LastMessageAction,
             payload: MessageActionType.REPLY,
         });
     } else {
         await handleNewUserMessage(message, state, dispatch, attachments);
+        scrollToBottomOfChat();
         dispatch({
             type: ModalStateType.LastMessageAction,
             payload: MessageActionType.NEW,

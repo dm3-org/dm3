@@ -1,4 +1,4 @@
-import { formatAddress, SignedUserProfile } from 'dm3-lib-profile';
+import { hasUserProfile, SignedUserProfile } from 'dm3-lib-profile';
 import {
     Actions,
     ConnectionType,
@@ -30,11 +30,11 @@ export enum ACTION_TYPE {
 }
 
 // method to open the profile configuration modal
-export const openConfigurationModal = () => {
-    const modal: HTMLElement = document.getElementById(
-        'configuration-modal',
-    ) as HTMLElement;
-    modal.style.display = 'block';
+export const openConfigurationModal = (dispatch: React.Dispatch<Actions>) => {
+    dispatch({
+        type: ModalStateType.IsProfileConfigurationPopupActive,
+        payload: true,
+    });
 };
 
 // method to close the profile configuration modal
@@ -43,15 +43,16 @@ export const closeConfigurationModal = (
     setEnsName: Function,
     setErrorMsg: Function,
     setShowError: Function,
+    dispatch: React.Dispatch<Actions>,
 ) => {
-    const modal: HTMLElement = document.getElementById(
-        'configuration-modal',
-    ) as HTMLElement;
-    modal.style.display = 'none';
     setDm3Name('');
     setEnsName('');
     setErrorMsg('');
     setShowError(undefined);
+    dispatch({
+        type: ModalStateType.IsProfileConfigurationPopupActive,
+        payload: false,
+    });
 };
 
 // method to fetch ENS name
@@ -59,11 +60,20 @@ export const getEnsName = async (
     state: GlobalState,
     setEnsNameFromResolver: Function,
 ) => {
-    if (state.connection.ethAddress && state.connection.provider) {
+    if (state.connection.provider && state.connection.ethAddress) {
+        const isAddrEnsName = state.connection.account?.ensName?.endsWith(
+            globalConfig.ADDR_ENS_SUBDOMAIN(),
+        );
         const name = await state.connection.provider.lookupAddress(
             state.connection.ethAddress,
         );
-        setEnsNameFromResolver(name);
+        if (name && !isAddrEnsName) {
+            const hasProfile = await hasUserProfile(
+                state.connection.provider,
+                name,
+            );
+            hasProfile && setEnsNameFromResolver(name);
+        }
     }
 };
 
@@ -132,28 +142,35 @@ export const removeAliasFromDm3Name = async (
 
         startLoader();
 
-        const ensName = dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN();
-
-        await removeAlias(
-            dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN(),
+        const result = await removeAlias(
+            dm3UserEnsName,
             process.env.REACT_APP_RESOLVER_BACKEND as string,
             state.userDb!.keys.signingKeyPair.privateKey,
         );
 
-        dispatch({
-            type: ConnectionType.ChangeAccount,
-            payload: {
-                ...state.connection.account!,
-                ensName: ensName,
-            },
-        });
+        if (result) {
+            dispatch({
+                type: ConnectionType.ChangeAccount,
+                payload: {
+                    ...state.connection.account!,
+                    ensName:
+                        state.connection.ethAddress +
+                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                },
+            });
 
-        setContactHeightToMaximum(true);
+            setContactHeightToMaximum(true);
+            closeLoader();
+            return true;
+        } else {
+            closeLoader();
+            return false;
+        }
     } catch (e) {
         setError('Failed to remove alias', e);
+        closeLoader();
+        return false;
     }
-
-    closeLoader();
 };
 
 // method to create transaction to add new ENS name
@@ -229,9 +246,15 @@ const isEnsNameValid = async (
         return false;
     }
 
+    const owner = await ethersHelper.resolveName(
+        state.connection.provider!,
+        ensName,
+    );
+
     if (
-        ethersHelper.formatAddress(address) !==
-        ethersHelper.formatAddress(state.connection.ethAddress!)
+        owner &&
+        ethersHelper.formatAddress(owner) !==
+            ethersHelper.formatAddress(state.connection.ethAddress!)
     ) {
         setError(
             'You are not the owner/manager of this name',
@@ -286,9 +309,12 @@ export const submitEnsNameTransaction = async (
         } else {
             throw Error('Error creating publish transaction');
         }
-    } catch (e) {
+    } catch (e: any) {
+        const check = e.toString().includes('user rejected transaction');
         setError(
-            'You are not the owner/manager of this name',
+            check
+                ? 'User rejected transaction'
+                : 'You are not the owner/manager of this name',
             NAME_TYPE.ENS_NAME,
         );
     }
@@ -303,4 +329,8 @@ export const validateName = (username: string): boolean => {
         !username.includes('.') &&
         ethers.utils.isValidName(username)
     );
+};
+
+export const validateEnsName = (username: string): boolean => {
+    return ethers.utils.isValidName(username);
 };

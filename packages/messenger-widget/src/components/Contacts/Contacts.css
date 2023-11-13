@@ -1,5 +1,5 @@
 .contacts-scroller {
-    height: 88vh;
+    height: 88.5vh;
     padding-left: 1rem;
     margin-top: 2px;
 }
@@ -92,4 +92,14 @@
     padding-left: 0.5rem !important;
     margin-left: 0.5rem !important;
     margin-right: -1px !important;
+}
+
+.msg-count {
+    border-radius: 3px;
+    background: var(--normal-btn-hover);
+    padding: 1px 7px 1px 7px;
+}
+
+.display-name {
+    font-weight: bolder;
 }

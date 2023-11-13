@@ -127,6 +127,7 @@ export default function AddConversation() {
                                     Name
                                 </label>
                                 <input
+                                    id="add-conv-input"
                                     className={inputClass.concat(
                                         ' ',
                                         showError ? 'err-background' : '',

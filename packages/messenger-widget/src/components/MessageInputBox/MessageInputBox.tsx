@@ -29,6 +29,39 @@ export function MessageInputBox() {
         setMessage(msg);
     }
 
+    const setChatContainerHeight = () => {
+        const element = document.getElementById('chat-box');
+        const bigScreen = window.matchMedia('(min-height: 950px)');
+        const smallScreen = window.matchMedia('(min-height: 820px)');
+        if (element) {
+            if (filesSelected.length > 0) {
+                if (state.accounts.selectedContact?.account.profile) {
+                    element.style.height = bigScreen.matches ? '89%' : '85%';
+                } else {
+                    element.style.height = bigScreen.matches
+                        ? '82%'
+                        : smallScreen.matches
+                        ? '71%'
+                        : '70%';
+                }
+            } else {
+                if (state.accounts.selectedContact?.account.profile) {
+                    element.style.height = bigScreen.matches ? '94%' : '91%';
+                } else {
+                    element.style.height = bigScreen.matches
+                        ? '86%'
+                        : smallScreen.matches
+                        ? '83%'
+                        : '76%';
+                }
+            }
+        }
+    };
+
+    useEffect(() => {
+        setChatContainerHeight();
+    }, [filesSelected]);
+
     useEffect(() => {
         if (
             state.uiView.selectedMessageView.actionType ===
@@ -52,8 +85,13 @@ export function MessageInputBox() {
         setMessage('');
     }, [state.accounts.selectedContact]);
 
+    useEffect(() => {
+        setFilesSelected([]);
+        setChatContainerHeight();
+    }, [state.accounts.selectedContact]);
+
     return (
-        <div className="mt-3">
+        <div className="mt-3 msg-input-box-container">
             {/* Reply message preview */}
             {state.uiView.selectedMessageView.actionType ===
                 MessageActionType.REPLY && (

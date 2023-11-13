@@ -8,6 +8,7 @@
 
 .chat-container {
     min-height: 86vh;
+    height: 86vh;
 }
 
 .chat-items {
@@ -16,11 +17,11 @@
 }
 
 .chat-height-small {
-    height: 68vh;
+    height: 80%;
 }
 
 .chat-height-high {
-    height: 79vh;
+    height: 91%;
 }
 
 .skeletion-chat-height {

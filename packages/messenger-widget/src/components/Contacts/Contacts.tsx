@@ -10,6 +10,9 @@ import {
     updateSelectedContact,
     resetContactListOnHide,
     showMenuInBottom,
+    fetchMessageSizeLimit,
+    updateUnreadMsgCount,
+    fetchAndUpdateUnreadMsgCount,
 } from './bl';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
@@ -76,6 +79,7 @@ export function Contacts(props: DashboardProps) {
 
     // handles changes in conversation
     useEffect(() => {
+        fetchAndUpdateUnreadMsgCount(state, dispatch);
         if (state.userDb?.conversations && state.userDb?.conversationsCount) {
             props.getContacts(state, dispatch, props.dm3Props.config);
         }
@@ -108,7 +112,6 @@ export function Contacts(props: DashboardProps) {
     // handles contact selected
     useEffect(() => {
         const cacheContacts = state.cache.contacts;
-
         if (cacheContacts) {
             setContacts(cacheContacts);
             if (
@@ -207,8 +210,13 @@ export function Contacts(props: DashboardProps) {
                 contacts[contactSelected].contactDetails,
             );
             setIsMenuAlignedAtBottom(showMenuInBottom(contactSelected));
+            updateUnreadMsgCount(state, dispatch, contactSelected);
         }
     }, [contactSelected]);
+
+    useEffect(() => {
+        fetchMessageSizeLimit(state, dispatch);
+    }, []);
 
     /* Hidden content for highlighting css */
     const hiddenData: number[] = Array.from({ length: 22 }, (_, i) => i + 1);
@@ -264,8 +272,26 @@ export function Contacts(props: DashboardProps) {
                                     text-primary-color"
                                 >
                                     <div>
-                                        <p>{data.name}</p>
+                                        <p className="display-name">
+                                            {data.name}
+                                        </p>
                                     </div>
+
+                                    {state.cache.contacts &&
+                                        index !== contactSelected &&
+                                        state.cache.contacts[index] &&
+                                        state.cache.contacts[index]
+                                            .unreadMsgCount > 0 && (
+                                            <div>
+                                                <div className="msg-count">
+                                                    {
+                                                        state.cache.contacts[
+                                                            index
+                                                        ].unreadMsgCount
+                                                    }
+                                                </div>
+                                            </div>
+                                        )}
 
                                     {contactSelected === index ? (
                                         !state.modal.addConversation.active ? (

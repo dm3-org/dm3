@@ -60,6 +60,7 @@ export const checkUserProfileConfigured = async (
     } catch (error) {
         setProfileCheck(false);
     }
+    scrollToBottomOfChat();
 };
 
 // method to scroll down to latest message automatically
@@ -67,7 +68,14 @@ export const scrollToBottomOfChat = () => {
     const element: HTMLElement = document.getElementById(
         'chat-box',
     ) as HTMLElement;
-    if (element) element.scrollTop = element.scrollHeight;
+    setTimeout(() => {
+        if (element) {
+            element.scroll({
+                top: element.scrollHeight,
+                behavior: 'smooth',
+            });
+        }
+    }, 100);
 };
 
 // method to set message format
@@ -125,13 +133,15 @@ const handleMessageContainer = (
                             container.envelop,
                         );
                     }
+                } else {
+                    reactionToIndex = -1;
                 }
             } else {
                 reactionToIndex = null;
             }
 
             // add message only if its not of REACTION type
-            if (!reactionToIndex) {
+            if (!reactionToIndex && reactionToIndex != -1) {
                 msg = {
                     message: container.envelop.message.message!,
                     time: container.envelop.message.metadata.timestamp.toString(),
@@ -204,7 +214,7 @@ export const handleMessages = async (
     updateShowShimEffect: Function,
 ) => {
     if (!isMessageListInitialized && state.accounts.selectedContact) {
-        await fetchAndStoreMessages(
+        const items = await fetchAndStoreMessages(
             state.connection,
             state.auth.currentSession?.token!,
             state.accounts.selectedContact.account.ensName,
@@ -224,74 +234,143 @@ export const handleMessages = async (
                 ? state.accounts.contacts.map((contact) => contact.account)
                 : [],
         );
-    }
 
-    const checkedContainers = containers.filter((container) => {
-        if (!state.accounts.selectedContact) {
-            throw Error('No selected contact');
+        const checkedContainers = items.filter((container) => {
+            if (!state.accounts.selectedContact) {
+                throw Error('No selected contact');
+            }
+
+            const account = isSameEnsName(
+                container.envelop.message.metadata.from,
+                state.accounts.selectedContact.account.ensName,
+                alias,
+            )
+                ? state.accounts.selectedContact.account
+                : state.connection.account!;
+
+            return account.profile?.publicSigningKey
+                ? checkSignature(
+                      container.envelop.message,
+                      account.profile?.publicSigningKey,
+                      account.ensName,
+                      container.envelop.message.signature,
+                  )
+                : true;
+        });
+
+        const newMessages = checkedContainers
+            .filter((container) => container.messageState === MessageState.Send)
+            .map((container) => ({
+                ...container,
+                messageState: MessageState.Read,
+            }));
+
+        const oldMessages = checkedContainers.filter(
+            (container) =>
+                container.messageState === MessageState.Read ||
+                container.messageState === MessageState.Created,
+        );
+
+        handleMessageContainer(
+            state,
+            oldMessages,
+            alias,
+            setListOfMessages,
+            dispatch,
+        );
+
+        if (!state.userDb) {
+            throw Error(
+                `[handleMessages] Couldn't handle new messages. User db not created.`,
+            );
         }
 
-        const account = isSameEnsName(
-            container.envelop.message.metadata.from,
-            state.accounts.selectedContact.account.ensName,
+        if (newMessages.length > 0) {
+            newMessages.forEach((message) =>
+                dispatch({
+                    type: UserDbType.addMessage,
+                    payload: {
+                        container: message,
+                        connection: state.connection,
+                    },
+                }),
+            );
+        }
+
+        if (!isMessageListInitialized) {
+            scrollToBottomOfChat();
+            updateIsMessageListInitialized(true);
+        }
+
+        updateShowShimEffect(false);
+    } else {
+        const checkedContainers = containers.filter((container) => {
+            if (!state.accounts.selectedContact) {
+                throw Error('No selected contact');
+            }
+
+            const account = isSameEnsName(
+                container.envelop.message.metadata.from,
+                state.accounts.selectedContact.account.ensName,
+                alias,
+            )
+                ? state.accounts.selectedContact.account
+                : state.connection.account!;
+
+            return account.profile?.publicSigningKey
+                ? checkSignature(
+                      container.envelop.message,
+                      account.profile?.publicSigningKey,
+                      account.ensName,
+                      container.envelop.message.signature,
+                  )
+                : true;
+        });
+
+        const newMessages = checkedContainers
+            .filter((container) => container.messageState === MessageState.Send)
+            .map((container) => ({
+                ...container,
+                messageState: MessageState.Read,
+            }));
+
+        const oldMessages = checkedContainers.filter(
+            (container) =>
+                container.messageState === MessageState.Read ||
+                container.messageState === MessageState.Created,
+        );
+
+        handleMessageContainer(
+            state,
+            oldMessages,
             alias,
-        )
-            ? state.accounts.selectedContact.account
-            : state.connection.account!;
-
-        return account.profile?.publicSigningKey
-            ? checkSignature(
-                  container.envelop.message,
-                  account.profile?.publicSigningKey,
-                  account.ensName,
-                  container.envelop.message.signature,
-              )
-            : true;
-    });
-
-    const newMessages = checkedContainers
-        .filter((container) => container.messageState === MessageState.Send)
-        .map((container) => ({
-            ...container,
-            messageState: MessageState.Read,
-        }));
-
-    const oldMessages = checkedContainers.filter(
-        (container) =>
-            container.messageState === MessageState.Read ||
-            container.messageState === MessageState.Created,
-    );
-
-    handleMessageContainer(
-        state,
-        oldMessages,
-        alias,
-        setListOfMessages,
-        dispatch,
-    );
-
-    if (!state.userDb) {
-        throw Error(
-            `[handleMessages] Couldn't handle new messages. User db not created.`,
+            setListOfMessages,
+            dispatch,
         );
-    }
 
-    if (newMessages.length > 0) {
-        newMessages.forEach((message) =>
-            dispatch({
-                type: UserDbType.addMessage,
-                payload: {
-                    container: message,
-                    connection: state.connection,
-                },
-            }),
-        );
-    }
+        if (!state.userDb) {
+            throw Error(
+                `[handleMessages] Couldn't handle new messages. User db not created.`,
+            );
+        }
 
-    if (!isMessageListInitialized) {
-        scrollToBottomOfChat();
-        updateIsMessageListInitialized(true);
-    }
+        if (newMessages.length > 0) {
+            newMessages.forEach((message) =>
+                dispatch({
+                    type: UserDbType.addMessage,
+                    payload: {
+                        container: message,
+                        connection: state.connection,
+                    },
+                }),
+            );
+        }
 
-    updateShowShimEffect(false);
+        if (!isMessageListInitialized) {
+            scrollToBottomOfChat();
+            updateIsMessageListInitialized(true);
+        }
+
+        updateShowShimEffect(false);
+    }
 };

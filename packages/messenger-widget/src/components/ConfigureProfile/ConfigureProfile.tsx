@@ -10,8 +10,10 @@ import {
     PROFILE_INPUT_FIELD_CLASS,
     closeConfigurationModal,
     getEnsName,
+    removeAliasFromDm3Name,
     submitDm3UsernameClaim,
     submitEnsNameTransaction,
+    validateEnsName,
     validateName,
 } from './bl';
 import { useContext, useEffect, useState } from 'react';
@@ -59,12 +61,13 @@ export function ConfigureProfile() {
         type: NAME_TYPE,
     ) => {
         setShowError(undefined);
-        const check = validateName(e.target.value);
         if (type === NAME_TYPE.DM3_NAME) {
+            const check = validateName(e.target.value);
             setDm3Name(e.target.value);
             setEnsName('');
             !check && setError('Invalid name', NAME_TYPE.DM3_NAME);
         } else {
+            const check = validateEnsName(e.target.value);
             setEnsName(e.target.value);
             setDm3Name('');
             !check && setError('Invalid ENS name', NAME_TYPE.ENS_NAME);
@@ -82,7 +85,13 @@ export function ConfigureProfile() {
             }
             await submitDm3UsernameClaim(state, name, dispatch, setError);
         } else {
-            setExistingDm3Name(null);
+            const result = await removeAliasFromDm3Name(
+                state,
+                existingDm3Name as string,
+                dispatch,
+                setError,
+            );
+            result && setExistingDm3Name(null);
         }
     };
 
@@ -124,11 +133,18 @@ export function ConfigureProfile() {
         getEnsName(state, setEnsNameFromResolver);
     }, [state.connection.ethAddress, state.connection.provider]);
 
+    // clears the input field on deleting the alias
+    useEffect(() => {
+        if (!showDeleteConfirmation) {
+            setDm3Name('');
+        }
+    }, [showDeleteConfirmation]);
+
     return (
         <div>
             <div
                 id="configuration-modal"
-                className="modal-container display-none position-fixed w-100 h-100"
+                className="modal-container position-fixed w-100 h-100"
             >
                 <div
                     className="configuration-modal-content border-radius-6 
@@ -166,6 +182,7 @@ export function ConfigureProfile() {
                                     setEnsName,
                                     setErrorMsg,
                                     setShowError,
+                                    dispatch,
                                 )
                             }
                         />

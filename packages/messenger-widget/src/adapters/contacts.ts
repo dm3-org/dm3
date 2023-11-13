@@ -5,7 +5,7 @@ import {
     getUserProfile,
     normalizeEnsName,
 } from 'dm3-lib-profile';
-import { log, stringify } from 'dm3-lib-shared';
+import { globalConfig, log, stringify } from 'dm3-lib-shared';
 import {
     getConversationId,
     UserDB,
@@ -92,7 +92,9 @@ export async function requestContacts(
         }
     });
 
-    dispatch({ type: AccountsType.SetContacts, payload: contacts });
+    // filter out the duplicate contacts
+    const result = filterOutDuplicateContacts(contacts);
+    dispatch({ type: AccountsType.SetContacts, payload: result });
 }
 
 export async function getContacts(
@@ -160,6 +162,7 @@ export async function getContacts(
     return uncheckedProfiles.map((profileContainer) => ({
         ensName: profileContainer.ensName,
         profile: profileContainer.profile?.profile,
+        profileSignature: profileContainer.profile?.signature,
     }));
 }
 
@@ -197,3 +200,70 @@ function fetchDeliveryServiceProfile(connection: Connection) {
         };
     };
 }
+
+const filterOutDuplicateContacts = (contactList: Contact[]) => {
+    const result: Contact[] = [];
+
+    // contact with profile
+    const contactsWithProfile = contactList.filter(
+        (data: Contact) => data.account.profileSignature,
+    );
+
+    // contacts without profile
+    const contactsWithOutProfile = contactList.filter(
+        (data: Contact) => !data.account.profileSignature,
+    );
+
+    // fetch unique profiles
+    const uniqueProfiles = [
+        ...new Set(
+            contactsWithProfile.map((item) => item.account.profileSignature),
+        ),
+    ];
+
+    // filter out the profile signatures with ensName
+    uniqueProfiles.map((profile) => {
+        // fetch all contacts with same profile
+        const records = contactsWithProfile.filter(
+            (data) => data.account.profileSignature === profile,
+        );
+        if (records.length > 1) {
+            // fetch profile with eth as ens name
+            const ensNames = records.filter((item) => {
+                const ensName = item.account.ensName.split('.');
+                if (ensName.length === 2 && ensName[1] === 'eth') {
+                    return true;
+                }
+            });
+            if (ensNames.length) {
+                result.push(ensNames[0]);
+            } else {
+                // fetch profile with .user.dm3.eth as ens name
+                const userEnsDomains = records.filter((item) =>
+                    item.account.ensName.endsWith(
+                        globalConfig.USER_ENS_SUBDOMAIN(),
+                    ),
+                );
+                if (userEnsDomains.length) {
+                    result.push(userEnsDomains[0]);
+                } else {
+                    // fetch profile with .addr.dm3.eth as ens name
+                    const addrEnsDomains = records.filter((item) =>
+                        item.account.ensName.endsWith(
+                            globalConfig.ADDR_ENS_SUBDOMAIN(),
+                        ),
+                    );
+                    if (addrEnsDomains.length) {
+                        result.push(addrEnsDomains[0]);
+                    } else {
+                        result.push(records[0]);
+                    }
+                }
+            }
+        } else {
+            result.push(records[0]);
+        }
+    });
+
+    return [...result, ...contactsWithOutProfile];
+};

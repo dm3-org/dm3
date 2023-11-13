@@ -12,7 +12,7 @@ import {
     openEtherscan,
 } from '../../utils/ens-utils';
 import { IContactInfo } from '../../interfaces/utils';
-import profilePic from '../../assets/images/profile-pic.jpg';
+import profilePic from '../../assets/images/human.svg';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { ModalStateType } from '../../utils/enum-type-utils';
 import copyIcon from '../../assets/images/copy.svg';

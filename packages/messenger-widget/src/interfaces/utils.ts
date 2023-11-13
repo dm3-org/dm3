@@ -15,6 +15,7 @@ export interface ContactPreview {
     name: string;
     message: string | null;
     image: string;
+    unreadMsgCount: number;
     contactDetails: Contact;
 }
 

@@ -32,6 +32,7 @@ export interface Cache {
         account: Account | null;
         message: string | null;
     };
+    messageSizeLimit: number;
 }
 
 export interface UiState {
@@ -50,6 +51,7 @@ export interface Modal {
     contactToHide: string | undefined;
     openEmojiPopup: { action: boolean; data: MessageProps | undefined };
     lastMessageAction: MessageActionType;
+    isProfileConfigurationPopupActive: boolean;
 }
 
 export interface UiViewState {

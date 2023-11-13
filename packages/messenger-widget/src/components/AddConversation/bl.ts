@@ -29,6 +29,8 @@ export const openConversationModal = () => {
         'conversation-modal',
     ) as HTMLElement;
     modal.style.display = 'block';
+    const inputField = document.getElementById('add-conv-input') as HTMLElement;
+    inputField.focus();
 };
 
 // method to close the add conversation modal
@@ -158,6 +160,7 @@ const updateStates = (
         name: getAccountDisplayName(normalizedAccountName, 25),
         message: null,
         image: humanIcon,
+        unreadMsgCount: 0,
         contactDetails: {
             account: {
                 ensName: normalizedAccountName,
