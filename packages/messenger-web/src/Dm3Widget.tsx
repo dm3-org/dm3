@@ -15,7 +15,9 @@ const Dm3Widget: React.FC = () => {
 
     return (
         <div className="dm3widget">
+
             <DM3 {...props} />
+
         </div>
     );
 };
