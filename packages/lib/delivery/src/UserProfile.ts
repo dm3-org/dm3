@@ -42,7 +42,7 @@ export async function submitUserProfile(
     if (!(await checkUserProfile(provider, signedUserProfile, account))) {
         throw Error('Signature invalid.');
     }
-    //TODO: remvoe DISABLE_SESSION_CHECK
+    //TODO:  remvoe DISABLE_SESSION_CHECK
     // DISABLE_SESSION_CHECK is a special solution for ETH Prague
     if (
         process.env.DISABLE_SESSION_CHECK !== 'true' &&
@@ -59,7 +59,6 @@ export async function submitUserProfile(
     };
 
     await setSession(account.toLocaleLowerCase(), session);
-
     await handlePendingConversations(
         account,
         getSession,

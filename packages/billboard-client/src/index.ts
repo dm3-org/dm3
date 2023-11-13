@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import winston from 'winston';
 import { getBillboardClientApp } from './getBillboardClientApp';
 import { getDatabase } from './persitance/getDatabase';
+import 'dotenv/config';
 
 const main = async () => {
     const rpcUrl = process.env['RPC'];

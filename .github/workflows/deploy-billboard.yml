@@ -1,10 +1,11 @@
-name: Staging deploy
+name: Staging billboard deploy
 on: push
 
 jobs:
     messenger-demo-deploy:
         runs-on: ubuntu-latest
-        if: ${{ contains( github.ref, vars.STAGING_BRANCH) }}
+        # if: ${{ contains( github.ref, vars.STAGING_BRANCH) }}
+        environment: staging-billboard
         steps:
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v3
@@ -28,7 +29,7 @@ jobs:
               env:
                   TARGET_HOST: ${{ secrets.STAGING_HOST }}
               run: |
-                  echo "REACT_APP_ADDR_ENS_SUBDOMAIN=.beta-addr.dm3.eth" >> ./.env.react
+                  echo "REACT_APP_ADDR_ENS_SUBDOMAIN=.bb-addr.dm3.eth" >> ./.env.react
                   echo "REACT_APP_BACKEND=http://${{ secrets.STAGING_HOST }}/api" >> ./.env.react
                   echo "REACT_APP_DEFAULT_DELIVERY_SERVICE=beta-ds.dm3.eth" >> ./.env.react
                   echo "REACT_APP_DEFAULT_SERVICE=http://${{ secrets.STAGING_HOST }}/api" >> ./.env.react
@@ -41,6 +42,7 @@ jobs:
                   echo "REACT_APP_BRANCH=${{ env.branch }}" >> ./.env.react
                   echo "REACT_APP_BUILD_TIME=${{ env.now }}" >> ./.env.react
                   cat ./.env.react >> ./.env
+                  echo "BILLBOARD_SIGNER_PRIVATE_KEY=${{ secrets.BILLBOARD_SIGNER_PRIVATE_KEY }}" >> ./.env
                   echo "RESOLVER_ADDR=0xae6646c22D8eE6479eE0a39Bf63B9bD9e57bAD9d" >> ./.env
                   echo "SIGNING_PUBLIC_KEY=${{ secrets.SIGNING_PUBLIC_KEY }}" >> ./.env
                   echo "SIGNING_PRIVATE_KEY=${{ secrets.SIGNING_PRIVATE_KEY }}" >> ./.env
@@ -49,7 +51,11 @@ jobs:
                   echo "ENCRYPTION_PUBLIC_KEY=${{ secrets.ENCRYPTION_PUBLIC_KEY }}" >> ./.env
                   echo "ENCRYPTION_PRIVATE_KEY=${{ secrets.ENCRYPTION_PRIVATE_KEY }}" >> ./.env
                   echo "RPC=${{ secrets.STAGING_RPC }}" >> ./.env
-                  envsubst '${SSL_CERTIFICATE_BASE_LOC} ${TLS_CERTIFICATE_LOCATION} ${TARGET_HOST}' < ./docker/nginx.conf > ./nginx.conf
+                  echo "BILLBOARD_PRIVATE_KEY=${{ secrets.BILLBOARD_PRIVATE_KEY }}" >> ./.env
+                  echo "interceptor=${{ secrets.INTERCEPTOR }}" >> ./.env
+                  echo "DISABLE_SESSION_CHECK='true'" >> ./.env
+                  echo "BILLBOARD_NAMES=${{ secrets.BILLBOARD_NAMES }}" >> ./.env
+                  envsubst '${SSL_CERTIFICATE_BASE_LOC} ${TLS_CERTIFICATE_LOCATION} ${TARGET_HOST}' < ./docker/billboard/nginx.conf > ./nginx.conf
                   cat ./.env
             - name: Build docker image
               run: |
@@ -61,7 +67,7 @@ jobs:
                   rsync -avz -e 'ssh -i ./ssh-key' ./.env app@${{ secrets.STAGING_HOST }}:/home/app/dm3
                   rsync -avz -e 'ssh -i ./ssh-key' ./dm3-backend.tar app@${{ secrets.STAGING_HOST }}:/home/app/dm3 
                   rsync -avz -e 'ssh -i ./ssh-key' ./nginx.conf app@${{ secrets.STAGING_HOST }}:/home/app/dm3
-                  rsync -avz -e 'ssh -i ./ssh-key' ./docker/docker-compose.yml app@${{ secrets.STAGING_HOST }}:/home/app/dm3
+                  rsync -avz -e 'ssh -i ./ssh-key' ./docker/billboard/docker-compose.yml app@${{ secrets.STAGING_HOST }}:/home/app/dm3
             - name: Prepare docker
               run: |
                   ssh -i ./ssh-key app@${{ secrets.STAGING_HOST }} "\

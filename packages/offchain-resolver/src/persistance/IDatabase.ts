@@ -13,6 +13,7 @@ export interface IDatabase {
         address: string,
     ): Promise<boolean>;
     removeUserProfile(ensName: string): Promise<boolean>;
+    removeAlias(alias: string): Promise<boolean>;
     setAlias(name: string, alias: string): Promise<boolean>;
     getProfileContainerForAlias(
         alias: string,

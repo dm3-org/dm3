@@ -14,6 +14,11 @@ export type ProfileContainer = {
 
 export function getProfileContainer(db: PrismaClient) {
     return async (name: string) => {
+        global.logger.debug({
+            message: 'getProfileContainer call',
+            nameHash: ethers.utils.namehash(name),
+            name,
+        });
         const profileContainer = await db.profileContainer.findUnique({
             where: {
                 nameHash: ethers.utils.namehash(name),
@@ -31,7 +36,7 @@ export function getProfileContainer(db: PrismaClient) {
                       }
                     : null;
             global.logger.debug({
-                message: 'getProfileContainer',
+                message: 'getProfileContainer found',
                 nameHash: ethers.utils.namehash(name),
                 profileContainerResult,
             });
@@ -39,7 +44,7 @@ export function getProfileContainer(db: PrismaClient) {
             return profileContainerResult;
         } else {
             global.logger.debug({
-                message: 'getProfileContainer',
+                message: 'getProfileContainer not found',
                 nameHash: ethers.utils.namehash(name),
             });
             // try to find an alias which equlas name

@@ -14,5 +14,18 @@ export function createMessage(redis: Redis) {
             score: message.metadata.timestamp,
             value: stringify(message),
         });
+
+        console.log('message added', message);
+
+        const msgs = await redis.zRange(
+            RedisPrefix.Messages + idBillboard,
+            0,
+            100,
+            {
+                REV: true,
+            },
+        );
+
+        console.log("msgs", msgs);
     };
 }
