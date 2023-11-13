@@ -60,10 +60,12 @@ const useBillboard = () => {
         }
         const hostname = new URL(billboardClientUrl).hostname;
 
-        const url = hostname;
+        const url = 'https://' + hostname;
+
         setSocket(
             io(url, {
                 path: '/bb-client/socket.io',
+                secure: true,
             }),
         );
     }, [billboardClientUrl, socket, mockedApi]);
