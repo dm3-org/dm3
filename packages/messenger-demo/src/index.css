@@ -63,7 +63,14 @@ code {
 }
 
 .demo-container {
-    border: 1px solid red;
-    height: 90%;
-    width: 80%;
+    overflow: clip;
+    width: calc(100vw - 40px);
+    height: calc(100vh - 30px);
+    border-radius: 15px;
+    position: relative;
+    top: 10px;
+    left: 20px;
+    transform: translate(0, 0);
+    z-index: 10;
+    box-shadow: 6px 6px 20px 0 rgba(05, 010, 020, 1);
 }

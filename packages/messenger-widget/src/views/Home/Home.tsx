@@ -59,7 +59,7 @@ export function Home(props: Dm3Props) {
     });
 
     return (
-        <div>
+        <div className="h-100">
             <Loader />
             <AddConversation />
             <Preferences />

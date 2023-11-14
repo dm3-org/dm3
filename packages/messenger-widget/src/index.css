@@ -61,3 +61,9 @@
 .attachment-background {
     background: var(--attachment-background);
 }
+
+.dm3-root{
+    height: 100%;
+    position: absolute;
+    width: 100%;
+}

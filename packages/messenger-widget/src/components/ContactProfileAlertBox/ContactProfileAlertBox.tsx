@@ -4,7 +4,7 @@ export default function ConfigProfileAlertBox() {
     return (
         <div
             data-testid="configure-profile-alert-box"
-            className="pt-2 pb-2 ps-1 pe-1 font-size-14 text-primary-color 
+            className="m-1 pt-2 pb-2 ps-1 pe-1 font-size-14 text-primary-color 
             background-config-box background-config-box-border border-radius-8"
         >
             <div

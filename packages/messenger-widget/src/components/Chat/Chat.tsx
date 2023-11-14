@@ -111,11 +111,12 @@ export function Chat(props: HideFunctionProps) {
 
     return (
         <div
-            className={
+            id="chat-msgs"
+            className={'chat-msgs width-fill '.concat(
                 state.accounts.selectedContact
                     ? 'highlight-chat-border'
-                    : 'highlight-chat-border-none'
-            }
+                    : 'highlight-chat-border-none',
+            )}
         >
             {/* Shimmer effect while messages are loading */}
             {showShimEffect && (
@@ -149,14 +150,14 @@ export function Chat(props: HideFunctionProps) {
             )}
 
             {!showShimEffect && (
-                <div className="m-2 text-primary-color position-relative chat-container">
+                <>
                     {/* To show information box that contact has not created profile */}
                     {!isProfileConfigured && <ConfigProfileAlertBox />}
 
                     {/* Chat messages */}
                     <div
                         id="chat-box"
-                        className={'chat-items position-relative mb-2'.concat(
+                        className={'chat-items mb-2'.concat(
                             ' ',
                             !isProfileConfigured
                                 ? 'chat-height-small'
@@ -175,7 +176,7 @@ export function Chat(props: HideFunctionProps) {
 
                     {/* Message, emoji and file attachments */}
                     <MessageInputBox hideFunction={props.hideFunction} />
-                </div>
+                </>
             )}
         </div>
     );
