@@ -79,6 +79,8 @@ export function userDbReducer(
                                     container.envelop.message.message;
                                 prevContainer.envelop.message.metadata.type =
                                     container.envelop.message.metadata.type;
+                                prevContainer.envelop.message.attachments =
+                                    container.envelop.message.attachments;
                             }
                             return prevContainer;
                         },
