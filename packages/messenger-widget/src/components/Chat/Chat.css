@@ -7,13 +7,13 @@
 }
 
 .chat-container {
-    min-height: 86vh;
-    height: 86vh;
+    height: 100%;
 }
 
 .chat-items {
     overflow-y: scroll;
     margin-top: 0.5rem;
+    height: 100% !important;
 }
 
 .chat-height-small {
@@ -45,4 +45,10 @@
     100% {
         background-position: 468px 0;
     }
+}
+
+.chat-msgs {
+    height: calc(100% - 65px);
+    display: flex;
+    flex-direction: column;
 }

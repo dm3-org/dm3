@@ -16,7 +16,7 @@ export default function Dashboard(props: DashboardProps) {
     const { state } = useContext(GlobalContext);
 
     return (
-        <div className="h-auto">
+        <div className="h-100">
             <Storage />
             {/* Configure profile popup */}
             {state.modal.isProfileConfigurationPopupActive && (
@@ -25,13 +25,13 @@ export default function Dashboard(props: DashboardProps) {
             {/* Delete message confirmation popup */}
             {state.uiView.selectedMessageView.actionType ===
                 MessageActionType.DELETE && <DeleteMessage />}
-            <div className="row m-0 h-auto">
-                <div className="col-lg-3 col-md-3 col-sm-12 p-0">
+            <div className="row m-0 h-100">
+                <div className="col-lg-3 col-md-3 col-sm-12 p-0 h-100">
                     <LeftView {...props} />
                 </div>
                 <div
                     className={
-                        'col-lg-9 col-md-9 col-sm-12 p-0 h-auto' +
+                        'col-lg-9 col-md-9 col-sm-12 p-0 h-100' +
                         (state.uiView.selectedRightView ===
                         RightViewSelected.Profile
                             ? ' dashboard-right-view-highlight'

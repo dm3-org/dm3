@@ -29,7 +29,7 @@ export function AttachmentPreview(props: AttachmentProps) {
                         />
                         <div
                             data-testid={`${item.id}-${item.name}`}
-                            className="font-size-12 ms-1"
+                            className="font-size-12 ms-1 text-primary-color"
                         >
                             {item.name}
                         </div>

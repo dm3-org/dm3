@@ -1,11 +1,11 @@
 .contacts-scroller {
-    height: 88.5vh;
+    height: 100%;
     padding-left: 1rem;
     margin-top: 2px;
 }
 
 .scroller-hidden {
-    overflow: hidden;
+    overflow: scroll;
 }
 
 .scroller-active {
