@@ -15,7 +15,7 @@ export function DM3(props: Partial<Config>) {
     setTheme(propsData.theme);
     return (
         <>
-            <div className="container-fluid">
+            <div className="dm3-root">
                 <ErrorModal />
                 <GlobalContextProvider>
                     <Home config={propsData} />

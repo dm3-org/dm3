@@ -27,9 +27,3 @@
     border-top-left-radius: 0px;
     border-top-right-radius: 0px;
 }
-
-.msg-input-box-container {
-    position: absolute;
-    width: 100%;
-    bottom: 0;
-}

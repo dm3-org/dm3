@@ -1,4 +1,3 @@
-import './DM3.css';
 import axios from 'axios';
 import socketIOClient from 'socket.io-client';
 import { EncryptionEnvelop } from 'dm3-lib-messaging';
@@ -128,8 +127,16 @@ function DM3(props: Dm3Props) {
         }
     }, [state.connection.socket, state.userDb?.conversations]);
 
+    // updates rainbow kit provider height to 100% when rendered
+    useEffect(() => {
+        const childElement = document.getElementById('data-rk-child');
+        if (childElement && childElement.parentElement) {
+            childElement.parentElement.classList.add('h-100');
+        }
+    }, []);
+
     return (
-        <div className="border-radius-8">
+        <div id="data-rk-child" className="border-radius-8 h-100">
             {showSignIn(state.connection.connectionState) ? (
                 <SignIn
                     hideStorageSelection={props.config.hideStorageSelection}
@@ -137,7 +144,7 @@ function DM3(props: Dm3Props) {
                     miniSignIn={props.config.miniSignIn}
                 />
             ) : (
-                <div className="ml-3 h-auto rounded dashboard-container background-container">
+                <div className="h-100 rounded background-container">
                     <Dashboard getContacts={getContacts} dm3Props={props} />
                 </div>
             )}
