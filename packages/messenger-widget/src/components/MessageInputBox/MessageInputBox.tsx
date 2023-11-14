@@ -31,30 +31,12 @@ export function MessageInputBox(props: HideFunctionProps) {
     }
 
     const setChatContainerHeight = () => {
-        const element = document.getElementById('chat-box');
-        const bigScreen = window.matchMedia('(min-height: 950px)');
-        const smallScreen = window.matchMedia('(min-height: 820px)');
+        const element = document.getElementById('chat-msgs');
         if (element) {
             if (filesSelected.length > 0) {
-                if (state.accounts.selectedContact?.account.profile) {
-                    element.style.height = bigScreen.matches ? '89%' : '85%';
-                } else {
-                    element.style.height = bigScreen.matches
-                        ? '82%'
-                        : smallScreen.matches
-                        ? '71%'
-                        : '70%';
-                }
+                element.style.height = 'calc(100% - 102px) !important';
             } else {
-                if (state.accounts.selectedContact?.account.profile) {
-                    element.style.height = bigScreen.matches ? '94%' : '91%';
-                } else {
-                    element.style.height = bigScreen.matches
-                        ? '86%'
-                        : smallScreen.matches
-                        ? '83%'
-                        : '76%';
-                }
+                element.style.height = 'calc(100% - 65px) !important';
             }
         }
     };
@@ -92,7 +74,7 @@ export function MessageInputBox(props: HideFunctionProps) {
     }, [state.accounts.selectedContact]);
 
     return (
-        <div className="mt-3 msg-input-box-container">
+        <div className="mb-1 p-1 msg-input-box-container width-fill">
             {/* Reply message preview */}
             {state.uiView.selectedMessageView.actionType ===
                 MessageActionType.REPLY && (
