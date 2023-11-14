@@ -67,22 +67,22 @@ export function Message(props: MessageProps) {
                         ' ',
                         (props.ownMessage
                             ? !props.message &&
-                                props.envelop.message.metadata.type ===
-                                MessageActionType.DELETE &&
-                                (!attachments || !attachments.length)
+                              props.envelop.message.metadata.type ===
+                                  MessageActionType.DELETE &&
+                              (!attachments || !attachments.length)
                                 ? 'own-deleted-msg'
                                 : state.uiView.selectedMessageView
-                                    .actionType === MessageActionType.EDIT &&
-                                    state.uiView.selectedMessageView.messageData
-                                        ?.envelop.id === props.envelop.id
-                                    ? 'msg-editing-active'
-                                    : 'ms-3 background-config-box'
+                                      .actionType === MessageActionType.EDIT &&
+                                  state.uiView.selectedMessageView.messageData
+                                      ?.envelop.id === props.envelop.id
+                                ? 'msg-editing-active'
+                                : 'ms-3 background-config-box'
                             : !props.message &&
-                                props.envelop.message.metadata.type ===
-                                MessageActionType.DELETE &&
-                                (!attachments || !attachments.length)
-                                ? 'contact-deleted-msg'
-                                : 'normal-btn-hover'
+                              props.envelop.message.metadata.type ===
+                                  MessageActionType.DELETE &&
+                              (!attachments || !attachments.length)
+                            ? 'contact-deleted-msg'
+                            : 'normal-btn-hover'
                         ).concat(
                             ' ',
                             props.reactions.length > 0
@@ -97,7 +97,7 @@ export function Message(props: MessageProps) {
                     {props.replyToMsg &&
                         props.replyToMsgFrom &&
                         props.envelop.message.metadata.type ===
-                        MessageActionType.REPLY && (
+                            MessageActionType.REPLY && (
                             <div
                                 className="reply-preview d-flex border-radius-4 normal-btn-inactive pointer-cursor"
                                 onClick={() =>
@@ -109,8 +109,8 @@ export function Message(props: MessageProps) {
                                 <div className="user-name">
                                     {props.replyToMsgFrom.length > 25
                                         ? props.replyToMsgFrom
-                                            .substring(0, 25)
-                                            .concat(': ')
+                                              .substring(0, 25)
+                                              .concat(': ')
                                         : props.replyToMsgFrom.concat(':')}
                                 </div>
                                 {props.replyToMsg
@@ -122,7 +122,7 @@ export function Message(props: MessageProps) {
                     {/* Attachments preview */}
                     {attachments.length > 0 &&
                         props.envelop.message.metadata.type !==
-                        MessageActionType.DELETE && (
+                            MessageActionType.DELETE && (
                             <AttachmentThumbnailPreview
                                 filesSelected={attachments}
                                 isMyMessage={props.ownMessage}
@@ -133,12 +133,12 @@ export function Message(props: MessageProps) {
                     {props.message
                         ? props.message
                         : attachments.length > 0 &&
-                            props.envelop.message.metadata.type !==
-                            MessageActionType.DELETE
-                            ? ''
-                            : props.ownMessage
-                                ? 'You deleted this message.'
-                                : 'This message was deleted.'}
+                          props.envelop.message.metadata.type !==
+                              MessageActionType.DELETE
+                        ? ''
+                        : props.ownMessage
+                        ? 'You deleted this message.'
+                        : 'This message was deleted.'}
                 </div>
                 {/* action item */}
                 <div
@@ -146,7 +146,7 @@ export function Message(props: MessageProps) {
                         ' ',
                         (!props.message && attachments.length) === 0 ||
                             props.envelop.message.metadata.type ===
-                            MessageActionType.DELETE ||
+                                MessageActionType.DELETE ||
                             !props.envelop.metadata?.encryptedMessageHash
                             ? 'hide-action'
                             : '',
@@ -171,8 +171,8 @@ export function Message(props: MessageProps) {
                             ? 'justify-content-between'
                             : 'ms-3 justify-content-end'
                         : props.ownMessage
-                            ? 'ms-3'
-                            : '',
+                        ? 'ms-3'
+                        : '',
                 )}
             >
                 {/* Own message */}
