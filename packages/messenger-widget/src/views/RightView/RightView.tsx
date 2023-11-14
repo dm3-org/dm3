@@ -18,10 +18,10 @@ export default function RightView(props: HideFunctionProps) {
                 <RightHeader />
                 {state.uiView.selectedRightView ===
                     RightViewSelected.Default && (
-                        <div className="d-flex justify-content-center align-items-center default-screen">
-                            <img className="img-fluid" src={logo} alt="logo" />
-                        </div>
-                    )}
+                    <div className="d-flex justify-content-center align-items-center default-screen">
+                        <img className="img-fluid" src={logo} alt="logo" />
+                    </div>
+                )}
                 {state.uiView.selectedRightView === RightViewSelected.Chat && (
                     <Chat hideFunction={props.hideFunction} />
                 )}

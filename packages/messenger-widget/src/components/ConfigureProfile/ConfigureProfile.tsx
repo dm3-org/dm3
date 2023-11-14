@@ -206,7 +206,7 @@ export function ConfigureProfile() {
                                     <p className="m-0 font-size-14 font-weight-500 line-height-24 grey-text">
                                         {state.connection.ethAddress &&
                                             state.connection.ethAddress +
-                                            globalConfig.ADDR_ENS_SUBDOMAIN()}
+                                                globalConfig.ADDR_ENS_SUBDOMAIN()}
                                     </p>
                                 </div>
                                 <div className="address-details">
@@ -443,31 +443,33 @@ export function ConfigureProfile() {
                                 </div>
                             </div>
                             <div>
-                                {!existingEnsName && <button
-                                    data-testid="publish-profile"
-                                    disabled={
-                                        !existingEnsName &&
-                                        (!ensName || !ensName.length)
-                                    }
-                                    className={BUTTON_CLASS.concat(
-                                        ' ',
-                                        !existingEnsName &&
+                                {!existingEnsName && (
+                                    <button
+                                        data-testid="publish-profile"
+                                        disabled={
+                                            !existingEnsName &&
                                             (!ensName || !ensName.length)
-                                            ? 'modal-btn-disabled'
-                                            : 'modal-btn-active',
-                                    )}
-                                    onClick={() =>
-                                        handlePublishOrRemoveProfile(
-                                            existingEnsName
-                                                ? ACTION_TYPE.REMOVE
-                                                : ACTION_TYPE.CONFIGURE,
-                                        )
-                                    }
-                                >
-                                    {!existingEnsName
-                                        ? ' Publish Profile'
-                                        : 'Rename Profile'}
-                                </button>}
+                                        }
+                                        className={BUTTON_CLASS.concat(
+                                            ' ',
+                                            !existingEnsName &&
+                                                (!ensName || !ensName.length)
+                                                ? 'modal-btn-disabled'
+                                                : 'modal-btn-active',
+                                        )}
+                                        onClick={() =>
+                                            handlePublishOrRemoveProfile(
+                                                existingEnsName
+                                                    ? ACTION_TYPE.REMOVE
+                                                    : ACTION_TYPE.CONFIGURE,
+                                            )
+                                        }
+                                    >
+                                        {!existingEnsName
+                                            ? ' Publish Profile'
+                                            : 'Rename Profile'}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

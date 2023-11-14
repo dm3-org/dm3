@@ -135,9 +135,12 @@ export function MessageAction(props: MessageProps) {
             )}
         >
             {props.ownMessage &&
-                props.message &&
+                (props.message ||
+                    (props.envelop.message.attachments &&
+                        props.envelop.message.attachments.length)) &&
                 props.envelop.metadata?.encryptedMessageHash &&
-                (!props.hideFunction || !props.hideFunction.split(",").includes("edit")) && (
+                (!props.hideFunction ||
+                    !props.hideFunction.split(',').includes('edit')) && (
                     <div
                         data-testid="edit-msg"
                         className="d-flex align-items-center justify-content-start"
@@ -150,7 +153,8 @@ export function MessageAction(props: MessageProps) {
 
             {props.ownMessage &&
                 props.envelop.metadata?.encryptedMessageHash &&
-                (!props.hideFunction || !props.hideFunction.split(",").includes("delete")) && (
+                (!props.hideFunction ||
+                    !props.hideFunction.split(',').includes('delete')) && (
                     <div
                         data-testid="delete-msg"
                         className="d-flex align-items-center justify-content-start"

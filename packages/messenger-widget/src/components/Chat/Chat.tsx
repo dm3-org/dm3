@@ -53,7 +53,6 @@ export function Chat(props: HideFunctionProps) {
 
     // handles messages list
     useEffect(() => {
-        // fetch the messages from local storage is exists
         if (state.accounts.selectedContact) {
             setShowShimEffect(true);
         }
@@ -81,8 +80,8 @@ export function Chat(props: HideFunctionProps) {
                     props.hideFunction,
                 );
             } catch (error) {
-                setShowShimEffect(false);
                 setListOfMessages([]);
+                setShowShimEffect(false);
                 log(error, 'error');
             }
         }
