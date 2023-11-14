@@ -17,7 +17,6 @@ import { SendMessage } from '../SendMessage/SendMessage';
 import { HideFunctionProps } from '../../interfaces/props';
 
 export function MessageInputBox(props: HideFunctionProps) {
-
     const [message, setMessage] = useState('');
 
     const { state, dispatch } = useContext(GlobalContext);
@@ -43,8 +42,8 @@ export function MessageInputBox(props: HideFunctionProps) {
                     element.style.height = bigScreen.matches
                         ? '82%'
                         : smallScreen.matches
-                            ? '71%'
-                            : '70%';
+                        ? '71%'
+                        : '70%';
                 }
             } else {
                 if (state.accounts.selectedContact?.account.profile) {
@@ -53,8 +52,8 @@ export function MessageInputBox(props: HideFunctionProps) {
                     element.style.height = bigScreen.matches
                         ? '86%'
                         : smallScreen.matches
-                            ? '83%'
-                            : '76%';
+                        ? '83%'
+                        : '76%';
                 }
             }
         }
@@ -97,8 +96,8 @@ export function MessageInputBox(props: HideFunctionProps) {
             {/* Reply message preview */}
             {state.uiView.selectedMessageView.actionType ===
                 MessageActionType.REPLY && (
-                    <ReplyMessagePreview setFiles={setFiles} />
-                )}
+                <ReplyMessagePreview setFiles={setFiles} />
+            )}
 
             {/* Emoji popup modal */}
             {state.modal.openEmojiPopup.action && (
@@ -127,10 +126,15 @@ export function MessageInputBox(props: HideFunctionProps) {
                     <div className="d-flex align-items-center width-fill">
                         <div className="d-flex align-items-center text-secondary-color">
                             {/* Attachment selector modal */}
-                            {(!props.hideFunction || !props.hideFunction.split(",").includes("attachments")) && <AttachmentSelector
-                                filesSelected={filesSelected}
-                                setFiles={setFiles}
-                            />}
+                            {(!props.hideFunction ||
+                                !props.hideFunction
+                                    .split(',')
+                                    .includes('attachments')) && (
+                                <AttachmentSelector
+                                    filesSelected={filesSelected}
+                                    setFiles={setFiles}
+                                />
+                            )}
 
                             {/* Emoji selector modal  */}
                             <EmojiSelector />

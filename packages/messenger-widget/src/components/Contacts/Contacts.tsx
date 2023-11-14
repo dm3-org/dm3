@@ -311,10 +311,10 @@ export function Contacts(props: DashboardProps) {
                                                             index={index}
                                                             isMenuAlignedAtBottom={
                                                                 isMenuAlignedAtBottom ===
-                                                                    null
+                                                                null
                                                                     ? showMenuInBottom(
-                                                                        contactSelected,
-                                                                    )
+                                                                          contactSelected,
+                                                                      )
                                                                     : isMenuAlignedAtBottom
                                                             }
                                                         />
