@@ -13,6 +13,7 @@ import {
     fetchMessageSizeLimit,
     updateUnreadMsgCount,
     fetchAndUpdateUnreadMsgCount,
+    addNewConversationFound,
 } from './bl';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
@@ -106,6 +107,15 @@ export function Contacts(props: DashboardProps) {
                 setListOfContacts,
                 setContactFromList,
             );
+        }
+
+        // new contact is detected from web socket
+        if (
+            state.accounts.contacts &&
+            state.cache.contacts &&
+            state.cache.contacts.length !== state.accounts.contacts.length
+        ) {
+            addNewConversationFound(state, dispatch, setListOfContacts);
         }
     }, [state.accounts.contacts]);
 

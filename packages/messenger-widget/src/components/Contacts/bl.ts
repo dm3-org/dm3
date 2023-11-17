@@ -171,6 +171,76 @@ export const setContactIndexSelectedFromCache = (
     return index > -1 ? index : null;
 };
 
+export const addNewConversationFound = async (
+    state: GlobalState,
+    dispatch: React.Dispatch<Actions>,
+    setListOfContacts: Function,
+) => {
+    if (state.accounts.contacts && state.cache.contacts) {
+        const existingList: ContactPreview[] = state.cache.contacts;
+        // fetch contacts from list that are new
+        const contactList: Contact[] = [];
+        state.accounts.contacts.forEach((contact) => {
+            const data = existingList.filter(
+                (cacheContact) =>
+                    cacheContact.contactDetails.account.ensName ===
+                    contact.account.ensName,
+            );
+            if (!data || !data.length) {
+                contactList.push(contact);
+            }
+        });
+
+        // filter the contacts that are not hidden
+        const filteredContactList = contactList
+            ? contactList.filter(
+                  (contact) =>
+                      !state.userDb?.hiddenContacts.find(
+                          (hiddenContact) =>
+                              normalizeEnsName(hiddenContact.ensName) ===
+                              normalizeEnsName(contact.account.ensName),
+                      ),
+              )
+            : [];
+
+        const actualContactList: ContactPreview[] = [];
+
+        if (filteredContactList.length) {
+            for (const contact of filteredContactList) {
+                actualContactList.push({
+                    name: getAccountDisplayName(contact.account.ensName, 25),
+                    message: getMessagesFromUser(
+                        contact.account.ensName,
+                        state.userDb as UserDB,
+                        state.accounts.contacts,
+                    ),
+                    image: await getAvatarProfilePic(
+                        state,
+                        contact.account.ensName,
+                    ),
+                    unreadMsgCount: fetchUnreadMessagesCount(
+                        state,
+                        contact.account.ensName,
+                    ),
+                    contactDetails: contact,
+                });
+            }
+
+            if (state.cache.contacts) {
+                const newContactList = [
+                    ...state.cache.contacts,
+                    ...actualContactList,
+                ];
+                dispatch({
+                    type: CacheType.Contacts,
+                    payload: newContactList,
+                });
+                setListOfContacts(newContactList);
+            }
+        }
+    }
+};
+
 // fetches and sets contact
 export const setContactList = async (
     state: GlobalState,
@@ -179,7 +249,14 @@ export const setContactList = async (
 ) => {
     const cacheList = state.cache.contacts;
     if (cacheList && cacheList.length) {
-        setListOfContacts(cacheList);
+        if (
+            state.accounts.contacts &&
+            cacheList.length !== state.accounts.contacts.length
+        ) {
+            await addNewConversationFound(state, dispatch, setListOfContacts);
+        } else {
+            setListOfContacts(cacheList);
+        }
     } else {
         const data: ContactPreview[] = await fetchAndSetContacts(state);
         dispatch({
@@ -227,138 +304,177 @@ export const updateContactOnAccountChange = async (
     setListOfContacts: Function,
     setContactFromList: Function,
 ) => {
-    if (state.accounts.contacts) {
-        // filter out the new conversation added
-        const itemList = state.accounts.contacts.filter(
-            (data) =>
-                data.account.ensName === state.modal.addConversation.ensName,
-        );
-
-        if (itemList.length && state.cache.contacts) {
-            // fetch last added contact
-            const lastIndex = state.cache.contacts.length - 1;
-            const items = [...state.cache.contacts];
-            const item = { ...items[lastIndex] };
-
-            const profile = await fetchesUserProfile(
-                state.modal.addConversation.ensName as string,
-                state,
+    try {
+        if (state.accounts.contacts) {
+            // filter out the new conversation added
+            const itemList = state.accounts.contacts.filter(
+                (data) =>
+                    data.account.ensName ===
+                    state.modal.addConversation.ensName,
             );
 
-            const profileDetails = await Promise.all(
-                state.cache.contacts.map(async (data, index) => {
-                    return {
-                        ensName: data.contactDetails.account.ensName,
-                        sign: await fetchesUserProfile(
-                            data.contactDetails.account.ensName,
+            if (state.cache.contacts) {
+                // fetch last added contact
+                const lastIndex = state.cache.contacts.length - 1;
+                const items = [...state.cache.contacts];
+                const item = { ...items[lastIndex] };
+
+                const profile = await fetchesUserProfile(
+                    state.modal.addConversation.ensName as string,
+                    state,
+                );
+
+                const profileDetails = await Promise.all(
+                    state.cache.contacts.map(async (data, index) => {
+                        return {
+                            ensName: data.contactDetails.account.ensName,
+                            sign: await fetchesUserProfile(
+                                data.contactDetails.account.ensName,
+                                state,
+                            ),
+                            index: index,
+                        };
+                    }),
+                );
+
+                const duplicateContact = profileDetails.filter(
+                    (data: any) =>
+                        data.sign &&
+                        profile &&
+                        data.sign.signature === profile.signature,
+                );
+
+                // checks duplicate contact based on profile signature
+                if (duplicateContact.length > 1) {
+                    const address = duplicateContact[1].ensName.split('.')[0];
+                    // if the newly contact added is ENS name
+                    if (
+                        address &&
+                        duplicateContact[1].ensName &&
+                        !ethers.utils.isAddress(address)
+                    ) {
+                        const newList = [...contacts];
+                        const existingRecord =
+                            newList[duplicateContact[0].index];
+                        const newRecord = newList[duplicateContact[1].index];
+
+                        // update details from existing contacts
+                        newRecord.contactDetails = newRecord.contactDetails;
+                        if (profile) {
+                            newRecord.contactDetails.account.profile =
+                                profile.profile;
+                        }
+                        newRecord.message = getMessagesFromUser(
+                            existingRecord.contactDetails.account
+                                .ensName as string,
+                            state.userDb as UserDB,
+                            state.accounts.contacts,
+                        );
+                        newRecord.image = await getAvatarProfilePic(
                             state,
-                        ),
-                        index: index,
-                    };
-                }),
-            );
+                            newRecord.contactDetails.account.ensName as string,
+                        );
 
-            const duplicateContact = profileDetails.filter(
-                (data: any) =>
-                    data.sign &&
-                    profile &&
-                    data.sign.signature === profile.signature,
-            );
+                        // remove already selected item
+                        newList[duplicateContact[1].index] = newRecord;
+                        newList.splice(duplicateContact[0].index, 1);
 
-            // checks duplicate contact based on profile signature
-            if (duplicateContact.length > 1) {
-                const address = duplicateContact[1].ensName.split('.')[0];
-                // if the newly contact added is address
-                if (
-                    address &&
-                    duplicateContact[1].ensName &&
-                    !ethers.utils.isAddress(address)
-                ) {
-                    const newList = [...contacts];
-                    const existingRecord = newList[duplicateContact[0].index];
-                    const newRecord = newList[duplicateContact[1].index];
+                        // update contact list
+                        setListOfContacts(newList);
 
-                    // update details from existing contacts
-                    newRecord.contactDetails = newRecord.contactDetails;
-                    newRecord.message = getMessagesFromUser(
-                        existingRecord.contactDetails.account.ensName as string,
+                        // update cached contact list
+                        dispatch({
+                            type: CacheType.Contacts,
+                            payload: newList,
+                        });
+
+                        // select the new contact
+                        setContactFromList(duplicateContact[0].index);
+
+                        dispatch({
+                            type: AccountsType.SetSelectedContact,
+                            payload: newRecord.contactDetails,
+                        });
+                    } else {
+                        // if the newly contact added is address
+                        // remove last item
+                        const newList = [...contacts];
+                        newList.pop();
+
+                        let updatedList: ContactPreview[] = [];
+
+                        if (newList.length) {
+                            updatedList = newList;
+                        } else {
+                            const oldList = [...state.cache.contacts];
+                            oldList.pop();
+                            updatedList = oldList;
+                        }
+
+                        // update contact list
+                        setListOfContacts(updatedList);
+
+                        // update cached contact list
+                        dispatch({
+                            type: CacheType.Contacts,
+                            payload: updatedList,
+                        });
+
+                        // select the already existing contact
+                        setContactFromList(duplicateContact[0].index);
+
+                        dispatch({
+                            type: AccountsType.SetSelectedContact,
+                            payload:
+                                updatedList[duplicateContact[0].index]
+                                    .contactDetails,
+                        });
+                    }
+                } else if (itemList.length) {
+                    // update the contact details
+                    item.contactDetails = itemList[0];
+                    if (profile) {
+                        item.contactDetails.account.profile = profile.profile;
+                    }
+                    item.message = getMessagesFromUser(
+                        state.modal.addConversation.ensName as string,
                         state.userDb as UserDB,
                         state.accounts.contacts,
                     );
-                    newRecord.image = await getAvatarProfilePic(
+                    item.image = await getAvatarProfilePic(
                         state,
-                        newRecord.contactDetails.account.ensName as string,
+                        state.modal.addConversation.ensName as string,
                     );
-
-                    // remove already selected item
-                    newList[duplicateContact[1].index] = newRecord;
-                    newList.splice(duplicateContact[0].index, 1);
-
-                    // update contact list
-                    setListOfContacts(newList);
+                    items[lastIndex] = item;
 
                     // update cached contact list
                     dispatch({
                         type: CacheType.Contacts,
-                        payload: newList,
+                        payload: items,
                     });
 
-                    // select the new contact
-                    setContactFromList(duplicateContact[0].index);
-                } else {
-                    // if the newly contact added is ens name
-                    // remove last item
+                    // update the current contact list
                     const newList = [...contacts];
-                    newList.pop();
-
-                    // update contact list
+                    newList[lastIndex] = item;
                     setListOfContacts(newList);
 
-                    // update cached contact list
                     dispatch({
-                        type: CacheType.Contacts,
-                        payload: newList,
+                        type: AccountsType.SetSelectedContact,
+                        payload: item.contactDetails,
                     });
-
-                    // select the already existing contact
-                    setContactFromList(duplicateContact[0].index);
                 }
-            } else {
-                // update the contact details
-                item.contactDetails = itemList[0];
-                item.message = getMessagesFromUser(
-                    state.modal.addConversation.ensName as string,
-                    state.userDb as UserDB,
-                    state.accounts.contacts,
-                );
-                item.image = await getAvatarProfilePic(
-                    state,
-                    state.modal.addConversation.ensName as string,
-                );
-                items[lastIndex] = item;
 
-                // update cached contact list
+                // update the modal data as conversation is added
+                const stateData = state.modal.addConversation;
+                stateData.active = false;
+                stateData.processed = false;
                 dispatch({
-                    type: CacheType.Contacts,
-                    payload: items,
+                    type: ModalStateType.AddConversationData,
+                    payload: stateData,
                 });
-
-                // update the current contact list
-                const newList = [...contacts];
-                newList[lastIndex] = item;
-                setListOfContacts(newList);
             }
-
-            // update the modal data as conversation is added
-            const stateData = state.modal.addConversation;
-            stateData.active = false;
-            stateData.processed = false;
-            dispatch({
-                type: ModalStateType.AddConversationData,
-                payload: stateData,
-            });
         }
-    }
+    } catch (error) {}
 };
 
 // reset's the contact list on hiding any contact
