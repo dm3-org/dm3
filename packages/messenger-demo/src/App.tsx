@@ -10,7 +10,7 @@ function App() {
         ethereumProvider: process.env.REACT_APP_ETHEREUM_PROVIDER,
         walletConnectProjectId: process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID,
         showAlways: true,
-        hideFunction: undefined, // OPTINAL PARAMETER : 'attachments,edit,delete'
+        hideFunction: 'attachments,edit,delete', // OPTINAL PARAMETER : 'attachments,edit,delete' or undefined
     };
 
     return (
