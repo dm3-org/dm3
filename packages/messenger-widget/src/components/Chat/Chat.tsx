@@ -112,11 +112,13 @@ export function Chat(props: HideFunctionProps) {
     return (
         <div
             id="chat-msgs"
-            className={'chat-msgs width-fill '.concat(
-                state.accounts.selectedContact
-                    ? 'highlight-chat-border'
-                    : 'highlight-chat-border-none',
-            )}
+            className={'chat-msgs width-fill '
+                .concat(
+                    state.accounts.selectedContact
+                        ? 'highlight-chat-border'
+                        : 'highlight-chat-border-none',
+                )
+                .concat(' ', !props.showContacts ? ' ps-2 pe-2' : '')}
         >
             {/* Shimmer effect while messages are loading */}
             {showShimEffect && (

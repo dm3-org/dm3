@@ -11,8 +11,10 @@ import {
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { globalConfig } from 'dm3-lib-shared';
 import { hasUserProfile } from 'dm3-lib-profile';
+import { HideFunctionProps } from '../../interfaces/props';
+import menuIcon from '../../assets/images/menu.svg';
 
-export function RightHeader() {
+export function RightHeader(props: HideFunctionProps) {
     // fetches context storage
     const { state, dispatch } = useContext(GlobalContext);
 
@@ -32,21 +34,24 @@ export function RightHeader() {
 
     // method to set profile page and set contact
     const updateView = () => {
-        let profileActive: RightViewSelected = state.uiView.selectedRightView;
-        profileActive =
-            profileActive === RightViewSelected.Profile
-                ? RightViewSelected.Default
-                : RightViewSelected.Profile;
+        if (props.showContacts) {
+            let profileActive: RightViewSelected =
+                state.uiView.selectedRightView;
+            profileActive =
+                profileActive === RightViewSelected.Profile
+                    ? RightViewSelected.Default
+                    : RightViewSelected.Profile;
 
-        dispatch({
-            type: UiViewStateType.SetSelectedRightView,
-            payload: profileActive,
-        });
+            dispatch({
+                type: UiViewStateType.SetSelectedRightView,
+                payload: profileActive,
+            });
 
-        dispatch({
-            type: AccountsType.SetSelectedContact,
-            payload: undefined,
-        });
+            dispatch({
+                type: AccountsType.SetSelectedContact,
+                payload: undefined,
+            });
+        }
     };
 
     const fetchDisplayName = async () => {
@@ -102,28 +107,45 @@ export function RightHeader() {
 
     return (
         <div
-            className={'col-12 d-flex align-items-center justify-content-end pr-0 profile-name-container'.concat(
-                ' ',
-                state.uiView.selectedRightView === RightViewSelected.Profile
-                    ? 'background-chat'
-                    : 'background-container',
+            className={(props.showContacts
+                ? 'justify-content-end'
+                : 'justify-content-between'
+            ).concat(
+                ' col-12 d-flex align-items-center pr-0 profile-name-container'.concat(
+                    ' ',
+                    state.uiView.selectedRightView === RightViewSelected.Profile
+                        ? ' background-chat'
+                        : ' background-container',
+                ),
             )}
         >
-            <div className="me-2">
-                <ConnectButton showBalance={false} />
+            {!props.showContacts && (
+                <div
+                    className={
+                        !props.showContacts ? 'p-2' : 'menu-icon-container'
+                    }
+                >
+                    <img src={menuIcon} className="pointer-cursor" alt="menu" />
+                </div>
+            )}
+
+            <div className="d-flex align-items-center justify-content-end">
+                <div className="me-2">
+                    <ConnectButton showBalance={false} />
+                </div>
+                <span
+                    onClick={() => updateView()}
+                    className="profile-name font-weight-500 pointer-cursor text-secondary-color"
+                >
+                    {displayName}
+                </span>
+                <img
+                    src={profilePic ? profilePic : humanIcon}
+                    alt="menu"
+                    className="pointer-cursor border-radius-3 default-profile-pic"
+                    onClick={() => updateView()}
+                />
             </div>
-            <span
-                onClick={() => updateView()}
-                className="profile-name font-weight-500 pointer-cursor text-secondary-color"
-            >
-                {displayName}
-            </span>
-            <img
-                src={profilePic ? profilePic : humanIcon}
-                alt="menu"
-                className="pointer-cursor border-radius-3 default-profile-pic"
-                onClick={() => updateView()}
-            />
         </div>
     );
 }
