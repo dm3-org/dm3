@@ -12589,27 +12589,17 @@ __metadata:
     "@types/nodemailer": ^6.4.9
     "@types/uuid": ^8.3.4
     "@types/whatwg-encoding": ^2.0.0
-    ajv: ^8.11.0
-    axios: ^0.25.0
-    axios-mock-adapter: ^1.21.2
     dm3-lib-crypto: "workspace:^"
     dm3-lib-messaging: "workspace:^"
     dm3-lib-profile: "workspace:^"
+    dm3-lib-shared: "workspace:^"
     ethers: 5.7.2
-    googleapis: ^100.0.0
     jest: ^28.1.1
-    libsodium-wrappers: ^0.7.10
-    nodemailer: ^6.9.4
-    query-string: ^7.1.1
-    safe-stable-stringify: ^2.4.1
-    socket.io: ^4.4.1
-    socket.io-client: ^4.7.1
+    nodemailer: 6.9.7
     ts-jest: ^28.0.4
     ts-json-schema-generator: ^0.98.0
     typescript: ^4.4.2
     uuid: ^8.3.2
-    web3.storage: ^3.5.7
-    whatwg-encoding: ^2.0.0
   languageName: unknown
   linkType: soft
 
@@ -22179,10 +22169,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nodemailer@npm:^6.9.4":
-  version: 6.9.5
-  resolution: "nodemailer@npm:6.9.5"
-  checksum: e39282795e09f0685691b1511f74e2dc4703ba6ecd55d964c2f8a1b54591e5b284228c90cd6a203b498a5a1ea2610415306e8d7eda0b3cd9ebdcb210f05b2846
+"nodemailer@npm:6.9.7":
+  version: 6.9.7
+  resolution: "nodemailer@npm:6.9.7"
+  checksum: 0cf66d27aed3bd2cbdff9939402cec3d2119c31b2b9ff4af3bcd59f48287ea75b90c0ce2cd9eb0df838164972cd25581b4b723c91fd673e2608bcb28445ccb1b
   languageName: node
   linkType: hard
 
@@ -26660,7 +26650,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"socket.io-client@npm:^4.4.1, socket.io-client@npm:^4.6.1, socket.io-client@npm:^4.7.1":
+"socket.io-client@npm:^4.4.1, socket.io-client@npm:^4.6.1":
   version: 4.7.2
   resolution: "socket.io-client@npm:4.7.2"
   dependencies:
