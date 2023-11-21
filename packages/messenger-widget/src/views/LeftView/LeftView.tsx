@@ -1,4 +1,3 @@
-import './LeftView.css';
 import { Contacts } from '../../components/Contacts/Contacts';
 import menuIcon from '../../assets/images/menu.svg';
 import ConfigureProfileBox from '../../components/ConfigureProfileBox/ConfigureProfileBox';

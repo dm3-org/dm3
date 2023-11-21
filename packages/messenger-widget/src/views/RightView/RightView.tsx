@@ -12,10 +12,11 @@ import { HideFunctionProps } from '../../interfaces/props';
 export default function RightView(props: HideFunctionProps) {
     // fetches context storage
     const { state } = useContext(GlobalContext);
+
     return (
         <>
             <div className="col-12 p-0 h-100 border-radius-8 background-chat chat-screen-container">
-                <RightHeader />
+                <RightHeader showContacts={props.showContacts} />
                 {state.uiView.selectedRightView ===
                     RightViewSelected.Default && (
                     <div className="d-flex justify-content-center align-items-center default-screen">
