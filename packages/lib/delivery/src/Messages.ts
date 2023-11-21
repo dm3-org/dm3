@@ -4,7 +4,7 @@ import {
     UserProfile,
 } from 'dm3-lib-profile';
 import { ethers } from 'ethers';
-import stringify from 'safe-stable-stringify';
+import { stringify } from 'dm3-lib-shared';
 
 import {
     decryptAsymmetric,

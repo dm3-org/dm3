@@ -13,22 +13,12 @@
     },
     "dependencies": {
         "@types/libsodium-wrappers": "^0.7.10",
-        "ajv": "^8.11.0",
-        "axios": "^0.25.0",
         "dm3-lib-crypto": "workspace:^",
         "dm3-lib-messaging": "workspace:^",
         "dm3-lib-profile": "workspace:^",
+        "dm3-lib-shared": "workspace:^",
         "ethers": "5.7.2",
-        "googleapis": "^100.0.0",
-        "libsodium-wrappers": "^0.7.10",
-        "nodemailer": "^6.9.4",
-        "query-string": "^7.1.1",
-        "safe-stable-stringify": "^2.4.1",
-        "socket.io": "^4.4.1",
-        "socket.io-client": "^4.7.1",
-        "uuid": "^8.3.2",
-        "web3.storage": "^3.5.7",
-        "whatwg-encoding": "^2.0.0"
+        "uuid": "^8.3.2"
     },
     "devDependencies": {
         "@types/data-urls": "^3.0.1",
@@ -37,8 +27,8 @@
         "@types/nodemailer": "^6.4.9",
         "@types/uuid": "^8.3.4",
         "@types/whatwg-encoding": "^2.0.0",
-        "axios-mock-adapter": "^1.21.2",
         "jest": "^28.1.1",
+        "nodemailer": "6.9.7",
         "ts-jest": "^28.0.4",
         "ts-json-schema-generator": "^0.98.0",
         "typescript": "^4.4.2"
