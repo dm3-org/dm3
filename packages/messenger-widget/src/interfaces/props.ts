@@ -85,4 +85,6 @@ export interface DeleteDM3NameProps {
 
 export interface HideFunctionProps {
     hideFunction?: string;
+    showContacts?: boolean;
+    defaultContact?: string;
 }
