@@ -225,6 +225,24 @@ export function Contacts(props: DashboardProps) {
     }, [contactSelected]);
 
     useEffect(() => {
+        if (
+            !props.dm3Props.config.showContacts &&
+            props.dm3Props.config.defaultContact &&
+            !state.accounts.selectedContact &&
+            contacts
+        ) {
+            const defaultContactIndex = contacts.findIndex(
+                (contact) =>
+                    contact.contactDetails.account.ensName ===
+                    props.dm3Props.config.defaultContact,
+            );
+            if (defaultContactIndex > -1) {
+                setContactSelected(defaultContactIndex);
+            }
+        }
+    }, [contacts]);
+
+    useEffect(() => {
         fetchMessageSizeLimit(state, dispatch);
     }, []);
 

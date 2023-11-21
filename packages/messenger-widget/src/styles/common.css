@@ -132,6 +132,10 @@ input:focus {
     height: 0.1rem;
 }
 
+.menu-icon-container {
+    padding: 0.9rem 0.7rem 0.7rem 2rem;
+}
+
 /* CSS to rotate the spinner svg image */
 @-webkit-keyframes rotating {
     from {
