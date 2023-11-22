@@ -2,7 +2,7 @@ import React from 'react';
 
 const Header: React.FC = () => {
     return (
-        <nav className="navbar fixed-top navbar-light" style={{ backgroundColor: '#000000ff' }}>
+        <nav className="navbar fixed-top navbar-light" >
             <a href="https://dm3.network" target="_blank" style={{ position: 'absolute', top: '20px', left: '25px' }}>
                 <img
                     src="/dm3-logo.png"
