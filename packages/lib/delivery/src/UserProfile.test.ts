@@ -24,6 +24,7 @@ const signProfile = async (profile: UserProfile) => {
 
     const profileCreationMessage = getProfileCreationMessage(
         stringify(profile),
+        '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
     );
 
     const signature = await wallet.signMessage(profileCreationMessage);

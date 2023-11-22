@@ -18,7 +18,10 @@ export async function createKeyPairsFromSig(
         throw Error('No eth address');
     }
 
-    const storageKeyCreationMessage = getStorageKeyCreationMessage(nonce);
+    const storageKeyCreationMessage = getStorageKeyCreationMessage(
+        nonce,
+        ethAddress,
+    );
 
     const signature = await personalSign(
         provider,

@@ -25,11 +25,23 @@ export async function createSigningKeyPair(seed?: string): Promise<KeyPair> {
     };
 }
 
-export function getStorageKeyCreationMessage(nonce: string) {
+export function getStorageKeyCreationMessage(nonce: string, address: string) {
+    // TODO: during linked profile implementation these values should be fetched from env
+    const statement =
+        `Connect the DM3 MESSENGER with your wallet. Sign in with a signature. ` +
+        `Keys for secure communication are derived from this signature.\n\n` +
+        `(There is no paid transaction initiated. The signature is used off-chain only.)`;
+    const domain = 'dm3.chat';
+    const uri = 'https://dm3.chat';
+    const version = '1';
+
     return (
-        `Connect the dm3 app with your wallet.` +
-        ` Keys for secure communication are derived from the signature.` +
-        ` No paid transaction will be executed.\nNonce: ${nonce}`
+        `${domain} wants you to sign in with your Ethereum account:\n` +
+        `${ethers.utils.getAddress(address)}\n\n` +
+        `${statement}\n\n` +
+        `URI: ${uri}\n` +
+        `Version: ${version}\n` +
+        `Nonce: ${nonce}`
     );
 }
 
