@@ -16,7 +16,7 @@ const getMockProfileKeys = async () => {
         '0xac58f2f021d6f148fd621b355edbd0ebadcf9682019015ef1219cf9c0c2ddc8b',
     );
 
-    const nonceMsg = getStorageKeyCreationMessage(nonce);
+    const nonceMsg = getStorageKeyCreationMessage(nonce, wallet.address);
     const signedMessage = await wallet.signMessage(nonceMsg);
 
     return await createProfileKeys(
@@ -145,7 +145,7 @@ describe('Envelope', () => {
                         '0xc3428898a18e2cdb914e7eec870e45348c7f401d094968408524b787b43451d0',
                     version: 'v1',
                     signature:
-                        'YEk6gtRvjnIqh90iZgUU6t/eUONjFh0EvcYU+Iln6ZwUPr1DaZwzH0M3kA6m8ygJOaCUkSugt9ghevCUNvwcCw==',
+                        'p9Crtv4iVR6QB/OvQYOEMBrrfmjhnAeqwJPivmaerTKcSFXLCS57pTPaooZpwMq6/j5nWd25rJvDfiVh84RNCw==',
                 },
             });
         });

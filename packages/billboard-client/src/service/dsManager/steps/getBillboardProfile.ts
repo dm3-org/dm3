@@ -24,6 +24,7 @@ export async function getBillboardProfile(
             const wallet = new ethers.Wallet(billboard.privateKey);
             const storageKeyCreationMessage = getStorageKeyCreationMessage(
                 '0xca8f04fdc80d659997f69b02',
+                wallet.address,
             );
             const storageKeySig = await wallet.signMessage(
                 storageKeyCreationMessage,

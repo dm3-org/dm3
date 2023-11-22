@@ -85,6 +85,7 @@ describe('Profile', () => {
 
             const createUserProfileMessage = getProfileCreationMessage(
                 stringify(userProfile),
+                wallet.address,
             );
             const signature = await wallet.signMessage(
                 createUserProfileMessage,
