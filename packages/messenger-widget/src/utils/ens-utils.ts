@@ -182,3 +182,26 @@ export const getContactSelected = async (
     }
     return null;
 };
+
+// method to check DM3 network profile on ENS
+export const checkEnsDM3Text = async (
+    state: GlobalState,
+    ensName: string,
+): Promise<boolean> => {
+    try {
+        const provider = state.connection.provider;
+
+        if (provider && ensName) {
+            const resolver = await provider.getResolver(ensName);
+            if (resolver) {
+                const data = await resolver.getText('network.dm3.profile');
+                return data ? true : false;
+            }
+        }
+
+        return false;
+    } catch (error) {
+        log(error, 'Error in checking ENS DM3 profile ');
+        return false;
+    }
+};
