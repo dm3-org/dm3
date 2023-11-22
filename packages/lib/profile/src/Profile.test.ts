@@ -35,6 +35,7 @@ const getProfileData = async (): Promise<{
 
     const createUserProfileMessage = getProfileCreationMessage(
         stringify(profile),
+        wallet.address,
     );
     const signature = await wallet.signMessage(createUserProfileMessage);
 
@@ -140,6 +141,7 @@ describe('Account', () => {
             const wallet = ethers.Wallet.createRandom();
             const createUserProfileMessage = getProfileCreationMessage(
                 stringify(profile),
+                wallet.address,
             );
             const signature = await wallet.signMessage(
                 createUserProfileMessage,

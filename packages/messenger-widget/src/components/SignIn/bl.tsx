@@ -171,7 +171,10 @@ export async function createKeyPairsFromSignature(
         throw Error('No eth address');
     }
 
-    const storageKeyCreationMessage = getStorageKeyCreationMessage(nonce);
+    const storageKeyCreationMessage = getStorageKeyCreationMessage(
+        nonce,
+        ethAddress,
+    );
 
     const signature = await personalSign(
         provider,
@@ -346,8 +349,10 @@ export async function signProfile(
     stringifiedProfile: string,
 ): Promise<string> {
     try {
-        const profileCreationMessage =
-            getProfileCreationMessage(stringifiedProfile);
+        const profileCreationMessage = getProfileCreationMessage(
+            stringifiedProfile,
+            address,
+        );
         return await personalSign(provider, address, profileCreationMessage);
     } catch (error: any) {
         const err = error?.message.split(':');

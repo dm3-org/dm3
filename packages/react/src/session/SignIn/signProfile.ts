@@ -9,8 +9,10 @@ export async function signProfile(
     stringifiedProfile: string,
 ): Promise<string> {
     try {
-        const profileCreationMessage =
-            getProfileCreationMessage(stringifiedProfile);
+        const profileCreationMessage = getProfileCreationMessage(
+            stringifiedProfile,
+            address,
+        );
         return await personalSign(provider, address, profileCreationMessage);
     } catch (e) {
         throw Error("Can't signIn profile");
