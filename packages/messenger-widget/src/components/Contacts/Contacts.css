@@ -20,6 +20,10 @@
     padding: 0.5rem 0.5rem 0.5rem 1rem;
 }
 
+.contact-details-container:hover .action-container {
+    display: block !important;
+}
+
 .pic {
     height: 3rem;
     width: 3rem;
@@ -34,6 +38,7 @@
 }
 
 .action-container {
+    display: none;
     border-radius: 3px;
     border: 1px solid var(--text-primary-color);
     position: relative;

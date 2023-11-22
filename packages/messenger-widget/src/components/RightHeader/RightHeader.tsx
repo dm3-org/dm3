@@ -2,9 +2,10 @@ import './RightHeader.css';
 import { useContext, useEffect, useState } from 'react';
 import humanIcon from '../../assets/images/human.svg';
 import { GlobalContext } from '../../utils/context-utils';
-import { getAvatarProfilePic } from '../../utils/ens-utils';
+import { checkEnsDM3Text, getAvatarProfilePic } from '../../utils/ens-utils';
 import {
     AccountsType,
+    ConnectionType,
     RightViewSelected,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
@@ -73,8 +74,14 @@ export function RightHeader(props: HideFunctionProps) {
                         state.connection.provider,
                         name,
                     );
+                    const dm3ProfileRecordExists = await checkEnsDM3Text(
+                        state,
+                        name,
+                    );
                     setDisplayName(
-                        hasProfile ? name : state.connection.account?.ensName,
+                        hasProfile && dm3ProfileRecordExists
+                            ? name
+                            : state.connection.account?.ensName,
                     );
                 } else {
                     return setDisplayName(state.connection.account.ensName);
@@ -95,6 +102,43 @@ export function RightHeader(props: HideFunctionProps) {
         }
     };
 
+    const getEnsName = async () => {
+        try {
+            if (state.connection.provider && state.connection.ethAddress) {
+                const isAddrEnsName =
+                    state.connection.account?.ensName?.endsWith(
+                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    );
+                const name = await state.connection.provider.lookupAddress(
+                    state.connection.ethAddress,
+                );
+                if (name && !isAddrEnsName) {
+                    const dm3ProfileRecordExists = await checkEnsDM3Text(
+                        state,
+                        name,
+                    );
+                    const profile = await hasUserProfile(
+                        state.connection.provider,
+                        name,
+                    );
+                    if (
+                        profile &&
+                        dm3ProfileRecordExists &&
+                        state.connection.account?.ensName !== name
+                    ) {
+                        dispatch({
+                            type: ConnectionType.ChangeAccount,
+                            payload: {
+                                ...state.connection.account!,
+                                ensName: name,
+                            },
+                        });
+                    }
+                }
+            }
+        } catch (error) {}
+    };
+
     // loads the profile pic on page render
     useEffect(() => {
         fetchAndSetProfilePic();
@@ -103,6 +147,7 @@ export function RightHeader(props: HideFunctionProps) {
 
     useEffect(() => {
         fetchDisplayName();
+        getEnsName();
     }, [state.connection.account?.ensName]);
 
     return (
