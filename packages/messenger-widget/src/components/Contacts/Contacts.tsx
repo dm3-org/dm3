@@ -270,7 +270,6 @@ export function Contacts(props: DashboardProps) {
             {contacts.length > 0 &&
                 contacts.map((data, index) => (
                     <div
-                        title={data.contactDetails.account.ensName}
                         id={`chat-item-id-${index}`}
                         key={index}
                         className={'pointer-cursor width-fill contact-details-container'.concat(
@@ -300,7 +299,12 @@ export function Contacts(props: DashboardProps) {
                                     className="d-flex flex-row font-weight-500 justify-content-between 
                                     text-primary-color"
                                 >
-                                    <div>
+                                    <div
+                                        className="pb-1"
+                                        title={
+                                            data.contactDetails.account.ensName
+                                        }
+                                    >
                                         <p className="display-name">
                                             {data.name}
                                         </p>

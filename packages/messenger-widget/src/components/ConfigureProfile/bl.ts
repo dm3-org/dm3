@@ -12,6 +12,7 @@ import { globalConfig, ethersHelper, stringify } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { setContactHeightToMaximum } from '../Contacts/bl';
+import { checkEnsDM3Text } from '../../utils/ens-utils';
 
 export const PROFILE_INPUT_FIELD_CLASS =
     'profile-input font-weight-400 font-size-14 border-radius-6 w-100 line-height-24';
@@ -72,7 +73,10 @@ export const getEnsName = async (
                 state.connection.provider,
                 name,
             );
-            hasProfile && setEnsNameFromResolver(name);
+            const dm3ProfileRecordExists = await checkEnsDM3Text(state, name);
+            hasProfile &&
+                dm3ProfileRecordExists &&
+                setEnsNameFromResolver(name);
         }
     }
 };
@@ -306,6 +310,16 @@ export const submitEnsNameTransaction = async (
             const response = await ethersHelper.executeTransaction(tx);
             await response.wait();
             setEnsNameFromResolver(ensName);
+
+            dispatch({
+                type: ConnectionType.ChangeAccount,
+                payload: {
+                    ...state.connection.account!,
+                    ensName: ensName,
+                },
+            });
+
+            setContactHeightToMaximum(true);
         } else {
             throw Error('Error creating publish transaction');
         }
