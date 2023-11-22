@@ -58,7 +58,7 @@ const getMockProfileKeys = async () => {
         '0xac58f2f021d6f148fd621b355edbd0ebadcf9682019015ef1219cf9c0c2ddc8b',
     );
 
-    const nonceMsg = getStorageKeyCreationMessage(nonce);
+    const nonceMsg = getStorageKeyCreationMessage(nonce, wallet.address);
     const signedMessage = await wallet.signMessage(nonceMsg);
 
     return await createProfileKeys(

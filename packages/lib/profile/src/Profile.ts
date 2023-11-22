@@ -45,11 +45,22 @@ export const PROFILE_RECORD_NAME = 'network.dm3.profile';
  * signs a profile with an ethereum account key
  * @param stringifiedProfile stringified dm3 user profile object
  */
-export function getProfileCreationMessage(stringifiedProfile: string) {
+export function getProfileCreationMessage(
+    stringifiedProfile: string,
+    address: string,
+) {
+    const domain = 'dm3.chat';
+    const uri = 'https://dm3.chat';
+    const version = '1';
+
     return (
-        `Please sign this message to link your dm3 profile with your Wallet. ` +
-        `(This signature will not trigger any transaction or cost gas fees.) ` +
-        `Your dm3 profile:\n\n${stringifiedProfile}`
+        `${domain} wants you register your dm3 profile with your Ethereum account:\n` +
+        `${ethers.utils.getAddress(address)}\n\n` +
+        `Register your dm3 profile. This is required only once!\n` +
+        `(There is no paid transaction initiated. The signature is used off-chain only.)\n\n` +
+        `URI: ${uri}\n` +
+        `Version: ${version}\n` +
+        `dm3 Profile: ${stringifiedProfile}`
     );
 }
 
@@ -116,6 +127,7 @@ export function checkUserProfileWithAddress(
 ): boolean {
     const createUserProfileMessage = getProfileCreationMessage(
         stringify(profile),
+        accountAddress,
     );
 
     return (
@@ -192,12 +204,15 @@ export function isSameEnsName(
 
 async function createKeyPairsFromSig(
     sign: (msg: string) => Promise<string>,
-
+    address: string,
     nonce: string,
     storageKey?: string,
 ): Promise<ProfileKeys> {
     if (!storageKey) {
-        const storageKeyCreationMessage = getStorageKeyCreationMessage(nonce);
+        const storageKeyCreationMessage = getStorageKeyCreationMessage(
+            nonce,
+            address,
+        );
         const signature = await sign(storageKeyCreationMessage);
 
         const newStorageKey = await createStorageKey(signature);
@@ -235,6 +250,7 @@ export async function createProfile(
 
     const keys = await createKeyPairsFromSig(
         (msg: string) => signer(msg, accountAddress),
+        accountAddress,
         nonce,
         storageKey,
     );
@@ -247,6 +263,7 @@ export async function createProfile(
 
     const profileCreationMessage = getProfileCreationMessage(
         stringify(profile),
+        accountAddress,
     );
     const profileSig = await signer(profileCreationMessage, accountAddress);
     return {

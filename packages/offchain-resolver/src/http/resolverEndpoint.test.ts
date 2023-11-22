@@ -372,6 +372,7 @@ const getSignedUserProfile = async (overwriteProfile?: UserProfile) => {
 
     const createUserProfileMessage = getProfileCreationMessage(
         stringify(profile),
+        wallet.address,
     );
     const signature = await wallet.signMessage(createUserProfileMessage);
 

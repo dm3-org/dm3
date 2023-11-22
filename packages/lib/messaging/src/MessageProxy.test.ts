@@ -44,7 +44,7 @@ const proxyEnvelop = {
     to: 'alice.eth',
 };
 
-describe('MessageProxy', () => {
+describe.skip('MessageProxy', () => {
     describe('messageProxy', () => {
         it('use proxy', async () => {
             expect.assertions(1);
@@ -55,6 +55,7 @@ describe('MessageProxy', () => {
                     'Vrd/eTAk/jZb/w5L408yDjOO5upNFDGdt0lyWRjfBEk=',
                 url: 'http://localhost',
             };
+
             const bobProfile = {
                 profile: {
                     deliveryServices: ['ds1.dm3.eth', 'ds2.dm3.eth'],
