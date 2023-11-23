@@ -1,6 +1,7 @@
 import { hasUserProfile, SignedUserProfile } from 'dm3-lib-profile';
 import {
     Actions,
+    CacheType,
     ConnectionType,
     GlobalState,
     ModalStateType,
@@ -312,11 +313,8 @@ export const submitEnsNameTransaction = async (
             setEnsNameFromResolver(ensName);
 
             dispatch({
-                type: ConnectionType.ChangeAccount,
-                payload: {
-                    ...state.connection.account!,
-                    ensName: ensName,
-                },
+                type: CacheType.AccountName,
+                payload: ensName,
             });
 
             setContactHeightToMaximum(true);
