@@ -5,7 +5,7 @@ import { GlobalContext } from '../../utils/context-utils';
 import { checkEnsDM3Text, getAvatarProfilePic } from '../../utils/ens-utils';
 import {
     AccountsType,
-    ConnectionType,
+    CacheType,
     RightViewSelected,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
@@ -21,7 +21,6 @@ export function RightHeader(props: HideFunctionProps) {
 
     // state to store profile pic of signed in user
     const [profilePic, setProfilePic] = useState<string>('');
-    const [displayName, setDisplayName] = useState<string>('');
 
     // method to fetch profile pic
     const fetchAndSetProfilePic = async () => {
@@ -78,65 +77,38 @@ export function RightHeader(props: HideFunctionProps) {
                         state,
                         name,
                     );
-                    setDisplayName(
-                        hasProfile && dm3ProfileRecordExists
-                            ? name
-                            : state.connection.account?.ensName,
-                    );
+                    dispatch({
+                        type: CacheType.AccountName,
+                        payload:
+                            hasProfile && dm3ProfileRecordExists
+                                ? name
+                                : state.connection.account?.ensName,
+                    });
                 } else {
-                    return setDisplayName(state.connection.account.ensName);
+                    dispatch({
+                        type: CacheType.AccountName,
+                        payload: state.connection.account.ensName,
+                    });
+                    return;
                 }
             } else {
-                return setDisplayName(
-                    state.connection.account
+                dispatch({
+                    type: CacheType.AccountName,
+                    payload: state.connection.account
                         ? state.connection.account.ensName
                         : '',
-                );
+                });
+                return;
             }
         } catch (error) {
-            return setDisplayName(
-                state.connection.account
+            dispatch({
+                type: CacheType.AccountName,
+                payload: state.connection.account
                     ? state.connection.account.ensName
                     : '',
-            );
+            });
+            return;
         }
-    };
-
-    const getEnsName = async () => {
-        try {
-            if (state.connection.provider && state.connection.ethAddress) {
-                const isAddrEnsName =
-                    state.connection.account?.ensName?.endsWith(
-                        globalConfig.ADDR_ENS_SUBDOMAIN(),
-                    );
-                const name = await state.connection.provider.lookupAddress(
-                    state.connection.ethAddress,
-                );
-                if (name && !isAddrEnsName) {
-                    const dm3ProfileRecordExists = await checkEnsDM3Text(
-                        state,
-                        name,
-                    );
-                    const profile = await hasUserProfile(
-                        state.connection.provider,
-                        name,
-                    );
-                    if (
-                        profile &&
-                        dm3ProfileRecordExists &&
-                        state.connection.account?.ensName !== name
-                    ) {
-                        dispatch({
-                            type: ConnectionType.ChangeAccount,
-                            payload: {
-                                ...state.connection.account!,
-                                ensName: name,
-                            },
-                        });
-                    }
-                }
-            }
-        } catch (error) {}
     };
 
     // loads the profile pic on page render
@@ -147,7 +119,6 @@ export function RightHeader(props: HideFunctionProps) {
 
     useEffect(() => {
         fetchDisplayName();
-        getEnsName();
     }, [state.connection.account?.ensName]);
 
     return (
@@ -182,7 +153,7 @@ export function RightHeader(props: HideFunctionProps) {
                     onClick={() => updateView()}
                     className="profile-name font-weight-500 pointer-cursor text-secondary-color"
                 >
-                    {displayName}
+                    {state.cache.accountName}
                 </span>
                 <img
                     src={profilePic ? profilePic : humanIcon}

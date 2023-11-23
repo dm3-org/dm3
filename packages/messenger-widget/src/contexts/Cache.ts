@@ -41,6 +41,12 @@ export function cacheReducer(state: Cache, action: CacheActions): Cache {
                 messageSizeLimit: action.payload,
             };
 
+        case CacheType.AccountName:
+            return {
+                ...state,
+                accountName: action.payload,
+            };
+
         default:
             return state;
     }
