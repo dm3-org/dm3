@@ -121,12 +121,11 @@ export function ConfigureProfile() {
     useEffect(() => {
         if (
             state.connection.account?.ensName &&
-            state.connection.account?.ensName.endsWith(
-                globalConfig.USER_ENS_SUBDOMAIN(),
+            !state.connection.account?.ensName.endsWith(
+                globalConfig.ADDR_ENS_SUBDOMAIN(),
             )
         ) {
-            setExistingDm3Name(state.connection.account.ensName);
-            fetchExistingDM3Name(setExistingDm3Name);
+            fetchExistingDM3Name(state, setExistingDm3Name);
         }
     }, [state.connection.account?.ensName]);
 
