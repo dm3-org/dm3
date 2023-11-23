@@ -62,6 +62,7 @@ export type CachePayload = {
         message: string | null;
     };
     [CacheType.MessageSizeLimit]: number;
+    [CacheType.AccountName]: string;
 };
 
 export type CacheActions =
@@ -152,6 +153,7 @@ export enum CacheType {
     Contacts = 'CONTACTS',
     LastConversation = 'LAST_CONVERSATION',
     MessageSizeLimit = 'MESSAGE_SIZE_LIMIT',
+    AccountName = 'ACCOUNT_NAME',
 }
 
 export enum ConnectionType {

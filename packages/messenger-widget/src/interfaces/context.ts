@@ -33,6 +33,7 @@ export interface Cache {
         message: string | null;
     };
     messageSizeLimit: number;
+    accountName: string;
 }
 
 export interface UiState {
