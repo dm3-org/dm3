@@ -9,6 +9,7 @@ import {
     NAME_TYPE,
     PROFILE_INPUT_FIELD_CLASS,
     closeConfigurationModal,
+    fetchExistingDM3Name,
     getEnsName,
     removeAliasFromDm3Name,
     submitDm3UsernameClaim,
@@ -125,6 +126,7 @@ export function ConfigureProfile() {
             )
         ) {
             setExistingDm3Name(state.connection.account.ensName);
+            fetchExistingDM3Name(setExistingDm3Name);
         }
     }, [state.connection.account?.ensName]);
 
