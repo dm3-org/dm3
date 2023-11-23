@@ -85,11 +85,13 @@ export function RightHeader(props: HideFunctionProps) {
                                 : state.connection.account?.ensName,
                     });
                 } else {
+                    const dm3Name = '';
                     dispatch({
                         type: CacheType.AccountName,
-                        payload: state.connection.account.ensName,
+                        payload: dm3Name
+                            ? dm3Name
+                            : state.connection.account.ensName,
                     });
-                    return;
                 }
             } else {
                 dispatch({
@@ -98,7 +100,6 @@ export function RightHeader(props: HideFunctionProps) {
                         ? state.connection.account.ensName
                         : '',
                 });
-                return;
             }
         } catch (error) {
             dispatch({
@@ -107,7 +108,6 @@ export function RightHeader(props: HideFunctionProps) {
                     ? state.connection.account.ensName
                     : '',
             });
-            return;
         }
     };
 
