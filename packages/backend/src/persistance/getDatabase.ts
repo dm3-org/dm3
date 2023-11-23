@@ -6,7 +6,7 @@ import {
 import { EncryptionEnvelop } from 'dm3-lib-messaging';
 import { UserStorage } from 'dm3-lib-storage';
 import { createClient } from 'redis';
-import { getIdEnsName } from './getIdEnsName';
+import { getAliasChain, getIdEnsName } from './getIdEnsName';
 import Messages from './messages';
 import { syncAcknoledgment } from './messages/syncAcknoledgment';
 import Notification from './notification';
@@ -74,6 +74,7 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
         getPending: Pending.getPending(redis),
         deletePending: Pending.deletePending(redis),
         getIdEnsName: getIdEnsName(redis),
+        getAliasChain: getAliasChain(redis),
         syncAcknoledgment: syncAcknoledgment(redis),
         //Notification
         getUsersNotificationChannels:
@@ -116,6 +117,7 @@ export interface IDatabase {
     getPending: (ensName: string) => Promise<string[]>;
     deletePending: (ensName: string) => Promise<void>;
     getIdEnsName: (ensName: string) => Promise<string>;
+    getAliasChain: (ensName: string) => Promise<string[]>;
     syncAcknoledgment: (
         conversationId: string,
         ensName: string,

@@ -4,6 +4,7 @@ import { validateSchema } from 'dm3-lib-shared';
 import express, { NextFunction } from 'express';
 import { WithLocals } from './types';
 import { auth } from './utils';
+import { getAliasChain } from './persistance/getIdEnsName';
 
 export default () => {
     const router = express.Router();
@@ -21,6 +22,26 @@ export default () => {
                 );
                 if (profile) {
                     res.json(profile);
+                } else {
+                    res.sendStatus(404);
+                }
+            } catch (e) {
+                next(e);
+            }
+        },
+    );
+
+    router.get(
+        '/aliasChain/:ensName',
+        //@ts-ignore
+        async (req: express.Request & { app: WithLocals }, res, next) => {
+            try {
+                const chain = await req.app.locals.db.getAliasChain(
+                    req.params.ensName,
+                );
+
+                if (chain.length > 0) {
+                    res.json(chain);
                 } else {
                     res.sendStatus(404);
                 }
