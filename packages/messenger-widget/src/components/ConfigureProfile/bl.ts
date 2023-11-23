@@ -346,3 +346,12 @@ export const validateName = (username: string): boolean => {
 export const validateEnsName = (username: string): boolean => {
     return ethers.utils.isValidName(username);
 };
+
+export const fetchExistingDM3Name = (setExistingDm3Name: Function) => {
+    try {
+        const dm3Name = '';
+        setExistingDm3Name(dm3Name ? dm3Name : null);
+    } catch (error) {
+        setExistingDm3Name(null);
+    }
+};
