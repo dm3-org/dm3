@@ -3,6 +3,7 @@ import {
     getAccountDisplayName,
     getUserProfile,
     Account,
+    getDeliveryServiceProfile,
 } from 'dm3-lib-profile';
 import { UserDB, getConversation } from 'dm3-lib-storage';
 import { ContactPreview } from '../../interfaces/utils';
@@ -22,6 +23,7 @@ import { closeLoader, startLoader } from '../Loader/Loader';
 import { ethers } from 'ethers';
 import { getDeliveryServiceProperties } from 'dm3-lib-delivery-api';
 import { MessageState } from 'dm3-lib-messaging';
+import axios from 'axios';
 
 export const onContactSelected = (
     state: GlobalState,
@@ -430,21 +432,57 @@ export const updateContactOnAccountChange = async (
                                     .contactDetails,
                         });
                     }
-                } else if (itemList.length) {
+                } else {
+                    let contactToAdd;
+                    if (profile?.profile) {
+                        const deliveryServiceProfile =
+                            await getDeliveryServiceProfile(
+                                profile.profile.deliveryServices[0],
+                                state.connection.provider!,
+                                async (url: string) =>
+                                    (
+                                        await axios.get(url)
+                                    ).data,
+                            );
+
+                        contactToAdd = {
+                            account: {
+                                ensName: state.modal.addConversation
+                                    .ensName as string,
+                                profile: {
+                                    publicEncryptionKey:
+                                        profile.profile.publicEncryptionKey,
+                                    publicSigningKey:
+                                        profile.profile.publicSigningKey,
+                                    deliveryServices:
+                                        profile.profile.deliveryServices,
+                                },
+                                profileSignature: profile.signature,
+                            },
+                            deliveryServiceProfile: deliveryServiceProfile,
+                        };
+                    } else {
+                        contactToAdd = itemList[0];
+                    }
+
                     // update the contact details
-                    item.contactDetails = itemList[0];
+                    item.contactDetails = contactToAdd;
+
                     if (profile) {
                         item.contactDetails.account.profile = profile.profile;
                     }
+
                     item.message = getMessagesFromUser(
                         state.modal.addConversation.ensName as string,
                         state.userDb as UserDB,
                         state.accounts.contacts,
                     );
+
                     item.image = await getAvatarProfilePic(
                         state,
                         state.modal.addConversation.ensName as string,
                     );
+
                     items[lastIndex] = item;
 
                     // update cached contact list
