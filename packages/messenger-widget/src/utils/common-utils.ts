@@ -1,6 +1,6 @@
 import { SendDependencies, Message } from 'dm3-lib-messaging';
 import { Account, ProfileKeys } from 'dm3-lib-profile';
-import { log } from 'dm3-lib-shared';
+import { globalConfig, log } from 'dm3-lib-shared';
 import { StorageEnvelopContainer } from 'dm3-lib-storage';
 import { submitMessage } from '../adapters/messages';
 import {
@@ -170,6 +170,14 @@ export const showContactList = (dispatch: React.Dispatch<Actions>) => {
         type: UiViewStateType.SetSelectedLeftView,
         payload: LeftViewSelected.Contacts,
     });
+};
+
+export const getLastDm3Name = (nameList: string[]) => {
+    let index = -1;
+    index = nameList.findIndex((data) =>
+        data.endsWith(globalConfig.USER_ENS_SUBDOMAIN()),
+    );
+    return index > -1 ? nameList[index] : null;
 };
 
 // Constants

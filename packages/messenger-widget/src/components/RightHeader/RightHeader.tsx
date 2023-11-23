@@ -14,6 +14,8 @@ import { globalConfig } from 'dm3-lib-shared';
 import { hasUserProfile } from 'dm3-lib-profile';
 import { HideFunctionProps } from '../../interfaces/props';
 import menuIcon from '../../assets/images/menu.svg';
+import { getAliasChain } from 'dm3-lib-delivery-api';
+import { getLastDm3Name } from '../../utils/common-utils';
 
 export function RightHeader(props: HideFunctionProps) {
     // fetches context storage
@@ -85,7 +87,14 @@ export function RightHeader(props: HideFunctionProps) {
                                 : state.connection.account?.ensName,
                     });
                 } else {
-                    const dm3Name = '';
+                    const dm3Names: any = await getAliasChain(
+                        state.connection.account,
+                        state.connection.provider,
+                    );
+                    let dm3Name;
+                    if (dm3Names && dm3Names.length) {
+                        dm3Name = getLastDm3Name(dm3Names);
+                    }
                     dispatch({
                         type: CacheType.AccountName,
                         payload: dm3Name

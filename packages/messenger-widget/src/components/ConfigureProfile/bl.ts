@@ -7,13 +7,14 @@ import {
     ModalStateType,
 } from '../../utils/enum-type-utils';
 import { claimSubdomain, removeAlias } from 'dm3-lib-offchain-resolver-api';
-import { createAlias } from 'dm3-lib-delivery-api';
+import { createAlias, getAliasChain } from 'dm3-lib-delivery-api';
 import { Connection } from '../../interfaces/web3';
 import { globalConfig, ethersHelper, stringify } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { setContactHeightToMaximum } from '../Contacts/bl';
 import { checkEnsDM3Text } from '../../utils/ens-utils';
+import { getLastDm3Name } from '../../utils/common-utils';
 
 export const PROFILE_INPUT_FIELD_CLASS =
     'profile-input font-weight-400 font-size-14 border-radius-6 w-100 line-height-24';
@@ -347,10 +348,24 @@ export const validateEnsName = (username: string): boolean => {
     return ethers.utils.isValidName(username);
 };
 
-export const fetchExistingDM3Name = (setExistingDm3Name: Function) => {
+export const fetchExistingDM3Name = async (
+    state: GlobalState,
+    setExistingDm3Name: Function,
+) => {
     try {
-        const dm3Name = '';
-        setExistingDm3Name(dm3Name ? dm3Name : null);
+        if (state.connection.account && state.connection.provider) {
+            const dm3Names: any = await getAliasChain(
+                state.connection.account,
+                state.connection.provider,
+            );
+            let dm3Name;
+            if (dm3Names && dm3Names.length) {
+                dm3Name = getLastDm3Name(dm3Names);
+            }
+            setExistingDm3Name(dm3Name ? dm3Name : null);
+        } else {
+            setExistingDm3Name(null);
+        }
     } catch (error) {
         setExistingDm3Name(null);
     }
