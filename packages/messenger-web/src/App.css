@@ -1,3 +1,4 @@
 body {
     background-color: #000000; /* Ersetzen Sie #yourColor durch die gewünschte Farbe */
+    overflow: hidden;
 }

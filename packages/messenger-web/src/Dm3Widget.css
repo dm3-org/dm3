@@ -1,17 +1,17 @@
 .dm3widget {
     width: calc(100% - 40px );
-    height: calc(100% - 70px - 50px)  ;
+    height: calc(100% - 70px - 40px)  ;
     background-color: #000000;
     border: 1px solid #ff0000;
     /* Weiße Umrandung hinzugefügt */
     border-radius: 15px;
     position: absolute;
-    top: 90px;
+    top: 75px;
     left: 20px;
     transform: translate(0, 0);
     z-index: 10;
     box-shadow: 6px 6px 20px 0 rgba(05, 010, 020, 1);
-    /* Stellen Sie sicher, dass z-index höher ist als der des Backgrounds */
-/*    margin-top: 30px; /* Adjust this value as needed */
+    /*    margin-top: 30px; /* Adjust this value as needed */
+    overflow: hidden;
 }
 
