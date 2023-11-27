@@ -8,6 +8,7 @@ import {
     getProfileCreationMessage,
     getUserProfile,
     checkUserProfile,
+    DEFAULT_NONCE,
 } from 'dm3-lib-profile';
 import {
     createStorageKey,
@@ -51,8 +52,6 @@ import { claimAddress, getNameForAddress } from 'dm3-lib-offchain-resolver-api';
 import axios from 'axios';
 import { openErrorModal } from '../../utils/common-utils';
 import loader from '../../assets/images/loader.svg';
-
-const DEFAULT_NONCE = '0';
 
 export const getStorageLocation = (props: SignInProps) => {
     const persistedStorageLocation = window.localStorage.getItem(
@@ -283,7 +282,7 @@ async function getExistingDatebase(
 ) {
     const keys = await createKeyPairsFromSig(
         state.connection,
-        '0',
+        DEFAULT_NONCE,
         setSignInBtnContent,
     );
 
