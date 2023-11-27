@@ -1,10 +1,11 @@
 import { ethers } from 'ethers';
 import { createStorageKey, getStorageKeyCreationMessage } from 'dm3-lib-crypto';
 import { createProfileKeys } from './createProfileKeys';
+import { DEFAULT_NONCE } from '../Profile';
 
 test(`Should create keys`, async () => {
     expect.assertions(1);
-    const nonce = '0';
+    const nonce = DEFAULT_NONCE;
 
     const wallet = new ethers.Wallet(
         '0xac58f2f021d6f148fd621b355edbd0ebadcf9682019015ef1219cf9c0c2ddc8b',
@@ -20,15 +21,16 @@ test(`Should create keys`, async () => {
 
     expect(keys).toEqual({
         encryptionKeyPair: {
-            privateKey: '0wMyWrdDXCfuwRq4nm6IHqZ7hMbPOb5DsTt1C85w+zE=',
-            publicKey: 'JBvXxZY4BOnKK4J2s42ZpAJaFd/nmB5Sq7EB+jfA6H8=',
+            privateKey: 'dradnyjzlC7T87nZ3HfJo+w2aQQVhxP0Sdk+eZttEmw=',
+            publicKey: 'Cz5WfEEhkmzP52L7OJzd4sf9xQUYc9nRAbnevjTbL28=',
         },
         signingKeyPair: {
             privateKey:
-                'ti4w8V+E6x4Z63XIMA9ZM0lXKhMjTaxP/qjARC8c4CxRQS5qo2AEYU+ZeFyB0bksaPBX1K5/QA/dregbbmFgQQ==',
-            publicKey: 'UUEuaqNgBGFPmXhcgdG5LGjwV9Suf0AP3a3oG25hYEE=',
+                'hHFeMBtp9mkqrPPSRVbgQU9KMj/K/1zvjjBJ7kcD25i/ACwK7hMAvcp54J+QqyL4AJNGN94e1somHjJSz18vkA==',
+            publicKey: 'vwAsCu4TAL3KeeCfkKsi+ACTRjfeHtbKJh4yUs9fL5A=',
         },
-        storageEncryptionKey: 'ti4w8V+E6x4Z63XIMA9ZM0lXKhMjTaxP/qjARC8c4Cw=',
-        storageEncryptionNonce: '0',
+        storageEncryptionKey: 'hHFeMBtp9mkqrPPSRVbgQU9KMj/K/1zvjjBJ7kcD25g=',
+        storageEncryptionNonce:
+            '0xa1b38837dd52e70a250ac2bf3e19f1599833e9d30662bf69a1c12e5747ed9f65',
     });
 });

@@ -11,6 +11,10 @@ import { Dm3Profile } from './profileResolver/ProfileResolver';
 import { createProfileKeys } from './profileKeys/createProfileKeys';
 import { SignedUserProfile, UserProfile } from './types';
 
+export const DEFAULT_NONCE = ethers.utils.sha256(
+    ethers.utils.toUtf8Bytes('dm3_default_nonce'),
+);
+
 export function formatAddress(address: string) {
     return ethers.utils.getAddress(address);
 }
@@ -56,7 +60,7 @@ export function getProfileCreationMessage(
     return (
         `${domain} wants you register your dm3 profile with your Ethereum account:\n` +
         `${ethers.utils.getAddress(address)}\n\n` +
-        `Register your dm3 profile. This is required only once!\n` +
+        `This is required only once!\n` +
         `(There is no paid transaction initiated. The signature is used off-chain only.)\n\n` +
         `URI: ${uri}\n` +
         `Version: ${version}\n` +
@@ -240,7 +244,7 @@ export async function createProfile(
     nonce: string;
 }> {
     const { nonce, storageKey, signer }: CreateProfileOptions = {
-        nonce: options?.nonce ?? (await getRandomNonce()),
+        nonce: DEFAULT_NONCE ?? (await getRandomNonce()),
         storageKey: options?.storageKey,
         signer:
             options?.signer ??
