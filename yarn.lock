@@ -12645,9 +12645,7 @@ __metadata:
   dependencies:
     "@types/data-urls": ^3.0.1
     "@types/jest": ^28.1.1
-    "@types/libsodium-wrappers": ^0.7.10
     "@types/node": ^16.7.13
-    "@types/uuid": ^8.3.4
     "@types/whatwg-encoding": ^2.0.0
     ajv: ^8.11.0
     axios: ^0.25.0
@@ -12655,18 +12653,11 @@ __metadata:
     dm3-lib-crypto: "workspace:^"
     dm3-lib-shared: "workspace:^"
     ethers: 5.7.2
-    googleapis: ^100.0.0
     jest: ^28.1.1
-    libsodium-wrappers: ^0.7.10
     query-string: ^7.1.1
-    safe-stable-stringify: ^2.4.1
-    socket.io: ^4.4.1
-    socket.io-client: ^4.4.1
     ts-jest: ^28.0.4
     ts-json-schema-generator: ^1.2.0
     typescript: ^4.4.2
-    uuid: ^8.3.2
-    web3.storage: ^3.5.7
     whatwg-encoding: ^2.0.0
   languageName: unknown
   linkType: soft
@@ -26075,7 +26066,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"safe-stable-stringify@npm:^2.1.0, safe-stable-stringify@npm:^2.3.1, safe-stable-stringify@npm:^2.4.1, safe-stable-stringify@npm:^2.4.3":
+"safe-stable-stringify@npm:^2.1.0, safe-stable-stringify@npm:^2.3.1, safe-stable-stringify@npm:^2.4.3":
   version: 2.4.3
   resolution: "safe-stable-stringify@npm:2.4.3"
   checksum: 3aeb64449706ee1f5ad2459fc99648b131d48e7a1fbb608d7c628020177512dc9d94108a5cb61bbc953985d313d0afea6566d243237743e02870490afef04b43
@@ -26649,7 +26640,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"socket.io-client@npm:^4.4.1, socket.io-client@npm:^4.6.1":
+"socket.io-client@npm:^4.6.1":
   version: 4.7.2
   resolution: "socket.io-client@npm:4.7.2"
   dependencies:
@@ -26671,7 +26662,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"socket.io@npm:^4.4.1, socket.io@npm:^4.5.1":
+"socket.io@npm:^4.5.1":
   version: 4.7.2
   resolution: "socket.io@npm:4.7.2"
   dependencies:
