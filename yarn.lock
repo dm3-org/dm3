@@ -12675,7 +12675,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "dm3-lib-storage@workspace:packages/lib/storage"
   dependencies:
-    "@types/libsodium-wrappers": ^0.7.10
     dm3-lib-crypto: "workspace:^"
     dm3-lib-delivery: "workspace:^"
     dm3-lib-messaging: "workspace:^"
@@ -12683,9 +12682,7 @@ __metadata:
     dm3-lib-shared: "workspace:^"
     ethers: 5.7.2
     jest: ^28.1.1
-    libsodium-wrappers: ^0.7.10
     ts-jest: ^28.0.4
-    ts-json-schema-generator: ^0.98.0
     typescript: ^4.4.2
   languageName: unknown
   linkType: soft
