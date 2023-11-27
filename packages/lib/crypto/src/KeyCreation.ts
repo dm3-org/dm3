@@ -28,7 +28,7 @@ export async function createSigningKeyPair(seed?: string): Promise<KeyPair> {
 export function getStorageKeyCreationMessage(nonce: string, address: string) {
     // TODO: during linked profile implementation these values should be fetched from env
     const statement =
-        `Connect the DM3 MESSENGER with your wallet. Sign in with a signature. ` +
+        `Connect the DM3 MESSENGER with your wallet. ` +
         `Keys for secure communication are derived from this signature.\n\n` +
         `(There is no paid transaction initiated. The signature is used off-chain only.)`;
     const domain = 'dm3.chat';

@@ -11,6 +11,7 @@ export {
     PROFILE_RECORD_NAME,
     formatAddress,
     createProfile,
+    DEFAULT_NONCE,
 } from './Profile';
 
 export type { Account, ProfileKeys, GetResource } from './Profile';
