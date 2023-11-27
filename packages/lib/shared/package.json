@@ -11,9 +11,7 @@
         }
     },
     "dependencies": {
-        "@types/libsodium-wrappers": "^0.7.10",
-        "ethers": "5.7.2",
-        "libsodium-wrappers": "^0.7.10"
+        "ethers": "5.7.2"
     },
     "devDependencies": {
         "typescript": "^4.4.2"
