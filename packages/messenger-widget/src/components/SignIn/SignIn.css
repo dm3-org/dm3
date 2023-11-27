@@ -9,7 +9,7 @@
 }
 
 .content-data-container {
-    padding: 3rem 8.25rem 3rem 8.25rem;
+    padding: 1rem 8.25rem 1rem 8.25rem;
 }
 
 .details {
@@ -48,7 +48,7 @@
 }
 
 .rainbow-connect-btn {
-    padding: 1rem 2rem 1rem 1rem;
+    padding: 1rem 1rem 0rem 1rem;
 }
 
 .wal-not-connected {
@@ -74,5 +74,11 @@
 @media only screen and (min-width: 1450px) {
     .content-data {
         margin-top: 6rem !important;
+    }
+}
+
+@media only screen and (max-width: 1000px) {
+    .content-data {
+        margin-top: 1rem !important;
     }
 }

@@ -252,23 +252,24 @@ export function SignIn(props: SignInProps) {
     return (
         <>
             <div className="row m-0 p-0 h-100">
-                <div className="col-lg-7 col-md-7 col-sm-12 p-0 home-image-container background-container">
-                    <img src={homeImage} className="img-fluid home-image" />
+                <div className="h-100 col-lg-7 col-md-7 col-sm-12 p-0 home-image-container background-container">
+                    <img
+                        src={homeImage}
+                        className="img-fluid home-image w-100"
+                    />
                 </div>
                 <div
-                    className="col-lg-5 col-md-5 col-sm-12 p-0 d-flex flex-column 
+                    className="h-100 col-lg-5 col-md-5 col-sm-12 p-0 d-flex flex-column 
                 justify-content-center signin-container background-container"
                 >
-                    <div className="row">
-                        <div className="d-flex justify-content-end rainbow-connect-btn">
-                            {accountConnected && accountConnected.address ? (
-                                <ConnectButton showBalance={false} />
-                            ) : (
-                                <div className="normal-btn wal-not-connected">
-                                    Wallet not connected
-                                </div>
-                            )}
-                        </div>
+                    <div className="d-flex justify-content-end rainbow-connect-btn">
+                        {accountConnected && accountConnected.address ? (
+                            <ConnectButton showBalance={false} />
+                        ) : (
+                            <div className="normal-btn wal-not-connected">
+                                Wallet not connected
+                            </div>
+                        )}
                     </div>
                     <div className="d-flex flex-column justify-content-center height-fill content-data-container">
                         <div className="d-flex flex-column justify-content-center">
