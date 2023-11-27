@@ -12666,9 +12666,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "dm3-lib-shared@workspace:packages/lib/shared"
   dependencies:
-    "@types/libsodium-wrappers": ^0.7.10
     ethers: 5.7.2
-    libsodium-wrappers: ^0.7.10
     typescript: ^4.4.2
   languageName: unknown
   linkType: soft
