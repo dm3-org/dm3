@@ -11,6 +11,7 @@
             "packages/lib/delivery-api",
             "packages/lib/offchainResolver-api",
             "packages/lib/billboard-api",
+            "packages/billboard-client",
             "packages/backend",
             "packages/react",
             "packages/web",

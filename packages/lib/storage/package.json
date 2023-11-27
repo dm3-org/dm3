@@ -16,14 +16,11 @@
         "dm3-lib-messaging": "workspace:^",
         "dm3-lib-profile": "workspace:^",
         "dm3-lib-shared": "workspace:^",
-        "ethers": "5.7.2",
-        "libsodium-wrappers": "^0.7.10"
+        "ethers": "5.7.2"
     },
     "devDependencies": {
-        "@types/libsodium-wrappers": "^0.7.10",
         "jest": "^28.1.1",
         "ts-jest": "^28.0.4",
-        "ts-json-schema-generator": "^0.98.0",
         "typescript": "^4.4.2"
     },
     "scripts": {
