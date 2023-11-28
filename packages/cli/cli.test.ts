@@ -117,17 +117,17 @@ describe('cli', () => {
             Promise.resolve(subprocess).then(resolve).catch(resolve);
         });
 
-    describe('setup', () => {
+    describe('setup billboardDs', () => {
         describe('sanitize input', () => {
             it('reverts for unknown input', async () => {
-                const res = await cli('setup --efeh');
+                const res = await cli('setup billboardDs --efeh');
                 expect(res.stderr).to.equal("error: unknown option '--efeh'");
             });
 
             it('reverts if rpc url is undefined', async () => {
                 const wallet = ethers.Wallet.createRandom();
                 const res = await cli(
-                    `setup --pk ${wallet.privateKey} --domain test.eth`,
+                    `setup billboardDs --pk ${wallet.privateKey} --domain test.eth`,
                 );
                 expect(res.stderr).to.equal(
                     'error: option --rpc <rpc> argument missing',
@@ -136,7 +136,7 @@ describe('cli', () => {
 
             it('reverts if privateKey is undefined', async () => {
                 const res = await cli(
-                    'setup --rpc www.rpc.io --domain test.eth',
+                    'setup billboardDs --rpc www.rpc.io --domain test.eth',
                 );
                 expect(res.stderr).to.equal(
                     'error: option --pk <pk> argument missing',
@@ -144,7 +144,7 @@ describe('cli', () => {
             });
             it('reverts if privateKey is invalid', async () => {
                 const res = await cli(
-                    'setup --rpc www.rpc.io --domain test.eth --pk 123',
+                    'setup billboardDs --rpc www.rpc.io --domain test.eth --pk 123',
                 );
                 expect(res.stderr).to.equal(
                     'error: option --pk <pk> argument invalid',
@@ -153,7 +153,7 @@ describe('cli', () => {
             it('reverts if domain is undefined', async () => {
                 const wallet = ethers.Wallet.createRandom();
                 const res = await cli(
-                    `setup --rpc www.rpc.io --pk ${wallet.privateKey}`,
+                    `setup billboardDs --rpc www.rpc.io --pk ${wallet.privateKey}`,
                 );
                 expect(res.stderr).to.equal(
                     'error: option --domain <domain> argument missing',
@@ -162,19 +162,19 @@ describe('cli', () => {
             it('reverts if gateway url is undefined', async () => {
                 const wallet = ethers.Wallet.createRandom();
                 const res = await cli(
-                    `setup --rpc www.rpc.io --pk ${wallet.privateKey} --domain test.eth`,
+                    `setup billboardDs --rpc www.rpc.io --pk ${wallet.privateKey} --domain test.eth`,
                 );
                 expect(res.stderr).to.equal(
                     'error: option --gateway <gateway> argument missing',
                 );
             });
         });
-        describe('setupAll', () => {
+        describe('setup billboardDsAll', () => {
             it('test all', async () => {
                 const owner = ethers.Wallet.createRandom();
 
                 const res = await cli(
-                    `setup 
+                    `setup billboardDs 
                     --rpc  http://127.0.0.1:8545
                     --pk ${alice.privateKey} 
                     --domain alice.eth 
@@ -234,7 +234,7 @@ describe('cli', () => {
             });
             it('test all with random profile wallet', async () => {
                 const res = await cli(
-                    `setup 
+                    `setup billboardDs 
                     --rpc  http://127.0.0.1:8545
                     --pk ${alice.privateKey} 
                     --domain alice.eth 
@@ -298,7 +298,7 @@ describe('cli', () => {
                 );
 
                 const res = await cli(
-                    `setup 
+                    `setup billboardDs 
                     --rpc  http://127.0.0.1:8545
                     --pk ${underfundedWallet.privateKey} 
                     --domain alice.eth 

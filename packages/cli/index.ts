@@ -40,10 +40,11 @@ const cli = async () => {
     );
     program.parse();
 
-    const [mode] = program.args;
+    // Every mode is prefixed with setup so we only have to differentiate the second arg
+    const [, mode] = program.args;
 
     switch (mode) {
-        case 'setup': {
+        case 'billboardDs': {
             const args = program.opts();
 
             const { pk, domain, gateway, rpc, profilePk, deliveryService } =
@@ -75,7 +76,7 @@ const cli = async () => {
                     'error: option --deliveryService <deliveryService> argument missing',
                 );
             }
-            await Installer.setupAll({
+            await Installer.setupBillboardDs({
                 wallet,
                 profileWallet,
                 domain,
@@ -87,6 +88,7 @@ const cli = async () => {
 
             break;
         }
+
         default: {
             program.error('error: unknown option');
         }
