@@ -14,10 +14,16 @@ const Footer: React.FC = () => {
         <nav className="navbar fixed-bottom navbar-light" style={navbarStyle}>
             <div className="container-fluid text-center" style={containerStyle}>
                 <div style={linkStyle}>
-                    <a className="text-muted legal" href="https://dm3.network/privacy-policy/">
+                    <a
+                        className="text-muted legal"
+                        href="https://dm3.network/privacy-policy/"
+                    >
                         Privacy Policy
                     </a>
-                    <a className="text-muted legal ms-4" href="https://dm3.network/terms-and-conditions/">
+                    <a
+                        className="text-muted legal ms-4"
+                        href="https://dm3.network/terms-and-conditions/"
+                    >
                         Terms & Conditions
                     </a>
                 </div>
