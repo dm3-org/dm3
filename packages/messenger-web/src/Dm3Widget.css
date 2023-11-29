@@ -1,10 +1,9 @@
 .dm3widget {
-    width: calc(100% - 40px );
-    height: calc(100% - 70px - 40px)  ;
-    background-color: #000000;
+    width: calc(100% - 40px);
+    height: calc(100% - 70px - 40px);
+    background-color: #1a1b22;
     border: 1px solid #222222;
-    /* Weiße Umrandung hinzugefügt */
-    border-radius: 25px;
+    border-radius: 10px;
     position: absolute;
     top: 75px;
     left: 20px;
@@ -14,4 +13,3 @@
     /*    margin-top: 30px; /* Adjust this value as needed */
     overflow: hidden;
 }
-

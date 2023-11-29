@@ -1,9 +1,9 @@
 .background {
     width: 100%;
     height: 100%;
-    
+
     background: #000;
-    overflow:hidden;
+    overflow: hidden;
     position: absolute;
 }
 
@@ -12,9 +12,7 @@
     position: absolute;
     top: 50%;
     width: 120vw;
-    /* Größe des Gradienten angepasst */
     height: 120vw;
-    /* Größe des Gradienten angepasst */
     transform: translate(-50%, -50%);
 }
 
@@ -23,26 +21,31 @@
     position: relative;
     top: 30%;
     width: 120vw;
-    /* Größe des Gradienten angepasst */
     height: 120vw;
-    /* Größe des Gradienten angepasst */
     transform: translate(-50%, -50%);
 }
 
 .gradient-left {
     left: 30%;
-    background: radial-gradient(circle at 50% 50%, rgba(135, 44, 255, 0.4) 0%, transparent 60%);
+    background: radial-gradient(
+        circle at 50% 50%,
+        rgba(135, 44, 255, 0.4) 0%,
+        transparent 60%
+    );
     animation: moveSmoothLeft 100s infinite alternate;
 }
 
 .gradient-right {
     right: 30%;
-    background: radial-gradient(circle at 50% 50%, rgba(44, 166, 255, 0.4) 0%, transparent 60%);
+    background: radial-gradient(
+        circle at 50% 50%,
+        rgba(44, 166, 255, 0.4) 0%,
+        transparent 60%
+    );
     animation: moveSmoothRight 80s infinite alternate;
 }
 
 @keyframes moveSmoothLeft {
-
     0%,
     100% {
         transform: translate(-75vw, -50%) scale(1);
@@ -86,7 +89,6 @@
 }
 
 @keyframes moveSmoothRight {
-
     0%,
     100% {
         transform: translate(75vw, -50%) scale(1);
