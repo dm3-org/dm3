@@ -1,0 +1,132 @@
+.background {
+    width: 100%;
+    height: 100%;
+
+    background: #000;
+    overflow: hidden;
+    position: absolute;
+}
+
+.gradient-left {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 120vw;
+    height: 120vw;
+    transform: translate(-50%, -50%);
+}
+
+.gradient-right {
+    content: '';
+    position: relative;
+    top: 30%;
+    width: 120vw;
+    height: 120vw;
+    transform: translate(-50%, -50%);
+}
+
+.gradient-left {
+    left: 30%;
+    background: radial-gradient(
+        circle at 50% 50%,
+        rgba(135, 44, 255, 0.4) 0%,
+        transparent 60%
+    );
+    animation: moveSmoothLeft 100s infinite alternate;
+}
+
+.gradient-right {
+    right: 30%;
+    background: radial-gradient(
+        circle at 50% 50%,
+        rgba(44, 166, 255, 0.4) 0%,
+        transparent 60%
+    );
+    animation: moveSmoothRight 80s infinite alternate;
+}
+
+@keyframes moveSmoothLeft {
+    0%,
+    100% {
+        transform: translate(-75vw, -50%) scale(1);
+    }
+
+    10% {
+        transform: translate(-60vw, -50%) scale(1.1);
+    }
+
+    20% {
+        transform: translate(-75vw, -75vh) scale(1.2);
+    }
+
+    30% {
+        transform: translate(-90vw, -50%) scale(1.1);
+    }
+
+    40% {
+        transform: translate(-75vw, -25vh) scale(1);
+    }
+
+    50% {
+        transform: translate(-60vw, -75vh) scale(1.1);
+    }
+
+    60% {
+        transform: translate(-75vw, -60vh) scale(1.2);
+    }
+
+    70% {
+        transform: translate(-90vw, -75vh) scale(1.1);
+    }
+
+    80% {
+        transform: translate(-75vw, -50vh) scale(1);
+    }
+
+    90% {
+        transform: translate(-60vw, -50vh) scale(1.1);
+    }
+}
+
+@keyframes moveSmoothRight {
+    0%,
+    100% {
+        transform: translate(75vw, -50%) scale(1);
+    }
+
+    10% {
+        transform: translate(60vw, -50%) scale(1.1);
+    }
+
+    20% {
+        transform: translate(75vw, -30vh) scale(0.9);
+    }
+
+    30% {
+        transform: translate(90vw, -50%) scale(1.05);
+    }
+
+    40% {
+        transform: translate(75vw, -50vh) scale(1);
+    }
+
+    50% {
+        transform: translate(60vw, -40vh) scale(1.1);
+    }
+
+    60% {
+        transform: translate(75vw, -60vh) scale(0.9);
+    }
+
+    70% {
+        transform: translate(90vw, -60vh) scale(1.05);
+    }
+
+    80% {
+        transform: translate(75vw, -30vh) scale(1);
+    }
+
+    90% {
+        transform: translate(60vw, -50vh) scale(1.1);
+    }
+}
