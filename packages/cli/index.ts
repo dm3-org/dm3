@@ -89,6 +89,44 @@ const cli = async () => {
             break;
         }
 
+        case 'onchainDs': {
+            const args = program.opts();
+            const { pk, domain, gateway, rpc, profilePk, deliveryService } =
+                args;
+
+            if (!rpc) {
+                program.error('error: option --rpc <rpc> argument missing');
+            }
+
+            const wallet = getSanitizedWallet(program, pk, 'pk');
+
+            const profileWallet = getSanitizedWallet(
+                program,
+                profilePk ?? ethers.Wallet.createRandom().privateKey,
+                'profilePk',
+            );
+            if (!domain) {
+                program.error(
+                    'error: option --domain <domain> argument missing',
+                );
+            }
+            if (!deliveryService) {
+                program.error(
+                    'error: option --deliveryService <deliveryService> argument missing',
+                );
+            }
+            await Installer.setupOnChain({
+                wallet,
+                profileWallet,
+                domain,
+                rpc,
+                deliveryService,
+                ...args,
+            });
+
+            break;
+        }
+
         default: {
             program.error('error: unknown option');
         }

@@ -6,13 +6,13 @@ import { ERC3668Resolver } from './transactions/ERC3668Resolver';
 import { EnsRegistry } from './transactions/EnsRegistry';
 import { EnsResolver } from './transactions/EnsResolver';
 import { SignatureVerifier } from './transactions/SignatureVerifier';
-import { InstallerArgs } from './types';
+import { InstallerArgs, SetupBillboardDsArgs, SetupOnchainArgs } from './types';
 
 const ENS_REGISTRY_ADDRESS = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e';
 
 const ERC3668RESOLVER_ADDRESSS = ethers.constants.AddressZero;
 
-const setupBillboardDs = async (args: InstallerArgs) => {
+const setupBillboardDs = async (args: SetupBillboardDsArgs) => {
     const graphQlurl = '';
     const resolverChainId = '1';
     const resolverName = 'SignatureCcipVerifier';
@@ -110,7 +110,7 @@ const setupBillboardDs = async (args: InstallerArgs) => {
     printEnv(args, keys);
 };
 
-const setupOnChain = async (args: InstallerArgs) => {
+const setupOnChain = async (args: SetupOnchainArgs) => {
     const provider = new ethers.providers.StaticJsonRpcProvider(args.rpc);
 
     //Create ds profile
@@ -126,12 +126,15 @@ const setupOnChain = async (args: InstallerArgs) => {
     );
 
     const tx = [
+        //Set Ds profile on chain
         publicResolver.setText(
-            `ds.${args.domain}`,
+            `${args.domain}`,
             'network.dm3.deliveryService',
             JSON.stringify(profile),
-            transactionCount + 4,
+            transactionCount,
         ),
     ];
+    await sendTransactions(args, tx);
+    printEnv(args, keys);
 };
-export { setupBillboardDs };
+export { setupBillboardDs, setupOnChain };
