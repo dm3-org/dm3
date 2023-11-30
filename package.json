@@ -19,6 +19,7 @@
             "packages/offchain-resolver",
             "packages/messenger-widget",
             "packages/messenger-demo",
+            "packages/messenger-web",
             "packages/cli"
         ],
         "nohoist": [
