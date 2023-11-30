@@ -111,7 +111,7 @@ describe('cli', () => {
 
     const cli = (argv = ''): any =>
         new Promise((resolve, reject) => {
-            const subprocess = execa.command(`yarn start ${argv}`);
+            const subprocess = execa.command(`yarn run ${argv}`);
             subprocess.stdout!.pipe(process.stdout);
             subprocess.stderr!.pipe(process.stderr);
             Promise.resolve(subprocess).then(resolve).catch(resolve);
@@ -120,14 +120,14 @@ describe('cli', () => {
     describe('setup billboardDs', () => {
         describe('sanitize input', () => {
             it('reverts for unknown input', async () => {
-                const res = await cli('setup billboardDs --efeh');
+                const res = await cli('dm3 setup billboardDs --efeh');
                 expect(res.stderr).to.equal("error: unknown option '--efeh'");
             });
 
             it('reverts if rpc url is undefined', async () => {
                 const wallet = ethers.Wallet.createRandom();
                 const res = await cli(
-                    `setup billboardDs --pk ${wallet.privateKey} --domain test.eth`,
+                    `dm3 setup billboardDs --pk ${wallet.privateKey} --domain test.eth`,
                 );
                 expect(res.stderr).to.equal(
                     'error: option --rpc <rpc> argument missing',
@@ -136,7 +136,7 @@ describe('cli', () => {
 
             it('reverts if privateKey is undefined', async () => {
                 const res = await cli(
-                    'setup billboardDs --rpc www.rpc.io --domain test.eth',
+                    'dm3 setup billboardDs --rpc www.rpc.io --domain test.eth',
                 );
                 expect(res.stderr).to.equal(
                     'error: option --pk <pk> argument missing',
@@ -144,7 +144,7 @@ describe('cli', () => {
             });
             it('reverts if privateKey is invalid', async () => {
                 const res = await cli(
-                    'setup billboardDs --rpc www.rpc.io --domain test.eth --pk 123',
+                    'dm3 setup billboardDs --rpc www.rpc.io --domain test.eth --pk 123',
                 );
                 expect(res.stderr).to.equal(
                     'error: option --pk <pk> argument invalid',
@@ -153,7 +153,7 @@ describe('cli', () => {
             it('reverts if domain is undefined', async () => {
                 const wallet = ethers.Wallet.createRandom();
                 const res = await cli(
-                    `setup billboardDs --rpc www.rpc.io --pk ${wallet.privateKey}`,
+                    `dm3 setup billboardDs --rpc www.rpc.io --pk ${wallet.privateKey}`,
                 );
                 expect(res.stderr).to.equal(
                     'error: option --domain <domain> argument missing',
@@ -162,7 +162,7 @@ describe('cli', () => {
             it('reverts if gateway url is undefined', async () => {
                 const wallet = ethers.Wallet.createRandom();
                 const res = await cli(
-                    `setup billboardDs --rpc www.rpc.io --pk ${wallet.privateKey} --domain test.eth`,
+                    `dm3 setup billboardDs --rpc www.rpc.io --pk ${wallet.privateKey} --domain test.eth`,
                 );
                 expect(res.stderr).to.equal(
                     'error: option --gateway <gateway> argument missing',
@@ -174,7 +174,7 @@ describe('cli', () => {
                 const owner = ethers.Wallet.createRandom();
 
                 const res = await cli(
-                    `setup billboardDs 
+                    `dm3 setup billboardDs 
                     --rpc  http://127.0.0.1:8545
                     --pk ${alice.privateKey} 
                     --domain alice.eth 
@@ -234,7 +234,7 @@ describe('cli', () => {
             });
             it('test all with random profile wallet', async () => {
                 const res = await cli(
-                    `setup billboardDs 
+                    `dm3 setup billboardDs 
                     --rpc  http://127.0.0.1:8545
                     --pk ${alice.privateKey} 
                     --domain alice.eth 
@@ -298,7 +298,7 @@ describe('cli', () => {
                 );
 
                 const res = await cli(
-                    `setup billboardDs 
+                    `dm3 setup billboardDs 
                     --rpc  http://127.0.0.1:8545
                     --pk ${underfundedWallet.privateKey} 
                     --domain alice.eth 
@@ -323,14 +323,14 @@ describe('cli', () => {
     describe('setup onChain', () => {
         describe('sanitize input', () => {
             it('reverts for unknown input', async () => {
-                const res = await cli('setup onchainDs --efeh');
+                const res = await cli('dm3 setup onchainDs --efeh');
                 expect(res.stderr).to.equal("error: unknown option '--efeh'");
             });
 
             it('reverts if rpc url is undefined', async () => {
                 const wallet = ethers.Wallet.createRandom();
                 const res = await cli(
-                    `setup onchainDs --pk ${wallet.privateKey} --domain test.eth`,
+                    `dm3 setup onchainDs --pk ${wallet.privateKey} --domain test.eth`,
                 );
                 expect(res.stderr).to.equal(
                     'error: option --rpc <rpc> argument missing',
@@ -339,7 +339,7 @@ describe('cli', () => {
 
             it('reverts if privateKey is undefined', async () => {
                 const res = await cli(
-                    'setup onchainDs --rpc www.rpc.io --domain test.eth',
+                    'dm3 setup onchainDs --rpc www.rpc.io --domain test.eth',
                 );
                 expect(res.stderr).to.equal(
                     'error: option --pk <pk> argument missing',
@@ -347,7 +347,7 @@ describe('cli', () => {
             });
             it('reverts if privateKey is invalid', async () => {
                 const res = await cli(
-                    'setup onchainDs --rpc www.rpc.io --domain test.eth --pk 123',
+                    'dm3 setup onchainDs --rpc www.rpc.io --domain test.eth --pk 123',
                 );
                 expect(res.stderr).to.equal(
                     'error: option --pk <pk> argument invalid',
@@ -356,27 +356,26 @@ describe('cli', () => {
             it('reverts if domain is undefined', async () => {
                 const wallet = ethers.Wallet.createRandom();
                 const res = await cli(
-                    `setup onchainDs --rpc www.rpc.io --pk ${wallet.privateKey}`,
+                    `dm3 setup onchainDs --rpc www.rpc.io --pk ${wallet.privateKey}`,
                 );
                 expect(res.stderr).to.equal(
                     'error: option --domain <domain> argument missing',
                 );
             });
         });
-        describe('setup billboardDsAll', () => {
+        describe('setup onchainDsAll', () => {
             it('test all', async () => {
                 const owner = ethers.Wallet.createRandom();
 
                 const res = await cli(
-                    `setup onchainDs 
+                    `dm3 setup onchainDs 
                     --rpc  http://127.0.0.1:8545
                     --pk ${alice.privateKey} 
                     --domain alice.eth 
                     --deliveryService https://ds.io/ 
                     --profilePk ${owner.privateKey} 
-                    --ensRegistry ${ensRegistry.address} 
                     --ensResolver ${publicResolver.address} 
-                    --erc3668Resolver ${erc3668Resolver.address}`,
+                   `,
                 );
 
                 const profile = await publicResolver.text(
@@ -401,14 +400,13 @@ describe('cli', () => {
             });
             it('test all with random profile wallet', async () => {
                 const res = await cli(
-                    `setup onchainDs 
+                    `dm3 setup onchainDs 
                     --rpc  http://127.0.0.1:8545
                     --pk ${alice.privateKey} 
                     --domain alice.eth 
-                    --deliveryService https://ds.io/ 
-                    --ensRegistry ${ensRegistry.address} 
+                    --deliveryService https://ds.io/  
                     --ensResolver ${publicResolver.address} 
-                    --erc3668Resolver ${erc3668Resolver.address}`,
+                   `,
                 );
 
                 const profile = await publicResolver.text(
@@ -438,14 +436,13 @@ describe('cli', () => {
                 );
 
                 const res = await cli(
-                    `setup onchainDs 
+                    `dm3 setup onchainDs 
                     --rpc  http://127.0.0.1:8545
                     --pk ${underfundedWallet.privateKey} 
                     --domain alice.eth 
                     --deliveryService https://ds.io/ 
-                    --ensRegistry ${ensRegistry.address} 
                     --ensResolver ${publicResolver.address} 
-                    --erc3668Resolver ${erc3668Resolver.address}`,
+                   `,
                 );
 
                 const balanceAfter = await provider.getBalance(
