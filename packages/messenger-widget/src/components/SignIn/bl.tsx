@@ -571,8 +571,11 @@ export async function signIn(
     } catch (error: any) {
         setSignInBtnContent(SignInBtnValues.SignIn);
         const errorMessage = error.message ? error.message.split(':') : error;
+        const errorDisplayMessage = error.response?.data?.error
+            ? error.response.data.error
+            : errorMessage[0];
         openErrorModal(
-            errorMessage.length > 1 ? errorMessage[1] : errorMessage[0],
+            errorMessage.length > 1 ? errorMessage[1] : errorDisplayMessage,
             false,
         );
         changeSignInButtonStyle(
@@ -601,7 +604,13 @@ async function connectOnchainAccount(
     ensName: string,
     address: string,
 ) {
-    const onChainProfile = await getUserProfile(connection.provider!, ensName);
+    let onChainProfile;
+
+    try {
+        onChainProfile = await getUserProfile(connection.provider!, ensName);
+    } catch (error) {
+        onChainProfile = undefined;
+    }
 
     /**
      * If it turns out there is no on chain profile available
@@ -659,7 +668,13 @@ async function connectOffchainAccount(connection: Connection, address: string) {
             )) ?? getAliasForAddress(address);
 
         //We're trying to get the profile from the delivery service
-        const profile = await getUserProfile(connection.provider!, ensName);
+        let profile;
+
+        try {
+            profile = await getUserProfile(connection.provider!, ensName);
+        } catch (error) {
+            profile = undefined;
+        }
 
         return {
             account: ensName,
