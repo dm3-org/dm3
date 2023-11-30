@@ -66,4 +66,5 @@ export type ClientProps = {
     siweAddress?: string;
     siweSig?: string;
     siweMessage?: string;
+    userEnsDoamin: string;
 };
