@@ -1,6 +1,6 @@
 {
   "name": "dm3-billboard-widget",
-  "version": "0.2.12",
+  "version": "0.3.2",
   "files": [
     "dist"
   ],
@@ -8,7 +8,7 @@
   "main": "./dist/index.js",
   "scripts": {
     "dev": "vite",
-    "build": "echo 'skip build'",
+    "build": "vite build",
     "build:css": "node ./buildCss.js",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"

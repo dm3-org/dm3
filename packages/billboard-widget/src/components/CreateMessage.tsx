@@ -14,17 +14,6 @@ const MIN_MESSAGE_LENGTH = 5;
 
 // Workaround since TS complains about the about enterkeyhint attribute.
 // TODO: should actually be fixed in current react/TS versions.
-declare module 'react' {
-    interface TextareaHTMLAttributes<T>
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-ignore
-        extends AriaAttributes,
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            //@ts-ignore
-            DOMAttributes<T> {
-        enterkeyhint?: string;
-    }
-}
 
 function CreateMessage(props: Props) {
     const { ensName } = useContext(AuthContext);
@@ -84,6 +73,7 @@ function CreateMessage(props: Props) {
                     </div>
                     <div className="text-area-wrapper">
                         <textarea
+                            //@ts-ignore
                             enterkeyhint="send"
                             value={textAreaContent}
                             onChange={(e) => {

@@ -7,6 +7,7 @@ import { getDefaultProfileExtension } from 'dm3-lib-profile';
 import { Session } from './Session';
 import { v4 as uuidv4 } from 'uuid';
 import { ethers } from 'ethers';
+import { logDebug } from 'dm3-lib-shared';
 
 const handlePendingConversations = async (
     ensName: string,
@@ -40,14 +41,16 @@ export async function submitUserProfile(
     const account = normalizeEnsName(ensName);
 
     if (!(await checkUserProfile(provider, signedUserProfile, account))) {
+        logDebug('submitUserProfile - Signature invalid');
         throw Error('Signature invalid.');
     }
-    //TODO: remvoe DISABLE_SESSION_CHECK
+    //TODO:  remvoe DISABLE_SESSION_CHECK
     // DISABLE_SESSION_CHECK is a special solution for ETH Prague
     if (
         process.env.DISABLE_SESSION_CHECK !== 'true' &&
         (await getSession(account))
     ) {
+        logDebug('submitUserProfile - Profile exists already');
         throw Error('Profile exists already');
     }
     const session: Session = {
@@ -57,9 +60,8 @@ export async function submitUserProfile(
         createdAt: new Date().getTime(),
         profileExtension: getDefaultProfileExtension(),
     };
-
+    logDebug({ text: 'submitUserProfile', session });
     await setSession(account.toLocaleLowerCase(), session);
-
     await handlePendingConversations(
         account,
         getSession,
