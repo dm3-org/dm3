@@ -6,6 +6,7 @@ on:
 
 jobs:
     messenger-demo-deploy:
+        environment: staging
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
@@ -23,20 +24,20 @@ jobs:
             - name: Prepare SSH
               run: |
                   mkdir ~/.ssh
-                  echo "${{ secrets.STAGING_HOST_SSH }}" > ~/.ssh/known_hosts
+                  echo "${{ secrets.HOST_SSH_PUBLIC_KEY }}" > ~/.ssh/known_hosts
                   echo "${{ secrets.DO_SSH_KEY }}" > ./ssh-key
                   chmod 600 ./ssh-key
             - name: Create .env file
               env:
-                  TARGET_HOST: ${{ secrets.STAGING_HOST }}
+                  TARGET_HOST: ${{ secrets.HOST_DOMAIN}}
               run: |
                   echo "REACT_APP_ADDR_ENS_SUBDOMAIN=.beta-addr.dm3.eth" >> ./.env.react
-                  echo "REACT_APP_BACKEND=http://${{ secrets.STAGING_HOST }}/api" >> ./.env.react
+                  echo "REACT_APP_BACKEND=http://${{ secrets.HOST_DOMAIN}}/api" >> ./.env.react
                   echo "REACT_APP_DEFAULT_DELIVERY_SERVICE=beta-ds.dm3.eth" >> ./.env.react
-                  echo "REACT_APP_DEFAULT_SERVICE=http://${{ secrets.STAGING_HOST }}/api" >> ./.env.react
-                  echo "REACT_APP_ETHEREUM_PROVIDER=${{ secrets.REACT_APP_ETHEREUM_PROVIDER }}" >> ./.env.react
-                  echo "REACT_APP_PROFILE_BASE_URL=http://${{ secrets.STAGING_HOST }}/api" >> ./.env.react
-                  echo "REACT_APP_RESOLVER_BACKEND=http://${{ secrets.STAGING_HOST }}/resolver-handler" >> ./.env.react
+                  echo "REACT_APP_DEFAULT_SERVICE=http://${{ secrets.HOST_DOMAIN}}/api" >> ./.env.react
+                  echo "REACT_APP_ETHEREUM_PROVIDER=${{ secrets.RPC }}" >> ./.env.react
+                  echo "REACT_APP_PROFILE_BASE_URL=http://${{ secrets.HOST_DOMAIN}}/api" >> ./.env.react
+                  echo "REACT_APP_RESOLVER_BACKEND=http://${{ secrets.HOST_DOMAIN}}/resolver-handler" >> ./.env.react
                   echo "REACT_APP_USER_ENS_SUBDOMAIN=.beta-user.dm3.eth" >> ./.env.react
                   echo "REACT_APP_WALLET_CONNECT_PROJECT_ID=${{ secrets.REACT_APP_WALLET_CONNECT_PROJECT_ID }}" >> ./.env.react
                   echo "REACT_APP_COMMIT_HASH=${{ env.sha_short }}" >> ./.env.react
@@ -50,7 +51,7 @@ jobs:
                   echo "SPAM_PROTECTION=${{ secrets.SPAM_PROTECTION }}" >> ./.env
                   echo "ENCRYPTION_PUBLIC_KEY=${{ secrets.ENCRYPTION_PUBLIC_KEY }}" >> ./.env
                   echo "ENCRYPTION_PRIVATE_KEY=${{ secrets.ENCRYPTION_PRIVATE_KEY }}" >> ./.env
-                  echo "RPC=${{ secrets.STAGING_RPC }}" >> ./.env
+                  echo "RPC=${{ secrets.RPC }}" >> ./.env
                   envsubst '${SSL_CERTIFICATE_BASE_LOC} ${TLS_CERTIFICATE_LOCATION} ${TARGET_HOST}' < ./docker/nginx.conf > ./nginx.conf
                   cat ./.env
             - name: Build docker image
@@ -60,26 +61,26 @@ jobs:
                   docker save -o ./dm3-backend.tar dm3-backend:latest
             - name: Prepare docker
               run: |
-                  ssh -i ./ssh-key app@${{ secrets.STAGING_HOST }} "\
+                  ssh -i ./ssh-key app@${{ secrets.HOST_DOMAIN}} "\
                   cd dm3 && docker compose down && docker system prune -af"
-                  ssh -i ./ssh-key root@${{ secrets.STAGING_HOST }} "\
+                  ssh -i ./ssh-key root@${{ secrets.HOST_DOMAIN}} "\
                   systemctl restart docker.service \
                   rm /home/app/dm3-backend.tar || true"
             - name: Sync files
               run: |
-                  rsync -avz -e 'ssh -i ./ssh-key' ./.env app@${{ secrets.STAGING_HOST }}:/home/app/dm3
-                  rsync -avz -e 'ssh -i ./ssh-key' ./dm3-backend.tar app@${{ secrets.STAGING_HOST }}:/home/app/dm3 
-                  rsync -avz -e 'ssh -i ./ssh-key' ./nginx.conf app@${{ secrets.STAGING_HOST }}:/home/app/dm3
-                  rsync -avz -e 'ssh -i ./ssh-key' ./docker/docker-compose.yml app@${{ secrets.STAGING_HOST }}:/home/app/dm3
+                  rsync -avz -e 'ssh -i ./ssh-key' ./.env app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
+                  rsync -avz -e 'ssh -i ./ssh-key' ./dm3-backend.tar app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3 
+                  rsync -avz -e 'ssh -i ./ssh-key' ./nginx.conf app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
+                  rsync -avz -e 'ssh -i ./ssh-key' ./docker/docker-compose.yml app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
             - name: Load docker image
               run: |
-                  ssh -i ./ssh-key app@${{ secrets.STAGING_HOST }} "\
+                  ssh -i ./ssh-key app@${{ secrets.HOST_DOMAIN}} "\
                   cd dm3 && docker load -i dm3-backend.tar"
             - name: Firewall config
               run: |
-                  ssh -i ./ssh-key root@${{ secrets.STAGING_HOST }} "\
-                  ufw allow from 172.18.0.1/16 proto tcp to ${{ secrets.STAGING_HOST }} port 80"
+                  ssh -i ./ssh-key root@${{ secrets.HOST_DOMAIN}} "\
+                  ufw allow from 172.18.0.1/16 proto tcp to ${{ secrets.HOST_DOMAIN}} port 80"
             - name: Start
               run: |
-                  ssh -i ./ssh-key app@${{ secrets.STAGING_HOST }} "\
+                  ssh -i ./ssh-key app@${{ secrets.HOST_DOMAIN}} "\
                   cd dm3 && docker compose --env-file .env up -d"
