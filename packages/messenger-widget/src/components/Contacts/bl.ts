@@ -95,11 +95,14 @@ export const fetchAndSetContacts = async (
     }
 
     const profileAccounts = actualContactList.filter(
-        (item) => item.contactDetails.account.profileSignature,
+        (item) =>
+            item.contactDetails && item.contactDetails.account.profileSignature,
     );
 
     const nonProfileAccounts = actualContactList.filter(
-        (item) => !item.contactDetails.account.profileSignature,
+        (item) =>
+            item.contactDetails &&
+            !item.contactDetails.account.profileSignature,
     );
 
     const uniqueProfileAccounts = [
@@ -162,9 +165,11 @@ export const setContactIndexSelectedFromCache = (
     const index = cacheContacts.findIndex(
         (data) =>
             (key &&
+                data.contactDetails &&
                 data.contactDetails.account.profile?.publicEncryptionKey ===
                     key) ||
-            name === data.contactDetails.account.ensName,
+            (data.contactDetails &&
+                name === data.contactDetails.account.ensName),
     );
 
     // close the loader
@@ -185,8 +190,9 @@ export const addNewConversationFound = async (
         state.accounts.contacts.forEach((contact) => {
             const data = existingList.filter(
                 (cacheContact) =>
+                    cacheContact.contactDetails &&
                     cacheContact.contactDetails.account.ensName ===
-                    contact.account.ensName,
+                        contact.account.ensName,
             );
             if (!data || !data.length) {
                 contactList.push(contact);
@@ -434,6 +440,7 @@ export const updateContactOnAccountChange = async (
                     }
                 } else {
                     let contactToAdd;
+
                     if (profile?.profile) {
                         const deliveryServiceProfile =
                             await getDeliveryServiceProfile(
@@ -463,6 +470,18 @@ export const updateContactOnAccountChange = async (
                         };
                     } else {
                         contactToAdd = itemList[0];
+                    }
+
+                    if (!contactToAdd) {
+                        contactToAdd = {
+                            account: {
+                                ensName: state.modal.addConversation
+                                    .ensName as string,
+                                profile: undefined,
+                                profileSignature: undefined,
+                            },
+                            deliveryServiceProfile: undefined,
+                        };
                     }
 
                     // update the contact details
