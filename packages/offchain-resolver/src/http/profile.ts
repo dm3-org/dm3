@@ -85,11 +85,19 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                         error: 'address has already claimed a subdomain',
                     });
                 }
+                global.logger.debug({
+                    message: 'nameP setAlias',
+                    hotAddr: hotAddr + '.addr.devconnect.dm3.eth',
+                    alias: `${address}.user.devconnect.dm3.eth`,
+                });
 
-                await req.app.locals.db.setUserProfile(
-                    `${address}.user.ethprague.dm3.eth`,
-                    signedUserProfile,
-                    hotAddr,
+                await req.app.locals.db.removeAlias(
+                    `${address}.user.devconnect.dm3.eth`,
+                );
+
+                await req.app.locals.db.setAlias(
+                    hotAddr + '.addr.devconnect.dm3.eth',
+                    `${address}.user.devconnect.dm3.eth`,
                 );
 
                 return res.sendStatus(200);

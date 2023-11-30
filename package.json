@@ -1,5 +1,5 @@
 {
-    "private": true,
+    "name": "dm3",
     "workspaces": {
         "packages": [
             "packages/lib/shared",
@@ -19,7 +19,10 @@
             "packages/offchain-resolver",
             "packages/messenger-widget",
             "packages/messenger-demo",
-            "packages/cli"
+            "packages/messenger-web",
+            "packages/cli",
+            "packages/billboard-client",
+            "packages/billboard-widget"
         ],
         "nohoist": [
             "**/react",
@@ -51,7 +54,8 @@
         "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
         "format:check": "prettier --check '*/**/*.{js,ts,tsx,json}'",
         "prepare": "husky install",
-        "test": "yarn workspaces foreach -p run test"
+        "test": "yarn workspaces foreach -p run test",
+        "cli": "yarn workspace dm3-cli start"
     },
     "packageManager": "yarn@3.5.1",
     "resolutions": {

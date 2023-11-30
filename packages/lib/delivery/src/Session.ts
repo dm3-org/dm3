@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { ProfileExtension, SignedUserProfile } from 'dm3-lib-profile';
+import { logDebug } from 'dm3-lib-shared';
 
 //1Year
 const TTL = 31536000000;
@@ -23,17 +24,26 @@ export async function checkToken(
     ensName: string,
     token: string,
 ): Promise<boolean> {
+    logDebug({
+        text: 'checkToken',
+    });
     const address = await provider.resolveName(ensName);
 
     if (!address) {
         // Couln't resolve ENS name
+        logDebug({
+            text: `checkToken - Couln't resolve ENS name`,
+        });
         return false;
     }
 
     const session = await getSession(ensName.toLocaleLowerCase());
 
-    //There is now account for the requesting accoung
+    //There is no account for the requesting accoung
     if (!session) {
+        logDebug({
+            text: `checkToken - There is no account for the requesting accoung`,
+        });
         return false;
     }
 
@@ -41,12 +51,18 @@ export async function checkToken(
 
     //The account has a session but the token is wrong
     if (!tokenIsValid) {
+        logDebug({
+            text: `checkToken - The account has a session but the token is wrong`,
+        });
         return false;
     }
 
     const isTokenExpired = session.createdAt + TTL < new Date().getTime();
     //The token is exceeded
     if (isTokenExpired) {
+        logDebug({
+            text: `checkToken - The token is exceeded`,
+        });
         return false;
     }
 

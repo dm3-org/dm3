@@ -57,3 +57,15 @@ To set a DS up run the following steps
 ### Example
 
 `setup billboardDs --rpc http://127.0.0.1:8545 --pk 0x123456789abcdef --domain alice.eth --deliveryService https://ds.io/ --profilePk 0x987654321fedcba --ensResolver 0xfedcba987654321 `
+
+
+## Profile
+
+The CLI command "setup" is used to create a dm3 user profile based on an existing privateKey or a randomly created one. 
+
+### Usage
+
+`yarn cli profile --deliveryService foo.eth --profilePk 0x123`
+-   --deliveryService <DELIVERY_SERVICE_URL>: The URL of the delivery service.
+-   --profilePk <PROFILE_PK>: Optionally, if provided, the profile will be created based on that key. Otherwise, a random key will be generated.
+

@@ -70,6 +70,8 @@ export default () => {
                     method: 'POST',
                     url: req.url,
                     ensName,
+                    disableSessionCheck:
+                        process.env.DISABLE_SESSION_CHECK === 'true',
                 });
 
                 const data = await submitUserProfile(
@@ -90,6 +92,10 @@ export default () => {
 
                 res.json(data);
             } catch (e) {
+                global.logger.warn({
+                    message: 'POST profile',
+                    error: JSON.stringify(e),
+                });
                 res.status(400).send({
                     message: `Couldn't store profile`,
                     error: JSON.stringify(e),
