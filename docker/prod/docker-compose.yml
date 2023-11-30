@@ -6,7 +6,7 @@ services:
     image: nginx:latest
     restart: always
     depends_on:
-      - billboard-client
+      - web
       - backend
       - ccip-resolver
     volumes:
@@ -33,30 +33,13 @@ services:
       RPC: ${RPC}
       PORT: 8081
       LOG_LEVEL: 'debug'
-  
-  billboard-client:
-    image: dm3-backend
-    command: yarn workspace dm3-billboard-client start
-    depends_on:
-      db:
-        condition: service_started
-      ccip-resolver:
-        condition: service_started
-      offchain-resolver:
-        condition: service_healthy
-    environment:
-      PORT: 8083
-      time: 0
-      privateKey: ${BILLBOARD_PRIVATE_KEY}
-      ensNames: ${BILLBOARD_NAMES}
-      mediators: '[]'
-      REDIS_URL: redis://db:6379
-      RPC: ${RPC}
-      LOG_LEVEL: 'debug'
 
   db:
     image: redis
     restart: always
+    volumes:
+      - /mnt/dm3_prod_volume/db/redis:/data
+
 
   offchain-resolver-db:
     image: postgres
@@ -64,6 +47,8 @@ services:
     container_name: offchain_resolver_db
     environment:
         POSTGRES_PASSWORD: example
+    volumes:
+      - /mnt/dm3_prod_volume/db/postgres:/var/lib/postgresql/data
 
   offchain-resolver:
     image: dm3-backend
@@ -79,6 +64,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    stdin_open: true # docker run -i
+    tty: true # docker run -t
 
   web:
     image: dm3-backend
@@ -113,7 +100,7 @@ services:
       offchain-resolver:
         condition: service_healthy
     environment:
-      SIGNER_PRIVATE_KEY: ${BILLBOARD_SIGNER_PRIVATE_KEY}
+      SIGNER_PRIVATE_KEY: ${SIGNER_PRIVATE_KEY}
       LOG_LEVEL: debug
       CONFIG: |
         {
