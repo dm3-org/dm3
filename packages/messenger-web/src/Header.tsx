@@ -42,10 +42,10 @@ const Header: React.FC = () => {
                 rel="noopener noreferrer"
                 style={{ position: 'absolute', top: '26px', right: '21px' }}
             >
-                <button className="normal-btn-border beta-btn ">Open old Version: <b>Beta2</b></button>
+                <button className="normal-btn-border beta-btn ">
+                    Open old Version: <b>Beta2</b>
+                </button>
             </a>
-
-
         </nav>
     );
 };
