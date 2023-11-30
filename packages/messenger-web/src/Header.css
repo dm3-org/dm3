@@ -1,0 +1,15 @@
+.beta-btn {
+    border-radius: 20px;
+    font-size: 12px;
+    line-height: 14px;
+    padding: 0.25rem 0.5rem;
+    color: var(--normal-btn-hover);
+    background-color: hsla(0, 0%, 0%, 0.333);
+    border-width: 1px;
+    border-style: dashed;
+}
+
+.beta-btn:hover {
+    background-color: var(--normal-btn-hover);
+    color: white;
+}
