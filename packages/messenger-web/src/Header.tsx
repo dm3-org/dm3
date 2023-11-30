@@ -1,5 +1,7 @@
 import React from 'react';
 
+import './Header.css';
+
 // Define the Header component
 const Header: React.FC = () => {
     // Define the handlers for the mouse over and mouse out events
@@ -33,6 +35,17 @@ const Header: React.FC = () => {
                     onMouseOver={handleMouseOver}
                     onMouseOut={handleMouseOut}
                 />
+            </a>
+
+            <a
+                href="https://old-app.dm3.network"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ position: 'absolute', top: '26px', right: '21px' }}
+            >
+                <button className="normal-btn-border beta-btn ">
+                    Open old Version: <b>Beta2</b>
+                </button>
             </a>
         </nav>
     );
