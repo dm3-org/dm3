@@ -233,8 +233,10 @@ export function Contacts(props: DashboardProps) {
         ) {
             const defaultContactIndex = contacts.findIndex(
                 (contact) =>
+                    contact.contactDetails &&
+                    contact.contactDetails.account &&
                     contact.contactDetails.account.ensName ===
-                    props.dm3Props.config.defaultContact,
+                        props.dm3Props.config.defaultContact,
             );
             if (defaultContactIndex > -1) {
                 setContactSelected(defaultContactIndex);
@@ -302,7 +304,10 @@ export function Contacts(props: DashboardProps) {
                                     <div
                                         className="pb-1"
                                         title={
-                                            data.contactDetails.account.ensName
+                                            data.contactDetails
+                                                ? data.contactDetails.account
+                                                      .ensName
+                                                : ''
                                         }
                                     >
                                         <p className="display-name">
