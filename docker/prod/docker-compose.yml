@@ -20,6 +20,7 @@ services:
 
   backend:
     image: dm3-backend
+    restart: always
     command: yarn workspace dm3-backend start
     depends_on:
       - db
@@ -52,6 +53,7 @@ services:
 
   offchain-resolver:
     image: dm3-backend
+    restart: always
     command: yarn workspace dm3-offchain-resolver start
     depends_on:
       - offchain-resolver-db
@@ -69,7 +71,8 @@ services:
 
   web:
     image: dm3-backend
-    command: yarn workspace messenger-demo start
+    command: yarn workspace messenger-web start
+    restart: always
     environment:
       REACT_APP_ADDR_ENS_SUBDOMAIN: ${REACT_APP_ADDR_ENS_SUBDOMAIN}
       REACT_APP_BACKEND: ${REACT_APP_BACKEND}
@@ -117,5 +120,5 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: /home/app/dm3/webroot/
+      device: /mnt/dm3_prod_volume/webroot
       o: bind
