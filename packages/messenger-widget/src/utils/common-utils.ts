@@ -181,7 +181,8 @@ export const getLastDm3Name = (nameList: string[]) => {
 };
 
 // Constants
-export const REACT_APP_SUPPORTED_CHAIN_ID = 5;
+export const REACT_APP_SUPPORTED_CHAIN_ID =
+    process.env.REACT_APP_CHAIN_ID === '1' ? 1 : 5;
 
 /*  eslint-disable */
 export const INVALID_NETWORK_POPUP_MESSAGE =
@@ -192,4 +193,8 @@ export const ACCOUNT_CHANGE_POPUP_MESSAGE =
 
 export const ENS_PROFILE_BASE_URL = 'https://app.ens.domains/';
 
-export const ETHERSCAN_URL = 'https://goerli.etherscan.io/address/';
+export const ETHERSCAN_URL = [
+    process.env.REACT_APP_CHAIN_ID === '1'
+        ? 'https://etherscan.io/address/'
+        : 'https://goerli.etherscan.io/address/',
+];

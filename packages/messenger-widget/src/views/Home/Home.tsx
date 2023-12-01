@@ -8,7 +8,7 @@ import {
     RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
-import { goerli } from 'wagmi/chains';
+import { mainnet, goerli } from 'wagmi/chains';
 import {
     metaMaskWallet,
     rainbowWallet,
@@ -21,7 +21,7 @@ import { Preferences } from '../../components/Preferences/Preferences';
 
 export function Home(props: Dm3Props) {
     const { chains, publicClient } = configureChains(
-        [goerli],
+        [process.env.REACT_APP_CHAIN_ID === '1' ? mainnet : goerli],
         [
             jsonRpcProvider({
                 rpc: () => ({
