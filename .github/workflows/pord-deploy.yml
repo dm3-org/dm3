@@ -2,7 +2,7 @@ name: Prod deploy
 on: 
   push:
     branches:
-      - prod-deploy
+      - main
 
 jobs:
     messenger-demo-deploy:
@@ -32,18 +32,16 @@ jobs:
                 TARGET_HOST: ${{ secrets.HOST_DOMAIN}}
                 TARGET_IP: ${{ secrets.IP_ADDRESS }}
             run: |
-                echo "REACT_APP_ADDR_ENS_SUBDOMAIN=.addr.devconnect.dm3.eth" >> ./.env.react
+                echo "REACT_APP_ADDR_ENS_SUBDOMAIN=.addr.dm3.eth" >> ./.env.react
                 echo "REACT_APP_BACKEND=https://${{ secrets.HOST_DOMAIN}}/api" >> ./.env.react
-                echo "REACT_APP_DEFAULT_DELIVERY_SERVICE=bb-ds.devconnect.dm3.eth" >> ./.env.react
+                echo "REACT_APP_DEFAULT_DELIVERY_SERVICE=ds.dm3.eth" >> ./.env.react
                 echo "REACT_APP_DEFAULT_SERVICE=https://${{ secrets.HOST_DOMAIN}}/api" >> ./.env.react
-                echo "REACT_APP_ETHEREUM_PROVIDER=${{ secrets.REACT_APP_ETHEREUM_PROVIDER }}" >> ./.env.react
+                echo "REACT_APP_ETHEREUM_PROVIDER=${{ secrets.RPC }}" >> ./.env.react
                 echo "REACT_APP_PROFILE_BASE_URL=https://${{ secrets.HOST_DOMAIN}}/api" >> ./.env.react
                 echo "REACT_APP_RESOLVER_BACKEND=https://${{ secrets.HOST_DOMAIN}}/resolver-handler" >> ./.env.react
-                echo "REACT_APP_USER_ENS_SUBDOMAIN=.user.devconnect.dm3.eth" >> ./.env.react
+                echo "REACT_APP_USER_ENS_SUBDOMAIN=.user.dm3.eth" >> ./.env.react
                 echo "REACT_APP_WALLET_CONNECT_PROJECT_ID=${{ secrets.REACT_APP_WALLET_CONNECT_PROJECT_ID }}" >> ./.env.react
-                echo "REACT_APP_COMMIT_HASH=${{ env.sha_short }}" >> ./.env.react
-                echo "REACT_APP_BRANCH=${{ env.branch }}" >> ./.env.react
-                echo "REACT_APP_BUILD_TIME=${{ env.now }}" >> ./.env.react
+                echo "REACT_APP_CHAIN_ID=${{ vars.CHAIN_ID }}" >> ./.env.react
                 cat ./.env.react >> ./.env
                 echo "RESOLVER_ADDR=0xae6646c22D8eE6479eE0a39Bf63B9bD9e57bAD9d" >> ./.env
                 echo "SIGNING_PUBLIC_KEY=${{ secrets.SIGNING_PUBLIC_KEY }}" >> ./.env
@@ -54,11 +52,13 @@ jobs:
                 echo "ENCRYPTION_PRIVATE_KEY=${{ secrets.ENCRYPTION_PRIVATE_KEY }}" >> ./.env
                 echo "RPC=${{ secrets.RPC }}" >> ./.env
                 echo "URL=${{ secrets.HOST_DOMAIN}}" >> ./.env
+                echo "CERT_MAIL=${{ secrets.CERT_MAIL }}" >> ./.env
                 envsubst '${TARGET_HOST}' < ./docker/prod/nginx.conf > ./nginx.conf
                 cat ./.env
           - name: Build docker image
             run: |
                 cp ./.env.react packages/messenger-demo/.env
+                cp ./.env.react packages/messenger-web/.env
                 docker build --progress=plain -t dm3-backend:latest -f ./docker/Dockerfile .
                 docker save -o ./dm3-backend.tar dm3-backend:latest
           - name: Sync files
