@@ -5,7 +5,7 @@ jobs:
     messenger-demo-deploy:
         environment: devconnect2023
         runs-on: ubuntu-latest
-        # if: ${{ contains( github.ref, vars.STAGING_BRANCH) }}
+        if: false
         steps:
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v3
