@@ -29,7 +29,7 @@ It also configures subdomains for .addr and ds, enabling them to resolve request
 `setup billboardDs --rpc http://127.0.0.1:8545 --pk 0x123456789abcdef --domain alice.eth --gateway https://gateway.io/ --deliveryService https://ds.io/ --profilePk 0x987654321fedcba --ensRegistry 0xabcdef123456789 --ensResolver 0xfedcba987654321 --erc3668Resolver 0x123456789abcdef0`
 
 
-##
+## Setup Offchain DS
 
 ### Overview
 
@@ -43,7 +43,7 @@ To set a DS up run the following steps
 
 ### Usage
 
-`setup billboardDs --rpc <RPC_URL> --pk <PRIVATE_KEY> --domain <ENS_DOMAIN>  --deliveryService <DELIVERY_SERVICE_URL> --profilePk <PROFILE_PRIVATE_KEY> --ensResolver <ENS_RESOLVER_ADDRESS> `
+`setup offchainDS --rpc <RPC_URL> --pk <PRIVATE_KEY> --domain <ENS_DOMAIN>  --deliveryService <DELIVERY_SERVICE_URL> --profilePk <PROFILE_PRIVATE_KEY> --ensResolver <ENS_RESOLVER_ADDRESS> `
 
 ### OPTIONS
 
@@ -56,7 +56,7 @@ To set a DS up run the following steps
 
 ### Example
 
-`setup billboardDs --rpc http://127.0.0.1:8545 --pk 0x123456789abcdef --domain alice.eth --deliveryService https://ds.io/ --profilePk 0x987654321fedcba --ensResolver 0xfedcba987654321 `
+`setup offchainDS --rpc http://127.0.0.1:8545 --pk 0x123456789abcdef --domain alice.eth --deliveryService https://ds.io/ --profilePk 0x987654321fedcba --ensResolver 0xfedcba987654321 `
 
 
 ## Profile
