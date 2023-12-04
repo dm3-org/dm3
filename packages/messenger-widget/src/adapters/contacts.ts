@@ -103,10 +103,6 @@ export async function getContacts(
     deliveryServiceToken: string,
     createEmptyConversationEntry: (id: string) => void,
 ): Promise<Account[]> {
-    if (!connection.provider) {
-        throw Error('No provider');
-    }
-
     const pendingConversations = await fetchPendingConversations(
         connection,
         deliveryServiceToken,
@@ -143,7 +139,7 @@ export async function getContacts(
                 let profile;
                 try {
                     profile = await getUserProfile(
-                        connection.provider!,
+                        connection.mainnetProvider!,
                         ensName,
                     );
                     return {
@@ -190,7 +186,7 @@ function fetchDeliveryServiceProfile(connection: Connection) {
 
         const deliveryServiceProfile = await getDeliveryServiceProfile(
             deliveryServiceUrl,
-            connection.provider!,
+            connection.mainnetProvider!,
             async (url: string) => (await axios.get(url)).data,
         );
 

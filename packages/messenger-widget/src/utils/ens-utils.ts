@@ -28,8 +28,8 @@ export const getAvatarProfilePic = async (
     state: GlobalState,
     ensName: string,
 ) => {
-    if (state.connection.provider && ensName) {
-        const provider = state.connection.provider;
+    if (ensName) {
+        const provider = state.connection.mainnetProvider;
         try {
             if (provider) {
                 const address = await provider.resolveName(ensName);
@@ -67,7 +67,7 @@ export const getEnsProfileDetails = async (
     };
 
     try {
-        const provider = state.connection.provider;
+        const provider = state.connection.mainnetProvider;
 
         if (provider && ensName) {
             const resolver = await provider.getResolver(ensName);
@@ -156,7 +156,7 @@ export const getContactSelected = async (
 
         if (selectedAccount.length) {
             let address;
-            const provider = state.connection.provider;
+            const provider = state.connection.mainnetProvider;
 
             try {
                 address = await provider?.resolveName(
@@ -189,7 +189,7 @@ export const checkEnsDM3Text = async (
     ensName: string,
 ): Promise<boolean> => {
     try {
-        const provider = state.connection.provider;
+        const provider = state.connection.mainnetProvider;
 
         if (provider && ensName) {
             const resolver = await provider.getResolver(ensName);

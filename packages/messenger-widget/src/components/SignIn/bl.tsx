@@ -210,17 +210,17 @@ export async function execReAuth(
         throw Error('No account set');
     }
 
-    if (!connection.provider) {
-        throw Error('No provider');
-    }
-
     const challenge = await getChallenge(
         connection.account,
-        connection.provider,
+        connection.mainnetProvider,
     );
 
     const signature = await sign(privateSigningKey, challenge);
-    return getNewToken(connection.account, connection.provider, signature);
+    return getNewToken(
+        connection.account,
+        connection.mainnetProvider,
+        signature,
+    );
 }
 
 export async function reAuth(
@@ -246,7 +246,7 @@ export async function getStorageFile(
         //Should result in reSignin
         case StorageLocation.dm3Storage:
             return await getDm3Storage(
-                connection.provider!,
+                connection.mainnetProvider!,
                 connection.account!,
                 deliveryServiceToken,
             );
@@ -421,7 +421,6 @@ export async function execSignIn(
         profile,
         signature,
     };
-
     if (
         !(await claimAddress(
             address,
@@ -439,7 +438,7 @@ export async function execSignIn(
     //Submit newely created UserProfile
     const deliveryServiceToken = await submitUserProfile(
         { ensName, profile },
-        connection.provider!,
+        connection.mainnetProvider!,
         { profile, signature },
     );
     const account = {
@@ -601,7 +600,10 @@ async function connectOnchainAccount(
     ensName: string,
     address: string,
 ) {
-    const onChainProfile = await getUserProfile(connection.provider!, ensName);
+    const onChainProfile = await getUserProfile(
+        connection.mainnetProvider,
+        ensName,
+    );
 
     /**
      * If it turns out there is no on chain profile available
@@ -614,7 +616,7 @@ async function connectOnchainAccount(
      * We've to check wether the profile published on chain belongs to the address we're trying to connectÌ
      */
     const isProfileValid = await checkUserProfile(
-        connection.provider!,
+        connection.mainnetProvider,
         onChainProfile,
         address,
     );
@@ -659,7 +661,10 @@ async function connectOffchainAccount(connection: Connection, address: string) {
             )) ?? getAliasForAddress(address);
 
         //We're trying to get the profile from the delivery service
-        const profile = await getUserProfile(connection.provider!, ensName);
+        const profile = await getUserProfile(
+            connection.mainnetProvider!,
+            ensName,
+        );
 
         return {
             account: ensName,
@@ -702,7 +707,7 @@ export async function connectEthAccount(
         const address =
             preSetAccount ?? (await requestAccounts(connection.provider));
 
-        const ensName = await connection.provider.lookupAddress(address);
+        const ensName = await connection.mainnetProvider.lookupAddress(address);
 
         return ensName
             ? await connectOnchainAccount(connection, ensName, address)

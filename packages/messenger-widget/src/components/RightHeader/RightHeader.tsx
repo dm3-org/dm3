@@ -59,7 +59,7 @@ export function RightHeader(props: HideFunctionProps) {
     const fetchDisplayName = async () => {
         try {
             if (
-                state.connection.provider &&
+                state.connection.mainnetProvider &&
                 state.connection.ethAddress &&
                 state.connection.account
             ) {
@@ -67,12 +67,13 @@ export function RightHeader(props: HideFunctionProps) {
                     state.connection.account?.ensName?.endsWith(
                         globalConfig.ADDR_ENS_SUBDOMAIN(),
                     );
-                const name = await state.connection.provider.lookupAddress(
-                    state.connection.ethAddress,
-                );
+                const name =
+                    await state.connection.mainnetProvider.lookupAddress(
+                        state.connection.ethAddress,
+                    );
                 if (name && !isAddrEnsName) {
                     const hasProfile = await hasUserProfile(
-                        state.connection.provider,
+                        state.connection.mainnetProvider,
                         name,
                     );
                     const dm3ProfileRecordExists = await checkEnsDM3Text(
@@ -89,7 +90,7 @@ export function RightHeader(props: HideFunctionProps) {
                 } else {
                     const dm3Names: any = await getAliasChain(
                         state.connection.account,
-                        state.connection.provider,
+                        state.connection.mainnetProvider,
                     );
                     let dm3Name;
                     if (dm3Names && dm3Names.length) {

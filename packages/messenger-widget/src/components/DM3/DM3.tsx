@@ -57,7 +57,7 @@ function DM3(props: Dm3Props) {
             }
             const deliveryServiceProfile = await getDeliveryServiceProfile(
                 state.connection.account.profile.deliveryServices[0],
-                state.connection.provider!,
+                state.connection.mainnetProvider!,
                 async (url: string) => (await axios.get(url)).data,
             );
             setdeliveryServiceUrl(deliveryServiceProfile!.url);

@@ -292,7 +292,7 @@ export const updateSelectedContact = (
 
 const fetchesUserProfile = async (ensName: string, state: GlobalState) => {
     try {
-        return await getUserProfile(state.connection.provider!, ensName);
+        return await getUserProfile(state.connection.mainnetProvider!, ensName);
     } catch (error) {
         return null;
     }
@@ -438,7 +438,7 @@ export const updateContactOnAccountChange = async (
                         const deliveryServiceProfile =
                             await getDeliveryServiceProfile(
                                 profile.profile.deliveryServices[0],
-                                state.connection.provider!,
+                                state.connection.mainnetProvider!,
                                 async (url: string) =>
                                     (
                                         await axios.get(url)
@@ -566,7 +566,7 @@ export const fetchMessageSizeLimit = async (
     dispatch: React.Dispatch<Actions>,
 ) => {
     const details = await getDeliveryServiceProperties(
-        state.connection.provider as ethers.providers.JsonRpcProvider,
+        state.connection.mainnetProvider as ethers.providers.JsonRpcProvider,
         state.connection.account as Account,
     );
     dispatch({

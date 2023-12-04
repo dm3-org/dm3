@@ -35,7 +35,7 @@ export async function fetchPendingConversations(
 
     const { data } = await getDeliveryServiceClient(
         connection.account?.profile!,
-        connection.provider!,
+        connection.mainnetProvider!,
         async (url: string) => (await axios.get(url)).data,
     ).post(url, {}, withAuthHeader(token));
 
@@ -186,7 +186,7 @@ export async function fetchAndStoreMessages(
         profile.deliveryServices.map(async (ds) => {
             const deliveryServiceProfile = await getDeliveryServiceProfile(
                 ds,
-                connection.provider!,
+                connection.mainnetProvider!,
                 async (url) => (await axios.get(url)).data,
             );
             return deliveryServiceProfile?.url;
@@ -289,7 +289,7 @@ export async function fetchNewMessages(
 
     const { data } = await getDeliveryServiceClient(
         account!.profile!,
-        connection.provider!,
+        connection.mainnetProvider!,
         async (url: string) => (await axios.get(url)).data,
     ).get(url, withAuthHeader(token));
 

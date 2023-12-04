@@ -49,7 +49,7 @@ export const checkUserProfileConfigured = async (
 ) => {
     try {
         const profileDetails = await getUserProfile(
-            state.connection.provider!,
+            state.connection.mainnetProvider!,
             ensName,
         );
         if (!profileDetails || !profileDetails.profile.publicEncryptionKey) {

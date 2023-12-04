@@ -1,15 +1,24 @@
-import './SignIn.css';
-import dm3Logo from '../../assets/images/dm3-logo.png';
-import { homeImage } from '../../assets/base64/home-image';
-import { useContext, useEffect, useState } from 'react';
-import { SignInProps } from '../../interfaces/web3';
+import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit';
+import { disconnect, watchAccount, watchNetwork } from '@wagmi/core';
 import { StorageLocation } from 'dm3-lib-storage';
+import { useContext, useEffect, useState } from 'react';
+import { homeImage } from '../../assets/base64/home-image';
+import dm3Logo from '../../assets/images/dm3-logo.png';
+import { SignInProps } from '../../interfaces/web3';
+import {
+    ACCOUNT_CHANGE_POPUP_MESSAGE,
+    INVALID_NETWORK_POPUP_MESSAGE,
+    REACT_APP_SUPPORTED_CHAIN_ID,
+    openErrorModal,
+    reloadApp,
+} from '../../utils/common-utils';
 import { GlobalContext } from '../../utils/context-utils';
 import {
     ConnectionState,
     GoogleAuthState,
     SignInBtnValues,
 } from '../../utils/enum-type-utils';
+import './SignIn.css';
 import {
     changeSignInButtonStyle,
     checkState,
@@ -21,15 +30,6 @@ import {
     initToken,
     signIn,
 } from './bl';
-import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit';
-import { watchAccount, disconnect, watchNetwork } from '@wagmi/core';
-import {
-    ACCOUNT_CHANGE_POPUP_MESSAGE,
-    INVALID_NETWORK_POPUP_MESSAGE,
-    REACT_APP_SUPPORTED_CHAIN_ID,
-    openErrorModal,
-    reloadApp,
-} from '../../utils/common-utils';
 
 export function SignIn(props: SignInProps) {
     // state to handle button text

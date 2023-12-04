@@ -63,16 +63,16 @@ export const getEnsName = async (
     state: GlobalState,
     setEnsNameFromResolver: Function,
 ) => {
-    if (state.connection.provider && state.connection.ethAddress) {
+    if (state.connection.ethAddress) {
         const isAddrEnsName = state.connection.account?.ensName?.endsWith(
             globalConfig.ADDR_ENS_SUBDOMAIN(),
         );
-        const name = await state.connection.provider.lookupAddress(
+        const name = await state.connection.mainnetProvider.lookupAddress(
             state.connection.ethAddress,
         );
         if (name && !isAddrEnsName) {
             const hasProfile = await hasUserProfile(
-                state.connection.provider,
+                state.connection.mainnetProvider,
                 name,
             );
             const dm3ProfileRecordExists = await checkEnsDM3Text(state, name);
@@ -110,7 +110,7 @@ export const submitDm3UsernameClaim = async (
 
         await createAlias(
             state.connection.account!,
-            state.connection.provider!,
+            state.connection.mainnetProvider!,
             state.connection.account!.ensName,
             ensName,
             state.auth.currentSession!.token!,
@@ -198,14 +198,14 @@ async function getPublishProfileOnchainTransaction(
     }
 
     const ethersResolver = await ethersHelper.getResolver(
-        connection.provider,
+        connection.mainnetProvider,
         ensName,
     );
 
     if (!ethersResolver) {
         throw Error('No resolver found');
     }
-
+    //TODO do crosschain here
     const resolver = ethersHelper.getConractInstance(
         ethersResolver.address,
         [
@@ -243,7 +243,7 @@ const isEnsNameValid = async (
     }
 
     const address = await ethersHelper.resolveOwner(
-        state.connection.provider!,
+        state.connection.mainnetProvider!,
         ensName,
     );
 
@@ -253,7 +253,7 @@ const isEnsNameValid = async (
     }
 
     const owner = await ethersHelper.resolveName(
-        state.connection.provider!,
+        state.connection.mainnetProvider!,
         ensName,
     );
 
@@ -300,11 +300,11 @@ export const submitEnsNameTransaction = async (
             state.connection,
             ensName!,
         );
-
+        //TODO Handle crosschain transaction
         if (tx) {
             await createAlias(
                 state.connection.account!,
-                state.connection.provider!,
+                state.connection.mainnetProvider!,
                 state.connection.account!.ensName,
                 ensName!,
                 state.auth.currentSession!.token!,
@@ -353,10 +353,10 @@ export const fetchExistingDM3Name = async (
     setExistingDm3Name: Function,
 ) => {
     try {
-        if (state.connection.account && state.connection.provider) {
+        if (state.connection.account) {
             const dm3Names: any = await getAliasChain(
                 state.connection.account,
-                state.connection.provider,
+                state.connection.mainnetProvider,
             );
             let dm3Name;
             if (dm3Names && dm3Names.length) {

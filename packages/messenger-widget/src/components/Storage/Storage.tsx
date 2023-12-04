@@ -50,7 +50,7 @@ export default function Storage() {
 
                 case StorageLocation.dm3Storage:
                     acknowledgements = await useDm3Storage(
-                        state.connection.provider!,
+                        state.connection.mainnetProvider!,
                         state.connection.account!,
                         state.userDb as UserDB,
                         state.auth.currentSession?.token!,
@@ -62,7 +62,7 @@ export default function Storage() {
                 default:
                     if (state.userDb) {
                         await useDm3Storage(
-                            state.connection.provider!,
+                            state.connection.mainnetProvider!,
                             state.connection.account!,
                             state.userDb,
                             state.auth.currentSession?.token!,
@@ -107,7 +107,7 @@ export default function Storage() {
 
             if (state.userDb && acknowledgements.length > 0) {
                 await syncAcknoledgment(
-                    state.connection.provider!,
+                    state.connection.mainnetProvider!,
                     state.connection.account!,
                     acknowledgements,
                     state.auth.currentSession?.token!,

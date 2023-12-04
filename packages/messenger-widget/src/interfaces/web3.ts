@@ -16,6 +16,7 @@ export interface Connection {
     ethAddress?: string;
     account?: Account;
     provider?: ethers.providers.JsonRpcProvider;
+    mainnetProvider: ethers.providers.JsonRpcProvider;
     socket?: Socket<DefaultEventsMap, DefaultEventsMap>;
     storageToken?: string;
     storageLocation: StorageLocation;
