@@ -1,4 +1,4 @@
-import { logInfo } from 'dm3-lib-shared';
+/* eslint-disable no-console */
 import { ethers } from 'ethers';
 
 export const ERC3668Resolver = (address: string) => {
@@ -26,7 +26,7 @@ export const ERC3668Resolver = (address: string) => {
             nonce,
             gasLimit: 215000,
         };
-        logInfo(
+        console.log(
             `set ccip resolver for ${domain} to ${verifierAddress} at nonce ${nonce}`,
         );
         return tx;

@@ -44,6 +44,7 @@
         ]
     },
     "scripts": {
+        "cli":"yarn workspace dm3-cli run dm3",
         "docker:up": "cd packages/backend && docker-compose up -d",
         "build": " yarn workspaces foreach -pt run build",
         "start": "yarn workspace dm3-backend start",

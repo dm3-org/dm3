@@ -1,0 +1,19 @@
+version: "3.1"
+services:
+  backend:
+    image: dm3org/dm3-backend:v0.2.1
+    restart: always
+    depends_on:
+      - db
+    environment:
+      REDIS_URL: redis://db:6379
+      SIGNING_PUBLIC_KEY: ${SIGNING_PUBLIC_KEY}
+      SIGNING_PRIVATE_KEY: ${SIGNING_PRIVATE_KEY}
+      ENCRYPTION_PUBLIC_KEY: ${ENCRYPTION_PUBLIC_KEY}
+      ENCRYPTION_PRIVATE_KEY: ${ENCRYPTION_PRIVATE_KEY}
+      RPC: ${RPC}
+      PORT: 8081
+      LOG_LEVEL: 'debug'
+  db:
+    image: redis
+    restart: always
