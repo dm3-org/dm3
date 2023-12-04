@@ -1,0 +1,18 @@
+export const themeColors = {
+    backgroundColor: 'dimgray',
+    buttonBorderColor: 'gainsboro',
+    configBoxBorderColor: 'white',
+    buttonColor: 'darkgray',
+    hoverButtonColor: 'chocolate',
+    inactiveButtonColor: 'sieena',
+    primaryTextColor: 'white',
+    secondaryTextColor: 'white',
+    activeContactBackgroundColor: 'dimgray',
+    configurationBoxBackgroundColor: 'darkgrey',
+    configurationBoxBorderColor: '#666876',
+    chatBakgroundColor: '#5c5e54',
+    disabledButtonTextColor: 'burlywood',
+    errorTextColor: '#C30F1A',
+    errorBackgroundColor: '#830B12',
+    attachmentBackgroundColor: '#202129',
+};

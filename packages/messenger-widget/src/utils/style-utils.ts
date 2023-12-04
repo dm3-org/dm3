@@ -1,12 +1,8 @@
-import { themeOne } from './theme-utils';
+import { getCustomizedTheme, defaultTheme } from './theme-utils';
 
 // Method to set styles in classes
 export const setTheme = (theme: string | undefined | null) => {
     const themeDetails: any = selectTheme(theme);
-    document.body.style.setProperty(
-        '--base-background',
-        themeDetails.baseBackground,
-    );
     document.body.style.setProperty(
         '--background-container',
         themeDetails.backgroundContainer,
@@ -68,15 +64,11 @@ export const setTheme = (theme: string | undefined | null) => {
 };
 
 // Method to get all css style class based on theme selected
-export const selectTheme = (theme: string | undefined | null): object => {
+export const selectTheme = (theme: any | undefined | null): object => {
     if (!theme) {
-        return themeOne;
-    }
-    switch (theme) {
-        case 'dark':
-            return themeOne;
-        default:
-            return themeOne;
+        return defaultTheme;
+    } else {
+        return getCustomizedTheme(theme);
     }
 };
 
