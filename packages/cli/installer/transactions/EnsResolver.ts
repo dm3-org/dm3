@@ -1,4 +1,4 @@
-import { logInfo } from 'dm3-lib-shared';
+/* eslint-disable no-console */
 import { ethers } from 'ethers';
 
 export const EnsResolver = (address: string) => {
@@ -22,7 +22,7 @@ export const EnsResolver = (address: string) => {
             nonce,
             gasLimit: 350000,
         };
-        logInfo(
+        console.log(
             `Publish delivery service profile for ${domain} at nonce ${nonce}`,
         );
         return tx;

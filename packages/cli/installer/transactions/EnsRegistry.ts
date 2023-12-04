@@ -1,4 +1,4 @@
-import { logInfo } from 'dm3-lib-shared';
+/* eslint-disable no-console */
 import { ethers } from 'ethers';
 
 const TTL = 300;
@@ -32,7 +32,7 @@ export const EnsRegistry = (address: string) => {
             gasLimit: 100000,
             nonce,
         };
-        logInfo(
+        console.log(
             `Set Subnode record for ${label}.${domain} owner : ${owner} resolver : ${resolver} at nonce ${nonce}`,
         );
         return tx;

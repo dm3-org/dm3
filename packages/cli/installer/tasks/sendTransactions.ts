@@ -1,6 +1,6 @@
+/* eslint-disable no-console */
 import { BigNumber, ethers } from 'ethers';
 import { InstallerArgs } from '../types';
-import { logInfo } from 'dm3-lib-shared';
 
 export const sendTransactions = async (
     args: InstallerArgs,
@@ -26,7 +26,7 @@ export const sendTransactions = async (
         );
     }
 
-    logInfo(
+    console.log(
         `Send ${
             tx.length
         } transaction with total cost of ${ethers.utils.formatEther(
@@ -49,5 +49,5 @@ export const sendTransactions = async (
     if (hasError) {
         throw new Error('Failed to send transactions');
     }
-    logInfo('Transactions sent successfully');
+    console.log('Transactions sent successfully');
 };
