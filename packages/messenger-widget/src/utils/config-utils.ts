@@ -15,7 +15,7 @@ const DefaultConfig: Config = {
     warnBeforeLeave: false,
     browserStorageBackup: false,
     showHelp: false,
-    theme: 'default',
+    theme: undefined,
     ethereumProvider: '' as string,
     walletConnectProjectId: '' as string,
     hideFunction: '',
