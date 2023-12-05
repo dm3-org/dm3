@@ -83,4 +83,42 @@ describe('TopLevelAliasRegistry', function () {
             console.log(`Gas used for setAlias: ${receipt.gasUsed.toString()}`);
         });
     });
+
+    describe('Ownership', function () {
+        it('Should set the correct owner at deployment', async function () {
+            const currentOwner = await topLevelAliasRegistry.owner();
+            expect(currentOwner).to.equal(await owner.getAddress());
+        });
+
+        it('Should allow owner to transfer ownership', async function () {
+            const addr1Address = await addr1.getAddress();
+            await topLevelAliasRegistry
+                .connect(owner)
+                .transferOwnership(addr1Address);
+            expect(await topLevelAliasRegistry.owner()).to.equal(addr1Address);
+        });
+
+        it('Should prevent non-owners from transferring ownership', async function () {
+            const addr1Address = await addr1.getAddress();
+            await expect(
+                topLevelAliasRegistry
+                    .connect(addr1)
+                    .transferOwnership(addr1Address),
+            ).to.be.revertedWithCustomError(
+                topLevelAliasRegistry,
+                'OwnableUnauthorizedAccount',
+            );
+        });
+
+        it('Should prevent non-owners from setting aliases', async function () {
+            await expect(
+                topLevelAliasRegistry
+                    .connect(addr1)
+                    .setAlias('TestName', 'testname.eth'),
+            ).to.be.revertedWithCustomError(
+                topLevelAliasRegistry,
+                'OwnableUnauthorizedAccount',
+            );
+        });
+    });
 });
