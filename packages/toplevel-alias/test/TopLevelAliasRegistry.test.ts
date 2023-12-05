@@ -60,6 +60,42 @@ describe('TopLevelAliasRegistry', function () {
         });
     });
 
+    describe('Set Alias Event', function () {
+        it('Should emit an AliasSet event when a new alias is set', async function () {
+            const setName = 'Alice';
+            const setAlias = 'alice.eth';
+
+            const registry = topLevelAliasRegistry as TopLevelAliasRegistry;
+            await expect(registry.connect(owner).setAlias(setName, setAlias))
+                .to.emit(registry, 'AliasSet')
+                .withArgs(setName, setAlias);
+        });
+    });
+
+    describe('Set Alias Error Handling', function () {
+        it('Should fail to set an alias for an empty name', async function () {
+            const registry = topLevelAliasRegistry as TopLevelAliasRegistry;
+            await expect(
+                registry.connect(owner).setAlias('', 'alice.eth'),
+            ).to.be.revertedWith('Name cannot be empty');
+        });
+
+        it('Should fail to set an alias that exceeds the maximum length', async function () {
+            const registry = topLevelAliasRegistry as TopLevelAliasRegistry;
+            const longAlias = 'a'.repeat(101) + '.eth';
+            await expect(
+                registry.connect(owner).setAlias('Alice', longAlias),
+            ).to.be.revertedWith('Alias is too long');
+        });
+
+        it('Should fail to set an alias that is too short', async function () {
+            const registry = topLevelAliasRegistry as TopLevelAliasRegistry;
+            await expect(
+                registry.connect(owner).setAlias('Alice', 'al.eth'),
+            ).to.be.revertedWith('Alias must be at least 7 characters long');
+        });
+    });
+
     describe('Admin Management', function () {
         it('Should allow owner to add a new admin', async function () {
             const registry = topLevelAliasRegistry as TopLevelAliasRegistry;
@@ -69,6 +105,14 @@ describe('TopLevelAliasRegistry', function () {
             expect(await registry.isAdmin(await addr1.getAddress())).to.equal(
                 true,
             );
+        });
+
+        it('Should prevent non-admins from adding a new admin', async function () {
+            const addr2Address = await addr2.getAddress();
+            const registry = topLevelAliasRegistry as TopLevelAliasRegistry;
+            await expect(
+                registry.connect(addr1).setAdminStatus(addr2Address, true),
+            ).to.be.revertedWith('Only an admin can perform this action');
         });
 
         it('Should prevent non-admins from setting an alias', async function () {
@@ -100,5 +144,45 @@ describe('TopLevelAliasRegistry', function () {
         });
     });
 
-    // ... (Any additional tests)
+    describe('TopLevelAliasRegistry Gas Usage', function () {
+        let topLevelAliasRegistry: TopLevelAliasRegistry;
+
+        beforeEach(async function () {
+            const factory = await ethers.getContractFactory(
+                'TopLevelAliasRegistry',
+            );
+            topLevelAliasRegistry = await factory.deploy();
+        });
+
+        it('should measure gas used by setAlias function', async function () {
+            const tx = await topLevelAliasRegistry.setAlias(
+                'Alice',
+                'alice.eth',
+            );
+            const receipt = await tx.wait();
+            console.log(`Gas used for setAlias: ${receipt.gasUsed.toString()}`);
+        });
+
+        it('should measure gas used by setAdminStatus function', async function () {
+            const addr1Address = await addr1.getAddress();
+
+            // Messung des Gasverbrauchs für das Hinzufügen eines Admins
+            const addTx = await topLevelAliasRegistry
+                .connect(owner)
+                .setAdminStatus(addr1Address, true);
+            const addReceipt = await addTx.wait();
+            console.log(
+                `Gas used for adding an admin: ${addReceipt.gasUsed.toString()}`,
+            );
+
+            // Messung des Gasverbrauchs für das Entfernen eines Admins
+            const removeTx = await topLevelAliasRegistry
+                .connect(owner)
+                .setAdminStatus(addr1Address, false);
+            const removeReceipt = await removeTx.wait();
+            console.log(
+                `Gas used for removing an admin: ${removeReceipt.gasUsed.toString()}`,
+            );
+        });
+    });
 });

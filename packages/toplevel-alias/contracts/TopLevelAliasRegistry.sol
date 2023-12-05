@@ -21,6 +21,9 @@ contract TopLevelAliasRegistry {
     // Maximum allowed length for an alias
     uint256 private constant MAX_ALIAS_LENGTH = 100;
 
+    // Event emitted when an alias is set
+    event AliasSet(string indexed _name, string _alias);
+
     /**
      * @dev Sets the deployer of the contract as an initial admin.
      */
@@ -41,7 +44,10 @@ contract TopLevelAliasRegistry {
         require(bytes(_alias).length >= 7, "Alias must be at least 7 characters long");
         require(bytes(_alias).length <= MAX_ALIAS_LENGTH, "Alias is too long");
         require(_endsWith(_alias, ".eth"), "Alias must end with '.eth'");
+
         aliases[_name] = _alias;
+
+        emit AliasSet(_name, _alias);
     }
 
     /**
