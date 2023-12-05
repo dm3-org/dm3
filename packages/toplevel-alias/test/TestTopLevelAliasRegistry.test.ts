@@ -7,12 +7,14 @@ import {
 
 describe('TestTopLevelAliasRegistry', function () {
     let testRegistry: TestTopLevelAliasRegistry;
+    let owner: Signer;
 
     beforeEach(async function () {
+        [owner] = await ethers.getSigners();
         const TestRegistry = (await ethers.getContractFactory(
             'TestTopLevelAliasRegistry',
         )) as TestTopLevelAliasRegistry__factory;
-        testRegistry = await TestRegistry.deploy();
+        testRegistry = await TestRegistry.deploy(await owner.getAddress());
     });
 
     describe('_endsWith Function', function () {
