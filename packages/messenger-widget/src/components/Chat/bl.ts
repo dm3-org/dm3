@@ -91,6 +91,8 @@ const handleMessageContainer = (
         const msgList: MessageProps[] = [];
         let msg: MessageProps;
         let replyToEnvelop: StorageEnvelopContainer | undefined;
+        let editedMessage: StorageEnvelopContainer | undefined;
+        let deletedMessage: StorageEnvelopContainer | undefined;
         let reactionToIndex: number | null;
         const messagesMap = new Map<
             string,
@@ -111,6 +113,38 @@ const handleMessageContainer = (
                 }
             } else {
                 replyToEnvelop = undefined;
+            }
+
+            // fetch edited messages
+            if (
+                container.envelop.message.metadata.referenceMessageHash &&
+                container.envelop.message.metadata.type ===
+                    MessageActionType.EDIT
+            ) {
+                const data = messagesMap.get(
+                    container.envelop.message.metadata.referenceMessageHash,
+                );
+                if (data) {
+                    editedMessage = container;
+                }
+            } else {
+                editedMessage = undefined;
+            }
+
+            // fetch deleted messages
+            if (
+                container.envelop.message.metadata.referenceMessageHash &&
+                container.envelop.message.metadata.type ===
+                    MessageActionType.DELETE
+            ) {
+                const data = messagesMap.get(
+                    container.envelop.message.metadata.referenceMessageHash,
+                );
+                if (data) {
+                    deletedMessage = container;
+                }
+            } else {
+                deletedMessage = undefined;
             }
 
             // fetch react messages
@@ -141,8 +175,94 @@ const handleMessageContainer = (
                 reactionToIndex = null;
             }
 
-            // add message only if its not of REACTION type
-            if (!reactionToIndex && reactionToIndex != -1) {
+            if (
+                editedMessage &&
+                editedMessage.envelop.message.metadata.referenceMessageHash
+            ) {
+                const data = messagesMap.get(
+                    editedMessage.envelop.message.metadata.referenceMessageHash,
+                );
+                if (data) {
+                    msgList[data.index].envelop = editedMessage.envelop;
+                    msgList[data.index].message =
+                        editedMessage.envelop.message.message!;
+                    msgList[data.index].time =
+                        editedMessage.envelop.message.metadata.timestamp.toString();
+                    msgList[data.index].messageState =
+                        editedMessage.messageState;
+                    msgList[data.index].ownMessage = false;
+                    msgList[data.index].envelop = editedMessage.envelop;
+                    msgList[data.index].replyToMsg =
+                        replyToEnvelop?.envelop.message.message;
+                    msgList[data.index].replyToMsgFrom =
+                        replyToEnvelop?.envelop.message.metadata.from;
+                    msgList[data.index].replyToMsgId =
+                        replyToEnvelop?.envelop.metadata?.encryptedMessageHash;
+                    msgList[data.index].reactions = [];
+                    msgList[data.index].hideFunction = hideFunction;
+                    if (
+                        isSameEnsName(
+                            editedMessage.envelop.message.metadata.from,
+                            state.connection.account!.ensName,
+                            alias,
+                        )
+                    ) {
+                        msgList[data.index].ownMessage = true;
+                    }
+                    messagesMap.set(
+                        editedMessage.envelop.metadata
+                            ?.encryptedMessageHash as string,
+                        {
+                            msgDetails: msgList[data.index],
+                            index: data.index,
+                        },
+                    );
+                }
+            } else if (
+                deletedMessage &&
+                deletedMessage.envelop.message.metadata.referenceMessageHash
+            ) {
+                const data = messagesMap.get(
+                    deletedMessage.envelop.message.metadata
+                        .referenceMessageHash,
+                );
+                if (data) {
+                    msgList[data.index].envelop = deletedMessage.envelop;
+                    msgList[data.index].message =
+                        deletedMessage.envelop.message.message!;
+                    msgList[data.index].time =
+                        deletedMessage.envelop.message.metadata.timestamp.toString();
+                    msgList[data.index].messageState =
+                        deletedMessage.messageState;
+                    msgList[data.index].ownMessage = false;
+                    msgList[data.index].envelop = deletedMessage.envelop;
+                    msgList[data.index].replyToMsg =
+                        replyToEnvelop?.envelop.message.message;
+                    msgList[data.index].replyToMsgFrom =
+                        replyToEnvelop?.envelop.message.metadata.from;
+                    msgList[data.index].replyToMsgId =
+                        replyToEnvelop?.envelop.metadata?.encryptedMessageHash;
+                    msgList[data.index].reactions = [];
+                    msgList[data.index].hideFunction = hideFunction;
+                    if (
+                        isSameEnsName(
+                            deletedMessage.envelop.message.metadata.from,
+                            state.connection.account!.ensName,
+                            alias,
+                        )
+                    ) {
+                        msgList[data.index].ownMessage = true;
+                    }
+                    messagesMap.set(
+                        deletedMessage.envelop.metadata
+                            ?.encryptedMessageHash as string,
+                        {
+                            msgDetails: msgList[data.index],
+                            index: data.index,
+                        },
+                    );
+                }
+            } else if (!reactionToIndex && reactionToIndex != -1) {
                 msg = {
                     message: container.envelop.message.message!,
                     time: container.envelop.message.metadata.timestamp.toString(),
