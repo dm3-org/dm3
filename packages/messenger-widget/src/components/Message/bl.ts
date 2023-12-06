@@ -22,24 +22,6 @@ import {
     sendMessage,
 } from '../../utils/common-utils';
 
-export const setFilesData = async (
-    files: string[],
-    setAttachmentsData: Function,
-) => {
-    let data: Attachment[] = [];
-    let fileType;
-    files.forEach((file, index) => {
-        fileType = getFileTypeFromBase64(file);
-        data.push({
-            id: generateRandomStringForId(),
-            name: createNameForFile(index, fileType),
-            data: file,
-            isImage: isFileAImage(fileType),
-        });
-    });
-    setAttachmentsData(data);
-};
-
 export const scrollToMessage = (replyFromMessageId: string) => {
     const element = document.getElementById(replyFromMessageId) as HTMLElement;
     element && element.scrollIntoView();
@@ -108,4 +90,19 @@ export const deleteEmoji = async (
         type: ModalStateType.LastMessageAction,
         payload: MessageActionType.NONE,
     });
+};
+
+export const getFilesData = (files: string[]) => {
+    let data: Attachment[] = [];
+    let fileType;
+    files.forEach((file, index) => {
+        fileType = getFileTypeFromBase64(file);
+        data.push({
+            id: generateRandomStringForId(),
+            name: createNameForFile(index, fileType),
+            data: file,
+            isImage: isFileAImage(fileType),
+        });
+    });
+    return data;
 };

@@ -66,6 +66,7 @@
 .reply-preview {
     padding: 0.5rem;
     margin: -7px -7px 7px -7px;
+    flex-direction: column;
 }
 
 .contact-reacted-msg {
