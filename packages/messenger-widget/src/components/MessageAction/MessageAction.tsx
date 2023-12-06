@@ -192,16 +192,19 @@ export function MessageAction(props: MessageProps) {
                 <hr className="line-separator msg-react-separator" />
             )}
 
-            {props.message && props.envelop.metadata?.encryptedMessageHash && (
-                <div
-                    data-testid="reply-msg"
-                    className="d-flex align-items-center justify-content-start"
-                    onClick={() => setAction(MessageActionType.REPLY)}
-                >
-                    <img src={replyIcon} alt="delete" className="me-2" />
-                    Reply
-                </div>
-            )}
+            {(props.message ||
+                (props.envelop.message.attachments &&
+                    props.envelop.message.attachments.length)) &&
+                props.envelop.metadata?.encryptedMessageHash && (
+                    <div
+                        data-testid="reply-msg"
+                        className="d-flex align-items-center justify-content-start"
+                        onClick={() => setAction(MessageActionType.REPLY)}
+                    >
+                        <img src={replyIcon} alt="delete" className="me-2" />
+                        Reply
+                    </div>
+                )}
 
             {props.envelop.message.attachments &&
                 props.envelop.message.attachments.length > 0 && (

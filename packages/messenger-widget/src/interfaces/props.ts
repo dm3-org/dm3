@@ -37,6 +37,7 @@ export interface MessageProps {
     replyToMsg: string | undefined;
     replyToMsgFrom: string | undefined;
     replyToMsgId: string | undefined;
+    replyToMsgEnvelope: Envelop | undefined;
     reactions: Envelop[];
     isLastMessage?: boolean;
     hideFunction?: string;

@@ -8,13 +8,12 @@ import { MessageAction } from '../MessageAction/MessageAction';
 import { GlobalContext } from '../../utils/context-utils';
 import { MessageActionType } from '../../utils/enum-type-utils';
 import { scrollToBottomOfChat } from '../Chat/bl';
-import { Attachment } from '../../interfaces/utils';
 import { AttachmentThumbnailPreview } from '../AttachmentThumbnailPreview/AttachmentThumbnailPreview';
 import {
     deleteEmoji,
+    getFilesData,
     getMessageChangeText,
     scrollToMessage,
-    setFilesData,
 } from './bl';
 
 export function Message(props: MessageProps) {
@@ -22,9 +21,6 @@ export function Message(props: MessageProps) {
 
     // state to show action items three dots
     const [isHovered, setIsHovered] = useState(false);
-
-    // attachments
-    const [attachments, setAttachments] = useState<Attachment[]>([]);
 
     const handleMouseOver = () => {
         setIsHovered(true);
@@ -36,19 +32,6 @@ export function Message(props: MessageProps) {
     const handleMouseOut = () => {
         setIsHovered(false);
     };
-
-    function setAttachmentsData(data: Attachment[]) {
-        setAttachments(data);
-    }
-
-    useEffect(() => {
-        if (
-            props.envelop.message.attachments &&
-            props.envelop.message.attachments.length
-        ) {
-            setFilesData(props.envelop.message.attachments, setAttachmentsData);
-        }
-    }, [props]);
 
     return (
         <span
@@ -69,7 +52,7 @@ export function Message(props: MessageProps) {
                               props.envelop.message.metadata.type ===
                                   MessageActionType.DELETE &&
                               (!props.envelop.message.attachments ||
-                                  !props.envelop.message.attachments.length)
+                                  props.envelop.message.attachments.length < 1)
                                 ? 'own-deleted-msg'
                                 : state.uiView.selectedMessageView
                                       .actionType === MessageActionType.EDIT &&
@@ -81,7 +64,7 @@ export function Message(props: MessageProps) {
                               props.envelop.message.metadata.type ===
                                   MessageActionType.DELETE &&
                               (!props.envelop.message.attachments ||
-                                  !props.envelop.message.attachments.length)
+                                  props.envelop.message.attachments.length < 1)
                             ? 'contact-deleted-msg'
                             : 'normal-btn-hover'
                         ).concat(
@@ -95,7 +78,10 @@ export function Message(props: MessageProps) {
                     )}
                 >
                     {/* show the preview of reply message */}
-                    {props.replyToMsg &&
+                    {(props.replyToMsg ||
+                        (props.replyToMsgEnvelope?.message.attachments &&
+                            props.replyToMsgEnvelope?.message.attachments
+                                .length > 0)) &&
                         props.replyToMsgFrom &&
                         props.envelop.message.metadata.type ===
                             MessageActionType.REPLY && (
@@ -107,6 +93,13 @@ export function Message(props: MessageProps) {
                                     )
                                 }
                             >
+                                <AttachmentThumbnailPreview
+                                    filesSelected={getFilesData(
+                                        props.replyToMsgEnvelope?.message
+                                            .attachments as string[],
+                                    )}
+                                    isMyMessage={props.ownMessage}
+                                />
                                 <div className="user-name">
                                     {props.replyToMsgFrom.length > 25
                                         ? props.replyToMsgFrom
@@ -115,17 +108,22 @@ export function Message(props: MessageProps) {
                                         : props.replyToMsgFrom.concat(':')}
                                 </div>
                                 {props.replyToMsg
-                                    .substring(0, 20)
-                                    .concat('...')}
+                                    ? props.replyToMsg
+                                          .substring(0, 20)
+                                          .concat('...')
+                                    : ''}
                             </div>
                         )}
 
                     {/* Attachments preview */}
-                    {attachments.length > 0 &&
+                    {props.envelop.message.attachments &&
+                        props.envelop.message.attachments.length > 0 &&
                         props.envelop.message.metadata.type !==
                             MessageActionType.DELETE && (
                             <AttachmentThumbnailPreview
-                                filesSelected={attachments}
+                                filesSelected={getFilesData(
+                                    props.envelop.message.attachments,
+                                )}
                                 isMyMessage={props.ownMessage}
                             />
                         )}
@@ -133,7 +131,8 @@ export function Message(props: MessageProps) {
                     {/* actual message */}
                     {props.message
                         ? props.message
-                        : attachments.length > 0 &&
+                        : props.envelop.message.attachments &&
+                          props.envelop.message.attachments.length > 0 &&
                           props.envelop.message.metadata.type !==
                               MessageActionType.DELETE
                         ? ''
@@ -145,7 +144,9 @@ export function Message(props: MessageProps) {
                 <div
                     className={'msg-action-container d-flex pointer-cursor border-radius-3 position-relative'.concat(
                         ' ',
-                        (!props.message && attachments.length) === 0 ||
+                        (!props.message &&
+                            props.envelop.message.attachments &&
+                            props.envelop.message.attachments.length) === 0 ||
                             props.envelop.message.metadata.type ===
                                 MessageActionType.DELETE ||
                             !props.envelop.metadata?.encryptedMessageHash

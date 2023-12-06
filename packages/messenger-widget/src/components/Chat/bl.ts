@@ -202,6 +202,7 @@ const handleMessageContainer = (
                         replyToEnvelop?.envelop.message.metadata.from,
                     replyToMsgId:
                         replyToEnvelop?.envelop.metadata?.encryptedMessageHash,
+                    replyToMsgEnvelope: replyToEnvelop?.envelop,
                     reactions: reactionEnvelope.map((data) => data.envelop),
                     hideFunction: hideFunction,
                 };
