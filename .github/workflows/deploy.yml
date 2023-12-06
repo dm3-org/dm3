@@ -1,10 +1,12 @@
 name: Staging deploy
-on: push
+on: 
+  push:
+    branches:
+      - develop
 
 jobs:
     messenger-demo-deploy:
         runs-on: ubuntu-latest
-        if: ${{ contains( github.ref, vars.STAGING_BRANCH) }}
         steps:
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v3
