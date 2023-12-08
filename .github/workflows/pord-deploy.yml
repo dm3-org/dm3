@@ -2,7 +2,7 @@ name: Prod deploy
 on: 
   push:
     branches:
-      - main
+      - new-deploy
 
 jobs:
     messenger-demo-deploy:
