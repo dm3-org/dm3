@@ -169,6 +169,7 @@ const updateStates = (
             },
             deliveryServiceProfile: undefined,
         },
+        isHidden: false,
     };
 
     // add new contact in cached contact list
