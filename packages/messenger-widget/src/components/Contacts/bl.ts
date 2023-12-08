@@ -24,6 +24,7 @@ import { ethers } from 'ethers';
 import { getDeliveryServiceProperties } from 'dm3-lib-delivery-api';
 import { MessageState } from 'dm3-lib-messaging';
 import axios from 'axios';
+import { globalConfig } from 'dm3-lib-shared';
 
 export const onContactSelected = (
     state: GlobalState,
@@ -59,27 +60,15 @@ export const fetchAndSetContacts = async (
 ): Promise<ContactPreview[]> => {
     const actualContactList: ContactPreview[] = [];
 
-    // fetch contacts list
-    const contactList = state.accounts.contacts
-        ? state.accounts.contacts.filter(
-              (contact) =>
-                  !state.userDb?.hiddenContacts.find(
-                      (hiddenContact) =>
-                          normalizeEnsName(hiddenContact.ensName) ===
-                          normalizeEnsName(contact.account.ensName),
-                  ),
-          )
-        : [];
-
-    if (contactList.length) {
+    if (state.accounts.contacts) {
         // iterate each record and set data fetched from provider
-        for (const contact of contactList) {
+        for (const contact of state.accounts.contacts) {
             actualContactList.push({
                 name: getAccountDisplayName(contact.account.ensName, 25),
                 message: getMessagesFromUser(
                     contact.account.ensName,
                     state.userDb as UserDB,
-                    contactList,
+                    state.accounts.contacts,
                 ),
                 image: await getAvatarProfilePic(
                     state,
@@ -90,33 +79,89 @@ export const fetchAndSetContacts = async (
                     contact.account.ensName,
                 ),
                 contactDetails: contact,
+                isHidden: state.userDb?.hiddenContacts.find(
+                    (hiddenContact) =>
+                        normalizeEnsName(hiddenContact.ensName) ===
+                        normalizeEnsName(contact.account.ensName),
+                )
+                    ? true
+                    : false,
             });
         }
     }
 
-    const profileAccounts = actualContactList.filter(
-        (item) =>
-            item.contactDetails && item.contactDetails.account.profileSignature,
-    );
-
-    const nonProfileAccounts = actualContactList.filter(
-        (item) =>
-            item.contactDetails &&
-            !item.contactDetails.account.profileSignature,
-    );
-
-    const uniqueProfileAccounts = [
-        ...new Map(
-            profileAccounts.map((item) => [
-                item.contactDetails.account.profileSignature,
-                item,
-            ]),
-        ).values(),
-    ];
-
-    const uniqueContacts = [...uniqueProfileAccounts, ...nonProfileAccounts];
+    const uniqueContacts = filterOutDuplicateContacts(actualContactList);
 
     return uniqueContacts;
+};
+
+const filterOutDuplicateContacts = (contactList: ContactPreview[]) => {
+    const result: ContactPreview[] = [];
+
+    // contact with profile
+    const contactsWithProfile = contactList.filter(
+        (data: ContactPreview) => data.contactDetails.account.profileSignature,
+    );
+
+    // contacts without profile
+    const contactsWithOutProfile = contactList.filter(
+        (data: ContactPreview) => !data.contactDetails.account.profileSignature,
+    );
+
+    // fetch unique profiles
+    const uniqueProfiles = [
+        ...new Set(
+            contactsWithProfile.map(
+                (item) => item.contactDetails.account.profileSignature,
+            ),
+        ),
+    ];
+
+    // filter out the profile signatures with ensName
+    uniqueProfiles.map((profile) => {
+        // fetch all contacts with same profile
+        const records = contactsWithProfile.filter(
+            (data) => data.contactDetails.account.profileSignature === profile,
+        );
+        if (records.length > 1) {
+            // fetch profile with eth as ens name
+            const ensNames = records.filter((item) => {
+                const ensName = item.contactDetails.account.ensName.split('.');
+                if (ensName.length === 2 && ensName[1] === 'eth') {
+                    return true;
+                }
+            });
+            if (ensNames.length) {
+                result.push(ensNames[0]);
+            } else {
+                // fetch profile with .user.dm3.eth as ens name
+                const userEnsDomains = records.filter((item) =>
+                    item.contactDetails.account.ensName.endsWith(
+                        globalConfig.USER_ENS_SUBDOMAIN(),
+                    ),
+                );
+                if (userEnsDomains.length) {
+                    result.push(userEnsDomains[0]);
+                } else {
+                    // fetch profile with .addr.dm3.eth as ens name
+                    const addrEnsDomains = records.filter((item) =>
+                        item.contactDetails.account.ensName.endsWith(
+                            globalConfig.ADDR_ENS_SUBDOMAIN(),
+                        ),
+                    );
+                    if (addrEnsDomains.length) {
+                        result.push(addrEnsDomains[0]);
+                    } else {
+                        result.push(records[0]);
+                    }
+                }
+            }
+        } else {
+            result.push(records[0]);
+        }
+    });
+
+    return [...result, ...contactsWithOutProfile];
 };
 
 export const getMessagesFromUser = (
@@ -231,6 +276,13 @@ export const addNewConversationFound = async (
                         contact.account.ensName,
                     ),
                     contactDetails: contact,
+                    isHidden: state.userDb?.hiddenContacts.find(
+                        (hiddenContact) =>
+                            normalizeEnsName(hiddenContact.ensName) ===
+                            normalizeEnsName(contact.account.ensName),
+                    )
+                        ? true
+                        : false,
                 });
             }
 
@@ -368,6 +420,9 @@ export const updateContactOnAccountChange = async (
 
                         // update details from existing contacts
                         newRecord.contactDetails = newRecord.contactDetails;
+                        newRecord.contactDetails.deliveryServiceProfile =
+                            existingRecord.contactDetails.deliveryServiceProfile;
+
                         if (profile) {
                             newRecord.contactDetails.account.profile =
                                 profile.profile;
@@ -383,9 +438,11 @@ export const updateContactOnAccountChange = async (
                             newRecord.contactDetails.account.ensName as string,
                         );
 
+                        existingRecord.isHidden = true;
+
                         // remove already selected item
+                        newList[duplicateContact[0].index] = existingRecord;
                         newList[duplicateContact[1].index] = newRecord;
-                        newList.splice(duplicateContact[0].index, 1);
 
                         // update contact list
                         setListOfContacts(newList);
@@ -395,19 +452,9 @@ export const updateContactOnAccountChange = async (
                             type: CacheType.Contacts,
                             payload: newList,
                         });
-
-                        // select the new contact
-                        setContactFromList(duplicateContact[0].index);
-
-                        dispatch({
-                            type: AccountsType.SetSelectedContact,
-                            payload: newRecord.contactDetails,
-                        });
                     } else {
                         // if the newly contact added is address
-                        // remove last item
                         const newList = [...contacts];
-                        newList.pop();
 
                         let updatedList: ContactPreview[] = [];
 
@@ -415,9 +462,13 @@ export const updateContactOnAccountChange = async (
                             updatedList = newList;
                         } else {
                             const oldList = [...state.cache.contacts];
-                            oldList.pop();
                             updatedList = oldList;
                         }
+
+                        const newItem = updatedList[updatedList.length - 1];
+                        newItem.isHidden = true;
+
+                        updatedList[updatedList.length - 1] = newItem;
 
                         // update contact list
                         setListOfContacts(updatedList);

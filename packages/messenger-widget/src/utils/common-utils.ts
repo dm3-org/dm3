@@ -1,5 +1,5 @@
 import { SendDependencies, Message } from 'dm3-lib-messaging';
-import { Account, ProfileKeys } from 'dm3-lib-profile';
+import { Account, DeliveryServiceProfile, ProfileKeys } from 'dm3-lib-profile';
 import { globalConfig, log } from 'dm3-lib-shared';
 import { StorageEnvelopContainer } from 'dm3-lib-storage';
 import { submitMessage } from '../adapters/messages';
@@ -113,21 +113,47 @@ export const closeErrorModal = () => {
 };
 
 export const getHaltDelivery = (state: GlobalState): boolean => {
-    return state.accounts.selectedContact?.account.profile
-        ?.publicEncryptionKey &&
-        state.connection.account?.profile?.publicEncryptionKey
-        ? false
-        : true;
+    if (state.cache.contacts) {
+        const contacts = state.cache.contacts.filter(
+            (data) =>
+                data.contactDetails.account.ensName ===
+                state.accounts.selectedContact?.account.ensName,
+        );
+        if (contacts.length) {
+            return contacts[0].contactDetails.account.profile
+                ?.publicEncryptionKey &&
+                contacts[0].contactDetails.account?.profile?.publicEncryptionKey
+                ? false
+                : true;
+        } else {
+            return true;
+        }
+    } else {
+        return true;
+    }
 };
 
 export const getDependencies = (state: GlobalState): SendDependencies => {
-    return {
+    const data = {
         deliverServiceProfile:
             state.accounts.selectedContact?.deliveryServiceProfile!,
         from: state.connection.account!,
         to: state.accounts.selectedContact?.account as Account,
         keys: state.userDb?.keys as ProfileKeys,
     };
+    if (state.cache.contacts) {
+        const contacts = state.cache.contacts.filter(
+            (data) =>
+                data.contactDetails.account.ensName ===
+                state.accounts.selectedContact?.account.ensName,
+        );
+        if (contacts.length) {
+            data.deliverServiceProfile = contacts[0].contactDetails
+                .deliveryServiceProfile as DeliveryServiceProfile;
+            data.to = contacts[0].contactDetails.account;
+        }
+    }
+    return data;
 };
 
 export const sendMessage = async (

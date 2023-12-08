@@ -5,7 +5,7 @@ import {
     isSameEnsName,
     normalizeEnsName,
 } from 'dm3-lib-profile';
-import { log, stringify } from 'dm3-lib-shared';
+import { globalConfig, log, stringify } from 'dm3-lib-shared';
 import {
     Actions,
     CacheType,
@@ -13,7 +13,11 @@ import {
     MessageActionType,
     UserDbType,
 } from '../../utils/enum-type-utils';
-import { StorageEnvelopContainer, UserDB } from 'dm3-lib-storage';
+import {
+    StorageEnvelopContainer,
+    UserDB,
+    getConversation,
+} from 'dm3-lib-storage';
 import { MessageProps } from '../../interfaces/props';
 import { fetchAndStoreMessages } from '../../adapters/messages';
 
@@ -406,7 +410,7 @@ export const handleMessages = async (
     hideFunction?: string,
 ) => {
     if (!isMessageListInitialized && state.accounts.selectedContact) {
-        const items = await fetchAndStoreMessages(
+        const fetchedMessages = await fetchAndStoreMessages(
             state.connection,
             state.auth.currentSession?.token!,
             state.accounts.selectedContact.account.ensName,
@@ -426,6 +430,9 @@ export const handleMessages = async (
                 ? state.accounts.contacts.map((contact) => contact.account)
                 : [],
         );
+
+        const addressMessages = await getOldMessages(state, alias);
+        const items = [...addressMessages, ...fetchedMessages];
 
         const checkedContainers = items.filter((container) => {
             if (!state.accounts.selectedContact) {
@@ -566,5 +573,82 @@ export const handleMessages = async (
         }
 
         updateShowShimEffect(false);
+    }
+};
+
+const getOldMessages = async (
+    state: GlobalState,
+    alias: string | undefined,
+) => {
+    let address: string | null | undefined = null;
+    const provider = state.connection.provider;
+
+    try {
+        if (
+            state.accounts.selectedContact &&
+            state.userDb &&
+            state.accounts.contacts
+        ) {
+            // check if it is not the address
+            const isAddrEnsName =
+                state.accounts.selectedContact.account.ensName.endsWith(
+                    globalConfig.ADDR_ENS_SUBDOMAIN(),
+                );
+
+            if (!isAddrEnsName) {
+                // fetch the address of contact
+
+                address = await provider?.resolveName(
+                    state.accounts.selectedContact.account.ensName,
+                );
+
+                // get address ENS name
+                if (address) {
+                    address = address.concat(globalConfig.ADDR_ENS_SUBDOMAIN());
+
+                    // fetch all old messages from address
+                    const containers = getConversation(
+                        address,
+                        state.accounts.contacts.map(
+                            (contact) => contact.account,
+                        ),
+                        state.userDb,
+                    );
+
+                    const checkedContainers = containers.filter((container) => {
+                        if (!state.accounts.selectedContact) {
+                            return [];
+                        }
+
+                        const account = isSameEnsName(
+                            container.envelop.message.metadata.from,
+                            address as string,
+                            alias,
+                        )
+                            ? state.accounts.selectedContact.account
+                            : state.connection.account!;
+
+                        return account.profile?.publicSigningKey
+                            ? checkSignature(
+                                  container.envelop.message,
+                                  account.profile?.publicSigningKey,
+                                  account.ensName,
+                                  container.envelop.message.signature,
+                              )
+                            : true;
+                    });
+
+                    return checkedContainers;
+                } else {
+                    return [];
+                }
+            } else {
+                return [];
+            }
+        } else {
+            return [];
+        }
+    } catch (error) {
+        return [];
     }
 };
