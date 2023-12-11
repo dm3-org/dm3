@@ -9,17 +9,20 @@ export default function ConfigureProfileBox() {
 
     const [showConfigBox, setShowConfigBox] = useState<boolean>(false);
 
-    // fetches sub domain of ENS
-    const isAddrEnsName = state.connection.account?.ensName?.endsWith(
-        globalConfig.ADDR_ENS_SUBDOMAIN(),
-    );
-
     // handles profile configuration changes
     useEffect(() => {
         setShowConfigBox(
-            !state.connection.account?.ensName || isAddrEnsName ? true : false,
+            !state.connection.account?.ensName ||
+                state.connection.account?.ensName?.endsWith(
+                    globalConfig.ADDR_ENS_SUBDOMAIN(),
+                ) ||
+                state.cache.accountName.endsWith(
+                    globalConfig.ADDR_ENS_SUBDOMAIN(),
+                )
+                ? true
+                : false,
         );
-    }, [state.connection.account?.ensName]);
+    }, [state.connection.account?.ensName, state.cache.accountName]);
 
     return showConfigBox ? (
         <div

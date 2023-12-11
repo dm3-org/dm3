@@ -6,6 +6,7 @@ import profPic from '../../assets/images/human.svg';
 import closeIcon from '../../assets/images/cross.svg';
 import { EnsProfileDetails } from '../../interfaces/utils';
 import {
+    checkEnsDM3Text,
     getAvatarProfilePic,
     getEnsProfileDetails,
     onClose,
@@ -13,6 +14,8 @@ import {
 } from '../../utils/ens-utils';
 import { EnsDetails } from '../EnsDetails/EnsDetails';
 import { openConfigurationModal } from '../ConfigureProfile/bl';
+import { globalConfig } from 'dm3-lib-shared';
+import { hasUserProfile } from 'dm3-lib-profile';
 
 export function Profile() {
     const { state, dispatch } = useContext(GlobalContext);
@@ -41,6 +44,51 @@ export function Profile() {
                 state.connection.account?.ensName as string,
             ),
         );
+    };
+
+    // method to open ENS name
+    const openEnsNameProfile = async () => {
+        try {
+            if (state.connection.provider && state.connection.ethAddress) {
+                const isAddrEnsName =
+                    state.connection.account?.ensName?.endsWith(
+                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    );
+                const name = await state.connection.provider.lookupAddress(
+                    state.connection.ethAddress,
+                );
+
+                if (name && !isAddrEnsName) {
+                    const hasProfile = await hasUserProfile(
+                        state.connection.provider,
+                        name,
+                    );
+
+                    const dm3ProfileRecordExists = await checkEnsDM3Text(
+                        state,
+                        name,
+                    );
+
+                    if (hasProfile && dm3ProfileRecordExists)
+                        openEnsProfile(name as string);
+                    else openEnsProfile(state.connection.ethAddress);
+                } else {
+                    openEnsProfile(state.connection.ethAddress);
+                }
+            } else {
+                openEnsProfile(
+                    state.connection.ethAddress
+                        ? state.connection.ethAddress
+                        : (state.connection.account?.ensName as string),
+                );
+            }
+        } catch (error) {
+            openEnsProfile(
+                state.connection.ethAddress
+                    ? state.connection.ethAddress
+                    : (state.connection.account?.ensName as string),
+            );
+        }
     };
 
     useEffect(() => {
@@ -91,11 +139,7 @@ export function Profile() {
                     <div className="ens-btn-container">
                         <Button
                             buttonText="Open ENS profile"
-                            actionMethod={() =>
-                                openEnsProfile(
-                                    state.connection.account?.ensName as string,
-                                )
-                            }
+                            actionMethod={() => openEnsNameProfile()}
                         />
                     </div>
 

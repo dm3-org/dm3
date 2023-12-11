@@ -134,6 +134,11 @@ export function ConfigureProfile() {
         getEnsName(state, setEnsNameFromResolver);
     }, [state.connection.ethAddress, state.connection.provider]);
 
+    // handles ENS name and address
+    useEffect(() => {
+        getEnsName(state, setEnsNameFromResolver);
+    }, [state.cache.accountName]);
+
     // clears the input field on deleting the alias
     useEffect(() => {
         if (!showDeleteConfirmation) {
@@ -444,7 +449,7 @@ export function ConfigureProfile() {
                                 </div>
                             </div>
                             <div>
-                                {!existingEnsName && (
+                                {
                                     <button
                                         data-testid="publish-profile"
                                         disabled={
@@ -470,7 +475,7 @@ export function ConfigureProfile() {
                                             ? ' Publish Profile'
                                             : 'Rename Profile'}
                                     </button>
-                                )}
+                                }
                             </div>
                         </div>
                     </div>

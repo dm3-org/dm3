@@ -63,24 +63,31 @@ export const getEnsName = async (
     state: GlobalState,
     setEnsNameFromResolver: Function,
 ) => {
-    if (state.connection.provider && state.connection.ethAddress) {
-        const isAddrEnsName = state.connection.account?.ensName?.endsWith(
-            globalConfig.ADDR_ENS_SUBDOMAIN(),
-        );
-        const name = await state.connection.provider.lookupAddress(
-            state.connection.ethAddress,
-        );
-        if (name && !isAddrEnsName) {
-            const hasProfile = await hasUserProfile(
-                state.connection.provider,
-                name,
+    try {
+        if (state.connection.provider && state.connection.ethAddress) {
+            const isAddrEnsName = state.connection.account?.ensName?.endsWith(
+                globalConfig.ADDR_ENS_SUBDOMAIN(),
             );
-            const dm3ProfileRecordExists = await checkEnsDM3Text(state, name);
-            hasProfile &&
-                dm3ProfileRecordExists &&
-                setEnsNameFromResolver(name);
+            const name = await state.connection.provider.lookupAddress(
+                state.connection.ethAddress,
+            );
+            if (name && !isAddrEnsName) {
+                const hasProfile = await hasUserProfile(
+                    state.connection.provider,
+                    name,
+                );
+
+                const dm3ProfileRecordExists = await checkEnsDM3Text(
+                    state,
+                    name,
+                );
+
+                hasProfile &&
+                    dm3ProfileRecordExists &&
+                    setEnsNameFromResolver(name);
+            }
         }
-    }
+    } catch (error) {}
 };
 
 // method to set new DM3 username
