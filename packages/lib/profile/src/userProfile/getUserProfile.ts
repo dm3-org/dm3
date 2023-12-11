@@ -41,7 +41,11 @@ export async function hasUserProfile(
     provider: ethers.providers.JsonRpcProvider,
     contact: string,
 ): Promise<boolean> {
-    return !!getUserProfile(provider, contact);
+    try {
+        return !!getUserProfile(provider, contact);
+    } catch (e) {
+        return false;
+    }
 }
 
 export async function getUserProfile(
