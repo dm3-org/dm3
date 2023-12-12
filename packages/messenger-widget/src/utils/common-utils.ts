@@ -1,5 +1,5 @@
 import { SendDependencies, Message } from 'dm3-lib-messaging';
-import { Account, ProfileKeys } from 'dm3-lib-profile';
+import { Account, DeliveryServiceProfile, ProfileKeys } from 'dm3-lib-profile';
 import { globalConfig, log } from 'dm3-lib-shared';
 import { StorageEnvelopContainer } from 'dm3-lib-storage';
 import { submitMessage } from '../adapters/messages';
@@ -113,21 +113,47 @@ export const closeErrorModal = () => {
 };
 
 export const getHaltDelivery = (state: GlobalState): boolean => {
-    return state.accounts.selectedContact?.account.profile
-        ?.publicEncryptionKey &&
-        state.connection.account?.profile?.publicEncryptionKey
-        ? false
-        : true;
+    if (state.cache.contacts) {
+        const contacts = state.cache.contacts.filter(
+            (data) =>
+                data.contactDetails.account.ensName ===
+                state.accounts.selectedContact?.account.ensName,
+        );
+        if (contacts.length) {
+            return contacts[0].contactDetails.account.profile
+                ?.publicEncryptionKey &&
+                contacts[0].contactDetails.account?.profile?.publicEncryptionKey
+                ? false
+                : true;
+        } else {
+            return true;
+        }
+    } else {
+        return true;
+    }
 };
 
 export const getDependencies = (state: GlobalState): SendDependencies => {
-    return {
+    const data = {
         deliverServiceProfile:
             state.accounts.selectedContact?.deliveryServiceProfile!,
         from: state.connection.account!,
         to: state.accounts.selectedContact?.account as Account,
         keys: state.userDb?.keys as ProfileKeys,
     };
+    if (state.cache.contacts) {
+        const contacts = state.cache.contacts.filter(
+            (data) =>
+                data.contactDetails.account.ensName ===
+                state.accounts.selectedContact?.account.ensName,
+        );
+        if (contacts.length) {
+            data.deliverServiceProfile = contacts[0].contactDetails
+                .deliveryServiceProfile as DeliveryServiceProfile;
+            data.to = contacts[0].contactDetails.account;
+        }
+    }
+    return data;
 };
 
 export const sendMessage = async (
@@ -181,7 +207,8 @@ export const getLastDm3Name = (nameList: string[]) => {
 };
 
 // Constants
-export const REACT_APP_SUPPORTED_CHAIN_ID = 5;
+export const REACT_APP_SUPPORTED_CHAIN_ID =
+    process.env.REACT_APP_CHAIN_ID === '1' ? 1 : 5;
 
 /*  eslint-disable */
 export const INVALID_NETWORK_POPUP_MESSAGE =
@@ -192,4 +219,8 @@ export const ACCOUNT_CHANGE_POPUP_MESSAGE =
 
 export const ENS_PROFILE_BASE_URL = 'https://app.ens.domains/';
 
-export const ETHERSCAN_URL = 'https://goerli.etherscan.io/address/';
+export const ETHERSCAN_URL = [
+    process.env.REACT_APP_CHAIN_ID === '1'
+        ? 'https://etherscan.io/address/'
+        : 'https://goerli.etherscan.io/address/',
+];

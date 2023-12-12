@@ -104,6 +104,41 @@ export function Chat(props: HideFunctionProps) {
             state.accounts.selectedContact?.account.ensName as string,
             setProfileCheck,
         );
+        if (state.modal.addConversation.active) {
+            setShowShimEffect(true);
+        }
+        // fetches old message if new contact is added
+        if (
+            !state.modal.addConversation.active &&
+            state.accounts.selectedContact &&
+            state.userDb &&
+            state.accounts.contacts
+        ) {
+            setShowShimEffect(true);
+            try {
+                handleMessages(
+                    state,
+                    dispatch,
+                    getConversation(
+                        state.accounts.selectedContact.account.ensName,
+                        state.accounts.contacts.map(
+                            (contact) => contact.account,
+                        ),
+                        state.userDb,
+                    ),
+                    alias,
+                    setListOfMessages,
+                    isMessageListInitialized,
+                    updateIsMessageListInitialized,
+                    updateShowShimEffect,
+                    props.hideFunction,
+                );
+            } catch (error) {
+                setListOfMessages([]);
+                setShowShimEffect(false);
+                log(error, 'error');
+            }
+        }
     }, [state.modal.addConversation.active]);
 
     /* shimmer effect contacts css */

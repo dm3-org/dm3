@@ -18,7 +18,6 @@ import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { Loader } from '../../components/Loader/Loader';
 import AddConversation from '../../components/AddConversation/AddConversation';
 import { Preferences } from '../../components/Preferences/Preferences';
-import { ConfigureProfile } from '../../components/ConfigureProfile/ConfigureProfile';
 
 export function Home(props: Dm3Props) {
     const { chains, publicClient } = configureChains(

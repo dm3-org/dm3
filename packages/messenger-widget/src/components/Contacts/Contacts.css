@@ -88,7 +88,7 @@
     border-top: 2px solid var(--normal-btn-hover) !important;
     border-left: 2px solid var(--normal-btn-hover) !important;
     border-bottom: 2px solid var(--normal-btn-hover) !important;
-    background: linear-gradient(-259deg, #544393, #1f2029) !important;
+    background: var(--background-active-contact) !important;
     top: 0;
     bottom: 4rem !important;
     position: sticky;

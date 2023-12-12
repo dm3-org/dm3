@@ -11,7 +11,6 @@
             "packages/lib/delivery-api",
             "packages/lib/offchainResolver-api",
             "packages/lib/billboard-api",
-            "packages/billboard-client",
             "packages/backend",
             "packages/react",
             "packages/web",
@@ -45,6 +44,7 @@
         ]
     },
     "scripts": {
+        "cli": "yarn workspace dm3-cli start",
         "docker:up": "cd packages/backend && docker-compose up -d",
         "build": " yarn workspaces foreach -pt run build",
         "start": "yarn workspace dm3-backend start",
@@ -53,8 +53,7 @@
         "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
         "format:check": "prettier --check '*/**/*.{js,ts,tsx,json}'",
         "prepare": "husky install",
-        "test": "yarn workspaces foreach -p run test",
-        "cli": "yarn workspace dm3-cli start"
+        "test": "yarn workspaces foreach -p run test"
     },
     "packageManager": "yarn@3.5.1",
     "resolutions": {

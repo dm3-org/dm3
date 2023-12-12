@@ -266,7 +266,7 @@ export function SignIn(props: SignInProps) {
                         {accountConnected && accountConnected.address ? (
                             <ConnectButton showBalance={false} />
                         ) : (
-                            <div className="normal-btn wal-not-connected">
+                            <div className="mt-1 normal-btn wal-not-connected">
                                 Wallet not connected
                             </div>
                         )}

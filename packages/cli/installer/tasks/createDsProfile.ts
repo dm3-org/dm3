@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {
     DeliveryServiceProfile,
     DeliveryServiceProfileKeys,
@@ -8,7 +9,6 @@ import {
     createSigningKeyPair,
     createStorageKey,
 } from 'dm3-lib-crypto';
-import { logInfo } from 'dm3-lib-shared';
 
 export const createDsProfile = async (args: InstallerArgs) => {
     const keys: DeliveryServiceProfileKeys = {
@@ -25,8 +25,8 @@ export const createDsProfile = async (args: InstallerArgs) => {
         url: args.deliveryService,
     };
 
-    logInfo('Create DeliveryServiceProfile:');
-    logInfo(profile);
+    console.log('Create DeliveryServiceProfile:');
+    console.log(profile);
 
     return { profile, keys };
 };

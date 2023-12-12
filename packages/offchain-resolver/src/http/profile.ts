@@ -280,7 +280,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
         //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res, next) => {
             const { address } = req.params;
-            global.logger.info(`POST addr ${address} `);
+            global.logger.info(`GET addr ${address} `);
             if (!ethers.utils.isAddress(address)) {
                 return res.status(400).send();
             }

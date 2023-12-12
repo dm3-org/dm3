@@ -168,7 +168,7 @@ export function RightHeader(props: HideFunctionProps) {
                 <img
                     src={profilePic ? profilePic : humanIcon}
                     alt="menu"
-                    className="pointer-cursor border-radius-3 default-profile-pic"
+                    className="me-2 pointer-cursor border-radius-3 default-profile-pic"
                     onClick={() => updateView()}
                 />
             </div>
