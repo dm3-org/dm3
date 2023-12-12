@@ -42,7 +42,8 @@ export async function hasUserProfile(
     contact: string,
 ): Promise<boolean> {
     try {
-        return !!getUserProfile(provider, contact);
+        const profile = await getUserProfile(provider, contact);
+        return !!profile;
     } catch (e) {
         return false;
     }
