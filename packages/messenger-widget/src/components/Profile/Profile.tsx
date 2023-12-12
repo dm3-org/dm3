@@ -29,7 +29,7 @@ export function Profile() {
     const fetchUserEnsProfileDetails = async () => {
         const ensDetails: EnsProfileDetails = await getEnsProfileDetails(
             state,
-            state.connection.account?.ensName as string,
+            state.cache.accountName ? state.cache.accountName : state.connection.account?.ensName as string,
         );
         ensDetails.github && setGithub(ensDetails.github);
         ensDetails.twitter && setTwitter(ensDetails.twitter);
