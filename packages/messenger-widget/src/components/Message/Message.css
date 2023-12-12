@@ -46,7 +46,7 @@
 }
 
 .msg-action-container:hover {
-    background-color: var(--normal-btn-hover);
+    background-color: var(--received-message-background-color);
 }
 
 .msg:hover div .content-style + .msg-action-container {
@@ -69,6 +69,14 @@
     flex-direction: column;
 }
 
+.reply-preview-own{
+    background-color: var(--received-message-background-color);
+}
+
+.reply-preview-contact{
+    background-color: var(--sent-message-background-color);
+}
+
 .contact-reacted-msg {
     border-bottom-left-radius: 0px !important;
 }
@@ -87,16 +95,32 @@
 
 .own-deleted-msg {
     background: var(--background-chat);
-    border: 1px solid var(--background-config-box);
-    color: var(--background-config-box);
+    border: 1px solid var(--sent-message-background-color);
+    color: var(--sent-message-background-color);
     font-size: 0.8rem !important;
     padding: 7px !important;
 }
 
 .contact-deleted-msg {
     background: var(--background-chat);
-    border: 1px solid var(--normal-btn-hover);
-    color: var(--normal-btn-hover);
+    border: 1px solid var(--received-message-background-color);
+    color: var(--received-message-background-color);
     font-size: 0.8rem !important;
     padding: 7px !important;
+}
+
+.own-msg-background {
+    background: var(--sent-message-background-color);
+}
+
+.contact-msg-background {
+    background: var(--received-message-background-color);
+}
+
+.own-msg-text {
+    background: var(--sent-message-text-color);
+}
+
+.contact-msg-text {
+    background: var(--received-message-text-color);
 }

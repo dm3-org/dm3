@@ -34,14 +34,18 @@ export default function ConfigureProfileBox() {
                     : 'highlight-right-border-none',
             )}
         >
-            <div className="box-outer-container border-radius-4 background-config-box background-config-box-border">
-                <div className="text-center d-flex justify-content-center configure-msg-box text-primary-color">
+            <div
+                className="box-outer-container border-radius-4 profile-configuration-box
+            profile-configuration-box-border"
+            >
+                <div className="text-center d-flex justify-content-center configure-msg-box">
                     You have not yet configured your profile.
                 </div>
                 <div className="d-flex justify-content-center config-btn-container">
                     <button
                         data-testid="config-prof-btn"
-                        className="border-radius-6 background-config-box text-primary-color config-box-border"
+                        className="border-radius-6 background-config-box text-primary-color 
+                        profile-configuration-box-border"
                         onClick={() => openConfigurationModal(dispatch)}
                     >
                         Configure Profile

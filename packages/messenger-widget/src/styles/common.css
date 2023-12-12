@@ -89,7 +89,7 @@
 }
 
 .highlight-right-border {
-    border-right: 2px solid var(--normal-btn-hover);
+    border-right: 2px solid var(--selected-contact-border-color);
 }
 
 .highlight-right-border-none {
@@ -136,6 +136,15 @@ input:focus {
     padding: 0.9rem 0.7rem 0.7rem 2rem;
 }
 
+.profile-configuration-box {
+    background: var(--info-box-background-color);
+    color: var(--info-box-text-color);
+}
+
+.profile-configuration-box-border {
+    border: 1px solid var(--info-box-text-color);
+}
+
 /* CSS to rotate the spinner svg image */
 @-webkit-keyframes rotating {
     from {
@@ -180,18 +189,18 @@ input:focus {
 /* CSS to set scrollbar color and size */
 ::-webkit-scrollbar-track {
     padding: 2px 0;
-    background-color: var(--normal-btn-inactive);
+    background-color: var(--scrollbar-background-color);
     border-radius: 15px;
 }
 
 ::-webkit-scrollbar {
     width: 10px;
-    background-color: var(--background-config-box);
+    background-color: var(--scrollbar-scroller-color);
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
     border-radius: 10px;
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-    background-color: var(--background-config-box);
+    background-color: var(--scrollbar-scroller-color);
 }

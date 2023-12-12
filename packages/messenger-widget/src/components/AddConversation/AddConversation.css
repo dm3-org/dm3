@@ -16,10 +16,10 @@
 }
 
 .conversation-name {
-    border: 1px solid var(--text-secondary-color);
+    border: 1px solid var(--input-field-border-color);
     padding: 0.3rem 1rem 0.3rem 1rem;
-    color: var(--text-primary-color);
-    background: var(--background-chat);
+    color: var(--input-field-text-color);
+    background: var(--input-field-background-color);
     margin: 0rem 0rem 0rem 1rem;
 }
 
@@ -33,7 +33,7 @@
 
 .add-btn {
     padding: 4px 12px 4px 12px;
-    box-shadow: 0px 0px 44px 0px #000000;
+    box-shadow: 0px 0px 44px 0px var(--button-shadow);
     margin-top: 1.3rem;
 }
 

@@ -27,7 +27,7 @@
 }
 
 .grey-text {
-    color: var(--disabled-btn-text);
+    color: var(--profile-configuration-text-color);
 }
 
 .profile-config-container {
@@ -44,16 +44,16 @@
 }
 
 .profile-input {
-    border: 1px solid var(--text-secondary-color);
+    border: 1px solid var(--input-field-border-color);
     padding: 0.3rem 1rem 0.3rem 1rem;
-    color: var(--text-primary-color);
-    background: var(--background-chat);
+    color: var(--input-field-text-color);
+    background: var(--input-field-background-color);
     width: 60% !important;
 }
 
 .configure-btn {
     padding: 8px 16px 8px 16px;
-    box-shadow: 0px 0px 44px 0px #000000;
+    box-shadow: 0px 0px 44px 0px var(--button-shadow);
     width: fit-content;
 }
 

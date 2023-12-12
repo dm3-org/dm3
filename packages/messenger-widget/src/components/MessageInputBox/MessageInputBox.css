@@ -1,6 +1,8 @@
 .chat-action-items {
-    border: 1px solid var(--text-secondary-color);
     padding: 0.3rem;
+    background: var(--input-field-background-color) !important;
+    color: var(--input-field-text-color) !important;
+    border: 1px solid var(--input-field-border-color) !important;
 }
 
 .chat-svg-icon {

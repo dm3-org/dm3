@@ -194,7 +194,7 @@ export function ConfigureProfile() {
                         />
                     </div>
 
-                    <hr className="line-separator separator text-secondary-color" />
+                    <hr className="line-separator separator grey-text" />
 
                     <div>
                         {/* Wallet address */}
