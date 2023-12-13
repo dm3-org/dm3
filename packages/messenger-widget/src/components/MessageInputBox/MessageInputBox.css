@@ -16,6 +16,7 @@
 
 .text-input-field {
     border-left: 2px solid var(--text-secondary-color) !important;
+    color: var(--input-field-text-color) !important;
     border: none;
     outline: none;
     padding-left: 0.3rem;

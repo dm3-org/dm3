@@ -2,7 +2,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 //@ts-ignore
 import { DM3 } from 'messenger-widget';
-import { themeColors } from './theme';
 
 function App() {
     const props: any = {
@@ -13,7 +12,7 @@ function App() {
         showAlways: true,
         hideFunction: undefined, // OPTINAL PARAMETER : 'attachments,edit,delete' or undefined
         showContacts: true, // true for all contacts / false for default contact
-        theme: themeColors, // OPTINAL PARAMETER : undefined/themeColors
+        theme: undefined, // OPTINAL PARAMETER : undefined/themeColors
     };
 
     return (

@@ -8,10 +8,8 @@ import {
     Actions,
     UserDbType,
     LeftViewSelected,
-    ModalStateType,
     UiViewStateType,
 } from './enum-type-utils';
-import { startLoader } from '../components/Loader/Loader';
 
 // returns the file extension by extracting from base64
 export const getFileTypeFromBase64 = (file: string): string => {
@@ -187,11 +185,6 @@ export const sendMessage = async (
 };
 
 export const showContactList = (dispatch: React.Dispatch<Actions>) => {
-    dispatch({
-        type: ModalStateType.LoaderContent,
-        payload: 'Fetching contacts...',
-    });
-    startLoader();
     dispatch({
         type: UiViewStateType.SetSelectedLeftView,
         payload: LeftViewSelected.Contacts,
