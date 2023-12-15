@@ -1,5 +1,5 @@
 import './SignIn.css';
-import dm3Logo from '../../assets/images/dm3-logo.png';
+import dm3Logo from '../../assets/images/dm3-logo.svg';
 import { homeImage } from '../../assets/base64/home-image';
 import { useContext, useEffect, useState } from 'react';
 import { SignInProps } from '../../interfaces/web3';
@@ -130,7 +130,7 @@ export function SignIn(props: SignInProps) {
         if (
             state.connection.provider &&
             state.connection.connectionState ===
-                ConnectionState.AccountConnectReady
+            ConnectionState.AccountConnectReady
         ) {
             connectAccount(state, dispatch);
         }
@@ -206,7 +206,7 @@ export function SignIn(props: SignInProps) {
             account.address !== accountConnected.address
         ) {
             // account change case
-            openErrorModal(ACCOUNT_CHANGE_POPUP_MESSAGE, true, () => {}, true);
+            openErrorModal(ACCOUNT_CHANGE_POPUP_MESSAGE, true, () => { }, true);
             setAccountConnected(account);
             setIsSignInBtnClicked(true);
         } else if (
@@ -305,15 +305,15 @@ export function SignIn(props: SignInProps) {
                                     : signInBtnContent}
                                 {signInBtnContent ===
                                     SignInBtnValues.SigningIn && (
-                                    <span className="right-float">
-                                        {getIcon(
-                                            getButtonState(
-                                                state.connection
-                                                    .connectionState,
-                                            ),
-                                        )}
-                                    </span>
-                                )}
+                                        <span className="right-float">
+                                            {getIcon(
+                                                getButtonState(
+                                                    state.connection
+                                                        .connectionState,
+                                                ),
+                                            )}
+                                        </span>
+                                    )}
                             </button>
                         </div>
 
