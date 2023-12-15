@@ -13,6 +13,7 @@ import {
 } from '../../utils/enum-type-utils';
 import { SignIn } from '../SignIn/SignIn';
 import Dashboard from '../../views/Dashboard/Dashboard';
+import Storage from '../../components/Storage/Storage';
 
 function DM3(props: Dm3Props) {
     // fetches context storage
@@ -137,6 +138,7 @@ function DM3(props: Dm3Props) {
 
     return (
         <div id="data-rk-child" className="border-radius-8 h-100">
+            <Storage />
             {showSignIn(state.connection.connectionState) ? (
                 <SignIn
                     hideStorageSelection={props.config.hideStorageSelection}

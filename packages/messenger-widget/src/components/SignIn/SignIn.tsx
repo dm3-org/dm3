@@ -1,6 +1,7 @@
+/* eslint-disable max-len */
+/* eslint-disable no-console */
 import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit';
 import { disconnect, watchAccount, watchNetwork } from '@wagmi/core';
-import { StorageLocation } from 'dm3-lib-storage';
 import { useContext, useEffect, useState } from 'react';
 import { homeImage } from '../../assets/base64/home-image';
 import dm3Logo from '../../assets/images/dm3-logo.png';
@@ -14,49 +15,45 @@ import {
 } from '../../utils/common-utils';
 import { GlobalContext } from '../../utils/context-utils';
 import {
+    ButtonState,
     ConnectionState,
+    ConnectionType,
     GoogleAuthState,
     SignInBtnValues,
+    UserDbType,
 } from '../../utils/enum-type-utils';
+import { LoginButton } from './LoginButton';
 import './SignIn.css';
 import {
     changeSignInButtonStyle,
     checkState,
     connectAccount,
-    getButtonState,
-    getIcon,
     getProvider,
     getStorageLocation,
     initToken,
     signIn,
 } from './bl';
+import { useAccount } from 'wagmi';
+import { DEFAULT_NONCE } from 'dm3-lib-profile';
+import { useAuth } from '../../hooks/auth/useAuth';
+import { StorageLocation, UserDB } from 'dm3-lib-storage';
+import { AuthContext } from '../../context/AuthContext';
 
 export function SignIn(props: SignInProps) {
+    const { address, isConnecting, isDisconnected, isConnected } = useAccount();
+
+    const { cleanSignIn, isLoggedIn } = useContext(AuthContext);
+
     // state to handle button text
     const [signInBtnContent, setSignInBtnContent] = useState(
         SignInBtnValues.SignIn,
     );
 
-    const [dataFile, setDataFile] = useState<string | undefined>();
-
     // state to handle sign in token
     const [token, setToken] = useState<string | undefined>();
 
-    // state to handle store api token
-    const [storeApiToken, setStoreApiToken] = useState<boolean>(true);
-
     // fetches context api data
     const { state, dispatch } = useContext(GlobalContext);
-
-    // state to handle storage location
-    const [storageLocation, setStorageLocation] = useState<StorageLocation>(
-        getStorageLocation(props),
-    );
-
-    // state to handle google auth
-    const [googleAuthState, setGoogleAuthState] = useState<GoogleAuthState>(
-        GoogleAuthState.Ready,
-    );
 
     // state to track sign in button is clicked or not
     const [isSignInBtnClicked, setIsSignInBtnClicked] =
@@ -75,56 +72,41 @@ export function SignIn(props: SignInProps) {
         checkState(
             state,
             dispatch,
-            storageLocation,
+            getStorageLocation(props),
             token,
-            dataFile,
-            googleAuthState,
+            undefined,
+            GoogleAuthState.Ready,
         );
-        initToken(state, storageLocation, setToken);
+        initToken(state, getStorageLocation(props), setToken);
     }, []);
 
     useEffect(() => {
-        initToken(state, storageLocation, setToken);
-    }, [storageLocation, state.uiState.proflieExists]);
+        initToken(state, getStorageLocation(props), setToken);
+    }, [getStorageLocation(props), state.uiState.proflieExists]);
 
     useEffect(() => {
         checkState(
             state,
             dispatch,
-            storageLocation,
+            getStorageLocation(props),
             token,
-            dataFile,
-            googleAuthState,
+            undefined,
+            GoogleAuthState.Ready,
         );
     }, [
-        storageLocation,
+        getStorageLocation(props),
         state.uiState.proflieExists,
         token,
-        dataFile,
+        undefined,
         state.connection.account,
     ]);
 
     useEffect(() => {
-        if (state.uiState.proflieExists && !storeApiToken) {
+        if (state.uiState.proflieExists) {
             setToken('');
             window.localStorage.removeItem('StorageToken');
         }
-    }, [storeApiToken]);
-
-    useEffect(() => {
-        if (
-            state.connection.connectionState === ConnectionState.SignInReady &&
-            state.connection.ethAddress
-        ) {
-            signIn(
-                storageLocation,
-                token,
-                state,
-                dispatch,
-                setSignInBtnContent,
-            );
-        }
-    }, [state.connection.connectionState, state.connection.ethAddress]);
+    }, []);
 
     useEffect(() => {
         if (
@@ -232,10 +214,18 @@ export function SignIn(props: SignInProps) {
     };
 
     // handle sign in button click
+    /*     const handleSignIn = async () => {
+            disconnect().then(() => {
+                setCheckDisconnected(true);
+            });
+        };
+     */
+    const handleConnectWithWallet = () => {
+        openConnectionModal();
+    };
+
     const handleSignIn = async () => {
-        disconnect().then(() => {
-            setCheckDisconnected(true);
-        });
+        cleanSignIn();
     };
 
     // method to open connection modal
@@ -290,32 +280,31 @@ export function SignIn(props: SignInProps) {
                             </div>
                         </div>
 
-                        <div className="content-data">
-                            <button
-                                id="sign-in-btn"
-                                disabled={
-                                    signInBtnContent !== SignInBtnValues.SignIn
-                                }
-                                className="signin-btn w-100 font-weight-400 border-radius-4 
-                                normal-btn text-primary-color normal-btn-border"
-                                onClick={() => handleSignIn()}
-                            >
-                                {signInBtnContent === SignInBtnValues.SigningIn
-                                    ? SignInBtnValues.SignIn
-                                    : signInBtnContent}
-                                {signInBtnContent ===
-                                    SignInBtnValues.SigningIn && (
-                                    <span className="right-float">
-                                        {getIcon(
-                                            getButtonState(
-                                                state.connection
-                                                    .connectionState,
-                                            ),
-                                        )}
-                                    </span>
-                                )}
-                            </button>
-                        </div>
+                        {isConnecting && (
+                            <p style={{ color: 'white' }}>Connecting</p>
+                        )}
+
+                        {!isConnected ? (
+                            <LoginButton
+                                text="Connect with Wallett"
+                                onClick={handleConnectWithWallet}
+                                buttonState={ButtonState.Ideal}
+                            />
+                        ) : (
+                            <LoginButton
+                                text="Sign In with Wallet"
+                                onClick={handleSignIn}
+                                buttonState={ButtonState.Ideal}
+                            />
+                        )}
+
+                        {isLoggedIn ? (
+                            <p style={{ color: 'white' }}>logged in</p>
+                        ) : (
+                            <p style={{ color: 'white' }}>
+                                NOOOO: {isLoggedIn} ftgt
+                            </p>
+                        )}
 
                         <div className="content-data para-div">
                             <p className="text-primary-color details font-size-12">

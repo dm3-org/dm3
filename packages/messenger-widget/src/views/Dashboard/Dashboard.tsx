@@ -33,7 +33,6 @@ export default function Dashboard(props: DashboardProps) {
 
     return (
         <div className="h-100">
-            <Storage />
             {/* Configure profile popup */}
             {state.modal.isProfileConfigurationPopupActive && (
                 <ConfigureProfile />
