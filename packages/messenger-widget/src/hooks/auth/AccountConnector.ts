@@ -1,9 +1,12 @@
 /* eslint-disable no-console */
 import { getNameForAddress } from 'dm3-lib-offchain-resolver-api';
 import { checkUserProfile, getUserProfile } from 'dm3-lib-profile';
-import { log } from 'dm3-lib-shared';
-import { getAliasForAddress } from '../../components/SignIn/bl';
+import { globalConfig, log } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
+
+function getAliasForAddress(address: string) {
+    return address + globalConfig.ADDR_ENS_SUBDOMAIN();
+}
 
 export const AccountConnector = (
     mainnetProvider: ethers.providers.JsonRpcProvider,

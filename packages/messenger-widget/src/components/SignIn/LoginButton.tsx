@@ -1,5 +1,5 @@
-import { ButtonState, SignInBtnValues } from '../../utils/enum-type-utils';
-import { getButtonState, getIcon } from './bl';
+import { ButtonState } from '../../utils/enum-type-utils';
+import { getIcon } from './bl';
 
 export const LoginButton = ({
     text,

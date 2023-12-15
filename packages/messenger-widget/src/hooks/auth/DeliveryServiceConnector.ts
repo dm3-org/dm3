@@ -26,7 +26,7 @@ import { globalConfig, stringify } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import axios from 'axios';
 
-type ConnectDsResult = {
+export type ConnectDsResult = {
     userDb: UserDB;
     signedUserProfile: SignedUserProfile;
     deliveryServiceToken: string;

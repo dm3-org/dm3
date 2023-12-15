@@ -6,25 +6,37 @@ import { UserDB } from 'dm3-lib-storage';
 import { useMemo, useState } from 'react';
 import { useMainnetProvider } from '../useMainnetProvider';
 import { AccountConnector } from './AccountConnector';
-import { DeliveryServiceConnector } from './DeliveryServiceConnector';
+import {
+    ConnectDsResult,
+    DeliveryServiceConnector,
+} from './DeliveryServiceConnector';
 
 export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
+    const { data: walletClient } = useWalletClient();
+    const mainnetProvider = useMainnetProvider();
+
     const [account, setAccount] = useState<Account | undefined>(undefined);
     const [deliveryServiceToken, setDeliveryServiceToken] = useState<
         string | undefined
     >(undefined);
 
-    const { address } = useAccount();
-    const { data: walletClient } = useWalletClient();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [hasError, setHasError] = useState<boolean>(false);
 
-    const mainnetProvider = useMainnetProvider();
+    const { address } = useAccount({ onDisconnect: () => signOut() });
 
-    const isLoggedIn = useMemo<boolean>(() => {
-        console.log('call memo ', !!account && !!deliveryServiceToken);
-        return !!account && !!deliveryServiceToken;
-    }, [account, deliveryServiceToken]);
+    const isLoggedIn = useMemo<boolean>(
+        () => !!account && !!deliveryServiceToken,
+        [account, deliveryServiceToken],
+    );
 
+    const signOut = () => {
+        setAccount(undefined);
+        setDeliveryServiceToken(undefined);
+    };
     const cleanSignIn = async () => {
+        setIsLoading(true);
+        setHasError(false);
         //Fetch the Account either from onchain or via CCIP
         const account = await AccountConnector(mainnetProvider).connect(
             address!,
@@ -34,12 +46,21 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
             throw Error('error fetching dm3Account');
         }
 
-        const { deliveryServiceToken, userDb, signedUserProfile } =
-            await DeliveryServiceConnector(
+        let connectDsResult: ConnectDsResult | undefined;
+        try {
+            connectDsResult = await DeliveryServiceConnector(
                 mainnetProvider,
                 walletClient!,
                 address!,
             ).login(account.ensName, account.userProfile);
+        } catch (e) {
+            setHasError(true);
+            setIsLoading(false);
+            return;
+        }
+
+        const { deliveryServiceToken, userDb, signedUserProfile } =
+            connectDsResult;
 
         onStorageSet(userDb);
         setAccount({
@@ -49,14 +70,14 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
         });
 
         setDeliveryServiceToken(deliveryServiceToken);
-
-        console.log('deliveryServiceToken', deliveryServiceToken, account);
-        console.log('isLoggedIN', isLoggedIn);
+        setIsLoading(false);
     };
     return {
         cleanSignIn,
         account,
         deliveryServiceToken,
         isLoggedIn,
+        isLoading,
+        hasError,
     };
 };

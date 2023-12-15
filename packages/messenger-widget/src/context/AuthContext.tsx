@@ -10,6 +10,8 @@ export type AuthContextType = {
     account: Account | undefined;
     deliveryServiceToken: string | undefined;
     isLoggedIn: boolean;
+    isLoading: boolean;
+    hasError: boolean;
 };
 
 export const AuthContext = React.createContext<AuthContextType>({
@@ -17,6 +19,8 @@ export const AuthContext = React.createContext<AuthContextType>({
     account: undefined,
     deliveryServiceToken: undefined,
     isLoggedIn: false,
+    isLoading: false,
+    hasError: false,
 });
 
 export const AuthContextProvider = ({
@@ -38,8 +42,14 @@ export const AuthContextProvider = ({
     // eslint-disable-next-line no-console
     console.log('AuthContextProvider');
 
-    const { cleanSignIn, account, deliveryServiceToken, isLoggedIn } =
-        useAuth(onStorageCreated);
+    const {
+        cleanSignIn,
+        account,
+        deliveryServiceToken,
+        isLoggedIn,
+        isLoading,
+        hasError,
+    } = useAuth(onStorageCreated);
     return (
         <AuthContext.Provider
             value={{
@@ -47,6 +57,8 @@ export const AuthContextProvider = ({
                 account,
                 deliveryServiceToken,
                 isLoggedIn,
+                isLoading,
+                hasError,
             }}
         >
             {children}
