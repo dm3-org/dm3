@@ -20,10 +20,14 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
         string | undefined
     >(undefined);
 
+    const [ethAddress, setEthAddress] = useState<string | undefined>(undefined);
+
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [hasError, setHasError] = useState<boolean>(false);
 
-    const { address } = useAccount({ onDisconnect: () => signOut() });
+    const { address } = useAccount({
+        onDisconnect: () => signOut(),
+    });
 
     const isLoggedIn = useMemo<boolean>(
         () => !!account && !!deliveryServiceToken,
@@ -56,6 +60,7 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
         } catch (e) {
             setHasError(true);
             setIsLoading(false);
+            setEthAddress(undefined);
             return;
         }
 
@@ -69,12 +74,14 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
             profileSignature: signedUserProfile.signature,
         });
 
+        setEthAddress(address);
         setDeliveryServiceToken(deliveryServiceToken);
         setIsLoading(false);
     };
     return {
         cleanSignIn,
         account,
+        ethAddress,
         deliveryServiceToken,
         isLoggedIn,
         isLoading,

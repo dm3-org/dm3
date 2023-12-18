@@ -7,10 +7,11 @@ import {
 } from 'dm3-lib-profile';
 import { log, stringify } from 'dm3-lib-shared';
 import {
-    getConversationId,
     UserDB,
     createEmptyConversation,
+    getConversationId,
 } from 'dm3-lib-storage';
+import { Config } from '../interfaces/config';
 import { Contact } from '../interfaces/context';
 import { Connection } from '../interfaces/web3';
 import {
@@ -20,15 +21,15 @@ import {
     UserDbType,
 } from '../utils/enum-type-utils';
 import { fetchPendingConversations } from './messages';
-import { Config } from '../interfaces/config';
 
 export async function requestContacts(
+    account: Account,
+    deliveryServiceToken: string,
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
     config: Config,
 ) {
     const connection = state.connection;
-    const deliveryServiceToken = state.auth.currentSession?.token!;
     const userDb = state.userDb!;
     const createEmptyConversationEntry = (id: string) =>
         dispatch({
@@ -38,6 +39,7 @@ export async function requestContacts(
 
     let retrievedContacts = await getContacts(
         connection,
+        account,
         userDb,
         deliveryServiceToken,
         createEmptyConversationEntry,
@@ -56,8 +58,9 @@ export async function requestContacts(
 
         retrievedContacts = await getContacts(
             connection,
+            account,
             userDb,
-            deliveryServiceToken,
+            deliveryServiceToken!,
             createEmptyConversationEntry,
         );
     }
@@ -97,12 +100,14 @@ export async function requestContacts(
 
 export async function getContacts(
     connection: Connection,
+    account: Account,
     userDb: UserDB,
     deliveryServiceToken: string,
     createEmptyConversationEntry: (id: string) => void,
 ): Promise<Account[]> {
     const pendingConversations = await fetchPendingConversations(
         connection,
+        account,
         deliveryServiceToken,
     );
 
@@ -110,7 +115,7 @@ export async function getContacts(
         if (
             !userDb.conversations.has(
                 getConversationId(
-                    normalizeEnsName(connection.account!.ensName),
+                    normalizeEnsName(account.ensName),
                     pendingConversation,
                 ),
             )
@@ -128,7 +133,7 @@ export async function getContacts(
         Array.from(userDb.conversations.keys())
             .map((conversationId) => conversationId.split(','))
             .map((ensNames) =>
-                normalizeEnsName(connection.account!.ensName) ===
+                normalizeEnsName(account.ensName) ===
                 normalizeEnsName(ensNames[0])
                     ? normalizeEnsName(ensNames[1])
                     : normalizeEnsName(ensNames[0]),

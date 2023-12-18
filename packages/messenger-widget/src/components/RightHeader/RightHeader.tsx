@@ -16,10 +16,12 @@ import { HideFunctionProps } from '../../interfaces/props';
 import menuIcon from '../../assets/images/menu.svg';
 import { getAliasChain } from 'dm3-lib-delivery-api';
 import { getLastDm3Name } from '../../utils/common-utils';
+import { AuthContext } from '../../context/AuthContext';
 
 export function RightHeader(props: HideFunctionProps) {
     // fetches context storage
     const { state, dispatch } = useContext(GlobalContext);
+    const { account, ethAddress } = useContext(AuthContext);
 
     // state to store profile pic of signed in user
     const [profilePic, setProfilePic] = useState<string>('');
@@ -27,10 +29,7 @@ export function RightHeader(props: HideFunctionProps) {
     // method to fetch profile pic
     const fetchAndSetProfilePic = async () => {
         setProfilePic(
-            await getAvatarProfilePic(
-                state,
-                state.connection.account?.ensName as string,
-            ),
+            await getAvatarProfilePic(state, account?.ensName as string),
         );
     };
 
@@ -58,18 +57,13 @@ export function RightHeader(props: HideFunctionProps) {
 
     const fetchDisplayName = async () => {
         try {
-            if (
-                state.connection.mainnetProvider &&
-                state.connection.ethAddress &&
-                state.connection.account
-            ) {
-                const isAddrEnsName =
-                    state.connection.account?.ensName?.endsWith(
-                        globalConfig.ADDR_ENS_SUBDOMAIN(),
-                    );
+            if (state.connection.mainnetProvider && ethAddress && account) {
+                const isAddrEnsName = account?.ensName?.endsWith(
+                    globalConfig.ADDR_ENS_SUBDOMAIN(),
+                );
                 const name =
                     await state.connection.mainnetProvider.lookupAddress(
-                        state.connection.ethAddress,
+                        ethAddress,
                     );
                 if (name && !isAddrEnsName) {
                     const hasProfile = await hasUserProfile(
@@ -85,11 +79,11 @@ export function RightHeader(props: HideFunctionProps) {
                         payload:
                             hasProfile && dm3ProfileRecordExists
                                 ? name
-                                : state.connection.account?.ensName,
+                                : account?.ensName,
                     });
                 } else {
                     const dm3Names: any = await getAliasChain(
-                        state.connection.account,
+                        account,
                         state.connection.mainnetProvider,
                     );
                     let dm3Name;
@@ -98,25 +92,19 @@ export function RightHeader(props: HideFunctionProps) {
                     }
                     dispatch({
                         type: CacheType.AccountName,
-                        payload: dm3Name
-                            ? dm3Name
-                            : state.connection.account.ensName,
+                        payload: dm3Name ? dm3Name : account.ensName,
                     });
                 }
             } else {
                 dispatch({
                     type: CacheType.AccountName,
-                    payload: state.connection.account
-                        ? state.connection.account.ensName
-                        : '',
+                    payload: account ? account.ensName : '',
                 });
             }
         } catch (error) {
             dispatch({
                 type: CacheType.AccountName,
-                payload: state.connection.account
-                    ? state.connection.account.ensName
-                    : '',
+                payload: account ? account.ensName : '',
             });
         }
     };
@@ -129,7 +117,7 @@ export function RightHeader(props: HideFunctionProps) {
 
     useEffect(() => {
         fetchDisplayName();
-    }, [state.connection.account?.ensName]);
+    }, [account?.ensName]);
 
     return (
         <div

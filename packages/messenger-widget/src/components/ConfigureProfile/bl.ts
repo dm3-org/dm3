@@ -1,4 +1,4 @@
-import { hasUserProfile, SignedUserProfile } from 'dm3-lib-profile';
+import { Account, hasUserProfile, SignedUserProfile } from 'dm3-lib-profile';
 import {
     Actions,
     CacheType,
@@ -61,14 +61,16 @@ export const closeConfigurationModal = (
 // method to fetch ENS name
 export const getEnsName = async (
     state: GlobalState,
+    ethAddress: string,
+    account: Account,
     setEnsNameFromResolver: Function,
 ) => {
-    if (state.connection.ethAddress) {
-        const isAddrEnsName = state.connection.account?.ensName?.endsWith(
+    if (ethAddress) {
+        const isAddrEnsName = account.ensName?.endsWith(
             globalConfig.ADDR_ENS_SUBDOMAIN(),
         );
         const name = await state.connection.mainnetProvider.lookupAddress(
-            state.connection.ethAddress,
+            ethAddress,
         );
         if (name && !isAddrEnsName) {
             const hasProfile = await hasUserProfile(
@@ -86,6 +88,8 @@ export const getEnsName = async (
 // method to set new DM3 username
 export const submitDm3UsernameClaim = async (
     state: GlobalState,
+    account: Account,
+    dsToken: string,
     dm3UserEnsName: string,
     dispatch: React.Dispatch<Actions>,
     setError: Function,
@@ -104,22 +108,22 @@ export const submitDm3UsernameClaim = async (
         await claimSubdomain(
             dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN(),
             process.env.REACT_APP_RESOLVER_BACKEND as string,
-            state.connection.account!.ensName,
+            account!.ensName,
             state.userDb!.keys.signingKeyPair.privateKey,
         );
 
         await createAlias(
-            state.connection.account!,
+            account!,
             state.connection.mainnetProvider!,
-            state.connection.account!.ensName,
+            account!.ensName,
             ensName,
-            state.auth.currentSession!.token!,
+            dsToken!,
         );
 
         dispatch({
             type: ConnectionType.ChangeAccount,
             payload: {
-                ...state.connection.account!,
+                ...account!,
                 ensName: ensName,
             },
         });
@@ -136,6 +140,8 @@ export const submitDm3UsernameClaim = async (
 // method to remove aliad
 export const removeAliasFromDm3Name = async (
     state: GlobalState,
+    account: Account,
+    ethAddress: string,
     dm3UserEnsName: string,
     dispatch: React.Dispatch<Actions>,
     setError: Function,
@@ -158,10 +164,8 @@ export const removeAliasFromDm3Name = async (
             dispatch({
                 type: ConnectionType.ChangeAccount,
                 payload: {
-                    ...state.connection.account!,
-                    ensName:
-                        state.connection.ethAddress +
-                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    ...account!,
+                    ensName: ethAddress + globalConfig.ADDR_ENS_SUBDOMAIN(),
                 },
             });
 
@@ -182,18 +186,19 @@ export const removeAliasFromDm3Name = async (
 // method to create transaction to add new ENS name
 async function getPublishProfileOnchainTransaction(
     connection: Connection,
+    account: Account,
     ensName: string,
 ) {
     if (!connection.provider) {
         throw Error('No provider');
     }
-    if (!connection.account) {
+    if (!account) {
         throw Error('No account');
     }
-    if (!connection.account.profile) {
+    if (!account.profile) {
         throw Error('No profile');
     }
-    if (!connection.account.profileSignature) {
+    if (!account.profileSignature) {
         throw Error('No signature');
     }
 
@@ -215,8 +220,8 @@ async function getPublishProfileOnchainTransaction(
     );
 
     const signedUserProfile: SignedUserProfile = {
-        profile: connection.account.profile,
-        signature: connection.account.profileSignature,
+        profile: account.profile,
+        signature: account.profileSignature,
     };
     const node = ethers.utils.namehash(ensName);
 
@@ -234,6 +239,7 @@ async function getPublishProfileOnchainTransaction(
 const isEnsNameValid = async (
     state: GlobalState,
     ensName: string,
+    ethAddress: string,
     setError: Function,
 ): Promise<boolean> => {
     const isValidEnsName = ethers.utils.isValidName(ensName);
@@ -260,7 +266,7 @@ const isEnsNameValid = async (
     if (
         owner &&
         ethersHelper.formatAddress(owner) !==
-            ethersHelper.formatAddress(state.connection.ethAddress!)
+            ethersHelper.formatAddress(ethAddress!)
     ) {
         setError(
             'You are not the owner/manager of this name',
@@ -275,6 +281,9 @@ const isEnsNameValid = async (
 // method to set new ENS name via transaction
 export const submitEnsNameTransaction = async (
     state: GlobalState,
+    account: Account,
+    ethAddress: string,
+    dsToken: string,
     dispatch: React.Dispatch<Actions>,
     ensName: string,
     setEnsNameFromResolver: Function,
@@ -289,7 +298,12 @@ export const submitEnsNameTransaction = async (
 
         startLoader();
 
-        const isValid = await isEnsNameValid(state, ensName, setError);
+        const isValid = await isEnsNameValid(
+            state,
+            ensName,
+            ethAddress,
+            setError,
+        );
 
         if (!isValid) {
             closeLoader();
@@ -298,16 +312,17 @@ export const submitEnsNameTransaction = async (
 
         const tx = await getPublishProfileOnchainTransaction(
             state.connection,
+            account,
             ensName!,
         );
         //TODO Handle crosschain transaction
         if (tx) {
             await createAlias(
-                state.connection.account!,
+                account!,
                 state.connection.mainnetProvider!,
-                state.connection.account!.ensName,
+                account!.ensName,
                 ensName!,
-                state.auth.currentSession!.token!,
+                dsToken,
             );
             const response = await ethersHelper.executeTransaction(tx);
             await response.wait();
@@ -350,12 +365,13 @@ export const validateEnsName = (username: string): boolean => {
 
 export const fetchExistingDM3Name = async (
     state: GlobalState,
+    account: Account,
     setExistingDm3Name: Function,
 ) => {
     try {
-        if (state.connection.account) {
+        if (account) {
             const dm3Names: any = await getAliasChain(
-                state.connection.account,
+                account,
                 state.connection.mainnetProvider,
             );
             let dm3Name;

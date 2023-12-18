@@ -10,7 +10,7 @@ import {
     UserDbActions,
     UserDbType,
 } from '../utils/enum-type-utils';
-import { normalizeEnsName } from 'dm3-lib-profile';
+import { Account, normalizeEnsName } from 'dm3-lib-profile';
 import { getId } from 'dm3-lib-messaging';
 import { log } from 'dm3-lib-shared';
 
@@ -26,7 +26,7 @@ export function userDbReducer(
             }
 
             const container = action.payload.container;
-            const connection = action.payload.connection;
+            const account = action.payload.account;
             const newConversations = new Map<string, StorageEnvelopContainer[]>(
                 state.conversations,
             );
@@ -34,8 +34,7 @@ export function userDbReducer(
             let hasChanged = false;
 
             const contactEnsName = normalizeEnsName(
-                container.envelop.message.metadata.from ===
-                    connection.account!.ensName
+                container.envelop.message.metadata.from === account!.ensName
                     ? container.envelop.message.metadata.to
                     : container.envelop.message.metadata.from,
             );

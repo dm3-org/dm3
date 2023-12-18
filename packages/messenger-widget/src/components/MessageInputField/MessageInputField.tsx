@@ -6,9 +6,11 @@ import {
 } from '../../utils/enum-type-utils';
 import { MessageDataProps } from '../../interfaces/props';
 import { handleSubmit } from '../MessageInputBox/bl';
+import { AuthContext } from '../../context/AuthContext';
 
 export function MessageInputField(props: MessageDataProps) {
     const { state, dispatch } = useContext(GlobalContext);
+    const { account, deliveryServiceToken } = useContext(AuthContext);
 
     function setMessageContent(e: React.ChangeEvent<HTMLInputElement>) {
         // if message action is edit and message length is 0, update message action
@@ -29,8 +31,10 @@ export function MessageInputField(props: MessageDataProps) {
         const files = props.filesSelected;
         const msg = props.message;
         handleSubmit(
+            deliveryServiceToken!,
             msg,
             state,
+            account!,
             dispatch,
             event,
             files,

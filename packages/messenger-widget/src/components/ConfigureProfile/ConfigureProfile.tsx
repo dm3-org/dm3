@@ -25,6 +25,7 @@ import {
     ConfigureProfileContextProvider,
 } from './context/ConfigureProfileContext';
 import { ConfigureEnsProfile } from './chain/ConfigureEnsProfile';
+import { AuthContext } from '../../context/AuthContext';
 
 export function ConfigureProfile() {
     return (
@@ -32,6 +33,9 @@ export function ConfigureProfile() {
             {(function () {
                 // global context state
                 const { state, dispatch } = useContext(GlobalContext);
+
+                const { account, ethAddress, deliveryServiceToken } =
+                    useContext(AuthContext);
 
                 // existing profile details states
                 const [existingDm3Name, setExistingDm3Name] = useState<
@@ -98,6 +102,8 @@ export function ConfigureProfile() {
                         }
                         await submitDm3UsernameClaim(
                             state,
+                            account!,
+                            deliveryServiceToken!,
                             name,
                             dispatch,
                             setError,
@@ -105,6 +111,8 @@ export function ConfigureProfile() {
                     } else {
                         const result = await removeAliasFromDm3Name(
                             state,
+                            account!,
+                            ethAddress!,
                             existingDm3Name as string,
                             dispatch,
                             setError,
@@ -116,14 +124,18 @@ export function ConfigureProfile() {
                 // handles existing ENS name
                 useEffect(() => {
                     if (
-                        state.connection.account?.ensName &&
-                        !state.connection.account?.ensName.endsWith(
+                        account!.ensName &&
+                        !account!.ensName.endsWith(
                             globalConfig.ADDR_ENS_SUBDOMAIN(),
                         )
                     ) {
-                        fetchExistingDM3Name(state, setExistingDm3Name);
+                        fetchExistingDM3Name(
+                            state,
+                            account!,
+                            setExistingDm3Name,
+                        );
                     }
-                }, [state.connection.account?.ensName]);
+                }, [account]);
 
                 // clears the input field on deleting the alias
                 useEffect(() => {
@@ -134,8 +146,10 @@ export function ConfigureProfile() {
 
                 // handles ENS name and address
                 useEffect(() => {
-                    getEnsName(state, (name: string) => setEnsName(name));
-                }, [state.connection.ethAddress, state.connection.provider]);
+                    getEnsName(state, ethAddress!, account!, (name: string) =>
+                        setEnsName(name),
+                    );
+                }, [ethAddress, state.connection.provider]);
 
                 return (
                     <div>
@@ -195,7 +209,7 @@ export function ConfigureProfile() {
                                     {/* Wallet address */}
                                     <div className="d-flex ps-4">
                                         <div className="configuration-items-align">
-                                            {state.connection.ethAddress && (
+                                            {ethAddress && (
                                                 <img src={tickIcon} />
                                             )}
                                         </div>

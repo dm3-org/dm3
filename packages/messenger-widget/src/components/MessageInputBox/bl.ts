@@ -4,6 +4,17 @@ import {
     createReplyMessage,
     SendDependencies,
 } from 'dm3-lib-messaging';
+import { Account } from 'dm3-lib-profile';
+import { Attachment } from '../../interfaces/utils';
+import {
+    closeErrorModal,
+    generateRandomStringForId,
+    getDependencies,
+    getFileTypeFromBase64,
+    getHaltDelivery,
+    openErrorModal,
+    sendMessage,
+} from '../../utils/common-utils';
 import {
     Actions,
     GlobalState,
@@ -11,16 +22,6 @@ import {
     ModalStateType,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
-import {
-    getHaltDelivery,
-    getDependencies,
-    sendMessage,
-    openErrorModal,
-    closeErrorModal,
-    generateRandomStringForId,
-    getFileTypeFromBase64,
-} from '../../utils/common-utils';
-import { Attachment } from '../../interfaces/utils';
 import { scrollToBottomOfChat } from '../Chat/bl';
 
 export const hideMsgActionDropdown = () => {
@@ -68,8 +69,10 @@ export const setAttachmentsOnEditMessage = (
 };
 
 const handleNewUserMessage = async (
+    deliveryServiceToken: string,
     message: string,
     state: GlobalState,
+    account: Account,
     dispatch: React.Dispatch<Actions>,
     attachments: string[],
 ) => {
@@ -85,16 +88,18 @@ const handleNewUserMessage = async (
 
     const messageData = await createMessage(
         state.accounts.selectedContact.account.ensName,
-        state.connection.account!.ensName,
+        account!.ensName,
         message,
         userDb.keys.signingKeyPair.privateKey,
         attachments,
     );
 
     const haltDelivery = getHaltDelivery(state);
-    const sendDependencies: SendDependencies = getDependencies(state);
+    const sendDependencies: SendDependencies = getDependencies(state, account);
 
     await sendMessage(
+        account,
+        deliveryServiceToken!,
         state,
         sendDependencies,
         messageData,
@@ -104,7 +109,9 @@ const handleNewUserMessage = async (
 };
 
 const editMessage = async (
+    deliveryServiceToken: string,
     state: GlobalState,
+    account: Account,
     dispatch: React.Dispatch<Actions>,
     message: string,
     attachments: string[],
@@ -134,7 +141,7 @@ const editMessage = async (
     // edit the original message
     const messageData = await createEditMessage(
         state.accounts.selectedContact?.account.ensName as string,
-        state.connection.account!.ensName,
+        account!.ensName,
         message,
         userDb.keys.signingKeyPair.privateKey as string,
         referenceMessageHash as string,
@@ -142,9 +149,11 @@ const editMessage = async (
     );
 
     const haltDelivery = getHaltDelivery(state);
-    const sendDependencies: SendDependencies = getDependencies(state);
+    const sendDependencies: SendDependencies = getDependencies(state, account);
 
     await sendMessage(
+        account,
+        deliveryServiceToken!,
         state,
         sendDependencies,
         messageData,
@@ -154,7 +163,9 @@ const editMessage = async (
 };
 
 const replyMessage = async (
+    deliveryServiceToken: string,
     state: GlobalState,
+    account: Account,
     dispatch: React.Dispatch<Actions>,
     message: string,
     attachments: string[],
@@ -184,7 +195,7 @@ const replyMessage = async (
     // reply to the original message
     const messageData = await createReplyMessage(
         state.accounts.selectedContact?.account.ensName as string,
-        state.connection.account!.ensName,
+        account!.ensName,
         message,
         userDb.keys.signingKeyPair.privateKey as string,
         referenceMessageHash as string,
@@ -192,9 +203,11 @@ const replyMessage = async (
     );
 
     const haltDelivery = getHaltDelivery(state);
-    const sendDependencies: SendDependencies = getDependencies(state);
+    const sendDependencies: SendDependencies = getDependencies(state, account);
 
     await sendMessage(
+        account,
+        deliveryServiceToken,
         state,
         sendDependencies,
         messageData,
@@ -204,8 +217,10 @@ const replyMessage = async (
 };
 
 export const handleSubmit = async (
+    deliveryServiceToken: string,
     message: string,
     state: GlobalState,
+    account: Account,
     dispatch: React.Dispatch<Actions>,
     event:
         | React.FormEvent<HTMLFormElement>
@@ -264,7 +279,14 @@ export const handleSubmit = async (
     if (
         state.uiView.selectedMessageView.actionType === MessageActionType.EDIT
     ) {
-        await editMessage(state, dispatch, message, attachments);
+        await editMessage(
+            deliveryServiceToken,
+            state,
+            account,
+            dispatch,
+            message,
+            attachments,
+        );
         dispatch({
             type: ModalStateType.LastMessageAction,
             payload: MessageActionType.EDIT,
@@ -272,14 +294,28 @@ export const handleSubmit = async (
     } else if (
         state.uiView.selectedMessageView.actionType === MessageActionType.REPLY
     ) {
-        await replyMessage(state, dispatch, message, attachments);
+        await replyMessage(
+            deliveryServiceToken,
+            state,
+            account,
+            dispatch,
+            message,
+            attachments,
+        );
         scrollToBottomOfChat();
         dispatch({
             type: ModalStateType.LastMessageAction,
             payload: MessageActionType.REPLY,
         });
     } else {
-        await handleNewUserMessage(message, state, dispatch, attachments);
+        await handleNewUserMessage(
+            deliveryServiceToken,
+            message,
+            state,
+            account,
+            dispatch,
+            attachments,
+        );
         scrollToBottomOfChat();
         dispatch({
             type: ModalStateType.LastMessageAction,

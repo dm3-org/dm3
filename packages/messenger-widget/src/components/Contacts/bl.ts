@@ -633,11 +633,12 @@ export const showMenuInBottom = (index: number | null): boolean => {
 
 export const fetchMessageSizeLimit = async (
     state: GlobalState,
+    account: Account,
     dispatch: React.Dispatch<Actions>,
 ) => {
     const details = await getDeliveryServiceProperties(
         state.connection.mainnetProvider as ethers.providers.JsonRpcProvider,
-        state.connection.account as Account,
+        account as Account,
     );
     dispatch({
         type: CacheType.MessageSizeLimit,

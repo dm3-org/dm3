@@ -3,16 +3,20 @@ import sendBtnIcon from '../../assets/images/send-btn.svg';
 import { GlobalContext } from '../../utils/context-utils';
 import { useContext } from 'react';
 import { handleSubmit } from '../MessageInputBox/bl';
+import { AuthContext } from '../../context/AuthContext';
 
 export function SendMessage(props: MessageDataProps) {
     const { state, dispatch } = useContext(GlobalContext);
+    const { account, deliveryServiceToken } = useContext(AuthContext);
 
     function submit(event: React.MouseEvent<HTMLImageElement, MouseEvent>) {
         const files = props.filesSelected;
         const msg = props.message;
         handleSubmit(
+            deliveryServiceToken!,
             msg,
             state,
+            account!,
             dispatch,
             event,
             files,

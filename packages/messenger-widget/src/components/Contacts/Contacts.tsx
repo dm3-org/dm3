@@ -27,10 +27,12 @@ import {
 } from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
 import loader from '../../assets/images/loader.svg';
+import { AuthContext } from '../../context/AuthContext';
 
 export function Contacts(props: DashboardProps) {
     // fetches context api data
     const { state, dispatch } = useContext(GlobalContext);
+    const { account, deliveryServiceToken } = useContext(AuthContext);
 
     // local states to handle contact list and active contact
     const [contactSelected, setContactSelected] = useState<number | null>(null);
@@ -51,20 +53,20 @@ export function Contacts(props: DashboardProps) {
     };
 
     // fetches sub domain of ENS
-    const isAddrEnsName = state.connection.account?.ensName?.endsWith(
+    const isAddrEnsName = account?.ensName?.endsWith(
         globalConfig.ADDR_ENS_SUBDOMAIN(),
     );
 
     // handles contact box view
     useEffect(() => {
         setContactHeightToMaximum(!isAddrEnsName ? true : false);
-    }, [state.connection.account?.ensName]);
+    }, [account?.ensName]);
 
     // handles any change in socket or session
     useEffect(() => {
         if (
             !state.accounts.contacts &&
-            state.auth?.currentSession?.token &&
+            deliveryServiceToken &&
             state.connection.socket
         ) {
             // start loader
@@ -73,16 +75,28 @@ export function Contacts(props: DashboardProps) {
                 payload: 'Fetching contacts...',
             });
             startLoader();
-            props.getContacts(state, dispatch, props.dm3Props.config);
+            props.getContacts(
+                account!,
+                deliveryServiceToken,
+                state,
+                dispatch,
+                props.dm3Props.config,
+            );
             setContactList(state, dispatch, setListOfContacts);
         }
-    }, [state.auth?.currentSession?.token, state.connection.socket]);
+    }, [deliveryServiceToken, state.connection.socket]);
 
     // handles changes in conversation
     useEffect(() => {
         fetchAndUpdateUnreadMsgCount(state, dispatch);
         if (state.userDb?.conversations && state.userDb?.conversationsCount) {
-            props.getContacts(state, dispatch, props.dm3Props.config);
+            props.getContacts(
+                account!,
+                deliveryServiceToken!,
+                state,
+                dispatch,
+                props.dm3Props.config,
+            );
         }
     }, [state.userDb?.conversations, state.userDb?.conversationsCount]);
 
@@ -245,7 +259,7 @@ export function Contacts(props: DashboardProps) {
     }, [contacts]);
 
     useEffect(() => {
-        fetchMessageSizeLimit(state, dispatch);
+        fetchMessageSizeLimit(state, account!, dispatch);
     }, []);
 
     /* Hidden content for highlighting css */

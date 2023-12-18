@@ -13,9 +13,13 @@ import {
     scrollToBottomOfChat,
 } from './bl';
 import { MessageActionType } from '../../utils/enum-type-utils';
+import { useAuth } from '../../hooks/auth/useAuth';
+import { AuthContext } from '../../context/AuthContext';
 
 export function Chat(props: HideFunctionProps) {
     const { state, dispatch } = useContext(GlobalContext);
+    const { account } = useContext(AuthContext);
+    const { ethAddress, deliveryServiceToken } = useContext(AuthContext);
 
     const [messageList, setMessageList] = useState<MessageProps[]>([]);
     const [isMessageListInitialized, setIsMessageListInitialized] =
@@ -24,9 +28,7 @@ export function Chat(props: HideFunctionProps) {
         useState<boolean>(false);
     const [showShimEffect, setShowShimEffect] = useState(true);
 
-    const alias =
-        state.connection.ethAddress &&
-        state.connection.ethAddress + globalConfig.ADDR_ENS_SUBDOMAIN();
+    const alias = ethAddress && ethAddress + globalConfig.ADDR_ENS_SUBDOMAIN();
 
     const setProfileCheck = (status: boolean) => {
         setIsProfileConfigured(status);
@@ -64,6 +66,8 @@ export function Chat(props: HideFunctionProps) {
             try {
                 handleMessages(
                     state,
+                    account!,
+                    deliveryServiceToken!,
                     dispatch,
                     getConversation(
                         state.accounts.selectedContact.account.ensName,
@@ -100,7 +104,7 @@ export function Chat(props: HideFunctionProps) {
 
     useEffect(() => {
         checkUserProfileConfigured(
-            state,
+            state.connection.mainnetProvider,
             state.accounts.selectedContact?.account.ensName as string,
             setProfileCheck,
         );
@@ -118,6 +122,8 @@ export function Chat(props: HideFunctionProps) {
             try {
                 handleMessages(
                     state,
+                    account!,
+                    deliveryServiceToken!,
                     dispatch,
                     getConversation(
                         state.accounts.selectedContact.account.ensName,

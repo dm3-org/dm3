@@ -12,6 +12,7 @@ export type AuthContextType = {
     isLoggedIn: boolean;
     isLoading: boolean;
     hasError: boolean;
+    ethAddress: string | undefined;
 };
 
 export const AuthContext = React.createContext<AuthContextType>({
@@ -21,6 +22,7 @@ export const AuthContext = React.createContext<AuthContextType>({
     isLoggedIn: false,
     isLoading: false,
     hasError: false,
+    ethAddress: undefined,
 });
 
 export const AuthContextProvider = ({
@@ -49,6 +51,7 @@ export const AuthContextProvider = ({
         isLoggedIn,
         isLoading,
         hasError,
+        ethAddress,
     } = useAuth(onStorageCreated);
     return (
         <AuthContext.Provider
@@ -59,6 +62,7 @@ export const AuthContextProvider = ({
                 isLoggedIn,
                 isLoading,
                 hasError,
+                ethAddress,
             }}
         >
             {children}

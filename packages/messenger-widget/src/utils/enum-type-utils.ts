@@ -96,7 +96,7 @@ export type GlobalState = {
 export type UserDbPayload = {
     [UserDbType.addMessage]: {
         container: StorageEnvelopContainer;
-        connection: Connection;
+        account: Account;
     };
     [UserDbType.setDB]: UserDB;
     [UserDbType.createEmptyConversation]: string;

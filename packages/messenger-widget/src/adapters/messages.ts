@@ -26,15 +26,14 @@ import { decryptAsymmetric } from 'dm3-lib-crypto';
 
 export async function fetchPendingConversations(
     connection: Connection,
+    account: Account,
     token: string,
 ): Promise<string[]> {
-    const { account } = connection;
-
     const deliveryPath = process.env.REACT_APP_BACKEND + '/delivery';
     const url = `${deliveryPath}/messages/${account?.ensName!}/pending/`;
 
     const { data } = await getDeliveryServiceClient(
-        connection.account?.profile!,
+        account.profile!,
         connection.mainnetProvider!,
         async (url: string) => (await axios.get(url)).data,
     ).post(url, {}, withAuthHeader(token));
@@ -170,13 +169,14 @@ export async function sendMessage(
 
 export async function fetchAndStoreMessages(
     connection: Connection,
+    account: Account,
     deliveryServiceToken: string,
     contact: string,
     userDb: UserDB,
     storeMessages: (envelops: StorageEnvelopContainer[]) => void,
     contacts: Account[],
 ): Promise<StorageEnvelopContainer[]> {
-    const profile = connection.account?.profile;
+    const { profile } = account;
 
     if (!profile) {
         throw Error('Account has no profile');
@@ -203,6 +203,7 @@ export async function fetchAndStoreMessages(
         deliveryServiceUrls.map(async (baseUrl) => {
             return await fetchNewMessages(
                 connection,
+                account,
                 deliveryServiceToken,
                 contact,
             );
@@ -278,10 +279,10 @@ async function decryptMessages(
 
 export async function fetchNewMessages(
     connection: Connection,
+    account: Account,
     token: string,
     contactAddress: string,
 ): Promise<EncryptionEnvelop[]> {
-    const { account } = connection;
     const deliveryPath = process.env.REACT_APP_BACKEND + '/delivery';
     const url = `${deliveryPath}/messages/${normalizeEnsName(
         account!.ensName,
