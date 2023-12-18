@@ -212,8 +212,7 @@ export const getLastDm3Name = (nameList: string[]) => {
 };
 
 // Constants
-export const REACT_APP_SUPPORTED_CHAIN_ID =
-    process.env.REACT_APP_CHAIN_ID === '1' ? 1 : 5;
+export const REACT_APP_SUPPORTED_CHAIN_IDS = [5, 10200];
 
 /*  eslint-disable */
 export const INVALID_NETWORK_POPUP_MESSAGE =

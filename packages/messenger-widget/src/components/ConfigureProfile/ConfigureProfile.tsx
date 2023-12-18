@@ -16,16 +16,15 @@ import {
     getEnsName,
     removeAliasFromDm3Name,
     submitDm3UsernameClaim,
-    validateEnsName,
     validateName,
 } from './bl';
-import { SubmitOnChainProfile } from './chain/SubmitOnChainProfile';
+import { ConfigureGenomeProfile } from './chain/genome/ConfigureGenomeProfile';
 import {
     ConfigureProfileContext,
     ConfigureProfileContextProvider,
 } from './context/ConfigureProfileContext';
-import { ConfigureEnsProfile } from './chain/ConfigureEnsProfile';
 import { AuthContext } from '../../context/AuthContext';
+import { ConfigureEnsProfile } from './chain/ens/ConfigureEnsProfile';
 
 export function ConfigureProfile() {
     return (
@@ -73,18 +72,10 @@ export function ConfigureProfile() {
                     type: NAME_TYPE,
                 ) => {
                     onShowError(undefined, '');
-                    if (type === NAME_TYPE.DM3_NAME) {
-                        const check = validateName(e.target.value);
-                        setDm3Name(e.target.value);
-                        setEnsName('');
-                        !check && setError('Invalid name', NAME_TYPE.DM3_NAME);
-                    } else {
-                        const check = validateEnsName(e.target.value);
-                        setEnsName(e.target.value);
-                        setDm3Name('');
-                        !check &&
-                            setError('Invalid ENS name', NAME_TYPE.ENS_NAME);
-                    }
+                    const check = validateName(e.target.value);
+                    setDm3Name(e.target.value);
+                    setEnsName('');
+                    !check && setError('Invalid name', NAME_TYPE.DM3_NAME);
                 };
 
                 // handles claim or delete DM3 user name
@@ -392,8 +383,19 @@ export function ConfigureProfile() {
                                             )}
                                         </div>
                                     </div>
-
-                                    <ConfigureEnsProfile />
+                                    <p>
+                                        Chain :{' '}
+                                        {
+                                            state.connection.provider?.network
+                                                .chainId
+                                        }
+                                    </p>
+                                    {state.connection.provider?.network
+                                        .chainId === 10200 ? (
+                                        <ConfigureGenomeProfile />
+                                    ) : (
+                                        <ConfigureEnsProfile />
+                                    )}
                                 </div>
                             </div>
                         </div>

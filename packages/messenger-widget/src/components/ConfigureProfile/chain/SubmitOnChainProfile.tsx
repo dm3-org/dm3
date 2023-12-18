@@ -1,19 +1,21 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import tickIcon from '../../../assets/images/white-tick.svg';
-import { GlobalContext } from '../../../utils/context-utils';
 import {
     ACTION_TYPE,
     BUTTON_CLASS,
     NAME_TYPE,
     PROFILE_INPUT_FIELD_CLASS,
-    validateEnsName,
 } from '../bl';
 import { ConfigureProfileContext } from '../context/ConfigureProfileContext';
 
 export const SubmitOnChainProfile = ({
+    label,
     onSubmitTx,
+    handleNameChange,
 }: {
+    label: string;
     onSubmitTx: (name: string) => void;
+    handleNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) => {
     const {
         setEnsName,
@@ -24,18 +26,6 @@ export const SubmitOnChainProfile = ({
         existingEnsName,
         setExistingEnsName,
     } = useContext(ConfigureProfileContext);
-
-    const handleNameChange = (
-        e: React.ChangeEvent<HTMLInputElement>,
-        type: NAME_TYPE,
-    ) => {
-        onShowError(undefined, '');
-        const check = validateEnsName(e.target.value);
-        setEnsName(e.target.value);
-        if (!check) {
-            onShowError(NAME_TYPE.ENS_NAME, 'Invalid ENS name');
-        }
-    };
 
     // handles configure or remove ENS name
     const handlePublishOrRemoveProfile = async (type: ACTION_TYPE) => {
@@ -109,9 +99,7 @@ export const SubmitOnChainProfile = ({
                                     placeholder="Enter your ENS name. It must be connected to your wallet"
                                     onChange={(
                                         e: React.ChangeEvent<HTMLInputElement>,
-                                    ) =>
-                                        handleNameChange(e, NAME_TYPE.ENS_NAME)
-                                    }
+                                    ) => handleNameChange(e)}
                                 />
                             </form>
                         ) : (
@@ -122,10 +110,7 @@ export const SubmitOnChainProfile = ({
                     </div>
                     <div className="mt-3 dm3-name-content">
                         <div className="small-text font-weight-300 grey-text">
-                            To publish your dm3 profile, a transaction is sent
-                            to set a text record in your ENS name. Transaction
-                            costs will apply for setting the profile and
-                            administration.
+                            {label}
                         </div>
                         <div className="small-text font-weight-700">
                             You can receive dm3 messages directly sent to your
