@@ -22,8 +22,6 @@ const getMainnetProvider = () => {
 
 export const initialState: GlobalState = {
     connection: {
-        connectionState: ConnectionState.CollectingSignInData,
-        storageLocation: StorageLocation.dm3Storage,
         defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
         mainnetProvider: getMainnetProvider(),
     },

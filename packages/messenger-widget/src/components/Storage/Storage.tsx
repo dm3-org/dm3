@@ -3,7 +3,6 @@ import { syncAcknoledgment } from 'dm3-lib-delivery-api';
 import { getAccountDisplayName, getBrowserStorageKey } from 'dm3-lib-profile';
 import { log } from 'dm3-lib-shared';
 import {
-    StorageLocation,
     SyncProcessState,
     sync as syncStorage,
     useDm3Storage,
@@ -135,15 +134,6 @@ export default function Storage() {
         }
         autoSync();
     }, [state.userDb?.lastChangeTimestamp, deliveryServiceToken, account]);
-
-    const showAlert =
-        (!state.userDb?.synced &&
-            state.connection.storageLocation === StorageLocation.File) ||
-        state.userDb?.syncProcessState === SyncProcessState.Failed;
-
-    if (state.connection.storageLocation !== StorageLocation.File) {
-        return <></>;
-    }
 
     return <></>;
 }

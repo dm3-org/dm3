@@ -30,11 +30,9 @@ function DM3(props: Dm3Props) {
     // handles changes of state on connection to the account
     useEffect(() => {
         if (props.config.connectionStateChange) {
-            props.config.connectionStateChange(
-                state.connection.connectionState,
-            );
+            props.config.connectionStateChange(isLoggedIn);
         }
-    }, [state.connection.connectionState]);
+    }, [isLoggedIn]);
 
     // handles default delivery service url changes
     useEffect(() => {
@@ -114,11 +112,7 @@ function DM3(props: Dm3Props) {
             });
             dispatch({ type: ConnectionType.ChangeSocket, payload: socket });
         }
-    }, [
-        state.connection.connectionState,
-        state.connection.socket,
-        deliveryServiceUrl,
-    ]);
+    }, [isLoggedIn, state.connection.socket, deliveryServiceUrl]);
 
     // handles if any new message received
     useEffect(() => {
