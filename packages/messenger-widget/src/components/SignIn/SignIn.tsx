@@ -102,14 +102,6 @@ export function SignIn(props: SignInProps) {
                             />
                         )}
 
-                        {isLoggedIn ? (
-                            <p style={{ color: 'white' }}>logged in</p>
-                        ) : (
-                            <p style={{ color: 'white' }}>
-                                NOOOO: {isLoggedIn} ftgt
-                            </p>
-                        )}
-
                         <div className="content-data para-div">
                             <p className="text-primary-color details font-size-12">
                                 Connect the dm3 messenger with your wallet and
