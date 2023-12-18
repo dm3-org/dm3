@@ -25,6 +25,8 @@ import {
 } from './context/ConfigureProfileContext';
 import { AuthContext } from '../../context/AuthContext';
 import { ConfigureEnsProfile } from './chain/ens/ConfigureEnsProfile';
+import { useAccount } from 'wagmi';
+import { useNetwork } from 'wagmi';
 
 export function ConfigureProfile() {
     return (
@@ -32,6 +34,7 @@ export function ConfigureProfile() {
             {(function () {
                 // global context state
                 const { state, dispatch } = useContext(GlobalContext);
+                const { chain } = useNetwork();
 
                 const { account, ethAddress, deliveryServiceToken } =
                     useContext(AuthContext);
@@ -390,8 +393,7 @@ export function ConfigureProfile() {
                                                 .chainId
                                         }
                                     </p>
-                                    {state.connection.provider?.network
-                                        .chainId === 10200 ? (
+                                    {chain?.id === 10200 ? (
                                         <ConfigureGenomeProfile />
                                     ) : (
                                         <ConfigureEnsProfile />
