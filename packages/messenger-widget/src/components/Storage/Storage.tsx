@@ -54,29 +54,6 @@ export default function Storage() {
 
             acknowledgements = syncResult.acknoledgments;
 
-            const blob = new Blob([JSON.stringify(syncResult.userStorage)], {
-                type: 'text/json',
-            });
-
-            const a = document.createElement('a');
-
-            a.download = `${getAccountDisplayName(
-                account.ensName,
-                35,
-                true,
-            )}-${Date.now()}.json`;
-
-            a.href = window.URL.createObjectURL(blob);
-
-            const clickEvt = new MouseEvent('click', {
-                view: window,
-                bubbles: true,
-                cancelable: true,
-            });
-
-            a.dispatchEvent(clickEvt);
-            a.remove();
-
             if (state.userDb && acknowledgements.length > 0) {
                 await syncAcknoledgment(
                     mainnetProvider!,
