@@ -14,10 +14,13 @@ import {
 import { EnsDetails } from '../EnsDetails/EnsDetails';
 import { openConfigurationModal } from '../ConfigureProfile/bl';
 import { AuthContext } from '../../context/AuthContext';
+import { useMainnetProvider } from '../../hooks/useMainnetProvider';
 
 export function Profile() {
     const { state, dispatch } = useContext(GlobalContext);
     const { account, ethAddress } = useContext(AuthContext);
+    const mainnetProvider = useMainnetProvider();
+
     const [profilePic, setProfilePic] = useState<string>('');
     const [github, setGithub] = useState<string>('Not set');
     const [twitter, setTwitter] = useState<string>('Not set');
@@ -26,7 +29,7 @@ export function Profile() {
     // fetches and updates ENS profile details
     const fetchUserEnsProfileDetails = async () => {
         const ensDetails: EnsProfileDetails = await getEnsProfileDetails(
-            state,
+            mainnetProvider!,
             account?.ensName as string,
         );
         ensDetails.github && setGithub(ensDetails.github);
@@ -37,7 +40,10 @@ export function Profile() {
     // method to fetch profile pic
     const fetchAndSetProfilePic = async () => {
         setProfilePic(
-            await getAvatarProfilePic(state, account?.ensName as string),
+            await getAvatarProfilePic(
+                mainnetProvider,
+                account?.ensName as string,
+            ),
         );
     };
 

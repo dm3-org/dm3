@@ -28,7 +28,7 @@ export function getSpaceIdNode(inputName: string): Address {
 }
 
 export const isGenomeNameValid = async (
-    state: GlobalState,
+    provider: ethers.providers.StaticJsonRpcProvider,
     ensName: string,
     ethAddress: string,
     setError: Function,
@@ -50,7 +50,7 @@ export const isGenomeNameValid = async (
     const genomeRegistry = getConractInstance(
         genomeRegistryAddress,
         ['function owner(bytes32 node) external view returns (address)'],
-        state.connection.provider!,
+        provider!,
     );
 
     const node = getSpaceIdNode(ensName);
@@ -76,14 +76,10 @@ export const isGenomeNameValid = async (
 };
 
 const getPublishProfileOnchainTransaction = async (
-    connection: Connection,
+    provider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     ensName: string,
 ) => {
-    if (!connection.provider) {
-        throw Error('No provider');
-    }
-
     if (!account.profile) {
         throw Error('No profile');
     }
@@ -99,7 +95,7 @@ const getPublishProfileOnchainTransaction = async (
         [
             'function setText(bytes32 node, string calldata key, string calldata value) external',
         ],
-        connection.provider,
+        provider,
     );
 
     const signedUserProfile: SignedUserProfile = {
@@ -119,7 +115,8 @@ const getPublishProfileOnchainTransaction = async (
 };
 
 export const submitGenomeNameTransaction = async (
-    state: GlobalState,
+    provider: ethers.providers.StaticJsonRpcProvider,
+    dsToken: string,
     account: Account,
     dispatch: React.Dispatch<Actions>,
     ensName: string,
@@ -137,7 +134,7 @@ export const submitGenomeNameTransaction = async (
         startLoader();
 
         const isValid = await isGenomeNameValid(
-            state,
+            provider,
             ensName,
             ethAddress,
             setError,
@@ -149,7 +146,7 @@ export const submitGenomeNameTransaction = async (
         }
 
         const tx = await getPublishProfileOnchainTransaction(
-            state.connection,
+            provider,
             account,
             ensName!,
         );
@@ -157,10 +154,10 @@ export const submitGenomeNameTransaction = async (
         if (tx) {
             await createAlias(
                 account!,
-                state.connection.mainnetProvider!,
+                provider!,
                 account!.ensName,
                 ensName!,
-                state.auth.currentSession!.token!,
+                dsToken,
             );
             const response = await ethersHelper.executeTransaction(tx);
             await response.wait();

@@ -15,11 +15,13 @@ import {
 import { MessageActionType } from '../../utils/enum-type-utils';
 import { useAuth } from '../../hooks/auth/useAuth';
 import { AuthContext } from '../../context/AuthContext';
+import { useMainnetProvider } from '../../hooks/useMainnetProvider';
 
 export function Chat(props: HideFunctionProps) {
     const { state, dispatch } = useContext(GlobalContext);
     const { account } = useContext(AuthContext);
     const { ethAddress, deliveryServiceToken } = useContext(AuthContext);
+    const mainnetProvider = useMainnetProvider();
 
     const [messageList, setMessageList] = useState<MessageProps[]>([]);
     const [isMessageListInitialized, setIsMessageListInitialized] =
@@ -66,6 +68,7 @@ export function Chat(props: HideFunctionProps) {
             try {
                 handleMessages(
                     state,
+                    mainnetProvider,
                     account!,
                     deliveryServiceToken!,
                     dispatch,
@@ -104,7 +107,7 @@ export function Chat(props: HideFunctionProps) {
 
     useEffect(() => {
         checkUserProfileConfigured(
-            state.connection.mainnetProvider,
+            mainnetProvider,
             state.accounts.selectedContact?.account.ensName as string,
             setProfileCheck,
         );
@@ -122,6 +125,7 @@ export function Chat(props: HideFunctionProps) {
             try {
                 handleMessages(
                     state,
+                    mainnetProvider,
                     account!,
                     deliveryServiceToken!,
                     dispatch,

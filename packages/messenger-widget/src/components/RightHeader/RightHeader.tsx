@@ -17,11 +17,13 @@ import menuIcon from '../../assets/images/menu.svg';
 import { getAliasChain } from 'dm3-lib-delivery-api';
 import { getLastDm3Name } from '../../utils/common-utils';
 import { AuthContext } from '../../context/AuthContext';
+import { useMainnetProvider } from '../../hooks/useMainnetProvider';
 
 export function RightHeader(props: HideFunctionProps) {
     // fetches context storage
     const { state, dispatch } = useContext(GlobalContext);
     const { account, ethAddress } = useContext(AuthContext);
+    const mainnetProvider = useMainnetProvider();
 
     // state to store profile pic of signed in user
     const [profilePic, setProfilePic] = useState<string>('');
@@ -29,7 +31,10 @@ export function RightHeader(props: HideFunctionProps) {
     // method to fetch profile pic
     const fetchAndSetProfilePic = async () => {
         setProfilePic(
-            await getAvatarProfilePic(state, account?.ensName as string),
+            await getAvatarProfilePic(
+                mainnetProvider,
+                account?.ensName as string,
+            ),
         );
     };
 
@@ -57,21 +62,18 @@ export function RightHeader(props: HideFunctionProps) {
 
     const fetchDisplayName = async () => {
         try {
-            if (state.connection.mainnetProvider && ethAddress && account) {
+            if (mainnetProvider && ethAddress && account) {
                 const isAddrEnsName = account?.ensName?.endsWith(
                     globalConfig.ADDR_ENS_SUBDOMAIN(),
                 );
-                const name =
-                    await state.connection.mainnetProvider.lookupAddress(
-                        ethAddress,
-                    );
+                const name = await mainnetProvider.lookupAddress(ethAddress);
                 if (name && !isAddrEnsName) {
                     const hasProfile = await hasUserProfile(
-                        state.connection.mainnetProvider,
+                        mainnetProvider,
                         name,
                     );
                     const dm3ProfileRecordExists = await checkEnsDM3Text(
-                        state,
+                        mainnetProvider,
                         name,
                     );
                     dispatch({
@@ -84,7 +86,7 @@ export function RightHeader(props: HideFunctionProps) {
                 } else {
                     const dm3Names: any = await getAliasChain(
                         account,
-                        state.connection.mainnetProvider,
+                        mainnetProvider,
                     );
                     let dm3Name;
                     if (dm3Names && dm3Names.length) {

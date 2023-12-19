@@ -1,14 +1,17 @@
 /* eslint-disable no-console */
+import { createWeb3Name } from '@web3-name-sdk/core';
 import { getNameForAddress } from 'dm3-lib-offchain-resolver-api';
 import { checkUserProfile, getUserProfile } from 'dm3-lib-profile';
 import { globalConfig, log } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
+import { WalletClient } from 'viem';
 
 function getAliasForAddress(address: string) {
     return address + globalConfig.ADDR_ENS_SUBDOMAIN();
 }
 
 export const AccountConnector = (
+    walletClient: WalletClient,
     mainnetProvider: ethers.providers.JsonRpcProvider,
 ) => {
     async function connectOffchainAccount(address: string) {
@@ -74,21 +77,31 @@ export const AccountConnector = (
         };
     }
 
+    async function getOnChainEnsName(address: string) {
+        //@ts-ignore
+        const chainId = await walletClient.getChainId();
+        //Todo move to
+        if (chainId === 10200) {
+            const web3Name = createWeb3Name();
+            return await web3Name.getDomainName({
+                address,
+                queryChainIdList: [10200],
+            });
+        }
+
+        return await mainnetProvider.lookupAddress(address);
+    }
+
     const connect = async (address: string) => {
         try {
-            const onChainEnsName = await mainnetProvider.lookupAddress(address);
+            const onChainEnsName = await getOnChainEnsName(address);
+
+            console.log('connect with onchain name', onChainEnsName);
             return onChainEnsName
                 ? await connectOnchainAccount(onChainEnsName, address)
                 : await connectOffchainAccount(address);
         } catch (e) {
             console.log(e);
-            //TODO handle error
-            /*           changeSignInButtonStyle(
-                          'sign-in-btn',
-                          'normal-btn-hover',
-                          'normal-btn',
-                      );
-                      log('[connectEthAccount] ' + JSON.stringify(e), 'error'); */
         }
     };
     return {

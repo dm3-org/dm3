@@ -12,6 +12,7 @@ import {
 } from '../../utils/enum-type-utils';
 import { Config } from '../../interfaces/config';
 import { Account } from 'dm3-lib-profile';
+import { ethers } from 'ethers';
 
 export function showSignIn(connectionState: ConnectionState): boolean {
     return (
@@ -35,6 +36,7 @@ export function connectionPhase(connectionState: ConnectionState): boolean {
 
 // method to fetch entire contact list of connected account
 export const getContacts = (
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     dsToken: string,
     state: GlobalState,
@@ -49,7 +51,14 @@ export const getContacts = (
 
     log('[getContacts]', 'info');
 
-    return requestContacts(account, dsToken, state, dispatch, config);
+    return requestContacts(
+        mainnetProvider,
+        account,
+        dsToken,
+        state,
+        dispatch,
+        config,
+    );
 };
 
 // method to handle new messages received

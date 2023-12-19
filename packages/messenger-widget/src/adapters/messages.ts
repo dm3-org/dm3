@@ -23,9 +23,10 @@ import {
 import { Connection } from '../interfaces/web3';
 import { withAuthHeader } from './auth';
 import { decryptAsymmetric } from 'dm3-lib-crypto';
+import { ethers } from 'ethers';
 
 export async function fetchPendingConversations(
-    connection: Connection,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     token: string,
 ): Promise<string[]> {
@@ -34,7 +35,7 @@ export async function fetchPendingConversations(
 
     const { data } = await getDeliveryServiceClient(
         account.profile!,
-        connection.mainnetProvider!,
+        mainnetProvider!,
         async (url: string) => (await axios.get(url)).data,
     ).post(url, {}, withAuthHeader(token));
 
@@ -168,7 +169,7 @@ export async function sendMessage(
 }
 
 export async function fetchAndStoreMessages(
-    connection: Connection,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     deliveryServiceToken: string,
     contact: string,
@@ -186,7 +187,7 @@ export async function fetchAndStoreMessages(
         profile.deliveryServices.map(async (ds) => {
             const deliveryServiceProfile = await getDeliveryServiceProfile(
                 ds,
-                connection.mainnetProvider!,
+                mainnetProvider!,
                 async (url) => (await axios.get(url)).data,
             );
             return deliveryServiceProfile?.url;
@@ -202,7 +203,7 @@ export async function fetchAndStoreMessages(
     const messages = await Promise.all(
         deliveryServiceUrls.map(async (baseUrl) => {
             return await fetchNewMessages(
-                connection,
+                mainnetProvider,
                 account,
                 deliveryServiceToken,
                 contact,
@@ -278,7 +279,7 @@ async function decryptMessages(
 }
 
 export async function fetchNewMessages(
-    connection: Connection,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     token: string,
     contactAddress: string,
@@ -290,7 +291,7 @@ export async function fetchNewMessages(
 
     const { data } = await getDeliveryServiceClient(
         account!.profile!,
-        connection.mainnetProvider!,
+        mainnetProvider!,
         async (url: string) => (await axios.get(url)).data,
     ).get(url, withAuthHeader(token));
 

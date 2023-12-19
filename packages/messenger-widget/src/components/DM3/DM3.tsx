@@ -16,10 +16,12 @@ import { SignIn } from '../SignIn/SignIn';
 import Dashboard from '../../views/Dashboard/Dashboard';
 import Storage from '../../components/Storage/Storage';
 import { AuthContext } from '../../context/AuthContext';
+import { useMainnetProvider } from '../../hooks/useMainnetProvider';
 
 function DM3(props: Dm3Props) {
     // fetches context storage
     const { state, dispatch } = useContext(GlobalContext);
+    const mainnetProvider = useMainnetProvider();
 
     const { isLoggedIn, account, deliveryServiceToken } =
         useContext(AuthContext);
@@ -61,7 +63,7 @@ function DM3(props: Dm3Props) {
             }
             const deliveryServiceProfile = await getDeliveryServiceProfile(
                 account.profile!.deliveryServices[0],
-                state.connection.mainnetProvider!,
+                mainnetProvider!,
                 async (url: string) => (await axios.get(url)).data,
             );
             console.log('set new deliveryService url');
@@ -103,6 +105,7 @@ function DM3(props: Dm3Props) {
             });
             socket.on('joined', () => {
                 getContacts(
+                    mainnetProvider,
                     account,
                     deliveryServiceToken!,
                     state,
@@ -128,6 +131,7 @@ function DM3(props: Dm3Props) {
 
             state.connection.socket.on('joined', () => {
                 getContacts(
+                    mainnetProvider,
                     account!,
                     deliveryServiceToken!,
                     state,

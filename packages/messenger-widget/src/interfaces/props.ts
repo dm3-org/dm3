@@ -7,9 +7,11 @@ import {
 import { Config, Dm3Props } from './config';
 import { Attachment, ContactPreview } from './utils';
 import { Account } from 'dm3-lib-profile';
+import { ethers } from 'ethers';
 
 export interface DashboardProps {
     getContacts: (
+        mainnetProvider: ethers.providers.StaticJsonRpcProvider,
         account: Account,
         deliveryServiceToken: string,
         state: GlobalState,

@@ -12,9 +12,11 @@ import { useContext, useEffect } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { GlobalContext } from '../../utils/context-utils';
 import { UserDbType } from '../../utils/enum-type-utils';
+import { useMainnetProvider } from '../../hooks/useMainnetProvider';
 
 export default function Storage() {
     const { state, dispatch } = useContext(GlobalContext);
+    const mainnetProvider = useMainnetProvider();
 
     const { account, deliveryServiceToken } = useContext(AuthContext);
 
@@ -33,7 +35,7 @@ export default function Storage() {
             let acknowledgements = [];
             if (state.userDb) {
                 await useDm3Storage(
-                    state.connection.mainnetProvider!,
+                    mainnetProvider!,
                     account,
                     state.userDb,
                     deliveryServiceToken,
@@ -77,7 +79,7 @@ export default function Storage() {
 
             if (state.userDb && acknowledgements.length > 0) {
                 await syncAcknoledgment(
-                    state.connection.mainnetProvider!,
+                    mainnetProvider!,
                     account,
                     acknowledgements,
                     deliveryServiceToken,

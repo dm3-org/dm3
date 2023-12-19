@@ -12,8 +12,6 @@ declare global {
 }
 
 export interface Connection {
-    provider?: ethers.providers.JsonRpcProvider;
-    mainnetProvider: ethers.providers.JsonRpcProvider;
     socket?: Socket<DefaultEventsMap, DefaultEventsMap>;
     defaultServiceUrl: string;
 }

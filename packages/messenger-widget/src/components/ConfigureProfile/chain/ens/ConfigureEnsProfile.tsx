@@ -6,6 +6,7 @@ import { SubmitOnChainProfile } from '../SubmitOnChainProfile';
 import { NAME_TYPE, validateEnsName } from '../../bl';
 import { AuthContext } from '../../../../context/AuthContext';
 import { submitEnsNameTransaction } from './bl';
+import { useMainnetProvider } from '../../../../hooks/useMainnetProvider';
 
 export const ConfigureEnsProfile = () => {
     const { state, dispatch } = useContext(GlobalContext);
@@ -16,9 +17,11 @@ export const ConfigureEnsProfile = () => {
     const { account, ethAddress, deliveryServiceToken } =
         useContext(AuthContext);
 
+    const mainnetProvider = useMainnetProvider();
+
     const onSubmitTx = async (name: string) => {
         await submitEnsNameTransaction(
-            state,
+            mainnetProvider!,
             account!,
             ethAddress!,
             deliveryServiceToken!,

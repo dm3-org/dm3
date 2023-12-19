@@ -7,11 +7,10 @@ import {
 } from 'dm3-lib-profile';
 import { log, stringify } from 'dm3-lib-shared';
 import {
+    getConversationId,
     UserDB,
     createEmptyConversation,
-    getConversationId,
 } from 'dm3-lib-storage';
-import { Config } from '../interfaces/config';
 import { Contact } from '../interfaces/context';
 import { Connection } from '../interfaces/web3';
 import {
@@ -21,15 +20,19 @@ import {
     UserDbType,
 } from '../utils/enum-type-utils';
 import { fetchPendingConversations } from './messages';
+import { Config } from '../interfaces/config';
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
+import { ethers } from 'ethers';
 
 export async function requestContacts(
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     deliveryServiceToken: string,
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
     config: Config,
 ) {
-    const connection = state.connection;
     const userDb = state.userDb!;
     const createEmptyConversationEntry = (id: string) =>
         dispatch({
@@ -38,7 +41,7 @@ export async function requestContacts(
         });
 
     let retrievedContacts = await getContacts(
-        connection,
+        mainnetProvider,
         account,
         userDb,
         deliveryServiceToken,
@@ -57,7 +60,7 @@ export async function requestContacts(
         createEmptyConversationEntry(config.defaultContact);
 
         retrievedContacts = await getContacts(
-            connection,
+            mainnetProvider,
             account,
             userDb,
             deliveryServiceToken!,
@@ -66,7 +69,7 @@ export async function requestContacts(
     }
 
     const contacts: Contact[] = await Promise.all(
-        retrievedContacts.map(fetchDeliveryServiceProfile(connection)),
+        retrievedContacts.map(fetchDeliveryServiceProfile(mainnetProvider)),
     );
 
     contacts.forEach((contact) => {
@@ -99,14 +102,14 @@ export async function requestContacts(
 }
 
 export async function getContacts(
-    connection: Connection,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     userDb: UserDB,
     deliveryServiceToken: string,
     createEmptyConversationEntry: (id: string) => void,
 ): Promise<Account[]> {
     const pendingConversations = await fetchPendingConversations(
-        connection,
+        mainnetProvider,
         account,
         deliveryServiceToken,
     );
@@ -141,10 +144,7 @@ export async function getContacts(
             .map(async (ensName) => {
                 let profile;
                 try {
-                    profile = await getUserProfile(
-                        connection.mainnetProvider!,
-                        ensName,
-                    );
+                    profile = await getUserProfile(mainnetProvider!, ensName);
                     return {
                         ensName,
                         profile: profile,
@@ -173,7 +173,9 @@ export async function addContact(
     createEmptyConversation(ensName, userDb, createEmptyConversationEntry);
 }
 
-function fetchDeliveryServiceProfile(connection: Connection) {
+function fetchDeliveryServiceProfile(
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
+) {
     return async (account: Account): Promise<Contact> => {
         const deliveryServiceUrl = account.profile?.deliveryServices[0];
 
@@ -189,7 +191,7 @@ function fetchDeliveryServiceProfile(connection: Connection) {
 
         const deliveryServiceProfile = await getDeliveryServiceProfile(
             deliveryServiceUrl,
-            connection.mainnetProvider!,
+            mainnetProvider!,
             async (url: string) => (await axios.get(url)).data,
         );
 

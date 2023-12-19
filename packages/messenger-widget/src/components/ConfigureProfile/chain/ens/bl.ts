@@ -15,7 +15,7 @@ import { Connection } from '../../../../interfaces/web3';
 
 // method to check ENS name is valid or not
 const isEnsNameValid = async (
-    state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     ensName: string,
     ethAddress: string,
     setError: Function,
@@ -26,20 +26,14 @@ const isEnsNameValid = async (
         return false;
     }
 
-    const address = await ethersHelper.resolveOwner(
-        state.connection.mainnetProvider!,
-        ensName,
-    );
+    const address = await ethersHelper.resolveOwner(mainnetProvider!, ensName);
 
     if (address === null) {
         setError('Resolver not found', NAME_TYPE.ENS_NAME);
         return false;
     }
 
-    const owner = await ethersHelper.resolveName(
-        state.connection.mainnetProvider!,
-        ensName,
-    );
+    const owner = await ethersHelper.resolveName(mainnetProvider!, ensName);
 
     if (
         owner &&
@@ -57,7 +51,7 @@ const isEnsNameValid = async (
 };
 
 export const submitEnsNameTransaction = async (
-    state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     ethAddress: string,
     dsToken: string,
@@ -76,7 +70,7 @@ export const submitEnsNameTransaction = async (
         startLoader();
 
         const isValid = await isEnsNameValid(
-            state,
+            mainnetProvider,
             ensName,
             ethAddress,
             setError,
@@ -88,7 +82,7 @@ export const submitEnsNameTransaction = async (
         }
 
         const tx = await getPublishProfileOnchainTransaction(
-            state.connection,
+            mainnetProvider,
             account,
             ensName!,
         );
@@ -96,7 +90,7 @@ export const submitEnsNameTransaction = async (
         if (tx) {
             await createAlias(
                 account!,
-                state.connection.mainnetProvider!,
+                mainnetProvider!,
                 account!.ensName,
                 ensName!,
                 dsToken,
@@ -129,13 +123,10 @@ export const submitEnsNameTransaction = async (
 };
 
 async function getPublishProfileOnchainTransaction(
-    connection: Connection,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     ensName: string,
 ) {
-    if (!connection.provider) {
-        throw Error('No provider');
-    }
     if (!account) {
         throw Error('No account');
     }
@@ -147,7 +138,7 @@ async function getPublishProfileOnchainTransaction(
     }
 
     const ethersResolver = await ethersHelper.getResolver(
-        connection.provider,
+        mainnetProvider,
         ensName,
     );
 
@@ -160,7 +151,7 @@ async function getPublishProfileOnchainTransaction(
         [
             'function setText(bytes32 node, string calldata key, string calldata value) external',
         ],
-        connection.provider,
+        mainnetProvider,
     );
 
     const signedUserProfile: SignedUserProfile = {

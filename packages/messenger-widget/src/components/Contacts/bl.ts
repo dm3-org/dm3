@@ -25,6 +25,8 @@ import { getDeliveryServiceProperties } from 'dm3-lib-delivery-api';
 import { MessageState } from 'dm3-lib-messaging';
 import axios from 'axios';
 import { globalConfig } from 'dm3-lib-shared';
+import { mainnet } from 'wagmi';
+import e from 'cors';
 
 export const onContactSelected = (
     state: GlobalState,
@@ -57,6 +59,7 @@ export const setContactHeightToMaximum = (isProfileConfigured: boolean) => {
 // fetches contact list and sets data according to view on UI
 export const fetchAndSetContacts = async (
     state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
 ): Promise<ContactPreview[]> => {
     const actualContactList: ContactPreview[] = [];
 
@@ -71,7 +74,7 @@ export const fetchAndSetContacts = async (
                     state.accounts.contacts,
                 ),
                 image: await getAvatarProfilePic(
-                    state,
+                    mainnetProvider,
                     contact.account.ensName,
                 ),
                 unreadMsgCount: fetchUnreadMessagesCount(
@@ -225,6 +228,7 @@ export const setContactIndexSelectedFromCache = (
 
 export const addNewConversationFound = async (
     state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     dispatch: React.Dispatch<Actions>,
     setListOfContacts: Function,
 ) => {
@@ -268,7 +272,7 @@ export const addNewConversationFound = async (
                         state.accounts.contacts,
                     ),
                     image: await getAvatarProfilePic(
-                        state,
+                        mainnetProvider,
                         contact.account.ensName,
                     ),
                     unreadMsgCount: fetchUnreadMessagesCount(
@@ -304,6 +308,7 @@ export const addNewConversationFound = async (
 // fetches and sets contact
 export const setContactList = async (
     state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     dispatch: React.Dispatch<Actions>,
     setListOfContacts: Function,
 ) => {
@@ -313,12 +318,20 @@ export const setContactList = async (
             state.accounts.contacts &&
             cacheList.length !== state.accounts.contacts.length
         ) {
-            await addNewConversationFound(state, dispatch, setListOfContacts);
+            await addNewConversationFound(
+                state,
+                mainnetProvider,
+                dispatch,
+                setListOfContacts,
+            );
         } else {
             setListOfContacts(cacheList);
         }
     } else {
-        const data: ContactPreview[] = await fetchAndSetContacts(state);
+        const data: ContactPreview[] = await fetchAndSetContacts(
+            state,
+            mainnetProvider,
+        );
         dispatch({
             type: CacheType.Contacts,
             payload: data,
@@ -348,9 +361,12 @@ export const updateSelectedContact = (
     }
 };
 
-const fetchesUserProfile = async (ensName: string, state: GlobalState) => {
+const fetchesUserProfile = async (
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
+    ensName: string,
+) => {
     try {
-        return await getUserProfile(state.connection.mainnetProvider!, ensName);
+        return await getUserProfile(mainnetProvider!, ensName);
     } catch (error) {
         return null;
     }
@@ -359,6 +375,7 @@ const fetchesUserProfile = async (ensName: string, state: GlobalState) => {
 // updates contact list on account change when new contact is added
 export const updateContactOnAccountChange = async (
     state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     dispatch: React.Dispatch<Actions>,
     contacts: ContactPreview[],
     setListOfContacts: Function,
@@ -380,8 +397,8 @@ export const updateContactOnAccountChange = async (
                 const item = { ...items[lastIndex] };
 
                 const profile = await fetchesUserProfile(
+                    mainnetProvider!,
                     state.modal.addConversation.ensName as string,
-                    state,
                 );
 
                 const profileDetails = await Promise.all(
@@ -389,8 +406,8 @@ export const updateContactOnAccountChange = async (
                         return {
                             ensName: data.contactDetails.account.ensName,
                             sign: await fetchesUserProfile(
+                                mainnetProvider!,
                                 data.contactDetails.account.ensName,
-                                state,
                             ),
                             index: index,
                         };
@@ -434,7 +451,7 @@ export const updateContactOnAccountChange = async (
                             state.accounts.contacts,
                         );
                         newRecord.image = await getAvatarProfilePic(
-                            state,
+                            mainnetProvider,
                             newRecord.contactDetails.account.ensName as string,
                         );
 
@@ -496,7 +513,7 @@ export const updateContactOnAccountChange = async (
                         const deliveryServiceProfile =
                             await getDeliveryServiceProfile(
                                 profile.profile.deliveryServices[0],
-                                state.connection.mainnetProvider!,
+                                mainnetProvider!,
                                 async (url: string) =>
                                     (
                                         await axios.get(url)
@@ -549,7 +566,7 @@ export const updateContactOnAccountChange = async (
                     );
 
                     item.image = await getAvatarProfilePic(
-                        state,
+                        mainnetProvider,
                         state.modal.addConversation.ensName as string,
                     );
 
@@ -632,12 +649,12 @@ export const showMenuInBottom = (index: number | null): boolean => {
 };
 
 export const fetchMessageSizeLimit = async (
-    state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     dispatch: React.Dispatch<Actions>,
 ) => {
     const details = await getDeliveryServiceProperties(
-        state.connection.mainnetProvider as ethers.providers.JsonRpcProvider,
+        mainnetProvider as ethers.providers.JsonRpcProvider,
         account as Account,
     );
     dispatch({

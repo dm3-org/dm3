@@ -23,7 +23,6 @@ const getMainnetProvider = () => {
 export const initialState: GlobalState = {
     connection: {
         defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
-        mainnetProvider: getMainnetProvider(),
     },
     accounts: {
         contacts: undefined,

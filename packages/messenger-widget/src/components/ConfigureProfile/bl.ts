@@ -60,7 +60,7 @@ export const closeConfigurationModal = (
 
 // method to fetch ENS name
 export const getEnsName = async (
-    state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     ethAddress: string,
     account: Account,
     setEnsNameFromResolver: Function,
@@ -69,15 +69,13 @@ export const getEnsName = async (
         const isAddrEnsName = account.ensName?.endsWith(
             globalConfig.ADDR_ENS_SUBDOMAIN(),
         );
-        const name = await state.connection.mainnetProvider.lookupAddress(
-            ethAddress,
-        );
+        const name = await mainnetProvider.lookupAddress(ethAddress);
         if (name && !isAddrEnsName) {
-            const hasProfile = await hasUserProfile(
-                state.connection.mainnetProvider,
+            const hasProfile = await hasUserProfile(mainnetProvider, name);
+            const dm3ProfileRecordExists = await checkEnsDM3Text(
+                mainnetProvider,
                 name,
             );
-            const dm3ProfileRecordExists = await checkEnsDM3Text(state, name);
             hasProfile &&
                 dm3ProfileRecordExists &&
                 setEnsNameFromResolver(name);
@@ -88,6 +86,7 @@ export const getEnsName = async (
 // method to set new DM3 username
 export const submitDm3UsernameClaim = async (
     state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     dsToken: string,
     dm3UserEnsName: string,
@@ -114,7 +113,7 @@ export const submitDm3UsernameClaim = async (
 
         await createAlias(
             account!,
-            state.connection.mainnetProvider!,
+            mainnetProvider!,
             account!.ensName,
             ensName,
             dsToken!,
@@ -195,16 +194,13 @@ export const validateEnsName = (username: string): boolean => {
 };
 
 export const fetchExistingDM3Name = async (
-    state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     setExistingDm3Name: Function,
 ) => {
     try {
         if (account) {
-            const dm3Names: any = await getAliasChain(
-                account,
-                state.connection.mainnetProvider,
-            );
+            const dm3Names: any = await getAliasChain(account, mainnetProvider);
             let dm3Name;
             if (dm3Names && dm3Names.length) {
                 dm3Name = getLastDm3Name(dm3Names);

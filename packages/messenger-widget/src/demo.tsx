@@ -16,7 +16,7 @@ function Demo() {
     };
 
     return (
-        <div className="background p-1">
+        <div style={{ minHeight: '100vh' }} className="background p-1">
             <div className="demo-container">
                 <DM3 {...props} />
             </div>

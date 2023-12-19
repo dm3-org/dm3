@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { useAccount, useWalletClient } from 'wagmi';
+import { useAccount, useNetwork, useWalletClient } from 'wagmi';
 
 import { Account } from 'dm3-lib-profile';
 import { UserDB } from 'dm3-lib-storage';
@@ -14,6 +14,9 @@ import {
 export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
     const { data: walletClient } = useWalletClient();
     const mainnetProvider = useMainnetProvider();
+    const { address } = useAccount({
+        onDisconnect: () => signOut(),
+    });
 
     const [account, setAccount] = useState<Account | undefined>(undefined);
     const [deliveryServiceToken, setDeliveryServiceToken] = useState<
@@ -24,10 +27,6 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [hasError, setHasError] = useState<boolean>(false);
-
-    const { address } = useAccount({
-        onDisconnect: () => signOut(),
-    });
 
     const isLoggedIn = useMemo<boolean>(
         () => !!account && !!deliveryServiceToken,
@@ -42,9 +41,10 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
         setIsLoading(true);
         setHasError(false);
         //Fetch the Account either from onchain or via CCIP
-        const account = await AccountConnector(mainnetProvider).connect(
-            address!,
-        );
+        const account = await AccountConnector(
+            walletClient!,
+            mainnetProvider,
+        ).connect(address!);
 
         if (!account) {
             throw Error('error fetching dm3Account');

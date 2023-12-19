@@ -27,6 +27,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { ConfigureEnsProfile } from './chain/ens/ConfigureEnsProfile';
 import { useAccount } from 'wagmi';
 import { useNetwork } from 'wagmi';
+import { useMainnetProvider } from '../../hooks/useMainnetProvider';
 
 export function ConfigureProfile() {
     return (
@@ -38,6 +39,7 @@ export function ConfigureProfile() {
 
                 const { account, ethAddress, deliveryServiceToken } =
                     useContext(AuthContext);
+                const mainnetProvider = useMainnetProvider();
 
                 // existing profile details states
                 const [existingDm3Name, setExistingDm3Name] = useState<
@@ -96,6 +98,7 @@ export function ConfigureProfile() {
                         }
                         await submitDm3UsernameClaim(
                             state,
+                            mainnetProvider,
                             account!,
                             deliveryServiceToken!,
                             name,
@@ -124,7 +127,7 @@ export function ConfigureProfile() {
                         )
                     ) {
                         fetchExistingDM3Name(
-                            state,
+                            mainnetProvider,
                             account!,
                             setExistingDm3Name,
                         );
@@ -140,10 +143,13 @@ export function ConfigureProfile() {
 
                 // handles ENS name and address
                 useEffect(() => {
-                    getEnsName(state, ethAddress!, account!, (name: string) =>
-                        setEnsName(name),
+                    getEnsName(
+                        mainnetProvider,
+                        ethAddress!,
+                        account!,
+                        (name: string) => setEnsName(name),
                     );
-                }, [ethAddress, state.connection.provider]);
+                }, [ethAddress]);
 
                 return (
                     <div>
@@ -386,13 +392,7 @@ export function ConfigureProfile() {
                                             )}
                                         </div>
                                     </div>
-                                    <p>
-                                        Chain :{' '}
-                                        {
-                                            state.connection.provider?.network
-                                                .chainId
-                                        }
-                                    </p>
+
                                     {chain?.id === 10200 ? (
                                         <ConfigureGenomeProfile />
                                     ) : (

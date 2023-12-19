@@ -402,6 +402,7 @@ const fetchAllReactionMessages = (
 // method to set the message list
 export const handleMessages = async (
     state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     dm3UserAccount: Account,
     dsToken: string,
     dispatch: React.Dispatch<Actions>,
@@ -415,7 +416,7 @@ export const handleMessages = async (
 ) => {
     if (!isMessageListInitialized && state.accounts.selectedContact) {
         const fetchedMessages = await fetchAndStoreMessages(
-            state.connection,
+            mainnetProvider,
             dm3UserAccount,
             dsToken,
             state.accounts.selectedContact.account.ensName,
@@ -437,6 +438,7 @@ export const handleMessages = async (
         );
 
         const addressMessages = await getOldMessages(
+            mainnetProvider,
             state,
             dm3UserAccount,
             alias,
@@ -588,12 +590,12 @@ export const handleMessages = async (
 };
 
 const getOldMessages = async (
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     state: GlobalState,
     dm3UserAccount: Account,
     alias: string | undefined,
 ) => {
     let address: string | null | undefined = null;
-    const provider = state.connection.provider;
 
     try {
         if (
@@ -610,7 +612,7 @@ const getOldMessages = async (
             if (!isAddrEnsName) {
                 // fetch the address of contact
 
-                address = await provider?.resolveName(
+                address = await mainnetProvider?.resolveName(
                     state.accounts.selectedContact.account.ensName,
                 );
 

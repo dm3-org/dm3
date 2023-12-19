@@ -1,3 +1,13 @@
+import { Account } from 'dm3-lib-profile';
+import {
+    StorageEnvelopContainer,
+    StorageLocation,
+    SyncProcessState,
+    UserDB,
+} from 'dm3-lib-storage';
+import { ethers } from 'ethers';
+import { Socket } from 'socket.io-client';
+import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import {
     AuthSession,
     AuthState,
@@ -7,19 +17,9 @@ import {
     UiState,
     UiViewState,
 } from '../interfaces/context';
-import { ethers } from 'ethers';
-import { Socket } from 'socket.io-client';
-import { DefaultEventsMap } from 'socket.io/dist/typed-events';
-import {
-    StorageEnvelopContainer,
-    StorageLocation,
-    SyncProcessState,
-    UserDB,
-} from 'dm3-lib-storage';
-import { Account } from 'dm3-lib-profile';
-import { Connection } from '../interfaces/web3';
-import { ContactPreview, NewContact } from '../interfaces/utils';
 import { MessageAction, MessageProps } from '../interfaces/props';
+import { ContactPreview, NewContact } from '../interfaces/utils';
+import { Connection } from '../interfaces/web3';
 
 export type ActionMap<M extends { [index: string]: any }> = {
     [Key in keyof M]: M[Key] extends undefined

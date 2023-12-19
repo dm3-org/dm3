@@ -28,11 +28,13 @@ import {
 import { ContactMenu } from '../ContactMenu/ContactMenu';
 import loader from '../../assets/images/loader.svg';
 import { AuthContext } from '../../context/AuthContext';
+import { useMainnetProvider } from '../../hooks/useMainnetProvider';
 
 export function Contacts(props: DashboardProps) {
     // fetches context api data
     const { state, dispatch } = useContext(GlobalContext);
     const { account, deliveryServiceToken } = useContext(AuthContext);
+    const mainnetProvider = useMainnetProvider();
 
     // local states to handle contact list and active contact
     const [contactSelected, setContactSelected] = useState<number | null>(null);
@@ -76,13 +78,14 @@ export function Contacts(props: DashboardProps) {
             });
             startLoader();
             props.getContacts(
+                mainnetProvider,
                 account!,
                 deliveryServiceToken,
                 state,
                 dispatch,
                 props.dm3Props.config,
             );
-            setContactList(state, dispatch, setListOfContacts);
+            setContactList(state, mainnetProvider, dispatch, setListOfContacts);
         }
     }, [deliveryServiceToken, state.connection.socket]);
 
@@ -91,6 +94,7 @@ export function Contacts(props: DashboardProps) {
         fetchAndUpdateUnreadMsgCount(state, dispatch);
         if (state.userDb?.conversations && state.userDb?.conversationsCount) {
             props.getContacts(
+                mainnetProvider,
                 account!,
                 deliveryServiceToken!,
                 state,
@@ -107,7 +111,7 @@ export function Contacts(props: DashboardProps) {
             (state.uiView.selectedRightView === RightViewSelected.Chat ||
                 state.uiView.selectedRightView === RightViewSelected.Default)
         ) {
-            setContactList(state, dispatch, setListOfContacts);
+            setContactList(state, mainnetProvider, dispatch, setListOfContacts);
         }
 
         if (
@@ -116,6 +120,7 @@ export function Contacts(props: DashboardProps) {
         ) {
             updateContactOnAccountChange(
                 state,
+                mainnetProvider,
                 dispatch,
                 contacts,
                 setListOfContacts,
@@ -129,7 +134,12 @@ export function Contacts(props: DashboardProps) {
             state.cache.contacts &&
             state.cache.contacts.length !== state.accounts.contacts.length
         ) {
-            addNewConversationFound(state, dispatch, setListOfContacts);
+            addNewConversationFound(
+                state,
+                mainnetProvider,
+                dispatch,
+                setListOfContacts,
+            );
         }
     }, [state.accounts.contacts]);
 
@@ -149,6 +159,7 @@ export function Contacts(props: DashboardProps) {
             ) {
                 updateContactOnAccountChange(
                     state,
+                    mainnetProvider,
                     dispatch,
                     contacts,
                     setListOfContacts,
@@ -259,7 +270,7 @@ export function Contacts(props: DashboardProps) {
     }, [contacts]);
 
     useEffect(() => {
-        fetchMessageSizeLimit(state, account!, dispatch);
+        fetchMessageSizeLimit(mainnetProvider, account!, dispatch);
     }, []);
 
     /* Hidden content for highlighting css */

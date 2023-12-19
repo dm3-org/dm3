@@ -11,19 +11,23 @@ import { GlobalContext } from '../../../../utils/context-utils';
 import { useAccount } from 'wagmi';
 import { useAuth } from '../../../../hooks/auth/useAuth';
 import { AuthContext } from '../../../../context/AuthContext';
+import { ethers } from 'ethers';
 
 export const ConfigureGenomeProfile = () => {
     const { state, dispatch } = useContext(GlobalContext);
 
-    const { ethAddress, account } = useContext(AuthContext);
+    const { ethAddress, account, deliveryServiceToken } =
+        useContext(AuthContext);
 
     const { onShowError, setExistingEnsName, setEnsName } = useContext(
         ConfigureProfileContext,
     );
 
     const onSubmitTx = async (name: string) => {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
         submitGenomeNameTransaction(
-            state,
+            provider,
+            deliveryServiceToken!,
             account!,
             dispatch,
             name,
