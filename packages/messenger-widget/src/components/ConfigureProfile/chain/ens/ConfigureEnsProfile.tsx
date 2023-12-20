@@ -6,7 +6,7 @@ import { SubmitOnChainProfile } from '../SubmitOnChainProfile';
 import { NAME_TYPE, validateEnsName } from '../../bl';
 import { AuthContext } from '../../../../context/AuthContext';
 import { submitEnsNameTransaction } from './bl';
-import { useMainnetProvider } from '../../../../hooks/useMainnetProvider';
+import { useMainnetProvider } from '../../../../hooks/mainnetprovider/useMainnetProvider';
 
 export const ConfigureEnsProfile = () => {
     const { state, dispatch } = useContext(GlobalContext);

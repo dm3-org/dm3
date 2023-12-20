@@ -16,7 +16,7 @@ import { SignIn } from '../SignIn/SignIn';
 import Dashboard from '../../views/Dashboard/Dashboard';
 import Storage from '../../components/Storage/Storage';
 import { AuthContext } from '../../context/AuthContext';
-import { useMainnetProvider } from '../../hooks/useMainnetProvider';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 
 function DM3(props: Dm3Props) {
     // fetches context storage

@@ -27,7 +27,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { ConfigureEnsProfile } from './chain/ens/ConfigureEnsProfile';
 import { useAccount } from 'wagmi';
 import { useNetwork } from 'wagmi';
-import { useMainnetProvider } from '../../hooks/useMainnetProvider';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 
 export function ConfigureProfile() {
     return (
@@ -393,7 +393,8 @@ export function ConfigureProfile() {
                                         </div>
                                     </div>
 
-                                    {chain?.id === 10200 ? (
+                                    {chain?.id === 10200 ||
+                                    chain?.id === 100 ? (
                                         <ConfigureGenomeProfile />
                                     ) : (
                                         <ConfigureEnsProfile />

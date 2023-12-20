@@ -17,7 +17,7 @@ import menuIcon from '../../assets/images/menu.svg';
 import { getAliasChain } from 'dm3-lib-delivery-api';
 import { getLastDm3Name } from '../../utils/common-utils';
 import { AuthContext } from '../../context/AuthContext';
-import { useMainnetProvider } from '../../hooks/useMainnetProvider';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 
 export function RightHeader(props: HideFunctionProps) {
     // fetches context storage

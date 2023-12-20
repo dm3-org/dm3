@@ -16,7 +16,7 @@ import profilePic from '../../assets/images/human.svg';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { ModalStateType } from '../../utils/enum-type-utils';
 import copyIcon from '../../assets/images/copy.svg';
-import { useMainnetProvider } from '../../hooks/useMainnetProvider';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 
 export function ContactInfo() {
     const { state, dispatch } = useContext(GlobalContext);

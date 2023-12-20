@@ -12,7 +12,7 @@ import { useContext, useEffect } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { GlobalContext } from '../../utils/context-utils';
 import { UserDbType } from '../../utils/enum-type-utils';
-import { useMainnetProvider } from '../../hooks/useMainnetProvider';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 
 export default function Storage() {
     const { state, dispatch } = useContext(GlobalContext);

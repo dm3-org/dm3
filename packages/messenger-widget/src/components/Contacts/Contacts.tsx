@@ -28,7 +28,7 @@ import {
 import { ContactMenu } from '../ContactMenu/ContactMenu';
 import loader from '../../assets/images/loader.svg';
 import { AuthContext } from '../../context/AuthContext';
-import { useMainnetProvider } from '../../hooks/useMainnetProvider';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 
 export function Contacts(props: DashboardProps) {
     // fetches context api data

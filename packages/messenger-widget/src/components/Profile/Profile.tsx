@@ -14,7 +14,7 @@ import {
 import { EnsDetails } from '../EnsDetails/EnsDetails';
 import { openConfigurationModal } from '../ConfigureProfile/bl';
 import { AuthContext } from '../../context/AuthContext';
-import { useMainnetProvider } from '../../hooks/useMainnetProvider';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 
 export function Profile() {
     const { state, dispatch } = useContext(GlobalContext);

@@ -77,15 +77,16 @@ export const AccountConnector = (
         };
     }
 
+    //Add support for other chains when the refactoring is finished and we do more integrations
     async function getOnChainEnsName(address: string) {
         //@ts-ignore
         const chainId = await walletClient.getChainId();
-        //Todo move to
-        if (chainId === 10200) {
+        // either chidaodo or xdai
+        if (chainId === 10200 || chainId === 100) {
             const web3Name = createWeb3Name();
             return await web3Name.getDomainName({
                 address,
-                queryChainIdList: [10200],
+                queryChainIdList: [chainId],
             });
         }
 

@@ -18,7 +18,7 @@ import {
 import { useContext, useMemo } from 'react';
 import { defineChain } from 'viem';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
-import { goerli } from 'wagmi/chains';
+import { gnosis, goerli } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import AddConversation from '../../components/AddConversation/AddConversation';
 import { Loader } from '../../components/Loader/Loader';
@@ -26,6 +26,7 @@ import { Preferences } from '../../components/Preferences/Preferences';
 import { AuthContextProvider } from '../../context/AuthContext';
 import { GlobalContext } from '../../utils/context-utils';
 import './Home.css';
+import { MainnetProviderContextProvider } from '../../context/ProviderContext';
 
 //@ts-ignore
 const chiado = defineChain({
@@ -54,7 +55,7 @@ export function Home(props: Dm3Props) {
     const { state, dispatch } = useContext(GlobalContext);
 
     const { chains, publicClient } = configureChains(
-        [goerli, chiado],
+        [chiado, goerli],
         [
             jsonRpcProvider({
                 rpc: () => ({
@@ -105,9 +106,11 @@ export function Home(props: Dm3Props) {
             <Preferences />
             <WagmiConfig config={wagmiConfig}>
                 <RainbowKitProvider chains={chains} theme={darkTheme()}>
-                    <AuthContextProvider dispatch={dispatch}>
-                        <DM3 config={props.config} />
-                    </AuthContextProvider>
+                    <MainnetProviderContextProvider>
+                        <AuthContextProvider dispatch={dispatch}>
+                            <DM3 config={props.config} />
+                        </AuthContextProvider>
+                    </MainnetProviderContextProvider>
                 </RainbowKitProvider>
             </WagmiConfig>
         </div>

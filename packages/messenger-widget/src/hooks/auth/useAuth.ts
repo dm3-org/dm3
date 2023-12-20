@@ -4,7 +4,7 @@ import { useAccount, useNetwork, useWalletClient } from 'wagmi';
 import { Account } from 'dm3-lib-profile';
 import { UserDB } from 'dm3-lib-storage';
 import { useMemo, useState } from 'react';
-import { useMainnetProvider } from '../useMainnetProvider';
+import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { AccountConnector } from './AccountConnector';
 import {
     ConnectDsResult,

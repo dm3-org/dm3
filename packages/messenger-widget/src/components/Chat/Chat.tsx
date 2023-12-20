@@ -15,7 +15,7 @@ import {
 import { MessageActionType } from '../../utils/enum-type-utils';
 import { useAuth } from '../../hooks/auth/useAuth';
 import { AuthContext } from '../../context/AuthContext';
-import { useMainnetProvider } from '../../hooks/useMainnetProvider';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 
 export function Chat(props: HideFunctionProps) {
     const { state, dispatch } = useContext(GlobalContext);
