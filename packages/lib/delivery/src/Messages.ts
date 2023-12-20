@@ -16,6 +16,7 @@ import {
 import {
     DeliveryInformation,
     EncryptionEnvelop,
+    getEnvelopSize,
     Postmark,
 } from 'dm3-lib-messaging';
 import { logDebug, sha256 } from 'dm3-lib-shared';
@@ -220,7 +221,7 @@ function messageIsToLarge(
     envelop: EncryptionEnvelop,
     sizeLimit: number,
 ): boolean {
-    return Buffer.byteLength(JSON.stringify(envelop), 'utf-8') > sizeLimit;
+    return getEnvelopSize(envelop) > sizeLimit;
 }
 
 export async function handleIncomingMessage(

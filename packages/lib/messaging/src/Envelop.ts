@@ -1,5 +1,5 @@
 import { EncryptAsymmetric, encryptAsymmetric, sign } from 'dm3-lib-crypto';
-import { sha256, stringify } from 'dm3-lib-shared';
+import { getSize, sha256, stringify } from 'dm3-lib-shared';
 import { Message, Postmark, SendDependencies } from './Message';
 import { ethers } from 'ethers';
 import {
@@ -165,4 +165,16 @@ export async function buildEnvelop(
             metadata: { ...metadata, deliveryInformation },
         },
     };
+}
+
+/**
+ * This function calculates the size in bytes of the input envelop object.
+ * It uses the getSize function to calculate the size.
+ * It unifies the calculation of the size of the message and the metadata.
+ *
+ * @param {EncryptionEnvelop} envelop - The envelop object whose size is to be calculated.
+ * @returns {number} The size of the input envelop object in bytes.
+ */
+export function getEnvelopSize(envelop: EncryptionEnvelop): number {
+    return getSize(envelop);
 }

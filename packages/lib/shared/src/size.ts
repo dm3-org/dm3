@@ -1,4 +1,4 @@
-import { stringify } from 'dm3-lib-shared';
+import { stringify } from './stringify';
 
 /**
  * This function calculates the size in bytes of the input value.
@@ -8,6 +8,6 @@ import { stringify } from 'dm3-lib-shared';
  * @param {any} value - The value whose size is to be calculated.
  * @returns {number} The size of the input value in bytes.
  */
-export function getSize(value: any) {
-    return Buffer.byteLength(stringify(value), 'utf-8');
+export function getSize(value: any): number {
+    return new TextEncoder().encode(stringify(value)).length;
 }
