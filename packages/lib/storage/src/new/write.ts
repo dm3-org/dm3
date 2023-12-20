@@ -17,7 +17,7 @@ import {
     Db,
     MessageChunk,
 } from './types';
-import { getSize } from './utils';
+import { getSize } from 'dm3-lib-shared';
 
 /**
  * This function adds a new conversation to the conversation list.
@@ -86,7 +86,11 @@ export async function addMessage(
     messageChunk: MessageChunk;
     conversationManifest: ConversationManifest;
 }> {
-    // check if the message size is too big
+    // Check if the message size is too big
+    // Normally the getEnvelopSize function should be used for message size calculation.
+    // However, the getEnvelopSize function exepects an encrypted envelop as input.
+    // In the case of the storage we encrypt the whole chunk and not a single message.
+    // Therefore we use the getSize function on an unencrypted envelop.
     if (getSize(envelop) > MAX_MESSAGE_SIZE) {
         throw Error(`Message size is too big`);
     }
