@@ -40,7 +40,11 @@
 }
 
 .sign-in-logo {
-    width: fit-content !important;
+    width: 150px;
+}
+
+.dm3-logo-sc {
+    fill: red;
 }
 
 .content-data {
