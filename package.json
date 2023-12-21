@@ -12,8 +12,6 @@
             "packages/lib/offchainResolver-api",
             "packages/lib/billboard-api",
             "packages/backend",
-            "packages/react",
-            "packages/web",
             "packages/integration-tests",
             "packages/offchain-resolver",
             "packages/messenger-widget",
