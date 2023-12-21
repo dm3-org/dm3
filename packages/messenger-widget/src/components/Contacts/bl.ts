@@ -1,12 +1,19 @@
+import axios from 'axios';
+import { getDeliveryServiceProperties } from 'dm3-lib-delivery-api';
+import { MessageState } from 'dm3-lib-messaging';
 import {
-    normalizeEnsName,
-    getAccountDisplayName,
-    getUserProfile,
     Account,
+    getAccountDisplayName,
     getDeliveryServiceProfile,
+    getUserProfile,
+    normalizeEnsName,
 } from 'dm3-lib-profile';
+import { globalConfig } from 'dm3-lib-shared';
 import { UserDB, getConversation } from 'dm3-lib-storage';
+import { ethers } from 'ethers';
+import { Contact } from '../../interfaces/context';
 import { ContactPreview } from '../../interfaces/utils';
+import { getAvatarProfilePic } from '../../utils/ens-utils';
 import {
     AccountsType,
     Actions,
@@ -17,16 +24,7 @@ import {
     RightViewSelected,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
-import { Contact } from '../../interfaces/context';
-import { getAvatarProfilePic } from '../../utils/ens-utils';
 import { closeLoader, startLoader } from '../Loader/Loader';
-import { ethers } from 'ethers';
-import { getDeliveryServiceProperties } from 'dm3-lib-delivery-api';
-import { MessageState } from 'dm3-lib-messaging';
-import axios from 'axios';
-import { globalConfig } from 'dm3-lib-shared';
-import { mainnet } from 'wagmi';
-import e from 'cors';
 
 export const onContactSelected = (
     state: GlobalState,
