@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import axios from 'axios';
 import socketIOClient from 'socket.io-client';
 import { EncryptionEnvelop } from 'dm3-lib-messaging';
@@ -13,10 +14,17 @@ import {
 } from '../../utils/enum-type-utils';
 import { SignIn } from '../SignIn/SignIn';
 import Dashboard from '../../views/Dashboard/Dashboard';
+import Storage from '../../components/Storage/Storage';
+import { AuthContext } from '../../context/AuthContext';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 
 function DM3(props: Dm3Props) {
     // fetches context storage
     const { state, dispatch } = useContext(GlobalContext);
+    const mainnetProvider = useMainnetProvider();
+
+    const { isLoggedIn, account, deliveryServiceToken } =
+        useContext(AuthContext);
 
     // handle delivery service url of the account
     const [deliveryServiceUrl, setdeliveryServiceUrl] = useState('');
@@ -24,11 +32,9 @@ function DM3(props: Dm3Props) {
     // handles changes of state on connection to the account
     useEffect(() => {
         if (props.config.connectionStateChange) {
-            props.config.connectionStateChange(
-                state.connection.connectionState,
-            );
+            props.config.connectionStateChange(isLoggedIn);
         }
-    }, [state.connection.connectionState]);
+    }, [isLoggedIn]);
 
     // handles default delivery service url changes
     useEffect(() => {
@@ -52,33 +58,30 @@ function DM3(props: Dm3Props) {
             if (deliveryServiceUrl !== '') {
                 return;
             }
-            if (state?.connection?.account?.profile === undefined) {
+            if (account === undefined) {
                 return;
             }
             const deliveryServiceProfile = await getDeliveryServiceProfile(
-                state.connection.account.profile.deliveryServices[0],
-                state.connection.provider!,
+                account.profile!.deliveryServices[0],
+                mainnetProvider!,
                 async (url: string) => (await axios.get(url)).data,
             );
+
             setdeliveryServiceUrl(deliveryServiceProfile!.url);
         };
         getDeliveryServiceUrl();
-    }, [state.connection.account?.profile]);
+    }, [account?.profile]);
 
     // handles socket connection &  contacts with message fetching
     useEffect(() => {
-        if (
-            state.connection.connectionState === ConnectionState.SignedIn &&
-            !state.connection.socket &&
-            deliveryServiceUrl
-        ) {
+        if (isLoggedIn && !state.connection.socket && deliveryServiceUrl) {
             if (!state.userDb) {
                 throw Error(
                     `Couldn't handle new messages. User db not created.`,
                 );
             }
 
-            if (!state.connection.account?.profile) {
+            if (!account?.profile) {
                 throw Error('Could not get account profile');
             }
 
@@ -91,23 +94,26 @@ function DM3(props: Dm3Props) {
             );
 
             socket.auth = {
-                account: state.connection.account,
-                token: state.auth.currentSession!.token,
+                account: account,
+                token: deliveryServiceToken!,
             };
             socket.connect();
             socket.on('message', (envelop: EncryptionEnvelop) => {
-                handleNewMessage(envelop, state, dispatch);
+                handleNewMessage(account, envelop, state, dispatch);
             });
             socket.on('joined', () => {
-                getContacts(state, dispatch, props.config);
+                getContacts(
+                    mainnetProvider,
+                    account,
+                    deliveryServiceToken!,
+                    state,
+                    dispatch,
+                    props.config,
+                );
             });
             dispatch({ type: ConnectionType.ChangeSocket, payload: socket });
         }
-    }, [
-        state.connection.connectionState,
-        state.connection.socket,
-        deliveryServiceUrl,
-    ]);
+    }, [isLoggedIn, state.connection.socket, deliveryServiceUrl]);
 
     // handles if any new message received
     useEffect(() => {
@@ -117,12 +123,19 @@ function DM3(props: Dm3Props) {
             state.connection.socket.on(
                 'message',
                 (envelop: EncryptionEnvelop) => {
-                    handleNewMessage(envelop, state, dispatch);
+                    handleNewMessage(account!, envelop, state, dispatch);
                 },
             );
 
             state.connection.socket.on('joined', () => {
-                getContacts(state, dispatch, props.config);
+                getContacts(
+                    mainnetProvider,
+                    account!,
+                    deliveryServiceToken!,
+                    state,
+                    dispatch,
+                    props.config,
+                );
             });
         }
     }, [state.connection.socket, state.userDb?.conversations]);
@@ -137,7 +150,8 @@ function DM3(props: Dm3Props) {
 
     return (
         <div id="data-rk-child" className="border-radius-8 h-100">
-            {showSignIn(state.connection.connectionState) ? (
+            <Storage />
+            {!isLoggedIn ? (
                 <SignIn
                     hideStorageSelection={props.config.hideStorageSelection}
                     defaultStorageLocation={props.config.defaultStorageLocation}

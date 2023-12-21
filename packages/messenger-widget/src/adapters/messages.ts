@@ -23,19 +23,19 @@ import {
 import { Connection } from '../interfaces/web3';
 import { withAuthHeader } from './auth';
 import { decryptAsymmetric } from 'dm3-lib-crypto';
+import { ethers } from 'ethers';
 
 export async function fetchPendingConversations(
-    connection: Connection,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
+    account: Account,
     token: string,
 ): Promise<string[]> {
-    const { account } = connection;
-
     const deliveryPath = process.env.REACT_APP_BACKEND + '/delivery';
     const url = `${deliveryPath}/messages/${account?.ensName!}/pending/`;
 
     const { data } = await getDeliveryServiceClient(
-        connection.account?.profile!,
-        connection.provider!,
+        account.profile!,
+        mainnetProvider!,
         async (url: string) => (await axios.get(url)).data,
     ).post(url, {}, withAuthHeader(token));
 
@@ -169,14 +169,15 @@ export async function sendMessage(
 }
 
 export async function fetchAndStoreMessages(
-    connection: Connection,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
+    account: Account,
     deliveryServiceToken: string,
     contact: string,
     userDb: UserDB,
     storeMessages: (envelops: StorageEnvelopContainer[]) => void,
     contacts: Account[],
 ): Promise<StorageEnvelopContainer[]> {
-    const profile = connection.account?.profile;
+    const { profile } = account;
 
     if (!profile) {
         throw Error('Account has no profile');
@@ -186,7 +187,7 @@ export async function fetchAndStoreMessages(
         profile.deliveryServices.map(async (ds) => {
             const deliveryServiceProfile = await getDeliveryServiceProfile(
                 ds,
-                connection.provider!,
+                mainnetProvider!,
                 async (url) => (await axios.get(url)).data,
             );
             return deliveryServiceProfile?.url;
@@ -202,7 +203,8 @@ export async function fetchAndStoreMessages(
     const messages = await Promise.all(
         deliveryServiceUrls.map(async (baseUrl) => {
             return await fetchNewMessages(
-                connection,
+                mainnetProvider,
+                account,
                 deliveryServiceToken,
                 contact,
             );
@@ -277,11 +279,11 @@ async function decryptMessages(
 }
 
 export async function fetchNewMessages(
-    connection: Connection,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
+    account: Account,
     token: string,
     contactAddress: string,
 ): Promise<EncryptionEnvelop[]> {
-    const { account } = connection;
     const deliveryPath = process.env.REACT_APP_BACKEND + '/delivery';
     const url = `${deliveryPath}/messages/${normalizeEnsName(
         account!.ensName,
@@ -289,7 +291,7 @@ export async function fetchNewMessages(
 
     const { data } = await getDeliveryServiceClient(
         account!.profile!,
-        connection.provider!,
+        mainnetProvider!,
         async (url: string) => (await axios.get(url)).data,
     ).get(url, withAuthHeader(token));
 

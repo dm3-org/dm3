@@ -16,15 +16,18 @@ import profilePic from '../../assets/images/human.svg';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { ModalStateType } from '../../utils/enum-type-utils';
 import copyIcon from '../../assets/images/copy.svg';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 
 export function ContactInfo() {
     const { state, dispatch } = useContext(GlobalContext);
+    const mainnetProvider = useMainnetProvider();
+
     const [contactDetails, setContactDetails] = useState<IContactInfo | null>(
         null,
     );
 
     const fetchContactDetails = async () => {
-        setContactDetails(await getContactSelected(state));
+        setContactDetails(await getContactSelected(state, mainnetProvider!));
         closeLoader();
     };
 

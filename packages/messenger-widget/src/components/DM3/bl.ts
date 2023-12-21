@@ -11,6 +11,8 @@ import {
     UserDbType,
 } from '../../utils/enum-type-utils';
 import { Config } from '../../interfaces/config';
+import { Account } from 'dm3-lib-profile';
+import { ethers } from 'ethers';
 
 export function showSignIn(connectionState: ConnectionState): boolean {
     return (
@@ -34,6 +36,9 @@ export function connectionPhase(connectionState: ConnectionState): boolean {
 
 // method to fetch entire contact list of connected account
 export const getContacts = (
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
+    account: Account,
+    dsToken: string,
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
     config: Config,
@@ -46,11 +51,19 @@ export const getContacts = (
 
     log('[getContacts]', 'info');
 
-    return requestContacts(state, dispatch, config);
+    return requestContacts(
+        mainnetProvider,
+        account,
+        dsToken,
+        state,
+        dispatch,
+        config,
+    );
 };
 
 // method to handle new messages received
 export const handleNewMessage = async (
+    account: Account,
     envelop: EncryptionEnvelop,
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
@@ -92,7 +105,7 @@ export const handleNewMessage = async (
                 messageState: MessageState.Send,
                 deliveryServiceIncommingTimestamp: postmark.incommingTimestamp,
             },
-            connection: state.connection as Connection,
+            account,
         },
     });
 };

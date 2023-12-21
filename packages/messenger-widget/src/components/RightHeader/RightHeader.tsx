@@ -16,10 +16,14 @@ import { HideFunctionProps } from '../../interfaces/props';
 import menuIcon from '../../assets/images/menu.svg';
 import { getAliasChain } from 'dm3-lib-delivery-api';
 import { getLastDm3Name } from '../../utils/common-utils';
+import { AuthContext } from '../../context/AuthContext';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 
 export function RightHeader(props: HideFunctionProps) {
     // fetches context storage
     const { state, dispatch } = useContext(GlobalContext);
+    const { account, ethAddress } = useContext(AuthContext);
+    const mainnetProvider = useMainnetProvider();
 
     // state to store profile pic of signed in user
     const [profilePic, setProfilePic] = useState<string>('');
@@ -28,8 +32,8 @@ export function RightHeader(props: HideFunctionProps) {
     const fetchAndSetProfilePic = async () => {
         setProfilePic(
             await getAvatarProfilePic(
-                state,
-                state.connection.account?.ensName as string,
+                mainnetProvider,
+                account?.ensName as string,
             ),
         );
     };
@@ -58,25 +62,18 @@ export function RightHeader(props: HideFunctionProps) {
 
     const fetchDisplayName = async () => {
         try {
-            if (
-                state.connection.provider &&
-                state.connection.ethAddress &&
-                state.connection.account
-            ) {
-                const isAddrEnsName =
-                    state.connection.account?.ensName?.endsWith(
-                        globalConfig.ADDR_ENS_SUBDOMAIN(),
-                    );
-                const name = await state.connection.provider.lookupAddress(
-                    state.connection.ethAddress,
+            if (mainnetProvider && ethAddress && account) {
+                const isAddrEnsName = account?.ensName?.endsWith(
+                    globalConfig.ADDR_ENS_SUBDOMAIN(),
                 );
+                const name = await mainnetProvider.lookupAddress(ethAddress);
                 if (name && !isAddrEnsName) {
                     const hasProfile = await hasUserProfile(
-                        state.connection.provider,
+                        mainnetProvider,
                         name,
                     );
                     const dm3ProfileRecordExists = await checkEnsDM3Text(
-                        state,
+                        mainnetProvider,
                         name,
                     );
                     dispatch({
@@ -84,12 +81,12 @@ export function RightHeader(props: HideFunctionProps) {
                         payload:
                             hasProfile && dm3ProfileRecordExists
                                 ? name
-                                : state.connection.account?.ensName,
+                                : account?.ensName,
                     });
                 } else {
                     const dm3Names: any = await getAliasChain(
-                        state.connection.account,
-                        state.connection.provider,
+                        account,
+                        mainnetProvider,
                     );
                     let dm3Name;
                     if (dm3Names && dm3Names.length) {
@@ -97,25 +94,19 @@ export function RightHeader(props: HideFunctionProps) {
                     }
                     dispatch({
                         type: CacheType.AccountName,
-                        payload: dm3Name
-                            ? dm3Name
-                            : state.connection.account.ensName,
+                        payload: dm3Name ? dm3Name : account.ensName,
                     });
                 }
             } else {
                 dispatch({
                     type: CacheType.AccountName,
-                    payload: state.connection.account
-                        ? state.connection.account.ensName
-                        : '',
+                    payload: account ? account.ensName : '',
                 });
             }
         } catch (error) {
             dispatch({
                 type: CacheType.AccountName,
-                payload: state.connection.account
-                    ? state.connection.account.ensName
-                    : '',
+                payload: account ? account.ensName : '',
             });
         }
     };
@@ -128,7 +119,7 @@ export function RightHeader(props: HideFunctionProps) {
 
     useEffect(() => {
         fetchDisplayName();
-    }, [state.connection.account?.ensName]);
+    }, [account?.ensName]);
 
     return (
         <div

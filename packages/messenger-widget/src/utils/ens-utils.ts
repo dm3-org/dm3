@@ -25,11 +25,11 @@ export const getAvatar = async (
 
 // method to fetch, check and set avatar
 export const getAvatarProfilePic = async (
-    state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     ensName: string,
 ) => {
-    if (state.connection.provider && ensName) {
-        const provider = state.connection.provider;
+    if (ensName) {
+        const provider = mainnetProvider;
         try {
             if (provider) {
                 const address = await provider.resolveName(ensName);
@@ -57,7 +57,7 @@ export const getAvatarProfilePic = async (
 
 // method to fetch ENS profile details like github, email and twitter
 export const getEnsProfileDetails = async (
-    state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     ensName: string,
 ): Promise<EnsProfileDetails> => {
     let details: EnsProfileDetails = {
@@ -67,7 +67,7 @@ export const getEnsProfileDetails = async (
     };
 
     try {
-        const provider = state.connection.provider;
+        const provider = mainnetProvider;
 
         if (provider && ensName) {
             const resolver = await provider.getResolver(ensName);
@@ -139,6 +139,7 @@ export const onClose = (dispatch: React.Dispatch<Actions>) => {
 // method to fetch selected contact
 export const getContactSelected = async (
     state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
 ): Promise<IContactInfo | null> => {
     const key =
         state.accounts.selectedContact?.account.profile?.publicEncryptionKey;
@@ -156,7 +157,7 @@ export const getContactSelected = async (
 
         if (selectedAccount.length) {
             let address;
-            const provider = state.connection.provider;
+            const provider = mainnetProvider;
 
             try {
                 address = await provider?.resolveName(
@@ -185,21 +186,16 @@ export const getContactSelected = async (
 
 // method to check DM3 network profile on ENS
 export const checkEnsDM3Text = async (
-    state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     ensName: string,
 ): Promise<boolean> => {
     try {
-        const provider = state.connection.provider;
-
-        if (provider && ensName) {
-            const resolver = await provider.getResolver(ensName);
-            if (resolver) {
-                const data = await resolver.getText('network.dm3.profile');
-                return data ? true : false;
-            }
+        const resolver = await mainnetProvider.getResolver(ensName);
+        if (!resolver) {
+            return false;
         }
-
-        return false;
+        const data = await resolver.getText('network.dm3.profile');
+        return data ? true : false;
     } catch (error) {
         log(error, 'Error in checking ENS DM3 profile ');
         return false;

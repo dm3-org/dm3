@@ -133,11 +133,14 @@ export const getHaltDelivery = (state: GlobalState): boolean => {
     }
 };
 
-export const getDependencies = (state: GlobalState): SendDependencies => {
+export const getDependencies = (
+    state: GlobalState,
+    account: Account,
+): SendDependencies => {
     const data = {
         deliverServiceProfile:
             state.accounts.selectedContact?.deliveryServiceProfile!,
-        from: state.connection.account!,
+        from: account!,
         to: state.accounts.selectedContact?.account as Account,
         keys: state.userDb?.keys as ProfileKeys,
     };
@@ -157,6 +160,8 @@ export const getDependencies = (state: GlobalState): SendDependencies => {
 };
 
 export const sendMessage = async (
+    account: Account,
+    dsToken: string,
     state: GlobalState,
     sendDependencies: SendDependencies,
     messageData: Message,
@@ -166,7 +171,7 @@ export const sendMessage = async (
     try {
         await submitMessage(
             state.connection,
-            state.auth.currentSession?.token!,
+            dsToken,
             sendDependencies,
             messageData,
             haltDelivery,
@@ -176,7 +181,7 @@ export const sendMessage = async (
                         type: UserDbType.addMessage,
                         payload: {
                             container: envelop,
-                            connection: state.connection,
+                            account: account,
                         },
                     }),
                 ),
@@ -207,8 +212,7 @@ export const getLastDm3Name = (nameList: string[]) => {
 };
 
 // Constants
-export const REACT_APP_SUPPORTED_CHAIN_ID =
-    process.env.REACT_APP_CHAIN_ID === '1' ? 1 : 5;
+export const REACT_APP_SUPPORTED_CHAIN_IDS = [5, 10200];
 
 /*  eslint-disable */
 export const INVALID_NETWORK_POPUP_MESSAGE =
