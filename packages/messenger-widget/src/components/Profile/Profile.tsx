@@ -6,7 +6,6 @@ import profPic from '../../assets/images/human.svg';
 import closeIcon from '../../assets/images/cross.svg';
 import { EnsProfileDetails } from '../../interfaces/utils';
 import {
-    checkEnsDM3Text,
     getAvatarProfilePic,
     getEnsProfileDetails,
     onClose,
@@ -14,11 +13,13 @@ import {
 } from '../../utils/ens-utils';
 import { EnsDetails } from '../EnsDetails/EnsDetails';
 import { openConfigurationModal } from '../ConfigureProfile/bl';
-import { globalConfig } from 'dm3-lib-shared';
-import { hasUserProfile } from 'dm3-lib-profile';
+import { AuthContext } from '../../context/AuthContext';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 
 export function Profile() {
-    const { state, dispatch } = useContext(GlobalContext);
+    const { dispatch } = useContext(GlobalContext);
+    const { account, ethAddress } = useContext(AuthContext);
+    const mainnetProvider = useMainnetProvider();
 
     const [profilePic, setProfilePic] = useState<string>('');
     const [github, setGithub] = useState<string>('Not set');
@@ -28,10 +29,8 @@ export function Profile() {
     // fetches and updates ENS profile details
     const fetchUserEnsProfileDetails = async () => {
         const ensDetails: EnsProfileDetails = await getEnsProfileDetails(
-            state,
-            state.cache.accountName
-                ? state.cache.accountName
-                : (state.connection.account?.ensName as string),
+            mainnetProvider!,
+            account?.ensName as string,
         );
         ensDetails.github && setGithub(ensDetails.github);
         ensDetails.twitter && setTwitter(ensDetails.twitter);
@@ -42,55 +41,10 @@ export function Profile() {
     const fetchAndSetProfilePic = async () => {
         setProfilePic(
             await getAvatarProfilePic(
-                state,
-                state.connection.account?.ensName as string,
+                mainnetProvider,
+                account?.ensName as string,
             ),
         );
-    };
-
-    // method to open ENS name
-    const openEnsNameProfile = async () => {
-        try {
-            if (state.connection.provider && state.connection.ethAddress) {
-                const isAddrEnsName =
-                    state.connection.account?.ensName?.endsWith(
-                        globalConfig.ADDR_ENS_SUBDOMAIN(),
-                    );
-                const name = await state.connection.provider.lookupAddress(
-                    state.connection.ethAddress,
-                );
-
-                if (name && !isAddrEnsName) {
-                    const hasProfile = await hasUserProfile(
-                        state.connection.provider,
-                        name,
-                    );
-
-                    const dm3ProfileRecordExists = await checkEnsDM3Text(
-                        state,
-                        name,
-                    );
-
-                    if (hasProfile && dm3ProfileRecordExists)
-                        openEnsProfile(name as string);
-                    else openEnsProfile(state.connection.ethAddress);
-                } else {
-                    openEnsProfile(state.connection.ethAddress);
-                }
-            } else {
-                openEnsProfile(
-                    state.connection.ethAddress
-                        ? state.connection.ethAddress
-                        : (state.connection.account?.ensName as string),
-                );
-            }
-        } catch (error) {
-            openEnsProfile(
-                state.connection.ethAddress
-                    ? state.connection.ethAddress
-                    : (state.connection.account?.ensName as string),
-            );
-        }
     };
 
     useEffect(() => {
@@ -123,13 +77,11 @@ export function Profile() {
                 <div className="profile-detail-items mt-3">
                     <EnsDetails
                         propertyKey={'Name'}
-                        propertyValue={
-                            state.connection.account?.ensName as string
-                        }
+                        propertyValue={account?.ensName as string}
                     />
                     <EnsDetails
                         propertyKey={'Address'}
-                        propertyValue={state.connection.ethAddress as string}
+                        propertyValue={ethAddress as string}
                     />
                     <EnsDetails propertyKey={'E-Mail'} propertyValue={email} />
                     <EnsDetails propertyKey={'Github'} propertyValue={github} />
@@ -141,7 +93,9 @@ export function Profile() {
                     <div className="ens-btn-container">
                         <Button
                             buttonText="Open ENS profile"
-                            actionMethod={() => openEnsNameProfile()}
+                            actionMethod={() =>
+                                openEnsProfile(account?.ensName as string)
+                            }
                         />
                     </div>
 

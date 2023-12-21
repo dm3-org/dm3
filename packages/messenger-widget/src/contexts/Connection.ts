@@ -11,21 +11,6 @@ export function connectionReducer(
     action: ConnectionActions,
 ): Connection {
     switch (action.type) {
-        case ConnectionType.ChangeConnectionState:
-            if (state.connectionState === action.payload) {
-                return state;
-            } else {
-                log(
-                    `[Connection] New connection state ${
-                        ConnectionState[action.payload]
-                    }`,
-                    'info',
-                );
-                return {
-                    ...state,
-                    connectionState: action.payload,
-                };
-            }
         case ConnectionType.ChangeSocket:
             log(`[Connection] New socket`, 'info');
             return {
@@ -34,34 +19,6 @@ export function connectionReducer(
                 socket: action.payload,
             };
 
-        case ConnectionType.ChangeAccount:
-            log(`[Connection] Set account ${action.payload.ensName}`, 'info');
-            return {
-                ...state,
-                account: action.payload,
-            };
-
-        case ConnectionType.ChangeEthAddress:
-            log(`[Connection] Set eth address to ${action.payload}`, 'info');
-            return {
-                ...state,
-                ethAddress: action.payload,
-            };
-
-        case ConnectionType.ChangeStorageLocation:
-            if (state.storageLocation === action.payload) {
-                return state;
-            } else {
-                log(
-                    `[Connection] Set storage location to ${action.payload}`,
-                    'info',
-                );
-
-                return {
-                    ...state,
-                    storageLocation: action.payload,
-                };
-            }
         case ConnectionType.ChangeProvider:
             log(`[Connection] Set provider`, 'info');
             return {
@@ -69,17 +26,6 @@ export function connectionReducer(
                 //@ts-ignore
                 provider: action.payload,
             };
-
-        case ConnectionType.ChangeStorageToken:
-            if (state.storageToken === action.payload) {
-                return state;
-            } else {
-                log(`[Connection] Set storage token`, 'info');
-                return {
-                    ...state,
-                    storageToken: action.payload,
-                };
-            }
 
         case ConnectionType.SetDefaultServiceUrl:
             log(

@@ -21,6 +21,9 @@ import {
     getHaltDelivery,
     sendMessage,
 } from '../../utils/common-utils';
+import { AuthContext } from '../../context/AuthContext';
+import { useContext } from 'react';
+import { Account } from 'dm3-lib-profile';
 
 export const scrollToMessage = (replyFromMessageId: string) => {
     const element = document.getElementById(replyFromMessageId) as HTMLElement;
@@ -39,6 +42,8 @@ export const getMessageChangeText = (props: MessageProps): string => {
 };
 
 export const deleteEmoji = async (
+    account: Account,
+    deliveryServiceToken: string,
     deleteEmojiData: Envelop,
     props: MessageProps,
     state: GlobalState,
@@ -67,7 +72,7 @@ export const deleteEmoji = async (
     // delete the message
     const messageData = await createDeleteRequestMessage(
         state.accounts.selectedContact?.account.ensName as string,
-        state.connection.account!.ensName,
+        account!.ensName,
         userDb.keys.signingKeyPair.privateKey as string,
         messageHash as string,
     );
@@ -76,9 +81,11 @@ export const deleteEmoji = async (
     messageData.message = undefined;
 
     const haltDelivery = getHaltDelivery(state);
-    const sendDependencies: SendDependencies = getDependencies(state);
+    const sendDependencies: SendDependencies = getDependencies(state, account!);
 
     await sendMessage(
+        account,
+        deliveryServiceToken!,
         state,
         sendDependencies,
         messageData,

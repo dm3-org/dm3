@@ -21,9 +21,11 @@ import {
 } from '../../utils/common-utils';
 import { SendDependencies, createReactionMessage } from 'dm3-lib-messaging';
 import { hideMsgActionDropdown } from '../MessageInputBox/bl';
+import { AuthContext } from '../../context/AuthContext';
 
 export function MessageAction(props: MessageProps) {
     const { state, dispatch } = useContext(GlobalContext);
+    const { account, deliveryServiceToken } = useContext(AuthContext);
 
     // Popular emojis for reaction
     const reactionEmojis = ['🙂', '👍', '👎', '❤️'];
@@ -87,16 +89,21 @@ export function MessageAction(props: MessageProps) {
         // react to the message
         const messageData = await createReactionMessage(
             state.accounts.selectedContact?.account.ensName as string,
-            state.connection.account!.ensName,
+            account!.ensName,
             message,
             userDb.keys.signingKeyPair.privateKey as string,
             referenceMessageHash as string,
         );
 
         const haltDelivery = getHaltDelivery(state);
-        const sendDependencies: SendDependencies = getDependencies(state);
+        const sendDependencies: SendDependencies = getDependencies(
+            state,
+            account!,
+        );
 
         await sendMessage(
+            account!,
+            deliveryServiceToken!,
             state,
             sendDependencies,
             messageData,

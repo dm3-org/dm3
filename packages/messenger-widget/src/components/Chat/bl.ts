@@ -1,6 +1,7 @@
 import { checkSignature as _checkSignature } from 'dm3-lib-crypto';
 import { Message, MessageState } from 'dm3-lib-messaging';
 import {
+    Account,
     getUserProfile,
     isSameEnsName,
     normalizeEnsName,
@@ -20,6 +21,7 @@ import {
 } from 'dm3-lib-storage';
 import { MessageProps } from '../../interfaces/props';
 import { fetchAndStoreMessages } from '../../adapters/messages';
+import { ethers } from 'ethers';
 
 // method to check message signature
 export async function checkSignature(
@@ -47,15 +49,12 @@ export async function checkSignature(
 
 // method to check user profile is configured or not
 export const checkUserProfileConfigured = async (
-    state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     ensName: string,
     setProfileCheck: Function,
 ) => {
     try {
-        const profileDetails = await getUserProfile(
-            state.connection.provider!,
-            ensName,
-        );
+        const profileDetails = await getUserProfile(mainnetProvider, ensName);
         if (!profileDetails || !profileDetails.profile.publicEncryptionKey) {
             setProfileCheck(false);
         } else {
@@ -85,6 +84,7 @@ export const scrollToBottomOfChat = () => {
 // method to set message format
 const handleMessageContainer = (
     state: GlobalState,
+    account: Account,
     messageContainers: StorageEnvelopContainer[],
     alias: string | undefined,
     setListOfMessages: Function,
@@ -161,6 +161,7 @@ const handleMessageContainer = (
                 editedMessage.envelop.message.metadata.referenceMessageHash
             ) {
                 setEditedMessage(
+                    account,
                     messagesMap,
                     editedMessage,
                     msgList,
@@ -179,7 +180,7 @@ const handleMessageContainer = (
                     deletedMessage,
                     msgList,
                     replyToEnvelop,
-                    state,
+                    account,
                     alias,
                     hideFunction,
                 );
@@ -213,7 +214,7 @@ const handleMessageContainer = (
                 if (
                     isSameEnsName(
                         container.envelop.message.metadata.from,
-                        state.connection.account!.ensName,
+                        account.ensName,
                         alias,
                     )
                 ) {
@@ -255,7 +256,7 @@ const setDeletedMessage = (
     deletedMessage: StorageEnvelopContainer,
     msgList: MessageProps[],
     replyToEnvelop: StorageEnvelopContainer | undefined,
-    state: GlobalState,
+    account: Account,
     alias: string | undefined,
     hideFunction?: string,
 ) => {
@@ -286,7 +287,7 @@ const setDeletedMessage = (
             if (
                 isSameEnsName(
                     deletedMessage.envelop.message.metadata.from,
-                    state.connection.account!.ensName,
+                    account.ensName,
                     alias,
                 )
             ) {
@@ -304,6 +305,7 @@ const setDeletedMessage = (
 };
 
 const setEditedMessage = (
+    dm3UserAccount: Account,
     messagesMap: Map<string, { msgDetails: MessageProps; index: number }>,
     editedMessage: StorageEnvelopContainer,
     msgList: MessageProps[],
@@ -339,7 +341,7 @@ const setEditedMessage = (
             if (
                 isSameEnsName(
                     editedMessage.envelop.message.metadata.from,
-                    state.connection.account!.ensName,
+                    dm3UserAccount.ensName,
                     alias,
                 )
             ) {
@@ -400,6 +402,9 @@ const fetchAllReactionMessages = (
 // method to set the message list
 export const handleMessages = async (
     state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
+    dm3UserAccount: Account,
+    dsToken: string,
     dispatch: React.Dispatch<Actions>,
     containers: StorageEnvelopContainer[],
     alias: string | undefined,
@@ -411,8 +416,9 @@ export const handleMessages = async (
 ) => {
     if (!isMessageListInitialized && state.accounts.selectedContact) {
         const fetchedMessages = await fetchAndStoreMessages(
-            state.connection,
-            state.auth.currentSession?.token!,
+            mainnetProvider,
+            dm3UserAccount,
+            dsToken,
             state.accounts.selectedContact.account.ensName,
             state.userDb as UserDB,
             (envelops) => {
@@ -421,7 +427,7 @@ export const handleMessages = async (
                         type: UserDbType.addMessage,
                         payload: {
                             container: envelop,
-                            connection: state.connection,
+                            account: dm3UserAccount,
                         },
                     }),
                 );
@@ -431,7 +437,12 @@ export const handleMessages = async (
                 : [],
         );
 
-        const addressMessages = await getOldMessages(state, alias);
+        const addressMessages = await getOldMessages(
+            mainnetProvider,
+            state,
+            dm3UserAccount,
+            alias,
+        );
         const items = [...addressMessages, ...fetchedMessages];
 
         const checkedContainers = items.filter((container) => {
@@ -445,7 +456,7 @@ export const handleMessages = async (
                 alias,
             )
                 ? state.accounts.selectedContact.account
-                : state.connection.account!;
+                : dm3UserAccount;
 
             return account.profile?.publicSigningKey
                 ? checkSignature(
@@ -472,6 +483,7 @@ export const handleMessages = async (
 
         handleMessageContainer(
             state,
+            dm3UserAccount,
             oldMessages,
             alias,
             setListOfMessages,
@@ -491,7 +503,7 @@ export const handleMessages = async (
                     type: UserDbType.addMessage,
                     payload: {
                         container: message,
-                        connection: state.connection,
+                        account: dm3UserAccount,
                     },
                 }),
             );
@@ -515,7 +527,7 @@ export const handleMessages = async (
                 alias,
             )
                 ? state.accounts.selectedContact.account
-                : state.connection.account!;
+                : dm3UserAccount;
 
             return account.profile?.publicSigningKey
                 ? checkSignature(
@@ -542,6 +554,7 @@ export const handleMessages = async (
 
         handleMessageContainer(
             state,
+            dm3UserAccount,
             oldMessages,
             alias,
             setListOfMessages,
@@ -561,7 +574,7 @@ export const handleMessages = async (
                     type: UserDbType.addMessage,
                     payload: {
                         container: message,
-                        connection: state.connection,
+                        account: dm3UserAccount,
                     },
                 }),
             );
@@ -577,11 +590,12 @@ export const handleMessages = async (
 };
 
 const getOldMessages = async (
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     state: GlobalState,
+    dm3UserAccount: Account,
     alias: string | undefined,
 ) => {
     let address: string | null | undefined = null;
-    const provider = state.connection.provider;
 
     try {
         if (
@@ -598,7 +612,7 @@ const getOldMessages = async (
             if (!isAddrEnsName) {
                 // fetch the address of contact
 
-                address = await provider?.resolveName(
+                address = await mainnetProvider?.resolveName(
                     state.accounts.selectedContact.account.ensName,
                 );
 
@@ -626,7 +640,7 @@ const getOldMessages = async (
                             alias,
                         )
                             ? state.accounts.selectedContact.account
-                            : state.connection.account!;
+                            : dm3UserAccount;
 
                         return account.profile?.publicSigningKey
                             ? checkSignature(

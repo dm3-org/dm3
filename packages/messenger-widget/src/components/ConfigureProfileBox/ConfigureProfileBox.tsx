@@ -3,26 +3,24 @@ import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import { globalConfig } from 'dm3-lib-shared';
 import { openConfigurationModal } from '../ConfigureProfile/bl';
+import { AuthContext } from '../../context/AuthContext';
 
 export default function ConfigureProfileBox() {
     const { state, dispatch } = useContext(GlobalContext);
 
     const [showConfigBox, setShowConfigBox] = useState<boolean>(false);
 
+    const { account } = useContext(AuthContext);
+
+    // fetches sub domain of ENS
+    const isAddrEnsName = account?.ensName?.endsWith(
+        globalConfig.ADDR_ENS_SUBDOMAIN(),
+    );
+
     // handles profile configuration changes
     useEffect(() => {
-        setShowConfigBox(
-            !state.connection.account?.ensName ||
-                state.connection.account?.ensName?.endsWith(
-                    globalConfig.ADDR_ENS_SUBDOMAIN(),
-                ) ||
-                state.cache.accountName.endsWith(
-                    globalConfig.ADDR_ENS_SUBDOMAIN(),
-                )
-                ? true
-                : false,
-        );
-    }, [state.connection.account?.ensName, state.cache.accountName]);
+        setShowConfigBox(!account?.ensName || isAddrEnsName ? true : false);
+    }, [account?.ensName]);
 
     return showConfigBox ? (
         <div

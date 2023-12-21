@@ -15,9 +15,11 @@ import {
     getMessageChangeText,
     scrollToMessage,
 } from './bl';
+import { AuthContext } from '../../context/AuthContext';
 
 export function Message(props: MessageProps) {
     const { state, dispatch } = useContext(GlobalContext);
+    const { deliveryServiceToken, account } = useContext(AuthContext);
 
     // state to show action items three dots
     const [isHovered, setIsHovered] = useState(false);
@@ -223,6 +225,8 @@ export function Message(props: MessageProps) {
                                         className="pointer-cursor"
                                         onClick={() => {
                                             deleteEmoji(
+                                                account!,
+                                                deliveryServiceToken!,
                                                 item,
                                                 props,
                                                 state,

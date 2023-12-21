@@ -6,6 +6,7 @@ import { FormEvent, useContext, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import { showContactList } from '../../utils/common-utils';
 import { ethers } from 'ethers';
+import { AuthContext } from '../../context/AuthContext';
 
 export default function AddConversation() {
     const { state, dispatch } = useContext(GlobalContext);
@@ -15,14 +16,17 @@ export default function AddConversation() {
     const [errorMsg, setErrorMsg] = useState<string>('');
     const [inputClass, setInputClass] = useState<string>(INPUT_FIELD_CLASS);
 
+    const { ethAddress } = useContext(AuthContext);
+
     // handles new contact submission
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
         setName(name.trim());
         if (name.length) {
             addContact(
-                name,
                 state,
+                name,
+                ethAddress!,
                 dispatch,
                 resetName,
                 showErrorMessage,
