@@ -16,6 +16,7 @@ import { Account, SignedUserProfile } from 'dm3-lib-profile';
 
 import { Address, namehash, toHex } from 'viem';
 
+//Space id uses the namehash of the name + the GNO identifier to calculate the node
 const GNO_IDENTIFIER = BigInt(
     '274997945614032132263423446017095573970170942858695765128406315342190546',
 );

@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
-import React, { useContext } from 'react';
-import { useAuth } from '../hooks/auth/useAuth';
+import { Account } from 'dm3-lib-profile';
 import { StorageLocation, UserDB } from 'dm3-lib-storage';
+import React from 'react';
+import { useAuth } from '../hooks/auth/useAuth';
 import { ConnectionType, UserDbType } from '../utils/enum-type-utils';
-import { Account, UserProfile } from 'dm3-lib-profile';
 
 export type AuthContextType = {
     cleanSignIn: () => Promise<void>;
@@ -33,16 +33,12 @@ export const AuthContextProvider = ({
     dispatch: Function;
 }) => {
     const onStorageCreated = (db: UserDB) => {
-        console.log('onStorageCreated ', db);
         dispatch({
             type: ConnectionType.ChangeStorageLocation,
             payload: StorageLocation.dm3Storage,
         });
         dispatch({ type: UserDbType.setDB, payload: db! });
     };
-
-    // eslint-disable-next-line no-console
-    console.log('AuthContextProvider');
 
     const {
         cleanSignIn,

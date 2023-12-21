@@ -66,7 +66,7 @@ function DM3(props: Dm3Props) {
                 mainnetProvider!,
                 async (url: string) => (await axios.get(url)).data,
             );
-            console.log('set new deliveryService url');
+
             setdeliveryServiceUrl(deliveryServiceProfile!.url);
         };
         getDeliveryServiceUrl();
@@ -74,7 +74,6 @@ function DM3(props: Dm3Props) {
 
     // handles socket connection &  contacts with message fetching
     useEffect(() => {
-        console.log('start soccect connect efffect');
         if (isLoggedIn && !state.connection.socket && deliveryServiceUrl) {
             if (!state.userDb) {
                 throw Error(
@@ -82,7 +81,6 @@ function DM3(props: Dm3Props) {
                 );
             }
 
-            console.log('start soccect connect');
             if (!account?.profile) {
                 throw Error('Could not get account profile');
             }

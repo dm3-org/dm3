@@ -32,9 +32,7 @@ export const AccountConnector = (
 
             return { ensName, userProfile };
         } catch (e) {
-            console.log('error ', e);
-            //TODO handle error
-            log(`Profile not found ` + JSON.stringify(e), 'error');
+            log(`Profile not found ` + e, 'error');
             return undefined;
         }
     }

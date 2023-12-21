@@ -53,6 +53,7 @@ export const DeliveryServiceConnector = (
             address,
         );
 
+        //For what ever reason the wallet client is not typed
         //@ts-ignore
         const signature = await walletClient.signMessage({
             message: storageKeyCreationMessage,
