@@ -1,7 +1,9 @@
 import {
+    buildEnvelop,
     createEditMessage,
     createMessage,
     createReplyMessage,
+    getEnvelopSize,
     SendDependencies,
 } from 'dm3-lib-messaging';
 import { Account } from 'dm3-lib-profile';
@@ -23,6 +25,7 @@ import {
     UiViewStateType,
 } from '../../utils/enum-type-utils';
 import { scrollToBottomOfChat } from '../Chat/bl';
+import { encryptAsymmetric } from 'dm3-lib-crypto';
 
 export const hideMsgActionDropdown = () => {
     const element = document.getElementById('msg-dropdown') as HTMLElement;
@@ -75,6 +78,8 @@ const handleNewUserMessage = async (
     account: Account,
     dispatch: React.Dispatch<Actions>,
     attachments: string[],
+    setMessageText: Function,
+    setFiles: Function,
 ) => {
     const userDb = state.userDb;
 
@@ -97,6 +102,41 @@ const handleNewUserMessage = async (
     const haltDelivery = getHaltDelivery(state);
     const sendDependencies: SendDependencies = getDependencies(state, account);
 
+    const { encryptedEnvelop } = await buildEnvelop(
+        messageData,
+        encryptAsymmetric,
+        sendDependencies,
+    );
+
+    const envelopSize = getEnvelopSize(encryptedEnvelop);
+    const sizeLimit = state.cache.messageSizeLimit;
+
+    if (envelopSize > sizeLimit) {
+        dispatch({
+            type: UiViewStateType.SetMessageView,
+            payload: {
+                actionType: MessageActionType.NONE,
+                messageData: undefined,
+            },
+        });
+
+        openErrorModal(
+            'The size of the message is larger than limit '
+                .concat(sizeLimit.toString(), ' bytes. ')
+                .concat('Please reduce the message size.'),
+            false,
+            closeErrorModal,
+        );
+
+        return;
+    }
+
+    // clear the message text & files selected from input field
+    setMessageText('');
+    setFiles([]);
+
+    scrollToBottomOfChat();
+
     await sendMessage(
         account,
         deliveryServiceToken!,
@@ -115,6 +155,8 @@ const editMessage = async (
     dispatch: React.Dispatch<Actions>,
     message: string,
     attachments: string[],
+    setMessageText: Function,
+    setFiles: Function,
 ) => {
     const userDb = state.userDb;
 
@@ -130,14 +172,6 @@ const editMessage = async (
         state.uiView.selectedMessageView.messageData?.envelop.metadata
             ?.encryptedMessageHash;
 
-    dispatch({
-        type: UiViewStateType.SetMessageView,
-        payload: {
-            actionType: MessageActionType.NONE,
-            messageData: undefined,
-        },
-    });
-
     // edit the original message
     const messageData = await createEditMessage(
         state.accounts.selectedContact?.account.ensName as string,
@@ -150,6 +184,40 @@ const editMessage = async (
 
     const haltDelivery = getHaltDelivery(state);
     const sendDependencies: SendDependencies = getDependencies(state, account);
+
+    const { encryptedEnvelop } = await buildEnvelop(
+        messageData,
+        encryptAsymmetric,
+        sendDependencies,
+    );
+
+    const envelopSize = getEnvelopSize(encryptedEnvelop);
+    const sizeLimit = state.cache.messageSizeLimit;
+
+    if (envelopSize > sizeLimit) {
+        openErrorModal(
+            'The size of the message is larger than limit '
+                .concat(sizeLimit.toString(), ' bytes. ')
+                .concat('Please reduce the message size.'),
+            false,
+            closeErrorModal,
+        );
+
+        return;
+    }
+
+    // clear the message text & files selected from input field
+    setMessageText('');
+    setFiles([]);
+    scrollToBottomOfChat();
+
+    dispatch({
+        type: UiViewStateType.SetMessageView,
+        payload: {
+            actionType: MessageActionType.NONE,
+            messageData: undefined,
+        },
+    });
 
     await sendMessage(
         account,
@@ -169,6 +237,8 @@ const replyMessage = async (
     dispatch: React.Dispatch<Actions>,
     message: string,
     attachments: string[],
+    setMessageText: Function,
+    setFiles: Function,
 ) => {
     const userDb = state.userDb;
 
@@ -184,14 +254,6 @@ const replyMessage = async (
         state.uiView.selectedMessageView.messageData?.envelop.metadata
             ?.encryptedMessageHash;
 
-    dispatch({
-        type: UiViewStateType.SetMessageView,
-        payload: {
-            actionType: MessageActionType.NONE,
-            messageData: undefined,
-        },
-    });
-
     // reply to the original message
     const messageData = await createReplyMessage(
         state.accounts.selectedContact?.account.ensName as string,
@@ -204,6 +266,40 @@ const replyMessage = async (
 
     const haltDelivery = getHaltDelivery(state);
     const sendDependencies: SendDependencies = getDependencies(state, account);
+
+    const { encryptedEnvelop } = await buildEnvelop(
+        messageData,
+        encryptAsymmetric,
+        sendDependencies,
+    );
+
+    const envelopSize = getEnvelopSize(encryptedEnvelop);
+    const sizeLimit = state.cache.messageSizeLimit;
+
+    if (envelopSize > sizeLimit) {
+        openErrorModal(
+            'The size of the message is larger than limit '
+                .concat(sizeLimit.toString(), ' bytes. ')
+                .concat('Please reduce the message size.'),
+            false,
+            closeErrorModal,
+        );
+
+        return;
+    }
+
+    // clear the message text & files selected from input field
+    setMessageText('');
+    setFiles([]);
+    scrollToBottomOfChat();
+
+    dispatch({
+        type: UiViewStateType.SetMessageView,
+        payload: {
+            actionType: MessageActionType.NONE,
+            messageData: undefined,
+        },
+    });
 
     await sendMessage(
         account,
@@ -247,35 +343,6 @@ export const handleSubmit = async (
         return;
     }
 
-    const sizeLimit = state.cache.messageSizeLimit;
-    const sizeCheck = isMessageWithinSizeLimit(message, attachments, sizeLimit);
-
-    if (!sizeCheck) {
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                actionType: MessageActionType.NONE,
-                messageData: undefined,
-            },
-        });
-
-        openErrorModal(
-            'The size of the message is larger than limit '
-                .concat(sizeLimit.toString(), ' bytes. ')
-                .concat('Please reduce the message size.'),
-            false,
-            closeErrorModal,
-        );
-
-        return;
-    }
-
-    // clear the message text & files selected from input field
-    setMessageText('');
-    setFiles([]);
-
-    scrollToBottomOfChat();
-
     if (
         state.uiView.selectedMessageView.actionType === MessageActionType.EDIT
     ) {
@@ -286,6 +353,8 @@ export const handleSubmit = async (
             dispatch,
             message,
             attachments,
+            setMessageText,
+            setFiles,
         );
         dispatch({
             type: ModalStateType.LastMessageAction,
@@ -301,6 +370,8 @@ export const handleSubmit = async (
             dispatch,
             message,
             attachments,
+            setMessageText,
+            setFiles,
         );
         scrollToBottomOfChat();
         dispatch({
@@ -315,6 +386,8 @@ export const handleSubmit = async (
             account,
             dispatch,
             attachments,
+            setMessageText,
+            setFiles,
         );
         scrollToBottomOfChat();
         dispatch({
@@ -322,19 +395,4 @@ export const handleSubmit = async (
             payload: MessageActionType.NEW,
         });
     }
-};
-
-const isMessageWithinSizeLimit = (
-    message: string | undefined,
-    attachments: string[],
-    maximumSize: number,
-): boolean => {
-    let size = 0;
-    if (message) {
-        size = new Blob([message]).size;
-    }
-    attachments.forEach((file) => {
-        size += new Blob([file]).size;
-    });
-    return size > maximumSize ? false : true;
 };

@@ -81,7 +81,7 @@ export function SignIn(props: SignInProps) {
 
                         {!isConnected ? (
                             <LoginButton
-                                text="Connect with Wallett"
+                                text="Connect with Wallet"
                                 onClick={handleConnectWithWallet}
                                 buttonState={ButtonState.Ideal}
                             />

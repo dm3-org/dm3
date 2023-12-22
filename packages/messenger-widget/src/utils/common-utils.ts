@@ -212,7 +212,7 @@ export const INVALID_NETWORK_POPUP_MESSAGE =
     'Invalid network selected. Please click OK and sign in again to continue using DM3 chat with Ethereum main network!';
 
 export const ACCOUNT_CHANGE_POPUP_MESSAGE =
-    'Please sign in with the new account selected to use DM3 app!';
+    'Your wallet address has changed. Please re-sign in with a signature of your wallet.';
 
 export const ENS_PROFILE_BASE_URL = 'https://app.ens.domains/';
 

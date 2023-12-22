@@ -70,11 +70,11 @@
 }
 
 .reply-preview-own{
-    background-color: var(--received-message-background-color);
+    background-color: var(--scrollbar-background-color);
 }
 
 .reply-preview-contact{
-    background-color: var(--sent-message-background-color);
+    background-color: var(--scrollbar-background-color);
 }
 
 .contact-reacted-msg {
