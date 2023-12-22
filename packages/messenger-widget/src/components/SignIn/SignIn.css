@@ -40,7 +40,9 @@
 }
 
 .sign-in-logo {
+    height: 4rem !important;
     width: fit-content !important;
+    fill: var(--text-primary-color) !important;
 }
 
 .content-data {
