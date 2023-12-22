@@ -1,6 +1,6 @@
 import { ButtonState } from '../../utils/enum-type-utils';
 import { getIcon } from './bl';
-import "./SignIn.css";
+import './SignIn.css';
 
 export const LoginButton = ({
     text,
@@ -23,8 +23,14 @@ export const LoginButton = ({
                 onClick={onClick}
             >
                 {text}
-                <span className={"right-float loading-btn".concat(" ", getIcon(buttonState)
-                    ? "spinner-visible" : "spinner-invisible")}>
+                <span
+                    className={'right-float loading-btn'.concat(
+                        ' ',
+                        getIcon(buttonState)
+                            ? 'spinner-visible'
+                            : 'spinner-invisible',
+                    )}
+                >
                     {getIcon(ButtonState.Loading)}
                 </span>
             </button>

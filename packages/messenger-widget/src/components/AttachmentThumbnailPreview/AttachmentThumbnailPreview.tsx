@@ -22,9 +22,12 @@ export function AttachmentThumbnailPreview(props: AttachmentPreviewProps) {
     return (
         <div
             data-testid="thumbnail-container"
-            className={'d-flex pt-1 mb-2 align-items-center'.concat(" ", props.filesSelected.length == 1 &&
-                props.filesSelected[0].isImage ? "justify-content-start" :
-                props.isMyMessage
+            className={'d-flex pt-1 mb-2 align-items-center'.concat(
+                ' ',
+                props.filesSelected.length == 1 &&
+                    props.filesSelected[0].isImage
+                    ? 'justify-content-start'
+                    : props.isMyMessage
                     ? 'justify-content-end'
                     : 'justify-content-start',
             )}
@@ -35,7 +38,8 @@ export function AttachmentThumbnailPreview(props: AttachmentPreviewProps) {
             )}
 
             {props.filesSelected.length == 1 &&
-                props.filesSelected[0].isImage && !props.isReplyMsgAttachments ? (
+            props.filesSelected[0].isImage &&
+            !props.isReplyMsgAttachments ? (
                 // if only one attachment is present and it's a image
                 <img
                     data-testid="single-image"

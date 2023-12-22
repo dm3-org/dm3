@@ -193,7 +193,7 @@ export function ConfigureProfile() {
                                             closeConfigurationModal(
                                                 setDm3Name,
                                                 setEnsName,
-                                                () => { },
+                                                () => {},
                                                 (type: NAME_TYPE) =>
                                                     onShowError(type, ''),
                                                 dispatch,
@@ -226,7 +226,7 @@ export function ConfigureProfile() {
                                                 >
                                                     {ethAddress &&
                                                         ethAddress +
-                                                        globalConfig.ADDR_ENS_SUBDOMAIN()}
+                                                            globalConfig.ADDR_ENS_SUBDOMAIN()}
                                                 </p>
                                             </div>
                                             <div className="address-details">
@@ -393,7 +393,7 @@ export function ConfigureProfile() {
                                     </div>
 
                                     {chain?.id === 10200 ||
-                                        chain?.id === 100 ? (
+                                    chain?.id === 100 ? (
                                         <ConfigureGenomeProfile />
                                     ) : (
                                         <ConfigureEnsProfile />
