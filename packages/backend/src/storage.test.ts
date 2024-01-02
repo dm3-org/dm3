@@ -51,6 +51,10 @@ describe('Storage', () => {
                     return {};
                 },
                 getIdEnsName: async (ensName: string) => ensName,
+                encryption: {
+                    encrypt: async (data: string) => data,
+                    decrypt: async (data: string) => data,
+                },
             };
 
             app.locals.web3Provider = {
@@ -58,7 +62,7 @@ describe('Storage', () => {
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
             const { status } = await request(app)
-                .get(`/bob.eth`)
+                .get(`/bob.eth/123`)
                 .set({
                     authorization: `Bearer ${token}`,
                 })
@@ -88,6 +92,10 @@ describe('Storage', () => {
                 },
                 setUserStorage: (_: string, __: string) => {},
                 getIdEnsName: async (ensName: string) => ensName,
+                encryption: {
+                    encrypt: async (data: string) => data,
+                    decrypt: async (data: string) => data,
+                },
             };
             app.locals.web3Provider = {
                 resolveName: async () =>
@@ -95,7 +103,7 @@ describe('Storage', () => {
             };
 
             const { status } = await request(app)
-                .post(`/bob.eth`)
+                .post(`/bob.eth/123`)
                 .set({
                     authorization: `Bearer ${token}`,
                 })

@@ -67,8 +67,8 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
         setAliasSession: Session.setAliasSession(redis),
         getSession: Session.getSession(redis),
         //Storage
-        getUserStorage: Storage.getUserStorage(redis),
-        setUserStorage: Storage.setUserStorage(redis),
+        getUserStorageChunk: Storage.getUserStorageChunk(redis),
+        setUserStorageChunk: Storage.setUserStorageChunk(redis),
         //Pending
         addPending: Pending.addPending(redis),
         getPending: Pending.getPending(redis),
@@ -110,8 +110,15 @@ export interface IDatabase {
         | null
     >;
 
-    getUserStorage: (ensName: string) => Promise<UserStorage | null>;
-    setUserStorage: (ensName: string, data: string) => Promise<void>;
+    getUserStorageChunk: (
+        ensName: string,
+        key: string,
+    ) => Promise<UserStorage | null>;
+    setUserStorageChunk: (
+        ensName: string,
+        key: string,
+        data: string,
+    ) => Promise<void>;
     setAliasSession: (ensName: string, aliasEnsName: string) => Promise<void>;
     addPending: (ensName: string, contactEnsName: string) => Promise<void>;
     getPending: (ensName: string) => Promise<string[]>;

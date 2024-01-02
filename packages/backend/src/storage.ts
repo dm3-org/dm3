@@ -1,7 +1,6 @@
 import cors from 'cors';
 import express from 'express';
 import stringify from 'safe-stable-stringify';
-import { WithLocals } from './types';
 import { auth } from './utils';
 import { normalizeEnsName } from 'dm3-lib-profile';
 
@@ -12,22 +11,26 @@ export default () => {
     router.use(cors());
     router.param('ensName', auth);
 
-    router.get('/:ensName', async (req, res, next) => {
+    router.get('/:ensName/:key', async (req, res, next) => {
         try {
             const account = normalizeEnsName(req.params.ensName);
-            const userStorage = await req.app.locals.db.getUserStorage(account);
+            const userStorage = await req.app.locals.db.getUserStorageChunk(
+                account,
+                req.params.key,
+            );
             return res.json(userStorage);
         } catch (e) {
             next(e);
         }
     });
 
-    router.post('/:ensName', async (req, res, next) => {
+    router.post('/:ensName/:key', async (req, res, next) => {
         try {
             const account = normalizeEnsName(req.params.ensName);
 
-            await req.app.locals.db.setUserStorage(
+            await req.app.locals.db.setUserStorageChunk(
                 account,
+                req.params.key,
                 stringify(req.body)!,
             );
 

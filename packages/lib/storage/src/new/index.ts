@@ -15,7 +15,7 @@ import {
     StorageAPI,
 } from './types';
 import { addConversation, addMessage } from './write';
-import { MAX_MESSAGES_PER_CHUNK } from './constants';
+import { createRemoteKeyValueStoreApi } from './RemoteInterface';
 
 /**
  * This function creates a closure that, when invoked, adds a new conversation
@@ -96,11 +96,17 @@ export function createStorage(
     sign: (data: string) => Promise<string>,
     options?: Partial<{
         readStrategy: ReadStrategy;
-        keyValueStoreRemote?: KeyValueStore;
-        encryption?: Encryption;
+        keyValueStoreRemote: KeyValueStore;
+        encryption: Encryption;
+        remoteStorageUrl: string;
     }>,
 ): StorageAPI {
-    const keyValueStoreLocal = createKeyValueStore();
+    // If no Encryption object is provided, store the data as palintext
+    const encryption = options?.encryption ?? {
+        encrypt: (input: string) => Promise.resolve(input),
+        decrypt: (input: string) => Promise.resolve(input),
+    };
+    const keyValueStoreLocal = createKeyValueStore(encryption);
     const db: Db = {
         readStrategy: ReadStrategy.LocalFirst,
         accountEnsName,
@@ -112,6 +118,13 @@ export function createStorage(
                   await keyValueStoreLocal.write(key, value);
               }
             : async <T extends Chunk>(key: string, value: T) => {},
+        keyValueStoreRemote: options?.remoteStorageUrl
+            ? createRemoteKeyValueStoreApi(
+                  `${options.remoteStorageUrl}/${accountEnsName}`,
+                  encryption,
+              )
+            : undefined,
+        encryption,
         ...options,
     };
 
