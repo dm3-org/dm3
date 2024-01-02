@@ -6,7 +6,7 @@ import deleteIcon from '../../assets/images/chat-delete.svg';
 import threeDotsIcon from '../../assets/images/three-dots.svg';
 import saveIcon from '../../assets/images/save.svg';
 import { GlobalContext } from '../../utils/context-utils';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
     MessageActionType,
     ModalStateType,
@@ -26,6 +26,7 @@ import { AuthContext } from '../../context/AuthContext';
 export function MessageAction(props: MessageProps) {
     const { state, dispatch } = useContext(GlobalContext);
     const { account, deliveryServiceToken } = useContext(AuthContext);
+    const [alignmentTop, setAlignmentTop] = useState(false);
 
     // Popular emojis for reaction
     const reactionEmojis = ['🙂', '👍', '👎', '❤️'];
@@ -133,13 +134,35 @@ export function MessageAction(props: MessageProps) {
         }
     };
 
+    const setDropdownPosition = () => {
+        const inputElement = document.getElementById('msg-input-box-container');
+        const actionElement = document.getElementById('msg-dropdown');
+        if (inputElement && actionElement) {
+            const inputProperties = inputElement.getBoundingClientRect();
+            const actionProperties = actionElement.getBoundingClientRect();
+            if (
+                inputProperties.top - actionProperties.top <
+                actionProperties.height
+            ) {
+                setAlignmentTop(true);
+            } else {
+                setAlignmentTop(false);
+            }
+        } else {
+            setAlignmentTop(false);
+        }
+    };
+
+    useEffect(() => {
+        setDropdownPosition();
+    }, []);
+
     return (
         <div
             id="msg-dropdown"
-            className={'msg-dropdown-content font-size-12 font-weight-400'.concat(
-                ' ',
-                props.ownMessage ? 'own-msg' : '',
-            )}
+            className={'msg-dropdown-content font-size-12 font-weight-400'
+                .concat(' ', props.ownMessage ? 'own-msg' : '')
+                .concat(' ', alignmentTop ? 'align-top' : '')}
         >
             {props.ownMessage &&
                 (props.message ||

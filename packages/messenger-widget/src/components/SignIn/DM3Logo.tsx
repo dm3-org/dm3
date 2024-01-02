@@ -2,6 +2,7 @@ import './SignIn.css';
 
 function DM3Logo() {
     return (
+        /* eslint-disable max-len */
         <>
             <svg
                 className="sign-in-logo"
@@ -31,6 +32,7 @@ function DM3Logo() {
                 </g>
             </svg>
         </>
+        /* eslint-enable max-len */
     );
 }
 

@@ -7,7 +7,6 @@ import threeDotsIcon from '../../assets/images/three-dots.svg';
 import { MessageAction } from '../MessageAction/MessageAction';
 import { GlobalContext } from '../../utils/context-utils';
 import { MessageActionType } from '../../utils/enum-type-utils';
-import { scrollToBottomOfChat } from '../Chat/bl';
 import { AttachmentThumbnailPreview } from '../AttachmentThumbnailPreview/AttachmentThumbnailPreview';
 import {
     deleteEmoji,
@@ -26,9 +25,6 @@ export function Message(props: MessageProps) {
 
     const handleMouseOver = () => {
         setIsHovered(true);
-        if (props.isLastMessage) {
-            scrollToBottomOfChat();
-        }
     };
 
     const handleMouseOut = () => {
