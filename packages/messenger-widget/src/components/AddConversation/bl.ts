@@ -136,6 +136,8 @@ export const addContact = async (
                 type: UserDbType.createEmptyConversation,
                 payload: normalizedAccountName,
             });
+
+            closeLoader();
         }
     }
 };

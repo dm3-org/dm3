@@ -14,6 +14,7 @@ import {
     updateUnreadMsgCount,
     fetchAndUpdateUnreadMsgCount,
     addNewConversationFound,
+    updateContactDetailsOfNewContact,
 } from './bl';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
@@ -233,6 +234,13 @@ export function Contacts(props: DashboardProps) {
                     ),
                 );
             }
+        } else if (
+            state.modal.addConversation.active &&
+            !state.modal.addConversation.processed &&
+            state.cache.contacts
+        ) {
+            setContacts(state.cache.contacts);
+            updateContactDetailsOfNewContact(state, dispatch, mainnetProvider);
         }
     }, [state.cache.contacts]);
 
@@ -266,6 +274,16 @@ export function Contacts(props: DashboardProps) {
             if (defaultContactIndex > -1) {
                 setContactSelected(defaultContactIndex);
             }
+        }
+
+        // new conversation is added
+        if (
+            state.modal.addConversation.active &&
+            !state.modal.addConversation.processed &&
+            state.cache.contacts
+        ) {
+            setContacts(state.cache.contacts);
+            updateSelectedContact(state, dispatch, setContactFromList);
         }
     }, [contacts]);
 
