@@ -36,6 +36,8 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
     const signOut = () => {
         setAccount(undefined);
         setDeliveryServiceToken(undefined);
+        setEthAddress(undefined);
+        setIsLoading(false);
     };
     const cleanSignIn = async () => {
         setIsLoading(true);
