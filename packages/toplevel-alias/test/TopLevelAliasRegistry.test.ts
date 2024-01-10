@@ -32,33 +32,63 @@ describe('TopLevelAliasRegistry', function () {
         it('Should let the owner set a valid alias and retrieve it', async function () {
             await topLevelAliasRegistry
                 .connect(owner)
-                .setAlias('Alice', 'alice.eth');
-            expect(await topLevelAliasRegistry.aliases('Alice')).to.equal(
-                'alice.eth',
+                .setAlias('.alice', '.alice.eth');
+            expect(await topLevelAliasRegistry.aliases('.alice')).to.equal(
+                '.alice.eth',
             );
         });
 
-        it("Should prevent setting an alias that does not end with '.eth'", async function () {
-            await expect(
-                topLevelAliasRegistry.connect(owner).setAlias('Bob', 'bob.xyz'),
-            ).to.be.revertedWith("Alias must end with '.eth'");
+        it('Should let the owner set a valid alias and retrieve it', async function () {
+            await topLevelAliasRegistry
+                .connect(owner)
+                .setAlias('.alice', '.abc.io');
+            expect(await topLevelAliasRegistry.aliases('.alice')).to.equal(
+                '.abc.io',
+            );
+        });
+
+        it('Should let the owner set a valid long alias and retrieve it', async function () {
+            await topLevelAliasRegistry
+                .connect(owner)
+                .setAlias('.test', '.abc.long_name.xyz.eth');
+            expect(await topLevelAliasRegistry.aliases('.test')).to.equal(
+                '.abc.long_name.xyz.eth',
+            );
         });
 
         it('Should prevent setting an alias that is too short or too long', async function () {
             await expect(
-                topLevelAliasRegistry.connect(owner).setAlias('Bob', 'bo.eth'),
+                topLevelAliasRegistry.connect(owner).setAlias('.bob', '.bb.et'),
             ).to.be.revertedWith('Alias length is invalid');
 
-            let longAlias = 'b'.repeat(101) + '.eth';
+            let longAlias = '.b'.repeat(101) + '.eth';
             await expect(
-                topLevelAliasRegistry.connect(owner).setAlias('Bob', longAlias),
+                topLevelAliasRegistry
+                    .connect(owner)
+                    .setAlias('.bob', longAlias),
             ).to.be.revertedWith('Alias length is invalid');
         });
 
         it('Should prevent setting an empty name', async function () {
             await expect(
-                topLevelAliasRegistry.connect(owner).setAlias('', 'valid.eth'),
+                topLevelAliasRegistry.connect(owner).setAlias('', '.valid.eth'),
             ).to.be.revertedWith('Name cannot be empty');
+        });
+
+        it('Should revert if the alias does not start with a dot', async function () {
+            await expect(
+                topLevelAliasRegistry
+                    .connect(owner)
+                    .setAlias('.alice', 'alice.eth'),
+            ).to.be.revertedWith('Alias must start with a dot');
+        });
+
+        it('Should revert if the name does not start with a dot', async function () {
+            await expect(
+                topLevelAliasRegistry
+                    .connect(owner)
+                    .setAlias('alice', '.alice.eth'),
+            ).to.be.revertedWith('Name must start with a dot');
         });
     });
 
@@ -67,10 +97,10 @@ describe('TopLevelAliasRegistry', function () {
             await expect(
                 topLevelAliasRegistry
                     .connect(owner)
-                    .setAlias('Alice', 'alice.eth'),
+                    .setAlias('.alice', '.alice.eth'),
             )
                 .to.emit(topLevelAliasRegistry, 'AliasSet')
-                .withArgs('Alice', 'alice.eth');
+                .withArgs('.alice', '.alice.eth');
         });
     });
 
@@ -78,7 +108,7 @@ describe('TopLevelAliasRegistry', function () {
         it('should measure gas used by setAlias function', async function () {
             const tx = await topLevelAliasRegistry
                 .connect(owner)
-                .setAlias('Alice', 'alice.eth');
+                .setAlias('.alice', '.alice.eth');
             const receipt = await tx.wait();
             console.log(`Gas used for setAlias: ${receipt.gasUsed.toString()}`);
         });
@@ -114,7 +144,7 @@ describe('TopLevelAliasRegistry', function () {
             await expect(
                 topLevelAliasRegistry
                     .connect(addr1)
-                    .setAlias('TestName', 'testname.eth'),
+                    .setAlias('.testname', '.testname.eth'),
             ).to.be.revertedWithCustomError(
                 topLevelAliasRegistry,
                 'OwnableUnauthorizedAccount',

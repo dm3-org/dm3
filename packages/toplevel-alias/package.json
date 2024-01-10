@@ -1,8 +1,9 @@
 {
   "name": "hardhat-project",
   "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.0.5",
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",
-    "hardhat": "^2.19.1",
+    "hardhat": "^2.19.4",
     "hardhat-gas-reporter": "^1.0.9"
   },
   "dependencies": {

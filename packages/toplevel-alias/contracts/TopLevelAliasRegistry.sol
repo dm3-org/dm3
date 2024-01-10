@@ -36,28 +36,12 @@ contract TopLevelAliasRegistry is Ownable {
      */
     function setAlias(string memory _name, string memory _alias) public onlyOwner {
         require(bytes(_name).length > 0, "Name cannot be empty");
-        require(bytes(_alias).length >= 7 && bytes(_alias).length <= MAX_ALIAS_LENGTH, "Alias length is invalid");
-        require(_endsWith(_alias, ".eth"), "Alias must end with '.eth'");
-
+        require(bytes(_alias).length >= 7 && bytes(_alias).length <= MAX_ALIAS_LENGTH, "Alias length is invalid"); //"." + min. 3 chars + "." + "min. 2 chars"
+        require (bytes(_alias)[0] == '.', "Alias must start with a dot");
+        require (bytes(_name)[0] == '.', "Name must start with a dot");
+        
         aliases[_name] = _alias;
         emit AliasSet(_name, _alias);
-    }
-
-    function _endsWith(string memory _base, string memory _value) internal pure returns (bool) {
-        bytes memory baseBytes = bytes(_base);
-        bytes memory valueBytes = bytes(_value);
-
-        if (valueBytes.length > baseBytes.length) {
-            return false;
-        }
-
-        for (uint i = 0; i < valueBytes.length; i++) {
-            if (baseBytes[baseBytes.length - i - 1] != valueBytes[valueBytes.length - i - 1]) {
-                return false;
-            }
-        }
-        
-        return true;
     }
 }
 
