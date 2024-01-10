@@ -13,6 +13,9 @@ import { closeLoader, startLoader } from '../Loader/Loader';
 import { setContactHeightToMaximum } from '../Contacts/bl';
 import { checkEnsDM3Text } from '../../utils/ens-utils';
 import { getLastDm3Name } from '../../utils/common-utils';
+import { ConfigureGenomeProfile } from './chain/genome/ConfigureGenomeProfile';
+import { ConfigureEnsProfile } from './chain/ens/ConfigureEnsProfile';
+import React from 'react';
 
 export const PROFILE_INPUT_FIELD_CLASS =
     'profile-input font-weight-400 font-size-14 border-radius-6 w-100 line-height-24';
@@ -92,6 +95,7 @@ export const submitDm3UsernameClaim = async (
     dm3UserEnsName: string,
     dispatch: React.Dispatch<Actions>,
     setError: Function,
+    setAccount: Function,
 ) => {
     try {
         // start loader
@@ -119,14 +123,8 @@ export const submitDm3UsernameClaim = async (
             dsToken!,
         );
 
-        dispatch({
-            type: ConnectionType.ChangeAccount,
-            payload: {
-                ...account!,
-                ensName: ensName,
-            },
-        });
-
+        const updatedAccount = { ...account, ensName: ensName };
+        setAccount(updatedAccount);
         setContactHeightToMaximum(true);
     } catch (e) {
         setError('Name is not available', NAME_TYPE.DM3_NAME);
@@ -211,5 +209,50 @@ export const fetchExistingDM3Name = async (
         }
     } catch (error) {
         setExistingDm3Name(null);
+    }
+};
+
+const enum NAME_SERVICES {
+    ENS = 'Ethereum Network - Ethereum Name Service (ENS)',
+    GENOME = 'Gnosis Network - Genome/SpaceID',
+}
+
+export const namingServices = [
+    {
+        name: NAME_SERVICES.ENS,
+        chainId: [1],
+        component: <ConfigureEnsProfile />,
+    },
+    {
+        name: NAME_SERVICES.GENOME,
+        chainId: [100],
+        component: <ConfigureGenomeProfile />,
+    },
+];
+
+export const fetchComponent = (name: string) => {
+    switch (name) {
+        case NAME_SERVICES.ENS:
+            return namingServices[0].component;
+        case NAME_SERVICES.GENOME:
+            return namingServices[1].component;
+    }
+};
+
+export const fetchServiceFromChainId = (chainId: number): string => {
+    namingServices.forEach((data) => {
+        if (data.chainId.includes(chainId)) {
+            return data.name;
+        }
+    });
+    return namingServices[0].name;
+};
+
+export const fetchChainIdFromServiceName = (name: string) => {
+    switch (name) {
+        case NAME_SERVICES.ENS:
+            return namingServices[0].chainId[0];
+        case NAME_SERVICES.GENOME:
+            return namingServices[1].chainId[0];
     }
 };

@@ -102,34 +102,35 @@ const handleNewUserMessage = async (
     const haltDelivery = getHaltDelivery(state);
     const sendDependencies: SendDependencies = getDependencies(state, account);
 
-    const { encryptedEnvelop } = await buildEnvelop(
-        messageData,
-        encryptAsymmetric,
-        sendDependencies,
-    );
-
-    const envelopSize = getEnvelopSize(encryptedEnvelop);
-    const sizeLimit = state.cache.messageSizeLimit;
-
-    if (envelopSize > sizeLimit) {
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                actionType: MessageActionType.NONE,
-                messageData: undefined,
-            },
-        });
-
-        openErrorModal(
-            'The size of the message is larger than limit '
-                .concat(sizeLimit.toString(), ' bytes. ')
-                .concat('Please reduce the message size.'),
-            false,
-            closeErrorModal,
+    try {
+        const { encryptedEnvelop } = await buildEnvelop(
+            messageData,
+            encryptAsymmetric,
+            sendDependencies,
         );
+        const envelopSize = getEnvelopSize(encryptedEnvelop);
+        const sizeLimit = state.cache.messageSizeLimit;
 
-        return;
-    }
+        if (envelopSize > sizeLimit) {
+            dispatch({
+                type: UiViewStateType.SetMessageView,
+                payload: {
+                    actionType: MessageActionType.NONE,
+                    messageData: undefined,
+                },
+            });
+
+            openErrorModal(
+                'The size of the message is larger than limit '
+                    .concat(sizeLimit.toString(), ' bytes. ')
+                    .concat('Please reduce the message size.'),
+                false,
+                closeErrorModal,
+            );
+
+            return;
+        }
+    } catch (error) {}
 
     // clear the message text & files selected from input field
     setMessageText('');
@@ -185,26 +186,28 @@ const editMessage = async (
     const haltDelivery = getHaltDelivery(state);
     const sendDependencies: SendDependencies = getDependencies(state, account);
 
-    const { encryptedEnvelop } = await buildEnvelop(
-        messageData,
-        encryptAsymmetric,
-        sendDependencies,
-    );
-
-    const envelopSize = getEnvelopSize(encryptedEnvelop);
-    const sizeLimit = state.cache.messageSizeLimit;
-
-    if (envelopSize > sizeLimit) {
-        openErrorModal(
-            'The size of the message is larger than limit '
-                .concat(sizeLimit.toString(), ' bytes. ')
-                .concat('Please reduce the message size.'),
-            false,
-            closeErrorModal,
+    try {
+        const { encryptedEnvelop } = await buildEnvelop(
+            messageData,
+            encryptAsymmetric,
+            sendDependencies,
         );
 
-        return;
-    }
+        const envelopSize = getEnvelopSize(encryptedEnvelop);
+        const sizeLimit = state.cache.messageSizeLimit;
+
+        if (envelopSize > sizeLimit) {
+            openErrorModal(
+                'The size of the message is larger than limit '
+                    .concat(sizeLimit.toString(), ' bytes. ')
+                    .concat('Please reduce the message size.'),
+                false,
+                closeErrorModal,
+            );
+
+            return;
+        }
+    } catch (error) {}
 
     // clear the message text & files selected from input field
     setMessageText('');
@@ -267,26 +270,28 @@ const replyMessage = async (
     const haltDelivery = getHaltDelivery(state);
     const sendDependencies: SendDependencies = getDependencies(state, account);
 
-    const { encryptedEnvelop } = await buildEnvelop(
-        messageData,
-        encryptAsymmetric,
-        sendDependencies,
-    );
-
-    const envelopSize = getEnvelopSize(encryptedEnvelop);
-    const sizeLimit = state.cache.messageSizeLimit;
-
-    if (envelopSize > sizeLimit) {
-        openErrorModal(
-            'The size of the message is larger than limit '
-                .concat(sizeLimit.toString(), ' bytes. ')
-                .concat('Please reduce the message size.'),
-            false,
-            closeErrorModal,
+    try {
+        const { encryptedEnvelop } = await buildEnvelop(
+            messageData,
+            encryptAsymmetric,
+            sendDependencies,
         );
 
-        return;
-    }
+        const envelopSize = getEnvelopSize(encryptedEnvelop);
+        const sizeLimit = state.cache.messageSizeLimit;
+
+        if (envelopSize > sizeLimit) {
+            openErrorModal(
+                'The size of the message is larger than limit '
+                    .concat(sizeLimit.toString(), ' bytes. ')
+                    .concat('Please reduce the message size.'),
+                false,
+                closeErrorModal,
+            );
+
+            return;
+        }
+    } catch (error) {}
 
     // clear the message text & files selected from input field
     setMessageText('');

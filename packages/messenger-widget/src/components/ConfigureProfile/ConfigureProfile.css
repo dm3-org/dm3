@@ -64,3 +64,15 @@
 .dm3-name-content {
     width: 90%;
 }
+
+.name-service-selector {
+    background: #8b7ff4;
+    font-size: 14px;
+    padding: 0.3rem;
+    font-weight: 500;
+    outline: none;
+}
+
+select:focus-visible {
+    outline: none;
+}

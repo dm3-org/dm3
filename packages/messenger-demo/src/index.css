@@ -64,12 +64,12 @@ code {
 
 .demo-container {
     width: calc(100% - 40px);
-    height: calc(100% - 70px - 40px);
+    height: calc(100% - 20px);
     background-color: #000000;
     border: 1px solid #222222;
     border-radius: 25px;
     position: absolute;
-    top: 75px;
+    top: 10px;
     left: 20px;
     transform: translate(0, 0);
     z-index: 10;

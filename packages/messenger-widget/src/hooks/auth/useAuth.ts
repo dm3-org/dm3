@@ -94,5 +94,6 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
         isLoggedIn,
         isLoading,
         hasError,
+        setAccount,
     };
 };
