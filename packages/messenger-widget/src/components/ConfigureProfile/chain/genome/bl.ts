@@ -18,7 +18,7 @@ import { Address, namehash, toHex } from 'viem';
 
 //Space id uses the namehash of the name + the GNO identifier to calculate the node
 const GNO_IDENTIFIER = BigInt(
-    '274997945614032132263423446017095573970170942858695765128406315342190546',
+    '2702484275810670337286593638197304166435784191035983069259851825108946',
 );
 
 export function getSpaceIdNode(inputName: string): Address {
@@ -90,7 +90,6 @@ const getPublishProfileOnchainTransaction = async (
 
     const chidadoResolver = '0x6D3B3F99177FB2A5de7F9E928a9BD807bF7b5BAD';
 
-    //TODO do crosschain here
     const resolver = ethersHelper.getConractInstance(
         chidadoResolver,
         [
@@ -103,6 +102,8 @@ const getPublishProfileOnchainTransaction = async (
         profile: account.profile,
         signature: account.profileSignature,
     };
+    // eslint-disable-next-line no-console
+    console.log('publish profiel', signedUserProfile);
     const node = getSpaceIdNode(ensName);
 
     const jsonPrefix = 'data:application/json,';

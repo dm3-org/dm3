@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-console */
 import { createWeb3Name } from '@web3-name-sdk/core';
 import { getNameForAddress } from 'dm3-lib-offchain-resolver-api';
@@ -82,10 +83,27 @@ export const AccountConnector = (
         // either chidaodo or xdai
         if (chainId === 10200 || chainId === 100) {
             const web3Name = createWeb3Name();
-            return await web3Name.getDomainName({
+
+            const spaceIdWeb3Name = await web3Name.getDomainName({
                 address,
                 queryChainIdList: [chainId],
             });
+            //User is connected with an address that has no genome name yet
+            if (!spaceIdWeb3Name) {
+                return undefined;
+            }
+
+            console.log(
+                `resolved genome name ${spaceIdWeb3Name} for ${address}`,
+            );
+
+            //hardcode genome name and move to LIB fn
+            const resolvedTLD = 'alex1234.eth';
+            const l1EnsName = spaceIdWeb3Name.replace(
+                '.gno',
+                '.' + resolvedTLD,
+            );
+            return l1EnsName;
         }
 
         return await mainnetProvider.lookupAddress(address);
@@ -107,3 +125,49 @@ export const AccountConnector = (
         connect,
     };
 };
+
+//Staging
+
+/* dm3.chat wants you to sign in with your Ethereum account:
+0x7A9D5c989c6fFA3C4A709fE4EDA1A8B5894b5a2A
+
+Connect the DM3 MESSENGER with your wallet. Keys for secure communication are derived from this signature.
+
+(There is no paid transaction initiated. The signature is used off-chain only.)
+
+URI: https://dm3.chat
+Version: 1
+Nonce: 0xa1b38837dd52e70a250ac2bf3e19f1599833e9d30662bf69a1c12e5747ed9f65 */
+
+/*dm3.chat wants you register your dm3 profile with your Ethereum account:
+0x7A9D5c989c6fFA3C4A709fE4EDA1A8B5894b5a2A
+
+This is required only once!
+(There is no paid transaction initiated. The signature is used off-chain only.)
+
+URI: https://dm3.chat
+Version: 1
+dm3 Profile: {"deliveryServices":["beta-ds.dm3.eth"],"publicEncryptionKey":"cPjbDsDGD+jjwGYS4u889jDr5wMTl/4Be8JbQcJo+DU=","publicSigningKey":"JtV1wYrjqvWdG5gxCrAIueRezfVGy0f56nZwA8CW53o="}*/
+
+//Mainnet
+
+/* dm3.chat wants you to sign in with your Ethereum account:
+0x7A9D5c989c6fFA3C4A709fE4EDA1A8B5894b5a2A
+
+Connect the DM3 MESSENGER with your wallet. Keys for secure communication are derived from this signature.
+
+(There is no paid transaction initiated. The signature is used off-chain only.)
+
+URI: https://dm3.chat
+Version: 1
+Nonce: 0xa1b38837dd52e70a250ac2bf3e19f1599833e9d30662bf69a1c12e5747ed9f65 */
+
+/* dm3.chat wants you register your dm3 profile with your Ethereum account:
+0x7A9D5c989c6fFA3C4A709fE4EDA1A8B5894b5a2A
+
+This is required only once!
+(There is no paid transaction initiated. The signature is used off-chain only.)
+
+URI: https://dm3.chat
+Version: 1
+dm3 Profile: {"deliveryServices":["ds.dm3.eth"],"publicEncryptionKey":"cPjbDsDGD+jjwGYS4u889jDr5wMTl/4Be8JbQcJo+DU=","publicSigningKey":"JtV1wYrjqvWdG5gxCrAIueRezfVGy0f56nZwA8CW53o="} */
