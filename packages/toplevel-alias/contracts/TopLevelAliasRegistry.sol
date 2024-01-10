@@ -43,6 +43,15 @@ contract TopLevelAliasRegistry is Ownable {
         aliases[_name] = _alias;
         emit AliasSet(_name, _alias);
     }
+
+     /**
+     * @dev Checks if an alias exists for the given name.
+     * @param _name The name to check for an alias.
+     * @return bool True if an alias exists for the name, false otherwise.
+     */
+    function existsAlias(string memory _name) public view returns (bool) {
+        return bytes(aliases[_name]).length > 0;
+    }
 }
 
    

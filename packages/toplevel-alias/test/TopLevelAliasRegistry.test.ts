@@ -104,6 +104,21 @@ describe('TopLevelAliasRegistry', function () {
         });
     });
 
+    describe('existsAlias Function', function () {
+        it('Should return true for an existing alias', async function () {
+            const name = '.alice';
+            const alias = '.alice.eth';
+            await topLevelAliasRegistry.connect(owner).setAlias(name, alias);
+            expect(await topLevelAliasRegistry.existsAlias(name)).to.be.true;
+        });
+
+        it('Should return false for a non-existing alias', async function () {
+            const nonExistentName = '.bob';
+            expect(await topLevelAliasRegistry.existsAlias(nonExistentName)).to
+                .be.false;
+        });
+    });
+
     describe('TopLevelAliasRegistry Gas Usage', function () {
         it('should measure gas used by setAlias function', async function () {
             const tx = await topLevelAliasRegistry
