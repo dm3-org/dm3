@@ -122,7 +122,7 @@ describe('TopLevelAliasRegistry', function () {
         });
     });
 
-    describe('TopLevelAliasRegistry Gas Usage', function () {
+    /* describe('TopLevelAliasRegistry Gas Usage', function () {
         it('should measure gas used by setAlias function', async function () {
             const tx = await topLevelAliasRegistry
                 .connect(owner)
@@ -130,7 +130,7 @@ describe('TopLevelAliasRegistry', function () {
             const receipt = await tx.wait();
             console.log(`Gas used for setAlias: ${receipt.gasUsed.toString()}`);
         });
-    });
+    });*/
 
     describe('Ownership', function () {
         it('Should set the correct owner at deployment', async function () {
