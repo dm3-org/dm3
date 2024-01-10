@@ -69,10 +69,10 @@ describe('TopLevelAliasRegistry', function () {
             ).to.be.revertedWith('Alias length is invalid');
         });
 
-        it('Should prevent setting an empty name', async function () {
+        it('Should prevent setting an empty toplevel', async function () {
             await expect(
                 topLevelAliasRegistry.connect(owner).setAlias('', '.valid.eth'),
-            ).to.be.revertedWith('Name cannot be empty');
+            ).to.be.revertedWith('Toplevel cannot be empty');
         });
 
         it('Should revert if the alias does not start with a dot', async function () {
@@ -83,12 +83,12 @@ describe('TopLevelAliasRegistry', function () {
             ).to.be.revertedWith('Alias must start with a dot');
         });
 
-        it('Should revert if the name does not start with a dot', async function () {
+        it('Should revert if the toplevel does not start with a dot', async function () {
             await expect(
                 topLevelAliasRegistry
                     .connect(owner)
                     .setAlias('alice', '.alice.eth'),
-            ).to.be.revertedWith('Name must start with a dot');
+            ).to.be.revertedWith('Toplevel must start with a dot');
         });
     });
 
@@ -106,16 +106,19 @@ describe('TopLevelAliasRegistry', function () {
 
     describe('existsAlias Function', function () {
         it('Should return true for an existing alias', async function () {
-            const name = '.alice';
+            const toplevel = '.alice';
             const alias = '.alice.eth';
-            await topLevelAliasRegistry.connect(owner).setAlias(name, alias);
-            expect(await topLevelAliasRegistry.existsAlias(name)).to.be.true;
+            await topLevelAliasRegistry
+                .connect(owner)
+                .setAlias(toplevel, alias);
+            expect(await topLevelAliasRegistry.existsAlias(toplevel)).to.be
+                .true;
         });
 
         it('Should return false for a non-existing alias', async function () {
-            const nonExistentName = '.bob';
-            expect(await topLevelAliasRegistry.existsAlias(nonExistentName)).to
-                .be.false;
+            const nonExistentToplevel = '.bob';
+            expect(await topLevelAliasRegistry.existsAlias(nonExistentToplevel))
+                .to.be.false;
         });
     });
 
