@@ -12,7 +12,7 @@ The top-level alias registry is a `dm3` protocol extension to provide a decentra
 
 -   **Alias Management:** Allows setting of aliases for given names with specific format rules.
 -   **Ownership Control:** Utilizes OpenZeppelin's `Ownable` contract to restrict certain functionalities to the contract owner.
--   **Format Validation:** Enforces aliases to start with a dot, be at least a certain length, and follow a specific pattern.
+-   **Format Validation:** Enforces aliases must not start with a dot, be at least a certain length, and follow a specific pattern.
 
 ## Contract Functions
 
@@ -21,8 +21,8 @@ The top-level alias registry is a `dm3` protocol extension to provide a decentra
 -   **Description:** Sets an alias for a given name (= top-level).
 -   **Access:** Restricted to the contract owner.
 -   **Parameters:**
-    -   `_name`: The name (top-level domain) to map the alias to. Must not be empty and start with ".".
-    -   `_alias`: The alias to be set for the given name. Must start with a dot and follow the format rules.
+    -   `_name`: The name (top-level domain) to map the alias to. Must not be empty and not start with ".".
+    -   `_alias`: The alias to be set for the given name. Must not start with a dot and follow the format rules.
 
 ### Other Functions
 
@@ -31,7 +31,7 @@ The top-level alias registry is a `dm3` protocol extension to provide a decentra
 
 ## Format Rules for Aliases
 
--   The alias must start with a dot (e.g., `.example`).
+-   The alias must not start with a dot (e.g., `example` and not `.example`).
 -   It must have at least three characters before the dot and at least two characters after the dot.
 -   The total length of the alias must be within the predefined maximum limit.
 
@@ -52,7 +52,7 @@ The contract comes with a suite of tests to verify its functionalities. To run t
 
 ## Contributing
 
-Contributions to the `TopLevelAliasRegistry` sub project of the `dm3` project are welcome. Please ensure that any major changes are discussed via issues before submitting a pull request.
+Contributions to the `TopLevelAliasRegistry` sub-project of the `dm3` project are welcome. Please ensure that any major changes are discussed via issues before submitting a pull request.
 
 ## License
 
