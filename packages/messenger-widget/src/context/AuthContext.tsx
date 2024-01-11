@@ -8,6 +8,7 @@ import { ConnectionType, UserDbType } from '../utils/enum-type-utils';
 export type AuthContextType = {
     cleanSignIn: () => Promise<void>;
     account: Account | undefined;
+    displayName: string | undefined;
     deliveryServiceToken: string | undefined;
     isLoggedIn: boolean;
     isLoading: boolean;
@@ -19,6 +20,7 @@ export type AuthContextType = {
 export const AuthContext = React.createContext<AuthContextType>({
     cleanSignIn: () => Promise.resolve(),
     account: undefined,
+    displayName: undefined,
     deliveryServiceToken: undefined,
     isLoggedIn: false,
     isLoading: false,
@@ -45,6 +47,7 @@ export const AuthContextProvider = ({
     const {
         cleanSignIn,
         account,
+        displayName,
         deliveryServiceToken,
         isLoggedIn,
         isLoading,
@@ -57,6 +60,7 @@ export const AuthContextProvider = ({
             value={{
                 cleanSignIn,
                 account,
+                displayName,
                 deliveryServiceToken,
                 isLoggedIn,
                 isLoading,

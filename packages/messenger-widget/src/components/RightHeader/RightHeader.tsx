@@ -22,7 +22,7 @@ import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvid
 export function RightHeader(props: HideFunctionProps) {
     // fetches context storage
     const { state, dispatch } = useContext(GlobalContext);
-    const { account, ethAddress } = useContext(AuthContext);
+    const { account, displayName } = useContext(AuthContext);
     const mainnetProvider = useMainnetProvider();
 
     // state to store profile pic of signed in user
@@ -97,7 +97,7 @@ export function RightHeader(props: HideFunctionProps) {
                     onClick={() => updateView()}
                     className="profile-name font-weight-500 pointer-cursor text-secondary-color"
                 >
-                    {account?.ensName}
+                    {displayName}
                 </span>
                 <img
                     src={profilePic ? profilePic : humanIcon}
