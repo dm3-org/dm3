@@ -3,34 +3,28 @@ import { useContext } from 'react';
 import closeIcon from '../../assets/images/cross.svg';
 import addIcon from '../../assets/images/add.svg';
 import settingsIcon from '../../assets/images/settings.svg';
-import {
-    LeftViewSelected,
-    ModalStateType,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
+import { LeftViewSelected, UiViewStateType } from '../../utils/enum-type-utils';
 import { GlobalContext } from '../../utils/context-utils';
-import { startLoader } from '../Loader/Loader';
 import { openConversationModal } from '../AddConversation/bl';
 import { openPreferencesModal } from '../Preferences/bl';
 
 export default function Menu() {
     // fetches context api data
-    const { dispatch } = useContext(GlobalContext);
+    const { state, dispatch } = useContext(GlobalContext);
 
     const showContactList = () => {
-        dispatch({
-            type: ModalStateType.LoaderContent,
-            payload: 'Fetching contacts...',
-        });
-        startLoader();
         dispatch({
             type: UiViewStateType.SetSelectedLeftView,
             payload: LeftViewSelected.Contacts,
         });
+        const element = document.getElementById('menu-container');
+        if (element) {
+            element.classList.remove('menu-container');
+        }
     };
 
     return (
-        <div className="menu-container height-fill width-fill">
+        <div id="menu-container" className="h-100 width-fill">
             <div className="menu-item-cancel d-flex justify-content-end">
                 <img
                     src={closeIcon}
@@ -64,7 +58,13 @@ export default function Menu() {
                 Preferences
             </div>
 
-            <div className="version-container width-fill p-3 font-size-14">
+            <div
+                className={'version-container width-fill p-3 font-size-14 '.concat(
+                    state.uiView.selectedLeftView === LeftViewSelected.Menu
+                        ? ''
+                        : 'display-none',
+                )}
+            >
                 <hr className="line-separator text-secondary-color" />
                 <div className="font-weight-800 text-secondary-color">dm3</div>
                 <div className="text-secondary-color">Version 1.1</div>

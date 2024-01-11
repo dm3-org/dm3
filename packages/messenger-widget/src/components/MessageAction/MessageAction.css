@@ -49,3 +49,7 @@
     width: 95%;
     margin: 0rem 0rem 0rem 0.3rem;
 }
+
+.align-top {
+    bottom: 1rem !important;
+}

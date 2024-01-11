@@ -1,20 +1,21 @@
-import { Account, hasUserProfile, SignedUserProfile } from 'dm3-lib-profile';
+import { Account, hasUserProfile } from 'dm3-lib-profile';
 import {
     Actions,
-    CacheType,
     ConnectionType,
     GlobalState,
     ModalStateType,
 } from '../../utils/enum-type-utils';
 import { claimSubdomain, removeAlias } from 'dm3-lib-offchain-resolver-api';
 import { createAlias, getAliasChain } from 'dm3-lib-delivery-api';
-import { Connection } from '../../interfaces/web3';
-import { ethersHelper, globalConfig, stringify } from 'dm3-lib-shared';
+import { globalConfig, log } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { setContactHeightToMaximum } from '../Contacts/bl';
 import { checkEnsDM3Text } from '../../utils/ens-utils';
 import { getLastDm3Name } from '../../utils/common-utils';
+import { ConfigureGenomeProfile } from './chain/genome/ConfigureGenomeProfile';
+import { ConfigureEnsProfile } from './chain/ens/ConfigureEnsProfile';
+import React from 'react';
 
 export const PROFILE_INPUT_FIELD_CLASS =
     'profile-input font-weight-400 font-size-14 border-radius-6 w-100 line-height-24';
@@ -65,21 +66,25 @@ export const getEnsName = async (
     account: Account,
     setEnsNameFromResolver: Function,
 ) => {
-    if (ethAddress) {
-        const isAddrEnsName = account.ensName?.endsWith(
-            globalConfig.ADDR_ENS_SUBDOMAIN(),
-        );
-        const name = await mainnetProvider.lookupAddress(ethAddress);
-        if (name && !isAddrEnsName) {
-            const hasProfile = await hasUserProfile(mainnetProvider, name);
-            const dm3ProfileRecordExists = await checkEnsDM3Text(
-                mainnetProvider,
-                name,
+    try {
+        if (ethAddress) {
+            const isAddrEnsName = account.ensName?.endsWith(
+                globalConfig.ADDR_ENS_SUBDOMAIN(),
             );
-            hasProfile &&
-                dm3ProfileRecordExists &&
-                setEnsNameFromResolver(name);
+            const name = await mainnetProvider.lookupAddress(ethAddress);
+            if (name && !isAddrEnsName) {
+                const hasProfile = await hasUserProfile(mainnetProvider, name);
+                const dm3ProfileRecordExists = await checkEnsDM3Text(
+                    mainnetProvider,
+                    name,
+                );
+                hasProfile &&
+                    dm3ProfileRecordExists &&
+                    setEnsNameFromResolver(name);
+            }
         }
+    } catch (error) {
+        log(error, 'Configure profile');
     }
 };
 
@@ -92,6 +97,7 @@ export const submitDm3UsernameClaim = async (
     dm3UserEnsName: string,
     dispatch: React.Dispatch<Actions>,
     setError: Function,
+    setAccount: Function,
 ) => {
     try {
         // start loader
@@ -119,14 +125,8 @@ export const submitDm3UsernameClaim = async (
             dsToken!,
         );
 
-        dispatch({
-            type: ConnectionType.ChangeAccount,
-            payload: {
-                ...account!,
-                ensName: ensName,
-            },
-        });
-
+        const updatedAccount = { ...account, ensName: ensName };
+        setAccount(updatedAccount);
         setContactHeightToMaximum(true);
     } catch (e) {
         setError('Name is not available', NAME_TYPE.DM3_NAME);
@@ -211,5 +211,55 @@ export const fetchExistingDM3Name = async (
         }
     } catch (error) {
         setExistingDm3Name(null);
+    }
+};
+
+const enum NAME_SERVICES {
+    ENS = 'Ethereum Network - Ethereum Name Service (ENS)',
+    GENOME = 'Gnosis Network - Genome/SpaceID',
+}
+
+export const namingServices = [
+    {
+        name: NAME_SERVICES.ENS,
+        chainId: 1,
+        component: <ConfigureEnsProfile />,
+    },
+    {
+        name: NAME_SERVICES.GENOME,
+        chainId: 100,
+        component: <ConfigureGenomeProfile />,
+    },
+];
+
+export const fetchComponent = (name: string) => {
+    switch (name) {
+        case NAME_SERVICES.ENS:
+            return namingServices[0].component;
+        case NAME_SERVICES.GENOME:
+            return namingServices[1].component;
+    }
+};
+
+export const fetchServiceFromChainId = (chainId: number): string => {
+    namingServices.forEach((data) => {
+        if (data.chainId === chainId) {
+            return data.name;
+        }
+    });
+    return namingServices[0].name;
+};
+
+export const fetchChainIdFromServiceName = (name: string) => {
+    switch (name) {
+        case NAME_SERVICES.ENS:
+            if (process.env.REACT_APP_CHAIN_ID === '5') {
+                return Number(process.env.REACT_APP_CHAIN_ID);
+            }
+            return namingServices[0].chainId;
+        case NAME_SERVICES.GENOME:
+            return namingServices[1].chainId;
+        default:
+            return namingServices[0].chainId;
     }
 };

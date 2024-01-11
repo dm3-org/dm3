@@ -12,7 +12,7 @@
         "./dist/ethersHelper": {
             "import": "./dist/ethersHelper.js",
             "require": "./dist/ethersHelper.js"
-          }
+        }
     },
     "dependencies": {
         "ethers": "5.7.2"

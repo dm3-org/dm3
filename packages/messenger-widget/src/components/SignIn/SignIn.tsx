@@ -4,13 +4,13 @@ import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit';
 import { useContext } from 'react';
 import { useAccount } from 'wagmi';
 import { homeImage } from '../../assets/base64/home-image';
-import dm3Logo from '../../assets/images/dm3-logo.png';
 import { AuthContext } from '../../context/AuthContext';
 import { SignInProps } from '../../interfaces/web3';
 import { ButtonState } from '../../utils/enum-type-utils';
 import { LoginButton } from './LoginButton';
 import './SignIn.css';
 import { changeSignInButtonStyle } from './bl';
+import DM3Logo from './DM3Logo';
 
 export function SignIn(props: SignInProps) {
     const { address, isConnecting, isDisconnected, isConnected } = useAccount();
@@ -62,11 +62,7 @@ export function SignIn(props: SignInProps) {
                     </div>
                     <div className="d-flex flex-column justify-content-center height-fill content-data-container">
                         <div className="d-flex flex-column justify-content-center">
-                            <img
-                                className="h-auto sign-in-logo"
-                                src={dm3Logo}
-                                alt="DM3 logo"
-                            />
+                            <DM3Logo />
                         </div>
 
                         <div className="mt-4">
@@ -85,7 +81,7 @@ export function SignIn(props: SignInProps) {
 
                         {!isConnected ? (
                             <LoginButton
-                                text="Connect with Wallett"
+                                text="Connect with Wallet"
                                 onClick={handleConnectWithWallet}
                                 buttonState={ButtonState.Ideal}
                             />

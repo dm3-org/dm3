@@ -77,6 +77,7 @@ export interface MessageDataProps {
 export interface AttachmentPreviewProps {
     filesSelected: Attachment[];
     isMyMessage: boolean;
+    isReplyMsgAttachments?: boolean;
 }
 
 export interface ImageModal {

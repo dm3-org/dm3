@@ -46,11 +46,22 @@ export const ConfigureGenomeProfile = () => {
         }
     };
 
-    const label = 'gNosis ';
+    const label =
+        'To publish your dm3 profile, a transaction is sent to set a text record in your GNO name.' +
+        'Transaction costs will apply for setting the profile and administration.';
+
+    const note =
+        'You can receive dm3 messages directly sent to your GNO name or to the linked ENS name' +
+        '(<yourname>.gnosis.eth).';
+
+    const placeholder =
+        'Enter your GNO name. It must be connected to your wallet';
     return (
         <SubmitOnChainProfile
             handleNameChange={handleNameChange}
             label={label}
+            note={note}
+            placeholder={placeholder}
             onSubmitTx={onSubmitTx}
         />
     );

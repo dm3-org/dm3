@@ -10,10 +10,14 @@ import { ConfigureProfileContext } from '../context/ConfigureProfileContext';
 
 export const SubmitOnChainProfile = ({
     label,
+    note,
+    placeholder,
     onSubmitTx,
     handleNameChange,
 }: {
     label: string;
+    note: string;
+    placeholder: string;
     onSubmitTx: (name: string) => void;
     handleNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) => {
@@ -43,7 +47,7 @@ export const SubmitOnChainProfile = ({
     return (
         <>
             {/* ENS Name */}
-            <div className="mt-5">
+            <div>
                 <div className="d-flex ps-4 align-items-center">
                     <div className="configuration-items-align invisible">
                         <img src={tickIcon} />
@@ -96,7 +100,7 @@ export const SubmitOnChainProfile = ({
                                     )}
                                     type="text"
                                     value={ensName}
-                                    placeholder="Enter your ENS name. It must be connected to your wallet"
+                                    placeholder={placeholder}
                                     onChange={(
                                         e: React.ChangeEvent<HTMLInputElement>,
                                     ) => handleNameChange(e)}
@@ -112,10 +116,7 @@ export const SubmitOnChainProfile = ({
                         <div className="small-text font-weight-300 grey-text">
                             {label}
                         </div>
-                        <div className="small-text font-weight-700">
-                            You can receive dm3 messages directly sent to your
-                            ENS name.
-                        </div>
+                        <div className="small-text font-weight-700">{note}</div>
                     </div>
                 </div>
                 <div>

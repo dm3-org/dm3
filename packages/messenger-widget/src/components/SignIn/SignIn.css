@@ -21,9 +21,8 @@
 }
 
 .signin-btn {
-    font-size: 18px;
-    line-height: 24px;
-    padding: 1.2rem;
+    font-size: 1.125rem;
+    padding: 1.2rem 1.2rem 1.2rem 1.2rem;
 }
 
 .signin-btn:hover {
@@ -40,7 +39,9 @@
 }
 
 .sign-in-logo {
+    height: 4rem !important;
     width: fit-content !important;
+    fill: var(--text-primary-color) !important;
 }
 
 .content-data {
@@ -57,6 +58,18 @@
     color: var(--normal-btn-hover);
     font-size: 0.9rem;
     cursor: default;
+}
+
+.loading-btn {
+    height: fit-content !important;
+}
+
+.spinner-visible {
+    visibility: visible;
+}
+
+.spinner-invisible {
+    visibility: hidden;
 }
 
 @media only screen and (max-width: 1100px) {

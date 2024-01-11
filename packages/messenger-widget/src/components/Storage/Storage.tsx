@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { syncAcknoledgment } from 'dm3-lib-delivery-api';
-import { getAccountDisplayName, getBrowserStorageKey } from 'dm3-lib-profile';
+import { getBrowserStorageKey } from 'dm3-lib-profile';
 import { log } from 'dm3-lib-shared';
 import {
     SyncProcessState,
@@ -42,11 +42,6 @@ export default function Storage() {
                 );
             }
 
-            console.log(
-                'start sync storage',
-                state.userDb,
-                deliveryServiceToken,
-            );
             const syncResult = await syncStorage(
                 state.userDb,
                 deliveryServiceToken,
@@ -70,8 +65,6 @@ export default function Storage() {
                 payload: SyncProcessState.Idle,
             });
         } catch (e) {
-            // eslint-disable-next-line no-console
-            console.log(e);
             log('[sync] ' + JSON.stringify(e), 'error');
             dispatch({
                 type: UserDbType.setSyncProcessState,

@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
-import { useAccount, useNetwork, useWalletClient } from 'wagmi';
+import { useAccount, useWalletClient } from 'wagmi';
 
 import { Account } from 'dm3-lib-profile';
 import { UserDB } from 'dm3-lib-storage';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { AccountConnector } from './AccountConnector';
 import {
@@ -78,6 +78,14 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
         setDeliveryServiceToken(deliveryServiceToken);
         setIsLoading(false);
     };
+
+    // handles account change
+    useEffect(() => {
+        if (address && ethAddress && ethAddress !== address) {
+            signOut();
+        }
+    }, [address]);
+
     return {
         cleanSignIn,
         account,
@@ -86,5 +94,6 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
         isLoggedIn,
         isLoading,
         hasError,
+        setAccount,
     };
 };
