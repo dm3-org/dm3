@@ -17,7 +17,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 
 export function Profile() {
-    const { state, dispatch } = useContext(GlobalContext);
+    const { dispatch } = useContext(GlobalContext);
     const { account, ethAddress } = useContext(AuthContext);
     const mainnetProvider = useMainnetProvider();
 

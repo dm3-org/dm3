@@ -121,6 +121,10 @@ export function RightHeader(props: HideFunctionProps) {
         fetchDisplayName();
     }, [account?.ensName]);
 
+    useEffect(() => {
+        fetchDisplayName();
+    }, [state.cache.accountName]);
+
     return (
         <div
             className={(props.showContacts

@@ -89,8 +89,7 @@ export function MessageInputField(props: MessageDataProps) {
             <input
                 data-testid="msg-input"
                 id="msg-input"
-                className="text-input-field width-fill height-fill text-primary-color 
-            font-size-14 background-chat"
+                className="text-input-field width-fill height-fill font-size-14"
                 value={props.message}
                 type="text"
                 autoComplete="off"

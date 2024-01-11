@@ -5,10 +5,8 @@ import { DashboardProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
 import { useContext, useEffect } from 'react';
 import {
-    AccountsType,
     LeftViewSelected,
     ModalStateType,
-    RightViewSelected,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
 import { startLoader } from '../../components/Loader/Loader';
@@ -33,34 +31,42 @@ export default function LeftView(props: DashboardProps) {
             type: UiViewStateType.SetSelectedLeftView,
             payload: LeftViewSelected.Menu,
         });
-        dispatch({
-            type: UiViewStateType.SetSelectedRightView,
-            payload: RightViewSelected.Default,
-        });
-        dispatch({
-            type: AccountsType.SetSelectedContact,
-            payload: undefined,
-        });
+        const element = document.getElementById('menu-container');
+        if (element) {
+            element.classList.add('menu-container');
+        }
     };
 
     return (
         <div className="position-relative h-100 d-flex flex-column align-items-start">
-            {state.uiView.selectedLeftView === LeftViewSelected.Contacts ? (
-                <>
-                    <div className="menu-icon-container">
-                        <img
-                            src={menuIcon}
-                            className="pointer-cursor"
-                            alt="menu"
-                            onClick={() => openMenuItem()}
-                        />
-                    </div>
-                    <Contacts {...props} />
-                    <ConfigureProfileBox />
-                </>
-            ) : (
+            <div
+                className={'w-100 '.concat(
+                    state.uiView.selectedLeftView === LeftViewSelected.Contacts
+                        ? ''
+                        : 'display-none',
+                )}
+            >
+                <div className="menu-icon-container">
+                    <img
+                        src={menuIcon}
+                        className="pointer-cursor"
+                        alt="menu"
+                        onClick={() => openMenuItem()}
+                    />
+                </div>
+                <Contacts {...props} />
+                <ConfigureProfileBox />
+            </div>
+
+            <div
+                className={'w-100 h-100'.concat(
+                    state.uiView.selectedLeftView === LeftViewSelected.Menu
+                        ? ''
+                        : 'display-none',
+                )}
+            >
                 <Menu />
-            )}
+            </div>
         </div>
     );
 }

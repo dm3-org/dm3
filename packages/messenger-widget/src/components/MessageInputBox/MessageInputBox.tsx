@@ -74,7 +74,10 @@ export function MessageInputBox(props: HideFunctionProps) {
     }, [state.accounts.selectedContact]);
 
     return (
-        <div className="mb-1 p-1 msg-input-box-container width-fill">
+        <div
+            id="msg-input-box-container"
+            className="mb-1 p-1 msg-input-box-container width-fill"
+        >
             {/* Reply message preview */}
             {state.uiView.selectedMessageView.actionType ===
                 MessageActionType.REPLY && (

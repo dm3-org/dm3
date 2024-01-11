@@ -7,7 +7,6 @@ import threeDotsIcon from '../../assets/images/three-dots.svg';
 import { MessageAction } from '../MessageAction/MessageAction';
 import { GlobalContext } from '../../utils/context-utils';
 import { MessageActionType } from '../../utils/enum-type-utils';
-import { scrollToBottomOfChat } from '../Chat/bl';
 import { AttachmentThumbnailPreview } from '../AttachmentThumbnailPreview/AttachmentThumbnailPreview';
 import {
     deleteEmoji,
@@ -26,9 +25,6 @@ export function Message(props: MessageProps) {
 
     const handleMouseOver = () => {
         setIsHovered(true);
-        if (props.isLastMessage) {
-            scrollToBottomOfChat();
-        }
     };
 
     const handleMouseOut = () => {
@@ -61,14 +57,14 @@ export function Message(props: MessageProps) {
                                   state.uiView.selectedMessageView.messageData
                                       ?.envelop.id === props.envelop.id
                                 ? 'msg-editing-active'
-                                : 'ms-3 background-config-box'
+                                : 'ms-3 own-msg-background'
                             : !props.message &&
                               props.envelop.message.metadata.type ===
                                   MessageActionType.DELETE &&
                               (!props.envelop.message.attachments ||
                                   props.envelop.message.attachments.length < 1)
                             ? 'contact-deleted-msg'
-                            : 'normal-btn-hover'
+                            : 'contact-msg-background'
                         ).concat(
                             ' ',
                             props.reactions.length > 0
@@ -88,7 +84,11 @@ export function Message(props: MessageProps) {
                         props.envelop.message.metadata.type ===
                             MessageActionType.REPLY && (
                             <div
-                                className="reply-preview d-flex border-radius-4 normal-btn-inactive pointer-cursor"
+                                className={'reply-preview d-flex border-radius-4 pointer-cursor'.concat(
+                                    props.ownMessage
+                                        ? ' reply-preview-own'
+                                        : ' reply-preview-contact',
+                                )}
                                 onClick={() =>
                                     scrollToMessage(
                                         props.replyToMsgId as string,
@@ -101,6 +101,7 @@ export function Message(props: MessageProps) {
                                             .attachments as string[],
                                     )}
                                     isMyMessage={props.ownMessage}
+                                    isReplyMsgAttachments={true}
                                 />
                                 <div className="user-name">
                                     {props.replyToMsgFrom.length > 25

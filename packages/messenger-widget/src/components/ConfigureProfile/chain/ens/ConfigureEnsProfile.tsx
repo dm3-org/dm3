@@ -41,12 +41,17 @@ export const ConfigureEnsProfile = () => {
     };
 
     const label =
-        'You can get a DM3 name for free. Please check if your desired name is available. DM3 names are created and managed on Layer2 (e.g. Optimism). Small  transaction costs will apply for setting the profile and administration.';
+        'To publish your dm3 profile, a transaction is sent to set a text record in your ENS name. Transaction costs will apply for setting the profile and administration.';
+    const note = 'You can receive dm3 messages directly sent to your ENS name.';
+    const placeholder =
+        'Enter your ENS name. It must be connected to your wallet';
 
     return (
         <SubmitOnChainProfile
             handleNameChange={handleNameChange}
             label={label}
+            note={note}
+            placeholder={placeholder}
             onSubmitTx={onSubmitTx}
         />
     );

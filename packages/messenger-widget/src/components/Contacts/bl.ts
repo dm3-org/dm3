@@ -338,6 +338,53 @@ export const setContactList = async (
     }
 };
 
+export const updateContactDetailsOfNewContact = async (
+    state: GlobalState,
+    dispatch: React.Dispatch<Actions>,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
+) => {
+    if (state.cache.contacts) {
+        const index = state.cache.contacts?.length - 1;
+        const data = state.cache.contacts[index];
+
+        const profile = await fetchesUserProfile(
+            mainnetProvider!,
+            state.modal.addConversation.ensName as string,
+        );
+
+        let deliveryServiceProfile;
+
+        if (profile) {
+            deliveryServiceProfile = await getDeliveryServiceProfile(
+                profile.profile.deliveryServices[0],
+                mainnetProvider!,
+                async (url: string) => (await axios.get(url)).data,
+            );
+        }
+
+        data.contactDetails = {
+            account: {
+                ensName: state.modal.addConversation.ensName as string,
+                profile: profile
+                    ? {
+                          publicEncryptionKey:
+                              profile.profile.publicEncryptionKey,
+                          publicSigningKey: profile.profile.publicSigningKey,
+                          deliveryServices: profile.profile.deliveryServices,
+                      }
+                    : undefined,
+                profileSignature: profile?.signature,
+            },
+            deliveryServiceProfile: deliveryServiceProfile,
+        };
+
+        dispatch({
+            type: CacheType.Contacts,
+            payload: state.cache.contacts,
+        });
+    }
+};
+
 export const updateSelectedContact = (
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,

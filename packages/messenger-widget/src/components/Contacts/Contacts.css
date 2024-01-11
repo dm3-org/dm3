@@ -85,9 +85,9 @@
 }
 
 .contact-details-container-active {
-    border-top: 2px solid var(--normal-btn-hover) !important;
-    border-left: 2px solid var(--normal-btn-hover) !important;
-    border-bottom: 2px solid var(--normal-btn-hover) !important;
+    border-top: 2px solid var(--selected-contact-border-color) !important;
+    border-left: 2px solid var(--selected-contact-border-color) !important;
+    border-bottom: 2px solid var(--selected-contact-border-color) !important;
     background: var(--background-active-contact) !important;
     top: 0;
     bottom: 4rem !important;
@@ -101,8 +101,9 @@
 
 .msg-count {
     border-radius: 3px;
-    background: var(--normal-btn-hover);
+    background: var(--msg-counter-background-color);
     padding: 1px 7px 1px 7px;
+    color: var(--msg-counter-text-color);
 }
 
 .display-name {

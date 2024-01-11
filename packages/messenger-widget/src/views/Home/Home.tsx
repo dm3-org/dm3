@@ -98,7 +98,6 @@ export function Home(props: Dm3Props) {
         });
     }, []);
 
-    console.log('home');
     return (
         <div className="h-100">
             <Loader />
