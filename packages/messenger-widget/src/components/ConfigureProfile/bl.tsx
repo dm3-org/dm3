@@ -7,7 +7,7 @@ import {
 } from '../../utils/enum-type-utils';
 import { claimSubdomain, removeAlias } from 'dm3-lib-offchain-resolver-api';
 import { createAlias, getAliasChain } from 'dm3-lib-delivery-api';
-import { globalConfig } from 'dm3-lib-shared';
+import { globalConfig, log } from 'dm3-lib-shared';
 import { ethers } from 'ethers';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { setContactHeightToMaximum } from '../Contacts/bl';
@@ -83,7 +83,9 @@ export const getEnsName = async (
                     setEnsNameFromResolver(name);
             }
         }
-    } catch (error) {}
+    } catch (error) {
+        log(error, 'Configure profile');
+    }
 };
 
 // method to set new DM3 username
@@ -220,12 +222,12 @@ const enum NAME_SERVICES {
 export const namingServices = [
     {
         name: NAME_SERVICES.ENS,
-        chainId: [1],
+        chainId: 1,
         component: <ConfigureEnsProfile />,
     },
     {
         name: NAME_SERVICES.GENOME,
-        chainId: [100],
+        chainId: 100,
         component: <ConfigureGenomeProfile />,
     },
 ];
@@ -241,7 +243,7 @@ export const fetchComponent = (name: string) => {
 
 export const fetchServiceFromChainId = (chainId: number): string => {
     namingServices.forEach((data) => {
-        if (data.chainId.includes(chainId)) {
+        if (data.chainId === chainId) {
             return data.name;
         }
     });
@@ -251,8 +253,13 @@ export const fetchServiceFromChainId = (chainId: number): string => {
 export const fetchChainIdFromServiceName = (name: string) => {
     switch (name) {
         case NAME_SERVICES.ENS:
-            return namingServices[0].chainId[0];
+            if (process.env.REACT_APP_CHAIN_ID === '5') {
+                return Number(process.env.REACT_APP_CHAIN_ID);
+            }
+            return namingServices[0].chainId;
         case NAME_SERVICES.GENOME:
-            return namingServices[1].chainId[0];
+            return namingServices[1].chainId;
+        default:
+            return namingServices[0].chainId;
     }
 };
