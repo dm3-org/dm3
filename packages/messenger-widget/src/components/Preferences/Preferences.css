@@ -1,10 +1,11 @@
 .preferences-modal-content {
     margin: auto;
     border: none;
-    top: 10%;
+    top: 5%;
+    bottom: 5%;
     position: relative;
     width: 90%;
-    height: 80%;
+    height: 90%;
     padding: 0rem;
 }
 
@@ -12,6 +13,11 @@
     width: 1.8rem;
     height: auto;
     cursor: pointer;
+}
+
+.preferences-heading {
+    font-size: 1.5rem;
+    font-weight: 700;
 }
 
 .preferences-name {
@@ -54,7 +60,16 @@
 }
 
 .back-icon {
-    width: 2.5rem;
+    width: 2rem;
     margin-left: 0.6rem;
     margin-right: 0.3rem;
+}
+
+.preferences-text-highlighted {
+    color: #8b7ff4;
+}
+
+.preferences-content {
+    border-top-right-radius: 6px;
+    padding: 0.5rem 0rem 0.5rem 1rem;
 }
