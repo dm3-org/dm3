@@ -53,6 +53,7 @@ export interface Modal {
     openEmojiPopup: { action: boolean; data: MessageProps | undefined };
     lastMessageAction: MessageActionType;
     isProfileConfigurationPopupActive: boolean;
+    showPreferencesModal: boolean;
 }
 
 export interface UiViewState {

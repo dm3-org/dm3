@@ -256,6 +256,7 @@ export enum ModalStateType {
     OpenEmojiPopup = 'OPEN_EMOJI_MODAL',
     LastMessageAction = 'LAST_MESSAGE_ACTION',
     IsProfileConfigurationPopupActive = 'IS_PROFILE_CONFIGURATION_POPUP_ACTIVE',
+    ShowPreferencesModal = 'SHOW_PREFERENCES_MODAL',
 }
 
 export type ModalStatePayload = {
@@ -268,6 +269,7 @@ export type ModalStatePayload = {
     };
     [ModalStateType.LastMessageAction]: MessageActionType;
     [ModalStateType.IsProfileConfigurationPopupActive]: boolean;
+    [ModalStateType.ShowPreferencesModal]: boolean;
 };
 
 export type ModalStateActions =

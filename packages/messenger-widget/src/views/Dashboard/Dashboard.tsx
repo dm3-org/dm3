@@ -11,6 +11,7 @@ import {
 } from '../../utils/enum-type-utils';
 import { ConfigureProfile } from '../../components/ConfigureProfile/ConfigureProfile';
 import DeleteMessage from '../../components/DeleteMessage/DeleteMessage';
+import { Preferences } from '../../components/Preferences/Preferences';
 
 export default function Dashboard(props: DashboardProps) {
     const { state } = useContext(GlobalContext);
@@ -33,13 +34,18 @@ export default function Dashboard(props: DashboardProps) {
 
     return (
         <div className="h-100">
+            {/* Preferences popup */}
+            {state.modal.showPreferencesModal && <Preferences />}
+
             {/* Configure profile popup */}
             {state.modal.isProfileConfigurationPopupActive && (
                 <ConfigureProfile />
             )}
+
             {/* Delete message confirmation popup */}
             {state.uiView.selectedMessageView.actionType ===
                 MessageActionType.DELETE && <DeleteMessage />}
+
             <div className="row m-0 h-100">
                 <div className={getLeftViewStyleClasses()}>
                     <LeftView {...props} />

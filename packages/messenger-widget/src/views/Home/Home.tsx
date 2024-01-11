@@ -22,11 +22,11 @@ import { gnosis, goerli } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import AddConversation from '../../components/AddConversation/AddConversation';
 import { Loader } from '../../components/Loader/Loader';
-import { Preferences } from '../../components/Preferences/Preferences';
 import { AuthContextProvider } from '../../context/AuthContext';
 import { GlobalContext } from '../../utils/context-utils';
 import './Home.css';
 import { MainnetProviderContextProvider } from '../../context/ProviderContext';
+import { Preferences } from '../../components/Preferences/Preferences';
 
 //@ts-ignore
 const chiado = defineChain({

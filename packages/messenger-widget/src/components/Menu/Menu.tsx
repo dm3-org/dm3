@@ -3,10 +3,9 @@ import { useContext } from 'react';
 import closeIcon from '../../assets/images/cross.svg';
 import addIcon from '../../assets/images/add.svg';
 import settingsIcon from '../../assets/images/settings.svg';
-import { LeftViewSelected, UiViewStateType } from '../../utils/enum-type-utils';
+import { LeftViewSelected, ModalStateType, UiViewStateType } from '../../utils/enum-type-utils';
 import { GlobalContext } from '../../utils/context-utils';
 import { openConversationModal } from '../AddConversation/bl';
-import { openPreferencesModal } from '../Preferences/bl';
 
 export default function Menu() {
     // fetches context api data
@@ -48,7 +47,12 @@ export default function Menu() {
             <div
                 className="d-flex align-items-center justify-content-start pointer-cursor 
             menu-items font-weight-400 text-primary-color"
-                onClick={() => openPreferencesModal()}
+                onClick={() => {
+                    dispatch({
+                        type: ModalStateType.ShowPreferencesModal,
+                        payload: true,
+                    })
+                }}
             >
                 <img
                     src={settingsIcon}

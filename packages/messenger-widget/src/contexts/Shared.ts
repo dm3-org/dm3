@@ -68,5 +68,6 @@ export const initialState: GlobalState = {
         openEmojiPopup: { action: false, data: undefined },
         lastMessageAction: MessageActionType.NONE,
         isProfileConfigurationPopupActive: false,
+        showPreferencesModal: false,
     },
 };
