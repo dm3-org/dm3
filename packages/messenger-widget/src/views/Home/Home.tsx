@@ -102,7 +102,7 @@ export function Home(props: Dm3Props) {
         <div className="h-100">
             <Loader />
             <AddConversation />
-            <Preferences />
+            {/* <Preferences /> */}
             <WagmiConfig config={wagmiConfig}>
                 <RainbowKitProvider chains={chains} theme={darkTheme()}>
                     <MainnetProviderContextProvider>
