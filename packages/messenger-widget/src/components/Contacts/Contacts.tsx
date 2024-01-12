@@ -30,12 +30,15 @@ import { ContactMenu } from '../ContactMenu/ContactMenu';
 import loader from '../../assets/images/loader.svg';
 import { AuthContext } from '../../context/AuthContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
+import { useTopLevelAlias } from '../../hooks/topLevelAlias/useTopLevelAlias';
+import { resolve } from 'path';
 
 export function Contacts(props: DashboardProps) {
     // fetches context api data
     const { state, dispatch } = useContext(GlobalContext);
     const { account, deliveryServiceToken } = useContext(AuthContext);
     const mainnetProvider = useMainnetProvider();
+    const { resolveAliasToTLD } = useTopLevelAlias();
 
     // local states to handle contact list and active contact
     const [contactSelected, setContactSelected] = useState<number | null>(null);
@@ -350,13 +353,19 @@ export function Contacts(props: DashboardProps) {
                                                 className="pb-1"
                                                 title={
                                                     data.contactDetails
-                                                        ? data.contactDetails
-                                                              .account.ensName
+                                                        ? resolveAliasToTLD(
+                                                              data
+                                                                  .contactDetails
+                                                                  .account
+                                                                  .ensName,
+                                                          )
                                                         : ''
                                                 }
                                             >
                                                 <p className="display-name">
-                                                    {data.name}
+                                                    {resolveAliasToTLD(
+                                                        data.name,
+                                                    )}
                                                 </p>
                                             </div>
 

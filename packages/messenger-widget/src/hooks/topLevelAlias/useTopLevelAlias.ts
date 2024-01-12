@@ -4,9 +4,9 @@ import { TLDResolver } from './nameService/TLDResolver';
 const SUPPORTED_NAMESERVICES: TLDResolver[] = [new Genome()];
 
 export const useTopLevelAlias = () => {
-    const resolveAliasToTLD = async (ensName: string) => {
+    const resolveAliasToTLD = (ensName: string) => {
         for (const nameservice of SUPPORTED_NAMESERVICES) {
-            if (await nameservice.isResolverForAliasName(ensName)) {
+            if (nameservice.isResolverForAliasName(ensName)) {
                 return nameservice.resolveAliasToTLD(ensName);
             }
         }
@@ -14,9 +14,9 @@ export const useTopLevelAlias = () => {
     };
     //The alias format is used to store the contact in the DB
     //e.g. 0x1234.gno -> 0x1234.gnosis.eth
-    const resolveTLDtoAlias = async (ensName: string) => {
+    const resolveTLDtoAlias = (ensName: string) => {
         for (const nameservice of SUPPORTED_NAMESERVICES) {
-            if (await nameservice.isResolverForTldName(ensName)) {
+            if (nameservice.isResolverForTldName(ensName)) {
                 return nameservice.resolveTLDtoAlias(ensName);
             }
         }
