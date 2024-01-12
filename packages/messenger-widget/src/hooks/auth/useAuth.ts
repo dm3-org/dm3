@@ -10,9 +10,10 @@ import {
     ConnectDsResult,
     DeliveryServiceConnector,
 } from './DeliveryServiceConnector';
-import { TopLevelAliasResolver } from './TopLevelAliasResolver';
+import { useTopLevelAlias } from '../topLevelAlias/useTopLevelAlias';
 
 export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
+    const { resolveAliasToTLD } = useTopLevelAlias();
     const { data: walletClient } = useWalletClient();
     const mainnetProvider = useMainnetProvider();
     const { address } = useAccount({
@@ -42,10 +43,7 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
             if (!account) {
                 return;
             }
-            const displayName =
-                await TopLevelAliasResolver().resolveDisplayName(
-                    account?.ensName,
-                );
+            const displayName = await resolveAliasToTLD(account?.ensName);
             setDisplayName(displayName);
         };
         fetchDisplayName();
