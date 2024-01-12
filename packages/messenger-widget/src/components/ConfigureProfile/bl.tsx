@@ -33,6 +33,10 @@ export enum ACTION_TYPE {
     REMOVE,
 }
 
+export interface IChain {
+    chainToConnect: number;
+}
+
 // method to open the profile configuration modal
 export const openConfigurationModal = (dispatch: React.Dispatch<Actions>) => {
     dispatch({
@@ -42,17 +46,7 @@ export const openConfigurationModal = (dispatch: React.Dispatch<Actions>) => {
 };
 
 // method to close the profile configuration modal
-export const closeConfigurationModal = (
-    setDm3Name: Function,
-    setEnsName: Function,
-    setErrorMsg: Function,
-    setShowError: Function,
-    dispatch: React.Dispatch<Actions>,
-) => {
-    setDm3Name('');
-    setEnsName('');
-    setErrorMsg('');
-    setShowError(undefined);
+export const closeConfigurationModal = (dispatch: React.Dispatch<Actions>) => {
     dispatch({
         type: ModalStateType.IsProfileConfigurationPopupActive,
         payload: false,
@@ -223,21 +217,28 @@ export const namingServices = [
     {
         name: NAME_SERVICES.ENS,
         chainId: 1,
-        component: <ConfigureEnsProfile />,
     },
     {
         name: NAME_SERVICES.GENOME,
         chainId: 100,
-        component: <ConfigureGenomeProfile />,
     },
 ];
 
 export const fetchComponent = (name: string) => {
+    let chain: number = 1;
     switch (name) {
         case NAME_SERVICES.ENS:
-            return namingServices[0].component;
+            if (process.env.REACT_APP_CHAIN_ID === '5') {
+                chain = Number(process.env.REACT_APP_CHAIN_ID);
+            } else {
+                chain = namingServices[0].chainId;
+            }
+            return <ConfigureEnsProfile chainToConnect={chain} />;
         case NAME_SERVICES.GENOME:
-            return namingServices[1].component;
+            chain = namingServices[1].chainId;
+            return <ConfigureGenomeProfile chainToConnect={chain} />;
+        default:
+            return <ConfigureEnsProfile chainToConnect={chain} />;
     }
 };
 

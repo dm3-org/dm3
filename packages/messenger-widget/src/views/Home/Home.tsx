@@ -26,7 +26,6 @@ import { AuthContextProvider } from '../../context/AuthContext';
 import { GlobalContext } from '../../utils/context-utils';
 import './Home.css';
 import { MainnetProviderContextProvider } from '../../context/ProviderContext';
-import { Preferences } from '../../components/Preferences/Preferences';
 
 //@ts-ignore
 const chiado = defineChain({
@@ -102,7 +101,6 @@ export function Home(props: Dm3Props) {
         <div className="h-100">
             <Loader />
             <AddConversation />
-            {/* <Preferences /> */}
             <WagmiConfig config={wagmiConfig}>
                 <RainbowKitProvider chains={chains} theme={darkTheme()}>
                     <MainnetProviderContextProvider>

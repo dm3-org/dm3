@@ -2,9 +2,14 @@ import './Preferences.css';
 import { preferencesItems } from './bl';
 import infoIcon from './../../assets/images/preferences-info.svg';
 import backIcon from './../../assets/images/back.svg';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import { GlobalContext } from '../../utils/context-utils';
+import closeIcon from '../../assets/images/cross.svg';
+import { ModalStateType } from '../../utils/enum-type-utils';
 
 export function Preferences() {
+    const { dispatch } = useContext(GlobalContext);
+
     const [optionChoosen, setOptionChoosen] = useState<any>(null);
 
     return (
@@ -83,7 +88,23 @@ export function Preferences() {
                             </div>
                         </div>
                         <div className="col-10 m-0 p-0">
-                            {optionChoosen && optionChoosen.component}
+                            {optionChoosen ? (
+                                optionChoosen.component
+                            ) : (
+                                <div className="d-flex align-items-start justify-content-end">
+                                    <img
+                                        className="close-modal-icon m-2"
+                                        src={closeIcon}
+                                        alt="close"
+                                        onClick={() =>
+                                            dispatch({
+                                                type: ModalStateType.ShowPreferencesModal,
+                                                payload: false,
+                                            })
+                                        }
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

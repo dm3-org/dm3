@@ -9,6 +9,7 @@ import { Properties } from './Properties';
 import { Notification } from './Notification';
 import { Network } from './Network';
 import { Storage } from './Storage';
+import { DM3Profile } from './DM3Profile';
 
 export const preferencesItems = [
     {
@@ -19,7 +20,7 @@ export const preferencesItems = [
     {
         image: <img src={dm3Icon} alt="dm3" className="me-2" />,
         name: 'dm3 Profile',
-        component: <Spam />,
+        component: <DM3Profile />,
     },
     {
         image: <img src={spamIcon} alt="spam" className="me-2" />,
