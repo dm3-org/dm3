@@ -1,4 +1,4 @@
-import { stringify } from 'dm3-lib-shared';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import { sha256 } from 'ethers/lib/utils';
 

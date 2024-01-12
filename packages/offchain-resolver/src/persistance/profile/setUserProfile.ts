@@ -4,8 +4,8 @@ import {
     normalizeEnsName,
     schema,
     formatAddress,
-} from 'dm3-lib-profile';
-import { validateSchema } from 'dm3-lib-shared';
+} from '@dm3-org/dm3-lib-profile';
+import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import { PrismaClient } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 

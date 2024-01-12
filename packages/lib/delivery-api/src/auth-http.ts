@@ -3,7 +3,7 @@ import {
     Account,
     getDeliveryServiceClient,
     normalizeEnsName,
-} from 'dm3-lib-profile';
+} from '@dm3-org/dm3-lib-profile';
 
 import { ethers } from 'ethers';
 import { checkAccount } from './utils';

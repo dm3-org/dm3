@@ -1,4 +1,4 @@
-import { sha256 } from 'dm3-lib-shared';
+import { sha256 } from '@dm3-org/dm3-lib-shared';
 import { Db } from './types';
 
 /**

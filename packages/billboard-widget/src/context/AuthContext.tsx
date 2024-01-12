@@ -1,4 +1,4 @@
-import { ProfileKeys } from 'dm3-lib-profile';
+import { ProfileKeys } from '@dm3-org/dm3-lib-profile';
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { GlobalContext } from './GlobalContext';

@@ -1,4 +1,4 @@
-import { Message } from 'dm3-lib-messaging';
+import { Message } from '@dm3-org/dm3-lib-messaging';
 
 function randomInt(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1)) + min;

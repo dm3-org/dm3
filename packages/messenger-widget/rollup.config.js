@@ -19,7 +19,7 @@ export default {
     external: [
         ...Object.keys(pkg.peerDependencies || {}),
         'react/jsx-runtime',
-        'dm3-lib',
+        '@dm3-org/dm3-lib',
         'react-chat-widget/lib/styles.css',
         'socket.io-client',
         'react-beforeunload',

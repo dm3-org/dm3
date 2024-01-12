@@ -1,6 +1,9 @@
-import { createDeliveryServiceProfile, createProfile } from 'dm3-lib-profile';
+import {
+    createDeliveryServiceProfile,
+    createProfile,
+} from '@dm3-org/dm3-lib-profile';
 import { ethers } from 'ethers';
-import { createJsonDataUri } from 'dm3-lib-shared';
+import { createJsonDataUri } from '@dm3-org/dm3-lib-shared';
 import {
     EncryptionEnvelop,
     createJsonRpcCallSubmitMessage,
@@ -12,7 +15,7 @@ import {
     sendOverMessageProxy,
     createProxyEnvelop,
     ProxyEnvelop,
-} from 'dm3-lib-messaging';
+} from '@dm3-org/dm3-lib-messaging';
 
 describe('Profile creation and sending a message using a message proxy', () => {
     let provider: ethers.providers.JsonRpcProvider;

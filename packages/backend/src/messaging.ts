@@ -1,10 +1,10 @@
 import { Socket } from 'socket.io';
 import express from 'express';
 import { WithLocals } from './types';
-import { validateSchema } from 'dm3-lib-shared';
-import { EncryptionEnvelop } from 'dm3-lib-messaging';
-import { normalizeEnsName } from 'dm3-lib-profile';
-import { schema, checkToken, incomingMessage } from 'dm3-lib-delivery';
+import { validateSchema } from '@dm3-org/dm3-lib-shared';
+import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { schema, checkToken, incomingMessage } from '@dm3-org/dm3-lib-delivery';
 
 const pendingMessageSchema = {
     type: 'object',

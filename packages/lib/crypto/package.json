@@ -1,6 +1,6 @@
 {
-    "name": "dm3-lib-crypto",
-    "version": "0.2.0",
+    "name": "@dm3-org/dm3-lib-crypto",
+    "version": "1.0.0",
     "main": "dist/index.js",
     "module": "dist-backend/index.js",
     "types": "dist/index.d.ts",

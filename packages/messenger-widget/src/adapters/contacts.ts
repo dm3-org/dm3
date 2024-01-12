@@ -4,13 +4,13 @@ import {
     getDeliveryServiceProfile,
     getUserProfile,
     normalizeEnsName,
-} from 'dm3-lib-profile';
-import { log, stringify } from 'dm3-lib-shared';
+} from '@dm3-org/dm3-lib-profile';
+import { log, stringify } from '@dm3-org/dm3-lib-shared';
 import {
     getConversationId,
     UserDB,
     createEmptyConversation,
-} from 'dm3-lib-storage';
+} from '@dm3-org/dm3-lib-storage';
 import { Contact } from '../interfaces/context';
 import { Connection } from '../interfaces/web3';
 import {

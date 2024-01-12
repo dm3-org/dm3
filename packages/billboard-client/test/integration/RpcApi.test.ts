@@ -14,7 +14,7 @@ import { mockUserProfile } from '../helper/mockUserProfile';
 import { mockWsServer } from '../helper/mockWsServer';
 import { MockMessageFactory } from '../helper/mockMessageFactory';
 import { wait } from '../helper/utils/wait';
-import { Message } from 'dm3-lib-messaging';
+import { Message } from '@dm3-org/dm3-lib-messaging';
 
 chai.use(chaiHttp);
 

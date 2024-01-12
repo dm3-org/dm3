@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { SignedUserProfile, formatAddress } from 'dm3-lib-profile';
-import { sign } from 'dm3-lib-crypto';
+import { SignedUserProfile, formatAddress } from '@dm3-org/dm3-lib-profile';
+import { sign } from '@dm3-org/dm3-lib-crypto';
 
 /**
  * claims a dm3.eth subdomain

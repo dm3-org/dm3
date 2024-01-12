@@ -1,7 +1,10 @@
 import { ethers } from 'ethers';
-import { createProfileKeys } from 'dm3-lib-profile';
-import { createStorageKey, getStorageKeyCreationMessage } from 'dm3-lib-crypto';
-import { Envelop, Message, MessageState } from 'dm3-lib-messaging';
+import { createProfileKeys } from '@dm3-org/dm3-lib-profile';
+import {
+    createStorageKey,
+    getStorageKeyCreationMessage,
+} from '@dm3-org/dm3-lib-crypto';
+import { Envelop, Message, MessageState } from '@dm3-org/dm3-lib-messaging';
 import {
     createDB,
     createEmptyConversation,

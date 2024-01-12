@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { normalizeEnsName } from 'dm3-lib-profile';
-import { logError } from 'dm3-lib-shared';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { logError } from '@dm3-org/dm3-lib-shared';
 
 export async function getChallenge(
     dsUrl: string,

@@ -59,12 +59,12 @@ jobs:
             run: |
                 cp ./.env.react packages/messenger-demo/.env
                 cp ./.env.react packages/messenger-web/.env
-                docker build --progress=plain -t dm3-backend:latest -f ./docker/Dockerfile .
-                docker save -o ./dm3-backend.tar dm3-backend:latest
+                docker build --progress=plain -t @dm3-org/dm3-backend:latest -f ./docker/Dockerfile .
+                docker save -o ./@dm3-org/dm3-backend.tar @dm3-org/dm3-backend:latest
           - name: Sync files
             run: |
                 rsync -avz -e 'ssh -i ./ssh-key' ./.env app@${{ secrets.IP_ADDRESS}}:/home/app/dm3
-                rsync -avz -e 'ssh -i ./ssh-key' ./dm3-backend.tar app@${{ secrets.IP_ADDRESS}}:/home/app/dm3 
+                rsync -avz -e 'ssh -i ./ssh-key' ./@dm3-org/dm3-backend.tar app@${{ secrets.IP_ADDRESS}}:/home/app/dm3 
                 rsync -avz -e 'ssh -i ./ssh-key' ./nginx.conf app@${{ secrets.IP_ADDRESS}}:/home/app/dm3
                 rsync -avz -e 'ssh -i ./ssh-key' ./docker/prod/docker-compose.yml app@${{ secrets.IP_ADDRESS}}:/home/app/dm3
           - name: Prepare docker
@@ -76,8 +76,8 @@ jobs:
           - name: Load docker image
             run: |
                 ssh -i ./ssh-key app@${{ secrets.IP_ADDRESS}} "\
-                cd dm3 && docker load -i dm3-backend.tar; \
-                rm dm3-backend.tar || true"
+                cd dm3 && docker load -i @dm3-org/dm3-backend.tar; \
+                rm @dm3-org/dm3-backend.tar || true"
           - name: Firewall config
             run: |
                 ssh -i ./ssh-key root@${{ secrets.IP_ADDRESS}} "\

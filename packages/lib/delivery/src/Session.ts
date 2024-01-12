@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import { ProfileExtension, SignedUserProfile } from 'dm3-lib-profile';
-import { logDebug } from 'dm3-lib-shared';
+import { ProfileExtension, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
+import { logDebug } from '@dm3-org/dm3-lib-shared';
 
 //1Year
 const TTL = 31536000000;

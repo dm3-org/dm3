@@ -1,4 +1,4 @@
-import { logError, logWarning } from 'dm3-lib-shared';
+import { logError, logWarning } from '@dm3-org/dm3-lib-shared';
 import { Envelop } from './Envelop';
 
 const SUPPORTED_PROTOCOLS = ['http', 'https', 'data'];

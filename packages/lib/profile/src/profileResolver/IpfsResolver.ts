@@ -1,4 +1,4 @@
-import { logInfo } from 'dm3-lib-shared';
+import { logInfo } from '@dm3-org/dm3-lib-shared';
 import { Dm3Profile, ProfileResolver } from './ProfileResolver';
 import { GetResource } from '../Profile';
 

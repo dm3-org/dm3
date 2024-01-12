@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { SignedUserProfile } from 'dm3-lib-profile';
+import { SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 
 export function OffchainResolverClient(baseUrl: string) {
     async function claimSubdomain(

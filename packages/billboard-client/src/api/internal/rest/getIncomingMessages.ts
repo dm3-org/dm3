@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
-import { EncryptionEnvelop } from 'dm3-lib-messaging';
-import { logError } from 'dm3-lib-shared';
+import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
+import { logError } from '@dm3-org/dm3-lib-shared';
 
 /**
  * Retrieves incoming messages for a specific ENS name.

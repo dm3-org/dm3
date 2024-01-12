@@ -1,4 +1,7 @@
-import { createStorageKey, getStorageKeyCreationMessage } from 'dm3-lib-crypto';
+import {
+    createStorageKey,
+    getStorageKeyCreationMessage,
+} from '@dm3-org/dm3-lib-crypto';
 import {
     Account,
     DEFAULT_NONCE,
@@ -7,8 +10,8 @@ import {
     UserProfile,
     createProfileKeys,
     getProfileCreationMessage,
-} from 'dm3-lib-profile';
-import { stringify } from 'dm3-lib-shared';
+} from '@dm3-org/dm3-lib-profile';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 
 export const mockUserProfile = async (

@@ -1,4 +1,4 @@
-import { createKeyPair, createSigningKeyPair } from 'dm3-lib-crypto';
+import { createKeyPair, createSigningKeyPair } from '@dm3-org/dm3-lib-crypto';
 import { ProfileKeys } from '../Profile';
 
 export async function createProfileKeys(

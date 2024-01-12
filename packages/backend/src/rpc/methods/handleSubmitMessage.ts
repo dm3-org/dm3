@@ -1,10 +1,10 @@
-import { schema, incomingMessage } from 'dm3-lib-delivery';
-import { EncryptionEnvelop } from 'dm3-lib-messaging';
-import { validateSchema } from 'dm3-lib-shared';
+import { schema, incomingMessage } from '@dm3-org/dm3-lib-delivery';
+import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
+import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import 'dotenv/config';
 import express from 'express';
 import { WithLocals } from '../../types';
-import { logDebug, logError, logInfo } from 'dm3-lib-shared';
+import { logDebug, logError, logInfo } from '@dm3-org/dm3-lib-shared';
 
 export async function handleSubmitMessage(
     req: express.Request & { app: WithLocals },

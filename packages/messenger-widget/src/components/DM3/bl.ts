@@ -1,7 +1,11 @@
-import { decryptAsymmetric } from 'dm3-lib-crypto';
-import { EncryptionEnvelop, Postmark, MessageState } from 'dm3-lib-messaging';
-import { log } from 'dm3-lib-shared';
-import { UserDB } from 'dm3-lib-storage';
+import { decryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
+import {
+    EncryptionEnvelop,
+    Postmark,
+    MessageState,
+} from '@dm3-org/dm3-lib-messaging';
+import { log } from '@dm3-org/dm3-lib-shared';
+import { UserDB } from '@dm3-org/dm3-lib-storage';
 import { requestContacts } from '../../adapters/contacts';
 import { Connection } from '../../interfaces/web3';
 import {
@@ -11,7 +15,7 @@ import {
     UserDbType,
 } from '../../utils/enum-type-utils';
 import { Config } from '../../interfaces/config';
-import { Account } from 'dm3-lib-profile';
+import { Account } from '@dm3-org/dm3-lib-profile';
 import { ethers } from 'ethers';
 
 export function showSignIn(connectionState: ConnectionState): boolean {

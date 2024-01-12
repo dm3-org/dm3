@@ -1,4 +1,4 @@
-import { DeliveryInformation } from 'dm3-lib-messaging';
+import { DeliveryInformation } from '@dm3-org/dm3-lib-messaging';
 import { Email } from '../channels/Email';
 import {
     INotificationBroker,

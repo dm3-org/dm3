@@ -3,7 +3,7 @@ import { IDatabase } from '../IDatabase';
 import { setUserProfile } from './setUserProfile';
 import { ethers } from 'ethers';
 import winston from 'winston';
-import { SignedUserProfile } from 'dm3-lib-profile';
+import { SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { PrismaClient } from '@prisma/client';
 import { clearDb } from '../clearDb';
 import chai, { expect } from 'chai';

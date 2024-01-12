@@ -1,9 +1,9 @@
 /* eslint-disable max-len */
 /* eslint-disable no-console */
 import { createWeb3Name } from '@web3-name-sdk/core';
-import { getNameForAddress } from 'dm3-lib-offchain-resolver-api';
-import { checkUserProfile, getUserProfile } from 'dm3-lib-profile';
-import { globalConfig, log } from 'dm3-lib-shared';
+import { getNameForAddress } from '@dm3-org/dm3-lib-offchain-resolver-api';
+import { checkUserProfile, getUserProfile } from '@dm3-org/dm3-lib-profile';
+import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import { WalletClient } from 'viem';
 

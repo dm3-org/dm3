@@ -5,7 +5,7 @@ import {
     SignedUserProfile,
     UserProfile,
     normalizeEnsName,
-} from 'dm3-lib-profile';
+} from '@dm3-org/dm3-lib-profile';
 import { ProfileContainer } from './getProfileContainer';
 
 /**

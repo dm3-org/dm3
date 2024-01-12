@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import { useAccount, useWalletClient } from 'wagmi';
 
-import { Account } from 'dm3-lib-profile';
-import { UserDB } from 'dm3-lib-storage';
+import { Account } from '@dm3-org/dm3-lib-profile';
+import { UserDB } from '@dm3-org/dm3-lib-storage';
 import { useEffect, useMemo, useState } from 'react';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { AccountConnector } from './AccountConnector';

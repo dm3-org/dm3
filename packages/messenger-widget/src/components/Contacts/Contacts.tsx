@@ -1,37 +1,36 @@
-import './Contacts.css';
-import threeDotsIcon from '../../assets/images/three-dots.svg';
-import { ContactPreview } from '../../interfaces/utils';
-import {
-    onContactSelected,
-    setContactHeightToMaximum,
-    setContactList,
-    setContactIndexSelectedFromCache,
-    updateContactOnAccountChange,
-    updateSelectedContact,
-    resetContactListOnHide,
-    showMenuInBottom,
-    fetchMessageSizeLimit,
-    updateUnreadMsgCount,
-    fetchAndUpdateUnreadMsgCount,
-    addNewConversationFound,
-    updateContactDetailsOfNewContact,
-} from './bl';
+import { globalConfig } from '@dm3-org/dm3-lib-shared';
 import { useContext, useEffect, useState } from 'react';
-import { GlobalContext } from '../../utils/context-utils';
+import loader from '../../assets/images/loader.svg';
+import threeDotsIcon from '../../assets/images/three-dots.svg';
+import { AuthContext } from '../../context/AuthContext';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
+import { useTopLevelAlias } from '../../hooks/topLevelAlias/useTopLevelAlias';
 import { DashboardProps } from '../../interfaces/props';
-import { closeLoader, startLoader } from '../Loader/Loader';
-import { globalConfig } from 'dm3-lib-shared';
+import { ContactPreview } from '../../interfaces/utils';
+import { GlobalContext } from '../../utils/context-utils';
 import {
     CacheType,
     ModalStateType,
     RightViewSelected,
 } from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
-import loader from '../../assets/images/loader.svg';
-import { AuthContext } from '../../context/AuthContext';
-import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
-import { useTopLevelAlias } from '../../hooks/topLevelAlias/useTopLevelAlias';
-import { resolve } from 'path';
+import { closeLoader, startLoader } from '../Loader/Loader';
+import './Contacts.css';
+import {
+    addNewConversationFound,
+    fetchAndUpdateUnreadMsgCount,
+    fetchMessageSizeLimit,
+    onContactSelected,
+    resetContactListOnHide,
+    setContactHeightToMaximum,
+    setContactIndexSelectedFromCache,
+    setContactList,
+    showMenuInBottom,
+    updateContactDetailsOfNewContact,
+    updateContactOnAccountChange,
+    updateSelectedContact,
+    updateUnreadMsgCount,
+} from './bl';
 
 export function Contacts(props: DashboardProps) {
     // fetches context api data
