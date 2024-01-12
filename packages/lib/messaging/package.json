@@ -1,6 +1,6 @@
 {
-    "name": "dm3-lib-messaging",
-    "version": "0.2.0",
+    "name": "@dm3-org/dm3-lib-messaging",
+    "version": "1.0.0",
     "license": "MIT",
     "main": "dist/index.js",
     "module": "dist-backend/index.js",
@@ -12,9 +12,9 @@
         }
     },
     "dependencies": {
-        "dm3-lib-crypto": "workspace:^",
-        "dm3-lib-profile": "workspace:^",
-        "dm3-lib-shared": "workspace:^",
+        "@dm3-org/dm3-lib-crypto": "workspace:^",
+        "@dm3-org/dm3-lib-profile": "workspace:^",
+        "@dm3-org/dm3-lib-shared": "workspace:^",
         "ethers": "5.7.2"
     },
     "devDependencies": {

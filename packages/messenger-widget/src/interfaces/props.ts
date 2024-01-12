@@ -1,4 +1,4 @@
-import { Envelop, MessageState } from 'dm3-lib-messaging';
+import { Envelop, MessageState } from '@dm3-org/dm3-lib-messaging';
 import {
     Actions,
     GlobalState,
@@ -6,7 +6,7 @@ import {
 } from '../utils/enum-type-utils';
 import { Config, Dm3Props } from './config';
 import { Attachment, ContactPreview } from './utils';
-import { Account } from 'dm3-lib-profile';
+import { Account } from '@dm3-org/dm3-lib-profile';
 import { ethers } from 'ethers';
 
 export interface DashboardProps {

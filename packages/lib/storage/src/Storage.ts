@@ -1,8 +1,12 @@
-import { Account, normalizeEnsName, ProfileKeys } from 'dm3-lib-profile';
-import { decrypt, encrypt, EncryptedPayload } from 'dm3-lib-crypto';
-import { Acknoledgment } from 'dm3-lib-delivery';
-import { Envelop, MessageState } from 'dm3-lib-messaging';
-import { logInfo, stringify } from 'dm3-lib-shared';
+import {
+    Account,
+    normalizeEnsName,
+    ProfileKeys,
+} from '@dm3-org/dm3-lib-profile';
+import { decrypt, encrypt, EncryptedPayload } from '@dm3-org/dm3-lib-crypto';
+import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
+import { Envelop, MessageState } from '@dm3-org/dm3-lib-messaging';
+import { logInfo, stringify } from '@dm3-org/dm3-lib-shared';
 import { createTimestamp } from './Utils';
 
 export enum StorageLocation {

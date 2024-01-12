@@ -1,6 +1,6 @@
 {
-  "name": "dm3-billboard-widget",
-  "version": "0.3.2",
+  "name": "@dm3-org/dm3-billboard-widget",
+  "version": "1.0.0",
   "files": [
     "dist"
   ],
@@ -14,14 +14,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@dm3-org/dm3-lib-billboard-client-api": "workspace:^",
+    "@dm3-org/dm3-lib-delivery-api": "workspace:^",
+    "@dm3-org/dm3-lib-offchain-resolver-api": "workspace:^",
+    "@dm3-org/dm3-lib-shared": "workspace:^",
     "@metamask/detect-provider": "^2.0.0",
     "@metamask/providers": "^11.0.0",
     "@rainbow-me/rainbowkit": "^1.0.1",
     "date-fns": "^2.30.0",
-    "dm3-lib-billboard-client-api": "workspace:^",
-    "dm3-lib-delivery-api": "workspace:^",
-    "dm3-lib-offchain-resolver-api": "workspace:^",
-    "dm3-lib-shared": "workspace:^",
     "ethers": "^5.7.2",
     "lodash": "^4.17.21",
     "normalize.css": "^8.0.1",

@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-import { Account } from 'dm3-lib-profile';
-import { StorageLocation, UserDB } from 'dm3-lib-storage';
+import { Account } from '@dm3-org/dm3-lib-profile';
+import { StorageLocation, UserDB } from '@dm3-org/dm3-lib-storage';
 import React from 'react';
 import { useAuth } from '../hooks/auth/useAuth';
 import { ConnectionType, UserDbType } from '../utils/enum-type-utils';

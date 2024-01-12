@@ -1,6 +1,6 @@
 {
-  "name": "dm3-cli",
-  "version": "0.0.1",
+  "name": "@dm3-org/dm3-cli",
+  "version": "0.1.0",
   "scripts": {
     "dm3": "ts-node index.ts",
     "test": "npx hardhat test cli.test.ts --network hardhat",

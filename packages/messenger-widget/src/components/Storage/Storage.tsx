@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
-import { syncAcknoledgment } from 'dm3-lib-delivery-api';
-import { getBrowserStorageKey } from 'dm3-lib-profile';
-import { log } from 'dm3-lib-shared';
+import { syncAcknoledgment } from '@dm3-org/dm3-lib-delivery-api';
+import { getBrowserStorageKey } from '@dm3-org/dm3-lib-profile';
+import { log } from '@dm3-org/dm3-lib-shared';
 import {
     SyncProcessState,
     sync as syncStorage,
     useDm3Storage,
-} from 'dm3-lib-storage';
+} from '@dm3-org/dm3-lib-storage';
 import localforage from 'localforage';
 import { useContext, useEffect } from 'react';
 import { AuthContext } from '../../context/AuthContext';

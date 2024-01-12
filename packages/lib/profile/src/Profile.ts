@@ -3,8 +3,8 @@ import {
     createStorageKey,
     getStorageKeyCreationMessage,
     getRandomNonce,
-} from 'dm3-lib-crypto';
-import { sha256, stringify } from 'dm3-lib-shared';
+} from '@dm3-org/dm3-lib-crypto';
+import { sha256, stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import queryString from 'query-string';
 import { Dm3Profile } from './profileResolver/ProfileResolver';

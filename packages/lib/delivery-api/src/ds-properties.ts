@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { Account, getDeliveryServiceClient } from 'dm3-lib-profile';
+import { Account, getDeliveryServiceClient } from '@dm3-org/dm3-lib-profile';
 import { ethers } from 'ethers';
 import { checkAccount } from './utils';
-import { DeliveryServiceProperties } from 'dm3-lib-delivery';
+import { DeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery';
 
 const RPC_PATH = process.env.REACT_APP_BACKEND + '/rpc';
 

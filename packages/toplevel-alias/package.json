@@ -1,5 +1,6 @@
 {
-  "name": "hardhat-project",
+  "name": "@dm3-org/dm3-toplevel-alias",
+  "version": "0.1.0",
   "devDependencies": {
     "@nomicfoundation/hardhat-ethers": "^3.0.5",
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",

@@ -1,6 +1,6 @@
 // A profile links a scoped profile with the main profile or an ethereum address
 
-import { checkSignature } from 'dm3-lib-crypto';
+import { checkSignature } from '@dm3-org/dm3-lib-crypto';
 import { ethers } from 'ethers';
 
 export interface ProfileLink {

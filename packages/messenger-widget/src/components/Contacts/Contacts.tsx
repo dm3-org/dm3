@@ -20,7 +20,7 @@ import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import { DashboardProps } from '../../interfaces/props';
 import { closeLoader, startLoader } from '../Loader/Loader';
-import { globalConfig } from 'dm3-lib-shared';
+import { globalConfig } from '@dm3-org/dm3-lib-shared';
 import {
     CacheType,
     ModalStateType,

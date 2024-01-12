@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { SignedUserProfile } from 'dm3-lib-profile';
+import { SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { ProfileContainer } from './getProfileContainer';
 
 export function getProfileContainerByAddress(db: PrismaClient) {

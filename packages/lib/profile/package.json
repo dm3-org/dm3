@@ -1,6 +1,6 @@
 {
-    "name": "dm3-lib-profile",
-    "version": "0.2.2",
+    "name": "@dm3-org/dm3-lib-profile",
+    "version": "1.0.0",
     "license": "MIT",
     "main": "dist/index.js",
     "module": "dist-backend/index.js",
@@ -12,10 +12,10 @@
         }
     },
     "dependencies": {
+        "@dm3-org/dm3-lib-crypto": "workspace:^",
+        "@dm3-org/dm3-lib-shared": "workspace:^",
         "ajv": "^8.11.0",
         "axios": "^0.25.0",
-        "dm3-lib-crypto": "workspace:^",
-        "dm3-lib-shared": "workspace:^",
         "ethers": "5.7.2",
         "query-string": "^7.1.1",
         "whatwg-encoding": "^2.0.0"

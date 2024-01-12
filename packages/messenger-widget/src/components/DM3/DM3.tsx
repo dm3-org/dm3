@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 import axios from 'axios';
 import socketIOClient from 'socket.io-client';
-import { EncryptionEnvelop } from 'dm3-lib-messaging';
+import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { Dm3Props } from '../../interfaces/config';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
-import { getDeliveryServiceProfile } from 'dm3-lib-profile';
+import { getDeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
 import { getContacts, handleNewMessage, showSignIn } from './bl';
 import {
     ConnectionState,

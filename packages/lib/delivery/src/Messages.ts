@@ -2,9 +2,9 @@ import {
     DeliveryServiceProfileKeys,
     normalizeEnsName,
     UserProfile,
-} from 'dm3-lib-profile';
+} from '@dm3-org/dm3-lib-profile';
 import { ethers } from 'ethers';
-import { stringify } from 'dm3-lib-shared';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 
 import {
     decryptAsymmetric,
@@ -12,14 +12,14 @@ import {
     EncryptedPayload,
     KeyPair,
     sign,
-} from 'dm3-lib-crypto';
+} from '@dm3-org/dm3-lib-crypto';
 import {
     DeliveryInformation,
     EncryptionEnvelop,
     getEnvelopSize,
     Postmark,
-} from 'dm3-lib-messaging';
-import { logDebug, sha256 } from 'dm3-lib-shared';
+} from '@dm3-org/dm3-lib-messaging';
+import { logDebug, sha256 } from '@dm3-org/dm3-lib-shared';
 import { NotificationBroker } from './notifications';
 import {
     GetNotificationChannels,

@@ -1,10 +1,10 @@
-import { log } from 'dm3-lib-shared';
+import { log } from '@dm3-org/dm3-lib-shared';
 import {
     Accounts,
     AccountsActions,
     AccountsType,
 } from '../utils/enum-type-utils';
-import { normalizeEnsName } from 'dm3-lib-profile';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 
 export function accountsReducer(state: Accounts, action: AccountsActions) {
     switch (action.type) {

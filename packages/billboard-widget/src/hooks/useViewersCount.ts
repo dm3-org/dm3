@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../context/GlobalContext';
-import { getBillboardApiClient } from 'dm3-lib-billboard-client-api';
+import { getBillboardApiClient } from '@dm3-org/dm3-lib-billboard-client-api';
 
 export const useViewersCount = () => {
     const {

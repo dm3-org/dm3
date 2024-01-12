@@ -1,4 +1,4 @@
-import { EncryptionEnvelop } from 'dm3-lib-messaging';
+import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { Redis, RedisPrefix } from '../getDatabase';
 
 export function getMessages(

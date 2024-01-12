@@ -4,9 +4,9 @@ import {
     normalizeEnsName,
     getDeliveryServiceClient,
     Account,
-} from 'dm3-lib-profile';
-import { Acknoledgment } from 'dm3-lib-delivery';
-import { logInfo } from 'dm3-lib-shared';
+} from '@dm3-org/dm3-lib-profile';
+import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
+import { logInfo } from '@dm3-org/dm3-lib-shared';
 import { sync } from '../Storage';
 import { ethers } from 'ethers';
 

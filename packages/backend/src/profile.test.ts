@@ -1,7 +1,10 @@
 import bodyParser from 'body-parser';
 
-import { UserProfile, getProfileCreationMessage } from 'dm3-lib-profile';
-import { stringify } from 'dm3-lib-shared';
+import {
+    UserProfile,
+    getProfileCreationMessage,
+} from '@dm3-org/dm3-lib-profile';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import express from 'express';
 import request from 'supertest';

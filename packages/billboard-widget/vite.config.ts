@@ -13,10 +13,10 @@ export default defineConfig(() => {
         },
         optimizeDeps: {
             include: [
-                'dm3-lib-billboard-client-api',
-                'dm3-lib-delivery-api',
-                'dm3-lib-offchain-resolver-api',
-                'dm3-lib-shared',
+                '@dm3-org/dm3-lib-billboard-client-api',
+                '@dm3-org/dm3-lib-delivery-api',
+                '@dm3-org/dm3-lib-offchain-resolver-api',
+                '@dm3-org/dm3-lib-shared',
             ],
         },
         resolve: {

@@ -1,4 +1,4 @@
-import { StorageLocation } from 'dm3-lib-storage';
+import { StorageLocation } from '@dm3-org/dm3-lib-storage';
 
 export interface Config {
     defaultContact?: string;

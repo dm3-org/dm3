@@ -6,8 +6,8 @@ import {
     getEnvelopSize,
     Message,
     SendDependencies,
-} from 'dm3-lib-messaging';
-import { Account } from 'dm3-lib-profile';
+} from '@dm3-org/dm3-lib-messaging';
+import { Account } from '@dm3-org/dm3-lib-profile';
 import { Attachment } from '../../interfaces/utils';
 import {
     closeErrorModal,
@@ -26,8 +26,8 @@ import {
     UiViewStateType,
 } from '../../utils/enum-type-utils';
 import { scrollToBottomOfChat } from '../Chat/bl';
-import { encryptAsymmetric, EncryptedPayload } from 'dm3-lib-crypto';
-import { log } from 'dm3-lib-shared';
+import { encryptAsymmetric, EncryptedPayload } from '@dm3-org/dm3-lib-crypto';
+import { log } from '@dm3-org/dm3-lib-shared';
 
 export const hideMsgActionDropdown = () => {
     const element = document.getElementById('msg-dropdown') as HTMLElement;

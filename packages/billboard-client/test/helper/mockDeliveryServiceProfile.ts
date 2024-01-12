@@ -1,4 +1,4 @@
-import { DeliveryServiceProfile } from 'dm3-lib-profile';
+import { DeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
 import { ethers } from 'ethers';
 
 export const mockDeliveryServiceProfile = async (

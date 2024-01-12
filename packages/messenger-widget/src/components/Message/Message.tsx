@@ -1,6 +1,6 @@
 import './Message.css';
 import { useContext, useEffect, useState } from 'react';
-import { MessageState } from 'dm3-lib-messaging';
+import { MessageState } from '@dm3-org/dm3-lib-messaging';
 import tickIcon from '../../assets/images/tick.svg';
 import { MessageProps } from '../../interfaces/props';
 import threeDotsIcon from '../../assets/images/three-dots.svg';

@@ -3,9 +3,9 @@ import {
     Account,
     getDeliveryServiceClient,
     normalizeEnsName,
-} from 'dm3-lib-profile';
-import { Acknoledgment } from 'dm3-lib-delivery';
-import { EncryptionEnvelop } from 'dm3-lib-messaging';
+} from '@dm3-org/dm3-lib-profile';
+import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
+import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { ethers } from 'ethers';
 import { checkAccount, getAxiosConfig } from './utils';
 

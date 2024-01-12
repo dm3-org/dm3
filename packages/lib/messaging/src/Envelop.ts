@@ -1,5 +1,9 @@
-import { EncryptAsymmetric, encryptAsymmetric, sign } from 'dm3-lib-crypto';
-import { getSize, sha256, stringify } from 'dm3-lib-shared';
+import {
+    EncryptAsymmetric,
+    encryptAsymmetric,
+    sign,
+} from '@dm3-org/dm3-lib-crypto';
+import { getSize, sha256, stringify } from '@dm3-org/dm3-lib-shared';
 import { Message, Postmark, SendDependencies } from './Message';
 import { ethers } from 'ethers';
 import {
@@ -10,7 +14,7 @@ import {
     ProfileKeys,
     getDeliveryServiceProfile,
     getUserProfile,
-} from 'dm3-lib-profile';
+} from '@dm3-org/dm3-lib-profile';
 
 export interface EnvelopeMetadata {
     version: string;

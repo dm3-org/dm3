@@ -1,4 +1,4 @@
-import { EncryptionEnvelop, Envelop } from 'dm3-lib-messaging';
+import { EncryptionEnvelop, Envelop } from '@dm3-org/dm3-lib-messaging';
 import { Socket } from 'socket.io-client';
 
 /**

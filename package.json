@@ -19,7 +19,8 @@
             "packages/messenger-web",
             "packages/cli",
             "packages/billboard-client",
-            "packages/billboard-widget"
+            "packages/billboard-widget",
+            "packages/toplevel-alias"
         ],
         "nohoist": [
             "**/react",

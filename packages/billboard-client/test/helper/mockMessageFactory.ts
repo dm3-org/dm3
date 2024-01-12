@@ -1,10 +1,14 @@
-import { encryptAsymmetric } from 'dm3-lib-crypto';
-import { Message, SendDependencies, buildEnvelop } from 'dm3-lib-messaging';
+import { encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
+import {
+    Message,
+    SendDependencies,
+    buildEnvelop,
+} from '@dm3-org/dm3-lib-messaging';
 import {
     SignedUserProfile,
     ProfileKeys,
     DeliveryServiceProfile,
-} from 'dm3-lib-profile';
+} from '@dm3-org/dm3-lib-profile';
 
 interface MockChatArgs {
     sender: {

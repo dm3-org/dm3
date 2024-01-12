@@ -5,7 +5,7 @@ import './Dm3Widget.css';
 // Ignore TypeScript errors for the next line
 //@ts-ignore
 // Import the DM3 component from the 'messenger-widget' package
-import { DM3 } from 'messenger-widget';
+import { DM3 } from '@dm3-org/dm3-messenger-widget';
 
 // Define the Dm3Widget component
 const Dm3Widget: React.FC = () => {

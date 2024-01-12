@@ -1,4 +1,4 @@
-import { log } from 'dm3-lib-shared';
+import { log } from '@dm3-org/dm3-lib-shared';
 import { Modal } from '../interfaces/context';
 import {
     MessageActionType,

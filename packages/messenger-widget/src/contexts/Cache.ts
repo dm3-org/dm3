@@ -1,6 +1,6 @@
-import { log } from 'dm3-lib-shared';
+import { log } from '@dm3-org/dm3-lib-shared';
 import { CacheActions, CacheType } from '../utils/enum-type-utils';
-import { formatAddress } from 'dm3-lib-profile';
+import { formatAddress } from '@dm3-org/dm3-lib-profile';
 import { Cache } from '../interfaces/context';
 
 export function cacheReducer(state: Cache, action: CacheActions): Cache {

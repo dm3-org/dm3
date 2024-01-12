@@ -1,4 +1,4 @@
-import { logDebug, logError } from 'dm3-lib-shared';
+import { logDebug, logError } from '@dm3-org/dm3-lib-shared';
 
 export interface Interceptor {
     ensName: string;

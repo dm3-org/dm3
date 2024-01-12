@@ -1,4 +1,4 @@
-import { Envelop } from 'dm3-lib-messaging';
+import { Envelop } from '@dm3-org/dm3-lib-messaging';
 
 export interface StorageAPI {
     getMessages: (

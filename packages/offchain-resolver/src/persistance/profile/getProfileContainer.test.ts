@@ -1,4 +1,4 @@
-import { SignedUserProfile } from 'dm3-lib-profile';
+import { SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { ethers } from 'ethers';
 import winston from 'winston';
 import { getProfileContainer, setUserProfile } from '.';

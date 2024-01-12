@@ -1,10 +1,10 @@
-import { Account } from 'dm3-lib-profile';
+import { Account } from '@dm3-org/dm3-lib-profile';
 import {
     StorageEnvelopContainer,
     StorageLocation,
     SyncProcessState,
     UserDB,
-} from 'dm3-lib-storage';
+} from '@dm3-org/dm3-lib-storage';
 import { ethers } from 'ethers';
 import { Socket } from 'socket.io-client';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';

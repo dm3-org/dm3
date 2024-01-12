@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { DeliveryInformation } from 'dm3-lib-messaging';
+import { DeliveryInformation } from '@dm3-org/dm3-lib-messaging';
 import { ethBalanceFilterFactory } from './filter/ethBalanceFilter/EthBalanceFilter';
 import { nonceFilterFactory } from './filter/nonceFilter/NonceFilter';
 import { SpamFilter, SpamFilterFactory } from './filter/SpamFilter';

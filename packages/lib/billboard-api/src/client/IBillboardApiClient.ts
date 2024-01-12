@@ -1,4 +1,4 @@
-import { Message } from 'dm3-lib-messaging';
+import { Message } from '@dm3-org/dm3-lib-messaging';
 
 //TODO move into billboard package once created
 export type BillboardProperties = {

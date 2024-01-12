@@ -1,8 +1,8 @@
-import { Message } from 'dm3-lib-messaging';
+import { Message } from '@dm3-org/dm3-lib-messaging';
 import http from 'http';
 import { Server, Socket } from 'socket.io';
 import { IViewerService } from './IViewerService';
-import { logDebug } from 'dm3-lib-shared';
+import { logDebug } from '@dm3-org/dm3-lib-shared';
 
 /**
  * Creates and returns an instance of a viewer service that manages viewer connections and message broadcasting.

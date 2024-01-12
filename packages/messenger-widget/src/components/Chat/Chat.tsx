@@ -1,7 +1,7 @@
 import './Chat.css';
 import { Message } from '../Message/Message';
-import { getConversation } from 'dm3-lib-storage';
-import { globalConfig, log } from 'dm3-lib-shared';
+import { getConversation } from '@dm3-org/dm3-lib-storage';
+import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
 import { HideFunctionProps, MessageProps } from '../../interfaces/props';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';

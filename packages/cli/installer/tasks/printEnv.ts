@@ -1,10 +1,10 @@
-import { logInfo } from 'dm3-lib-shared';
+import { logInfo } from '@dm3-org/dm3-lib-shared';
 import { InstallerArgs } from '../types';
 import {
     DeliveryServiceProfile,
     DeliveryServiceProfileKeys,
     ProfileKeys,
-} from 'dm3-lib-profile';
+} from '@dm3-org/dm3-lib-profile';
 
 export const printEnv = (
     args: InstallerArgs,

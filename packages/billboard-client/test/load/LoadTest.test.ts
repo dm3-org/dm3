@@ -1,12 +1,12 @@
-import { Message } from 'dm3-lib-messaging';
-import { claimAddress } from 'dm3-lib-offchain-resolver-api';
+import { Message } from '@dm3-org/dm3-lib-messaging';
+import { claimAddress } from '@dm3-org/dm3-lib-offchain-resolver-api';
 import {
     ProfileKeys,
     createProfile,
     getDeliveryServiceProfile,
     getUserProfile,
-} from 'dm3-lib-profile';
-import { logInfo } from 'dm3-lib-shared';
+} from '@dm3-org/dm3-lib-profile';
+import { logInfo } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import { loremIpsum } from 'lorem-ipsum';
 import { io } from 'socket.io-client';
