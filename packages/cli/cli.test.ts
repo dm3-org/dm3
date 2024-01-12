@@ -12,7 +12,7 @@ import {
     createKeyPair,
     createSigningKeyPair,
     createStorageKey,
-} from 'dm3-lib-crypto';
+} from '@dm3-org/dm3-lib-crypto';
 describe('cli', () => {
     let alice, owner: Wallet;
     let rpc: string;

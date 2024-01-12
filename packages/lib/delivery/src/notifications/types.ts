@@ -1,4 +1,4 @@
-import { DeliveryInformation } from 'dm3-lib-messaging';
+import { DeliveryInformation } from '@dm3-org/dm3-lib-messaging';
 
 //Every notification channel that is supported by the delivery service must be listed here
 export enum NotificationChannelType {

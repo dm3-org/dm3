@@ -1,6 +1,6 @@
-import { decryptAsymmetric } from 'dm3-lib-crypto';
-import { EncryptionEnvelop } from 'dm3-lib-messaging';
-import { UserProfile, normalizeEnsName } from 'dm3-lib-profile';
+import { decryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
+import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
+import { UserProfile, normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { BigNumber, ethers } from 'ethers';
 import { testData } from '../../../../test-data/encrypted-envelops.test';
 import { stringify } from '../../shared/src/stringify';

@@ -20,7 +20,7 @@ import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import { DashboardProps } from '../../interfaces/props';
 import { closeLoader, startLoader } from '../Loader/Loader';
-import { globalConfig } from 'dm3-lib-shared';
+import { globalConfig } from '@dm3-org/dm3-lib-shared';
 import {
     CacheType,
     ModalStateType,
@@ -269,7 +269,7 @@ export function Contacts(props: DashboardProps) {
                     contact.contactDetails &&
                     contact.contactDetails.account &&
                     contact.contactDetails.account.ensName ===
-                        props.dm3Props.config.defaultContact,
+                    props.dm3Props.config.defaultContact,
             );
             if (defaultContactIndex > -1) {
                 setContactSelected(defaultContactIndex);
@@ -351,7 +351,7 @@ export function Contacts(props: DashboardProps) {
                                                 title={
                                                     data.contactDetails
                                                         ? data.contactDetails
-                                                              .account.ensName
+                                                            .account.ensName
                                                         : ''
                                                 }
                                             >
@@ -399,10 +399,10 @@ export function Contacts(props: DashboardProps) {
                                                                     }
                                                                     isMenuAlignedAtBottom={
                                                                         isMenuAlignedAtBottom ===
-                                                                        null
+                                                                            null
                                                                             ? showMenuInBottom(
-                                                                                  contactSelected,
-                                                                              )
+                                                                                contactSelected,
+                                                                            )
                                                                             : isMenuAlignedAtBottom
                                                                     }
                                                                 />

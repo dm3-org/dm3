@@ -1,4 +1,4 @@
-import { Message } from 'dm3-lib-messaging';
+import { Message } from '@dm3-org/dm3-lib-messaging';
 import { hashMessage } from '../hooks/useMessages';
 import MessageItem from './MessageItem';
 

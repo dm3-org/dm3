@@ -1,11 +1,11 @@
-import { logInfo } from 'dm3-lib-shared';
+import { logInfo } from '@dm3-org/dm3-lib-shared';
 import { getIncomingMessages } from '../../../api/internal/rest/getIncomingMessages';
 import {
     AuthenticatedBillboard,
     BillboardWithDsProfile,
 } from '../DsManagerImpl';
-import { EncryptionEnvelop } from 'dm3-lib-messaging';
-import { DeliveryServiceProfile } from 'dm3-lib-profile';
+import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
+import { DeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
 
 /**
 Fetches and stores initial messages for authenticated billboards.

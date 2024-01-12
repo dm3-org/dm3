@@ -1,6 +1,6 @@
-import { getUserProfile, submitUserProfile } from 'dm3-lib-delivery';
-import { normalizeEnsName, schema } from 'dm3-lib-profile';
-import { validateSchema } from 'dm3-lib-shared';
+import { getUserProfile, submitUserProfile } from '@dm3-org/dm3-lib-delivery';
+import { normalizeEnsName, schema } from '@dm3-org/dm3-lib-profile';
+import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import express, { NextFunction } from 'express';
 import { WithLocals } from './types';
 import { auth } from './utils';

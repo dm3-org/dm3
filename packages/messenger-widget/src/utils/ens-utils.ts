@@ -9,7 +9,7 @@ import {
 } from './enum-type-utils';
 import humanIcon from '../assets/images/human.svg';
 import { EnsProfileDetails } from '../interfaces/utils';
-import { globalConfig, log } from 'dm3-lib-shared';
+import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import { ENS_PROFILE_BASE_URL, ETHERSCAN_URL } from './common-utils';
 import { IContactInfo } from '../interfaces/utils';

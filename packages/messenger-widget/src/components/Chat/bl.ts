@@ -1,12 +1,12 @@
-import { checkSignature as _checkSignature } from 'dm3-lib-crypto';
-import { Message, MessageState } from 'dm3-lib-messaging';
+import { checkSignature as _checkSignature } from '@dm3-org/dm3-lib-crypto';
+import { Message, MessageState } from '@dm3-org/dm3-lib-messaging';
 import {
     Account,
     getUserProfile,
     isSameEnsName,
     normalizeEnsName,
-} from 'dm3-lib-profile';
-import { globalConfig, log, stringify } from 'dm3-lib-shared';
+} from '@dm3-org/dm3-lib-profile';
+import { globalConfig, log, stringify } from '@dm3-org/dm3-lib-shared';
 import {
     Actions,
     CacheType,
@@ -18,7 +18,7 @@ import {
     StorageEnvelopContainer,
     UserDB,
     getConversation,
-} from 'dm3-lib-storage';
+} from '@dm3-org/dm3-lib-storage';
 import { MessageProps } from '../../interfaces/props';
 import { fetchAndStoreMessages } from '../../adapters/messages';
 import { ethers } from 'ethers';

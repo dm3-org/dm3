@@ -2,9 +2,9 @@ import {
     Session as DSSession,
     NotificationChannel,
     spamFilter,
-} from 'dm3-lib-delivery';
-import { EncryptionEnvelop } from 'dm3-lib-messaging';
-import { UserStorage } from 'dm3-lib-storage';
+} from '@dm3-org/dm3-lib-delivery';
+import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
+import { UserStorage } from '@dm3-org/dm3-lib-storage';
 import { createClient } from 'redis';
 import { getAliasChain, getIdEnsName } from './getIdEnsName';
 import Messages from './messages';

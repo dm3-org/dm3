@@ -14,7 +14,7 @@ import {
     formatAddress,
     getAccountDisplayName,
     normalizeEnsName,
-} from 'dm3-lib-profile';
+} from '@dm3-org/dm3-lib-profile';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { ContactPreview, NewContact } from '../../interfaces/utils';
 import humanIcon from '../../assets/images/human.svg';

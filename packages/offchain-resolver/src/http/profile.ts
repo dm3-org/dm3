@@ -1,10 +1,10 @@
-import { globalConfig, logInfo, validateSchema } from 'dm3-lib-shared';
-import { schema, checkUserProfileWithAddress } from 'dm3-lib-profile';
+import { globalConfig, logInfo, validateSchema } from '@dm3-org/dm3-lib-shared';
+import { schema, checkUserProfileWithAddress } from '@dm3-org/dm3-lib-profile';
 import { ethers } from 'ethers';
 import express from 'express';
 import { WithLocals } from './types';
 import { SiweMessage } from 'siwe';
-import { checkSignature } from 'dm3-lib-crypto';
+import { checkSignature } from '@dm3-org/dm3-lib-crypto';
 
 export function profile(web3Provider: ethers.providers.BaseProvider) {
     const router = express.Router();

@@ -2,7 +2,7 @@ import {
     Envelop,
     SendDependencies,
     createDeleteRequestMessage,
-} from 'dm3-lib-messaging';
+} from '@dm3-org/dm3-lib-messaging';
 import { MessageProps } from '../../interfaces/props';
 import { Attachment } from '../../interfaces/utils';
 import { isFileAImage } from '../MessageInputBox/bl';
@@ -23,7 +23,7 @@ import {
 } from '../../utils/common-utils';
 import { AuthContext } from '../../context/AuthContext';
 import { useContext } from 'react';
-import { Account } from 'dm3-lib-profile';
+import { Account } from '@dm3-org/dm3-lib-profile';
 
 export const scrollToMessage = (replyFromMessageId: string) => {
     const element = document.getElementById(replyFromMessageId) as HTMLElement;

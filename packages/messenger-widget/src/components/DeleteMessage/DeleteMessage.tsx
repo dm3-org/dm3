@@ -16,7 +16,7 @@ import {
 import {
     SendDependencies,
     createDeleteRequestMessage,
-} from 'dm3-lib-messaging';
+} from '@dm3-org/dm3-lib-messaging';
 import { AuthContext } from '../../context/AuthContext';
 
 export default function DeleteMessage() {

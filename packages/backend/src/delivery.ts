@@ -3,9 +3,9 @@ import express from 'express';
 import { IDatabase } from './persistance/getDatabase';
 import { WithLocals } from './types';
 import { auth } from './utils';
-import { schema, getMessages, Acknoledgment } from 'dm3-lib-delivery';
-import { validateSchema } from 'dm3-lib-shared';
-import { getConversationId } from 'dm3-lib-storage';
+import { schema, getMessages, Acknoledgment } from '@dm3-org/dm3-lib-delivery';
+import { validateSchema } from '@dm3-org/dm3-lib-shared';
+import { getConversationId } from '@dm3-org/dm3-lib-storage';
 
 const syncAcknoledgmentParamsSchema = {
     type: 'object',

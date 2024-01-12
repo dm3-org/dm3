@@ -1,7 +1,11 @@
-import { SendDependencies, Message } from 'dm3-lib-messaging';
-import { Account, DeliveryServiceProfile, ProfileKeys } from 'dm3-lib-profile';
-import { globalConfig, log } from 'dm3-lib-shared';
-import { StorageEnvelopContainer } from 'dm3-lib-storage';
+import { SendDependencies, Message } from '@dm3-org/dm3-lib-messaging';
+import {
+    Account,
+    DeliveryServiceProfile,
+    ProfileKeys,
+} from '@dm3-org/dm3-lib-profile';
+import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
+import { StorageEnvelopContainer } from '@dm3-org/dm3-lib-storage';
 import { submitMessage } from '../adapters/messages';
 import {
     GlobalState,

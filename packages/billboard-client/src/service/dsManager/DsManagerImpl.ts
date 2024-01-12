@@ -1,11 +1,11 @@
-import { decryptAsymmetric } from 'dm3-lib-crypto';
-import { EncryptionEnvelop, Message } from 'dm3-lib-messaging';
+import { decryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
+import { EncryptionEnvelop, Message } from '@dm3-org/dm3-lib-messaging';
 import {
     DeliveryServiceProfile,
     ProfileKeys,
     SignedUserProfile,
-} from 'dm3-lib-profile';
-import { logDebug, logError, logInfo } from 'dm3-lib-shared';
+} from '@dm3-org/dm3-lib-profile';
+import { logDebug, logError, logInfo } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import { Socket } from 'socket.io-client';
 import { IDatabase } from '../../persitance/getDatabase';

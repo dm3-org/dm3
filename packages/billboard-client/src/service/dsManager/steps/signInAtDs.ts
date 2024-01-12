@@ -1,11 +1,11 @@
-import { logInfo } from 'dm3-lib-shared';
+import { logInfo } from '@dm3-org/dm3-lib-shared';
 import { getChallenge } from '../../../api/internal/rest/getChallenge';
 import { getNewToken } from '../../../api/internal/rest/getNewToken';
 import {
     BillboardWithDsProfile,
     AuthenticatedBillboard,
 } from '../DsManagerImpl';
-import { sign } from 'dm3-lib-crypto';
+import { sign } from '@dm3-org/dm3-lib-crypto';
 import { submitUserProfile } from '../../../api/internal/rest/submitUserProfile';
 
 /**

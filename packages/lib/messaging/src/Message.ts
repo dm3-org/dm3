@@ -5,7 +5,7 @@ import {
     ProfileKeys,
     UserProfile,
     normalizeEnsName,
-} from 'dm3-lib-profile';
+} from '@dm3-org/dm3-lib-profile';
 import {
     EncryptedPayload,
     KeyPair,
@@ -13,8 +13,8 @@ import {
     decryptAsymmetric,
     encryptAsymmetric,
     sign,
-} from 'dm3-lib-crypto';
-import { sha256, stringify } from 'dm3-lib-shared';
+} from '@dm3-org/dm3-lib-crypto';
+import { sha256, stringify } from '@dm3-org/dm3-lib-shared';
 import { DeliveryInformation, EncryptionEnvelop, Envelop } from './Envelop';
 import { ethers } from 'ethers';
 

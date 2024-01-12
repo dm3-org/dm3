@@ -4,12 +4,12 @@ import {
     SendDependencies,
     createEnvelop,
     createMessage,
-} from 'dm3-lib-messaging';
+} from '@dm3-org/dm3-lib-messaging';
 import { useContext, useRef, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { GlobalContext } from '../context/GlobalContext';
 import { DeliveryServiceClient } from '../http/DeliveryServiceClient';
-import { sha256, stringify } from 'dm3-lib-shared';
+import { sha256, stringify } from '@dm3-org/dm3-lib-shared';
 
 export const hashMessage = (msg: Message) => sha256(stringify(msg));
 const useMessages = () => {

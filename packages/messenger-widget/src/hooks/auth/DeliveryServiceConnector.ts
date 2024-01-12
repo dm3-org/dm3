@@ -5,24 +5,29 @@ import {
     SignedUserProfile,
     UserProfile,
     getProfileCreationMessage,
-} from 'dm3-lib-profile';
+} from '@dm3-org/dm3-lib-profile';
 
 import {
     createStorageKey,
     getStorageKeyCreationMessage,
     sign,
-} from 'dm3-lib-crypto';
-import { UserDB, createDB, getDm3Storage, load } from 'dm3-lib-storage';
+} from '@dm3-org/dm3-lib-crypto';
+import {
+    UserDB,
+    createDB,
+    getDm3Storage,
+    load,
+} from '@dm3-org/dm3-lib-storage';
 
 import { GetWalletClientResult } from '@wagmi/core';
 import {
     getChallenge,
     getNewToken,
     submitUserProfile,
-} from 'dm3-lib-delivery-api';
-import { claimAddress } from 'dm3-lib-offchain-resolver-api';
-import { createProfileKeys as _createProfileKeys } from 'dm3-lib-profile';
-import { globalConfig, stringify } from 'dm3-lib-shared';
+} from '@dm3-org/dm3-lib-delivery-api';
+import { claimAddress } from '@dm3-org/dm3-lib-offchain-resolver-api';
+import { createProfileKeys as _createProfileKeys } from '@dm3-org/dm3-lib-profile';
+import { globalConfig, stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import axios from 'axios';
 

@@ -1,5 +1,5 @@
-import { Acknoledgment } from 'dm3-lib-delivery';
-import { stringify } from 'dm3-lib-shared';
+import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 import { Web3File, Web3Storage } from 'web3.storage';
 import { UserDB } from '..';
 import { sync } from '../Storage';

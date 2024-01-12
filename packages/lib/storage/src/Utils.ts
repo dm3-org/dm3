@@ -1,4 +1,4 @@
-import { logError, logInfo } from 'dm3-lib-shared';
+import { logError, logInfo } from '@dm3-org/dm3-lib-shared';
 
 export const FILE_NAME_PREFIX = 'dm3';
 

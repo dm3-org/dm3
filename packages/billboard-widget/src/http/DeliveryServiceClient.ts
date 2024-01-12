@@ -2,9 +2,9 @@ import axios from 'axios';
 import {
     EncryptionEnvelop,
     createJsonRpcCallSubmitMessage,
-} from 'dm3-lib-messaging';
-import { SignedUserProfile, normalizeEnsName } from 'dm3-lib-profile';
-import { logError } from 'dm3-lib-shared';
+} from '@dm3-org/dm3-lib-messaging';
+import { SignedUserProfile, normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { logError } from '@dm3-org/dm3-lib-shared';
 
 export const DeliveryServiceClient = (url: string) => {
     const submitMessage = (envelop: EncryptionEnvelop, token: string) => {

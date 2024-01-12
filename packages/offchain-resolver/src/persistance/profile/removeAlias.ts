@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { normalizeEnsName } from 'dm3-lib-profile';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 
 /**
  *

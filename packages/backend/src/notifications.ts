@@ -1,7 +1,7 @@
 // Importing the necessary modules and functions
 import cors from 'cors';
-import { NotificationChannelType } from 'dm3-lib-delivery';
-import { normalizeEnsName } from 'dm3-lib-profile';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-delivery';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import express from 'express';
 import { auth } from './utils';
 

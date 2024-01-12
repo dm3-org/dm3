@@ -1,6 +1,6 @@
-import { getDeliveryServiceProfile } from 'dm3-lib-profile';
+import { getDeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
 import { BillboardWithProfile } from '../DsManagerImpl';
-import { logInfo } from 'dm3-lib-shared';
+import { logInfo } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 
 /**

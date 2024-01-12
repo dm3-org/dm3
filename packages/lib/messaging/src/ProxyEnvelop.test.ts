@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { createProxyEnvelop } from './ProxyEnvelop';
 import { createMessage, SendDependencies } from './Message';
-import { stringify } from 'dm3-lib-shared';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 
 const bob = {
     keys: {

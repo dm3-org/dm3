@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 //@ts-ignore
-import { DM3 } from 'messenger-widget';
+import { DM3 } from '@dm3-org/dm3-messenger-widget';
 
 function App() {
     const props: any = {

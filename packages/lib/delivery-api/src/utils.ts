@@ -1,4 +1,4 @@
-import { Account } from 'dm3-lib-profile';
+import { Account } from '@dm3-org/dm3-lib-profile';
 
 export function getAxiosConfig(token: string) {
     return {

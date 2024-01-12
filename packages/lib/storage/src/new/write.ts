@@ -1,4 +1,4 @@
-import { Envelop } from 'dm3-lib-messaging';
+import { Envelop } from '@dm3-org/dm3-lib-messaging';
 import {
     MAX_CONVERATION_ENTRIES_PER_CHUNK,
     MAX_MESSAGE_SIZE,
@@ -17,7 +17,7 @@ import {
     Db,
     MessageChunk,
 } from './types';
-import { getSize } from 'dm3-lib-shared';
+import { getSize } from '@dm3-org/dm3-lib-shared';
 
 /**
  * This function adds a new conversation to the conversation list.

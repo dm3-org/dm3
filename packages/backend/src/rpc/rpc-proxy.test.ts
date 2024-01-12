@@ -5,9 +5,9 @@ import request from 'supertest';
 import RpcProxy from './rpc-proxy';
 import { testData } from '../../../../test-data/encrypted-envelops.test';
 
-import { createKeyPair } from 'dm3-lib-crypto';
-import { normalizeEnsName, UserProfile } from 'dm3-lib-profile';
-import { stringify } from 'dm3-lib-shared';
+import { createKeyPair } from '@dm3-org/dm3-lib-crypto';
+import { normalizeEnsName, UserProfile } from '@dm3-org/dm3-lib-profile';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 import winston from 'winston';
 
 global.logger = winston.createLogger({

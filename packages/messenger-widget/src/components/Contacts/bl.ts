@@ -1,15 +1,15 @@
 import axios from 'axios';
-import { getDeliveryServiceProperties } from 'dm3-lib-delivery-api';
-import { MessageState } from 'dm3-lib-messaging';
+import { getDeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery-api';
+import { MessageState } from '@dm3-org/dm3-lib-messaging';
 import {
     Account,
     getAccountDisplayName,
     getDeliveryServiceProfile,
     getUserProfile,
     normalizeEnsName,
-} from 'dm3-lib-profile';
-import { globalConfig } from 'dm3-lib-shared';
-import { UserDB, getConversation } from 'dm3-lib-storage';
+} from '@dm3-org/dm3-lib-profile';
+import { globalConfig } from '@dm3-org/dm3-lib-shared';
+import { UserDB, getConversation } from '@dm3-org/dm3-lib-storage';
 import { ethers } from 'ethers';
 import { Contact } from '../../interfaces/context';
 import { ContactPreview } from '../../interfaces/utils';

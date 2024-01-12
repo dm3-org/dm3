@@ -1,4 +1,4 @@
-import { Account, DeliveryServiceProfile } from 'dm3-lib-profile';
+import { Account, DeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
 import {
     LeftViewSelected,
     MessageActionType,

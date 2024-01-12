@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { SignedUserProfile, normalizeEnsName } from 'dm3-lib-profile';
-import { logError } from 'dm3-lib-shared';
+import { SignedUserProfile, normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { logError } from '@dm3-org/dm3-lib-shared';
 
 export async function submitUserProfile(
     dsUrl: string,

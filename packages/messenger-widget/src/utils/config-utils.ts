@@ -1,4 +1,4 @@
-import { StorageLocation } from 'dm3-lib-storage';
+import { StorageLocation } from '@dm3-org/dm3-lib-storage';
 import { Config } from '../interfaces/config';
 
 // The default configuration of the app

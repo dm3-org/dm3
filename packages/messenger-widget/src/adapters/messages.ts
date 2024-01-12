@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { encryptAsymmetric } from 'dm3-lib-crypto';
+import { encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
 import {
     SendDependencies,
     Message,
@@ -7,22 +7,22 @@ import {
     MessageState,
     buildEnvelop,
     EncryptionEnvelop,
-} from 'dm3-lib-messaging';
+} from '@dm3-org/dm3-lib-messaging';
 import {
     Account,
     getDeliveryServiceClient,
     getDeliveryServiceProfile,
     normalizeEnsName,
-} from 'dm3-lib-profile';
-import { log } from 'dm3-lib-shared';
+} from '@dm3-org/dm3-lib-profile';
+import { log } from '@dm3-org/dm3-lib-shared';
 import {
     StorageEnvelopContainer,
     UserDB,
     getConversation,
-} from 'dm3-lib-storage';
+} from '@dm3-org/dm3-lib-storage';
 import { Connection } from '../interfaces/web3';
 import { withAuthHeader } from './auth';
-import { decryptAsymmetric } from 'dm3-lib-crypto';
+import { decryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
 import { ethers } from 'ethers';
 
 export async function fetchPendingConversations(

@@ -1,6 +1,9 @@
-import { getStorageKeyCreationMessage, createStorageKey } from 'dm3-lib-crypto';
-import { createProfileKeys, getUserProfile } from 'dm3-lib-profile';
-import { logError, logInfo } from 'dm3-lib-shared';
+import {
+    getStorageKeyCreationMessage,
+    createStorageKey,
+} from '@dm3-org/dm3-lib-crypto';
+import { createProfileKeys, getUserProfile } from '@dm3-org/dm3-lib-profile';
+import { logError, logInfo } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import { Billboard } from '../DsManagerImpl';
 

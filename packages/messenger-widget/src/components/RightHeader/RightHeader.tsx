@@ -10,11 +10,11 @@ import {
     UiViewStateType,
 } from '../../utils/enum-type-utils';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { globalConfig } from 'dm3-lib-shared';
-import { hasUserProfile } from 'dm3-lib-profile';
+import { globalConfig } from '@dm3-org/dm3-lib-shared';
+import { hasUserProfile } from '@dm3-org/dm3-lib-profile';
 import { HideFunctionProps } from '../../interfaces/props';
 import menuIcon from '../../assets/images/menu.svg';
-import { getAliasChain } from 'dm3-lib-delivery-api';
+import { getAliasChain } from '@dm3-org/dm3-lib-delivery-api';
 import { getLastDm3Name } from '../../utils/common-utils';
 import { AuthContext } from '../../context/AuthContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';

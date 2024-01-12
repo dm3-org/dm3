@@ -1,7 +1,7 @@
 import './ConfigureProfileBox.css';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
-import { globalConfig } from 'dm3-lib-shared';
+import { globalConfig } from '@dm3-org/dm3-lib-shared';
 import { openConfigurationModal } from '../ConfigureProfile/bl';
 import { AuthContext } from '../../context/AuthContext';
 
