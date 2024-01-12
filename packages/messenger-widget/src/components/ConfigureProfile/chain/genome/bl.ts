@@ -88,10 +88,10 @@ const getPublishProfileOnchainTransaction = async (
         throw Error('No signature');
     }
 
-    const chidadoResolver = '0x6D3B3F99177FB2A5de7F9E928a9BD807bF7b5BAD';
+    const genomeResolver = '0x6D3B3F99177FB2A5de7F9E928a9BD807bF7b5BAD';
 
     const resolver = ethersHelper.getConractInstance(
-        chidadoResolver,
+        genomeResolver,
         [
             'function setText(bytes32 node, string calldata key, string calldata value) external',
         ],
@@ -102,8 +102,7 @@ const getPublishProfileOnchainTransaction = async (
         profile: account.profile,
         signature: account.profileSignature,
     };
-    // eslint-disable-next-line no-console
-    console.log('publish profiel', signedUserProfile);
+
     const node = getSpaceIdNode(ensName);
 
     const jsonPrefix = 'data:application/json,';
