@@ -35,12 +35,14 @@ export type ActionMap<M extends { [index: string]: any }> = {
 export type Accounts = {
     contacts: Contact[] | undefined;
     selectedContact: Contact | undefined;
+    reset: any;
 };
 
 export type AccountsPayload = {
     [AccountsType.SetSelectedContact]: Contact | undefined;
     [AccountsType.SetContacts]: Contact[] | undefined;
     [AccountsType.RemoveContact]: string;
+    [AccountsType.Reset]: any;
 };
 
 export type AccountsActions =
@@ -63,6 +65,7 @@ export type CachePayload = {
     };
     [CacheType.MessageSizeLimit]: number;
     [CacheType.AccountName]: string;
+    [CacheType.Reset]: any;
 };
 
 export type CacheActions =
@@ -77,6 +80,7 @@ export type ConnectionPayload = {
     [ConnectionType.ChangeStorageToken]: string | undefined;
     [ConnectionType.ChangeStorageLocation]: StorageLocation;
     [ConnectionType.SetDefaultServiceUrl]: string;
+    [ConnectionType.Reset]: any;
 };
 
 export type ConnectionActions =
@@ -114,6 +118,7 @@ export type UiStatePayload = {
     [UiStateType.SetLastMessagePull]: number;
     [UiStateType.SetProfileExists]: boolean;
     [UiStateType.SetBrowserStorageBackup]: boolean;
+    [UiStateType.Reset]: any;
 };
 
 export type UiStateActions =
@@ -133,6 +138,7 @@ export enum AccountsType {
     SetSelectedContact = 'SET_SELECTED_CONTACT',
     SetContacts = 'SET_CONTACTS',
     RemoveContact = 'REMOVE_CONTACT',
+    Reset = 'RESET',
 }
 
 export enum AccountInfo {
@@ -154,6 +160,7 @@ export enum CacheType {
     LastConversation = 'LAST_CONVERSATION',
     MessageSizeLimit = 'MESSAGE_SIZE_LIMIT',
     AccountName = 'ACCOUNT_NAME',
+    Reset = 'RESET',
 }
 
 export enum ConnectionType {
@@ -165,6 +172,7 @@ export enum ConnectionType {
     ChangeStorageToken = 'CHANGE_STORAGE_TOKEN',
     ChangeStorageLocation = 'CHANGE_STORAGE_LOCATION',
     SetDefaultServiceUrl = 'SET_DEFAULT_SERVICE_URL',
+    Reset = 'RESET',
 }
 
 export enum UserDbType {
@@ -188,6 +196,7 @@ export enum UiStateType {
     SetLastMessagePull = 'SET_LAST_MESSAGE_PULL',
     SetProfileExists = 'SET_PROFILE_EXISTS',
     SetBrowserStorageBackup = 'SET_BROWSER_STORAGE_BACKUP',
+    Reset = 'RESET',
 }
 
 export enum ConnectionState {
@@ -238,12 +247,14 @@ export enum UiViewStateType {
     SetSelectedRightView = 'SET_SELECTED_RIGHT_VIEW',
     SetSelectedLeftView = 'SET_SELECTED_LEFT_VIEW',
     SetMessageView = 'SET_MESSAGE_VIEW',
+    Reset = 'RESET',
 }
 
 export type UiViewStatePayload = {
     [UiViewStateType.SetSelectedLeftView]: LeftViewSelected;
     [UiViewStateType.SetSelectedRightView]: RightViewSelected;
     [UiViewStateType.SetMessageView]: MessageAction;
+    [UiViewStateType.Reset]: any;
 };
 
 export type UiViewStateActions =
@@ -257,6 +268,7 @@ export enum ModalStateType {
     LastMessageAction = 'LAST_MESSAGE_ACTION',
     IsProfileConfigurationPopupActive = 'IS_PROFILE_CONFIGURATION_POPUP_ACTIVE',
     ShowPreferencesModal = 'SHOW_PREFERENCES_MODAL',
+    Reset = 'RESET',
 }
 
 export type ModalStatePayload = {
@@ -270,6 +282,7 @@ export type ModalStatePayload = {
     [ModalStateType.LastMessageAction]: MessageActionType;
     [ModalStateType.IsProfileConfigurationPopupActive]: boolean;
     [ModalStateType.ShowPreferencesModal]: boolean;
+    [ModalStateType.Reset]: any;
 };
 
 export type ModalStateActions =

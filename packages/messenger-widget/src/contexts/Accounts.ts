@@ -43,6 +43,14 @@ export function accountsReducer(state: Accounts, action: AccountsActions) {
                 contacts: action.payload,
             };
 
+        case AccountsType.Reset:
+            log(`[Accounts] reset`, 'info');
+            return {
+                contacts: undefined,
+                selectedContact: undefined,
+                reset: undefined,
+            };
+
         default:
             return state;
     }

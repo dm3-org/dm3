@@ -3,7 +3,11 @@ import { useContext } from 'react';
 import closeIcon from '../../assets/images/cross.svg';
 import addIcon from '../../assets/images/add.svg';
 import settingsIcon from '../../assets/images/settings.svg';
-import { LeftViewSelected, ModalStateType, UiViewStateType } from '../../utils/enum-type-utils';
+import {
+    LeftViewSelected,
+    ModalStateType,
+    UiViewStateType,
+} from '../../utils/enum-type-utils';
 import { GlobalContext } from '../../utils/context-utils';
 import { openConversationModal } from '../AddConversation/bl';
 

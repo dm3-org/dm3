@@ -3,17 +3,28 @@ import { useAccount, useWalletClient } from 'wagmi';
 
 import { Account } from 'dm3-lib-profile';
 import { UserDB } from 'dm3-lib-storage';
-import { useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { AccountConnector } from './AccountConnector';
 import {
     ConnectDsResult,
     DeliveryServiceConnector,
 } from './DeliveryServiceConnector';
+import { GlobalContext } from '../../utils/context-utils';
+import {
+    AccountsType,
+    Actions,
+    CacheType,
+    ConnectionType,
+    ModalStateType,
+    UiStateType,
+    UiViewStateType,
+} from '../../utils/enum-type-utils';
 
 export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
     const { data: walletClient } = useWalletClient();
     const mainnetProvider = useMainnetProvider();
+    const { dispatch } = useContext(GlobalContext);
     const { address } = useAccount({
         onDisconnect: () => signOut(),
     });
@@ -36,6 +47,7 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
     const signOut = () => {
         setAccount(undefined);
         setDeliveryServiceToken(undefined);
+        resetStates(dispatch);
     };
     const cleanSignIn = async () => {
         setIsLoading(true);
@@ -96,4 +108,31 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
         hasError,
         setAccount,
     };
+};
+
+const resetStates = (dispatch: React.Dispatch<Actions>) => {
+    dispatch({
+        type: ConnectionType.Reset,
+        payload: undefined,
+    });
+    dispatch({
+        type: AccountsType.Reset,
+        payload: undefined,
+    });
+    dispatch({
+        type: CacheType.Reset,
+        payload: undefined,
+    });
+    dispatch({
+        type: UiStateType.Reset,
+        payload: undefined,
+    });
+    dispatch({
+        type: UiViewStateType.Reset,
+        payload: undefined,
+    });
+    dispatch({
+        type: ModalStateType.Reset,
+        payload: undefined,
+    });
 };

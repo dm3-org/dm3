@@ -31,6 +31,15 @@ export function uiStateReducer(
                 browserStorageBackup: action.payload,
             };
 
+        case UiStateType.Reset:
+            log(`[UI] reset`, 'info');
+            return {
+                lastMessagePull: 0,
+                proflieExists: false,
+                browserStorageBackup: false,
+                reset: undefined,
+            };
+
         default:
             return state;
     }

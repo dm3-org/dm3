@@ -47,6 +47,20 @@ export function cacheReducer(state: Cache, action: CacheActions): Cache {
                 accountName: action.payload,
             };
 
+        case CacheType.Reset:
+            log(`[Cache] reset`, 'info');
+            return {
+                abis: new Map<string, string>(),
+                contacts: null,
+                lastConversation: {
+                    account: null,
+                    message: null,
+                },
+                messageSizeLimit: 0,
+                accountName: '',
+                reset: undefined,
+            };
+
         default:
             return state;
     }

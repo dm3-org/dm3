@@ -37,6 +37,13 @@ export function connectionReducer(
                 defaultServiceUrl: action.payload,
             };
 
+        case ConnectionType.Reset:
+            log(`[Connection] reset`, 'info');
+            return {
+                defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
+                reset: undefined,
+            };
+
         default:
             return state;
     }

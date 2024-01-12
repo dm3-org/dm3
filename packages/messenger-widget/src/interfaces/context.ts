@@ -34,12 +34,14 @@ export interface Cache {
     };
     messageSizeLimit: number;
     accountName: string;
+    reset: any;
 }
 
 export interface UiState {
     lastMessagePull: number;
     proflieExists: boolean;
     browserStorageBackup: boolean;
+    reset: any;
 }
 
 export interface GlobalContextProviderProps {
@@ -54,10 +56,12 @@ export interface Modal {
     lastMessageAction: MessageActionType;
     isProfileConfigurationPopupActive: boolean;
     showPreferencesModal: boolean;
+    reset: any;
 }
 
 export interface UiViewState {
     selectedLeftView: LeftViewSelected;
     selectedRightView: RightViewSelected;
     selectedMessageView: MessageAction;
+    reset: any;
 }

@@ -1,6 +1,10 @@
 import { log } from 'dm3-lib-shared';
 import { Modal } from '../interfaces/context';
-import { ModalStateActions, ModalStateType } from '../utils/enum-type-utils';
+import {
+    MessageActionType,
+    ModalStateActions,
+    ModalStateType,
+} from '../utils/enum-type-utils';
 
 export function modalReducer(state: Modal, action: ModalStateActions): Modal {
     switch (action.type) {
@@ -41,17 +45,36 @@ export function modalReducer(state: Modal, action: ModalStateActions): Modal {
                 ...state,
                 lastMessageAction: action.payload,
             };
+
         case ModalStateType.IsProfileConfigurationPopupActive:
             log(`[Profile configuration popup] open ${action.payload}`, 'info');
             return {
                 ...state,
                 isProfileConfigurationPopupActive: action.payload,
             };
+
         case ModalStateType.ShowPreferencesModal:
             log(`[Show Preferences popup] ${action.payload}`, 'info');
             return {
                 ...state,
                 showPreferencesModal: action.payload,
+            };
+
+        case ModalStateType.Reset:
+            log(`[Modal] reset`, 'info');
+            return {
+                loaderContent: '',
+                contactToHide: undefined,
+                addConversation: {
+                    active: false,
+                    ensName: undefined,
+                    processed: false,
+                },
+                openEmojiPopup: { action: false, data: undefined },
+                lastMessageAction: MessageActionType.NONE,
+                isProfileConfigurationPopupActive: false,
+                showPreferencesModal: false,
+                reset: undefined,
             };
 
         default:
