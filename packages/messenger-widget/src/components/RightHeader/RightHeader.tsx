@@ -22,7 +22,7 @@ import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvid
 export function RightHeader(props: HideFunctionProps) {
     // fetches context storage
     const { state, dispatch } = useContext(GlobalContext);
-    const { account, ethAddress } = useContext(AuthContext);
+    const { account, displayName } = useContext(AuthContext);
     const mainnetProvider = useMainnetProvider();
 
     // state to store profile pic of signed in user
@@ -60,70 +60,10 @@ export function RightHeader(props: HideFunctionProps) {
         }
     };
 
-    const fetchDisplayName = async () => {
-        try {
-            if (mainnetProvider && ethAddress && account) {
-                const isAddrEnsName = account?.ensName?.endsWith(
-                    globalConfig.ADDR_ENS_SUBDOMAIN(),
-                );
-                const name = await mainnetProvider.lookupAddress(ethAddress);
-                if (name && !isAddrEnsName) {
-                    const hasProfile = await hasUserProfile(
-                        mainnetProvider,
-                        name,
-                    );
-                    const dm3ProfileRecordExists = await checkEnsDM3Text(
-                        mainnetProvider,
-                        name,
-                    );
-                    dispatch({
-                        type: CacheType.AccountName,
-                        payload:
-                            hasProfile && dm3ProfileRecordExists
-                                ? name
-                                : account?.ensName,
-                    });
-                } else {
-                    const dm3Names: any = await getAliasChain(
-                        account,
-                        mainnetProvider,
-                    );
-                    let dm3Name;
-                    if (dm3Names && dm3Names.length) {
-                        dm3Name = getLastDm3Name(dm3Names);
-                    }
-                    dispatch({
-                        type: CacheType.AccountName,
-                        payload: dm3Name ? dm3Name : account.ensName,
-                    });
-                }
-            } else {
-                dispatch({
-                    type: CacheType.AccountName,
-                    payload: account ? account.ensName : '',
-                });
-            }
-        } catch (error) {
-            dispatch({
-                type: CacheType.AccountName,
-                payload: account ? account.ensName : '',
-            });
-        }
-    };
-
     // loads the profile pic on page render
     useEffect(() => {
         fetchAndSetProfilePic();
-        fetchDisplayName();
     }, []);
-
-    useEffect(() => {
-        fetchDisplayName();
-    }, [account?.ensName]);
-
-    useEffect(() => {
-        fetchDisplayName();
-    }, [state.cache.accountName]);
 
     return (
         <div
@@ -157,7 +97,7 @@ export function RightHeader(props: HideFunctionProps) {
                     onClick={() => updateView()}
                     className="profile-name font-weight-500 pointer-cursor text-secondary-color"
                 >
-                    {state.cache.accountName}
+                    {displayName}
                 </span>
                 <img
                     src={profilePic ? profilePic : humanIcon}
