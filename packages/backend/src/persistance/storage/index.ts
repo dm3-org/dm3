@@ -1,4 +1,4 @@
-import { setUserStorage } from './setUserStorage';
-import { getUserStorage } from './getUserStorage';
+import { setUserStorageChunk } from './setUserStorage';
+import { getUserStorageChunk } from './getUserStorage';
 
-export default { setUserStorage, getUserStorage };
+export default { setUserStorageChunk, getUserStorageChunk };
