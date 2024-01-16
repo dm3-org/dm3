@@ -47,10 +47,14 @@ describe('Storage', () => {
                 setSession: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
-                getUserStorage: async (addr: string) => {
+                getUserStorageChunk: async (ensName: string, key: string) => {
                     return {};
                 },
                 getIdEnsName: async (ensName: string) => ensName,
+                encryption: {
+                    encrypt: async (data: string) => data,
+                    decrypt: async (data: string) => data,
+                },
             };
 
             app.locals.web3Provider = {
@@ -58,7 +62,7 @@ describe('Storage', () => {
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
             const { status } = await request(app)
-                .get(`/bob.eth`)
+                .get(`/bob.eth/123`)
                 .set({
                     authorization: `Bearer ${token}`,
                 })
@@ -86,8 +90,12 @@ describe('Storage', () => {
                 setSession: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
-                setUserStorage: (_: string, __: string) => {},
+                setUserStorageChunk: (_: string, __: string, ___: string) => {},
                 getIdEnsName: async (ensName: string) => ensName,
+                encryption: {
+                    encrypt: async (data: string) => data,
+                    decrypt: async (data: string) => data,
+                },
             };
             app.locals.web3Provider = {
                 resolveName: async () =>
@@ -95,7 +103,7 @@ describe('Storage', () => {
             };
 
             const { status } = await request(app)
-                .post(`/bob.eth`)
+                .post(`/bob.eth/123`)
                 .set({
                     authorization: `Bearer ${token}`,
                 })
