@@ -88,7 +88,7 @@ export function Preferences() {
                             </div>
                         </div>
                         <div className="col-10 m-0 p-0">
-                            {optionChoosen ? (
+                            {optionChoosen && optionChoosen.isEnabled ? (
                                 optionChoosen.component
                             ) : (
                                 <div className="d-flex align-items-start justify-content-end">
