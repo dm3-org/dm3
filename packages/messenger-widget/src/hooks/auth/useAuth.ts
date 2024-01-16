@@ -10,8 +10,10 @@ import {
     ConnectDsResult,
     DeliveryServiceConnector,
 } from './DeliveryServiceConnector';
+import { useTopLevelAlias } from '../topLevelAlias/useTopLevelAlias';
 
 export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
+    const { resolveAliasToTLD } = useTopLevelAlias();
     const { data: walletClient } = useWalletClient();
     const mainnetProvider = useMainnetProvider();
     const { address } = useAccount({
@@ -28,10 +30,37 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [hasError, setHasError] = useState<boolean>(false);
 
+    //The account name that should be displayed to the user. Takes alias profiles and Crosschain names into account
+    const [displayName, setDisplayName] = useState<string | undefined>(
+        undefined,
+    );
+
+    // Effect to resolve the display name of the account currently logged in.
+    //The main purpose of that function is check wether the account has been minted via an L2 name service such as
+    //genome and therefore has a crosschain name that is resolved with the TopLevelAliasResolver
+    useEffect(() => {
+        const fetchDisplayName = async () => {
+            if (!account) {
+                return;
+            }
+            const displayName = await resolveAliasToTLD(account?.ensName);
+            setDisplayName(displayName);
+        };
+        fetchDisplayName();
+    }, [account]);
+
+    // can be check to retrive the current auth state
     const isLoggedIn = useMemo<boolean>(
         () => !!account && !!deliveryServiceToken,
         [account, deliveryServiceToken],
     );
+
+    // handles account change
+    useEffect(() => {
+        if (address && ethAddress && ethAddress !== address) {
+            signOut();
+        }
+    }, [address]);
 
     const signOut = () => {
         setAccount(undefined);
@@ -79,16 +108,10 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
         setIsLoading(false);
     };
 
-    // handles account change
-    useEffect(() => {
-        if (address && ethAddress && ethAddress !== address) {
-            signOut();
-        }
-    }, [address]);
-
     return {
         cleanSignIn,
         account,
+        displayName,
         ethAddress,
         deliveryServiceToken,
         isLoggedIn,

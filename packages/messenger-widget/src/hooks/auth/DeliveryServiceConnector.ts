@@ -20,6 +20,7 @@ import {
 } from '@dm3-org/dm3-lib-storage';
 
 import { GetWalletClientResult } from '@wagmi/core';
+import axios from 'axios';
 import {
     getChallenge,
     getNewToken,
@@ -29,7 +30,6 @@ import { claimAddress } from '@dm3-org/dm3-lib-offchain-resolver-api';
 import { createProfileKeys as _createProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { globalConfig, stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
-import axios from 'axios';
 
 export type ConnectDsResult = {
     userDb: UserDB;
@@ -77,7 +77,100 @@ export const DeliveryServiceConnector = (
             return false;
         }
     }
-    const loginWithNewProfile = async (): Promise<ConnectDsResult> => {
+    async function getUserDbFromDeliveryService(
+        signedUserProfile: SignedUserProfile,
+        ensName: string,
+        profileKeys: ProfileKeys,
+        deliveryServiceToken: string,
+    ) {
+        const storageFile = await getDm3Storage(
+            mainnetProvider,
+            { profile: signedUserProfile.profile, ensName },
+            deliveryServiceToken,
+        );
+
+        if (!storageFile) {
+            //Create new user db object
+            return createDB(profileKeys);
+        }
+        try {
+            //The encrypted session file will now be decrypted, therefore the user has to sign the auth message again.
+            const userDb = await load(
+                JSON.parse(storageFile),
+                profileKeys.storageEncryptionKey,
+            );
+            return userDb;
+        } catch (e) {
+            throw Error('Unable to depcrypt storage file');
+        }
+    }
+
+    const signUpWithExistingProfile = async (
+        ensName: string,
+        signedUserProfile: SignedUserProfile,
+    ): Promise<ConnectDsResult> => {
+        const deliveryServiceToken = await submitUserProfile(
+            { ensName, profile: signedUserProfile.profile },
+            mainnetProvider,
+            signedUserProfile,
+        );
+
+        const keys = await createProfileKeys();
+        const userDb = await getUserDbFromDeliveryService(
+            signedUserProfile,
+            ensName,
+            keys,
+            deliveryServiceToken,
+        );
+        return {
+            userDb,
+            deliveryServiceToken,
+            signedUserProfile,
+        };
+    };
+
+    const loginWithExistingProfile = async (
+        ensName: string,
+        signedUserProfile: SignedUserProfile,
+    ): Promise<ConnectDsResult> => {
+        const reAuth = async (
+            ensName: string,
+            profile: UserProfile,
+            privateSigningKey: string,
+        ) => {
+            const challenge = await getChallenge(
+                { profile, ensName },
+                mainnetProvider,
+            );
+
+            const signature = await sign(privateSigningKey, challenge);
+            return getNewToken(
+                { profile, ensName },
+                mainnetProvider,
+                signature,
+            );
+        };
+        const keys = await createProfileKeys();
+        const deliveryServiceToken = await reAuth(
+            ensName,
+            signedUserProfile.profile,
+            keys.signingKeyPair.privateKey,
+        );
+
+        const userDb = await getUserDbFromDeliveryService(
+            signedUserProfile,
+            ensName,
+            keys,
+            deliveryServiceToken,
+        );
+
+        return {
+            userDb,
+            deliveryServiceToken,
+            signedUserProfile,
+        };
+    };
+    const createNewProfileAndLogin = async (): Promise<ConnectDsResult> => {
         const createNewSignedUserProfile = async ({
             signingKeyPair,
             encryptionKeyPair,
@@ -134,57 +227,6 @@ export const DeliveryServiceConnector = (
         };
     };
 
-    const loginWithExistingProfile = async (
-        ensName: string,
-        signedUserProfile: SignedUserProfile,
-    ): Promise<ConnectDsResult> => {
-        const reAuth = async (
-            ensName: string,
-            profile: UserProfile,
-            privateSigningKey: string,
-        ) => {
-            const challenge = await getChallenge(
-                { profile, ensName },
-                mainnetProvider,
-            );
-
-            const signature = await sign(privateSigningKey, challenge);
-            return getNewToken(
-                { profile, ensName },
-                mainnetProvider,
-                signature,
-            );
-        };
-        const keys = await createProfileKeys();
-        const deliveryServiceToken = await reAuth(
-            ensName,
-            signedUserProfile.profile,
-            keys.signingKeyPair.privateKey,
-        );
-
-        const storageFile = await getDm3Storage(
-            mainnetProvider,
-            { profile: signedUserProfile.profile, ensName },
-            deliveryServiceToken,
-        );
-
-        if (!storageFile) {
-            throw Error('No storage file');
-        }
-
-        //The encrypted session file will now be decrypted, therefore the user has to sign the auth message again.
-        const userDb = await load(
-            JSON.parse(storageFile),
-            keys.storageEncryptionKey,
-        );
-
-        return {
-            userDb,
-            deliveryServiceToken,
-            signedUserProfile,
-        };
-    };
-
     const login = async (
         ensName: string,
         signedUserProfile?: SignedUserProfile,
@@ -192,11 +234,18 @@ export const DeliveryServiceConnector = (
         const userHasProfile = !!signedUserProfile;
         const dsKnowsUser = await profileExistsOnDeliveryService(ensName);
 
-        const profileExists = userHasProfile && dsKnowsUser;
+        const profileIsKnownToDs = userHasProfile && dsKnowsUser;
 
-        return profileExists
-            ? await loginWithExistingProfile(ensName, signedUserProfile)
-            : await loginWithNewProfile();
+        //User has profile either onchain or at the resolver and has already sign up with the DS
+        if (profileIsKnownToDs) {
+            return await loginWithExistingProfile(ensName, signedUserProfile);
+        }
+        //User has profile onchain but not interacted with the DS yet
+        if (userHasProfile) {
+            return await signUpWithExistingProfile(ensName, signedUserProfile);
+        }
+        //User has neither an onchain profile nor a profile on the resolver
+        return await createNewProfileAndLogin();
     };
 
     return { login };

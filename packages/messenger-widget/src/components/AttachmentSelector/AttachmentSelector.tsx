@@ -8,7 +8,7 @@ import { generateRandomStringForId } from '../../utils/common-utils';
 export function AttachmentSelector(props: AttachmentProps) {
     // method to open system default file chooser
     const openAttachmentSelector = () => {
-        let filePopup = document.getElementById('attachments') as HTMLElement;
+        const filePopup = document.getElementById('attachments') as HTMLElement;
         filePopup.click();
     };
 

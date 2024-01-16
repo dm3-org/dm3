@@ -7,7 +7,7 @@ function Demo() {
     const props: any = {
         defaultContact: 'help.dm3.eth',
         defaultServiceUrl: process.env.REACT_APP_DEFAULT_SERVICE,
-        ethereumProvider: process.env.REACT_APP_ETHEREUM_PROVIDER,
+        ethereumProvider: process.env.REACT_APP_MAINNET_PROVIDER_RPC,
         walletConnectProjectId: process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID,
         showAlways: true,
         hideFunction: undefined, // OPTINAL PARAMETER : 'attachments,edit,delete' or undefined

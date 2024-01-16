@@ -19,7 +19,10 @@ import {
     getHaltDelivery,
     sendMessage,
 } from '../../utils/common-utils';
-import { SendDependencies, createReactionMessage } from '@dm3-org/dm3-lib-messaging';
+import {
+    SendDependencies,
+    createReactionMessage,
+} from '@dm3-org/dm3-lib-messaging';
 import { hideMsgActionDropdown } from '../MessageInputBox/bl';
 import { AuthContext } from '../../context/AuthContext';
 

@@ -188,7 +188,7 @@ background-container text-primary-color"
                                 closeConfigurationModal(
                                     setDm3Name,
                                     setEnsName,
-                                    () => { },
+                                    () => {},
                                     (type: NAME_TYPE) => onShowError(type, ''),
                                     dispatch,
                                 )
@@ -218,7 +218,7 @@ background-container text-primary-color"
                                     >
                                         {ethAddress &&
                                             ethAddress +
-                                            globalConfig.ADDR_ENS_SUBDOMAIN()}
+                                                globalConfig.ADDR_ENS_SUBDOMAIN()}
                                     </p>
                                 </div>
                                 <div className="address-details">
