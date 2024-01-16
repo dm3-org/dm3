@@ -1,6 +1,6 @@
 {
     "name": "@dm3-org/dm3-messenger-widget",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "main": "./dist/cjs/index.js",
     "module": "./dist/cjs/index.js",
     "dependencies": {
@@ -10,6 +10,9 @@
         "@dm3-org/dm3-lib-profile": "workspace:^",
         "@dm3-org/dm3-lib-shared": "workspace:^",
         "@dm3-org/dm3-lib-storage": "workspace:^",
+        "@dm3-org/dm3-lib-delivery-api": "workspace:^",
+        "@dm3-org/dm3-lib-offchain-resolver-api": "workspace:^",
+        "ajv-formats": "^2.1.1",
         "@emoji-mart/data": "^1.1.2",
         "@emoji-mart/react": "^1.1.1",
         "@popperjs/core": "^2.11.8",
