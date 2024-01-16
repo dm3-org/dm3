@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-console */
 import { createWeb3Name } from '@web3-name-sdk/core';
 import { getNameForAddress } from '@dm3-org/dm3-lib-offchain-resolver-api';
@@ -82,10 +83,27 @@ export const AccountConnector = (
         // either chidaodo or xdai
         if (chainId === 10200 || chainId === 100) {
             const web3Name = createWeb3Name();
-            return await web3Name.getDomainName({
+
+            const spaceIdWeb3Name = await web3Name.getDomainName({
                 address,
                 queryChainIdList: [chainId],
             });
+            //User is connected with an address that has no genome name yet
+            if (!spaceIdWeb3Name) {
+                return undefined;
+            }
+
+            console.log(
+                `resolved genome name ${spaceIdWeb3Name} for ${address}`,
+            );
+
+            //hardcode genome name and move to LIB fn
+            const resolvedTLD = 'alex1234.eth';
+            const l1EnsName = spaceIdWeb3Name.replace(
+                '.gno',
+                '.' + resolvedTLD,
+            );
+            return l1EnsName;
         }
 
         return await mainnetProvider.lookupAddress(address);

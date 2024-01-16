@@ -60,7 +60,7 @@ export const getEnsProfileDetails = async (
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     ensName: string,
 ): Promise<EnsProfileDetails> => {
-    let details: EnsProfileDetails = {
+    const details: EnsProfileDetails = {
         email: null,
         github: null,
         twitter: null,

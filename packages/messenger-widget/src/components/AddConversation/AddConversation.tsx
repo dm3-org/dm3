@@ -7,6 +7,7 @@ import { GlobalContext } from '../../utils/context-utils';
 import { showContactList } from '../../utils/common-utils';
 import { ethers } from 'ethers';
 import { AuthContext } from '../../context/AuthContext';
+import { useTopLevelAlias } from '../../hooks/topLevelAlias/useTopLevelAlias';
 
 export default function AddConversation() {
     const { state, dispatch } = useContext(GlobalContext);
@@ -15,17 +16,20 @@ export default function AddConversation() {
     const [showError, setShowError] = useState<boolean>(false);
     const [errorMsg, setErrorMsg] = useState<string>('');
     const [inputClass, setInputClass] = useState<string>(INPUT_FIELD_CLASS);
+    const { resolveTLDtoAlias } = useTopLevelAlias();
 
     const { ethAddress } = useContext(AuthContext);
 
     // handles new contact submission
-    const submit = (e: React.FormEvent) => {
+    const submit = async (e: React.FormEvent) => {
         e.preventDefault();
         setName(name.trim());
         if (name.length) {
+            //Checks wether the name entered, is an tld name. If yes, the TLD is substituded with the alias name
+            const aliasName = await resolveTLDtoAlias(name);
             addContact(
                 state,
-                name,
+                aliasName,
                 ethAddress!,
                 dispatch,
                 resetName,

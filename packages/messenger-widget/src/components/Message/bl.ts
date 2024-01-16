@@ -100,7 +100,7 @@ export const deleteEmoji = async (
 };
 
 export const getFilesData = (files: string[]) => {
-    let data: Attachment[] = [];
+    const data: Attachment[] = [];
     let fileType;
     files.forEach((file, index) => {
         fileType = getFileTypeFromBase64(file);

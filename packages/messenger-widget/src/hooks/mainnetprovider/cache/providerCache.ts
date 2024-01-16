@@ -9,6 +9,7 @@ export const getCachedProvider = (
         get: (target, fnSig, receiver) => {
             if (fnSig === 'send') {
                 return async (method: string, ...args: any[]) => {
+                    //Simpy caching chainId safes 10 sek of initial load time
                     if (method === 'eth_chainId') {
                         const key = `${fnSig}-${method}`;
                         if (cache.has(key)) {
@@ -24,8 +25,8 @@ export const getCachedProvider = (
                     return target[fnSig](method, ...args);
                 };
             }
-
-            if (fnSig === 'getResolver') {
+            //TODO figure out how to cache inner call
+            /*      if (fnSig === 'getResolver') {
                 return async (address: string) => {
                     const key = `${fnSig}-${address}`;
                     if (cache.has(key)) {
@@ -33,14 +34,12 @@ export const getCachedProvider = (
                         return cache.get(key);
                     }
                     //@ts-ignore
-                    console.log('cache getResolver ', key);
                     const result = await target[fnSig](address);
-                    console.log('resolver ', result);
                     //@ts-ignore
                     cache.set(key, result);
                     return result;
                 };
-            }
+            } */
             //@ts-ignore
             return target[fnSig];
         },
