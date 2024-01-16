@@ -13,9 +13,9 @@ export default () => {
 
     router.get('/:ensName/:key', async (req, res, next) => {
         try {
-            const account = normalizeEnsName(req.params.ensName);
+            const ensName = normalizeEnsName(req.params.ensName);
             const userStorage = await req.app.locals.db.getUserStorageChunk(
-                account,
+                ensName,
                 req.params.key,
             );
             return res.json(userStorage);
@@ -26,10 +26,10 @@ export default () => {
 
     router.post('/:ensName/:key', async (req, res, next) => {
         try {
-            const account = normalizeEnsName(req.params.ensName);
+            const ensName = normalizeEnsName(req.params.ensName);
 
             await req.app.locals.db.setUserStorageChunk(
-                account,
+                ensName,
                 req.params.key,
                 stringify(req.body)!,
             );

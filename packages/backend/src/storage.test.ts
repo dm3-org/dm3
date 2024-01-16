@@ -47,7 +47,7 @@ describe('Storage', () => {
                 setSession: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
-                getUserStorage: async (addr: string) => {
+                getUserStorageChunk: async (ensName: string, key: string) => {
                     return {};
                 },
                 getIdEnsName: async (ensName: string) => ensName,
@@ -90,7 +90,7 @@ describe('Storage', () => {
                 setSession: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
-                setUserStorage: (_: string, __: string) => {},
+                setUserStorageChunk: (_: string, __: string, ___: string) => {},
                 getIdEnsName: async (ensName: string) => ensName,
                 encryption: {
                     encrypt: async (data: string) => data,
