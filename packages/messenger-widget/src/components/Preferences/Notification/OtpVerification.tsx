@@ -124,36 +124,20 @@ export function OtpVerification(props: IOtpVerification) {
                         {props.type}
                     </label>
                     <div id="inputs">
-                        <input
-                            className="otp"
-                            type="text"
-                            minLength={1}
-                            maxLength={1}
-                        />
-                        <input
-                            className="otp"
-                            type="text"
-                            minLength={1}
-                            maxLength={1}
-                        />
-                        <input
-                            className="otp"
-                            type="text"
-                            minLength={1}
-                            maxLength={1}
-                        />
-                        <input
-                            className="otp"
-                            type="text"
-                            minLength={1}
-                            maxLength={1}
-                        />
-                        <input
-                            className="otp"
-                            type="text"
-                            minLength={1}
-                            maxLength={1}
-                        />
+                        {/* OTP of length 5 */}
+                        {Array.from({ length: 5 }, (_, i) => i + 1).map(
+                            (data) => {
+                                return (
+                                    <input
+                                        key={data}
+                                        className="otp"
+                                        type="text"
+                                        minLength={1}
+                                        maxLength={1}
+                                    />
+                                );
+                            },
+                        )}
                     </div>
                     <p className="d-flex resend-code font-weight-300">
                         Please
