@@ -2,6 +2,14 @@ import { useState } from 'react';
 import { Heading } from '../Heading';
 import { Checkbox, Text } from './Content';
 import { NotificationButton } from './NotificationButton';
+import { IVerificationModal, VerificationModal } from './VerificationModal';
+import { DeleteIcon } from './DeleteIcon';
+import {
+    VerificationMethod,
+    deleteEmail,
+    deletePhone,
+    getVerficationModalContent,
+} from './bl';
 
 export function Notification() {
     const heading = 'Notification';
@@ -9,11 +17,29 @@ export function Notification() {
         'Prevent spam from being sent to you by setting rules ' +
         'that senders must fulfill in order for messages to be accepted.';
 
+    // States for active notifications
     const [isNotificationsActive, setIsNotificationsActive] =
         useState<boolean>(true);
     const [isEmailActive, setIsEmailActive] = useState<boolean>(true);
     const [isMobileActive, setIsMobileActive] = useState<boolean>(true);
     const [isPushNotifyActive, setIsPushNotifyActive] = useState<boolean>(true);
+
+    // States to manage email & phone no.
+    const [email, setEmail] = useState<string | null>(null);
+    const [phone, setPhone] = useState<string | null>(null);
+
+    // States related to popup for verification
+    const [activeVerification, setActiveVerification] = useState<
+        VerificationMethod | undefined
+    >(undefined);
+    const [activeVerificationContent, setActiveVerificationContent] =
+        useState<IVerificationModal>(
+            getVerficationModalContent(
+                VerificationMethod.Email,
+                setActiveVerification,
+                setEmail,
+            ),
+        );
 
     const updateNotificationActive = (action: boolean) => {
         setIsNotificationsActive(action);
@@ -22,9 +48,25 @@ export function Notification() {
         setIsPushNotifyActive(action);
     };
 
+    const removeEmailId = async () => {
+        if (email) {
+            await deleteEmail(email, setEmail);
+        }
+    };
+    const removePhoneNo = async () => {
+        if (phone) {
+            await deletePhone(phone, setPhone);
+        }
+    };
+
     return (
         <div>
             <Heading heading={heading} description={description} />
+
+            {/* Verification popup */}
+            {activeVerification && (
+                <VerificationModal {...activeVerificationContent} />
+            )}
 
             {/* Notifications enabled/disabled */}
             <div className="ms-5 mt-4">
@@ -54,11 +96,28 @@ export function Notification() {
                         action={setIsEmailActive}
                         heading="Email"
                     />
-                    <NotificationButton
-                        text="Add Email"
-                        disabled={!isNotificationsActive}
-                        action={() => {}}
-                    />
+                    {email ? (
+                        <DeleteIcon
+                            data={email}
+                            type={VerificationMethod.Email}
+                            deleteNotification={removeEmailId}
+                        />
+                    ) : (
+                        <NotificationButton
+                            text="Add Email"
+                            disabled={!isNotificationsActive}
+                            action={() => {
+                                setActiveVerification(VerificationMethod.Email);
+                                setActiveVerificationContent(
+                                    getVerficationModalContent(
+                                        VerificationMethod.Email,
+                                        setActiveVerification,
+                                        setEmail,
+                                    ),
+                                );
+                            }}
+                        />
+                    )}
                 </div>
                 <Text
                     disabled={!isNotificationsActive}
@@ -77,11 +136,30 @@ export function Notification() {
                         action={setIsMobileActive}
                         heading="SMS"
                     />
-                    <NotificationButton
-                        text="Add Phone Number"
-                        disabled={!isNotificationsActive}
-                        action={() => {}}
-                    />
+                    {phone ? (
+                        <DeleteIcon
+                            data={phone}
+                            type={VerificationMethod.Telephone}
+                            deleteNotification={removePhoneNo}
+                        />
+                    ) : (
+                        <NotificationButton
+                            text="Add Phone Number"
+                            disabled={!isNotificationsActive}
+                            action={() => {
+                                setActiveVerification(
+                                    VerificationMethod.Telephone,
+                                );
+                                setActiveVerificationContent(
+                                    getVerficationModalContent(
+                                        VerificationMethod.Telephone,
+                                        setActiveVerification,
+                                        setPhone,
+                                    ),
+                                );
+                            }}
+                        />
+                    )}
                 </div>
                 <Text
                     disabled={!isNotificationsActive}

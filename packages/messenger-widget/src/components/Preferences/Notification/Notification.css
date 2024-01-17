@@ -179,3 +179,102 @@
     border-width: 0 3px 3px 0 !important;
     transform: rotate(45deg) !important;
 }
+
+/* Modal CSS */
+.notification-modal-content {
+    margin: auto;
+    padding: 2rem;
+    border: none;
+    width: fit-content;
+    top: 15%;
+    position: relative;
+    height: auto;
+    box-shadow: 0px 0px 20px 0px #000000;
+}
+
+.notification-description {
+    width: 30rem;
+    font-size: 10px;
+    line-height: 14px;
+    margin: 1rem 0rem 0rem 1rem;
+}
+
+.notification-input-field {
+    border: 1px solid var(--input-field-border-color);
+    padding: 0.3rem 1rem 0.3rem 1rem;
+    color: var(--input-field-text-color);
+    background: var(--input-field-background-color);
+    margin: 0rem 1rem 0rem 1rem;
+}
+
+.notification-input-field::placeholder {
+    font-size: 12px;
+    font-weight: 300;
+    font-style: italic;
+    line-height: 24px;
+    color: var(--text-secondary-color);
+}
+
+.verify-btn {
+    padding: 4px 12px 4px 12px;
+    box-shadow: 0px 0px 44px 0px var(--button-shadow);
+    margin-top: 0rem;
+}
+
+.notification-separator {
+    margin: 1rem 0rem 1rem 0rem;
+}
+
+.notification-error {
+    font-size: 0.8rem;
+    line-height: 14px;
+    font-style: italic;
+    color: var(--error-text);
+}
+
+.resend-code {
+    font-size: 10px;
+    line-height: 14px;
+    margin: 0px;
+    padding-left: 1rem;
+}
+
+.otp {
+    border: 1px solid var(--text-secondary-color);
+    color: var(--text-primary-color);
+    border-radius: 5px;
+    font-weight: 900;
+    font-size: 1.5rem;
+    margin-left: 1rem;
+    background: var(--input-field-background-color);
+    width: 2rem;
+    height: 2.2rem;
+    padding: 0px;
+    text-align: center;
+}
+
+/* Hide arrow buttons from input field Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type='number'] {
+    -moz-appearance: textfield;
+}
+
+.highlighted-notification-data {
+    color: var(--profile-configuration-text-color);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.resent-text {
+    font-size: 0.8rem;
+    line-height: 14px;
+    font-style: italic;
+    margin-bottom: 0.4rem;
+    color: green !important;
+}

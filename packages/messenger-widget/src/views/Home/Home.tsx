@@ -24,6 +24,7 @@ import { AuthContextProvider } from '../../context/AuthContext';
 import { MainnetProviderContextProvider } from '../../context/ProviderContext';
 import { GlobalContext } from '../../utils/context-utils';
 import './Home.css';
+import { Preferences } from '../../components/Preferences/Preferences';
 
 export function Home(props: Dm3Props) {
     // fetches context api data
@@ -77,6 +78,7 @@ export function Home(props: Dm3Props) {
         <div className="h-100">
             <Loader />
             <AddConversation />
+            <Preferences />
             <WagmiConfig config={wagmiConfig}>
                 <RainbowKitProvider chains={chains} theme={darkTheme()}>
                     <MainnetProviderContextProvider>
