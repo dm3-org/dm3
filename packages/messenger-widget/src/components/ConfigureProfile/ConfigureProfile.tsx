@@ -196,7 +196,7 @@ export function ConfigureDM3Profile() {
             </div>
 
             {/* DM3 Name */}
-            <div className="mt-5">
+            <div className="mt-3">
                 <div className="d-flex ps-4 align-items-center">
                     <div className="configuration-items-align invisible">
                         <img src={tickIcon} />

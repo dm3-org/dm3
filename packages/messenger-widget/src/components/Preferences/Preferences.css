@@ -5,7 +5,7 @@
     bottom: 5%;
     position: relative;
     width: 90%;
-    height: 90%;
+    height: 100% !important;
     padding: 0rem;
 }
 
@@ -44,7 +44,6 @@
         var(--info-box-background-color) 35%,
         rgba(58, 60, 80, 0) 99.77%
     );
-    height: 100%;
     position: relative;
 }
 
