@@ -1,6 +1,6 @@
 import './Notification.css';
 import deleteIcon from '../../../assets/images/delete.svg';
-import { VerificationMethod } from './bl';
+import { VerificationMethod } from './hooks/VerificationContent';
 
 interface IDeleteIcon {
     data: string;

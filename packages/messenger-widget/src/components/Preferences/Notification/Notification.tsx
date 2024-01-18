@@ -1,15 +1,13 @@
-import { useState } from 'react';
 import { Heading } from '../Heading';
 import { Checkbox, Text } from './Content';
 import { NotificationButton } from './NotificationButton';
-import { IVerificationModal, VerificationModal } from './VerificationModal';
+import { VerificationModal } from './VerificationModal';
 import { DeleteIcon } from './DeleteIcon';
+import { useNotification } from './hooks/useNotification';
 import {
-    VerificationMethod,
-    deleteEmail,
-    deletePhone,
     getVerficationModalContent,
-} from './bl';
+    VerificationMethod,
+} from './hooks/VerificationContent';
 
 export function Notification() {
     const heading = 'Notification';
@@ -17,47 +15,26 @@ export function Notification() {
         'Prevent spam from being sent to you by setting rules ' +
         'that senders must fulfill in order for messages to be accepted.';
 
-    // States for active notifications
-    const [isNotificationsActive, setIsNotificationsActive] =
-        useState<boolean>(true);
-    const [isEmailActive, setIsEmailActive] = useState<boolean>(true);
-    const [isMobileActive, setIsMobileActive] = useState<boolean>(true);
-    const [isPushNotifyActive, setIsPushNotifyActive] = useState<boolean>(true);
-
-    // States to manage email & phone no.
-    const [email, setEmail] = useState<string | null>(null);
-    const [phone, setPhone] = useState<string | null>(null);
-
-    // States related to popup for verification
-    const [activeVerification, setActiveVerification] = useState<
-        VerificationMethod | undefined
-    >(undefined);
-    const [activeVerificationContent, setActiveVerificationContent] =
-        useState<IVerificationModal>(
-            getVerficationModalContent(
-                VerificationMethod.Email,
-                setActiveVerification,
-                setEmail,
-            ),
-        );
-
-    const updateNotificationActive = (action: boolean) => {
-        setIsNotificationsActive(action);
-        setIsEmailActive(action);
-        setIsMobileActive(action);
-        setIsPushNotifyActive(action);
-    };
-
-    const removeEmailId = async () => {
-        if (email) {
-            await deleteEmail(email, setEmail);
-        }
-    };
-    const removePhoneNo = async () => {
-        if (phone) {
-            await deletePhone(phone, setPhone);
-        }
-    };
+    const {
+        isNotificationsActive,
+        isEmailActive,
+        setIsEmailActive,
+        isMobileActive,
+        setIsMobileActive,
+        isPushNotifyActive,
+        setIsPushNotifyActive,
+        email,
+        setEmail,
+        phone,
+        setPhone,
+        updateNotificationActive,
+        deleteEmail,
+        deletePhone,
+        activeVerification,
+        setActiveVerification,
+        activeVerificationContent,
+        setActiveVerificationContent,
+    } = useNotification();
 
     return (
         <div>
@@ -87,7 +64,7 @@ export function Notification() {
                 />
             </div>
 
-            {/* Email notifications enabled/diabled */}
+            {/* Email notifications enabled/disabled */}
             <div className="notification-content-left mt-4">
                 <div className="d-flex align-items-center">
                     <Checkbox
@@ -100,7 +77,7 @@ export function Notification() {
                         <DeleteIcon
                             data={email}
                             type={VerificationMethod.Email}
-                            deleteNotification={removeEmailId}
+                            deleteNotification={deleteEmail}
                         />
                     ) : (
                         <NotificationButton
@@ -127,7 +104,7 @@ export function Notification() {
                 />
             </div>
 
-            {/* Mobile notifications enabled/diabled */}
+            {/* Mobile notifications enabled/disabled */}
             <div className="notification-content-left mt-4">
                 <div className="d-flex  align-items-center">
                     <Checkbox
@@ -140,7 +117,7 @@ export function Notification() {
                         <DeleteIcon
                             data={phone}
                             type={VerificationMethod.Telephone}
-                            deleteNotification={removePhoneNo}
+                            deleteNotification={deletePhone}
                         />
                     ) : (
                         <NotificationButton
@@ -170,7 +147,7 @@ export function Notification() {
                 />
             </div>
 
-            {/* Push notifications enabled/diabled */}
+            {/* Push notifications enabled/disabled */}
             <div className="notification-content-left mt-4">
                 <div className="d-flex align-items-center">
                     <Checkbox

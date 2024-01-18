@@ -228,20 +228,15 @@ export const namingServices = [
 ];
 
 export const fetchComponent = (name: string) => {
-    let chain: number = 1;
     switch (name) {
         case NAME_SERVICES.ENS:
             if (process.env.REACT_APP_CHAIN_ID === '5') {
-                chain = Number(process.env.REACT_APP_CHAIN_ID);
-            } else {
-                chain = namingServices[0].chainId;
+                return <ConfigureEnsProfile chainToConnect={5} />;
             }
-            return <ConfigureEnsProfile chainToConnect={chain} />;
+            return <ConfigureEnsProfile chainToConnect={1} />;
         case NAME_SERVICES.GENOME:
-            chain = namingServices[1].chainId;
-            return <ConfigureGenomeProfile chainToConnect={chain} />;
-        default:
-            return <ConfigureEnsProfile chainToConnect={chain} />;
+            const genomeChainId = namingServices[1].chainId;
+            return <ConfigureGenomeProfile chainToConnect={genomeChainId} />;
     }
 };
 

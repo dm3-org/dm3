@@ -1,96 +1,26 @@
 import './Notification.css';
-import { useEffect, useState } from 'react';
-import { validateOtp } from './bl';
+import { useOtp } from './hooks/useOtp';
+import { VerificationMethod } from './hooks/VerificationContent';
 
-export interface IOtpVerification {
+interface IOtpVerification {
     verificationData: string;
     content: string;
-    type: string;
+    type: VerificationMethod;
     resendOtp: Function;
     setVerification: Function;
     closeModal: Function;
 }
 
 export function OtpVerification(props: IOtpVerification) {
-    const [showError, setShowError] = useState<boolean>(false);
-    const [errorMsg, setErrorMsg] = useState<string>('');
-    const [inputs, setInputs] = useState<HTMLElement | null>(null);
-    const [isCodeResent, setIsCodeResent] = useState<boolean>(false);
-
-    const sendOtp = async () => {
-        const result = await props.resendOtp();
-        if (result) {
-            setShowError(false);
-            setErrorMsg('');
-            setIsCodeResent(true);
-        }
-    };
-
-    // handles input field value change
-    if (inputs) {
-        inputs.addEventListener('input', function (e) {
-            const target: any = e.target;
-            const val = target.value;
-
-            if (isNaN(val)) {
-                target.value = '';
-                return;
-            }
-
-            if (val != '') {
-                const next = target.nextElementSibling;
-                if (next) {
-                    next.focus();
-                    setIsCodeResent(false);
-                }
-            }
-
-            // checks otp and calls backend to validate
-            const otpElements: any = document.getElementsByClassName('otp');
-            if (otpElements && otpElements.length) {
-                let data = '';
-                for (let index = 0; index < otpElements.length; index++) {
-                    data = data.concat(otpElements[index].value);
-                }
-                if (data.length === 5) {
-                    validateOtp(
-                        data,
-                        props.verificationData,
-                        setErrorMsg,
-                        setShowError,
-                        props.setVerification,
-                        props.closeModal,
-                    );
-                }
-            }
-        });
-
-        // handles clearing of otp
-        inputs.addEventListener('keyup', function (e) {
-            const target: any = e.target;
-            const key = e.key.toLowerCase();
-
-            if (key == 'backspace' || key == 'delete') {
-                target.value = '';
-                setIsCodeResent(false);
-                const prev = target.previousElementSibling;
-                if (prev) {
-                    prev.focus();
-                }
-                return;
-            }
-        });
-    }
-
-    // focus on OTP input field
-    useEffect(() => {
-        const inputs = document.getElementById('inputs');
-        setInputs(inputs);
-        if (inputs) {
-            const inputField: any = inputs.firstElementChild;
-            inputField && inputField.focus();
-        }
-    }, []);
+    const {
+        showError,
+        setShowError,
+        errorMsg,
+        setErrorMsg,
+        isCodeResent,
+        setIsCodeResent,
+        sendOtp,
+    } = useOtp(props.verificationData, props.setVerification, props.closeModal);
 
     return (
         <div>
@@ -144,7 +74,13 @@ export function OtpVerification(props: IOtpVerification) {
                         <span
                             className="d-flex ps-1 pe-1 pointer-cursor text-decoration-underline"
                             onClick={() => {
-                                sendOtp();
+                                sendOtp(
+                                    props.type,
+                                    props.verificationData,
+                                    setErrorMsg,
+                                    setShowError,
+                                    setIsCodeResent,
+                                );
                             }}
                         >
                             {' '}

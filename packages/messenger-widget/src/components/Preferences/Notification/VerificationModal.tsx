@@ -1,17 +1,11 @@
 import './Notification.css';
 import './../../../styles/modal.css';
 import closeIcon from '../../../assets/images/cross.svg';
-import { FormEvent, useState } from 'react';
-import {
-    BTN_CLASS,
-    INPUT_FIELD_CLASS,
-    VerificationMethod,
-    handleInputChange,
-    otpContent,
-    sendOtp,
-    submit,
-} from './bl';
+import { FormEvent } from 'react';
 import { OtpVerification } from './OtpVerification';
+import { useVerification } from './hooks/useVerification';
+import { VerificationMethod } from './hooks/VerificationContent';
+import { useOtp } from './hooks/useOtp';
 
 export interface IVerificationModal {
     heading: string;
@@ -24,20 +18,31 @@ export interface IVerificationModal {
 }
 
 export function VerificationModal(props: IVerificationModal) {
-    const [inputData, setInputData] = useState<string>('');
-    const [showError, setShowError] = useState<boolean>(false);
-    const [errorMsg, setErrorMsg] = useState<string>('');
-    const [otpSent, setOtpSent] = useState<boolean>(false);
+    const BTN_CLASS =
+        'verify-btn font-weight-400 font-size-12 border-radius-4 line-height-24';
 
-    const resendOtp = async (): Promise<boolean> => {
-        return await sendOtp(
-            props.type,
-            inputData,
-            setErrorMsg,
-            setShowError,
-            setOtpSent,
-        );
-    };
+    const INPUT_FIELD_CLASS =
+        'notification-input-field font-weight-400 font-size-14 border-radius-6 w-100 line-height-24';
+
+    const {
+        inputData,
+        setInputData,
+        showError,
+        setShowError,
+        errorMsg,
+        setErrorMsg,
+        otpSent,
+        setOtpSent,
+        resendOtp,
+        submit,
+        handleInputChange,
+    } = useVerification(props.action, props.setVerification);
+
+    const { otpContent } = useOtp(
+        inputData,
+        props.setVerification,
+        props.action,
+    );
 
     return (
         <div>
