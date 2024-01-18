@@ -14,7 +14,6 @@ declare global {
 export interface Connection {
     socket?: Socket<DefaultEventsMap, DefaultEventsMap>;
     defaultServiceUrl: string;
-    reset: any;
 }
 
 export interface SignInProps {

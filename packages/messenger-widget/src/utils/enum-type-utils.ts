@@ -35,7 +35,6 @@ export type ActionMap<M extends { [index: string]: any }> = {
 export type Accounts = {
     contacts: Contact[] | undefined;
     selectedContact: Contact | undefined;
-    reset: any;
 };
 
 export type AccountsPayload = {

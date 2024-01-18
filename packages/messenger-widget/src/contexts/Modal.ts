@@ -74,7 +74,6 @@ export function modalReducer(state: Modal, action: ModalStateActions): Modal {
                 lastMessageAction: MessageActionType.NONE,
                 isProfileConfigurationPopupActive: false,
                 showPreferencesModal: false,
-                reset: undefined,
             };
 
         default:

@@ -1,10 +1,6 @@
 import { log } from '@dm3-org/dm3-lib-shared';
 import { Connection } from '../interfaces/web3';
-import {
-    ConnectionActions,
-    ConnectionState,
-    ConnectionType,
-} from '../utils/enum-type-utils';
+import { ConnectionActions, ConnectionType } from '../utils/enum-type-utils';
 
 export function connectionReducer(
     state: Connection,
@@ -41,7 +37,6 @@ export function connectionReducer(
             log(`[Connection] reset`, 'info');
             return {
                 defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
-                reset: undefined,
             };
 
         default:

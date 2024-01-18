@@ -23,12 +23,10 @@ const getMainnetProvider = () => {
 export const initialState: GlobalState = {
     connection: {
         defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
-        reset: undefined,
     },
     accounts: {
         contacts: undefined,
         selectedContact: undefined,
-        reset: undefined,
     },
     cache: {
         abis: new Map<string, string>(),
@@ -39,14 +37,12 @@ export const initialState: GlobalState = {
         },
         messageSizeLimit: 0,
         accountName: '',
-        reset: undefined,
     },
     userDb: undefined,
     uiState: {
         lastMessagePull: 0,
         proflieExists: false,
         browserStorageBackup: false,
-        reset: undefined,
     },
     auth: {
         currentSession: undefined,
@@ -60,7 +56,6 @@ export const initialState: GlobalState = {
             messageData: undefined,
             actionType: MessageActionType.NONE,
         },
-        reset: undefined,
     },
     modal: {
         loaderContent: '',
@@ -74,6 +69,5 @@ export const initialState: GlobalState = {
         lastMessageAction: MessageActionType.NONE,
         isProfileConfigurationPopupActive: false,
         showPreferencesModal: false,
-        reset: undefined,
     },
 };

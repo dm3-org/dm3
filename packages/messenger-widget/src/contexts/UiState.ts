@@ -37,7 +37,6 @@ export function uiStateReducer(
                 lastMessagePull: 0,
                 proflieExists: false,
                 browserStorageBackup: false,
-                reset: undefined,
             };
 
         default:

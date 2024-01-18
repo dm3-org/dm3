@@ -48,7 +48,6 @@ export function accountsReducer(state: Accounts, action: AccountsActions) {
             return {
                 contacts: undefined,
                 selectedContact: undefined,
-                reset: undefined,
             };
 
         default:

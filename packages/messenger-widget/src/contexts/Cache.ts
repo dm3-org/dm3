@@ -58,7 +58,6 @@ export function cacheReducer(state: Cache, action: CacheActions): Cache {
                 },
                 messageSizeLimit: 0,
                 accountName: '',
-                reset: undefined,
             };
 
         default:

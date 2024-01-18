@@ -43,7 +43,6 @@ export function uiViewReducer(
                     messageData: undefined,
                     actionType: MessageActionType.NONE,
                 },
-                reset: undefined,
             };
 
         default:
