@@ -135,26 +135,20 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
 const resetStates = (dispatch: React.Dispatch<Actions>) => {
     dispatch({
         type: ConnectionType.Reset,
-        payload: undefined,
     });
     dispatch({
         type: AccountsType.Reset,
-        payload: undefined,
     });
     dispatch({
         type: CacheType.Reset,
-        payload: undefined,
     });
     dispatch({
         type: UiStateType.Reset,
-        payload: undefined,
     });
     dispatch({
         type: UiViewStateType.Reset,
-        payload: undefined,
     });
     dispatch({
         type: ModalStateType.Reset,
-        payload: undefined,
     });
 };
