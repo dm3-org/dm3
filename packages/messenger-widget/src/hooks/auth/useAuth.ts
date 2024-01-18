@@ -35,6 +35,10 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
         undefined,
     );
 
+    const [_initialUserDb, _setInitialUserDb] = useState<UserDB | undefined>(
+        undefined,
+    );
+
     // Effect to resolve the display name of the account currently logged in.
     //The main purpose of that function is check wether the account has been minted via an L2 name service such as
     //genome and therefore has a crosschain name that is resolved with the TopLevelAliasResolver
@@ -96,6 +100,7 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
         const { deliveryServiceToken, userDb, signedUserProfile } =
             connectDsResult;
 
+        //Todo remove callback and use _initialUSerdb instead
         onStorageSet(userDb);
         setAccount({
             ...account,
@@ -118,5 +123,6 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
         isLoading,
         hasError,
         setAccount,
+        _initialUserDb,
     };
 };

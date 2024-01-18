@@ -2,6 +2,7 @@ import { Redis, RedisPrefix } from '../getDatabase';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 export function syncAcknoledgment(redis: Redis) {
     return async (
+        //TODO rename to accountEnsName
         conversationId: string,
         ensName: string,
         lastMessagePull: string,

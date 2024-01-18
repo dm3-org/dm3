@@ -15,6 +15,7 @@ export type AuthContextType = {
     hasError: boolean;
     ethAddress: string | undefined;
     setAccount: Function;
+    _initialUserDb: UserDB | undefined;
 };
 
 export const AuthContext = React.createContext<AuthContextType>({
@@ -27,6 +28,7 @@ export const AuthContext = React.createContext<AuthContextType>({
     hasError: false,
     ethAddress: undefined,
     setAccount: Function,
+    _initialUserDb: undefined,
 });
 
 export const AuthContextProvider = ({
@@ -54,6 +56,7 @@ export const AuthContextProvider = ({
         hasError,
         ethAddress,
         setAccount,
+        _initialUserDb,
     } = useAuth(onStorageCreated);
     return (
         <AuthContext.Provider
@@ -67,6 +70,7 @@ export const AuthContextProvider = ({
                 hasError,
                 ethAddress,
                 setAccount,
+                _initialUserDb,
             }}
         >
             {children}
