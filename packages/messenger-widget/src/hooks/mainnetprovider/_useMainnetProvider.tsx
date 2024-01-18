@@ -9,8 +9,8 @@ export const _useMainnetProvider = (): ethers.providers.JsonRpcProvider => {
     }
 
     const provider = new ethers.providers.JsonRpcProvider(url, {
-        name: 'mainnet',
-        chainId: 1,
+        name: 'goerli',
+        chainId: 5,
     });
 
     return getCachedProvider(provider);

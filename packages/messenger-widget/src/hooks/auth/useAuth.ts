@@ -1,21 +1,31 @@
 /* eslint-disable no-console */
 import { useAccount, useWalletClient } from 'wagmi';
-
 import { Account } from '@dm3-org/dm3-lib-profile';
 import { UserDB } from '@dm3-org/dm3-lib-storage';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useContext } from 'react';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { AccountConnector } from './AccountConnector';
 import {
     ConnectDsResult,
     DeliveryServiceConnector,
 } from './DeliveryServiceConnector';
+import { GlobalContext } from '../../utils/context-utils';
+import {
+    AccountsType,
+    Actions,
+    CacheType,
+    ConnectionType,
+    ModalStateType,
+    UiStateType,
+    UiViewStateType,
+} from '../../utils/enum-type-utils';
 import { useTopLevelAlias } from '../topLevelAlias/useTopLevelAlias';
 
 export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
     const { resolveAliasToTLD } = useTopLevelAlias();
     const { data: walletClient } = useWalletClient();
     const mainnetProvider = useMainnetProvider();
+    const { dispatch } = useContext(GlobalContext);
     const { address } = useAccount({
         onDisconnect: () => signOut(),
     });
@@ -65,6 +75,7 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
     const signOut = () => {
         setAccount(undefined);
         setDeliveryServiceToken(undefined);
+        resetStates(dispatch);
     };
     const cleanSignIn = async () => {
         setIsLoading(true);
@@ -119,4 +130,25 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
         hasError,
         setAccount,
     };
+};
+
+const resetStates = (dispatch: React.Dispatch<Actions>) => {
+    dispatch({
+        type: ConnectionType.Reset,
+    });
+    dispatch({
+        type: AccountsType.Reset,
+    });
+    dispatch({
+        type: CacheType.Reset,
+    });
+    dispatch({
+        type: UiStateType.Reset,
+    });
+    dispatch({
+        type: UiViewStateType.Reset,
+    });
+    dispatch({
+        type: ModalStateType.Reset,
+    });
 };

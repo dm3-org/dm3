@@ -16,11 +16,10 @@ import './Home.css';
 
 import { useContext, useMemo } from 'react';
 import { configureChains, createConfig, mainnet, WagmiConfig } from 'wagmi';
-import { gnosis } from 'wagmi/chains';
+import { gnosis, goerli } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import AddConversation from '../../components/AddConversation/AddConversation';
 import { Loader } from '../../components/Loader/Loader';
-import { Preferences } from '../../components/Preferences/Preferences';
 import { AuthContextProvider } from '../../context/AuthContext';
 import { MainnetProviderContextProvider } from '../../context/ProviderContext';
 import { GlobalContext } from '../../utils/context-utils';
@@ -31,7 +30,7 @@ export function Home(props: Dm3Props) {
     const { state, dispatch } = useContext(GlobalContext);
 
     const { chains, publicClient } = configureChains(
-        [gnosis, mainnet],
+        [gnosis, goerli],
         [
             jsonRpcProvider({
                 rpc: () => ({
@@ -78,7 +77,6 @@ export function Home(props: Dm3Props) {
         <div className="h-100">
             <Loader />
             <AddConversation />
-            <Preferences />
             <WagmiConfig config={wagmiConfig}>
                 <RainbowKitProvider chains={chains} theme={darkTheme()}>
                     <MainnetProviderContextProvider>
