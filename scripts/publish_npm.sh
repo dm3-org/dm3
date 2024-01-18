@@ -6,6 +6,9 @@ simulate=false
 build=false
 update=false
 
+# Path to the directory containing your packages
+packages_dir="packages"
+
 # Function to compare version numbers
 version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
 
@@ -13,34 +16,39 @@ version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         -v|--version) new_version="$2"; shift ;;
-        --simulate) simulate=true ;;
-        --build) build=true ;;
-        --update) update=true ;;  
+        -s|--simulate) simulate=true ;;
+        -b|--build) build=true ;;
+        -u|--update) update=true ;;  
         *) echo "Unknown parameter passed: $1"; exit 1 ;;
     esac
     shift
 done
 
-# Update and install dependencies if --update is set
+# Update and install dependencies if --update or -u is set
 if [ "$update" = true ]; then
     echo "Updating repository and installing dependencies..."
     git pull
     yarn install
 fi
 
- # Build the project if --build is set
+# Build the project if --build or -b is set
 if [ "$build" = true ]; then
   echo "Building project..."
   yarn build
 fi
 
-# Loop through all directories
-find . -type d | while read dir; do
-  # Check if both package.json and .export-npm exist
-  if [[ -f "$dir/package.json" && -f "$dir/.export-npm" ]]; then
-    # Change to the directory
-    cd "$dir"
+# Loop through all directories in the packages directory, excluding node_modules
+find "$packages_dir" -type d -name "node_modules" -prune -o -type f -name "package.json" -print | while read package_json; do
+  dir=$(dirname "$package_json")
 
+  # Change to the directory
+  cd "$dir"
+
+  # Read the publish property from package.json
+  publish=$(jq -r '.publish' package.json)
+
+  # Check if publish is true
+  if [[ "$publish" == "true" ]]; then
     # Read the package name from package.json
     package_name=$(jq -r '.name' package.json)
 
@@ -55,7 +63,6 @@ find . -type d | while read dir; do
       exit 1
     fi
 
-
     # Output the package name and version change
     if [ "$simulate" = true ]; then
       echo "npm simulate: $package_name@$current_npm_version -> $target_version"
@@ -64,8 +71,8 @@ find . -type d | while read dir; do
       jq --arg ver "$target_version" '.version = $ver' package.json > temp.json && mv temp.json package.json
       yarn npm publish --access public
     fi
-
-    # Return to the original directory
-    cd - > /dev/null
   fi
+
+  # Return to the original directory
+  cd - > /dev/null
 done

@@ -34,5 +34,6 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "publish": true
 }

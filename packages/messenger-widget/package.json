@@ -101,5 +101,6 @@
     "collectCoverageFrom": [
       "src/lib/**/*.{js,jsx,ts,tsx}"
     ]
-  }
+  },
+  "publish": true
 }
