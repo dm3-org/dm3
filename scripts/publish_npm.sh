@@ -52,7 +52,7 @@ find . -type d | while read dir; do
     else
       echo "npm publish: $package_name@$current_npm_version -> $target_version"
       jq --arg ver "$target_version" '.version = $ver' package.json > temp.json && mv temp.json package.json
-      npm publish --access public
+      yarn npm publish --access public
     fi
 
     # Return to the original directory
