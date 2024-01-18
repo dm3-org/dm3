@@ -4,6 +4,7 @@
 new_version=""
 simulate=false
 build=false
+update=false
 
 # Function to compare version numbers
 version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
@@ -14,10 +15,24 @@ while [[ "$#" -gt 0 ]]; do
         -v|--version) new_version="$2"; shift ;;
         --simulate) simulate=true ;;
         --build) build=true ;;
+        --update) update=true ;;  
         *) echo "Unknown parameter passed: $1"; exit 1 ;;
     esac
     shift
 done
+
+# Update and install dependencies if --update is set
+if [ "$update" = true ]; then
+    echo "Updating repository and installing dependencies..."
+    git pull
+    yarn install
+fi
+
+ # Build the project if --build is set
+if [ "$build" = true ]; then
+  echo "Building project..."
+  yarn build
+fi
 
 # Loop through all directories
 find . -type d | while read dir; do
@@ -40,11 +55,6 @@ find . -type d | while read dir; do
       exit 1
     fi
 
-    # Build the project if --build is set
-    if [ "$build" = true ]; then
-      echo "Building project in $dir"
-      yarn build
-    fi
 
     # Output the package name and version change
     if [ "$simulate" = true ]; then
