@@ -1,6 +1,6 @@
 {
   "name": "@dm3-org/dm3-offchain-resolver",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
