@@ -1,11 +1,7 @@
 .home-image-container {
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
-}
-
-.signin-container {
-    border-top-right-radius: 20px;
-    border-bottom-right-radius: 20px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 .content-data-container {
@@ -31,11 +27,6 @@
 
 .para-div p:last-child {
     margin-bottom: 0;
-}
-
-.home-image {
-    border-radius: 20px;
-    height: 100%;
 }
 
 .sign-in-logo {

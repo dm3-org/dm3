@@ -15,7 +15,7 @@ export default function RightView(props: HideFunctionProps) {
 
     return (
         <>
-            <div className="col-12 p-0 h-100 border-radius-8 background-chat chat-screen-container">
+            <div className="col-12 p-0 h-100 background-chat chat-screen-container">
                 <RightHeader showContacts={props.showContacts} />
                 {state.uiView.selectedRightView ===
                     RightViewSelected.Default && (
