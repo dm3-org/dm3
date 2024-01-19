@@ -2423,7 +2423,7 @@ __metadata:
     "@types/node": ^16.7.13
     "@types/uuid": ^8.3.4
     "@types/whatwg-encoding": ^2.0.0
-    axios: ^1.5.0
+    axios: ^1.3.4
     axios-mock-adapter: ^1.21.2
     jest: ^28.1.1
     ts-jest: ^28.0.4
@@ -10080,7 +10080,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.3.4, axios@npm:^1.5.0":
+"axios@npm:^1.3.4":
   version: 1.5.0
   resolution: "axios@npm:1.5.0"
   dependencies:
