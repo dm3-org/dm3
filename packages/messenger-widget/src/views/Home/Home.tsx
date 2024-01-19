@@ -30,7 +30,7 @@ export function Home(props: Dm3Props) {
     const { state, dispatch } = useContext(GlobalContext);
 
     const { chains, publicClient } = configureChains(
-        [gnosis, goerli],
+        [mainnet, gnosis],
         [
             jsonRpcProvider({
                 rpc: () => ({
