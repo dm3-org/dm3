@@ -13,6 +13,7 @@ function App() {
         hideFunction: undefined, // OPTINAL PARAMETER : 'attachments,edit,delete' or undefined
         showContacts: true, // true for all contacts / false for default contact
         theme: undefined, // OPTINAL PARAMETER : undefined/themeColors
+        signInImage: undefined, // OPTINAL PARAMETER : string URL of image
     };
 
     return (

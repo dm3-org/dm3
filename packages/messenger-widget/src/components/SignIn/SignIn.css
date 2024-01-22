@@ -1,11 +1,8 @@
 .home-image-container {
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
-}
-
-.signin-container {
-    border-top-right-radius: 20px;
-    border-bottom-right-radius: 20px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 100%;
 }
 
 .content-data-container {
@@ -33,14 +30,9 @@
     margin-bottom: 0;
 }
 
-.home-image {
-    border-radius: 20px;
-    height: 100%;
-}
-
 .sign-in-logo {
-    height: 4rem !important;
-    width: fit-content !important;
+    height: auto !important;
+    width: 100% !important;
     fill: var(--text-primary-color) !important;
 }
 
@@ -93,5 +85,17 @@
 @media only screen and (max-width: 1000px) {
     .content-data {
         margin-top: 1rem !important;
+    }
+}
+
+@media only screen and (max-height: 700px) {
+    .content-data {
+        margin-top: 1rem !important;
+    }
+}
+
+@media only screen and (max-width: 767px) {
+    .home-image-container {
+        height: 0% !important;
     }
 }
