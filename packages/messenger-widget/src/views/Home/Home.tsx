@@ -25,12 +25,19 @@ import { MainnetProviderContextProvider } from '../../context/ProviderContext';
 import { GlobalContext } from '../../utils/context-utils';
 import './Home.css';
 
+//Use different chains depending on the environment. Note that gnosis mainnet is used for both setups
+// because there is no spaceId testnet deploymend yet
+const _chains =
+    process.env.REACT_APP_CHAIN_ID === '1'
+        ? [mainnet, gnosis]
+        : [goerli, gnosis];
+
 export function Home(props: Dm3Props) {
     // fetches context api data
     const { state, dispatch } = useContext(GlobalContext);
 
     const { chains, publicClient } = configureChains(
-        [mainnet, gnosis],
+        [..._chains],
         [
             jsonRpcProvider({
                 rpc: () => ({
