@@ -41,7 +41,7 @@ jobs:
                 echo "REACT_APP_RESOLVER_BACKEND=https://${{ secrets.HOST_DOMAIN}}/resolver-handler" >> ./.env.react
                 echo "REACT_APP_USER_ENS_SUBDOMAIN=.user.dm3.eth" >> ./.env.react
                 echo "REACT_APP_WALLET_CONNECT_PROJECT_ID=${{ secrets.REACT_APP_WALLET_CONNECT_PROJECT_ID }}" >> ./.env.react
-                echo "REACT_APP_MAINNET_PROVIDER_RPC={{ secrets.MAINNET_PROVIDER_URL}}" >> ./.env.react
+                echo "REACT_APP_MAINNET_PROVIDER_RPC=${{ secrets.MAINNET_PROVIDER_URL}}" >> ./.env.react
                 echo "REACT_APP_CHAIN_ID=${{ vars.CHAIN_ID }}" >> ./.env.react
                 cat ./.env.react >> ./.env
                 echo "RESOLVER_ADDR=0xae6646c22D8eE6479eE0a39Bf63B9bD9e57bAD9d" >> ./.env
