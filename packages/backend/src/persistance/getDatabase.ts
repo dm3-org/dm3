@@ -69,6 +69,10 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
         //Storage
         getUserStorageChunk: Storage.getUserStorageChunk(redis),
         setUserStorageChunk: Storage.setUserStorageChunk(redis),
+        //Legacy remove after storage has been merged
+        getUserStorage: Storage.getUserStorageOld(redis),
+        setUserStorage: Storage.setUserStorageOld(redis),
+
         //Pending
         addPending: Pending.addPending(redis),
         getPending: Pending.getPending(redis),
@@ -119,6 +123,9 @@ export interface IDatabase {
         key: string,
         data: string,
     ) => Promise<void>;
+    //Legacy remove after storage has been merged
+    getUserStorage: (ensName: string) => Promise<UserStorage | null>;
+    setUserStorage: (ensName: string, data: string) => Promise<void>;
     setAliasSession: (ensName: string, aliasEnsName: string) => Promise<void>;
     addPending: (ensName: string, contactEnsName: string) => Promise<void>;
     getPending: (ensName: string) => Promise<string[]>;

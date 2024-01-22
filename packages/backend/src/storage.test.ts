@@ -62,7 +62,7 @@ describe('Storage', () => {
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
             const { status } = await request(app)
-                .get(`/bob.eth/123`)
+                .get(`/new/bob.eth/123`)
                 .set({
                     authorization: `Bearer ${token}`,
                 })
@@ -103,7 +103,7 @@ describe('Storage', () => {
             };
 
             const { status } = await request(app)
-                .post(`/bob.eth/123`)
+                .post(`/new/bob.eth/123`)
                 .set({
                     authorization: `Bearer ${token}`,
                 })
