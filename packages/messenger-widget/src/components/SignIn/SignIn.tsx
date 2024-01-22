@@ -47,7 +47,7 @@ export function SignIn(props: SignInProps) {
                             props.signInImage ?? signInImage
                         })`,
                     }}
-                    className="h-100 col-lg-7 col-md-7 col-sm-12 p-0 home-image-container background-container"
+                    className="col-lg-7 col-md-7 col-sm-0 p-0 home-image-container background-container"
                 ></div>
                 <div
                     className="h-100 col-lg-5 col-md-5 col-sm-12 p-0 d-flex flex-column 

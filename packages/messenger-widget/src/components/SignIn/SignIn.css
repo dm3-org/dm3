@@ -2,6 +2,7 @@
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
+    height: 100%;
 }
 
 .content-data-container {
@@ -30,8 +31,8 @@
 }
 
 .sign-in-logo {
-    height: 4rem !important;
-    width: fit-content !important;
+    height: auto !important;
+    width: 100% !important;
     fill: var(--text-primary-color) !important;
 }
 
@@ -84,5 +85,17 @@
 @media only screen and (max-width: 1000px) {
     .content-data {
         margin-top: 1rem !important;
+    }
+}
+
+@media only screen and (max-height: 610px) {
+    .content-data {
+        margin-top: 1rem !important;
+    }
+}
+
+@media only screen and (max-width: 767px) {
+    .home-image-container {
+        height: 0% !important;
     }
 }
