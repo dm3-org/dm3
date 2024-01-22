@@ -11,7 +11,7 @@ export default () => {
     router.use(cors());
     router.param('ensName', auth);
 
-    router.get('/:ensName/:key', async (req, res, next) => {
+    router.get('/new/:ensName/:key', async (req, res, next) => {
         try {
             const ensName = normalizeEnsName(req.params.ensName);
             const userStorage = await req.app.locals.db.getUserStorageChunk(
@@ -24,13 +24,42 @@ export default () => {
         }
     });
 
-    router.post('/:ensName/:key', async (req, res, next) => {
+    router.post('/new/:ensName/:key', async (req, res, next) => {
         try {
             const ensName = normalizeEnsName(req.params.ensName);
 
             await req.app.locals.db.setUserStorageChunk(
                 ensName,
                 req.params.key,
+                stringify(req.body)!,
+            );
+
+            res.json({
+                timestamp: new Date().getTime(),
+            });
+        } catch (e) {
+            next(e);
+        }
+    });
+
+    router.get('/:ensName', async (req, res, next) => {
+        try {
+            const account = normalizeEnsName(req.params.ensName);
+            const userStorage = await req.app.locals.db.getUserStorageOld(
+                account,
+            );
+            return res.json(userStorage);
+        } catch (e) {
+            next(e);
+        }
+    });
+
+    router.post('/:ensName', async (req, res, next) => {
+        try {
+            const account = normalizeEnsName(req.params.ensName);
+
+            await req.app.locals.db.setUserStorage(
+                account,
                 stringify(req.body)!,
             );
 

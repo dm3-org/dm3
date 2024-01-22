@@ -1,4 +1,12 @@
 import { setUserStorageChunk } from './setUserStorage';
 import { getUserStorageChunk } from './getUserStorage';
 
-export default { setUserStorageChunk, getUserStorageChunk };
+import { getUserStorageOld } from './getUserStorageOld';
+import { setUserStorageOld } from './setUserStorageOld';
+
+export default {
+    setUserStorageChunk,
+    getUserStorageChunk,
+    getUserStorageOld,
+    setUserStorageOld,
+};
