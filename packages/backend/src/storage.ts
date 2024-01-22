@@ -45,9 +45,7 @@ export default () => {
     router.get('/:ensName', async (req, res, next) => {
         try {
             const account = normalizeEnsName(req.params.ensName);
-            const userStorage = await req.app.locals.db.getUserStorageOld(
-                account,
-            );
+            const userStorage = await req.app.locals.db.getUserStorage(account);
             return res.json(userStorage);
         } catch (e) {
             next(e);
