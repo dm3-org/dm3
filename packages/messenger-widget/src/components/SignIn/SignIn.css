@@ -88,7 +88,7 @@
     }
 }
 
-@media only screen and (max-height: 610px) {
+@media only screen and (max-height: 700px) {
     .content-data {
         margin-top: 1rem !important;
     }
