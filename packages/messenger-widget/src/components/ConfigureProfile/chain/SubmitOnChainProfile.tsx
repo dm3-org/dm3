@@ -1,12 +1,12 @@
 import { useContext } from 'react';
 import tickIcon from '../../../assets/images/white-tick.svg';
+import { ConfigureProfileContext } from '../context/ConfigureProfileContext';
 import {
     ACTION_TYPE,
-    BUTTON_CLASS,
     NAME_TYPE,
     PROFILE_INPUT_FIELD_CLASS,
-} from '../bl';
-import { ConfigureProfileContext } from '../context/ConfigureProfileContext';
+    BUTTON_CLASS,
+} from './common';
 
 export const SubmitOnChainProfile = ({
     label,
