@@ -3,7 +3,7 @@ import { logError } from '@dm3-org/dm3-lib-shared';
 import nodemailer from 'nodemailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { NotificationType } from '../types';
-import { fetchEmailSubjectAndTemplate } from '../utils';
+import { fetchEmailSubjectAndTemplate } from '../getEmailTemplate';
 
 // email server configuration
 export type EmailNotificationServerConfig = {

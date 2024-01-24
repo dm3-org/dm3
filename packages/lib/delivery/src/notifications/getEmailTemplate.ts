@@ -5,11 +5,7 @@ import {
     NEW_MSG_EMAIL_TEMPLATE,
 } from './templates/newMessage';
 import { OTP_EMAIL_SUBJECT, OTP_EMAIL_TEMPLATE } from './templates/otp';
-
-// TODO: generates 5 digit OTP
-export const generateOtp = () => {
-    return '12345';
-};
+import { generateOtp } from './generateOtp';
 
 // to fetch subject & template of email based on notification type
 export const fetchEmailSubjectAndTemplate = (
