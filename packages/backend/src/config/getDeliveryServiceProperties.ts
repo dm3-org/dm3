@@ -10,11 +10,11 @@ const DEFAULT_DELIVERY_SERVICE_PROPERTIES: DeliveryServiceProperties = {
     //100Kb
     sizeLimit: 100000,
     notificationChannel: [],
-    smtpHost: '',
-    smtpPort: 0,
-    smtpEmail: '',
-    smtpUsername: '',
-    smtpPassword: '',
+    smtpHost: process.env.SMTP_HOST as string,
+    smtpPort: Number(process.env.SMTP_PORT),
+    smtpEmail: process.env.SMTP_EMAIL as string,
+    smtpUsername: process.env.SMTP_USERNAME as string,
+    smtpPassword: process.env.SMTP_PASSWORD as string,
 };
 
 export function getDeliveryServiceProperties(
