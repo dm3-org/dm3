@@ -5,6 +5,11 @@ export enum NotificationChannelType {
     EMAIL = 'EMAIL',
 }
 
+export enum NotificationType {
+    NEW_MESSAGE = 'NEW_MESSAGE',
+    OTP = 'OTP',
+}
+
 //The properties of a notification channel.
 // Those properties are stored in the DB to let the user specify their notificatin channels
 export interface NotificationChannel {

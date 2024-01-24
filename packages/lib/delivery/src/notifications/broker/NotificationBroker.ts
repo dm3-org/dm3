@@ -6,6 +6,7 @@ import {
     NotificationChannel,
     NotificationChannelType,
     INotificationChannel,
+    NotificationType,
 } from '../types';
 
 /**
@@ -55,10 +56,12 @@ export const _setupNotficationBroker = (
  */
 export const NotificationBroker = (
     notificationChannel: NotificationChannel[],
+    notificationType: NotificationType,
 ): INotificationBroker => {
     const channels = notificationChannel.map((channel) => {
         switch (channel.type) {
             case NotificationChannelType.EMAIL:
+                channel.config.notificationType = notificationType;
                 return {
                     type: NotificationChannelType.EMAIL,
                     send: Email(channel.config).send,
