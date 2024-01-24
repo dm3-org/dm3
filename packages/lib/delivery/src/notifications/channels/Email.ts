@@ -17,13 +17,17 @@ export type EmailNotificationServerConfig = {
 // email notification configuration
 export type EmailNotificationUserConfig = {
     recipientAddress: string;
+};
+
+type UserEmailConfig = {
+    recipientAddress: string;
     notificationType: NotificationType;
 };
 
 // method to send email
 export function Email(config: EmailNotificationServerConfig) {
     const send = async (
-        mailConfig: EmailNotificationUserConfig,
+        mailConfig: UserEmailConfig,
         deliveryInformation: DeliveryInformation,
     ) => {
         try {
