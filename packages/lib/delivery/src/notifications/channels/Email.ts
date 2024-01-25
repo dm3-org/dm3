@@ -14,13 +14,8 @@ export type EmailNotificationServerConfig = {
     emailID: string;
 };
 
-// email notification configuration
-export type EmailNotificationUserConfig = {
-    recipientAddress: string;
-};
-
 type UserEmailConfig = {
-    recipientAddress: string;
+    recipientEmailId: string;
     notificationType: NotificationType;
 };
 
@@ -51,7 +46,7 @@ export function Email(config: EmailNotificationServerConfig) {
             // send the email using nodemailer
             await transport.sendMail({
                 from: config.emailID,
-                to: mailConfig.recipientAddress,
+                to: mailConfig.recipientEmailId,
                 subject: subject,
                 html: template,
             });

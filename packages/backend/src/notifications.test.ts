@@ -111,7 +111,7 @@ describe('Notifications', () => {
                 {
                     type: 'EMAIL',
                     config: {
-                        recipientAddress: 'bob.eth',
+                        recipientValue: 'bob.eth',
                     },
                 },
             );

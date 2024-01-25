@@ -1,7 +1,9 @@
 import { DeliveryInformation } from '@dm3-org/dm3-lib-messaging';
 
-//Every notification channel that is supported by the delivery service must be listed here
-// Notification channel is medium of getting notified. It can be email, phone no. push notification etc...
+/**
+ * Every notification channel that is supported by the delivery service must be listed here
+ * Notification channel is medium of getting notified. It can be email, phone no. push notification etc...
+ */
 export enum NotificationChannelType {
     EMAIL = 'EMAIL',
 }
@@ -38,4 +40,11 @@ export interface INotificationBroker {
 export interface INotificationChannel {
     type: NotificationChannelType;
     send: (config: any, deliveryInformation: DeliveryInformation) => void;
+}
+
+// user notification configuration
+export interface NotificationUserConfig {
+    recipientValue: string; // email ID, phone NO, etc....
+    isEnabled: boolean;
+    isVerified: boolean;
 }

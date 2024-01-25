@@ -27,7 +27,9 @@ export default () => {
             await req.app.locals.db.addUsersNotificationChannel(account, {
                 type: NotificationChannelType.EMAIL,
                 config: {
-                    recipientAddress,
+                    // TODO: This endpoint will be modified as generic,
+                    // not specific to email ID
+                    recipientValue: recipientAddress,
                 },
             });
 
