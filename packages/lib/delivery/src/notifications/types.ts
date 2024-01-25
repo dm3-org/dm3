@@ -48,3 +48,7 @@ export interface NotificationUserConfig {
     isEnabled: boolean;
     isVerified: boolean;
 }
+
+export interface IGlobalNotification {
+    isEnabled: boolean;
+}

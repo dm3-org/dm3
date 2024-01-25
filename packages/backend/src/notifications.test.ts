@@ -1,10 +1,9 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 import auth from './auth';
-import storage from './storage';
 import request from 'supertest';
 import notifications from './notifications';
-import exp from 'constants';
+
 const keysA = {
     encryptionKeyPair: {
         publicKey: 'eHmMq29FeiPKfNPkSctPuZGXvV0sKeO/KZkX2nXvMgw=',
@@ -115,6 +114,182 @@ describe('Notifications', () => {
                     },
                 },
             );
+        });
+    });
+
+    describe('Get Global Notification', () => {
+        it('Returns 200 and false as global notification is not enabled', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(notifications());
+
+            const token = await createAuthToken();
+
+            app.locals.db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                        signedUserProfile: {
+                            profile: {
+                                publicSigningKey:
+                                    keysA.signingKeyPair.publicKey,
+                            },
+                        },
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                getUserStorage: async (addr: string) => {
+                    return {};
+                },
+                getIdEnsName: async (ensName: string) => ensName,
+                getGlobalNotification: async (ensName: string) =>
+                    Promise.resolve({
+                        isEnabled: false,
+                    }),
+            };
+
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+            const { status, body } = await request(app)
+                .get(`/global/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+
+            expect(status).toBe(200);
+            expect(body).toEqual({
+                isEnabled: false,
+            });
+        });
+    });
+
+    describe('Set Global Notification', () => {
+        it('Enable global notifications', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(notifications());
+
+            const token = await createAuthToken();
+
+            const setGlobalNotificationMock = jest.fn();
+
+            app.locals.db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                setGlobalNotification: setGlobalNotificationMock,
+            };
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+
+            const { status } = await request(app)
+                .post(`/global/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    isEnabled: true,
+                });
+
+            expect(status).toBe(200);
+            expect(setGlobalNotificationMock).toHaveBeenCalledWith('bob.eth', {
+                isEnabled: true,
+            });
+        });
+
+        it('Disable global notifications', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(notifications());
+
+            const token = await createAuthToken();
+
+            const setGlobalNotificationMock = jest.fn();
+
+            app.locals.db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                setGlobalNotification: setGlobalNotificationMock,
+            };
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+
+            const { status } = await request(app)
+                .post(`/global/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    isEnabled: false,
+                });
+
+            expect(status).toBe(200);
+            expect(setGlobalNotificationMock).toHaveBeenCalledWith('bob.eth', {
+                isEnabled: false,
+            });
+        });
+
+        it('Returns 400 if req.body is invalid', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(notifications());
+
+            const token = await createAuthToken();
+
+            const setGlobalNotificationMock = jest.fn();
+
+            app.locals.db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                setGlobalNotification: setGlobalNotificationMock,
+            };
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+
+            const { status } = await request(app)
+                .post(`/global/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    isEnabled: '',
+                });
+
+            expect(status).toBe(400);
         });
     });
 });
