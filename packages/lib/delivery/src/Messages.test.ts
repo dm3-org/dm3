@@ -458,7 +458,7 @@ describe('Messages', () => {
                     {
                         type: NotificationChannelType.EMAIL,
                         config: {
-                            recipientAddress: 'joe@example.io',
+                            recipientEmailId: 'joe@example.io',
                             notificationType: NotificationType.NEW_MESSAGE,
                         },
                     },

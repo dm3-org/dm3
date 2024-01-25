@@ -32,3 +32,10 @@ export interface INotificationChannel {
     type: NotificationChannelType;
     send: (config: any, deliveryInformation: DeliveryInformation) => void;
 }
+
+// user notification configuration
+export interface NotificationUserConfig {
+    recipientValue: string; // email ID, phone NO, etc....
+    isEnabled: boolean;
+    isVerified: boolean;
+}
