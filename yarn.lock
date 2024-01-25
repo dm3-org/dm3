@@ -2566,7 +2566,6 @@ __metadata:
     "@dm3-org/dm3-lib-crypto": "workspace:^"
     "@dm3-org/dm3-lib-delivery-api": "workspace:^"
     "@dm3-org/dm3-lib-messaging": "workspace:^"
-    "@dm3-org/dm3-lib-offchain-resolver-api": "workspace:^"
     "@dm3-org/dm3-lib-profile": "workspace:^"
     "@dm3-org/dm3-lib-shared": "workspace:^"
     "@dm3-org/dm3-lib-storage": "workspace:^"

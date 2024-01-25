@@ -26,10 +26,10 @@ import {
     getNewToken,
     submitUserProfile,
 } from '@dm3-org/dm3-lib-delivery-api';
-import { claimAddress } from '@dm3-org/dm3-lib-offchain-resolver-api';
 import { createProfileKeys as _createProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { globalConfig, stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
+import { claimAddress } from '../../adapters/offchain-resolver-api';
 
 export type ConnectDsResult = {
     userDb: UserDB;
