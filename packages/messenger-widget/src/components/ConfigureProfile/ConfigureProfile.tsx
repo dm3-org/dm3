@@ -7,10 +7,6 @@ import { GlobalContext } from '../../utils/context-utils';
 import DeleteDM3Name from '../DeleteDM3Name/DeleteDM3Name';
 import './ConfigureProfile.css';
 import {
-    ACTION_TYPE,
-    BUTTON_CLASS,
-    NAME_TYPE,
-    PROFILE_INPUT_FIELD_CLASS,
     closeConfigurationModal,
     fetchChainIdFromServiceName,
     fetchComponent,
@@ -30,6 +26,12 @@ import { AuthContext } from '../../context/AuthContext';
 import { useNetwork } from 'wagmi';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 import { switchNetwork } from '@wagmi/core';
+import {
+    ACTION_TYPE,
+    BUTTON_CLASS,
+    NAME_TYPE,
+    PROFILE_INPUT_FIELD_CLASS,
+} from './chain/common';
 
 export function ConfigureDM3Profile() {
     // global context state

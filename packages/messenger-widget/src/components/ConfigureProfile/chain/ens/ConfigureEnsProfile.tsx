@@ -3,11 +3,11 @@ import { useContext } from 'react';
 import { GlobalContext } from '../../../../utils/context-utils';
 import { ConfigureProfileContext } from '../../context/ConfigureProfileContext';
 import { SubmitOnChainProfile } from '../SubmitOnChainProfile';
-import { IChain, NAME_TYPE, validateEnsName } from '../../bl';
 import { AuthContext } from '../../../../context/AuthContext';
 import { submitEnsNameTransaction } from './bl';
 import { useMainnetProvider } from '../../../../hooks/mainnetprovider/useMainnetProvider';
 import { useNetwork } from 'wagmi';
+import { IChain, NAME_TYPE, validateEnsName } from '../common';
 
 export const ConfigureEnsProfile = (props: IChain) => {
     const { dispatch } = useContext(GlobalContext);

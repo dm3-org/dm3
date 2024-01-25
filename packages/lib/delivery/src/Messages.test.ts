@@ -9,8 +9,14 @@ import { getConversationId, getMessages, incomingMessage } from './Messages';
 import { Session } from './Session';
 import { SpamFilterRules } from './spam-filter/SpamFilterRules';
 
-import { MAIL_HTML, MAIL_SUBJECT } from './notifications/channels/Email';
-import { NotificationChannelType } from './notifications/types';
+import {
+    NEW_MSG_EMAIL_TEMPLATE,
+    NEW_MSG_EMAIL_SUBJECT,
+} from './notifications/templates/newMessage';
+import {
+    NotificationChannelType,
+    NotificationType,
+} from './notifications/types';
 
 const SENDER_NAME = 'alice.eth';
 const RECEIVER_NAME = 'bob.eth';
@@ -451,7 +457,10 @@ describe('Messages', () => {
                 return Promise.resolve([
                     {
                         type: NotificationChannelType.EMAIL,
-                        config: { recipientAddress: 'joe@example.io' },
+                        config: {
+                            recipientAddress: 'joe@example.io',
+                            notificationType: NotificationType.NEW_MESSAGE,
+                        },
                     },
                 ]);
             };
@@ -479,14 +488,11 @@ describe('Messages', () => {
                     {
                         type: NotificationChannelType.EMAIL,
                         config: {
-                            host: 'exmaple.host',
+                            host: 'mail@dm3.org',
                             port: 1234,
-                            secure: true,
-                            auth: {
-                                user: 'foo',
-                                pass: 'bar',
-                            },
-                            senderAddress: 'mail@dm3.org',
+                            username: 'mail@dm3.org',
+                            password: 'bar',
+                            emailID: 'mail@dm3.org',
                         },
                     },
                 ],
@@ -503,8 +509,10 @@ describe('Messages', () => {
 
             expect(sendMailMock).toHaveBeenCalledWith({
                 from: 'mail@dm3.org',
-                html: MAIL_HTML(testData.delvieryInformationBUnecrypted),
-                subject: MAIL_SUBJECT,
+                html: NEW_MSG_EMAIL_TEMPLATE(
+                    testData.delvieryInformationBUnecrypted,
+                ),
+                subject: NEW_MSG_EMAIL_SUBJECT,
                 to: 'joe@example.io',
             });
             //Check if the message was submitted to the socket

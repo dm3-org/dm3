@@ -19,26 +19,7 @@ import { getLastDm3Name } from '../../utils/common-utils';
 import { ConfigureGenomeProfile } from './chain/genome/ConfigureGenomeProfile';
 import { ConfigureEnsProfile } from './chain/ens/ConfigureEnsProfile';
 import React from 'react';
-
-export const PROFILE_INPUT_FIELD_CLASS =
-    'profile-input font-weight-400 font-size-14 border-radius-6 w-100 line-height-24';
-
-export const BUTTON_CLASS =
-    'configure-btn font-weight-400 font-size-12 border-radius-4 line-height-24';
-
-export enum NAME_TYPE {
-    ENS_NAME,
-    DM3_NAME,
-}
-
-export enum ACTION_TYPE {
-    CONFIGURE,
-    REMOVE,
-}
-
-export interface IChain {
-    chainToConnect: number;
-}
+import { NAME_TYPE } from './chain/common';
 
 // method to open the profile configuration modal
 export const openConfigurationModal = (dispatch: React.Dispatch<Actions>) => {
@@ -184,10 +165,6 @@ export const validateName = (username: string): boolean => {
         !username.includes('.') &&
         ethers.utils.isValidName(username)
     );
-};
-
-export const validateEnsName = (username: string): boolean => {
-    return ethers.utils.isValidName(username);
 };
 
 export const fetchExistingDM3Name = async (

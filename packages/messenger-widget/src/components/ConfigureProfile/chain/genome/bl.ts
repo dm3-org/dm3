@@ -8,13 +8,13 @@ import {
 } from '../../../../utils/enum-type-utils';
 import { setContactHeightToMaximum } from '../../../Contacts/bl';
 import { startLoader, closeLoader } from '../../../Loader/Loader';
-import { NAME_TYPE } from '../../bl';
 import { ethers } from 'ethers';
 import { getConractInstance } from '@dm3-org/dm3-lib-shared/dist/ethersHelper';
 import { Connection } from '../../../../interfaces/web3';
 import { Account, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 
 import { Address, namehash, toHex } from 'viem';
+import { NAME_TYPE } from '../common';
 
 //Space id uses the namehash of the name + the GNO identifier to calculate the node
 const GNO_IDENTIFIER = BigInt(
