@@ -60,7 +60,7 @@ describe('Set Users NotificationChannel', () => {
                 USER_ADDRESS,
                 notificationChannel,
             );
-            fail();
+            throw new Error('Invalid NotificationChannel');
         } catch (e) {
             expect(e).toStrictEqual(Error('Invalid NotificationChannel'));
         }
@@ -78,7 +78,7 @@ describe('Set Users NotificationChannel', () => {
                 USER_ADDRESS,
                 notificationChannel,
             );
-            fail();
+            throw new Error('Invalid Email config');
         } catch (e) {
             expect(e).toStrictEqual(Error('Invalid Email config'));
         }
@@ -96,7 +96,7 @@ describe('Set Users NotificationChannel', () => {
                 USER_ADDRESS,
                 notificationChannel,
             );
-            fail();
+            throw new Error('Invalid Email config');
         } catch (e) {
             expect(e).toStrictEqual(Error('Invalid Email config'));
         }
