@@ -5,10 +5,7 @@ import {
     GlobalState,
     ModalStateType,
 } from '../../utils/enum-type-utils';
-import {
-    claimSubdomain,
-    removeAlias,
-} from '@dm3-org/dm3-lib-offchain-resolver-api';
+
 import { createAlias, getAliasChain } from '@dm3-org/dm3-lib-delivery-api';
 import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
@@ -20,6 +17,10 @@ import { ConfigureGenomeProfile } from './chain/genome/ConfigureGenomeProfile';
 import { ConfigureEnsProfile } from './chain/ens/ConfigureEnsProfile';
 import React from 'react';
 import { NAME_TYPE } from './chain/common';
+import {
+    claimSubdomain,
+    removeAlias,
+} from '../../adapters/offchain-resolver-api';
 
 // method to open the profile configuration modal
 export const openConfigurationModal = (dispatch: React.Dispatch<Actions>) => {
