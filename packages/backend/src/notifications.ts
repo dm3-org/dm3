@@ -15,6 +15,51 @@ export default () => {
     // Adding a route parameter middleware named 'ensName'
     router.param('ensName', auth);
 
+    // Defining a route to enable/disable global notifications
+    router.post('/global/:ensName', async (req, res, next) => {
+        try {
+            const account = normalizeEnsName(req.params.ensName);
+
+            // Extracting isEnabled from the request body
+            const { isEnabled } = req.body;
+
+            // return if value is not a boolean
+            if (typeof isEnabled !== 'boolean') {
+                return res.sendStatus(400).json({
+                    error: 'Invalid value',
+                });
+            }
+
+            // set global notification to the database
+            await req.app.locals.db.setGlobalNotification(account, {
+                isEnabled,
+            });
+
+            // Sending a success response
+            res.sendStatus(200);
+        } catch (e) {
+            // Passing the error to the next middleware
+            next(e);
+        }
+    });
+
+    // Defining a route to handle GET requests for fetching global notification
+    router.get('/global/:ensName', async (req, res, next) => {
+        try {
+            const account = normalizeEnsName(req.params.ensName);
+
+            // fetching global notification setting for a user from the database
+            const globalNotification =
+                await req.app.locals.db.getGlobalNotification(account);
+
+            // Sending the fetched global notification setting as a JSON response
+            res.json(globalNotification);
+        } catch (e) {
+            // Passing the error to the next middleware
+            next(e);
+        }
+    });
+
     // Defining a route to handle POST requests for adding an email notification channel
     router.post('/email/:ensName', async (req, res, next) => {
         try {
