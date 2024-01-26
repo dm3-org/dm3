@@ -1,6 +1,7 @@
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import { Chunk, Encryption, KeyValueStore } from './types';
 import { BaseTrie as Trie } from 'merkle-patricia-tree';
+import { getAccountManifest } from './read';
 
 /**
  * This function creates a key-value store which can be used to store

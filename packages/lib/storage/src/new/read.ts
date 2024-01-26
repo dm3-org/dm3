@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {
     getAccountManifestKey,
     getConversationListKey,
@@ -110,6 +111,10 @@ export async function getConversationManifest(
  * @throws {Error} If the account manifest does not exist.
  */
 export async function getAccountManifest(db: Db): Promise<AccountManifest> {
+    const INITIAL_ACCOUNT_MANIFEST = (key: string): AccountManifest => ({
+        conversationListCounter: 0,
+        key,
+    });
     const accountManifestKey = await getAccountManifestKey(db);
     const accountMainfest = await readFromStrorage<AccountManifest>(
         accountManifestKey,
@@ -117,10 +122,15 @@ export async function getAccountManifest(db: Db): Promise<AccountManifest> {
     );
 
     if (!accountMainfest) {
-        throw Error(`Account manifest not found`);
+        console.log('Initially creating account manifest');
+        const accountManifestKey = await getAccountManifestKey(db);
+        db.keyValueStoreLocal.write(
+            accountManifestKey,
+            INITIAL_ACCOUNT_MANIFEST(accountManifestKey),
+        );
     }
 
-    return accountMainfest;
+    return INITIAL_ACCOUNT_MANIFEST(accountManifestKey);
 }
 
 /**

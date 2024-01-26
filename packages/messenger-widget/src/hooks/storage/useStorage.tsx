@@ -114,7 +114,7 @@ export const useStorage = (
             return JSON.parse(chunk) as T;
         };
 
-        const s = createStorage(account?.ensName!, signWithProfileKey, {
+        const s = await createStorage(account?.ensName!, signWithProfileKey, {
             encryption: {
                 encrypt: encrypt,
                 decrypt: decrypt,

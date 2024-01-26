@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Envelop } from '@dm3-org/dm3-lib-messaging';
 import { createKeyValueStore } from './KeyValueStore';
 import {
@@ -5,8 +6,10 @@ import {
     getNumberOfMessages,
     getConversationListChunk,
     getNumberOfConverations,
+    getAccountManifest,
 } from './read';
 import {
+    AccountManifest,
     Chunk,
     Db,
     Encryption,
@@ -16,6 +19,7 @@ import {
 } from './types';
 import { addConversation, addMessage } from './write';
 import { createRemoteKeyValueStoreApi } from './RemoteInterface';
+import { getAccountManifestKey } from './keys';
 
 /**
  * This function creates a closure that, when invoked, adds a new conversation
@@ -91,6 +95,7 @@ function addMessageSideEffectContainment(
  *
  * @returns {StorageAPI} An API with methods for getting and adding conversations and messages.
  */
+
 export function createStorage(
     accountEnsName: string,
     sign: (data: string) => Promise<string>,
