@@ -18,6 +18,7 @@ export interface Config {
     ethereumProvider: string;
     walletConnectProjectId: string;
     hideFunction?: string;
+    signInImage?: string;
 }
 
 export interface Dm3Props {

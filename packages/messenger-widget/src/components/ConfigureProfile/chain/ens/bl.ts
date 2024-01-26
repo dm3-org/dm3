@@ -9,9 +9,9 @@ import {
 } from '../../../../utils/enum-type-utils';
 import { setContactHeightToMaximum } from '../../../Contacts/bl';
 import { startLoader, closeLoader } from '../../../Loader/Loader';
-import { NAME_TYPE } from '../../bl';
 import { Account, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { Connection } from '../../../../interfaces/web3';
+import { NAME_TYPE } from '../common';
 
 // method to check ENS name is valid or not
 const isEnsNameValid = async (

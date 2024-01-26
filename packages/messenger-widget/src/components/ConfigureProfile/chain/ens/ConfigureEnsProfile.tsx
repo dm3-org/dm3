@@ -3,13 +3,17 @@ import { useContext } from 'react';
 import { GlobalContext } from '../../../../utils/context-utils';
 import { ConfigureProfileContext } from '../../context/ConfigureProfileContext';
 import { SubmitOnChainProfile } from '../SubmitOnChainProfile';
-import { NAME_TYPE, validateEnsName } from '../../bl';
 import { AuthContext } from '../../../../context/AuthContext';
 import { submitEnsNameTransaction } from './bl';
 import { useMainnetProvider } from '../../../../hooks/mainnetprovider/useMainnetProvider';
+import { useNetwork } from 'wagmi';
+import { IChain, NAME_TYPE, validateEnsName } from '../common';
 
-export const ConfigureEnsProfile = () => {
-    const { state, dispatch } = useContext(GlobalContext);
+export const ConfigureEnsProfile = (props: IChain) => {
+    const { dispatch } = useContext(GlobalContext);
+
+    const { chain } = useNetwork();
+
     const { onShowError, setExistingEnsName, setEnsName } = useContext(
         ConfigureProfileContext,
     );
@@ -20,6 +24,10 @@ export const ConfigureEnsProfile = () => {
     const mainnetProvider = useMainnetProvider();
 
     const onSubmitTx = async (name: string) => {
+        if (props.chainToConnect !== chain?.id) {
+            onShowError(NAME_TYPE.ENS_NAME, 'Invalid chain connected');
+            return;
+        }
         await submitEnsNameTransaction(
             mainnetProvider!,
             account!,

@@ -1,6 +1,6 @@
 import {
     NotificationChannel,
-    NotificationChannelType,
+    NotificationUserConfig,
     schema,
 } from '@dm3-org/dm3-lib-delivery';
 import { Redis, RedisPrefix } from '../getDatabase';
@@ -17,39 +17,6 @@ export function addUsersNotificationChannel(redis: Redis) {
             throw Error('Invalid NotificationChannel');
         }
 
-        // Check if the type-specific config matches based on the channel type
-        switch (channel.type) {
-            case NotificationChannelType.EMAIL: {
-                const isValidConfig = validateSchema(
-                    {
-                        ...schema.EmailNotificationUserConfig,
-                        // Adding validation for the recipientAddress field
-                        definitions: {
-                            ...schema.EmailNotificationUserConfig.definitions,
-                            EmailNotificationUserConfig: {
-                                ...schema.EmailNotificationUserConfig
-                                    .definitions.EmailNotificationUserConfig,
-                                properties: {
-                                    ...schema.EmailNotificationUserConfig
-                                        .definitions.EmailNotificationUserConfig
-                                        .properties,
-                                    recipientAddress: {
-                                        type: 'string',
-                                        format: 'email',
-                                    },
-                                },
-                            },
-                        },
-                    },
-                    channel.config,
-                );
-
-                if (!isValidConfig) {
-                    throw Error('Invalid Email config');
-                }
-            }
-        }
-
         // Get previously created notification channels
         const existingNotificationChannelsJson = await redis.get(
             RedisPrefix.NotificationChannel +
@@ -57,15 +24,27 @@ export function addUsersNotificationChannel(redis: Redis) {
         );
 
         // Parse JSON. Initialize the array if no existing channels were returned
-        const existingNotificationChannels = existingNotificationChannelsJson
-            ? JSON.parse(existingNotificationChannelsJson)
-            : [];
+        const existingNotificationChannels: NotificationChannel[] =
+            existingNotificationChannelsJson
+                ? JSON.parse(existingNotificationChannelsJson)
+                : [];
+
+        // filter out channel if already exists
+        const otherExistingChannels = existingNotificationChannels.filter(
+            (data) => data.type !== channel.type,
+        );
+
+        // new notification config
+        const config: NotificationUserConfig = {
+            recipientValue: channel.config.recipientValue,
+            isEnabled: true,
+            isVerified: false,
+        };
+
+        channel.config = config;
 
         // Add the new channel to the existing ones
-        const newNotificationChannels = [
-            ...existingNotificationChannels,
-            channel,
-        ];
+        const newNotificationChannels = [...otherExistingChannels, channel];
 
         // Store the updated channels back into Redis
         await redis.set(

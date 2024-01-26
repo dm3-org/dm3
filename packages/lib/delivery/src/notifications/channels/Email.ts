@@ -2,46 +2,56 @@ import { DeliveryInformation } from '@dm3-org/dm3-lib-messaging';
 import { logError } from '@dm3-org/dm3-lib-shared';
 import nodemailer from 'nodemailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { NotificationType } from '../types';
+import { fetchEmailSubjectAndTemplate } from '../getEmailTemplate';
 
-// Define types for email server and user configuration
-export type EmailNotificationServerConfig = SMTPTransport.Options & {
-    senderAddress: string;
+// email server configuration
+export type EmailNotificationServerConfig = {
+    host: string;
+    port: number;
+    username: string;
+    password: string;
+    emailID: string;
 };
 
-export type EmailNotificationUserConfig = {
-    recipientAddress: string;
+type UserEmailConfig = {
+    recipientEmailId: string;
+    notificationType: NotificationType;
 };
 
-// Constants for email subject and HTML template
-export const MAIL_SUBJECT = 'New DM3 Message';
-export const MAIL_HTML = (
-    deliveryInformation: DeliveryInformation,
-) => `<html lang="en">
-<body>
-<p>You have received a new DM3 message from ${deliveryInformation.from}.
-<br/>
-Open <a href="app.dm3.network">DM3</a> to read it</p>
-<script src="index.js"></script>
-</body>
-</html>`;
-
-// Define the Email function
+// method to send email
 export function Email(config: EmailNotificationServerConfig) {
     const send = async (
-        mailConfig: EmailNotificationUserConfig,
+        mailConfig: UserEmailConfig,
         deliveryInformation: DeliveryInformation,
     ) => {
-        nodemailer.createTestAccount();
-        const transport = nodemailer.createTransport(new SMTPTransport(config));
-
         try {
-            // Send the email using nodemailer
+            // create transport with email credentials
+            const transport: nodemailer.Transporter<SMTPTransport.SentMessageInfo> =
+                nodemailer.createTransport({
+                    host: config.host,
+                    port: config.port,
+                    auth: {
+                        user: config.username,
+                        pass: config.password,
+                    },
+                });
+
+            // fetch the specific subject & template of email
+            const { subject, template } = fetchEmailSubjectAndTemplate(
+                mailConfig.notificationType,
+                deliveryInformation,
+            );
+
+            // send the email using nodemailer
             await transport.sendMail({
-                from: config.senderAddress,
-                to: mailConfig.recipientAddress,
-                subject: MAIL_SUBJECT,
-                html: MAIL_HTML(deliveryInformation),
+                from: config.emailID,
+                to: mailConfig.recipientEmailId,
+                subject: subject,
+                html: template,
             });
+
+            // close the connection
             transport.close();
         } catch (err) {
             logError('Send mail failed ' + err);

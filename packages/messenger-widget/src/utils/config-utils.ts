@@ -1,5 +1,6 @@
 import { StorageLocation } from '@dm3-org/dm3-lib-storage';
 import { Config } from '../interfaces/config';
+import { signInImage } from '../assets/base64/home-image';
 
 // The default configuration of the app
 const DefaultConfig: Config = {
@@ -19,6 +20,7 @@ const DefaultConfig: Config = {
     ethereumProvider: '' as string,
     walletConnectProjectId: '' as string,
     hideFunction: '',
+    signInImage: signInImage,
 };
 
 export function getConfig(overwrite: Partial<Config>): Config {

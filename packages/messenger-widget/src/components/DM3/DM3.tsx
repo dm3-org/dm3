@@ -149,16 +149,17 @@ function DM3(props: Dm3Props) {
     }, []);
 
     return (
-        <div id="data-rk-child" className="border-radius-8 h-100">
+        <div id="data-rk-child" className="h-100">
             <Storage />
             {!isLoggedIn ? (
                 <SignIn
                     hideStorageSelection={props.config.hideStorageSelection}
                     defaultStorageLocation={props.config.defaultStorageLocation}
                     miniSignIn={props.config.miniSignIn}
+                    signInImage={props.config.signInImage as string}
                 />
             ) : (
-                <div className="h-100 rounded background-container">
+                <div className="h-100 background-container">
                     <Dashboard getContacts={getContacts} dm3Props={props} />
                 </div>
             )}

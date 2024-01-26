@@ -3,7 +3,6 @@
 import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit';
 import { useContext } from 'react';
 import { useAccount } from 'wagmi';
-import { homeImage } from '../../assets/base64/home-image';
 import { AuthContext } from '../../context/AuthContext';
 import { SignInProps } from '../../interfaces/web3';
 import { ButtonState } from '../../utils/enum-type-utils';
@@ -11,6 +10,7 @@ import { LoginButton } from './LoginButton';
 import './SignIn.css';
 import { changeSignInButtonStyle } from './bl';
 import DM3Logo from './DM3Logo';
+import { signInImage } from '../../assets/base64/home-image';
 
 export function SignIn(props: SignInProps) {
     const { address, isConnecting, isDisconnected, isConnected } = useAccount();
@@ -41,15 +41,17 @@ export function SignIn(props: SignInProps) {
     return (
         <>
             <div className="row m-0 p-0 h-100">
-                <div className="h-100 col-lg-7 col-md-7 col-sm-12 p-0 home-image-container background-container">
-                    <img
-                        src={homeImage}
-                        className="img-fluid home-image w-100"
-                    />
-                </div>
+                <div
+                    style={{
+                        backgroundImage: `url(${
+                            props.signInImage ?? signInImage
+                        })`,
+                    }}
+                    className="col-lg-7 col-md-7 col-sm-0 p-0 home-image-container background-container"
+                ></div>
                 <div
                     className="h-100 col-lg-5 col-md-5 col-sm-12 p-0 d-flex flex-column 
-                justify-content-center signin-container background-container"
+                justify-content-center background-container"
                 >
                     <div className="d-flex justify-content-end rainbow-connect-btn">
                         {isConnected ? (

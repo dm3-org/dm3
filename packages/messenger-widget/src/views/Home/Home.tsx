@@ -16,23 +16,29 @@ import './Home.css';
 
 import { useContext, useMemo } from 'react';
 import { configureChains, createConfig, mainnet, WagmiConfig } from 'wagmi';
-import { gnosis } from 'wagmi/chains';
+import { gnosis, goerli } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import AddConversation from '../../components/AddConversation/AddConversation';
 import { Loader } from '../../components/Loader/Loader';
-import { Preferences } from '../../components/Preferences/Preferences';
 import { AuthContextProvider } from '../../context/AuthContext';
 import { MainnetProviderContextProvider } from '../../context/ProviderContext';
 import { GlobalContext } from '../../utils/context-utils';
 import './Home.css';
 import { StorageContextProvider } from '../../context/StorageContext';
 
+//Use different chains depending on the environment. Note that gnosis mainnet is used for both setups
+// because there is no spaceId testnet deploymend yet
+const _chains =
+    process.env.REACT_APP_CHAIN_ID === '1'
+        ? [mainnet, gnosis]
+        : [goerli, gnosis];
+
 export function Home(props: Dm3Props) {
     // fetches context api data
     const { state, dispatch } = useContext(GlobalContext);
 
     const { chains, publicClient } = configureChains(
-        [gnosis, mainnet],
+        [..._chains],
         [
             jsonRpcProvider({
                 rpc: () => ({
@@ -79,7 +85,6 @@ export function Home(props: Dm3Props) {
         <div className="h-100">
             <Loader />
             <AddConversation />
-            <Preferences />
             <WagmiConfig config={wagmiConfig}>
                 <RainbowKitProvider chains={chains} theme={darkTheme()}>
                     <MainnetProviderContextProvider>

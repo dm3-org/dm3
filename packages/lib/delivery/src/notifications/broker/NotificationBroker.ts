@@ -6,6 +6,7 @@ import {
     NotificationChannel,
     NotificationChannelType,
     INotificationChannel,
+    NotificationType,
 } from '../types';
 
 /**
@@ -49,16 +50,19 @@ export const _setupNotficationBroker = (
 
 /**
  * Creates a notification broker based on the provided notification channels.
- * @param {DeliveryServiceProperties} options - Delivery service properties including notification channels.
+ * @param {NotificationChannel[]} notificationChannel - All notification channels of a delivery service.
+ * @param {NotificationType} notificationType - Specifies type of notifications like : New message , OTP etc..
  * @returns {INotificationBroker} An instance of the notification broker.
  * @throws {Error} If an unsupported channel type is encountered.
  */
 export const NotificationBroker = (
     notificationChannel: NotificationChannel[],
+    notificationType: NotificationType,
 ): INotificationBroker => {
     const channels = notificationChannel.map((channel) => {
         switch (channel.type) {
             case NotificationChannelType.EMAIL:
+                channel.config.notificationType = notificationType;
                 return {
                     type: NotificationChannelType.EMAIL,
                     send: Email(channel.config).send,

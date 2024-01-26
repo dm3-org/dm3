@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NAME_TYPE } from '../bl';
+import { NAME_TYPE } from '../chain/common';
 
 export interface ConfigureProfileContextType {
     existingEnsName: string | null;

@@ -20,4 +20,5 @@ export interface SignInProps {
     hideStorageSelection: boolean;
     miniSignIn: boolean;
     defaultStorageLocation: StorageLocation | undefined;
+    signInImage: string;
 }

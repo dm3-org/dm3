@@ -16,10 +16,6 @@ import { getLastDm3Name } from '../../utils/common-utils';
 import { ConfigureGenomeProfile } from './chain/genome/ConfigureGenomeProfile';
 import { ConfigureEnsProfile } from './chain/ens/ConfigureEnsProfile';
 import React from 'react';
-import {
-    claimSubdomain,
-    removeAlias,
-} from '@dm3-org/dm3-lib-offchain-resolver-api';
 
 export const PROFILE_INPUT_FIELD_CLASS =
     'profile-input font-weight-400 font-size-14 border-radius-6 w-100 line-height-24';
@@ -27,15 +23,15 @@ export const PROFILE_INPUT_FIELD_CLASS =
 export const BUTTON_CLASS =
     'configure-btn font-weight-400 font-size-12 border-radius-4 line-height-24';
 
-export enum NAME_TYPE {
-    ENS_NAME,
-    DM3_NAME,
-}
-
 export enum ACTION_TYPE {
     CONFIGURE,
     REMOVE,
 }
+import { NAME_TYPE } from './chain/common';
+import {
+    claimSubdomain,
+    removeAlias,
+} from '../../adapters/offchain-resolver-api';
 
 // method to open the profile configuration modal
 export const openConfigurationModal = (dispatch: React.Dispatch<Actions>) => {
@@ -46,17 +42,7 @@ export const openConfigurationModal = (dispatch: React.Dispatch<Actions>) => {
 };
 
 // method to close the profile configuration modal
-export const closeConfigurationModal = (
-    setDm3Name: Function,
-    setEnsName: Function,
-    setErrorMsg: Function,
-    setShowError: Function,
-    dispatch: React.Dispatch<Actions>,
-) => {
-    setDm3Name('');
-    setEnsName('');
-    setErrorMsg('');
-    setShowError(undefined);
+export const closeConfigurationModal = (dispatch: React.Dispatch<Actions>) => {
     dispatch({
         type: ModalStateType.IsProfileConfigurationPopupActive,
         payload: false,
@@ -193,10 +179,6 @@ export const validateName = (username: string): boolean => {
     );
 };
 
-export const validateEnsName = (username: string): boolean => {
-    return ethers.utils.isValidName(username);
-};
-
 export const fetchExistingDM3Name = async (
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
@@ -227,21 +209,23 @@ export const namingServices = [
     {
         name: NAME_SERVICES.ENS,
         chainId: 1,
-        component: <ConfigureEnsProfile />,
     },
     {
         name: NAME_SERVICES.GENOME,
         chainId: 100,
-        component: <ConfigureGenomeProfile />,
     },
 ];
 
 export const fetchComponent = (name: string) => {
     switch (name) {
         case NAME_SERVICES.ENS:
-            return namingServices[0].component;
+            if (process.env.REACT_APP_CHAIN_ID === '5') {
+                return <ConfigureEnsProfile chainToConnect={5} />;
+            }
+            return <ConfigureEnsProfile chainToConnect={1} />;
         case NAME_SERVICES.GENOME:
-            return namingServices[1].component;
+            const genomeChainId = namingServices[1].chainId;
+            return <ConfigureGenomeProfile chainToConnect={genomeChainId} />;
     }
 };
 

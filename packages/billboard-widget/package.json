@@ -1,6 +1,6 @@
 {
   "name": "@dm3-org/dm3-billboard-widget",
-  "version": "1.0.0",
+  "version": "1.0.6",
   "files": [
     "dist"
   ],
@@ -49,5 +49,6 @@
     "vite": "^4.3.2",
     "vite-plugin-dts": "^2.3.0",
     "vite-plugin-node-polyfills": "^0.8.2"
-  }
+  },
+  "publish": true
 }

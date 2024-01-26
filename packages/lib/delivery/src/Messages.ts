@@ -24,6 +24,7 @@ import { NotificationBroker } from './notifications';
 import {
     GetNotificationChannels,
     NotificationChannel,
+    NotificationType,
 } from './notifications/types';
 import { checkToken, Session } from './Session';
 import { isSpam } from './spam-filter';
@@ -209,7 +210,10 @@ export async function incomingMessage(
         });
         //If not we're notifing the user that there is a new message waiting for them
     } else {
-        const { sendNotification } = NotificationBroker(dsNotificationChannels);
+        const { sendNotification } = NotificationBroker(
+            dsNotificationChannels,
+            NotificationType.NEW_MESSAGE,
+        );
         await sendNotification(
             deliveryInformation,
             getUsersNotificationChannels,

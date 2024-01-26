@@ -1,5 +1,6 @@
 import {
     Session as DSSession,
+    IGlobalNotification,
     NotificationChannel,
     spamFilter,
 } from '@dm3-org/dm3-lib-delivery';
@@ -22,6 +23,7 @@ export enum RedisPrefix {
     UserStorage = 'user.storage:',
     Pending = 'pending:',
     NotificationChannel = 'notificationChannel:',
+    GlobalNotification = 'globalNotification:',
 }
 
 export async function getRedisClient() {
@@ -69,6 +71,10 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
         //Storage
         getUserStorageChunk: Storage.getUserStorageChunk(redis),
         setUserStorageChunk: Storage.setUserStorageChunk(redis),
+        //Legacy remove after storage has been merged
+        getUserStorage: Storage.getUserStorageOld(redis),
+        setUserStorage: Storage.setUserStorageOld(redis),
+
         //Pending
         addPending: Pending.addPending(redis),
         getPending: Pending.getPending(redis),
@@ -81,6 +87,9 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
             Notification.getUsersNotificationChannels(redis),
         addUsersNotificationChannel:
             Notification.addUsersNotificationChannel(redis),
+        // Global Notification
+        getGlobalNotification: Notification.getGlobalNotification(redis),
+        setGlobalNotification: Notification.setGlobalNotification(redis),
     };
 }
 
@@ -119,6 +128,9 @@ export interface IDatabase {
         key: string,
         data: string,
     ) => Promise<void>;
+    //Legacy remove after storage has been merged
+    getUserStorage: (ensName: string) => Promise<UserStorage | null>;
+    setUserStorage: (ensName: string, data: string) => Promise<void>;
     setAliasSession: (ensName: string, aliasEnsName: string) => Promise<void>;
     addPending: (ensName: string, contactEnsName: string) => Promise<void>;
     getPending: (ensName: string) => Promise<string[]>;
@@ -136,6 +148,11 @@ export interface IDatabase {
     addUsersNotificationChannel: (
         ensName: string,
         channel: NotificationChannel,
+    ) => Promise<void>;
+    getGlobalNotification: (ensName: string) => Promise<IGlobalNotification>;
+    setGlobalNotification: (
+        ensName: string,
+        isEnabled: boolean,
     ) => Promise<void>;
 }
 

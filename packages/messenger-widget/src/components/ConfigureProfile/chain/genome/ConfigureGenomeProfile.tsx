@@ -1,20 +1,17 @@
 import { useContext } from 'react';
 import { SubmitOnChainProfile } from '../SubmitOnChainProfile';
-import {
-    isGenomeNameValid,
-    submitGenomeNameTransaction,
-    validateGenomeName,
-} from './bl';
+import { submitGenomeNameTransaction, validateGenomeName } from './bl';
 import { ConfigureProfileContext } from '../../context/ConfigureProfileContext';
-import { NAME_TYPE } from '../../bl';
 import { GlobalContext } from '../../../../utils/context-utils';
-import { useAccount } from 'wagmi';
-import { useAuth } from '../../../../hooks/auth/useAuth';
+import { useNetwork } from 'wagmi';
 import { AuthContext } from '../../../../context/AuthContext';
 import { ethers } from 'ethers';
+import { IChain, NAME_TYPE } from '../common';
 
-export const ConfigureGenomeProfile = () => {
+export const ConfigureGenomeProfile = (props: IChain) => {
     const { state, dispatch } = useContext(GlobalContext);
+
+    const { chain } = useNetwork();
 
     const { ethAddress, account, deliveryServiceToken } =
         useContext(AuthContext);
@@ -24,6 +21,10 @@ export const ConfigureGenomeProfile = () => {
     );
 
     const onSubmitTx = async (name: string) => {
+        if (props.chainToConnect !== chain?.id) {
+            onShowError(NAME_TYPE.ENS_NAME, 'Invalid chain connected');
+            return;
+        }
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         submitGenomeNameTransaction(
             provider,

@@ -1,7 +1,7 @@
 .chat-screen-container {
     display: flex;
     flex-direction: column;
-    border-radius: 0px 8px 8px 0px;
+    border-radius: 0px !important;
 }
 
 .right-view-outer-container {
