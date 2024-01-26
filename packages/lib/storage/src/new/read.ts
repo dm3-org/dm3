@@ -141,16 +141,7 @@ export async function getAccountManifest(db: Db): Promise<AccountManifest> {
  * @throws {Error} If the account manifest does not exist.
  */
 export async function getNumberOfConverations(db: Db): Promise<number> {
-    const accountManifestKey = await getAccountManifestKey(db);
-    const accountMainfest = await readFromStrorage<AccountManifest>(
-        accountManifestKey,
-        db,
-    );
-
-    if (!accountMainfest) {
-        throw Error(`Account manifest not found`);
-    }
-
+    const accountMainfest = await getAccountManifest(db);
     return accountMainfest.conversationListCounter;
 }
 

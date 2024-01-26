@@ -92,6 +92,7 @@ export const useStorage = (
             key: string,
             value: T,
         ) => {
+            console.log('writeToRemoteStorage', key, value);
             const valueStringified = stringify(value);
             await setStorageChunk(
                 account!,
@@ -104,6 +105,7 @@ export const useStorage = (
         const readFromRemoteStorage = async <T extends Chunk>(
             data: string,
         ): Promise<T | undefined> => {
+            console.log('readFromRemoteStorage', data);
             const chunk = await getStorageChunk(
                 account!,
                 mainnetProvider,
@@ -123,9 +125,15 @@ export const useStorage = (
                 write: writeToRemoteStorage,
                 read: readFromRemoteStorage,
             },
+
+            remoteStorageUrl:
+                (process.env.REACT_APP_DEFAULT_SERVICE as string) +
+                '/storage/new',
         });
 
         setStorageApi(s);
+        const count = await s!.getNumberOfConverations();
+        console.log('number of conversations', count);
     };
 
     const storeMessage = async (message: any) => {
@@ -145,12 +153,13 @@ export const useStorage = (
 
         console.log('start adding conversation');
         await storageApi!.addConversation('help.dm3.eth');
+
         /*    console.log('adding conversation done')
    
            await storageApi!.addMessage('help.dm3.eth', {
                message: msg,
    
-           })
+           }
            console.log('storeMessage done'); */
     };
 
