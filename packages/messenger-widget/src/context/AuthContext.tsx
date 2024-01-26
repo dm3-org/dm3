@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { Account } from '@dm3-org/dm3-lib-profile';
+import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { StorageLocation, UserDB } from '@dm3-org/dm3-lib-storage';
 import React from 'react';
 import { useAuth } from '../hooks/auth/useAuth';
@@ -15,7 +15,7 @@ export type AuthContextType = {
     hasError: boolean;
     ethAddress: string | undefined;
     setAccount: Function;
-    _initialUserDb: UserDB | undefined;
+    profileKeys: ProfileKeys | undefined;
 };
 
 export const AuthContext = React.createContext<AuthContextType>({
@@ -28,7 +28,7 @@ export const AuthContext = React.createContext<AuthContextType>({
     hasError: false,
     ethAddress: undefined,
     setAccount: Function,
-    _initialUserDb: undefined,
+    profileKeys: undefined,
 });
 
 export const AuthContextProvider = ({
@@ -56,7 +56,7 @@ export const AuthContextProvider = ({
         hasError,
         ethAddress,
         setAccount,
-        _initialUserDb,
+        profileKeys,
     } = useAuth(onStorageCreated);
     return (
         <AuthContext.Provider
@@ -70,7 +70,7 @@ export const AuthContextProvider = ({
                 hasError,
                 ethAddress,
                 setAccount,
-                _initialUserDb,
+                profileKeys,
             }}
         >
             {children}

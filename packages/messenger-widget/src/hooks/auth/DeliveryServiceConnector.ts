@@ -26,15 +26,16 @@ import {
     getNewToken,
     submitUserProfile,
 } from '@dm3-org/dm3-lib-delivery-api';
-import { claimAddress } from '@dm3-org/dm3-lib-offchain-resolver-api';
 import { createProfileKeys as _createProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { globalConfig, stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
+import { claimAddress } from '../../adapters/offchainResolverApi';
 
 export type ConnectDsResult = {
     userDb: UserDB;
     signedUserProfile: SignedUserProfile;
     deliveryServiceToken: string;
+    profileKeys: ProfileKeys;
 };
 
 export const DeliveryServiceConnector = (
@@ -123,6 +124,7 @@ export const DeliveryServiceConnector = (
             deliveryServiceToken,
         );
         return {
+            profileKeys: keys,
             userDb,
             deliveryServiceToken,
             signedUserProfile,
@@ -166,6 +168,7 @@ export const DeliveryServiceConnector = (
 
         return {
             userDb,
+            profileKeys: keys,
             deliveryServiceToken,
             signedUserProfile,
         };
@@ -224,6 +227,7 @@ export const DeliveryServiceConnector = (
             userDb,
             deliveryServiceToken,
             signedUserProfile,
+            profileKeys: keys,
         };
     };
 

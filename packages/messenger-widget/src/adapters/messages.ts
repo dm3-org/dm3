@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import axios from 'axios';
 import { encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
 import {
@@ -14,7 +15,7 @@ import {
     getDeliveryServiceProfile,
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
-import { log } from '@dm3-org/dm3-lib-shared';
+import { log, stringify } from '@dm3-org/dm3-lib-shared';
 import {
     StorageEnvelopContainer,
     UserDB,
@@ -52,6 +53,9 @@ export async function submitMessage(
     onSuccess?: (envelop: Envelop) => void,
 ) {
     log('Submitting message', 'info');
+
+    console.log(sendDependencies.to.ensName);
+    console.log(stringify(message));
     /*
      * A Pending entry indicates the receiver that there is a new message
      * for them

@@ -5,10 +5,7 @@ import {
     GlobalState,
     ModalStateType,
 } from '../../utils/enum-type-utils';
-import {
-    claimSubdomain,
-    removeAlias,
-} from '@dm3-org/dm3-lib-offchain-resolver-api';
+
 import { createAlias, getAliasChain } from '@dm3-org/dm3-lib-delivery-api';
 import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
@@ -19,6 +16,10 @@ import { getLastDm3Name } from '../../utils/common-utils';
 import { ConfigureGenomeProfile } from './chain/genome/ConfigureGenomeProfile';
 import { ConfigureEnsProfile } from './chain/ens/ConfigureEnsProfile';
 import React from 'react';
+import {
+    claimSubdomain,
+    removeAlias,
+} from '@dm3-org/dm3-lib-offchain-resolver-api';
 
 export const PROFILE_INPUT_FIELD_CLASS =
     'profile-input font-weight-400 font-size-14 border-radius-6 w-100 line-height-24';

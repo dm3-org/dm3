@@ -3,22 +3,27 @@ import React, { useContext } from 'react';
 import { useStorage } from '../hooks/storage/useStorage';
 import { AuthContext } from './AuthContext';
 
-export type StorageContextType = {};
+export type StorageContextType = {
+    storeMessage: Function;
+};
 
-export const StorageContext = React.createContext<StorageContextType>({});
+export const StorageContext = React.createContext<StorageContextType>({
+    storeMessage: Function,
+});
 
-export const StorageContextProvider = ({
-    children,
-    dispatch,
-}: {
-    children?: any;
-    dispatch: Function;
-}) => {
-    const { deliveryServiceToken, _initialUserDb } = useContext(AuthContext);
+export const StorageContextProvider = ({ children }: { children?: any }) => {
+    const { account, deliveryServiceToken, profileKeys } =
+        useContext(AuthContext);
 
-    const s = useStorage(deliveryServiceToken, _initialUserDb);
-
+    const { storeMessage } = useStorage(
+        account,
+        undefined,
+        deliveryServiceToken,
+        profileKeys,
+    );
     return (
-        <StorageContext.Provider value={{}}>{children}</StorageContext.Provider>
+        <StorageContext.Provider value={{ storeMessage }}>
+            {children}
+        </StorageContext.Provider>
     );
 };

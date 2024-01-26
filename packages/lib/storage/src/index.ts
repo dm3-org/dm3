@@ -14,6 +14,8 @@ export {
     createEmptyConversation,
 } from './Storage';
 
+export { createStorage } from './new';
+
 export { web3Store, web3Load } from './location/Web3Storage';
 
 export { createTimestamp } from './Utils';

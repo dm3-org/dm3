@@ -18,6 +18,7 @@ export default () => {
                 ensName,
                 req.params.key,
             );
+
             return res.json(userStorage);
         } catch (e) {
             next(e);

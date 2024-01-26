@@ -25,6 +25,7 @@ import { AuthContextProvider } from '../../context/AuthContext';
 import { MainnetProviderContextProvider } from '../../context/ProviderContext';
 import { GlobalContext } from '../../utils/context-utils';
 import './Home.css';
+import { StorageContextProvider } from '../../context/StorageContext';
 
 export function Home(props: Dm3Props) {
     // fetches context api data
@@ -83,7 +84,9 @@ export function Home(props: Dm3Props) {
                 <RainbowKitProvider chains={chains} theme={darkTheme()}>
                     <MainnetProviderContextProvider>
                         <AuthContextProvider dispatch={dispatch}>
-                            <DM3 config={props.config} />
+                            <StorageContextProvider>
+                                <DM3 config={props.config} />
+                            </StorageContextProvider>
                         </AuthContextProvider>
                     </MainnetProviderContextProvider>
                 </RainbowKitProvider>

@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import { useAccount, useWalletClient } from 'wagmi';
-
-import { Account } from '@dm3-org/dm3-lib-profile';
+import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { UserDB } from '@dm3-org/dm3-lib-storage';
 import { useEffect, useMemo, useState } from 'react';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
@@ -34,6 +33,7 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
     const [displayName, setDisplayName] = useState<string | undefined>(
         undefined,
     );
+    const [profileKeys, setProfileKeys] = useState<ProfileKeys | undefined>();
 
     const [_initialUserDb, _setInitialUserDb] = useState<UserDB | undefined>(
         undefined,
@@ -97,7 +97,7 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
             return;
         }
 
-        const { deliveryServiceToken, userDb, signedUserProfile } =
+        const { deliveryServiceToken, userDb, signedUserProfile, profileKeys } =
             connectDsResult;
 
         //Todo remove callback and use _initialUSerdb instead
@@ -111,9 +111,11 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
         setEthAddress(address);
         setDeliveryServiceToken(deliveryServiceToken);
         setIsLoading(false);
+        setProfileKeys(profileKeys);
     };
 
     return {
+        profileKeys,
         cleanSignIn,
         account,
         displayName,
