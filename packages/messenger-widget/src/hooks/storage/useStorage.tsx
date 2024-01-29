@@ -125,10 +125,6 @@ export const useStorage = (
                 write: writeToRemoteStorage,
                 read: readFromRemoteStorage,
             },
-
-            remoteStorageUrl:
-                (process.env.REACT_APP_DEFAULT_SERVICE as string) +
-                '/storage/new',
         });
 
         setStorageApi(s);
