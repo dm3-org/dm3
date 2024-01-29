@@ -74,7 +74,7 @@ export function Preferences() {
                                                 setOptionChoosen(item)
                                             }
                                         >
-                                            {item.image}
+                                            {item.icon}
                                             {item.name}
                                         </div>
                                     )
