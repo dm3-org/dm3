@@ -59,20 +59,25 @@ export function Preferences() {
                             <hr className="preferences-separator" />
                             {preferencesItems.map((item, index) => {
                                 return (
-                                    <div
-                                        className={'target d-flex preferences-item '.concat(
-                                            ' ',
-                                            optionChoosen &&
-                                                optionChoosen.name === item.name
-                                                ? 'normal-btn-hover'
-                                                : '',
-                                        )}
-                                        key={index}
-                                        onClick={() => setOptionChoosen(item)}
-                                    >
-                                        {item.image}
-                                        {item.name}
-                                    </div>
+                                    item.isEnabled && (
+                                        <div
+                                            className={'target d-flex preferences-item '.concat(
+                                                ' ',
+                                                optionChoosen &&
+                                                    optionChoosen.name ===
+                                                        item.name
+                                                    ? 'normal-btn-hover'
+                                                    : '',
+                                            )}
+                                            key={index}
+                                            onClick={() =>
+                                                setOptionChoosen(item)
+                                            }
+                                        >
+                                            {item.image}
+                                            {item.name}
+                                        </div>
+                                    )
                                 );
                             })}
 
