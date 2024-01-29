@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-console */
 import { Envelop } from '@dm3-org/dm3-lib-messaging';
 import { createKeyValueStore } from './KeyValueStore';
@@ -37,20 +38,19 @@ function addConversationSideEffectContainment(
 ): (contactEnsName: string) => Promise<void> {
     return async (contactEnsName: string) => {
         const newConversationChunk = await addConversation(contactEnsName, db);
-        if (!newConversationChunk) {
-            //Do nothing
-            return;
-        }
+
+        //Add the conversation list to the local storage
         await db.keyValueStoreLocal.write(
             newConversationChunk.conversationList.key,
             newConversationChunk.conversationList,
         );
 
-        // The conversation counter needs to be updated in the account manifest
+        // Increment the conversation list counter in the account manifest and add it to the local storage
         await db.keyValueStoreLocal.write(
             newConversationChunk.accountManifest.key,
             newConversationChunk.accountManifest,
         );
+
         //The conversation manifest has to be added
         const conversationManifestKey = await getConversationManifestKey(
             db,
@@ -60,6 +60,26 @@ function addConversationSideEffectContainment(
             conversationManifestKey,
             INITIAL_CONVERSATION_MANIFEST(conversationManifestKey),
         );
+
+        //If there is remote storage, we have to add the conversation list and the account manifest to it
+        if (db.keyValueStoreRemote) {
+            //Add the conversation list to the remote storage
+            await db.keyValueStoreRemote.write(
+                newConversationChunk.conversationList.key,
+                newConversationChunk.conversationList,
+            );
+
+            // Increment the conversation list counter in the account manifest and add it to the remote storage
+            await db.keyValueStoreRemote.write(
+                newConversationChunk.accountManifest.key,
+                newConversationChunk.accountManifest,
+            );
+
+            await db.keyValueStoreLocal.write(
+                conversationManifestKey,
+                INITIAL_CONVERSATION_MANIFEST(conversationManifestKey),
+            );
+        }
     };
 }
 
@@ -90,10 +110,6 @@ function addMessageSideEffectContainment(
             envelop,
             db,
         );
-        if (!messageChunkContainer) {
-            //Do nothing
-            return;
-        }
 
         await db.keyValueStoreLocal.write(
             messageChunkContainer.messageChunk.key,
@@ -103,6 +119,18 @@ function addMessageSideEffectContainment(
             messageChunkContainer.conversationManifest.key,
             messageChunkContainer.conversationManifest,
         );
+
+        //If there is remote storage, we have to add the message chunk and the conversation manifest to it
+        if (db.keyValueStoreRemote) {
+            await db.keyValueStoreRemote.write(
+                messageChunkContainer.messageChunk.key,
+                messageChunkContainer.messageChunk,
+            );
+            await db.keyValueStoreRemote.write(
+                messageChunkContainer.conversationManifest.key,
+                messageChunkContainer.conversationManifest,
+            );
+        }
     };
 }
 
@@ -115,7 +143,7 @@ function addMessageSideEffectContainment(
  * @param {(data: string) => Promise<string>} sign - A function for signing data.
  * @param {object} options - Optional configuration options.
  * @param {ReadStrategy} options.readStrategy - The strategy to use for reading data.
- * @param {KeyValueStore} options.keyValueStoreRemote - A remote key-value store.
+ * @param {KeyValueStore} options.keyValueStoreRemote - A remote key-value store. Use ${createRemoteKeyValueStoreApi} to create an instnace
  * @param {Encryption} options.encryption - An encryption object.
  *
  * @returns {StorageAPI} An API with methods for getting and adding conversations and messages.
@@ -128,7 +156,6 @@ export function createStorage(
         readStrategy: ReadStrategy;
         keyValueStoreRemote: KeyValueStore;
         encryption: Encryption;
-        remoteStorageUrl: string;
     }>,
 ): StorageAPI {
     // If no Encryption object is provided, store the data as palintext
@@ -143,18 +170,19 @@ export function createStorage(
         keyValueStoreLocal,
         sign,
         // If we read from remote because a chunk is not available, we need to update local storage
-        updateLocalStorageOnRemoteRead: options?.keyValueStoreRemote
-            ? async <T extends Chunk>(key: string, value: T) => {
-                  await keyValueStoreLocal.write(key, value);
-              }
-            : async <T extends Chunk>(key: string, value: T) => {},
-        keyValueStoreRemote: options?.remoteStorageUrl
-            ? createRemoteKeyValueStoreApi(
-                  `${options.remoteStorageUrl}/${accountEnsName}`,
-                  encryption,
-              )
-            : undefined,
-        encryption,
+        updateLocalStorageOnRemoteRead: async <T extends Chunk>(
+            key: string,
+            value: T,
+        ) => {
+            //If there is no remote storage, we do not need to update local storage
+            if (!options?.keyValueStoreRemote) {
+                return;
+            }
+            //when we read from remote, we need to update local storage
+            await keyValueStoreLocal.write(key, value);
+        },
+
+        keyValueStoreRemote: options?.keyValueStoreRemote,
         ...options,
     };
 

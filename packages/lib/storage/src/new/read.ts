@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+import { logInfo } from '@dm3-org/dm3-lib-shared';
 import {
     getAccountManifestKey,
     getConversationListKey,
@@ -121,7 +121,7 @@ export async function getAccountManifest(db: Db): Promise<AccountManifest> {
     if (accountMainfest) {
         return accountMainfest;
     }
-    console.log('Initially creating account manifest');
+    logInfo('Initially creating account manifest');
     await db.keyValueStoreLocal.write(
         accountManifestKey,
         INITIAL_ACCOUNT_MANIFEST(accountManifestKey),

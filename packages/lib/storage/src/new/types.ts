@@ -40,7 +40,6 @@ export type Encryption = {
 export type Db = {
     accountEnsName: string;
     sign: (data: string) => Promise<string>;
-    encryption: Encryption;
     readStrategy: ReadStrategy;
     keyValueStoreLocal: KeyValueStore;
     keyValueStoreRemote?: KeyValueStore;

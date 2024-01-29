@@ -103,8 +103,4 @@ export const db: Db = {
     },
     sign,
     readStrategy: ReadStrategy.LocalFirst,
-    encryption: {
-        encrypt: async (data: string) => data,
-        decrypt: async (data: string) => data,
-    },
 };
