@@ -77,18 +77,17 @@ export const useStorage = (
                 profileKeys?.encryptionKeyPair?.publicKey!,
                 data,
             );
-            const preEncryptedPayload = stringify(encryptedPayload);
-            return preEncryptedPayload;
+            return stringify(encryptedPayload);
         };
         const decrypt = async (data: string) => {
             const payload: EncryptedPayload = JSON.parse(
                 data,
             ) as EncryptedPayload;
-            const decrypted = await decryptAsymmetric(
+
+            return await decryptAsymmetric(
                 profileKeys?.encryptionKeyPair!,
                 payload,
             );
-            return JSON.parse(decrypted) as string;
         };
 
         const s = await createStorage(account?.ensName!, signWithProfileKey, {

@@ -32,9 +32,6 @@ export function createRemoteKeyValueStoreApi(
             const encryptedPayload = await encryption.encrypt(stringify(value));
             const url = `${STORAGE_PATH}/${normalizeEnsName(ensName)}/${key}`;
 
-            // eslint-disable-next-line no-console
-            console.log('WRITE REMOTEE KEY', encryptedPayload);
-
             const {} = await getDeliveryServiceClient(
                 profile,
                 provider,
@@ -61,8 +58,9 @@ export function createRemoteKeyValueStoreApi(
                     'Content-Type': 'application/json',
                 },
             });
-
-            return data ? ((await encryption.decrypt(data)) as any) : undefined;
+            return data
+                ? (JSON.parse(await encryption.decrypt(data.toString())) as T)
+                : undefined;
         },
     };
 }

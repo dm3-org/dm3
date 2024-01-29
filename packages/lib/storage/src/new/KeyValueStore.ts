@@ -23,13 +23,9 @@ export function createKeyValueStore(encryption: Encryption): KeyValueStore {
 
         read: async <T extends Chunk>(key: string) => {
             const result = await trie.get(Buffer.from(key));
-            if (!result) {
-                return undefined;
-            }
-            const decrypted = await encryption.decrypt(
-                result?.toString() ?? '',
-            );
-            return decrypted as any;
+            return result
+                ? (JSON.parse(await encryption.decrypt(result.toString())) as T)
+                : undefined;
         },
     };
 }
