@@ -13,13 +13,14 @@ import {
     Chunk,
     Db,
     Encryption,
+    INITIAL_CONVERSATION_MANIFEST,
     KeyValueStore,
     ReadStrategy,
     StorageAPI,
 } from './types';
 import { addConversation, addMessage } from './write';
 import { createRemoteKeyValueStoreApi } from './RemoteInterface';
-import { getAccountManifestKey } from './keys';
+import { getAccountManifestKey, getConversationManifestKey } from './keys';
 
 /**
  * This function creates a closure that, when invoked, adds a new conversation
@@ -35,18 +36,29 @@ function addConversationSideEffectContainment(
 ): (contactEnsName: string) => Promise<void> {
     return async (contactEnsName: string) => {
         const newConversationChunk = await addConversation(contactEnsName, db);
-        if (newConversationChunk) {
-            await db.keyValueStoreLocal.write(
-                newConversationChunk.conversationList.key,
-                newConversationChunk.conversationList,
-            );
-
-            // The conversation counter needs to be updated in the account manifest
-            await db.keyValueStoreLocal.write(
-                newConversationChunk.accountManifest.key,
-                newConversationChunk.accountManifest,
-            );
+        if (!newConversationChunk) {
+            //Do nothing
+            return;
         }
+        await db.keyValueStoreLocal.write(
+            newConversationChunk.conversationList.key,
+            newConversationChunk.conversationList,
+        );
+
+        // The conversation counter needs to be updated in the account manifest
+        await db.keyValueStoreLocal.write(
+            newConversationChunk.accountManifest.key,
+            newConversationChunk.accountManifest,
+        );
+        //The conversation manifest has to be added
+        const conversationManifestKey = await getConversationManifestKey(
+            db,
+            contactEnsName,
+        );
+        await db.keyValueStoreLocal.write(
+            conversationManifestKey,
+            INITIAL_CONVERSATION_MANIFEST(conversationManifestKey),
+        );
     };
 }
 
@@ -68,16 +80,19 @@ function addMessageSideEffectContainment(
             envelop,
             db,
         );
-        if (messageChunkContainer) {
-            await db.keyValueStoreLocal.write(
-                messageChunkContainer.messageChunk.key,
-                messageChunkContainer.messageChunk,
-            );
-            await db.keyValueStoreLocal.write(
-                messageChunkContainer.conversationManifest.key,
-                messageChunkContainer.conversationManifest,
-            );
+        if (!messageChunkContainer) {
+            //Do nothing
+            return;
         }
+
+        await db.keyValueStoreLocal.write(
+            messageChunkContainer.messageChunk.key,
+            messageChunkContainer.messageChunk,
+        );
+        await db.keyValueStoreLocal.write(
+            messageChunkContainer.conversationManifest.key,
+            messageChunkContainer.conversationManifest,
+        );
     };
 }
 

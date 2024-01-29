@@ -1,5 +1,16 @@
 import { Envelop } from '@dm3-org/dm3-lib-messaging';
 
+export const INITIAL_ACCOUNT_MANIFEST = (key: string): AccountManifest => ({
+    conversationListCounter: 0,
+    key,
+});
+export const INITIAL_CONVERSATION_MANIFEST = (
+    key: string,
+): ConversationManifest => ({
+    messageCounter: 0,
+    key,
+});
+
 export interface StorageAPI {
     getMessages: (
         contactEnsName: string,
