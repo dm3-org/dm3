@@ -7,6 +7,7 @@ import {
     getConversationListChunk,
     getNumberOfConverations,
     getAccountManifest,
+    getConversationManifest,
 } from './read';
 import {
     AccountManifest,
@@ -75,6 +76,15 @@ function addMessageSideEffectContainment(
     db: Db,
 ): (contactEnsName: string, envelop: Envelop) => Promise<void> {
     return async (contactEnsName: string, envelop: Envelop) => {
+        //First we have to get the conversation manifest
+        const conversationManifest = await getConversationManifest(
+            contactEnsName,
+            db,
+        );
+        if (!conversationManifest) {
+            //The conversation manifest does not exist, so we have to create it
+            await addConversationSideEffectContainment(db)(contactEnsName);
+        }
         const messageChunkContainer = await addMessage(
             contactEnsName,
             envelop,
@@ -149,14 +159,26 @@ export function createStorage(
     };
 
     return {
-        getMessages: (contactEnsName: string, page: number) =>
-            getMessageChunk(db, contactEnsName, page),
+        getMessages: async (contactEnsName: string, page: number) => {
+            const chunk = await getMessageChunk(db, contactEnsName, page);
+            // If the chunk is not available, return an empty array
+            if (!chunk) {
+                return [];
+            }
+            return chunk.envelops;
+        },
 
         getNumberOfMessages: (contactEnsName: string) =>
             getNumberOfMessages(contactEnsName, db),
 
-        getConversationList: (page: number) =>
-            getConversationListChunk(db, page),
+        getConversationList: async (page: number) => {
+            const chunk = await getConversationListChunk(db, page);
+            // If the chunk is not available, return an empty array
+            if (!chunk) {
+                return [];
+            }
+            return chunk.conversationList;
+        },
 
         getNumberOfConverations: () => getNumberOfConverations(db),
 

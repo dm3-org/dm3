@@ -49,7 +49,7 @@ describe('createStorage Integration Tests', () => {
         });
     });
 
-    describe('Local first ', () => {
+    describe('Local first', () => {
         it('addConversation - increase the conversation counter', async () => {
             await storageApi.addConversation('bob.eth');
             const count = await storageApi.getNumberOfConverations();
@@ -59,8 +59,8 @@ describe('createStorage Integration Tests', () => {
             await storageApi.addConversation('bob.eth');
             const list = await storageApi.getConversationList(0);
 
-            expect(list?.conversationList.length).toBe(1);
-            expect(list?.conversationList[0]).toBe('bob.eth');
+            expect(list.length).toBe(1);
+            expect(list[0]).toBe('bob.eth');
         });
         it('add new message - stores new message', async () => {
             await storageApi.addConversation('bob.eth');
@@ -72,8 +72,8 @@ describe('createStorage Integration Tests', () => {
             );
             await storageApi.addMessage('bob.eth', envelop);
             const messageChunk = await storageApi.getMessages('bob.eth', 0);
-            expect(messageChunk?.envelops.length).toBe(1);
-            expect(messageChunk?.envelops[0]).toEqual(envelop);
+            expect(messageChunk.length).toBe(1);
+            expect(messageChunk[0]).toEqual(envelop);
         });
         it('add new message - updates number of messages', async () => {
             await storageApi.addConversation('bob.eth');
@@ -101,11 +101,50 @@ describe('createStorage Integration Tests', () => {
             expect(messageCounter).toBe(3);
 
             const messages = await storageApi.getMessages('bob.eth', 0);
-            expect(messages?.envelops.length).toBe(3);
+            expect(messages.length).toBe(3);
 
-            expect(messages?.envelops[0]).toEqual(envelop);
-            expect(messages?.envelops[1]).toEqual(envelop);
-            expect(messages?.envelops[2]).toEqual(envelop);
+            expect(messages[0]).toEqual(envelop);
+            expect(messages[1]).toEqual(envelop);
+            expect(messages[2]).toEqual(envelop);
+        });
+        it('getMessages -- return [] if no converation exists', async () => {
+            const messages = await storageApi.getMessages('bob.eth', 0);
+            expect(messages.length).toBe(0);
+        });
+        it('getNumberOfMessages -- return 0 if no converation exists', async () => {
+            const count = await storageApi.getNumberOfMessages('bob.eth');
+            expect(count).toBe(0);
+        });
+
+        it('getConversationList -- return [] if no converation exists', async () => {
+            const list = await storageApi.getConversationList(0);
+            expect(list!.length).toBe(0);
+            expect(list).toEqual([]);
+        });
+        it('getNumberOfConversations -- return 0 if no converation exists', async () => {
+            const count = await storageApi.getNumberOfConverations();
+            expect(count).toBe(0);
+        });
+        it('getNumberOfConversations -- return 0 if no converation exists', async () => {
+            const count = await storageApi.getNumberOfConverations();
+            expect(count).toBe(0);
+        });
+        it('add Message -- adds conversation if it has not been added before', async () => {
+            const envelop = makeEnvelop(
+                'alice.eth',
+                'bob.eth',
+                'Hello Bob',
+                1706084571962,
+            );
+            await storageApi.addMessage('bob.eth', envelop);
+
+            const conversations = await storageApi.getConversationList(0);
+            expect(conversations.length).toBe(1);
+            expect(conversations[0]).toBe('bob.eth');
+
+            const getMessages = await storageApi.getMessages('bob.eth', 0);
+            expect(getMessages.length).toBe(1);
+            expect(getMessages[0]).toEqual(envelop);
         });
     });
 

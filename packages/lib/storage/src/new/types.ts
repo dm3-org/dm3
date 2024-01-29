@@ -12,15 +12,10 @@ export const INITIAL_CONVERSATION_MANIFEST = (
 });
 
 export interface StorageAPI {
-    getMessages: (
-        contactEnsName: string,
-        page: number,
-    ) => Promise<MessageChunk | undefined>;
+    getMessages: (contactEnsName: string, page: number) => Promise<Envelop[]>;
+    getConversationList: (page: number) => Promise<string[]>;
     getNumberOfMessages: (contactEnsName: string) => Promise<number>;
     getNumberOfConverations: () => Promise<number>;
-    getConversationList: (
-        page: number,
-    ) => Promise<ConversationList | undefined>;
     addConversation: (contactEnsName: string) => Promise<void>;
     addMessage: (contactEnsName: string, envelop: Envelop) => Promise<void>;
 }

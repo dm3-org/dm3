@@ -68,9 +68,9 @@ export async function getNumberOfMessages(
         conversationManifestKey,
         db,
     );
-
+    //Conversation has not been created yet, hence we return 0
     if (!conversationManifest) {
-        throw Error(`Conversation manifest not found`);
+        return 0;
     }
 
     return conversationManifest.messageCounter;
@@ -87,7 +87,7 @@ export async function getNumberOfMessages(
 export async function getConversationManifest(
     contactEnsName: string,
     db: Db,
-): Promise<ConversationManifest> {
+): Promise<ConversationManifest | undefined> {
     const conversationManifestKey = await getConversationManifestKey(
         db,
         contactEnsName,
@@ -98,7 +98,7 @@ export async function getConversationManifest(
     );
 
     if (!conversationManifest) {
-        throw Error(`Conversation manifest not found`);
+        return undefined;
     }
 
     return conversationManifest;

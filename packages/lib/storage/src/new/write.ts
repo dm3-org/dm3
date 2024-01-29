@@ -100,6 +100,12 @@ export async function addMessage(
         db,
     );
 
+    if (!conversationManifest) {
+        //We have to create the convesation manifest first brefore we can add the message
+        //This should have done before calling addMessage
+        throw Error(`Conversation manifest does not exist`);
+    }
+
     const targetChunkIndex = Math.floor(
         conversationManifest.messageCounter / MAX_CONVERATION_ENTRIES_PER_CHUNK,
     );
