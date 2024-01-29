@@ -1,12 +1,11 @@
 .preferences-modal-content {
     margin: auto;
     border: none;
-    top: 5%;
-    bottom: 5%;
     position: relative;
-    width: 90%;
-    height: 100% !important;
-    padding: 0rem;
+    width: 80%;
+    height: 95%;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .preferences-close-icon {
@@ -34,7 +33,7 @@
 
 .preferences-item {
     cursor: pointer;
-    padding: 0.5rem 2rem 0.5rem 2rem;
+    padding: 0.5rem 1.3rem 0.5rem 1.3rem;
 }
 
 .preferences-aside-content {
