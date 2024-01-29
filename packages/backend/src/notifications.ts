@@ -1,9 +1,9 @@
 // Importing the necessary modules and functions
 import cors from 'cors';
-import { NotificationChannelType } from '@dm3-org/dm3-lib-delivery';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import express from 'express';
 import { auth } from './utils';
+import { validateNotificationChannel } from './validation/notification/notificationChannelValidation';
 
 // Exporting a function that returns an Express router
 export default () => {
@@ -60,21 +60,41 @@ export default () => {
         }
     });
 
-    // Defining a route to handle POST requests for adding an email notification channel
-    router.post('/email/:ensName', async (req, res, next) => {
+    // Defining a route to handle POST requests for adding an notification channel
+    router.post('/:ensName', async (req, res, next) => {
         try {
             const account = normalizeEnsName(req.params.ensName);
 
-            // Extracting recipientAddress from the request body
-            const { recipientAddress } = req.body;
+            // Extracting recipientValue & notificationChannelType from the request body
+            const { recipientValue, notificationChannelType } = req.body;
+
+            // Validate req.body data
+            const { isValid, errorMessage } = validateNotificationChannel(
+                notificationChannelType,
+                recipientValue,
+            );
+
+            // Return if invalid data found
+            if (!isValid) {
+                res.sendStatus(400).json({
+                    error: errorMessage,
+                });
+            }
+
+            // Fetch global notification data of user from database
+            const globalNotification =
+                await req.app.locals.db.getGlobalNotification(account);
+
+            // Throw error if global notification is turned off
+            if (!globalNotification.isEnabled) {
+                throw new Error('Global notifications is off');
+            }
 
             // Adding a user's notification channel to the database
             await req.app.locals.db.addUsersNotificationChannel(account, {
-                type: NotificationChannelType.EMAIL,
+                type: notificationChannelType,
                 config: {
-                    // TODO: This endpoint will be modified as generic,
-                    // not specific to email ID
-                    recipientValue: recipientAddress,
+                    recipientValue: recipientValue,
                 },
             });
 
@@ -91,12 +111,21 @@ export default () => {
         try {
             const account = normalizeEnsName(req.params.ensName);
 
+            // Fetch global notification data of user from database
+            const globalNotification =
+                await req.app.locals.db.getGlobalNotification(account);
+
+            // Throw error if global notification is turned off
+            if (!globalNotification.isEnabled) {
+                throw new Error('Global notifications is off');
+            }
+
             // Getting notification channels for a user from the database
             const notificationChannels =
                 await req.app.locals.db.getUsersNotificationChannels(account);
 
             // Sending the fetched notification channels as a JSON response
-            res.json(notificationChannels);
+            res.json({ notificationChannels });
         } catch (e) {
             // Passing the error to the next middleware
             next(e);

@@ -65,8 +65,15 @@ describe('Notifications', () => {
             expect(status).toBe(200);
             expect(body).toEqual([]);
         });
+
+        // when global notification disabled error
+        // when global notification enabled return [data]
     });
 
+    // set email
+    // invalid email
+    // invalid notification channel type
+    // when notification is turned off
     describe('setUserStorage', () => {
         it('User can setup email notifications', async () => {
             const app = express();
