@@ -2,16 +2,15 @@
 /* eslint-disable no-console */
 import { Envelop } from '@dm3-org/dm3-lib-messaging';
 import { createKeyValueStore } from './KeyValueStore';
+import { getConversationManifestKey } from './keys';
 import {
-    getMessageChunk,
-    getNumberOfMessages,
     getConversationListChunk,
-    getNumberOfConverations,
-    getAccountManifest,
     getConversationManifest,
+    getMessageChunk,
+    getNumberOfConverations,
+    getNumberOfMessages,
 } from './read';
 import {
-    AccountManifest,
     Chunk,
     Db,
     Encryption,
@@ -21,8 +20,6 @@ import {
     StorageAPI,
 } from './types';
 import { addConversation, addMessage } from './write';
-import { createRemoteKeyValueStoreApi } from './RemoteInterface';
-import { getAccountManifestKey, getConversationManifestKey } from './keys';
 
 /**
  * This function creates a closure that, when invoked, adds a new conversation

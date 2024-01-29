@@ -8,6 +8,7 @@ import {
     createTimestamp,
     sync as getAcknoledgements,
     createStorage,
+    createRemoteKeyValueStoreApi,
 } from '@dm3-org/dm3-lib-storage';
 import {
     syncAcknoledgment,
@@ -76,44 +77,18 @@ export const useStorage = (
                 profileKeys?.encryptionKeyPair?.publicKey!,
                 data,
             );
-            return JSON.stringify(encryptedPayload);
+            const preEncryptedPayload = stringify(encryptedPayload);
+            return preEncryptedPayload;
         };
         const decrypt = async (data: string) => {
             const payload: EncryptedPayload = JSON.parse(
                 data,
             ) as EncryptedPayload;
-            return await decryptAsymmetric(
+            const decrypted = await decryptAsymmetric(
                 profileKeys?.encryptionKeyPair!,
                 payload,
             );
-        };
-
-        const writeToRemoteStorage = async <T extends Chunk>(
-            key: string,
-            value: T,
-        ) => {
-            console.log('writeToRemoteStorage', key, value);
-            const valueStringified = stringify(value);
-            await setStorageChunk(
-                account!,
-                mainnetProvider,
-                key,
-                valueStringified,
-                deliveryServiceToken!,
-            );
-        };
-        const readFromRemoteStorage = async <T extends Chunk>(
-            data: string,
-        ): Promise<T | undefined> => {
-            console.log('readFromRemoteStorage', data);
-            const chunk = await getStorageChunk(
-                account!,
-                mainnetProvider,
-                data,
-                deliveryServiceToken!,
-            );
-            if (!chunk) return undefined;
-            return JSON.parse(chunk) as T;
+            return JSON.parse(decrypted) as string;
         };
 
         const s = await createStorage(account?.ensName!, signWithProfileKey, {
@@ -121,15 +96,22 @@ export const useStorage = (
                 encrypt: encrypt,
                 decrypt: decrypt,
             },
-            keyValueStoreRemote: {
-                write: writeToRemoteStorage,
-                read: readFromRemoteStorage,
-            },
+            keyValueStoreRemote: createRemoteKeyValueStoreApi(
+                account!,
+                mainnetProvider!,
+                deliveryServiceToken!,
+                {
+                    encrypt,
+                    decrypt,
+                },
+            ),
         });
 
         setStorageApi(s);
         const count = await s!.getNumberOfConverations();
         console.log('number of conversations', count);
+        const messages = await s!.getMessages('help.dm3.eth', 0);
+        console.log('messages', messages);
     };
 
     const storeMessage = async (message: any) => {
@@ -150,38 +132,12 @@ export const useStorage = (
         console.log('start adding conversation');
         await storageApi!.addConversation('help.dm3.eth');
 
-        /*    console.log('adding conversation done')
-   
-           await storageApi!.addMessage('help.dm3.eth', {
-               message: msg,
-   
-           }
-           console.log('storeMessage done'); */
-    };
+        console.log('adding conversation done');
 
-    const _sync = async () => {
-        if (!deliveryServiceToken || !userDb || !account) {
-            log('[sync] not logged in yet', 'info');
-            return;
-        }
-
-        const syncTime = createTimestamp();
-        //Write current storage object to the delivery service
-        //Acknowledgements the delivery service that the storage has been written are beeing returned
-        const { acknoledgments } = await getAcknoledgements(
-            userDb,
-            deliveryServiceToken,
-        );
-        syncAcknoledgment(
-            mainnetProvider,
-            account,
-            acknoledgments,
-            deliveryServiceToken,
-            lastMessagePull,
-        );
-
-        //Sync has been completed
-        setSyncProcessState(SyncProcessState.Idle);
+        await storageApi!.addMessage('help.dm3.eth', {
+            message: msg,
+        });
+        console.log('storeMessage done');
     };
 
     return {
