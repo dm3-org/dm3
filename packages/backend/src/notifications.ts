@@ -87,19 +87,21 @@ export default () => {
 
             // Throw error if global notification is turned off
             if (!globalNotification.isEnabled) {
-                throw new Error('Global notifications is off');
+                res.sendStatus(400).json({
+                    error: 'Global notifications is off',
+                });
+            } else {
+                // Adding a user's notification channel to the database
+                await req.app.locals.db.addUsersNotificationChannel(account, {
+                    type: notificationChannelType,
+                    config: {
+                        recipientValue: recipientValue,
+                    },
+                });
+
+                // Sending a success response
+                res.sendStatus(200);
             }
-
-            // Adding a user's notification channel to the database
-            await req.app.locals.db.addUsersNotificationChannel(account, {
-                type: notificationChannelType,
-                config: {
-                    recipientValue: recipientValue,
-                },
-            });
-
-            // Sending a success response
-            res.sendStatus(200);
         } catch (e) {
             // Passing the error to the next middleware
             next(e);
@@ -115,17 +117,19 @@ export default () => {
             const globalNotification =
                 await req.app.locals.db.getGlobalNotification(account);
 
-            // Throw error if global notification is turned off
+            // if global notification is turned off
             if (!globalNotification.isEnabled) {
-                throw new Error('Global notifications is off');
+                res.status(200).json({ notificationChannels: [] });
+            } else {
+                // Getting notification channels for a user from the database
+                const notificationChannels =
+                    await req.app.locals.db.getUsersNotificationChannels(
+                        account,
+                    );
+
+                // Sending the fetched notification channels as a JSON response
+                res.status(200).json({ notificationChannels });
             }
-
-            // Getting notification channels for a user from the database
-            const notificationChannels =
-                await req.app.locals.db.getUsersNotificationChannels(account);
-
-            // Sending the fetched notification channels as a JSON response
-            res.json({ notificationChannels });
         } catch (e) {
             // Passing the error to the next middleware
             next(e);
