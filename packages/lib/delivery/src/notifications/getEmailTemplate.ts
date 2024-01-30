@@ -7,10 +7,16 @@ import {
 import { OTP_EMAIL_SUBJECT, OTP_EMAIL_TEMPLATE } from './templates/otp';
 import { generateOtp } from './generateOtp';
 
+// LENGTH of OTP. Ex: 5 digits
+const OTP_LENGTH = 5;
+
+// OTP expiration time in seconds
+const OTP_EXPIRY_DURATION = 600; // 10 minutes
+
 // to fetch subject & template of email based on notification type
 export const fetchEmailSubjectAndTemplate = (
     notificationType: NotificationType,
-    deliveryInformation: DeliveryInformation,
+    deliveryInformation?: DeliveryInformation,
 ): {
     subject: string;
     template: string;
@@ -19,16 +25,30 @@ export const fetchEmailSubjectAndTemplate = (
         case NotificationType.NEW_MESSAGE:
             return {
                 subject: NEW_MSG_EMAIL_SUBJECT,
-                template: NEW_MSG_EMAIL_TEMPLATE(deliveryInformation),
+                template: NEW_MSG_EMAIL_TEMPLATE(
+                    deliveryInformation as DeliveryInformation,
+                ),
             };
         case NotificationType.OTP:
+            // generate otp and save in DB & return OTP
             return {
                 subject: OTP_EMAIL_SUBJECT,
-                template: OTP_EMAIL_TEMPLATE(generateOtp()),
+                template: OTP_EMAIL_TEMPLATE(
+                    generateOtp(OTP_LENGTH),
+                    getEmailDate(),
+                    OTP_EXPIRY_DURATION / 60, // time in minutes
+                ),
             };
         default:
             throw new Error(
                 `Notification type ${notificationType} is not supported`,
             );
     }
+};
+
+// generate date in format : Jan 30, 2024
+const getEmailDate = () => {
+    const options: object = { year: 'numeric', month: 'short', day: 'numeric' };
+    const today = new Date();
+    return today.toLocaleDateString('en-US', options);
 };

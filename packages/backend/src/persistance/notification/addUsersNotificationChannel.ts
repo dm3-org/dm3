@@ -52,5 +52,8 @@ export function addUsersNotificationChannel(redis: Redis) {
                 (await getIdEnsName(redis)(ensName)),
             stringify(newNotificationChannels),
         );
+
+        // send otp
+        // account
     };
 }

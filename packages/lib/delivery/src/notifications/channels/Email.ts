@@ -23,7 +23,7 @@ type UserEmailConfig = {
 export function Email(config: EmailNotificationServerConfig) {
     const send = async (
         mailConfig: UserEmailConfig,
-        deliveryInformation: DeliveryInformation,
+        deliveryInformation?: DeliveryInformation,
     ) => {
         try {
             // create transport with email credentials
