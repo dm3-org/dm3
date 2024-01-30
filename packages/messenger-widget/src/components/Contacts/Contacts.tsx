@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { globalConfig } from '@dm3-org/dm3-lib-shared';
 import { useContext, useEffect, useState } from 'react';
 import loader from '../../assets/images/loader.svg';
@@ -31,26 +32,23 @@ import {
     updateSelectedContact,
     updateUnreadMsgCount,
 } from './bl';
+import { ConversationContext } from '../../context/ConversationContext';
+import { initialState } from '../../contexts/Shared';
 
 export function Contacts(props: DashboardProps) {
     // fetches context api data
     const { state, dispatch } = useContext(GlobalContext);
     const { account, deliveryServiceToken } = useContext(AuthContext);
+    const { contacts: contacts, initialized } = useContext(ConversationContext);
     const mainnetProvider = useMainnetProvider();
     const { resolveAliasToTLD } = useTopLevelAlias();
 
     // local states to handle contact list and active contact
     const [contactSelected, setContactSelected] = useState<number | null>(null);
-    const [contacts, setContacts] = useState<ContactPreview[]>([]);
 
     const [isMenuAlignedAtBottom, setIsMenuAlignedAtBottom] = useState<
         boolean | null
     >(null);
-
-    // sets contact list to show on UI
-    const setListOfContacts = (list: ContactPreview[]) => {
-        setContacts(list);
-    };
 
     // sets contact selected from the list
     const setContactFromList = (index: number | null) => {
@@ -69,43 +67,17 @@ export function Contacts(props: DashboardProps) {
 
     // handles any change in socket or session
     useEffect(() => {
-        if (
-            !state.accounts.contacts &&
-            deliveryServiceToken &&
-            state.connection.socket
-        ) {
-            // start loader
+        if (!initialized) {
             dispatch({
                 type: ModalStateType.LoaderContent,
                 payload: 'Fetching contacts...',
             });
-            startLoader();
-            props.getContacts(
-                mainnetProvider,
-                account!,
-                deliveryServiceToken,
-                state,
-                dispatch,
-                props.dm3Props.config,
-            );
-            setContactList(state, mainnetProvider, dispatch, setListOfContacts);
+            console.log('start loader');
+            return startLoader();
         }
-    }, [deliveryServiceToken, state.connection.socket]);
 
-    // handles changes in conversation
-    useEffect(() => {
-        fetchAndUpdateUnreadMsgCount(state, dispatch);
-        if (state.userDb?.conversations && state.userDb?.conversationsCount) {
-            props.getContacts(
-                mainnetProvider,
-                account!,
-                deliveryServiceToken!,
-                state,
-                dispatch,
-                props.dm3Props.config,
-            );
-        }
-    }, [state.userDb?.conversations, state.userDb?.conversationsCount]);
+        closeLoader();
+    }, [initialized]);
 
     // handles change in accounts
     useEffect(() => {
@@ -114,72 +86,30 @@ export function Contacts(props: DashboardProps) {
             (state.uiView.selectedRightView === RightViewSelected.Chat ||
                 state.uiView.selectedRightView === RightViewSelected.Default)
         ) {
-            setContactList(state, mainnetProvider, dispatch, setListOfContacts);
         }
 
         if (
             state.modal.addConversation.active &&
             state.modal.addConversation.processed
         ) {
+            //TODO check what is this
             updateContactOnAccountChange(
                 state,
                 mainnetProvider,
                 dispatch,
                 contacts,
-                setListOfContacts,
+                () => {},
                 setContactFromList,
             );
         }
 
         // new contact is detected from web socket
-        if (
-            state.accounts.contacts &&
-            state.cache.contacts &&
-            state.cache.contacts.length !== state.accounts.contacts.length
-        ) {
-            addNewConversationFound(
-                state,
-                mainnetProvider,
-                dispatch,
-                setListOfContacts,
-            );
-        }
+        //TODO add websocket listener for add conversation
     }, [state.accounts.contacts]);
 
     // handles contact selected
     useEffect(() => {
-        const cacheContacts = state.cache.contacts;
-        if (cacheContacts) {
-            setContacts(cacheContacts);
-            if (
-                state.modal.addConversation.active &&
-                !state.modal.addConversation.processed
-            ) {
-                updateSelectedContact(state, dispatch, setContactFromList);
-            } else if (
-                state.modal.addConversation.active &&
-                state.modal.addConversation.processed
-            ) {
-                updateContactOnAccountChange(
-                    state,
-                    mainnetProvider,
-                    dispatch,
-                    contacts,
-                    setListOfContacts,
-                    setContactFromList,
-                );
-            } else if (state.accounts.selectedContact) {
-                setContactSelected(
-                    setContactIndexSelectedFromCache(
-                        state,
-                        dispatch,
-                        cacheContacts,
-                    ),
-                );
-            } else if (state.modal.contactToHide) {
-                resetContactListOnHide(state, dispatch, setListOfContacts);
-            }
-        }
+        //TODO add click handler to select contact
     }, [state.accounts.selectedContact]);
 
     // handles active contact removal
@@ -193,59 +123,6 @@ export function Contacts(props: DashboardProps) {
         }
     }, [state.uiView.selectedRightView]);
 
-    // handles loader closing
-    useEffect(() => {
-        if (contacts.length) {
-            closeLoader();
-        }
-    }, [contacts]);
-
-    // updates the last message in contact list
-    useEffect(() => {
-        if (
-            state.cache.lastConversation.account &&
-            state.cache.lastConversation.message &&
-            state.cache.contacts &&
-            contactSelected
-        ) {
-            const items = [...state.cache.contacts];
-            const item = {
-                ...items[contactSelected],
-                message: state.cache.lastConversation.message,
-            };
-            items[contactSelected] = item;
-            dispatch({
-                type: CacheType.Contacts,
-                payload: items,
-            });
-            setContacts(items);
-        }
-    }, [state.cache.lastConversation]);
-
-    // fetched contacts from the cache
-    useEffect(() => {
-        const cacheContacts = state.cache.contacts;
-        if (cacheContacts && !contacts) {
-            setContacts(cacheContacts);
-            if (state.accounts.selectedContact) {
-                setContactSelected(
-                    setContactIndexSelectedFromCache(
-                        state,
-                        dispatch,
-                        cacheContacts,
-                    ),
-                );
-            }
-        } else if (
-            state.modal.addConversation.active &&
-            !state.modal.addConversation.processed &&
-            state.cache.contacts
-        ) {
-            setContacts(state.cache.contacts);
-            updateContactDetailsOfNewContact(state, dispatch, mainnetProvider);
-        }
-    }, [state.cache.contacts]);
-
     // handles UI view on contact select
     useEffect(() => {
         if (contactSelected !== null) {
@@ -255,7 +132,7 @@ export function Contacts(props: DashboardProps) {
                 contacts[contactSelected].contactDetails,
             );
             setIsMenuAlignedAtBottom(showMenuInBottom(contactSelected));
-            updateUnreadMsgCount(state, dispatch, contactSelected);
+            //  updateUnreadMsgCount(state, dispatch, contactSelected);
         }
     }, [contactSelected]);
 
@@ -284,7 +161,6 @@ export function Contacts(props: DashboardProps) {
             !state.modal.addConversation.processed &&
             state.cache.contacts
         ) {
-            setContacts(state.cache.contacts);
             updateSelectedContact(state, dispatch, setContactFromList);
         }
     }, [contacts]);

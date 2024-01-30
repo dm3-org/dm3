@@ -6,7 +6,7 @@ import { Dm3Props } from '../../interfaces/config';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import { getDeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
-import { getContacts, handleNewMessage, showSignIn } from './bl';
+import { handleNewMessage, showSignIn } from './bl';
 import {
     ConnectionState,
     ConnectionType,
@@ -17,17 +17,23 @@ import Dashboard from '../../views/Dashboard/Dashboard';
 import Storage from '../../components/Storage/Storage';
 import { AuthContext } from '../../context/AuthContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
+import { ConversationContext } from '../../context/ConversationContext';
 
 function DM3(props: Dm3Props) {
     // fetches context storage
     const { state, dispatch } = useContext(GlobalContext);
     const mainnetProvider = useMainnetProvider();
+    const { contacts } = useContext(ConversationContext);
 
     const { isLoggedIn, account, deliveryServiceToken } =
         useContext(AuthContext);
 
     // handle delivery service url of the account
     const [deliveryServiceUrl, setdeliveryServiceUrl] = useState('');
+
+    useEffect(() => {
+        console.log('conversations', contacts);
+    }, [contacts]);
 
     // handles changes of state on connection to the account
     useEffect(() => {
@@ -102,14 +108,14 @@ function DM3(props: Dm3Props) {
                 handleNewMessage(account, envelop, state, dispatch);
             });
             socket.on('joined', () => {
-                getContacts(
-                    mainnetProvider,
-                    account,
-                    deliveryServiceToken!,
-                    state,
-                    dispatch,
-                    props.config,
-                );
+                /*       getContacts(
+                          mainnetProvider,
+                          account,
+                          deliveryServiceToken!,
+                          state,
+                          dispatch,
+                          props.config,
+                      ); */
             });
             dispatch({ type: ConnectionType.ChangeSocket, payload: socket });
         }
@@ -128,14 +134,14 @@ function DM3(props: Dm3Props) {
             );
 
             state.connection.socket.on('joined', () => {
-                getContacts(
-                    mainnetProvider,
-                    account!,
-                    deliveryServiceToken!,
-                    state,
-                    dispatch,
-                    props.config,
-                );
+                /*         getContacts(
+                            mainnetProvider,
+                            account!,
+                            deliveryServiceToken!,
+                            state,
+                            dispatch,
+                            props.config,
+                        ); */
             });
         }
     }, [state.connection.socket, state.userDb?.conversations]);
@@ -160,7 +166,7 @@ function DM3(props: Dm3Props) {
                 />
             ) : (
                 <div className="h-100 background-container">
-                    <Dashboard getContacts={getContacts} dm3Props={props} />
+                    <Dashboard dm3Props={props} />
                 </div>
             )}
         </div>

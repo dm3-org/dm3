@@ -32,9 +32,6 @@ export function SendMessage(props: MessageDataProps) {
                 'LzwsANn9OcBO2m0tg/iQvgJi28ILJeEONG+gXiw9PWsNV/IavpIMBshb+fbgxaOn9rwDbjn9UMGtczQLJZQ7Bw==',
         };
 
-        await storeMessage('help.dm3.eth', {
-            message: xxx,
-        });
         handleSubmit(
             deliveryServiceToken!,
             msg,

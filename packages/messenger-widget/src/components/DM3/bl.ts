@@ -6,7 +6,6 @@ import {
 } from '@dm3-org/dm3-lib-messaging';
 import { log } from '@dm3-org/dm3-lib-shared';
 import { UserDB } from '@dm3-org/dm3-lib-storage';
-import { requestContacts } from '../../adapters/contacts';
 import { Connection } from '../../interfaces/web3';
 import {
     Actions,
@@ -39,31 +38,31 @@ export function connectionPhase(connectionState: ConnectionState): boolean {
 }
 
 // method to fetch entire contact list of connected account
-export const getContacts = (
-    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
-    account: Account,
-    dsToken: string,
-    state: GlobalState,
-    dispatch: React.Dispatch<Actions>,
-    config: Config,
-) => {
-    if (!state.userDb) {
-        throw Error(
-            `[getContacts] Couldn't handle new messages. User db not created.`,
-        );
-    }
+// export const getContacts = (
+//     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
+//     account: Account,
+//     dsToken: string,
+//     state: GlobalState,
+//     dispatch: React.Dispatch<Actions>,
+//     config: Config,
+// ) => {
+//     if (!state.userDb) {
+//         throw Error(
+//             `[getContacts] Couldn't handle new messages. User db not created.`,
+//         );
+//     }
 
-    log('[getContacts]', 'info');
+//     log('[getContacts]', 'info');
 
-    return requestContacts(
-        mainnetProvider,
-        account,
-        dsToken,
-        state,
-        dispatch,
-        config,
-    );
-};
+//     return requestContacts(
+//         mainnetProvider,
+//         account,
+//         dsToken,
+//         state,
+//         dispatch,
+//         config,
+//     );
+// };
 
 // method to handle new messages received
 export const handleNewMessage = async (

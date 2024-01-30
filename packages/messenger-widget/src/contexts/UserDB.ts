@@ -1,3 +1,6 @@
+import { getId } from '@dm3-org/dm3-lib-messaging';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { log } from '@dm3-org/dm3-lib-shared';
 import {
     StorageEnvelopContainer,
     UserDB,
@@ -5,14 +8,7 @@ import {
     getConversation,
     sortEnvelops,
 } from '@dm3-org/dm3-lib-storage';
-import {
-    MessageActionType,
-    UserDbActions,
-    UserDbType,
-} from '../utils/enum-type-utils';
-import { Account, normalizeEnsName } from '@dm3-org/dm3-lib-profile';
-import { getId } from '@dm3-org/dm3-lib-messaging';
-import { log } from '@dm3-org/dm3-lib-shared';
+import { UserDbActions, UserDbType } from '../utils/enum-type-utils';
 
 export function userDbReducer(
     state: UserDB | undefined,

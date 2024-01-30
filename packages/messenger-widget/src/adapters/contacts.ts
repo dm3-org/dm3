@@ -1,4 +1,3 @@
-import axios from 'axios';
 import {
     Account,
     getDeliveryServiceProfile,
@@ -7,12 +6,14 @@ import {
 } from '@dm3-org/dm3-lib-profile';
 import { log, stringify } from '@dm3-org/dm3-lib-shared';
 import {
-    getConversationId,
     UserDB,
     createEmptyConversation,
+    getConversationId,
 } from '@dm3-org/dm3-lib-storage';
+import axios from 'axios';
+import { ethers } from 'ethers';
+import { Config } from '../interfaces/config';
 import { Contact } from '../interfaces/context';
-import { Connection } from '../interfaces/web3';
 import {
     AccountsType,
     Actions,
@@ -20,88 +21,84 @@ import {
     UserDbType,
 } from '../utils/enum-type-utils';
 import { fetchPendingConversations } from './messages';
-import { Config } from '../interfaces/config';
-import { useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import { ethers } from 'ethers';
 
-export async function requestContacts(
-    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
-    account: Account,
-    deliveryServiceToken: string,
-    state: GlobalState,
-    dispatch: React.Dispatch<Actions>,
-    config: Config,
-) {
-    const userDb = state.userDb!;
-    const createEmptyConversationEntry = (id: string) =>
-        dispatch({
-            type: UserDbType.createEmptyConversation,
-            payload: id,
-        });
+// export async function requestContacts(
+//     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
+//     account: Account,
+//     deliveryServiceToken: string,
+//     state: GlobalState,
+//     dispatch: React.Dispatch<Actions>,
+//     config: Config,
+// ) {
+//     const userDb = state.userDb!;
+//     const createEmptyConversationEntry = (id: string) =>
+//         dispatch({
+//             type: UserDbType.createEmptyConversation,
+//             payload: id,
+//         });
 
-    let retrievedContacts = await getContacts(
-        mainnetProvider,
-        account,
-        userDb,
-        deliveryServiceToken,
-        createEmptyConversationEntry,
-    );
+//     let retrievedContacts = await getContacts(
+//         mainnetProvider,
+//         account,
+//         userDb,
+//         deliveryServiceToken,
+//         createEmptyConversationEntry,
+//     );
 
-    // adds default contact in the list if it's not present (help.dm3.eth)
-    if (
-        config.defaultContact &&
-        !retrievedContacts.find(
-            (account: Account) =>
-                normalizeEnsName(account.ensName) ===
-                normalizeEnsName(config.defaultContact as string),
-        )
-    ) {
-        createEmptyConversationEntry(config.defaultContact);
+//     // adds default contact in the list if it's not present (help.dm3.eth)
+//     if (
+//         config.defaultContact &&
+//         !retrievedContacts.find(
+//             (account: Account) =>
+//                 normalizeEnsName(account.ensName) ===
+//                 normalizeEnsName(config.defaultContact as string),
+//         )
+//     ) {
+//         createEmptyConversationEntry(config.defaultContact);
 
-        retrievedContacts = await getContacts(
-            mainnetProvider,
-            account,
-            userDb,
-            deliveryServiceToken!,
-            createEmptyConversationEntry,
-        );
-    }
+//         retrievedContacts = await getContacts(
+//             mainnetProvider,
+//             account,
+//             userDb,
+//             deliveryServiceToken!,
+//             createEmptyConversationEntry,
+//         );
+//     }
 
-    const contacts: Contact[] = await Promise.all(
-        retrievedContacts.map(fetchDeliveryServiceProfile(mainnetProvider)),
-    );
+//     const contacts: Contact[] = await Promise.all(
+//         retrievedContacts.map(fetchDeliveryServiceProfile(mainnetProvider)),
+//     );
 
-    contacts.forEach((contact) => {
-        const found = contacts.find(
-            (innerContact) =>
-                innerContact.account.profile &&
-                contact.account.profile &&
-                stringify(innerContact.account.profile) ===
-                    stringify(contact.account.profile),
-        );
-        if (found && found?.account.ensName !== contact.account.ensName) {
-            dispatch({
-                type: UserDbType.hideContact,
-                payload:
-                    found.account.ensName.length >
-                    contact.account.ensName.length
-                        ? {
-                              ensName: found.account.ensName,
-                              aka: contact.account.ensName,
-                          }
-                        : {
-                              ensName: contact.account.ensName,
-                              aka: found.account.ensName,
-                          },
-            });
-        }
-    });
+//     contacts.forEach((contact) => {
+//         const found = contacts.find(
+//             (innerContact) =>
+//                 innerContact.account.profile &&
+//                 contact.account.profile &&
+//                 stringify(innerContact.account.profile) ===
+//                     stringify(contact.account.profile),
+//         );
+//         if (found && found?.account.ensName !== contact.account.ensName) {
+//             dispatch({
+//                 type: UserDbType.hideContact,
+//                 payload:
+//                     found.account.ensName.length >
+//                     contact.account.ensName.length
+//                         ? {
+//                               ensName: found.account.ensName,
+//                               aka: contact.account.ensName,
+//                           }
+//                         : {
+//                               ensName: contact.account.ensName,
+//                               aka: found.account.ensName,
+//                           },
+//             });
+//         }
+//     });
 
-    dispatch({ type: AccountsType.SetContacts, payload: contacts });
-}
+//     dispatch({ type: AccountsType.SetContacts, payload: contacts });
+// }
 
-export async function getContacts(
+export async function getContacts( //DEV CHECK DONE
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     userDb: UserDB,

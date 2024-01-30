@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-console */
 import {
     connectorsForWallets,
@@ -14,7 +15,7 @@ import DM3 from '../../components/DM3/DM3';
 import { Dm3Props } from '../../interfaces/config';
 import './Home.css';
 
-import { useContext, useMemo } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import { configureChains, createConfig, mainnet, WagmiConfig } from 'wagmi';
 import { gnosis, goerli } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
@@ -25,6 +26,10 @@ import { MainnetProviderContextProvider } from '../../context/ProviderContext';
 import { GlobalContext } from '../../utils/context-utils';
 import './Home.css';
 import { StorageContextProvider } from '../../context/StorageContext';
+import {
+    ConversationContext,
+    ConversationContextProvider,
+} from '../../context/ConversationContext';
 
 //Use different chains depending on the environment. Note that gnosis mainnet is used for both setups
 // because there is no spaceId testnet deploymend yet
@@ -90,7 +95,10 @@ export function Home(props: Dm3Props) {
                     <MainnetProviderContextProvider>
                         <AuthContextProvider dispatch={dispatch}>
                             <StorageContextProvider>
-                                <DM3 config={props.config} />
+                                {/* TODO move conversation and message contest further done as it dont need to be stored in the globlal state */}
+                                <ConversationContextProvider>
+                                    <DM3 config={props.config} />
+                                </ConversationContextProvider>
                             </StorageContextProvider>
                         </AuthContextProvider>
                     </MainnetProviderContextProvider>

@@ -2,6 +2,7 @@
 import { Envelop } from '@dm3-org/dm3-lib-messaging';
 import {
     MAX_CONVERATION_ENTRIES_PER_CHUNK,
+    MAX_MESSAGES_PER_CHUNK,
     MAX_MESSAGE_SIZE,
 } from './constants';
 import { getConversationListKey, getMessageChunkKey } from './keys';
@@ -120,7 +121,7 @@ export async function addMessage(
     }
 
     const targetChunkIndex = Math.floor(
-        conversationManifest.messageCounter / MAX_CONVERATION_ENTRIES_PER_CHUNK,
+        conversationManifest.messageCounter / MAX_MESSAGES_PER_CHUNK,
     );
 
     // get the message chunk at the target chunk index.

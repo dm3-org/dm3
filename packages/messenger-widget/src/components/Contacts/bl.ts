@@ -31,6 +31,8 @@ export const onContactSelected = (
     dispatch: React.Dispatch<Actions>,
     contact: Contact,
 ) => {
+    // eslint-disable-next-line no-console
+    console.log('on contact selected ', contact);
     // set selected contact
     dispatch({
         type: AccountsType.SetSelectedContact,
