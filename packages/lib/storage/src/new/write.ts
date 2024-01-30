@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { Envelop } from '@dm3-org/dm3-lib-messaging';
 import {
     MAX_CONVERATION_ENTRIES_PER_CHUNK,
@@ -52,17 +53,29 @@ export async function addConversation(
     // with the new conversation added
     const key = await getConversationListKey(db, targetChunkIndex);
 
+    const conversationIsAlreadyInList =
+        conversationListChunk &&
+        conversationListChunk.conversationList.includes(contactEnsName);
+
+    const conversationList = !conversationListChunk
+        ? //If the conversation list chunk does not exist, we have to create it and add the conversation as the first element
+          [contactEnsName]
+        : //If the conversation list chunk exists, we have to check if the conversation has been already added. If so we can just return the conversation list chunk as it is.
+        conversationIsAlreadyInList
+        ? [...conversationListChunk.conversationList]
+        : //If the conversation has not been added yet, we have to add it to the conversation list chunk
+          [...conversationListChunk.conversationList, contactEnsName];
+
     return {
         conversationList: {
             key,
-            conversationList: conversationListChunk
-                ? [...conversationListChunk.conversationList, contactEnsName]
-                : [contactEnsName],
+            conversationList,
         },
         accountManifest: {
             ...accountMainfest,
-            conversationListCounter:
-                accountMainfest.conversationListCounter + 1,
+            conversationListCounter: conversationListChunk
+                ? accountMainfest.conversationListCounter
+                : accountMainfest.conversationListCounter + 1,
         },
     };
 }

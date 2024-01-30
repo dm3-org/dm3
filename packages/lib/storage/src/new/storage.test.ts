@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import { createStorage } from './index';
 import { makeEnvelop } from './testHelper';
@@ -18,7 +17,6 @@ describe('createStorage Integration Tests', () => {
                 const s = new Map<string, string>();
                 return {
                     read: async (key: string): Promise<Chunk | undefined> => {
-                        console.log('read', key);
                         const res = await s.get(key);
                         if (!res) {
                             return undefined;
@@ -26,7 +24,6 @@ describe('createStorage Integration Tests', () => {
                         return JSON.parse(res) as Chunk;
                     },
                     write: async (key: string, value: Chunk): Promise<void> => {
-                        console.log('write', key, value);
                         await s.set(key, stringify(value));
                     },
                     s,
@@ -63,6 +60,22 @@ describe('createStorage Integration Tests', () => {
 
             expect(list.length).toBe(1);
             expect(list[0]).toBe('bob.eth');
+        });
+        it('addConversation - conversationList should not contain duplicates', async () => {
+            await storageApi.addConversation('bob.eth');
+            await storageApi.addConversation('max.eth');
+            await storageApi.addConversation('bob.eth');
+            //We acreate an newStorageApi to verify that the data is stored in remote storage and not just locally
+            storageApi = await createStorage('alice.eth', mockSign, {
+                readStrategy: ReadStrategy.RemoteFirst,
+                keyValueStoreRemote: remoteKeyValueStore,
+            });
+            const list = await storageApi.getConversationList(0);
+
+            expect(list.length).toBe(2);
+            expect(list[0]).toBe('bob.eth');
+            expect(list[1]).toBe('max.eth');
+            expect(list[2]).toBe(undefined);
         });
         it('add new message - stores new message', async () => {
             await storageApi.addConversation('bob.eth');
