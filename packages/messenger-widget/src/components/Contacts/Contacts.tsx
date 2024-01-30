@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-console */
 import { globalConfig } from '@dm3-org/dm3-lib-shared';
 import { useContext, useEffect, useState } from 'react';
@@ -39,21 +40,18 @@ export function Contacts(props: DashboardProps) {
     // fetches context api data
     const { state, dispatch } = useContext(GlobalContext);
     const { account, deliveryServiceToken } = useContext(AuthContext);
-    const { contacts: contacts, initialized } = useContext(ConversationContext);
+    const {
+        contacts: contacts,
+        initialized,
+        setSelectedContact,
+        selectedContact,
+    } = useContext(ConversationContext);
     const mainnetProvider = useMainnetProvider();
     const { resolveAliasToTLD } = useTopLevelAlias();
-
-    // local states to handle contact list and active contact
-    const [contactSelected, setContactSelected] = useState<number | null>(null);
 
     const [isMenuAlignedAtBottom, setIsMenuAlignedAtBottom] = useState<
         boolean | null
     >(null);
-
-    // sets contact selected from the list
-    const setContactFromList = (index: number | null) => {
-        setContactSelected(index);
-    };
 
     // fetches sub domain of ENS
     const isAddrEnsName = account?.ensName?.endsWith(
@@ -99,7 +97,7 @@ export function Contacts(props: DashboardProps) {
                 dispatch,
                 contacts,
                 () => {},
-                setContactFromList,
+                () => {},
             );
         }
 
@@ -115,26 +113,22 @@ export function Contacts(props: DashboardProps) {
     // handles active contact removal
     useEffect(() => {
         if (
-            contactSelected !== null &&
+            selectedContact !== null &&
             state.uiView.selectedRightView !== RightViewSelected.Chat &&
             state.uiView.selectedRightView !== RightViewSelected.ContactInfo
         ) {
-            setContactSelected(null);
+            setSelectedContact(undefined);
         }
     }, [state.uiView.selectedRightView]);
 
     // handles UI view on contact select
     useEffect(() => {
-        if (contactSelected !== null) {
-            onContactSelected(
-                state,
-                dispatch,
-                contacts[contactSelected].contactDetails,
-            );
-            setIsMenuAlignedAtBottom(showMenuInBottom(contactSelected));
-            //  updateUnreadMsgCount(state, dispatch, contactSelected);
+        if (selectedContact !== undefined) {
+            onContactSelected(state, dispatch, selectedContact.contactDetails);
+            //TODO @Bhupesh what is that for
+            // setIsMenuAlignedAtBottom(showMenuInBottom(contactSelected));
         }
-    }, [contactSelected]);
+    }, [selectedContact]);
 
     useEffect(() => {
         if (
@@ -143,26 +137,28 @@ export function Contacts(props: DashboardProps) {
             !state.accounts.selectedContact &&
             contacts
         ) {
-            const defaultContactIndex = contacts.findIndex(
-                (contact) =>
-                    contact.contactDetails &&
-                    contact.contactDetails.account &&
-                    contact.contactDetails.account.ensName ===
-                        props.dm3Props.config.defaultContact,
-            );
-            if (defaultContactIndex > -1) {
-                setContactSelected(defaultContactIndex);
-            }
+            //TODO add defaultContact
+            // const defaultContactIndex = contacts.findIndex(
+            //     (contact) =>
+            //         contact.contactDetails &&
+            //         contact.contactDetails.account &&
+            //         contact.contactDetails.account.ensName ===
+            //         props.dm3Props.config.defaultContact,
+            // );
+            // if (defaultContactIndex > -1) {
+            //     setContactSelected(defaultContactIndex);
+            // }
         }
 
         // new conversation is added
-        if (
-            state.modal.addConversation.active &&
-            !state.modal.addConversation.processed &&
-            state.cache.contacts
-        ) {
-            updateSelectedContact(state, dispatch, setContactFromList);
-        }
+        // @Bhupesh what is this for
+        // if (
+        //     state.modal.addConversation.active &&
+        //     !state.modal.addConversation.processed &&
+        //     state.cache.contacts
+        // ) {
+        //     updateSelectedContact(state, dispatch, setContactFromList);
+        // }
     }, [contacts]);
 
     useEffect(() => {
@@ -176,8 +172,9 @@ export function Contacts(props: DashboardProps) {
 
     if (scroller) {
         scroller.addEventListener('scroll', () => {
-            if (contactSelected != null) {
-                setIsMenuAlignedAtBottom(showMenuInBottom(contactSelected));
+            if (selectedContact != null) {
+                //@Bhupesh what is this for
+                // setIsMenuAlignedAtBottom(showMenuInBottom(contactSelected));
             }
         });
     }
@@ -191,21 +188,23 @@ export function Contacts(props: DashboardProps) {
             )}
         >
             {contacts.length > 0 &&
-                contacts.map(
-                    (data, index) =>
+                contacts.map((data) => {
+                    const id = data.contactDetails.account.ensName;
+                    return (
                         !data.isHidden && (
                             <div
-                                id={`chat-item-id-${index}`}
-                                key={index}
+                                id={`chat-item-id-${id}`}
+                                key={id}
                                 className={'pointer-cursor width-fill contact-details-container'.concat(
                                     ' ',
-                                    contactSelected != null
-                                        ? contactSelected !== index
+                                    selectedContact
+                                        ? selectedContact.contactDetails.account
+                                              .ensName !== id
                                             ? 'highlight-right-border'
                                             : 'contact-details-container-active'
                                         : '',
                                 )}
-                                onClick={() => setContactSelected(index)}
+                                onClick={() => setSelectedContact(data)}
                             >
                                 <div
                                     className="col-12 d-flex flex-row align-items-center 
@@ -244,11 +243,11 @@ export function Contacts(props: DashboardProps) {
                                                 </p>
                                             </div>
 
-                                            {state.cache.contacts &&
-                                                index !== contactSelected &&
-                                                state.cache.contacts[index] &&
-                                                state.cache.contacts[index]
-                                                    .unreadMsgCount > 0 && (
+                                            {/* @Bhupesh what is this cached contacts section for */}
+
+                                            {/* {state.cache.contacts &&
+                                                id !== selectedContact?.contactDetails.account.ensName &&
+                                                (
                                                     <div>
                                                         <div className="msg-count">
                                                             {
@@ -259,9 +258,10 @@ export function Contacts(props: DashboardProps) {
                                                             }
                                                         </div>
                                                     </div>
-                                                )}
+                                                )} */}
 
-                                            {contactSelected === index ? (
+                                            {selectedContact?.contactDetails
+                                                .account.ensName === id ? (
                                                 !state.modal.addConversation
                                                     .active ? (
                                                     <div>
@@ -279,13 +279,17 @@ export function Contacts(props: DashboardProps) {
                                                                         data
                                                                     }
                                                                     index={
-                                                                        index
+                                                                        //TODO replace with ID
+                                                                        0
                                                                     }
                                                                     isMenuAlignedAtBottom={
                                                                         isMenuAlignedAtBottom ===
                                                                         null
                                                                             ? showMenuInBottom(
-                                                                                  contactSelected,
+                                                                                  selectedContact
+                                                                                      .contactDetails
+                                                                                      .account
+                                                                                      .ensName,
                                                                               )
                                                                             : isMenuAlignedAtBottom
                                                                     }
@@ -315,8 +319,9 @@ export function Contacts(props: DashboardProps) {
                                     </div>
                                 </div>
                             </div>
-                        ),
-                )}
+                        )
+                    );
+                })}
 
             {/* Hidden content for highlighting css */}
             {contacts.length < 10 &&
@@ -324,7 +329,7 @@ export function Contacts(props: DashboardProps) {
                     <div
                         key={data}
                         className={
-                            contactSelected !== null
+                            selectedContact !== null
                                 ? 'highlight-right-border'
                                 : 'highlight-right-border-none'
                         }
@@ -338,7 +343,7 @@ export function Contacts(props: DashboardProps) {
                     <div
                         key={data}
                         className={
-                            contactSelected !== null
+                            selectedContact !== null
                                 ? 'highlight-right-border'
                                 : 'highlight-right-border-none'
                         }

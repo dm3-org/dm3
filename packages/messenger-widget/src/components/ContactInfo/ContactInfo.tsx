@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import '../../styles/profile-contact.css';
 import { Button } from '../Button/Button';
 import { useContext, useEffect, useState } from 'react';
@@ -17,32 +18,50 @@ import { closeLoader, startLoader } from '../Loader/Loader';
 import { ModalStateType } from '../../utils/enum-type-utils';
 import copyIcon from '../../assets/images/copy.svg';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
+import { ConversationContext } from '../../context/ConversationContext';
+import { ethers } from 'ethers';
 
 export function ContactInfo() {
     const { state, dispatch } = useContext(GlobalContext);
+    const { selectedContact } = useContext(ConversationContext);
     const mainnetProvider = useMainnetProvider();
 
     const [contactDetails, setContactDetails] = useState<IContactInfo | null>(
         null,
     );
 
-    const fetchContactDetails = async () => {
-        setContactDetails(await getContactSelected(state, mainnetProvider!));
-        closeLoader();
-    };
+    const [address, setAddress] = useState<string>('');
 
     const copyText = async (text: string) => {
         await navigator.clipboard.writeText(text);
     };
 
+    const getAddress = async (ensName: string) => {
+        let address;
+        try {
+            address = await mainnetProvider?.resolveName(ensName);
+        } catch (error) {}
+
+        if (!address) {
+            address = ensName.split('.')[0];
+            address = ethers.utils.isAddress(address) ? address : 'Not set';
+        }
+        return address;
+    };
+
     useEffect(() => {
-        dispatch({
-            type: ModalStateType.LoaderContent,
-            payload: 'Fetching contact information...',
-        });
-        startLoader();
-        fetchContactDetails();
-    }, []);
+        const fetchAddress = async () => {
+            if (selectedContact) {
+                startLoader();
+                const _address = await getAddress(
+                    selectedContact.contactDetails.account.ensName ?? '',
+                );
+                setAddress(_address);
+                closeLoader();
+            }
+        };
+        fetchAddress();
+    }, [selectedContact]);
 
     return (
         <>
@@ -70,13 +89,9 @@ export function ContactInfo() {
                     <div className="d-flex align-items-center">
                         <EnsDetails
                             propertyKey={'Name'}
-                            propertyValue={
-                                contactDetails ? contactDetails.name : ''
-                            }
+                            propertyValue={selectedContact?.name ?? ''}
                             action={() =>
-                                openEnsProfile(
-                                    contactDetails ? contactDetails.name : '',
-                                )
+                                openEnsProfile(selectedContact?.name ?? '')
                             }
                         />
                         <img
@@ -84,36 +99,22 @@ export function ContactInfo() {
                             alt=""
                             className="copy-btn pointer-cursor"
                             onClick={() => {
-                                copyText(
-                                    contactDetails ? contactDetails.name : '',
-                                );
+                                copyText(selectedContact?.name ?? '');
                             }}
                         />
                     </div>
                     <div className="d-flex align-items-center">
                         <EnsDetails
                             propertyKey={'Address'}
-                            propertyValue={
-                                contactDetails ? contactDetails.address : ''
-                            }
-                            action={() =>
-                                openEtherscan(
-                                    contactDetails
-                                        ? contactDetails.address
-                                        : '',
-                                )
-                            }
+                            propertyValue={address}
+                            action={() => openEtherscan(address)}
                         />
                         <img
                             src={copyIcon}
                             alt=""
                             className="copy-btn pointer-cursor"
                             onClick={() => {
-                                copyText(
-                                    contactDetails
-                                        ? contactDetails.address
-                                        : '',
-                                );
+                                copyText(address);
                             }}
                         />
                     </div>
@@ -122,9 +123,7 @@ export function ContactInfo() {
                         <Button
                             buttonText="Open ENS profile"
                             actionMethod={() =>
-                                openEnsProfile(
-                                    contactDetails ? contactDetails.name : '',
-                                )
+                                openEnsProfile(selectedContact?.name ?? '')
                             }
                         />
                     </div>

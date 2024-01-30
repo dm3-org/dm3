@@ -7,6 +7,7 @@ import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
 
 export const useConversation = () => {
+    const mainnetProvider = useMainnetProvider();
     const {
         getConversations,
         addConversationAsync,
@@ -16,12 +17,12 @@ export const useConversation = () => {
     } = useContext(StorageContext);
 
     const [contacts, setContacts] = useState<Array<ContactPreview>>([]);
+    const [selectedContact, setSelectedContact] = useState<
+        ContactPreview | undefined
+    >(undefined);
+    const [initialized, setInitialized] = useState<boolean>(false);
 
     const conversationCount = useMemo(() => contacts.length, [contacts]);
-
-    const mainnetProvider = useMainnetProvider();
-
-    const [initialized, setInitialized] = useState<boolean>(false);
 
     //For now we do not support pagination hence we always fetch all pages
     useEffect(() => {
@@ -71,5 +72,12 @@ export const useConversation = () => {
         addConversationAsync(ensName);
     };
 
-    return { contacts, conversationCount, addConversation, initialized };
+    return {
+        contacts,
+        conversationCount,
+        addConversation,
+        initialized,
+        setSelectedContact,
+        selectedContact,
+    };
 };

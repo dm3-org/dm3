@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import './Chat.css';
 import { Message } from '../Message/Message';
 import { getConversation } from '@dm3-org/dm3-lib-storage';
@@ -16,11 +17,13 @@ import { MessageActionType } from '../../utils/enum-type-utils';
 import { useAuth } from '../../hooks/auth/useAuth';
 import { AuthContext } from '../../context/AuthContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
+import { ConversationContext } from '../../context/ConversationContext';
 
 export function Chat(props: HideFunctionProps) {
     const { state, dispatch } = useContext(GlobalContext);
     const { account } = useContext(AuthContext);
     const { ethAddress, deliveryServiceToken } = useContext(AuthContext);
+    const { selectedContact } = useContext(ConversationContext);
     const mainnetProvider = useMainnetProvider();
 
     const [messageList, setMessageList] = useState<MessageProps[]>([]);
@@ -28,7 +31,7 @@ export function Chat(props: HideFunctionProps) {
         useState<boolean>(false);
     const [isProfileConfigured, setIsProfileConfigured] =
         useState<boolean>(false);
-    const [showShimEffect, setShowShimEffect] = useState(true);
+    const [showShimEffect, setShowShimEffect] = useState(false);
 
     const alias = ethAddress && ethAddress + globalConfig.ADDR_ENS_SUBDOMAIN();
 
@@ -51,20 +54,18 @@ export function Chat(props: HideFunctionProps) {
     useEffect(() => {
         setIsMessageListInitialized(false);
         setIsProfileConfigured(
-            state.accounts.selectedContact?.account.profile ? true : false,
+            selectedContact?.contactDetails.account.profile ? true : false,
         );
-    }, [state.accounts.selectedContact]);
+    }, [selectedContact]);
 
     // handles messages list
     useEffect(() => {
-        if (state.accounts.selectedContact) {
+        if (selectedContact) {
             setShowShimEffect(true);
         }
-        if (
-            state.accounts.selectedContact &&
-            state.userDb &&
-            state.accounts.contacts
-        ) {
+        if (selectedContact) {
+            console.log('fetching old messages selectedC');
+
             try {
                 handleMessages(
                     state,
@@ -72,13 +73,8 @@ export function Chat(props: HideFunctionProps) {
                     account!,
                     deliveryServiceToken!,
                     dispatch,
-                    getConversation(
-                        state.accounts.selectedContact.account.ensName,
-                        state.accounts.contacts.map(
-                            (contact) => contact.account,
-                        ),
-                        state.userDb,
-                    ),
+                    //TODO refactor to new conversation Object
+                    [],
                     alias,
                     setListOfMessages,
                     isMessageListInitialized,
@@ -92,7 +88,7 @@ export function Chat(props: HideFunctionProps) {
                 log(error, 'error');
             }
         }
-    }, [state.userDb?.conversations, state.accounts.selectedContact]);
+    }, [state.userDb?.conversations, selectedContact]);
 
     useEffect(() => {
         if (
@@ -108,7 +104,7 @@ export function Chat(props: HideFunctionProps) {
     useEffect(() => {
         checkUserProfileConfigured(
             mainnetProvider,
-            state.accounts.selectedContact?.account.ensName as string,
+            selectedContact?.contactDetails.account.ensName as string,
             setProfileCheck,
         );
         if (state.modal.addConversation.active) {
@@ -117,11 +113,12 @@ export function Chat(props: HideFunctionProps) {
         // fetches old message if new contact is added
         if (
             !state.modal.addConversation.active &&
-            state.accounts.selectedContact &&
+            selectedContact &&
             state.userDb &&
             state.accounts.contacts
         ) {
             setShowShimEffect(true);
+            console.log('fetching old messages');
             try {
                 handleMessages(
                     state,
@@ -130,7 +127,7 @@ export function Chat(props: HideFunctionProps) {
                     deliveryServiceToken!,
                     dispatch,
                     getConversation(
-                        state.accounts.selectedContact.account.ensName,
+                        selectedContact.contactDetails.account.ensName,
                         state.accounts.contacts.map(
                             (contact) => contact.account,
                         ),
@@ -159,7 +156,7 @@ export function Chat(props: HideFunctionProps) {
             id="chat-msgs"
             className={'chat-msgs width-fill '
                 .concat(
-                    state.accounts.selectedContact
+                    selectedContact
                         ? 'highlight-chat-border'
                         : 'highlight-chat-border-none',
                 )

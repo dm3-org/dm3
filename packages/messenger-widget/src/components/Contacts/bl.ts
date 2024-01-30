@@ -676,13 +676,13 @@ export const resetContactListOnHide = (
     }
 };
 
-export const showMenuInBottom = (index: number | null): boolean => {
+export const showMenuInBottom = (id: string | null): boolean => {
     const scroller: HTMLElement = document.getElementById(
         'chat-scroller',
     ) as HTMLElement;
-    if (index != null && scroller) {
+    if (id != null && scroller) {
         const contact: HTMLElement = document.getElementById(
-            `chat-item-id-${index}`,
+            `chat-item-id-${id}`,
         ) as HTMLElement;
         if (contact) {
             const scrollerBottom: number =

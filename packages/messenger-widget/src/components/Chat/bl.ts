@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { checkSignature as _checkSignature } from '@dm3-org/dm3-lib-crypto';
 import { Message, MessageState } from '@dm3-org/dm3-lib-messaging';
 import {
@@ -414,6 +415,7 @@ export const handleMessages = async (
     updateShowShimEffect: Function,
     hideFunction?: string,
 ) => {
+    console.log('handleMessages lets go');
     if (!isMessageListInitialized && state.accounts.selectedContact) {
         const fetchedMessages = await fetchAndStoreMessages(
             mainnetProvider,
