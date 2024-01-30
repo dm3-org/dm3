@@ -21,7 +21,7 @@ const keysA = {
 
 describe('Notifications', () => {
     describe('get NotificationChannels', () => {
-        it('Returns 500 as global notification is turned off', async () => {
+        it('Returns empty array as global notification is turned off', async () => {
             const app = express();
             app.use(bodyParser.json());
             app.use(notifications());
@@ -47,6 +47,8 @@ describe('Notifications', () => {
                     return {};
                 },
                 getIdEnsName: async (ensName: string) => ensName,
+                getGlobalNotification: async (ensName: string) =>
+                    Promise.resolve({ isEnabled: false }),
                 getUsersNotificationChannels: async (ensName: string) =>
                     Promise.resolve([]),
             };
@@ -62,7 +64,10 @@ describe('Notifications', () => {
                 })
                 .send();
 
-            expect(status).toBe(500);
+            expect(status).toBe(200);
+            expect(body).toEqual({
+                notificationChannels: [],
+            });
         });
 
         it('Returns 200 with empty notification channels as global notification is turned on', async () => {
@@ -196,7 +201,7 @@ describe('Notifications', () => {
             expect(status).toBe(400);
         });
 
-        it('Returns 500 on setup email notifications as globalNotifications is turned off', async () => {
+        it('Returns 400 on setup email notifications as globalNotifications is turned off', async () => {
             const app = express();
             app.use(bodyParser.json());
             app.use(notifications());
@@ -235,7 +240,7 @@ describe('Notifications', () => {
                     notificationChannelType: NotificationChannelType.EMAIL,
                 });
 
-            expect(status).toBe(500);
+            expect(status).toBe(400);
         });
 
         it('User can setup email notifications', async () => {
