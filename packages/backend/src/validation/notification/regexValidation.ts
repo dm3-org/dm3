@@ -1,5 +1,6 @@
 import { NotificationChannelType } from '@dm3-org/dm3-lib-delivery';
 
+/* eslint-disable max-len */
 // checks regex pattern for recipient value
 export const checkRegexPattern = (
     notificationChannelType: string,
