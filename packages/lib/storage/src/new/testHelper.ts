@@ -83,6 +83,7 @@ export const db: Db = {
                 case await getConversationManifestKey(db, 'alice.eth'):
                     const conversationManifest: ConversationManifest = {
                         key,
+                        isHidden: false,
                         messageCounter: 101,
                     };
                     return conversationManifest as T;

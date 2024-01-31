@@ -56,10 +56,13 @@ describe('createStorage Integration Tests', () => {
                 readStrategy: ReadStrategy.RemoteFirst,
                 keyValueStoreRemote: remoteKeyValueStore,
             });
-            const list = await storageApi.getConversationList(0);
+            const conversations = await storageApi.getConversationList(0);
 
-            expect(list.length).toBe(1);
-            expect(list[0]).toBe('bob.eth');
+            expect(conversations.length).toBe(1);
+
+            expect(conversations[0].contactEnsName).toBe('bob.eth');
+            expect(conversations[0].isHidden).toBe(false);
+            expect(conversations[0].messageCounter).toBe(0);
         });
         it('addConversation - conversationList should not contain duplicates', async () => {
             await storageApi.addConversation('bob.eth');
@@ -70,12 +73,17 @@ describe('createStorage Integration Tests', () => {
                 readStrategy: ReadStrategy.RemoteFirst,
                 keyValueStoreRemote: remoteKeyValueStore,
             });
-            const list = await storageApi.getConversationList(0);
+            const conversations = await storageApi.getConversationList(0);
 
-            expect(list.length).toBe(2);
-            expect(list[0]).toBe('bob.eth');
-            expect(list[1]).toBe('max.eth');
-            expect(list[2]).toBe(undefined);
+            expect(conversations.length).toBe(2);
+
+            expect(conversations[0].contactEnsName).toBe('bob.eth');
+            expect(conversations[0].isHidden).toBe(false);
+            expect(conversations[0].messageCounter).toBe(0);
+
+            expect(conversations[1].contactEnsName).toBe('max.eth');
+            expect(conversations[1].isHidden).toBe(false);
+            expect(conversations[1].messageCounter).toBe(0);
         });
         it('add new message - stores new message', async () => {
             await storageApi.addConversation('bob.eth');
@@ -210,11 +218,36 @@ describe('createStorage Integration Tests', () => {
 
             const conversations = await storageApi.getConversationList(0);
             expect(conversations.length).toBe(1);
-            expect(conversations[0]).toBe('bob.eth');
+            expect(conversations[0].contactEnsName).toBe('bob.eth');
+            expect(conversations[0].isHidden).toBe(false);
+            expect(conversations[0].messageCounter).toBe(1);
 
             const getMessages = await storageApi.getMessages('bob.eth', 0);
             expect(getMessages.length).toBe(1);
             expect(getMessages[0]).toEqual(envelop);
+        });
+        it('hide conversation -- conversation can be hidden', async () => {
+            await storageApi.addConversation('bob.eth');
+            await storageApi.addConversation('max.eth');
+            await storageApi.toggleHideConversation('max.eth', true);
+            //We acreate an newStorageApi to verify that the data is stored in remote storage and not just locally
+            storageApi = await createStorage('alice.eth', mockSign, {
+                readStrategy: ReadStrategy.RemoteFirst,
+                keyValueStoreRemote: remoteKeyValueStore,
+            });
+            const conversations = await storageApi.getConversationList(0);
+
+            expect(conversations.length).toBe(2);
+            expect(conversations[0].isHidden).toBe(false);
+            expect(conversations[1].isHidden).toBe(true);
+
+            //Can unhide conversation aswell
+            await storageApi.toggleHideConversation('max.eth', false);
+            const conversations2 = await storageApi.getConversationList(0);
+
+            expect(conversations2.length).toBe(2);
+            expect(conversations2[0].isHidden).toBe(false);
+            expect(conversations2[1].isHidden).toBe(false);
         });
     });
 
@@ -239,10 +272,13 @@ describe('createStorage Integration Tests', () => {
         });
         it('addConversation - conversationList should include the previously added conversation', async () => {
             await storageApi.addConversation('bob.eth');
-            const list = await storageApi.getConversationList(0);
+            const conversations = await storageApi.getConversationList(0);
 
-            expect(list.length).toBe(1);
-            expect(list[0]).toBe('bob.eth');
+            expect(conversations.length).toBe(1);
+            expect(conversations.length).toBe(1);
+            expect(conversations[0].contactEnsName).toBe('bob.eth');
+            expect(conversations[0].isHidden).toBe(false);
+            expect(conversations[0].messageCounter).toBe(0);
         });
         it('add new message - stores new message', async () => {
             await storageApi.addConversation('bob.eth');
@@ -322,11 +358,32 @@ describe('createStorage Integration Tests', () => {
 
             const conversations = await storageApi.getConversationList(0);
             expect(conversations.length).toBe(1);
-            expect(conversations[0]).toBe('bob.eth');
+            expect(conversations[0].contactEnsName).toBe('bob.eth');
+            expect(conversations[0].isHidden).toBe(false);
+            expect(conversations[0].messageCounter).toBe(1);
 
             const getMessages = await storageApi.getMessages('bob.eth', 0);
             expect(getMessages.length).toBe(1);
             expect(getMessages[0]).toEqual(envelop);
+        });
+        it('hide conversation -- conversation can be hidden', async () => {
+            await storageApi.addConversation('bob.eth');
+            await storageApi.addConversation('max.eth');
+            await storageApi.toggleHideConversation('max.eth', true);
+
+            const conversations = await storageApi.getConversationList(0);
+
+            expect(conversations.length).toBe(2);
+            expect(conversations[0].isHidden).toBe(false);
+            expect(conversations[1].isHidden).toBe(true);
+
+            //Can unhide conversation aswell
+            await storageApi.toggleHideConversation('max.eth', false);
+            const conversations2 = await storageApi.getConversationList(0);
+
+            expect(conversations2.length).toBe(2);
+            expect(conversations2[0].isHidden).toBe(false);
+            expect(conversations2[1].isHidden).toBe(false);
         });
     });
 });

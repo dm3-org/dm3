@@ -7,17 +7,27 @@ export const INITIAL_ACCOUNT_MANIFEST = (key: string): AccountManifest => ({
 export const INITIAL_CONVERSATION_MANIFEST = (
     key: string,
 ): ConversationManifest => ({
+    isHidden: false,
     messageCounter: 0,
     key,
 });
 
+export interface Conversation extends ConversationManifest {
+    contactEnsName: string;
+}
+
 export interface StorageAPI {
+    getConversationList: (page: number) => Promise<Conversation[]>;
+
     getMessages: (contactEnsName: string, page: number) => Promise<Envelop[]>;
-    getConversationList: (page: number) => Promise<string[]>;
     getNumberOfMessages: (contactEnsName: string) => Promise<number>;
     getNumberOfConverations: () => Promise<number>;
     addConversation: (contactEnsName: string) => Promise<void>;
     addMessage: (contactEnsName: string, envelop: Envelop) => Promise<void>;
+    toggleHideConversation: (
+        contactEnsName: string,
+        isHidden: boolean,
+    ) => Promise<void>;
 }
 
 export enum ReadStrategy {
@@ -63,6 +73,7 @@ export interface ConversationList extends Chunk {
 
 export interface ConversationManifest extends Chunk {
     messageCounter: number;
+    isHidden: false;
 }
 
 export interface MessageChunk extends Chunk {

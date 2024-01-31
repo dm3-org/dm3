@@ -1,5 +1,4 @@
 /* eslint-disable max-len */
-/* eslint-disable no-console */
 import { Envelop } from '@dm3-org/dm3-lib-messaging';
 import { createKeyValueStore } from './KeyValueStore';
 import { getConversationManifestKey } from './keys';
@@ -12,6 +11,7 @@ import {
 } from './read';
 import {
     Chunk,
+    Conversation,
     Db,
     Encryption,
     INITIAL_CONVERSATION_MANIFEST,
@@ -72,10 +72,35 @@ function addConversationSideEffectContainment(
                 newConversationChunk.accountManifest,
             );
 
-            await db.keyValueStoreLocal.write(
+            await db.keyValueStoreRemote.write(
                 conversationManifestKey,
                 INITIAL_CONVERSATION_MANIFEST(conversationManifestKey),
             );
+        }
+    };
+}
+function toggleHideConversationSideEffectContainment(
+    db: Db,
+): (contactEnsName: string, isHidden: boolean) => Promise<void> {
+    return async (contactEnsName: string, isHidden: boolean) => {
+        const conversationManifest = await getConversationManifest(
+            contactEnsName,
+            db,
+        );
+
+        if (!conversationManifest) {
+            return;
+        }
+        await db.keyValueStoreLocal.write(conversationManifest.key, {
+            ...conversationManifest,
+            isHidden,
+        });
+
+        if (db.keyValueStoreRemote) {
+            await db.keyValueStoreRemote.write(conversationManifest.key, {
+                ...conversationManifest,
+                isHidden,
+            });
         }
     };
 }
@@ -202,7 +227,27 @@ export function createStorage(
             if (!chunk) {
                 return [];
             }
-            return chunk.conversationList;
+            //For each contact name in the conversation list, we have to get the conversation manifest
+            const manifests = await Promise.all(
+                chunk.conversationList.map((c) =>
+                    getConversationManifest(c, db),
+                ),
+            );
+
+            const conversations = manifests
+                .map((m, idx) => {
+                    if (!m) {
+                        //Should not happen since for each conversation in the list there is a manifest. But just in case we filter it out to be sure and satisfy the compiler
+                        return undefined;
+                    }
+                    return {
+                        ...m,
+                        contactEnsName: chunk.conversationList[idx],
+                    };
+                })
+                .filter((c): c is Conversation => c !== undefined);
+
+            return conversations;
         },
 
         getNumberOfConverations: () => getNumberOfConverations(db),
@@ -210,5 +255,7 @@ export function createStorage(
         addConversation: addConversationSideEffectContainment(db),
 
         addMessage: addMessageSideEffectContainment(db),
+
+        toggleHideConversation: toggleHideConversationSideEffectContainment(db),
     };
 }

@@ -17,7 +17,10 @@ import {
 } from '@dm3-org/dm3-lib-crypto';
 import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { stringify } from '@dm3-org/dm3-lib-shared';
-import { StorageAPI } from '@dm3-org/dm3-lib-storage/dist/new/types';
+import {
+    Conversation,
+    StorageAPI,
+} from '@dm3-org/dm3-lib-storage/dist/new/types';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { Envelop } from '@dm3-org/dm3-lib-messaging';
@@ -127,7 +130,7 @@ export const useStorage = (
 };
 
 export type StoreMessageAsync = (message: any) => void;
-export type GetConversations = (page: number) => Promise<string[]>;
+export type GetConversations = (page: number) => Promise<Conversation[]>;
 export type AddConversation = (contact: string) => void;
 export type GetMessages = (contact: string, page: number) => Promise<Envelop[]>;
 export type GetNumberOfMessages = (contact: string) => Promise<number>;

@@ -1,14 +1,13 @@
 /* eslint-disable max-len */
 /* eslint-disable no-console */
+import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
 import { useContext, useEffect, useMemo, useState } from 'react';
+import humanIcon from '../../assets/images/human.svg';
+import { AuthContext } from '../../context/AuthContext';
 import { StorageContext } from '../../context/StorageContext';
 import { ContactPreview } from '../../interfaces/utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
-import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
-import humanIcon from '../../assets/images/human.svg';
-import { useAuth } from '../auth/useAuth';
-import { AuthContext } from '../../context/AuthContext';
 
 export const useConversation = () => {
     const mainnetProvider = useMainnetProvider();
@@ -46,7 +45,7 @@ export const useConversation = () => {
                 currentConversationsPage.map((contact) =>
                     hydrateContract(
                         mainnetProvider,
-                        contact,
+                        contact.contactEnsName,
                         getMessages,
                         getNumberOfMessages,
                     ),
