@@ -39,7 +39,7 @@ export const StorageContextProvider = ({ children }: { children?: any }) => {
         getNumberOfMessages,
         getMessages,
         initialized,
-    } = useStorage(account, undefined, deliveryServiceToken, profileKeys);
+    } = useStorage(account, deliveryServiceToken, profileKeys);
     return (
         <StorageContext.Provider
             value={{

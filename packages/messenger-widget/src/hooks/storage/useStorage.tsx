@@ -18,14 +18,13 @@ import {
 import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import { StorageAPI } from '@dm3-org/dm3-lib-storage/dist/new/types';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { Envelop } from '@dm3-org/dm3-lib-messaging';
 
 //Handels storage sync and offers an interface for other hooks to interact with the storage
 export const useStorage = (
     account: Account | undefined,
-    _initialUserDb: UserDB | undefined,
     deliveryServiceToken: string | undefined,
     profileKeys: ProfileKeys | undefined,
 ) => {
@@ -35,19 +34,18 @@ export const useStorage = (
         undefined,
     );
 
-    const initialized = useMemo(() => {
-        return !!storageApi;
-    }, [storageApi]);
+    const [initialized, setInitialized] = useState<boolean>(false);
 
     useEffect(() => {
-        //Called to initialize the storage
+        setInitialized(false);
+        setStorageApi(undefined);
         if (!deliveryServiceToken) {
             return;
         }
         init();
-    }, [_initialUserDb, deliveryServiceToken]);
+    }, [deliveryServiceToken, account]);
 
-    const init = async () => {
+    const init = () => {
         const signWithProfileKey = (data: string) => {
             return sign(profileKeys?.signingKeyPair?.privateKey!, data);
         };
@@ -69,7 +67,7 @@ export const useStorage = (
             );
         };
 
-        const s = await createStorage(account?.ensName!, signWithProfileKey, {
+        const s = createStorage(account?.ensName!, signWithProfileKey, {
             encryption: {
                 encrypt: encrypt,
                 decrypt: decrypt,
@@ -84,8 +82,8 @@ export const useStorage = (
                 },
             ),
         });
-
         setStorageApi(s);
+        setInitialized(true);
     };
 
     const storeMessageAsync = (message: any) => {

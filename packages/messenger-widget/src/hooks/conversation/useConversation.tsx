@@ -7,6 +7,8 @@ import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
 import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
 import humanIcon from '../../assets/images/human.svg';
+import { useAuth } from '../auth/useAuth';
+import { AuthContext } from '../../context/AuthContext';
 
 export const useConversation = () => {
     const mainnetProvider = useMainnetProvider();
@@ -22,14 +24,22 @@ export const useConversation = () => {
     const [selectedContact, setSelectedContact] = useState<
         ContactPreview | undefined
     >(undefined);
-    const [initialized, setInitialized] = useState<boolean>(false);
+    const [conversationsInitialized, setConversationsInitialized] =
+        useState<boolean>(false);
 
     const conversationCount = useMemo(() => contacts.length, [contacts]);
 
+    const { account } = useContext(AuthContext);
+
     //For now we do not support pagination hence we always fetch all pages
     useEffect(() => {
+        setConversationsInitialized(false);
+        setSelectedContact(undefined);
+        setContacts([]);
         const init = async (page: number = 0) => {
             const currentConversationsPage = await getConversations(page);
+
+            console.log('current conversaition page', currentConversationsPage);
 
             //Hydrate the contacts by fetching their profile and DS profile
             const newContacts = await Promise.all(
@@ -56,10 +66,11 @@ export const useConversation = () => {
             if (currentConversationsPage.length > 0) {
                 await init(page + 1);
             }
-            setInitialized(true);
+
+            setConversationsInitialized(true);
         };
         init();
-    }, [storageInitialized]);
+    }, [storageInitialized, account]);
 
     const addConversation = (ensName: string) => {
         const alreadyAddedContact = contacts.find(
@@ -119,7 +130,7 @@ export const useConversation = () => {
         contacts,
         conversationCount,
         addConversation,
-        initialized,
+        initialized: conversationsInitialized,
         setSelectedContact,
         selectedContact,
     };
