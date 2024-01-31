@@ -5,6 +5,8 @@ import { StorageContext } from '../../context/StorageContext';
 import { ContactPreview } from '../../interfaces/utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
+import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
+import humanIcon from '../../assets/images/human.svg';
 
 export const useConversation = () => {
     const mainnetProvider = useMainnetProvider();
@@ -52,24 +54,65 @@ export const useConversation = () => {
 
             setContacts((prev) => [...prev, ...contactsWithoutDuplicates]);
             if (currentConversationsPage.length > 0) {
-                console.log('fetching page', page + 1);
                 await init(page + 1);
             }
-            console.log('done fetching', currentConversationsPage);
             setInitialized(true);
         };
         init();
     }, [storageInitialized]);
 
-    const addConversation = async (ensName: string) => {
-        const contact = await hydrateContract(
+    const addConversation = (ensName: string) => {
+        const alreadyAddedContact = contacts.find(
+            (existingContact) =>
+                existingContact.contactDetails.account.ensName === ensName,
+        );
+        //If the contact is already in the list return it
+        if (alreadyAddedContact) {
+            return alreadyAddedContact;
+        }
+
+        const newContact: ContactPreview = {
+            name: getAccountDisplayName(ensName, 25),
+            message: '',
+            image: humanIcon,
+            unreadMsgCount: 0,
+            contactDetails: {
+                account: {
+                    ensName,
+                },
+                deliveryServiceProfile: undefined,
+            },
+            isHidden: false,
+        };
+        //Set the new contact to the list
+        setContacts((prev) => [...prev, newContact]);
+        //Add the contact to the storage in the background
+        addConversationAsync(ensName);
+        //Hydrate the contact in the background
+        hydrateExistingContactAsync(ensName);
+
+        //Return the new onhydrated contact
+        return newContact;
+    };
+    //When a conversation is added via the AddContacts dialog it should appeat in the conversation list immediately. Hence we're doing a hydrate here asynchroniously in the background
+    const hydrateExistingContactAsync = async (ensName: string) => {
+        const hydratedContact = await hydrateContract(
             mainnetProvider,
             ensName,
             getMessages,
             getNumberOfMessages,
         );
-        setContacts((prev) => [...prev, contact]);
-        addConversationAsync(ensName);
+        setContacts((prev) => {
+            return prev.map((existingContact) => {
+                //Find the contact in the list and replace it with the hydrated one
+                if (
+                    existingContact.contactDetails.account.ensName === ensName
+                ) {
+                    return hydratedContact;
+                }
+                return existingContact;
+            });
+        });
     };
 
     return {

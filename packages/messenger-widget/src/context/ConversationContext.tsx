@@ -9,6 +9,7 @@ export type ConversationContextType = {
     selectedContact?: ContactPreview;
     setSelectedContact: (contact: ContactPreview | undefined) => void;
     initialized: boolean;
+    addConversation: (ensName: string) => ContactPreview;
 };
 
 export const ConversationContext = React.createContext<ConversationContextType>(
@@ -18,6 +19,9 @@ export const ConversationContext = React.createContext<ConversationContextType>(
         conversationCount: 0,
         initialized: false,
         selectedContact: undefined,
+        addConversation: (ensName: string) => {
+            return {} as ContactPreview;
+        },
     },
 );
 
@@ -27,15 +31,18 @@ export const ConversationContextProvider = ({
     children?: any;
 }) => {
     const {
+        addConversation,
         contacts,
         conversationCount,
         initialized,
         setSelectedContact,
         selectedContact,
     } = useConversation();
+
     return (
         <ConversationContext.Provider
             value={{
+                addConversation,
                 contacts,
                 conversationCount,
                 initialized,

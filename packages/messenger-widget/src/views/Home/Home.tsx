@@ -89,7 +89,6 @@ export function Home(props: Dm3Props) {
     return (
         <div className="h-100">
             <Loader />
-            <AddConversation />
             <WagmiConfig config={wagmiConfig}>
                 <RainbowKitProvider chains={chains} theme={darkTheme()}>
                     <MainnetProviderContextProvider>

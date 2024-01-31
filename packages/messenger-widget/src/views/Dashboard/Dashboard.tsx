@@ -12,6 +12,7 @@ import {
 import { ConfigureProfile } from '../../components/ConfigureProfile/ConfigureProfile';
 import DeleteMessage from '../../components/DeleteMessage/DeleteMessage';
 import { Preferences } from '../../components/Preferences/Preferences';
+import AddConversation from '../../components/AddConversation/AddConversation';
 
 export default function Dashboard(props: DashboardProps) {
     const { state } = useContext(GlobalContext);
@@ -34,6 +35,7 @@ export default function Dashboard(props: DashboardProps) {
 
     return (
         <div className="h-100">
+            <AddConversation />
             {/* Preferences popup */}
             {state.modal.showPreferencesModal && <Preferences />}
 

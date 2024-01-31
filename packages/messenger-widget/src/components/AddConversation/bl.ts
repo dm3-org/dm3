@@ -85,22 +85,7 @@ export const addContact = async (
         return;
     }
 
-    // check if contact exists in hidden contact
-    const hiddenContact = state.userDb?.hiddenContacts.find(
-        (contact) =>
-            normalizeEnsName(contact.ensName) === normalizedAccountName,
-    );
-
-    // unhide contact
-    if (hiddenContact && state.accounts.contacts) {
-        // update hidden contact
-        updateHiddenContact(
-            state,
-            dispatch,
-            normalizedAccountName,
-            hiddenContact.aka,
-        );
-
+    {
         // update states
         updateStates(
             state,
@@ -110,35 +95,14 @@ export const addContact = async (
             resetInputFieldClass,
             normalizedAccountName,
         );
-    } else {
-        // check if contact already exists else create new conversation
-        const doesExists = state.userDb?.conversations.has(
-            normalizedAccountName,
-        );
 
-        if (doesExists) {
-            showErrorMessage(true, 'Contact already exists');
-            closeLoader();
-            return;
-        } else {
-            // update states
-            updateStates(
-                state,
-                dispatch,
-                resetName,
-                showErrorMessage,
-                resetInputFieldClass,
-                normalizedAccountName,
-            );
+        // create empty conversation
+        dispatch({
+            type: UserDbType.createEmptyConversation,
+            payload: normalizedAccountName,
+        });
 
-            // create empty conversation
-            dispatch({
-                type: UserDbType.createEmptyConversation,
-                payload: normalizedAccountName,
-            });
-
-            closeLoader();
-        }
+        closeLoader();
     }
 };
 
@@ -151,12 +115,6 @@ const updateStates = (
     resetInputFieldClass: Function,
     normalizedAccountName: string,
 ) => {
-    // remove selected contact
-    dispatch({
-        type: AccountsType.SetSelectedContact,
-        payload: undefined,
-    });
-
     // add new contact item in the list
     const newContact: ContactPreview = {
         name: getAccountDisplayName(normalizedAccountName, 25),
@@ -173,14 +131,6 @@ const updateStates = (
         },
         isHidden: false,
     };
-
-    // add new contact in cached contact list
-    dispatch({
-        type: CacheType.Contacts,
-        payload: state.cache.contacts
-            ? [...state.cache.contacts, newContact]
-            : [newContact],
-    });
 
     // close the modal
     closeConversationModal(resetName, showErrorMessage, resetInputFieldClass);
