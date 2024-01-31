@@ -9,21 +9,27 @@ import {
     ModalStateType,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
-import { startLoader } from '../../components/Loader/Loader';
+import { closeLoader, startLoader } from '../../components/Loader/Loader';
 import Menu from '../../components/Menu/Menu';
+import { ConversationContext } from '../../context/ConversationContext';
 
 export default function LeftView(props: DashboardProps) {
     // fetches context api data
     const { state, dispatch } = useContext(GlobalContext);
+    const { initialized } = useContext(ConversationContext);
 
     // handles starting loader on page load
     useEffect(() => {
-        dispatch({
-            type: ModalStateType.LoaderContent,
-            payload: 'Fetching contacts...',
-        });
-        startLoader();
-    }, []);
+        if (!initialized) {
+            dispatch({
+                type: ModalStateType.LoaderContent,
+                payload: 'Fetching contacts...',
+            });
+            startLoader();
+            return;
+        }
+        closeLoader();
+    }, [initialized]);
 
     // method to open menu item
     const openMenuItem = () => {

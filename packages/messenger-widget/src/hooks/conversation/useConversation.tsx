@@ -20,8 +20,8 @@ export const useConversation = () => {
     } = useContext(StorageContext);
 
     const [contacts, setContacts] = useState<Array<ContactPreview>>([]);
-    const [selectedContact, setSelectedContact] = useState<
-        ContactPreview | undefined
+    const [selectedContactName, setSelectedContactName] = useState<
+        string | undefined
     >(undefined);
     const [conversationsInitialized, setConversationsInitialized] =
         useState<boolean>(false);
@@ -30,15 +30,20 @@ export const useConversation = () => {
 
     const { account } = useContext(AuthContext);
 
+    const selectedContact = useMemo(() => {
+        return contacts.find(
+            (contact) =>
+                contact.contactDetails.account.ensName === selectedContactName,
+        );
+    }, [selectedContactName, contacts]);
+
     //For now we do not support pagination hence we always fetch all pages
     useEffect(() => {
         setConversationsInitialized(false);
-        setSelectedContact(undefined);
+        setSelectedContactName(undefined);
         setContacts([]);
         const init = async (page: number = 0) => {
             const currentConversationsPage = await getConversations(page);
-
-            console.log('current conversaition page', currentConversationsPage);
 
             //Hydrate the contacts by fetching their profile and DS profile
             const newContacts = await Promise.all(
@@ -83,7 +88,7 @@ export const useConversation = () => {
 
         const newContact: ContactPreview = {
             name: getAccountDisplayName(ensName, 25),
-            message: '',
+            message: null,
             image: humanIcon,
             unreadMsgCount: 0,
             contactDetails: {
@@ -130,7 +135,7 @@ export const useConversation = () => {
         conversationCount,
         addConversation,
         initialized: conversationsInitialized,
-        setSelectedContact,
+        setSelectedContactName,
         selectedContact,
     };
 };

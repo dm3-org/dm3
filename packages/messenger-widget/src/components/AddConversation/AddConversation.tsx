@@ -21,7 +21,7 @@ import { closeLoader, startLoader } from '../Loader/Loader';
 
 export default function AddConversation() {
     const { state, dispatch } = useContext(GlobalContext);
-    const { addConversation, setSelectedContact } =
+    const { addConversation, setSelectedContactName } =
         useContext(ConversationContext);
 
     const [name, setName] = useState<string>('');
@@ -89,7 +89,7 @@ export default function AddConversation() {
             });
 
             const newContact = await addConversation(aliasName);
-            setSelectedContact(newContact);
+            setSelectedContactName(newContact.name);
             closeLoader();
 
             // close the modal

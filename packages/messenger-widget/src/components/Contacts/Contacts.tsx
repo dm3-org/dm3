@@ -5,42 +5,27 @@ import { useContext, useEffect, useState } from 'react';
 import loader from '../../assets/images/loader.svg';
 import threeDotsIcon from '../../assets/images/three-dots.svg';
 import { AuthContext } from '../../context/AuthContext';
+import { ConversationContext } from '../../context/ConversationContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 import { useTopLevelAlias } from '../../hooks/topLevelAlias/useTopLevelAlias';
 import { DashboardProps } from '../../interfaces/props';
-import { ContactPreview } from '../../interfaces/utils';
 import { GlobalContext } from '../../utils/context-utils';
-import {
-    CacheType,
-    ModalStateType,
-    RightViewSelected,
-} from '../../utils/enum-type-utils';
+import { RightViewSelected } from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
-import { closeLoader, startLoader } from '../Loader/Loader';
 import './Contacts.css';
 import {
-    addNewConversationFound,
-    fetchAndUpdateUnreadMsgCount,
     fetchMessageSizeLimit,
     onContactSelected,
-    resetContactListOnHide,
     setContactHeightToMaximum,
-    setContactIndexSelectedFromCache,
-    setContactList,
     showMenuInBottom,
-    updateContactDetailsOfNewContact,
     updateContactOnAccountChange,
-    updateSelectedContact,
-    updateUnreadMsgCount,
 } from './bl';
-import { ConversationContext } from '../../context/ConversationContext';
-import { initialState } from '../../contexts/Shared';
 
 export function Contacts(props: DashboardProps) {
     // fetches context api data
     const { state, dispatch } = useContext(GlobalContext);
     const { account, deliveryServiceToken } = useContext(AuthContext);
-    const { contacts, initialized, setSelectedContact, selectedContact } =
+    const { contacts, initialized, setSelectedContactName, selectedContact } =
         useContext(ConversationContext);
     const mainnetProvider = useMainnetProvider();
     const { resolveAliasToTLD } = useTopLevelAlias();
@@ -58,12 +43,6 @@ export function Contacts(props: DashboardProps) {
     useEffect(() => {
         setContactHeightToMaximum(!isAddrEnsName ? true : false);
     }, [account?.ensName]);
-
-    // handles any change in socket or session
-    useEffect(() => {
-        console.log(' initialized', initialized);
-        console.log('contacts', contacts);
-    }, [initialized]);
 
     // handles change in accounts
     useEffect(() => {
@@ -93,11 +72,6 @@ export function Contacts(props: DashboardProps) {
         //TODO add websocket listener for add conversation
     }, [state.accounts.contacts]);
 
-    // handles contact selected
-    useEffect(() => {
-        //TODO add click handler to select contact
-    }, [state.accounts.selectedContact]);
-
     // handles active contact removal
     useEffect(() => {
         if (
@@ -105,7 +79,7 @@ export function Contacts(props: DashboardProps) {
             state.uiView.selectedRightView !== RightViewSelected.Chat &&
             state.uiView.selectedRightView !== RightViewSelected.ContactInfo
         ) {
-            setSelectedContact(undefined);
+            setSelectedContactName(undefined);
         }
     }, [state.uiView.selectedRightView]);
 
@@ -192,7 +166,9 @@ export function Contacts(props: DashboardProps) {
                                             : 'contact-details-container-active'
                                         : '',
                                 )}
-                                onClick={() => setSelectedContact(data)}
+                                onClick={() =>
+                                    setSelectedContactName(data.name)
+                                }
                             >
                                 <div
                                     className="col-12 d-flex flex-row align-items-center 
@@ -249,8 +225,8 @@ export function Contacts(props: DashboardProps) {
 
                                             {selectedContact?.contactDetails
                                                 .account.ensName === id ? (
-                                                !state.modal.addConversation
-                                                    .active ? (
+                                                selectedContact.message !==
+                                                null ? (
                                                     <div>
                                                         <div className="action-container">
                                                             <img
