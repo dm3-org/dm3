@@ -4,6 +4,7 @@ import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import express from 'express';
 import { auth } from './utils';
 import { validateNotificationChannel } from './validation/notification/notificationChannelValidation';
+import { generateEmailVerificationNotification } from '@dm3-org/dm3-lib-delivery';
 
 // Exporting a function that returns an Express router
 export default () => {
@@ -97,7 +98,18 @@ export default () => {
                     config: {
                         recipientValue: recipientValue,
                     },
+                    getUsersNotificationChannels:
+                        req.app.locals.db.getUsersNotificationChannels,
+                    setOtp: req.app.locals.db.setOtp,
                 });
+
+                // send OTP for email verification
+                await generateEmailVerificationNotification(
+                    notificationChannelType,
+                    account,
+                    req.app.locals.db.getUsersNotificationChannels,
+                    req.app.locals.db.setOtp,
+                );
 
                 // Sending a success response
                 res.sendStatus(200);

@@ -5,10 +5,3 @@ export const generateOtp = (otpLength: number) => {
         Math.pow(10, otpLength - 1)
     ).toString();
 };
-
-export const saveOtp = (otpLength: number): string => {
-    const otp = generateOtp(otpLength);
-    // { type: Email, otp: 12345, generatedAt: 1705998418 }
-    // save otp
-    return otp;
-};

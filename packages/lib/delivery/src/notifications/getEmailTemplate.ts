@@ -1,14 +1,10 @@
 import { DeliveryInformation } from '@dm3-org/dm3-lib-messaging';
-import { NotificationType } from './types';
+import { NotificationChannelType, NotificationType } from './types';
 import {
     NEW_MSG_EMAIL_SUBJECT,
     NEW_MSG_EMAIL_TEMPLATE,
 } from './templates/newMessage';
 import { OTP_EMAIL_SUBJECT, OTP_EMAIL_TEMPLATE } from './templates/otp';
-import { generateOtp } from './generateOtp';
-
-// LENGTH of OTP. Ex: 5 digits
-const OTP_LENGTH = 5;
 
 // OTP expiration time in seconds
 const OTP_EXPIRY_DURATION = 600; // 10 minutes
@@ -16,6 +12,7 @@ const OTP_EXPIRY_DURATION = 600; // 10 minutes
 // to fetch subject & template of email based on notification type
 export const fetchEmailSubjectAndTemplate = (
     notificationType: NotificationType,
+    mailContent: any,
     deliveryInformation?: DeliveryInformation,
 ): {
     subject: string;
@@ -34,7 +31,7 @@ export const fetchEmailSubjectAndTemplate = (
             return {
                 subject: OTP_EMAIL_SUBJECT,
                 template: OTP_EMAIL_TEMPLATE(
-                    generateOtp(OTP_LENGTH),
+                    mailContent.otp as string,
                     getEmailDate(),
                     OTP_EXPIRY_DURATION / 60, // time in minutes
                 ),
@@ -46,6 +43,7 @@ export const fetchEmailSubjectAndTemplate = (
     }
 };
 
+// NOTE : This is added for current email template, in future can be removed
 // generate date in format : Jan 30, 2024
 const getEmailDate = () => {
     const options: object = { year: 'numeric', month: 'short', day: 'numeric' };

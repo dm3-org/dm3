@@ -52,3 +52,9 @@ export interface NotificationUserConfig {
 export interface IGlobalNotification {
     isEnabled: boolean;
 }
+
+export interface IOtp {
+    type: NotificationChannelType;
+    otp: string;
+    generatedAt: Date;
+}

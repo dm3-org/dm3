@@ -17,6 +17,7 @@ export type EmailNotificationServerConfig = {
 type UserEmailConfig = {
     recipientEmailId: string;
     notificationType: NotificationType;
+    mailContent: any; // object that can contain OTP to send in email and other details
 };
 
 // method to send email
@@ -40,6 +41,7 @@ export function Email(config: EmailNotificationServerConfig) {
             // fetch the specific subject & template of email
             const { subject, template } = fetchEmailSubjectAndTemplate(
                 mailConfig.notificationType,
+                mailConfig.mailContent,
                 deliveryInformation,
             );
 
