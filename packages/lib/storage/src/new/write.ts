@@ -20,6 +20,7 @@ import {
     MessageChunk,
 } from './types';
 import { getSize } from '@dm3-org/dm3-lib-shared';
+import { StorageEnvelopContainer } from '../Storage';
 
 /**
  * This function adds a new conversation to the conversation list.
@@ -94,7 +95,7 @@ export async function addConversation(
  */
 export async function addMessage(
     contactEnsName: string,
-    envelop: Envelop,
+    storageEnvelopContainer: StorageEnvelopContainer,
     db: Db,
 ): Promise<{
     messageChunk: MessageChunk;
@@ -105,7 +106,7 @@ export async function addMessage(
     // However, the getEnvelopSize function exepects an encrypted envelop as input.
     // In the case of the storage we encrypt the whole chunk and not a single message.
     // Therefore we use the getSize function on an unencrypted envelop.
-    if (getSize(envelop) > MAX_MESSAGE_SIZE) {
+    if (getSize(storageEnvelopContainer.envelop) > MAX_MESSAGE_SIZE) {
         throw Error(`Message size is too big`);
     }
     // get the conversation manifest and calculate the target chunk index based on the current message counter.
@@ -138,9 +139,9 @@ export async function addMessage(
         messageChunk: {
             key,
 
-            envelops: messageChunk
-                ? [...messageChunk.envelops, envelop]
-                : [envelop],
+            envelopContainer: messageChunk
+                ? [...messageChunk.envelopContainer, storageEnvelopContainer]
+                : [storageEnvelopContainer],
         },
         conversationManifest: {
             ...conversationManifest,

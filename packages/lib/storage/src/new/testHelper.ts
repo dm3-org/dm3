@@ -1,4 +1,4 @@
-import { Envelop, Message } from '@dm3-org/dm3-lib-messaging';
+import { Envelop, Message, MessageState } from '@dm3-org/dm3-lib-messaging';
 import { sha256 } from '@dm3-org/dm3-lib-shared';
 import {
     AccountManifest,
@@ -53,6 +53,12 @@ export function makeEnvelop(
 
 export const sign = async (data: string) => sha256(data);
 export const testEnvelop = makeEnvelop('from1', 'to1', 'message', Date.now());
+
+const storageEnvelopContainer = {
+    envelop: testEnvelop,
+    messageState: MessageState.Created,
+};
+
 export const db: Db = {
     accountEnsName: 'test.dm3.eth',
     updateLocalStorageOnRemoteRead: async <T extends Chunk>(
@@ -91,7 +97,7 @@ export const db: Db = {
                 // MessageChunk page 1 for test.dm3.eth and alice.eth
                 case await getMessageChunkKey(db, 'alice.eth', 1):
                     const messageChunk: MessageChunk = {
-                        envelops: [testEnvelop],
+                        envelopContainer: [storageEnvelopContainer],
                         key,
                     };
                     return messageChunk as T;

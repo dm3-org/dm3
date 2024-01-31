@@ -40,12 +40,8 @@ export function Contacts(props: DashboardProps) {
     // fetches context api data
     const { state, dispatch } = useContext(GlobalContext);
     const { account, deliveryServiceToken } = useContext(AuthContext);
-    const {
-        contacts: contacts,
-        initialized,
-        setSelectedContact,
-        selectedContact,
-    } = useContext(ConversationContext);
+    const { contacts, initialized, setSelectedContact, selectedContact } =
+        useContext(ConversationContext);
     const mainnetProvider = useMainnetProvider();
     const { resolveAliasToTLD } = useTopLevelAlias();
 
@@ -65,16 +61,8 @@ export function Contacts(props: DashboardProps) {
 
     // handles any change in socket or session
     useEffect(() => {
-        if (!initialized) {
-            dispatch({
-                type: ModalStateType.LoaderContent,
-                payload: 'Fetching contacts...',
-            });
-            console.log('start loader');
-            return startLoader();
-        }
-
-        closeLoader();
+        console.log(' initialized', initialized);
+        console.log('contacts', contacts);
     }, [initialized]);
 
     // handles change in accounts
@@ -244,7 +232,6 @@ export function Contacts(props: DashboardProps) {
                                             </div>
 
                                             {/* @Bhupesh what is this cached contacts section for */}
-
                                             {/* {state.cache.contacts &&
                                                 id !== selectedContact?.contactDetails.account.ensName &&
                                                 (

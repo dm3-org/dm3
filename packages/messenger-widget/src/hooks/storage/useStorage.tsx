@@ -4,6 +4,7 @@
 //Will be initialized with the deliveryServiceToken and the initialUserDb after the user has logged in.
 
 import {
+    StorageEnvelopContainer,
     UserDB,
     createRemoteKeyValueStoreApi,
     createStorage,
@@ -132,5 +133,8 @@ export const useStorage = (
 export type StoreMessageAsync = (message: any) => void;
 export type GetConversations = (page: number) => Promise<Conversation[]>;
 export type AddConversation = (contact: string) => void;
-export type GetMessages = (contact: string, page: number) => Promise<Envelop[]>;
+export type GetMessages = (
+    contact: string,
+    page: number,
+) => Promise<StorageEnvelopContainer[]>;
 export type GetNumberOfMessages = (contact: string) => Promise<number>;

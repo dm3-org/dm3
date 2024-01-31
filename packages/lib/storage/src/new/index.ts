@@ -20,6 +20,7 @@ import {
     StorageAPI,
 } from './types';
 import { addConversation, addMessage } from './write';
+import { StorageEnvelopContainer } from '../Storage';
 
 /**
  * This function creates a closure that, when invoked, adds a new conversation
@@ -116,8 +117,8 @@ function toggleHideConversationSideEffectContainment(
  */
 function addMessageSideEffectContainment(
     db: Db,
-): (contactEnsName: string, envelop: Envelop) => Promise<void> {
-    return async (contactEnsName: string, envelop: Envelop) => {
+): (contactEnsName: string, envelop: StorageEnvelopContainer) => Promise<void> {
+    return async (contactEnsName: string, envelop: StorageEnvelopContainer) => {
         //First we have to get the conversation manifest
         const conversationManifest = await getConversationManifest(
             contactEnsName,
@@ -215,7 +216,7 @@ export function createStorage(
             if (!chunk) {
                 return [];
             }
-            return chunk.envelops;
+            return chunk.envelopContainer;
         },
 
         getNumberOfMessages: (contactEnsName: string) =>

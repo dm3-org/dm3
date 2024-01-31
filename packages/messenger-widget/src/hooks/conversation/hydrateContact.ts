@@ -14,6 +14,7 @@ import { getAvatarProfilePic } from '../../utils/ens-utils';
 import { GetMessages, GetNumberOfMessages } from '../storage/useStorage';
 import { Envelop } from '@dm3-org/dm3-lib-messaging';
 import { MessageActionType } from '../../utils/enum-type-utils';
+import { StorageEnvelopContainer } from '@dm3-org/dm3-lib-storage';
 
 export const hydrateContract = async (
     provider: ethers.providers.JsonRpcProvider,
@@ -46,11 +47,13 @@ const fetchPreview = async (
         Math.floor(numberOfmessages / MAX_MESSAGES_PER_CHUNK),
     );
 
-    const lastMessage = lastMessages.filter((msg: Envelop) => {
-        //Only consider NEW mesages for preview
-        //TODO @Heiko double check pls
-        return msg.message.metadata?.type === MessageActionType.NEW;
-    })[lastMessages.length - 1]?.message?.message;
+    const lastMessage = lastMessages.filter(
+        ({ envelop }: StorageEnvelopContainer) => {
+            //Only consider NEW mesages for preview
+            //TODO @Heiko double check pls
+            return envelop.message.metadata?.type === MessageActionType.NEW;
+        },
+    )[lastMessages.length - 1]?.envelop?.message.message;
 
     //If there is no message to preview we use the empty string
     const messagePreview = lastMessage ?? '';

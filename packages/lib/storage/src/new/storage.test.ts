@@ -2,6 +2,7 @@ import { stringify } from '@dm3-org/dm3-lib-shared';
 import { createStorage } from './index';
 import { makeEnvelop } from './testHelper';
 import { Chunk, Encryption, ReadStrategy, StorageAPI } from './types';
+import { MessageState } from '@dm3-org/dm3-lib-messaging';
 
 describe('createStorage Integration Tests', () => {
     let storageApi: StorageAPI;
@@ -98,10 +99,15 @@ describe('createStorage Integration Tests', () => {
                 'Hello Bob',
                 1706084571962,
             );
-            await storageApi.addMessage('bob.eth', envelop);
+
+            const storageEnvelopContainer = {
+                envelop,
+                messageState: MessageState.Created,
+            };
+            await storageApi.addMessage('bob.eth', storageEnvelopContainer);
             const messageChunk = await storageApi.getMessages('bob.eth', 0);
             expect(messageChunk.length).toBe(1);
-            expect(messageChunk[0]).toEqual(envelop);
+            expect(messageChunk[0]).toEqual(storageEnvelopContainer);
         });
         it('add new message - updates number of messages', async () => {
             await storageApi.addConversation('bob.eth');
@@ -121,7 +127,12 @@ describe('createStorage Integration Tests', () => {
                 1706084571962,
             );
 
-            await storageApi.addMessage('bob.eth', envelop);
+            const storageEnvelopContainer = {
+                envelop,
+                messageState: MessageState.Created,
+            };
+
+            await storageApi.addMessage('bob.eth', storageEnvelopContainer);
             //We acreate an newStorageApi to verify that the data is stored in remote storage and not just locally
             storageApi = await createStorage('alice.eth', mockSign, {
                 readStrategy: ReadStrategy.RemoteFirst,
@@ -130,7 +141,7 @@ describe('createStorage Integration Tests', () => {
             messageCounter = await storageApi.getNumberOfMessages('bob.eth');
             expect(messageCounter).toBe(1);
 
-            await storageApi.addMessage('bob.eth', envelop);
+            await storageApi.addMessage('bob.eth', storageEnvelopContainer);
             //We acreate an newStorageApi to verify that the data is stored in remote storage and not just locally
             storageApi = await createStorage('alice.eth', mockSign, {
                 readStrategy: ReadStrategy.RemoteFirst,
@@ -139,7 +150,7 @@ describe('createStorage Integration Tests', () => {
             messageCounter = await storageApi.getNumberOfMessages('bob.eth');
             expect(messageCounter).toBe(2);
 
-            await storageApi.addMessage('bob.eth', envelop);
+            await storageApi.addMessage('bob.eth', storageEnvelopContainer);
             //We acreate an newStorageApi to verify that the data is stored in remote storage and not just locally
             storageApi = await createStorage('alice.eth', mockSign, {
                 readStrategy: ReadStrategy.RemoteFirst,
@@ -151,9 +162,9 @@ describe('createStorage Integration Tests', () => {
             const messages = await storageApi.getMessages('bob.eth', 0);
             expect(messages.length).toBe(3);
 
-            expect(messages[0]).toEqual(envelop);
-            expect(messages[1]).toEqual(envelop);
-            expect(messages[2]).toEqual(envelop);
+            expect(messages[0]).toEqual(storageEnvelopContainer);
+            expect(messages[1]).toEqual(storageEnvelopContainer);
+            expect(messages[2]).toEqual(storageEnvelopContainer);
         });
         it('getMessages -- return [] if no converation exists', async () => {
             const messages = await storageApi.getMessages('bob.eth', 0);
@@ -209,7 +220,13 @@ describe('createStorage Integration Tests', () => {
                 'Hello Bob',
                 1706084571962,
             );
-            await storageApi.addMessage('bob.eth', envelop);
+
+            const storageEnvelopContainer = {
+                envelop,
+                messageState: MessageState.Created,
+            };
+
+            await storageApi.addMessage('bob.eth', storageEnvelopContainer);
             //We acreate an newStorageApi to verify that the data is stored in remote storage and not just locally
             storageApi = await createStorage('alice.eth', mockSign, {
                 readStrategy: ReadStrategy.RemoteFirst,
@@ -224,7 +241,7 @@ describe('createStorage Integration Tests', () => {
 
             const getMessages = await storageApi.getMessages('bob.eth', 0);
             expect(getMessages.length).toBe(1);
-            expect(getMessages[0]).toEqual(envelop);
+            expect(getMessages[0]).toEqual(storageEnvelopContainer);
         });
         it('hide conversation -- conversation can be hidden', async () => {
             await storageApi.addConversation('bob.eth');
@@ -288,10 +305,16 @@ describe('createStorage Integration Tests', () => {
                 'Hello Bob',
                 1706084571962,
             );
-            await storageApi.addMessage('bob.eth', envelop);
+
+            const storageEnvelopContainer = {
+                envelop,
+                messageState: MessageState.Created,
+            };
+
+            await storageApi.addMessage('bob.eth', storageEnvelopContainer);
             const messageChunk = await storageApi.getMessages('bob.eth', 0);
             expect(messageChunk.length).toBe(1);
-            expect(messageChunk[0]).toEqual(envelop);
+            expect(messageChunk[0]).toEqual(storageEnvelopContainer);
         });
         it('add new message - updates number of messages', async () => {
             await storageApi.addConversation('bob.eth');
@@ -305,25 +328,29 @@ describe('createStorage Integration Tests', () => {
                 'Hello Bob',
                 1706084571962,
             );
+            const storageEnvelopContainer = {
+                envelop,
+                messageState: MessageState.Created,
+            };
 
-            await storageApi.addMessage('bob.eth', envelop);
+            await storageApi.addMessage('bob.eth', storageEnvelopContainer);
             messageCounter = await storageApi.getNumberOfMessages('bob.eth');
             expect(messageCounter).toBe(1);
 
-            await storageApi.addMessage('bob.eth', envelop);
+            await storageApi.addMessage('bob.eth', storageEnvelopContainer);
             messageCounter = await storageApi.getNumberOfMessages('bob.eth');
             expect(messageCounter).toBe(2);
 
-            await storageApi.addMessage('bob.eth', envelop);
+            await storageApi.addMessage('bob.eth', storageEnvelopContainer);
             messageCounter = await storageApi.getNumberOfMessages('bob.eth');
             expect(messageCounter).toBe(3);
 
             const messages = await storageApi.getMessages('bob.eth', 0);
             expect(messages.length).toBe(3);
 
-            expect(messages[0]).toEqual(envelop);
-            expect(messages[1]).toEqual(envelop);
-            expect(messages[2]).toEqual(envelop);
+            expect(messages[0]).toEqual(storageEnvelopContainer);
+            expect(messages[1]).toEqual(storageEnvelopContainer);
+            expect(messages[2]).toEqual(storageEnvelopContainer);
         });
         it('getMessages -- return [] if no converation exists', async () => {
             const messages = await storageApi.getMessages('bob.eth', 0);
@@ -354,7 +381,13 @@ describe('createStorage Integration Tests', () => {
                 'Hello Bob',
                 1706084571962,
             );
-            await storageApi.addMessage('bob.eth', envelop);
+
+            const storageEnvelopContainer = {
+                envelop,
+                messageState: MessageState.Created,
+            };
+
+            await storageApi.addMessage('bob.eth', storageEnvelopContainer);
 
             const conversations = await storageApi.getConversationList(0);
             expect(conversations.length).toBe(1);
@@ -364,7 +397,7 @@ describe('createStorage Integration Tests', () => {
 
             const getMessages = await storageApi.getMessages('bob.eth', 0);
             expect(getMessages.length).toBe(1);
-            expect(getMessages[0]).toEqual(envelop);
+            expect(getMessages[0]).toEqual(storageEnvelopContainer);
         });
         it('hide conversation -- conversation can be hidden', async () => {
             await storageApi.addConversation('bob.eth');

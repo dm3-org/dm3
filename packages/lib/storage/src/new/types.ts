@@ -1,4 +1,4 @@
-import { Envelop } from '@dm3-org/dm3-lib-messaging';
+import { Envelop, MessageState } from '@dm3-org/dm3-lib-messaging';
 
 export const INITIAL_ACCOUNT_MANIFEST = (key: string): AccountManifest => ({
     conversationListCounter: 0,
@@ -18,12 +18,17 @@ export interface Conversation extends ConversationManifest {
 
 export interface StorageAPI {
     getConversationList: (page: number) => Promise<Conversation[]>;
-
-    getMessages: (contactEnsName: string, page: number) => Promise<Envelop[]>;
+    getMessages: (
+        contactEnsName: string,
+        page: number,
+    ) => Promise<StorageEnvelopContainer[]>;
     getNumberOfMessages: (contactEnsName: string) => Promise<number>;
     getNumberOfConverations: () => Promise<number>;
     addConversation: (contactEnsName: string) => Promise<void>;
-    addMessage: (contactEnsName: string, envelop: Envelop) => Promise<void>;
+    addMessage: (
+        contactEnsName: string,
+        envelop: StorageEnvelopContainer,
+    ) => Promise<void>;
     toggleHideConversation: (
         contactEnsName: string,
         isHidden: boolean,
@@ -77,10 +82,15 @@ export interface ConversationManifest extends Chunk {
 }
 
 export interface MessageChunk extends Chunk {
-    envelops: Envelop[];
+    envelopContainer: StorageEnvelopContainer[];
 }
 
 export type RemoteFetchCb = <T extends Chunk>(
     key: string,
     value: T,
 ) => Promise<void>;
+
+export interface StorageEnvelopContainer {
+    messageState: MessageState;
+    envelop: Envelop;
+}
