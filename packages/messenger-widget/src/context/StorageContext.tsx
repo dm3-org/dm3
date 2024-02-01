@@ -6,6 +6,7 @@ import {
     GetMessages,
     GetNumberOfMessages,
     StoreMessageAsync,
+    ToggleHideContactAsync,
     useStorage,
 } from '../hooks/storage/useStorage';
 import { AuthContext } from './AuthContext';
@@ -16,6 +17,7 @@ export type StorageContextType = {
     addConversationAsync: AddConversation;
     getNumberOfMessages: GetNumberOfMessages;
     getMessages: GetMessages;
+    toggleHideContactAsync: ToggleHideContactAsync;
     initialized: boolean;
 };
 
@@ -25,6 +27,7 @@ export const StorageContext = React.createContext<StorageContextType>({
     addConversationAsync: (contact: string) => {},
     getMessages: async (contact: string, page: number) => Promise.resolve([]),
     getNumberOfMessages: async (contact: string) => Promise.resolve(0),
+    toggleHideContactAsync: async (contact: string, value: boolean) => {},
     initialized: false,
 });
 
@@ -38,6 +41,7 @@ export const StorageContextProvider = ({ children }: { children?: any }) => {
         addConversationAsync,
         getNumberOfMessages,
         getMessages,
+        toggleHideContactAsync,
         initialized,
     } = useStorage(account, deliveryServiceToken, profileKeys);
     return (
@@ -48,6 +52,7 @@ export const StorageContextProvider = ({ children }: { children?: any }) => {
                 addConversationAsync,
                 getNumberOfMessages,
                 getMessages,
+                toggleHideContactAsync,
                 initialized,
             }}
         >

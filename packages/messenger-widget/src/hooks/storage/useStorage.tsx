@@ -120,12 +120,20 @@ export const useStorage = (
         return storageApi.getNumberOfMessages(contact);
     };
 
+    const toggleHideContactAsync = (contact: string, value: boolean) => {
+        if (!storageApi) {
+            return Promise.resolve(0);
+        }
+        storageApi.toggleHideConversation(contact, value);
+    };
+
     return {
         storeMessageAsync,
         getConversations,
         addConversationAsync,
         getMessages,
         getNumberOfMessages,
+        toggleHideContactAsync,
         initialized,
     };
 };
@@ -138,3 +146,4 @@ export type GetMessages = (
     page: number,
 ) => Promise<StorageEnvelopContainer[]>;
 export type GetNumberOfMessages = (contact: string) => Promise<number>;
+export type ToggleHideContactAsync = (contact: string, value: boolean) => void;

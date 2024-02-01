@@ -1,34 +1,31 @@
 /* eslint-disable no-console */
-import '../../styles/profile-contact.css';
-import { Button } from '../Button/Button';
+import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
-import { GlobalContext } from '../../utils/context-utils';
+import copyIcon from '../../assets/images/copy.svg';
 import closeIcon from '../../assets/images/cross.svg';
-import { EnsDetails } from '../EnsDetails/EnsDetails';
+import profilePic from '../../assets/images/human.svg';
+import { ConversationContext } from '../../context/ConversationContext';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
+import '../../styles/profile-contact.css';
+import { GlobalContext } from '../../utils/context-utils';
 import {
-    getContactSelected,
     hideContact,
     onClose,
     openEnsProfile,
     openEtherscan,
 } from '../../utils/ens-utils';
-import { IContactInfo } from '../../interfaces/utils';
-import profilePic from '../../assets/images/human.svg';
+import { Button } from '../Button/Button';
+import { EnsDetails } from '../EnsDetails/EnsDetails';
 import { closeLoader, startLoader } from '../Loader/Loader';
-import { ModalStateType } from '../../utils/enum-type-utils';
-import copyIcon from '../../assets/images/copy.svg';
-import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
-import { ConversationContext } from '../../context/ConversationContext';
-import { ethers } from 'ethers';
+import {
+    RightViewSelected,
+    UiViewStateType,
+} from '../../utils/enum-type-utils';
 
 export function ContactInfo() {
     const { state, dispatch } = useContext(GlobalContext);
-    const { selectedContact } = useContext(ConversationContext);
+    const { selectedContact, hideContact } = useContext(ConversationContext);
     const mainnetProvider = useMainnetProvider();
-
-    const [contactDetails, setContactDetails] = useState<IContactInfo | null>(
-        null,
-    );
 
     const [address, setAddress] = useState<string>('');
 
@@ -47,6 +44,18 @@ export function ContactInfo() {
             address = ethers.utils.isAddress(address) ? address : 'Not set';
         }
         return address;
+    };
+
+    const onClickOfHideContact = () => {
+        if (!selectedContact) {
+            return;
+        }
+        hideContact(selectedContact.name);
+        //Close the message Modal and show the default one instead
+        dispatch({
+            type: UiViewStateType.SetSelectedRightView,
+            payload: RightViewSelected.Default,
+        });
     };
 
     useEffect(() => {
@@ -80,7 +89,11 @@ export function ContactInfo() {
 
             <div className="profile-details-container text-primary-color">
                 <img
-                    src={contactDetails ? contactDetails.image : profilePic}
+                    src={
+                        selectedContact?.contactDetails
+                            ? selectedContact.image
+                            : profilePic
+                    }
                     alt="profile-pic"
                     className="border-radius-4 profile-image"
                 />
@@ -131,7 +144,7 @@ export function ContactInfo() {
                     <div className="configure-btn-container">
                         <Button
                             buttonText="Hide Contact"
-                            actionMethod={() => hideContact(state, dispatch)}
+                            actionMethod={onClickOfHideContact}
                         />
                     </div>
                 </div>

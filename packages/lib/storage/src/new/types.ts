@@ -78,7 +78,7 @@ export interface ConversationList extends Chunk {
 
 export interface ConversationManifest extends Chunk {
     messageCounter: number;
-    isHidden: false;
+    isHidden: boolean;
 }
 
 export interface MessageChunk extends Chunk {

@@ -16,6 +16,7 @@ export interface ContactPreview {
     message: string | null;
     image: string;
     unreadMsgCount: number;
+    messageCount: number;
     contactDetails: Contact;
     isHidden: boolean;
 }

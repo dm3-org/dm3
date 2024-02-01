@@ -6,26 +6,30 @@ import {
     getUserProfile,
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
+import { StorageEnvelopContainer } from '@dm3-org/dm3-lib-storage';
 import axios from 'axios';
 import { ethers } from 'ethers';
 import { Contact } from '../../interfaces/context';
 import { ContactPreview } from '../../interfaces/utils';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
-import { GetMessages, GetNumberOfMessages } from '../storage/useStorage';
-import { Envelop } from '@dm3-org/dm3-lib-messaging';
 import { MessageActionType } from '../../utils/enum-type-utils';
-import { StorageEnvelopContainer } from '@dm3-org/dm3-lib-storage';
+import { GetMessages, GetNumberOfMessages } from '../storage/useStorage';
+import { Conversation } from '@dm3-org/dm3-lib-storage/dist/new/types';
 
 export const hydrateContract = async (
     provider: ethers.providers.JsonRpcProvider,
-    ensName: string,
+    conversatoinManifest: Conversation,
     getMessages: GetMessages,
     getNumberOfMessages: GetNumberOfMessages,
 ) => {
-    const account = await fetchAccount(provider, ensName);
+    const account = await fetchAccount(
+        provider,
+        conversatoinManifest.contactEnsName,
+    );
     const contact = await fetchDsProfile(provider, account);
     const contactPreview = await fetchPreview(
         provider,
+        conversatoinManifest,
         contact,
         getMessages,
         getNumberOfMessages,
@@ -36,6 +40,7 @@ export const hydrateContract = async (
 
 const fetchPreview = async (
     provider: ethers.providers.JsonRpcProvider,
+    conversatoinManifest: Conversation,
     contact: Contact,
     getMessages: GetMessages,
     getNumberOfMessages: GetNumberOfMessages,
@@ -63,9 +68,10 @@ const fetchPreview = async (
         name: getAccountDisplayName(contact.account.ensName, 25),
         message: messagePreview,
         image: await getAvatarProfilePic(provider, contact.account.ensName),
+        messageCount: conversatoinManifest.messageCounter,
         unreadMsgCount: 21,
         contactDetails: contact,
-        isHidden: false,
+        isHidden: conversatoinManifest.isHidden,
     };
 };
 

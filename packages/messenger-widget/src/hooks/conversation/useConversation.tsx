@@ -8,6 +8,7 @@ import { StorageContext } from '../../context/StorageContext';
 import { ContactPreview } from '../../interfaces/utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
+import { Conversation } from '@dm3-org/dm3-lib-storage/dist/new/types';
 
 export const useConversation = () => {
     const mainnetProvider = useMainnetProvider();
@@ -17,6 +18,7 @@ export const useConversation = () => {
         initialized: storageInitialized,
         getMessages,
         getNumberOfMessages,
+        toggleHideContactAsync,
     } = useContext(StorageContext);
 
     const [contacts, setContacts] = useState<Array<ContactPreview>>([]);
@@ -47,10 +49,10 @@ export const useConversation = () => {
 
             //Hydrate the contacts by fetching their profile and DS profile
             const newContacts = await Promise.all(
-                currentConversationsPage.map((contact) =>
+                currentConversationsPage.map((conversation) =>
                     hydrateContract(
                         mainnetProvider,
-                        contact.contactEnsName,
+                        conversation,
                         getMessages,
                         getNumberOfMessages,
                     ),
@@ -65,6 +67,8 @@ export const useConversation = () => {
                             newContact.contactDetails.account.ensName,
                     ),
             );
+
+            console.log('contracts from storage', contactsWithoutDuplicates);
 
             setContacts((prev) => [...prev, ...contactsWithoutDuplicates]);
             if (currentConversationsPage.length > 0) {
@@ -83,6 +87,10 @@ export const useConversation = () => {
         );
         //If the contact is already in the list return it
         if (alreadyAddedContact) {
+            //Unhide the contact if it was hidden
+            if (alreadyAddedContact.isHidden) {
+                unhideContact(ensName);
+            }
             return alreadyAddedContact;
         }
 
@@ -91,6 +99,7 @@ export const useConversation = () => {
             message: null,
             image: humanIcon,
             unreadMsgCount: 0,
+            messageCount: 0,
             contactDetails: {
                 account: {
                     ensName,
@@ -104,30 +113,66 @@ export const useConversation = () => {
         //Add the contact to the storage in the background
         addConversationAsync(ensName);
         //Hydrate the contact in the background
-        hydrateExistingContactAsync(ensName);
+        hydrateExistingContactAsync(newContact);
 
         //Return the new onhydrated contact
         return newContact;
     };
     //When a conversation is added via the AddContacts dialog it should appeat in the conversation list immediately. Hence we're doing a hydrate here asynchroniously in the background
-    const hydrateExistingContactAsync = async (ensName: string) => {
+    const hydrateExistingContactAsync = async (contact: ContactPreview) => {
+        const conversation: Conversation = {
+            contactEnsName: contact.contactDetails.account.ensName,
+            messageCounter: contact?.messageCount || 0,
+            isHidden: contact.isHidden,
+            key: '',
+        };
         const hydratedContact = await hydrateContract(
             mainnetProvider,
-            ensName,
+            conversation,
             getMessages,
             getNumberOfMessages,
         );
+        console.log('hydrated contact', hydratedContact);
         setContacts((prev) => {
             return prev.map((existingContact) => {
                 //Find the contact in the list and replace it with the hydrated one
                 if (
-                    existingContact.contactDetails.account.ensName === ensName
+                    existingContact.contactDetails.account.ensName ===
+                    conversation.contactEnsName
                 ) {
                     return hydratedContact;
                 }
                 return existingContact;
             });
         });
+    };
+
+    const toggleHideContact = (ensName: string, isHidden: boolean) => {
+        setContacts((prev) => {
+            return prev.map((existingContact) => {
+                //Find the contact in the list and replace it with the hydrated one
+                if (
+                    existingContact.contactDetails.account.ensName === ensName
+                ) {
+                    return {
+                        ...existingContact,
+                        isHidden,
+                    };
+                }
+                return existingContact;
+            });
+        });
+        //update the storage
+        toggleHideContactAsync(ensName, isHidden);
+    };
+
+    const hideContact = (ensName: string) => {
+        toggleHideContact(ensName, true);
+        setSelectedContactName(undefined);
+    };
+
+    const unhideContact = (ensName: string) => {
+        toggleHideContact(ensName, false);
     };
 
     return {
@@ -137,5 +182,7 @@ export const useConversation = () => {
         initialized: conversationsInitialized,
         setSelectedContactName,
         selectedContact,
+        hideContact,
+        unhideContact,
     };
 };

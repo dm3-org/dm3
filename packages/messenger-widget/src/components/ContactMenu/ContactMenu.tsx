@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { useContext } from 'react';
 import detailsIcon from '../../assets/images/details.svg';
 import hideIcon from '../../assets/images/hide.svg';
@@ -7,10 +8,13 @@ import {
     RightViewSelected,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
-import { hideContact } from '../../utils/ens-utils';
+
+import { ConversationContext } from '../../context/ConversationContext';
 
 export function ContactMenu(props: IContactMenu) {
     const { state, dispatch } = useContext(GlobalContext);
+    const { hideContact, setSelectedContactName } =
+        useContext(ConversationContext);
 
     const onClickOfShowDetails = () => {
         dispatch({
@@ -20,7 +24,12 @@ export function ContactMenu(props: IContactMenu) {
     };
 
     const onClickOfHideContact = () => {
-        hideContact(state, dispatch);
+        hideContact(props.contactDetails.name);
+        //Close the message Modal and show the default one instead
+        dispatch({
+            type: UiViewStateType.SetSelectedRightView,
+            payload: RightViewSelected.Default,
+        });
     };
 
     return (

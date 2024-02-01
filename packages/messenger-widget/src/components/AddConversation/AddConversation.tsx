@@ -2,7 +2,7 @@
 import './AddConversation.css';
 import '../../styles/modal.css';
 import closeIcon from '../../assets/images/cross.svg';
-import { INPUT_FIELD_CLASS, addContact, closeConversationModal } from './bl';
+import { INPUT_FIELD_CLASS, closeConversationModal } from './bl';
 import { FormEvent, useContext, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import { showContactList } from '../../utils/common-utils';
@@ -58,7 +58,6 @@ export default function AddConversation() {
             }
             //Checks wether the name entered, is an tld name. If yes, the TLD is substituded with the alias name
             const aliasName = await resolveTLDtoAlias(name);
-            console.log('lets gooooo');
             closeConversationModal(
                 resetName,
                 showErrorMessage,
