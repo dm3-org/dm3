@@ -1,6 +1,6 @@
 {
   "name": "@dm3-org/dm3-messenger-widget",
-  "version": "1.0.9",
+  "version": "1.0.12",
   "main": "./dist/cjs/index.js",
   "module": "./dist/cjs/index.js",
   "dependencies": {
@@ -8,7 +8,6 @@
     "@dm3-org/dm3-lib-crypto": "workspace:^",
     "@dm3-org/dm3-lib-delivery-api": "workspace:^",
     "@dm3-org/dm3-lib-messaging": "workspace:^",
-    "@dm3-org/dm3-lib-offchain-resolver-api": "workspace:^",
     "@dm3-org/dm3-lib-profile": "workspace:^",
     "@dm3-org/dm3-lib-shared": "workspace:^",
     "@dm3-org/dm3-lib-storage": "workspace:^",

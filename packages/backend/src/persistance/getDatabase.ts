@@ -1,5 +1,6 @@
 import {
     Session as DSSession,
+    IGlobalNotification,
     NotificationChannel,
     spamFilter,
 } from '@dm3-org/dm3-lib-delivery';
@@ -22,6 +23,7 @@ export enum RedisPrefix {
     UserStorage = 'user.storage:',
     Pending = 'pending:',
     NotificationChannel = 'notificationChannel:',
+    GlobalNotification = 'globalNotification:',
 }
 
 export async function getRedisClient() {
@@ -85,6 +87,9 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
             Notification.getUsersNotificationChannels(redis),
         addUsersNotificationChannel:
             Notification.addUsersNotificationChannel(redis),
+        // Global Notification
+        getGlobalNotification: Notification.getGlobalNotification(redis),
+        setGlobalNotification: Notification.setGlobalNotification(redis),
     };
 }
 
@@ -143,6 +148,11 @@ export interface IDatabase {
     addUsersNotificationChannel: (
         ensName: string,
         channel: NotificationChannel,
+    ) => Promise<void>;
+    getGlobalNotification: (ensName: string) => Promise<IGlobalNotification>;
+    setGlobalNotification: (
+        ensName: string,
+        isEnabled: boolean,
     ) => Promise<void>;
 }
 
