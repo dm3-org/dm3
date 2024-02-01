@@ -1,4 +1,6 @@
+import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
 import { Contact } from './context';
+import humanIcon from '../assets/images/human.svg';
 
 export interface EnsProfileDetails {
     email: string | null;
@@ -39,3 +41,22 @@ export interface Attachment {
     name: string;
     isImage: boolean;
 }
+
+export const getDefaultContract = (ensName: string) => {
+    const newContact: ContactPreview = {
+        name: getAccountDisplayName(ensName, 25),
+        message: null,
+        image: humanIcon,
+        unreadMsgCount: 0,
+        messageCount: 0,
+        contactDetails: {
+            account: {
+                ensName,
+            },
+            deliveryServiceProfile: undefined,
+        },
+        isHidden: false,
+    };
+
+    return newContact;
+};

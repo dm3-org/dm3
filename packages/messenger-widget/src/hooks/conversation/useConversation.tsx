@@ -5,7 +5,7 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import humanIcon from '../../assets/images/human.svg';
 import { AuthContext } from '../../context/AuthContext';
 import { StorageContext } from '../../context/StorageContext';
-import { ContactPreview } from '../../interfaces/utils';
+import { ContactPreview, getDefaultContract } from '../../interfaces/utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
 import { Conversation } from '@dm3-org/dm3-lib-storage/dist/new/types';
@@ -49,14 +49,23 @@ export const useConversation = () => {
 
             //Hydrate the contacts by fetching their profile and DS profile
             const newContacts = await Promise.all(
-                currentConversationsPage.map((conversation) =>
-                    hydrateContract(
+                currentConversationsPage.map((conversation) => {
+                    const isHidden = conversation.isHidden;
+                    //Hydrating is the most expensive operation. Hence we only hydrate if the contact is not hidden
+                    if (isHidden) {
+                        //If the contact is hidden we only return the contact with the default values. Once its unhidden it will be hydrated
+                        return {
+                            ...getDefaultContract(conversation.contactEnsName),
+                            isHidden: true,
+                        };
+                    }
+                    return hydrateContract(
                         mainnetProvider,
                         conversation,
                         getMessages,
                         getNumberOfMessages,
-                    ),
-                ),
+                    );
+                }),
             );
             //It might be the case that contacts are added via websocket. In this case we do not want to add them again
             const contactsWithoutDuplicates = newContacts.filter(
@@ -89,25 +98,12 @@ export const useConversation = () => {
         if (alreadyAddedContact) {
             //Unhide the contact if it was hidden
             if (alreadyAddedContact.isHidden) {
-                unhideContact(ensName);
+                unhideContact(alreadyAddedContact);
             }
             return alreadyAddedContact;
         }
 
-        const newContact: ContactPreview = {
-            name: getAccountDisplayName(ensName, 25),
-            message: null,
-            image: humanIcon,
-            unreadMsgCount: 0,
-            messageCount: 0,
-            contactDetails: {
-                account: {
-                    ensName,
-                },
-                deliveryServiceProfile: undefined,
-            },
-            isHidden: false,
-        };
+        const newContact: ContactPreview = getDefaultContract(ensName);
         //Set the new contact to the list
         setContacts((prev) => [...prev, newContact]);
         //Add the contact to the storage in the background
@@ -171,8 +167,13 @@ export const useConversation = () => {
         setSelectedContactName(undefined);
     };
 
-    const unhideContact = (ensName: string) => {
-        toggleHideContact(ensName, false);
+    const unhideContact = (contact: ContactPreview) => {
+        toggleHideContact(contact.contactDetails.account.ensName, false);
+        const unhiddenContact = {
+            ...contact,
+            isHidden: false,
+        };
+        hydrateExistingContactAsync(unhiddenContact);
     };
 
     return {

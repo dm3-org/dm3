@@ -1,6 +1,4 @@
-/* eslint-disable no-console */
 import { ethers } from 'ethers';
-import { keccak256 } from 'viem';
 
 export const getCachedProvider = (
     provider: ethers.providers.JsonRpcProvider,
@@ -14,7 +12,6 @@ export const getCachedProvider = (
                     if (method === 'eth_chainId') {
                         const key = `${fnSig}-${method}`;
                         if (cache.has(key)) {
-                            console.log('cache hit ', key);
                             return cache.get(key);
                         }
 
@@ -28,7 +25,6 @@ export const getCachedProvider = (
                         const [[{ data, to }]] = args;
                         const key = `${fnSig}-${method}-${to}-${data}`;
                         if (cache.has(key)) {
-                            console.log('eth_call cache hit ');
                             return cache.get(key);
                         }
 

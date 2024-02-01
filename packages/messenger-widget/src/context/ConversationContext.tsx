@@ -11,7 +11,6 @@ export type ConversationContextType = {
     initialized: boolean;
     addConversation: (ensName: string) => ContactPreview;
     hideContact: (ensName: string) => void;
-    unhideContact: (ensName: string) => void;
 };
 
 export const ConversationContext = React.createContext<ConversationContextType>(
@@ -25,7 +24,6 @@ export const ConversationContext = React.createContext<ConversationContextType>(
             return {} as ContactPreview;
         },
         hideContact: (ensName: string) => {},
-        unhideContact: (ensName: string) => {},
     },
 );
 
@@ -55,7 +53,6 @@ export const ConversationContextProvider = ({
                 setSelectedContactName,
                 selectedContact,
                 hideContact,
-                unhideContact,
             }}
         >
             {children}
