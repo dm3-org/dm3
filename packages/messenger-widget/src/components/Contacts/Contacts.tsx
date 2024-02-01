@@ -40,39 +40,13 @@ export function Contacts(props: DashboardProps) {
     );
 
     // handles contact box view
+    //Can be removed once responsive design has been implemented @Bhupesh
     useEffect(() => {
         setContactHeightToMaximum(!isAddrEnsName ? true : false);
     }, [account?.ensName]);
 
-    // handles change in accounts
-    useEffect(() => {
-        if (
-            !state.accounts.selectedContact &&
-            (state.uiView.selectedRightView === RightViewSelected.Chat ||
-                state.uiView.selectedRightView === RightViewSelected.Default)
-        ) {
-        }
-
-        if (
-            state.modal.addConversation.active &&
-            state.modal.addConversation.processed
-        ) {
-            //TODO check what is this
-            updateContactOnAccountChange(
-                state,
-                mainnetProvider,
-                dispatch,
-                contacts,
-                () => {},
-                () => {},
-            );
-        }
-
-        // new contact is detected from web socket
-        //TODO add websocket listener for add conversation
-    }, [state.accounts.contacts]);
-
     // handles active contact removal
+    // move to a better place (profile window) and Contact Info
     useEffect(() => {
         if (
             selectedContact !== null &&
@@ -88,7 +62,7 @@ export function Contacts(props: DashboardProps) {
         if (selectedContact !== undefined) {
             onContactSelected(state, dispatch, selectedContact.contactDetails);
             //TODO @Bhupesh what is that for
-            // setIsMenuAlignedAtBottom(showMenuInBottom(contactSelected));
+            setIsMenuAlignedAtBottom(showMenuInBottom(selectedContact.name));
         }
     }, [selectedContact]);
 
@@ -99,7 +73,8 @@ export function Contacts(props: DashboardProps) {
             !state.accounts.selectedContact &&
             contacts
         ) {
-            //TODO add defaultContact
+            //TODO when used as a widget, there is no contact list so the user can
+            //not select a contact and has to chat with the default contact
             // const defaultContactIndex = contacts.findIndex(
             //     (contact) =>
             //         contact.contactDetails &&
@@ -111,16 +86,6 @@ export function Contacts(props: DashboardProps) {
             //     setContactSelected(defaultContactIndex);
             // }
         }
-
-        // new conversation is added
-        // @Bhupesh what is this for
-        // if (
-        //     state.modal.addConversation.active &&
-        //     !state.modal.addConversation.processed &&
-        //     state.cache.contacts
-        // ) {
-        //     updateSelectedContact(state, dispatch, setContactFromList);
-        // }
     }, [contacts]);
 
     useEffect(() => {
@@ -132,11 +97,13 @@ export function Contacts(props: DashboardProps) {
 
     const scroller = document.getElementById('chat-scroller');
 
+    //If a selected contact is selected and the menu is open, we want to align the menu at the bottom
     if (scroller) {
         scroller.addEventListener('scroll', () => {
             if (selectedContact != null) {
-                //@Bhupesh what is this for
-                // setIsMenuAlignedAtBottom(showMenuInBottom(contactSelected));
+                setIsMenuAlignedAtBottom(
+                    showMenuInBottom(selectedContact.name),
+                );
             }
         });
     }
@@ -152,6 +119,7 @@ export function Contacts(props: DashboardProps) {
             {contacts.length > 0 &&
                 contacts.map((data) => {
                     const id = data.contactDetails.account.ensName;
+                    const unreadMessageCount = data.messageCount;
                     return (
                         !data.isHidden && (
                             <div
@@ -208,20 +176,16 @@ export function Contacts(props: DashboardProps) {
                                             </div>
 
                                             {/* @Bhupesh what is this cached contacts section for */}
-                                            {/* {state.cache.contacts &&
-                                                id !== selectedContact?.contactDetails.account.ensName &&
-                                                (
+                                            {id !==
+                                                selectedContact?.contactDetails
+                                                    .account.ensName &&
+                                                unreadMessageCount > 0 && (
                                                     <div>
                                                         <div className="msg-count">
-                                                            {
-                                                                state.cache
-                                                                    .contacts[
-                                                                    index
-                                                                ].unreadMsgCount
-                                                            }
+                                                            {unreadMessageCount}
                                                         </div>
                                                     </div>
-                                                )} */}
+                                                )}
 
                                             {selectedContact?.contactDetails
                                                 .account.ensName === id ? (

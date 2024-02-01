@@ -57,6 +57,7 @@ export default function AddConversation() {
                 return;
             }
             //Checks wether the name entered, is an tld name. If yes, the TLD is substituded with the alias name
+
             const aliasName = await resolveTLDtoAlias(name);
             closeConversationModal(
                 resetName,
