@@ -160,3 +160,16 @@ jobs:
               with:
                   workspace-name: '@dm3-org/dm3-offchain-resolver'
                   package-pat: ${{ secrets.PACKAGE_PAT }}
+    tld-alias-test:
+        runs-on: ubuntu-latest
+        needs: build
+        defaults:
+            run:
+                working-directory: 'packages/lib'
+        steps:
+            - uses: actions/checkout@v1
+            - id: workspace-test
+              uses: ./test-action
+              with:
+                  workspace-name: '@dm3-org/dm3-toplevel-alias'
+                  package-pat: ${{ secrets.PACKAGE_PAT }}
