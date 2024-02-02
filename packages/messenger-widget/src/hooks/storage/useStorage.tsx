@@ -90,8 +90,14 @@ export const useStorage = (
         setInitialized(true);
     };
 
-    const storeMessageAsync = (message: any) => {
-        console.log('storeMessage', storageApi);
+    const storeMessageAsync = (
+        contact: string,
+        envelop: StorageEnvelopContainer,
+    ) => {
+        if (!storageApi) {
+            throw Error('Storage not initialized');
+        }
+        storageApi.addMessage(contact, envelop);
     };
     const getConversations = async (page: number) => {
         if (!storageApi) {
@@ -138,9 +144,13 @@ export const useStorage = (
     };
 };
 
-export type StoreMessageAsync = (message: any) => void;
+export type StoreMessageAsync = (
+    contact: string,
+    envelop: StorageEnvelopContainer,
+) => void;
 export type GetConversations = (page: number) => Promise<Conversation[]>;
 export type AddConversation = (contact: string) => void;
+
 export type GetMessages = (
     contact: string,
     page: number,

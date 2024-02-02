@@ -1,23 +1,22 @@
 /* eslint-disable no-console */
-import './Chat.css';
-import { Message } from '../Message/Message';
-import { getConversation } from '@dm3-org/dm3-lib-storage';
 import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
-import { HideFunctionProps, MessageProps } from '../../interfaces/props';
+import { getConversation } from '@dm3-org/dm3-lib-storage';
 import { useContext, useEffect, useState } from 'react';
+import { AuthContext } from '../../context/AuthContext';
+import { ConversationContext } from '../../context/ConversationContext';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
+import { HideFunctionProps, MessageProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
-import { MessageInputBox } from '../MessageInputBox/MessageInputBox';
+import { MessageActionType } from '../../utils/enum-type-utils';
 import ConfigProfileAlertBox from '../ContactProfileAlertBox/ContactProfileAlertBox';
+import { Message } from '../Message/Message';
+import { MessageInputBox } from '../MessageInputBox/MessageInputBox';
+import './Chat.css';
 import {
     checkUserProfileConfigured,
     handleMessages,
     scrollToBottomOfChat,
 } from './bl';
-import { MessageActionType } from '../../utils/enum-type-utils';
-import { useAuth } from '../../hooks/auth/useAuth';
-import { AuthContext } from '../../context/AuthContext';
-import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
-import { ConversationContext } from '../../context/ConversationContext';
 
 export function Chat(props: HideFunctionProps) {
     const { state, dispatch } = useContext(GlobalContext);

@@ -19,8 +19,6 @@ import { Conversation } from '@dm3-org/dm3-lib-storage/dist/new/types';
 export const hydrateContract = async (
     provider: ethers.providers.JsonRpcProvider,
     conversatoinManifest: Conversation,
-    getMessages: GetMessages,
-    getNumberOfMessages: GetNumberOfMessages,
 ) => {
     const account = await fetchAccount(
         provider,
@@ -31,8 +29,6 @@ export const hydrateContract = async (
         provider,
         conversatoinManifest,
         contact,
-        getMessages,
-        getNumberOfMessages,
     );
 
     return contactPreview;
@@ -42,31 +38,10 @@ const fetchPreview = async (
     provider: ethers.providers.JsonRpcProvider,
     conversatoinManifest: Conversation,
     contact: Contact,
-    getMessages: GetMessages,
-    getNumberOfMessages: GetNumberOfMessages,
 ): Promise<ContactPreview> => {
-    const MAX_MESSAGES_PER_CHUNK = 100;
-    const numberOfmessages = await getNumberOfMessages(contact.account.ensName);
-    const lastMessages = await getMessages(
-        contact.account.ensName,
-        Math.floor(numberOfmessages / MAX_MESSAGES_PER_CHUNK),
-    );
-
-    const lastMessage = lastMessages.filter(
-        ({ envelop }: StorageEnvelopContainer) => {
-            //Only consider NEW mesages for preview
-            //TODO @Heiko double check pls
-            return envelop.message.metadata?.type === MessageActionType.NEW;
-        },
-    )[lastMessages.length - 1]?.envelop?.message.message;
-
-    //If there is no message to preview we use the empty string
-    const messagePreview = lastMessage ?? '';
-
-    console.log('last message', lastMessage);
     return {
         name: getAccountDisplayName(contact.account.ensName, 25),
-        message: messagePreview,
+        message: '',
         image: await getAvatarProfilePic(provider, contact.account.ensName),
         messageCount: conversatoinManifest.messageCounter,
         unreadMsgCount: 21,

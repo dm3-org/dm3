@@ -18,17 +18,19 @@ import {
     onContactSelected,
     setContactHeightToMaximum,
     showMenuInBottom,
-    updateContactOnAccountChange,
 } from './bl';
+import { MessageContext } from '../../context/MessageContext';
 
 export function Contacts(props: DashboardProps) {
     // fetches context api data
     const { state, dispatch } = useContext(GlobalContext);
-    const { account, deliveryServiceToken } = useContext(AuthContext);
-    const { contacts, initialized, setSelectedContactName, selectedContact } =
+    const { account } = useContext(AuthContext);
+    const { contacts, setSelectedContactName, selectedContact } =
         useContext(ConversationContext);
     const mainnetProvider = useMainnetProvider();
     const { resolveAliasToTLD } = useTopLevelAlias();
+
+    const { getMessages } = useContext(MessageContext);
 
     const [isMenuAlignedAtBottom, setIsMenuAlignedAtBottom] = useState<
         boolean | null
@@ -108,6 +110,14 @@ export function Contacts(props: DashboardProps) {
         });
     }
 
+    const getPreviewMessage = (contact: string) => {
+        const messages = getMessages(contact);
+        if (messages?.length > 0) {
+            return messages[messages.length - 1].envelop.message.message ?? '';
+        }
+        return '';
+    };
+
     return (
         <div
             id="chat-scroller"
@@ -120,6 +130,7 @@ export function Contacts(props: DashboardProps) {
                 contacts.map((data) => {
                     const id = data.contactDetails.account.ensName;
                     const unreadMessageCount = data.messageCount;
+
                     return (
                         !data.isHidden && (
                             <div
@@ -240,7 +251,7 @@ export function Contacts(props: DashboardProps) {
 
                                         <div className="text-primary-color pe-3">
                                             <p className="contacts-msg">
-                                                {data.message}
+                                                {getPreviewMessage(id)}
                                             </p>
                                         </div>
                                     </div>

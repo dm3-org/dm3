@@ -10,6 +10,7 @@ import {
     useStorage,
 } from '../hooks/storage/useStorage';
 import { AuthContext } from './AuthContext';
+import { StorageEnvelopContainer } from '@dm3-org/dm3-lib-storage';
 
 export type StorageContextType = {
     storeMessage: StoreMessageAsync;
@@ -22,7 +23,10 @@ export type StorageContextType = {
 };
 
 export const StorageContext = React.createContext<StorageContextType>({
-    storeMessage: async (msg: Envelop) => {},
+    storeMessage: async (
+        contact: string,
+        envelop: StorageEnvelopContainer,
+    ) => {},
     getConversations: async (page: number) => Promise.resolve([]),
     addConversationAsync: (contact: string) => {},
     getMessages: async (contact: string, page: number) => Promise.resolve([]),

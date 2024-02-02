@@ -1,14 +1,11 @@
 /* eslint-disable max-len */
-/* eslint-disable no-console */
-import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
+import { Conversation } from '@dm3-org/dm3-lib-storage/dist/new/types';
 import { useContext, useEffect, useMemo, useState } from 'react';
-import humanIcon from '../../assets/images/human.svg';
 import { AuthContext } from '../../context/AuthContext';
 import { StorageContext } from '../../context/StorageContext';
 import { ContactPreview, getDefaultContract } from '../../interfaces/utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
-import { Conversation } from '@dm3-org/dm3-lib-storage/dist/new/types';
 
 export const useConversation = () => {
     const mainnetProvider = useMainnetProvider();
@@ -16,8 +13,6 @@ export const useConversation = () => {
         getConversations,
         addConversationAsync,
         initialized: storageInitialized,
-        getMessages,
-        getNumberOfMessages,
         toggleHideContactAsync,
     } = useContext(StorageContext);
 
@@ -59,12 +54,7 @@ export const useConversation = () => {
                             isHidden: true,
                         };
                     }
-                    return hydrateContract(
-                        mainnetProvider,
-                        conversation,
-                        getMessages,
-                        getNumberOfMessages,
-                    );
+                    return hydrateContract(mainnetProvider, conversation);
                 }),
             );
             //It might be the case that contacts are added via websocket. In this case we do not want to add them again
@@ -76,8 +66,6 @@ export const useConversation = () => {
                             newContact.contactDetails.account.ensName,
                     ),
             );
-
-            console.log('contracts from storage', contactsWithoutDuplicates);
 
             setContacts((prev) => [...prev, ...contactsWithoutDuplicates]);
             if (currentConversationsPage.length > 0) {
@@ -125,8 +113,6 @@ export const useConversation = () => {
         const hydratedContact = await hydrateContract(
             mainnetProvider,
             conversation,
-            getMessages,
-            getNumberOfMessages,
         );
         console.log('hydrated contact', hydratedContact);
         setContacts((prev) => {
