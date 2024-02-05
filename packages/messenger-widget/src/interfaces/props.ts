@@ -25,10 +25,10 @@ export interface MessageProps {
     messageState: MessageState;
     ownMessage: boolean;
     envelop: Envelop;
-    replyToMsg: string | undefined;
-    replyToMsgFrom: string | undefined;
-    replyToMsgId: string | undefined;
-    replyToMsgEnvelope: Envelop | undefined;
+    replyToMsg?: string | undefined;
+    replyToMsgFrom?: string | undefined;
+    replyToMsgId?: string | undefined;
+    replyToMsgEnvelope?: Envelop | undefined;
     reactions: Envelop[];
     isLastMessage?: boolean;
     hideFunction?: string;

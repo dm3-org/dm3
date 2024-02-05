@@ -97,7 +97,7 @@ export function Home(props: Dm3Props) {
                             <StorageContextProvider>
                                 {/* TODO move conversation and message contest further done as it dont need to be stored in the globlal state */}
                                 <ConversationContextProvider>
-                                    <MessageContextProvider>
+                                    <MessageContextProvider state={state}>
                                         <DM3 config={props.config} />
                                     </MessageContextProvider>
                                 </ConversationContextProvider>

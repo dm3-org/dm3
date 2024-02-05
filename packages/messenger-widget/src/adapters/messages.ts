@@ -54,8 +54,6 @@ export async function submitMessage(
 ) {
     log('Submitting message', 'info');
 
-    console.log(sendDependencies.to.ensName);
-    console.log(stringify(message));
     /*
      * A Pending entry indicates the receiver that there is a new message
      * for them

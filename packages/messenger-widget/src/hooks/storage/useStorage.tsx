@@ -97,6 +97,7 @@ export const useStorage = (
         if (!storageApi) {
             throw Error('Storage not initialized');
         }
+        console.log('storeMessageAsync', contact, envelop);
         storageApi.addMessage(contact, envelop);
     };
     const getConversations = async (page: number) => {

@@ -297,6 +297,7 @@ export const handleSubmit = async (
         attachments = filesSelected.map(function (item) {
             return item['data'];
         });
+        //Dont send empty message
     } else if (!message.trim().length) {
         return;
     }

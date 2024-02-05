@@ -116,12 +116,14 @@ export const closeErrorModal = () => {
 
 export const getHaltDelivery = (state: GlobalState): boolean => {
     if (state.cache.contacts) {
+        //Check if selected contact is present in the cache
         const contacts = state.cache.contacts.filter(
             (data) =>
                 data.contactDetails.account.ensName ===
                 state.accounts.selectedContact?.account.ensName,
         );
         if (contacts.length) {
+            //Check if the selected contact has a public encryption key otherwise return false
             return contacts[0].contactDetails.account.profile
                 ?.publicEncryptionKey &&
                 contacts[0].contactDetails.account?.profile?.publicEncryptionKey

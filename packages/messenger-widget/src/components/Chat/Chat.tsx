@@ -1,7 +1,9 @@
-/* eslint-disable no-console */
 import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
-import { getConversation } from '@dm3-org/dm3-lib-storage';
-import { useContext, useEffect, useState } from 'react';
+import {
+    StorageEnvelopContainer,
+    getConversation,
+} from '@dm3-org/dm3-lib-storage';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
@@ -17,15 +19,16 @@ import {
     handleMessages,
     scrollToBottomOfChat,
 } from './bl';
+import { MessageContext } from '../../context/MessageContext';
 
 export function Chat(props: HideFunctionProps) {
     const { state, dispatch } = useContext(GlobalContext);
-    const { account } = useContext(AuthContext);
-    const { ethAddress, deliveryServiceToken } = useContext(AuthContext);
+    const { ethAddress, deliveryServiceToken, account } =
+        useContext(AuthContext);
     const { selectedContact } = useContext(ConversationContext);
+    const { getMessages, contactIsLoading } = useContext(MessageContext);
     const mainnetProvider = useMainnetProvider();
 
-    const [messageList, setMessageList] = useState<MessageProps[]>([]);
     const [isMessageListInitialized, setIsMessageListInitialized] =
         useState<boolean>(false);
     const [isProfileConfigured, setIsProfileConfigured] =
@@ -42,10 +45,6 @@ export function Chat(props: HideFunctionProps) {
         setShowShimEffect(action);
     };
 
-    const setListOfMessages = (msgs: []) => {
-        setMessageList(msgs);
-    };
-
     const updateIsMessageListInitialized = (action: boolean) => {
         setIsMessageListInitialized(action);
     };
@@ -57,48 +56,28 @@ export function Chat(props: HideFunctionProps) {
         );
     }, [selectedContact]);
 
+    const messages = useMemo(() => {
+        return getMessages(selectedContact?.contactDetails.account.ensName!);
+    }, [selectedContact, getMessages]);
+
     // handles messages list
     useEffect(() => {
-        if (selectedContact) {
-            setShowShimEffect(true);
-        }
-        if (selectedContact) {
-            console.log('fetching old messages selectedC');
+        const isLoading = contactIsLoading(
+            selectedContact?.contactDetails.account.ensName!,
+        );
+        setShowShimEffect(isLoading);
+    }, [contactIsLoading]);
 
-            try {
-                handleMessages(
-                    state,
-                    mainnetProvider,
-                    account!,
-                    deliveryServiceToken!,
-                    dispatch,
-                    //TODO refactor to new conversation Object
-                    [],
-                    alias,
-                    setListOfMessages,
-                    isMessageListInitialized,
-                    updateIsMessageListInitialized,
-                    updateShowShimEffect,
-                    props.hideFunction,
-                );
-            } catch (error) {
-                setListOfMessages([]);
-                setShowShimEffect(false);
-                log(error, 'error');
-            }
-        }
-    }, [state.userDb?.conversations, selectedContact]);
-
-    useEffect(() => {
-        if (
-            messageList.length &&
-            (state.modal.lastMessageAction === MessageActionType.NONE ||
-                state.modal.lastMessageAction === MessageActionType.REPLY ||
-                state.modal.lastMessageAction === MessageActionType.NEW)
-        ) {
-            scrollToBottomOfChat();
-        }
-    }, [messageList]);
+    // useEffect(() => {
+    //     if (
+    //         messageList.length &&
+    //         (state.modal.lastMessageAction === MessageActionType.NONE ||
+    //             state.modal.lastMessageAction === MessageActionType.REPLY ||
+    //             state.modal.lastMessageAction === MessageActionType.NEW)
+    //     ) {
+    //         scrollToBottomOfChat();
+    //     }
+    // }, [messageList]);
 
     useEffect(() => {
         checkUserProfileConfigured(
@@ -133,14 +112,13 @@ export function Chat(props: HideFunctionProps) {
                         state.userDb,
                     ),
                     alias,
-                    setListOfMessages,
+                    () => {},
                     isMessageListInitialized,
                     updateIsMessageListInitialized,
                     updateShowShimEffect,
                     props.hideFunction,
                 );
             } catch (error) {
-                setListOfMessages([]);
                 setShowShimEffect(false);
                 log(error, 'error');
             }
@@ -207,11 +185,35 @@ export function Chat(props: HideFunctionProps) {
                                 : 'chat-height-high',
                         )}
                     >
-                        {messageList.length > 0 &&
-                            messageList.map(
-                                (messageData: MessageProps, index) => (
+                        {messages.length > 0 &&
+                            messages.map(
+                                (
+                                    storageEnvelopContainer: StorageEnvelopContainer,
+                                    index,
+                                ) => (
                                     <div key={index} className="mt-2">
-                                        <Message {...messageData} />
+                                        <Message
+                                            message={
+                                                storageEnvelopContainer.envelop
+                                                    .message.message ?? ''
+                                            }
+                                            time={
+                                                storageEnvelopContainer.envelop.message.metadata?.timestamp.toString() ??
+                                                '0'
+                                            }
+                                            messageState={
+                                                storageEnvelopContainer.messageState
+                                            }
+                                            ownMessage={
+                                                storageEnvelopContainer.envelop
+                                                    .message.metadata?.from ===
+                                                ethAddress
+                                            }
+                                            envelop={
+                                                storageEnvelopContainer.envelop
+                                            }
+                                            reactions={[]}
+                                        />
                                     </div>
                                 ),
                             )}
