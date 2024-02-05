@@ -44,7 +44,7 @@ export const fetchEmailSubjectAndTemplate = (
 };
 
 // NOTE : This is added for current email template, in future can be removed
-// generate date in format : Jan 30, 2024
+// generates date in format : Jan 30, 2024
 const getEmailDate = () => {
     const options: object = { year: 'numeric', month: 'short', day: 'numeric' };
     const today = new Date();

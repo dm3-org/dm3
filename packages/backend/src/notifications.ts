@@ -98,9 +98,6 @@ export default () => {
                     config: {
                         recipientValue: recipientValue,
                     },
-                    getUsersNotificationChannels:
-                        req.app.locals.db.getUsersNotificationChannels,
-                    setOtp: req.app.locals.db.setOtp,
                 });
 
                 // send OTP for email verification
