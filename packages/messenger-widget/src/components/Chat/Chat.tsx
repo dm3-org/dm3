@@ -57,6 +57,9 @@ export function Chat(props: HideFunctionProps) {
     }, [selectedContact]);
 
     const messages = useMemo(() => {
+        if (!selectedContact?.contactDetails.account.ensName) {
+            return [];
+        }
         return getMessages(selectedContact?.contactDetails.account.ensName!);
     }, [selectedContact, getMessages]);
 

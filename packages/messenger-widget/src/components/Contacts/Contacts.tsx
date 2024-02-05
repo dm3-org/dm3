@@ -145,9 +145,15 @@ export function Contacts(props: DashboardProps) {
                                             : 'contact-details-container-active'
                                         : '',
                                 )}
-                                onClick={() =>
-                                    setSelectedContactName(data.name)
-                                }
+                                onClick={() => {
+                                    console.log(
+                                        'set selected contact ',
+                                        data.contactDetails.account.ensName,
+                                    );
+                                    setSelectedContactName(
+                                        data.contactDetails.account.ensName,
+                                    );
+                                }}
                             >
                                 <div
                                     className="col-12 d-flex flex-row align-items-center 

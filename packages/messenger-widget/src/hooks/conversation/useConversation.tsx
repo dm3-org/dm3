@@ -6,6 +6,8 @@ import { StorageContext } from '../../context/StorageContext';
 import { ContactPreview, getDefaultContract } from '../../interfaces/utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
+import { fetchPendingConversations } from '../../adapters/messages';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 
 export const useConversation = () => {
     const mainnetProvider = useMainnetProvider();
@@ -25,7 +27,7 @@ export const useConversation = () => {
 
     const conversationCount = useMemo(() => contacts.length, [contacts]);
 
-    const { account } = useContext(AuthContext);
+    const { account, deliveryServiceToken } = useContext(AuthContext);
 
     const selectedContact = useMemo(() => {
         return contacts.find(
@@ -40,10 +42,13 @@ export const useConversation = () => {
         setSelectedContactName(undefined);
         setContacts([]);
         const init = async (page: number = 0) => {
+            if (!account || !storageInitialized) {
+                return;
+            }
             const currentConversationsPage = await getConversations(page);
 
             //Hydrate the contacts by fetching their profile and DS profile
-            const newContacts = await Promise.all(
+            const storedContacts = await Promise.all(
                 currentConversationsPage.map((conversation) => {
                     const isHidden = conversation.isHidden;
                     //Hydrating is the most expensive operation. Hence we only hydrate if the contact is not hidden
@@ -58,7 +63,7 @@ export const useConversation = () => {
                 }),
             );
             //It might be the case that contacts are added via websocket. In this case we do not want to add them again
-            const contactsWithoutDuplicates = newContacts.filter(
+            const contactsWithoutDuplicates = storedContacts.filter(
                 (newContact) =>
                     !contacts.some(
                         (existingContact) =>
@@ -68,16 +73,31 @@ export const useConversation = () => {
             );
 
             setContacts((prev) => [...prev, ...contactsWithoutDuplicates]);
+            //as long as there is no pagination we fetch the next page until we get an empty page
             if (currentConversationsPage.length > 0) {
                 await init(page + 1);
             }
-
+            await handlePendingConversations();
             setConversationsInitialized(true);
         };
         init();
     }, [storageInitialized, account]);
 
-    const addConversation = (ensName: string) => {
+    const handlePendingConversations = async () => {
+        //At first we've to check if there are pending conversations not yet added to the list
+        const pendingConversations = await fetchPendingConversations(
+            mainnetProvider,
+            account!,
+            deliveryServiceToken!,
+        );
+        //Every pending conversation is going to be added to the conversation list
+        pendingConversations.forEach((pendingConversation) => {
+            addConversation(pendingConversation);
+        });
+    };
+
+    const addConversation = (_ensName: string) => {
+        const ensName = normalizeEnsName(_ensName);
         const alreadyAddedContact = contacts.find(
             (existingContact) =>
                 existingContact.contactDetails.account.ensName === ensName,
@@ -129,7 +149,8 @@ export const useConversation = () => {
         });
     };
 
-    const toggleHideContact = (ensName: string, isHidden: boolean) => {
+    const toggleHideContact = (_ensName: string, isHidden: boolean) => {
+        const ensName = normalizeEnsName(_ensName);
         setContacts((prev) => {
             return prev.map((existingContact) => {
                 //Find the contact in the list and replace it with the hydrated one
@@ -148,7 +169,8 @@ export const useConversation = () => {
         toggleHideContactAsync(ensName, isHidden);
     };
 
-    const hideContact = (ensName: string) => {
+    const hideContact = (_ensName: string) => {
+        const ensName = normalizeEnsName(_ensName);
         toggleHideContact(ensName, true);
         setSelectedContactName(undefined);
     };

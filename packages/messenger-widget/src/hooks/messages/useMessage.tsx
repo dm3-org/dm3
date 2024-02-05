@@ -14,7 +14,14 @@ import { StorageContext } from '../../context/StorageContext';
 import { Connection } from '../../interfaces/web3';
 import { getHaltDelivery } from '../../utils/common-utils';
 import { MessageActionType } from '../../utils/enum-type-utils';
-import { encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
+import { decryptAsymmetric, encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
+import {
+    getDeliveryServiceProfile,
+    normalizeEnsName,
+} from '@dm3-org/dm3-lib-profile';
+import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
+import axios from 'axios';
+import { fetchNewMessages } from '../../adapters/messages';
 
 type MessageStorage = { [contact: string]: StorageEnvelopContainer[] };
 
@@ -27,6 +34,8 @@ export const useMessage = (connection: Connection) => {
         getMessages: getMessagesFromStorage,
         storeMessage,
     } = useContext(StorageContext);
+
+    const mainnetProvider = useMainnetProvider();
     const [messages, setMessages] = useState<MessageStorage>({});
 
     const [contactsLoading, setContactsLoading] = useState<string[]>([]);
@@ -34,11 +43,11 @@ export const useMessage = (connection: Connection) => {
     useEffect(() => {
         //Find new contacts
         const newContacts = contacts.filter(
-            (contact) => !messages[contact.name],
+            (contact) => !messages[contact.contactDetails.account.ensName],
         );
 
         newContacts.forEach((contact) => {
-            addNewContact(contact.name);
+            addNewContact(contact.contactDetails.account.ensName);
         });
     }, [contacts]);
 
@@ -47,13 +56,15 @@ export const useMessage = (connection: Connection) => {
     }, [messages]);
 
     const contactIsLoading = useCallback(
-        (contact: string) => {
+        (_contactName: string) => {
+            const contact = normalizeEnsName(_contactName);
             return contactsLoading.includes(contact);
         },
         [contactsLoading],
     );
 
-    const addNewContact = (contact: string) => {
+    const addNewContact = (_contactName: string) => {
+        const contact = normalizeEnsName(_contactName);
         //Contact already exists
         if (messages[contact]) {
             return;
@@ -67,7 +78,8 @@ export const useMessage = (connection: Connection) => {
         loadInitialMessages(contact);
     };
 
-    const addMessage = async (contact: string, message: Message) => {
+    const addMessage = async (_contactName: string, message: Message) => {
+        const contact = normalizeEnsName(_contactName);
         //Find the recipient of the message in the contact list
         const recipient = contacts.find((c) => c.name === contact);
 
@@ -103,6 +115,7 @@ export const useMessage = (connection: Connection) => {
                     ],
                 };
             });
+            console.log('storeMessage', contact, storageEnvelopContainer);
             storeMessage(contact, storageEnvelopContainer);
             return;
         }
@@ -148,31 +161,90 @@ export const useMessage = (connection: Connection) => {
     };
 
     const getMessages = useCallback(
-        (contact: string) => {
-            return messages[contact] ?? [];
+        (_contactName: string) => {
+            const contactName = normalizeEnsName(_contactName);
+            console.log('get messages for ', contactName);
+            console.log('return messages ', messages[contactName] ?? []);
+            return messages[contactName] ?? [];
         },
         [messages],
     );
 
-    const loadInitialMessages = async (contactName: string) => {
+    const fetchMessagesFromStorage = async (contactName: string) => {
         setContactsLoading((prev) => {
             return [...prev, contactName];
         });
         const MAX_MESSAGES_PER_CHUNK = 100;
         const numberOfmessages = await getNumberOfMessages(contactName);
-        const lastMessages = await getMessagesFromStorage(
+        const storedMessages = await getMessagesFromStorage(
             contactName,
             Math.floor(numberOfmessages / MAX_MESSAGES_PER_CHUNK),
         );
 
-        console.log(numberOfmessages, lastMessages);
-        console.log(contactName, lastMessages);
-
-        const messages = lastMessages.filter(
-            ({ envelop }: StorageEnvelopContainer) => {
-                return envelop.message.metadata?.type === MessageActionType.NEW;
-            },
+        console.log(
+            `got messages from Storage for ${contactName}`,
+            storedMessages,
         );
+
+        return storedMessages;
+    };
+
+    const fetchMessagesFromDeliveryService = async (contactName: string) => {
+        //Fetch the pending messages from the delivery service
+        const encryptedIncommingMessages = await fetchNewMessages(
+            mainnetProvider,
+            account!,
+            deliveryServiceToken!,
+            contactName,
+        );
+
+        const incommingMessages: StorageEnvelopContainer[] = await Promise.all(
+            encryptedIncommingMessages.map(async (envelop) => {
+                const decryptedEnvelop: Envelop = {
+                    message: JSON.parse(
+                        await decryptAsymmetric(
+                            profileKeys?.encryptionKeyPair!,
+                            JSON.parse(envelop.message),
+                        ),
+                    ),
+                    postmark: JSON.parse(
+                        await decryptAsymmetric(
+                            profileKeys?.encryptionKeyPair!,
+                            JSON.parse(envelop.postmark!),
+                        ),
+                    ),
+                    metadata: envelop.metadata,
+                };
+                return {
+                    envelop: decryptedEnvelop,
+                    //Messages from the delivery service are already send by the sender
+                    messageState: MessageState.Send,
+                };
+            }),
+        );
+
+        console.log(
+            `got messages from DS for ${contactName}`,
+            incommingMessages,
+        );
+
+        return incommingMessages;
+    };
+
+    const loadInitialMessages = async (_contactName: string) => {
+        const contactName = normalizeEnsName(_contactName);
+
+        const initialMessages = await Promise.all([
+            fetchMessagesFromDeliveryService(contactName),
+            fetchMessagesFromStorage(contactName),
+        ]);
+
+        const messages = initialMessages
+            .reduce((acc, val) => acc.concat(val), [])
+            .filter(({ envelop }: StorageEnvelopContainer) => {
+                return envelop.message.metadata?.type === MessageActionType.NEW;
+            });
+
         setMessages((prev) => {
             return {
                 ...prev,

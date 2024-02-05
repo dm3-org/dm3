@@ -1,6 +1,10 @@
 /* eslint-disable no-console */
 import { useAccount, useWalletClient } from 'wagmi';
-import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
+import {
+    Account,
+    ProfileKeys,
+    normalizeEnsName,
+} from '@dm3-org/dm3-lib-profile';
 import { UserDB } from '@dm3-org/dm3-lib-storage';
 import { useEffect, useMemo, useState, useContext } from 'react';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
@@ -116,6 +120,7 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
         onStorageSet(userDb);
         setAccount({
             ...account,
+            ensName: normalizeEnsName(account.ensName),
             profile: signedUserProfile.profile,
             profileSignature: signedUserProfile.signature,
         });
