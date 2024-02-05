@@ -9,19 +9,16 @@ import { StorageContext } from '../../context/StorageContext';
 import { Message, createMessage } from '@dm3-org/dm3-lib-messaging';
 import { MessageContext } from '../../context/MessageContext';
 import { ConversationContext } from '../../context/ConversationContext';
+import { scrollToBottomOfChat } from '../Chat/bl';
 
 export function SendMessage(props: MessageDataProps) {
-    const { state, dispatch } = useContext(GlobalContext);
-    const { storeMessage } = useContext(StorageContext);
-    const { account, deliveryServiceToken, profileKeys } =
-        useContext(AuthContext);
+    const { account, profileKeys } = useContext(AuthContext);
     const { addMessage } = useContext(MessageContext);
     const { selectedContact } = useContext(ConversationContext);
 
     async function submit(
         event: React.MouseEvent<HTMLImageElement, MouseEvent>,
     ) {
-        console.log('suuuubmit');
         const messageData = await createMessage(
             selectedContact?.contactDetails.account.ensName!,
             account!.ensName,
@@ -35,17 +32,8 @@ export function SendMessage(props: MessageDataProps) {
             messageData,
         );
 
-        // handleSubmit(
-        //     deliveryServiceToken!,
-        //     msg,
-        //     state,
-        //     account!,
-        //     dispatch,
-        //     event,
-        //     files,
-        //     props.setMessageText,
-        //     props.setFiles,
-        // );
+        props.setMessageText('');
+        scrollToBottomOfChat();
     }
 
     return (

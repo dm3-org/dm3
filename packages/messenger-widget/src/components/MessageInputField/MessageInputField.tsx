@@ -7,10 +7,16 @@ import {
 import { MessageDataProps } from '../../interfaces/props';
 import { handleSubmit } from '../MessageInputBox/bl';
 import { AuthContext } from '../../context/AuthContext';
+import { createMessage } from '@dm3-org/dm3-lib-messaging';
+import { ConversationContext } from '../../context/ConversationContext';
+import { MessageContext } from '../../context/MessageContext';
+import { scrollToBottomOfChat } from '../Chat/bl';
 
 export function MessageInputField(props: MessageDataProps) {
     const { state, dispatch } = useContext(GlobalContext);
-    const { account, deliveryServiceToken } = useContext(AuthContext);
+    const { account, profileKeys } = useContext(AuthContext);
+    const { selectedContact } = useContext(ConversationContext);
+    const { addMessage } = useContext(MessageContext);
 
     function setMessageContent(e: React.ChangeEvent<HTMLInputElement>) {
         // if message action is edit and message length is 0, update message action
@@ -27,20 +33,23 @@ export function MessageInputField(props: MessageDataProps) {
         props.setMessageText(e.target.value);
     }
 
-    function submit(event: React.FormEvent<HTMLFormElement>) {
-        const files = props.filesSelected;
-        const msg = props.message;
-        handleSubmit(
-            deliveryServiceToken!,
-            msg,
-            state,
-            account!,
-            dispatch,
-            event,
-            files,
-            props.setMessageText,
-            props.setFiles,
+    async function submit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+
+        const messageData = await createMessage(
+            selectedContact?.contactDetails.account.ensName!,
+            account!.ensName,
+            props.message,
+            profileKeys?.signingKeyPair.privateKey!,
+            props.filesSelected.map((file) => file.data),
         );
+
+        addMessage(
+            selectedContact?.contactDetails.account.ensName!,
+            messageData,
+        );
+        props.setMessageText('');
+        scrollToBottomOfChat();
     }
 
     // Focus on input field when user selects a msg to EEDIT or REPLY
