@@ -21,22 +21,12 @@ describe('ReadDeliveryServiceProperties', () => {
             messageTTL: 12345,
             sizeLimit: 456,
             notificationChannel: [],
-            smtpHost: 'smtp.host',
-            smtpPort: 587,
-            smtpEmail: 'dm3@gmail.com',
-            smtpUsername: 'dm3@gmail.com',
-            smtpPassword: 'dm312345',
         });
 
         expect(config).toStrictEqual({
             messageTTL: 12345,
             sizeLimit: 456,
             notificationChannel: [],
-            smtpHost: 'smtp.host',
-            smtpPort: 587,
-            smtpEmail: 'dm3@gmail.com',
-            smtpUsername: 'dm3@gmail.com',
-            smtpPassword: 'dm312345',
         });
     });
 
@@ -61,11 +51,6 @@ describe('ReadDeliveryServiceProperties', () => {
                         },
                     },
                 ],
-                smtpHost: 'smtp.host',
-                smtpPort: 587,
-                smtpEmail: 'dm3@gmail.com',
-                smtpUsername: 'dm3@gmail.com',
-                smtpPassword: 'dm312345',
             }),
             { encoding: 'utf-8' },
         );
@@ -89,11 +74,6 @@ describe('ReadDeliveryServiceProperties', () => {
                     },
                 },
             ],
-            smtpHost: 'smtp.host',
-            smtpPort: 587,
-            smtpEmail: 'dm3@gmail.com',
-            smtpUsername: 'dm3@gmail.com',
-            smtpPassword: 'dm312345',
         });
     });
     it('Adds default properties if config.yml is not fully specified', () => {
@@ -101,11 +81,21 @@ describe('ReadDeliveryServiceProperties', () => {
             path,
             stringify({
                 messageTTL: 12345,
-                smtpHost: 'smtp.host',
-                smtpPort: 587,
-                smtpEmail: 'dm3@gmail.com',
-                smtpUsername: 'dm3@gmail.com',
-                smtpPassword: 'dm312345',
+                notificationChannel: [
+                    {
+                        type: NotificationChannelType.EMAIL,
+                        config: {
+                            host: 'mail.alice.com',
+                            port: 465,
+                            secure: true,
+                            auth: {
+                                user: 'foo',
+                                pass: 'bar',
+                            },
+                            senderAddress: 'mail@dm3.io',
+                        },
+                    },
+                ],
             }),
             { encoding: 'utf-8' },
         );
@@ -114,12 +104,21 @@ describe('ReadDeliveryServiceProperties', () => {
         expect(config).toStrictEqual({
             messageTTL: 12345,
             sizeLimit: 100000,
-            notificationChannel: [],
-            smtpHost: 'smtp.host',
-            smtpPort: 587,
-            smtpEmail: 'dm3@gmail.com',
-            smtpUsername: 'dm3@gmail.com',
-            smtpPassword: 'dm312345',
+            notificationChannel: [
+                {
+                    type: NotificationChannelType.EMAIL,
+                    config: {
+                        host: 'mail.alice.com',
+                        port: 465,
+                        secure: true,
+                        auth: {
+                            user: 'foo',
+                            pass: 'bar',
+                        },
+                        senderAddress: 'mail@dm3.io',
+                    },
+                },
+            ],
         });
     });
 });

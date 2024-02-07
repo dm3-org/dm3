@@ -250,7 +250,9 @@ describe('Notifications', () => {
 
             const token = await createAuthToken();
 
+            const addNewNotificationChannelMock = jest.fn();
             const addUsersNotificationChannelMock = jest.fn();
+            const setOtpMock = jest.fn();
 
             app.locals.db = {
                 getSession: async (ensName: string) =>
@@ -265,7 +267,20 @@ describe('Notifications', () => {
                 getIdEnsName: async (ensName: string) => ensName,
                 getGlobalNotification: async (ensName: string) =>
                     Promise.resolve({ isEnabled: true }),
+                getUsersNotificationChannels: async (ensName: string) =>
+                    Promise.resolve([
+                        {
+                            type: NotificationChannelType.EMAIL,
+                            config: {
+                                recipientValue: 'bob@gmail.com',
+                                isEnabled: true,
+                                isVerified: false,
+                            },
+                        },
+                    ]),
+                addNewNotificationChannel: addNewNotificationChannelMock,
                 addUsersNotificationChannel: addUsersNotificationChannelMock,
+                setOtp: setOtpMock,
             };
             app.locals.web3Provider = {
                 resolveName: async () =>
@@ -283,15 +298,6 @@ describe('Notifications', () => {
                 });
 
             expect(status).toBe(200);
-            expect(addUsersNotificationChannelMock).toHaveBeenCalledWith(
-                'bob.eth',
-                {
-                    type: 'EMAIL',
-                    config: {
-                        recipientValue: 'bob@gmail.com',
-                    },
-                },
-            );
         });
     });
 

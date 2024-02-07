@@ -4,7 +4,8 @@ import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import express from 'express';
 import { auth } from './utils';
 import { validateNotificationChannel } from './validation/notification/notificationChannelValidation';
-import { generateEmailVerificationNotification } from '@dm3-org/dm3-lib-delivery';
+import { addNewNotificationChannel } from '@dm3-org/dm3-lib-delivery';
+import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 
 // Exporting a function that returns an Express router
 export default () => {
@@ -92,19 +93,14 @@ export default () => {
                     error: 'Global notifications is off',
                 });
             } else {
-                // Adding a user's notification channel to the database
-                await req.app.locals.db.addUsersNotificationChannel(account, {
-                    type: notificationChannelType,
-                    config: {
-                        recipientValue: recipientValue,
-                    },
-                });
-
                 // send OTP for email verification
-                await generateEmailVerificationNotification(
+                await addNewNotificationChannel(
                     notificationChannelType,
+                    recipientValue,
                     account,
+                    getDeliveryServiceProperties().notificationChannel,
                     req.app.locals.db.getUsersNotificationChannels,
+                    req.app.locals.db.addUsersNotificationChannel,
                     req.app.locals.db.setOtp,
                 );
 

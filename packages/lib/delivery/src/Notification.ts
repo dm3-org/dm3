@@ -1,7 +1,7 @@
 import { DeliveryInformation } from '@dm3-org/dm3-lib-messaging';
 import {
-    GetNotificationChannels,
     NotificationBroker,
+    NotificationChannel,
     NotificationChannelType,
     NotificationType,
 } from './notifications';
@@ -9,44 +9,6 @@ import { generateOtp } from './notifications/generateOtp';
 
 // LENGTH of OTP. Ex: 5 digits
 const OTP_LENGTH = 5;
-
-// method to generate and save email verification OTP
-export const generateEmailVerificationNotification = async (
-    notificationChannel: NotificationChannelType,
-    ensName: string,
-    getUsersNotificationChannels: GetNotificationChannels,
-    setOtp: (
-        ensName: string,
-        otp: string,
-        channelType: NotificationChannelType,
-        generatedAt: Date,
-    ) => Promise<void>,
-) => {
-    // generate and save OTP
-    const otp = await saveOtp(notificationChannel, ensName, setOtp);
-
-    // Get all notification channels with otp set to Email channel
-    const notificationChannels = await getUsersNotificationChannels(ensName);
-    const allNotificationChannels = notificationChannels.map((data) => {
-        if (data.type === notificationChannel) data.config.otp = otp;
-        return data;
-    });
-
-    // get notification broker
-    const { sendNotification } = NotificationBroker(
-        allNotificationChannels,
-        NotificationType.OTP,
-    );
-
-    // delivery information
-    const deliveryInformation: DeliveryInformation = {
-        from: ensName,
-        to: ensName,
-    };
-
-    // send notification
-    await sendNotification(deliveryInformation, getUsersNotificationChannels);
-};
 
 // method to save OTP in Redis
 export const saveOtp = async (
@@ -66,3 +28,65 @@ export const saveOtp = async (
     // return OTP
     return otp;
 };
+
+// method to add new notification channel & send verification OTP
+export async function addNewNotificationChannel(
+    notificationChannelType: NotificationChannelType,
+    recipientValue: string,
+    ensName: string,
+    dsNotificationChannels: NotificationChannel[],
+    getUsersNotificationChannels: (
+        ensName: string,
+    ) => Promise<NotificationChannel[]>,
+    addUsersNotificationChannel: (
+        ensName: string,
+        channel: NotificationChannel,
+    ) => Promise<void>,
+    setOtp: (
+        ensName: string,
+        otp: string,
+        channelType: NotificationChannelType,
+        generatedAt: Date,
+    ) => Promise<void>,
+) {
+    // Adding a user's notification channel to the database
+    await addUsersNotificationChannel(ensName, {
+        type: notificationChannelType,
+        config: {
+            recipientValue: recipientValue,
+        },
+    });
+
+    // generate and save OTP
+    const otp = await saveOtp(notificationChannelType, ensName, setOtp);
+
+    // Filter notification channels to send OTP
+    const notificationChannels = await getUsersNotificationChannels(ensName);
+    const filteredNotificationChannels = notificationChannels.filter(
+        (data) => data.type === notificationChannelType,
+    );
+
+    if (!filteredNotificationChannels.length) {
+        throw new Error('Invalid notification channel');
+    }
+
+    /**
+     * This is a mandatory property in sendNotification method so constructed
+     * from and to both with same ensname
+     */
+    const deliveryInformation: DeliveryInformation = {
+        from: ensName,
+        to: ensName,
+    };
+
+    const { sendNotification } = NotificationBroker(
+        dsNotificationChannels,
+        NotificationType.OTP,
+    );
+
+    await sendNotification(
+        deliveryInformation,
+        getUsersNotificationChannels,
+        otp,
+    );
+}

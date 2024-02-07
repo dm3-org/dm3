@@ -1,5 +1,5 @@
 import { DeliveryInformation } from '@dm3-org/dm3-lib-messaging';
-import { NotificationChannelType, NotificationType } from './types';
+import { NotificationType } from './types';
 import {
     NEW_MSG_EMAIL_SUBJECT,
     NEW_MSG_EMAIL_TEMPLATE,
@@ -12,7 +12,7 @@ const OTP_EXPIRY_DURATION = 600; // 10 minutes
 // to fetch subject & template of email based on notification type
 export const fetchEmailSubjectAndTemplate = (
     notificationType: NotificationType,
-    mailContent: any,
+    mailContent: string,
     deliveryInformation?: DeliveryInformation,
 ): {
     subject: string;
@@ -31,7 +31,7 @@ export const fetchEmailSubjectAndTemplate = (
             return {
                 subject: OTP_EMAIL_SUBJECT,
                 template: OTP_EMAIL_TEMPLATE(
-                    mailContent.otp as string,
+                    mailContent as string,
                     getEmailDate(),
                     OTP_EXPIRY_DURATION / 60, // time in minutes
                 ),

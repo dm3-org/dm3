@@ -2,19 +2,29 @@ import { parse } from 'yaml';
 import { existsSync, readFileSync } from 'fs';
 import { resolve } from 'path';
 import { logInfo, validateSchema } from '@dm3-org/dm3-lib-shared';
-import { schema, DeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery';
+import {
+    schema,
+    DeliveryServiceProperties,
+    NotificationChannelType,
+} from '@dm3-org/dm3-lib-delivery';
 
 const DEFAULT_CONFIG_FILE_PATH = resolve(__dirname, './../config.yml');
 const DEFAULT_DELIVERY_SERVICE_PROPERTIES: DeliveryServiceProperties = {
     messageTTL: 0,
     //100Kb
     sizeLimit: 100000,
-    notificationChannel: [],
-    smtpHost: '',
-    smtpPort: 0,
-    smtpEmail: '',
-    smtpUsername: '',
-    smtpPassword: '',
+    notificationChannel: [
+        {
+            type: NotificationChannelType.EMAIL,
+            config: {
+                smtpHost: 'smtp.gmail.com',
+                smtpPort: 587,
+                smtpEmail: 'decentralized.messaging@gmail.com',
+                smtpUsername: 'decentralized.messaging@gmail.com',
+                smtpPassword: 'ujxe wvic zpfz dzgs',
+            },
+        },
+    ],
 };
 
 export function getDeliveryServiceProperties(

@@ -17,34 +17,67 @@ import {
  */
 export const _setupNotficationBroker = (
     supportedChannels: INotificationChannel[],
+    notificationType: NotificationType,
 ): INotificationBroker => {
     async function sendNotification(
         deliveryInformation: DeliveryInformation,
         getNotificationChannels: GetNotificationChannels,
+        mailContent?: any,
     ) {
         //Get users notification channels from DB
         const usersNotificationChannels = await getNotificationChannels(
             deliveryInformation.to,
         );
 
-        await Promise.all(
-            usersNotificationChannels.map(async (channel) => {
-                const deliveryServiceNotificationChannel =
-                    supportedChannels.find((c) => c.type === channel.type);
-                //User specified a channel that is not supported.
-                //This should be prevented by refusing any schema that allows to provide a channel that is not supported
-                if (!deliveryServiceNotificationChannel) {
-                    throw new Error(
-                        `Channel type ${channel.type} is not supported`,
-                    );
-                }
+        // Send OTP to specific notification channel only
+        if (notificationType === NotificationType.OTP) {
+            // fetch the channel to which OTP is to be send
+            const filteredChannel = usersNotificationChannels.filter(
+                (channel) => channel.type === supportedChannels[0].type,
+            );
+            // fetch the delivery service
+            const deliveryServiceNotificationChannel = supportedChannels.find(
+                (c) => c.type === filteredChannel[0].type,
+            );
+            if (deliveryServiceNotificationChannel) {
                 return await deliveryServiceNotificationChannel.send(
-                    channel.config,
+                    {
+                        recipientValue:
+                            filteredChannel[0].config.recipientValue,
+                        notificationType: notificationType,
+                        mailContent: mailContent, // otp
+                    },
                     deliveryInformation,
                 );
-            }),
-        );
+            }
+        } else {
+            // Send message notification to all active channels
+            await Promise.all(
+                usersNotificationChannels.map(async (channel) => {
+                    const deliveryServiceNotificationChannel =
+                        supportedChannels.find((c) => c.type === channel.type);
+                    //User specified a channel that is not supported
+                    if (!deliveryServiceNotificationChannel) {
+                        throw new Error(
+                            `Channel type ${channel.type} is not supported`,
+                        );
+                    } else if (
+                        channel.config.isEnabled &&
+                        channel.config.isVerified
+                    ) {
+                        return await deliveryServiceNotificationChannel.send(
+                            {
+                                recipientValue: channel.config.recipientValue,
+                                notificationType: notificationType,
+                            },
+                            deliveryInformation,
+                        );
+                    }
+                }),
+            );
+        }
     }
+
     return { sendNotification };
 };
 
@@ -74,5 +107,5 @@ export const NotificationBroker = (
         }
     });
 
-    return _setupNotficationBroker(channels);
+    return _setupNotficationBroker(channels, notificationType);
 };

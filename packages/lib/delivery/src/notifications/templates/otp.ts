@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 export const OTP_EMAIL_TEMPLATE = (
     otp: string,
     date: string,

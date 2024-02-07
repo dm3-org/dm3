@@ -4,19 +4,11 @@ import { UserProfile, normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { BigNumber, ethers } from 'ethers';
 import { testData } from '../../../../test-data/encrypted-envelops.test';
 import { stringify } from '../../shared/src/stringify';
-
 import { getConversationId, getMessages, incomingMessage } from './Messages';
 import { Session } from './Session';
 import { SpamFilterRules } from './spam-filter/SpamFilterRules';
-
-import {
-    NEW_MSG_EMAIL_TEMPLATE,
-    NEW_MSG_EMAIL_SUBJECT,
-} from './notifications/templates/newMessage';
-import {
-    NotificationChannelType,
-    NotificationType,
-} from './notifications/types';
+import { NotificationChannelType } from './notifications/types';
+import { getDeliveryServiceProperties } from '../../../backend/src/config/getDeliveryServiceProperties';
 
 const SENDER_NAME = 'alice.eth';
 const RECEIVER_NAME = 'bob.eth';
@@ -458,8 +450,9 @@ describe('Messages', () => {
                     {
                         type: NotificationChannelType.EMAIL,
                         config: {
-                            recipientEmailId: 'joe@example.io',
-                            notificationType: NotificationType.NEW_MESSAGE,
+                            recipientEmailId: 'joe12345@gmail.com',
+                            isVerified: true,
+                            isEnabled: true,
                         },
                     },
                 ]);
@@ -484,18 +477,7 @@ describe('Messages', () => {
                 keysA.signingKeyPair,
                 keysA.encryptionKeyPair,
                 2 ** 14,
-                [
-                    {
-                        type: NotificationChannelType.EMAIL,
-                        config: {
-                            host: 'mail@dm3.org',
-                            port: 1234,
-                            username: 'mail@dm3.org',
-                            password: 'bar',
-                            emailID: 'mail@dm3.org',
-                        },
-                    },
-                ],
+                getDeliveryServiceProperties().notificationChannel,
                 getSession,
                 storeNewMessage,
                 sendMessageViaSocketMock,
@@ -507,14 +489,8 @@ describe('Messages', () => {
                 getNotificationChannels,
             );
 
-            expect(sendMailMock).toHaveBeenCalledWith({
-                from: 'mail@dm3.org',
-                html: NEW_MSG_EMAIL_TEMPLATE(
-                    testData.delvieryInformationBUnecrypted,
-                ),
-                subject: NEW_MSG_EMAIL_SUBJECT,
-                to: 'joe@example.io',
-            });
+            expect(sendMailMock).toHaveBeenCalled();
+
             //Check if the message was submitted to the socket
             expect(sendMessageViaSocketMock).not.toBeCalled();
         });

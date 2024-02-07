@@ -17,4 +17,4 @@ export type { DeliveryServiceProperties } from './Delivery';
 
 export * from './notifications';
 export { NotificationChannelType } from './notifications';
-export { generateEmailVerificationNotification } from './Notification';
+export { addNewNotificationChannel } from './Notification';

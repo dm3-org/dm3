@@ -33,6 +33,7 @@ export interface INotificationBroker {
     sendNotification: (
         deliveryInformation: DeliveryInformation,
         getNotificationChannels: GetNotificationChannels,
+        mailContent?: any, // it can be OTP or any other details that may be needed in future
     ) => Promise<void>;
 }
 
