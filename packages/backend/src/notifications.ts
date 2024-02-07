@@ -6,6 +6,7 @@ import { auth } from './utils';
 import { validateNotificationChannel } from './validation/notification/notificationChannelValidation';
 import { addNewNotificationChannel } from '@dm3-org/dm3-lib-delivery';
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
+import { IDatabase } from './persistance/getDatabase';
 
 // Exporting a function that returns an Express router
 export default () => {
@@ -133,9 +134,7 @@ export default () => {
                     recipientValue,
                     account,
                     getDeliveryServiceProperties().notificationChannel,
-                    req.app.locals.db.getUsersNotificationChannels,
-                    req.app.locals.db.addUsersNotificationChannel,
-                    req.app.locals.db.setOtp,
+                    req.app.locals.db as IDatabase,
                 );
 
                 // Sending a success response

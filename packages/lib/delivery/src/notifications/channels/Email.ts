@@ -17,15 +17,12 @@ export type EmailNotificationServerConfig = {
 type UserEmailConfig = {
     recipientEmailId: string;
     notificationType: NotificationType;
-    mailContent: any; // object that can contain OTP to send in email and other details also in funture
+    notificationContent: any; // object that can contain OTP to send in email and other details also in funture
 };
 
 // method to send email
 export function Email(config: EmailNotificationServerConfig) {
-    const send = async (
-        mailConfig: UserEmailConfig,
-        deliveryInformation: DeliveryInformation,
-    ) => {
+    const send = async (mailConfig: UserEmailConfig) => {
         try {
             // create transport with email credentials
             const transport: nodemailer.Transporter<SMTPTransport.SentMessageInfo> =
@@ -41,8 +38,7 @@ export function Email(config: EmailNotificationServerConfig) {
             // fetch the specific subject & template of email
             const { subject, template } = fetchEmailSubjectAndTemplate(
                 mailConfig.notificationType,
-                mailConfig.mailContent,
-                deliveryInformation,
+                mailConfig.notificationContent,
             );
 
             // send the email using nodemailer

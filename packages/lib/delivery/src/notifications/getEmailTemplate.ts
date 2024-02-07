@@ -12,8 +12,7 @@ const OTP_EXPIRY_DURATION = 600; // 10 minutes
 // to fetch subject & template of email based on notification type
 export const fetchEmailSubjectAndTemplate = (
     notificationType: NotificationType,
-    mailContent: string,
-    deliveryInformation: DeliveryInformation,
+    mailContent: any,
 ): {
     subject: string;
     template: string;
@@ -23,7 +22,7 @@ export const fetchEmailSubjectAndTemplate = (
             return {
                 subject: NEW_MSG_EMAIL_SUBJECT,
                 template: NEW_MSG_EMAIL_TEMPLATE(
-                    deliveryInformation as DeliveryInformation,
+                    mailContent as DeliveryInformation,
                 ),
             };
         case NotificationType.OTP:
@@ -31,9 +30,10 @@ export const fetchEmailSubjectAndTemplate = (
             return {
                 subject: OTP_EMAIL_SUBJECT,
                 template: OTP_EMAIL_TEMPLATE(
-                    mailContent as string,
+                    mailContent.otp as string,
                     getEmailDate(),
                     OTP_EXPIRY_DURATION / 60, // time in minutes
+                    mailContent.dm3ContactEmailID as string,
                 ),
             };
         default:
