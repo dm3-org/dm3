@@ -13,7 +13,18 @@ const DEFAULT_DELIVERY_SERVICE_PROPERTIES: DeliveryServiceProperties = {
     messageTTL: 0,
     //100Kb
     sizeLimit: 100000,
-    notificationChannel: [],
+    notificationChannel: [
+        {
+            type: NotificationChannelType.EMAIL,
+            config: {
+                smtpHost: 'smtp.gmail.com',
+                smtpPort: 587,
+                smtpEmail: '',
+                smtpUsername: '',
+                smtpPassword: '',
+            },
+        },
+    ],
 };
 
 export function getDeliveryServiceProperties(
