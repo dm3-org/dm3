@@ -62,6 +62,40 @@ export default () => {
         }
     });
 
+    // Defining a route to handle POST requests for resending OTP
+    router.post('resend/otp/:ensName', async (req, res, next) => {
+        try {
+            const account = normalizeEnsName(req.params.ensName);
+
+            // check notification channel type, validate it
+
+            // Fetch global notification data of user from database
+            const globalNotification =
+                await req.app.locals.db.getGlobalNotification(account);
+
+            // if global notification is turned off
+            if (!globalNotification.isEnabled) {
+                res.sendStatus(400).json({
+                    error: 'Global notifications is off',
+                });
+            } else {
+                // check if notification channel exists in DB
+                // validate otp was generated 10 minutes before from the request
+                // then regenerate save it in DB and send email
+                // // Getting notification channels for a user from the database
+                // const notificationChannels =
+                //     await req.app.locals.db.getUsersNotificationChannels(
+                //         account,
+                //     );
+                // // Sending the fetched notification channels as a JSON response
+                // res.status(200).json({ notificationChannels });
+            }
+        } catch (e) {
+            // Passing the error to the next middleware
+            next(e);
+        }
+    });
+
     // Defining a route to handle POST requests for adding an notification channel
     router.post('/:ensName', async (req, res, next) => {
         try {
