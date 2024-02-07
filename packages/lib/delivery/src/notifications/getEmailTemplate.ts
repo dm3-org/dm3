@@ -13,7 +13,7 @@ const OTP_EXPIRY_DURATION = 600; // 10 minutes
 export const fetchEmailSubjectAndTemplate = (
     notificationType: NotificationType,
     mailContent: string,
-    deliveryInformation?: DeliveryInformation,
+    deliveryInformation: DeliveryInformation,
 ): {
     subject: string;
     template: string;

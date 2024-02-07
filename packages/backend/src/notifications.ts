@@ -93,7 +93,7 @@ export default () => {
                     error: 'Global notifications is off',
                 });
             } else {
-                // send OTP for email verification
+                // add new notification channel & send OTP for verification
                 await addNewNotificationChannel(
                     notificationChannelType,
                     recipientValue,

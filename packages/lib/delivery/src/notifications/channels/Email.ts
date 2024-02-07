@@ -17,14 +17,14 @@ export type EmailNotificationServerConfig = {
 type UserEmailConfig = {
     recipientEmailId: string;
     notificationType: NotificationType;
-    mailContent: any; // object that can contain OTP to send in email and other details
+    mailContent: any; // object that can contain OTP to send in email and other details also in funture
 };
 
 // method to send email
 export function Email(config: EmailNotificationServerConfig) {
     const send = async (
         mailConfig: UserEmailConfig,
-        deliveryInformation?: DeliveryInformation,
+        deliveryInformation: DeliveryInformation,
     ) => {
         try {
             // create transport with email credentials
