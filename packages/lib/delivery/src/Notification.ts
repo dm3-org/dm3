@@ -1,4 +1,3 @@
-import { DeliveryInformation } from '@dm3-org/dm3-lib-messaging';
 import {
     NotificationBroker,
     NotificationChannel,
@@ -35,22 +34,19 @@ export async function addNewNotificationChannel(
     recipientValue: string,
     ensName: string,
     dsNotificationChannels: NotificationChannel[],
-    getUsersNotificationChannels: (
-        ensName: string,
-    ) => Promise<NotificationChannel[]>,
-    addUsersNotificationChannel: (
-        ensName: string,
-        channel: NotificationChannel,
-    ) => Promise<void>,
-    setOtp: (
-        ensName: string,
-        otp: string,
-        channelType: NotificationChannelType,
-        generatedAt: Date,
-    ) => Promise<void>,
+    db: any,
 ) {
+    // check if channel is supported or not
+    const channelUsed = dsNotificationChannels.filter(
+        (channel) => channel.type === notificationChannelType,
+    );
+
+    if (!channelUsed.length) {
+        throw Error('Notification channel not supported');
+    }
+
     // Adding a user's notification channel to the database
-    await addUsersNotificationChannel(ensName, {
+    await db.addUsersNotificationChannel(ensName, {
         type: notificationChannelType,
         config: {
             recipientValue: recipientValue,
@@ -58,35 +54,36 @@ export async function addNewNotificationChannel(
     });
 
     // generate and save OTP
-    const otp = await saveOtp(notificationChannelType, ensName, setOtp);
+    const otp = await saveOtp(notificationChannelType, ensName, db.setOtp);
 
-    // Filter notification channels to send OTP
-    const notificationChannels = await getUsersNotificationChannels(ensName);
-    const filteredNotificationChannels = notificationChannels.filter(
-        (data) => data.type === notificationChannelType,
-    );
-
-    if (!filteredNotificationChannels.length) {
-        throw new Error('Invalid notification channel');
-    }
-
-    /**
-     * This is a mandatory property in sendNotification method so constructed
-     * from and to both with same ensname
-     */
-    const deliveryInformation: DeliveryInformation = {
-        from: ensName,
-        to: ensName,
-    };
-
-    const { sendNotification } = NotificationBroker(
+    // set up notification broker
+    const { sendOtp } = NotificationBroker(
         dsNotificationChannels,
         NotificationType.OTP,
     );
 
-    await sendNotification(
-        deliveryInformation,
-        getUsersNotificationChannels,
-        otp,
+    // send otp
+    await sendOtp(
+        ensName,
+        db.getUsersNotificationChannels,
+        getOtpContentForNotificationChannel(channelUsed[0], otp),
     );
 }
+
+// Method to fetch otp content to send to specific channel which can vary for each type
+const getOtpContentForNotificationChannel = (
+    notificationChannel: NotificationChannel,
+    otp: string,
+) => {
+    switch (notificationChannel.type) {
+        case NotificationChannelType.EMAIL:
+            return {
+                otp: otp,
+                dm3ContactEmailID: notificationChannel.config.smtpEmail,
+            };
+        default:
+            throw Error(
+                `Invalid notification channel ${notificationChannel.type}`,
+            );
+    }
+};

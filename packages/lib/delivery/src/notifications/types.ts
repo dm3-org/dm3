@@ -33,14 +33,18 @@ export interface INotificationBroker {
     sendNotification: (
         deliveryInformation: DeliveryInformation,
         getNotificationChannels: GetNotificationChannels,
-        mailContent?: any, // it can be OTP or any other details that may be needed in future
+    ) => Promise<void>;
+    sendOtp: (
+        ensName: string,
+        getNotificationChannels: GetNotificationChannels,
+        otpContent: any, // otp for verification and can be some more data in future
     ) => Promise<void>;
 }
 
 // An interface for a notification channel.
 export interface INotificationChannel {
     type: NotificationChannelType;
-    send: (config: any, deliveryInformation: DeliveryInformation) => void;
+    send: (config: any) => void;
 }
 
 // user notification configuration

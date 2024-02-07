@@ -94,7 +94,7 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
         // Global Notification
         getGlobalNotification: Notification.getGlobalNotification(redis),
         setGlobalNotification: Notification.setGlobalNotification(redis),
-        // Otp
+        // Verification Otp for Email, Mobile, etc..
         setOtp: Otp.setOtp(redis),
         getOtp: Otp.getOtp(redis),
     };

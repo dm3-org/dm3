@@ -31,14 +31,18 @@ describe('Notification', () => {
             const notificationChannels: NotificationChannel[] =
                 getDeliveryServiceProperties().notificationChannel;
 
+            const db = {
+                getUsersNotificationChannels,
+                addUsersNotificationChannel,
+                setOtp,
+            };
+
             await addNewNotificationChannel(
                 NotificationChannelType.EMAIL,
                 'bob@gmail.com',
                 '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
                 notificationChannels,
-                getUsersNotificationChannels,
-                addUsersNotificationChannel,
-                setOtp,
+                db,
             );
 
             expect(addUsersNotificationChannel).toBeCalled();

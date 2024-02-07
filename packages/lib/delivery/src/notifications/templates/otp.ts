@@ -3,6 +3,7 @@ export const OTP_EMAIL_TEMPLATE = (
     otp: string,
     date: string,
     expiryDuration: number,
+    dm3ContactEmailID: string,
 ) =>
     `<!DOCTYPE html>
     <html lang="en">
@@ -134,9 +135,9 @@ export const OTP_EMAIL_TEMPLATE = (
             >
               Need help? Ask at
               <a
-                href="mailto:decentralized.messaging@gmail.com"
+                href="mailto:${dm3ContactEmailID}"
                 style="color: #499fb6;"
-                >decentralized.messaging@gmail.com</a
+                >${dm3ContactEmailID}</a
               >
             </p>
           </main>
