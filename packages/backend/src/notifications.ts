@@ -12,9 +12,7 @@ import {
 import { IDatabase } from './persistance/getDatabase';
 
 // Exporting a function that returns an Express router
-export default (
-    getDeliveryServiceProperties: () => DeliveryServiceProperties,
-) => {
+export default (deliveryServiceProperties: DeliveryServiceProperties) => {
     const router = express.Router();
 
     // Applying CORS middleware to allow cross-origin requests
@@ -104,7 +102,7 @@ export default (
                     notificationChannelType,
                     recipientValue,
                     account,
-                    getDeliveryServiceProperties().notificationChannel,
+                    deliveryServiceProperties.notificationChannel,
                     req.app.locals.db as IDatabase,
                 );
 

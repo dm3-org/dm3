@@ -3,7 +3,10 @@ import express from 'express';
 import auth from './auth';
 import request from 'supertest';
 import notifications from './notifications';
-import { NotificationChannelType } from '@dm3-org/dm3-lib-delivery';
+import {
+    DeliveryServiceProperties,
+    NotificationChannelType,
+} from '@dm3-org/dm3-lib-delivery';
 
 const keysA = {
     encryptionKeyPair: {
@@ -20,19 +23,17 @@ const keysA = {
 };
 
 describe('Notifications', () => {
-    const getDeliveryServiceProperties = () => {
-        return {
-            messageTTL: 12345,
-            sizeLimit: 456,
-            notificationChannel: [],
-        };
+    const deliveryServiceProperties: DeliveryServiceProperties = {
+        messageTTL: 12345,
+        sizeLimit: 456,
+        notificationChannel: [],
     };
 
     describe('get NotificationChannels', () => {
         it('Returns empty array as global notification is turned off', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(getDeliveryServiceProperties));
+            app.use(notifications(deliveryServiceProperties));
 
             const token = await createAuthToken();
 
@@ -81,7 +82,7 @@ describe('Notifications', () => {
         it('Returns 200 with empty notification channels as global notification is turned on', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(getDeliveryServiceProperties));
+            app.use(notifications(deliveryServiceProperties));
 
             const token = await createAuthToken();
 
@@ -132,7 +133,7 @@ describe('Notifications', () => {
         it('Returns 400 on setup email notifications as email ID is invalid', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(getDeliveryServiceProperties));
+            app.use(notifications(deliveryServiceProperties));
 
             const token = await createAuthToken();
             const addUsersNotificationChannelMock = jest.fn();
@@ -172,7 +173,7 @@ describe('Notifications', () => {
         it('Returns 400 on setup email notifications as notificationChannelType is invalid', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(getDeliveryServiceProperties));
+            app.use(notifications(deliveryServiceProperties));
 
             const token = await createAuthToken();
             const addUsersNotificationChannelMock = jest.fn();
@@ -212,7 +213,7 @@ describe('Notifications', () => {
         it('Returns 400 on setup email notifications as globalNotifications is turned off', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(getDeliveryServiceProperties));
+            app.use(notifications(deliveryServiceProperties));
 
             const token = await createAuthToken();
             const addUsersNotificationChannelMock = jest.fn();
@@ -252,28 +253,26 @@ describe('Notifications', () => {
         });
 
         it('User can setup email notifications', async () => {
-            const getDeliveryServiceProperties = () => {
-                return {
-                    messageTTL: 12345,
-                    sizeLimit: 456,
-                    notificationChannel: [
-                        {
-                            type: NotificationChannelType.EMAIL,
-                            config: {
-                                smtpHost: 'smtp.gmail.com',
-                                smtpPort: 587,
-                                smtpEmail: 'abc@gmail.com',
-                                smtpUsername: 'abc@gmail.com',
-                                smtpPassword: 'abcd1234',
-                            },
+            const deliveryServiceProperties: DeliveryServiceProperties = {
+                messageTTL: 12345,
+                sizeLimit: 456,
+                notificationChannel: [
+                    {
+                        type: NotificationChannelType.EMAIL,
+                        config: {
+                            smtpHost: 'smtp.gmail.com',
+                            smtpPort: 587,
+                            smtpEmail: 'abc@gmail.com',
+                            smtpUsername: 'abc@gmail.com',
+                            smtpPassword: 'abcd1234',
                         },
-                    ],
-                };
+                    },
+                ],
             };
 
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(getDeliveryServiceProperties));
+            app.use(notifications(deliveryServiceProperties));
 
             const token = await createAuthToken();
 
@@ -330,7 +329,7 @@ describe('Notifications', () => {
         it('Returns 400 as Email notification channel is not supported in delivery service', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(getDeliveryServiceProperties));
+            app.use(notifications(deliveryServiceProperties));
 
             const token = await createAuthToken();
 
@@ -391,7 +390,7 @@ describe('Notifications', () => {
         it('Returns 200 and false as global notification is not enabled', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(getDeliveryServiceProperties));
+            app.use(notifications(deliveryServiceProperties));
 
             const token = await createAuthToken();
 
@@ -442,7 +441,7 @@ describe('Notifications', () => {
         it('Enable global notifications', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(getDeliveryServiceProperties));
+            app.use(notifications(deliveryServiceProperties));
 
             const token = await createAuthToken();
 
@@ -484,7 +483,7 @@ describe('Notifications', () => {
         it('Disable global notifications', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(getDeliveryServiceProperties));
+            app.use(notifications(deliveryServiceProperties));
 
             const token = await createAuthToken();
 
@@ -526,7 +525,7 @@ describe('Notifications', () => {
         it('Returns 400 if req.body is invalid', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(getDeliveryServiceProperties));
+            app.use(notifications(deliveryServiceProperties));
 
             const token = await createAuthToken();
 

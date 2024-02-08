@@ -70,7 +70,10 @@ global.logger = winston.createLogger({
     app.use('/storage', Storage());
     app.use('/auth', Auth());
     app.use('/delivery', Delivery());
-    app.use('/notifications', Notifications(getDeliveryServiceProperties));
+    app.use(
+        '/notifications',
+        Notifications(app.locals.deliveryServiceProperties),
+    );
     app.use('/rpc', RpcProxy(new Axios({ url: process.env.RPC })));
     app.use(logError);
     app.use(errorHandler);
