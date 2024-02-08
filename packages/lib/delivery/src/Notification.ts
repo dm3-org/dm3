@@ -1,3 +1,4 @@
+import { ChannelNotSupportedError } from './errors/ChannelNotSupportedError';
 import {
     NotificationBroker,
     NotificationChannel,
@@ -42,7 +43,9 @@ export async function addNewNotificationChannel(
     );
 
     if (!channelUsed.length) {
-        throw Error('Notification channel not supported');
+        throw new ChannelNotSupportedError(
+            'Notification channel not supported',
+        );
     }
 
     // Adding a user's notification channel to the database
@@ -82,7 +85,7 @@ const getOtpContentForNotificationChannel = (
                 dm3ContactEmailID: notificationChannel.config.smtpEmail,
             };
         default:
-            throw Error(
+            throw new ChannelNotSupportedError(
                 `Invalid notification channel ${notificationChannel.type}`,
             );
     }

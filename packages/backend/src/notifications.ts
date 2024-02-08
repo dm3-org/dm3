@@ -4,7 +4,10 @@ import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import express from 'express';
 import { auth } from './utils';
 import { validateNotificationChannel } from './validation/notification/notificationChannelValidation';
-import { addNewNotificationChannel } from '@dm3-org/dm3-lib-delivery';
+import {
+    ChannelNotSupportedError,
+    addNewNotificationChannel,
+} from '@dm3-org/dm3-lib-delivery';
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import { IDatabase } from './persistance/getDatabase';
 
@@ -65,11 +68,11 @@ export default () => {
 
     // Defining a route to handle POST requests for adding an notification channel
     router.post('/:ensName', async (req, res, next) => {
+        // Extracting recipientValue & notificationChannelType from the request body
+        const { recipientValue, notificationChannelType } = req.body;
+
         try {
             const account = normalizeEnsName(req.params.ensName);
-
-            // Extracting recipientValue & notificationChannelType from the request body
-            const { recipientValue, notificationChannelType } = req.body;
 
             // Validate req.body data
             const { isValid, errorMessage } = validateNotificationChannel(
@@ -106,9 +109,19 @@ export default () => {
                 // Sending a success response
                 res.sendStatus(200);
             }
-        } catch (e) {
-            // Passing the error to the next middleware
-            next(e);
+        } catch (e: any) {
+            if (
+                e instanceof ChannelNotSupportedError ||
+                e.message === 'Invalid config.yml'
+            ) {
+                // return the error for not supported channels
+                res.sendStatus(400).json({
+                    error: `Notification channel ${notificationChannelType} is currently not supported yet by the DS`,
+                });
+            } else {
+                // Passing the error to the next middleware
+                next(e);
+            }
         }
     });
 
