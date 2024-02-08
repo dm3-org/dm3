@@ -7,10 +7,13 @@ import {
     validateNewNotificationChannelData,
     validateNotificationChannelType,
 } from './validation/notification/notificationChannelValidation';
-import { addNewNotificationChannel } from '@dm3-org/dm3-lib-delivery';
+import {
+    ChannelNotSupportedError,
+    addNewNotificationChannel,
+    resendOtp,
+} from '@dm3-org/dm3-lib-delivery';
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import { IDatabase } from './persistance/getDatabase';
-import { resendOtp } from '@dm3-org/dm3-lib-delivery/dist/Notification';
 
 // Exporting a function that returns an Express router
 export default () => {
@@ -114,11 +117,11 @@ export default () => {
 
     // Defining a route to handle POST requests for adding an notification channel
     router.post('/:ensName', async (req, res, next) => {
+        // Extracting recipientValue & notificationChannelType from the request body
+        const { recipientValue, notificationChannelType } = req.body;
+
         try {
             const account = normalizeEnsName(req.params.ensName);
-
-            // Extracting recipientValue & notificationChannelType from the request body
-            const { recipientValue, notificationChannelType } = req.body;
 
             // Validate req.body data
             const { isValid, errorMessage } =
@@ -156,9 +159,19 @@ export default () => {
                 // Sending a success response
                 res.sendStatus(200);
             }
-        } catch (e) {
-            // Passing the error to the next middleware
-            next(e);
+        } catch (e: any) {
+            if (
+                e instanceof ChannelNotSupportedError ||
+                e.message === 'Invalid config.yml'
+            ) {
+                // return the error for not supported channels
+                res.sendStatus(400).json({
+                    error: `Notification channel ${notificationChannelType} is currently not supported yet by the DS`,
+                });
+            } else {
+                // Passing the error to the next middleware
+                next(e);
+            }
         }
     });
 
