@@ -107,7 +107,9 @@ export const resendOtp = async (
     );
 
     if (!channelUsed.length) {
-        throw Error('Notification channel not supported');
+        throw new ChannelNotSupportedError(
+            'Notification channel not supported',
+        );
     }
 
     // check if notification channel exists in DB

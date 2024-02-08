@@ -72,11 +72,11 @@ export default () => {
 
     // Defining a route to handle POST requests for resending OTP
     router.post('/otp/:ensName', async (req, res, next) => {
+        // Extracting notificationChannelType from the request body
+        const { notificationChannelType } = req.body;
+
         try {
             const account = normalizeEnsName(req.params.ensName);
-
-            // Extracting notificationChannelType from the request body
-            const { notificationChannelType } = req.body;
 
             // Validate notificationChannelType data
             const { isValid, errorMessage } = validateNotificationChannelType(
@@ -109,9 +109,19 @@ export default () => {
                 // Sending a success response
                 res.sendStatus(200);
             }
-        } catch (e) {
-            // Passing the error to the next middleware
-            next(e);
+        } catch (e: any) {
+            if (
+                e instanceof ChannelNotSupportedError ||
+                e.message === 'Invalid config.yml'
+            ) {
+                // return the error for not supported channels
+                res.sendStatus(400).json({
+                    error: `Notification channel ${notificationChannelType} is currently not supported yet by the DS`,
+                });
+            } else {
+                // Passing the error to the next middleware
+                next(e);
+            }
         }
     });
 
