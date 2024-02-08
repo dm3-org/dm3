@@ -108,7 +108,7 @@ export default () => {
             next(e);
         }
     });
-
+    //TODO remove after storage refactoring
     router.post(
         '/messages/:ensName/syncAcknoledgment/:last_message_pull',
         async (req, res, next) => {
@@ -148,17 +148,66 @@ export default () => {
                             contactEnsName,
                         );
 
-                        if (req.app.locals.db) {
-                            const db: IDatabase = req.app.locals.db;
+                        const db: IDatabase = req.app.locals.db;
 
-                            db.syncAcknoledgment(
-                                conversationId,
-                                ensName,
-                                req.params.last_message_pull,
+                        await db.syncAcknowledge(
+                            conversationId,
+                            Number.parseInt(req.params.last_message_pull),
+                        );
+                    }),
+                );
+
+                res.json();
+            } catch (e) {
+                next(e);
+            }
+        },
+    );
+    router.post(
+        '/messages/:ensName/syncAcknowledgment/:last_message_pull',
+        async (req, res, next) => {
+            const hasValidParams = validateSchema(
+                syncAcknoledgmentParamsSchema,
+                req.params,
+            );
+
+            const hasValidBody = validateSchema(
+                syncAcknoledgmentBodySchema,
+                req.body,
+            );
+
+            // eslint-disable-next-line max-len
+            //Express transform number inputs into strings. So we have to check if a string used as last_message_pull can be converted to a number later on.
+            const isLastMessagePullNumber = !isNaN(
+                Number.parseInt(req.params.last_message_pull),
+            );
+
+            if (!hasValidParams || !isLastMessagePullNumber || !hasValidBody) {
+                return res.send(400);
+            }
+
+            try {
+                const ensName = await req.app.locals.db.getIdEnsName(
+                    req.params.ensName,
+                );
+
+                await Promise.all(
+                    req.body.acknoledgments.map(async (ack: Acknoledgment) => {
+                        const contactEnsName =
+                            await await req.app.locals.db.getIdEnsName(
+                                ack.contactAddress,
                             );
-                        } else {
-                            throw Error('db not connected');
-                        }
+                        const conversationId = getConversationId(
+                            ensName,
+                            contactEnsName,
+                        );
+
+                        const db: IDatabase = req.app.locals.db;
+
+                        await db.syncAcknowledge(
+                            conversationId,
+                            Number.parseInt(req.params.last_message_pull),
+                        );
                     }),
                 );
 
