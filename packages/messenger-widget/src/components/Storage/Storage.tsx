@@ -84,10 +84,7 @@ export default function Storage() {
     };
 
     useEffect(() => {
-        // eslint-disable-next-line no-console
-        console.log('trigger storage sync');
         if (state.userDb?.syncProcessState === SyncProcessState.Failed) {
-            // eslint-disable-next-line no-console
             console.log('sync falied');
         }
         const setBroserStorage = async () => {

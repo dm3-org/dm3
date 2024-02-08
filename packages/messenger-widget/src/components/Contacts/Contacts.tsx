@@ -25,8 +25,12 @@ export function Contacts(props: DashboardProps) {
     // fetches context api data
     const { state, dispatch } = useContext(GlobalContext);
     const { account } = useContext(AuthContext);
-    const { contacts, setSelectedContactName, selectedContact } =
-        useContext(ConversationContext);
+    const {
+        contacts,
+        setSelectedContactName,
+        selectedContact,
+        addConversation,
+    } = useContext(ConversationContext);
     const mainnetProvider = useMainnetProvider();
     const { resolveAliasToTLD } = useTopLevelAlias();
 
@@ -63,7 +67,6 @@ export function Contacts(props: DashboardProps) {
     useEffect(() => {
         if (selectedContact !== undefined) {
             onContactSelected(state, dispatch, selectedContact.contactDetails);
-            //TODO @Bhupesh what is that for
             setIsMenuAlignedAtBottom(showMenuInBottom(selectedContact.name));
         }
     }, [selectedContact]);
@@ -75,18 +78,8 @@ export function Contacts(props: DashboardProps) {
             !state.accounts.selectedContact &&
             contacts
         ) {
-            //TODO when used as a widget, there is no contact list so the user can
-            //not select a contact and has to chat with the default contact
-            // const defaultContactIndex = contacts.findIndex(
-            //     (contact) =>
-            //         contact.contactDetails &&
-            //         contact.contactDetails.account &&
-            //         contact.contactDetails.account.ensName ===
-            //         props.dm3Props.config.defaultContact,
-            // );
-            // if (defaultContactIndex > -1) {
-            //     setContactSelected(defaultContactIndex);
-            // }
+            addConversation(props.dm3Props.config.defaultContact);
+            setSelectedContactName(props.dm3Props.config.defaultContact);
         }
     }, [contacts]);
 

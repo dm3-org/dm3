@@ -8,8 +8,9 @@ import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
 import { fetchPendingConversations } from '../../adapters/messages';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { Config } from '../../interfaces/config';
 
-export const useConversation = () => {
+export const useConversation = (config: Config) => {
     const mainnetProvider = useMainnetProvider();
     const {
         getConversations,
@@ -78,10 +79,35 @@ export const useConversation = () => {
                 await init(page + 1);
             }
             await handlePendingConversations();
+            initDefaultContact();
             setConversationsInitialized(true);
         };
         init();
     }, [storageInitialized, account]);
+
+    const initDefaultContact = async () => {
+        if (config.defaultContact) {
+            const contractHasAlreadyBeenAdded = contacts.some(
+                (contact) =>
+                    contact.contactDetails.account.ensName ===
+                    normalizeEnsName(config.defaultContact!),
+            );
+            if (!contractHasAlreadyBeenAdded) {
+                //I there are no conversations yet we add the default contact
+                const defaultConversation: Conversation = {
+                    contactEnsName: normalizeEnsName(config.defaultContact),
+                    messageCounter: 0,
+                    isHidden: false,
+                    key: '',
+                };
+                const hydratedDefaultContact = await hydrateContract(
+                    mainnetProvider,
+                    defaultConversation,
+                );
+                setContacts((prev) => [hydratedDefaultContact, ...prev]);
+            }
+        }
+    };
 
     const handlePendingConversations = async () => {
         //At first we've to check if there are pending conversations not yet added to the list

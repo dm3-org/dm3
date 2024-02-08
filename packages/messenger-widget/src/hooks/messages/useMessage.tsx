@@ -1,4 +1,8 @@
-import { createPendingEntry, sendMessage } from '@dm3-org/dm3-lib-delivery-api';
+import {
+    createPendingEntry,
+    sendMessage,
+    syncAcknoledgment,
+} from '@dm3-org/dm3-lib-delivery-api';
 import {
     Envelop,
     Message,
@@ -22,6 +26,7 @@ import {
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import axios from 'axios';
 import { fetchNewMessages } from '../../adapters/messages';
+import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
 
 type MessageStorage = { [contact: string]: StorageEnvelopContainer[] };
 
@@ -56,7 +61,10 @@ export const useMessage = (connection: Connection) => {
     }, [messages]);
 
     const contactIsLoading = useCallback(
-        (_contactName: string) => {
+        (_contactName?: string) => {
+            if (!_contactName) {
+                return false;
+            }
             const contact = normalizeEnsName(_contactName);
             return contactsLoading.includes(contact);
         },
@@ -81,7 +89,9 @@ export const useMessage = (connection: Connection) => {
     const addMessage = async (_contactName: string, message: Message) => {
         const contact = normalizeEnsName(_contactName);
         //Find the recipient of the message in the contact list
-        const recipient = contacts.find((c) => c.name === contact);
+        const recipient = contacts.find(
+            (c) => c.contactDetails.account.ensName === contact,
+        );
 
         // For whatever reason the we've to create a PendingEntry before we can send a message
         //We should probably refactor this to be more clear on the backend side
@@ -227,7 +237,8 @@ export const useMessage = (connection: Connection) => {
             `got messages from DS for ${contactName}`,
             incommingMessages,
         );
-
+        //In the background we sync and acknowledge the messages and store then in the storage
+        //acknowledgeAndStoreMessages(incommingMessages);
         return incommingMessages;
     };
 
@@ -235,14 +246,25 @@ export const useMessage = (connection: Connection) => {
         const contactName = normalizeEnsName(_contactName);
 
         const initialMessages = await Promise.all([
-            fetchMessagesFromDeliveryService(contactName),
             fetchMessagesFromStorage(contactName),
+            fetchMessagesFromDeliveryService(contactName),
         ]);
 
         const messages = initialMessages
             .reduce((acc, val) => acc.concat(val), [])
             .filter(({ envelop }: StorageEnvelopContainer) => {
                 return envelop.message.metadata?.type === MessageActionType.NEW;
+            })
+            //filter duplicates
+            .filter((message, index, self) => {
+                return (
+                    index ===
+                    self.findIndex(
+                        (m) =>
+                            m.envelop.metadata?.encryptedMessageHash ===
+                            message.envelop.metadata?.encryptedMessageHash,
+                    )
+                );
             });
 
         setMessages((prev) => {
@@ -255,6 +277,42 @@ export const useMessage = (connection: Connection) => {
         setContactsLoading((prev) => {
             return prev.filter((contact) => contact !== contactName);
         });
+    };
+
+    const acknowledgeAndStoreMessages = async (
+        msg: StorageEnvelopContainer[],
+    ) => {
+        const now = Date.now();
+
+        const acknowledgements: Acknoledgment[] = [];
+        msg.forEach((m) => {
+            storeMessage(m.envelop.message.metadata?.from, m);
+            acknowledgements.push({
+                contactAddress: m.envelop.message.metadata?.from,
+                messageDeliveryServiceTimestamp:
+                    m.envelop.postmark?.incommingTimestamp!,
+            });
+        });
+
+        if (acknowledgements.length === 0) {
+            return;
+        }
+
+        //1707214461077
+        //1707214461077
+        const lowestTimestamp = Math.min(
+            ...msg.map((m) => m.envelop.postmark?.incommingTimestamp!),
+        );
+
+        console.log('lowest timestammp', lowestTimestamp);
+
+        await syncAcknoledgment(
+            mainnetProvider!,
+            account!,
+            acknowledgements,
+            deliveryServiceToken!,
+            0,
+        );
     };
 
     return {
