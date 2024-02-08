@@ -37,6 +37,22 @@ export const useConversation = (config: Config) => {
         );
     }, [selectedContactName, contacts]);
 
+    const _setContactsSafe = (newContacts: ContactPreview[]) => {
+        setContacts((prev) => {
+            //We do not want to add duplicates to the list
+            const withoutDuplicates = prev.filter(
+                (existingContact) =>
+                    !newContacts.some(
+                        (newContact) =>
+                            newContact.contactDetails.account.ensName ===
+                            existingContact.contactDetails.account.ensName,
+                    ),
+            );
+
+            return [...withoutDuplicates, ...newContacts];
+        });
+    };
+
     //For now we do not support pagination hence we always fetch all pages
     useEffect(() => {
         setConversationsInitialized(false);
@@ -47,6 +63,8 @@ export const useConversation = (config: Config) => {
                 return;
             }
             const currentConversationsPage = await getConversations(page);
+
+            console.log('currentConversationsPage', currentConversationsPage);
 
             //Hydrate the contacts by fetching their profile and DS profile
             const storedContacts = await Promise.all(
@@ -64,16 +82,9 @@ export const useConversation = (config: Config) => {
                 }),
             );
             //It might be the case that contacts are added via websocket. In this case we do not want to add them again
-            const contactsWithoutDuplicates = storedContacts.filter(
-                (newContact) =>
-                    !contacts.some(
-                        (existingContact) =>
-                            existingContact.contactDetails.account.ensName ===
-                            newContact.contactDetails.account.ensName,
-                    ),
-            );
 
-            setContacts((prev) => [...prev, ...contactsWithoutDuplicates]);
+            _setContactsSafe(storedContacts);
+
             //as long as there is no pagination we fetch the next page until we get an empty page
             if (currentConversationsPage.length > 0) {
                 await init(page + 1);
@@ -104,7 +115,7 @@ export const useConversation = (config: Config) => {
                     mainnetProvider,
                     defaultConversation,
                 );
-                setContacts((prev) => [hydratedDefaultContact, ...prev]);
+                _setContactsSafe([hydratedDefaultContact]);
             }
         }
     };
@@ -123,6 +134,7 @@ export const useConversation = (config: Config) => {
     };
 
     const addConversation = (_ensName: string) => {
+        console.log('add new conversation ');
         const ensName = normalizeEnsName(_ensName);
         const alreadyAddedContact = contacts.find(
             (existingContact) =>
@@ -139,7 +151,7 @@ export const useConversation = (config: Config) => {
 
         const newContact: ContactPreview = getDefaultContract(ensName);
         //Set the new contact to the list
-        setContacts((prev) => [...prev, newContact]);
+        _setContactsSafe([newContact]);
         //Add the contact to the storage in the background
         addConversationAsync(ensName);
         //Hydrate the contact in the background
