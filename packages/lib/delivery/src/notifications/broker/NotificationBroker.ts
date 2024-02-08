@@ -38,11 +38,9 @@ export const _setupNotficationBroker = (
                     throw new Error(
                         `Channel type ${channel.type} is not supported`,
                     );
-                } else if (
-                    // Send notification only if channel is verified
-                    channel.config.isEnabled &&
-                    channel.config.isVerified
-                ) {
+                }
+                // Send notification only if channel is verified
+                if (channel.config.isEnabled && channel.config.isVerified) {
                     return await deliveryServiceNotificationChannel.send({
                         recipientValue: channel.config.recipientValue,
                         notificationType: NotificationType.NEW_MESSAGE,
