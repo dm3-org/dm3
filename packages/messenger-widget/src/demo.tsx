@@ -16,10 +16,15 @@ function Demo() {
     };
 
     return (
-        <div style={{ minHeight: '100vh' }} className="background p-1">
-            <div className="demo-container">
-                <DM3 {...props} />
-            </div>
+        <div
+            style={{
+                width: '100vw',
+                height: '100vh',
+                overflow: 'hidden',
+            }}
+            className="background p-1"
+        >
+            <DM3 {...props} />
         </div>
     );
 }
