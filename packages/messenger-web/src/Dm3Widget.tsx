@@ -13,10 +13,10 @@ const Dm3Widget: React.FC = () => {
     const props: any = {
         defaultContact: 'contact.dm3.eth',
         defaultServiceUrl: process.env.REACT_APP_DEFAULT_SERVICE,
-        ethereumProvider: process.env.REACT_APP_ETHEREUM_PROVIDER,
+        ethereumProvider: process.env.REACT_APP_MAINNET_PROVIDER_RPC,
         walletConnectProjectId: process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID,
         showAlways: true,
-        hideFunction: 'attachments,edit,delete', // Optional parameter: 'attachments,edit,delete' or undefined
+        hideFunction: 'attachments', // Optional parameter: 'attachments,edit,delete' or undefined
         showContacts: true, // true for all contacts / false for default contact
     };
 
