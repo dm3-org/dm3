@@ -39,7 +39,7 @@ export function SignIn(props: SignInProps) {
     };
 
     return (
-        <>
+        <div className="signin-container-type h-100">
             <div className="row m-0 p-0 h-100">
                 <div
                     style={{
@@ -67,7 +67,7 @@ export function SignIn(props: SignInProps) {
                             <DM3Logo />
                         </div>
 
-                        <div className="mt-4">
+                        <div className="mt-4 w-100">
                             <div className="encrypted-details font-weight-800 font-size-12 text-primary-color">
                                 web3 messaging.
                                 <p className="encrypted-details font-weight-400 font-size-12 text-primary-color">
@@ -106,17 +106,17 @@ export function SignIn(props: SignInProps) {
                                 sign in with a signature. No need for a username
                                 or password.
                             </p>
-                            <p className="text-primary-color details font-size-12">
+                            <p className="keys-content text-primary-color details font-size-12">
                                 Keys for secure and private communication are
                                 derived from this signature.
                             </p>
-                            <p className="text-primary-color details font-size-12">
+                            <p className="tx-content text-primary-color details font-size-12">
                                 No paid transaction will be executed.
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 }

@@ -11,6 +11,7 @@ import {
 } from '../../utils/enum-type-utils';
 import { startLoader } from '../../components/Loader/Loader';
 import Menu from '../../components/Menu/Menu';
+import './../../styles/common.css';
 
 export default function LeftView(props: DashboardProps) {
     // fetches context api data
@@ -40,7 +41,8 @@ export default function LeftView(props: DashboardProps) {
     return (
         <div className="position-relative h-100 d-flex flex-column align-items-start">
             <div
-                className={'w-100 '.concat(
+                className={'w-100 height-inherit'.concat(
+                    ' ',
                     state.uiView.selectedLeftView === LeftViewSelected.Contacts
                         ? ''
                         : 'display-none',
@@ -60,6 +62,7 @@ export default function LeftView(props: DashboardProps) {
 
             <div
                 className={'w-100 h-100'.concat(
+                    ' ',
                     state.uiView.selectedLeftView === LeftViewSelected.Menu
                         ? ''
                         : 'display-none',
