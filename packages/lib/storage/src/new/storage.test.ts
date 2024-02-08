@@ -109,6 +109,54 @@ describe('createStorage Integration Tests', () => {
             expect(messageChunk.length).toBe(1);
             expect(messageChunk[0]).toEqual(storageEnvelopContainer);
         });
+        it('add message batch - stores message batch', async () => {
+            await storageApi.addConversation('bob.eth');
+            //We acreate an newStorageApi to verify that the data is stored in remote storage and not just locally
+            storageApi = await createStorage('alice.eth', mockSign, {
+                readStrategy: ReadStrategy.RemoteFirst,
+                keyValueStoreRemote: remoteKeyValueStore,
+            });
+            const envelop = makeEnvelop(
+                'alice.eth',
+                'bob.eth',
+                'Hello Bob',
+                1706084571962,
+            );
+            const envelop2 = makeEnvelop(
+                'alice.eth',
+                'bob.eth',
+                'XYZ',
+                1706084571962,
+            );
+            const envelop3 = makeEnvelop(
+                'alice.eth',
+                'bob.eth',
+                'blablabla',
+                1706084571962,
+            );
+
+            await storageApi.addMessageBatch('bob.eth', [
+                {
+                    envelop,
+                    messageState: MessageState.Created,
+                },
+                {
+                    envelop: envelop2,
+                    messageState: MessageState.Created,
+                },
+                {
+                    envelop: envelop3,
+                    messageState: MessageState.Created,
+                },
+            ]);
+
+            const messageChunk = await storageApi.getMessages('bob.eth', 0);
+            expect(messageChunk.length).toBe(3);
+            expect(messageChunk[0].envelop).toEqual(envelop);
+            expect(messageChunk[1].envelop).toEqual(envelop2);
+            expect(messageChunk[2].envelop).toEqual(envelop3);
+        });
+
         it('add new message - updates number of messages', async () => {
             await storageApi.addConversation('bob.eth');
             //We acreate an newStorageApi to verify that the data is stored in remote storage and not just locally

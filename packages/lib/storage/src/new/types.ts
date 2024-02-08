@@ -29,6 +29,10 @@ export interface StorageAPI {
         contactEnsName: string,
         envelop: StorageEnvelopContainer,
     ) => Promise<void>;
+    addMessageBatch: (
+        contactEnsName: string,
+        batch: StorageEnvelopContainer[],
+    ) => Promise<void>;
     toggleHideConversation: (
         contactEnsName: string,
         isHidden: boolean,

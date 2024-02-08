@@ -93,9 +93,9 @@ export async function addConversation(
  *  A promise that resolves to an object containing the updated message chunk and conversation manifest.
  * @throws {Error} If the message size is too big.
  */
-export async function addMessage(
+export async function addMessages(
     contactEnsName: string,
-    storageEnvelopContainer: StorageEnvelopContainer,
+    storageEnvelopContainer: StorageEnvelopContainer[],
     db: Db,
 ): Promise<{
     messageChunk: MessageChunk;
@@ -106,9 +106,11 @@ export async function addMessage(
     // However, the getEnvelopSize function exepects an encrypted envelop as input.
     // In the case of the storage we encrypt the whole chunk and not a single message.
     // Therefore we use the getSize function on an unencrypted envelop.
-    if (getSize(storageEnvelopContainer.envelop) > MAX_MESSAGE_SIZE) {
-        throw Error(`Message size is too big`);
-    }
+    storageEnvelopContainer.forEach((envelopContainer) => {
+        if (getSize(envelopContainer.envelop) > MAX_MESSAGE_SIZE) {
+            throw Error(`Message size is too big`);
+        }
+    });
     // get the conversation manifest and calculate the target chunk index based on the current message counter.
     const conversationManifest = await getConversationManifest(
         contactEnsName,
@@ -138,14 +140,15 @@ export async function addMessage(
     return {
         messageChunk: {
             key,
-
             envelopContainer: messageChunk
-                ? [...messageChunk.envelopContainer, storageEnvelopContainer]
-                : [storageEnvelopContainer],
+                ? [...messageChunk.envelopContainer, ...storageEnvelopContainer]
+                : [...storageEnvelopContainer],
         },
         conversationManifest: {
             ...conversationManifest,
-            messageCounter: conversationManifest.messageCounter + 1,
+            messageCounter:
+                conversationManifest.messageCounter +
+                storageEnvelopContainer.length,
         },
     };
 }

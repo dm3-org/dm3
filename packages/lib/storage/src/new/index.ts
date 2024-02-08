@@ -19,7 +19,7 @@ import {
     ReadStrategy,
     StorageAPI,
 } from './types';
-import { addConversation, addMessage } from './write';
+import { addConversation, addMessages } from './write';
 import { StorageEnvelopContainer } from '../Storage';
 
 /**
@@ -128,9 +128,59 @@ function addMessageSideEffectContainment(
             //The conversation manifest does not exist, so we have to create it
             await addConversationSideEffectContainment(db)(contactEnsName);
         }
-        const messageChunkContainer = await addMessage(
+        const messageChunkContainer = await addMessages(
             contactEnsName,
-            envelop,
+            [envelop],
+            db,
+        );
+
+        await db.keyValueStoreLocal.write(
+            messageChunkContainer.messageChunk.key,
+            messageChunkContainer.messageChunk,
+        );
+        await db.keyValueStoreLocal.write(
+            messageChunkContainer.conversationManifest.key,
+            messageChunkContainer.conversationManifest,
+        );
+
+        //If there is remote storage, we have to add the message chunk and the conversation manifest to it
+        if (db.keyValueStoreRemote) {
+            await db.keyValueStoreRemote.write(
+                messageChunkContainer.messageChunk.key,
+                messageChunkContainer.messageChunk,
+            );
+            await db.keyValueStoreRemote.write(
+                messageChunkContainer.conversationManifest.key,
+                messageChunkContainer.conversationManifest,
+            );
+        }
+    };
+}
+/**
+ * This function creates a closure that, when invoked, adds a batch of new messages to a conversation
+ * in the database and writes the message chunk and conversation manifest to local storage.
+ * It contains all actions which have side effects.
+ *
+ * @param {Db} db - The database object to interact with.
+ * @returns {(contactEnsName: string, envelop: Envelop) => Promise<void>} A function that takes a contactEnsName string
+ *  and an Envelop object, and performs the operations.
+ */
+function addBatchMessageSideEffectContainment(
+    db: Db,
+): (contactEnsName: string, batch: StorageEnvelopContainer[]) => Promise<void> {
+    return async (contactEnsName: string, batch: StorageEnvelopContainer[]) => {
+        //First we have to get the conversation manifest
+        const conversationManifest = await getConversationManifest(
+            contactEnsName,
+            db,
+        );
+        if (!conversationManifest) {
+            //The conversation manifest does not exist, so we have to create it
+            await addConversationSideEffectContainment(db)(contactEnsName);
+        }
+        const messageChunkContainer = await addMessages(
+            contactEnsName,
+            batch,
             db,
         );
 
@@ -256,6 +306,8 @@ export function createStorage(
         addConversation: addConversationSideEffectContainment(db),
 
         addMessage: addMessageSideEffectContainment(db),
+
+        addMessageBatch: addBatchMessageSideEffectContainment(db),
 
         toggleHideConversation: toggleHideConversationSideEffectContainment(db),
     };
