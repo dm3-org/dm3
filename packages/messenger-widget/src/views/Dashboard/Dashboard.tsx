@@ -19,17 +19,17 @@ export default function Dashboard(props: DashboardProps) {
 
     const getRightViewStyleClasses = () => {
         if (props.dm3Props.config.showContacts) {
-            return 'p-0 h-100 col-lg-9 col-md-9 col-sm-12';
+            return 'p-0 h-100 col-lg-9 col-md-9 col-sm-12 right-view-container-type';
         } else {
-            return 'p-0 h-100 col-12';
+            return 'p-0 h-100 col-12 right-view-container-type';
         }
     };
 
     const getLeftViewStyleClasses = () => {
         if (props.dm3Props.config.showContacts) {
-            return 'col-lg-3 col-md-3 col-sm-12 p-0 h-100';
+            return 'col-lg-3 col-md-3 col-sm-12 p-0 h-100 left-view-container-type';
         } else {
-            return 'col-lg-3 col-md-3 col-sm-12 p-0 h-100 display-none';
+            return 'col-lg-3 col-md-3 col-sm-12 p-0 h-100 display-none left-view-container-type';
         }
     };
 

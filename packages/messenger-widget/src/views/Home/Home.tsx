@@ -88,7 +88,7 @@ export function Home(props: Dm3Props) {
     }, []);
 
     return (
-        <div className="h-100">
+        <div className="h-100 position-relative">
             <Loader />
             <WagmiConfig config={wagmiConfig}>
                 <RainbowKitProvider chains={chains} theme={darkTheme()}>

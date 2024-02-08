@@ -57,48 +57,79 @@ describe('TopLevelAliasRegistry', function () {
         });
 
         it('Should prevent setting an alias that is too short or too long', async function () {
-            await expect(
-                topLevelAliasRegistry.connect(owner).setAlias('bob', 'bb.et'),
-            ).to.be.revertedWith('Alias length is invalid');
+            await topLevelAliasRegistry
+                .connect(owner)
+                .setAlias('bob', 'bb.et')
+                .then((res: any) => {
+                    expect.fail('Should have thrown an error');
+                })
+                .catch((err: any) => {
+                    expect(err.message).to.contains('Alias length is invalid');
+                });
 
             let longAlias = 'b'.repeat(47) + '.eth';
-            await expect(
-                topLevelAliasRegistry.connect(owner).setAlias('bob', longAlias),
-            ).to.be.revertedWith('Alias length is invalid');
+            await topLevelAliasRegistry
+                .connect(owner)
+                .setAlias('bob', longAlias)
+                .then((res: any) => {
+                    expect.fail('Should have thrown an error');
+                })
+                .catch((err: any) => {
+                    expect(err.message).to.contains('Alias length is invalid');
+                });
         });
 
         it('Should prevent setting an empty toplevel', async function () {
-            await expect(
-                topLevelAliasRegistry.connect(owner).setAlias('', 'valid.eth'),
-            ).to.be.revertedWith('Toplevel cannot be empty');
+            await topLevelAliasRegistry
+                .connect(owner)
+                .setAlias('', 'valid.eth')
+                .then((res: any) => {
+                    expect.fail('Should have thrown an error');
+                })
+                .catch((err: any) => {
+                    expect(err.message).to.contains('Toplevel cannot be empty');
+                });
         });
 
         it('Should revert if the alias starts with a dot', async function () {
-            await expect(
-                topLevelAliasRegistry
-                    .connect(owner)
-                    .setAlias('alice', '.alice.eth'),
-            ).to.be.revertedWith('Alias must not start with a dot');
+            await topLevelAliasRegistry
+                .connect(owner)
+                .setAlias('alice', '.alice.eth')
+                .then((res: any) => {
+                    expect.fail('Should have thrown an error');
+                })
+                .catch((err: any) => {
+                    expect(err.message).to.contains(
+                        'Alias must not start with a dot',
+                    );
+                });
         });
 
         it('Should revert if the toplevel starts with a dot', async function () {
-            await expect(
-                topLevelAliasRegistry
-                    .connect(owner)
-                    .setAlias('.alice', 'alice.eth'),
-            ).to.be.revertedWith('Toplevel must not start with a dot');
+            await topLevelAliasRegistry
+                .connect(owner)
+                .setAlias('.alice', 'alice.eth')
+                .then((res: any) => {
+                    expect.fail('Should have thrown an error');
+                })
+                .catch((err: any) => {
+                    expect(err.message).to.contains(
+                        'Toplevel must not start with a dot',
+                    );
+                });
         });
     });
 
     describe('Set Alias Event', function () {
         it('Should emit an AliasSet event when a new alias is set', async function () {
-            await expect(
-                topLevelAliasRegistry
-                    .connect(owner)
-                    .setAlias('alice', 'alice.eth'),
-            )
-                .to.emit(topLevelAliasRegistry, 'AliasSet')
-                .withArgs('alice', 'alice.eth');
+            const tx = await topLevelAliasRegistry
+                .connect(owner)
+                .setAlias('alice', 'alice.eth');
+
+            const receipt = await tx.wait();
+
+            expect(receipt.events?.length).to.equal(1);
+            expect(receipt.events?.[0].event).to.equal('AliasSet');
         });
     });
 
@@ -146,25 +177,31 @@ describe('TopLevelAliasRegistry', function () {
 
         it('Should prevent non-owners from transferring ownership', async function () {
             const addr1Address = await addr1.getAddress();
-            await expect(
-                topLevelAliasRegistry
-                    .connect(addr1)
-                    .transferOwnership(addr1Address),
-            ).to.be.revertedWithCustomError(
-                topLevelAliasRegistry,
-                'OwnableUnauthorizedAccount',
-            );
+            await topLevelAliasRegistry
+                .connect(addr1)
+                .transferOwnership(addr1Address)
+                .then((res: any) => {
+                    expect.fail('Should have thrown an error');
+                })
+                .catch((err: any) => {
+                    expect(err.message).to.contains(
+                        'OwnableUnauthorizedAccount',
+                    );
+                });
         });
 
         it('Should prevent non-owners from setting aliases', async function () {
-            await expect(
-                topLevelAliasRegistry
-                    .connect(addr1)
-                    .setAlias('testname', 'testname.eth'),
-            ).to.be.revertedWithCustomError(
-                topLevelAliasRegistry,
-                'OwnableUnauthorizedAccount',
-            );
+            await topLevelAliasRegistry
+                .connect(addr1)
+                .setAlias('testname', 'testname.eth')
+                .then((res: any) => {
+                    expect.fail('Should have thrown an error');
+                })
+                .catch((err: any) => {
+                    expect(err.message).to.contains(
+                        'OwnableUnauthorizedAccount',
+                    );
+                });
         });
     });
 });

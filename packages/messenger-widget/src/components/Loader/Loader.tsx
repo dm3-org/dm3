@@ -20,17 +20,9 @@ export function Loader() {
     const { state } = useContext(GlobalContext);
 
     return (
-        <div>
-            <div className="loading d-flex justify-content-center align-items-center">
-                <img
-                    className="rotating loader-img"
-                    src={loader}
-                    alt="loader"
-                />
-                <div className="loader-content">
-                    {state.modal.loaderContent}
-                </div>
-            </div>
+        <div className="loading d-flex justify-content-center align-items-center">
+            <img className="rotating loader-img" src={loader} alt="loader" />
+            <div className="loader-content">{state.modal.loaderContent}</div>
         </div>
     );
 }

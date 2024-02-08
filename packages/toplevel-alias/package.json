@@ -2,13 +2,21 @@
   "name": "@dm3-org/dm3-toplevel-alias",
   "version": "0.1.0",
   "devDependencies": {
-    "@nomicfoundation/hardhat-ethers": "^3.0.5",
-    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
-    "hardhat": "^2.19.4",
-    "hardhat-gas-reporter": "^1.0.9"
+    "@nomicfoundation/hardhat-chai-matchers": "^1.0.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
+    "@nomicfoundation/hardhat-verify": "^1.0.3",
+    "@nomiclabs/hardhat-ethers": "^2.0.3",
+    "@typechain/ethers-v5": "^8.0.5",
+    "@typechain/hardhat": "^8.0.0",
+    "hardhat": "^2.7.1",
+    "solidity-coverage": "^0.7.17",
+    "typechain": "^6.0.5"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.0"
   },
-  "publish": false
+  "publish": false,
+  "scripts": {
+    "test": "npx hardhat test"
+  }
 }

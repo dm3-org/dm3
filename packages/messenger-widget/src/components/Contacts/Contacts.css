@@ -1,5 +1,5 @@
 .contacts-scroller {
-    height: 100%;
+    height: calc(100% - 65px) !important;
     padding-left: 1rem;
     margin-top: 2px;
 }
