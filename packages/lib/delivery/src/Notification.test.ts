@@ -1,6 +1,5 @@
 import { NotificationChannel, NotificationChannelType } from './notifications';
 import { addNewNotificationChannel } from './Notification';
-import { getDeliveryServiceProperties } from '../../../backend/src/config/getDeliveryServiceProperties';
 const nodemailer = require('nodemailer');
 
 jest.mock('nodemailer');
@@ -28,8 +27,18 @@ describe('Notification', () => {
                 ]);
             const setOtp = jest.fn();
 
-            const notificationChannels: NotificationChannel[] =
-                getDeliveryServiceProperties().notificationChannel;
+            const notificationChannels: NotificationChannel[] = [
+                {
+                    type: NotificationChannelType.EMAIL,
+                    config: {
+                        smtpHost: 'smtp.gmail.com',
+                        smtpPort: 587,
+                        smtpEmail: 'abc@gmail.com',
+                        smtpUsername: 'abc@gmail.com',
+                        smtpPassword: 'abcd1234',
+                    },
+                },
+            ];
 
             const db = {
                 getUsersNotificationChannels,

@@ -7,8 +7,10 @@ import { stringify } from '../../shared/src/stringify';
 import { getConversationId, getMessages, incomingMessage } from './Messages';
 import { Session } from './Session';
 import { SpamFilterRules } from './spam-filter/SpamFilterRules';
-import { NotificationChannelType } from './notifications/types';
-import { getDeliveryServiceProperties } from '../../../backend/src/config/getDeliveryServiceProperties';
+import {
+    NotificationChannel,
+    NotificationChannelType,
+} from './notifications/types';
 
 const SENDER_NAME = 'alice.eth';
 const RECEIVER_NAME = 'bob.eth';
@@ -458,6 +460,19 @@ describe('Messages', () => {
                 ]);
             };
 
+            const dsNotificationChannels: NotificationChannel[] = [
+                {
+                    type: NotificationChannelType.EMAIL,
+                    config: {
+                        smtpHost: 'smtp.gmail.com',
+                        smtpPort: 587,
+                        smtpEmail: 'abc@gmail.com',
+                        smtpUsername: 'abc@gmail.com',
+                        smtpPassword: 'abcd1234',
+                    },
+                },
+            ];
+
             await incomingMessage(
                 {
                     envelop: {
@@ -477,7 +492,7 @@ describe('Messages', () => {
                 keysA.signingKeyPair,
                 keysA.encryptionKeyPair,
                 2 ** 14,
-                getDeliveryServiceProperties().notificationChannel,
+                dsNotificationChannels,
                 getSession,
                 storeNewMessage,
                 sendMessageViaSocketMock,

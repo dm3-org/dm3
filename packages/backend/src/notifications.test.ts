@@ -278,6 +278,22 @@ describe('Notifications', () => {
                             },
                         },
                     ]),
+                getDeliveryServiceProperties: () => {
+                    return {
+                        notificationChannel: [
+                            {
+                                type: NotificationChannelType.EMAIL,
+                                config: {
+                                    smtpHost: 'smtp.gmail.com',
+                                    smtpPort: 587,
+                                    smtpEmail: 'abc@gmail.com',
+                                    smtpUsername: 'abc@gmail.com',
+                                    smtpPassword: 'abcd1234',
+                                },
+                            },
+                        ],
+                    };
+                },
                 addNewNotificationChannel: addNewNotificationChannelMock,
                 addUsersNotificationChannel: addUsersNotificationChannelMock,
                 setOtp: setOtpMock,

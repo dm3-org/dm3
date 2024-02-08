@@ -1,17 +1,30 @@
 import { DeliveryInformation } from '@dm3-org/dm3-lib-messaging';
-import { NotificationChannelType, NotificationType } from './types';
+import {
+    NotificationChannel,
+    NotificationChannelType,
+    NotificationType,
+} from './types';
 import {
     NotificationBroker,
     _setupNotficationBroker,
 } from './broker/NotificationBroker';
-import { getDeliveryServiceProperties } from '../../../../backend/src/config/getDeliveryServiceProperties';
 
 jest.mock('nodemailer');
 
 describe('Notifications', () => {
     it('Send Email notification to verify OTP', async () => {
-        const dsNotificationChannels =
-            getDeliveryServiceProperties().notificationChannel;
+        const dsNotificationChannels: NotificationChannel[] = [
+            {
+                type: NotificationChannelType.EMAIL,
+                config: {
+                    smtpHost: 'smtp.gmail.com',
+                    smtpPort: 587,
+                    smtpEmail: 'abc@gmail.com',
+                    smtpUsername: 'abc@gmail.com',
+                    smtpPassword: 'abcd1234',
+                },
+            },
+        ];
 
         const channel1 = {
             type: NotificationChannelType.EMAIL,
@@ -56,8 +69,18 @@ describe('Notifications', () => {
     });
 
     it('Should not send email when notification channel is not verified', async () => {
-        const dsNotificationChannels =
-            getDeliveryServiceProperties().notificationChannel;
+        const dsNotificationChannels: NotificationChannel[] = [
+            {
+                type: NotificationChannelType.EMAIL,
+                config: {
+                    smtpHost: 'smtp.gmail.com',
+                    smtpPort: 587,
+                    smtpEmail: 'abc@gmail.com',
+                    smtpUsername: 'abc@gmail.com',
+                    smtpPassword: 'abcd1234',
+                },
+            },
+        ];
 
         const channel1 = {
             type: NotificationChannelType.EMAIL,
