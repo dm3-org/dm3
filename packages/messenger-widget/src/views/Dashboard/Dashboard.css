@@ -1,3 +1,48 @@
 .dashboard-right-view-highlight {
     border-left: 2px solid var(--normal-btn-hover);
 }
+
+/* ========================= Container CSS for Right View ======================== */
+.right-view-container-type {
+    container-type: size;
+    container-name: rightView;
+}
+
+@container rightView (max-width: 890px) {
+    .profile-name {
+        display: none !important;
+    }
+}
+
+/* ========================= Container CSS for Left View ======================== */
+.left-view-container-type {
+    container-type: size;
+    container-name: leftView;
+}
+
+@container leftView (max-width: 245px) {
+    .pic {
+        height: 2rem !important;
+        width: 2rem !important;
+    }
+
+    .display-name {
+        font-size: 10px !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 75px;
+    }
+
+    .contacts-msg {
+        font-size: 10px !important;
+    }
+
+    .configure-msg-box {
+        font-size: 12px !important;
+    }
+
+    .config-btn-container {
+        font-size: 12px !important;
+    }
+}

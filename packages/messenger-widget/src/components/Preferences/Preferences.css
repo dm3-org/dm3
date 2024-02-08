@@ -3,7 +3,7 @@
     border: none;
     position: relative;
     width: 80%;
-    height: 95%;
+    height: 90% !important;
     top: 50%;
     transform: translateY(-50%);
 }

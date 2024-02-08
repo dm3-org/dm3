@@ -5,7 +5,8 @@
     width: fit-content;
     top: 15%;
     position: relative;
-    height: auto;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .conversation-description {
