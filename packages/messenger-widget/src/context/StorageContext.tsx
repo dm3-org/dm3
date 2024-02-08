@@ -1,4 +1,4 @@
-import { Envelop } from '@dm3-org/dm3-lib-messaging';
+import { StorageEnvelopContainer } from '@dm3-org/dm3-lib-storage';
 import React, { useContext } from 'react';
 import {
     AddConversation,
@@ -6,14 +6,15 @@ import {
     GetMessages,
     GetNumberOfMessages,
     StoreMessageAsync,
+    StoreMessageBatch,
     ToggleHideContactAsync,
     useStorage,
 } from '../hooks/storage/useStorage';
 import { AuthContext } from './AuthContext';
-import { StorageEnvelopContainer } from '@dm3-org/dm3-lib-storage';
 
 export type StorageContextType = {
     storeMessage: StoreMessageAsync;
+    storeMessageBatch: StoreMessageBatch;
     getConversations: GetConversations;
     addConversationAsync: AddConversation;
     getNumberOfMessages: GetNumberOfMessages;
@@ -26,6 +27,10 @@ export const StorageContext = React.createContext<StorageContextType>({
     storeMessage: async (
         contact: string,
         envelop: StorageEnvelopContainer,
+    ) => {},
+    storeMessageBatch: async (
+        contact: string,
+        batch: StorageEnvelopContainer[],
     ) => {},
     getConversations: async (page: number) => Promise.resolve([]),
     addConversationAsync: (contact: string) => {},
@@ -41,6 +46,7 @@ export const StorageContextProvider = ({ children }: { children?: any }) => {
 
     const {
         storeMessageAsync,
+        storeMessageBatch,
         getConversations,
         addConversationAsync,
         getNumberOfMessages,
@@ -52,6 +58,7 @@ export const StorageContextProvider = ({ children }: { children?: any }) => {
         <StorageContext.Provider
             value={{
                 storeMessage: storeMessageAsync,
+                storeMessageBatch: storeMessageBatch,
                 getConversations,
                 addConversationAsync,
                 getNumberOfMessages,

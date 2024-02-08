@@ -5,7 +5,6 @@
 
 import {
     StorageEnvelopContainer,
-    UserDB,
     createRemoteKeyValueStoreApi,
     createStorage,
 } from '@dm3-org/dm3-lib-storage';
@@ -22,9 +21,8 @@ import {
     Conversation,
     StorageAPI,
 } from '@dm3-org/dm3-lib-storage/dist/new/types';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
-import { Envelop } from '@dm3-org/dm3-lib-messaging';
 
 //Handels storage sync and offers an interface for other hooks to interact with the storage
 export const useStorage = (
@@ -100,6 +98,16 @@ export const useStorage = (
         console.log('storeMessageAsync', contact, envelop);
         storageApi.addMessage(contact, envelop);
     };
+    const storeMessageBatch = async (
+        contact: string,
+        batch: StorageEnvelopContainer[],
+    ) => {
+        if (!storageApi) {
+            throw Error('Storage not initialized');
+        }
+        console.log('storeMessageAsync', contact, batch);
+        await storageApi.addMessageBatch(contact, batch);
+    };
     const getConversations = async (page: number) => {
         if (!storageApi) {
             return Promise.resolve([]);
@@ -136,6 +144,7 @@ export const useStorage = (
 
     return {
         storeMessageAsync,
+        storeMessageBatch,
         getConversations,
         addConversationAsync,
         getMessages,
@@ -149,9 +158,12 @@ export type StoreMessageAsync = (
     contact: string,
     envelop: StorageEnvelopContainer,
 ) => void;
+export type StoreMessageBatch = (
+    contact: string,
+    batch: StorageEnvelopContainer[],
+) => Promise<void>;
 export type GetConversations = (page: number) => Promise<Conversation[]>;
 export type AddConversation = (contact: string) => void;
-
 export type GetMessages = (
     contact: string,
     page: number,

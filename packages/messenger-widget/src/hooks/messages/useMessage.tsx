@@ -1,31 +1,25 @@
+import { decryptAsymmetric, encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
 import {
     createPendingEntry,
     sendMessage,
-    syncAcknoledgment,
+    syncAcknowledgment,
 } from '@dm3-org/dm3-lib-delivery-api';
 import {
     Envelop,
     Message,
     MessageState,
     buildEnvelop,
-    createMessage,
 } from '@dm3-org/dm3-lib-messaging';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { StorageEnvelopContainer } from '@dm3-org/dm3-lib-storage';
 import { useCallback, useContext, useEffect, useState } from 'react';
+import { fetchNewMessages } from '../../adapters/messages';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { StorageContext } from '../../context/StorageContext';
 import { Connection } from '../../interfaces/web3';
-import { getHaltDelivery } from '../../utils/common-utils';
 import { MessageActionType } from '../../utils/enum-type-utils';
-import { decryptAsymmetric, encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
-import {
-    getDeliveryServiceProfile,
-    normalizeEnsName,
-} from '@dm3-org/dm3-lib-profile';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
-import axios from 'axios';
-import { fetchNewMessages } from '../../adapters/messages';
 import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
 
 type MessageStorage = { [contact: string]: StorageEnvelopContainer[] };
@@ -38,6 +32,7 @@ export const useMessage = (connection: Connection) => {
         getNumberOfMessages,
         getMessages: getMessagesFromStorage,
         storeMessage,
+        storeMessageBatch,
     } = useContext(StorageContext);
 
     const mainnetProvider = useMainnetProvider();
@@ -200,6 +195,7 @@ export const useMessage = (connection: Connection) => {
     };
 
     const fetchMessagesFromDeliveryService = async (contactName: string) => {
+        const lastSyncTime = Date.now();
         //Fetch the pending messages from the delivery service
         const encryptedIncommingMessages = await fetchNewMessages(
             mainnetProvider,
@@ -233,13 +229,24 @@ export const useMessage = (connection: Connection) => {
             }),
         );
 
+        const messagesSortedASC = incommingMessages.sort((a, b) => {
+            return (
+                a.envelop.postmark?.incommingTimestamp! -
+                b.envelop.postmark?.incommingTimestamp!
+            );
+        });
+
         console.log(
             `got messages from DS for ${contactName}`,
-            incommingMessages,
+            messagesSortedASC,
         );
         //In the background we sync and acknowledge the messages and store then in the storage
-        //acknowledgeAndStoreMessages(incommingMessages);
-        return incommingMessages;
+        acknowledgeAndStoreMessages(
+            contactName,
+            messagesSortedASC,
+            lastSyncTime,
+        );
+        return messagesSortedASC;
     };
 
     const loadInitialMessages = async (_contactName: string) => {
@@ -280,38 +287,24 @@ export const useMessage = (connection: Connection) => {
     };
 
     const acknowledgeAndStoreMessages = async (
+        contact: string,
         msg: StorageEnvelopContainer[],
+        fetchedTime: number,
     ) => {
-        const now = Date.now();
+        await storeMessageBatch(contact, msg);
 
-        const acknowledgements: Acknoledgment[] = [];
-        msg.forEach((m) => {
-            storeMessage(m.envelop.message.metadata?.from, m);
-            acknowledgements.push({
-                contactAddress: m.envelop.message.metadata?.from,
-                messageDeliveryServiceTimestamp:
-                    m.envelop.postmark?.incommingTimestamp!,
-            });
-        });
-
-        if (acknowledgements.length === 0) {
-            return;
-        }
-
-        //1707214461077
-        //1707214461077
-        const lowestTimestamp = Math.min(
-            ...msg.map((m) => m.envelop.postmark?.incommingTimestamp!),
-        );
-
-        console.log('lowest timestammp', lowestTimestamp);
-
-        await syncAcknoledgment(
+        await syncAcknowledgment(
             mainnetProvider!,
             account!,
-            acknowledgements,
+            [
+                {
+                    contactAddress: contact,
+                    //This value is not used in the backend hence we can set it to 0
+                    messageDeliveryServiceTimestamp: 0,
+                },
+            ],
             deliveryServiceToken!,
-            0,
+            fetchedTime,
         );
     };
 
