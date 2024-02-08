@@ -6,13 +6,15 @@ import { auth } from './utils';
 import { validateNotificationChannel } from './validation/notification/notificationChannelValidation';
 import {
     ChannelNotSupportedError,
+    DeliveryServiceProperties,
     addNewNotificationChannel,
 } from '@dm3-org/dm3-lib-delivery';
-import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import { IDatabase } from './persistance/getDatabase';
 
 // Exporting a function that returns an Express router
-export default () => {
+export default (
+    getDeliveryServiceProperties: () => DeliveryServiceProperties,
+) => {
     const router = express.Router();
 
     // Applying CORS middleware to allow cross-origin requests
@@ -110,13 +112,10 @@ export default () => {
                 res.sendStatus(200);
             }
         } catch (e: any) {
-            if (
-                e instanceof ChannelNotSupportedError ||
-                e.message === 'Invalid config.yml'
-            ) {
+            if (e instanceof ChannelNotSupportedError) {
                 // return the error for not supported channels
-                res.sendStatus(400).json({
-                    error: `Notification channel ${notificationChannelType} is currently not supported yet by the DS`,
+                res.status(400).json({
+                    error: `Notification channel ${notificationChannelType} is currently not supported by the DS`,
                 });
             } else {
                 // Passing the error to the next middleware
