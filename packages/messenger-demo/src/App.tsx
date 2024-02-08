@@ -3,6 +3,31 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 //@ts-ignore
 import { DM3 } from '@dm3-org/dm3-messenger-widget';
 
+interface ColoredComponentProps {
+    color: string;
+    children: React.ReactNode;
+}
+
+const ColoredComponent: React.FC<ColoredComponentProps> = ({
+    color,
+    children,
+}) => {
+    return (
+        <div
+            style={{
+                backgroundColor: color,
+                color: 'white',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}
+        >
+            {children}
+        </div>
+    );
+};
+
 function App() {
     const props: any = {
         defaultContact: 'help.dm3.eth',
@@ -18,8 +43,48 @@ function App() {
 
     return (
         <div className="background p-1">
-            <div className="demo-container">
+            {/* Widget in a container which has no height, so need to provide in css */}
+            {/* <div className="demo-container">
                 <DM3 {...props} />
+            </div> */}
+
+            {/* Widget in a container which has some height already */}
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100vh',
+                    overflow: 'hidden',
+                }}
+            >
+                <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+                    <div style={{ flex: 1, overflow: 'auto' }}>
+                        <ColoredComponent color="yellow">
+                            Gelbe Demo-Komponente
+                        </ColoredComponent>
+                    </div>
+
+                    <div
+                        className="demo-container"
+                        style={{ flex: 1, overflow: 'auto' }}
+                    >
+                        <DM3 {...props} />
+                    </div>
+                </div>
+
+                <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+                    <div style={{ flex: 1, overflow: 'auto' }}>
+                        <ColoredComponent color="blue">
+                            Blaue Demo-Komponente
+                        </ColoredComponent>
+                    </div>
+
+                    <div style={{ flex: 1, overflow: 'auto' }}>
+                        <ColoredComponent color="green">
+                            Grüne Demo-Komponente
+                        </ColoredComponent>
+                    </div>
+                </div>
             </div>
         </div>
     );

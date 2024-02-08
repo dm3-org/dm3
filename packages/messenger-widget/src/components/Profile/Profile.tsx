@@ -53,7 +53,7 @@ export function Profile() {
     }, []);
 
     return (
-        <>
+        <div className="profile-container-type h-100">
             <div
                 className="d-flex align-items-center justify-content-between 
             profile-heading text-primary-color font-weight-500"
@@ -109,6 +109,6 @@ export function Profile() {
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 }
