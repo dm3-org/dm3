@@ -62,7 +62,7 @@ describe('Notification', () => {
     });
 
     describe('Resend Email verification OTP', () => {
-        it('Should throw error on resend email verification OTP as notification channel is not supported', async () => {
+        it('Should throw error as notification channel is not supported', async () => {
             const getUsersNotificationChannels = () =>
                 Promise.resolve([
                     {
@@ -110,7 +110,7 @@ describe('Notification', () => {
             }
         });
 
-        it('Should throw error on resend email verification OTP as notification channel is not supported', async () => {
+        it('Should throw error as notification channel is not configured', async () => {
             const getUsersNotificationChannels = () =>
                 Promise.resolve([
                     {
@@ -153,7 +153,7 @@ describe('Notification', () => {
                 );
             } catch (error: any) {
                 expect(error.message).toBe(
-                    'Email notification channel not configured',
+                    'EMAIL notification channel not configured',
                 );
             }
         });
