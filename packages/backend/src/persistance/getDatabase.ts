@@ -9,11 +9,11 @@ import { UserStorage } from '@dm3-org/dm3-lib-storage';
 import { createClient } from 'redis';
 import { getAliasChain, getIdEnsName } from './getIdEnsName';
 import Messages from './messages';
-import { syncAcknoledgment } from './messages/syncAcknoledgment';
 import Notification from './notification';
 import Pending from './pending';
 import Session from './session';
 import Storage from './storage';
+import { syncAcknowledge } from './messages/syncAcknowledge';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -81,7 +81,7 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
         deletePending: Pending.deletePending(redis),
         getIdEnsName: getIdEnsName(redis),
         getAliasChain: getAliasChain(redis),
-        syncAcknoledgment: syncAcknoledgment(redis),
+        syncAcknowledge: syncAcknowledge(redis),
         //Notification
         getUsersNotificationChannels:
             Notification.getUsersNotificationChannels(redis),
@@ -137,10 +137,9 @@ export interface IDatabase {
     deletePending: (ensName: string) => Promise<void>;
     getIdEnsName: (ensName: string) => Promise<string>;
     getAliasChain: (ensName: string) => Promise<string[]>;
-    syncAcknoledgment: (
+    syncAcknowledge: (
         conversationId: string,
-        ensName: string,
-        lastMessagePull: string,
+        syncTime: number,
     ) => Promise<void>;
     getUsersNotificationChannels: (
         ensName: string,
