@@ -1,20 +1,5 @@
-import { Envelop, Message, MessageState } from '@dm3-org/dm3-lib-messaging';
-import { sha256 } from '@dm3-org/dm3-lib-shared';
-import {
-    AccountManifest,
-    Chunk,
-    ConversationList,
-    ConversationManifest,
-    Db,
-    MessageChunk,
-    ReadStrategy,
-} from './types';
-import {
-    getAccountManifestKey,
-    getConversationListKey,
-    getConversationManifestKey,
-    getMessageChunkKey,
-} from './keys';
+import { Envelop, Message, Postmark } from '@dm3-org/dm3-lib-messaging';
+import { sha256, stringify } from '@dm3-org/dm3-lib-shared';
 
 export function makeEnvelop(
     from: string,
@@ -33,8 +18,15 @@ export function makeEnvelop(
         signature: '',
     };
 
+    const postmark: Postmark = {
+        messageHash: sha256(stringify(message)),
+        incommingTimestamp: 0,
+        signature: '',
+    };
+
     const envelop: Envelop = {
         message,
+        postmark,
         metadata: {
             deliveryInformation: {
                 from: '',

@@ -1,8 +1,13 @@
+import { MessageState } from '@dm3-org/dm3-lib-messaging';
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import { createStorage } from './index';
 import { makeEnvelop } from './testHelper';
-import { Chunk, Encryption, ReadStrategy, StorageAPI } from './types';
-import { MessageState } from '@dm3-org/dm3-lib-messaging';
+import {
+    Chunk,
+    ReadStrategy,
+    StorageAPI,
+    StorageEnvelopContainer,
+} from './types';
 
 describe('createStorage Integration Tests', () => {
     let storageApi: StorageAPI;
@@ -100,14 +105,278 @@ describe('createStorage Integration Tests', () => {
                 1706084571962,
             );
 
-            const storageEnvelopContainer = {
+            const storageEnvelopContainer: StorageEnvelopContainer = {
                 envelop,
                 messageState: MessageState.Created,
+                messageChunkKey: '',
             };
             await storageApi.addMessage('bob.eth', storageEnvelopContainer);
             const messageChunk = await storageApi.getMessages('bob.eth', 0);
             expect(messageChunk.length).toBe(1);
             expect(messageChunk[0]).toEqual(storageEnvelopContainer);
+        });
+        it('edit message - edits storage envelop container', async () => {
+            await storageApi.addConversation('bob.eth');
+            //We acreate an newStorageApi to verify that the data is stored in remote storage and not just locally
+            storageApi = await createStorage('alice.eth', mockSign, {
+                readStrategy: ReadStrategy.RemoteFirst,
+                keyValueStoreRemote: remoteKeyValueStore,
+            });
+            const envelop = makeEnvelop(
+                'alice.eth',
+                'bob.eth',
+                'Hello Bob',
+                1706084571962,
+            );
+
+            const storageEnvelopContainer: StorageEnvelopContainer = {
+                envelop,
+                messageState: MessageState.Created,
+                messageChunkKey: '',
+            };
+            const chunkid = await storageApi.addMessage(
+                'bob.eth',
+                storageEnvelopContainer,
+            );
+
+            const editedMessage: StorageEnvelopContainer = {
+                ...storageEnvelopContainer,
+                messageChunkKey: chunkid,
+                messageState: MessageState.Read,
+            };
+            await storageApi.editMessageBatch('bob.eth', [editedMessage]);
+
+            const messageChunk = await storageApi.getMessages('bob.eth', 0);
+            expect(messageChunk.length).toBe(1);
+            expect(messageChunk[0]).toEqual(editedMessage);
+        });
+        it('edit message - edits storagEnnvelopContainer', async () => {
+            await storageApi.addConversation('bob.eth');
+            //We acreate an newStorageApi to verify that the data is stored in remote storage and not just locally
+            storageApi = await createStorage('alice.eth', mockSign, {
+                readStrategy: ReadStrategy.RemoteFirst,
+                keyValueStoreRemote: remoteKeyValueStore,
+            });
+            const envelop = makeEnvelop(
+                'alice.eth',
+                'bob.eth',
+                'Hello Bob',
+                1706084571962,
+            );
+
+            const storageEnvelopContainer: StorageEnvelopContainer = {
+                envelop,
+                messageState: MessageState.Created,
+                messageChunkKey: '',
+            };
+            const chunkid = await storageApi.addMessage(
+                'bob.eth',
+                storageEnvelopContainer,
+            );
+
+            const editedMessage: StorageEnvelopContainer = {
+                ...storageEnvelopContainer,
+                messageChunkKey: chunkid,
+                messageState: MessageState.Read,
+            };
+            await storageApi.editMessageBatch('bob.eth', [editedMessage]);
+
+            const messageChunk = await storageApi.getMessages('bob.eth', 0);
+            expect(messageChunk.length).toBe(1);
+            expect(messageChunk[0]).toEqual(editedMessage);
+        });
+        it('edit message - edits mutilple messenge in the same chunk storage envelop container', async () => {
+            await storageApi.addConversation('bob.eth');
+            //We acreate an newStorageApi to verify that the data is stored in remote storage and not just locally
+            storageApi = await createStorage('alice.eth', mockSign, {
+                readStrategy: ReadStrategy.RemoteFirst,
+                keyValueStoreRemote: remoteKeyValueStore,
+            });
+            const envelop1 = makeEnvelop(
+                'alice.eth',
+                'bob.eth',
+                'Hello Bob',
+                1706084571962,
+            );
+            const envelop2 = makeEnvelop(
+                'alice.eth',
+                'bob.eth',
+                'Hello Alice',
+                1706084571962,
+            );
+            const envelop3 = makeEnvelop(
+                'alice.eth',
+                'bob.eth',
+                '123',
+                1706084571962,
+            );
+
+            const storageEnvelopContainer1: StorageEnvelopContainer = {
+                envelop: envelop1,
+                messageState: MessageState.Created,
+                messageChunkKey: '',
+            };
+            const storageEnvelopContainer2: StorageEnvelopContainer = {
+                envelop: envelop2,
+                messageState: MessageState.Created,
+                messageChunkKey: '',
+            };
+            const storageEnvelopContainer3: StorageEnvelopContainer = {
+                envelop: envelop3,
+                messageState: MessageState.Created,
+                messageChunkKey: '',
+            };
+
+            const chunkid = await storageApi.addMessageBatch('bob.eth', [
+                storageEnvelopContainer1,
+                storageEnvelopContainer2,
+                storageEnvelopContainer3,
+            ]);
+
+            const editedMessage1: StorageEnvelopContainer = {
+                ...storageEnvelopContainer1,
+                messageChunkKey: chunkid,
+                messageState: MessageState.Read,
+            };
+            const editedMessage2: StorageEnvelopContainer = {
+                ...storageEnvelopContainer2,
+                messageChunkKey: chunkid,
+                messageState: MessageState.Read,
+            };
+            const editedMessage3: StorageEnvelopContainer = {
+                ...storageEnvelopContainer3,
+                messageChunkKey: chunkid,
+                messageState: MessageState.Read,
+            };
+            await storageApi.editMessageBatch('bob.eth', [
+                editedMessage1,
+                editedMessage2,
+                editedMessage3,
+            ]);
+
+            const messageChunk = await storageApi.getMessages('bob.eth', 0);
+            expect(messageChunk.length).toBe(3);
+            expect(messageChunk[0]).toEqual(editedMessage1);
+            expect(messageChunk[1]).toEqual(editedMessage2);
+            expect(messageChunk[2]).toEqual(editedMessage3);
+        });
+        it('edit message - edits mutilple messenge in different chunks storage envelop container', async () => {
+            await storageApi.addConversation('bob.eth');
+            //We acreate an newStorageApi to verify that the data is stored in remote storage and not just locally
+            storageApi = await createStorage('alice.eth', mockSign, {
+                readStrategy: ReadStrategy.RemoteFirst,
+                keyValueStoreRemote: remoteKeyValueStore,
+            });
+
+            const envelopContainer: StorageEnvelopContainer[] = [];
+            for (let i = 0; i < 200; i++) {
+                const envelop = makeEnvelop(
+                    'alice.eth',
+                    'bob.eth',
+                    'Round ' + i,
+                    1706084571962,
+                );
+
+                const storageEnvelopContainer = {
+                    envelop,
+                    messageState: MessageState.Created,
+                    messageChunkKey: '',
+                };
+                envelopContainer.push(storageEnvelopContainer);
+            }
+
+            const chunkid1 = await storageApi.addMessageBatch(
+                'bob.eth',
+                envelopContainer.slice(0, 100),
+            );
+            const chunkid2 = await storageApi.addMessageBatch(
+                'bob.eth',
+                envelopContainer.slice(100, 200),
+            );
+
+            const editedMessage1: StorageEnvelopContainer = {
+                ...envelopContainer[0],
+                messageChunkKey: chunkid1,
+                messageState: MessageState.Read,
+            };
+            const editedMessage2: StorageEnvelopContainer = {
+                ...envelopContainer[199],
+                messageChunkKey: chunkid2,
+                messageState: MessageState.Read,
+            };
+
+            await storageApi.editMessageBatch('bob.eth', [
+                editedMessage1,
+                editedMessage2,
+            ]);
+
+            const messageChunk1 = await storageApi.getMessages('bob.eth', 0);
+            const messageChunk2 = await storageApi.getMessages('bob.eth', 1);
+            expect(messageChunk1.length).toBe(100);
+            expect(messageChunk2.length).toBe(100);
+
+            //Check that the edited messages are in the correct chunk
+            expect(messageChunk1[0]).toEqual(editedMessage1);
+            expect(messageChunk2[99]).toEqual(editedMessage2);
+
+            //Check that the existing messages have not been modified
+            for (let i = 1; i < 100; i++) {
+                expect(messageChunk1[i]).toEqual(envelopContainer[i]);
+            }
+            for (let i = 0; i < 9; i++) {
+                expect(messageChunk2[i]).toEqual(envelopContainer[i + 100]);
+            }
+        });
+        it('edit message - throws for unknown conversation', async () => {
+            //We acreate an newStorageApi to verify that the data is stored in remote storage and not just locally
+            storageApi = await createStorage('alice.eth', mockSign, {
+                readStrategy: ReadStrategy.RemoteFirst,
+                keyValueStoreRemote: remoteKeyValueStore,
+            });
+            const envelop = makeEnvelop(
+                'alice.eth',
+                'bob.eth',
+                'Hello Bob',
+                1706084571962,
+            );
+
+            const storageEnvelopContainer: StorageEnvelopContainer = {
+                envelop,
+                messageState: MessageState.Created,
+                messageChunkKey: '',
+            };
+
+            expect(
+                storageApi.editMessageBatch('bob.eth', [
+                    storageEnvelopContainer,
+                ]),
+            ).rejects.toThrow('Conversation manifest does not exist');
+        });
+        it('edit message - throws for unknown message', async () => {
+            await storageApi.addConversation('bob.eth');
+            //We acreate an newStorageApi to verify that the data is stored in remote storage and not just locally
+            storageApi = await createStorage('alice.eth', mockSign, {
+                readStrategy: ReadStrategy.RemoteFirst,
+                keyValueStoreRemote: remoteKeyValueStore,
+            });
+            const envelop = makeEnvelop(
+                'alice.eth',
+                'bob.eth',
+                'Hello Bob',
+                1706084571962,
+            );
+
+            const storageEnvelopContainer: StorageEnvelopContainer = {
+                envelop,
+                messageState: MessageState.Created,
+                messageChunkKey: '',
+            };
+
+            expect(
+                storageApi.editMessageBatch('bob.eth', [
+                    storageEnvelopContainer,
+                ]),
+            ).rejects.toThrow('Message chunk does not exist');
         });
         it('add message batch - stores message batch', async () => {
             await storageApi.addConversation('bob.eth');
@@ -139,14 +408,17 @@ describe('createStorage Integration Tests', () => {
                 {
                     envelop,
                     messageState: MessageState.Created,
+                    messageChunkKey: '',
                 },
                 {
                     envelop: envelop2,
                     messageState: MessageState.Created,
+                    messageChunkKey: '',
                 },
                 {
                     envelop: envelop3,
                     messageState: MessageState.Created,
+                    messageChunkKey: '',
                 },
             ]);
 
@@ -178,6 +450,7 @@ describe('createStorage Integration Tests', () => {
             const storageEnvelopContainer = {
                 envelop,
                 messageState: MessageState.Created,
+                messageChunkKey: '',
             };
 
             await storageApi.addMessage('bob.eth', storageEnvelopContainer);
@@ -270,6 +543,7 @@ describe('createStorage Integration Tests', () => {
             );
 
             const storageEnvelopContainer = {
+                messageChunkKey: '',
                 envelop,
                 messageState: MessageState.Created,
             };
@@ -355,6 +629,7 @@ describe('createStorage Integration Tests', () => {
             );
 
             const storageEnvelopContainer = {
+                messageChunkKey: '',
                 envelop,
                 messageState: MessageState.Created,
             };
@@ -377,6 +652,7 @@ describe('createStorage Integration Tests', () => {
                 1706084571962,
             );
             const storageEnvelopContainer = {
+                messageChunkKey: '',
                 envelop,
                 messageState: MessageState.Created,
             };
@@ -431,6 +707,7 @@ describe('createStorage Integration Tests', () => {
             );
 
             const storageEnvelopContainer = {
+                messageChunkKey: '',
                 envelop,
                 messageState: MessageState.Created,
             };

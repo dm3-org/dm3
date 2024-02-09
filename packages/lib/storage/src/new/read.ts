@@ -32,6 +32,12 @@ export async function getMessageChunk(
     page: number,
 ): Promise<MessageChunk | undefined> {
     const messageChunkKey = await getMessageChunkKey(db, contactEnsName, page);
+    return getMessageChunkByKey(db, messageChunkKey);
+}
+export async function getMessageChunkByKey(
+    db: Db,
+    messageChunkKey: string,
+): Promise<MessageChunk | undefined> {
     return readFromStrorage<MessageChunk>(messageChunkKey, db);
 }
 

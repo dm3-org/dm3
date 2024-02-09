@@ -22,17 +22,21 @@ export interface StorageAPI {
         contactEnsName: string,
         page: number,
     ) => Promise<StorageEnvelopContainer[]>;
+    editMessageBatch: (
+        contactEnsName: string,
+        editedMessage: StorageEnvelopContainer[],
+    ) => Promise<void>;
     getNumberOfMessages: (contactEnsName: string) => Promise<number>;
     getNumberOfConverations: () => Promise<number>;
     addConversation: (contactEnsName: string) => Promise<void>;
     addMessage: (
         contactEnsName: string,
         envelop: StorageEnvelopContainer,
-    ) => Promise<void>;
+    ) => Promise<string>;
     addMessageBatch: (
         contactEnsName: string,
         batch: StorageEnvelopContainer[],
-    ) => Promise<void>;
+    ) => Promise<string>;
     toggleHideConversation: (
         contactEnsName: string,
         isHidden: boolean,
@@ -95,6 +99,7 @@ export type RemoteFetchCb = <T extends Chunk>(
 ) => Promise<void>;
 
 export interface StorageEnvelopContainer {
+    messageChunkKey: string;
     messageState: MessageState;
     envelop: Envelop;
 }

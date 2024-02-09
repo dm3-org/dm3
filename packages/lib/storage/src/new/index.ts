@@ -18,9 +18,13 @@ import {
     KeyValueStore,
     ReadStrategy,
     StorageAPI,
+    StorageEnvelopContainer,
 } from './types';
-import { addConversation, addMessages } from './write';
-import { StorageEnvelopContainer } from '../Storage';
+import {
+    addConversation,
+    addMessages,
+    editMessage as editMessages,
+} from './write';
 
 /**
  * This function creates a closure that, when invoked, adds a new conversation
@@ -117,7 +121,10 @@ function toggleHideConversationSideEffectContainment(
  */
 function addMessageSideEffectContainment(
     db: Db,
-): (contactEnsName: string, envelop: StorageEnvelopContainer) => Promise<void> {
+): (
+    contactEnsName: string,
+    envelop: StorageEnvelopContainer,
+) => Promise<string> {
     return async (contactEnsName: string, envelop: StorageEnvelopContainer) => {
         //First we have to get the conversation manifest
         const conversationManifest = await getConversationManifest(
@@ -154,6 +161,7 @@ function addMessageSideEffectContainment(
                 messageChunkContainer.conversationManifest,
             );
         }
+        return messageChunkContainer.messageChunk.key;
     };
 }
 /**
@@ -167,7 +175,10 @@ function addMessageSideEffectContainment(
  */
 function addBatchMessageSideEffectContainment(
     db: Db,
-): (contactEnsName: string, batch: StorageEnvelopContainer[]) => Promise<void> {
+): (
+    contactEnsName: string,
+    batch: StorageEnvelopContainer[],
+) => Promise<string> {
     return async (contactEnsName: string, batch: StorageEnvelopContainer[]) => {
         //First we have to get the conversation manifest
         const conversationManifest = await getConversationManifest(
@@ -202,6 +213,34 @@ function addBatchMessageSideEffectContainment(
             await db.keyValueStoreRemote.write(
                 messageChunkContainer.conversationManifest.key,
                 messageChunkContainer.conversationManifest,
+            );
+        }
+        return messageChunkContainer.messageChunk.key;
+    };
+}
+
+function editMessageBatchSideEffectContainment(
+    db: Db,
+): (contactEnsName: string, batch: StorageEnvelopContainer[]) => Promise<void> {
+    return async (contactEnsName: string, batch: StorageEnvelopContainer[]) => {
+        const updatedMessageChunks = await editMessages(
+            contactEnsName,
+            batch,
+            db,
+        );
+
+        await Promise.all(
+            updatedMessageChunks.map((chunk) =>
+                db.keyValueStoreLocal.write(chunk.key, chunk),
+            ),
+        );
+
+        //If there is remote storage, we have to add the message chunk and the conversation manifest to it
+        if (db.keyValueStoreRemote) {
+            await Promise.all(
+                updatedMessageChunks.map((chunk) =>
+                    db.keyValueStoreRemote!.write(chunk.key, chunk),
+                ),
             );
         }
     };
@@ -306,6 +345,8 @@ export function createStorage(
         addConversation: addConversationSideEffectContainment(db),
 
         addMessage: addMessageSideEffectContainment(db),
+
+        editMessageBatch: editMessageBatchSideEffectContainment(db),
 
         addMessageBatch: addBatchMessageSideEffectContainment(db),
 

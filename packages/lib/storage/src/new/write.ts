@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 import { Envelop } from '@dm3-org/dm3-lib-messaging';
+import { getSize } from '@dm3-org/dm3-lib-shared';
 import {
     MAX_CONVERATION_ENTRIES_PER_CHUNK,
     MAX_MESSAGES_PER_CHUNK,
@@ -11,6 +12,7 @@ import {
     getConversationListChunk,
     getConversationManifest,
     getMessageChunk,
+    getMessageChunkByKey,
 } from './read';
 import {
     AccountManifest,
@@ -18,9 +20,8 @@ import {
     ConversationManifest,
     Db,
     MessageChunk,
+    StorageEnvelopContainer,
 } from './types';
-import { getSize } from '@dm3-org/dm3-lib-shared';
-import { StorageEnvelopContainer } from '../Storage';
 
 /**
  * This function adds a new conversation to the conversation list.
@@ -151,4 +152,58 @@ export async function addMessages(
                 storageEnvelopContainer.length,
         },
     };
+}
+export async function editMessage(
+    contactEnsName: string,
+    storageEnvelopContainer: StorageEnvelopContainer[],
+    db: Db,
+): Promise<MessageChunk[]> {
+    const conversationManifest = await getConversationManifest(
+        contactEnsName,
+        db,
+    );
+
+    if (!conversationManifest) {
+        //We have to create the convesation manifest first brefore we can add the message
+        //This should have done before calling addMessage
+        throw Error(`Conversation manifest does not exist`);
+    }
+
+    const updatedChunkSet: { [messageChunkKey: string]: MessageChunk } = {};
+
+    for (const envelopContainer of storageEnvelopContainer) {
+        let currentChunk = updatedChunkSet[envelopContainer.messageChunkKey];
+
+        if (!currentChunk) {
+            const chunkFromStorage = await getMessageChunkByKey(
+                db,
+                envelopContainer.messageChunkKey,
+            );
+
+            if (!chunkFromStorage) {
+                throw Error(`Message chunk does not exist`);
+            }
+            currentChunk = chunkFromStorage;
+        }
+
+        const updatedEnvelops = currentChunk.envelopContainer.map(
+            (storedEnvelop) => {
+                //Find the message we wan't to edit
+                if (
+                    storedEnvelop.envelop.postmark?.messageHash ===
+                    envelopContainer.envelop.postmark?.messageHash
+                ) {
+                    return envelopContainer;
+                }
+                return storedEnvelop;
+            },
+        );
+
+        updatedChunkSet[envelopContainer.messageChunkKey] = {
+            key: currentChunk.key,
+            envelopContainer: updatedEnvelops,
+        };
+    }
+
+    return Object.values(updatedChunkSet);
 }

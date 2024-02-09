@@ -22,3 +22,5 @@ export { web3Load, web3Store } from './location/Web3Storage';
 export { createTimestamp } from './Utils';
 
 export type { StorageEnvelopContainer, UserDB, UserStorage } from './Storage';
+
+export type { StorageEnvelopContainer as StorageEnvelopContainerNew } from './new/types';
