@@ -66,6 +66,10 @@ global.logger = winston.createLogger({
     app.locals.web3Provider = getWeb3Provider(process.env);
 
     app.use(logRequest);
+
+    app.get('/hello', (req, res) => {
+        return res.send('Hello DM3');
+    });
     app.use('/profile', Profile());
     app.use('/storage', Storage());
     app.use('/auth', Auth());
