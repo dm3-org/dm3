@@ -5,9 +5,7 @@ import {
     NEW_MSG_EMAIL_TEMPLATE,
 } from './templates/newMessage';
 import { OTP_EMAIL_SUBJECT, OTP_EMAIL_TEMPLATE } from './templates/otp';
-
-// OTP expiration time in seconds
-const OTP_EXPIRY_DURATION = 600; // 10 minutes
+import { OTP_EXPIRY_DURATION } from '../Notification';
 
 // to fetch subject & template of email based on notification type
 export const fetchEmailSubjectAndTemplate = (

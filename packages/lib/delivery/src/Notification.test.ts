@@ -109,7 +109,7 @@ describe('Notification', () => {
                 );
             } catch (error: any) {
                 expect(error.message).toBe(
-                    'Notification channel not supported',
+                    'Notification channel test is currently not supported by the DS',
                 );
             }
         });

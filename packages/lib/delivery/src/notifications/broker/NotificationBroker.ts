@@ -8,7 +8,7 @@ import {
     INotificationChannel,
     NotificationType,
 } from '../types';
-import { ChannelNotSupportedError } from '../../errors/ChannelNotSupportedError';
+import { NotificationError } from '../../errors/NotificationError';
 
 /**
  * Sets up the notification broker with supported notification channels.
@@ -36,8 +36,8 @@ export const _setupNotficationBroker = (
                     supportedChannels.find((c) => c.type === channel.type);
                 //User specified a channel that is not supported
                 if (!deliveryServiceNotificationChannel) {
-                    throw new ChannelNotSupportedError(
-                        `Channel type ${channel.type} is not supported`,
+                    throw new NotificationError(
+                        `Notification channel ${channel.type} is currently not supported by the DS`,
                     );
                 }
                 // Send notification only if channel is verified
@@ -74,8 +74,8 @@ export const _setupNotficationBroker = (
         );
 
         if (!deliveryServiceNotificationChannel) {
-            throw new ChannelNotSupportedError(
-                `Channel type ${filteredChannel[0].type} is not supported`,
+            throw new NotificationError(
+                `Notification channel ${filteredChannel[0].type} is currently not supported by the DS`,
             );
         } else {
             return await deliveryServiceNotificationChannel.send({
@@ -108,8 +108,8 @@ export const NotificationBroker = (
                     send: Email(channel.config).send,
                 };
             default:
-                throw new ChannelNotSupportedError(
-                    `Channel type ${channel.type} is not supported`,
+                throw new NotificationError(
+                    `Notification channel ${channel.type} is currently not supported by the DS`,
                 );
         }
     });

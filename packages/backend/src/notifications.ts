@@ -8,10 +8,11 @@ import {
     validateNotificationChannelType,
 } from './validation/notification/notificationChannelValidation';
 import {
-    ChannelNotSupportedError,
+    NotificationError,
     DeliveryServiceProperties,
     addNewNotificationChannel,
     resendOtp,
+    verifyOtp,
 } from '@dm3-org/dm3-lib-delivery';
 import { IDatabase } from './persistance/getDatabase';
 
@@ -70,6 +71,59 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
         }
     });
 
+    // Defining a route to handle POST requests to verify OTP
+    router.post('/otp/verify/:ensName', async (req, res, next) => {
+        // Extracting notificationChannelType from the request body
+        const { notificationChannelType, otp } = req.body;
+
+        try {
+            const account = normalizeEnsName(req.params.ensName);
+
+            // Validate notificationChannelType data
+            const { isValid, errorMessage } = validateNotificationChannelType(
+                notificationChannelType,
+            );
+
+            // verify otp is present
+
+            // Return if invalid data found
+            if (!isValid) {
+                res.sendStatus(400).json({
+                    error: errorMessage,
+                });
+            }
+
+            // Fetch global notification data of user from database
+            const globalNotification =
+                await req.app.locals.db.getGlobalNotification(account);
+
+            // if global notification is turned off
+            if (!globalNotification.isEnabled) {
+                res.sendStatus(400).json({
+                    error: 'Global notifications is off',
+                });
+            } else {
+                await verifyOtp(
+                    account,
+                    notificationChannelType,
+                    deliveryServiceProperties.notificationChannel,
+                    req.app.locals.db as IDatabase,
+                );
+                // Sending a success response
+                res.sendStatus(200);
+            }
+        } catch (e: any) {
+            if (e instanceof NotificationError) {
+                res.status(400).json({
+                    error: e.message,
+                });
+            } else {
+                // Passing the error to the next middleware
+                next(e);
+            }
+        }
+    });
+
     // Defining a route to handle POST requests for resending OTP
     router.post('/otp/:ensName', async (req, res, next) => {
         // Extracting notificationChannelType from the request body
@@ -110,10 +164,9 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
                 res.sendStatus(200);
             }
         } catch (e: any) {
-            if (e instanceof ChannelNotSupportedError) {
-                // return the error for not supported channels
+            if (e instanceof NotificationError) {
                 res.status(400).json({
-                    error: `Notification channel ${notificationChannelType} is currently not supported by the DS`,
+                    error: e.message,
                 });
             } else {
                 // Passing the error to the next middleware
@@ -167,10 +220,9 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
                 res.sendStatus(200);
             }
         } catch (e: any) {
-            if (e instanceof ChannelNotSupportedError) {
-                // return the error for not supported channels
+            if (e instanceof NotificationError) {
                 res.status(400).json({
-                    error: `Notification channel ${notificationChannelType} is currently not supported by the DS`,
+                    error: e.message,
                 });
             } else {
                 // Passing the error to the next middleware
