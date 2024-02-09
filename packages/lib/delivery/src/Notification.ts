@@ -94,8 +94,8 @@ const getOtpContentForNotificationChannel = (
     }
 };
 
-// method to resend otp
-export const resendOtp = async (
+// method to send otp
+export const sendOtp = async (
     ensName: string,
     notificationChannelType: NotificationChannelType,
     dsNotificationChannels: NotificationChannel[],

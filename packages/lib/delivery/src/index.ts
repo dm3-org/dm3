@@ -19,7 +19,7 @@ export * from './notifications';
 export { NotificationChannelType } from './notifications';
 export {
     addNewNotificationChannel,
-    resendOtp,
+    sendOtp,
     RESEND_VERIFICATION_OTP_TIME_PERIOD, // it may be needed to show in UI
 } from './Notification';
 export { ChannelNotSupportedError } from './errors/ChannelNotSupportedError';

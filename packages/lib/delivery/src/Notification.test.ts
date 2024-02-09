@@ -2,7 +2,7 @@ import { NotificationChannel, NotificationChannelType } from './notifications';
 import {
     RESEND_VERIFICATION_OTP_TIME_PERIOD,
     addNewNotificationChannel,
-    resendOtp,
+    sendOtp,
 } from './Notification';
 
 jest.mock('nodemailer');
@@ -101,7 +101,7 @@ describe('Notification', () => {
             };
 
             try {
-                await resendOtp(
+                await sendOtp(
                     '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
                     'test' as NotificationChannelType,
                     notificationChannels,
@@ -134,7 +134,7 @@ describe('Notification', () => {
             };
 
             try {
-                await resendOtp(
+                await sendOtp(
                     '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
                     NotificationChannelType.EMAIL,
                     notificationChannels,
@@ -167,7 +167,7 @@ describe('Notification', () => {
             };
 
             try {
-                await resendOtp(
+                await sendOtp(
                     '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
                     NotificationChannelType.EMAIL,
                     notificationChannels,
@@ -200,7 +200,7 @@ describe('Notification', () => {
             };
 
             try {
-                await resendOtp(
+                await sendOtp(
                     '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
                     NotificationChannelType.EMAIL,
                     notificationChannels,
@@ -244,7 +244,7 @@ describe('Notification', () => {
             };
 
             try {
-                await resendOtp(
+                await sendOtp(
                     '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
                     NotificationChannelType.EMAIL,
                     notificationChannels,
@@ -283,7 +283,7 @@ describe('Notification', () => {
                 setOtp,
             };
 
-            await resendOtp(
+            await sendOtp(
                 '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
                 NotificationChannelType.EMAIL,
                 notificationChannels,
