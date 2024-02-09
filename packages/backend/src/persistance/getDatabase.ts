@@ -91,12 +91,15 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
             Notification.getUsersNotificationChannels(redis),
         addUsersNotificationChannel:
             Notification.addUsersNotificationChannel(redis),
+        setNotificationChannelAsVerified:
+            Notification.setNotificationChannelAsVerified(redis),
         // Global Notification
         getGlobalNotification: Notification.getGlobalNotification(redis),
         setGlobalNotification: Notification.setGlobalNotification(redis),
         // Verification Otp for Email, Mobile, etc..
         setOtp: Otp.setOtp(redis),
         getOtp: Otp.getOtp(redis),
+        resetOtp: Otp.resetOtp(redis),
     };
 }
 
@@ -155,6 +158,10 @@ export interface IDatabase {
         ensName: string,
         channel: NotificationChannel,
     ) => Promise<void>;
+    setNotificationChannelAsVerified: (
+        ensName: string,
+        channel: NotificationChannelType,
+    ) => Promise<void>;
     getGlobalNotification: (ensName: string) => Promise<IGlobalNotification>;
     setGlobalNotification: (
         ensName: string,
@@ -170,6 +177,10 @@ export interface IDatabase {
         ensName: string,
         channelType: NotificationChannelType,
     ) => Promise<IOtp | null>;
+    resetOtp: (
+        ensName: string,
+        channelType: NotificationChannelType,
+    ) => Promise<void>;
 }
 
 export type Redis = Awaited<ReturnType<typeof getRedisClient>>;

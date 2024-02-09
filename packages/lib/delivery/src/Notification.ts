@@ -207,6 +207,7 @@ export const verifyOtp = async (
     // fetch existing otp data from Redis
     const existingOtp = await db.getOtp(ensName, notificationChannelType);
 
+    // throw error if otp record is not found
     if (!existingOtp) {
         throw Error('Otp not found, please resend the OTP for verification');
     }
@@ -214,7 +215,11 @@ export const verifyOtp = async (
     // check otp valid & not expired
     validateOtp(existingOtp, otpToValidate);
 
-    // then only update isVerified and delete otp record
+    // set notification channel as verified
+    db.setNotificationChannelAsVerified(ensName, notificationChannelType);
+
+    // delete otp record
+    db.resetOtp(ensName, notificationChannelType);
 };
 
 // checks notification channel is enabled and verfiied or not
