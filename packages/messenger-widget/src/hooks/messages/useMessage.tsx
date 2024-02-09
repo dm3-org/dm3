@@ -11,7 +11,6 @@ import {
     buildEnvelop,
 } from '@dm3-org/dm3-lib-messaging';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
-import { StorageEnvelopContainer } from '@dm3-org/dm3-lib-storage';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { fetchNewMessages } from '../../adapters/messages';
 import { AuthContext } from '../../context/AuthContext';
@@ -21,11 +20,14 @@ import { Connection } from '../../interfaces/web3';
 import { MessageActionType } from '../../utils/enum-type-utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
+import { StorageEnvelopContainerNew } from '@dm3-org/dm3-lib-storage';
 
-type MessageStorage = { [contact: string]: StorageEnvelopContainer[] };
+export type MessageStorage = {
+    [contact: string]: StorageEnvelopContainerNew[];
+};
 
 export const useMessage = (connection: Connection) => {
-    const { contacts } = useContext(ConversationContext);
+    const { contacts, selectedContact } = useContext(ConversationContext);
     const { account, profileKeys, deliveryServiceToken } =
         useContext(AuthContext);
     const {
@@ -51,10 +53,6 @@ export const useMessage = (connection: Connection) => {
         });
     }, [contacts]);
 
-    useEffect(() => {
-        console.log('new messages list ', messages);
-    }, [messages]);
-
     const contactIsLoading = useCallback(
         (_contactName?: string) => {
             if (!_contactName) {
@@ -65,6 +63,31 @@ export const useMessage = (connection: Connection) => {
         },
         [contactsLoading],
     );
+
+    const getMessages = useCallback(
+        (_contactName: string) => {
+            const contactName = normalizeEnsName(_contactName);
+            return messages[contactName] ?? [];
+        },
+        [messages],
+    );
+    const getUnreadMessageCount = useCallback(
+        (_contactName: string) => {
+            const contactName = normalizeEnsName(_contactName);
+            if (!messages[contactName]) {
+                return 0;
+            }
+            return messages[contactName].filter(
+                (message) => message.messageState !== MessageState.Read,
+            ).length;
+        },
+        [messages],
+    );
+
+    //Mark messages as read when the selected contact changes
+    useEffect(() => {
+        console.log('selectedContact', selectedContact);
+    }, [messages]);
 
     const addNewContact = (_contactName: string) => {
         const contact = normalizeEnsName(_contactName);
@@ -104,12 +127,13 @@ export const useMessage = (connection: Connection) => {
 
         if (!recipientIsDm3User) {
             console.log('- Halt delivery');
-            //StorageEnvelopContainer to store the message in the storage
-            const storageEnvelopContainer = {
+            //StorageEnvelopContainerNew to store the message in the storage
+            const storageEnvelopContainer: StorageEnvelopContainerNew = {
                 envelop: {
                     message,
                 },
                 messageState: MessageState.Created,
+                messageChunkKey: '',
             };
             setMessages((prev) => {
                 return {
@@ -120,7 +144,6 @@ export const useMessage = (connection: Connection) => {
                     ],
                 };
             });
-            console.log('storeMessage', contact, storageEnvelopContainer);
             storeMessage(contact, storageEnvelopContainer);
             return;
         }
@@ -138,10 +161,11 @@ export const useMessage = (connection: Connection) => {
                 keys: profileKeys!,
             },
         );
-        //StorageEnvelopContainer to store the message in the storage
+        //StorageEnvelopContainerNew to store the message in the storage
         const storageEnvelopContainer = {
             envelop,
             messageState: MessageState.Created,
+            messageChunkKey: '',
         };
 
         //Add the message to the state
@@ -164,16 +188,6 @@ export const useMessage = (connection: Connection) => {
             () => console.log('submit message error'),
         );
     };
-
-    const getMessages = useCallback(
-        (_contactName: string) => {
-            const contactName = normalizeEnsName(_contactName);
-            console.log('get messages for ', contactName);
-            console.log('return messages ', messages[contactName] ?? []);
-            return messages[contactName] ?? [];
-        },
-        [messages],
-    );
 
     const fetchMessagesFromStorage = async (contactName: string) => {
         setContactsLoading((prev) => {
@@ -204,30 +218,32 @@ export const useMessage = (connection: Connection) => {
             contactName,
         );
 
-        const incommingMessages: StorageEnvelopContainer[] = await Promise.all(
-            encryptedIncommingMessages.map(async (envelop) => {
-                const decryptedEnvelop: Envelop = {
-                    message: JSON.parse(
-                        await decryptAsymmetric(
-                            profileKeys?.encryptionKeyPair!,
-                            JSON.parse(envelop.message),
+        const incommingMessages: StorageEnvelopContainerNew[] =
+            await Promise.all(
+                encryptedIncommingMessages.map(async (envelop) => {
+                    const decryptedEnvelop: Envelop = {
+                        message: JSON.parse(
+                            await decryptAsymmetric(
+                                profileKeys?.encryptionKeyPair!,
+                                JSON.parse(envelop.message),
+                            ),
                         ),
-                    ),
-                    postmark: JSON.parse(
-                        await decryptAsymmetric(
-                            profileKeys?.encryptionKeyPair!,
-                            JSON.parse(envelop.postmark!),
+                        postmark: JSON.parse(
+                            await decryptAsymmetric(
+                                profileKeys?.encryptionKeyPair!,
+                                JSON.parse(envelop.postmark!),
+                            ),
                         ),
-                    ),
-                    metadata: envelop.metadata,
-                };
-                return {
-                    envelop: decryptedEnvelop,
-                    //Messages from the delivery service are already send by the sender
-                    messageState: MessageState.Send,
-                };
-            }),
-        );
+                        metadata: envelop.metadata,
+                    };
+                    return {
+                        envelop: decryptedEnvelop,
+                        //Messages from the delivery service are already send by the sender
+                        messageState: MessageState.Send,
+                        messageChunkKey: '',
+                    };
+                }),
+            );
 
         const messagesSortedASC = incommingMessages.sort((a, b) => {
             return (
@@ -259,7 +275,7 @@ export const useMessage = (connection: Connection) => {
 
         const messages = initialMessages
             .reduce((acc, val) => acc.concat(val), [])
-            .filter(({ envelop }: StorageEnvelopContainer) => {
+            .filter(({ envelop }: StorageEnvelopContainerNew) => {
                 return envelop.message.metadata?.type === MessageActionType.NEW;
             })
             //filter duplicates
@@ -288,7 +304,7 @@ export const useMessage = (connection: Connection) => {
 
     const acknowledgeAndStoreMessages = async (
         contact: string,
-        msg: StorageEnvelopContainer[],
+        msg: StorageEnvelopContainerNew[],
         fetchedTime: number,
     ) => {
         await storeMessageBatch(contact, msg);
@@ -309,13 +325,15 @@ export const useMessage = (connection: Connection) => {
     };
 
     return {
+        messages,
+        getUnreadMessageCount,
         getMessages,
         addMessage,
         contactIsLoading,
     };
 };
 
-export type GetMessages = (contact: string) => StorageEnvelopContainer[];
+export type GetMessages = (contact: string) => StorageEnvelopContainerNew[];
 export type AddMessage = (contact: string, message: Message) => void;
 
 export type ContactLoading = (contact: string) => boolean;

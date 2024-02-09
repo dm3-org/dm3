@@ -1,5 +1,3 @@
-/* eslint-disable max-len */
-/* eslint-disable no-console */
 import { globalConfig } from '@dm3-org/dm3-lib-shared';
 import { useContext, useEffect, useState } from 'react';
 import loader from '../../assets/images/loader.svg';
@@ -34,7 +32,7 @@ export function Contacts(props: DashboardProps) {
     const mainnetProvider = useMainnetProvider();
     const { resolveAliasToTLD } = useTopLevelAlias();
 
-    const { getMessages } = useContext(MessageContext);
+    const { getMessages, getUnreadMessageCount } = useContext(MessageContext);
 
     const [isMenuAlignedAtBottom, setIsMenuAlignedAtBottom] = useState<
         boolean | null
@@ -122,7 +120,7 @@ export function Contacts(props: DashboardProps) {
             {contacts.length > 0 &&
                 contacts.map((data) => {
                     const id = data.contactDetails.account.ensName;
-                    const unreadMessageCount = data.messageCount;
+                    const unreadMessageCount = getUnreadMessageCount(id);
 
                     return (
                         !data.isHidden && (

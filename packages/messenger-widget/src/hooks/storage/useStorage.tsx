@@ -4,7 +4,7 @@
 //Will be initialized with the deliveryServiceToken and the initialUserDb after the user has logged in.
 
 import {
-    StorageEnvelopContainer,
+    StorageEnvelopContainerNew,
     createRemoteKeyValueStoreApi,
     createStorage,
 } from '@dm3-org/dm3-lib-storage';
@@ -88,9 +88,19 @@ export const useStorage = (
         setInitialized(true);
     };
 
+    const editMessageBatch = async (
+        contact: string,
+        batch: StorageEnvelopContainerNew[],
+    ) => {
+        if (!storageApi) {
+            throw Error('Storage not initialized');
+        }
+        storageApi.editMessageBatch(contact, batch);
+    };
+
     const storeMessageAsync = (
         contact: string,
-        envelop: StorageEnvelopContainer,
+        envelop: StorageEnvelopContainerNew,
     ) => {
         if (!storageApi) {
             throw Error('Storage not initialized');
@@ -100,7 +110,7 @@ export const useStorage = (
     };
     const storeMessageBatch = async (
         contact: string,
-        batch: StorageEnvelopContainer[],
+        batch: StorageEnvelopContainerNew[],
     ) => {
         if (!storageApi) {
             throw Error('Storage not initialized');
@@ -156,17 +166,17 @@ export const useStorage = (
 
 export type StoreMessageAsync = (
     contact: string,
-    envelop: StorageEnvelopContainer,
+    envelop: StorageEnvelopContainerNew,
 ) => void;
 export type StoreMessageBatch = (
     contact: string,
-    batch: StorageEnvelopContainer[],
+    batch: StorageEnvelopContainerNew[],
 ) => Promise<void>;
 export type GetConversations = (page: number) => Promise<Conversation[]>;
 export type AddConversation = (contact: string) => void;
 export type GetMessages = (
     contact: string,
     page: number,
-) => Promise<StorageEnvelopContainer[]>;
+) => Promise<StorageEnvelopContainerNew[]>;
 export type GetNumberOfMessages = (contact: string) => Promise<number>;
 export type ToggleHideContactAsync = (contact: string, value: boolean) => void;
