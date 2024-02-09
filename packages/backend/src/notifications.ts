@@ -3,11 +3,15 @@ import cors from 'cors';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import express from 'express';
 import { auth } from './utils';
-import { validateNotificationChannel } from './validation/notification/notificationChannelValidation';
+import {
+    validateNewNotificationChannelData,
+    validateNotificationChannelType,
+} from './validation/notification/notificationChannelValidation';
 import {
     ChannelNotSupportedError,
     DeliveryServiceProperties,
     addNewNotificationChannel,
+    sendOtp,
 } from '@dm3-org/dm3-lib-delivery';
 import { IDatabase } from './persistance/getDatabase';
 
@@ -66,6 +70,59 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
         }
     });
 
+    // Defining a route to handle POST requests for resending OTP
+    router.post('/otp/:ensName', async (req, res, next) => {
+        // Extracting notificationChannelType from the request body
+        const { notificationChannelType } = req.body;
+
+        try {
+            const account = normalizeEnsName(req.params.ensName);
+
+            // Validate notificationChannelType data
+            const { isValid, errorMessage } = validateNotificationChannelType(
+                notificationChannelType,
+            );
+
+            // Return if invalid data found
+            if (!isValid) {
+                res.sendStatus(400).json({
+                    error: errorMessage,
+                });
+            }
+
+            // Fetch global notification data of user from database
+            const globalNotification =
+                await req.app.locals.db.getGlobalNotification(account);
+
+            // if global notification is turned off
+            if (!globalNotification.isEnabled) {
+                res.sendStatus(400).json({
+                    error: 'Global notifications is off',
+                });
+            }
+
+            await sendOtp(
+                account,
+                notificationChannelType,
+                deliveryServiceProperties.notificationChannel,
+                req.app.locals.db as IDatabase,
+            );
+
+            // Sending a success response
+            res.sendStatus(200);
+        } catch (e: any) {
+            if (e instanceof ChannelNotSupportedError) {
+                // return the error for not supported channels
+                res.status(400).json({
+                    error: `Notification channel ${notificationChannelType} is currently not supported by the DS`,
+                });
+            } else {
+                // Passing the error to the next middleware
+                next(e);
+            }
+        }
+    });
+
     // Defining a route to handle POST requests for adding an notification channel
     router.post('/:ensName', async (req, res, next) => {
         // Extracting recipientValue & notificationChannelType from the request body
@@ -75,10 +132,11 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             const account = normalizeEnsName(req.params.ensName);
 
             // Validate req.body data
-            const { isValid, errorMessage } = validateNotificationChannel(
-                notificationChannelType,
-                recipientValue,
-            );
+            const { isValid, errorMessage } =
+                validateNewNotificationChannelData(
+                    notificationChannelType,
+                    recipientValue,
+                );
 
             // Return if invalid data found
             if (!isValid) {
@@ -96,19 +154,19 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
                 res.sendStatus(400).json({
                     error: 'Global notifications is off',
                 });
-            } else {
-                // add new notification channel & send OTP for verification
-                await addNewNotificationChannel(
-                    notificationChannelType,
-                    recipientValue,
-                    account,
-                    deliveryServiceProperties.notificationChannel,
-                    req.app.locals.db as IDatabase,
-                );
-
-                // Sending a success response
-                res.sendStatus(200);
             }
+
+            // add new notification channel & send OTP for verification
+            await addNewNotificationChannel(
+                notificationChannelType,
+                recipientValue,
+                account,
+                deliveryServiceProperties.notificationChannel,
+                req.app.locals.db as IDatabase,
+            );
+
+            // Sending a success response
+            res.sendStatus(200);
         } catch (e: any) {
             if (e instanceof ChannelNotSupportedError) {
                 // return the error for not supported channels
@@ -134,16 +192,14 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             // if global notification is turned off
             if (!globalNotification.isEnabled) {
                 res.status(200).json({ notificationChannels: [] });
-            } else {
-                // Getting notification channels for a user from the database
-                const notificationChannels =
-                    await req.app.locals.db.getUsersNotificationChannels(
-                        account,
-                    );
-
-                // Sending the fetched notification channels as a JSON response
-                res.status(200).json({ notificationChannels });
             }
+
+            // Getting notification channels for a user from the database
+            const notificationChannels =
+                await req.app.locals.db.getUsersNotificationChannels(account);
+
+            // Sending the fetched notification channels as a JSON response
+            res.status(200).json({ notificationChannels });
         } catch (e) {
             // Passing the error to the next middleware
             next(e);

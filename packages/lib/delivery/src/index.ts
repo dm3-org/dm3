@@ -17,5 +17,9 @@ export type { DeliveryServiceProperties } from './Delivery';
 
 export * from './notifications';
 export { NotificationChannelType } from './notifications';
-export { addNewNotificationChannel } from './Notification';
+export {
+    addNewNotificationChannel,
+    sendOtp,
+    RESEND_VERIFICATION_OTP_TIME_PERIOD, // it may be needed to show in UI
+} from './Notification';
 export { ChannelNotSupportedError } from './errors/ChannelNotSupportedError';

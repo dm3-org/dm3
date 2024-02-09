@@ -561,6 +561,163 @@ describe('Notifications', () => {
             expect(status).toBe(400);
         });
     });
+
+    describe('Resend OTP', () => {
+        it('Returns 400 on resend email verification OTP as globalNotifications is turned off', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(notifications(deliveryServiceProperties));
+
+            const token = await createAuthToken();
+            const resendOtpMock = jest.fn();
+
+            app.locals.db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                getGlobalNotification: async (ensName: string) =>
+                    Promise.resolve({ isEnabled: false }),
+                resendOtp: resendOtpMock,
+            };
+
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+
+            const { status } = await request(app)
+                .post(`/otp/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    notificationChannelType: NotificationChannelType.EMAIL,
+                });
+
+            expect(status).toBe(400);
+        });
+
+        it('Returns 400 on resend email verification OTP as notificationChannelType is invalid', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(notifications(deliveryServiceProperties));
+
+            const token = await createAuthToken();
+            const resendOtpMock = jest.fn();
+
+            app.locals.db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                resendOtp: resendOtpMock,
+            };
+
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+
+            const { status } = await request(app)
+                .post(`/otp/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    notificationChannelType: '',
+                });
+
+            expect(status).toBe(400);
+        });
+
+        it('Resend email verification OTP', async () => {
+            const deliveryServiceProperties: DeliveryServiceProperties = {
+                messageTTL: 12345,
+                sizeLimit: 456,
+                notificationChannel: [
+                    {
+                        type: NotificationChannelType.EMAIL,
+                        config: {
+                            smtpHost: 'smtp.gmail.com',
+                            smtpPort: 587,
+                            smtpEmail: 'abc@gmail.com',
+                            smtpUsername: 'abc@gmail.com',
+                            smtpPassword: 'abcd1234',
+                        },
+                    },
+                ],
+            };
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(notifications(deliveryServiceProperties));
+
+            const token = await createAuthToken();
+
+            const resendOtpMock = jest.fn();
+            const setOtpMock = jest.fn();
+            const addUsersNotificationChannelMock = jest.fn();
+            const getOtpMock = jest.fn();
+
+            app.locals.db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                getGlobalNotification: async (ensName: string) =>
+                    Promise.resolve({ isEnabled: true }),
+                getUsersNotificationChannels: async (ensName: string) =>
+                    Promise.resolve([
+                        {
+                            type: NotificationChannelType.EMAIL,
+                            config: {
+                                recipientValue: 'bob@gmail.com',
+                                isEnabled: true,
+                                isVerified: false,
+                            },
+                        },
+                    ]),
+                resendOtp: resendOtpMock,
+                addUsersNotificationChannel: addUsersNotificationChannelMock,
+                setOtp: setOtpMock,
+                getOtp: getOtpMock,
+            };
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+
+            const { status, body } = await request(app)
+                .post(`/otp/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    notificationChannelType: NotificationChannelType.EMAIL,
+                });
+
+            expect(status).toBe(200);
+        });
+    });
 });
 
 const createAuthToken = async () => {
