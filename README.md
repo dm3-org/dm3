@@ -17,8 +17,8 @@ https://dm3.readthedocs.io/en/doc-latest/
 
 ## Principles
 
--   **Decentral**: An dm3 client must be realizable as a real decentral application and the messages must also be stored in a decentral way.
--   **Open**: All parts of dm3 are open source and the protocol is permissionless. Everyone should be able to write an dm3 client.
+-   **Decentral**: A dm3 client must be realizable as a real decentral application and the messages must also be stored in a decentral way.
+-   **Open**: All parts of dm3 are open source and the protocol is permissionless. Everyone should be able to write a dm3 client.
 -   **Secure**: All messages are end-to-end encrypted and the encryption keys are only under the control of the user.
 
 ## Terminology
@@ -26,7 +26,7 @@ https://dm3.readthedocs.io/en/doc-latest/
 -   **Ethereum Account Key**: The private key linked to an [Externally Owned Account](https://ethereum.org/en/whitepaper/#ethereum-accounts).
 -   **Message Encryption Key Pair**: The key pair used to encrypt/decrypt messages.
 -   **Signing Key Pair**: The key pair used to sign/verify messages.
--   **Storage Encryption Key**: Synchronous key to encrypt the user storage. `keccak256(personalSignWithEthAccount(salt))`
+-   **Storage Encryption Key**: Symmetric key to encrypt the user storage. `keccak256(personalSignWithEthAccount(salt))`
 -   **Delivery Service**: The service that buffers messages until they are delivered.
 -   **Registry**: A decentral service (e.g. ENS) mapping Ethereum accounts to profile registry entry URLs (e.g. using text records).
 -   **Profile Registry Entry**: A resource containing properties linked to an Ethereum account that is using dm3. E.g. public keys, the delivery service URL and spam filter configuration.
@@ -57,7 +57,7 @@ The delivery service profile needs to be transformed into a data URI before it c
 const profileJsonDataUri = createJsonDataUri(deliveryServiceProfileA);
 ```
 
-The data URI of the profile must be published on-chain as ENS `network.dm3.deliveryService` text record on the delivery service ENS domain.
+The data URI of the profile must be published on-chain as ENS `network.dm3.deliveryService` text record on the delivery service's ENS domain.
 
 ### Creating and Publishing User Profiles
 
