@@ -1,7 +1,9 @@
 import {
     Session as DSSession,
     IGlobalNotification,
+    IOtp,
     NotificationChannel,
+    NotificationChannelType,
     spamFilter,
 } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
@@ -13,6 +15,7 @@ import Notification from './notification';
 import Pending from './pending';
 import Session from './session';
 import Storage from './storage';
+import Otp from './otp';
 import { syncAcknowledge } from './messages/syncAcknowledge';
 
 export enum RedisPrefix {
@@ -24,6 +27,7 @@ export enum RedisPrefix {
     Pending = 'pending:',
     NotificationChannel = 'notificationChannel:',
     GlobalNotification = 'globalNotification:',
+    Otp = 'otp:',
 }
 
 export async function getRedisClient() {
@@ -90,6 +94,9 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
         // Global Notification
         getGlobalNotification: Notification.getGlobalNotification(redis),
         setGlobalNotification: Notification.setGlobalNotification(redis),
+        // Verification Otp for Email, Mobile, etc..
+        setOtp: Otp.setOtp(redis),
+        getOtp: Otp.getOtp(redis),
     };
 }
 
@@ -153,6 +160,16 @@ export interface IDatabase {
         ensName: string,
         isEnabled: boolean,
     ) => Promise<void>;
+    setOtp: (
+        ensName: string,
+        otp: string,
+        channelType: NotificationChannelType,
+        generatedAt: Date,
+    ) => Promise<void>;
+    getOtp: (
+        ensName: string,
+        channelType: NotificationChannelType,
+    ) => Promise<IOtp | null>;
 }
 
 export type Redis = Awaited<ReturnType<typeof getRedisClient>>;

@@ -4,9 +4,15 @@ import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import express from 'express';
 import { auth } from './utils';
 import { validateNotificationChannel } from './validation/notification/notificationChannelValidation';
+import {
+    ChannelNotSupportedError,
+    DeliveryServiceProperties,
+    addNewNotificationChannel,
+} from '@dm3-org/dm3-lib-delivery';
+import { IDatabase } from './persistance/getDatabase';
 
 // Exporting a function that returns an Express router
-export default () => {
+export default (deliveryServiceProperties: DeliveryServiceProperties) => {
     const router = express.Router();
 
     // Applying CORS middleware to allow cross-origin requests
@@ -62,11 +68,11 @@ export default () => {
 
     // Defining a route to handle POST requests for adding an notification channel
     router.post('/:ensName', async (req, res, next) => {
+        // Extracting recipientValue & notificationChannelType from the request body
+        const { recipientValue, notificationChannelType } = req.body;
+
         try {
             const account = normalizeEnsName(req.params.ensName);
-
-            // Extracting recipientValue & notificationChannelType from the request body
-            const { recipientValue, notificationChannelType } = req.body;
 
             // Validate req.body data
             const { isValid, errorMessage } = validateNotificationChannel(
@@ -91,20 +97,28 @@ export default () => {
                     error: 'Global notifications is off',
                 });
             } else {
-                // Adding a user's notification channel to the database
-                await req.app.locals.db.addUsersNotificationChannel(account, {
-                    type: notificationChannelType,
-                    config: {
-                        recipientValue: recipientValue,
-                    },
-                });
+                // add new notification channel & send OTP for verification
+                await addNewNotificationChannel(
+                    notificationChannelType,
+                    recipientValue,
+                    account,
+                    deliveryServiceProperties.notificationChannel,
+                    req.app.locals.db as IDatabase,
+                );
 
                 // Sending a success response
                 res.sendStatus(200);
             }
-        } catch (e) {
-            // Passing the error to the next middleware
-            next(e);
+        } catch (e: any) {
+            if (e instanceof ChannelNotSupportedError) {
+                // return the error for not supported channels
+                res.status(400).json({
+                    error: `Notification channel ${notificationChannelType} is currently not supported by the DS`,
+                });
+            } else {
+                // Passing the error to the next middleware
+                next(e);
+            }
         }
     });
 
