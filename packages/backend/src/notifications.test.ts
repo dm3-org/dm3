@@ -566,7 +566,7 @@ describe('Notifications', () => {
         it('Returns 400 on resend email verification OTP as globalNotifications is turned off', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications());
+            app.use(notifications(deliveryServiceProperties));
 
             const token = await createAuthToken();
             const resendOtpMock = jest.fn();
@@ -607,7 +607,7 @@ describe('Notifications', () => {
         it('Returns 400 on resend email verification OTP as notificationChannelType is invalid', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications());
+            app.use(notifications(deliveryServiceProperties));
 
             const token = await createAuthToken();
             const resendOtpMock = jest.fn();
@@ -644,9 +644,26 @@ describe('Notifications', () => {
         });
 
         it('Resend email verification OTP', async () => {
+            const deliveryServiceProperties: DeliveryServiceProperties = {
+                messageTTL: 12345,
+                sizeLimit: 456,
+                notificationChannel: [
+                    {
+                        type: NotificationChannelType.EMAIL,
+                        config: {
+                            smtpHost: 'smtp.gmail.com',
+                            smtpPort: 587,
+                            smtpEmail: 'abc@gmail.com',
+                            smtpUsername: 'abc@gmail.com',
+                            smtpPassword: 'abcd1234',
+                        },
+                    },
+                ],
+            };
+
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications());
+            app.use(notifications(deliveryServiceProperties));
 
             const token = await createAuthToken();
 
@@ -679,22 +696,6 @@ describe('Notifications', () => {
                             },
                         },
                     ]),
-                getDeliveryServiceProperties: () => {
-                    return {
-                        notificationChannel: [
-                            {
-                                type: NotificationChannelType.EMAIL,
-                                config: {
-                                    smtpHost: 'smtp.gmail.com',
-                                    smtpPort: 587,
-                                    smtpEmail: 'abc@gmail.com',
-                                    smtpUsername: 'abc@gmail.com',
-                                    smtpPassword: 'abcd1234',
-                                },
-                            },
-                        ],
-                    };
-                },
                 resendOtp: resendOtpMock,
                 addUsersNotificationChannel: addUsersNotificationChannelMock,
                 setOtp: setOtpMock,

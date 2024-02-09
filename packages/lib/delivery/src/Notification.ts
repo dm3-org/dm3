@@ -11,7 +11,7 @@ import { generateOtp } from './notifications/generateOtp';
 const OTP_LENGTH = 5;
 
 // resend OTP time period in seconds
-export const RESEND_VERIFICATION_OTP_TIME_PERIOD = 0; // 0 minute
+export const RESEND_VERIFICATION_OTP_TIME_PERIOD: number = 60; // 1 minute
 
 // method to save OTP in Redis
 export const saveOtp = async (
@@ -139,8 +139,8 @@ export const resendOtp = async (
     if (existingOtp && !isAllowedtoSendNewOtp(existingOtp.generatedAt)) {
         throw Error(
             `New OTP can be generated after ${
-                RESEND_VERIFICATION_OTP_TIME_PERIOD / 10
-            } minutes of last OTP genarted`,
+                RESEND_VERIFICATION_OTP_TIME_PERIOD / 60
+            } minutes of last OTP generated`,
         );
     }
 

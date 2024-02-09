@@ -103,20 +103,17 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
                 await resendOtp(
                     account,
                     notificationChannelType,
-                    getDeliveryServiceProperties().notificationChannel,
+                    deliveryServiceProperties.notificationChannel,
                     req.app.locals.db as IDatabase,
                 );
                 // Sending a success response
                 res.sendStatus(200);
             }
         } catch (e: any) {
-            if (
-                e instanceof ChannelNotSupportedError ||
-                e.message === 'Invalid config.yml'
-            ) {
+            if (e instanceof ChannelNotSupportedError) {
                 // return the error for not supported channels
-                res.sendStatus(400).json({
-                    error: `Notification channel ${notificationChannelType} is currently not supported yet by the DS`,
+                res.status(400).json({
+                    error: `Notification channel ${notificationChannelType} is currently not supported by the DS`,
                 });
             } else {
                 // Passing the error to the next middleware
