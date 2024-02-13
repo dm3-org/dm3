@@ -79,7 +79,9 @@ export const useMessage = (connection: Connection) => {
                 return 0;
             }
             return messages[contactName].filter(
-                (message) => message.messageState !== MessageState.Read,
+                (message) =>
+                    message.messageState !== MessageState.Read &&
+                    message.envelop.message.metadata.from !== account?.ensName,
             ).length;
         },
         [messages],
@@ -87,14 +89,15 @@ export const useMessage = (connection: Connection) => {
 
     //Mark messages as read when the selected contact changes
     useEffect(() => {
-        console.log('selectedContact', selectedContact);
         const contact = selectedContact?.contactDetails.account.ensName;
         if (!contact) {
             return;
         }
 
         const unreadMessages = messages[contact]?.filter(
-            (message) => message.messageState !== MessageState.Read,
+            (message) =>
+                message.messageState !== MessageState.Read &&
+                message.envelop.message.metadata.from !== account?.ensName,
         );
 
         setMessages((prev) => {

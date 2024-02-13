@@ -121,6 +121,8 @@ export function Chat(props: HideFunctionProps) {
     /* shimmer effect contacts css */
     const shimmerData: number[] = Array.from({ length: 50 }, (_, i) => i + 1);
 
+    console.log('eth address', account!.ensName);
+
     return (
         <div
             id="chat-msgs"
@@ -200,7 +202,7 @@ export function Chat(props: HideFunctionProps) {
                                             ownMessage={
                                                 storageEnvelopContainer.envelop
                                                     .message.metadata?.from ===
-                                                ethAddress
+                                                account!.ensName
                                             }
                                             envelop={
                                                 storageEnvelopContainer.envelop
