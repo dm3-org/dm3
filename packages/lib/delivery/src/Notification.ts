@@ -218,7 +218,7 @@ export const verifyOtp = async (
     // set notification channel as verified
     db.setNotificationChannelAsVerified(ensName, notificationChannelType);
 
-    // delete otp record
+    // remove otp record
     db.resetOtp(ensName, notificationChannelType);
 };
 

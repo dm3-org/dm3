@@ -13,50 +13,46 @@ export function setNotificationChannelAsVerified(redis: Redis) {
         notificationChannelType: NotificationChannelType,
     ) => {
         // Fetch notification channels from redis
-        const existingNotificationChannelsJson = await redis.get(
+        const notificationChannelsJson = await redis.get(
             RedisPrefix.NotificationChannel +
                 (await getIdEnsName(redis)(ensName)),
         );
 
         // throw error if no channel is found
-        if (!existingNotificationChannelsJson) {
+        if (!notificationChannelsJson) {
             throw new NotificationError(
                 `Notification channel ${notificationChannelType} is not configured`,
             );
         }
 
         // Parse JSON existing channels
-        const existingNotificationChannels: NotificationChannel[] = JSON.parse(
-            existingNotificationChannelsJson,
+        const notificationChannels: NotificationChannel[] = JSON.parse(
+            notificationChannelsJson,
         );
 
-        // filter out channel
-        const channelToVerify = existingNotificationChannels.filter(
+        // find out channel
+        const channelIndex = notificationChannels.findIndex(
             (data) => data.type === notificationChannelType,
         );
 
-        // throw error if channel to verify is not found
-        if (!channelToVerify.length) {
-            throw new NotificationError(
-                `Notification channel ${notificationChannelType} is not configured`,
-            );
-        }
-
-        // throw error if channel is not enabled
-        if (!channelToVerify[0].config.isEnabled) {
+        // throw error if channel to verify is not found or is not enabled
+        if (
+            channelIndex < 0 ||
+            !notificationChannels[channelIndex].config.isEnabled
+        ) {
             throw new NotificationError(
                 `Notification channel ${notificationChannelType} is not enabled`,
             );
         }
 
         // set verified true
-        channelToVerify[0].config.isVerified = true;
+        notificationChannels[channelIndex].config.isVerified = true;
 
         // Store the updated channels back into Redis
         await redis.set(
             RedisPrefix.NotificationChannel +
                 (await getIdEnsName(redis)(ensName)),
-            stringify(existingNotificationChannels),
+            stringify(notificationChannels),
         );
     };
 }

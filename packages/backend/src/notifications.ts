@@ -79,12 +79,17 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
         try {
             const account = normalizeEnsName(req.params.ensName);
 
+            // validate otp is present
+            if (!otp) {
+                res.sendStatus(400).json({
+                    error: 'OTP is mandatory',
+                });
+            }
+
             // Validate notificationChannelType data
             const { isValid, errorMessage } = validateNotificationChannelType(
                 notificationChannelType,
             );
-
-            // verify otp is present
 
             // Return if invalid data found
             if (!isValid) {
@@ -112,6 +117,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
                 deliveryServiceProperties.notificationChannel,
                 req.app.locals.db as IDatabase,
             );
+
             // Sending a success response
             res.sendStatus(200);
         } catch (e: any) {

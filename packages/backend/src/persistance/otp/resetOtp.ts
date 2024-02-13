@@ -7,7 +7,7 @@ export const SEPARATION_OPERATOR = '=';
 
 export function resetOtp(redis: Redis) {
     return async (ensName: string, channelType: NotificationChannelType) => {
-        // reset the otp & store back into Redis
+        // reset the otp into Redis
         await redis.set(
             RedisPrefix.Otp.concat(
                 await getIdEnsName(redis)(ensName),
