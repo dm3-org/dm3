@@ -125,10 +125,9 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
                 return res.status(400).json({
                     error: e.message,
                 });
-            } else {
-                // Passing the error to the next middleware
-                next(e);
             }
+            // Passing the error to the next middleware
+            next(e);
         }
     });
 
@@ -177,10 +176,9 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
                 return res.status(400).json({
                     error: e.message,
                 });
-            } else {
-                // Passing the error to the next middleware
-                next(e);
             }
+            // Passing the error to the next middleware
+            next(e);
         }
     });
 
@@ -233,10 +231,9 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
                 return res.status(400).json({
                     error: e.message,
                 });
-            } else {
-                // Passing the error to the next middleware
-                next(e);
             }
+            // Passing the error to the next middleware
+            next(e);
         }
     });
 
