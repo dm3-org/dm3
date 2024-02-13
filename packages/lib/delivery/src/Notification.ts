@@ -260,8 +260,11 @@ const validateOtp = (otpRecord: IOtp, otpToValidate: string) => {
 
     // throw error if OTP is expired
     if (
-        new Date().getTime() <
-        generatedAt.setSeconds(generatedAt.getSeconds() + OTP_EXPIRY_DURATION)
+        new Date(
+            generatedAt.setSeconds(
+                generatedAt.getSeconds() + OTP_EXPIRY_DURATION,
+            ),
+        ).getTime() < new Date().getTime()
     ) {
         throw new NotificationError('OTP is expired');
     }
