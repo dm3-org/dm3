@@ -88,14 +88,17 @@ export const useStorage = (
         setInitialized(true);
     };
 
-    const editMessageBatch = async (
+    const editMessageBatchAsync = (
         contact: string,
         batch: StorageEnvelopContainerNew[],
     ) => {
         if (!storageApi) {
             throw Error('Storage not initialized');
         }
-        storageApi.editMessageBatch(contact, batch);
+        //Because the straoge cannot handle concurrency properly we need to catch the error and retry if the message is not yet synced
+        storageApi.editMessageBatch(contact, batch).catch((e) => {
+            console.log('message not sync yet');
+        });
     };
 
     const storeMessageAsync = (
@@ -155,6 +158,7 @@ export const useStorage = (
     return {
         storeMessageAsync,
         storeMessageBatch,
+        editMessageBatchAsync,
         getConversations,
         addConversationAsync,
         getMessages,
@@ -167,6 +171,10 @@ export const useStorage = (
 export type StoreMessageAsync = (
     contact: string,
     envelop: StorageEnvelopContainerNew,
+) => void;
+export type editMessageBatchAsync = (
+    contact: string,
+    batch: StorageEnvelopContainerNew[],
 ) => void;
 export type StoreMessageBatch = (
     contact: string,

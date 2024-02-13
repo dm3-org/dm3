@@ -138,18 +138,28 @@ export async function addMessages(
     // calculate the key for the message chunk and creates a new message chunk with the new message added
     const key = await getMessageChunkKey(db, contactEnsName, targetChunkIndex);
 
+    const storageEnvelopeContainerWithChunkKey = storageEnvelopContainer.map(
+        (envelopContainer) => ({
+            ...envelopContainer,
+            messageChunkKey: key,
+        }),
+    );
+
     return {
         messageChunk: {
             key,
             envelopContainer: messageChunk
-                ? [...messageChunk.envelopContainer, ...storageEnvelopContainer]
-                : [...storageEnvelopContainer],
+                ? [
+                      ...messageChunk.envelopContainer,
+                      ...storageEnvelopeContainerWithChunkKey,
+                  ]
+                : [...storageEnvelopeContainerWithChunkKey],
         },
         conversationManifest: {
             ...conversationManifest,
             messageCounter:
                 conversationManifest.messageCounter +
-                storageEnvelopContainer.length,
+                storageEnvelopeContainerWithChunkKey.length,
         },
     };
 }

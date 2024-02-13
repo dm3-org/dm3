@@ -35,6 +35,7 @@ export const useMessage = (connection: Connection) => {
         getMessages: getMessagesFromStorage,
         storeMessage,
         storeMessageBatch,
+        editMessageBatchAsync,
     } = useContext(StorageContext);
 
     const mainnetProvider = useMainnetProvider();
@@ -87,7 +88,35 @@ export const useMessage = (connection: Connection) => {
     //Mark messages as read when the selected contact changes
     useEffect(() => {
         console.log('selectedContact', selectedContact);
-    }, [messages]);
+        const contact = selectedContact?.contactDetails.account.ensName;
+        if (!contact) {
+            return;
+        }
+
+        const unreadMessages = messages[contact]?.filter(
+            (message) => message.messageState !== MessageState.Read,
+        );
+
+        setMessages((prev) => {
+            return {
+                ...prev,
+                [contact]: [
+                    ...(prev[contact] ?? []).map((message) => ({
+                        ...message,
+                        messageState: MessageState.Read,
+                    })),
+                ],
+            };
+        });
+
+        editMessageBatchAsync(
+            contact,
+            unreadMessages.map((message) => ({
+                ...message,
+                messageState: MessageState.Read,
+            })),
+        );
+    }, [selectedContact]);
 
     const addNewContact = (_contactName: string) => {
         const contact = normalizeEnsName(_contactName);

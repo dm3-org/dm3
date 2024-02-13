@@ -8,6 +8,7 @@ import {
     StoreMessageAsync,
     StoreMessageBatch,
     ToggleHideContactAsync,
+    editMessageBatchAsync,
     useStorage,
 } from '../hooks/storage/useStorage';
 import { AuthContext } from './AuthContext';
@@ -15,6 +16,7 @@ import { AuthContext } from './AuthContext';
 export type StorageContextType = {
     storeMessage: StoreMessageAsync;
     storeMessageBatch: StoreMessageBatch;
+    editMessageBatchAsync: editMessageBatchAsync;
     getConversations: GetConversations;
     addConversationAsync: AddConversation;
     getNumberOfMessages: GetNumberOfMessages;
@@ -29,6 +31,10 @@ export const StorageContext = React.createContext<StorageContextType>({
         envelop: StorageEnvelopContainer,
     ) => {},
     storeMessageBatch: async (
+        contact: string,
+        batch: StorageEnvelopContainer[],
+    ) => {},
+    editMessageBatchAsync: async (
         contact: string,
         batch: StorageEnvelopContainer[],
     ) => {},
@@ -47,6 +53,7 @@ export const StorageContextProvider = ({ children }: { children?: any }) => {
     const {
         storeMessageAsync,
         storeMessageBatch,
+        editMessageBatchAsync,
         getConversations,
         addConversationAsync,
         getNumberOfMessages,
@@ -59,6 +66,7 @@ export const StorageContextProvider = ({ children }: { children?: any }) => {
             value={{
                 storeMessage: storeMessageAsync,
                 storeMessageBatch: storeMessageBatch,
+                editMessageBatchAsync,
                 getConversations,
                 addConversationAsync,
                 getNumberOfMessages,
