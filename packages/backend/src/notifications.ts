@@ -36,7 +36,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
 
             // return if value is not a boolean
             if (typeof isEnabled !== 'boolean') {
-                return res.sendStatus(400).json({
+                return res.status(400).json({
                     error: 'Invalid value',
                 });
             }
@@ -81,8 +81,8 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
 
             // validate otp is present
             if (!otp) {
-                res.sendStatus(400).json({
-                    error: 'OTP is mandatory',
+                return res.status(400).json({
+                    error: 'OTP is missing',
                 });
             }
 
@@ -93,7 +93,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
 
             // Return if invalid data found
             if (!isValid) {
-                res.sendStatus(400).json({
+                return res.status(400).json({
                     error: errorMessage,
                 });
             }
@@ -104,7 +104,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
 
             // if global notification is turned off
             if (!globalNotification.isEnabled) {
-                res.sendStatus(400).json({
+                return res.status(400).json({
                     error: 'Global notifications is off',
                 });
             }
@@ -122,7 +122,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             res.sendStatus(200);
         } catch (e: any) {
             if (e instanceof NotificationError) {
-                res.status(400).json({
+                return res.status(400).json({
                     error: e.message,
                 });
             } else {
@@ -147,7 +147,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
 
             // Return if invalid data found
             if (!isValid) {
-                res.sendStatus(400).json({
+                return res.status(400).json({
                     error: errorMessage,
                 });
             }
@@ -158,7 +158,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
 
             // if global notification is turned off
             if (!globalNotification.isEnabled) {
-                res.sendStatus(400).json({
+                return res.status(400).json({
                     error: 'Global notifications is off',
                 });
             }
@@ -174,7 +174,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             res.sendStatus(200);
         } catch (e: any) {
             if (e instanceof NotificationError) {
-                res.status(400).json({
+                return res.status(400).json({
                     error: e.message,
                 });
             } else {
@@ -201,7 +201,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
 
             // Return if invalid data found
             if (!isValid) {
-                res.sendStatus(400).json({
+                return res.status(400).json({
                     error: errorMessage,
                 });
             }
@@ -212,7 +212,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
 
             // Throw error if global notification is turned off
             if (!globalNotification.isEnabled) {
-                res.sendStatus(400).json({
+                return res.status(400).json({
                     error: 'Global notifications is off',
                 });
             }
@@ -230,7 +230,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             res.sendStatus(200);
         } catch (e: any) {
             if (e instanceof NotificationError) {
-                res.status(400).json({
+                return res.status(400).json({
                     error: e.message,
                 });
             } else {
@@ -251,7 +251,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
 
             // if global notification is turned off
             if (!globalNotification.isEnabled) {
-                res.status(200).json({ notificationChannels: [] });
+                return res.status(200).json({ notificationChannels: [] });
             }
 
             // Getting notification channels for a user from the database
@@ -259,7 +259,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
                 await req.app.locals.db.getUsersNotificationChannels(account);
 
             // Sending the fetched notification channels as a JSON response
-            res.status(200).json({ notificationChannels });
+            return res.status(200).json({ notificationChannels });
         } catch (e) {
             // Passing the error to the next middleware
             next(e);
