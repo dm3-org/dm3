@@ -937,6 +937,359 @@ describe('Notifications', () => {
             expect(status).toBe(200);
         });
     });
+
+    describe('Enable/Disable Email notification channel', () => {
+        it('Returns 400 as isEnabled is not set in body', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(notifications(deliveryServiceProperties));
+
+            const token = await createAuthToken();
+
+            app.locals.db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                getGlobalNotification: async (ensName: string) =>
+                    Promise.resolve({ isEnabled: true }),
+            };
+
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+
+            const { status, body } = await request(app)
+                .post(`/channel/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    notificationChannelType: NotificationChannelType.EMAIL,
+                });
+
+            expect(status).toBe(400);
+            expect(body).toStrictEqual({
+                error: 'isEnabled value is missing',
+            });
+        });
+
+        it('Returns 400 as isEnabled value is invalid in body', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(notifications(deliveryServiceProperties));
+
+            const token = await createAuthToken();
+
+            app.locals.db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                getGlobalNotification: async (ensName: string) =>
+                    Promise.resolve({ isEnabled: true }),
+            };
+
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+
+            const { status, body } = await request(app)
+                .post(`/channel/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    isEnabled: 'test',
+                    notificationChannelType: NotificationChannelType.EMAIL,
+                });
+
+            expect(status).toBe(400);
+            expect(body).toStrictEqual({
+                error: 'isEnabled must have boolean value',
+            });
+        });
+
+        it('Returns 400 as notification channel type is not set in body', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(notifications(deliveryServiceProperties));
+
+            const token = await createAuthToken();
+
+            app.locals.db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                getGlobalNotification: async (ensName: string) =>
+                    Promise.resolve({ isEnabled: true }),
+            };
+
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+
+            const { status, body } = await request(app)
+                .post(`/channel/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    isEnabled: true,
+                });
+
+            expect(status).toBe(400);
+            expect(body).toStrictEqual({
+                error: 'Notification Channel Type is missing',
+            });
+        });
+
+        it('Returns 400 as notification channel type value is invalid in body', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(notifications(deliveryServiceProperties));
+
+            const token = await createAuthToken();
+
+            app.locals.db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                getGlobalNotification: async (ensName: string) =>
+                    Promise.resolve({ isEnabled: true }),
+            };
+
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+
+            const { status, body } = await request(app)
+                .post(`/channel/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    isEnabled: true,
+                    notificationChannelType: 'test',
+                });
+
+            expect(status).toBe(400);
+            expect(body).toStrictEqual({
+                error: 'Invalid notification channel type',
+            });
+        });
+
+        it('Returns 400 as global notification channel is turned off', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(notifications(deliveryServiceProperties));
+
+            const token = await createAuthToken();
+
+            app.locals.db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                getGlobalNotification: async (ensName: string) =>
+                    Promise.resolve({ isEnabled: false }),
+            };
+
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+
+            const { status, body } = await request(app)
+                .post(`/channel/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    isEnabled: true,
+                    notificationChannelType: NotificationChannelType.EMAIL,
+                });
+
+            expect(status).toBe(400);
+            expect(body).toStrictEqual({
+                error: 'Global notifications is off',
+            });
+        });
+
+        it('Should disable email notification channel', async () => {
+            const deliveryServiceProperties: DeliveryServiceProperties = {
+                messageTTL: 12345,
+                sizeLimit: 456,
+                notificationChannel: [
+                    {
+                        type: NotificationChannelType.EMAIL,
+                        config: {
+                            smtpHost: 'smtp.gmail.com',
+                            smtpPort: 587,
+                            smtpEmail: 'abc@gmail.com',
+                            smtpUsername: 'abc@gmail.com',
+                            smtpPassword: 'abcd1234',
+                        },
+                    },
+                ],
+            };
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(notifications(deliveryServiceProperties));
+
+            const token = await createAuthToken();
+
+            app.locals.db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                getGlobalNotification: async (ensName: string) =>
+                    Promise.resolve({ isEnabled: true }),
+                getUsersNotificationChannels: async (ensName: string) =>
+                    Promise.resolve([
+                        {
+                            type: NotificationChannelType.EMAIL,
+                            config: {
+                                recipientValue: 'abc@gmail.com',
+                                isEnabled: true,
+                                isVerified: false,
+                            },
+                        },
+                    ]),
+                enableOrDisableNotificationChannel: jest.fn(),
+            };
+
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+
+            const { status, body } = await request(app)
+                .post(`/channel/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    isEnabled: false,
+                    notificationChannelType: NotificationChannelType.EMAIL,
+                });
+
+            expect(status).toBe(200);
+        });
+
+        it('Should enable email notification channel', async () => {
+            const deliveryServiceProperties: DeliveryServiceProperties = {
+                messageTTL: 12345,
+                sizeLimit: 456,
+                notificationChannel: [
+                    {
+                        type: NotificationChannelType.EMAIL,
+                        config: {
+                            smtpHost: 'smtp.gmail.com',
+                            smtpPort: 587,
+                            smtpEmail: 'abc@gmail.com',
+                            smtpUsername: 'abc@gmail.com',
+                            smtpPassword: 'abcd1234',
+                        },
+                    },
+                ],
+            };
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(notifications(deliveryServiceProperties));
+
+            const token = await createAuthToken();
+
+            app.locals.db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                getGlobalNotification: async (ensName: string) =>
+                    Promise.resolve({ isEnabled: true }),
+                getUsersNotificationChannels: async (ensName: string) =>
+                    Promise.resolve([
+                        {
+                            type: NotificationChannelType.EMAIL,
+                            config: {
+                                recipientValue: 'abc@gmail.com',
+                                isEnabled: false,
+                                isVerified: false,
+                            },
+                        },
+                    ]),
+                enableOrDisableNotificationChannel: jest.fn(),
+            };
+
+            app.locals.web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+
+            const { status, body } = await request(app)
+                .post(`/channel/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    isEnabled: true,
+                    notificationChannelType: NotificationChannelType.EMAIL,
+                });
+
+            expect(status).toBe(200);
+        });
+    });
 });
 
 const createAuthToken = async () => {

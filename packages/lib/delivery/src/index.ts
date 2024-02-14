@@ -21,6 +21,7 @@ export {
     addNewNotificationChannel,
     verifyOtp,
     sendOtp,
+    enableOrDisableNotificationChannel,
     RESEND_VERIFICATION_OTP_TIME_PERIOD, // it may be needed to show in UI
 } from './Notification';
 export { NotificationError } from './errors/NotificationError';

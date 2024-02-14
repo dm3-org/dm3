@@ -13,8 +13,10 @@ import {
     addNewNotificationChannel,
     verifyOtp,
     sendOtp,
+    enableOrDisableNotificationChannel,
 } from '@dm3-org/dm3-lib-delivery';
 import { IDatabase } from './persistance/getDatabase';
+import { enableOrDisableNotificationChannelData } from './validation/notification/enableOrDisableChannelValidation';
 
 // Exporting a function that returns an Express router
 export default (deliveryServiceProperties: DeliveryServiceProperties) => {
@@ -164,6 +166,61 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
 
             await sendOtp(
                 account,
+                notificationChannelType,
+                deliveryServiceProperties.notificationChannel,
+                req.app.locals.db as IDatabase,
+            );
+
+            // Sending a success response
+            res.sendStatus(200);
+        } catch (e: any) {
+            if (e instanceof NotificationError) {
+                return res.status(400).json({
+                    error: e.message,
+                });
+            }
+            // Passing the error to the next middleware
+            next(e);
+        }
+    });
+
+    // Defining a route to handle POST requests to enable/ disable notification channel
+    router.post('/channel/:ensName', async (req, res, next) => {
+        // Extracting notificationChannelType from the request body
+        const { notificationChannelType, isEnabled } = req.body;
+
+        try {
+            const account = normalizeEnsName(req.params.ensName);
+
+            // Validate notificationChannelType & isEnabled data
+            const { isValid, errorMessage } =
+                enableOrDisableNotificationChannelData(
+                    notificationChannelType,
+                    isEnabled,
+                );
+
+            // Return if invalid data found
+            if (!isValid) {
+                return res.status(400).json({
+                    error: errorMessage,
+                });
+            }
+
+            // Fetch global notification data of user from database
+            const globalNotification =
+                await req.app.locals.db.getGlobalNotification(account);
+
+            // if global notification is turned off
+            if (!globalNotification.isEnabled) {
+                return res.status(400).json({
+                    error: 'Global notifications is off',
+                });
+            }
+
+            // enable or disable notification
+            await enableOrDisableNotificationChannel(
+                account,
+                isEnabled,
                 notificationChannelType,
                 deliveryServiceProperties.notificationChannel,
                 req.app.locals.db as IDatabase,

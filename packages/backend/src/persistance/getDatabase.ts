@@ -93,6 +93,8 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
             Notification.addUsersNotificationChannel(redis),
         setNotificationChannelAsVerified:
             Notification.setNotificationChannelAsVerified(redis),
+        enableOrDisableNotificationChannel:
+            Notification.enableOrDisableNotificationChannel(redis),
         // Global Notification
         getGlobalNotification: Notification.getGlobalNotification(redis),
         setGlobalNotification: Notification.setGlobalNotification(redis),
@@ -161,6 +163,11 @@ export interface IDatabase {
     setNotificationChannelAsVerified: (
         ensName: string,
         channel: NotificationChannelType,
+    ) => Promise<void>;
+    enableOrDisableNotificationChannel: (
+        ensName: string,
+        channel: NotificationChannelType,
+        isEnabled: boolean,
     ) => Promise<void>;
     getGlobalNotification: (ensName: string) => Promise<IGlobalNotification>;
     setGlobalNotification: (
