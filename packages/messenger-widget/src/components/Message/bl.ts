@@ -4,7 +4,7 @@ import {
     createDeleteRequestMessage,
 } from '@dm3-org/dm3-lib-messaging';
 import { MessageProps } from '../../interfaces/props';
-import { Attachment } from '../../interfaces/utils';
+import { Attachment, ContactPreview } from '../../interfaces/utils';
 import { isFileAImage } from '../MessageInputBox/bl';
 import {
     Actions,
@@ -23,7 +23,7 @@ import {
 } from '../../utils/common-utils';
 import { AuthContext } from '../../context/AuthContext';
 import { useContext } from 'react';
-import { Account } from '@dm3-org/dm3-lib-profile';
+import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
 
 export const scrollToMessage = (replyFromMessageId: string) => {
     const element = document.getElementById(replyFromMessageId) as HTMLElement;
@@ -39,64 +39,6 @@ export const getMessageChangeText = (props: MessageProps): string => {
         default:
             return '';
     }
-};
-
-export const deleteEmoji = async (
-    account: Account,
-    deliveryServiceToken: string,
-    deleteEmojiData: Envelop,
-    props: MessageProps,
-    state: GlobalState,
-    dispatch: React.Dispatch<Actions>,
-) => {
-    const userDb = state.userDb;
-
-    if (!userDb) {
-        throw Error('userDB not found');
-    }
-
-    if (!state.accounts.selectedContact) {
-        throw Error('no contact selected');
-    }
-
-    const messageHash = deleteEmojiData.metadata?.encryptedMessageHash;
-
-    dispatch({
-        type: UiViewStateType.SetMessageView,
-        payload: {
-            actionType: MessageActionType.NONE,
-            messageData: undefined,
-        },
-    });
-
-    // delete the message
-    const messageData = await createDeleteRequestMessage(
-        state.accounts.selectedContact?.account.ensName as string,
-        account!.ensName,
-        userDb.keys.signingKeyPair.privateKey as string,
-        messageHash as string,
-    );
-
-    messageData.metadata.type = MessageActionType.REACT;
-    messageData.message = undefined;
-
-    const haltDelivery = getHaltDelivery(state);
-    const sendDependencies: SendDependencies = getDependencies(state, account!);
-
-    await sendMessage(
-        account,
-        deliveryServiceToken!,
-        state,
-        sendDependencies,
-        messageData,
-        haltDelivery,
-        dispatch,
-    );
-
-    dispatch({
-        type: ModalStateType.LastMessageAction,
-        payload: MessageActionType.NONE,
-    });
 };
 
 export const getFilesData = (files: string[]) => {

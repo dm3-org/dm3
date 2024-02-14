@@ -54,6 +54,7 @@ export function MessageAction(props: MessageProps) {
     };
 
     const setAction = (action: MessageActionType) => {
+        console.log('setAction', action);
         dispatch({
             type: UiViewStateType.SetMessageView,
             payload: {
@@ -65,7 +66,7 @@ export function MessageAction(props: MessageProps) {
     };
 
     const reactToMessage = async (message: string) => {
-        if (!state.accounts.selectedContact) {
+        if (!selectedContact) {
             throw Error('no contact selected');
         }
 
@@ -87,7 +88,7 @@ export function MessageAction(props: MessageProps) {
 
         // react to the message
         const messageData = await createReactionMessage(
-            state.accounts.selectedContact?.account.ensName as string,
+            selectedContact.contactDetails.account.ensName as string,
             account!.ensName,
             message,
             profileKeys?.signingKeyPair.privateKey!,

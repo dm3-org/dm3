@@ -1,24 +1,31 @@
-import './Message.css';
-import { useContext, useEffect, useState } from 'react';
-import { MessageState } from '@dm3-org/dm3-lib-messaging';
-import tickIcon from '../../assets/images/tick.svg';
-import { MessageProps } from '../../interfaces/props';
-import threeDotsIcon from '../../assets/images/three-dots.svg';
-import { MessageAction } from '../MessageAction/MessageAction';
-import { GlobalContext } from '../../utils/context-utils';
-import { MessageActionType } from '../../utils/enum-type-utils';
-import { AttachmentThumbnailPreview } from '../AttachmentThumbnailPreview/AttachmentThumbnailPreview';
 import {
-    deleteEmoji,
-    getFilesData,
-    getMessageChangeText,
-    scrollToMessage,
-} from './bl';
+    Envelop,
+    MessageState,
+    createDeleteRequestMessage,
+} from '@dm3-org/dm3-lib-messaging';
+import { useContext, useState } from 'react';
+import threeDotsIcon from '../../assets/images/three-dots.svg';
+import tickIcon from '../../assets/images/tick.svg';
 import { AuthContext } from '../../context/AuthContext';
+import { ConversationContext } from '../../context/ConversationContext';
+import { MessageContext } from '../../context/MessageContext';
+import { MessageProps } from '../../interfaces/props';
+import { GlobalContext } from '../../utils/context-utils';
+import {
+    MessageActionType,
+    ModalStateType,
+    UiViewStateType,
+} from '../../utils/enum-type-utils';
+import { AttachmentThumbnailPreview } from '../AttachmentThumbnailPreview/AttachmentThumbnailPreview';
+import { MessageAction } from '../MessageAction/MessageAction';
+import './Message.css';
+import { getFilesData, getMessageChangeText, scrollToMessage } from './bl';
 
 export function Message(props: MessageProps) {
     const { state, dispatch } = useContext(GlobalContext);
-    const { deliveryServiceToken, account } = useContext(AuthContext);
+    const { account, profileKeys } = useContext(AuthContext);
+    const { addMessage } = useContext(MessageContext);
+    const { selectedContact } = useContext(ConversationContext);
 
     // state to show action items three dots
     const [isHovered, setIsHovered] = useState(false);
@@ -29,6 +36,37 @@ export function Message(props: MessageProps) {
 
     const handleMouseOut = () => {
         setIsHovered(false);
+    };
+
+    const deleteEmoji = async (deleteEmojiData: Envelop) => {
+        if (!selectedContact) {
+            throw Error('no contact selected');
+        }
+
+        const messageHash = deleteEmojiData.metadata?.encryptedMessageHash;
+
+        dispatch({
+            type: UiViewStateType.SetMessageView,
+            payload: {
+                actionType: MessageActionType.NONE,
+                messageData: undefined,
+            },
+        });
+
+        // delete the message
+        const messageData = await createDeleteRequestMessage(
+            selectedContact?.contactDetails.account.ensName,
+            account!.ensName,
+            profileKeys!.signingKeyPair.privateKey,
+            messageHash!,
+        );
+
+        await addMessage(messageData.metadata.to, messageData);
+
+        dispatch({
+            type: ModalStateType.LastMessageAction,
+            payload: MessageActionType.NONE,
+        });
     };
 
     return (
@@ -221,14 +259,7 @@ export function Message(props: MessageProps) {
                                         key={index}
                                         className="pointer-cursor"
                                         onClick={() => {
-                                            deleteEmoji(
-                                                account!,
-                                                deliveryServiceToken!,
-                                                item,
-                                                props,
-                                                state,
-                                                dispatch,
-                                            );
+                                            deleteEmoji(item);
                                         }}
                                     >
                                         {item.message.message}

@@ -19,6 +19,7 @@ import { ConversationContext } from '../../context/ConversationContext';
 import { StorageContext } from '../../context/StorageContext';
 import { Connection } from '../../interfaces/web3';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
+import { renderMessage } from './renderer/renderMessage';
 
 export type MessageModel = StorageEnvelopContainerNew & {
     reactions: Envelop[];
@@ -70,7 +71,7 @@ export const useMessage = (connection: Connection) => {
     const getMessages = useCallback(
         (_contactName: string) => {
             const contactName = normalizeEnsName(_contactName);
-            return messages[contactName] ?? [];
+            return renderMessage(messages[contactName] ?? []);
         },
         [messages],
     );
@@ -205,10 +206,7 @@ export const useMessage = (connection: Connection) => {
         setMessages((prev) => {
             return {
                 ...prev,
-                [contact]: withReactions([
-                    ...(prev[contact] ?? []),
-                    messageModel,
-                ]),
+                [contact]: [...(prev[contact] ?? []), messageModel],
             };
         });
         console.log('storeMessage', contact, messageModel);
@@ -334,58 +332,16 @@ export const useMessage = (connection: Connection) => {
                 );
             });
 
-        const _withReactions = withReactions(messages);
-
         setMessages((prev) => {
             return {
                 ...prev,
-                [contactName]: _withReactions,
+                [contactName]: messages,
             };
         });
 
         setContactsLoading((prev) => {
             return prev.filter((contact) => contact !== contactName);
         });
-    };
-
-    const withReactions = (messages: MessageModel[]) => {
-        const reactions = messages
-            .filter(
-                (message) =>
-                    message.envelop.message.metadata.type === 'REACTION',
-            )
-            .map((reaction) => reaction.envelop);
-
-        //add reactions to the messages
-        return messages
-            .map((message) => {
-                const _reactions = [...message.reactions, ...reactions]
-                    .filter(
-                        (reaction) =>
-                            reaction.message.metadata.referenceMessageHash ===
-                            message.envelop.metadata?.encryptedMessageHash,
-                    )
-                    //Filter duplicates
-                    .filter((reaction, index, self) => {
-                        return (
-                            index ===
-                            self.findIndex(
-                                (r) =>
-                                    r.message.message ===
-                                    reaction.message.message,
-                            )
-                        );
-                    });
-
-                return {
-                    ...message,
-                    reactions: _reactions,
-                };
-            })
-            .filter(
-                (message) =>
-                    message.envelop.message.metadata.type !== 'REACTION',
-            );
     };
 
     const acknowledgeAndStoreMessages = async (
