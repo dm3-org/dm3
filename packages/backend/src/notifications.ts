@@ -8,9 +8,10 @@ import {
     validateNotificationChannelType,
 } from './validation/notification/notificationChannelValidation';
 import {
-    ChannelNotSupportedError,
+    NotificationError,
     DeliveryServiceProperties,
     addNewNotificationChannel,
+    verifyOtp,
     sendOtp,
 } from '@dm3-org/dm3-lib-delivery';
 import { IDatabase } from './persistance/getDatabase';
@@ -35,7 +36,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
 
             // return if value is not a boolean
             if (typeof isEnabled !== 'boolean') {
-                return res.sendStatus(400).json({
+                return res.status(400).json({
                     error: 'Invalid value',
                 });
             }
@@ -70,6 +71,66 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
         }
     });
 
+    // Defining a route to handle POST requests to verify OTP
+    router.post('/otp/verify/:ensName', async (req, res, next) => {
+        // Extracting notificationChannelType from the request body
+        const { notificationChannelType, otp } = req.body;
+
+        try {
+            const account = normalizeEnsName(req.params.ensName);
+
+            // validate otp is present
+            if (!otp) {
+                return res.status(400).json({
+                    error: 'OTP is missing',
+                });
+            }
+
+            // Validate notificationChannelType data
+            const { isValid, errorMessage } = validateNotificationChannelType(
+                notificationChannelType,
+            );
+
+            // Return if invalid data found
+            if (!isValid) {
+                return res.status(400).json({
+                    error: errorMessage,
+                });
+            }
+
+            // Fetch global notification data of user from database
+            const globalNotification =
+                await req.app.locals.db.getGlobalNotification(account);
+
+            // if global notification is turned off
+            if (!globalNotification.isEnabled) {
+                return res.status(400).json({
+                    error: 'Global notifications is off',
+                });
+            }
+
+            // verify otp
+            await verifyOtp(
+                account,
+                notificationChannelType,
+                otp,
+                deliveryServiceProperties.notificationChannel,
+                req.app.locals.db as IDatabase,
+            );
+
+            // Sending a success response
+            res.sendStatus(200);
+        } catch (e: any) {
+            if (e instanceof NotificationError) {
+                return res.status(400).json({
+                    error: e.message,
+                });
+            }
+            // Passing the error to the next middleware
+            next(e);
+        }
+    });
+
     // Defining a route to handle POST requests for resending OTP
     router.post('/otp/:ensName', async (req, res, next) => {
         // Extracting notificationChannelType from the request body
@@ -85,7 +146,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
 
             // Return if invalid data found
             if (!isValid) {
-                res.sendStatus(400).json({
+                return res.status(400).json({
                     error: errorMessage,
                 });
             }
@@ -96,7 +157,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
 
             // if global notification is turned off
             if (!globalNotification.isEnabled) {
-                res.sendStatus(400).json({
+                return res.status(400).json({
                     error: 'Global notifications is off',
                 });
             }
@@ -111,15 +172,13 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             // Sending a success response
             res.sendStatus(200);
         } catch (e: any) {
-            if (e instanceof ChannelNotSupportedError) {
-                // return the error for not supported channels
-                res.status(400).json({
-                    error: `Notification channel ${notificationChannelType} is currently not supported by the DS`,
+            if (e instanceof NotificationError) {
+                return res.status(400).json({
+                    error: e.message,
                 });
-            } else {
-                // Passing the error to the next middleware
-                next(e);
             }
+            // Passing the error to the next middleware
+            next(e);
         }
     });
 
@@ -140,7 +199,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
 
             // Return if invalid data found
             if (!isValid) {
-                res.sendStatus(400).json({
+                return res.status(400).json({
                     error: errorMessage,
                 });
             }
@@ -151,7 +210,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
 
             // Throw error if global notification is turned off
             if (!globalNotification.isEnabled) {
-                res.sendStatus(400).json({
+                return res.status(400).json({
                     error: 'Global notifications is off',
                 });
             }
@@ -168,15 +227,13 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             // Sending a success response
             res.sendStatus(200);
         } catch (e: any) {
-            if (e instanceof ChannelNotSupportedError) {
-                // return the error for not supported channels
-                res.status(400).json({
-                    error: `Notification channel ${notificationChannelType} is currently not supported by the DS`,
+            if (e instanceof NotificationError) {
+                return res.status(400).json({
+                    error: e.message,
                 });
-            } else {
-                // Passing the error to the next middleware
-                next(e);
             }
+            // Passing the error to the next middleware
+            next(e);
         }
     });
 
@@ -191,7 +248,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
 
             // if global notification is turned off
             if (!globalNotification.isEnabled) {
-                res.status(200).json({ notificationChannels: [] });
+                return res.status(200).json({ notificationChannels: [] });
             }
 
             // Getting notification channels for a user from the database
@@ -199,7 +256,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
                 await req.app.locals.db.getUsersNotificationChannels(account);
 
             // Sending the fetched notification channels as a JSON response
-            res.status(200).json({ notificationChannels });
+            return res.status(200).json({ notificationChannels });
         } catch (e) {
             // Passing the error to the next middleware
             next(e);

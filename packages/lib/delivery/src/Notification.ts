@@ -1,5 +1,6 @@
-import { ChannelNotSupportedError } from './errors/ChannelNotSupportedError';
+import { NotificationError } from './errors/NotificationError';
 import {
+    IOtp,
     NotificationBroker,
     NotificationChannel,
     NotificationChannelType,
@@ -12,6 +13,9 @@ const OTP_LENGTH = 5;
 
 // resend OTP time period in seconds
 export const RESEND_VERIFICATION_OTP_TIME_PERIOD: number = 60; // 1 minute
+
+// OTP expiration time in seconds
+export const OTP_EXPIRY_DURATION = 600; // 10 minutes
 
 // method to save OTP in Redis
 export const saveOtp = async (
@@ -46,8 +50,8 @@ export async function addNewNotificationChannel(
     );
 
     if (!channelUsed.length) {
-        throw new ChannelNotSupportedError(
-            'Notification channel not supported',
+        throw new NotificationError(
+            `Notification channel ${notificationChannelType} is currently not supported by the DS`,
         );
     }
 
@@ -88,8 +92,8 @@ const getOtpContentForNotificationChannel = (
                 dm3ContactEmailID: notificationChannel.config.smtpEmail,
             };
         default:
-            throw new ChannelNotSupportedError(
-                `Invalid notification channel ${notificationChannel.type}`,
+            throw new NotificationError(
+                `Notification channel ${notificationChannel.type} is currently not supported by the DS`,
             );
     }
 };
@@ -107,8 +111,8 @@ export const sendOtp = async (
     );
 
     if (!channelUsed.length) {
-        throw new ChannelNotSupportedError(
-            'Notification channel not supported',
+        throw new NotificationError(
+            `Notification channel ${notificationChannelType} is currently not supported by the DS`,
         );
     }
 
@@ -161,6 +165,63 @@ export const sendOtp = async (
     );
 };
 
+// method to resend otp
+export const verifyOtp = async (
+    ensName: string,
+    notificationChannelType: NotificationChannelType,
+    otpToValidate: string,
+    dsNotificationChannels: NotificationChannel[],
+    db: any,
+) => {
+    // check if channel is supported or not
+    const channelUsed = dsNotificationChannels.filter(
+        (channel) => channel.type === notificationChannelType,
+    );
+
+    if (!channelUsed.length) {
+        throw new NotificationError(
+            `Notification channel ${notificationChannelType} is currently not supported by the DS`,
+        );
+    }
+
+    // check if notification channel exists in DB
+    const userNotificationChannels: NotificationChannel[] =
+        await db.getUsersNotificationChannels(ensName);
+
+    const channelToVerifyOtp = userNotificationChannels.filter(
+        (data) => data.type === notificationChannelType,
+    );
+
+    if (!channelToVerifyOtp.length) {
+        throw Error(
+            `${notificationChannelType} notification channel is not configured`,
+        );
+    }
+
+    // throws error if notification channel is not enabled or already verfiied
+    checkNotificationIsEnabledAndNotVerified(
+        channelToVerifyOtp[0],
+        notificationChannelType,
+    );
+
+    // fetch existing otp data from Redis
+    const existingOtp = await db.getOtp(ensName, notificationChannelType);
+
+    // throw error if otp record is not found
+    if (!existingOtp) {
+        throw Error('Otp not found, please resend the OTP for verification');
+    }
+
+    // check otp valid & not expired
+    validateOtp(existingOtp, otpToValidate);
+
+    // set notification channel as verified
+    db.setNotificationChannelAsVerified(ensName, notificationChannelType);
+
+    // remove otp record
+    db.resetOtp(ensName, notificationChannelType);
+};
+
 // checks notification channel is enabled and verfiied or not
 const checkNotificationIsEnabledAndNotVerified = (
     notificationChannel: NotificationChannel,
@@ -187,4 +248,24 @@ const isAllowedtoSendNewOtp = (otpGeneratedAtTime: Date): boolean => {
         new Date().getTime() >=
         otpGeneratedAtTime.getTime() + RESEND_VERIFICATION_OTP_TIME_PERIOD
     );
+};
+
+// validates OTP with the existing OTP in DB
+const validateOtp = (otpRecord: IOtp, otpToValidate: string) => {
+    const generatedAt = otpRecord.generatedAt;
+    // throw error if otp is invalid
+    if (otpRecord.otp !== otpToValidate) {
+        throw new NotificationError('Invalid OTP');
+    }
+
+    // throw error if OTP is expired
+    if (
+        new Date(
+            generatedAt.setSeconds(
+                generatedAt.getSeconds() + OTP_EXPIRY_DURATION,
+            ),
+        ).getTime() < new Date().getTime()
+    ) {
+        throw new NotificationError('OTP is expired');
+    }
 };

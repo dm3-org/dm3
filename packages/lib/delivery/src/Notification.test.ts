@@ -3,6 +3,7 @@ import {
     RESEND_VERIFICATION_OTP_TIME_PERIOD,
     addNewNotificationChannel,
     sendOtp,
+    verifyOtp,
 } from './Notification';
 
 jest.mock('nodemailer');
@@ -109,7 +110,7 @@ describe('Notification', () => {
                 );
             } catch (error: any) {
                 expect(error.message).toBe(
-                    'Notification channel not supported',
+                    'Notification channel test is currently not supported by the DS',
                 );
             }
         });
@@ -295,6 +296,304 @@ describe('Notification', () => {
 
         it('Resend OTP time period should be 60 seconds', async () => {
             expect(RESEND_VERIFICATION_OTP_TIME_PERIOD).toBe(60);
+        });
+    });
+
+    describe('Verify Email OTP', () => {
+        const notificationChannels: NotificationChannel[] = [
+            {
+                type: NotificationChannelType.EMAIL,
+                config: {
+                    smtpHost: 'smtp.gmail.com',
+                    smtpPort: 587,
+                    smtpEmail: 'abc@gmail.com',
+                    smtpUsername: 'abc@gmail.com',
+                    smtpPassword: 'abcd1234',
+                },
+            },
+        ];
+
+        const getOtp = jest.fn();
+        const setOtp = jest.fn();
+
+        it('Should throw error as notification channel is not supported by DS', async () => {
+            const getUsersNotificationChannels = () => {};
+
+            const db = {
+                getUsersNotificationChannels,
+                getOtp,
+                setOtp,
+            };
+
+            try {
+                await verifyOtp(
+                    '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
+                    NotificationChannelType.EMAIL,
+                    '98567',
+                    [],
+                    db,
+                );
+            } catch (error: any) {
+                expect(error.message).toBe(
+                    'Notification channel EMAIL is currently not supported by the DS',
+                );
+            }
+        });
+
+        it('Should throw error as EMAIL notification channel is not configured', async () => {
+            const getUsersNotificationChannels = () => Promise.resolve([]);
+
+            const db = {
+                getUsersNotificationChannels,
+                getOtp,
+                setOtp,
+            };
+
+            try {
+                await verifyOtp(
+                    '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
+                    NotificationChannelType.EMAIL,
+                    '98567',
+                    notificationChannels,
+                    db,
+                );
+            } catch (error: any) {
+                expect(error.message).toBe(
+                    'EMAIL notification channel is not configured',
+                );
+            }
+        });
+
+        it('Should throw error as EMAIL notification channel is not enabled', async () => {
+            const getUsersNotificationChannels = () =>
+                Promise.resolve([
+                    {
+                        type: NotificationChannelType.EMAIL,
+                        config: {
+                            recipientValue: 'bob@gmail.com',
+                            isVerified: false,
+                            isEnabled: false,
+                        },
+                    },
+                ]);
+
+            const db = {
+                getUsersNotificationChannels,
+                getOtp,
+                setOtp,
+            };
+
+            try {
+                await verifyOtp(
+                    '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
+                    NotificationChannelType.EMAIL,
+                    '98567',
+                    notificationChannels,
+                    db,
+                );
+            } catch (error: any) {
+                expect(error.message).toBe(
+                    'EMAIL notification channel is not enabled',
+                );
+            }
+        });
+
+        it('Should throw error as EMAIL notification channel is already verified', async () => {
+            const getUsersNotificationChannels = () =>
+                Promise.resolve([
+                    {
+                        type: NotificationChannelType.EMAIL,
+                        config: {
+                            recipientValue: 'bob@gmail.com',
+                            isVerified: true,
+                            isEnabled: true,
+                        },
+                    },
+                ]);
+
+            const db = {
+                getUsersNotificationChannels,
+                getOtp,
+                setOtp,
+            };
+
+            try {
+                await verifyOtp(
+                    '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
+                    NotificationChannelType.EMAIL,
+                    '98567',
+                    notificationChannels,
+                    db,
+                );
+            } catch (error: any) {
+                expect(error.message).toBe(
+                    'EMAIL notification channel is already verified',
+                );
+            }
+        });
+
+        it('Should throw error as OTP is not found in DB', async () => {
+            const getUsersNotificationChannels = () =>
+                Promise.resolve([
+                    {
+                        type: NotificationChannelType.EMAIL,
+                        config: {
+                            recipientValue: 'bob@gmail.com',
+                            isVerified: false,
+                            isEnabled: true,
+                        },
+                    },
+                ]);
+
+            const getOtp = () => Promise.resolve(null);
+
+            const db = {
+                getUsersNotificationChannels,
+                getOtp,
+                setOtp,
+            };
+
+            try {
+                await verifyOtp(
+                    '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
+                    NotificationChannelType.EMAIL,
+                    '98567',
+                    notificationChannels,
+                    db,
+                );
+            } catch (error: any) {
+                expect(error.message).toBe(
+                    'Otp not found, please resend the OTP for verification',
+                );
+            }
+        });
+
+        it('Should throw error as OTP is invalid', async () => {
+            const getUsersNotificationChannels = () =>
+                Promise.resolve([
+                    {
+                        type: NotificationChannelType.EMAIL,
+                        config: {
+                            recipientValue: 'bob@gmail.com',
+                            isVerified: false,
+                            isEnabled: true,
+                        },
+                    },
+                ]);
+
+            const getOtp = () =>
+                Promise.resolve({
+                    otp: '12345',
+                    type: NotificationChannelType.EMAIL,
+                    generatedAt: new Date(),
+                });
+
+            const db = {
+                getUsersNotificationChannels,
+                getOtp,
+                setOtp,
+            };
+
+            try {
+                await verifyOtp(
+                    '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
+                    NotificationChannelType.EMAIL,
+                    '98567',
+                    notificationChannels,
+                    db,
+                );
+            } catch (error: any) {
+                expect(error.message).toBe('Invalid OTP');
+            }
+        });
+
+        it('Should throw error as OTP is expired', async () => {
+            const getUsersNotificationChannels = () =>
+                Promise.resolve([
+                    {
+                        type: NotificationChannelType.EMAIL,
+                        config: {
+                            recipientValue: 'bob@gmail.com',
+                            isVerified: false,
+                            isEnabled: true,
+                        },
+                    },
+                ]);
+
+            // set generated time more than 10 minutes before from now
+            const currentTime = new Date();
+            const generatedAt = new Date(
+                currentTime.setSeconds(currentTime.getSeconds() - 610),
+            );
+
+            const getOtp = () =>
+                Promise.resolve({
+                    otp: '12345',
+                    type: NotificationChannelType.EMAIL,
+                    generatedAt: generatedAt,
+                });
+
+            const db = {
+                getUsersNotificationChannels,
+                getOtp,
+                setOtp,
+            };
+
+            try {
+                await verifyOtp(
+                    '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
+                    NotificationChannelType.EMAIL,
+                    '12345',
+                    notificationChannels,
+                    db,
+                );
+            } catch (error: any) {
+                expect(error.message).toBe('OTP is expired');
+            }
+        });
+
+        it('Should verify the EMAIL OTP', async () => {
+            const getUsersNotificationChannels = () =>
+                Promise.resolve([
+                    {
+                        type: NotificationChannelType.EMAIL,
+                        config: {
+                            recipientValue: 'bob@gmail.com',
+                            isVerified: false,
+                            isEnabled: true,
+                        },
+                    },
+                ]);
+
+            const getOtp = () =>
+                Promise.resolve({
+                    otp: '12345',
+                    type: NotificationChannelType.EMAIL,
+                    generatedAt: new Date(),
+                });
+
+            // mock functions
+            const setNotificationChannelAsVerified = jest.fn();
+            const resetOtp = jest.fn();
+
+            const db = {
+                getUsersNotificationChannels,
+                getOtp,
+                setOtp,
+                setNotificationChannelAsVerified,
+                resetOtp,
+            };
+
+            await verifyOtp(
+                '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
+                NotificationChannelType.EMAIL,
+                '12345',
+                notificationChannels,
+                db,
+            );
+
+            expect(setNotificationChannelAsVerified).toHaveBeenCalled();
+            expect(resetOtp).toHaveBeenCalled();
         });
     });
 });
