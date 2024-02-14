@@ -20,6 +20,7 @@ import {
     scrollToBottomOfChat,
 } from './bl';
 import { MessageContext } from '../../context/MessageContext';
+import { MessageModel } from '../../hooks/messages/useMessage';
 
 export function Chat(props: HideFunctionProps) {
     const { state, dispatch } = useContext(GlobalContext);
@@ -36,18 +37,6 @@ export function Chat(props: HideFunctionProps) {
     const [showShimEffect, setShowShimEffect] = useState(false);
 
     const alias = ethAddress && ethAddress + globalConfig.ADDR_ENS_SUBDOMAIN();
-
-    const setProfileCheck = (status: boolean) => {
-        setIsProfileConfigured(status);
-    };
-
-    const updateShowShimEffect = (action: boolean) => {
-        setShowShimEffect(action);
-    };
-
-    const updateIsMessageListInitialized = (action: boolean) => {
-        setIsMessageListInitialized(action);
-    };
 
     useEffect(() => {
         setIsMessageListInitialized(false);
@@ -183,7 +172,7 @@ export function Chat(props: HideFunctionProps) {
                         {messages.length > 0 &&
                             messages.map(
                                 (
-                                    storageEnvelopContainer: StorageEnvelopContainer,
+                                    storageEnvelopContainer: MessageModel,
                                     index,
                                 ) => (
                                     <div key={index} className="mt-2">
@@ -207,7 +196,9 @@ export function Chat(props: HideFunctionProps) {
                                             envelop={
                                                 storageEnvelopContainer.envelop
                                             }
-                                            reactions={[]}
+                                            reactions={
+                                                storageEnvelopContainer.reactions
+                                            }
                                         />
                                     </div>
                                 ),

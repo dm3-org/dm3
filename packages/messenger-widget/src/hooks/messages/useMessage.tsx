@@ -11,19 +11,21 @@ import {
     buildEnvelop,
 } from '@dm3-org/dm3-lib-messaging';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { StorageEnvelopContainerNew } from '@dm3-org/dm3-lib-storage';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { fetchNewMessages } from '../../adapters/messages';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { StorageContext } from '../../context/StorageContext';
 import { Connection } from '../../interfaces/web3';
-import { MessageActionType } from '../../utils/enum-type-utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
-import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
-import { StorageEnvelopContainerNew } from '@dm3-org/dm3-lib-storage';
+
+export type MessageModel = StorageEnvelopContainerNew & {
+    reactions: Envelop[];
+};
 
 export type MessageStorage = {
-    [contact: string]: StorageEnvelopContainerNew[];
+    [contact: string]: MessageModel[];
 };
 
 export const useMessage = (connection: Connection) => {
@@ -143,7 +145,7 @@ export const useMessage = (connection: Connection) => {
             (c) => c.contactDetails.account.ensName === contact,
         );
 
-        // For whatever reason the we've to create a PendingEntry before we can send a message
+        // For whatever reason we've to create a PendingEntry before we can send a message
         //We should probably refactor this to be more clear on the backend side
         createPendingEntry(
             connection.socket!,
@@ -160,23 +162,21 @@ export const useMessage = (connection: Connection) => {
         if (!recipientIsDm3User) {
             console.log('- Halt delivery');
             //StorageEnvelopContainerNew to store the message in the storage
-            const storageEnvelopContainer: StorageEnvelopContainerNew = {
+            const messageModel: MessageModel = {
                 envelop: {
                     message,
                 },
                 messageState: MessageState.Created,
                 messageChunkKey: '',
+                reactions: [],
             };
             setMessages((prev) => {
                 return {
                     ...prev,
-                    [contact]: [
-                        ...(prev[contact] ?? []),
-                        storageEnvelopContainer,
-                    ],
+                    [contact]: [...(prev[contact] ?? []), messageModel],
                 };
             });
-            storeMessage(contact, storageEnvelopContainer);
+            storeMessage(contact, messageModel);
             return;
         }
 
@@ -194,22 +194,27 @@ export const useMessage = (connection: Connection) => {
             },
         );
         //StorageEnvelopContainerNew to store the message in the storage
-        const storageEnvelopContainer = {
+        const messageModel = {
             envelop,
             messageState: MessageState.Created,
             messageChunkKey: '',
+            reactions: [],
         };
 
         //Add the message to the state
         setMessages((prev) => {
             return {
                 ...prev,
-                [contact]: [...(prev[contact] ?? []), storageEnvelopContainer],
+                [contact]: withReactions([
+                    ...(prev[contact] ?? []),
+                    messageModel,
+                ]),
             };
         });
+        console.log('storeMessage', contact, messageModel);
 
         //Storage the message in the storage
-        storeMessage(contact, storageEnvelopContainer);
+        storeMessage(contact, messageModel);
 
         //When we have a recipient we can send the message using the socket connection
         await sendMessage(
@@ -237,7 +242,13 @@ export const useMessage = (connection: Connection) => {
             storedMessages,
         );
 
-        return storedMessages;
+        return storedMessages.map(
+            (message) =>
+                ({
+                    ...message,
+                    reactions: [],
+                } as MessageModel),
+        );
     };
 
     const fetchMessagesFromDeliveryService = async (contactName: string) => {
@@ -250,32 +261,32 @@ export const useMessage = (connection: Connection) => {
             contactName,
         );
 
-        const incommingMessages: StorageEnvelopContainerNew[] =
-            await Promise.all(
-                encryptedIncommingMessages.map(async (envelop) => {
-                    const decryptedEnvelop: Envelop = {
-                        message: JSON.parse(
-                            await decryptAsymmetric(
-                                profileKeys?.encryptionKeyPair!,
-                                JSON.parse(envelop.message),
-                            ),
+        const incommingMessages: MessageModel[] = await Promise.all(
+            encryptedIncommingMessages.map(async (envelop) => {
+                const decryptedEnvelop: Envelop = {
+                    message: JSON.parse(
+                        await decryptAsymmetric(
+                            profileKeys?.encryptionKeyPair!,
+                            JSON.parse(envelop.message),
                         ),
-                        postmark: JSON.parse(
-                            await decryptAsymmetric(
-                                profileKeys?.encryptionKeyPair!,
-                                JSON.parse(envelop.postmark!),
-                            ),
+                    ),
+                    postmark: JSON.parse(
+                        await decryptAsymmetric(
+                            profileKeys?.encryptionKeyPair!,
+                            JSON.parse(envelop.postmark!),
                         ),
-                        metadata: envelop.metadata,
-                    };
-                    return {
-                        envelop: decryptedEnvelop,
-                        //Messages from the delivery service are already send by the sender
-                        messageState: MessageState.Send,
-                        messageChunkKey: '',
-                    };
-                }),
-            );
+                    ),
+                    metadata: envelop.metadata,
+                };
+                return {
+                    envelop: decryptedEnvelop,
+                    //Messages from the delivery service are already send by the sender
+                    messageState: MessageState.Send,
+                    messageChunkKey: '',
+                    reactions: [],
+                };
+            }),
+        );
 
         const messagesSortedASC = incommingMessages.sort((a, b) => {
             return (
@@ -305,11 +316,12 @@ export const useMessage = (connection: Connection) => {
             fetchMessagesFromDeliveryService(contactName),
         ]);
 
-        const messages = initialMessages
-            .reduce((acc, val) => acc.concat(val), [])
-            .filter(({ envelop }: StorageEnvelopContainerNew) => {
-                return envelop.message.metadata?.type === MessageActionType.NEW;
-            })
+        const flatten = initialMessages.reduce(
+            (acc, val) => acc.concat(val),
+            [],
+        );
+
+        const messages = flatten
             //filter duplicates
             .filter((message, index, self) => {
                 return (
@@ -322,16 +334,58 @@ export const useMessage = (connection: Connection) => {
                 );
             });
 
+        const _withReactions = withReactions(messages);
+
         setMessages((prev) => {
             return {
                 ...prev,
-                [contactName]: messages,
+                [contactName]: _withReactions,
             };
         });
 
         setContactsLoading((prev) => {
             return prev.filter((contact) => contact !== contactName);
         });
+    };
+
+    const withReactions = (messages: MessageModel[]) => {
+        const reactions = messages
+            .filter(
+                (message) =>
+                    message.envelop.message.metadata.type === 'REACTION',
+            )
+            .map((reaction) => reaction.envelop);
+
+        //add reactions to the messages
+        return messages
+            .map((message) => {
+                const _reactions = [...message.reactions, ...reactions]
+                    .filter(
+                        (reaction) =>
+                            reaction.message.metadata.referenceMessageHash ===
+                            message.envelop.metadata?.encryptedMessageHash,
+                    )
+                    //Filter duplicates
+                    .filter((reaction, index, self) => {
+                        return (
+                            index ===
+                            self.findIndex(
+                                (r) =>
+                                    r.message.message ===
+                                    reaction.message.message,
+                            )
+                        );
+                    });
+
+                return {
+                    ...message,
+                    reactions: _reactions,
+                };
+            })
+            .filter(
+                (message) =>
+                    message.envelop.message.metadata.type !== 'REACTION',
+            );
     };
 
     const acknowledgeAndStoreMessages = async (
@@ -365,7 +419,7 @@ export const useMessage = (connection: Connection) => {
     };
 };
 
-export type GetMessages = (contact: string) => StorageEnvelopContainerNew[];
+export type GetMessages = (contact: string) => MessageModel[];
 export type AddMessage = (contact: string, message: Message) => void;
 
 export type ContactLoading = (contact: string) => boolean;

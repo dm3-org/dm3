@@ -25,10 +25,14 @@ import {
 } from '@dm3-org/dm3-lib-messaging';
 import { hideMsgActionDropdown } from '../MessageInputBox/bl';
 import { AuthContext } from '../../context/AuthContext';
+import { MessageContext } from '../../context/MessageContext';
+import { ConversationContext } from '../../context/ConversationContext';
 
 export function MessageAction(props: MessageProps) {
     const { state, dispatch } = useContext(GlobalContext);
-    const { account, deliveryServiceToken } = useContext(AuthContext);
+    const { account, profileKeys } = useContext(AuthContext);
+    const { addMessage } = useContext(MessageContext);
+    const { selectedContact } = useContext(ConversationContext);
     const [alignmentTop, setAlignmentTop] = useState(false);
 
     // Popular emojis for reaction
@@ -61,19 +65,14 @@ export function MessageAction(props: MessageProps) {
     };
 
     const reactToMessage = async (message: string) => {
-        const userDb = state.userDb;
-
-        if (!userDb) {
-            throw Error('userDB not found');
-        }
-
         if (!state.accounts.selectedContact) {
             throw Error('no contact selected');
         }
 
-        const filteredElements = props.reactions.filter(
-            (data) => data.message.message === message,
-        );
+        // @Bhupesh why do we need to filter here
+        // const filteredElemtns = props.reactions.some(
+        //     (data) => data.message.message === message,
+        // );
 
         dispatch({
             type: UiViewStateType.SetMessageView,
@@ -83,10 +82,6 @@ export function MessageAction(props: MessageProps) {
             },
         });
 
-        if (filteredElements.length) {
-            return;
-        }
-
         const referenceMessageHash =
             props.envelop.metadata?.encryptedMessageHash;
 
@@ -95,24 +90,13 @@ export function MessageAction(props: MessageProps) {
             state.accounts.selectedContact?.account.ensName as string,
             account!.ensName,
             message,
-            userDb.keys.signingKeyPair.privateKey as string,
+            profileKeys?.signingKeyPair.privateKey!,
             referenceMessageHash as string,
         );
 
-        const haltDelivery = getHaltDelivery(state);
-        const sendDependencies: SendDependencies = getDependencies(
-            state,
-            account!,
-        );
-
-        await sendMessage(
-            account!,
-            deliveryServiceToken!,
-            state,
-            sendDependencies,
+        await addMessage(
+            selectedContact?.contactDetails.account.ensName!,
             messageData,
-            haltDelivery,
-            dispatch,
         );
 
         dispatch({
