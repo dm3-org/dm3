@@ -199,6 +199,9 @@ export function Chat(props: HideFunctionProps) {
                                             reactions={
                                                 storageEnvelopContainer.reactions
                                             }
+                                            replyToMessageEnvelop={
+                                                storageEnvelopContainer.replyToMessageEnvelop
+                                            }
                                         />
                                     </div>
                                 ),

@@ -6,7 +6,11 @@ import { useContext } from 'react';
 import { handleSubmit } from '../MessageInputBox/bl';
 import { AuthContext } from '../../context/AuthContext';
 import { StorageContext } from '../../context/StorageContext';
-import { Message, createMessage } from '@dm3-org/dm3-lib-messaging';
+import {
+    Message,
+    createMessage,
+    createReplyMessage,
+} from '@dm3-org/dm3-lib-messaging';
 import { MessageContext } from '../../context/MessageContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { scrollToBottomOfChat } from '../Chat/bl';
@@ -15,10 +19,34 @@ export function SendMessage(props: MessageDataProps) {
     const { account, profileKeys } = useContext(AuthContext);
     const { addMessage } = useContext(MessageContext);
     const { selectedContact } = useContext(ConversationContext);
+    const { state } = useContext(GlobalContext);
 
     async function submit(
         event: React.MouseEvent<HTMLImageElement, MouseEvent>,
     ) {
+        if (state.uiView.selectedMessageView.actionType === 'REPLY') {
+            console.log('replying');
+            const referenceMessageHash =
+                state.uiView.selectedMessageView.messageData?.envelop.metadata
+                    ?.encryptedMessageHash;
+
+            const messageData = await createReplyMessage(
+                selectedContact?.contactDetails.account.ensName!,
+                account!.ensName,
+                props.message,
+                profileKeys?.signingKeyPair.privateKey!,
+                referenceMessageHash!,
+                props.filesSelected.map((file) => file.data),
+            );
+            await addMessage(
+                selectedContact?.contactDetails.account.ensName!,
+                messageData,
+            );
+
+            props.setMessageText('');
+            scrollToBottomOfChat();
+            return;
+        }
         const messageData = await createMessage(
             selectedContact?.contactDetails.account.ensName!,
             account!.ensName,

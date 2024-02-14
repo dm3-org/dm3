@@ -284,6 +284,7 @@ export const handleSubmit = async (
     setFiles: Function,
 ) => {
     let attachments: string[] = [];
+    console.log('handleSubmit lets goo');
 
     dispatch({
         type: ModalStateType.OpenEmojiPopup,

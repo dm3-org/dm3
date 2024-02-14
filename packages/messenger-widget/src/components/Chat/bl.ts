@@ -190,46 +190,44 @@ const handleMessageContainer = (
                 MessageActionType.REACT
             ) {
                 // fetch all reactions of a message
-                reactionEnvelope = reactMessages.filter(
-                    (data) =>
-                        data.envelop.message.metadata.referenceMessageHash ===
-                        container.envelop.metadata?.encryptedMessageHash,
-                );
-
-                // Set the message data
-                msg = {
-                    message: container.envelop.message.message!,
-                    time: container.envelop.message.metadata.timestamp.toString(),
-                    messageState: container.messageState,
-                    ownMessage: false,
-                    envelop: container.envelop,
-                    replyToMsg: replyToEnvelop?.envelop.message.message,
-                    replyToMsgFrom:
-                        replyToEnvelop?.envelop.message.metadata.from,
-                    replyToMsgId:
-                        replyToEnvelop?.envelop.metadata?.encryptedMessageHash,
-                    replyToMsgEnvelope: replyToEnvelop?.envelop,
-                    reactions: reactionEnvelope.map((data) => data.envelop),
-                    hideFunction: hideFunction,
-                };
-                if (
-                    isSameEnsName(
-                        container.envelop.message.metadata.from,
-                        account.ensName,
-                        alias,
-                    )
-                ) {
-                    msg.ownMessage = true;
-                }
-
-                messagesMap.set(
-                    msg.envelop.metadata?.encryptedMessageHash as string,
-                    {
-                        msgDetails: msg,
-                        index: msgList.length,
-                    },
-                );
-                msgList.push(msg);
+                // reactionEnvelope = reactMessages.filter(
+                //     (data) =>
+                //         data.envelop.message.metadata.referenceMessageHash ===
+                //         container.envelop.metadata?.encryptedMessageHash,
+                // );
+                // // Set the message data
+                // msg = {
+                //     message: container.envelop.message.message!,
+                //     time: container.envelop.message.metadata.timestamp.toString(),
+                //     messageState: container.messageState,
+                //     ownMessage: false,
+                //     envelop: container.envelop,
+                //     replyToMsg: replyToEnvelop?.envelop.message.message,
+                //     replyToMsgFrom:
+                //         replyToEnvelop?.envelop.message.metadata.from,
+                //     replyToMsgId:
+                //         replyToEnvelop?.envelop.metadata?.encryptedMessageHash,
+                //     replyToMsgEnvelope: replyToEnvelop?.envelop,
+                //     reactions: reactionEnvelope.map((data) => data.envelop),
+                //     hideFunction: hideFunction,
+                // };
+                // if (
+                //     isSameEnsName(
+                //         container.envelop.message.metadata.from,
+                //         account.ensName,
+                //         alias,
+                //     )
+                // ) {
+                //     msg.ownMessage = true;
+                // }
+                // messagesMap.set(
+                //     msg.envelop.metadata?.encryptedMessageHash as string,
+                //     {
+                //         msgDetails: msg,
+                //         index: msgList.length,
+                //     },
+                // );
+                // msgList.push(msg);
             }
         });
 
@@ -268,40 +266,40 @@ const setDeletedMessage = (
         const data = messagesMap.get(
             deletedMessage.envelop.message.metadata.referenceMessageHash,
         );
-        if (data) {
-            msgList[data.index].envelop = deletedMessage.envelop;
-            msgList[data.index].message =
-                deletedMessage.envelop.message.message!;
-            msgList[data.index].time =
-                deletedMessage.envelop.message.metadata.timestamp.toString();
-            msgList[data.index].messageState = deletedMessage.messageState;
-            msgList[data.index].ownMessage = false;
-            msgList[data.index].envelop = deletedMessage.envelop;
-            msgList[data.index].replyToMsg =
-                replyToEnvelop?.envelop.message.message;
-            msgList[data.index].replyToMsgFrom =
-                replyToEnvelop?.envelop.message.metadata.from;
-            msgList[data.index].replyToMsgId =
-                replyToEnvelop?.envelop.metadata?.encryptedMessageHash;
-            msgList[data.index].reactions = [];
-            msgList[data.index].hideFunction = hideFunction;
-            if (
-                isSameEnsName(
-                    deletedMessage.envelop.message.metadata.from,
-                    account.ensName,
-                    alias,
-                )
-            ) {
-                msgList[data.index].ownMessage = true;
-            }
-            messagesMap.set(
-                deletedMessage.envelop.metadata?.encryptedMessageHash as string,
-                {
-                    msgDetails: msgList[data.index],
-                    index: data.index,
-                },
-            );
-        }
+        // if (data) {
+        //     msgList[data.index].envelop = deletedMessage.envelop;
+        //     msgList[data.index].message =
+        //         deletedMessage.envelop.message.message!;
+        //     msgList[data.index].time =
+        //         deletedMessage.envelop.message.metadata.timestamp.toString();
+        //     msgList[data.index].messageState = deletedMessage.messageState;
+        //     msgList[data.index].ownMessage = false;
+        //     msgList[data.index].envelop = deletedMessage.envelop;
+        //     msgList[data.index].replyToMsg =
+        //         replyToEnvelop?.envelop.message.message;
+        //     msgList[data.index].replyToMsgFrom =
+        //         replyToEnvelop?.envelop.message.metadata.from;
+        //     msgList[data.index].replyToMsgId =
+        //         replyToEnvelop?.envelop.metadata?.encryptedMessageHash;
+        //     msgList[data.index].reactions = [];
+        //     msgList[data.index].hideFunction = hideFunction;
+        //     if (
+        //         isSameEnsName(
+        //             deletedMessage.envelop.message.metadata.from,
+        //             account.ensName,
+        //             alias,
+        //         )
+        //     ) {
+        //         msgList[data.index].ownMessage = true;
+        //     }
+        //     messagesMap.set(
+        //         deletedMessage.envelop.metadata?.encryptedMessageHash as string,
+        //         {
+        //             msgDetails: msgList[data.index],
+        //             index: data.index,
+        //         },
+        //     );
+        // }
     }
 };
 
@@ -315,48 +313,48 @@ const setEditedMessage = (
     alias: string | undefined,
     hideFunction?: string,
 ) => {
-    if (
-        editedMessage &&
-        editedMessage.envelop.message.metadata.referenceMessageHash
-    ) {
-        const data = messagesMap.get(
-            editedMessage.envelop.message.metadata.referenceMessageHash,
-        );
-        if (data) {
-            msgList[data.index].envelop = editedMessage.envelop;
-            msgList[data.index].message =
-                editedMessage.envelop.message.message!;
-            msgList[data.index].time =
-                editedMessage.envelop.message.metadata.timestamp.toString();
-            msgList[data.index].messageState = editedMessage.messageState;
-            msgList[data.index].ownMessage = false;
-            msgList[data.index].envelop = editedMessage.envelop;
-            msgList[data.index].replyToMsg =
-                replyToEnvelop?.envelop.message.message;
-            msgList[data.index].replyToMsgFrom =
-                replyToEnvelop?.envelop.message.metadata.from;
-            msgList[data.index].replyToMsgId =
-                replyToEnvelop?.envelop.metadata?.encryptedMessageHash;
-            msgList[data.index].reactions = [];
-            msgList[data.index].hideFunction = hideFunction;
-            if (
-                isSameEnsName(
-                    editedMessage.envelop.message.metadata.from,
-                    dm3UserAccount.ensName,
-                    alias,
-                )
-            ) {
-                msgList[data.index].ownMessage = true;
-            }
-            messagesMap.set(
-                editedMessage.envelop.metadata?.encryptedMessageHash as string,
-                {
-                    msgDetails: msgList[data.index],
-                    index: data.index,
-                },
-            );
-        }
-    }
+    // if (
+    //     editedMessage &&
+    //     editedMessage.envelop.message.metadata.referenceMessageHash
+    // ) {
+    //     const data = messagesMap.get(
+    //         editedMessage.envelop.message.metadata.referenceMessageHash,
+    //     );
+    //     if (data) {
+    //         msgList[data.index].envelop = editedMessage.envelop;
+    //         msgList[data.index].message =
+    //             editedMessage.envelop.message.message!;
+    //         msgList[data.index].time =
+    //             editedMessage.envelop.message.metadata.timestamp.toString();
+    //         msgList[data.index].messageState = editedMessage.messageState;
+    //         msgList[data.index].ownMessage = false;
+    //         msgList[data.index].envelop = editedMessage.envelop;
+    //         msgList[data.index].replyToMsg =
+    //             replyToEnvelop?.envelop.message.message;
+    //         msgList[data.index].replyToMsgFrom =
+    //             replyToEnvelop?.envelop.message.metadata.from;
+    //         msgList[data.index].replyToMsgId =
+    //             replyToEnvelop?.envelop.metadata?.encryptedMessageHash;
+    //         msgList[data.index].reactions = [];
+    //         msgList[data.index].hideFunction = hideFunction;
+    //         if (
+    //             isSameEnsName(
+    //                 editedMessage.envelop.message.metadata.from,
+    //                 dm3UserAccount.ensName,
+    //                 alias,
+    //             )
+    //         ) {
+    //             msgList[data.index].ownMessage = true;
+    //         }
+    //         messagesMap.set(
+    //             editedMessage.envelop.metadata?.encryptedMessageHash as string,
+    //             {
+    //                 msgDetails: msgList[data.index],
+    //                 index: data.index,
+    //             },
+    //         );
+    //     }
+    // }
 };
 
 const fetchAllReactionMessages = (

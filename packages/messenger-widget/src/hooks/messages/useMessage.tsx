@@ -23,6 +23,7 @@ import { renderMessage } from './renderer/renderMessage';
 
 export type MessageModel = StorageEnvelopContainerNew & {
     reactions: Envelop[];
+    replyToMessageEnvelop?: Envelop;
 };
 
 export type MessageStorage = {

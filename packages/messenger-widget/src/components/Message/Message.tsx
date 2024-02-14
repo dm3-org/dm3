@@ -114,11 +114,7 @@ export function Message(props: MessageProps) {
                     )}
                 >
                     {/* show the preview of reply message */}
-                    {(props.replyToMsg ||
-                        (props.replyToMsgEnvelope?.message.attachments &&
-                            props.replyToMsgEnvelope?.message.attachments
-                                .length > 0)) &&
-                        props.replyToMsgFrom &&
+                    {props.replyToMessageEnvelop &&
                         props.envelop.message.metadata.type ===
                             MessageActionType.REPLY && (
                             <div
@@ -129,27 +125,31 @@ export function Message(props: MessageProps) {
                                 )}
                                 onClick={() =>
                                     scrollToMessage(
-                                        props.replyToMsgId as string,
+                                        props.replyToMessageEnvelop?.metadata
+                                            ?.encryptedMessageHash!,
                                     )
                                 }
                             >
                                 <AttachmentThumbnailPreview
                                     filesSelected={getFilesData(
-                                        props.replyToMsgEnvelope?.message
+                                        props.replyToMessageEnvelop?.message
                                             .attachments as string[],
                                     )}
                                     isMyMessage={props.ownMessage}
                                     isReplyMsgAttachments={true}
                                 />
                                 <div className="user-name">
-                                    {props.replyToMsgFrom.length > 25
-                                        ? props.replyToMsgFrom
+                                    {props.replyToMessageEnvelop.message
+                                        .metadata.from.length > 25
+                                        ? props.replyToMessageEnvelop.message.metadata.from
                                               .substring(0, 25)
                                               .concat(': ')
-                                        : props.replyToMsgFrom.concat(':')}
+                                        : props.replyToMessageEnvelop.message.metadata.from.concat(
+                                              ':',
+                                          )}
                                 </div>
-                                {props.replyToMsg
-                                    ? props.replyToMsg
+                                {props.replyToMessageEnvelop.message.message
+                                    ? props.replyToMessageEnvelop.message.message
                                           .substring(0, 20)
                                           .concat('...')
                                     : ''}
