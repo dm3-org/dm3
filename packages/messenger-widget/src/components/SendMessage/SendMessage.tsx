@@ -8,18 +8,24 @@ import { AuthContext } from '../../context/AuthContext';
 import { StorageContext } from '../../context/StorageContext';
 import {
     Message,
+    createEditMessage,
     createMessage,
     createReplyMessage,
 } from '@dm3-org/dm3-lib-messaging';
 import { MessageContext } from '../../context/MessageContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { scrollToBottomOfChat } from '../Chat/bl';
+import {
+    MessageActionType,
+    ModalStateType,
+    UiViewStateType,
+} from '../../utils/enum-type-utils';
 
 export function SendMessage(props: MessageDataProps) {
     const { account, profileKeys } = useContext(AuthContext);
     const { addMessage } = useContext(MessageContext);
     const { selectedContact } = useContext(ConversationContext);
-    const { state } = useContext(GlobalContext);
+    const { state, dispatch } = useContext(GlobalContext);
 
     async function submit(
         event: React.MouseEvent<HTMLImageElement, MouseEvent>,
@@ -45,6 +51,43 @@ export function SendMessage(props: MessageDataProps) {
 
             props.setMessageText('');
             scrollToBottomOfChat();
+            dispatch({
+                type: ModalStateType.LastMessageAction,
+                payload: MessageActionType.REPLY,
+            });
+            return;
+        }
+        if (state.uiView.selectedMessageView.actionType === 'EDIT') {
+            const referenceMessageHash =
+                state.uiView.selectedMessageView.messageData?.envelop.metadata
+                    ?.encryptedMessageHash;
+
+            // reply to the original message
+            const messageData = await createEditMessage(
+                state.accounts.selectedContact?.account.ensName!,
+                account!.ensName,
+                props.message,
+                profileKeys!.signingKeyPair.privateKey,
+                referenceMessageHash as string,
+                props.filesSelected.map((file) => file.data),
+            );
+
+            await addMessage(
+                selectedContact?.contactDetails.account.ensName!,
+                messageData,
+            );
+
+            props.setMessageText('');
+            props.setFiles([]);
+            scrollToBottomOfChat();
+
+            dispatch({
+                type: UiViewStateType.SetMessageView,
+                payload: {
+                    actionType: MessageActionType.NONE,
+                    messageData: undefined,
+                },
+            });
             return;
         }
         const messageData = await createMessage(
