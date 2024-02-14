@@ -1,7 +1,7 @@
 import { validateNotificationChannelType } from './notificationChannelValidation';
 
 // validates enable/disable notification channel data
-export const enableOrDisableNotificationChannelData = (
+export const validateToggleNotificationChannel = (
     notificationChannelType: string,
     isEnabled: boolean,
 ): {

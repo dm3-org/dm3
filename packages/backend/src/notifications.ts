@@ -13,10 +13,10 @@ import {
     addNewNotificationChannel,
     verifyOtp,
     sendOtp,
-    enableOrDisableNotificationChannel,
+    toggleNotificationChannel,
 } from '@dm3-org/dm3-lib-delivery';
 import { IDatabase } from './persistance/getDatabase';
-import { enableOrDisableNotificationChannelData } from './validation/notification/enableOrDisableChannelValidation';
+import { validateToggleNotificationChannel } from './validation/notification/enableOrDisableChannelValidation';
 
 // Exporting a function that returns an Express router
 export default (deliveryServiceProperties: DeliveryServiceProperties) => {
@@ -193,11 +193,10 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             const account = normalizeEnsName(req.params.ensName);
 
             // Validate notificationChannelType & isEnabled data
-            const { isValid, errorMessage } =
-                enableOrDisableNotificationChannelData(
-                    notificationChannelType,
-                    isEnabled,
-                );
+            const { isValid, errorMessage } = validateToggleNotificationChannel(
+                notificationChannelType,
+                isEnabled,
+            );
 
             // Return if invalid data found
             if (!isValid) {
@@ -218,7 +217,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             }
 
             // enable or disable notification
-            await enableOrDisableNotificationChannel(
+            await toggleNotificationChannel(
                 account,
                 isEnabled,
                 notificationChannelType,

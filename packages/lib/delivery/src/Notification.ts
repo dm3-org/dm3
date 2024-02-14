@@ -223,7 +223,7 @@ export const verifyOtp = async (
 };
 
 // method to enable/disable notification channel
-export const enableOrDisableNotificationChannel = async (
+export const toggleNotificationChannel = async (
     ensName: string,
     isEnabled: boolean,
     notificationChannelType: NotificationChannelType,
@@ -256,11 +256,13 @@ export const enableOrDisableNotificationChannel = async (
     }
 
     // check if notification channel is alaready enabled/disabled
-    checkAlreadyEnabledOrDisabled(
+    const isAlreadyEnabledOrDisabled = checkAlreadyEnabledOrDisabled(
         channelToUpdate[0].config.isEnabled as boolean,
         isEnabled,
-        notificationChannelType,
     );
+
+    // return if already enabled or disabled
+    if (isAlreadyEnabledOrDisabled) return;
 
     // update the notification channel isEnabled data in the DB
     await db.enableOrDisableNotificationChannel(
@@ -322,19 +324,16 @@ const validateOtp = (otpRecord: IOtp, otpToValidate: string) => {
 const checkAlreadyEnabledOrDisabled = (
     isEnabledDataOfExistingChannel: boolean,
     isEnabledToUpdate: boolean,
-    notificationChannelType: NotificationChannelType,
-) => {
+): boolean => {
     // check already enabled
     if (isEnabledToUpdate && isEnabledDataOfExistingChannel) {
-        throw new NotificationError(
-            `Notification channel ${notificationChannelType} is already enabled`,
-        );
+        return true;
     }
 
     // check already disabled
     if (!isEnabledToUpdate && !isEnabledDataOfExistingChannel) {
-        throw new NotificationError(
-            `Notification channel ${notificationChannelType} is already disabled`,
-        );
+        return true;
     }
+
+    return false;
 };

@@ -2,7 +2,7 @@ import { NotificationChannel, NotificationChannelType } from './notifications';
 import {
     RESEND_VERIFICATION_OTP_TIME_PERIOD,
     addNewNotificationChannel,
-    enableOrDisableNotificationChannel,
+    toggleNotificationChannel,
     sendOtp,
     verifyOtp,
 } from './Notification';
@@ -620,7 +620,7 @@ describe('Notification', () => {
             };
 
             try {
-                await enableOrDisableNotificationChannel(
+                await toggleNotificationChannel(
                     '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
                     false,
                     NotificationChannelType.EMAIL,
@@ -642,7 +642,7 @@ describe('Notification', () => {
             };
 
             try {
-                await enableOrDisableNotificationChannel(
+                await toggleNotificationChannel(
                     '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
                     false,
                     NotificationChannelType.EMAIL,
@@ -652,38 +652,6 @@ describe('Notification', () => {
             } catch (error: any) {
                 expect(error.message).toBe(
                     'EMAIL notification channel is not configured',
-                );
-            }
-        });
-
-        it('Should throw error as Email notification channel is already disabled', async () => {
-            const getUsersNotificationChannels = () =>
-                Promise.resolve([
-                    {
-                        type: NotificationChannelType.EMAIL,
-                        config: {
-                            recipientValue: 'bob@gmail.com',
-                            isVerified: false,
-                            isEnabled: false,
-                        },
-                    },
-                ]);
-
-            const db = {
-                getUsersNotificationChannels,
-            };
-
-            try {
-                await enableOrDisableNotificationChannel(
-                    '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
-                    false,
-                    NotificationChannelType.EMAIL,
-                    notificationChannels,
-                    db,
-                );
-            } catch (error: any) {
-                expect(error.message).toBe(
-                    'Notification channel EMAIL is already disabled',
                 );
             }
         });
@@ -701,14 +669,14 @@ describe('Notification', () => {
                     },
                 ]);
 
-            const enableOrDisableNotificationChannel = jest.fn();
+            const toggleNotificationChannel = jest.fn();
 
             const db = {
                 getUsersNotificationChannels,
-                enableOrDisableNotificationChannel,
+                toggleNotificationChannel,
             };
 
-            await enableOrDisableNotificationChannel(
+            await toggleNotificationChannel(
                 '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
                 false,
                 NotificationChannelType.EMAIL,
@@ -716,7 +684,7 @@ describe('Notification', () => {
                 db,
             );
 
-            expect(enableOrDisableNotificationChannel).toHaveBeenCalled();
+            expect(toggleNotificationChannel).toHaveBeenCalled();
         });
     });
 
@@ -742,7 +710,7 @@ describe('Notification', () => {
             };
 
             try {
-                await enableOrDisableNotificationChannel(
+                await toggleNotificationChannel(
                     '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
                     true,
                     NotificationChannelType.EMAIL,
@@ -764,7 +732,7 @@ describe('Notification', () => {
             };
 
             try {
-                await enableOrDisableNotificationChannel(
+                await toggleNotificationChannel(
                     '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
                     true,
                     NotificationChannelType.EMAIL,
@@ -774,38 +742,6 @@ describe('Notification', () => {
             } catch (error: any) {
                 expect(error.message).toBe(
                     'EMAIL notification channel is not configured',
-                );
-            }
-        });
-
-        it('Should throw error as Email notification channel is already enabled', async () => {
-            const getUsersNotificationChannels = () =>
-                Promise.resolve([
-                    {
-                        type: NotificationChannelType.EMAIL,
-                        config: {
-                            recipientValue: 'bob@gmail.com',
-                            isVerified: false,
-                            isEnabled: true,
-                        },
-                    },
-                ]);
-
-            const db = {
-                getUsersNotificationChannels,
-            };
-
-            try {
-                await enableOrDisableNotificationChannel(
-                    '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
-                    true,
-                    NotificationChannelType.EMAIL,
-                    notificationChannels,
-                    db,
-                );
-            } catch (error: any) {
-                expect(error.message).toBe(
-                    'Notification channel EMAIL is already enabled',
                 );
             }
         });
@@ -823,14 +759,14 @@ describe('Notification', () => {
                     },
                 ]);
 
-            const enableOrDisableNotificationChannel = jest.fn();
+            const toggleNotificationChannel = jest.fn();
 
             const db = {
                 getUsersNotificationChannels,
-                enableOrDisableNotificationChannel,
+                toggleNotificationChannel,
             };
 
-            await enableOrDisableNotificationChannel(
+            await toggleNotificationChannel(
                 '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
                 true,
                 NotificationChannelType.EMAIL,
@@ -838,7 +774,7 @@ describe('Notification', () => {
                 db,
             );
 
-            expect(enableOrDisableNotificationChannel).toHaveBeenCalled();
+            expect(toggleNotificationChannel).toHaveBeenCalled();
         });
     });
 });
