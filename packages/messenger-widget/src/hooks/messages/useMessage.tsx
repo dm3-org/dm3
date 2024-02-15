@@ -5,6 +5,7 @@ import {
     syncAcknowledgment,
 } from '@dm3-org/dm3-lib-delivery-api';
 import {
+    EncryptionEnvelop,
     Envelop,
     Message,
     MessageState,
@@ -17,7 +18,7 @@ import { fetchNewMessages } from '../../adapters/messages';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { StorageContext } from '../../context/StorageContext';
-import { Connection } from '../../interfaces/web3';
+import { WebSocketContext } from '../../context/WebSocketContext';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { renderMessage } from './renderer/renderMessage';
 
@@ -30,10 +31,13 @@ export type MessageStorage = {
     [contact: string]: MessageModel[];
 };
 
-export const useMessage = (connection: Connection) => {
-    const { contacts, selectedContact } = useContext(ConversationContext);
+export const useMessage = () => {
+    const { contacts, selectedContact, addConversation } =
+        useContext(ConversationContext);
     const { account, profileKeys, deliveryServiceToken } =
         useContext(AuthContext);
+    const { onNewMessage, removeOnNewMessageListener, socket } =
+        useContext(WebSocketContext);
     const {
         getNumberOfMessages,
         getMessages: getMessagesFromStorage,
@@ -57,6 +61,70 @@ export const useMessage = (connection: Connection) => {
             addNewContact(contact.contactDetails.account.ensName);
         });
     }, [contacts]);
+
+    useEffect(() => {
+        const addNewMessageFromWebSocket = async (
+            encryptedEnvelop: EncryptionEnvelop,
+        ) => {
+            const decryptedEnvelop: Envelop = {
+                message: JSON.parse(
+                    await decryptAsymmetric(
+                        profileKeys?.encryptionKeyPair!,
+                        JSON.parse(encryptedEnvelop.message),
+                    ),
+                ),
+                postmark: JSON.parse(
+                    await decryptAsymmetric(
+                        profileKeys?.encryptionKeyPair!,
+                        JSON.parse(encryptedEnvelop.postmark!),
+                    ),
+                ),
+                metadata: encryptedEnvelop.metadata,
+            };
+
+            const contact = normalizeEnsName(
+                decryptedEnvelop.message.metadata.from,
+            );
+            await addConversation(contact);
+
+            const messageState =
+                selectedContact?.contactDetails.account.ensName === contact
+                    ? MessageState.Read
+                    : MessageState.Send;
+
+            const messageModel = {
+                envelop: decryptedEnvelop,
+                messageState,
+                messageChunkKey: '',
+                reactions: [],
+            };
+            setMessages((prev) => {
+                //Check if message already exists
+                if (
+                    prev[contact]?.find(
+                        (m) =>
+                            m.envelop.metadata?.encryptedMessageHash ===
+                            messageModel.envelop.metadata?.encryptedMessageHash,
+                    )
+                ) {
+                    return prev;
+                }
+                return {
+                    ...prev,
+                    [contact]: [...(prev[contact] ?? []), messageModel],
+                };
+            });
+            storeMessage(contact, messageModel);
+        };
+
+        onNewMessage((encryptedEnvelop: EncryptionEnvelop) => {
+            addNewMessageFromWebSocket(encryptedEnvelop);
+        });
+
+        return () => {
+            removeOnNewMessageListener();
+        };
+    }, [onNewMessage, selectedContact]);
 
     const contactIsLoading = useCallback(
         (_contactName?: string) => {
@@ -150,7 +218,7 @@ export const useMessage = (connection: Connection) => {
         // For whatever reason we've to create a PendingEntry before we can send a message
         //We should probably refactor this to be more clear on the backend side
         createPendingEntry(
-            connection.socket!,
+            socket!,
             deliveryServiceToken!,
             message.metadata.from,
             message.metadata.to,
@@ -217,7 +285,7 @@ export const useMessage = (connection: Connection) => {
 
         //When we have a recipient we can send the message using the socket connection
         await sendMessage(
-            connection.socket!,
+            socket!,
             deliveryServiceToken!,
             encryptedEnvelop,
             () => {},

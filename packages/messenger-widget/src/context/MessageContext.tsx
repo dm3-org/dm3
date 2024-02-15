@@ -24,20 +24,14 @@ export const MessageContext = React.createContext<MessageContextType>({
     messages: {},
 });
 
-export const MessageContextProvider = ({
-    children,
-    state,
-}: {
-    children?: any;
-    state: GlobalState;
-}) => {
+export const MessageContextProvider = ({ children }: { children?: any }) => {
     const {
         addMessage,
         getMessages,
         getUnreadMessageCount,
         contactIsLoading,
         messages,
-    } = useMessage(state.connection);
+    } = useMessage();
 
     return (
         <MessageContext.Provider

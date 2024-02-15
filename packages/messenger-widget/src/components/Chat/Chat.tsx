@@ -49,6 +49,7 @@ export function Chat(props: HideFunctionProps) {
         if (!selectedContact?.contactDetails.account.ensName) {
             return [];
         }
+        scrollToBottomOfChat();
         return getMessages(selectedContact?.contactDetails.account.ensName!);
     }, [selectedContact, getMessages]);
 
@@ -59,53 +60,6 @@ export function Chat(props: HideFunctionProps) {
         );
         setShowShimEffect(isLoading);
     }, [contactIsLoading]);
-
-    //@Bhupesh i suppose this effect was used to fetch messages of a newly added conversation
-    /*     useEffect(() => {
-            checkUserProfileConfigured(
-                mainnetProvider,
-                selectedContact?.contactDetails.account.ensName as string,
-                setProfileCheck,
-            );
-            if (state.modal.addConversation.active) {
-                setShowShimEffect(true);
-            }
-            // fetches old message if new contact is added
-            if (
-                !state.modal.addConversation.active &&
-                selectedContact &&
-                state.userDb &&
-                state.accounts.contacts
-            ) {
-                setShowShimEffect(true);
-                console.log('fetching old messages');
-                try {
-                    handleMessages(
-                        state,
-                        mainnetProvider,
-                        account!,
-                        deliveryServiceToken!,
-                        dispatch,
-                        getConversation(
-                            selectedContact.contactDetails.account.ensName,
-                            state.accounts.contacts.map(
-                                (contact) => contact.account,
-                            ),
-                            state.userDb,
-                        ),
-                        alias,
-                        () => {},
-                        isMessageListInitialized,
-                        updateIsMessageListInitialized,
-                        updateShowShimEffect,
-                        props.hideFunction,
-                    );
-                } catch (error) {
-                    setShowShimEffect(false);
-                    log(error, 'error');
-                }
-            }
-        }, [state.modal.addConversation.active]); */
 
     /* shimmer effect contacts css */
     const shimmerData: number[] = Array.from({ length: 50 }, (_, i) => i + 1);

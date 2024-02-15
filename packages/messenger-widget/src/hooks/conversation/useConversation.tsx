@@ -9,9 +9,11 @@ import { hydrateContract } from './hydrateContact';
 import { fetchPendingConversations } from '../../adapters/messages';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { Config } from '../../interfaces/config';
+import { WebSocketContext } from '../../context/WebSocketContext';
 
 export const useConversation = (config: Config) => {
     const mainnetProvider = useMainnetProvider();
+    const { account, deliveryServiceToken } = useContext(AuthContext);
     const {
         getConversations,
         addConversationAsync,
@@ -27,9 +29,6 @@ export const useConversation = (config: Config) => {
         useState<boolean>(false);
 
     const conversationCount = useMemo(() => contacts.length, [contacts]);
-
-    const { account, deliveryServiceToken } = useContext(AuthContext);
-
     const selectedContact = useMemo(() => {
         return contacts.find(
             (contact) =>
@@ -134,7 +133,6 @@ export const useConversation = (config: Config) => {
     };
 
     const addConversation = (_ensName: string) => {
-        console.log('add new conversation ');
         const ensName = normalizeEnsName(_ensName);
         const alreadyAddedContact = contacts.find(
             (existingContact) =>

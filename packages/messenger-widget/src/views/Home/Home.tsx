@@ -31,6 +31,7 @@ import {
     ConversationContextProvider,
 } from '../../context/ConversationContext';
 import { MessageContextProvider } from '../../context/MessageContext';
+import { WebSocketContextProvider } from '../../context/WebSocketContext';
 
 //Use different chains depending on the environment. Note that gnosis mainnet is used for both setups
 // because there is no spaceId testnet deploymend yet
@@ -94,16 +95,18 @@ export function Home(props: Dm3Props) {
                 <RainbowKitProvider chains={chains} theme={darkTheme()}>
                     <MainnetProviderContextProvider>
                         <AuthContextProvider dispatch={dispatch}>
-                            <StorageContextProvider>
-                                {/* TODO move conversation and message contest further done as it dont need to be stored in the globlal state */}
-                                <ConversationContextProvider
-                                    config={props.config}
-                                >
-                                    <MessageContextProvider state={state}>
-                                        <DM3 config={props.config} />
-                                    </MessageContextProvider>
-                                </ConversationContextProvider>
-                            </StorageContextProvider>
+                            <WebSocketContextProvider>
+                                <StorageContextProvider>
+                                    {/* TODO move conversation and message contest further done as it dont need to be stored in the globlal state */}
+                                    <ConversationContextProvider
+                                        config={props.config}
+                                    >
+                                        <MessageContextProvider>
+                                            <DM3 config={props.config} />
+                                        </MessageContextProvider>
+                                    </ConversationContextProvider>
+                                </StorageContextProvider>
+                            </WebSocketContextProvider>
                         </AuthContextProvider>
                     </MainnetProviderContextProvider>
                 </RainbowKitProvider>
