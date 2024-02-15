@@ -113,7 +113,10 @@ describe('createStorage Integration Tests', () => {
             await storageApi.addMessage('bob.eth', storageEnvelopContainer);
             const messageChunk = await storageApi.getMessages('bob.eth', 0);
             expect(messageChunk.length).toBe(1);
-            expect(messageChunk[0]).toEqual(storageEnvelopContainer);
+            expect(messageChunk[0]).toEqual({
+                ...storageEnvelopContainer,
+                messageChunkKey: messageChunk[0].messageChunkKey,
+            });
         });
         it('edit message - edits storage envelop container', async () => {
             await storageApi.addConversation('bob.eth');
@@ -321,10 +324,16 @@ describe('createStorage Integration Tests', () => {
 
             //Check that the existing messages have not been modified
             for (let i = 1; i < 100; i++) {
-                expect(messageChunk1[i]).toEqual(envelopContainer[i]);
+                expect(messageChunk1[i]).toEqual({
+                    ...envelopContainer[i],
+                    messageChunkKey: chunkid1,
+                });
             }
             for (let i = 0; i < 9; i++) {
-                expect(messageChunk2[i]).toEqual(envelopContainer[i + 100]);
+                expect(messageChunk2[i]).toEqual({
+                    ...envelopContainer[i + 100],
+                    messageChunkKey: chunkid2,
+                });
             }
         });
         it('edit message - throws for unknown conversation', async () => {
@@ -483,9 +492,18 @@ describe('createStorage Integration Tests', () => {
             const messages = await storageApi.getMessages('bob.eth', 0);
             expect(messages.length).toBe(3);
 
-            expect(messages[0]).toEqual(storageEnvelopContainer);
-            expect(messages[1]).toEqual(storageEnvelopContainer);
-            expect(messages[2]).toEqual(storageEnvelopContainer);
+            expect(messages[0]).toEqual({
+                ...storageEnvelopContainer,
+                messageChunkKey: messages[0].messageChunkKey,
+            });
+            expect(messages[1]).toEqual({
+                ...storageEnvelopContainer,
+                messageChunkKey: messages[1].messageChunkKey,
+            });
+            expect(messages[2]).toEqual({
+                ...storageEnvelopContainer,
+                messageChunkKey: messages[2].messageChunkKey,
+            });
         });
         it('getMessages -- return [] if no converation exists', async () => {
             const messages = await storageApi.getMessages('bob.eth', 0);
@@ -563,7 +581,10 @@ describe('createStorage Integration Tests', () => {
 
             const getMessages = await storageApi.getMessages('bob.eth', 0);
             expect(getMessages.length).toBe(1);
-            expect(getMessages[0]).toEqual(storageEnvelopContainer);
+            expect(getMessages[0]).toEqual({
+                ...storageEnvelopContainer,
+                messageChunkKey: getMessages[0].messageChunkKey,
+            });
         });
         it('hide conversation -- conversation can be hidden', async () => {
             await storageApi.addConversation('bob.eth');
@@ -637,7 +658,10 @@ describe('createStorage Integration Tests', () => {
             await storageApi.addMessage('bob.eth', storageEnvelopContainer);
             const messageChunk = await storageApi.getMessages('bob.eth', 0);
             expect(messageChunk.length).toBe(1);
-            expect(messageChunk[0]).toEqual(storageEnvelopContainer);
+            expect(messageChunk[0]).toEqual({
+                ...storageEnvelopContainer,
+                messageChunkKey: messageChunk[0].messageChunkKey,
+            });
         });
         it('add new message - updates number of messages', async () => {
             await storageApi.addConversation('bob.eth');
@@ -672,9 +696,18 @@ describe('createStorage Integration Tests', () => {
             const messages = await storageApi.getMessages('bob.eth', 0);
             expect(messages.length).toBe(3);
 
-            expect(messages[0]).toEqual(storageEnvelopContainer);
-            expect(messages[1]).toEqual(storageEnvelopContainer);
-            expect(messages[2]).toEqual(storageEnvelopContainer);
+            expect(messages[0]).toEqual({
+                ...storageEnvelopContainer,
+                messageChunkKey: messages[0].messageChunkKey,
+            });
+            expect(messages[1]).toEqual({
+                ...storageEnvelopContainer,
+                messageChunkKey: messages[1].messageChunkKey,
+            });
+            expect(messages[2]).toEqual({
+                ...storageEnvelopContainer,
+                messageChunkKey: messages[2].messageChunkKey,
+            });
         });
         it('getMessages -- return [] if no converation exists', async () => {
             const messages = await storageApi.getMessages('bob.eth', 0);
@@ -722,7 +755,10 @@ describe('createStorage Integration Tests', () => {
 
             const getMessages = await storageApi.getMessages('bob.eth', 0);
             expect(getMessages.length).toBe(1);
-            expect(getMessages[0]).toEqual(storageEnvelopContainer);
+            expect(getMessages[0]).toEqual({
+                ...storageEnvelopContainer,
+                messageChunkKey: getMessages[0].messageChunkKey,
+            });
         });
         it('hide conversation -- conversation can be hidden', async () => {
             await storageApi.addConversation('bob.eth');
