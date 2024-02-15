@@ -5,6 +5,7 @@ import {
     toggleNotificationChannel,
     sendOtp,
     verifyOtp,
+    removeNotificationChannel,
 } from './Notification';
 
 jest.mock('nodemailer');
@@ -775,6 +776,57 @@ describe('Notification', () => {
             );
 
             expect(toggleNotificationChannel).toHaveBeenCalled();
+        });
+    });
+
+    describe('Removes Email notification channel', () => {
+        it('Should throw error as Email notification channel is not configured', async () => {
+            const getUsersNotificationChannels = () => Promise.resolve([]);
+
+            const db = {
+                getUsersNotificationChannels,
+            };
+
+            try {
+                await removeNotificationChannel(
+                    '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
+                    NotificationChannelType.EMAIL,
+                    db,
+                );
+            } catch (error: any) {
+                expect(error.message).toBe(
+                    'EMAIL notification channel is not configured',
+                );
+            }
+        });
+
+        it('Should remove Email notification channel', async () => {
+            const getUsersNotificationChannels = () =>
+                Promise.resolve([
+                    {
+                        type: NotificationChannelType.EMAIL,
+                        config: {
+                            recipientValue: 'bob@gmail.com',
+                            isVerified: false,
+                            isEnabled: true,
+                        },
+                    },
+                ]);
+
+            const removeNotificationChannelMock = jest.fn();
+
+            const db = {
+                getUsersNotificationChannels,
+                removeNotificationChannel: removeNotificationChannelMock,
+            };
+
+            await removeNotificationChannel(
+                '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
+                NotificationChannelType.EMAIL,
+                db,
+            );
+
+            expect(removeNotificationChannelMock).toHaveBeenCalled();
         });
     });
 });

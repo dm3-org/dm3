@@ -14,6 +14,8 @@ import {
     verifyOtp,
     sendOtp,
     toggleNotificationChannel,
+    removeNotificationChannel,
+    NotificationChannelType,
 } from '@dm3-org/dm3-lib-delivery';
 import { IDatabase } from './persistance/getDatabase';
 import { validateToggleNotificationChannel } from './validation/notification/enableOrDisableChannelValidation';
@@ -314,6 +316,58 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             // Sending the fetched notification channels as a JSON response
             return res.status(200).json({ notificationChannels });
         } catch (e) {
+            // Passing the error to the next middleware
+            next(e);
+        }
+    });
+
+    // Defining a route to handle DELETE requests to remove notification channel
+    router.delete('/channel/:channelType/:ensName', async (req, res, next) => {
+        // Extracting channelType from the request body
+        const { channelType } = req.params;
+
+        try {
+            const account = normalizeEnsName(req.params.ensName);
+
+            // Validate channelType
+            const { isValid, errorMessage } =
+                validateNotificationChannelType(channelType);
+
+            // Return if invalid data found
+            if (!isValid) {
+                return res.status(400).json({
+                    error: errorMessage,
+                });
+            }
+
+            // Fetch global notification data of user from database
+            const globalNotification =
+                await req.app.locals.db.getGlobalNotification(account);
+
+            // if global notification is turned off
+            if (!globalNotification.isEnabled) {
+                return res.status(400).json({
+                    error: 'Global notifications is off',
+                });
+            }
+
+            // remove notification notification
+            await removeNotificationChannel(
+                account,
+                channelType as NotificationChannelType,
+                req.app.locals.db as IDatabase,
+            );
+
+            // Sending a success response
+            return res.status(200).json({
+                message: `Notification channel ${channelType} has been removed successfully`,
+            });
+        } catch (e: any) {
+            if (e instanceof NotificationError) {
+                return res.status(400).json({
+                    error: e.message,
+                });
+            }
             // Passing the error to the next middleware
             next(e);
         }
