@@ -1,6 +1,7 @@
 import { globalConfig } from '@dm3-org/dm3-lib-shared';
 import { ITLDResolver } from './TLDResolver';
 import { getNameForAddress } from '../../../adapters/offchainResolverApi';
+import { getAliasChain } from '@dm3-org/dm3-lib-delivery-api';
 
 const OFFCHAIN_RESOLVER_ADDRESS = process.env.REACT_APP_RESOLVER_BACKEND!;
 

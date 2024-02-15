@@ -1,10 +1,13 @@
-import { useCallback, useState } from 'react';
-import { EthAddressResolver } from './nameService/EthAddress';
-import { Genome } from './nameService/Genome';
-import { ITLDResolver } from './nameService/TLDResolver';
+import { ethers } from 'ethers';
+import { useState } from 'react';
 import { Dm3Name } from './nameService/Dm3Name';
+import { EthAddressResolver } from './nameService/EthAddress';
+import { EthereumNameService } from './nameService/EthereumNameService';
+import { Genome } from './nameService/Genome';
+import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 
-const SUPPORTED_NAMESERVICES: ITLDResolver[] = [
+const SUPPORTED_NAMESERVICES = (provider: ethers.providers.JsonRpcProvider) => [
+    new EthereumNameService(provider),
     new Genome(),
     new Dm3Name(),
     new EthAddressResolver(),
@@ -15,13 +18,15 @@ export type TldAliasCache = {
 };
 
 export const useTopLevelAlias = () => {
+    const mainnetProvider = useMainnetProvider();
     const [tldAliasCache, setTldAliasCache] = useState<TldAliasCache>({});
 
+    //e.g. 0x1234.gnosis.eth -> 0x1234.gno
     const resolveAliasToTLD = async (ensName: string) => {
         if (tldAliasCache[ensName]) {
             return tldAliasCache[ensName];
         }
-        for (const nameservice of SUPPORTED_NAMESERVICES) {
+        for (const nameservice of SUPPORTED_NAMESERVICES(mainnetProvider)) {
             if (await nameservice.isResolverForAliasName(ensName)) {
                 const tldName = await nameservice.resolveAliasToTLD(ensName);
                 setTldAliasCache((prev) => ({ ...prev, [ensName]: tldName }));
@@ -30,13 +35,12 @@ export const useTopLevelAlias = () => {
         }
         return ensName;
     };
-    //The alias format is used to store the contact in the DB
     //e.g. 0x1234.gno -> 0x1234.gnosis.eth
     const resolveTLDtoAlias = async (ensName: string) => {
         if (tldAliasCache[ensName]) {
             return tldAliasCache[ensName];
         }
-        for (const nameservice of SUPPORTED_NAMESERVICES) {
+        for (const nameservice of SUPPORTED_NAMESERVICES(mainnetProvider)) {
             if (await nameservice.isResolverForTldName(ensName)) {
                 const aliasName = await nameservice.resolveTLDtoAlias(ensName);
                 setTldAliasCache((prev) => ({ ...prev, [ensName]: aliasName }));
