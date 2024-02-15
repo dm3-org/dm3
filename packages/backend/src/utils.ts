@@ -152,5 +152,70 @@ export function getWeb3Provider(
     };
 
     const rpc = readKey('RPC');
-    return new ethers.providers.JsonRpcProvider(rpc);
+    return getCachedProvider(new ethers.providers.JsonRpcProvider(rpc));
 }
+
+const getCachedProvider = (
+    provider: ethers.providers.JsonRpcProvider,
+    //TTL in seconds
+    ttl = 300,
+) => {
+    type CacheItem = {
+        createAt: number;
+        value: any;
+    };
+    const cache = new Map<string, CacheItem>();
+    const ttlInMs = ttl * 1000;
+
+    const cacheHandler: ProxyHandler<ethers.providers.JsonRpcProvider> = {
+        get: (target, fnSig, receiver) => {
+            if (fnSig === 'send') {
+                return async (method: string, ...args: any[]) => {
+                    if (method === 'eth_chainId') {
+                        const key = `${fnSig}-${method}`;
+                        if (cache.has(key)) {
+                            const cacheItem = cache.get(key)!;
+                            if (cacheItem.createAt + ttlInMs > Date.now()) {
+                                return cacheItem.value;
+                            }
+                            // remove expired cache
+                            cache.delete(key);
+                            //Continue to fetch the value
+                        }
+
+                        //@ts-ignore
+                        const result = await target[fnSig](method);
+                        cache.set(key, { createAt: Date.now(), value: result });
+
+                        return result;
+                    }
+
+                    if (method === 'eth_call') {
+                        const [[{ data, to }]] = args;
+                        const key = `${fnSig}-${method}-${to}-${data}`;
+                        if (cache.has(key)) {
+                            const cacheItem = cache.get(key);
+                            if (cacheItem!.createAt + ttlInMs > Date.now()) {
+                                return cacheItem!.value;
+                            }
+                            // remove expired cache
+                            cache.delete(key);
+                            //Continue to fetch the value
+                        }
+
+                        //@ts-ignore
+                        const result = await target[fnSig](method, ...args);
+                        cache.set(key, { createAt: Date.now(), value: result });
+                        return result;
+                    }
+
+                    //@ts-ignore
+                    return target[fnSig](method, ...args);
+                };
+            }
+            //@ts-ignore
+            return target[fnSig];
+        },
+    };
+    return new Proxy(provider, cacheHandler);
+};
