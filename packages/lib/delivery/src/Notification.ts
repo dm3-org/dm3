@@ -222,6 +222,56 @@ export const verifyOtp = async (
     db.resetOtp(ensName, notificationChannelType);
 };
 
+// method to enable/disable notification channel
+export const toggleNotificationChannel = async (
+    ensName: string,
+    isEnabled: boolean,
+    notificationChannelType: NotificationChannelType,
+    dsNotificationChannels: NotificationChannel[],
+    db: any,
+) => {
+    // check if channel is supported or not
+    const channelUsed = dsNotificationChannels.filter(
+        (channel) => channel.type === notificationChannelType,
+    );
+
+    if (!channelUsed.length) {
+        throw new NotificationError(
+            `Notification channel ${notificationChannelType} is currently not supported by the DS`,
+        );
+    }
+
+    // check if notification channel exists in DB
+    const userNotificationChannels: NotificationChannel[] =
+        await db.getUsersNotificationChannels(ensName);
+
+    const channelToUpdate = userNotificationChannels.filter(
+        (data) => data.type === notificationChannelType,
+    );
+
+    if (!channelToUpdate.length) {
+        throw Error(
+            `${notificationChannelType} notification channel is not configured`,
+        );
+    }
+
+    // check if notification channel is alaready enabled/disabled
+    const isAlreadyEnabledOrDisabled = checkAlreadyEnabledOrDisabled(
+        channelToUpdate[0].config.isEnabled as boolean,
+        isEnabled,
+    );
+
+    // return if already enabled or disabled
+    if (isAlreadyEnabledOrDisabled) return;
+
+    // update the notification channel isEnabled data in the DB
+    await db.enableOrDisableNotificationChannel(
+        ensName,
+        notificationChannelType,
+        isEnabled,
+    );
+};
+
 // checks notification channel is enabled and verfiied or not
 const checkNotificationIsEnabledAndNotVerified = (
     notificationChannel: NotificationChannel,
@@ -268,4 +318,22 @@ const validateOtp = (otpRecord: IOtp, otpToValidate: string) => {
     ) {
         throw new NotificationError('OTP is expired');
     }
+};
+
+// checks the notification channel data if its already enabled or disabled
+const checkAlreadyEnabledOrDisabled = (
+    isEnabledDataOfExistingChannel: boolean,
+    isEnabledToUpdate: boolean,
+): boolean => {
+    // check already enabled
+    if (isEnabledToUpdate && isEnabledDataOfExistingChannel) {
+        return true;
+    }
+
+    // check already disabled
+    if (!isEnabledToUpdate && !isEnabledDataOfExistingChannel) {
+        return true;
+    }
+
+    return false;
 };
