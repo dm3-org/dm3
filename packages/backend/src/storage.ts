@@ -1,15 +1,13 @@
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import cors from 'cors';
 import express from 'express';
 import stringify from 'safe-stable-stringify';
-import { auth } from './utils';
-import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 
 export default () => {
     const router = express.Router();
 
     //TODO remove
     router.use(cors());
-    router.param('ensName', auth);
 
     router.get('/new/:ensName/:key', async (req, res, next) => {
         try {
