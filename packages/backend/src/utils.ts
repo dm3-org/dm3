@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { ethers } from 'ethers';
 import { Express, NextFunction, Request, Response } from 'express';
 import { Socket } from 'socket.io';
@@ -176,15 +177,18 @@ const getCachedProvider = (
                         if (cache.has(key)) {
                             const cacheItem = cache.get(key)!;
                             if (cacheItem.createAt + ttlInMs > Date.now()) {
+                                console.log('eth_chainId cache hit ', key);
                                 return cacheItem.value;
                             }
                             // remove expired cache
                             cache.delete(key);
                             //Continue to fetch the value
                         }
+                        console.log('eth_chainId cache miss', key);
 
                         //@ts-ignore
                         const result = await target[fnSig](method);
+
                         cache.set(key, { createAt: Date.now(), value: result });
 
                         return result;
@@ -196,13 +200,14 @@ const getCachedProvider = (
                         if (cache.has(key)) {
                             const cacheItem = cache.get(key);
                             if (cacheItem!.createAt + ttlInMs > Date.now()) {
+                                console.log('eth_call cache hit ', key);
                                 return cacheItem!.value;
                             }
                             // remove expired cache
                             cache.delete(key);
                             //Continue to fetch the value
                         }
-
+                        console.log('eth_call cache miss', key);
                         //@ts-ignore
                         const result = await target[fnSig](method, ...args);
                         cache.set(key, { createAt: Date.now(), value: result });
