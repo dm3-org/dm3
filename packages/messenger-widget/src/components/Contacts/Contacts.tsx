@@ -18,6 +18,7 @@ import {
     showMenuInBottom,
 } from './bl';
 import { MessageContext } from '../../context/MessageContext';
+import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
 
 export function Contacts(props: DashboardProps) {
     // fetches context api data
@@ -30,7 +31,6 @@ export function Contacts(props: DashboardProps) {
         addConversation,
     } = useContext(ConversationContext);
     const mainnetProvider = useMainnetProvider();
-    const { resolveAliasToTLD } = useTopLevelAlias();
 
     const { getMessages, getUnreadMessageCount } = useContext(MessageContext);
 
@@ -167,19 +167,13 @@ export function Contacts(props: DashboardProps) {
                                                 className="pb-1"
                                                 title={
                                                     data.contactDetails
-                                                        ? resolveAliasToTLD(
-                                                              data
-                                                                  .contactDetails
-                                                                  .account
-                                                                  .ensName,
-                                                          )
+                                                        ? data.contactDetails
+                                                              .account.ensName
                                                         : ''
                                                 }
                                             >
                                                 <p className="display-name">
-                                                    {resolveAliasToTLD(
-                                                        data.name,
-                                                    )}
+                                                    {data.name}
                                                 </p>
                                             </div>
 

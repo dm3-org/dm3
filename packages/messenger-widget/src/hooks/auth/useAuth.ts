@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { useAccount, useWalletClient } from 'wagmi';
 import {
     Account,
@@ -24,9 +23,10 @@ import {
     UiViewStateType,
 } from '../../utils/enum-type-utils';
 import { useTopLevelAlias } from '../topLevelAlias/useTopLevelAlias';
+import { TLDContext } from '../../context/TLDContext';
 
 export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
-    const { resolveAliasToTLD } = useTopLevelAlias();
+    const { resolveAliasToTLD } = useContext(TLDContext);
     const { data: walletClient } = useWalletClient();
     const mainnetProvider = useMainnetProvider();
     const { dispatch } = useContext(GlobalContext);
@@ -54,7 +54,7 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
         undefined,
     );
 
-    // Effect to resolve the display name of the account currently logged in.
+    //Effect to resolve the display name of the account currently logged in.
     //The main purpose of that function is check wether the account has been minted via an L2 name service such as
     //genome and therefore has a crosschain name that is resolved with the TopLevelAliasResolver
     useEffect(() => {
@@ -62,11 +62,13 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
             if (!account) {
                 return;
             }
+
             const displayName = await resolveAliasToTLD(account?.ensName);
+            //const displayName = await getAlias(account.ensName);
             setDisplayName(displayName);
         };
         fetchDisplayName();
-    }, [account]);
+    }, [ethAddress]);
 
     // can be check to retrive the current auth state
     const isLoggedIn = useMemo<boolean>(

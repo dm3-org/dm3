@@ -1,4 +1,10 @@
-export abstract class TLDResolver {
+export interface ITLDResolver {
+    isResolverForTldName(ensName: string): Promise<boolean>;
+    isResolverForAliasName(ensName: string): Promise<boolean>;
+    resolveAliasToTLD(ensName: string): Promise<string>;
+    resolveTLDtoAlias(ensName: string): Promise<string>;
+}
+export abstract class TLDResolver implements ITLDResolver {
     private readonly topLevelDomain: string;
     private readonly topLevelAlias: string;
 
@@ -7,20 +13,20 @@ export abstract class TLDResolver {
         this.topLevelAlias = topLevelAlias;
     }
 
-    isResolverForTldName(ensName: string): boolean {
+    async isResolverForTldName(ensName: string): Promise<boolean> {
         return ensName.endsWith(this.topLevelDomain);
     }
-    isResolverForAliasName(ensName: string): boolean {
+    async isResolverForAliasName(ensName: string): Promise<boolean> {
         return ensName.endsWith(this.topLevelAlias);
     }
     //The alias format is used to display in the UI
     //e.g. 0x1234.gnosis.eth -> 0x1234.gno
-    resolveAliasToTLD(ensName: string): string {
+    async resolveAliasToTLD(ensName: string): Promise<string> {
         return ensName.replace(this.topLevelAlias, this.topLevelDomain);
     }
     //The alias format is used to store the contact in the DB
     //e.g. 0x1234.gno -> 0x1234.gnosis.eth
-    resolveTLDtoAlias(ensName: string): string {
+    async resolveTLDtoAlias(ensName: string): Promise<string> {
         return ensName.replace(this.topLevelDomain, this.topLevelAlias);
     }
 }

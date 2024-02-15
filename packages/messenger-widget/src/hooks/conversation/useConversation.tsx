@@ -10,6 +10,7 @@ import { fetchPendingConversations } from '../../adapters/messages';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { Config } from '../../interfaces/config';
 import { WebSocketContext } from '../../context/WebSocketContext';
+import { TLDContext } from '../../context/TLDContext';
 
 export const useConversation = (config: Config) => {
     const mainnetProvider = useMainnetProvider();
@@ -20,6 +21,7 @@ export const useConversation = (config: Config) => {
         initialized: storageInitialized,
         toggleHideContactAsync,
     } = useContext(StorageContext);
+    const { resolveAliasToTLD } = useContext(TLDContext);
 
     const [contacts, setContacts] = useState<Array<ContactPreview>>([]);
     const [selectedContactName, setSelectedContactName] = useState<
@@ -77,7 +79,11 @@ export const useConversation = (config: Config) => {
                             isHidden: true,
                         };
                     }
-                    return hydrateContract(mainnetProvider, conversation);
+                    return hydrateContract(
+                        mainnetProvider,
+                        conversation,
+                        resolveAliasToTLD,
+                    );
                 }),
             );
             //It might be the case that contacts are added via websocket. In this case we do not want to add them again
@@ -113,6 +119,7 @@ export const useConversation = (config: Config) => {
                 const hydratedDefaultContact = await hydrateContract(
                     mainnetProvider,
                     defaultConversation,
+                    resolveAliasToTLD,
                 );
                 _setContactsSafe([hydratedDefaultContact]);
             }
@@ -169,6 +176,7 @@ export const useConversation = (config: Config) => {
         const hydratedContact = await hydrateContract(
             mainnetProvider,
             conversation,
+            resolveAliasToTLD,
         );
         console.log('hydrated contact', hydratedContact);
         setContacts((prev) => {

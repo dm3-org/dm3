@@ -1,28 +1,24 @@
-import './RightHeader.css';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useContext, useEffect, useState } from 'react';
 import humanIcon from '../../assets/images/human.svg';
+import menuIcon from '../../assets/images/menu.svg';
+import { AuthContext } from '../../context/AuthContext';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
+import { HideFunctionProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
-import { checkEnsDM3Text, getAvatarProfilePic } from '../../utils/ens-utils';
+import { getAvatarProfilePic } from '../../utils/ens-utils';
 import {
     AccountsType,
-    CacheType,
     RightViewSelected,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { globalConfig } from '@dm3-org/dm3-lib-shared';
-import { hasUserProfile } from '@dm3-org/dm3-lib-profile';
-import { HideFunctionProps } from '../../interfaces/props';
-import menuIcon from '../../assets/images/menu.svg';
-import { getAliasChain } from '@dm3-org/dm3-lib-delivery-api';
-import { getLastDm3Name } from '../../utils/common-utils';
-import { AuthContext } from '../../context/AuthContext';
-import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
+import './RightHeader.css';
 
 export function RightHeader(props: HideFunctionProps) {
     // fetches context storage
     const { state, dispatch } = useContext(GlobalContext);
-    const { account, displayName } = useContext(AuthContext);
+    const { account, displayName, ethAddress } = useContext(AuthContext);
+
     const mainnetProvider = useMainnetProvider();
 
     // state to store profile pic of signed in user

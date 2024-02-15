@@ -15,23 +15,20 @@ import DM3 from '../../components/DM3/DM3';
 import { Dm3Props } from '../../interfaces/config';
 import './Home.css';
 
-import { useContext, useEffect, useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { configureChains, createConfig, mainnet, WagmiConfig } from 'wagmi';
 import { gnosis, goerli } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
-import AddConversation from '../../components/AddConversation/AddConversation';
 import { Loader } from '../../components/Loader/Loader';
 import { AuthContextProvider } from '../../context/AuthContext';
+import { ConversationContextProvider } from '../../context/ConversationContext';
+import { MessageContextProvider } from '../../context/MessageContext';
 import { MainnetProviderContextProvider } from '../../context/ProviderContext';
+import { StorageContextProvider } from '../../context/StorageContext';
+import { WebSocketContextProvider } from '../../context/WebSocketContext';
 import { GlobalContext } from '../../utils/context-utils';
 import './Home.css';
-import { StorageContextProvider } from '../../context/StorageContext';
-import {
-    ConversationContext,
-    ConversationContextProvider,
-} from '../../context/ConversationContext';
-import { MessageContextProvider } from '../../context/MessageContext';
-import { WebSocketContextProvider } from '../../context/WebSocketContext';
+import { TLDContextProvider } from '../../context/TLDContext';
 
 //Use different chains depending on the environment. Note that gnosis mainnet is used for both setups
 // because there is no spaceId testnet deploymend yet
@@ -94,20 +91,22 @@ export function Home(props: Dm3Props) {
             <WagmiConfig config={wagmiConfig}>
                 <RainbowKitProvider chains={chains} theme={darkTheme()}>
                     <MainnetProviderContextProvider>
-                        <AuthContextProvider dispatch={dispatch}>
-                            <WebSocketContextProvider>
-                                <StorageContextProvider>
-                                    {/* TODO move conversation and message contest further done as it dont need to be stored in the globlal state */}
-                                    <ConversationContextProvider
-                                        config={props.config}
-                                    >
-                                        <MessageContextProvider>
-                                            <DM3 config={props.config} />
-                                        </MessageContextProvider>
-                                    </ConversationContextProvider>
-                                </StorageContextProvider>
-                            </WebSocketContextProvider>
-                        </AuthContextProvider>
+                        <TLDContextProvider>
+                            <AuthContextProvider dispatch={dispatch}>
+                                <WebSocketContextProvider>
+                                    <StorageContextProvider>
+                                        {/* TODO move conversation and message contest further done as it dont need to be stored in the globlal state */}
+                                        <ConversationContextProvider
+                                            config={props.config}
+                                        >
+                                            <MessageContextProvider>
+                                                <DM3 config={props.config} />
+                                            </MessageContextProvider>
+                                        </ConversationContextProvider>
+                                    </StorageContextProvider>
+                                </WebSocketContextProvider>
+                            </AuthContextProvider>
+                        </TLDContextProvider>
                     </MainnetProviderContextProvider>
                 </RainbowKitProvider>
             </WagmiConfig>

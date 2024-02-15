@@ -6,19 +6,17 @@ import {
     getUserProfile,
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
-import { StorageEnvelopContainer } from '@dm3-org/dm3-lib-storage';
+import { Conversation } from '@dm3-org/dm3-lib-storage/dist/new/types';
 import axios from 'axios';
 import { ethers } from 'ethers';
 import { Contact } from '../../interfaces/context';
 import { ContactPreview } from '../../interfaces/utils';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
-import { MessageActionType } from '../../utils/enum-type-utils';
-import { GetMessages, GetNumberOfMessages } from '../storage/useStorage';
-import { Conversation } from '@dm3-org/dm3-lib-storage/dist/new/types';
 
 export const hydrateContract = async (
     provider: ethers.providers.JsonRpcProvider,
     conversatoinManifest: Conversation,
+    resolveAliasToTLD: (alias: string) => Promise<string>,
 ) => {
     const account = await fetchAccount(
         provider,
@@ -29,6 +27,7 @@ export const hydrateContract = async (
         provider,
         conversatoinManifest,
         contact,
+        resolveAliasToTLD,
     );
 
     return contactPreview;
@@ -38,9 +37,13 @@ const fetchPreview = async (
     provider: ethers.providers.JsonRpcProvider,
     conversatoinManifest: Conversation,
     contact: Contact,
+    resolveAliasToTLD: (alias: string) => Promise<string>,
 ): Promise<ContactPreview> => {
     return {
-        name: getAccountDisplayName(contact.account.ensName, 25),
+        name: getAccountDisplayName(
+            await resolveAliasToTLD(contact.account.ensName),
+            25,
+        ),
         message: '',
         image: await getAvatarProfilePic(provider, contact.account.ensName),
         messageCount: conversatoinManifest.messageCounter,

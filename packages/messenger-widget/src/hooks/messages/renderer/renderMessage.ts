@@ -10,5 +10,9 @@ export const renderMessage = (messages: MessageModel[]) => {
     const withReply = renderReply(withReactions);
     const withoutEdited = renderEdit(withReply);
 
-    return withoutEdited;
+    return withoutEdited.sort(
+        (a, b) =>
+            a.envelop.message.metadata.timestamp -
+            b.envelop.message.metadata.timestamp,
+    );
 };

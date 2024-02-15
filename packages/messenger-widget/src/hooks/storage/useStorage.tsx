@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-/* eslint-disable max-len */
 //Hook to interact with the storage.
 //Will be initialized with the deliveryServiceToken and the initialUserDb after the user has logged in.
 

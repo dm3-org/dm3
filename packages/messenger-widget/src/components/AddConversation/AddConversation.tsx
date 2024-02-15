@@ -18,9 +18,10 @@ import {
     UserDbType,
 } from '../../utils/enum-type-utils';
 import { closeLoader, startLoader } from '../Loader/Loader';
+import { TLDContext } from '../../context/TLDContext';
 
 export default function AddConversation() {
-    const { state, dispatch } = useContext(GlobalContext);
+    const { dispatch } = useContext(GlobalContext);
     const { addConversation, setSelectedContactName } =
         useContext(ConversationContext);
 
@@ -28,7 +29,7 @@ export default function AddConversation() {
     const [showError, setShowError] = useState<boolean>(false);
     const [errorMsg, setErrorMsg] = useState<string>('');
     const [inputClass, setInputClass] = useState<string>(INPUT_FIELD_CLASS);
-    const { resolveTLDtoAlias } = useTopLevelAlias();
+    const { resolveTLDtoAlias } = useContext(TLDContext);
 
     const { ethAddress } = useContext(AuthContext);
 
@@ -57,8 +58,9 @@ export default function AddConversation() {
                 return;
             }
             //Checks wether the name entered, is an tld name. If yes, the TLD is substituded with the alias name
-
             const aliasName = await resolveTLDtoAlias(name);
+            //const aliasName = await getAlias(name);
+
             closeConversationModal(
                 resetName,
                 showErrorMessage,
