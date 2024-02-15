@@ -125,7 +125,7 @@ export const sendOtp = async (
     );
 
     if (!channelToSendOtp.length) {
-        throw Error(
+        throw new NotificationError(
             `${notificationChannelType} notification channel is not configured`,
         );
     }
@@ -141,7 +141,7 @@ export const sendOtp = async (
 
     // check if new OTP can be sent based on time period set for new OTP
     if (existingOtp && !isAllowedtoSendNewOtp(existingOtp.generatedAt)) {
-        throw Error(
+        throw new NotificationError(
             `New OTP can be generated after ${
                 RESEND_VERIFICATION_OTP_TIME_PERIOD / 60
             } minutes of last OTP generated`,
@@ -193,7 +193,7 @@ export const verifyOtp = async (
     );
 
     if (!channelToVerifyOtp.length) {
-        throw Error(
+        throw new NotificationError(
             `${notificationChannelType} notification channel is not configured`,
         );
     }
@@ -209,7 +209,9 @@ export const verifyOtp = async (
 
     // throw error if otp record is not found
     if (!existingOtp) {
-        throw Error('Otp not found, please resend the OTP for verification');
+        throw new NotificationError(
+            'Otp not found, please resend the OTP for verification',
+        );
     }
 
     // check otp valid & not expired
@@ -250,7 +252,7 @@ export const toggleNotificationChannel = async (
     );
 
     if (!channelToUpdate.length) {
-        throw Error(
+        throw new NotificationError(
             `${notificationChannelType} notification channel is not configured`,
         );
     }
@@ -272,18 +274,42 @@ export const toggleNotificationChannel = async (
     );
 };
 
+// method to remove notification channel
+export const removeNotificationChannel = async (
+    ensName: string,
+    notificationChannelType: NotificationChannelType,
+    db: any,
+) => {
+    // check if notification channel exists in DB
+    const userNotificationChannels: NotificationChannel[] =
+        await db.getUsersNotificationChannels(ensName);
+
+    const channelToRemove = userNotificationChannels.filter(
+        (data) => data.type === notificationChannelType,
+    );
+
+    if (!channelToRemove.length) {
+        throw new NotificationError(
+            `${notificationChannelType} notification channel is not configured`,
+        );
+    }
+
+    // removes the notification channel data from the DB
+    await db.removeNotificationChannel(ensName, notificationChannelType);
+};
+
 // checks notification channel is enabled and verfiied or not
 const checkNotificationIsEnabledAndNotVerified = (
     notificationChannel: NotificationChannel,
     notificationChannelType: NotificationChannelType,
 ) => {
     if (!notificationChannel.config.isEnabled) {
-        throw Error(
+        throw new NotificationError(
             `${notificationChannelType} notification channel is not enabled`,
         );
     }
     if (notificationChannel.config.isVerified) {
-        throw Error(
+        throw new NotificationError(
             `${notificationChannelType} notification channel is already verified`,
         );
     }

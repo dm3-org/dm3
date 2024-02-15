@@ -4,6 +4,7 @@ import { setGlobalNotification } from './setGlobalNotification';
 import { getGlobalNotification } from './getGlobalNotification';
 import { setNotificationChannelAsVerified } from './setNotificationChannelAsVerified';
 import { enableOrDisableNotificationChannel } from './enableOrDisableNotificationChannel';
+import { removeNotificationChannel } from './removeNotificationChannel';
 
 export default {
     addUsersNotificationChannel,
@@ -12,4 +13,5 @@ export default {
     getGlobalNotification,
     setNotificationChannelAsVerified,
     enableOrDisableNotificationChannel,
+    removeNotificationChannel,
 };
