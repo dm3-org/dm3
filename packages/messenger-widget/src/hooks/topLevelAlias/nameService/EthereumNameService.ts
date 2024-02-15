@@ -35,8 +35,6 @@ export class EthereumNameService implements ITLDResolver {
             throw new Error('No address found for ' + ensName);
         }
         return getIdForAddress(ethers.utils.getAddress(address));
-
-        return ensName;
     }
     //e.g. 0x1234.addr.dm3.eth => max.eth
     async isResolverForAliasName(ensName: string): Promise<boolean> {

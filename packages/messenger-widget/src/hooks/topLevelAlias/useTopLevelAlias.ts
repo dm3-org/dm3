@@ -9,7 +9,7 @@ import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 const SUPPORTED_NAMESERVICES = (provider: ethers.providers.JsonRpcProvider) => [
     new EthereumNameService(provider),
     new Genome(),
-    new Dm3Name(),
+    new Dm3Name(provider),
     new EthAddressResolver(),
 ];
 
