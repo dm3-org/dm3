@@ -1,17 +1,12 @@
-import { useAccount, useWalletClient } from 'wagmi';
 import {
     Account,
     ProfileKeys,
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
 import { UserDB } from '@dm3-org/dm3-lib-storage';
-import { useEffect, useMemo, useState, useContext } from 'react';
-import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
-import { AccountConnector } from './AccountConnector';
-import {
-    ConnectDsResult,
-    DeliveryServiceConnector,
-} from './DeliveryServiceConnector';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { useAccount, useWalletClient } from 'wagmi';
+import { TLDContext } from '../../context/TLDContext';
 import { GlobalContext } from '../../utils/context-utils';
 import {
     AccountsType,
@@ -22,8 +17,12 @@ import {
     UiStateType,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
-import { useTopLevelAlias } from '../topLevelAlias/useTopLevelAlias';
-import { TLDContext } from '../../context/TLDContext';
+import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
+import { AccountConnector } from './AccountConnector';
+import {
+    ConnectDsResult,
+    DeliveryServiceConnector,
+} from './DeliveryServiceConnector';
 
 export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
     const { resolveAliasToTLD } = useContext(TLDContext);
