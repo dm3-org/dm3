@@ -8,17 +8,9 @@ import {
 import { ethers } from 'ethers';
 import { Socket } from 'socket.io-client';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
-import {
-    AuthSession,
-    AuthState,
-    Cache,
-    Contact,
-    Modal,
-    UiState,
-    UiViewState,
-} from '../interfaces/context';
+import { Contact, Modal, UiState, UiViewState } from '../interfaces/context';
 import { MessageAction, MessageProps } from '../interfaces/props';
-import { ContactPreview, NewContact } from '../interfaces/utils';
+import { NewContact } from '../interfaces/utils';
 import { Connection } from '../interfaces/web3';
 
 export type ActionMap<M extends { [index: string]: any }> = {
@@ -37,22 +29,6 @@ export type Accounts = {
     selectedContact: Contact | undefined;
 };
 
-export type CachePayload = {
-    [CacheType.AddAbis]: { address: string; abi: string }[];
-    [CacheType.AddAvatarUrl]: { ensName: string; url: string };
-    [CacheType.Contacts]: ContactPreview[] | null;
-    [CacheType.LastConversation]: {
-        account: Account | null;
-        message: string | null;
-    };
-    [CacheType.MessageSizeLimit]: number;
-    [CacheType.AccountName]: string;
-    [CacheType.Reset]: any;
-};
-
-export type CacheActions =
-    ActionMap<CachePayload>[keyof ActionMap<CachePayload>];
-
 export type ConnectionPayload = {
     [ConnectionType.ChangeConnectionState]: ConnectionState;
     [ConnectionType.ChangeSocket]: Socket<DefaultEventsMap, DefaultEventsMap>;
@@ -70,8 +46,6 @@ export type ConnectionActions =
 
 export type GlobalState = {
     connection: Connection;
-
-    cache: Cache;
     userDb: UserDB | undefined;
     uiState: UiState;
     uiView: UiViewState;
@@ -107,7 +81,6 @@ export type UiStateActions =
 
 export type Actions =
     | ConnectionActions
-    | CacheActions
     | UserDbActions
     | UiStateActions
     | UiViewStateActions

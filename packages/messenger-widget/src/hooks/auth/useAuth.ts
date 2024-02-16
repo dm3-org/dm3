@@ -152,9 +152,7 @@ const resetStates = (dispatch: React.Dispatch<Actions>) => {
     dispatch({
         type: ConnectionType.Reset,
     });
-    dispatch({
-        type: CacheType.Reset,
-    });
+
     dispatch({
         type: UiStateType.Reset,
     });

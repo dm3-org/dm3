@@ -164,11 +164,6 @@ export const submitGenomeNameTransaction = async (
             await response.wait();
             setEnsNameFromResolver(ensName);
 
-            dispatch({
-                type: CacheType.AccountName,
-                payload: ensName,
-            });
-
             setContactHeightToMaximum(true);
         } else {
             throw Error('Error creating publish transaction');

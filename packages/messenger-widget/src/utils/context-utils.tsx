@@ -1,6 +1,5 @@
 import React, { Dispatch } from 'react';
 
-import { cacheReducer } from '../contexts/Cache';
 import { connectionReducer } from '../contexts/Connection';
 import { modalReducer } from '../contexts/Modal';
 import { initialState } from '../contexts/Shared';
@@ -10,7 +9,6 @@ import { userDbReducer } from '../contexts/UserDB';
 import { GlobalContextProviderProps } from '../interfaces/context';
 import {
     Actions,
-    CacheActions,
     ConnectionActions,
     GlobalState,
     ModalStateActions,
@@ -31,7 +29,6 @@ const mainReducer = (state: GlobalState, action: Actions): GlobalState => ({
         state.connection,
         action as ConnectionActions,
     ),
-    cache: cacheReducer(state.cache, action as CacheActions),
     userDb: userDbReducer(state.userDb, action as UserDbActions),
     uiState: uiStateReducer(state.uiState, action as UiStateActions),
     uiView: uiViewReducer(state.uiView, action as UiViewStateActions),
