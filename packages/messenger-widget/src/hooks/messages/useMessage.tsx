@@ -1,9 +1,5 @@
-import { decryptAsymmetric, encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
-import {
-    createPendingEntry,
-    sendMessage,
-    syncAcknowledgment,
-} from '@dm3-org/dm3-lib-delivery-api';
+import { encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
+import { createPendingEntry, sendMessage } from '@dm3-org/dm3-lib-delivery-api';
 import {
     EncryptionEnvelop,
     Envelop,
@@ -14,13 +10,15 @@ import {
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { StorageEnvelopContainerNew } from '@dm3-org/dm3-lib-storage';
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { fetchNewMessages } from '../../adapters/messages';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { StorageContext } from '../../context/StorageContext';
 import { WebSocketContext } from '../../context/WebSocketContext';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { renderMessage } from './renderer/renderMessage';
+import { handleMessagesFromDeliveryService } from './sources/handleMessagesFromDeliveryService';
+import { handleMessagesFromStorage } from './sources/handleMessagesFromStorage';
+import { handleMessagesFromWebSocket } from './sources/handleMessagesFromWebSocket';
 
 export type MessageModel = StorageEnvelopContainerNew & {
     reactions: Envelop[];
@@ -32,25 +30,30 @@ export type MessageStorage = {
 };
 
 export const useMessage = () => {
+    const mainnetProvider = useMainnetProvider();
+
     const { contacts, selectedContact, addConversation } =
         useContext(ConversationContext);
     const { account, profileKeys, deliveryServiceToken } =
         useContext(AuthContext);
+
     const { onNewMessage, removeOnNewMessageListener, socket } =
         useContext(WebSocketContext);
+
     const {
         getNumberOfMessages,
         getMessages: getMessagesFromStorage,
         storeMessage,
         storeMessageBatch,
         editMessageBatchAsync,
+        initialized: storageInitialized,
     } = useContext(StorageContext);
 
-    const mainnetProvider = useMainnetProvider();
     const [messages, setMessages] = useState<MessageStorage>({});
 
     const [contactsLoading, setContactsLoading] = useState<string[]>([]);
 
+    //Effect to listen for new contacts and add them to the message state
     useEffect(() => {
         //Find new contacts
         const newContacts = contacts.filter(
@@ -62,102 +65,29 @@ export const useMessage = () => {
         });
     }, [contacts]);
 
+    //Effect to reset the messages when the storage is initialized, i.e on account change
     useEffect(() => {
-        const addNewMessageFromWebSocket = async (
-            encryptedEnvelop: EncryptionEnvelop,
-        ) => {
-            const decryptedEnvelop: Envelop = {
-                message: JSON.parse(
-                    await decryptAsymmetric(
-                        profileKeys?.encryptionKeyPair!,
-                        JSON.parse(encryptedEnvelop.message),
-                    ),
-                ),
-                postmark: JSON.parse(
-                    await decryptAsymmetric(
-                        profileKeys?.encryptionKeyPair!,
-                        JSON.parse(encryptedEnvelop.postmark!),
-                    ),
-                ),
-                metadata: encryptedEnvelop.metadata,
-            };
+        setMessages({});
+        setContactsLoading([]);
+    }, [storageInitialized, account]);
 
-            const contact = normalizeEnsName(
-                decryptedEnvelop.message.metadata.from,
-            );
-            await addConversation(contact);
-
-            const messageState =
-                selectedContact?.contactDetails.account.ensName === contact
-                    ? MessageState.Read
-                    : MessageState.Send;
-
-            const messageModel = {
-                envelop: decryptedEnvelop,
-                messageState,
-                messageChunkKey: '',
-                reactions: [],
-            };
-            setMessages((prev) => {
-                //Check if message already exists
-                if (
-                    prev[contact]?.find(
-                        (m) =>
-                            m.envelop.metadata?.encryptedMessageHash ===
-                            messageModel.envelop.metadata?.encryptedMessageHash,
-                    )
-                ) {
-                    return prev;
-                }
-                return {
-                    ...prev,
-                    [contact]: [...(prev[contact] ?? []), messageModel],
-                };
-            });
-            storeMessage(contact, messageModel);
-        };
-
+    //Effect to handle new message emited from the websocket
+    useEffect(() => {
         onNewMessage((encryptedEnvelop: EncryptionEnvelop) => {
-            addNewMessageFromWebSocket(encryptedEnvelop);
+            handleMessagesFromWebSocket(
+                addConversation,
+                setMessages,
+                storeMessage,
+                profileKeys!,
+                selectedContact!,
+                encryptedEnvelop,
+            );
         });
 
         return () => {
             removeOnNewMessageListener();
         };
     }, [onNewMessage, selectedContact]);
-
-    const contactIsLoading = useCallback(
-        (_contactName?: string) => {
-            if (!_contactName) {
-                return false;
-            }
-            const contact = normalizeEnsName(_contactName);
-            return contactsLoading.includes(contact);
-        },
-        [contactsLoading],
-    );
-
-    const getMessages = useCallback(
-        (_contactName: string) => {
-            const contactName = normalizeEnsName(_contactName);
-            return renderMessage(messages[contactName] ?? []);
-        },
-        [messages],
-    );
-    const getUnreadMessageCount = useCallback(
-        (_contactName: string) => {
-            const contactName = normalizeEnsName(_contactName);
-            if (!messages[contactName]) {
-                return 0;
-            }
-            return messages[contactName].filter(
-                (message) =>
-                    message.messageState !== MessageState.Read &&
-                    message.envelop.message.metadata.from !== account?.ensName,
-            ).length;
-        },
-        [messages],
-    );
 
     //Mark messages as read when the selected contact changes
     useEffect(() => {
@@ -193,6 +123,41 @@ export const useMessage = () => {
         );
     }, [selectedContact]);
 
+    //View function that returns wether a contact is loading
+    const contactIsLoading = useCallback(
+        (_contactName?: string) => {
+            if (!_contactName) {
+                return false;
+            }
+            const contact = normalizeEnsName(_contactName);
+            return contactsLoading.includes(contact);
+        },
+        [contactsLoading],
+    );
+    //View function that returns the messages for a contact
+    const getMessages = useCallback(
+        (_contactName: string) => {
+            const contactName = normalizeEnsName(_contactName);
+            return renderMessage(messages[contactName] ?? []);
+        },
+        [messages],
+    );
+    //View function that returns the number of unread messages for a contact
+    const getUnreadMessageCount = useCallback(
+        (_contactName: string) => {
+            const contactName = normalizeEnsName(_contactName);
+            if (!messages[contactName]) {
+                return 0;
+            }
+            return messages[contactName].filter(
+                (message) =>
+                    message.messageState !== MessageState.Read &&
+                    message.envelop.message.metadata.from !== account?.ensName,
+            ).length;
+        },
+        [messages],
+    );
+    //When a new contact is added we load the initial messages
     const addNewContact = (_contactName: string) => {
         const contact = normalizeEnsName(_contactName);
         //Contact already exists
@@ -293,94 +258,24 @@ export const useMessage = () => {
         );
     };
 
-    const fetchMessagesFromStorage = async (contactName: string) => {
-        setContactsLoading((prev) => {
-            return [...prev, contactName];
-        });
-        const MAX_MESSAGES_PER_CHUNK = 100;
-        const numberOfmessages = await getNumberOfMessages(contactName);
-        const storedMessages = await getMessagesFromStorage(
-            contactName,
-            Math.floor(numberOfmessages / MAX_MESSAGES_PER_CHUNK),
-        );
-
-        console.log(
-            `got messages from Storage for ${contactName}`,
-            storedMessages,
-        );
-
-        return storedMessages.map(
-            (message) =>
-                ({
-                    ...message,
-                    reactions: [],
-                } as MessageModel),
-        );
-    };
-
-    const fetchMessagesFromDeliveryService = async (contactName: string) => {
-        const lastSyncTime = Date.now();
-        //Fetch the pending messages from the delivery service
-        const encryptedIncommingMessages = await fetchNewMessages(
-            mainnetProvider,
-            account!,
-            deliveryServiceToken!,
-            contactName,
-        );
-
-        const incommingMessages: MessageModel[] = await Promise.all(
-            encryptedIncommingMessages.map(async (envelop) => {
-                const decryptedEnvelop: Envelop = {
-                    message: JSON.parse(
-                        await decryptAsymmetric(
-                            profileKeys?.encryptionKeyPair!,
-                            JSON.parse(envelop.message),
-                        ),
-                    ),
-                    postmark: JSON.parse(
-                        await decryptAsymmetric(
-                            profileKeys?.encryptionKeyPair!,
-                            JSON.parse(envelop.postmark!),
-                        ),
-                    ),
-                    metadata: envelop.metadata,
-                };
-                return {
-                    envelop: decryptedEnvelop,
-                    //Messages from the delivery service are already send by the sender
-                    messageState: MessageState.Send,
-                    messageChunkKey: '',
-                    reactions: [],
-                };
-            }),
-        );
-
-        const messagesSortedASC = incommingMessages.sort((a, b) => {
-            return (
-                a.envelop.postmark?.incommingTimestamp! -
-                b.envelop.postmark?.incommingTimestamp!
-            );
-        });
-
-        console.log(
-            `got messages from DS for ${contactName}`,
-            messagesSortedASC,
-        );
-        //In the background we sync and acknowledge the messages and store then in the storage
-        acknowledgeAndStoreMessages(
-            contactName,
-            messagesSortedASC,
-            lastSyncTime,
-        );
-        return messagesSortedASC;
-    };
-
     const loadInitialMessages = async (_contactName: string) => {
         const contactName = normalizeEnsName(_contactName);
 
         const initialMessages = await Promise.all([
-            fetchMessagesFromStorage(contactName),
-            fetchMessagesFromDeliveryService(contactName),
+            handleMessagesFromStorage(
+                setContactsLoading,
+                getNumberOfMessages,
+                getMessagesFromStorage,
+                contactName,
+            ),
+            handleMessagesFromDeliveryService(
+                mainnetProvider!,
+                account!,
+                deliveryServiceToken!,
+                profileKeys!,
+                storeMessageBatch,
+                contactName,
+            ),
         ]);
 
         const flatten = initialMessages.reduce(
@@ -411,28 +306,6 @@ export const useMessage = () => {
         setContactsLoading((prev) => {
             return prev.filter((contact) => contact !== contactName);
         });
-    };
-
-    const acknowledgeAndStoreMessages = async (
-        contact: string,
-        msg: StorageEnvelopContainerNew[],
-        fetchedTime: number,
-    ) => {
-        await storeMessageBatch(contact, msg);
-
-        await syncAcknowledgment(
-            mainnetProvider!,
-            account!,
-            [
-                {
-                    contactAddress: contact,
-                    //This value is not used in the backend hence we can set it to 0
-                    messageDeliveryServiceTimestamp: 0,
-                },
-            ],
-            deliveryServiceToken!,
-            fetchedTime,
-        );
     };
 
     return {
