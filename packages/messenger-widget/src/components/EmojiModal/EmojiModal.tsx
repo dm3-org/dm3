@@ -12,13 +12,16 @@ import {
 } from '../../utils/enum-type-utils';
 import { hideMsgActionDropdown } from '../MessageInputBox/bl';
 import './EmojiModal.css';
+import { createReactionMessage } from '@dm3-org/dm3-lib-messaging';
+import { MessageContext } from '../../context/MessageContext';
 
 export function EmojiModal(props: EmojiProps) {
     const emojiRef: any = useRef();
 
     const { state, dispatch } = useContext(GlobalContext);
 
-    const { account, deliveryServiceToken } = useContext(AuthContext);
+    const { account, profileKeys } = useContext(AuthContext);
+    const { addMessage } = useContext(MessageContext);
     const { selectedContact } = useContext(ConversationContext);
 
     // handles mouse click outside of emoji modal and closes the modal automatically
@@ -37,19 +40,19 @@ export function EmojiModal(props: EmojiProps) {
 
     // Handles emoji selection in normal message or as a message reaction
     const handleEmojiSelect = async (data: string) => {
-        let messageData: MessageProps;
+        let messageProps: MessageProps;
         // emoji reaction
         if (
             state.modal.openEmojiPopup.action &&
             state.modal.openEmojiPopup.data
         ) {
-            messageData = state.modal.openEmojiPopup.data as MessageProps;
+            messageProps = state.modal.openEmojiPopup.data as MessageProps;
             dispatch({
                 type: ModalStateType.OpenEmojiPopup,
                 payload: { action: false, data: undefined },
             });
             setAction();
-            await reactToMessage(data, messageData);
+            await reactToMessage(data, messageProps);
         } else {
             // normal message contianing emoji
             props.setMessage(props.message.concat(data));
@@ -68,7 +71,39 @@ export function EmojiModal(props: EmojiProps) {
     };
 
     const reactToMessage = async (message: string, props: MessageProps) => {
-        //TODO add onSubmit similar to reactions
+        if (!selectedContact) {
+            throw Error('no contact selected');
+        }
+
+        // @Bhupesh why do we need to filter here
+        // const filteredElemtns = props.reactions.some(
+        //     (data) => data.message.message === message,
+        // );
+
+        dispatch({
+            type: UiViewStateType.SetMessageView,
+            payload: {
+                actionType: MessageActionType.NONE,
+                messageData: undefined,
+            },
+        });
+
+        const referenceMessageHash =
+            props.envelop.metadata?.encryptedMessageHash;
+
+        // react to the message
+        const messageData = await createReactionMessage(
+            selectedContact.contactDetails.account.ensName as string,
+            account!.ensName,
+            message,
+            profileKeys?.signingKeyPair.privateKey!,
+            referenceMessageHash as string,
+        );
+
+        await addMessage(
+            selectedContact?.contactDetails.account.ensName!,
+            messageData,
+        );
 
         dispatch({
             type: ModalStateType.LastMessageAction,
