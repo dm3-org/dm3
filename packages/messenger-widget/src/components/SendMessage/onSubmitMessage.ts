@@ -13,6 +13,7 @@ import { scrollToBottomOfChat } from '../Chat/scrollToBottomOfChat';
 import { MessageDataProps } from '../../interfaces/props';
 import { Account } from '@dm3-org/dm3-lib-profile';
 import { AddMessage } from '../../hooks/messages/useMessage';
+import { ContactPreview } from '../../interfaces/utils';
 
 export const onSubmitMessage = async (
     state: GlobalState,
@@ -21,7 +22,7 @@ export const onSubmitMessage = async (
     props: MessageDataProps,
     profileKeys: any,
     account: Account,
-    selectedContact: any,
+    selectedContact: ContactPreview,
 ) => {
     if (state.uiView.selectedMessageView.actionType === 'REPLY') {
         const referenceMessageHash =
@@ -56,7 +57,7 @@ export const onSubmitMessage = async (
 
         // reply to the original message
         const messageData = await createEditMessage(
-            selectedContact?.account.ensName!,
+            selectedContact?.contactDetails.account.ensName!,
             account!.ensName,
             props.message,
             profileKeys!.signingKeyPair.privateKey,

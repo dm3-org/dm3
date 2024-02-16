@@ -22,7 +22,7 @@ export function SendMessage(props: MessageDataProps) {
             props,
             profileKeys,
             account!,
-            selectedContact,
+            selectedContact!,
         );
         props.setMessageText('');
         scrollToBottomOfChat();

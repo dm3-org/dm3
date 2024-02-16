@@ -41,7 +41,7 @@ export function MessageInputField(props: MessageDataProps) {
             props,
             profileKeys,
             account!,
-            selectedContact,
+            selectedContact!,
         );
         props.setMessageText('');
         scrollToBottomOfChat();
