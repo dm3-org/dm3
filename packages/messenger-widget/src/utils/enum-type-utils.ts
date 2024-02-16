@@ -37,13 +37,6 @@ export type Accounts = {
     selectedContact: Contact | undefined;
 };
 
-export type AuthStatePayload = {
-    [AuthStateType.AddNewSession]: AuthSession;
-};
-
-export type AuthStateActions =
-    ActionMap<AuthStatePayload>[keyof ActionMap<AuthStatePayload>];
-
 export type CachePayload = {
     [CacheType.AddAbis]: { address: string; abi: string }[];
     [CacheType.AddAvatarUrl]: { ensName: string; url: string };
@@ -81,7 +74,6 @@ export type GlobalState = {
     cache: Cache;
     userDb: UserDB | undefined;
     uiState: UiState;
-    auth: AuthState;
     uiView: UiViewState;
     modal: Modal;
 };
@@ -118,7 +110,6 @@ export type Actions =
     | CacheActions
     | UserDbActions
     | UiStateActions
-    | AuthStateActions
     | UiViewStateActions
     | ModalStateActions;
 
@@ -127,10 +118,6 @@ export enum AccountInfo {
     Contact,
     Account,
     DomainConfig,
-}
-
-export enum AuthStateType {
-    AddNewSession = 'ADD_NEW_SESSION',
 }
 
 export enum CacheType {

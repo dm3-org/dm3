@@ -1,7 +1,11 @@
 import { globalConfig } from '@dm3-org/dm3-lib-shared';
+import { switchNetwork } from '@wagmi/core';
 import { useContext, useEffect, useState } from 'react';
+import { useNetwork } from 'wagmi';
 import closeIcon from '../../assets/images/cross.svg';
 import tickIcon from '../../assets/images/white-tick.svg';
+import { AuthContext } from '../../context/AuthContext';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 import '../../styles/modal.css';
 import { GlobalContext } from '../../utils/context-utils';
 import DeleteDM3Name from '../DeleteDM3Name/DeleteDM3Name';
@@ -19,19 +23,15 @@ import {
     validateName,
 } from './bl';
 import {
-    ConfigureProfileContext,
-    ConfigureProfileContextProvider,
-} from './context/ConfigureProfileContext';
-import { AuthContext } from '../../context/AuthContext';
-import { useNetwork } from 'wagmi';
-import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
-import { switchNetwork } from '@wagmi/core';
-import {
     ACTION_TYPE,
     BUTTON_CLASS,
     NAME_TYPE,
     PROFILE_INPUT_FIELD_CLASS,
 } from './chain/common';
+import {
+    ConfigureProfileContext,
+    ConfigureProfileContextProvider,
+} from './context/ConfigureProfileContext';
 
 export function ConfigureDM3Profile() {
     // global context state

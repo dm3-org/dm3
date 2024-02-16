@@ -8,18 +8,6 @@ import {
 } from '../utils/enum-type-utils';
 import { ethers } from 'ethers';
 
-//Move to utils and get url from ENV
-const getMainnetProvider = () => {
-    const url = process.env.REACT_APP_MAINNET_PROVIDER_RPC;
-    if (!url) {
-        throw new Error('Mainnet provider not set in env');
-    }
-    return new ethers.providers.JsonRpcProvider(url, {
-        name: 'goerli',
-        chainId: 5,
-    });
-};
-
 export const initialState: GlobalState = {
     connection: {
         defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
@@ -40,11 +28,6 @@ export const initialState: GlobalState = {
         lastMessagePull: 0,
         proflieExists: false,
         browserStorageBackup: false,
-    },
-    auth: {
-        currentSession: undefined,
-        recentlyUsedSession: undefined,
-        allSessions: {},
     },
     uiView: {
         selectedLeftView: LeftViewSelected.Contacts,

@@ -9,13 +9,18 @@ import {
 import { createAlias, getAliasChain } from '@dm3-org/dm3-lib-delivery-api';
 import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
-import { closeLoader, startLoader } from '../Loader/Loader';
-import { setContactHeightToMaximum } from '../Contacts/bl';
-import { checkEnsDM3Text } from '../../utils/ens-utils';
-import { getLastDm3Name } from '../../utils/common-utils';
-import { ConfigureGenomeProfile } from './chain/genome/ConfigureGenomeProfile';
-import { ConfigureEnsProfile } from './chain/ens/ConfigureEnsProfile';
 import React from 'react';
+import {
+    claimSubdomain,
+    removeAlias,
+} from '../../adapters/offchain-resolver-api';
+import { getLastDm3Name } from '../../utils/common-utils';
+import { checkEnsDM3Text } from '../../utils/ens-utils';
+import { setContactHeightToMaximum } from '../Contacts/bl';
+import { closeLoader, startLoader } from '../Loader/Loader';
+import { NAME_TYPE } from './chain/common';
+import { ConfigureEnsProfile } from './chain/ens/ConfigureEnsProfile';
+import { ConfigureGenomeProfile } from './chain/genome/ConfigureGenomeProfile';
 
 export const PROFILE_INPUT_FIELD_CLASS =
     'profile-input font-weight-400 font-size-14 border-radius-6 w-100 line-height-24';
@@ -27,11 +32,6 @@ export enum ACTION_TYPE {
     CONFIGURE,
     REMOVE,
 }
-import { NAME_TYPE } from './chain/common';
-import {
-    claimSubdomain,
-    removeAlias,
-} from '../../adapters/offchain-resolver-api';
 
 // method to open the profile configuration modal
 export const openConfigurationModal = (dispatch: React.Dispatch<Actions>) => {

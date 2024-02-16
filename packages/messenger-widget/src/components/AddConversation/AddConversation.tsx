@@ -1,24 +1,21 @@
 /* eslint-disable no-console */
-import './AddConversation.css';
-import '../../styles/modal.css';
-import closeIcon from '../../assets/images/cross.svg';
-import { INPUT_FIELD_CLASS, closeConversationModal } from './bl';
-import { FormEvent, useContext, useState } from 'react';
-import { GlobalContext } from '../../utils/context-utils';
-import { showContactList } from '../../utils/common-utils';
 import { ethers } from 'ethers';
+import { FormEvent, useContext, useState } from 'react';
+import closeIcon from '../../assets/images/cross.svg';
 import { AuthContext } from '../../context/AuthContext';
-import { useTopLevelAlias } from '../../hooks/topLevelAlias/useTopLevelAlias';
 import { ConversationContext } from '../../context/ConversationContext';
+import { TLDContext } from '../../context/TLDContext';
+import '../../styles/modal.css';
+import { GlobalContext } from '../../utils/context-utils';
 import {
     LeftViewSelected,
     ModalStateType,
     RightViewSelected,
     UiViewStateType,
-    UserDbType,
 } from '../../utils/enum-type-utils';
 import { closeLoader, startLoader } from '../Loader/Loader';
-import { TLDContext } from '../../context/TLDContext';
+import './AddConversation.css';
+import { INPUT_FIELD_CLASS, closeConversationModal } from './bl';
 
 export default function AddConversation() {
     const { dispatch } = useContext(GlobalContext);
@@ -158,7 +155,10 @@ export default function AddConversation() {
                                     showErrorMessage,
                                     resetInputFieldClass,
                                 );
-                                showContactList(dispatch);
+                                dispatch({
+                                    type: UiViewStateType.SetSelectedLeftView,
+                                    payload: LeftViewSelected.Contacts,
+                                });
                             }}
                         />
                     </div>

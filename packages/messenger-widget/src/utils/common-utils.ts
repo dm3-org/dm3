@@ -1,19 +1,4 @@
-import { SendDependencies, Message } from '@dm3-org/dm3-lib-messaging';
-import {
-    Account,
-    DeliveryServiceProfile,
-    ProfileKeys,
-} from '@dm3-org/dm3-lib-profile';
-import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
-import { StorageEnvelopContainer } from '@dm3-org/dm3-lib-storage';
-import { submitMessage } from '../adapters/messages';
-import {
-    GlobalState,
-    Actions,
-    UserDbType,
-    LeftViewSelected,
-    UiViewStateType,
-} from './enum-type-utils';
+import { globalConfig } from '@dm3-org/dm3-lib-shared';
 
 // returns the file extension by extracting from base64
 export const getFileTypeFromBase64 = (file: string): string => {
@@ -112,45 +97,6 @@ export const closeErrorModal = () => {
     modal.style.display = 'none';
     const data = document.getElementById('error-message') as HTMLElement;
     data.innerText = '';
-};
-
-export const sendMessage = async (
-    account: Account,
-    dsToken: string,
-    state: GlobalState,
-    sendDependencies: SendDependencies,
-    messageData: Message,
-    haltDelivery: boolean,
-    dispatch: React.Dispatch<Actions>,
-) => {
-    try {
-        await submitMessage(
-            state.connection,
-            dsToken,
-            sendDependencies,
-            messageData,
-            haltDelivery,
-            (envelops: StorageEnvelopContainer[]) =>
-                envelops.forEach((envelop) =>
-                    dispatch({
-                        type: UserDbType.addMessage,
-                        payload: {
-                            container: envelop,
-                            account: account,
-                        },
-                    }),
-                ),
-        );
-    } catch (e) {
-        log('[handleNewUserMessage] ' + JSON.stringify(e), 'error');
-    }
-};
-
-export const showContactList = (dispatch: React.Dispatch<Actions>) => {
-    dispatch({
-        type: UiViewStateType.SetSelectedLeftView,
-        payload: LeftViewSelected.Contacts,
-    });
 };
 
 export const getLastDm3Name = (nameList: string[]) => {

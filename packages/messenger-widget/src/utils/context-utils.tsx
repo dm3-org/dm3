@@ -1,25 +1,23 @@
 import React, { Dispatch } from 'react';
 
-import { authReducer } from '../contexts/Auth';
 import { cacheReducer } from '../contexts/Cache';
 import { connectionReducer } from '../contexts/Connection';
+import { modalReducer } from '../contexts/Modal';
 import { initialState } from '../contexts/Shared';
 import { uiStateReducer } from '../contexts/UiState';
+import { uiViewReducer } from '../contexts/UiView';
 import { userDbReducer } from '../contexts/UserDB';
 import { GlobalContextProviderProps } from '../interfaces/context';
 import {
     Actions,
-    AuthStateActions,
     CacheActions,
     ConnectionActions,
     GlobalState,
-    UiStateActions,
-    UserDbActions,
     ModalStateActions,
+    UiStateActions,
     UiViewStateActions,
+    UserDbActions,
 } from './enum-type-utils';
-import { modalReducer } from '../contexts/Modal';
-import { uiViewReducer } from '../contexts/UiView';
 
 // custom context
 export const GlobalContext = React.createContext<{
@@ -36,7 +34,6 @@ const mainReducer = (state: GlobalState, action: Actions): GlobalState => ({
     cache: cacheReducer(state.cache, action as CacheActions),
     userDb: userDbReducer(state.userDb, action as UserDbActions),
     uiState: uiStateReducer(state.uiState, action as UiStateActions),
-    auth: authReducer(state.auth, action as AuthStateActions),
     uiView: uiViewReducer(state.uiView, action as UiViewStateActions),
     modal: modalReducer(state.modal, action as ModalStateActions),
 });
