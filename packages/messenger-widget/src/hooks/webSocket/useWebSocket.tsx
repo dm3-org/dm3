@@ -1,14 +1,10 @@
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
-import { useCallback, useContext, useEffect, useState } from 'react';
-import { handleNewMessage } from '../../components/DM3/bl';
-import { ConnectionType } from '../../utils/enum-type-utils';
-import { AuthContext } from '../../context/AuthContext';
 import { getDeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
-import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import axios from 'axios';
-import socketIOClient from 'socket.io-client';
-import { GlobalContext } from '../../utils/context-utils';
-import { Socket } from 'socket.io-client';
+import { useCallback, useContext, useEffect, useState } from 'react';
+import socketIOClient, { Socket } from 'socket.io-client';
+import { AuthContext } from '../../context/AuthContext';
+import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 
 export const useWebSocket = () => {
     const { isLoggedIn, account, deliveryServiceToken } =

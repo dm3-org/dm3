@@ -5,7 +5,6 @@ import { modalReducer } from '../contexts/Modal';
 import { initialState } from '../contexts/Shared';
 import { uiStateReducer } from '../contexts/UiState';
 import { uiViewReducer } from '../contexts/UiView';
-import { userDbReducer } from '../contexts/UserDB';
 import { GlobalContextProviderProps } from '../interfaces/context';
 import {
     Actions,
@@ -14,7 +13,6 @@ import {
     ModalStateActions,
     UiStateActions,
     UiViewStateActions,
-    UserDbActions,
 } from './enum-type-utils';
 
 // custom context
@@ -29,7 +27,6 @@ const mainReducer = (state: GlobalState, action: Actions): GlobalState => ({
         state.connection,
         action as ConnectionActions,
     ),
-    userDb: userDbReducer(state.userDb, action as UserDbActions),
     uiState: uiStateReducer(state.uiState, action as UiStateActions),
     uiView: uiViewReducer(state.uiView, action as UiViewStateActions),
     modal: modalReducer(state.modal, action as ModalStateActions),

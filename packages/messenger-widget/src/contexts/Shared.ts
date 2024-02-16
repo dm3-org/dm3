@@ -9,8 +9,6 @@ export const initialState: GlobalState = {
     connection: {
         defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
     },
-
-    userDb: undefined,
     uiState: {
         lastMessagePull: 0,
         proflieExists: false,

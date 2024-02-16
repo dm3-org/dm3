@@ -1,14 +1,9 @@
 import { Account } from '@dm3-org/dm3-lib-profile';
-import {
-    StorageEnvelopContainer,
-    StorageLocation,
-    SyncProcessState,
-    UserDB,
-} from '@dm3-org/dm3-lib-storage';
+import { StorageLocation } from '@dm3-org/dm3-lib-storage';
 import { ethers } from 'ethers';
 import { Socket } from 'socket.io-client';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
-import { Contact, Modal, UiState, UiViewState } from '../interfaces/context';
+import { Modal, UiState, UiViewState } from '../interfaces/context';
 import { MessageAction, MessageProps } from '../interfaces/props';
 import { NewContact } from '../interfaces/utils';
 import { Connection } from '../interfaces/web3';
@@ -22,11 +17,6 @@ export type ActionMap<M extends { [index: string]: any }> = {
               type: Key;
               payload: M[Key];
           };
-};
-
-export type Accounts = {
-    contacts: Contact[] | undefined;
-    selectedContact: Contact | undefined;
 };
 
 export type ConnectionPayload = {
@@ -46,31 +36,12 @@ export type ConnectionActions =
 
 export type GlobalState = {
     connection: Connection;
-    userDb: UserDB | undefined;
     uiState: UiState;
     uiView: UiViewState;
     modal: Modal;
 };
 
-export type UserDbPayload = {
-    [UserDbType.addMessage]: {
-        container: StorageEnvelopContainer;
-        account: Account;
-    };
-    [UserDbType.setDB]: UserDB;
-    [UserDbType.createEmptyConversation]: string;
-    [UserDbType.setSynced]: boolean;
-    [UserDbType.setConfigViewed]: boolean;
-    [UserDbType.setSyncProcessState]: SyncProcessState;
-    [UserDbType.hideContact]: { ensName: string; aka?: string };
-    [UserDbType.unhideContact]: string;
-};
-
-export type UserDbActions =
-    ActionMap<UserDbPayload>[keyof ActionMap<UserDbPayload>];
-
 export type UiStatePayload = {
-    [UiStateType.SetLastMessagePull]: number;
     [UiStateType.SetProfileExists]: boolean;
     [UiStateType.SetBrowserStorageBackup]: boolean;
     [UiStateType.Reset]: any;
@@ -81,28 +52,9 @@ export type UiStateActions =
 
 export type Actions =
     | ConnectionActions
-    | UserDbActions
     | UiStateActions
     | UiViewStateActions
     | ModalStateActions;
-
-export enum AccountInfo {
-    None,
-    Contact,
-    Account,
-    DomainConfig,
-}
-
-export enum CacheType {
-    AddEnsName = 'ADD_ENS_NAME',
-    AddAbis = 'ADD_ABIS',
-    AddAvatarUrl = 'ADD_AVATAR_URL',
-    Contacts = 'CONTACTS',
-    LastConversation = 'LAST_CONVERSATION',
-    MessageSizeLimit = 'MESSAGE_SIZE_LIMIT',
-    AccountName = 'ACCOUNT_NAME',
-    Reset = 'RESET',
-}
 
 export enum ConnectionType {
     ChangeConnectionState = 'CHANGE_CONNECTION_STATE',
@@ -116,17 +68,6 @@ export enum ConnectionType {
     Reset = 'RESET',
 }
 
-export enum UserDbType {
-    addMessage = 'ADD_MESSAGE',
-    setDB = 'SET_DB',
-    createEmptyConversation = 'CREATE_EMPTY_CONVERSATION',
-    setSynced = 'SET_SYNCED',
-    setConfigViewed = 'SET_CONFIG_VIEWED',
-    setSyncProcessState = 'SET_SYNC_PROCESS_STATE',
-    hideContact = 'HIDE_CONTACT',
-    unhideContact = 'UNHIDE_CONTACT',
-}
-
 export enum SelectedRightView {
     Error,
     Chat,
@@ -134,7 +75,6 @@ export enum SelectedRightView {
 }
 
 export enum UiStateType {
-    SetLastMessagePull = 'SET_LAST_MESSAGE_PULL',
     SetProfileExists = 'SET_PROFILE_EXISTS',
     SetBrowserStorageBackup = 'SET_BROWSER_STORAGE_BACKUP',
     Reset = 'RESET',
@@ -149,13 +89,6 @@ export enum ConnectionState {
     ConnectionRejected,
     SignInFailed,
     SignedIn,
-}
-
-export enum GoogleAuthState {
-    Ready,
-    Pending,
-    Success,
-    Failed,
 }
 
 export enum ButtonState {

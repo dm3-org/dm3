@@ -7,13 +7,6 @@ export function uiStateReducer(
     action: UiStateActions,
 ): UiState {
     switch (action.type) {
-        case UiStateType.SetLastMessagePull:
-            log(`[UI] set timestamp of last message pull`, 'info');
-            return {
-                ...state,
-                lastMessagePull: action.payload,
-            };
-
         case UiStateType.SetProfileExists:
             log(`[UI] set profile exists to ${action.payload}`, 'info');
             return {

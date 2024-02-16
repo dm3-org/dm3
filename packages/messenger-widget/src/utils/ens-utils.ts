@@ -1,18 +1,10 @@
-import {
-    Actions,
-    GlobalState,
-    ModalStateType,
-    RightViewSelected,
-    UiViewStateType,
-    UserDbType,
-} from './enum-type-utils';
+import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
+import makeBlockie from 'ethereum-blockies-base64';
+import { ethers } from 'ethers';
 import humanIcon from '../assets/images/human.svg';
 import { EnsProfileDetails } from '../interfaces/utils';
-import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
-import { ethers } from 'ethers';
 import { ENS_PROFILE_BASE_URL, ETHERSCAN_URL } from './common-utils';
-import { IContactInfo } from '../interfaces/utils';
-import makeBlockie from 'ethereum-blockies-base64';
+import { Actions, RightViewSelected, UiViewStateType } from './enum-type-utils';
 
 // method to get avatar/image url
 export const getAvatar = async (

@@ -2,7 +2,7 @@ import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { StorageLocation, UserDB } from '@dm3-org/dm3-lib-storage';
 import React from 'react';
 import { useAuth } from '../hooks/auth/useAuth';
-import { ConnectionType, UserDbType } from '../utils/enum-type-utils';
+import { ConnectionType } from '../utils/enum-type-utils';
 
 export type AuthContextType = {
     cleanSignIn: () => Promise<void>;
@@ -39,14 +39,6 @@ export const AuthContextProvider = ({
     children?: any;
     dispatch: Function;
 }) => {
-    const onStorageCreated = (db: UserDB) => {
-        dispatch({
-            type: ConnectionType.ChangeStorageLocation,
-            payload: StorageLocation.dm3Storage,
-        });
-        dispatch({ type: UserDbType.setDB, payload: db! });
-    };
-
     const {
         cleanSignIn,
         setDisplayName,
@@ -59,7 +51,7 @@ export const AuthContextProvider = ({
         ethAddress,
 
         profileKeys,
-    } = useAuth(onStorageCreated);
+    } = useAuth();
     return (
         <AuthContext.Provider
             value={{

@@ -38,8 +38,13 @@ export function ConfigureDM3Profile() {
     const { state, dispatch } = useContext(GlobalContext);
     const { chain } = useNetwork();
 
-    const { account, ethAddress, deliveryServiceToken, setDisplayName } =
-        useContext(AuthContext);
+    const {
+        account,
+        ethAddress,
+        deliveryServiceToken,
+        setDisplayName,
+        profileKeys,
+    } = useContext(AuthContext);
     const mainnetProvider = useMainnetProvider();
 
     // existing profile details states
@@ -90,7 +95,7 @@ export function ConfigureDM3Profile() {
                 return;
             }
             await submitDm3UsernameClaim(
-                state,
+                profileKeys!,
                 mainnetProvider,
                 account!,
                 deliveryServiceToken!,
@@ -101,7 +106,7 @@ export function ConfigureDM3Profile() {
             );
         } else {
             const result = await removeAliasFromDm3Name(
-                state,
+                profileKeys!,
                 account!,
                 ethAddress!,
                 existingDm3Name as string,

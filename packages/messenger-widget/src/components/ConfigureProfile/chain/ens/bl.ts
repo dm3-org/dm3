@@ -2,11 +2,7 @@ import { createAlias } from '@dm3-org/dm3-lib-delivery-api';
 import { Account, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { ethersHelper, stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
-import {
-    Actions,
-    CacheType,
-    ModalStateType,
-} from '../../../../utils/enum-type-utils';
+import { Actions, ModalStateType } from '../../../../utils/enum-type-utils';
 import { setContactHeightToMaximum } from '../../../Contacts/bl';
 import { closeLoader, startLoader } from '../../../Loader/Loader';
 import { NAME_TYPE } from '../common';

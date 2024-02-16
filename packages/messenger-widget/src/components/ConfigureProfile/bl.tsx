@@ -1,4 +1,4 @@
-import { Account, hasUserProfile } from '@dm3-org/dm3-lib-profile';
+import { Account, ProfileKeys, hasUserProfile } from '@dm3-org/dm3-lib-profile';
 import {
     Actions,
     ConnectionType,
@@ -80,7 +80,7 @@ export const getEnsName = async (
 
 // method to set new DM3 username
 export const submitDm3UsernameClaim = async (
-    state: GlobalState,
+    profileKeys: ProfileKeys,
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     dsToken: string,
@@ -104,7 +104,7 @@ export const submitDm3UsernameClaim = async (
             dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN(),
             process.env.REACT_APP_RESOLVER_BACKEND as string,
             account!.ensName,
-            state.userDb!.keys.signingKeyPair.privateKey,
+            profileKeys.signingKeyPair.privateKey,
         );
 
         await createAlias(
@@ -127,7 +127,7 @@ export const submitDm3UsernameClaim = async (
 
 // method to remove aliad
 export const removeAliasFromDm3Name = async (
-    state: GlobalState,
+    profileKeys: ProfileKeys,
     account: Account,
     ethAddress: string,
     dm3UserEnsName: string,
@@ -145,7 +145,7 @@ export const removeAliasFromDm3Name = async (
         const result = await removeAlias(
             dm3UserEnsName,
             process.env.REACT_APP_RESOLVER_BACKEND as string,
-            state.userDb!.keys.signingKeyPair.privateKey,
+            profileKeys.signingKeyPair.privateKey,
         );
 
         if (result) {

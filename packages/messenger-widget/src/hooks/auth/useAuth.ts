@@ -10,7 +10,6 @@ import { TLDContext } from '../../context/TLDContext';
 import { GlobalContext } from '../../utils/context-utils';
 import {
     Actions,
-    CacheType,
     ConnectionType,
     ModalStateType,
     UiStateType,
@@ -23,7 +22,7 @@ import {
     DeliveryServiceConnector,
 } from './DeliveryServiceConnector';
 
-export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
+export const useAuth = () => {
     const { resolveAliasToTLD } = useContext(TLDContext);
     const { data: walletClient } = useWalletClient();
     const mainnetProvider = useMainnetProvider();
@@ -117,8 +116,6 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
         const { deliveryServiceToken, userDb, signedUserProfile, profileKeys } =
             connectDsResult;
 
-        //Todo remove callback and use _initialUSerdb instead
-        onStorageSet(userDb);
         setAccount({
             ...account,
             ensName: normalizeEnsName(account.ensName),

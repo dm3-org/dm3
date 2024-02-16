@@ -1,17 +1,11 @@
 import { createAlias } from '@dm3-org/dm3-lib-delivery-api';
-import { ethersHelper, stringify } from '@dm3-org/dm3-lib-shared';
-import {
-    GlobalState,
-    Actions,
-    ModalStateType,
-    CacheType,
-} from '../../../../utils/enum-type-utils';
-import { setContactHeightToMaximum } from '../../../Contacts/bl';
-import { startLoader, closeLoader } from '../../../Loader/Loader';
-import { ethers } from 'ethers';
-import { getConractInstance } from '@dm3-org/dm3-lib-shared/dist/ethersHelper';
-import { Connection } from '../../../../interfaces/web3';
 import { Account, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
+import { ethersHelper, stringify } from '@dm3-org/dm3-lib-shared';
+import { getConractInstance } from '@dm3-org/dm3-lib-shared/dist/ethersHelper';
+import { ethers } from 'ethers';
+import { Actions, ModalStateType } from '../../../../utils/enum-type-utils';
+import { setContactHeightToMaximum } from '../../../Contacts/bl';
+import { closeLoader, startLoader } from '../../../Loader/Loader';
 
 import { Address, namehash, toHex } from 'viem';
 import { NAME_TYPE } from '../common';
