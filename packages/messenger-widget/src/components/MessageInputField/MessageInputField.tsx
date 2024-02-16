@@ -1,16 +1,15 @@
 import { useContext, useEffect } from 'react';
+import { AuthContext } from '../../context/AuthContext';
+import { ConversationContext } from '../../context/ConversationContext';
+import { MessageContext } from '../../context/MessageContext';
+import { MessageDataProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
 import {
     MessageActionType,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
-import { MessageDataProps } from '../../interfaces/props';
-import { handleSubmit } from '../MessageInputBox/bl';
-import { AuthContext } from '../../context/AuthContext';
-import { createMessage } from '@dm3-org/dm3-lib-messaging';
-import { ConversationContext } from '../../context/ConversationContext';
-import { MessageContext } from '../../context/MessageContext';
 import { scrollToBottomOfChat } from '../Chat/scrollToBottomOfChat';
+import { onSubmitMessage } from '../SendMessage/onSubmitMessage';
 
 export function MessageInputField(props: MessageDataProps) {
     const { state, dispatch } = useContext(GlobalContext);
@@ -35,18 +34,14 @@ export function MessageInputField(props: MessageDataProps) {
 
     async function submit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-
-        const messageData = await createMessage(
-            selectedContact?.contactDetails.account.ensName!,
-            account!.ensName,
-            props.message,
-            profileKeys?.signingKeyPair.privateKey!,
-            props.filesSelected.map((file) => file.data),
-        );
-
-        addMessage(
-            selectedContact?.contactDetails.account.ensName!,
-            messageData,
+        await onSubmitMessage(
+            state,
+            dispatch,
+            addMessage,
+            props,
+            profileKeys,
+            account!,
+            selectedContact,
         );
         props.setMessageText('');
         scrollToBottomOfChat();
