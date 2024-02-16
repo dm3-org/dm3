@@ -10,7 +10,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { createMessage } from '@dm3-org/dm3-lib-messaging';
 import { ConversationContext } from '../../context/ConversationContext';
 import { MessageContext } from '../../context/MessageContext';
-import { scrollToBottomOfChat } from '../Chat/bl';
+import { scrollToBottomOfChat } from '../Chat/scrollToBottomOfChat';
 
 export function MessageInputField(props: MessageDataProps) {
     const { state, dispatch } = useContext(GlobalContext);

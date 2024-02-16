@@ -1,26 +1,17 @@
-import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
-import {
-    StorageEnvelopContainer,
-    getConversation,
-} from '@dm3-org/dm3-lib-storage';
+import { globalConfig } from '@dm3-org/dm3-lib-shared';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
+import { MessageContext } from '../../context/MessageContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
-import { HideFunctionProps, MessageProps } from '../../interfaces/props';
+import { MessageModel } from '../../hooks/messages/useMessage';
+import { HideFunctionProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
-import { MessageActionType } from '../../utils/enum-type-utils';
 import ConfigProfileAlertBox from '../ContactProfileAlertBox/ContactProfileAlertBox';
 import { Message } from '../Message/Message';
 import { MessageInputBox } from '../MessageInputBox/MessageInputBox';
 import './Chat.css';
-import {
-    checkUserProfileConfigured,
-    handleMessages,
-    scrollToBottomOfChat,
-} from './bl';
-import { MessageContext } from '../../context/MessageContext';
-import { MessageModel } from '../../hooks/messages/useMessage';
+import { scrollToBottomOfChat } from './scrollToBottomOfChat';
 
 export function Chat(props: HideFunctionProps) {
     const { state, dispatch } = useContext(GlobalContext);
@@ -30,18 +21,13 @@ export function Chat(props: HideFunctionProps) {
     const { getMessages, contactIsLoading } = useContext(MessageContext);
     const mainnetProvider = useMainnetProvider();
 
-    const [isMessageListInitialized, setIsMessageListInitialized] =
-        useState<boolean>(false);
     const [isProfileConfigured, setIsProfileConfigured] =
         useState<boolean>(false);
     const [showShimEffect, setShowShimEffect] = useState(false);
 
-    const alias = ethAddress && ethAddress + globalConfig.ADDR_ENS_SUBDOMAIN();
-
     useEffect(() => {
-        setIsMessageListInitialized(false);
         setIsProfileConfigured(
-            selectedContact?.contactDetails.account.profile ? true : false,
+            !!selectedContact?.contactDetails.account.profile,
         );
     }, [selectedContact]);
 
@@ -63,8 +49,6 @@ export function Chat(props: HideFunctionProps) {
 
     /* shimmer effect contacts css */
     const shimmerData: number[] = Array.from({ length: 50 }, (_, i) => i + 1);
-
-    console.log('eth address', account!.ensName);
 
     return (
         <div

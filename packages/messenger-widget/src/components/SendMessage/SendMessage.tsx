@@ -14,12 +14,12 @@ import {
 } from '@dm3-org/dm3-lib-messaging';
 import { MessageContext } from '../../context/MessageContext';
 import { ConversationContext } from '../../context/ConversationContext';
-import { scrollToBottomOfChat } from '../Chat/bl';
 import {
     MessageActionType,
     ModalStateType,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
+import { scrollToBottomOfChat } from '../Chat/scrollToBottomOfChat';
 
 export function SendMessage(props: MessageDataProps) {
     const { account, profileKeys } = useContext(AuthContext);

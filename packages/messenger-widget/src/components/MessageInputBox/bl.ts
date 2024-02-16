@@ -25,9 +25,10 @@ import {
     ModalStateType,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
-import { scrollToBottomOfChat } from '../Chat/bl';
+
 import { encryptAsymmetric, EncryptedPayload } from '@dm3-org/dm3-lib-crypto';
 import { log } from '@dm3-org/dm3-lib-shared';
+import { scrollToBottomOfChat } from '../Chat/scrollToBottomOfChat';
 
 export const hideMsgActionDropdown = () => {
     const element = document.getElementById('msg-dropdown') as HTMLElement;
