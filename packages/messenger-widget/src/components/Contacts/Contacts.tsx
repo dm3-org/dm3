@@ -4,21 +4,16 @@ import loader from '../../assets/images/loader.svg';
 import threeDotsIcon from '../../assets/images/three-dots.svg';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
-import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
-import { useTopLevelAlias } from '../../hooks/topLevelAlias/useTopLevelAlias';
+import { MessageContext } from '../../context/MessageContext';
 import { DashboardProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
-import { RightViewSelected } from '../../utils/enum-type-utils';
+import {
+    RightViewSelected,
+    UiViewStateType,
+} from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
 import './Contacts.css';
-import {
-    fetchMessageSizeLimit,
-    onContactSelected,
-    setContactHeightToMaximum,
-    showMenuInBottom,
-} from './bl';
-import { MessageContext } from '../../context/MessageContext';
-import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
+import { setContactHeightToMaximum, showMenuInBottom } from './bl';
 
 export function Contacts(props: DashboardProps) {
     // fetches context api data
@@ -30,7 +25,6 @@ export function Contacts(props: DashboardProps) {
         selectedContact,
         addConversation,
     } = useContext(ConversationContext);
-    const mainnetProvider = useMainnetProvider();
 
     const { getMessages, getUnreadMessageCount } = useContext(MessageContext);
 
@@ -64,7 +58,15 @@ export function Contacts(props: DashboardProps) {
     // handles UI view on contact select
     useEffect(() => {
         if (selectedContact !== undefined) {
-            onContactSelected(state, dispatch, selectedContact.contactDetails);
+            // set selected contact
+
+            if (state.uiView.selectedRightView !== RightViewSelected.Chat) {
+                // show chat screen
+                dispatch({
+                    type: UiViewStateType.SetSelectedRightView,
+                    payload: RightViewSelected.Chat,
+                });
+            }
             setIsMenuAlignedAtBottom(showMenuInBottom(selectedContact.name));
         }
     }, [selectedContact]);
@@ -73,17 +75,13 @@ export function Contacts(props: DashboardProps) {
         if (
             !props.dm3Props.config.showContacts &&
             props.dm3Props.config.defaultContact &&
-            !state.accounts.selectedContact &&
+            !selectedContact &&
             contacts
         ) {
             addConversation(props.dm3Props.config.defaultContact);
             setSelectedContactName(props.dm3Props.config.defaultContact);
         }
     }, [contacts]);
-
-    useEffect(() => {
-        fetchMessageSizeLimit(mainnetProvider, account!, dispatch);
-    }, []);
 
     /* Hidden content for highlighting css */
     const hiddenData: number[] = Array.from({ length: 22 }, (_, i) => i + 1);

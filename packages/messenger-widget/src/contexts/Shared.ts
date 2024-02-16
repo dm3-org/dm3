@@ -24,10 +24,7 @@ export const initialState: GlobalState = {
     connection: {
         defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
     },
-    accounts: {
-        contacts: undefined,
-        selectedContact: undefined,
-    },
+
     cache: {
         abis: new Map<string, string>(),
         contacts: null,

@@ -1,25 +1,17 @@
-import './DeleteMessage.css';
-import '../../styles/modal.css';
-import closeIcon from '../../assets/images/cross.svg';
+import { createDeleteRequestMessage } from '@dm3-org/dm3-lib-messaging';
 import { useContext } from 'react';
+import closeIcon from '../../assets/images/cross.svg';
+import { AuthContext } from '../../context/AuthContext';
+import { ConversationContext } from '../../context/ConversationContext';
+import { MessageContext } from '../../context/MessageContext';
+import '../../styles/modal.css';
 import { GlobalContext } from '../../utils/context-utils';
 import {
     MessageActionType,
     ModalStateType,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
-import {
-    getDependencies,
-    getHaltDelivery,
-    sendMessage,
-} from '../../utils/common-utils';
-import {
-    SendDependencies,
-    createDeleteRequestMessage,
-} from '@dm3-org/dm3-lib-messaging';
-import { AuthContext } from '../../context/AuthContext';
-import { ConversationContext } from '../../context/ConversationContext';
-import { MessageContext } from '../../context/MessageContext';
+import './DeleteMessage.css';
 
 export default function DeleteMessage() {
     const { state, dispatch } = useContext(GlobalContext);

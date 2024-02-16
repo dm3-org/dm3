@@ -1,5 +1,4 @@
 import {
-    AccountsType,
     Actions,
     GlobalState,
     ModalStateType,
@@ -95,93 +94,16 @@ export const openEtherscan = (address: string) => {
     window.open(ETHERSCAN_URL + address, '_blank');
 };
 
-// method to hide contact from contact list
-export const hideContact = (
-    state: GlobalState,
-    dispatch: React.Dispatch<Actions>,
-) => {
-    const ensName = state.accounts.selectedContact?.account.ensName;
-
-    if (ensName) {
-        dispatch({
-            type: ModalStateType.ContactToHide,
-            payload: ensName,
-        });
-        dispatch({
-            type: UserDbType.hideContact,
-            payload: {
-                ensName: ensName,
-            },
-        });
-        dispatch({
-            type: UiViewStateType.SetSelectedRightView,
-            payload: RightViewSelected.Default,
-        });
-        dispatch({
-            type: AccountsType.SetSelectedContact,
-            payload: undefined,
-        });
-    }
-};
-
 // method to close profile/contact info page
-export const onClose = (dispatch: React.Dispatch<Actions>) => {
-    dispatch({
-        type: AccountsType.SetSelectedContact,
-        payload: undefined,
-    });
+export const onClose = (
+    dispatch: React.Dispatch<Actions>,
+    setSelectedContact: Function,
+) => {
+    setSelectedContact(undefined);
     dispatch({
         type: UiViewStateType.SetSelectedRightView,
         payload: RightViewSelected.Default,
     });
-};
-
-// method to fetch selected contact
-export const getContactSelected = async (
-    state: GlobalState,
-    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
-): Promise<IContactInfo | null> => {
-    const key =
-        state.accounts.selectedContact?.account.profile?.publicEncryptionKey;
-    const name = state.accounts.selectedContact?.account.ensName;
-    const cacheContacts = state.cache.contacts;
-
-    if (cacheContacts) {
-        const selectedAccount = cacheContacts.filter(
-            (data) =>
-                (key &&
-                    data.contactDetails.account.profile?.publicEncryptionKey ===
-                        key) ||
-                name === data.contactDetails.account.ensName,
-        );
-
-        if (selectedAccount.length) {
-            let address;
-            const provider = mainnetProvider;
-
-            try {
-                address = await provider?.resolveName(
-                    selectedAccount[0].contactDetails.account.ensName,
-                );
-            } catch (error) {}
-
-            if (!address) {
-                address =
-                    selectedAccount[0].contactDetails.account.ensName.split(
-                        '.',
-                    )[0];
-                address = ethers.utils.isAddress(address) ? address : 'Not set';
-            }
-
-            const info: IContactInfo = {
-                name: selectedAccount[0].contactDetails.account.ensName,
-                address: address ? address : '',
-                image: selectedAccount[0].image,
-            };
-            return info;
-        }
-    }
-    return null;
 };
 
 // method to check DM3 network profile on ENS

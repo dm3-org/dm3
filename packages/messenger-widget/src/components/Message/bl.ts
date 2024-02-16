@@ -1,29 +1,11 @@
-import {
-    Envelop,
-    SendDependencies,
-    createDeleteRequestMessage,
-} from '@dm3-org/dm3-lib-messaging';
 import { MessageProps } from '../../interfaces/props';
-import { Attachment, ContactPreview } from '../../interfaces/utils';
-import { isFileAImage } from '../MessageInputBox/bl';
-import {
-    Actions,
-    GlobalState,
-    MessageActionType,
-    ModalStateType,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
+import { Attachment } from '../../interfaces/utils';
 import {
     createNameForFile,
     generateRandomStringForId,
-    getDependencies,
     getFileTypeFromBase64,
-    getHaltDelivery,
-    sendMessage,
 } from '../../utils/common-utils';
-import { AuthContext } from '../../context/AuthContext';
-import { useContext } from 'react';
-import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
+import { isFileAImage } from '../MessageInputBox/bl';
 
 export const scrollToMessage = (replyFromMessageId: string) => {
     const element = document.getElementById(replyFromMessageId) as HTMLElement;

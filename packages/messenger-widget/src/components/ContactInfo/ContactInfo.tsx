@@ -8,23 +8,19 @@ import { ConversationContext } from '../../context/ConversationContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 import '../../styles/profile-contact.css';
 import { GlobalContext } from '../../utils/context-utils';
-import {
-    hideContact,
-    onClose,
-    openEnsProfile,
-    openEtherscan,
-} from '../../utils/ens-utils';
-import { Button } from '../Button/Button';
-import { EnsDetails } from '../EnsDetails/EnsDetails';
-import { closeLoader, startLoader } from '../Loader/Loader';
+import { onClose, openEnsProfile, openEtherscan } from '../../utils/ens-utils';
 import {
     RightViewSelected,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
+import { Button } from '../Button/Button';
+import { EnsDetails } from '../EnsDetails/EnsDetails';
+import { closeLoader, startLoader } from '../Loader/Loader';
 
 export function ContactInfo() {
     const { state, dispatch } = useContext(GlobalContext);
-    const { selectedContact, hideContact } = useContext(ConversationContext);
+    const { selectedContact, setSelectedContactName, hideContact } =
+        useContext(ConversationContext);
     const mainnetProvider = useMainnetProvider();
 
     const [address, setAddress] = useState<string>('');
@@ -83,7 +79,7 @@ export function ContactInfo() {
                     className="pointer-cursor close-icon"
                     src={closeIcon}
                     alt="close"
-                    onClick={() => onClose(dispatch)}
+                    onClick={() => onClose(dispatch, setSelectedContactName)}
                 />
             </div>
 

@@ -9,7 +9,6 @@ import { useAccount, useWalletClient } from 'wagmi';
 import { TLDContext } from '../../context/TLDContext';
 import { GlobalContext } from '../../utils/context-utils';
 import {
-    AccountsType,
     Actions,
     CacheType,
     ConnectionType,
@@ -152,9 +151,6 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
 const resetStates = (dispatch: React.Dispatch<Actions>) => {
     dispatch({
         type: ConnectionType.Reset,
-    });
-    dispatch({
-        type: AccountsType.Reset,
     });
     dispatch({
         type: CacheType.Reset,

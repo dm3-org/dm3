@@ -37,16 +37,6 @@ export type Accounts = {
     selectedContact: Contact | undefined;
 };
 
-export type AccountsPayload = {
-    [AccountsType.SetSelectedContact]: Contact | undefined;
-    [AccountsType.SetContacts]: Contact[] | undefined;
-    [AccountsType.RemoveContact]: string;
-    [AccountsType.Reset]: any;
-};
-
-export type AccountsActions =
-    ActionMap<AccountsPayload>[keyof ActionMap<AccountsPayload>];
-
 export type AuthStatePayload = {
     [AuthStateType.AddNewSession]: AuthSession;
 };
@@ -87,7 +77,7 @@ export type ConnectionActions =
 
 export type GlobalState = {
     connection: Connection;
-    accounts: Accounts;
+
     cache: Cache;
     userDb: UserDB | undefined;
     uiState: UiState;
@@ -126,19 +116,11 @@ export type UiStateActions =
 export type Actions =
     | ConnectionActions
     | CacheActions
-    | AccountsActions
     | UserDbActions
     | UiStateActions
     | AuthStateActions
     | UiViewStateActions
     | ModalStateActions;
-
-export enum AccountsType {
-    SetSelectedContact = 'SET_SELECTED_CONTACT',
-    SetContacts = 'SET_CONTACTS',
-    RemoveContact = 'REMOVE_CONTACT',
-    Reset = 'RESET',
-}
 
 export enum AccountInfo {
     None,

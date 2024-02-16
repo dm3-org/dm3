@@ -1,32 +1,26 @@
-import './MessageAction.css';
+import { createReactionMessage } from '@dm3-org/dm3-lib-messaging';
+import { useContext, useEffect, useState } from 'react';
+import deleteIcon from '../../assets/images/chat-delete.svg';
 import editIcon from '../../assets/images/edit.svg';
 import replyIcon from '../../assets/images/reply.svg';
-import { MessageProps } from '../../interfaces/props';
-import deleteIcon from '../../assets/images/chat-delete.svg';
-import threeDotsIcon from '../../assets/images/three-dots.svg';
 import saveIcon from '../../assets/images/save.svg';
+import threeDotsIcon from '../../assets/images/three-dots.svg';
+import { AuthContext } from '../../context/AuthContext';
+import { ConversationContext } from '../../context/ConversationContext';
+import { MessageContext } from '../../context/MessageContext';
+import { MessageProps } from '../../interfaces/props';
+import {
+    createNameForFile,
+    getFileTypeFromBase64,
+} from '../../utils/common-utils';
 import { GlobalContext } from '../../utils/context-utils';
-import { useContext, useEffect, useState } from 'react';
 import {
     MessageActionType,
     ModalStateType,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
-import {
-    createNameForFile,
-    getDependencies,
-    getFileTypeFromBase64,
-    getHaltDelivery,
-    sendMessage,
-} from '../../utils/common-utils';
-import {
-    SendDependencies,
-    createReactionMessage,
-} from '@dm3-org/dm3-lib-messaging';
 import { hideMsgActionDropdown } from '../MessageInputBox/bl';
-import { AuthContext } from '../../context/AuthContext';
-import { MessageContext } from '../../context/MessageContext';
-import { ConversationContext } from '../../context/ConversationContext';
+import './MessageAction.css';
 
 export function MessageAction(props: MessageProps) {
     const { state, dispatch } = useContext(GlobalContext);

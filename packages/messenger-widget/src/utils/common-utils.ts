@@ -114,55 +114,6 @@ export const closeErrorModal = () => {
     data.innerText = '';
 };
 
-export const getHaltDelivery = (state: GlobalState): boolean => {
-    if (state.cache.contacts) {
-        //Check if selected contact is present in the cache
-        const contacts = state.cache.contacts.filter(
-            (data) =>
-                data.contactDetails.account.ensName ===
-                state.accounts.selectedContact?.account.ensName,
-        );
-        if (contacts.length) {
-            //Check if the selected contact has a public encryption key otherwise return false
-            return contacts[0].contactDetails.account.profile
-                ?.publicEncryptionKey &&
-                contacts[0].contactDetails.account?.profile?.publicEncryptionKey
-                ? false
-                : true;
-        } else {
-            return true;
-        }
-    } else {
-        return true;
-    }
-};
-
-export const getDependencies = (
-    state: GlobalState,
-    account: Account,
-): SendDependencies => {
-    const data = {
-        deliverServiceProfile:
-            state.accounts.selectedContact?.deliveryServiceProfile!,
-        from: account!,
-        to: state.accounts.selectedContact?.account as Account,
-        keys: state.userDb?.keys as ProfileKeys,
-    };
-    if (state.cache.contacts) {
-        const contacts = state.cache.contacts.filter(
-            (data) =>
-                data.contactDetails.account.ensName ===
-                state.accounts.selectedContact?.account.ensName,
-        );
-        if (contacts.length) {
-            data.deliverServiceProfile = contacts[0].contactDetails
-                .deliveryServiceProfile as DeliveryServiceProfile;
-            data.to = contacts[0].contactDetails.account;
-        }
-    }
-    return data;
-};
-
 export const sendMessage = async (
     account: Account,
     dsToken: string,

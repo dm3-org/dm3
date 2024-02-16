@@ -56,7 +56,7 @@ export const onSubmitMessage = async (
 
         // reply to the original message
         const messageData = await createEditMessage(
-            state.accounts.selectedContact?.account.ensName!,
+            selectedContact?.account.ensName!,
             account!.ensName,
             props.message,
             profileKeys!.signingKeyPair.privateKey,

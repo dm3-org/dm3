@@ -1,5 +1,5 @@
 import React, { Dispatch } from 'react';
-import { accountsReducer } from '../contexts/Accounts';
+
 import { authReducer } from '../contexts/Auth';
 import { cacheReducer } from '../contexts/Cache';
 import { connectionReducer } from '../contexts/Connection';
@@ -8,7 +8,6 @@ import { uiStateReducer } from '../contexts/UiState';
 import { userDbReducer } from '../contexts/UserDB';
 import { GlobalContextProviderProps } from '../interfaces/context';
 import {
-    AccountsActions,
     Actions,
     AuthStateActions,
     CacheActions,
@@ -35,7 +34,6 @@ const mainReducer = (state: GlobalState, action: Actions): GlobalState => ({
         action as ConnectionActions,
     ),
     cache: cacheReducer(state.cache, action as CacheActions),
-    accounts: accountsReducer(state.accounts, action as AccountsActions),
     userDb: userDbReducer(state.userDb, action as UserDbActions),
     uiState: uiStateReducer(state.uiState, action as UiStateActions),
     auth: authReducer(state.auth, action as AuthStateActions),

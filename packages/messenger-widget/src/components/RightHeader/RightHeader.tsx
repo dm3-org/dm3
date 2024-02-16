@@ -8,16 +8,17 @@ import { HideFunctionProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
 import {
-    AccountsType,
     RightViewSelected,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
 import './RightHeader.css';
+import { ConversationContext } from '../../context/ConversationContext';
 
 export function RightHeader(props: HideFunctionProps) {
     // fetches context storage
     const { state, dispatch } = useContext(GlobalContext);
     const { account, displayName, ethAddress } = useContext(AuthContext);
+    const { setSelectedContactName } = useContext(ConversationContext);
 
     const mainnetProvider = useMainnetProvider();
 
@@ -48,11 +49,7 @@ export function RightHeader(props: HideFunctionProps) {
                 type: UiViewStateType.SetSelectedRightView,
                 payload: profileActive,
             });
-
-            dispatch({
-                type: AccountsType.SetSelectedContact,
-                payload: undefined,
-            });
+            setSelectedContactName(undefined);
         }
     };
 

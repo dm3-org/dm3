@@ -4,7 +4,7 @@ import {
     getUserProfile,
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
-import { log, stringify } from '@dm3-org/dm3-lib-shared';
+import { log } from '@dm3-org/dm3-lib-shared';
 import {
     UserDB,
     createEmptyConversation,
@@ -12,14 +12,7 @@ import {
 } from '@dm3-org/dm3-lib-storage';
 import axios from 'axios';
 import { ethers } from 'ethers';
-import { Config } from '../interfaces/config';
 import { Contact } from '../interfaces/context';
-import {
-    AccountsType,
-    Actions,
-    GlobalState,
-    UserDbType,
-} from '../utils/enum-type-utils';
 import { fetchPendingConversations } from './messages';
 
 // export async function requestContacts(
