@@ -57,7 +57,7 @@ export const renderEdit = (messages: MessageModel[]) => {
 
     for (const path of uniquePathArray) {
         const originalIndex = path.shift();
-        const lastEditIndex = path.shift();
+        const lastEditIndex = path.pop();
 
         const editedMessage = messages[lastEditIndex!];
         messages[originalIndex!] = editedMessage;

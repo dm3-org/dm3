@@ -8,11 +8,13 @@ export const renderMessage = (messages: MessageModel[]) => {
     const withDeletes = renderDelete(messages);
     const withReactions = renderReactions(withDeletes);
     const withReply = renderReply(withReactions);
-    const withoutEdited = renderEdit(withReply);
 
-    return withoutEdited.sort(
+    withReply.sort(
         (a, b) =>
             a.envelop.message.metadata.timestamp -
             b.envelop.message.metadata.timestamp,
     );
+    const withoutEdited = renderEdit(withReply);
+
+    return withoutEdited;
 };
