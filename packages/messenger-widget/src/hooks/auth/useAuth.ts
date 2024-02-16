@@ -62,13 +62,14 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
             if (!account) {
                 return;
             }
-
+            //TODO fix tommorow
             const displayName = await resolveAliasToTLD(account?.ensName);
+            console.log('updated account', account);
             //const displayName = await getAlias(account.ensName);
             setDisplayName(displayName);
         };
         fetchDisplayName();
-    }, [ethAddress]);
+    }, [ethAddress, account]);
 
     // can be check to retrive the current auth state
     const isLoggedIn = useMemo<boolean>(
@@ -136,6 +137,7 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
     return {
         profileKeys,
         cleanSignIn,
+        setDisplayName,
         account,
         displayName,
         ethAddress,

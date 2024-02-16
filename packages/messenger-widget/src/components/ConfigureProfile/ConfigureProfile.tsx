@@ -38,7 +38,7 @@ export function ConfigureDM3Profile() {
     const { state, dispatch } = useContext(GlobalContext);
     const { chain } = useNetwork();
 
-    const { account, ethAddress, deliveryServiceToken, setAccount } =
+    const { account, ethAddress, deliveryServiceToken, setDisplayName } =
         useContext(AuthContext);
     const mainnetProvider = useMainnetProvider();
 
@@ -81,7 +81,7 @@ export function ConfigureDM3Profile() {
     // handles claim or delete DM3 user name
     const handleClaimOrRemoveDm3Name = async (
         type: ACTION_TYPE,
-        setAccount: Function,
+        setDisplayName: Function,
     ) => {
         if (type === ACTION_TYPE.CONFIGURE) {
             const name = dm3Name.trim();
@@ -97,7 +97,7 @@ export function ConfigureDM3Profile() {
                 name,
                 dispatch,
                 setError,
-                setAccount,
+                setDisplayName,
             );
         } else {
             const result = await removeAliasFromDm3Name(
@@ -239,7 +239,7 @@ export function ConfigureDM3Profile() {
                                     e.preventDefault();
                                     handleClaimOrRemoveDm3Name(
                                         ACTION_TYPE.CONFIGURE,
-                                        setAccount,
+                                        setDisplayName,
                                     );
                                 }}
                             >
@@ -317,7 +317,7 @@ export function ConfigureDM3Profile() {
                             onClick={() =>
                                 handleClaimOrRemoveDm3Name(
                                     ACTION_TYPE.CONFIGURE,
-                                    setAccount,
+                                    setDisplayName,
                                 )
                             }
                         >

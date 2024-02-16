@@ -87,7 +87,7 @@ export const submitDm3UsernameClaim = async (
     dm3UserEnsName: string,
     dispatch: React.Dispatch<Actions>,
     setError: Function,
-    setAccount: Function,
+    setDisplayName: Function,
 ) => {
     try {
         // start loader
@@ -115,8 +115,7 @@ export const submitDm3UsernameClaim = async (
             dsToken!,
         );
 
-        const updatedAccount = { ...account, ensName: ensName };
-        setAccount(updatedAccount);
+        setDisplayName(ensName);
         setContactHeightToMaximum(true);
     } catch (e) {
         setError('Name is not available', NAME_TYPE.DM3_NAME);
