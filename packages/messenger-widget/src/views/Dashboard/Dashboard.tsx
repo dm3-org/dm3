@@ -2,7 +2,6 @@ import './Dashboard.css';
 import { useContext } from 'react';
 import LeftView from '../LeftView/LeftView';
 import RightView from '../RightView/RightView';
-import Storage from '../../components/Storage/Storage';
 import { DashboardProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
 import {
