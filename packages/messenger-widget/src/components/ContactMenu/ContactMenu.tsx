@@ -24,7 +24,7 @@ export function ContactMenu(props: IContactMenu) {
     };
 
     const onClickOfHideContact = () => {
-        hideContact(props.contactDetails.name);
+        hideContact(props.contactDetails.contactDetails.account.ensName);
         //Close the message Modal and show the default one instead
         dispatch({
             type: UiViewStateType.SetSelectedRightView,

@@ -166,7 +166,7 @@ export const useMessage = () => {
             return;
         }
 
-        const unreadMessages = messages[contact]?.filter(
+        const unreadMessages = (messages[contact] ?? []).filter(
             (message) =>
                 message.messageState !== MessageState.Read &&
                 message.envelop.message.metadata.from !== account?.ensName,

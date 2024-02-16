@@ -88,7 +88,7 @@ export default function AddConversation() {
             });
 
             const newContact = await addConversation(aliasName);
-            setSelectedContactName(newContact.name);
+            setSelectedContactName(newContact.contactDetails.account.ensName);
             closeLoader();
 
             // close the modal

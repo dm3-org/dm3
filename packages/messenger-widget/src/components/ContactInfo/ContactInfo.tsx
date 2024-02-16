@@ -46,7 +46,7 @@ export function ContactInfo() {
         if (!selectedContact) {
             return;
         }
-        hideContact(selectedContact.name);
+        hideContact(selectedContact.contactDetails.account.ensName);
         //Close the message Modal and show the default one instead
         dispatch({
             type: UiViewStateType.SetSelectedRightView,

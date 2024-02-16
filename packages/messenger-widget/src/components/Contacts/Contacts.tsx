@@ -107,6 +107,10 @@ export function Contacts(props: DashboardProps) {
         return '';
     };
 
+    useEffect(() => {
+        console.log('selectedContact', selectedContact);
+    }, [selectedContact]);
+
     return (
         <div
             id="chat-scroller"
@@ -119,6 +123,12 @@ export function Contacts(props: DashboardProps) {
                 contacts.map((data) => {
                     const id = data.contactDetails.account.ensName;
                     const unreadMessageCount = getUnreadMessageCount(id);
+
+                    console.log(id);
+                    console.log(
+                        'is selected contact',
+                        selectedContact?.contactDetails.account.ensName,
+                    );
 
                     return (
                         !data.isHidden && (

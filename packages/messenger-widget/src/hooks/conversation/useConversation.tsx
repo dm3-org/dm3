@@ -31,7 +31,9 @@ export const useConversation = (config: Config) => {
         useState<boolean>(false);
 
     const conversationCount = useMemo(() => contacts.length, [contacts]);
+
     const selectedContact = useMemo(() => {
+        console.log('selectedContactName MEMO', selectedContactName);
         return contacts.find(
             (contact) =>
                 contact.contactDetails.account.ensName === selectedContactName,
@@ -225,6 +227,8 @@ export const useConversation = (config: Config) => {
             ...contact,
             isHidden: false,
         };
+        console.log('unhiddenContact', unhiddenContact);
+        setSelectedContactName(unhiddenContact.contactDetails.account.ensName);
         hydrateExistingContactAsync(unhiddenContact);
     };
 
