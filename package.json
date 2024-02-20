@@ -20,7 +20,8 @@
             "packages/cli",
             "packages/billboard-client",
             "packages/billboard-widget",
-            "packages/toplevel-alias"
+            "packages/toplevel-alias",
+            "packages/dm3-next-app"
         ],
         "nohoist": [
             "**/react",

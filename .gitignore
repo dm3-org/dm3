@@ -63,3 +63,6 @@ packages/lib/**/dist
 
 packages/**/.yarn
 temp
+
+# VS code settings
+.vscode
