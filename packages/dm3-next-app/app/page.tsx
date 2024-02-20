@@ -1,9 +1,24 @@
 'use client';
 
 import styles from './page.module.css';
+import dynamic from 'next/dynamic';
 
-//@ts-ignore
-import { DM3 } from '@dm3-org/dm3-messenger-widget';
+// //@ts-ignore
+// import { DM3 } from '@dm3-org/dm3-messenger-widget';
+
+{
+    /* This is done to avoid document not found error while building the app.
+It imports dynamically so document is used once it is loaded. 
+Its done just to avoid github pipeline breaking, otherwise normald DM3 
+impport and use also works*/
+}
+const DynamicComponentWithNoSSR = dynamic(
+    () => {
+        //@ts-ignore
+        return import('@dm3-org/dm3-messenger-widget') as any;
+    },
+    { ssr: false },
+);
 
 export default function Home() {
     const props: any = {
@@ -19,7 +34,15 @@ export default function Home() {
 
     return (
         <main className={styles.dm3Container}>
-            <DM3 {...props} />
+            {/* This is not used because it uses document and its not found
+            while making build so pipeline fails in github */}
+            {/* <DM3 {...props} /> */}
+
+            {/* This is done to avoid document not found error while building the app.
+            It imports dynamically so document is used once it is loaded. 
+            Its done just to avoid github pipeline breaking, otherwise normald DM3 
+            impport and use also works*/}
+            <DynamicComponentWithNoSSR {...props} />
         </main>
     );
 }
