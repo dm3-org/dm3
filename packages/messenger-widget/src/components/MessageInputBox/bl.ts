@@ -1,9 +1,23 @@
 import {
+    buildEnvelop,
     createEditMessage,
     createMessage,
     createReplyMessage,
+    getEnvelopSize,
+    Message,
     SendDependencies,
-} from 'dm3-lib-messaging';
+} from '@dm3-org/dm3-lib-messaging';
+import { Account } from '@dm3-org/dm3-lib-profile';
+import { Attachment } from '../../interfaces/utils';
+import {
+    closeErrorModal,
+    generateRandomStringForId,
+    getDependencies,
+    getFileTypeFromBase64,
+    getHaltDelivery,
+    openErrorModal,
+    sendMessage,
+} from '../../utils/common-utils';
 import {
     Actions,
     GlobalState,
@@ -11,17 +25,9 @@ import {
     ModalStateType,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
-import {
-    getHaltDelivery,
-    getDependencies,
-    sendMessage,
-    openErrorModal,
-    closeErrorModal,
-    generateRandomStringForId,
-    getFileTypeFromBase64,
-} from '../../utils/common-utils';
-import { Attachment } from '../../interfaces/utils';
 import { scrollToBottomOfChat } from '../Chat/bl';
+import { encryptAsymmetric, EncryptedPayload } from '@dm3-org/dm3-lib-crypto';
+import { log } from '@dm3-org/dm3-lib-shared';
 
 export const hideMsgActionDropdown = () => {
     const element = document.getElementById('msg-dropdown') as HTMLElement;
@@ -68,10 +74,14 @@ export const setAttachmentsOnEditMessage = (
 };
 
 const handleNewUserMessage = async (
+    deliveryServiceToken: string,
     message: string,
     state: GlobalState,
+    account: Account,
     dispatch: React.Dispatch<Actions>,
     attachments: string[],
+    setMessageText: Function,
+    setFiles: Function,
 ) => {
     const userDb = state.userDb;
 
@@ -85,16 +95,33 @@ const handleNewUserMessage = async (
 
     const messageData = await createMessage(
         state.accounts.selectedContact.account.ensName,
-        state.connection.account!.ensName,
+        account!.ensName,
         message,
         userDb.keys.signingKeyPair.privateKey,
         attachments,
     );
 
     const haltDelivery = getHaltDelivery(state);
-    const sendDependencies: SendDependencies = getDependencies(state);
+    const sendDependencies: SendDependencies = getDependencies(state, account);
+
+    const isMsgSizeInLimit = await isEnvelopSizeInLimit(
+        messageData,
+        encryptAsymmetric,
+        sendDependencies,
+        state,
+    );
+
+    if (!isMsgSizeInLimit) return;
+
+    // clear the message text & files selected from input field
+    setMessageText('');
+    setFiles([]);
+
+    scrollToBottomOfChat();
 
     await sendMessage(
+        account,
+        deliveryServiceToken!,
         state,
         sendDependencies,
         messageData,
@@ -104,10 +131,14 @@ const handleNewUserMessage = async (
 };
 
 const editMessage = async (
+    deliveryServiceToken: string,
     state: GlobalState,
+    account: Account,
     dispatch: React.Dispatch<Actions>,
     message: string,
     attachments: string[],
+    setMessageText: Function,
+    setFiles: Function,
 ) => {
     const userDb = state.userDb;
 
@@ -123,6 +154,33 @@ const editMessage = async (
         state.uiView.selectedMessageView.messageData?.envelop.metadata
             ?.encryptedMessageHash;
 
+    // edit the original message
+    const messageData = await createEditMessage(
+        state.accounts.selectedContact?.account.ensName as string,
+        account!.ensName,
+        message,
+        userDb.keys.signingKeyPair.privateKey as string,
+        referenceMessageHash as string,
+        attachments,
+    );
+
+    const haltDelivery = getHaltDelivery(state);
+    const sendDependencies: SendDependencies = getDependencies(state, account);
+
+    const isMsgSizeInLimit = await isEnvelopSizeInLimit(
+        messageData,
+        encryptAsymmetric,
+        sendDependencies,
+        state,
+    );
+
+    if (!isMsgSizeInLimit) return;
+
+    // clear the message text & files selected from input field
+    setMessageText('');
+    setFiles([]);
+    scrollToBottomOfChat();
+
     dispatch({
         type: UiViewStateType.SetMessageView,
         payload: {
@@ -131,20 +189,9 @@ const editMessage = async (
         },
     });
 
-    // edit the original message
-    const messageData = await createEditMessage(
-        state.accounts.selectedContact?.account.ensName as string,
-        state.connection.account!.ensName,
-        message,
-        userDb.keys.signingKeyPair.privateKey as string,
-        referenceMessageHash as string,
-        attachments,
-    );
-
-    const haltDelivery = getHaltDelivery(state);
-    const sendDependencies: SendDependencies = getDependencies(state);
-
     await sendMessage(
+        account,
+        deliveryServiceToken!,
         state,
         sendDependencies,
         messageData,
@@ -154,10 +201,14 @@ const editMessage = async (
 };
 
 const replyMessage = async (
+    deliveryServiceToken: string,
     state: GlobalState,
+    account: Account,
     dispatch: React.Dispatch<Actions>,
     message: string,
     attachments: string[],
+    setMessageText: Function,
+    setFiles: Function,
 ) => {
     const userDb = state.userDb;
 
@@ -173,6 +224,33 @@ const replyMessage = async (
         state.uiView.selectedMessageView.messageData?.envelop.metadata
             ?.encryptedMessageHash;
 
+    // reply to the original message
+    const messageData = await createReplyMessage(
+        state.accounts.selectedContact?.account.ensName as string,
+        account!.ensName,
+        message,
+        userDb.keys.signingKeyPair.privateKey as string,
+        referenceMessageHash as string,
+        attachments,
+    );
+
+    const haltDelivery = getHaltDelivery(state);
+    const sendDependencies: SendDependencies = getDependencies(state, account);
+
+    const isMsgSizeInLimit = await isEnvelopSizeInLimit(
+        messageData,
+        encryptAsymmetric,
+        sendDependencies,
+        state,
+    );
+
+    if (!isMsgSizeInLimit) return;
+
+    // clear the message text & files selected from input field
+    setMessageText('');
+    setFiles([]);
+    scrollToBottomOfChat();
+
     dispatch({
         type: UiViewStateType.SetMessageView,
         payload: {
@@ -181,20 +259,9 @@ const replyMessage = async (
         },
     });
 
-    // reply to the original message
-    const messageData = await createReplyMessage(
-        state.accounts.selectedContact?.account.ensName as string,
-        state.connection.account!.ensName,
-        message,
-        userDb.keys.signingKeyPair.privateKey as string,
-        referenceMessageHash as string,
-        attachments,
-    );
-
-    const haltDelivery = getHaltDelivery(state);
-    const sendDependencies: SendDependencies = getDependencies(state);
-
     await sendMessage(
+        account,
+        deliveryServiceToken,
         state,
         sendDependencies,
         messageData,
@@ -204,8 +271,10 @@ const replyMessage = async (
 };
 
 export const handleSubmit = async (
+    deliveryServiceToken: string,
     message: string,
     state: GlobalState,
+    account: Account,
     dispatch: React.Dispatch<Actions>,
     event:
         | React.FormEvent<HTMLFormElement>
@@ -232,39 +301,19 @@ export const handleSubmit = async (
         return;
     }
 
-    const sizeLimit = state.cache.messageSizeLimit;
-    const sizeCheck = isMessageWithinSizeLimit(message, attachments, sizeLimit);
-
-    if (!sizeCheck) {
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                actionType: MessageActionType.NONE,
-                messageData: undefined,
-            },
-        });
-
-        openErrorModal(
-            'The size of the message is larger than limit '
-                .concat(sizeLimit.toString(), ' bytes. ')
-                .concat('Please reduce the message size.'),
-            false,
-            closeErrorModal,
-        );
-
-        return;
-    }
-
-    // clear the message text & files selected from input field
-    setMessageText('');
-    setFiles([]);
-
-    scrollToBottomOfChat();
-
     if (
         state.uiView.selectedMessageView.actionType === MessageActionType.EDIT
     ) {
-        await editMessage(state, dispatch, message, attachments);
+        await editMessage(
+            deliveryServiceToken,
+            state,
+            account,
+            dispatch,
+            message,
+            attachments,
+            setMessageText,
+            setFiles,
+        );
         dispatch({
             type: ModalStateType.LastMessageAction,
             payload: MessageActionType.EDIT,
@@ -272,14 +321,32 @@ export const handleSubmit = async (
     } else if (
         state.uiView.selectedMessageView.actionType === MessageActionType.REPLY
     ) {
-        await replyMessage(state, dispatch, message, attachments);
+        await replyMessage(
+            deliveryServiceToken,
+            state,
+            account,
+            dispatch,
+            message,
+            attachments,
+            setMessageText,
+            setFiles,
+        );
         scrollToBottomOfChat();
         dispatch({
             type: ModalStateType.LastMessageAction,
             payload: MessageActionType.REPLY,
         });
     } else {
-        await handleNewUserMessage(message, state, dispatch, attachments);
+        await handleNewUserMessage(
+            deliveryServiceToken,
+            message,
+            state,
+            account,
+            dispatch,
+            attachments,
+            setMessageText,
+            setFiles,
+        );
         scrollToBottomOfChat();
         dispatch({
             type: ModalStateType.LastMessageAction,
@@ -288,17 +355,39 @@ export const handleSubmit = async (
     }
 };
 
-const isMessageWithinSizeLimit = (
-    message: string | undefined,
-    attachments: string[],
-    maximumSize: number,
-): boolean => {
-    let size = 0;
-    if (message) {
-        size = new Blob([message]).size;
+const isEnvelopSizeInLimit = async (
+    messageData: Message,
+    encryptAsymmetric: (
+        externalPublicKey: string,
+        payload: string,
+    ) => Promise<EncryptedPayload>,
+    sendDependencies: SendDependencies,
+    state: GlobalState,
+): Promise<boolean> => {
+    try {
+        const { encryptedEnvelop } = await buildEnvelop(
+            messageData,
+            encryptAsymmetric,
+            sendDependencies,
+        );
+
+        const envelopSize = getEnvelopSize(encryptedEnvelop);
+        const sizeLimit = state.cache.messageSizeLimit;
+
+        if (envelopSize > sizeLimit) {
+            openErrorModal(
+                'The size of the message is larger than limit '
+                    .concat(sizeLimit.toString(), ' bytes. ')
+                    .concat('Please reduce the message size.'),
+                false,
+                closeErrorModal,
+            );
+
+            return false;
+        }
+        return true;
+    } catch (error) {
+        log(error, 'message size limit');
+        return true;
     }
-    attachments.forEach((file) => {
-        size += new Blob([file]).size;
-    });
-    return size > maximumSize ? false : true;
 };

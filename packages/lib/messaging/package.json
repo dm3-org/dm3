@@ -1,35 +1,36 @@
 {
-    "name": "dm3-lib-messaging",
-    "version": "0.2.0",
-    "license": "MIT",
-    "main": "dist/index.js",
-    "module": "dist-backend/index.js",
-    "types": "dist/index.d.ts",
-    "exports": {
-        ".": {
-            "import": "./dist/index.js",
-            "require": "./dist/index.js"
-        }
-    },
-    "dependencies": {
-        "dm3-lib-crypto": "workspace:^",
-        "dm3-lib-profile": "workspace:^",
-        "dm3-lib-shared": "workspace:^",
-        "ethers": "5.7.2"
-    },
-    "devDependencies": {
-        "axios-mock-adapter": "^1.21.2",
-        "jest": "^28.1.1",
-        "ts-jest": "^28.0.4",
-        "ts-json-schema-generator": "^0.98.0",
-        "typescript": "^4.4.2"
-    },
-    "scripts": {
-        "build:schema": "sh ./schemas.sh",
-        "build": "yarn build:schema &&yarn tsc --declaration",
-        "test": "jest --coverage --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'"
-    },
-    "files": [
-        "dist"
-    ]
+  "name": "@dm3-org/dm3-lib-messaging",
+  "version": "1.0.6",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist-backend/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@dm3-org/dm3-lib-crypto": "workspace:^",
+    "@dm3-org/dm3-lib-profile": "workspace:^",
+    "@dm3-org/dm3-lib-shared": "workspace:^",
+    "ethers": "5.7.2"
+  },
+  "devDependencies": {
+    "axios-mock-adapter": "^1.21.2",
+    "jest": "^28.1.1",
+    "ts-jest": "^28.0.4",
+    "ts-json-schema-generator": "^0.98.0",
+    "typescript": "^4.4.2"
+  },
+  "scripts": {
+    "build:schema": "sh ./schemas.sh",
+    "build": "yarn build:schema &&yarn tsc --declaration",
+    "test": "jest --coverage --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'"
+  },
+  "files": [
+    "dist"
+  ],
+  "publish": true
 }

@@ -1,5 +1,8 @@
 import { ethers } from 'ethers';
-import { createStorageKey, getStorageKeyCreationMessage } from 'dm3-lib-crypto';
+import {
+    createStorageKey,
+    getStorageKeyCreationMessage,
+} from '@dm3-org/dm3-lib-crypto';
 import { createProfileKeys } from './createProfileKeys';
 import { DEFAULT_NONCE } from '../Profile';
 

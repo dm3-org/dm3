@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { DeliveryInformation } from 'dm3-lib-messaging';
+import { DeliveryInformation } from '@dm3-org/dm3-lib-messaging';
 import { SpamFilterRule } from '../SpamFilterRules';
 
 /**

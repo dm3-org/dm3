@@ -1,4 +1,4 @@
-import { StorageLocation } from 'dm3-lib-storage';
+import { StorageLocation } from '@dm3-org/dm3-lib-storage';
 
 export interface Config {
     defaultContact?: string;
@@ -18,6 +18,7 @@ export interface Config {
     ethereumProvider: string;
     walletConnectProjectId: string;
     hideFunction?: string;
+    signInImage?: string;
 }
 
 export interface Dm3Props {

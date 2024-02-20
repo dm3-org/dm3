@@ -1,26 +1,31 @@
 {
-    "name": "dm3-lib-shared",
-    "version": "0.2.4",
-    "main": "dist/index.js",
-    "module": "dist-backend/index.js",
-    "types": "dist/index.d.ts",
-    "exports": {
-        ".": {
-            "import": "./dist/index.js",
-            "require": "./dist/index.js"
-        }
+  "name": "@dm3-org/dm3-lib-shared",
+  "version": "1.0.6",
+  "main": "dist/index.js",
+  "module": "dist-backend/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
     },
-    "dependencies": {
-        "ethers": "5.7.2"
-    },
-    "devDependencies": {
-        "typescript": "^4.4.2"
-    },
-    "scripts": {
-        "build": "yarn tsc --declaration",
-        "test": "echo 'no tests'"
-    },
-    "files": [
-        "dist"
-    ]
+    "./dist/ethersHelper": {
+      "import": "./dist/ethersHelper.js",
+      "require": "./dist/ethersHelper.js"
+    }
+  },
+  "dependencies": {
+    "ethers": "5.7.2"
+  },
+  "devDependencies": {
+    "typescript": "^4.4.2"
+  },
+  "scripts": {
+    "build": "yarn tsc --declaration",
+    "test": "echo 'no tests'"
+  },
+  "files": [
+    "dist"
+  ],
+  "publish": true
 }

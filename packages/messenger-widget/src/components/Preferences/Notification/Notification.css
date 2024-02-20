@@ -1,0 +1,280 @@
+.notification-content-left {
+    margin-left: 6rem;
+}
+
+.notification-btn {
+    border: none;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1.5rem;
+    min-width: 7rem;
+    height: 2.3rem;
+    margin-left: 1.5rem;
+    padding: 0rem 1.5rem 0rem 1.5rem;
+}
+
+.notification-btn-enabled {
+    background: var(--normal-btn-hover);
+    color: var(--text-primary-color);
+}
+
+.notification-btn-disabled {
+    background: var(--background-config-box);
+    color: var(--text-secondary-color);
+    box-shadow: 0px 0px 20px 0px #000000;
+}
+
+.notification-heading {
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.5rem;
+    letter-spacing: 0px;
+    margin-left: 1.2rem;
+}
+
+.notification-text {
+    font-size: 0.625rem;
+    font-weight: 300;
+    line-height: 0.875rem;
+    letter-spacing: 0px;
+    margin-left: 3.3rem;
+    margin-top: 0.5rem;
+}
+
+/* Active checkbox */
+.checkbox-container {
+    display: block;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 22px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.disabled-content {
+    color: var(--background-config-box);
+}
+
+/* Hide the browser's default checkbox */
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 25px;
+    width: 25px;
+    border: 1px solid var(--text-primary-color);
+    border-radius: 4px;
+    background: var(--input-field-background-color);
+}
+
+.checkbox-container:hover input ~ .checkmark {
+    border: 1px solid var(--text-primary-color);
+    background: var(--input-field-background-color);
+}
+
+.checkbox-container input:checked ~ .checkmark {
+    border: 1px solid var(--text-primary-color);
+    background: var(--input-field-background-color);
+}
+
+.checkmark:after {
+    content: '';
+    position: absolute;
+    display: none;
+}
+
+/* Show the checkmark when checked */
+.checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+/* Style the checkmark/indicator */
+.checkbox-container .checkmark:after {
+    left: 8px !important;
+    top: 3px !important;
+    width: 8px !important;
+    height: 14px !important;
+    border: solid var(--text-primary-color) !important;
+    border-width: 0 3px 3px 0 !important;
+    transform: rotate(45deg) !important;
+}
+
+/* Disabled checkbox */
+.checkbox-container-disabled {
+    display: block;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 22px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Hide the browser's default checkbox */
+.checkbox-container-disabled input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* Create a custom checkbox */
+.checkmark-disabled {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 25px;
+    width: 25px;
+    border: 1px solid var(--normal-btn-inactive);
+    border-radius: 4px;
+    background: var(--input-field-background-color);
+}
+
+.checkbox-container-disabled:hover input ~ .checkmark-disabled {
+    border: 1px solid var(--normal-btn-inactive);
+    background: var(--input-field-background-color);
+}
+
+.checkbox-container-disabled input:checked ~ .checkmark-disabled {
+    border: 1px solid var(--normal-btn-inactive);
+    background: var(--input-field-background-color);
+}
+
+.checkmark-disabled:after {
+    content: '';
+    position: absolute;
+    display: none;
+}
+
+/* Show the checkmark when checked */
+.checkbox-container-disabled input:checked ~ .checkmark-disabled:after {
+    display: block;
+}
+
+/* Style the checkmark/indicator */
+.checkbox-container-disabled .checkmark-disabled:after {
+    left: 8px !important;
+    top: 3px !important;
+    width: 8px !important;
+    height: 14px !important;
+    border: solid var(--normal-btn-inactive) !important;
+    border-width: 0 3px 3px 0 !important;
+    transform: rotate(45deg) !important;
+}
+
+/* Modal CSS */
+.notification-modal-content {
+    margin: auto;
+    padding: 2rem;
+    border: none;
+    width: fit-content;
+    top: 15%;
+    position: relative;
+    height: auto;
+    box-shadow: 0px 0px 20px 0px #000000;
+}
+
+.notification-description {
+    width: 30rem;
+    font-size: 10px;
+    line-height: 14px;
+    margin: 1rem 0rem 0rem 1rem;
+}
+
+.notification-input-field {
+    border: 1px solid var(--input-field-border-color);
+    padding: 0.3rem 1rem 0.3rem 1rem;
+    color: var(--input-field-text-color);
+    background: var(--input-field-background-color);
+    margin: 0rem 1rem 0rem 1rem;
+}
+
+.notification-input-field::placeholder {
+    font-size: 12px;
+    font-weight: 300;
+    font-style: italic;
+    line-height: 24px;
+    color: var(--text-secondary-color);
+}
+
+.verify-btn {
+    padding: 4px 12px 4px 12px;
+    box-shadow: 0px 0px 44px 0px var(--button-shadow);
+    margin-top: 0rem;
+}
+
+.notification-separator {
+    margin: 1rem 0rem 1rem 0rem;
+}
+
+.notification-error {
+    font-size: 0.8rem;
+    line-height: 14px;
+    font-style: italic;
+    color: var(--error-text);
+}
+
+.resend-code {
+    font-size: 10px;
+    line-height: 14px;
+    margin: 0px;
+    padding-left: 1rem;
+}
+
+.otp {
+    border: 1px solid var(--text-secondary-color);
+    color: var(--text-primary-color);
+    border-radius: 5px;
+    font-weight: 900;
+    font-size: 1.5rem;
+    margin-left: 1rem;
+    background: var(--input-field-background-color);
+    width: 2rem;
+    height: 2.2rem;
+    padding: 0px;
+    text-align: center;
+}
+
+/* Hide arrow buttons from input field Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type='number'] {
+    -moz-appearance: textfield;
+}
+
+.highlighted-notification-data {
+    color: var(--profile-configuration-text-color);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.resent-text {
+    font-size: 0.8rem;
+    line-height: 14px;
+    font-style: italic;
+    margin-bottom: 0.4rem;
+    color: green !important;
+}

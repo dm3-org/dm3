@@ -1,12 +1,19 @@
+import axios from 'axios';
+import { getDeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery-api';
+import { MessageState } from '@dm3-org/dm3-lib-messaging';
 import {
-    normalizeEnsName,
-    getAccountDisplayName,
-    getUserProfile,
     Account,
+    getAccountDisplayName,
     getDeliveryServiceProfile,
-} from 'dm3-lib-profile';
-import { UserDB, getConversation } from 'dm3-lib-storage';
+    getUserProfile,
+    normalizeEnsName,
+} from '@dm3-org/dm3-lib-profile';
+import { globalConfig } from '@dm3-org/dm3-lib-shared';
+import { UserDB, getConversation } from '@dm3-org/dm3-lib-storage';
+import { ethers } from 'ethers';
+import { Contact } from '../../interfaces/context';
 import { ContactPreview } from '../../interfaces/utils';
+import { getAvatarProfilePic } from '../../utils/ens-utils';
 import {
     AccountsType,
     Actions,
@@ -17,13 +24,7 @@ import {
     RightViewSelected,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
-import { Contact } from '../../interfaces/context';
-import { getAvatarProfilePic } from '../../utils/ens-utils';
 import { closeLoader, startLoader } from '../Loader/Loader';
-import { ethers } from 'ethers';
-import { getDeliveryServiceProperties } from 'dm3-lib-delivery-api';
-import { MessageState } from 'dm3-lib-messaging';
-import axios from 'axios';
 
 export const onContactSelected = (
     state: GlobalState,
@@ -56,33 +57,22 @@ export const setContactHeightToMaximum = (isProfileConfigured: boolean) => {
 // fetches contact list and sets data according to view on UI
 export const fetchAndSetContacts = async (
     state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
 ): Promise<ContactPreview[]> => {
     const actualContactList: ContactPreview[] = [];
 
-    // fetch contacts list
-    const contactList = state.accounts.contacts
-        ? state.accounts.contacts.filter(
-              (contact) =>
-                  !state.userDb?.hiddenContacts.find(
-                      (hiddenContact) =>
-                          normalizeEnsName(hiddenContact.ensName) ===
-                          normalizeEnsName(contact.account.ensName),
-                  ),
-          )
-        : [];
-
-    if (contactList.length) {
+    if (state.accounts.contacts) {
         // iterate each record and set data fetched from provider
-        for (const contact of contactList) {
+        for (const contact of state.accounts.contacts) {
             actualContactList.push({
                 name: getAccountDisplayName(contact.account.ensName, 25),
                 message: getMessagesFromUser(
                     contact.account.ensName,
                     state.userDb as UserDB,
-                    contactList,
+                    state.accounts.contacts,
                 ),
                 image: await getAvatarProfilePic(
-                    state,
+                    mainnetProvider,
                     contact.account.ensName,
                 ),
                 unreadMsgCount: fetchUnreadMessagesCount(
@@ -90,33 +80,89 @@ export const fetchAndSetContacts = async (
                     contact.account.ensName,
                 ),
                 contactDetails: contact,
+                isHidden: state.userDb?.hiddenContacts.find(
+                    (hiddenContact) =>
+                        normalizeEnsName(hiddenContact.ensName) ===
+                        normalizeEnsName(contact.account.ensName),
+                )
+                    ? true
+                    : false,
             });
         }
     }
 
-    const profileAccounts = actualContactList.filter(
-        (item) =>
-            item.contactDetails && item.contactDetails.account.profileSignature,
-    );
-
-    const nonProfileAccounts = actualContactList.filter(
-        (item) =>
-            item.contactDetails &&
-            !item.contactDetails.account.profileSignature,
-    );
-
-    const uniqueProfileAccounts = [
-        ...new Map(
-            profileAccounts.map((item) => [
-                item.contactDetails.account.profileSignature,
-                item,
-            ]),
-        ).values(),
-    ];
-
-    const uniqueContacts = [...uniqueProfileAccounts, ...nonProfileAccounts];
+    const uniqueContacts = filterOutDuplicateContacts(actualContactList);
 
     return uniqueContacts;
+};
+
+const filterOutDuplicateContacts = (contactList: ContactPreview[]) => {
+    const result: ContactPreview[] = [];
+
+    // contact with profile
+    const contactsWithProfile = contactList.filter(
+        (data: ContactPreview) => data.contactDetails.account.profileSignature,
+    );
+
+    // contacts without profile
+    const contactsWithOutProfile = contactList.filter(
+        (data: ContactPreview) => !data.contactDetails.account.profileSignature,
+    );
+
+    // fetch unique profiles
+    const uniqueProfiles = [
+        ...new Set(
+            contactsWithProfile.map(
+                (item) => item.contactDetails.account.profileSignature,
+            ),
+        ),
+    ];
+
+    // filter out the profile signatures with ensName
+    uniqueProfiles.map((profile) => {
+        // fetch all contacts with same profile
+        const records = contactsWithProfile.filter(
+            (data) => data.contactDetails.account.profileSignature === profile,
+        );
+        if (records.length > 1) {
+            // fetch profile with eth as ens name
+            const ensNames = records.filter((item) => {
+                const ensName = item.contactDetails.account.ensName.split('.');
+                if (ensName.length === 2 && ensName[1] === 'eth') {
+                    return true;
+                }
+            });
+            if (ensNames.length) {
+                result.push(ensNames[0]);
+            } else {
+                // fetch profile with .user.dm3.eth as ens name
+                const userEnsDomains = records.filter((item) =>
+                    item.contactDetails.account.ensName.endsWith(
+                        globalConfig.USER_ENS_SUBDOMAIN(),
+                    ),
+                );
+                if (userEnsDomains.length) {
+                    result.push(userEnsDomains[0]);
+                } else {
+                    // fetch profile with .addr.dm3.eth as ens name
+                    const addrEnsDomains = records.filter((item) =>
+                        item.contactDetails.account.ensName.endsWith(
+                            globalConfig.ADDR_ENS_SUBDOMAIN(),
+                        ),
+                    );
+                    if (addrEnsDomains.length) {
+                        result.push(addrEnsDomains[0]);
+                    } else {
+                        result.push(records[0]);
+                    }
+                }
+            }
+        } else {
+            result.push(records[0]);
+        }
+    });
+
+    return [...result, ...contactsWithOutProfile];
 };
 
 export const getMessagesFromUser = (
@@ -180,6 +226,7 @@ export const setContactIndexSelectedFromCache = (
 
 export const addNewConversationFound = async (
     state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     dispatch: React.Dispatch<Actions>,
     setListOfContacts: Function,
 ) => {
@@ -223,7 +270,7 @@ export const addNewConversationFound = async (
                         state.accounts.contacts,
                     ),
                     image: await getAvatarProfilePic(
-                        state,
+                        mainnetProvider,
                         contact.account.ensName,
                     ),
                     unreadMsgCount: fetchUnreadMessagesCount(
@@ -231,6 +278,13 @@ export const addNewConversationFound = async (
                         contact.account.ensName,
                     ),
                     contactDetails: contact,
+                    isHidden: state.userDb?.hiddenContacts.find(
+                        (hiddenContact) =>
+                            normalizeEnsName(hiddenContact.ensName) ===
+                            normalizeEnsName(contact.account.ensName),
+                    )
+                        ? true
+                        : false,
                 });
             }
 
@@ -252,6 +306,7 @@ export const addNewConversationFound = async (
 // fetches and sets contact
 export const setContactList = async (
     state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     dispatch: React.Dispatch<Actions>,
     setListOfContacts: Function,
 ) => {
@@ -261,17 +316,72 @@ export const setContactList = async (
             state.accounts.contacts &&
             cacheList.length !== state.accounts.contacts.length
         ) {
-            await addNewConversationFound(state, dispatch, setListOfContacts);
+            await addNewConversationFound(
+                state,
+                mainnetProvider,
+                dispatch,
+                setListOfContacts,
+            );
         } else {
             setListOfContacts(cacheList);
         }
     } else {
-        const data: ContactPreview[] = await fetchAndSetContacts(state);
+        const data: ContactPreview[] = await fetchAndSetContacts(
+            state,
+            mainnetProvider,
+        );
         dispatch({
             type: CacheType.Contacts,
             payload: data,
         });
         setListOfContacts(data);
+    }
+};
+
+export const updateContactDetailsOfNewContact = async (
+    state: GlobalState,
+    dispatch: React.Dispatch<Actions>,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
+) => {
+    if (state.cache.contacts) {
+        const index = state.cache.contacts?.length - 1;
+        const data = state.cache.contacts[index];
+
+        const profile = await fetchesUserProfile(
+            mainnetProvider!,
+            state.modal.addConversation.ensName as string,
+        );
+
+        let deliveryServiceProfile;
+
+        if (profile) {
+            deliveryServiceProfile = await getDeliveryServiceProfile(
+                profile.profile.deliveryServices[0],
+                mainnetProvider!,
+                async (url: string) => (await axios.get(url)).data,
+            );
+        }
+
+        data.contactDetails = {
+            account: {
+                ensName: state.modal.addConversation.ensName as string,
+                profile: profile
+                    ? {
+                          publicEncryptionKey:
+                              profile.profile.publicEncryptionKey,
+                          publicSigningKey: profile.profile.publicSigningKey,
+                          deliveryServices: profile.profile.deliveryServices,
+                      }
+                    : undefined,
+                profileSignature: profile?.signature,
+            },
+            deliveryServiceProfile: deliveryServiceProfile,
+        };
+
+        dispatch({
+            type: CacheType.Contacts,
+            payload: state.cache.contacts,
+        });
     }
 };
 
@@ -296,9 +406,12 @@ export const updateSelectedContact = (
     }
 };
 
-const fetchesUserProfile = async (ensName: string, state: GlobalState) => {
+const fetchesUserProfile = async (
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
+    ensName: string,
+) => {
     try {
-        return await getUserProfile(state.connection.provider!, ensName);
+        return await getUserProfile(mainnetProvider!, ensName);
     } catch (error) {
         return null;
     }
@@ -307,6 +420,7 @@ const fetchesUserProfile = async (ensName: string, state: GlobalState) => {
 // updates contact list on account change when new contact is added
 export const updateContactOnAccountChange = async (
     state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     dispatch: React.Dispatch<Actions>,
     contacts: ContactPreview[],
     setListOfContacts: Function,
@@ -328,8 +442,8 @@ export const updateContactOnAccountChange = async (
                 const item = { ...items[lastIndex] };
 
                 const profile = await fetchesUserProfile(
+                    mainnetProvider!,
                     state.modal.addConversation.ensName as string,
-                    state,
                 );
 
                 const profileDetails = await Promise.all(
@@ -337,8 +451,8 @@ export const updateContactOnAccountChange = async (
                         return {
                             ensName: data.contactDetails.account.ensName,
                             sign: await fetchesUserProfile(
+                                mainnetProvider!,
                                 data.contactDetails.account.ensName,
-                                state,
                             ),
                             index: index,
                         };
@@ -368,6 +482,9 @@ export const updateContactOnAccountChange = async (
 
                         // update details from existing contacts
                         newRecord.contactDetails = newRecord.contactDetails;
+                        newRecord.contactDetails.deliveryServiceProfile =
+                            existingRecord.contactDetails.deliveryServiceProfile;
+
                         if (profile) {
                             newRecord.contactDetails.account.profile =
                                 profile.profile;
@@ -379,13 +496,15 @@ export const updateContactOnAccountChange = async (
                             state.accounts.contacts,
                         );
                         newRecord.image = await getAvatarProfilePic(
-                            state,
+                            mainnetProvider,
                             newRecord.contactDetails.account.ensName as string,
                         );
 
+                        existingRecord.isHidden = true;
+
                         // remove already selected item
+                        newList[duplicateContact[0].index] = existingRecord;
                         newList[duplicateContact[1].index] = newRecord;
-                        newList.splice(duplicateContact[0].index, 1);
 
                         // update contact list
                         setListOfContacts(newList);
@@ -395,19 +514,9 @@ export const updateContactOnAccountChange = async (
                             type: CacheType.Contacts,
                             payload: newList,
                         });
-
-                        // select the new contact
-                        setContactFromList(duplicateContact[0].index);
-
-                        dispatch({
-                            type: AccountsType.SetSelectedContact,
-                            payload: newRecord.contactDetails,
-                        });
                     } else {
                         // if the newly contact added is address
-                        // remove last item
                         const newList = [...contacts];
-                        newList.pop();
 
                         let updatedList: ContactPreview[] = [];
 
@@ -415,9 +524,13 @@ export const updateContactOnAccountChange = async (
                             updatedList = newList;
                         } else {
                             const oldList = [...state.cache.contacts];
-                            oldList.pop();
                             updatedList = oldList;
                         }
+
+                        const newItem = updatedList[updatedList.length - 1];
+                        newItem.isHidden = true;
+
+                        updatedList[updatedList.length - 1] = newItem;
 
                         // update contact list
                         setListOfContacts(updatedList);
@@ -445,7 +558,7 @@ export const updateContactOnAccountChange = async (
                         const deliveryServiceProfile =
                             await getDeliveryServiceProfile(
                                 profile.profile.deliveryServices[0],
-                                state.connection.provider!,
+                                mainnetProvider!,
                                 async (url: string) =>
                                     (
                                         await axios.get(url)
@@ -498,7 +611,7 @@ export const updateContactOnAccountChange = async (
                     );
 
                     item.image = await getAvatarProfilePic(
-                        state,
+                        mainnetProvider,
                         state.modal.addConversation.ensName as string,
                     );
 
@@ -581,12 +694,13 @@ export const showMenuInBottom = (index: number | null): boolean => {
 };
 
 export const fetchMessageSizeLimit = async (
-    state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
+    account: Account,
     dispatch: React.Dispatch<Actions>,
 ) => {
     const details = await getDeliveryServiceProperties(
-        state.connection.provider as ethers.providers.JsonRpcProvider,
-        state.connection.account as Account,
+        mainnetProvider as ethers.providers.JsonRpcProvider,
+        account as Account,
     );
     dispatch({
         type: CacheType.MessageSizeLimit,

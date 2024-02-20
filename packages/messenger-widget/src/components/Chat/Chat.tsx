@@ -1,7 +1,7 @@
 import './Chat.css';
 import { Message } from '../Message/Message';
-import { getConversation } from 'dm3-lib-storage';
-import { globalConfig, log } from 'dm3-lib-shared';
+import { getConversation } from '@dm3-org/dm3-lib-storage';
+import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
 import { HideFunctionProps, MessageProps } from '../../interfaces/props';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
@@ -13,9 +13,15 @@ import {
     scrollToBottomOfChat,
 } from './bl';
 import { MessageActionType } from '../../utils/enum-type-utils';
+import { useAuth } from '../../hooks/auth/useAuth';
+import { AuthContext } from '../../context/AuthContext';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 
 export function Chat(props: HideFunctionProps) {
     const { state, dispatch } = useContext(GlobalContext);
+    const { account } = useContext(AuthContext);
+    const { ethAddress, deliveryServiceToken } = useContext(AuthContext);
+    const mainnetProvider = useMainnetProvider();
 
     const [messageList, setMessageList] = useState<MessageProps[]>([]);
     const [isMessageListInitialized, setIsMessageListInitialized] =
@@ -24,9 +30,7 @@ export function Chat(props: HideFunctionProps) {
         useState<boolean>(false);
     const [showShimEffect, setShowShimEffect] = useState(true);
 
-    const alias =
-        state.connection.ethAddress &&
-        state.connection.ethAddress + globalConfig.ADDR_ENS_SUBDOMAIN();
+    const alias = ethAddress && ethAddress + globalConfig.ADDR_ENS_SUBDOMAIN();
 
     const setProfileCheck = (status: boolean) => {
         setIsProfileConfigured(status);
@@ -64,6 +68,9 @@ export function Chat(props: HideFunctionProps) {
             try {
                 handleMessages(
                     state,
+                    mainnetProvider,
+                    account!,
+                    deliveryServiceToken!,
                     dispatch,
                     getConversation(
                         state.accounts.selectedContact.account.ensName,
@@ -100,10 +107,48 @@ export function Chat(props: HideFunctionProps) {
 
     useEffect(() => {
         checkUserProfileConfigured(
-            state,
+            mainnetProvider,
             state.accounts.selectedContact?.account.ensName as string,
             setProfileCheck,
         );
+        if (state.modal.addConversation.active) {
+            setShowShimEffect(true);
+        }
+        // fetches old message if new contact is added
+        if (
+            !state.modal.addConversation.active &&
+            state.accounts.selectedContact &&
+            state.userDb &&
+            state.accounts.contacts
+        ) {
+            setShowShimEffect(true);
+            try {
+                handleMessages(
+                    state,
+                    mainnetProvider,
+                    account!,
+                    deliveryServiceToken!,
+                    dispatch,
+                    getConversation(
+                        state.accounts.selectedContact.account.ensName,
+                        state.accounts.contacts.map(
+                            (contact) => contact.account,
+                        ),
+                        state.userDb,
+                    ),
+                    alias,
+                    setListOfMessages,
+                    isMessageListInitialized,
+                    updateIsMessageListInitialized,
+                    updateShowShimEffect,
+                    props.hideFunction,
+                );
+            } catch (error) {
+                setListOfMessages([]);
+                setShowShimEffect(false);
+                log(error, 'error');
+            }
+        }
     }, [state.modal.addConversation.active]);
 
     /* shimmer effect contacts css */

@@ -2,7 +2,7 @@ import {
     Envelop,
     SendDependencies,
     createDeleteRequestMessage,
-} from 'dm3-lib-messaging';
+} from '@dm3-org/dm3-lib-messaging';
 import { MessageProps } from '../../interfaces/props';
 import { Attachment } from '../../interfaces/utils';
 import { isFileAImage } from '../MessageInputBox/bl';
@@ -11,6 +11,7 @@ import {
     GlobalState,
     MessageActionType,
     ModalStateType,
+    UiViewStateType,
 } from '../../utils/enum-type-utils';
 import {
     createNameForFile,
@@ -20,24 +21,9 @@ import {
     getHaltDelivery,
     sendMessage,
 } from '../../utils/common-utils';
-
-export const setFilesData = async (
-    files: string[],
-    setAttachmentsData: Function,
-) => {
-    let data: Attachment[] = [];
-    let fileType;
-    files.forEach((file, index) => {
-        fileType = getFileTypeFromBase64(file);
-        data.push({
-            id: generateRandomStringForId(),
-            name: createNameForFile(index, fileType),
-            data: file,
-            isImage: isFileAImage(fileType),
-        });
-    });
-    setAttachmentsData(data);
-};
+import { AuthContext } from '../../context/AuthContext';
+import { useContext } from 'react';
+import { Account } from '@dm3-org/dm3-lib-profile';
 
 export const scrollToMessage = (replyFromMessageId: string) => {
     const element = document.getElementById(replyFromMessageId) as HTMLElement;
@@ -56,48 +42,74 @@ export const getMessageChangeText = (props: MessageProps): string => {
 };
 
 export const deleteEmoji = async (
+    account: Account,
+    deliveryServiceToken: string,
     deleteEmojiData: Envelop,
     props: MessageProps,
     state: GlobalState,
     dispatch: React.Dispatch<Actions>,
 ) => {
-    if (!props.ownMessage) {
-        const userDb = state.userDb;
+    const userDb = state.userDb;
 
-        if (!userDb) {
-            throw Error('userDB not found');
-        }
-
-        if (!state.accounts.selectedContact) {
-            throw Error('no contact selected');
-        }
-
-        const messageHash = deleteEmojiData.metadata?.encryptedMessageHash;
-
-        // delete the message
-        const messageData = await createDeleteRequestMessage(
-            state.accounts.selectedContact?.account.ensName as string,
-            state.connection.account!.ensName,
-            userDb.keys.signingKeyPair.privateKey as string,
-            messageHash as string,
-        );
-
-        messageData.metadata.type = MessageActionType.REACT;
-
-        const haltDelivery = getHaltDelivery(state);
-        const sendDependencies: SendDependencies = getDependencies(state);
-
-        await sendMessage(
-            state,
-            sendDependencies,
-            messageData,
-            haltDelivery,
-            dispatch,
-        );
-
-        dispatch({
-            type: ModalStateType.LastMessageAction,
-            payload: MessageActionType.DELETE,
-        });
+    if (!userDb) {
+        throw Error('userDB not found');
     }
+
+    if (!state.accounts.selectedContact) {
+        throw Error('no contact selected');
+    }
+
+    const messageHash = deleteEmojiData.metadata?.encryptedMessageHash;
+
+    dispatch({
+        type: UiViewStateType.SetMessageView,
+        payload: {
+            actionType: MessageActionType.NONE,
+            messageData: undefined,
+        },
+    });
+
+    // delete the message
+    const messageData = await createDeleteRequestMessage(
+        state.accounts.selectedContact?.account.ensName as string,
+        account!.ensName,
+        userDb.keys.signingKeyPair.privateKey as string,
+        messageHash as string,
+    );
+
+    messageData.metadata.type = MessageActionType.REACT;
+    messageData.message = undefined;
+
+    const haltDelivery = getHaltDelivery(state);
+    const sendDependencies: SendDependencies = getDependencies(state, account!);
+
+    await sendMessage(
+        account,
+        deliveryServiceToken!,
+        state,
+        sendDependencies,
+        messageData,
+        haltDelivery,
+        dispatch,
+    );
+
+    dispatch({
+        type: ModalStateType.LastMessageAction,
+        payload: MessageActionType.NONE,
+    });
+};
+
+export const getFilesData = (files: string[]) => {
+    const data: Attachment[] = [];
+    let fileType;
+    files.forEach((file, index) => {
+        fileType = getFileTypeFromBase64(file);
+        data.push({
+            id: generateRandomStringForId(),
+            name: createNameForFile(index, fileType),
+            data: file,
+            isImage: isFileAImage(fileType),
+        });
+    });
+    return data;
 };

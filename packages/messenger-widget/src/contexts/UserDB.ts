@@ -4,15 +4,15 @@ import {
     createTimestamp,
     getConversation,
     sortEnvelops,
-} from 'dm3-lib-storage';
+} from '@dm3-org/dm3-lib-storage';
 import {
     MessageActionType,
     UserDbActions,
     UserDbType,
 } from '../utils/enum-type-utils';
-import { normalizeEnsName } from 'dm3-lib-profile';
-import { getId } from 'dm3-lib-messaging';
-import { log } from 'dm3-lib-shared';
+import { Account, normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { getId } from '@dm3-org/dm3-lib-messaging';
+import { log } from '@dm3-org/dm3-lib-shared';
 
 export function userDbReducer(
     state: UserDB | undefined,
@@ -26,7 +26,7 @@ export function userDbReducer(
             }
 
             const container = action.payload.container;
-            const connection = action.payload.connection;
+            const account = action.payload.account;
             const newConversations = new Map<string, StorageEnvelopContainer[]>(
                 state.conversations,
             );
@@ -34,8 +34,7 @@ export function userDbReducer(
             let hasChanged = false;
 
             const contactEnsName = normalizeEnsName(
-                container.envelop.message.metadata.from ===
-                    connection.account!.ensName
+                container.envelop.message.metadata.from === account!.ensName
                     ? container.envelop.message.metadata.to
                     : container.envelop.message.metadata.from,
             );
@@ -58,50 +57,14 @@ export function userDbReducer(
                     .metadata.timestamp <
                 container.envelop.message.metadata.timestamp
             ) {
-                if (
-                    container.envelop.message.metadata.type ===
-                        MessageActionType.EDIT ||
-                    container.envelop.message.metadata.type ===
-                        MessageActionType.DELETE ||
-                    (container.envelop.message.metadata.type ===
-                        MessageActionType.REACT &&
-                        !container.envelop.message.message)
-                ) {
-                    const editedContainer = prevContainers.map(
-                        (prevContainer) => {
-                            if (
-                                prevContainer.envelop.metadata
-                                    ?.encryptedMessageHash ===
-                                container.envelop.message.metadata
-                                    .referenceMessageHash
-                            ) {
-                                prevContainer.envelop.message.message =
-                                    container.envelop.message.message;
-                                prevContainer.envelop.message.metadata.type =
-                                    container.envelop.message.metadata.type;
-                                prevContainer.envelop.message.attachments =
-                                    container.envelop.message.attachments;
-                            }
-                            return prevContainer;
-                        },
-                    );
-
-                    newConversations.set(contactEnsName, [...editedContainer]);
-                    log(
-                        `[DB] ${container.envelop.message.metadata.type} message (timestamp: ${lastChangeTimestamp})`,
-                        'info',
-                    );
-                } else {
-                    newConversations.set(contactEnsName, [
-                        ...prevContainers,
-                        container,
-                    ]);
-                    log(
-                        `[DB] ${container.envelop.message.metadata.type} message (timestamp: ${lastChangeTimestamp})`,
-                        'info',
-                    );
-                }
-
+                newConversations.set(contactEnsName, [
+                    ...prevContainers,
+                    container,
+                ]);
+                log(
+                    `[DB] ${container.envelop.message.metadata.type} message (timestamp: ${lastChangeTimestamp})`,
+                    'info',
+                );
                 hasChanged = true;
             } else {
                 const otherContainer = prevContainers.filter(

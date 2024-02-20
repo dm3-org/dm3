@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
-import { UserProfile } from 'dm3-lib-profile';
+import { UserProfile } from '@dm3-org/dm3-lib-profile';
 import { ethers } from 'ethers';
 import { getProfileContainerForAlias } from './getProfileContainerForAlias';
-import { SignedUserProfile } from 'dm3-lib-profile';
+import { SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 
 export type ProfileContainer = {
     id: string;

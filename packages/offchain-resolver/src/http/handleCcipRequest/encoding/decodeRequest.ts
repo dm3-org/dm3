@@ -1,4 +1,4 @@
-import { logError } from 'dm3-lib-shared';
+import { logError } from '@dm3-org/dm3-lib-shared';
 import { DecodedCcipRequest } from '../types';
 import { decodeAddr } from './decode/decodeAddr';
 import { decodeText } from './decode/decodeText';

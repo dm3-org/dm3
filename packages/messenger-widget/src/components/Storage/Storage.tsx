@@ -1,26 +1,29 @@
-import { syncAcknoledgment } from 'dm3-lib-delivery-api';
-import { getAccountDisplayName, getBrowserStorageKey } from 'dm3-lib-profile';
-import { log } from 'dm3-lib-shared';
+/* eslint-disable no-console */
+import { syncAcknoledgment } from '@dm3-org/dm3-lib-delivery-api';
+import { getBrowserStorageKey } from '@dm3-org/dm3-lib-profile';
+import { log } from '@dm3-org/dm3-lib-shared';
 import {
     SyncProcessState,
-    StorageLocation,
     sync as syncStorage,
-    googleStore,
-    UserDB,
-    web3Store,
     useDm3Storage,
-} from 'dm3-lib-storage';
+} from '@dm3-org/dm3-lib-storage';
 import localforage from 'localforage';
 import { useContext, useEffect } from 'react';
+import { AuthContext } from '../../context/AuthContext';
 import { GlobalContext } from '../../utils/context-utils';
 import { UserDbType } from '../../utils/enum-type-utils';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 
 export default function Storage() {
     const { state, dispatch } = useContext(GlobalContext);
+    const mainnetProvider = useMainnetProvider();
 
-    const sync = async (event?: any) => {
-        if (event) {
-            event.preventDefault();
+    const { account, deliveryServiceToken } = useContext(AuthContext);
+
+    const sync = async () => {
+        if (!deliveryServiceToken || !account) {
+            log('[sync] not logged in yet', 'error');
+            return;
         }
 
         dispatch({
@@ -30,87 +33,28 @@ export default function Storage() {
 
         try {
             let acknowledgements = [];
-
-            switch (state.connection.storageLocation) {
-                case StorageLocation.GoogleDrive:
-                    acknowledgements = await googleStore(
-                        (window as any).gapi,
-                        state.userDb as UserDB,
-                        state.auth.currentSession?.token!,
-                    );
-                    break;
-
-                case StorageLocation.Web3Storage:
-                    acknowledgements = await web3Store(
-                        state.connection.storageToken!,
-                        state.userDb as UserDB,
-                        state.auth.currentSession?.token!,
-                    );
-                    break;
-
-                case StorageLocation.dm3Storage:
-                    acknowledgements = await useDm3Storage(
-                        state.connection.provider!,
-                        state.connection.account!,
-                        state.userDb as UserDB,
-                        state.auth.currentSession?.token!,
-                    );
-                    break;
-
-                case StorageLocation.File:
-
-                default:
-                    if (state.userDb) {
-                        await useDm3Storage(
-                            state.connection.provider!,
-                            state.connection.account!,
-                            state.userDb,
-                            state.auth.currentSession?.token!,
-                        );
-                    }
-
-                    const syncResult = await syncStorage(
-                        state.userDb,
-                        state.auth.currentSession?.token!,
-                    );
-
-                    acknowledgements = syncResult.acknoledgments;
-
-                    const blob = new Blob(
-                        [JSON.stringify(syncResult.userStorage)],
-                        {
-                            type: 'text/json',
-                        },
-                    );
-
-                    const a = document.createElement('a');
-
-                    a.download = `${getAccountDisplayName(
-                        state.connection.account!.ensName,
-                        35,
-                        true,
-                    )}-${Date.now()}.json`;
-
-                    a.href = window.URL.createObjectURL(blob);
-
-                    const clickEvt = new MouseEvent('click', {
-                        view: window,
-                        bubbles: true,
-                        cancelable: true,
-                    });
-
-                    a.dispatchEvent(clickEvt);
-                    a.remove();
-
-                    break;
+            if (state.userDb) {
+                await useDm3Storage(
+                    mainnetProvider!,
+                    account,
+                    state.userDb,
+                    deliveryServiceToken,
+                );
             }
+
+            const syncResult = await syncStorage(
+                state.userDb,
+                deliveryServiceToken,
+            );
+
+            acknowledgements = syncResult.acknoledgments;
 
             if (state.userDb && acknowledgements.length > 0) {
                 await syncAcknoledgment(
-                    state.connection.provider!,
-                    state.connection.account!,
+                    mainnetProvider!,
+                    account,
                     acknowledgements,
-                    state.auth.currentSession?.token!,
+                    deliveryServiceToken,
                     state.uiState.lastMessagePull,
                 );
             }
@@ -130,15 +74,7 @@ export default function Storage() {
     };
 
     const autoSync = () => {
-        if (
-            (state.connection.storageLocation === StorageLocation.Web3Storage ||
-                state.connection.storageLocation ===
-                    StorageLocation.dm3Storage ||
-                state.connection.storageLocation ===
-                    StorageLocation.GoogleDrive) &&
-            state.userDb &&
-            !state.userDb.synced
-        ) {
+        if (state.userDb && !state.userDb.synced) {
             log(
                 `[DB] Create user storage external snapshot at timestamp ${state.userDb?.lastChangeTimestamp}`,
                 'info',
@@ -148,15 +84,17 @@ export default function Storage() {
     };
 
     useEffect(() => {
+        // eslint-disable-next-line no-console
+        console.log('trigger storage sync');
+        if (state.userDb?.syncProcessState === SyncProcessState.Failed) {
+            // eslint-disable-next-line no-console
+            console.log('sync falied');
+        }
         const setBroserStorage = async () => {
             localforage.setItem(
-                getBrowserStorageKey(state.connection.account!.ensName),
-                (
-                    await syncStorage(
-                        state.userDb,
-                        state.auth.currentSession?.token!,
-                    )
-                ).userStorage,
+                getBrowserStorageKey(account!.ensName),
+                (await syncStorage(state.userDb, deliveryServiceToken!))
+                    .userStorage,
             );
         };
         if (state.uiState.browserStorageBackup) {
@@ -167,16 +105,7 @@ export default function Storage() {
             setBroserStorage();
         }
         autoSync();
-    }, [state.userDb?.lastChangeTimestamp]);
-
-    const showAlert =
-        (!state.userDb?.synced &&
-            state.connection.storageLocation === StorageLocation.File) ||
-        state.userDb?.syncProcessState === SyncProcessState.Failed;
-
-    if (state.connection.storageLocation !== StorageLocation.File) {
-        return <></>;
-    }
+    }, [state.userDb?.lastChangeTimestamp, deliveryServiceToken, account]);
 
     return <></>;
 }

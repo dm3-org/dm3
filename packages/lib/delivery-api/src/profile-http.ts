@@ -4,7 +4,7 @@ import {
     getDeliveryServiceClient,
     normalizeEnsName,
     SignedUserProfile,
-} from 'dm3-lib-profile';
+} from '@dm3-org/dm3-lib-profile';
 
 import { ethers } from 'ethers';
 import { checkAccount, getAxiosConfig } from './utils';

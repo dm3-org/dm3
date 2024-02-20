@@ -6,7 +6,7 @@ import deleteIcon from '../../assets/images/chat-delete.svg';
 import threeDotsIcon from '../../assets/images/three-dots.svg';
 import saveIcon from '../../assets/images/save.svg';
 import { GlobalContext } from '../../utils/context-utils';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
     MessageActionType,
     ModalStateType,
@@ -19,11 +19,17 @@ import {
     getHaltDelivery,
     sendMessage,
 } from '../../utils/common-utils';
-import { SendDependencies, createReactionMessage } from 'dm3-lib-messaging';
+import {
+    SendDependencies,
+    createReactionMessage,
+} from '@dm3-org/dm3-lib-messaging';
 import { hideMsgActionDropdown } from '../MessageInputBox/bl';
+import { AuthContext } from '../../context/AuthContext';
 
 export function MessageAction(props: MessageProps) {
     const { state, dispatch } = useContext(GlobalContext);
+    const { account, deliveryServiceToken } = useContext(AuthContext);
+    const [alignmentTop, setAlignmentTop] = useState(false);
 
     // Popular emojis for reaction
     const reactionEmojis = ['🙂', '👍', '👎', '❤️'];
@@ -87,16 +93,21 @@ export function MessageAction(props: MessageProps) {
         // react to the message
         const messageData = await createReactionMessage(
             state.accounts.selectedContact?.account.ensName as string,
-            state.connection.account!.ensName,
+            account!.ensName,
             message,
             userDb.keys.signingKeyPair.privateKey as string,
             referenceMessageHash as string,
         );
 
         const haltDelivery = getHaltDelivery(state);
-        const sendDependencies: SendDependencies = getDependencies(state);
+        const sendDependencies: SendDependencies = getDependencies(
+            state,
+            account!,
+        );
 
         await sendMessage(
+            account!,
+            deliveryServiceToken!,
             state,
             sendDependencies,
             messageData,
@@ -126,13 +137,35 @@ export function MessageAction(props: MessageProps) {
         }
     };
 
+    const setDropdownPosition = () => {
+        const inputElement = document.getElementById('msg-input-box-container');
+        const actionElement = document.getElementById('msg-dropdown');
+        if (inputElement && actionElement) {
+            const inputProperties = inputElement.getBoundingClientRect();
+            const actionProperties = actionElement.getBoundingClientRect();
+            if (
+                inputProperties.top - actionProperties.top <
+                actionProperties.height
+            ) {
+                setAlignmentTop(true);
+            } else {
+                setAlignmentTop(false);
+            }
+        } else {
+            setAlignmentTop(false);
+        }
+    };
+
+    useEffect(() => {
+        setDropdownPosition();
+    }, []);
+
     return (
         <div
             id="msg-dropdown"
-            className={'msg-dropdown-content font-size-12 font-weight-400'.concat(
-                ' ',
-                props.ownMessage ? 'own-msg' : '',
-            )}
+            className={'msg-dropdown-content font-size-12 font-weight-400'
+                .concat(' ', props.ownMessage ? 'own-msg' : '')
+                .concat(' ', alignmentTop ? 'align-top' : '')}
         >
             {props.ownMessage &&
                 (props.message ||
@@ -192,16 +225,19 @@ export function MessageAction(props: MessageProps) {
                 <hr className="line-separator msg-react-separator" />
             )}
 
-            {props.message && props.envelop.metadata?.encryptedMessageHash && (
-                <div
-                    data-testid="reply-msg"
-                    className="d-flex align-items-center justify-content-start"
-                    onClick={() => setAction(MessageActionType.REPLY)}
-                >
-                    <img src={replyIcon} alt="delete" className="me-2" />
-                    Reply
-                </div>
-            )}
+            {(props.message ||
+                (props.envelop.message.attachments &&
+                    props.envelop.message.attachments.length)) &&
+                props.envelop.metadata?.encryptedMessageHash && (
+                    <div
+                        data-testid="reply-msg"
+                        className="d-flex align-items-center justify-content-start"
+                        onClick={() => setAction(MessageActionType.REPLY)}
+                    >
+                        <img src={replyIcon} alt="delete" className="me-2" />
+                        Reply
+                    </div>
+                )}
 
             {props.envelop.message.attachments &&
                 props.envelop.message.attachments.length > 0 && (

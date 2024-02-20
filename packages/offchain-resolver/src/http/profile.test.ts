@@ -1,6 +1,9 @@
 import bodyParser from 'body-parser';
-import { getProfileCreationMessage, UserProfile } from 'dm3-lib-profile';
-import { stringify } from 'dm3-lib-shared';
+import {
+    getProfileCreationMessage,
+    UserProfile,
+} from '@dm3-org/dm3-lib-profile';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import express from 'express';
 
@@ -15,8 +18,8 @@ import * as dotenv from 'dotenv';
 import { clearDb } from '../persistance/clearDb';
 
 import { expect } from 'chai';
-import { sign } from 'dm3-lib-crypto';
-import { globalConfig } from 'dm3-lib-shared';
+import { sign } from '@dm3-org/dm3-lib-crypto';
+import { globalConfig } from '@dm3-org/dm3-lib-shared';
 
 dotenv.config();
 

@@ -1,36 +1,43 @@
-import './Contacts.css';
-import threeDotsIcon from '../../assets/images/three-dots.svg';
-import { ContactPreview } from '../../interfaces/utils';
-import {
-    onContactSelected,
-    setContactHeightToMaximum,
-    setContactList,
-    setContactIndexSelectedFromCache,
-    updateContactOnAccountChange,
-    updateSelectedContact,
-    resetContactListOnHide,
-    showMenuInBottom,
-    fetchMessageSizeLimit,
-    updateUnreadMsgCount,
-    fetchAndUpdateUnreadMsgCount,
-    addNewConversationFound,
-} from './bl';
+import { globalConfig } from '@dm3-org/dm3-lib-shared';
 import { useContext, useEffect, useState } from 'react';
-import { GlobalContext } from '../../utils/context-utils';
+import loader from '../../assets/images/loader.svg';
+import threeDotsIcon from '../../assets/images/three-dots.svg';
+import { AuthContext } from '../../context/AuthContext';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
+import { useTopLevelAlias } from '../../hooks/topLevelAlias/useTopLevelAlias';
 import { DashboardProps } from '../../interfaces/props';
-import { closeLoader, startLoader } from '../Loader/Loader';
-import { globalConfig } from 'dm3-lib-shared';
+import { ContactPreview } from '../../interfaces/utils';
+import { GlobalContext } from '../../utils/context-utils';
 import {
     CacheType,
     ModalStateType,
     RightViewSelected,
 } from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
-import loader from '../../assets/images/loader.svg';
+import { closeLoader, startLoader } from '../Loader/Loader';
+import './Contacts.css';
+import {
+    addNewConversationFound,
+    fetchAndUpdateUnreadMsgCount,
+    fetchMessageSizeLimit,
+    onContactSelected,
+    resetContactListOnHide,
+    setContactHeightToMaximum,
+    setContactIndexSelectedFromCache,
+    setContactList,
+    showMenuInBottom,
+    updateContactDetailsOfNewContact,
+    updateContactOnAccountChange,
+    updateSelectedContact,
+    updateUnreadMsgCount,
+} from './bl';
 
 export function Contacts(props: DashboardProps) {
     // fetches context api data
     const { state, dispatch } = useContext(GlobalContext);
+    const { account, deliveryServiceToken } = useContext(AuthContext);
+    const mainnetProvider = useMainnetProvider();
+    const { resolveAliasToTLD } = useTopLevelAlias();
 
     // local states to handle contact list and active contact
     const [contactSelected, setContactSelected] = useState<number | null>(null);
@@ -51,20 +58,20 @@ export function Contacts(props: DashboardProps) {
     };
 
     // fetches sub domain of ENS
-    const isAddrEnsName = state.connection.account?.ensName?.endsWith(
+    const isAddrEnsName = account?.ensName?.endsWith(
         globalConfig.ADDR_ENS_SUBDOMAIN(),
     );
 
     // handles contact box view
     useEffect(() => {
         setContactHeightToMaximum(!isAddrEnsName ? true : false);
-    }, [state.connection.account?.ensName]);
+    }, [account?.ensName]);
 
     // handles any change in socket or session
     useEffect(() => {
         if (
             !state.accounts.contacts &&
-            state.auth?.currentSession?.token &&
+            deliveryServiceToken &&
             state.connection.socket
         ) {
             // start loader
@@ -73,16 +80,30 @@ export function Contacts(props: DashboardProps) {
                 payload: 'Fetching contacts...',
             });
             startLoader();
-            props.getContacts(state, dispatch, props.dm3Props.config);
-            setContactList(state, dispatch, setListOfContacts);
+            props.getContacts(
+                mainnetProvider,
+                account!,
+                deliveryServiceToken,
+                state,
+                dispatch,
+                props.dm3Props.config,
+            );
+            setContactList(state, mainnetProvider, dispatch, setListOfContacts);
         }
-    }, [state.auth?.currentSession?.token, state.connection.socket]);
+    }, [deliveryServiceToken, state.connection.socket]);
 
     // handles changes in conversation
     useEffect(() => {
         fetchAndUpdateUnreadMsgCount(state, dispatch);
         if (state.userDb?.conversations && state.userDb?.conversationsCount) {
-            props.getContacts(state, dispatch, props.dm3Props.config);
+            props.getContacts(
+                mainnetProvider,
+                account!,
+                deliveryServiceToken!,
+                state,
+                dispatch,
+                props.dm3Props.config,
+            );
         }
     }, [state.userDb?.conversations, state.userDb?.conversationsCount]);
 
@@ -93,7 +114,7 @@ export function Contacts(props: DashboardProps) {
             (state.uiView.selectedRightView === RightViewSelected.Chat ||
                 state.uiView.selectedRightView === RightViewSelected.Default)
         ) {
-            setContactList(state, dispatch, setListOfContacts);
+            setContactList(state, mainnetProvider, dispatch, setListOfContacts);
         }
 
         if (
@@ -102,6 +123,7 @@ export function Contacts(props: DashboardProps) {
         ) {
             updateContactOnAccountChange(
                 state,
+                mainnetProvider,
                 dispatch,
                 contacts,
                 setListOfContacts,
@@ -115,7 +137,12 @@ export function Contacts(props: DashboardProps) {
             state.cache.contacts &&
             state.cache.contacts.length !== state.accounts.contacts.length
         ) {
-            addNewConversationFound(state, dispatch, setListOfContacts);
+            addNewConversationFound(
+                state,
+                mainnetProvider,
+                dispatch,
+                setListOfContacts,
+            );
         }
     }, [state.accounts.contacts]);
 
@@ -135,6 +162,7 @@ export function Contacts(props: DashboardProps) {
             ) {
                 updateContactOnAccountChange(
                     state,
+                    mainnetProvider,
                     dispatch,
                     contacts,
                     setListOfContacts,
@@ -208,6 +236,13 @@ export function Contacts(props: DashboardProps) {
                     ),
                 );
             }
+        } else if (
+            state.modal.addConversation.active &&
+            !state.modal.addConversation.processed &&
+            state.cache.contacts
+        ) {
+            setContacts(state.cache.contacts);
+            updateContactDetailsOfNewContact(state, dispatch, mainnetProvider);
         }
     }, [state.cache.contacts]);
 
@@ -242,10 +277,20 @@ export function Contacts(props: DashboardProps) {
                 setContactSelected(defaultContactIndex);
             }
         }
+
+        // new conversation is added
+        if (
+            state.modal.addConversation.active &&
+            !state.modal.addConversation.processed &&
+            state.cache.contacts
+        ) {
+            setContacts(state.cache.contacts);
+            updateSelectedContact(state, dispatch, setContactFromList);
+        }
     }, [contacts]);
 
     useEffect(() => {
-        fetchMessageSizeLimit(state, dispatch);
+        fetchMessageSizeLimit(mainnetProvider, account!, dispatch);
     }, []);
 
     /* Hidden content for highlighting css */
@@ -270,117 +315,132 @@ export function Contacts(props: DashboardProps) {
             )}
         >
             {contacts.length > 0 &&
-                contacts.map((data, index) => (
-                    <div
-                        id={`chat-item-id-${index}`}
-                        key={index}
-                        className={'pointer-cursor width-fill contact-details-container'.concat(
-                            ' ',
-                            contactSelected != null
-                                ? contactSelected !== index
-                                    ? 'highlight-right-border'
-                                    : 'contact-details-container-active'
-                                : '',
-                        )}
-                        onClick={() => setContactSelected(index)}
-                    >
-                        <div
-                            className="col-12 d-flex flex-row align-items-center 
-                                justify-content-start width-fill"
-                        >
-                            <div>
-                                <img
-                                    src={data.image}
-                                    alt="profile-pic"
-                                    className="border-radius-6 pic"
-                                />
-                            </div>
-
-                            <div className="d-flex flex-column font-size-12 width-fill content">
+                contacts.map(
+                    (data, index) =>
+                        !data.isHidden && (
+                            <div
+                                id={`chat-item-id-${index}`}
+                                key={index}
+                                className={'pointer-cursor width-fill contact-details-container'.concat(
+                                    ' ',
+                                    contactSelected != null
+                                        ? contactSelected !== index
+                                            ? 'highlight-right-border'
+                                            : 'contact-details-container-active'
+                                        : '',
+                                )}
+                                onClick={() => setContactSelected(index)}
+                            >
                                 <div
-                                    className="d-flex flex-row font-weight-500 justify-content-between 
-                                    text-primary-color"
+                                    className="col-12 d-flex flex-row align-items-center 
+                                justify-content-start width-fill"
                                 >
-                                    <div
-                                        className="pb-1"
-                                        title={
-                                            data.contactDetails
-                                                ? data.contactDetails.account
-                                                      .ensName
-                                                : ''
-                                        }
-                                    >
-                                        <p className="display-name">
-                                            {data.name}
-                                        </p>
+                                    <div>
+                                        <img
+                                            src={data.image}
+                                            alt="profile-pic"
+                                            className="border-radius-6 pic"
+                                        />
                                     </div>
 
-                                    {state.cache.contacts &&
-                                        index !== contactSelected &&
-                                        state.cache.contacts[index] &&
-                                        state.cache.contacts[index]
-                                            .unreadMsgCount > 0 && (
-                                            <div>
-                                                <div className="msg-count">
-                                                    {
-                                                        state.cache.contacts[
-                                                            index
-                                                        ].unreadMsgCount
-                                                    }
-                                                </div>
+                                    <div className="d-flex flex-column font-size-12 width-fill content">
+                                        <div
+                                            className="d-flex flex-row font-weight-500 justify-content-between 
+                                    text-primary-color"
+                                        >
+                                            <div
+                                                className="pb-1"
+                                                title={
+                                                    data.contactDetails
+                                                        ? resolveAliasToTLD(
+                                                              data
+                                                                  .contactDetails
+                                                                  .account
+                                                                  .ensName,
+                                                          )
+                                                        : ''
+                                                }
+                                            >
+                                                <p className="display-name">
+                                                    {resolveAliasToTLD(
+                                                        data.name,
+                                                    )}
+                                                </p>
                                             </div>
-                                        )}
 
-                                    {contactSelected === index ? (
-                                        !state.modal.addConversation.active ? (
-                                            <div>
-                                                <div className="action-container">
-                                                    <img
-                                                        className="action-dot"
-                                                        src={threeDotsIcon}
-                                                        alt="action"
-                                                    />
-                                                    {
-                                                        <ContactMenu
-                                                            contactDetails={
-                                                                data
+                                            {state.cache.contacts &&
+                                                index !== contactSelected &&
+                                                state.cache.contacts[index] &&
+                                                state.cache.contacts[index]
+                                                    .unreadMsgCount > 0 && (
+                                                    <div>
+                                                        <div className="msg-count">
+                                                            {
+                                                                state.cache
+                                                                    .contacts[
+                                                                    index
+                                                                ].unreadMsgCount
                                                             }
-                                                            index={index}
-                                                            isMenuAlignedAtBottom={
-                                                                isMenuAlignedAtBottom ===
-                                                                null
-                                                                    ? showMenuInBottom(
-                                                                          contactSelected,
-                                                                      )
-                                                                    : isMenuAlignedAtBottom
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                            {contactSelected === index ? (
+                                                !state.modal.addConversation
+                                                    .active ? (
+                                                    <div>
+                                                        <div className="action-container">
+                                                            <img
+                                                                className="action-dot"
+                                                                src={
+                                                                    threeDotsIcon
+                                                                }
+                                                                alt="action"
+                                                            />
+                                                            {
+                                                                <ContactMenu
+                                                                    contactDetails={
+                                                                        data
+                                                                    }
+                                                                    index={
+                                                                        index
+                                                                    }
+                                                                    isMenuAlignedAtBottom={
+                                                                        isMenuAlignedAtBottom ===
+                                                                        null
+                                                                            ? showMenuInBottom(
+                                                                                  contactSelected,
+                                                                              )
+                                                                            : isMenuAlignedAtBottom
+                                                                    }
+                                                                />
                                                             }
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="pe-2">
+                                                        <img
+                                                            className="rotating"
+                                                            src={loader}
+                                                            alt="loader"
                                                         />
-                                                    }
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <div className="pe-2">
-                                                <img
-                                                    className="rotating"
-                                                    src={loader}
-                                                    alt="loader"
-                                                />
-                                            </div>
-                                        )
-                                    ) : (
-                                        <></>
-                                    )}
-                                </div>
+                                                    </div>
+                                                )
+                                            ) : (
+                                                <></>
+                                            )}
+                                        </div>
 
-                                <div className="text-primary-color pe-3">
-                                    <p className="contacts-msg">
-                                        {data.message}
-                                    </p>
+                                        <div className="text-primary-color pe-3">
+                                            <p className="contacts-msg">
+                                                {data.message}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                ))}
+                        ),
+                )}
 
             {/* Hidden content for highlighting css */}
             {contacts.length < 10 &&

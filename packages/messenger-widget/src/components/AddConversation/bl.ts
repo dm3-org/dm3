@@ -14,7 +14,7 @@ import {
     formatAddress,
     getAccountDisplayName,
     normalizeEnsName,
-} from 'dm3-lib-profile';
+} from '@dm3-org/dm3-lib-profile';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { ContactPreview, NewContact } from '../../interfaces/utils';
 import humanIcon from '../../assets/images/human.svg';
@@ -50,8 +50,9 @@ export const closeConversationModal = (
 
 // method to add new conversation in contacts
 export const addContact = async (
-    name: string,
     state: GlobalState,
+    name: string,
+    ethAddress: string,
     dispatch: React.Dispatch<Actions>,
     resetName: Function,
     showErrorMessage: Function,
@@ -69,10 +70,9 @@ export const addContact = async (
     const { normalizedAccountName, check } = await isEnsNameValid(name, state);
 
     if (
-        state.connection.ethAddress &&
+        ethAddress &&
         name.split('.')[0] &&
-        state.connection.ethAddress.toLowerCase() ===
-            name.split('.')[0].toLowerCase()
+        ethAddress.toLowerCase() === name.split('.')[0].toLowerCase()
     ) {
         showErrorMessage(true, 'Invalid ENS name');
         closeLoader();
@@ -136,6 +136,8 @@ export const addContact = async (
                 type: UserDbType.createEmptyConversation,
                 payload: normalizedAccountName,
             });
+
+            closeLoader();
         }
     }
 };
@@ -169,6 +171,7 @@ const updateStates = (
             },
             deliveryServiceProfile: undefined,
         },
+        isHidden: false,
     };
 
     // add new contact in cached contact list

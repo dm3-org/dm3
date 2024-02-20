@@ -1,6 +1,6 @@
-import { log } from 'dm3-lib-shared';
+import { log } from '@dm3-org/dm3-lib-shared';
 import { CacheActions, CacheType } from '../utils/enum-type-utils';
-import { formatAddress } from 'dm3-lib-profile';
+import { formatAddress } from '@dm3-org/dm3-lib-profile';
 import { Cache } from '../interfaces/context';
 
 export function cacheReducer(state: Cache, action: CacheActions): Cache {
@@ -45,6 +45,19 @@ export function cacheReducer(state: Cache, action: CacheActions): Cache {
             return {
                 ...state,
                 accountName: action.payload,
+            };
+
+        case CacheType.Reset:
+            log(`[Cache] reset`, 'info');
+            return {
+                abis: new Map<string, string>(),
+                contacts: null,
+                lastConversation: {
+                    account: null,
+                    message: null,
+                },
+                messageSizeLimit: 0,
+                accountName: '',
             };
 
         default:

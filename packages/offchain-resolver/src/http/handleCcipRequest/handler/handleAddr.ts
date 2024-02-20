@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { IDatabase } from '../../../persistance/IDatabase';
 import { interceptAddr } from './intercept';
-import { logDebug } from 'dm3-lib-shared';
+import { logDebug } from '@dm3-org/dm3-lib-shared';
 
 export async function handleAddr(db: IDatabase, request: any) {
     const { name } = request;

@@ -1,4 +1,7 @@
-import { NotificationChannel, NotificationChannelType } from 'dm3-lib-delivery';
+import {
+    NotificationChannel,
+    NotificationChannelType,
+} from '@dm3-org/dm3-lib-delivery';
 import { IDatabase, Redis, getDatabase, getRedisClient } from '../getDatabase';
 import winston from 'winston';
 
@@ -27,7 +30,7 @@ describe('Set Users NotificationChannel', () => {
         const notificationChannel: NotificationChannel = {
             type: NotificationChannelType.EMAIL,
             config: {
-                recipientAddress: 'foo@bar.de',
+                recipientValue: 'foo@bar.de',
             },
         };
 
@@ -44,12 +47,12 @@ describe('Set Users NotificationChannel', () => {
         expect(afterSetSession).toEqual([notificationChannel]);
     });
 
-    it('Rejcts Notification Channel with an invalid schema', async () => {
+    it('Rejects Notification Channel with an invalid schema', async () => {
         try {
             const notificationChannel: any = {
                 foo: NotificationChannelType.EMAIL,
                 config: {
-                    recipientAddress: 'foo@bar.de',
+                    recipientValue: 'foo@bar.de',
                 },
             };
 
@@ -57,17 +60,17 @@ describe('Set Users NotificationChannel', () => {
                 USER_ADDRESS,
                 notificationChannel,
             );
-            fail();
+            throw new Error('Invalid NotificationChannel');
         } catch (e) {
             expect(e).toStrictEqual(Error('Invalid NotificationChannel'));
         }
     });
-    it('Rejcts Email Notification Channel with an invalid config', async () => {
+    it('Rejects Email Notification Channel with an invalid config', async () => {
         try {
             const notificationChannel: any = {
                 type: NotificationChannelType.EMAIL,
                 config: {
-                    foo: 'foo@bar.de',
+                    recipientValue: 'foo@bar.de',
                 },
             };
 
@@ -75,17 +78,17 @@ describe('Set Users NotificationChannel', () => {
                 USER_ADDRESS,
                 notificationChannel,
             );
-            fail();
+            throw new Error('Invalid Email config');
         } catch (e) {
             expect(e).toStrictEqual(Error('Invalid Email config'));
         }
     });
-    it('Rejcts Email Notification Channel with an invalid email address', async () => {
+    it('Rejects Email Notification Channel with an invalid email address', async () => {
         try {
             const notificationChannel: any = {
                 type: NotificationChannelType.EMAIL,
                 config: {
-                    recipientAddress: '12345',
+                    recipientValue: '12345',
                 },
             };
 
@@ -93,7 +96,7 @@ describe('Set Users NotificationChannel', () => {
                 USER_ADDRESS,
                 notificationChannel,
             );
-            fail();
+            throw new Error('Invalid Email config');
         } catch (e) {
             expect(e).toStrictEqual(Error('Invalid Email config'));
         }

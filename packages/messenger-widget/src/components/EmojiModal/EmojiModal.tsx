@@ -13,18 +13,21 @@ import {
     createReactionMessage,
     Envelop,
     SendDependencies,
-} from 'dm3-lib-messaging';
+} from '@dm3-org/dm3-lib-messaging';
 import {
     getHaltDelivery,
     getDependencies,
     sendMessage,
 } from '../../utils/common-utils';
 import { hideMsgActionDropdown } from '../MessageInputBox/bl';
+import { AuthContext } from '../../context/AuthContext';
 
 export function EmojiModal(props: EmojiProps) {
     const emojiRef: any = useRef();
 
     const { state, dispatch } = useContext(GlobalContext);
+
+    const { account, deliveryServiceToken } = useContext(AuthContext);
 
     // handles mouse click outside of emoji modal and closes the modal automatically
     const handleClickOutside = (e: { target: any }) => {
@@ -105,16 +108,21 @@ export function EmojiModal(props: EmojiProps) {
         // react to the message
         const messageData = await createReactionMessage(
             state.accounts.selectedContact?.account.ensName as string,
-            state.connection.account!.ensName,
+            account!.ensName,
             message,
             userDb.keys.signingKeyPair.privateKey as string,
             referenceMessageHash as string,
         );
 
         const haltDelivery = getHaltDelivery(state);
-        const sendDependencies: SendDependencies = getDependencies(state);
+        const sendDependencies: SendDependencies = getDependencies(
+            state,
+            account!,
+        );
 
         await sendMessage(
+            account!,
+            deliveryServiceToken!,
             state,
             sendDependencies,
             messageData,

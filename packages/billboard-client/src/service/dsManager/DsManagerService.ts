@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { Billboard, dsManager } from './DsManagerImpl';
 import { IDatabase } from '../../persitance/getDatabase';
 import { IDsManagerService } from './IDsManagerService';
-import { Message } from 'dm3-lib-messaging';
+import { Message } from '@dm3-org/dm3-lib-messaging';
 
 /**
  * Creates and returns an instance of a delivery service connector service that connects to and manages

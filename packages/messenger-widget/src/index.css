@@ -62,8 +62,9 @@
     background: var(--attachment-background);
 }
 
-.dm3-root{
+.dm3-root {
     height: 100%;
-    position: absolute;
+    position: relative;
     width: 100%;
+    border-radius: inherit;
 }

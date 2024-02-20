@@ -5,7 +5,7 @@ import url from '@rollup/plugin-url';
 import pkg from './package.json';
 
 export default {
-    input: 'src/index.tsx',
+    input: 'src/widget.tsx',
     output: [
         {
             file: './dist/cjs/index.js',
@@ -19,7 +19,7 @@ export default {
     external: [
         ...Object.keys(pkg.peerDependencies || {}),
         'react/jsx-runtime',
-        'dm3-lib',
+        '@dm3-org/dm3-lib',
         'react-chat-widget/lib/styles.css',
         'socket.io-client',
         'react-beforeunload',

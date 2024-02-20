@@ -1,4 +1,4 @@
-import { Envelop, MessageState } from 'dm3-lib-messaging';
+import { Envelop, MessageState } from '@dm3-org/dm3-lib-messaging';
 import {
     Actions,
     GlobalState,
@@ -6,9 +6,14 @@ import {
 } from '../utils/enum-type-utils';
 import { Config, Dm3Props } from './config';
 import { Attachment, ContactPreview } from './utils';
+import { Account } from '@dm3-org/dm3-lib-profile';
+import { ethers } from 'ethers';
 
 export interface DashboardProps {
     getContacts: (
+        mainnetProvider: ethers.providers.StaticJsonRpcProvider,
+        account: Account,
+        deliveryServiceToken: string,
         state: GlobalState,
         dispatch: React.Dispatch<Actions>,
         props: Config,
@@ -37,6 +42,7 @@ export interface MessageProps {
     replyToMsg: string | undefined;
     replyToMsgFrom: string | undefined;
     replyToMsgId: string | undefined;
+    replyToMsgEnvelope: Envelop | undefined;
     reactions: Envelop[];
     isLastMessage?: boolean;
     hideFunction?: string;
@@ -71,6 +77,7 @@ export interface MessageDataProps {
 export interface AttachmentPreviewProps {
     filesSelected: Attachment[];
     isMyMessage: boolean;
+    isReplyMsgAttachments?: boolean;
 }
 
 export interface ImageModal {

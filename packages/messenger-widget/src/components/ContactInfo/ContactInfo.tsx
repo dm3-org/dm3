@@ -16,15 +16,18 @@ import profilePic from '../../assets/images/human.svg';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { ModalStateType } from '../../utils/enum-type-utils';
 import copyIcon from '../../assets/images/copy.svg';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 
 export function ContactInfo() {
     const { state, dispatch } = useContext(GlobalContext);
+    const mainnetProvider = useMainnetProvider();
+
     const [contactDetails, setContactDetails] = useState<IContactInfo | null>(
         null,
     );
 
     const fetchContactDetails = async () => {
-        setContactDetails(await getContactSelected(state));
+        setContactDetails(await getContactSelected(state, mainnetProvider!));
         closeLoader();
     };
 
@@ -42,7 +45,7 @@ export function ContactInfo() {
     }, []);
 
     return (
-        <>
+        <div className="contact-info-container-type h-100">
             <div
                 className="d-flex align-items-center justify-content-between profile-heading 
             text-primary-color font-weight-500 pt-4 highlight-chat-border"
@@ -134,6 +137,6 @@ export function ContactInfo() {
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 }

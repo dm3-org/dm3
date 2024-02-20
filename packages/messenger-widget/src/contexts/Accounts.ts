@@ -1,10 +1,10 @@
-import { log } from 'dm3-lib-shared';
+import { log } from '@dm3-org/dm3-lib-shared';
 import {
     Accounts,
     AccountsActions,
     AccountsType,
 } from '../utils/enum-type-utils';
-import { normalizeEnsName } from 'dm3-lib-profile';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 
 export function accountsReducer(state: Accounts, action: AccountsActions) {
     switch (action.type) {
@@ -41,6 +41,13 @@ export function accountsReducer(state: Accounts, action: AccountsActions) {
             return {
                 ...state,
                 contacts: action.payload,
+            };
+
+        case AccountsType.Reset:
+            log(`[Accounts] reset`, 'info');
+            return {
+                contacts: undefined,
+                selectedContact: undefined,
             };
 
         default:

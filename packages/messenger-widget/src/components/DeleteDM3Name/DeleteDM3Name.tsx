@@ -2,7 +2,7 @@ import './DeleteDM3Name.css';
 import '../../styles/modal.css';
 import closeIcon from '../../assets/images/cross.svg';
 import { DeleteDM3NameProps } from '../../interfaces/props';
-import { ACTION_TYPE } from '../ConfigureProfile/bl';
+import { ACTION_TYPE } from '../ConfigureProfile/chain/common';
 
 export default function DeleteDM3Name(props: DeleteDM3NameProps) {
     return (

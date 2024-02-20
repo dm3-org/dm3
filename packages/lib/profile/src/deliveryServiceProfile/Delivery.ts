@@ -18,7 +18,7 @@ import {
     DeliveryServiceProfileKeys,
     UserProfile,
 } from '../types';
-import { createKeyPair, createSigningKeyPair } from 'dm3-lib-crypto';
+import { createKeyPair, createSigningKeyPair } from '@dm3-org/dm3-lib-crypto';
 
 /**
  * creates a dm3 delivery service profile

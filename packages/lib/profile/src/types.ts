@@ -1,4 +1,4 @@
-import { KeyPair } from 'dm3-lib-crypto';
+import { KeyPair } from '@dm3-org/dm3-lib-crypto';
 
 export interface DeliveryServiceProfile {
     publicSigningKey: string;

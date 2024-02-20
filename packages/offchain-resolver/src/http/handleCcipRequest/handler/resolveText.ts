@@ -1,8 +1,8 @@
 import { IDatabase } from '../../../persistance/IDatabase';
-import { PROFILE_RECORD_NAME } from 'dm3-lib-profile';
-import { stringify } from 'dm3-lib-shared';
+import { PROFILE_RECORD_NAME } from '@dm3-org/dm3-lib-profile';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 import { interceptTextRecord } from './intercept';
-import { logDebug } from 'dm3-lib-shared';
+import { logDebug } from '@dm3-org/dm3-lib-shared';
 
 export async function handleText(db: IDatabase, request: any) {
     const { record, name } = request;

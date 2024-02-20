@@ -29,4 +29,4 @@ export type {
 export * as schema from './schema';
 export { getId } from './Utils';
 
-export { buildEnvelop, createEnvelop } from './Envelop';
+export { buildEnvelop, createEnvelop, getEnvelopSize } from './Envelop';

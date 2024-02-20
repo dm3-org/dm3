@@ -10,16 +10,20 @@ import {
     UiViewStateType,
 } from '../../utils/enum-type-utils';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { globalConfig } from 'dm3-lib-shared';
-import { hasUserProfile } from 'dm3-lib-profile';
+import { globalConfig } from '@dm3-org/dm3-lib-shared';
+import { hasUserProfile } from '@dm3-org/dm3-lib-profile';
 import { HideFunctionProps } from '../../interfaces/props';
 import menuIcon from '../../assets/images/menu.svg';
-import { getAliasChain } from 'dm3-lib-delivery-api';
+import { getAliasChain } from '@dm3-org/dm3-lib-delivery-api';
 import { getLastDm3Name } from '../../utils/common-utils';
+import { AuthContext } from '../../context/AuthContext';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 
 export function RightHeader(props: HideFunctionProps) {
     // fetches context storage
     const { state, dispatch } = useContext(GlobalContext);
+    const { account, displayName } = useContext(AuthContext);
+    const mainnetProvider = useMainnetProvider();
 
     // state to store profile pic of signed in user
     const [profilePic, setProfilePic] = useState<string>('');
@@ -28,8 +32,8 @@ export function RightHeader(props: HideFunctionProps) {
     const fetchAndSetProfilePic = async () => {
         setProfilePic(
             await getAvatarProfilePic(
-                state,
-                state.connection.account?.ensName as string,
+                mainnetProvider,
+                account?.ensName as string,
             ),
         );
     };
@@ -56,79 +60,10 @@ export function RightHeader(props: HideFunctionProps) {
         }
     };
 
-    const fetchDisplayName = async () => {
-        try {
-            if (
-                state.connection.provider &&
-                state.connection.ethAddress &&
-                state.connection.account
-            ) {
-                const isAddrEnsName =
-                    state.connection.account?.ensName?.endsWith(
-                        globalConfig.ADDR_ENS_SUBDOMAIN(),
-                    );
-                const name = await state.connection.provider.lookupAddress(
-                    state.connection.ethAddress,
-                );
-                if (name && !isAddrEnsName) {
-                    const hasProfile = await hasUserProfile(
-                        state.connection.provider,
-                        name,
-                    );
-                    const dm3ProfileRecordExists = await checkEnsDM3Text(
-                        state,
-                        name,
-                    );
-                    dispatch({
-                        type: CacheType.AccountName,
-                        payload:
-                            hasProfile && dm3ProfileRecordExists
-                                ? name
-                                : state.connection.account?.ensName,
-                    });
-                } else {
-                    const dm3Names: any = await getAliasChain(
-                        state.connection.account,
-                        state.connection.provider,
-                    );
-                    let dm3Name;
-                    if (dm3Names && dm3Names.length) {
-                        dm3Name = getLastDm3Name(dm3Names);
-                    }
-                    dispatch({
-                        type: CacheType.AccountName,
-                        payload: dm3Name
-                            ? dm3Name
-                            : state.connection.account.ensName,
-                    });
-                }
-            } else {
-                dispatch({
-                    type: CacheType.AccountName,
-                    payload: state.connection.account
-                        ? state.connection.account.ensName
-                        : '',
-                });
-            }
-        } catch (error) {
-            dispatch({
-                type: CacheType.AccountName,
-                payload: state.connection.account
-                    ? state.connection.account.ensName
-                    : '',
-            });
-        }
-    };
-
     // loads the profile pic on page render
     useEffect(() => {
         fetchAndSetProfilePic();
-        fetchDisplayName();
     }, []);
-
-    useEffect(() => {
-        fetchDisplayName();
-    }, [state.connection.account?.ensName]);
 
     return (
         <div
@@ -162,7 +97,7 @@ export function RightHeader(props: HideFunctionProps) {
                     onClick={() => updateView()}
                     className="profile-name font-weight-500 pointer-cursor text-secondary-color"
                 >
-                    {state.cache.accountName}
+                    {displayName}
                 </span>
                 <img
                     src={profilePic ? profilePic : humanIcon}

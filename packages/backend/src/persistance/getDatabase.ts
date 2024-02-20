@@ -1,18 +1,22 @@
 import {
     Session as DSSession,
+    IGlobalNotification,
+    IOtp,
     NotificationChannel,
+    NotificationChannelType,
     spamFilter,
-} from 'dm3-lib-delivery';
-import { EncryptionEnvelop } from 'dm3-lib-messaging';
-import { UserStorage } from 'dm3-lib-storage';
+} from '@dm3-org/dm3-lib-delivery';
+import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
+import { UserStorage } from '@dm3-org/dm3-lib-storage';
 import { createClient } from 'redis';
 import { getAliasChain, getIdEnsName } from './getIdEnsName';
 import Messages from './messages';
-import { syncAcknoledgment } from './messages/syncAcknoledgment';
 import Notification from './notification';
 import Pending from './pending';
 import Session from './session';
 import Storage from './storage';
+import Otp from './otp';
+import { syncAcknowledge } from './messages/syncAcknowledge';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -22,6 +26,8 @@ export enum RedisPrefix {
     UserStorage = 'user.storage:',
     Pending = 'pending:',
     NotificationChannel = 'notificationChannel:',
+    GlobalNotification = 'globalNotification:',
+    Otp = 'otp:',
 }
 
 export async function getRedisClient() {
@@ -67,20 +73,37 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
         setAliasSession: Session.setAliasSession(redis),
         getSession: Session.getSession(redis),
         //Storage
-        getUserStorage: Storage.getUserStorage(redis),
-        setUserStorage: Storage.setUserStorage(redis),
+        getUserStorageChunk: Storage.getUserStorageChunk(redis),
+        setUserStorageChunk: Storage.setUserStorageChunk(redis),
+        //Legacy remove after storage has been merged
+        getUserStorage: Storage.getUserStorageOld(redis),
+        setUserStorage: Storage.setUserStorageOld(redis),
+
         //Pending
         addPending: Pending.addPending(redis),
         getPending: Pending.getPending(redis),
         deletePending: Pending.deletePending(redis),
         getIdEnsName: getIdEnsName(redis),
         getAliasChain: getAliasChain(redis),
-        syncAcknoledgment: syncAcknoledgment(redis),
+        syncAcknowledge: syncAcknowledge(redis),
         //Notification
         getUsersNotificationChannels:
             Notification.getUsersNotificationChannels(redis),
         addUsersNotificationChannel:
             Notification.addUsersNotificationChannel(redis),
+        setNotificationChannelAsVerified:
+            Notification.setNotificationChannelAsVerified(redis),
+        enableOrDisableNotificationChannel:
+            Notification.enableOrDisableNotificationChannel(redis),
+        removeNotificationChannel:
+            Notification.removeNotificationChannel(redis),
+        // Global Notification
+        getGlobalNotification: Notification.getGlobalNotification(redis),
+        setGlobalNotification: Notification.setGlobalNotification(redis),
+        // Verification Otp for Email, Mobile, etc..
+        setOtp: Otp.setOtp(redis),
+        getOtp: Otp.getOtp(redis),
+        resetOtp: Otp.resetOtp(redis),
     };
 }
 
@@ -110,6 +133,16 @@ export interface IDatabase {
         | null
     >;
 
+    getUserStorageChunk: (
+        ensName: string,
+        key: string,
+    ) => Promise<UserStorage | null>;
+    setUserStorageChunk: (
+        ensName: string,
+        key: string,
+        data: string,
+    ) => Promise<void>;
+    //Legacy remove after storage has been merged
     getUserStorage: (ensName: string) => Promise<UserStorage | null>;
     setUserStorage: (ensName: string, data: string) => Promise<void>;
     setAliasSession: (ensName: string, aliasEnsName: string) => Promise<void>;
@@ -118,10 +151,9 @@ export interface IDatabase {
     deletePending: (ensName: string) => Promise<void>;
     getIdEnsName: (ensName: string) => Promise<string>;
     getAliasChain: (ensName: string) => Promise<string[]>;
-    syncAcknoledgment: (
+    syncAcknowledge: (
         conversationId: string,
-        ensName: string,
-        lastMessagePull: string,
+        syncTime: number,
     ) => Promise<void>;
     getUsersNotificationChannels: (
         ensName: string,
@@ -129,6 +161,38 @@ export interface IDatabase {
     addUsersNotificationChannel: (
         ensName: string,
         channel: NotificationChannel,
+    ) => Promise<void>;
+    setNotificationChannelAsVerified: (
+        ensName: string,
+        channel: NotificationChannelType,
+    ) => Promise<void>;
+    enableOrDisableNotificationChannel: (
+        ensName: string,
+        channel: NotificationChannelType,
+        isEnabled: boolean,
+    ) => Promise<void>;
+    removeNotificationChannel: (
+        ensName: string,
+        channel: NotificationChannelType,
+    ) => Promise<void>;
+    getGlobalNotification: (ensName: string) => Promise<IGlobalNotification>;
+    setGlobalNotification: (
+        ensName: string,
+        isEnabled: boolean,
+    ) => Promise<void>;
+    setOtp: (
+        ensName: string,
+        otp: string,
+        channelType: NotificationChannelType,
+        generatedAt: Date,
+    ) => Promise<void>;
+    getOtp: (
+        ensName: string,
+        channelType: NotificationChannelType,
+    ) => Promise<IOtp | null>;
+    resetOtp: (
+        ensName: string,
+        channelType: NotificationChannelType,
     ) => Promise<void>;
 }
 

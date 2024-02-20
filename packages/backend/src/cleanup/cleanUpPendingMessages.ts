@@ -1,5 +1,5 @@
 import { IDatabase } from '../persistance/getDatabase';
-import { logInfo } from 'dm3-lib-shared';
+import { logInfo } from '@dm3-org/dm3-lib-shared';
 
 //1 day
 const DEFAULT_CLEANUP_INTERVAL = 86400000;

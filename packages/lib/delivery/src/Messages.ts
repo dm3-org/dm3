@@ -2,9 +2,9 @@ import {
     DeliveryServiceProfileKeys,
     normalizeEnsName,
     UserProfile,
-} from 'dm3-lib-profile';
+} from '@dm3-org/dm3-lib-profile';
 import { ethers } from 'ethers';
-import { stringify } from 'dm3-lib-shared';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 
 import {
     decryptAsymmetric,
@@ -12,17 +12,19 @@ import {
     EncryptedPayload,
     KeyPair,
     sign,
-} from 'dm3-lib-crypto';
+} from '@dm3-org/dm3-lib-crypto';
 import {
     DeliveryInformation,
     EncryptionEnvelop,
+    getEnvelopSize,
     Postmark,
-} from 'dm3-lib-messaging';
-import { logDebug, sha256 } from 'dm3-lib-shared';
+} from '@dm3-org/dm3-lib-messaging';
+import { logDebug, sha256 } from '@dm3-org/dm3-lib-shared';
 import { NotificationBroker } from './notifications';
 import {
     GetNotificationChannels,
     NotificationChannel,
+    NotificationType,
 } from './notifications/types';
 import { checkToken, Session } from './Session';
 import { isSpam } from './spam-filter';
@@ -208,7 +210,10 @@ export async function incomingMessage(
         });
         //If not we're notifing the user that there is a new message waiting for them
     } else {
-        const { sendNotification } = NotificationBroker(dsNotificationChannels);
+        const { sendNotification } = NotificationBroker(
+            dsNotificationChannels,
+            NotificationType.NEW_MESSAGE,
+        );
         await sendNotification(
             deliveryInformation,
             getUsersNotificationChannels,
@@ -220,7 +225,7 @@ function messageIsToLarge(
     envelop: EncryptionEnvelop,
     sizeLimit: number,
 ): boolean {
-    return Buffer.byteLength(JSON.stringify(envelop), 'utf-8') > sizeLimit;
+    return getEnvelopSize(envelop) > sizeLimit;
 }
 
 export async function handleIncomingMessage(

@@ -1,15 +1,14 @@
 .home-image-container {
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
-}
-
-.signin-container {
-    border-top-right-radius: 20px;
-    border-bottom-right-radius: 20px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: auto;
 }
 
 .content-data-container {
-    padding: 1rem 8.25rem 1rem 8.25rem;
+    padding: 0rem 4rem 0rem 4rem;
+    flex-wrap: nowrap !important;
+    justify-content: space-evenly !important;
 }
 
 .details {
@@ -21,9 +20,8 @@
 }
 
 .signin-btn {
-    font-size: 18px;
-    line-height: 24px;
-    padding: 1.2rem;
+    font-size: 1.125rem;
+    padding: 1.2rem 1.2rem 1.2rem 1.2rem;
 }
 
 .signin-btn:hover {
@@ -34,17 +32,17 @@
     margin-bottom: 0;
 }
 
-.home-image {
-    border-radius: 20px;
-    height: 100%;
-}
-
 .sign-in-logo {
-    width: fit-content !important;
+    height: auto !important;
+    width: 100% !important;
+    fill: var(--text-primary-color) !important;
 }
 
 .content-data {
-    margin-top: 3rem;
+    justify-content: center;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
 }
 
 .rainbow-connect-btn {
@@ -59,26 +57,77 @@
     cursor: default;
 }
 
-@media only screen and (max-width: 1100px) {
+.loading-btn {
+    height: fit-content !important;
+}
+
+.spinner-visible {
+    visibility: visible;
+}
+
+.spinner-invisible {
+    visibility: hidden;
+}
+
+@media only screen and (max-width: 767px) {
+    .home-image-container {
+        height: 0% !important;
+    }
+}
+
+/* =================== Container CSS =================== */
+
+.signin-container-type {
+    container-type: size;
+    container-name: signinContainer;
+}
+
+@container signinContainer (max-height: 450px) and (height > 0px) {
+    .tx-content {
+        display: none;
+    }
+    .keys-content {
+        display: none;
+    }
+    .signin-btn {
+        font-size: 1rem !important;
+        padding: 0.5rem !important;
+    }
+    .loading-btn {
+        height: 18px !important;
+    }
+}
+
+@container signinContainer (max-width: 640px) {
+    .rainbow-connect-btn {
+        display: none !important;
+    }
+}
+
+@container signinContainer (max-height: 325px) and (height > 0px) {
+    .rainbow-connect-btn {
+        display: none !important;
+    }
+}
+
+@container signinContainer (max-width: 735px) {
+    .signin-btn {
+        font-size: 1rem !important;
+        padding: 0.5rem !important;
+    }
+    .loading-btn {
+        height: 18px !important;
+    }
+}
+
+@container signinContainer (max-width: 635px) {
     .content-data-container {
-        padding: 1rem;
+        padding: 0rem 2rem 0rem 2rem !important;
     }
 }
 
-@media only screen and (min-width: 1101px) and (max-width: 1250px) {
+@container signinContainer (min-width: 1500px) {
     .content-data-container {
-        padding: 2rem;
-    }
-}
-
-@media only screen and (min-width: 1450px) {
-    .content-data {
-        margin-top: 6rem !important;
-    }
-}
-
-@media only screen and (max-width: 1000px) {
-    .content-data {
-        margin-top: 1rem !important;
+        padding: 0rem 8rem 0rem 8rem !important;
     }
 }

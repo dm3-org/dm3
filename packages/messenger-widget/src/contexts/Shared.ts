@@ -1,4 +1,4 @@
-import { StorageLocation } from 'dm3-lib-storage';
+import { StorageLocation } from '@dm3-org/dm3-lib-storage';
 import {
     ConnectionState,
     GlobalState,
@@ -6,11 +6,22 @@ import {
     MessageActionType,
     RightViewSelected,
 } from '../utils/enum-type-utils';
+import { ethers } from 'ethers';
+
+//Move to utils and get url from ENV
+const getMainnetProvider = () => {
+    const url = process.env.REACT_APP_MAINNET_PROVIDER_RPC;
+    if (!url) {
+        throw new Error('Mainnet provider not set in env');
+    }
+    return new ethers.providers.JsonRpcProvider(url, {
+        name: 'goerli',
+        chainId: 5,
+    });
+};
 
 export const initialState: GlobalState = {
     connection: {
-        connectionState: ConnectionState.CollectingSignInData,
-        storageLocation: StorageLocation.dm3Storage,
         defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
     },
     accounts: {
@@ -57,5 +68,6 @@ export const initialState: GlobalState = {
         openEmojiPopup: { action: false, data: undefined },
         lastMessageAction: MessageActionType.NONE,
         isProfileConfigurationPopupActive: false,
+        showPreferencesModal: false,
     },
 };

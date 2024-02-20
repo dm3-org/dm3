@@ -1,6 +1,9 @@
 import { ethers } from 'ethers';
-import { getProfileCreationMessage, UserProfile } from 'dm3-lib-profile';
-import { stringify } from 'dm3-lib-shared';
+import {
+    getProfileCreationMessage,
+    UserProfile,
+} from '@dm3-org/dm3-lib-profile';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 import { Session } from './Session';
 import { getUserProfile, submitUserProfile } from './UserProfile';
 

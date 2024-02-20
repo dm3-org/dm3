@@ -1,4 +1,4 @@
-import { stringify } from 'dm3-lib-shared';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 import express from 'express';
 
 export function handleGetDeliveryServiceProperties(
