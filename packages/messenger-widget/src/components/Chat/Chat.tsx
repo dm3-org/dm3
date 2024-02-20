@@ -1,4 +1,3 @@
-import { globalConfig } from '@dm3-org/dm3-lib-shared';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
@@ -7,6 +6,10 @@ import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvid
 import { MessageModel } from '../../hooks/messages/useMessage';
 import { HideFunctionProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
+import {
+    RightViewSelected,
+    UiViewStateType,
+} from '../../utils/enum-type-utils';
 import ConfigProfileAlertBox from '../ContactProfileAlertBox/ContactProfileAlertBox';
 import { Message } from '../Message/Message';
 import { MessageInputBox } from '../MessageInputBox/MessageInputBox';
@@ -26,6 +29,13 @@ export function Chat(props: HideFunctionProps) {
     const [showShimEffect, setShowShimEffect] = useState(false);
 
     useEffect(() => {
+        if (!selectedContact) {
+            dispatch({
+                type: UiViewStateType.SetSelectedRightView,
+                payload: RightViewSelected.Default,
+            });
+            return;
+        }
         setIsProfileConfigured(
             !!selectedContact?.contactDetails.account.profile,
         );

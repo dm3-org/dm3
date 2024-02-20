@@ -14,6 +14,7 @@ import {
 import { ContactMenu } from '../ContactMenu/ContactMenu';
 import './Contacts.css';
 import { setContactHeightToMaximum, showMenuInBottom } from './bl';
+import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
 
 export function Contacts(props: DashboardProps) {
     // fetches context api data
@@ -171,7 +172,10 @@ export function Contacts(props: DashboardProps) {
                                                 }
                                             >
                                                 <p className="display-name">
-                                                    {data.name}
+                                                    {getAccountDisplayName(
+                                                        data.name,
+                                                        25,
+                                                    )}
                                                 </p>
                                             </div>
 

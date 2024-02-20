@@ -21,6 +21,7 @@ export function ContactInfo() {
     const { state, dispatch } = useContext(GlobalContext);
     const { selectedContact, setSelectedContactName, hideContact } =
         useContext(ConversationContext);
+
     const mainnetProvider = useMainnetProvider();
 
     const [address, setAddress] = useState<string>('');

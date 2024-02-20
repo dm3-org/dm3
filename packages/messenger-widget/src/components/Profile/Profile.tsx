@@ -2,6 +2,8 @@ import { useContext, useEffect, useState } from 'react';
 import closeIcon from '../../assets/images/cross.svg';
 import profPic from '../../assets/images/human.svg';
 import { AuthContext } from '../../context/AuthContext';
+import { ConversationContext } from '../../context/ConversationContext';
+import { TLDContext } from '../../context/TLDContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 import { EnsProfileDetails } from '../../interfaces/utils';
 import '../../styles/profile-contact.css';
@@ -15,11 +17,10 @@ import {
 import { Button } from '../Button/Button';
 import { openConfigurationModal } from '../ConfigureProfile/bl';
 import { EnsDetails } from '../EnsDetails/EnsDetails';
-import { ConversationContext } from '../../context/ConversationContext';
 
 export function Profile() {
     const { dispatch } = useContext(GlobalContext);
-    const { account, ethAddress } = useContext(AuthContext);
+    const { account, ethAddress, displayName } = useContext(AuthContext);
     const { setSelectedContactName } = useContext(ConversationContext);
     const mainnetProvider = useMainnetProvider();
 
@@ -79,7 +80,7 @@ export function Profile() {
                 <div className="profile-detail-items mt-3">
                     <EnsDetails
                         propertyKey={'Name'}
-                        propertyValue={account?.ensName as string}
+                        propertyValue={displayName ?? ''}
                     />
                     <EnsDetails
                         propertyKey={'Address'}

@@ -1,13 +1,13 @@
 /* eslint-disable max-len */
+import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { useNetwork } from 'wagmi';
+import { AuthContext } from '../../../../context/AuthContext';
 import { GlobalContext } from '../../../../utils/context-utils';
 import { ConfigureProfileContext } from '../../context/ConfigureProfileContext';
 import { SubmitOnChainProfile } from '../SubmitOnChainProfile';
-import { AuthContext } from '../../../../context/AuthContext';
-import { submitEnsNameTransaction } from './bl';
-import { useMainnetProvider } from '../../../../hooks/mainnetprovider/useMainnetProvider';
-import { useNetwork } from 'wagmi';
 import { IChain, NAME_TYPE, validateEnsName } from '../common';
+import { submitEnsNameTransaction } from './bl';
 
 export const ConfigureEnsProfile = (props: IChain) => {
     const { dispatch } = useContext(GlobalContext);
@@ -21,7 +21,7 @@ export const ConfigureEnsProfile = (props: IChain) => {
     const { account, ethAddress, deliveryServiceToken } =
         useContext(AuthContext);
 
-    const mainnetProvider = useMainnetProvider();
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
 
     const onSubmitTx = async (name: string) => {
         if (props.chainToConnect !== chain?.id) {
@@ -29,7 +29,7 @@ export const ConfigureEnsProfile = (props: IChain) => {
             return;
         }
         await submitEnsNameTransaction(
-            mainnetProvider!,
+            provider!,
             account!,
             ethAddress!,
             deliveryServiceToken!,

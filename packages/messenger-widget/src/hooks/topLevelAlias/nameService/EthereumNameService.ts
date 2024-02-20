@@ -26,7 +26,7 @@ export class EthereumNameService implements ITLDResolver {
             return false;
         }
 
-        return this.hasEnsProfile(ensName);
+        return this.hasDm3ProfileOnEnsProfile(ensName);
     }
     //e.g. max.eth => 0x1234.addr.dm3.eth
     async resolveTLDtoAlias(ensName: string): Promise<string> {
@@ -43,7 +43,10 @@ export class EthereumNameService implements ITLDResolver {
             return false;
         }
         const resolvedName = await this.provider.lookupAddress(address);
-        return !!resolvedName;
+        if (!resolvedName) {
+            return false;
+        }
+        return this.hasDm3ProfileOnEnsProfile(resolvedName);
     }
     //e.g. 0x1234.addr.dm3.eth => max.eth
     async resolveAliasToTLD(ensName: string): Promise<string> {
@@ -52,8 +55,18 @@ export class EthereumNameService implements ITLDResolver {
         return resolvedName ?? ensName;
     }
 
-    private async hasEnsProfile(ensName: string): Promise<boolean> {
+    private async hasDm3ProfileOnEnsProfile(ensName: string): Promise<boolean> {
         const ensNameHasAddress = await this.provider.resolveName(ensName);
+        const resolver = await this.provider.getResolver(ensName);
+        if (!resolver) {
+            return false;
+        }
+        const dm3Profile = await resolver.getText('network.dm3.profile');
+
+        if (!dm3Profile) {
+            return false;
+        }
+
         return !!ensNameHasAddress;
     }
 }

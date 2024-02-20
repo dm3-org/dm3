@@ -40,10 +40,7 @@ const fetchPreview = async (
     resolveAliasToTLD: (alias: string) => Promise<string>,
 ): Promise<ContactPreview> => {
     return {
-        name: getAccountDisplayName(
-            await resolveAliasToTLD(contact.account.ensName),
-            25,
-        ),
+        name: await resolveAliasToTLD(contact.account.ensName),
         message: '',
         image: await getAvatarProfilePic(provider, contact.account.ensName),
         messageCount: conversatoinManifest.messageCounter,

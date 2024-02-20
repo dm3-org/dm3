@@ -34,15 +34,29 @@ export const AccountConnector = (
     }
     async function connectOnchainAccount(ensName: string, address: string) {
         let onChainProfile;
+        let offChainProfile;
 
+        const offchainAddrAlias = getIdForAddress(address);
         try {
             onChainProfile = await getUserProfile(mainnetProvider!, ensName);
+            offChainProfile = await getUserProfile(
+                mainnetProvider!,
+                offchainAddrAlias,
+            );
         } catch (error) {
             log(
                 'Cant load profile from chain' + JSON.stringify(error),
                 'error',
             );
             onChainProfile = undefined;
+        }
+        //There might be cases where the onchain profile is not the same as the offchain profile
+        //We find a solution on how we would migrate messages then
+        const profilesAreEqual =
+            JSON.stringify(onChainProfile) === JSON.stringify(offChainProfile);
+
+        if (!profilesAreEqual) {
+            console.log('OnChain Profile is not the same as offchain profile');
         }
 
         /**
@@ -67,7 +81,7 @@ export const AccountConnector = (
 
         return {
             userProfile: onChainProfile,
-            ensName,
+            ensName: offchainAddrAlias,
         };
     }
 
