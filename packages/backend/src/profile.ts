@@ -96,6 +96,8 @@ export default () => {
                     message: 'POST profile',
                     error: JSON.stringify(e),
                 });
+                // eslint-disable-next-line no-console
+                console.log('POST PROFILE ERROR', e);
                 res.status(400).send({
                     message: `Couldn't store profile`,
                     error: JSON.stringify(e),
