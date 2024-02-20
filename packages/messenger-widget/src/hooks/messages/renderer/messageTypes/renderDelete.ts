@@ -1,4 +1,6 @@
+import { MessageActionType } from '../../../../utils/enum-type-utils';
 import { MessageModel } from '../../useMessage';
+import { MessageType } from '@dm3-org/dm3-lib-messaging';
 
 export const renderDelete = (messages: MessageModel[]) => {
     //We filter out all messages that are deleted
@@ -15,12 +17,30 @@ export const renderDelete = (messages: MessageModel[]) => {
     return messages
         .filter(
             (message) =>
-                !toBeDeletedByMessageHash.includes(
-                    message.envelop.metadata?.encryptedMessageHash,
-                ),
+                message.envelop.message.metadata.type !==
+                MessageActionType.DELETE,
         )
-        .filter(
-            (message) =>
-                message.envelop.message.metadata.type !== 'DELETE_REQUEST',
-        );
+        .map((message) => {
+            if (
+                toBeDeletedByMessageHash.includes(
+                    message.envelop.metadata?.encryptedMessageHash,
+                )
+            ) {
+                return {
+                    ...message,
+                    envelop: {
+                        ...message.envelop,
+                        message: {
+                            ...message.envelop.message,
+                            message: '',
+                            metadata: {
+                                ...message.envelop.message.metadata,
+                                type: MessageActionType.DELETE as MessageType,
+                            },
+                        },
+                    },
+                };
+            }
+            return message;
+        });
 };
