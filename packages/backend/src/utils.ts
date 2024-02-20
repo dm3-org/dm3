@@ -184,7 +184,6 @@ const getCachedProvider = (
                             cache.delete(key);
                             //Continue to fetch the value
                         }
-                        console.log('eth_chainId cache miss', key);
 
                         //@ts-ignore
                         const result = await target[fnSig](method);
@@ -207,7 +206,6 @@ const getCachedProvider = (
                             cache.delete(key);
                             //Continue to fetch the value
                         }
-                        console.log('eth_call cache miss', key);
                         //@ts-ignore
                         const result = await target[fnSig](method, ...args);
                         cache.set(key, { createAt: Date.now(), value: result });
