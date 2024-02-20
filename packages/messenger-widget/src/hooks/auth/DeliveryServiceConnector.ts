@@ -110,6 +110,11 @@ export const DeliveryServiceConnector = (
         ensName: string,
         signedUserProfile: SignedUserProfile,
     ): Promise<ConnectDsResult> => {
+        await claimAddress(
+            address,
+            process.env.REACT_APP_RESOLVER_BACKEND as string,
+            signedUserProfile,
+        );
         const deliveryServiceToken = await submitUserProfile(
             { ensName, profile: signedUserProfile.profile },
             mainnetProvider,
