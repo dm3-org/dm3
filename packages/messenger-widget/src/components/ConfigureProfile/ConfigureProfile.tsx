@@ -127,10 +127,7 @@ export function ConfigureDM3Profile() {
 
     // handles existing ENS name
     useEffect(() => {
-        if (
-            account!.ensName &&
-            !account!.ensName.endsWith(globalConfig.ADDR_ENS_SUBDOMAIN())
-        ) {
+        if (account!.ensName) {
             fetchExistingDM3Name(mainnetProvider, account!, setExistingDm3Name);
         }
     }, [account]);

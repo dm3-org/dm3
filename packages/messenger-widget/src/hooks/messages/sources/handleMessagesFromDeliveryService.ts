@@ -58,7 +58,6 @@ export const handleMessagesFromDeliveryService = async (
         );
     });
 
-    console.log(`got messages from DS for ${contact}`, messagesSortedASC);
     //In the background we sync and acknowledge the messages and store then in the storage
     await storeMessageBatch(contact, messagesSortedASC);
 

@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import {
     Account,
-    getAccountDisplayName,
     getDeliveryServiceProfile,
     getUserProfile,
     normalizeEnsName,

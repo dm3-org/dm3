@@ -1,5 +1,3 @@
-import { globalConfig } from '@dm3-org/dm3-lib-shared';
-
 // returns the file extension by extracting from base64
 export const getFileTypeFromBase64 = (file: string): string => {
     return file.substring(file.indexOf('/') + 1, file.indexOf(';base64'));
@@ -97,14 +95,6 @@ export const closeErrorModal = () => {
     modal.style.display = 'none';
     const data = document.getElementById('error-message') as HTMLElement;
     data.innerText = '';
-};
-
-export const getLastDm3Name = (nameList: string[]) => {
-    let index = -1;
-    index = nameList.findIndex((data) =>
-        data.endsWith(globalConfig.USER_ENS_SUBDOMAIN()),
-    );
-    return index > -1 ? nameList[index] : null;
 };
 
 // Constants

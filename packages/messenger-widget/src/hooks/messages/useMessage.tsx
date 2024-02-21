@@ -195,7 +195,6 @@ export const useMessage = () => {
             !!recipient?.contactDetails.account.profile?.publicEncryptionKey;
 
         if (!recipientIsDm3User) {
-            console.log('- Halt delivery');
             //StorageEnvelopContainerNew to store the message in the storage
             const messageModel: MessageModel = {
                 envelop: {
@@ -243,7 +242,6 @@ export const useMessage = () => {
                 [contact]: [...(prev[contact] ?? []), messageModel],
             };
         });
-        console.log('storeMessage', contact, messageModel);
 
         //Storage the message in the storage
         storeMessage(contact, messageModel);

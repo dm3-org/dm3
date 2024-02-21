@@ -1,8 +1,6 @@
-import { globalConfig } from '@dm3-org/dm3-lib-shared';
 import { useContext, useEffect, useState } from 'react';
 import loader from '../../assets/images/loader.svg';
 import threeDotsIcon from '../../assets/images/three-dots.svg';
-import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { MessageContext } from '../../context/MessageContext';
 import { DashboardProps } from '../../interfaces/props';
@@ -13,13 +11,12 @@ import {
 } from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
 import './Contacts.css';
-import { setContactHeightToMaximum, showMenuInBottom } from './bl';
+import { showMenuInBottom } from './bl';
 import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
 
 export function Contacts(props: DashboardProps) {
     // fetches context api data
     const { state, dispatch } = useContext(GlobalContext);
-    const { account } = useContext(AuthContext);
     const {
         contacts,
         setSelectedContactName,
@@ -33,22 +30,11 @@ export function Contacts(props: DashboardProps) {
         boolean | null
     >(null);
 
-    // fetches sub domain of ENS
-    const isAddrEnsName = account?.ensName?.endsWith(
-        globalConfig.ADDR_ENS_SUBDOMAIN(),
-    );
-
-    // handles contact box view
-    //Can be removed once responsive design has been implemented @Bhupesh
-    useEffect(() => {
-        setContactHeightToMaximum(!isAddrEnsName ? true : false);
-    }, [account?.ensName]);
-
     // handles active contact removal
     // move to a better place (profile window) and Contact Info
     useEffect(() => {
         if (
-            selectedContact !== null &&
+            selectedContact &&
             state.uiView.selectedRightView !== RightViewSelected.Chat &&
             state.uiView.selectedRightView !== RightViewSelected.ContactInfo
         ) {
@@ -58,7 +44,7 @@ export function Contacts(props: DashboardProps) {
 
     // handles UI view on contact select
     useEffect(() => {
-        if (selectedContact !== undefined) {
+        if (selectedContact) {
             // set selected contact
 
             if (state.uiView.selectedRightView !== RightViewSelected.Chat) {
@@ -92,7 +78,7 @@ export function Contacts(props: DashboardProps) {
     //If a selected contact is selected and the menu is open, we want to align the menu at the bottom
     if (scroller) {
         scroller.addEventListener('scroll', () => {
-            if (selectedContact != null) {
+            if (selectedContact) {
                 setIsMenuAlignedAtBottom(
                     showMenuInBottom(selectedContact.name),
                 );
@@ -136,10 +122,6 @@ export function Contacts(props: DashboardProps) {
                                         : '',
                                 )}
                                 onClick={() => {
-                                    console.log(
-                                        'set selected contact ',
-                                        data.contactDetails.account.ensName,
-                                    );
                                     setSelectedContactName(
                                         data.contactDetails.account.ensName,
                                     );
@@ -179,7 +161,6 @@ export function Contacts(props: DashboardProps) {
                                                 </p>
                                             </div>
 
-                                            {/* @Bhupesh what is this cached contacts section for */}
                                             {id !==
                                                 selectedContact?.contactDetails
                                                     .account.ensName &&
@@ -260,7 +241,7 @@ export function Contacts(props: DashboardProps) {
                     <div
                         key={data}
                         className={
-                            selectedContact !== null
+                            selectedContact
                                 ? 'highlight-right-border'
                                 : 'highlight-right-border-none'
                         }
@@ -274,7 +255,7 @@ export function Contacts(props: DashboardProps) {
                     <div
                         key={data}
                         className={
-                            selectedContact !== null
+                            selectedContact
                                 ? 'highlight-right-border'
                                 : 'highlight-right-border-none'
                         }

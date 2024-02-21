@@ -93,7 +93,8 @@ export function Message(props: MessageProps) {
                                 : state.uiView.selectedMessageView
                                       .actionType === MessageActionType.EDIT &&
                                   state.uiView.selectedMessageView.messageData
-                                      ?.envelop.id === props.envelop.id
+                                      ?.envelop.message.signature ===
+                                      props.envelop.message.signature
                                 ? 'msg-editing-active'
                                 : 'ms-3 own-msg-background'
                             : !props.message &&

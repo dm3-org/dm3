@@ -2,11 +2,10 @@ import { Account, ProfileKeys, hasUserProfile } from '@dm3-org/dm3-lib-profile';
 import {
     Actions,
     ConnectionType,
-    GlobalState,
     ModalStateType,
 } from '../../utils/enum-type-utils';
 
-import { createAlias, getAliasChain } from '@dm3-org/dm3-lib-delivery-api';
+import { createAlias } from '@dm3-org/dm3-lib-delivery-api';
 import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import React from 'react';
@@ -14,13 +13,12 @@ import {
     claimSubdomain,
     removeAlias,
 } from '../../adapters/offchain-resolver-api';
-import { getLastDm3Name } from '../../utils/common-utils';
 import { checkEnsDM3Text } from '../../utils/ens-utils';
-import { setContactHeightToMaximum } from '../Contacts/bl';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { NAME_TYPE } from './chain/common';
 import { ConfigureEnsProfile } from './chain/ens/ConfigureEnsProfile';
 import { ConfigureGenomeProfile } from './chain/genome/ConfigureGenomeProfile';
+import { Dm3Name } from '../../hooks/topLevelAlias/nameService/Dm3Name';
 
 export const PROFILE_INPUT_FIELD_CLASS =
     'profile-input font-weight-400 font-size-14 border-radius-6 w-100 line-height-24';
@@ -116,7 +114,6 @@ export const submitDm3UsernameClaim = async (
         );
 
         setDisplayName(ensName);
-        setContactHeightToMaximum(true);
     } catch (e) {
         setError('Name is not available', NAME_TYPE.DM3_NAME);
     }
@@ -157,7 +154,6 @@ export const removeAliasFromDm3Name = async (
                 },
             });
 
-            setContactHeightToMaximum(true);
             closeLoader();
             return true;
         } else {
@@ -185,12 +181,18 @@ export const fetchExistingDM3Name = async (
 ) => {
     try {
         if (account) {
-            const dm3Names: any = await getAliasChain(account, mainnetProvider);
-            let dm3Name;
-            if (dm3Names && dm3Names.length) {
-                dm3Name = getLastDm3Name(dm3Names);
-            }
-            setExistingDm3Name(dm3Name ? dm3Name : null);
+            const dm3NameService = new Dm3Name(mainnetProvider);
+            const dm3Name = await dm3NameService.resolveAliasToTLD(
+                account.ensName,
+            );
+            // Not a DM3 name -> 0xa966.beta-addr.dm3.eth
+            // Its DM3 name -> bob.beta-user.dm3.eth
+            // Checks user sub domain for setting DM3 name
+            setExistingDm3Name(
+                dm3Name.endsWith(globalConfig.USER_ENS_SUBDOMAIN())
+                    ? dm3Name
+                    : null,
+            );
         } else {
             setExistingDm3Name(null);
         }
