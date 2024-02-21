@@ -37,7 +37,8 @@ export const onSubmitMessage = async (
             referenceMessageHash!,
             props.filesSelected.map((file) => file.data),
         );
-        await addMessage(
+
+        addMessage(
             selectedContact?.contactDetails.account.ensName!,
             messageData,
         );
@@ -48,6 +49,16 @@ export const onSubmitMessage = async (
             type: ModalStateType.LastMessageAction,
             payload: MessageActionType.REPLY,
         });
+
+        // Removes preview of reply to message in the UI
+        dispatch({
+            type: UiViewStateType.SetMessageView,
+            payload: {
+                actionType: MessageActionType.NONE,
+                messageData: undefined,
+            },
+        });
+
         return;
     }
     if (state.uiView.selectedMessageView.actionType === 'EDIT') {

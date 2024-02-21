@@ -3,7 +3,6 @@ import { Account, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { ethersHelper, stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import { Actions, ModalStateType } from '../../../../utils/enum-type-utils';
-import { setContactHeightToMaximum } from '../../../Contacts/bl';
 import { closeLoader, startLoader } from '../../../Loader/Loader';
 import { NAME_TYPE } from '../common';
 
@@ -92,8 +91,6 @@ export const submitEnsNameTransaction = async (
             const response = await ethersHelper.executeTransaction(tx);
             await response.wait();
             setEnsNameFromResolver(ensName);
-
-            setContactHeightToMaximum(true);
         } else {
             throw Error('Error creating publish transaction');
         }

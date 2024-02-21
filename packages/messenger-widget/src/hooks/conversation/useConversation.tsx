@@ -33,7 +33,6 @@ export const useConversation = (config: Config) => {
     const conversationCount = useMemo(() => contacts.length, [contacts]);
 
     const selectedContact = useMemo(() => {
-        console.log('selectedContactName MEMO', selectedContactName);
         return contacts.find(
             (contact) =>
                 contact.contactDetails.account.ensName === selectedContactName,
@@ -66,8 +65,6 @@ export const useConversation = (config: Config) => {
                 return;
             }
             const currentConversationsPage = await getConversations(page);
-
-            console.log('currentConversationsPage', currentConversationsPage);
 
             //Hydrate the contacts by fetching their profile and DS profile
             const storedContacts = await Promise.all(
@@ -180,7 +177,6 @@ export const useConversation = (config: Config) => {
             conversation,
             resolveAliasToTLD,
         );
-        console.log('hydrated contact', hydratedContact);
         setContacts((prev) => {
             return prev.map((existingContact) => {
                 //Find the contact in the list and replace it with the hydrated one
@@ -227,7 +223,6 @@ export const useConversation = (config: Config) => {
             ...contact,
             isHidden: false,
         };
-        console.log('unhiddenContact', unhiddenContact);
         setSelectedContactName(unhiddenContact.contactDetails.account.ensName);
         hydrateExistingContactAsync(unhiddenContact);
     };

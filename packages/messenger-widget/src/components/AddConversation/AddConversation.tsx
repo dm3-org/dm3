@@ -34,7 +34,6 @@ export default function AddConversation() {
     const submit = async (e: React.FormEvent) => {
         e.preventDefault();
         setName(name.trim());
-        console.log('name', name);
         if (name.length) {
             // start loader
             dispatch({

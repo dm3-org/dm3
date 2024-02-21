@@ -1,6 +1,5 @@
-import { ContactPreview } from '../../../interfaces/utils';
 import { GetMessages } from '../../storage/useStorage';
-import { MessageModel, MessageStorage } from '../useMessage';
+import { MessageModel } from '../useMessage';
 
 export const handleMessagesFromStorage = async (
     setContactsLoading: Function,
@@ -17,8 +16,6 @@ export const handleMessagesFromStorage = async (
         contactName,
         Math.floor(numberOfmessages / MAX_MESSAGES_PER_CHUNK),
     );
-
-    console.log(`got messages from Storage for ${contactName}`, storedMessages);
 
     return storedMessages.map(
         (message) =>

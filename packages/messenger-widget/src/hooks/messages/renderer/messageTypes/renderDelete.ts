@@ -13,6 +13,7 @@ export const renderDelete = (messages: MessageModel[]) => {
         (deleteMessage) =>
             deleteMessage.envelop.message.metadata.referenceMessageHash,
     );
+
     //We return the messages with out messages that are to be deleted and the delete requests
     return messages
         .filter(
@@ -35,12 +36,28 @@ export const renderDelete = (messages: MessageModel[]) => {
                             message: '',
                             metadata: {
                                 ...message.envelop.message.metadata,
-                                type: MessageActionType.DELETE as MessageType,
+                                // REACT messages are set, so that it can be filtered out
+                                // to be not shown on UI
+                                type:
+                                    message.envelop.message.metadata.type ===
+                                    MessageActionType.REACT
+                                        ? (MessageActionType.REACT as MessageType)
+                                        : (MessageActionType.DELETE as MessageType),
                             },
                         },
                     },
                 };
             }
             return message;
-        });
+            // filter out all the reaction messages those are deleted
+            // its not to be shown on UI
+        })
+        .filter(
+            (messageData) =>
+                !(
+                    messageData.envelop.message.message === '' &&
+                    messageData.envelop.message.metadata.type ===
+                        MessageActionType.REACT
+                ),
+        );
 };
