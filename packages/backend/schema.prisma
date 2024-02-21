@@ -1,0 +1,20 @@
+datasource db {
+    url      = env("DATABASE_URL")
+    provider = "postgresql"
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model Message {
+    id                        String       @id
+    encryptedEnvelopContainer String
+    conversationId            String
+    conversation              Conversation @relation(fields: [conversationId], references: [id])
+}
+
+model Conversation {
+    id      String    @id
+    Message Message[]
+}
