@@ -72,7 +72,7 @@ export const getCustomizedTheme = (themeCss: any) => {
             ? `1px solid ${themeCss.configurationBoxBorderColor}`
             : defaultTheme.backgroundConfigBoxBorder,
         chatBackground:
-            themeCss.chatBakgroundColor ?? defaultTheme.chatBackground,
+            themeCss.chatBackgroundColor ?? defaultTheme.chatBackground,
         disabledBtnText:
             themeCss.disabledButtonTextColor ?? defaultTheme.disabledBtnText,
         textError: themeCss.errorTextColor ?? defaultTheme.textError,

@@ -49,7 +49,7 @@
     background-color: var(--received-message-background-color);
 }
 
-.msg:hover div .content-style + .msg-action-container {
+.msg:hover div .content-style+.msg-action-container {
     visibility: visible;
 }
 
@@ -69,11 +69,11 @@
     flex-direction: column;
 }
 
-.reply-preview-own{
+.reply-preview-own {
     background-color: var(--scrollbar-background-color);
 }
 
-.reply-preview-contact{
+.reply-preview-contact {
     background-color: var(--scrollbar-background-color);
 }
 
@@ -118,9 +118,9 @@
 }
 
 .own-msg-text {
-    background: var(--sent-message-text-color);
+    color: var(--sent-message-text-color);
 }
 
 .contact-msg-text {
-    background: var(--received-message-text-color);
+    color: var(--received-message-text-color);
 }

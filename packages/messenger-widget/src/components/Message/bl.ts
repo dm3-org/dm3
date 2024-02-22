@@ -51,6 +51,15 @@ export const deleteEmoji = async (
 ) => {
     const userDb = state.userDb;
 
+    /**
+     * User can't remove reactions on his own messages.
+     * As the other account can only react to my messages.
+     * And only that other account can remove those reactions.
+     **/
+    if (props.ownMessage) {
+        return;
+    }
+
     if (!userDb) {
         throw Error('userDB not found');
     }
