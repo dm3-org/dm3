@@ -1,5 +1,6 @@
 {
     "name": "dm3",
+    "private": true,
     "workspaces": {
         "packages": [
             "packages/lib/shared",
@@ -20,7 +21,8 @@
             "packages/cli",
             "packages/billboard-client",
             "packages/billboard-widget",
-            "packages/toplevel-alias"
+            "packages/toplevel-alias",
+            "packages/delivery-service"
         ],
         "nohoist": [
             "**/react",
