@@ -9,14 +9,74 @@ export default () => {
     //TODO remove
     router.use(cors());
 
-    router.get('/new/:ensName/:key', async (req, res, next) => {
+    router.post('/new/:ensName/addMessage', async (req, res, next) => {
+        const { message, encryptedContactName, messageId } = req.body;
+        console.log('req.body', req.body);
+
+        if (!message || !encryptedContactName || !messageId) {
+            res.status(400).send('invalid schema');
+            return;
+        }
+
+        try {
+            console.log('check req');
+            const ensName = normalizeEnsName(req.params.ensName);
+            const success = await req.app.locals.db.storage_addMessage(
+                ensName,
+                encryptedContactName,
+                messageId,
+                message,
+            );
+            console.log('success', success);
+            if (success) {
+                return res.send();
+            }
+            res.status(400).send('unable to add conversation');
+        } catch (e) {
+            next(e);
+        }
+    });
+
+    router.get('/new/:ensName/getMessages', async (req, res, next) => {
         try {
             const ensName = normalizeEnsName(req.params.ensName);
-            const userStorage = await req.app.locals.db.getUserStorageChunk(
+            const conversations = await req.app.locals.db.storage_getMessages(
                 ensName,
-                req.params.key,
             );
-            return res.json(userStorage);
+            console.log('conversations', conversations);
+            return res.json(conversations);
+        } catch (e) {
+            next(e);
+        }
+    });
+
+    router.post('/new/:ensName/addConversation', async (req, res, next) => {
+        const { encryptedId } = req.body;
+        if (!encryptedId) {
+            res.status(400).send('invalid schema');
+            return;
+        }
+        try {
+            const ensName = normalizeEnsName(req.params.ensName);
+            const success = await req.app.locals.db.storage_addConversation(
+                ensName,
+                encryptedId,
+            );
+            if (success) {
+                return res.send();
+            }
+            res.status(400).send('unable to add conversation');
+        } catch (e) {
+            next(e);
+        }
+    });
+    router.get('/new/:ensName/conversationList', async (req, res, next) => {
+        try {
+            const ensName = normalizeEnsName(req.params.ensName);
+            const conversations =
+                await req.app.locals.db.storage_getConversationList(ensName);
+            console.log('conversations', conversations);
+            return res.json(conversations);
         } catch (e) {
             next(e);
         }

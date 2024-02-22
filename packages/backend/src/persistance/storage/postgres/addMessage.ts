@@ -1,6 +1,13 @@
 import { PrismaClient } from '@prisma/client';
-export const addConversation =
-    (db: PrismaClient) => async (ensName: string, contactName: string) => {
+
+export const addMessage =
+    (db: PrismaClient) =>
+    async (
+        ensName: string,
+        contactName: string,
+        messageId: string,
+        encryptedEnvelopContainer: string,
+    ) => {
         try {
             let account = await db.account.findFirst({
                 where: {
@@ -17,25 +24,34 @@ export const addConversation =
                 });
             }
 
-            const conversationAlreadyExists = await db.conversation.findFirst({
+            let conversation = await db.conversation.findFirst({
                 where: {
                     accountId: ensName,
                     encryptedId: contactName,
                 },
             });
 
-            if (!conversationAlreadyExists) {
-                await db.conversation.create({
+            if (!conversation) {
+                conversation = await db.conversation.create({
                     data: {
                         encryptedId: contactName,
                         accountId: ensName,
                     },
                 });
             }
+            console.log('conversation', conversation);
+
+            await db.encryptedMessage.create({
+                data: {
+                    id: messageId,
+                    conversationId: conversation.encryptedId,
+                    encryptedEnvelopContainer,
+                },
+            });
 
             return true;
         } catch (e) {
-            console.log('addConversation error ', e);
+            console.log('addMessage error ', e);
             return false;
         }
     };

@@ -17,6 +17,11 @@ import Session from './session';
 import Storage from './storage';
 import Otp from './otp';
 import { syncAcknowledge } from './messages/syncAcknowledge';
+import { PrismaClient } from '@prisma/client';
+import { addConversation } from './storage/postgres/addConversation';
+import { getConversationList } from './storage/postgres/getConversationList';
+import { addMessage } from './storage/postgres/addMessage';
+import { getMessages } from './storage/postgres/getMessages';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -59,8 +64,16 @@ export async function getRedisClient() {
     return client;
 }
 
-export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
+export async function getPrismaClient() {
+    return new PrismaClient();
+}
+
+export async function getDatabase(
+    _redis?: Redis,
+    _prisma?: PrismaClient,
+): Promise<IDatabase> {
     const redis = _redis ?? (await getRedisClient());
+    const prisma = _prisma ?? (await getPrismaClient());
 
     return {
         //Messages
@@ -104,6 +117,12 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
         setOtp: Otp.setOtp(redis),
         getOtp: Otp.getOtp(redis),
         resetOtp: Otp.resetOtp(redis),
+        //Storage AddConversation
+        storage_addConversation: addConversation(prisma),
+        storage_getConversationList: getConversationList(prisma),
+        //Storage Add Messages
+        storage_addMessage: addMessage(prisma),
+        storage_getMessages: getMessages(prisma),
     };
 }
 
@@ -194,6 +213,23 @@ export interface IDatabase {
         ensName: string,
         channelType: NotificationChannelType,
     ) => Promise<void>;
+
+    storage_addConversation: (
+        ensName: string,
+        encryptedContactName: string,
+    ) => Promise<boolean>;
+    storage_getConversationList: (ensName: string) => Promise<string[]>;
+    storage_addMessage: (
+        ensName: string,
+        encryptedContactName: string,
+        messageId: string,
+        encryptedEnvelopContainer: string,
+    ) => Promise<boolean>;
+    storage_getMessages: (
+        ensName: string,
+        encryptedContactName: string,
+        page: number,
+    ) => Promise<string[]>;
 }
 
 export type Redis = Awaited<ReturnType<typeof getRedisClient>>;
