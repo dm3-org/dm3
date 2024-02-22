@@ -7,14 +7,21 @@ generator client {
     provider = "prisma-client-js"
 }
 
-model Message {
+model EncryptedMessage {
     id                        String       @id
     encryptedEnvelopContainer String
     conversationId            String
-    conversation              Conversation @relation(fields: [conversationId], references: [id])
+    conversation              Conversation @relation(fields: [conversationId], references: [encryptedId])
 }
 
 model Conversation {
-    id      String    @id
-    Message Message[]
+    encryptedId String             @id
+    Message     EncryptedMessage[]
+    Account     Account            @relation(fields: [accountId], references: [id])
+    accountId   String
+}
+
+model Account {
+    id            String         @id
+    conversations Conversation[]
 }
