@@ -49,7 +49,7 @@ export default () => {
             if (success) {
                 return res.send();
             }
-            res.status(400).send('unable to add conversation');
+            res.status(400).send('unable to add message');
         } catch (e) {
             next(e);
         }
@@ -70,6 +70,25 @@ export default () => {
                 encryptedContactName,
                 pageNumber,
             );
+            return res.json(messages);
+        } catch (e) {
+            next(e);
+        }
+    });
+    router.get('/new/:ensName/getNumberOfMessages/', async (req, res, next) => {
+        const encryptedContactName = req.body.encryptedContactName as string;
+
+        if (!encryptedContactName) {
+            res.status(400).send('invalid schema');
+            return;
+        }
+        try {
+            const ensName = normalizeEnsName(req.params.ensName);
+            const messages =
+                await req.app.locals.db.storage_getNumberOfMessages(
+                    ensName,
+                    encryptedContactName,
+                );
             return res.json(messages);
         } catch (e) {
             next(e);

@@ -28,6 +28,7 @@ import {
 import { getConversationList } from './persistance/storage/postgres/getConversationList';
 import { getMessages } from './persistance/storage/postgres/getMessages';
 import storage from './storage';
+import { getNumberOfMessages } from './persistance/storage/postgres/getNumberOfMessages';
 
 const keysA = {
     encryptionKeyPair: {
@@ -97,6 +98,7 @@ describe('Storage', () => {
             storage_getMessages: getMessages(prisma),
             storage_addConversation: addConversation(prisma),
             storage_getConversationList: getConversationList(prisma),
+            storage_getNumberOfMessages: getNumberOfMessages(prisma),
         };
 
         app.locals.web3Provider = {
@@ -198,6 +200,73 @@ describe('Storage', () => {
             expect(
                 JSON.parse(JSON.parse(messages[0]).encryptedEnvelopContainer),
             ).toStrictEqual(encryptedEnvelop);
+        });
+    });
+    describe('getNumberOfMessages', () => {
+        it('can get number of messages', async () => {
+            //create message
+            const message = await createMessage(
+                sender.account.ensName,
+                receiver.account.ensName,
+                'Hello',
+                sender.profileKeys.signingKeyPair.privateKey,
+            );
+            const { encryptedEnvelop, envelop } = await buildEnvelop(
+                message,
+                (receiverPublicSigningKey: string, message: string) => {
+                    return encryptAsymmetric(receiverPublicSigningKey, message);
+                },
+                {
+                    from: sender.account,
+                    to: receiver.account,
+                    deliverServiceProfile: deliveryService.profile,
+                    keys: sender.profileKeys,
+                },
+            );
+
+            const {} = await request(app)
+                .post(`/new/bob.eth/addMessage`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    message: JSON.stringify(encryptedEnvelop),
+                    encryptedContactName: sha256(receiver.account.ensName),
+                    messageId: '123',
+                });
+
+            const {} = await request(app)
+                .post(`/new/bob.eth/addMessage`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    message: JSON.stringify(encryptedEnvelop),
+                    encryptedContactName: sha256(receiver.account.ensName),
+                    messageId: '456',
+                });
+
+            const { status: addDuplicateStatus } = await request(app)
+                .post(`/new/bob.eth/addMessage`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    message: JSON.stringify(encryptedEnvelop),
+                    encryptedContactName: sha256(receiver.account.ensName),
+                    messageId: '123',
+                });
+
+            const { status, body } = await request(app)
+                .get(`/new/bob.eth/getNumberOfMessages`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedContactName: sha256(receiver.account.ensName),
+                });
+            expect(status).toBe(200);
+            expect(body).toBe(2);
         });
     });
     describe('editMessageBatch', () => {
