@@ -9,9 +9,29 @@ export default () => {
     //TODO remove
     router.use(cors());
 
+    router.post('/new/:ensName/editMessageBatch', async (req, res, next) => {
+        const { encryptedContactName, editMessageBatchPayload } = req.body;
+
+        if (!encryptedContactName || !editMessageBatchPayload) {
+            res.status(400).send('invalid schema');
+            return;
+        }
+
+        try {
+            const ensName = normalizeEnsName(req.params.ensName);
+            await req.app.locals.db.storage_editMessageBatch(
+                ensName,
+                encryptedContactName,
+                JSON.parse(editMessageBatchPayload),
+            );
+            return res.send();
+        } catch (e) {
+            next(e);
+        }
+    });
+
     router.post('/new/:ensName/addMessage', async (req, res, next) => {
         const { message, encryptedContactName, messageId } = req.body;
-        console.log('req.body', req.body);
 
         if (!message || !encryptedContactName || !messageId) {
             res.status(400).send('invalid schema');
@@ -19,7 +39,6 @@ export default () => {
         }
 
         try {
-            console.log('check req');
             const ensName = normalizeEnsName(req.params.ensName);
             const success = await req.app.locals.db.storage_addMessage(
                 ensName,
@@ -27,7 +46,6 @@ export default () => {
                 messageId,
                 message,
             );
-            console.log('success', success);
             if (success) {
                 return res.send();
             }
@@ -37,14 +55,22 @@ export default () => {
         }
     });
 
-    router.get('/new/:ensName/getMessages', async (req, res, next) => {
+    router.get('/new/:ensName/getMessages/', async (req, res, next) => {
+        const pageNumber = parseInt(req.body.page);
+        const encryptedContactName = req.body.encryptedContactName as string;
+
+        if (isNaN(pageNumber) || !encryptedContactName) {
+            res.status(400).send('invalid schema');
+            return;
+        }
         try {
             const ensName = normalizeEnsName(req.params.ensName);
-            const conversations = await req.app.locals.db.storage_getMessages(
+            const messages = await req.app.locals.db.storage_getMessages(
                 ensName,
+                encryptedContactName,
+                pageNumber,
             );
-            console.log('conversations', conversations);
-            return res.json(conversations);
+            return res.json(messages);
         } catch (e) {
             next(e);
         }
@@ -75,7 +101,6 @@ export default () => {
             const ensName = normalizeEnsName(req.params.ensName);
             const conversations =
                 await req.app.locals.db.storage_getConversationList(ensName);
-            console.log('conversations', conversations);
             return res.json(conversations);
         } catch (e) {
             next(e);

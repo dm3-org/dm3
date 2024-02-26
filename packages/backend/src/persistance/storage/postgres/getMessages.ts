@@ -16,13 +16,21 @@ export const getMessages =
             return [];
         }
 
-        const messages = await db.encryptedMessage.findMany({
-            skip: page * PAGE_SIZE,
-            take: PAGE_SIZE,
-            where: {
-                conversationId: conversation.encryptedId,
-            },
-        });
+        try {
+            const messages = await db.encryptedMessage.findMany({
+                skip: page * PAGE_SIZE,
+                take: PAGE_SIZE,
+                where: {
+                    conversationId: conversation.encryptedId,
+                },
+            });
+            if (messages.length === 0) {
+                return [];
+            }
 
-        return messages.map((m) => m.encryptedEnvelopContainer);
+            return messages.map((message) => JSON.stringify(message));
+        } catch (e) {
+            console.log('getMessages error', e);
+            return [];
+        }
     };

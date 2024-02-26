@@ -22,6 +22,10 @@ import { addConversation } from './storage/postgres/addConversation';
 import { getConversationList } from './storage/postgres/getConversationList';
 import { addMessage } from './storage/postgres/addMessage';
 import { getMessages } from './storage/postgres/getMessages';
+import {
+    EditMessageBatchPayload,
+    editMessageBatch,
+} from './storage/postgres/editMessageBatch';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -122,7 +126,10 @@ export async function getDatabase(
         storage_getConversationList: getConversationList(prisma),
         //Storage Add Messages
         storage_addMessage: addMessage(prisma),
+        //Storage Get Messages
         storage_getMessages: getMessages(prisma),
+        //Storage Edit Message Batch
+        storage_editMesageBatch: editMessageBatch(prisma),
     };
 }
 
@@ -230,6 +237,11 @@ export interface IDatabase {
         encryptedContactName: string,
         page: number,
     ) => Promise<string[]>;
+    storage_editMesageBatch: (
+        ensName: string,
+        encryptedContactName: string,
+        editMessageBatchPayload: EditMessageBatchPayload[],
+    ) => Promise<void>;
 }
 
 export type Redis = Awaited<ReturnType<typeof getRedisClient>>;

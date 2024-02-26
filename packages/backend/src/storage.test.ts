@@ -1,30 +1,33 @@
-import bodyParser from 'body-parser';
-import express from 'express';
-import auth from './auth';
-import storage from './storage';
-import request from 'supertest';
-import winston from 'winston';
-import { addConversation } from './persistance/storage/postgres/addConversation';
-import { PrismaClient } from '@prisma/client';
-import { getConversationList } from './persistance/storage/postgres/getConversationList';
-import { addMessage } from './persistance/storage/postgres/addMessage';
+import { encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
 import {
     Envelop,
     Message,
     buildEnvelop,
     createMessage,
 } from '@dm3-org/dm3-lib-messaging';
+import { sha256 } from '@dm3-org/dm3-lib-shared';
+import { PrismaClient } from '@prisma/client';
+import bodyParser from 'body-parser';
 import { ethers } from 'ethers';
+import express from 'express';
+import request from 'supertest';
+import winston from 'winston';
 import {
     MockedDeliveryServiceProfile,
     MockedUserProfile,
     mockDeliveryServiceProfile,
     mockUserProfile,
 } from '../test/testHelper';
-import { encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
-import { DeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
-import { sha256 } from '@dm3-org/dm3-lib-shared';
+import auth from './auth';
+import { addConversation } from './persistance/storage/postgres/addConversation';
+import { addMessage } from './persistance/storage/postgres/addMessage';
+import {
+    EditMessageBatchPayload,
+    editMessageBatch,
+} from './persistance/storage/postgres/editMessageBatch';
+import { getConversationList } from './persistance/storage/postgres/getConversationList';
 import { getMessages } from './persistance/storage/postgres/getMessages';
+import storage from './storage';
 
 const keysA = {
     encryptionKeyPair: {
@@ -45,12 +48,19 @@ global.logger = winston.createLogger({
 });
 
 describe('Storage', () => {
+    let app;
+    let token;
     let prisma: PrismaClient;
     let sender: MockedUserProfile;
     let receiver: MockedUserProfile;
     let deliveryService: MockedDeliveryServiceProfile;
     beforeEach(async () => {
         prisma = new PrismaClient();
+        app = express();
+        app.use(bodyParser.json());
+        app.use(storage());
+
+        token = await createAuthToken();
 
         const bobWallet = ethers.Wallet.createRandom();
         const aliceWallet = ethers.Wallet.createRandom();
@@ -66,6 +76,33 @@ describe('Storage', () => {
             dsWallet,
             'http://localhost:3000',
         );
+
+        app.locals.db = {
+            getSession: async (ensName: string) =>
+                Promise.resolve({
+                    challenge: '123',
+                    token,
+                    signedUserProfile: {
+                        profile: {
+                            publicSigningKey: keysA.signingKeyPair.publicKey,
+                        },
+                    },
+                }),
+            setSession: async (_: string, __: any) => {
+                return (_: any, __: any, ___: any) => {};
+            },
+            getIdEnsName: async (ensName: string) => ensName,
+            storage_editMessageBatch: editMessageBatch(prisma),
+            storage_addMessage: addMessage(prisma),
+            storage_getMessages: getMessages(prisma),
+            storage_addConversation: addConversation(prisma),
+            storage_getConversationList: getConversationList(prisma),
+        };
+
+        app.locals.web3Provider = {
+            resolveName: async () =>
+                '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+        };
     });
 
     afterEach(async () => {
@@ -76,37 +113,6 @@ describe('Storage', () => {
 
     describe('addConversation', () => {
         it('can add conversation', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(storage());
-
-            const token = await createAuthToken();
-
-            app.locals.db = {
-                getSession: async (ensName: string) =>
-                    Promise.resolve({
-                        challenge: '123',
-                        token,
-                        signedUserProfile: {
-                            profile: {
-                                publicSigningKey:
-                                    keysA.signingKeyPair.publicKey,
-                            },
-                        },
-                    }),
-                setSession: async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
-                },
-                getIdEnsName: async (ensName: string) => ensName,
-                storage_addConversation: addConversation(prisma),
-                storage_getConversationList: getConversationList(prisma),
-            };
-
-            app.locals.web3Provider = {
-                resolveName: async () =>
-                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
-            };
-
             const aliceId = 'alice.eth';
 
             const { status } = await request(app)
@@ -133,38 +139,6 @@ describe('Storage', () => {
     });
     describe('addMessage', () => {
         it('can add message', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(storage());
-
-            const token = await createAuthToken();
-
-            app.locals.db = {
-                getSession: async (ensName: string) =>
-                    Promise.resolve({
-                        challenge: '123',
-                        token,
-                        signedUserProfile: {
-                            profile: {
-                                publicSigningKey:
-                                    keysA.signingKeyPair.publicKey,
-                            },
-                        },
-                    }),
-                setSession: async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
-                },
-                getIdEnsName: async (ensName: string) => ensName,
-                storage_addMessage: addMessage(prisma),
-                storage_getMessages: getMessages(prisma),
-                storage_getConversationList: getConversationList(prisma),
-            };
-
-            app.locals.web3Provider = {
-                resolveName: async () =>
-                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
-            };
-
             const message = await createMessage(
                 sender.account.ensName,
                 receiver.account.ensName,
@@ -184,8 +158,6 @@ describe('Storage', () => {
                 },
             );
 
-            console.log('envelopCheck');
-
             const { status } = await request(app)
                 .post(`/new/bob.eth/addMessage`)
                 .set({
@@ -197,7 +169,6 @@ describe('Storage', () => {
                     messageId: '123',
                 });
             expect(status).toBe(200);
-            console.log('sendCheck');
 
             const { body } = await request(app)
                 .get(`/new/bob.eth/conversationList`)
@@ -209,6 +180,121 @@ describe('Storage', () => {
             expect(status).toBe(200);
             expect(body).toEqual([sha256(receiver.account.ensName)]);
             expect(body.length).toBe(1);
+
+            const { status: getMessagesStatus, body: messages } = await request(
+                app,
+            )
+                .get(`/new/bob.eth/getMessages`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedContactName: sha256(receiver.account.ensName),
+                    page: 0,
+                });
+
+            expect(getMessagesStatus).toBe(200);
+            expect(messages.length).toBe(1);
+            expect(
+                JSON.parse(JSON.parse(messages[0]).encryptedEnvelopContainer),
+            ).toStrictEqual(encryptedEnvelop);
+        });
+    });
+    describe('editMessageBatch', () => {
+        it('should create a message if they has not been created before', async () => {
+            const encryptedContactName = 'testContactName';
+            const payload: EditMessageBatchPayload[] = [
+                {
+                    messageId: 'testMessageId',
+                    encryptedEnvelopContainer: 'testEncryptedEnvelopContainer',
+                },
+            ];
+
+            const { status } = await request(app)
+                .post(`/new/bob.eth/editMessageBatch`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedContactName,
+                    editMessageBatchPayload: JSON.stringify(payload),
+                });
+
+            expect(status).toBe(200);
+
+            //get messages
+            const { body } = await request(app)
+                .get(`/new/bob.eth/getMessages`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedContactName,
+                    page: 0,
+                });
+
+            expect(body.length).toBe(1);
+            console.log('body', body);
+            expect(JSON.parse(body[0]).encryptedEnvelopContainer).toBe(
+                payload[0].encryptedEnvelopContainer,
+            );
+        });
+
+        it('should update encryptedMessage message', async () => {
+            const ensName = 'testEnsName';
+            const contactName = 'testContactName';
+            const originalPayload: EditMessageBatchPayload[] = [
+                {
+                    messageId: 'testMessageId',
+                    encryptedEnvelopContainer: 'testEncryptedEnvelopContainer',
+                },
+            ];
+            const { status } = await request(app)
+                .post(`/new/bob.eth/addMessage`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    message: JSON.stringify(originalPayload),
+                    encryptedContactName: sha256(receiver.account.ensName),
+                    messageId: '123',
+                });
+            expect(status).toBe(200);
+
+            const updatedPayload: EditMessageBatchPayload[] = [
+                {
+                    messageId: 'testMessageId',
+                    encryptedEnvelopContainer: 'NEW ENVELOP',
+                },
+            ];
+
+            const { status: editStatus } = await request(app)
+                .post(`/new/bob.eth/editMessageBatch`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedContactName: contactName,
+                    editMessageBatchPayload: JSON.stringify(updatedPayload),
+                });
+
+            expect(editStatus).toBe(200);
+
+            //get messages
+            const { body } = await request(app)
+                .get(`/new/bob.eth/getMessages`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedContactName: contactName,
+                    page: 0,
+                });
+
+            expect(body.length).toBe(1);
+            expect(JSON.parse(body[0]).encryptedEnvelopContainer).toBe(
+                updatedPayload[0].encryptedEnvelopContainer,
+            );
         });
     });
 });

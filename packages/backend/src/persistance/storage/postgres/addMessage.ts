@@ -39,7 +39,6 @@ export const addMessage =
                     },
                 });
             }
-            console.log('conversation', conversation);
 
             await db.encryptedMessage.create({
                 data: {

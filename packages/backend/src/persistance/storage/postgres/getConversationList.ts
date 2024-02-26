@@ -9,12 +9,10 @@ export const getConversationList =
         if (!account) {
             return [];
         }
-        console.log('get conversations for ', ensName);
         const conversations = await db.conversation.findMany({
             where: {
                 accountId: ensName,
             },
         });
-        console.log('get conversations ', conversations);
         return conversations.map((c) => c.encryptedId);
     };
