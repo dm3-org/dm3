@@ -29,6 +29,7 @@ import { getConversationList } from './persistance/storage/postgres/getConversat
 import { getMessages } from './persistance/storage/postgres/getMessages';
 import storage from './storage';
 import { getNumberOfMessages } from './persistance/storage/postgres/getNumberOfMessages';
+import { getNumberOfConversations } from './persistance/storage/postgres/getNumberOfConversations';
 
 const keysA = {
     encryptionKeyPair: {
@@ -99,6 +100,7 @@ describe('Storage', () => {
             storage_addConversation: addConversation(prisma),
             storage_getConversationList: getConversationList(prisma),
             storage_getNumberOfMessages: getNumberOfMessages(prisma),
+            storage_getNumberOfConverations: getNumberOfConversations(prisma),
         };
 
         app.locals.web3Provider = {
@@ -267,6 +269,51 @@ describe('Storage', () => {
                 });
             expect(status).toBe(200);
             expect(body).toBe(2);
+        });
+    });
+    describe('getNumberOfConversations', () => {
+        it('can get number of conversations', async () => {
+            const aliceId = 'alice.eth';
+            const bobId = 'bob.eth';
+
+            const { status } = await request(app)
+                .post(`/new/bob.eth/addConversation`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedId: aliceId,
+                });
+            expect(status).toBe(200);
+
+            const { status: secondStatus } = await request(app)
+                .post(`/new/bob.eth/addConversation`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedId: 'testContact',
+                });
+            expect(secondStatus).toBe(200);
+
+            const { status: thirdStatus } = await request(app)
+                .post(`/new/bob.eth/addConversation`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedId: 'testContact2',
+                });
+            expect(thirdStatus).toBe(200);
+
+            const { status: fourthStatus, body } = await request(app)
+                .get(`/new/bob.eth/getNumberOfConversations`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+            expect(fourthStatus).toBe(200);
+            expect(body).toBe(3);
         });
     });
     describe('editMessageBatch', () => {

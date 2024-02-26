@@ -125,6 +125,21 @@ export default () => {
             next(e);
         }
     });
+    router.get(
+        '/new/:ensName/getNumberOfConversations',
+        async (req, res, next) => {
+            try {
+                const ensName = normalizeEnsName(req.params.ensName);
+                const messages =
+                    await req.app.locals.db.storage_getNumberOfConverations(
+                        ensName,
+                    );
+                return res.json(messages);
+            } catch (e) {
+                next(e);
+            }
+        },
+    );
 
     router.post('/new/:ensName/:key', async (req, res, next) => {
         try {

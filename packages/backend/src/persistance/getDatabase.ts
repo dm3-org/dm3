@@ -27,6 +27,7 @@ import {
     editMessageBatch,
 } from './storage/postgres/editMessageBatch';
 import { getNumberOfMessages } from './storage/postgres/getNumberOfMessages';
+import { getNumberOfConversations } from './storage/postgres/getNumberOfConversations';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -133,6 +134,8 @@ export async function getDatabase(
         storage_editMesageBatch: editMessageBatch(prisma),
         //Storage Get Number Of Messages
         storage_getNumberOfMessages: getNumberOfMessages(prisma),
+        //Storage Get Number Of Converations
+        storage_getNumberOfConverations: getNumberOfConversations(prisma),
     };
 }
 
@@ -249,6 +252,7 @@ export interface IDatabase {
         ensName: string,
         encryptedContactName: string,
     ) => Promise<number>;
+    storage_getNumberOfConverations: (ensName: string) => Promise<number>;
 }
 
 export type Redis = Awaited<ReturnType<typeof getRedisClient>>;
