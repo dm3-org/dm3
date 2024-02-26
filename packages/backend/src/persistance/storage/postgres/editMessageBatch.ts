@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
-export type EditMessageBatchPayload = {
+export type MessageBatch = {
     messageId: string;
     encryptedEnvelopContainer: string;
 };
@@ -10,7 +10,7 @@ export const editMessageBatch =
     async (
         ensName: string,
         contactName: string,
-        editMessageBatchPayload: EditMessageBatchPayload[],
+        editMessageBatchPayload: MessageBatch[],
     ) => {
         let account = await db.account.findFirst({
             where: {

@@ -1,12 +1,12 @@
 import { PrismaClient } from '@prisma/client';
+import { MessageBatch } from './editMessageBatch';
 
-export const addMessage =
+export const addMessageBatch =
     (db: PrismaClient) =>
     async (
         ensName: string,
         contactName: string,
-        messageId: string,
-        encryptedEnvelopContainer: string,
+        messageBatch: MessageBatch[],
     ) => {
         try {
             let account = await db.account.findFirst({
@@ -32,25 +32,33 @@ export const addMessage =
             });
 
             if (!conversation) {
+                console.log('Creating conversation');
                 conversation = await db.conversation.create({
                     data: {
-                        encryptedId: contactName,
                         accountId: ensName,
+                        encryptedId: contactName,
                     },
                 });
+                addMessageBatch;
             }
 
-            await db.encryptedMessage.create({
-                data: {
-                    id: messageId,
-                    conversationId: conversation.encryptedId,
-                    encryptedEnvelopContainer,
+            const createMessagePromises = messageBatch.map(
+                ({ messageId, encryptedEnvelopContainer }) => {
+                    return db.encryptedMessage.create({
+                        data: {
+                            id: messageId,
+                            conversationId: contactName,
+                            encryptedEnvelopContainer,
+                        },
+                    });
                 },
-            });
+            );
+
+            await db.$transaction(createMessagePromises);
 
             return true;
         } catch (e) {
-            console.log('addMessage error ', e);
+            console.log('addMessageBatch error ', e);
             return false;
         }
     };

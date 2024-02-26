@@ -20,9 +20,8 @@ import {
 } from '../test/testHelper';
 import auth from './auth';
 import { addConversation } from './persistance/storage/postgres/addConversation';
-import { addMessage } from './persistance/storage/postgres/addMessage';
 import {
-    EditMessageBatchPayload,
+    MessageBatch,
     editMessageBatch,
 } from './persistance/storage/postgres/editMessageBatch';
 import { getConversationList } from './persistance/storage/postgres/getConversationList';
@@ -30,6 +29,7 @@ import { getMessages } from './persistance/storage/postgres/getMessages';
 import storage from './storage';
 import { getNumberOfMessages } from './persistance/storage/postgres/getNumberOfMessages';
 import { getNumberOfConversations } from './persistance/storage/postgres/getNumberOfConversations';
+import { addMessageBatch } from './persistance/storage/postgres/addMessageBatch';
 
 const keysA = {
     encryptionKeyPair: {
@@ -95,7 +95,7 @@ describe('Storage', () => {
             },
             getIdEnsName: async (ensName: string) => ensName,
             storage_editMessageBatch: editMessageBatch(prisma),
-            storage_addMessage: addMessage(prisma),
+            storage_addMessageBatch: addMessageBatch(prisma),
             storage_getMessages: getMessages(prisma),
             storage_addConversation: addConversation(prisma),
             storage_getConversationList: getConversationList(prisma),
@@ -168,7 +168,7 @@ describe('Storage', () => {
                     authorization: `Bearer ${token}`,
                 })
                 .send({
-                    message: JSON.stringify(encryptedEnvelop),
+                    encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
                     encryptedContactName: sha256(receiver.account.ensName),
                     messageId: '123',
                 });
@@ -204,6 +204,79 @@ describe('Storage', () => {
             ).toStrictEqual(encryptedEnvelop);
         });
     });
+    describe('addMessageBatch', () => {
+        it('can add a messageBatch', async () => {
+            const message = await createMessage(
+                sender.account.ensName,
+                receiver.account.ensName,
+                'Hello',
+                sender.profileKeys.signingKeyPair.privateKey,
+            );
+            const { encryptedEnvelop, envelop } = await buildEnvelop(
+                message,
+                (receiverPublicSigningKey: string, message: string) => {
+                    return encryptAsymmetric(receiverPublicSigningKey, message);
+                },
+                {
+                    from: sender.account,
+                    to: receiver.account,
+                    deliverServiceProfile: deliveryService.profile,
+                    keys: sender.profileKeys,
+                },
+            );
+
+            const { status } = await request(app)
+                .post(`/new/bob.eth/addMessageBatch`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedContactName: sha256(receiver.account.ensName),
+                    messageBatch: [
+                        {
+                            encryptedEnvelopContainer:
+                                JSON.stringify(encryptedEnvelop),
+                            messageId: '123',
+                        },
+                        {
+                            encryptedEnvelopContainer:
+                                JSON.stringify(encryptedEnvelop),
+                            messageId: '456',
+                        },
+                    ],
+                });
+            expect(status).toBe(200);
+
+            const { body } = await request(app)
+                .get(`/new/bob.eth/conversationList`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+
+            expect(status).toBe(200);
+            expect(body).toEqual([sha256(receiver.account.ensName)]);
+            expect(body.length).toBe(1);
+
+            const { status: getMessagesStatus, body: messages } = await request(
+                app,
+            )
+                .get(`/new/bob.eth/getMessages`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedContactName: sha256(receiver.account.ensName),
+                    page: 0,
+                });
+
+            expect(getMessagesStatus).toBe(200);
+            expect(messages.length).toBe(2);
+            expect(
+                JSON.parse(JSON.parse(messages[0]).encryptedEnvelopContainer),
+            ).toStrictEqual(encryptedEnvelop);
+        });
+    });
     describe('getNumberOfMessages', () => {
         it('can get number of messages', async () => {
             //create message
@@ -232,7 +305,7 @@ describe('Storage', () => {
                     authorization: `Bearer ${token}`,
                 })
                 .send({
-                    message: JSON.stringify(encryptedEnvelop),
+                    encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
                     encryptedContactName: sha256(receiver.account.ensName),
                     messageId: '123',
                 });
@@ -243,7 +316,7 @@ describe('Storage', () => {
                     authorization: `Bearer ${token}`,
                 })
                 .send({
-                    message: JSON.stringify(encryptedEnvelop),
+                    encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
                     encryptedContactName: sha256(receiver.account.ensName),
                     messageId: '456',
                 });
@@ -254,7 +327,7 @@ describe('Storage', () => {
                     authorization: `Bearer ${token}`,
                 })
                 .send({
-                    message: JSON.stringify(encryptedEnvelop),
+                    encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
                     encryptedContactName: sha256(receiver.account.ensName),
                     messageId: '123',
                 });
@@ -319,7 +392,7 @@ describe('Storage', () => {
     describe('editMessageBatch', () => {
         it('should create a message if they has not been created before', async () => {
             const encryptedContactName = 'testContactName';
-            const payload: EditMessageBatchPayload[] = [
+            const payload: MessageBatch[] = [
                 {
                     messageId: 'testMessageId',
                     encryptedEnvelopContainer: 'testEncryptedEnvelopContainer',
@@ -359,7 +432,7 @@ describe('Storage', () => {
         it('should update encryptedMessage message', async () => {
             const ensName = 'testEnsName';
             const contactName = 'testContactName';
-            const originalPayload: EditMessageBatchPayload[] = [
+            const originalPayload: MessageBatch[] = [
                 {
                     messageId: 'testMessageId',
                     encryptedEnvelopContainer: 'testEncryptedEnvelopContainer',
@@ -371,13 +444,13 @@ describe('Storage', () => {
                     authorization: `Bearer ${token}`,
                 })
                 .send({
-                    message: JSON.stringify(originalPayload),
+                    encryptedEnvelopContainer: JSON.stringify(originalPayload),
                     encryptedContactName: sha256(receiver.account.ensName),
                     messageId: '123',
                 });
             expect(status).toBe(200);
 
-            const updatedPayload: EditMessageBatchPayload[] = [
+            const updatedPayload: MessageBatch[] = [
                 {
                     messageId: 'testMessageId',
                     encryptedEnvelopContainer: 'NEW ENVELOP',

@@ -2,6 +2,7 @@ import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import cors from 'cors';
 import express from 'express';
 import stringify from 'safe-stable-stringify';
+import { MessageBatch } from './persistance/storage/postgres/editMessageBatch';
 
 export default () => {
     const router = express.Router();
@@ -31,20 +32,20 @@ export default () => {
     });
 
     router.post('/new/:ensName/addMessage', async (req, res, next) => {
-        const { message, encryptedContactName, messageId } = req.body;
+        const { encryptedEnvelopContainer, encryptedContactName, messageId } =
+            req.body;
 
-        if (!message || !encryptedContactName || !messageId) {
+        if (!encryptedEnvelopContainer || !encryptedContactName || !messageId) {
             res.status(400).send('invalid schema');
             return;
         }
 
         try {
             const ensName = normalizeEnsName(req.params.ensName);
-            const success = await req.app.locals.db.storage_addMessage(
+            const success = await req.app.locals.db.storage_addMessageBatch(
                 ensName,
                 encryptedContactName,
-                messageId,
-                message,
+                [{ messageId, encryptedEnvelopContainer }],
             );
             if (success) {
                 return res.send();
@@ -52,6 +53,31 @@ export default () => {
             res.status(400).send('unable to add message');
         } catch (e) {
             next(e);
+        }
+    });
+    router.post('/new/:ensName/addMessageBatch', async (req, res, next) => {
+        const { messageBatch, encryptedContactName } = req.body;
+
+        if (
+            !messageBatch ||
+            !Array.isArray(messageBatch) ||
+            !encryptedContactName
+        ) {
+            res.status(400).send('invalid schema');
+            return;
+        }
+
+        try {
+            const ensName = normalizeEnsName(req.params.ensName);
+
+            await req.app.locals.db.storage_addMessageBatch(
+                ensName,
+                encryptedContactName,
+                messageBatch,
+            );
+            return res.send();
+        } catch (e) {
+            return res.status(400).send('unable to add message batch');
         }
     });
 

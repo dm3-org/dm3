@@ -20,14 +20,14 @@ import { syncAcknowledge } from './messages/syncAcknowledge';
 import { PrismaClient } from '@prisma/client';
 import { addConversation } from './storage/postgres/addConversation';
 import { getConversationList } from './storage/postgres/getConversationList';
-import { addMessage } from './storage/postgres/addMessage';
 import { getMessages } from './storage/postgres/getMessages';
 import {
-    EditMessageBatchPayload,
+    MessageBatch,
     editMessageBatch,
 } from './storage/postgres/editMessageBatch';
 import { getNumberOfMessages } from './storage/postgres/getNumberOfMessages';
 import { getNumberOfConversations } from './storage/postgres/getNumberOfConversations';
+import { addMessageBatch } from './storage/postgres/addMessageBatch';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -127,7 +127,7 @@ export async function getDatabase(
         storage_addConversation: addConversation(prisma),
         storage_getConversationList: getConversationList(prisma),
         //Storage Add Messages
-        storage_addMessage: addMessage(prisma),
+        storage_addMessageBatch: addMessageBatch(prisma),
         //Storage Get Messages
         storage_getMessages: getMessages(prisma),
         //Storage Edit Message Batch
@@ -232,11 +232,10 @@ export interface IDatabase {
         encryptedContactName: string,
     ) => Promise<boolean>;
     storage_getConversationList: (ensName: string) => Promise<string[]>;
-    storage_addMessage: (
+    storage_addMessageBatch: (
         ensName: string,
         encryptedContactName: string,
-        messageId: string,
-        encryptedEnvelopContainer: string,
+        messageBatch: MessageBatch[],
     ) => Promise<boolean>;
     storage_getMessages: (
         ensName: string,
@@ -246,7 +245,7 @@ export interface IDatabase {
     storage_editMesageBatch: (
         ensName: string,
         encryptedContactName: string,
-        editMessageBatchPayload: EditMessageBatchPayload[],
+        messageBatch: MessageBatch[],
     ) => Promise<void>;
     storage_getNumberOfMessages: (
         ensName: string,
