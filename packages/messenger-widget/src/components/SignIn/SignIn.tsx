@@ -2,6 +2,7 @@
 /* eslint-disable no-console */
 import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit';
 import { useContext } from 'react';
+// @ts-ignore
 import { useAccount } from 'wagmi';
 import { AuthContext } from '../../context/AuthContext';
 import { SignInProps } from '../../interfaces/web3';

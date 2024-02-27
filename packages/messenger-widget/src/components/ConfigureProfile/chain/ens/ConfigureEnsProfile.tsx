@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 import { ethers } from 'ethers';
 import { useContext } from 'react';
+// @ts-ignore
 import { useNetwork } from 'wagmi';
 import { AuthContext } from '../../../../context/AuthContext';
 import { GlobalContext } from '../../../../utils/context-utils';

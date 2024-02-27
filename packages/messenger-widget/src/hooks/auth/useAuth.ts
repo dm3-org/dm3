@@ -5,6 +5,7 @@ import {
 } from '@dm3-org/dm3-lib-profile';
 import { UserDB } from '@dm3-org/dm3-lib-storage';
 import { useContext, useEffect, useMemo, useState } from 'react';
+// @ts-ignore
 import { useAccount, useWalletClient } from 'wagmi';
 import { TLDContext } from '../../context/TLDContext';
 import { GlobalContext } from '../../utils/context-utils';

@@ -5,7 +5,7 @@ import url from '@rollup/plugin-url';
 import pkg from './package.json';
 
 export default {
-    input: 'src/widget.tsx',
+    input: 'src/index.tsx',
     output: [
         {
             file: './dist/cjs/index.js',

@@ -14,11 +14,8 @@ import {
 import DM3 from '../../components/DM3/DM3';
 import { Dm3Props } from '../../interfaces/config';
 import './Home.css';
-
 import { useContext, useMemo } from 'react';
-import { configureChains, createConfig, mainnet, WagmiConfig } from 'wagmi';
-import { gnosis, goerli } from 'wagmi/chains';
-import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
+import { gnosis, goerli, mainnet } from 'wagmi/chains';
 import { Loader } from '../../components/Loader/Loader';
 import { AuthContextProvider } from '../../context/AuthContext';
 import { ConversationContextProvider } from '../../context/ConversationContext';
@@ -29,94 +26,83 @@ import { WebSocketContextProvider } from '../../context/WebSocketContext';
 import { GlobalContext } from '../../utils/context-utils';
 import './Home.css';
 import { TLDContextProvider } from '../../context/TLDContext';
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+// @ts-ignore
+import { WagmiProvider, http, createConfig } from 'wagmi';
 
 export function Home(props: Dm3Props) {
     // fetches context api data
     const { dispatch } = useContext(GlobalContext);
 
-    //Use different chains depending on the environment. Note that gnosis mainnet is used for both setups
-    // because there is no spaceId testnet deploymend yet
-    const _chains =
-        props.dm3Configuration.chainId === '1'
-            ? [mainnet, gnosis]
-            : [goerli, gnosis];
+    //Use different chains depending on the environment.
+    const ethChain = props.dm3Configuration.chainId === '1' ? mainnet : goerli;
 
-    const { chains, publicClient } = configureChains(
-        [..._chains],
-        [
-            jsonRpcProvider({
-                rpc: () => ({
-                    http: props.config.ethereumProvider as string,
-                }),
-            }),
-        ],
-    );
-
+    // Configures supported wallets
     const connectors = useMemo(() => {
-        return connectorsForWallets([
+        return connectorsForWallets(
+            [
+                {
+                    groupName: 'Popular',
+                    wallets: [
+                        metaMaskWallet,
+                        rainbowWallet,
+                        walletConnectWallet,
+                    ],
+                },
+            ],
             {
-                groupName: 'Popular',
-                wallets: [
-                    rainbowWallet({
-                        projectId: props.config
-                            .walletConnectProjectId as string,
-                        chains,
-                    }),
-                    metaMaskWallet({
-                        projectId: props.config
-                            .walletConnectProjectId as string,
-                        chains,
-                    }),
-                    walletConnectWallet({
-                        projectId: props.config
-                            .walletConnectProjectId as string,
-                        chains,
-                    }),
-                ],
+                appName: 'DM3 app',
+                projectId: props.config.walletConnectProjectId as string,
             },
-        ]);
+        );
     }, []);
 
-    const wagmiConfig = useMemo(() => {
-        return createConfig({
-            autoConnect: true,
-            connectors,
-            publicClient,
-        });
-    }, []);
+    // Note that gnosis mainnet is used for both setups because there is no spaceId testnet deploymend yet
+    const wagmiConfigProvider = createConfig({
+        connectors,
+        chains: [gnosis, ethChain],
+        transports: {
+            [mainnet.id]: http(),
+            [ethChain.id]: http(),
+        },
+    });
+
+    const queryClient = new QueryClient();
 
     return (
         <div className="h-100 position-relative">
             <Loader />
-            <WagmiConfig config={wagmiConfig}>
-                <RainbowKitProvider chains={chains} theme={darkTheme()}>
-                    <MainnetProviderContextProvider
-                        dm3Configuration={props.dm3Configuration}
-                    >
-                        <TLDContextProvider>
-                            <AuthContextProvider dispatch={dispatch}>
-                                <WebSocketContextProvider>
-                                    <StorageContextProvider>
-                                        {/* TODO move conversation and message contest further done as it dont need to be stored in the globlal state */}
-                                        <ConversationContextProvider
-                                            config={props.config}
-                                        >
-                                            <MessageContextProvider>
-                                                <DM3
-                                                    config={props.config}
-                                                    dm3Configuration={
-                                                        props.dm3Configuration
-                                                    }
-                                                />
-                                            </MessageContextProvider>
-                                        </ConversationContextProvider>
-                                    </StorageContextProvider>
-                                </WebSocketContextProvider>
-                            </AuthContextProvider>
-                        </TLDContextProvider>
-                    </MainnetProviderContextProvider>
-                </RainbowKitProvider>
-            </WagmiConfig>
+            <WagmiProvider config={wagmiConfigProvider}>
+                <QueryClientProvider client={queryClient}>
+                    <RainbowKitProvider theme={darkTheme()}>
+                        <MainnetProviderContextProvider
+                            dm3Configuration={props.dm3Configuration}
+                        >
+                            <TLDContextProvider>
+                                <AuthContextProvider dispatch={dispatch}>
+                                    <WebSocketContextProvider>
+                                        <StorageContextProvider>
+                                            {/* TODO move conversation and message contest further done as it dont need to be stored in the globlal state */}
+                                            <ConversationContextProvider
+                                                config={props.config}
+                                            >
+                                                <MessageContextProvider>
+                                                    <DM3
+                                                        config={props.config}
+                                                        dm3Configuration={
+                                                            props.dm3Configuration
+                                                        }
+                                                    />
+                                                </MessageContextProvider>
+                                            </ConversationContextProvider>
+                                        </StorageContextProvider>
+                                    </WebSocketContextProvider>
+                                </AuthContextProvider>
+                            </TLDContextProvider>
+                        </MainnetProviderContextProvider>
+                    </RainbowKitProvider>
+                </QueryClientProvider>
+            </WagmiProvider>
         </div>
     );
 }
