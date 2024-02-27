@@ -15,5 +15,5 @@ export const getConversationList =
                 isHidden: false,
             },
         });
-        return conversations.map((c) => c.encryptedId);
+        return conversations.map((c: any) => c.encryptedId);
     };

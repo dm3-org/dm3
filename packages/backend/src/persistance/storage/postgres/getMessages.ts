@@ -28,7 +28,7 @@ export const getMessages =
                 return [];
             }
 
-            return messages.map((message) => JSON.stringify(message));
+            return messages.map((message: any) => JSON.stringify(message));
         } catch (e) {
             console.log('getMessages error', e);
             return [];
