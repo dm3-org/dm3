@@ -95,14 +95,14 @@ describe('Storage', () => {
                 return (_: any, __: any, ___: any) => {};
             },
             getIdEnsName: async (ensName: string) => ensName,
-            storage_editMessageBatch: editMessageBatch(prisma),
-            storage_addMessageBatch: addMessageBatch(prisma),
-            storage_getMessages: getMessages(prisma),
-            storage_addConversation: addConversation(prisma),
-            storage_getConversationList: getConversationList(prisma),
-            storage_getNumberOfMessages: getNumberOfMessages(prisma),
-            storage_getNumberOfConverations: getNumberOfConversations(prisma),
-            storage_toggleHideConversation: toggleHideConversation(prisma),
+            editMessageBatch: editMessageBatch(prisma),
+            addMessageBatch: addMessageBatch(prisma),
+            getMessagesFromStorage: getMessages(prisma),
+            addConversation: addConversation(prisma),
+            getConversationList: getConversationList(prisma),
+            getNumberOfMessages: getNumberOfMessages(prisma),
+            getNumberOfConverations: getNumberOfConversations(prisma),
+            toggleHideConversation: toggleHideConversation(prisma),
         };
 
         app.locals.web3Provider = {

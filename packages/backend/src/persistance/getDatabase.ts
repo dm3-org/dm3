@@ -92,13 +92,9 @@ export async function getDatabase(
         setSession: Session.setSession(redis),
         setAliasSession: Session.setAliasSession(redis),
         getSession: Session.getSession(redis),
-        //Storage
-        getUserStorageChunk: Storage.getUserStorageChunk(redis),
-        setUserStorageChunk: Storage.setUserStorageChunk(redis),
         //Legacy remove after storage has been merged
         getUserStorage: Storage.getUserStorageOld(redis),
         setUserStorage: Storage.setUserStorageOld(redis),
-
         //Pending
         addPending: Pending.addPending(redis),
         getPending: Pending.getPending(redis),
@@ -125,20 +121,20 @@ export async function getDatabase(
         getOtp: Otp.getOtp(redis),
         resetOtp: Otp.resetOtp(redis),
         //Storage AddConversation
-        storage_addConversation: addConversation(prisma),
-        storage_getConversationList: getConversationList(prisma),
+        addConversation: Storage.addConversation(prisma),
+        getConversationList: Storage.getConversationList(prisma),
         //Storage Add Messages
-        storage_addMessageBatch: addMessageBatch(prisma),
+        addMessageBatch: Storage.addMessageBatch(prisma),
         //Storage Get Messages
-        storage_getMessages: getMessages(prisma),
+        getMessagesFromStorage: Storage.getMessages(prisma),
         //Storage Edit Message Batch
-        storage_editMesageBatch: editMessageBatch(prisma),
+        editMessageBatch: Storage.editMessageBatch(prisma),
         //Storage Get Number Of Messages
-        storage_getNumberOfMessages: getNumberOfMessages(prisma),
+        getNumberOfMessages: Storage.getNumberOfMessages(prisma),
         //Storage Get Number Of Converations
-        storage_getNumberOfConverations: getNumberOfConversations(prisma),
+        getNumberOfConverations: Storage.getNumberOfConversations(prisma),
         //Storage Toggle Hide Conversation
-        storage_toggleHideConversation: toggleHideConversation(prisma),
+        toggleHideConversation: Storage.toggleHideConversation(prisma),
     };
 }
 
@@ -167,16 +163,6 @@ export interface IDatabase {
           })
         | null
     >;
-
-    getUserStorageChunk: (
-        ensName: string,
-        key: string,
-    ) => Promise<UserStorage | null>;
-    setUserStorageChunk: (
-        ensName: string,
-        key: string,
-        data: string,
-    ) => Promise<void>;
     //Legacy remove after storage has been merged
     getUserStorage: (ensName: string) => Promise<UserStorage | null>;
     setUserStorage: (ensName: string, data: string) => Promise<void>;
@@ -230,32 +216,32 @@ export interface IDatabase {
         channelType: NotificationChannelType,
     ) => Promise<void>;
 
-    storage_addConversation: (
+    addConversation: (
         ensName: string,
         encryptedContactName: string,
     ) => Promise<boolean>;
-    storage_getConversationList: (ensName: string) => Promise<string[]>;
-    storage_addMessageBatch: (
+    getConversationList: (ensName: string) => Promise<string[]>;
+    addMessageBatch: (
         ensName: string,
         encryptedContactName: string,
         messageBatch: MessageBatch[],
     ) => Promise<boolean>;
-    storage_getMessages: (
+    getMessagesFromStorage: (
         ensName: string,
         encryptedContactName: string,
         page: number,
     ) => Promise<string[]>;
-    storage_editMesageBatch: (
+    editMessageBatch: (
         ensName: string,
         encryptedContactName: string,
         messageBatch: MessageBatch[],
     ) => Promise<void>;
-    storage_getNumberOfMessages: (
+    getNumberOfMessages: (
         ensName: string,
         encryptedContactName: string,
     ) => Promise<number>;
-    storage_getNumberOfConverations: (ensName: string) => Promise<number>;
-    storage_toggleHideConversation: (
+    getNumberOfConverations: (ensName: string) => Promise<number>;
+    toggleHideConversation: (
         ensName: string,
         encryptedContactName: string,
         isHidden: boolean,

@@ -21,7 +21,7 @@ export default () => {
 
         try {
             const ensName = normalizeEnsName(req.params.ensName);
-            await req.app.locals.db.storage_editMessageBatch(
+            await req.app.locals.db.editMessageBatch(
                 ensName,
                 encryptedContactName,
                 JSON.parse(editMessageBatchPayload),
@@ -43,7 +43,7 @@ export default () => {
 
         try {
             const ensName = normalizeEnsName(req.params.ensName);
-            const success = await req.app.locals.db.storage_addMessageBatch(
+            const success = await req.app.locals.db.addMessageBatch(
                 ensName,
                 encryptedContactName,
                 [{ messageId, encryptedEnvelopContainer }],
@@ -71,7 +71,7 @@ export default () => {
         try {
             const ensName = normalizeEnsName(req.params.ensName);
 
-            await req.app.locals.db.storage_addMessageBatch(
+            await req.app.locals.db.addMessageBatch(
                 ensName,
                 encryptedContactName,
                 messageBatch,
@@ -92,7 +92,7 @@ export default () => {
         }
         try {
             const ensName = normalizeEnsName(req.params.ensName);
-            const messages = await req.app.locals.db.storage_getMessages(
+            const messages = await req.app.locals.db.getMessagesFromStorage(
                 ensName,
                 encryptedContactName,
                 pageNumber,
@@ -111,11 +111,10 @@ export default () => {
         }
         try {
             const ensName = normalizeEnsName(req.params.ensName);
-            const messages =
-                await req.app.locals.db.storage_getNumberOfMessages(
-                    ensName,
-                    encryptedContactName,
-                );
+            const messages = await req.app.locals.db.getNumberOfMessages(
+                ensName,
+                encryptedContactName,
+            );
             return res.json(messages);
         } catch (e) {
             next(e);
@@ -130,7 +129,7 @@ export default () => {
         }
         try {
             const ensName = normalizeEnsName(req.params.ensName);
-            const success = await req.app.locals.db.storage_addConversation(
+            const success = await req.app.locals.db.addConversation(
                 ensName,
                 encryptedContactName,
             );
@@ -145,8 +144,9 @@ export default () => {
     router.get('/new/:ensName/conversationList', async (req, res, next) => {
         try {
             const ensName = normalizeEnsName(req.params.ensName);
-            const conversations =
-                await req.app.locals.db.storage_getConversationList(ensName);
+            const conversations = await req.app.locals.db.getConversationList(
+                ensName,
+            );
             return res.json(conversations);
         } catch (e) {
             next(e);
@@ -158,9 +158,7 @@ export default () => {
             try {
                 const ensName = normalizeEnsName(req.params.ensName);
                 const messages =
-                    await req.app.locals.db.storage_getNumberOfConverations(
-                        ensName,
-                    );
+                    await req.app.locals.db.getNumberOfConverations(ensName);
                 return res.json(messages);
             } catch (e) {
                 next(e);
@@ -179,7 +177,7 @@ export default () => {
             try {
                 const ensName = normalizeEnsName(req.params.ensName);
 
-                await req.app.locals.db.storage_toggleHideConversation(
+                await req.app.locals.db.toggleHideConversation(
                     ensName,
                     encryptedContactName,
                     hide,
