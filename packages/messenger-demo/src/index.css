@@ -65,8 +65,8 @@ code {
 .demo-container {
     border-radius: 25px;
     overflow: hidden;
-    /* height: 98vh;
-    width: 98vw; */
+    height: 98vh;
+    width: 98vw;
 }
 
 /* .demo-container { 

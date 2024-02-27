@@ -15,7 +15,7 @@ import {
     getDeliveryServiceProfile,
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
-import { log, stringify } from '@dm3-org/dm3-lib-shared';
+import { log } from '@dm3-org/dm3-lib-shared';
 import {
     StorageEnvelopContainer,
     UserDB,
@@ -27,11 +27,12 @@ import { decryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
 import { ethers } from 'ethers';
 
 export async function fetchPendingConversations(
+    backendUrl: string,
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     token: string,
 ): Promise<string[]> {
-    const deliveryPath = process.env.REACT_APP_BACKEND + '/delivery';
+    const deliveryPath = backendUrl + '/delivery';
     const url = `${deliveryPath}/messages/${account?.ensName!}/pending/`;
 
     const { data } = await getDeliveryServiceClient(
@@ -171,6 +172,7 @@ export async function sendMessage(
 }
 
 export async function fetchAndStoreMessages(
+    backendUrl: string,
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     deliveryServiceToken: string,
@@ -205,6 +207,7 @@ export async function fetchAndStoreMessages(
     const messages = await Promise.all(
         deliveryServiceUrls.map(async (baseUrl) => {
             return await fetchNewMessages(
+                backendUrl,
                 mainnetProvider,
                 account,
                 deliveryServiceToken,
@@ -281,12 +284,13 @@ async function decryptMessages(
 }
 
 export async function fetchNewMessages(
+    backendUrl: string,
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     token: string,
     contactAddress: string,
 ): Promise<EncryptionEnvelop[]> {
-    const deliveryPath = process.env.REACT_APP_BACKEND + '/delivery';
+    const deliveryPath = backendUrl + '/delivery';
     const url = `${deliveryPath}/messages/${normalizeEnsName(
         account!.ensName,
     )}/contact/${contactAddress}`;

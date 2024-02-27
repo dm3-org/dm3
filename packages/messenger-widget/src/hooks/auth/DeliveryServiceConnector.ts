@@ -30,6 +30,7 @@ import { createProfileKeys as _createProfileKeys } from '@dm3-org/dm3-lib-profil
 import { globalConfig, stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import { claimAddress } from '../../adapters/offchainResolverApi';
+import { DM3Configuration } from '../../interfaces/config';
 
 export type ConnectDsResult = {
     userDb: UserDB;
@@ -39,6 +40,7 @@ export type ConnectDsResult = {
 };
 
 export const DeliveryServiceConnector = (
+    dm3Configuration: DM3Configuration,
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     walletClient: GetWalletClientResult,
     address: string,
@@ -70,7 +72,7 @@ export const DeliveryServiceConnector = (
     }
     async function profileExistsOnDeliveryService(ensName: string) {
         //TODO move default url to global config
-        const url = `${process.env.REACT_APP_DEFAULT_SERVICE}/profile/${ensName}`;
+        const url = `${dm3Configuration.defaultServiceUrl}/profile/${ensName}`;
         try {
             const { status } = await axios.get(url);
             return status === 200;
@@ -112,7 +114,7 @@ export const DeliveryServiceConnector = (
     ): Promise<ConnectDsResult> => {
         await claimAddress(
             address,
-            process.env.REACT_APP_RESOLVER_BACKEND as string,
+            dm3Configuration.resolverBackendUrl as string,
             signedUserProfile,
         );
         const deliveryServiceToken = await submitUserProfile(
@@ -214,7 +216,7 @@ export const DeliveryServiceConnector = (
         if (
             !(await claimAddress(
                 address!,
-                process.env.REACT_APP_RESOLVER_BACKEND as string,
+                dm3Configuration.resolverBackendUrl as string,
                 signedUserProfile,
             ))
         ) {

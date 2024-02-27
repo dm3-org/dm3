@@ -8,6 +8,7 @@ import { StoreMessageAsync, StoreMessageBatch } from '../../storage/useStorage';
 import { syncAcknowledgment } from '@dm3-org/dm3-lib-delivery-api';
 
 export const handleMessagesFromDeliveryService = async (
+    backendUrl: string,
     mainnetProvider: ethers.providers.JsonRpcProvider,
     account: Account,
     deliveryServiceToken: string,
@@ -18,6 +19,7 @@ export const handleMessagesFromDeliveryService = async (
     const lastSyncTime = Date.now();
     //Fetch the pending messages from the delivery service
     const encryptedIncommingMessages = await fetchNewMessages(
+        backendUrl,
         mainnetProvider,
         account!,
         deliveryServiceToken!,

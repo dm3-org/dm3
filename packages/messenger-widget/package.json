@@ -2,7 +2,7 @@
   "name": "@dm3-org/dm3-messenger-widget",
   "version": "1.0.12",
   "main": "./dist/cjs/index.js",
-  "module": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
   "dependencies": {
     "@babel/core": "^7.22.5",
     "@dm3-org/dm3-lib-crypto": "workspace:^",

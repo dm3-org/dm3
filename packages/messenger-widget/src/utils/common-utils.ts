@@ -97,6 +97,12 @@ export const closeErrorModal = () => {
     data.innerText = '';
 };
 
+export const getEtherscanUrl = (chainId: string): string => {
+    return chainId === '1'
+        ? 'https://etherscan.io/address/'
+        : 'https://goerli.etherscan.io/address/';
+};
+
 // Constants
 export const REACT_APP_SUPPORTED_CHAIN_IDS = [5, 10200];
 
@@ -108,9 +114,3 @@ export const ACCOUNT_CHANGE_POPUP_MESSAGE =
     'Your wallet address has changed. Please re-sign in with a signature of your wallet.';
 
 export const ENS_PROFILE_BASE_URL = 'https://app.ens.domains/';
-
-export const ETHERSCAN_URL = [
-    process.env.REACT_APP_CHAIN_ID === '1'
-        ? 'https://etherscan.io/address/'
-        : 'https://goerli.etherscan.io/address/',
-];

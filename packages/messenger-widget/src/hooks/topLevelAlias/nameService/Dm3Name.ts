@@ -1,10 +1,8 @@
 import { globalConfig } from '@dm3-org/dm3-lib-shared';
 import { ITLDResolver } from './TLDResolver';
 import { getNameForAddress } from '../../../adapters/offchainResolverApi';
-import { getAliasChain } from '@dm3-org/dm3-lib-delivery-api';
 import { ethers } from 'ethers';
 
-const OFFCHAIN_RESOLVER_ADDRESS = process.env.REACT_APP_RESOLVER_BACKEND!;
 function getIdForAddress(address: string) {
     return address + globalConfig.ADDR_ENS_SUBDOMAIN();
 }
@@ -41,9 +39,13 @@ export class Dm3Name implements ITLDResolver {
     }
 
     //e.g. 0x1234.user.dm3.eth -> myname.user.dm3.eth
-    async resolveAliasToTLD(ensName: string): Promise<string> {
+    async resolveAliasToTLD(
+        ensName: string,
+        resolverBackendUrl: string,
+    ): Promise<string> {
         //For whatever reason the API accepts the address without the subdomain
         const addr = ensName.split('.')[0];
+        const OFFCHAIN_RESOLVER_ADDRESS = resolverBackendUrl!;
 
         const dm3Name = await getNameForAddress(
             addr,

@@ -78,6 +78,7 @@ export const getEnsName = async (
 
 // method to set new DM3 username
 export const submitDm3UsernameClaim = async (
+    resolverBackendUrl: string,
     profileKeys: ProfileKeys,
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
@@ -100,7 +101,7 @@ export const submitDm3UsernameClaim = async (
 
         await claimSubdomain(
             dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN(),
-            process.env.REACT_APP_RESOLVER_BACKEND as string,
+            resolverBackendUrl as string,
             account!.ensName,
             profileKeys.signingKeyPair.privateKey,
         );
@@ -124,6 +125,7 @@ export const submitDm3UsernameClaim = async (
 
 // method to remove aliad
 export const removeAliasFromDm3Name = async (
+    resolverBackendUrl: string,
     profileKeys: ProfileKeys,
     account: Account,
     ethAddress: string,
@@ -141,7 +143,7 @@ export const removeAliasFromDm3Name = async (
 
         const result = await removeAlias(
             dm3UserEnsName,
-            process.env.REACT_APP_RESOLVER_BACKEND as string,
+            resolverBackendUrl as string,
             profileKeys.signingKeyPair.privateKey,
         );
 
@@ -175,6 +177,7 @@ export const validateName = (username: string): boolean => {
 };
 
 export const fetchExistingDM3Name = async (
+    resolverBackendUrl: string,
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     setExistingDm3Name: Function,
@@ -184,6 +187,7 @@ export const fetchExistingDM3Name = async (
             const dm3NameService = new Dm3Name(mainnetProvider);
             const dm3Name = await dm3NameService.resolveAliasToTLD(
                 account.ensName,
+                resolverBackendUrl,
             );
             // Not a DM3 name -> 0xa966.beta-addr.dm3.eth
             // Its DM3 name -> bob.beta-user.dm3.eth
@@ -197,6 +201,7 @@ export const fetchExistingDM3Name = async (
             setExistingDm3Name(null);
         }
     } catch (error) {
+        console.log('dm3 name : ', error);
         setExistingDm3Name(null);
     }
 };
@@ -217,10 +222,10 @@ export const namingServices = [
     },
 ];
 
-export const fetchComponent = (name: string) => {
+export const fetchComponent = (name: string, chainId: string) => {
     switch (name) {
         case NAME_SERVICES.ENS:
-            if (process.env.REACT_APP_CHAIN_ID === '5') {
+            if (chainId === '5') {
                 return <ConfigureEnsProfile chainToConnect={5} />;
             }
             return <ConfigureEnsProfile chainToConnect={1} />;
@@ -239,11 +244,11 @@ export const fetchServiceFromChainId = (chainId: number): string => {
     return namingServices[0].name;
 };
 
-export const fetchChainIdFromServiceName = (name: string) => {
+export const fetchChainIdFromServiceName = (name: string, chainId: string) => {
     switch (name) {
         case NAME_SERVICES.ENS:
-            if (process.env.REACT_APP_CHAIN_ID === '5') {
-                return Number(process.env.REACT_APP_CHAIN_ID);
+            if (chainId === '5') {
+                return Number(chainId);
             }
             return namingServices[0].chainId;
         case NAME_SERVICES.GENOME:

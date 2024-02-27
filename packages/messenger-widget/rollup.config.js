@@ -13,7 +13,7 @@ export default {
         },
         {
             file: './dist/esm/index.js',
-            format: 'es',
+            format: 'esm',
         },
     ],
     external: [

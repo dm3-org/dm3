@@ -1,10 +1,11 @@
 import { ethers } from 'ethers';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Dm3Name } from './nameService/Dm3Name';
 import { EthAddressResolver } from './nameService/EthAddress';
 import { EthereumNameService } from './nameService/EthereumNameService';
 import { Genome } from './nameService/Genome';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
+import { GlobalContext } from '../../utils/context-utils';
 
 const SUPPORTED_NAMESERVICES = (provider: ethers.providers.JsonRpcProvider) => [
     new EthereumNameService(provider),
@@ -19,6 +20,7 @@ export type TldAliasCache = {
 
 export const useTopLevelAlias = () => {
     const mainnetProvider = useMainnetProvider();
+    const { state } = useContext(GlobalContext);
     const [tldAliasCache, setTldAliasCache] = useState<TldAliasCache>({});
 
     //e.g. 0x1234.gnosis.eth -> 0x1234.gno
@@ -28,7 +30,10 @@ export const useTopLevelAlias = () => {
         }
         for (const nameservice of SUPPORTED_NAMESERVICES(mainnetProvider)) {
             if (await nameservice.isResolverForAliasName(ensName)) {
-                const tldName = await nameservice.resolveAliasToTLD(ensName);
+                const tldName = await nameservice.resolveAliasToTLD(
+                    ensName,
+                    state.dm3Configuration.resolverBackendUrl,
+                );
                 setTldAliasCache((prev) => ({ ...prev, [ensName]: tldName }));
                 return tldName;
             }

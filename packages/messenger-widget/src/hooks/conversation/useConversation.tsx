@@ -11,9 +11,11 @@ import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { Config } from '../../interfaces/config';
 import { WebSocketContext } from '../../context/WebSocketContext';
 import { TLDContext } from '../../context/TLDContext';
+import { GlobalContext } from '../../utils/context-utils';
 
 export const useConversation = (config: Config) => {
     const mainnetProvider = useMainnetProvider();
+    const { state } = useContext(GlobalContext);
     const { account, deliveryServiceToken } = useContext(AuthContext);
     const {
         getConversations,
@@ -93,7 +95,7 @@ export const useConversation = (config: Config) => {
             if (currentConversationsPage.length > 0) {
                 await init(page + 1);
             }
-            await handlePendingConversations();
+            await handlePendingConversations(state.dm3Configuration.backendUrl);
             initDefaultContact();
             setConversationsInitialized(true);
         };
@@ -125,9 +127,10 @@ export const useConversation = (config: Config) => {
         }
     };
 
-    const handlePendingConversations = async () => {
+    const handlePendingConversations = async (backendUrl: string) => {
         //At first we've to check if there are pending conversations not yet added to the list
         const pendingConversations = await fetchPendingConversations(
+            backendUrl,
             mainnetProvider,
             account!,
             deliveryServiceToken!,

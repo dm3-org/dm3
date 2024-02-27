@@ -1,5 +1,25 @@
 import { StorageLocation } from '@dm3-org/dm3-lib-storage';
 
+export interface DM3Configuration {
+    defaultContact: string;
+    defaultServiceUrl: string;
+    ethereumProvider: string;
+    walletConnectProjectId: string;
+    userEnsSubdomain: string;
+    addressEnsSubdomain: string;
+    resolverBackendUrl: string;
+    profileBaseUrl: string;
+    defaultDeliveryService: string;
+    backendUrl: string;
+    chainId: string;
+    resolverAddress: string;
+    showAlways: boolean;
+    showContacts: boolean;
+    hideFunction?: string;
+    theme?: any;
+    signInImage?: string;
+}
+
 export interface Config {
     defaultContact?: string;
     showContacts: boolean;
@@ -23,4 +43,5 @@ export interface Config {
 
 export interface Dm3Props {
     config: Config;
+    dm3Configuration: DM3Configuration;
 }

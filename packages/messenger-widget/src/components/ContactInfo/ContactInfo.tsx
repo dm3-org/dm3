@@ -117,7 +117,12 @@ export function ContactInfo() {
                         <EnsDetails
                             propertyKey={'Address'}
                             propertyValue={address}
-                            action={() => openEtherscan(address)}
+                            action={() =>
+                                openEtherscan(
+                                    address,
+                                    state.dm3Configuration.chainId,
+                                )
+                            }
                         />
                         <img
                             src={copyIcon}

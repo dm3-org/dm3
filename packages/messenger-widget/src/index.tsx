@@ -1,14 +1,8 @@
-import * as ReactDOM from 'react-dom/client';
-import './index.css';
 import { DM3 } from './widget';
-import React from 'react';
-import Demo from './demo';
+import { DM3Configuration } from './interfaces/config';
 
-const root = ReactDOM.createRoot(
-    document.getElementById('root') as HTMLElement,
-);
-root.render(
-    <React.StrictMode>
-        <Demo />
-    </React.StrictMode>,
-);
+// The DM3 component to be included for the widget
+export { DM3 };
+
+// The configuration props to configure the DM3 widget
+export type { DM3Configuration };

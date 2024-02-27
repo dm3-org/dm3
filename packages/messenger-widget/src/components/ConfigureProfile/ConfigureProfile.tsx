@@ -95,6 +95,7 @@ export function ConfigureDM3Profile() {
                 return;
             }
             await submitDm3UsernameClaim(
+                state.dm3Configuration.resolverBackendUrl,
                 profileKeys!,
                 mainnetProvider,
                 account!,
@@ -106,6 +107,7 @@ export function ConfigureDM3Profile() {
             );
         } else {
             const result = await removeAliasFromDm3Name(
+                state.dm3Configuration.resolverBackendUrl,
                 profileKeys!,
                 account!,
                 ethAddress!,
@@ -119,7 +121,10 @@ export function ConfigureDM3Profile() {
 
     // changes network on naming service change
     const changeNetwork = (serviceName: string) => {
-        const chainId = fetchChainIdFromServiceName(serviceName);
+        const chainId = fetchChainIdFromServiceName(
+            serviceName,
+            state.dm3Configuration.chainId,
+        );
         if (chainId && chainId !== chain?.id) {
             switchNetwork({ chainId });
         }
@@ -352,7 +357,10 @@ export function ConfigureDM3Profile() {
                 </div>
             </div>
 
-            {fetchComponent(namingServiceSelected)}
+            {fetchComponent(
+                namingServiceSelected,
+                state.dm3Configuration.chainId,
+            )}
         </div>
     );
 }

@@ -26,7 +26,7 @@ export const useAuth = () => {
     const { resolveAliasToTLD } = useContext(TLDContext);
     const { data: walletClient } = useWalletClient();
     const mainnetProvider = useMainnetProvider();
-    const { dispatch } = useContext(GlobalContext);
+    const { state, dispatch } = useContext(GlobalContext);
     const { address } = useAccount({
         onDisconnect: () => signOut(),
     });
@@ -102,6 +102,7 @@ export const useAuth = () => {
         let connectDsResult: ConnectDsResult | undefined;
         try {
             connectDsResult = await DeliveryServiceConnector(
+                state.dm3Configuration,
                 mainnetProvider,
                 walletClient!,
                 address!,

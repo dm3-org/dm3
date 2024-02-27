@@ -30,16 +30,16 @@ import { GlobalContext } from '../../utils/context-utils';
 import './Home.css';
 import { TLDContextProvider } from '../../context/TLDContext';
 
-//Use different chains depending on the environment. Note that gnosis mainnet is used for both setups
-// because there is no spaceId testnet deploymend yet
-const _chains =
-    process.env.REACT_APP_CHAIN_ID === '1'
-        ? [mainnet, gnosis]
-        : [goerli, gnosis];
-
 export function Home(props: Dm3Props) {
     // fetches context api data
-    const { state, dispatch } = useContext(GlobalContext);
+    const { dispatch } = useContext(GlobalContext);
+
+    //Use different chains depending on the environment. Note that gnosis mainnet is used for both setups
+    // because there is no spaceId testnet deploymend yet
+    const _chains =
+        props.dm3Configuration.chainId === '1'
+            ? [mainnet, gnosis]
+            : [goerli, gnosis];
 
     const { chains, publicClient } = configureChains(
         [..._chains],
@@ -90,7 +90,9 @@ export function Home(props: Dm3Props) {
             <Loader />
             <WagmiConfig config={wagmiConfig}>
                 <RainbowKitProvider chains={chains} theme={darkTheme()}>
-                    <MainnetProviderContextProvider>
+                    <MainnetProviderContextProvider
+                        dm3Configuration={props.dm3Configuration}
+                    >
                         <TLDContextProvider>
                             <AuthContextProvider dispatch={dispatch}>
                                 <WebSocketContextProvider>
@@ -100,7 +102,12 @@ export function Home(props: Dm3Props) {
                                             config={props.config}
                                         >
                                             <MessageContextProvider>
-                                                <DM3 config={props.config} />
+                                                <DM3
+                                                    config={props.config}
+                                                    dm3Configuration={
+                                                        props.dm3Configuration
+                                                    }
+                                                />
                                             </MessageContextProvider>
                                         </ConversationContextProvider>
                                     </StorageContextProvider>
