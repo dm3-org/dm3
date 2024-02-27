@@ -19,6 +19,7 @@ model Conversation {
     Message     EncryptedMessage[]
     Account     Account            @relation(fields: [accountId], references: [id])
     accountId   String
+    isHidden    Boolean            @default(false)
 }
 
 model Account {

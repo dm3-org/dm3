@@ -20,16 +20,17 @@ import {
 } from '../test/testHelper';
 import auth from './auth';
 import { addConversation } from './persistance/storage/postgres/addConversation';
+import { addMessageBatch } from './persistance/storage/postgres/addMessageBatch';
 import {
     MessageBatch,
     editMessageBatch,
 } from './persistance/storage/postgres/editMessageBatch';
 import { getConversationList } from './persistance/storage/postgres/getConversationList';
 import { getMessages } from './persistance/storage/postgres/getMessages';
-import storage from './storage';
-import { getNumberOfMessages } from './persistance/storage/postgres/getNumberOfMessages';
 import { getNumberOfConversations } from './persistance/storage/postgres/getNumberOfConversations';
-import { addMessageBatch } from './persistance/storage/postgres/addMessageBatch';
+import { getNumberOfMessages } from './persistance/storage/postgres/getNumberOfMessages';
+import { toggleHideConversation } from './persistance/storage/postgres/toggleHideConversation';
+import storage from './storage';
 
 const keysA = {
     encryptionKeyPair: {
@@ -101,6 +102,7 @@ describe('Storage', () => {
             storage_getConversationList: getConversationList(prisma),
             storage_getNumberOfMessages: getNumberOfMessages(prisma),
             storage_getNumberOfConverations: getNumberOfConversations(prisma),
+            storage_toggleHideConversation: toggleHideConversation(prisma),
         };
 
         app.locals.web3Provider = {
@@ -125,7 +127,7 @@ describe('Storage', () => {
                     authorization: `Bearer ${token}`,
                 })
                 .send({
-                    encryptedId: aliceId,
+                    encryptedContactName: aliceId,
                 });
             expect(status).toBe(200);
 
@@ -139,6 +141,92 @@ describe('Storage', () => {
             expect(status).toBe(200);
             expect(body).toEqual([aliceId]);
             expect(body.length).toBe(1);
+        });
+        it('handle duplicates add conversation', async () => {
+            const aliceId = 'alice.eth';
+            const ronId = 'ron.eth';
+
+            await request(app)
+                .post(`/new/bob.eth/addConversation`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedContactName: aliceId,
+                });
+            await request(app)
+                .post(`/new/bob.eth/addConversation`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedContactName: ronId,
+                });
+            await request(app)
+                .post(`/new/bob.eth/addConversation`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedContactName: aliceId,
+                });
+
+            const { body } = await request(app)
+                .get(`/new/bob.eth/conversationList`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+
+            expect(body).toEqual([aliceId, ronId]);
+            expect(body.length).toBe(2);
+        });
+    });
+
+    describe('toggleHideConversation', () => {
+        it('can hide conversation', async () => {
+            const aliceId = 'alice.eth';
+            const ronId = 'ron.eth';
+
+            const {} = await request(app)
+                .post(`/new/bob.eth/addConversation`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedContactName: sha256(aliceId),
+                });
+            const {} = await request(app)
+                .post(`/new/bob.eth/addConversation`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedContactName: sha256(ronId),
+                });
+
+            const { status: hideStatus } = await request(app)
+                .post(`/new/bob.eth/toggleHideConversation`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedContactName: sha256(aliceId),
+                    hide: true,
+                });
+
+            expect(hideStatus).toBe(200);
+
+            const { status: getMessagesStatus, body } = await request(app)
+                .get(`/new/bob.eth/conversationList`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+
+            expect(getMessagesStatus).toBe(200);
+            expect(body.length).toBe(1);
+            expect(body).toEqual([sha256(ronId)]);
         });
     });
     describe('addMessage', () => {
@@ -201,6 +289,162 @@ describe('Storage', () => {
             expect(messages.length).toBe(1);
             expect(
                 JSON.parse(JSON.parse(messages[0]).encryptedEnvelopContainer),
+            ).toStrictEqual(encryptedEnvelop);
+        });
+        it('can add message to existing conversation', async () => {
+            const {} = await request(app)
+                .post(`/new/bob.eth/addConversation`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedContactName: sha256(receiver.account.ensName),
+                });
+
+            const message = await createMessage(
+                sender.account.ensName,
+                receiver.account.ensName,
+                'Hello',
+                sender.profileKeys.signingKeyPair.privateKey,
+            );
+            const { encryptedEnvelop, envelop } = await buildEnvelop(
+                message,
+                (receiverPublicSigningKey: string, message: string) => {
+                    return encryptAsymmetric(receiverPublicSigningKey, message);
+                },
+                {
+                    from: sender.account,
+                    to: receiver.account,
+                    deliverServiceProfile: deliveryService.profile,
+                    keys: sender.profileKeys,
+                },
+            );
+
+            const { status } = await request(app)
+                .post(`/new/bob.eth/addMessage`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
+                    encryptedContactName: sha256(receiver.account.ensName),
+                    messageId: '123',
+                });
+            expect(status).toBe(200);
+
+            const { body } = await request(app)
+                .get(`/new/bob.eth/conversationList`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+
+            expect(status).toBe(200);
+            expect(body).toEqual([sha256(receiver.account.ensName)]);
+            expect(body.length).toBe(1);
+
+            const { status: getMessagesStatus, body: messages } = await request(
+                app,
+            )
+                .get(`/new/bob.eth/getMessages`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedContactName: sha256(receiver.account.ensName),
+                    page: 0,
+                });
+
+            expect(getMessagesStatus).toBe(200);
+            expect(messages.length).toBe(1);
+            expect(
+                JSON.parse(JSON.parse(messages[0]).encryptedEnvelopContainer),
+            ).toStrictEqual(encryptedEnvelop);
+        });
+        it('cant add multiple messages with the same id', async () => {
+            const message = await createMessage(
+                sender.account.ensName,
+                receiver.account.ensName,
+                'Hello',
+                sender.profileKeys.signingKeyPair.privateKey,
+            );
+            const { encryptedEnvelop, envelop } = await buildEnvelop(
+                message,
+                (receiverPublicSigningKey: string, message: string) => {
+                    return encryptAsymmetric(receiverPublicSigningKey, message);
+                },
+                {
+                    from: sender.account,
+                    to: receiver.account,
+                    deliverServiceProfile: deliveryService.profile,
+                    keys: sender.profileKeys,
+                },
+            );
+
+            await request(app)
+                .post(`/new/bob.eth/addMessage`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
+                    encryptedContactName: sha256(receiver.account.ensName),
+                    messageId: '123',
+                });
+            await request(app)
+                .post(`/new/bob.eth/addMessage`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
+                    encryptedContactName: sha256(receiver.account.ensName),
+                    messageId: '456',
+                });
+
+            const { status } = await request(app)
+                .post(`/new/bob.eth/addMessage`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
+                    encryptedContactName: sha256(receiver.account.ensName),
+                    messageId: '123',
+                });
+
+            expect(status).toBe(400);
+
+            const { body } = await request(app)
+                .get(`/new/bob.eth/conversationList`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+
+            expect(body).toEqual([sha256(receiver.account.ensName)]);
+            expect(body.length).toBe(1);
+
+            const { status: getMessagesStatus, body: messages } = await request(
+                app,
+            )
+                .get(`/new/bob.eth/getMessages`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedContactName: sha256(receiver.account.ensName),
+                    page: 0,
+                });
+
+            expect(getMessagesStatus).toBe(200);
+            expect(messages.length).toBe(2);
+
+            expect(
+                JSON.parse(JSON.parse(messages[0]).encryptedEnvelopContainer),
+            ).toStrictEqual(encryptedEnvelop);
+            expect(
+                JSON.parse(JSON.parse(messages[1]).encryptedEnvelopContainer),
             ).toStrictEqual(encryptedEnvelop);
         });
     });
@@ -355,7 +599,7 @@ describe('Storage', () => {
                     authorization: `Bearer ${token}`,
                 })
                 .send({
-                    encryptedId: aliceId,
+                    encryptedContactName: aliceId,
                 });
             expect(status).toBe(200);
 
@@ -365,7 +609,7 @@ describe('Storage', () => {
                     authorization: `Bearer ${token}`,
                 })
                 .send({
-                    encryptedId: 'testContact',
+                    encryptedContactName: 'testContact',
                 });
             expect(secondStatus).toBe(200);
 
@@ -375,7 +619,7 @@ describe('Storage', () => {
                     authorization: `Bearer ${token}`,
                 })
                 .send({
-                    encryptedId: 'testContact2',
+                    encryptedContactName: 'testContact2',
                 });
             expect(thirdStatus).toBe(200);
 

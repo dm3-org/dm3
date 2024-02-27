@@ -12,6 +12,7 @@ export const getConversationList =
         const conversations = await db.conversation.findMany({
             where: {
                 accountId: ensName,
+                isHidden: false,
             },
         });
         return conversations.map((c) => c.encryptedId);

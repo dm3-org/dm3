@@ -2,13 +2,14 @@ import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import cors from 'cors';
 import express from 'express';
 import stringify from 'safe-stable-stringify';
-import { MessageBatch } from './persistance/storage/postgres/editMessageBatch';
+import { auth } from './utils';
 
 export default () => {
     const router = express.Router();
 
     //TODO remove
     router.use(cors());
+    router.param('ensName', auth);
 
     router.post('/new/:ensName/editMessageBatch', async (req, res, next) => {
         const { encryptedContactName, editMessageBatchPayload } = req.body;
@@ -122,8 +123,8 @@ export default () => {
     });
 
     router.post('/new/:ensName/addConversation', async (req, res, next) => {
-        const { encryptedId } = req.body;
-        if (!encryptedId) {
+        const { encryptedContactName } = req.body;
+        if (!encryptedContactName) {
             res.status(400).send('invalid schema');
             return;
         }
@@ -131,7 +132,7 @@ export default () => {
             const ensName = normalizeEnsName(req.params.ensName);
             const success = await req.app.locals.db.storage_addConversation(
                 ensName,
-                encryptedId,
+                encryptedContactName,
             );
             if (success) {
                 return res.send();
@@ -167,23 +168,30 @@ export default () => {
         },
     );
 
-    router.post('/new/:ensName/:key', async (req, res, next) => {
-        try {
-            const ensName = normalizeEnsName(req.params.ensName);
+    router.post(
+        '/new/:ensName/toggleHideConversation',
+        async (req, res, next) => {
+            const { encryptedContactName, hide } = req.body;
+            if (!encryptedContactName) {
+                res.status(400).send('invalid schema');
+                return;
+            }
+            try {
+                const ensName = normalizeEnsName(req.params.ensName);
 
-            await req.app.locals.db.setUserStorageChunk(
-                ensName,
-                req.params.key,
-                stringify(req.body)!,
-            );
-
-            res.json({
-                timestamp: new Date().getTime(),
-            });
-        } catch (e) {
-            next(e);
-        }
-    });
+                await req.app.locals.db.storage_toggleHideConversation(
+                    ensName,
+                    encryptedContactName,
+                    hide,
+                );
+                return res.send();
+            } catch (e) {
+                return res
+                    .status(400)
+                    .send('unable to toggle hide-conversation');
+            }
+        },
+    );
 
     router.get('/:ensName', async (req, res, next) => {
         try {
