@@ -1,37 +1,11 @@
 import { PrismaClient } from '@prisma/client';
+import { getOrCreateAccount } from './utils/getOrCreateAccount';
+import { getOrCreateConversation } from './utils/getOrCreateConversation';
 export const addConversation =
     (db: PrismaClient) => async (ensName: string, contactName: string) => {
         try {
-            let account = await db.account.findFirst({
-                where: {
-                    id: ensName,
-                },
-            });
-
-            if (!account) {
-                //Create account
-                account = await db.account.create({
-                    data: {
-                        id: ensName,
-                    },
-                });
-            }
-
-            const conversationAlreadyExists = await db.conversation.findFirst({
-                where: {
-                    accountId: ensName,
-                    encryptedId: contactName,
-                },
-            });
-
-            if (!conversationAlreadyExists) {
-                await db.conversation.create({
-                    data: {
-                        encryptedId: contactName,
-                        accountId: ensName,
-                    },
-                });
-            }
+            const account = await getOrCreateAccount(db, ensName);
+            await getOrCreateConversation(db, account.id, contactName);
 
             return true;
         } catch (e) {

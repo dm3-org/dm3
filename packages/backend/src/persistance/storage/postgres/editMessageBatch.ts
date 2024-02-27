@@ -1,4 +1,6 @@
 import { PrismaClient } from '@prisma/client';
+import { getOrCreateAccount } from './utils/getOrCreateAccount';
+import { getOrCreateConversation } from './utils/getOrCreateConversation';
 
 export type MessageBatch = {
     messageId: string;
@@ -12,37 +14,16 @@ export const editMessageBatch =
         contactName: string,
         editMessageBatchPayload: MessageBatch[],
     ) => {
-        let account = await db.account.findFirst({
-            where: {
-                id: ensName,
-            },
-        });
-        if (!account) {
-            //Create account
-            account = await db.account.create({
-                data: {
-                    id: ensName,
-                },
-            });
-        }
+        const account = await getOrCreateAccount(db, ensName);
 
         await Promise.all(
             editMessageBatchPayload.map(async (payload) => {
-                let conversation = await db.conversation.findFirst({
-                    where: {
-                        accountId: ensName,
-                        encryptedId: contactName,
-                    },
-                });
+                const conversation = await getOrCreateConversation(
+                    db,
+                    account.id,
+                    contactName,
+                );
 
-                if (!conversation) {
-                    conversation = await db.conversation.create({
-                        data: {
-                            encryptedId: contactName,
-                            accountId: ensName,
-                        },
-                    });
-                }
                 const messageExists = await db.encryptedMessage.findFirst({
                     where: {
                         id: payload.messageId,
