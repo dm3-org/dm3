@@ -2,7 +2,7 @@ import { globalConfig } from '@dm3-org/dm3-lib-shared';
 import { switchNetwork } from '@wagmi/core';
 import { useContext, useEffect, useState } from 'react';
 // @ts-ignore
-import { useNetwork } from 'wagmi';
+import { useChainId } from 'wagmi';
 import closeIcon from '../../assets/images/cross.svg';
 import tickIcon from '../../assets/images/white-tick.svg';
 import { AuthContext } from '../../context/AuthContext';
@@ -37,7 +37,8 @@ import {
 export function ConfigureDM3Profile() {
     // global context state
     const { state, dispatch } = useContext(GlobalContext);
-    const { chain } = useNetwork();
+
+    const chainId = useChainId();
 
     const {
         account,
@@ -126,7 +127,7 @@ export function ConfigureDM3Profile() {
             serviceName,
             state.dm3Configuration.chainId,
         );
-        if (chainId && chainId !== chain?.id) {
+        if (chainId && chainId !== chainId) {
             switchNetwork({ chainId });
         }
     };
@@ -158,8 +159,8 @@ export function ConfigureDM3Profile() {
     }, [ethAddress]);
 
     useEffect(() => {
-        if (chain) {
-            setNamingServiceSelected(fetchServiceFromChainId(chain.id));
+        if (chainId) {
+            setNamingServiceSelected(fetchServiceFromChainId(chainId));
         }
     }, []);
 
