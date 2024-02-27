@@ -132,7 +132,7 @@ describe('Storage', () => {
             expect(status).toBe(200);
 
             const { body } = await request(app)
-                .get(`/new/bob.eth/conversationList`)
+                .get(`/new/bob.eth/getConversations`)
                 .set({
                     authorization: `Bearer ${token}`,
                 })
@@ -172,7 +172,7 @@ describe('Storage', () => {
                 });
 
             const { body } = await request(app)
-                .get(`/new/bob.eth/conversationList`)
+                .get(`/new/bob.eth/getConversations`)
                 .set({
                     authorization: `Bearer ${token}`,
                 })
@@ -218,7 +218,7 @@ describe('Storage', () => {
             expect(hideStatus).toBe(200);
 
             const { status: getMessagesStatus, body } = await request(app)
-                .get(`/new/bob.eth/conversationList`)
+                .get(`/new/bob.eth/getConversations`)
                 .set({
                     authorization: `Bearer ${token}`,
                 })
@@ -263,7 +263,7 @@ describe('Storage', () => {
             expect(status).toBe(200);
 
             const { body } = await request(app)
-                .get(`/new/bob.eth/conversationList`)
+                .get(`/new/bob.eth/getConversations`)
                 .set({
                     authorization: `Bearer ${token}`,
                 })
@@ -333,7 +333,7 @@ describe('Storage', () => {
             expect(status).toBe(200);
 
             const { body } = await request(app)
-                .get(`/new/bob.eth/conversationList`)
+                .get(`/new/bob.eth/getConversations`)
                 .set({
                     authorization: `Bearer ${token}`,
                 })
@@ -416,7 +416,7 @@ describe('Storage', () => {
             expect(status).toBe(400);
 
             const { body } = await request(app)
-                .get(`/new/bob.eth/conversationList`)
+                .get(`/new/bob.eth/getConversations`)
                 .set({
                     authorization: `Bearer ${token}`,
                 })
@@ -492,7 +492,7 @@ describe('Storage', () => {
             expect(status).toBe(200);
 
             const { body } = await request(app)
-                .get(`/new/bob.eth/conversationList`)
+                .get(`/new/bob.eth/getConversations`)
                 .set({
                     authorization: `Bearer ${token}`,
                 })

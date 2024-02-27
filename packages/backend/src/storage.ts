@@ -141,7 +141,7 @@ export default () => {
             next(e);
         }
     });
-    router.get('/new/:ensName/conversationList', async (req, res, next) => {
+    router.get('/new/:ensName/getConversations', async (req, res, next) => {
         try {
             const ensName = normalizeEnsName(req.params.ensName);
             const conversations = await req.app.locals.db.getConversationList(
