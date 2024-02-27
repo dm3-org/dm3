@@ -1,14 +1,14 @@
 import { PrismaClient } from '@prisma/client';
-import { MessageBatch } from './editMessageBatch';
 import { getOrCreateAccount } from './utils/getOrCreateAccount';
 import { getOrCreateConversation } from './utils/getOrCreateConversation';
+import { MessageRecord } from './utils/MessageRecord';
 
 export const addMessageBatch =
     (db: PrismaClient) =>
     async (
         ensName: string,
         contactName: string,
-        messageBatch: MessageBatch[],
+        messageBatch: MessageRecord[],
     ) => {
         try {
             const account = await getOrCreateAccount(db, ensName);

@@ -22,7 +22,7 @@ import auth from './auth';
 import { addConversation } from './persistance/storage/postgres/addConversation';
 import { addMessageBatch } from './persistance/storage/postgres/addMessageBatch';
 import {
-    MessageBatch,
+    MessageRecord,
     editMessageBatch,
 } from './persistance/storage/postgres/editMessageBatch';
 import { getConversationList } from './persistance/storage/postgres/getConversationList';
@@ -636,7 +636,7 @@ describe('Storage', () => {
     describe('editMessageBatch', () => {
         it('should create a message if they has not been created before', async () => {
             const encryptedContactName = 'testContactName';
-            const payload: MessageBatch[] = [
+            const payload: MessageRecord[] = [
                 {
                     messageId: 'testMessageId',
                     encryptedEnvelopContainer: 'testEncryptedEnvelopContainer',
@@ -676,7 +676,7 @@ describe('Storage', () => {
         it('should update encryptedMessage message', async () => {
             const ensName = 'testEnsName';
             const contactName = 'testContactName';
-            const originalPayload: MessageBatch[] = [
+            const originalPayload: MessageRecord[] = [
                 {
                     messageId: 'testMessageId',
                     encryptedEnvelopContainer: 'testEncryptedEnvelopContainer',
@@ -694,7 +694,7 @@ describe('Storage', () => {
                 });
             expect(status).toBe(200);
 
-            const updatedPayload: MessageBatch[] = [
+            const updatedPayload: MessageRecord[] = [
                 {
                     messageId: 'testMessageId',
                     encryptedEnvelopContainer: 'NEW ENVELOP',

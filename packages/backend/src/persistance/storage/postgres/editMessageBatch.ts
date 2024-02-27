@@ -1,18 +1,14 @@
 import { PrismaClient } from '@prisma/client';
 import { getOrCreateAccount } from './utils/getOrCreateAccount';
 import { getOrCreateConversation } from './utils/getOrCreateConversation';
-
-export type MessageBatch = {
-    messageId: string;
-    encryptedEnvelopContainer: string;
-};
+import { MessageRecord } from './utils/MessageRecord';
 
 export const editMessageBatch =
     (db: PrismaClient) =>
     async (
         ensName: string,
         contactName: string,
-        editMessageBatchPayload: MessageBatch[],
+        editMessageBatchPayload: MessageRecord[],
     ) => {
         const account = await getOrCreateAccount(db, ensName);
 

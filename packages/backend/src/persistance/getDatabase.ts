@@ -8,27 +8,17 @@ import {
 } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { UserStorage } from '@dm3-org/dm3-lib-storage';
+import { PrismaClient } from '@prisma/client';
 import { createClient } from 'redis';
 import { getAliasChain, getIdEnsName } from './getIdEnsName';
 import Messages from './messages';
+import { syncAcknowledge } from './messages/syncAcknowledge';
 import Notification from './notification';
+import Otp from './otp';
 import Pending from './pending';
 import Session from './session';
 import Storage from './storage';
-import Otp from './otp';
-import { syncAcknowledge } from './messages/syncAcknowledge';
-import { PrismaClient } from '@prisma/client';
-import { addConversation } from './storage/postgres/addConversation';
-import { getConversationList } from './storage/postgres/getConversationList';
-import { getMessages } from './storage/postgres/getMessages';
-import {
-    MessageBatch,
-    editMessageBatch,
-} from './storage/postgres/editMessageBatch';
-import { getNumberOfMessages } from './storage/postgres/getNumberOfMessages';
-import { getNumberOfConversations } from './storage/postgres/getNumberOfConversations';
-import { addMessageBatch } from './storage/postgres/addMessageBatch';
-import { toggleHideConversation } from './storage/postgres/toggleHideConversation';
+import { MessageRecord } from './storage/postgres/utils/MessageRecord';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -224,7 +214,7 @@ export interface IDatabase {
     addMessageBatch: (
         ensName: string,
         encryptedContactName: string,
-        messageBatch: MessageBatch[],
+        messageBatch: MessageRecord[],
     ) => Promise<boolean>;
     getMessagesFromStorage: (
         ensName: string,
@@ -234,7 +224,7 @@ export interface IDatabase {
     editMessageBatch: (
         ensName: string,
         encryptedContactName: string,
-        messageBatch: MessageBatch[],
+        messageBatch: MessageRecord[],
     ) => Promise<void>;
     getNumberOfMessages: (
         ensName: string,
