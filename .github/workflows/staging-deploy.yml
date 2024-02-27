@@ -54,6 +54,7 @@ jobs:
                   echo "ENCRYPTION_PUBLIC_KEY=${{ secrets.ENCRYPTION_PUBLIC_KEY }}" >> ./.env
                   echo "ENCRYPTION_PRIVATE_KEY=${{ secrets.ENCRYPTION_PRIVATE_KEY }}" >> ./.env
                   echo "RPC=${{ secrets.RPC }}" >> ./.env
+                  echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> ./.env
                   envsubst '${SSL_CERTIFICATE_BASE_LOC} ${TLS_CERTIFICATE_LOCATION} ${TARGET_HOST}' < ./docker/nginx.conf > ./nginx.conf
                   cat ./.env
             - name: Build docker image

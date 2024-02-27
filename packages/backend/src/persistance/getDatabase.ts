@@ -1,19 +1,24 @@
 import {
     Session as DSSession,
     IGlobalNotification,
+    IOtp,
     NotificationChannel,
+    NotificationChannelType,
     spamFilter,
 } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { UserStorage } from '@dm3-org/dm3-lib-storage';
+import { PrismaClient } from '@prisma/client';
 import { createClient } from 'redis';
 import { getAliasChain, getIdEnsName } from './getIdEnsName';
 import Messages from './messages';
+import { syncAcknowledge } from './messages/syncAcknowledge';
 import Notification from './notification';
+import Otp from './otp';
 import Pending from './pending';
 import Session from './session';
 import Storage from './storage';
-import { syncAcknowledge } from './messages/syncAcknowledge';
+import { MessageRecord } from './storage/postgres/utils/MessageRecord';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -24,6 +29,7 @@ export enum RedisPrefix {
     Pending = 'pending:',
     NotificationChannel = 'notificationChannel:',
     GlobalNotification = 'globalNotification:',
+    Otp = 'otp:',
 }
 
 export async function getRedisClient() {
@@ -55,8 +61,16 @@ export async function getRedisClient() {
     return client;
 }
 
-export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
+export async function getPrismaClient() {
+    return new PrismaClient();
+}
+
+export async function getDatabase(
+    _redis?: Redis,
+    _prisma?: PrismaClient,
+): Promise<IDatabase> {
     const redis = _redis ?? (await getRedisClient());
+    const prisma = _prisma ?? (await getPrismaClient());
 
     return {
         //Messages
@@ -68,13 +82,9 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
         setSession: Session.setSession(redis),
         setAliasSession: Session.setAliasSession(redis),
         getSession: Session.getSession(redis),
-        //Storage
-        getUserStorageChunk: Storage.getUserStorageChunk(redis),
-        setUserStorageChunk: Storage.setUserStorageChunk(redis),
         //Legacy remove after storage has been merged
         getUserStorage: Storage.getUserStorageOld(redis),
         setUserStorage: Storage.setUserStorageOld(redis),
-
         //Pending
         addPending: Pending.addPending(redis),
         getPending: Pending.getPending(redis),
@@ -87,9 +97,34 @@ export async function getDatabase(_redis?: Redis): Promise<IDatabase> {
             Notification.getUsersNotificationChannels(redis),
         addUsersNotificationChannel:
             Notification.addUsersNotificationChannel(redis),
+        setNotificationChannelAsVerified:
+            Notification.setNotificationChannelAsVerified(redis),
+        enableOrDisableNotificationChannel:
+            Notification.enableOrDisableNotificationChannel(redis),
+        removeNotificationChannel:
+            Notification.removeNotificationChannel(redis),
         // Global Notification
         getGlobalNotification: Notification.getGlobalNotification(redis),
         setGlobalNotification: Notification.setGlobalNotification(redis),
+        // Verification Otp for Email, Mobile, etc..
+        setOtp: Otp.setOtp(redis),
+        getOtp: Otp.getOtp(redis),
+        resetOtp: Otp.resetOtp(redis),
+        //Storage AddConversation
+        addConversation: Storage.addConversation(prisma),
+        getConversationList: Storage.getConversationList(prisma),
+        //Storage Add Messages
+        addMessageBatch: Storage.addMessageBatch(prisma),
+        //Storage Get Messages
+        getMessagesFromStorage: Storage.getMessages(prisma),
+        //Storage Edit Message Batch
+        editMessageBatch: Storage.editMessageBatch(prisma),
+        //Storage Get Number Of Messages
+        getNumberOfMessages: Storage.getNumberOfMessages(prisma),
+        //Storage Get Number Of Converations
+        getNumberOfConverations: Storage.getNumberOfConversations(prisma),
+        //Storage Toggle Hide Conversation
+        toggleHideConversation: Storage.toggleHideConversation(prisma),
     };
 }
 
@@ -118,16 +153,6 @@ export interface IDatabase {
           })
         | null
     >;
-
-    getUserStorageChunk: (
-        ensName: string,
-        key: string,
-    ) => Promise<UserStorage | null>;
-    setUserStorageChunk: (
-        ensName: string,
-        key: string,
-        data: string,
-    ) => Promise<void>;
     //Legacy remove after storage has been merged
     getUserStorage: (ensName: string) => Promise<UserStorage | null>;
     setUserStorage: (ensName: string, data: string) => Promise<void>;
@@ -148,11 +173,69 @@ export interface IDatabase {
         ensName: string,
         channel: NotificationChannel,
     ) => Promise<void>;
+    setNotificationChannelAsVerified: (
+        ensName: string,
+        channel: NotificationChannelType,
+    ) => Promise<void>;
+    enableOrDisableNotificationChannel: (
+        ensName: string,
+        channel: NotificationChannelType,
+        isEnabled: boolean,
+    ) => Promise<void>;
+    removeNotificationChannel: (
+        ensName: string,
+        channel: NotificationChannelType,
+    ) => Promise<void>;
     getGlobalNotification: (ensName: string) => Promise<IGlobalNotification>;
     setGlobalNotification: (
         ensName: string,
         isEnabled: boolean,
     ) => Promise<void>;
+    setOtp: (
+        ensName: string,
+        otp: string,
+        channelType: NotificationChannelType,
+        generatedAt: Date,
+    ) => Promise<void>;
+    getOtp: (
+        ensName: string,
+        channelType: NotificationChannelType,
+    ) => Promise<IOtp | null>;
+    resetOtp: (
+        ensName: string,
+        channelType: NotificationChannelType,
+    ) => Promise<void>;
+
+    addConversation: (
+        ensName: string,
+        encryptedContactName: string,
+    ) => Promise<boolean>;
+    getConversationList: (ensName: string) => Promise<string[]>;
+    addMessageBatch: (
+        ensName: string,
+        encryptedContactName: string,
+        messageBatch: MessageRecord[],
+    ) => Promise<boolean>;
+    getMessagesFromStorage: (
+        ensName: string,
+        encryptedContactName: string,
+        page: number,
+    ) => Promise<string[]>;
+    editMessageBatch: (
+        ensName: string,
+        encryptedContactName: string,
+        messageBatch: MessageRecord[],
+    ) => Promise<void>;
+    getNumberOfMessages: (
+        ensName: string,
+        encryptedContactName: string,
+    ) => Promise<number>;
+    getNumberOfConverations: (ensName: string) => Promise<number>;
+    toggleHideConversation: (
+        ensName: string,
+        encryptedContactName: string,
+        isHidden: boolean,
+    ) => Promise<boolean>;
 }
 
 export type Redis = Awaited<ReturnType<typeof getRedisClient>>;
