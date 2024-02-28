@@ -19,7 +19,7 @@ services:
     command: yarn workspace @dm3-org/dm3-backend start
     depends_on:
       - db
-      - postgres-backend
+      - dm3-storage
     environment:
       REDIS_URL: redis://db:6379
       SIGNING_PUBLIC_KEY: ${SIGNING_PUBLIC_KEY}
@@ -35,16 +35,16 @@ services:
     image: redis
     restart: always
 
-  postgres-backend:
-    image: postgres
+  dm3-storage:
+    image: postgres:13
     restart: always
-    container_name: prisma
+    container_name: dm3-storage
     ports:
       - '5433:5432'
     environment:
       POSTGRES_USER: prisma
       POSTGRES_PASSWORD: prisma
-      POSTGRES_DB: dm3-storage
+      POSTGRES_DB: dm3
 
   offchain-resolver-db:
     image: postgres

@@ -1,5 +1,5 @@
 import { sha256 } from '@dm3-org/dm3-lib-shared';
-import { Db } from './types';
+import { Db } from './ChunkStorageTypes';
 
 /**
  * This function generates a unique key for the account manifest.

@@ -17,14 +17,13 @@ import {
     INITIAL_CONVERSATION_MANIFEST,
     KeyValueStore,
     ReadStrategy,
-    StorageAPI,
-    StorageEnvelopContainer,
-} from './types';
+} from './ChunkStorageTypes';
 import {
     addConversation,
     addMessages,
     editMessage as editMessages,
 } from './write';
+import { StorageAPI, StorageEnvelopContainer } from '../types';
 
 /**
  * This function creates a closure that, when invoked, adds a new conversation
@@ -261,7 +260,7 @@ function editMessageBatchSideEffectContainment(
  * @returns {StorageAPI} An API with methods for getting and adding conversations and messages.
  */
 
-export function createStorage(
+export function createChunkStorageStorage(
     accountEnsName: string,
     sign: (data: string) => Promise<string>,
     options?: Partial<{

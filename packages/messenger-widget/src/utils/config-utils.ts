@@ -1,4 +1,3 @@
-import { StorageLocation } from '@dm3-org/dm3-lib-storage';
 import { Config } from '../interfaces/config';
 import { signInImage } from '../assets/base64/home-image';
 
@@ -7,7 +6,7 @@ const DefaultConfig: Config = {
     showContacts: true,
     inline: false,
     hideStorageSelection: false,
-    defaultStorageLocation: StorageLocation.dm3Storage,
+    defaultStorageLocation: undefined,
     style: {},
     defaultServiceUrl: 'http://localhost:8080' as string,
     showAlways: false,

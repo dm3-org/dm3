@@ -1,5 +1,5 @@
 import { stringify } from '@dm3-org/dm3-lib-shared';
-import { Chunk, Encryption, KeyValueStore } from './types';
+import { Chunk, Encryption, KeyValueStore } from './ChunkStorageTypes';
 import { BaseTrie as Trie } from 'merkle-patricia-tree';
 import { getAccountManifest } from './read';
 

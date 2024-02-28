@@ -1,10 +1,6 @@
-//Hook to interact with the storage.
-//Will be initialized with the deliveryServiceToken and the initialUserDb after the user has logged in.
-
 import {
-    StorageEnvelopContainerNew,
-    createRemoteKeyValueStoreApi,
-    createStorage,
+    StorageEnvelopContainer as StorageEnvelopContainerNew,
+    getCloudStorage,
 } from '@dm3-org/dm3-lib-storage';
 
 import {
@@ -25,7 +21,8 @@ import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 //Handels storage sync and offers an interface for other hooks to interact with the storage
 export const useStorage = (
     account: Account | undefined,
-    deliveryServiceToken: string | undefined,
+    storageServiceUrl: string,
+    storageServiceToken: string | undefined,
     profileKeys: ProfileKeys | undefined,
 ) => {
     const mainnetProvider = useMainnetProvider();
@@ -39,11 +36,11 @@ export const useStorage = (
     useEffect(() => {
         setInitialized(false);
         setStorageApi(undefined);
-        if (!deliveryServiceToken) {
+        if (!storageServiceToken) {
             return;
         }
         init();
-    }, [deliveryServiceToken, account]);
+    }, [storageServiceToken, account]);
 
     const init = () => {
         const signWithProfileKey = (data: string) => {
@@ -67,21 +64,16 @@ export const useStorage = (
             );
         };
 
-        const s = createStorage(account?.ensName!, signWithProfileKey, {
-            encryption: {
-                encrypt: encrypt,
-                decrypt: decrypt,
+        const s = getCloudStorage(
+            storageServiceUrl,
+            storageServiceToken!,
+            account!.ensName,
+            {
+                encrypt,
+                decrypt,
             },
-            keyValueStoreRemote: createRemoteKeyValueStoreApi(
-                account!,
-                mainnetProvider!,
-                deliveryServiceToken!,
-                {
-                    encrypt,
-                    decrypt,
-                },
-            ),
-        });
+        );
+
         setStorageApi(s);
         setInitialized(true);
     };

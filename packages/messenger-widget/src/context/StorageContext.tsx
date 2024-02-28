@@ -60,7 +60,12 @@ export const StorageContextProvider = ({ children }: { children?: any }) => {
         getMessages,
         toggleHideContactAsync,
         initialized,
-    } = useStorage(account, deliveryServiceToken, profileKeys);
+    } = useStorage(
+        account,
+        process.env.REACT_APP_DEFAULT_SERVICE!,
+        deliveryServiceToken,
+        profileKeys,
+    );
     return (
         <StorageContext.Provider
             value={{

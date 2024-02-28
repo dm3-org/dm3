@@ -1,5 +1,3 @@
-import { StorageLocation } from '@dm3-org/dm3-lib-storage';
-
 export interface DM3Configuration {
     defaultContact: string;
     defaultServiceUrl: string;
@@ -24,7 +22,7 @@ export interface Config {
     defaultContact?: string;
     showContacts: boolean;
     inline: boolean;
-    defaultStorageLocation: StorageLocation;
+    defaultStorageLocation: any;
     hideStorageSelection: boolean;
     style: React.CSSProperties;
     defaultServiceUrl: string;

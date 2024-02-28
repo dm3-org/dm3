@@ -1,5 +1,4 @@
 import { Account } from '@dm3-org/dm3-lib-profile';
-import { StorageLocation } from '@dm3-org/dm3-lib-storage';
 import { ethers } from 'ethers';
 import { Socket } from 'socket.io-client';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
@@ -27,7 +26,7 @@ export type ConnectionPayload = {
     [ConnectionType.ChangeEthAddress]: string;
     [ConnectionType.ChangeProvider]: ethers.providers.JsonRpcProvider;
     [ConnectionType.ChangeStorageToken]: string | undefined;
-    [ConnectionType.ChangeStorageLocation]: StorageLocation;
+    [ConnectionType.ChangeStorageLocation]: any;
     [ConnectionType.SetDefaultServiceUrl]: string;
     [ConnectionType.Reset]: any;
 };

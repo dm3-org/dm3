@@ -20,8 +20,8 @@ import {
     ConversationManifest,
     Db,
     MessageChunk,
-    StorageEnvelopContainer,
-} from './types';
+} from './ChunkStorageTypes';
+import { StorageEnvelopContainer } from '../types';
 
 /**
  * This function adds a new conversation to the conversation list.
