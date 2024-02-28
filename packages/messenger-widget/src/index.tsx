@@ -1,3 +1,4 @@
+import './polyfills';
 import { DM3 } from './widget';
 import { DM3Configuration } from './interfaces/config';
 
