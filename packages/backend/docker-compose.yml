@@ -8,13 +8,13 @@ services:
         container_name: redis
         ports:
             - '6379:6379'
-    postgres:
+    dm3-storage:
         image: postgres:13
         restart: always
-        container_name: prisma
+        container_name: dm3-storage
         ports:
             - '5433:5432'
         environment:
             POSTGRES_USER: prisma
             POSTGRES_PASSWORD: prisma
-            POSTGRES_DB: tests
+            POSTGRES_DB: dm3
