@@ -3,10 +3,25 @@ import cors from 'cors';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import express from 'express';
 import { auth } from './utils';
-import { validateNotificationChannel } from './validation/notification/notificationChannelValidation';
+import {
+    validateNewNotificationChannelData,
+    validateNotificationChannelType,
+} from './validation/notification/notificationChannelValidation';
+import {
+    NotificationError,
+    DeliveryServiceProperties,
+    addNewNotificationChannel,
+    verifyOtp,
+    sendOtp,
+    toggleNotificationChannel,
+    removeNotificationChannel,
+    NotificationChannelType,
+} from '@dm3-org/dm3-lib-delivery';
+import { IDatabase } from './persistance/getDatabase';
+import { validateToggleNotificationChannel } from './validation/notification/enableOrDisableChannelValidation';
 
 // Exporting a function that returns an Express router
-export default () => {
+export default (deliveryServiceProperties: DeliveryServiceProperties) => {
     const router = express.Router();
 
     // Applying CORS middleware to allow cross-origin requests
@@ -25,7 +40,7 @@ export default () => {
 
             // return if value is not a boolean
             if (typeof isEnabled !== 'boolean') {
-                return res.sendStatus(400).json({
+                return res.status(400).json({
                     error: 'Invalid value',
                 });
             }
@@ -60,23 +75,189 @@ export default () => {
         }
     });
 
-    // Defining a route to handle POST requests for adding an notification channel
-    router.post('/:ensName', async (req, res, next) => {
+    // Defining a route to handle POST requests to verify OTP
+    router.post('/otp/verify/:ensName', async (req, res, next) => {
+        // Extracting notificationChannelType from the request body
+        const { notificationChannelType, otp } = req.body;
+
         try {
             const account = normalizeEnsName(req.params.ensName);
 
-            // Extracting recipientValue & notificationChannelType from the request body
-            const { recipientValue, notificationChannelType } = req.body;
+            // validate otp is present
+            if (!otp) {
+                return res.status(400).json({
+                    error: 'OTP is missing',
+                });
+            }
 
-            // Validate req.body data
-            const { isValid, errorMessage } = validateNotificationChannel(
+            // Validate notificationChannelType data
+            const { isValid, errorMessage } = validateNotificationChannelType(
                 notificationChannelType,
-                recipientValue,
             );
 
             // Return if invalid data found
             if (!isValid) {
-                res.sendStatus(400).json({
+                return res.status(400).json({
+                    error: errorMessage,
+                });
+            }
+
+            // Fetch global notification data of user from database
+            const globalNotification =
+                await req.app.locals.db.getGlobalNotification(account);
+
+            // if global notification is turned off
+            if (!globalNotification.isEnabled) {
+                return res.status(400).json({
+                    error: 'Global notifications is off',
+                });
+            }
+
+            // verify otp
+            await verifyOtp(
+                account,
+                notificationChannelType,
+                otp,
+                deliveryServiceProperties.notificationChannel,
+                req.app.locals.db as IDatabase,
+            );
+
+            // Sending a success response
+            res.sendStatus(200);
+        } catch (e: any) {
+            if (e instanceof NotificationError) {
+                return res.status(400).json({
+                    error: e.message,
+                });
+            }
+            // Passing the error to the next middleware
+            next(e);
+        }
+    });
+
+    // Defining a route to handle POST requests for resending OTP
+    router.post('/otp/:ensName', async (req, res, next) => {
+        // Extracting notificationChannelType from the request body
+        const { notificationChannelType } = req.body;
+
+        try {
+            const account = normalizeEnsName(req.params.ensName);
+
+            // Validate notificationChannelType data
+            const { isValid, errorMessage } = validateNotificationChannelType(
+                notificationChannelType,
+            );
+
+            // Return if invalid data found
+            if (!isValid) {
+                return res.status(400).json({
+                    error: errorMessage,
+                });
+            }
+
+            // Fetch global notification data of user from database
+            const globalNotification =
+                await req.app.locals.db.getGlobalNotification(account);
+
+            // if global notification is turned off
+            if (!globalNotification.isEnabled) {
+                return res.status(400).json({
+                    error: 'Global notifications is off',
+                });
+            }
+
+            await sendOtp(
+                account,
+                notificationChannelType,
+                deliveryServiceProperties.notificationChannel,
+                req.app.locals.db as IDatabase,
+            );
+
+            // Sending a success response
+            res.sendStatus(200);
+        } catch (e: any) {
+            if (e instanceof NotificationError) {
+                return res.status(400).json({
+                    error: e.message,
+                });
+            }
+            // Passing the error to the next middleware
+            next(e);
+        }
+    });
+
+    // Defining a route to handle POST requests to enable/ disable notification channel
+    router.post('/channel/:ensName', async (req, res, next) => {
+        // Extracting notificationChannelType from the request body
+        const { notificationChannelType, isEnabled } = req.body;
+
+        try {
+            const account = normalizeEnsName(req.params.ensName);
+
+            // Validate notificationChannelType & isEnabled data
+            const { isValid, errorMessage } = validateToggleNotificationChannel(
+                notificationChannelType,
+                isEnabled,
+            );
+
+            // Return if invalid data found
+            if (!isValid) {
+                return res.status(400).json({
+                    error: errorMessage,
+                });
+            }
+
+            // Fetch global notification data of user from database
+            const globalNotification =
+                await req.app.locals.db.getGlobalNotification(account);
+
+            // if global notification is turned off
+            if (!globalNotification.isEnabled) {
+                return res.status(400).json({
+                    error: 'Global notifications is off',
+                });
+            }
+
+            // enable or disable notification
+            await toggleNotificationChannel(
+                account,
+                isEnabled,
+                notificationChannelType,
+                deliveryServiceProperties.notificationChannel,
+                req.app.locals.db as IDatabase,
+            );
+
+            // Sending a success response
+            res.sendStatus(200);
+        } catch (e: any) {
+            if (e instanceof NotificationError) {
+                return res.status(400).json({
+                    error: e.message,
+                });
+            }
+            // Passing the error to the next middleware
+            next(e);
+        }
+    });
+
+    // Defining a route to handle POST requests for adding an notification channel
+    router.post('/:ensName', async (req, res, next) => {
+        // Extracting recipientValue & notificationChannelType from the request body
+        const { recipientValue, notificationChannelType } = req.body;
+
+        try {
+            const account = normalizeEnsName(req.params.ensName);
+
+            // Validate req.body data
+            const { isValid, errorMessage } =
+                validateNewNotificationChannelData(
+                    notificationChannelType,
+                    recipientValue,
+                );
+
+            // Return if invalid data found
+            if (!isValid) {
+                return res.status(400).json({
                     error: errorMessage,
                 });
             }
@@ -87,22 +268,28 @@ export default () => {
 
             // Throw error if global notification is turned off
             if (!globalNotification.isEnabled) {
-                res.sendStatus(400).json({
+                return res.status(400).json({
                     error: 'Global notifications is off',
                 });
-            } else {
-                // Adding a user's notification channel to the database
-                await req.app.locals.db.addUsersNotificationChannel(account, {
-                    type: notificationChannelType,
-                    config: {
-                        recipientValue: recipientValue,
-                    },
-                });
-
-                // Sending a success response
-                res.sendStatus(200);
             }
-        } catch (e) {
+
+            // add new notification channel & send OTP for verification
+            await addNewNotificationChannel(
+                notificationChannelType,
+                recipientValue,
+                account,
+                deliveryServiceProperties.notificationChannel,
+                req.app.locals.db as IDatabase,
+            );
+
+            // Sending a success response
+            res.sendStatus(200);
+        } catch (e: any) {
+            if (e instanceof NotificationError) {
+                return res.status(400).json({
+                    error: e.message,
+                });
+            }
             // Passing the error to the next middleware
             next(e);
         }
@@ -119,18 +306,68 @@ export default () => {
 
             // if global notification is turned off
             if (!globalNotification.isEnabled) {
-                res.status(200).json({ notificationChannels: [] });
-            } else {
-                // Getting notification channels for a user from the database
-                const notificationChannels =
-                    await req.app.locals.db.getUsersNotificationChannels(
-                        account,
-                    );
-
-                // Sending the fetched notification channels as a JSON response
-                res.status(200).json({ notificationChannels });
+                return res.status(200).json({ notificationChannels: [] });
             }
+
+            // Getting notification channels for a user from the database
+            const notificationChannels =
+                await req.app.locals.db.getUsersNotificationChannels(account);
+
+            // Sending the fetched notification channels as a JSON response
+            return res.status(200).json({ notificationChannels });
         } catch (e) {
+            // Passing the error to the next middleware
+            next(e);
+        }
+    });
+
+    // Defining a route to handle DELETE requests to remove notification channel
+    router.delete('/channel/:channelType/:ensName', async (req, res, next) => {
+        // Extracting channelType from the request body
+        const { channelType } = req.params;
+
+        try {
+            const account = normalizeEnsName(req.params.ensName);
+
+            // Validate channelType
+            const { isValid, errorMessage } =
+                validateNotificationChannelType(channelType);
+
+            // Return if invalid data found
+            if (!isValid) {
+                return res.status(400).json({
+                    error: errorMessage,
+                });
+            }
+
+            // Fetch global notification data of user from database
+            const globalNotification =
+                await req.app.locals.db.getGlobalNotification(account);
+
+            // if global notification is turned off
+            if (!globalNotification.isEnabled) {
+                return res.status(400).json({
+                    error: 'Global notifications is off',
+                });
+            }
+
+            // remove notification notification
+            await removeNotificationChannel(
+                account,
+                channelType as NotificationChannelType,
+                req.app.locals.db as IDatabase,
+            );
+
+            // Sending a success response
+            return res.status(200).json({
+                message: `Notification channel ${channelType} has been removed successfully`,
+            });
+        } catch (e: any) {
+            if (e instanceof NotificationError) {
+                return res.status(400).json({
+                    error: e.message,
+                });
+            }
             // Passing the error to the next middleware
             next(e);
         }

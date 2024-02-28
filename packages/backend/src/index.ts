@@ -66,11 +66,18 @@ global.logger = winston.createLogger({
     app.locals.web3Provider = getWeb3Provider(process.env);
 
     app.use(logRequest);
+
+    app.get('/hello', (req, res) => {
+        return res.send('Hello DM3');
+    });
     app.use('/profile', Profile());
     app.use('/storage', Storage());
     app.use('/auth', Auth());
     app.use('/delivery', Delivery());
-    app.use('/notifications', Notifications());
+    app.use(
+        '/notifications',
+        Notifications(app.locals.deliveryServiceProperties),
+    );
     app.use('/rpc', RpcProxy(new Axios({ url: process.env.RPC })));
     app.use(logError);
     app.use(errorHandler);

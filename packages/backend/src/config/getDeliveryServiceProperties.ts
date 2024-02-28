@@ -10,11 +10,6 @@ const DEFAULT_DELIVERY_SERVICE_PROPERTIES: DeliveryServiceProperties = {
     //100Kb
     sizeLimit: 100000,
     notificationChannel: [],
-    smtpHost: '',
-    smtpPort: 0,
-    smtpEmail: '',
-    smtpUsername: '',
-    smtpPassword: '',
 };
 
 export function getDeliveryServiceProperties(
@@ -25,6 +20,7 @@ export function getDeliveryServiceProperties(
         logInfo('Config file not found. Default Config is used');
         return defaultDeliveryServiceProperties;
     }
+
     const yamlString = readFileSync(path, { encoding: 'utf-8' });
 
     const deliveryServiceProfile = parse(yamlString);
