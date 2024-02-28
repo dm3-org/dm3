@@ -35,6 +35,8 @@ global.logger = winston.createLogger({
         transports: [new winston.transports.Console()],
     });
 
+    console.log('OffchainResolver env', process.env);
+
     app.locals.db = await getDatabase(app.locals.logger);
     app.locals.config = {
         spamProtection: process.env.SPAM_PROTECTION === 'true',
