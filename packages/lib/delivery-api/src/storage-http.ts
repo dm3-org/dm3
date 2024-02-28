@@ -1,49 +1,168 @@
-import { Account, getDeliveryServiceClient } from '@dm3-org/dm3-lib-profile';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { MessageRecord, Conversation } from '@dm3-org/dm3-lib-storage';
 import axios from 'axios';
-import { ethers } from 'ethers';
-import { getAxiosConfig, checkAccount } from './utils';
+import { getAxiosConfig } from './utils';
 
 const STORAGE_PATH = '/storage/new';
 
-export async function setStorageChunk(
-    account: Account,
-    provider: ethers.providers.JsonRpcProvider,
+export async function addConversation(
+    storageUrl: string,
+    storageToken: string,
+    ensName: string,
+    encryptedContactName: string,
+): Promise<void> {
+    const url = `${STORAGE_PATH}/new/${normalizeEnsName(
+        ensName,
+    )}/addConversation`;
 
-    key: string,
-    value: string,
-    token: string,
-): Promise<string> {
-    const { profile, ensName } = checkAccount(account);
-
-    const url = `${STORAGE_PATH}/${normalizeEnsName(ensName)}/${key}`;
-
-    const { data } = await getDeliveryServiceClient(
-        profile,
-        provider,
-        async (url: string) => (await axios.get(url)).data,
-    ).post(url, value, getAxiosConfig(token));
-
-    return data;
+    await axios.post(
+        `${storageUrl}${url}`,
+        {
+            encryptedContactName,
+        },
+        getAxiosConfig(storageToken),
+    );
 }
-export type SetStorageChunk = typeof setStorageChunk;
 
-export async function getStorageChunk(
-    account: Account,
-    provider: ethers.providers.JsonRpcProvider,
-    key: string,
-    token: string,
-): Promise<string> {
-    const { profile, ensName } = checkAccount(account);
+export async function getConversations(
+    storageUrl: string,
+    storageToken: string,
+    ensName: string,
+): Promise<Conversation[]> {
+    const url = `${STORAGE_PATH}/new/${normalizeEnsName(
+        ensName,
+    )}/getConversations`;
 
-    const url = `${STORAGE_PATH}/${normalizeEnsName(ensName)}/${key}`;
-
-    const { data } = await getDeliveryServiceClient(
-        profile,
-        provider,
-        async (url: string) => (await axios.get(url)).data,
-    ).get(url, getAxiosConfig(token));
+    const { data } = await axios.get(
+        `${storageUrl}${url}`,
+        getAxiosConfig(storageToken),
+    );
 
     return data ?? '';
 }
-export type GetStorageChunk = typeof getStorageChunk;
+export async function toggleHideConversation(
+    storageUrl: string,
+    storageToken: string,
+    ensName: string,
+    encryptedContactName: string,
+    hide: boolean,
+): Promise<void> {
+    const url = `${STORAGE_PATH}/new/${normalizeEnsName(
+        ensName,
+    )}/toggleHideConversation`;
+
+    await axios.post(
+        `${storageUrl}${url}`,
+        {
+            encryptedContactName,
+            hide,
+        },
+        getAxiosConfig(storageToken),
+    );
+}
+
+export function getMessagesFromStorage(
+    storageUrl: string,
+    storageToken: string,
+    ensName: string,
+    encryptedContactName: string,
+    page: number,
+): Promise<MessageRecord[]> {
+    const url = `/new/${normalizeEnsName(
+        ensName,
+    )}/getMessages/${encryptedContactName}/${page}`;
+
+    return axios.get(`${storageUrl}${url}`, getAxiosConfig(storageToken));
+}
+
+export function addMessage(
+    storageUrl: string,
+    storageToken: string,
+    ensName: string,
+    encryptedContactName: string,
+    messageId: string,
+    encryptedEnvelopContainer: string,
+): Promise<void> {
+    const url = `/new/${normalizeEnsName(ensName)}/addMessage`;
+    return axios.post(
+        `${storageUrl}${url}`,
+        {
+            encryptedContactName,
+            messageId,
+            encryptedEnvelopContainer,
+        },
+        getAxiosConfig(storageToken),
+    );
+}
+
+export function addMessageBatch(
+    storageUrl: string,
+    storageToken: string,
+    ensName: string,
+    encryptedContactName: string,
+    messageBatch: MessageRecord[],
+): Promise<void> {
+    const url = `/new/${normalizeEnsName(ensName)}/addMessageBatch`;
+    return axios.post(
+        `${storageUrl}${url}`,
+        {
+            encryptedContactName,
+            messageBatch,
+        },
+        getAxiosConfig(storageToken),
+    );
+}
+
+export async function editMessageBatch(
+    storageUrl: string,
+    storageToken: string,
+    ensName: string,
+    encryptedContactName: string,
+    editMessageBatchPayload: MessageRecord[],
+): Promise<void> {
+    const url = `/new/${normalizeEnsName(ensName)}/editMessageBatch`;
+    const { status } = await axios.post(
+        `${storageUrl}${url}`,
+        {
+            encryptedContactName,
+            editMessageBatchPayload,
+        },
+        getAxiosConfig(storageToken),
+    );
+
+    if (status !== 200) {
+        throw Error('Unable to edit message batch');
+    }
+}
+
+export async function getNumberOfMessages(
+    storageUrl: string,
+    storageToken: string,
+    ensName: string,
+    encryptedContactName: string,
+): Promise<number> {
+    const url = `/new/${normalizeEnsName(
+        ensName,
+    )}/getNumberOfMessages/${encryptedContactName}`;
+
+    const { data } = await axios.get(
+        `${storageUrl}${url}`,
+        getAxiosConfig(storageToken),
+    );
+
+    return data;
+}
+export async function getNumberOfConversations(
+    storageUrl: string,
+    storageToken: string,
+    ensName: string,
+): Promise<number> {
+    const url = `/new/${normalizeEnsName(ensName)}/getNumberOfConversations/`;
+
+    const { data } = await axios.get(
+        `${storageUrl}${url}`,
+        getAxiosConfig(storageToken),
+    );
+
+    return data;
+}

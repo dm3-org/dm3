@@ -3,7 +3,6 @@ import {
     ProfileKeys,
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
-import { UserDB } from '@dm3-org/dm3-lib-storage';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useAccount, useWalletClient } from 'wagmi';
 import { TLDContext } from '../../context/TLDContext';
@@ -46,10 +45,6 @@ export const useAuth = () => {
         undefined,
     );
     const [profileKeys, setProfileKeys] = useState<ProfileKeys | undefined>();
-
-    const [_initialUserDb, _setInitialUserDb] = useState<UserDB | undefined>(
-        undefined,
-    );
 
     //Effect to resolve the display name of the account currently logged in.
     //The main purpose of that function is check wether the account has been minted via an L2 name service such as
@@ -113,7 +108,7 @@ export const useAuth = () => {
             return;
         }
 
-        const { deliveryServiceToken, userDb, signedUserProfile, profileKeys } =
+        const { deliveryServiceToken, signedUserProfile, profileKeys } =
             connectDsResult;
 
         setAccount({
@@ -141,7 +136,6 @@ export const useAuth = () => {
         isLoading,
         hasError,
         setAccount,
-        _initialUserDb,
     };
 };
 

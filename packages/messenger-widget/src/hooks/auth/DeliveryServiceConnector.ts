@@ -12,15 +12,7 @@ import {
     getStorageKeyCreationMessage,
     sign,
 } from '@dm3-org/dm3-lib-crypto';
-import {
-    UserDB,
-    createDB,
-    getDm3Storage,
-    load,
-} from '@dm3-org/dm3-lib-storage';
 
-import { GetWalletClientResult } from '@wagmi/core';
-import axios from 'axios';
 import {
     getChallenge,
     getNewToken,
@@ -28,11 +20,12 @@ import {
 } from '@dm3-org/dm3-lib-delivery-api';
 import { createProfileKeys as _createProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { globalConfig, stringify } from '@dm3-org/dm3-lib-shared';
+import { GetWalletClientResult } from '@wagmi/core';
+import axios from 'axios';
 import { ethers } from 'ethers';
 import { claimAddress } from '../../adapters/offchainResolverApi';
 
 export type ConnectDsResult = {
-    userDb: UserDB;
     signedUserProfile: SignedUserProfile;
     deliveryServiceToken: string;
     profileKeys: ProfileKeys;
@@ -78,33 +71,6 @@ export const DeliveryServiceConnector = (
             return false;
         }
     }
-    async function getUserDbFromDeliveryService(
-        signedUserProfile: SignedUserProfile,
-        ensName: string,
-        profileKeys: ProfileKeys,
-        deliveryServiceToken: string,
-    ) {
-        const storageFile = await getDm3Storage(
-            mainnetProvider,
-            { profile: signedUserProfile.profile, ensName },
-            deliveryServiceToken,
-        );
-
-        if (!storageFile) {
-            //Create new user db object
-            return createDB(profileKeys);
-        }
-        try {
-            //The encrypted session file will now be decrypted, therefore the user has to sign the auth message again.
-            const userDb = await load(
-                JSON.parse(storageFile),
-                profileKeys.storageEncryptionKey,
-            );
-            return userDb;
-        } catch (e) {
-            throw Error('Unable to depcrypt storage file');
-        }
-    }
 
     const signUpWithExistingProfile = async (
         ensName: string,
@@ -122,15 +88,9 @@ export const DeliveryServiceConnector = (
         );
 
         const keys = await createProfileKeys();
-        const userDb = await getUserDbFromDeliveryService(
-            signedUserProfile,
-            ensName,
-            keys,
-            deliveryServiceToken,
-        );
+
         return {
             profileKeys: keys,
-            userDb,
             deliveryServiceToken,
             signedUserProfile,
         };
@@ -164,15 +124,7 @@ export const DeliveryServiceConnector = (
             keys.signingKeyPair.privateKey,
         );
 
-        const userDb = await getUserDbFromDeliveryService(
-            signedUserProfile,
-            ensName,
-            keys,
-            deliveryServiceToken,
-        );
-
         return {
-            userDb,
             profileKeys: keys,
             deliveryServiceToken,
             signedUserProfile,
@@ -227,9 +179,7 @@ export const DeliveryServiceConnector = (
             mainnetProvider,
             signedUserProfile,
         );
-        const userDb = createDB(keys);
         return {
-            userDb,
             deliveryServiceToken,
             signedUserProfile,
             profileKeys: keys,

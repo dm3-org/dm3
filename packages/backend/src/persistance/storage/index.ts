@@ -9,6 +9,7 @@ import { getMessages } from './postgres/getMessages';
 import { getNumberOfConversations } from './postgres/getNumberOfConversations';
 import { getNumberOfMessages } from './postgres/getNumberOfMessages';
 import { toggleHideConversation } from './postgres/toggleHideConversation';
+import { MessageRecord } from './postgres/utils/MessageRecord';
 
 export default {
     getUserStorageOld,
@@ -22,3 +23,5 @@ export default {
     getNumberOfMessages,
     toggleHideConversation,
 };
+
+export type { MessageRecord };

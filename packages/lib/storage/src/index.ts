@@ -1,26 +1,4 @@
-export { getDm3Storage, useDm3Storage } from './location/Dm3Storage';
+export * from './new/types';
+export type { MessageRecord } from './new/chunkStorage/ChunkStorageTypes';
 
-export { googleLoad, googleStore } from './location/GoogleDrive';
-
-export {
-    StorageLocation,
-    SyncProcessState,
-    createDB,
-    createEmptyConversation,
-    getConversation,
-    getConversationId,
-    load,
-    sortEnvelops,
-    sync,
-} from './Storage';
-
-export { createStorage } from './new';
-export { createRemoteKeyValueStoreApi } from './new/RemoteInterface';
-
-export { web3Load, web3Store } from './location/Web3Storage';
-
-export { createTimestamp } from './Utils';
-
-export type { StorageEnvelopContainer, UserDB, UserStorage } from './Storage';
-
-export type { StorageEnvelopContainer as StorageEnvelopContainerNew } from './new/types';
+export { getCloudStorage } from './new/cloudStorage/getCloudStorage';

@@ -2,12 +2,8 @@ import { MessageState } from '@dm3-org/dm3-lib-messaging';
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import { createStorage } from './index';
 import { makeEnvelop } from './testHelper';
-import {
-    Chunk,
-    ReadStrategy,
-    StorageAPI,
-    StorageEnvelopContainer,
-} from './types';
+import { Chunk, ReadStrategy } from './types';
+import { StorageAPI, StorageEnvelopContainer } from '../types';
 
 describe('createStorage Integration Tests', () => {
     let storageApi: StorageAPI;

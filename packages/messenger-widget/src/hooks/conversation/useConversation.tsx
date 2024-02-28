@@ -113,7 +113,6 @@ export const useConversation = (config: Config) => {
                     contactEnsName: normalizeEnsName(config.defaultContact),
                     messageCounter: 0,
                     isHidden: false,
-                    key: '',
                 };
                 const hydratedDefaultContact = await hydrateContract(
                     mainnetProvider,
@@ -170,7 +169,6 @@ export const useConversation = (config: Config) => {
             contactEnsName: contact.contactDetails.account.ensName,
             messageCounter: contact?.messageCount || 0,
             isHidden: contact.isHidden,
-            key: '',
         };
         const hydratedContact = await hydrateContract(
             mainnetProvider,

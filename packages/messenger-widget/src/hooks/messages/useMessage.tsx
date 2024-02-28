@@ -8,7 +8,7 @@ import {
     buildEnvelop,
 } from '@dm3-org/dm3-lib-messaging';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
-import { StorageEnvelopContainerNew } from '@dm3-org/dm3-lib-storage';
+import { StorageEnvelopContainer as StorageEnvelopContainerNew } from '@dm3-org/dm3-lib-storage';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';

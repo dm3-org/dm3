@@ -6,7 +6,7 @@ import { Account } from '@dm3-org/dm3-lib-profile';
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import axios from 'axios';
 import { ethers } from 'ethers';
-import { Chunk, Encryption, KeyValueStore } from './types';
+import { Chunk, Encryption, KeyValueStore } from './ChunkStorageTypes';
 
 const STORAGE_PATH = '/storage/new';
 

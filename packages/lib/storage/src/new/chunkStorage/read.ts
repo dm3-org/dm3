@@ -15,7 +15,7 @@ import {
     MessageChunk,
     ReadStrategy,
     RemoteFetchCb,
-} from './types';
+} from './ChunkStorageTypes';
 
 /**
  * This function retrieves a specific chunk of messages for a given conversation from the storage.
