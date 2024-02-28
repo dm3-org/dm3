@@ -62,8 +62,8 @@ export function Home(props: Dm3Props) {
         connectors,
         chains: [gnosis, ethChain],
         transports: {
-            [mainnet.id]: http(),
             [ethChain.id]: http(),
+            [gnosis.id]: http(),
         },
     });
 
