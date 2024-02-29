@@ -29,6 +29,7 @@ export const editMessageBatch =
                 if (!messageExists) {
                     return await db.encryptedMessage.create({
                         data: {
+                            ownerId: account.id,
                             id: payload.messageId,
                             conversationId: conversation.encryptedId,
                             encryptedEnvelopContainer:
