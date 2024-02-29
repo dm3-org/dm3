@@ -654,7 +654,7 @@ describe('Storage', () => {
                 })
                 .send({
                     encryptedContactName,
-                    editMessageBatchPayload: JSON.stringify(payload),
+                    editMessageBatchPayload: payload,
                 });
 
             expect(status).toBe(200);
@@ -709,7 +709,7 @@ describe('Storage', () => {
                 })
                 .send({
                     encryptedContactName: contactName,
-                    editMessageBatchPayload: JSON.stringify(updatedPayload),
+                    editMessageBatchPayload: updatedPayload,
                 });
 
             expect(editStatus).toBe(200);
