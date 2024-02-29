@@ -3,6 +3,7 @@ import cors from 'cors';
 import express from 'express';
 import stringify from 'safe-stable-stringify';
 import { auth } from './utils';
+import { sha256 } from '@dm3-org/dm3-lib-shared';
 
 export default () => {
     const router = express.Router();
@@ -25,10 +26,16 @@ export default () => {
 
         try {
             const ensName = normalizeEnsName(req.params.ensName);
+            const getUniqueMessageId = (messageId: string) =>
+                sha256(ensName + messageId);
             await req.app.locals.db.editMessageBatch(
                 ensName,
                 encryptedContactName,
-                editMessageBatchPayload,
+                editMessageBatchPayload.map((message) => ({
+                    messageId: getUniqueMessageId(message.messageId),
+                    encryptedEnvelopContainer:
+                        message.encryptedEnvelopContainer,
+                })),
             );
             return res.send();
         } catch (e) {
@@ -47,10 +54,11 @@ export default () => {
 
         try {
             const ensName = normalizeEnsName(req.params.ensName);
+            const uniqueMessageId = sha256(ensName + messageId);
             const success = await req.app.locals.db.addMessageBatch(
                 ensName,
                 encryptedContactName,
-                [{ messageId, encryptedEnvelopContainer }],
+                [{ messageId: uniqueMessageId, encryptedEnvelopContainer }],
             );
             if (success) {
                 return res.send();
@@ -74,11 +82,17 @@ export default () => {
 
         try {
             const ensName = normalizeEnsName(req.params.ensName);
+            const getUniqueMessageId = (messageId: string) =>
+                sha256(ensName + messageId);
 
             await req.app.locals.db.addMessageBatch(
                 ensName,
                 encryptedContactName,
-                messageBatch,
+                messageBatch.map((message) => ({
+                    messageId: getUniqueMessageId(message.messageId),
+                    encryptedEnvelopContainer:
+                        message.encryptedEnvelopContainer,
+                })),
             );
             return res.send();
         } catch (e) {
