@@ -290,6 +290,102 @@ describe('Storage', () => {
                 JSON.parse(JSON.parse(messages[0]).encryptedEnvelopContainer),
             ).toStrictEqual(encryptedEnvelop);
         });
+        it('messages are separated by account id', async () => {
+            const message = await createMessage(
+                sender.account.ensName,
+                receiver.account.ensName,
+                'Hello',
+                sender.profileKeys.signingKeyPair.privateKey,
+            );
+            const { encryptedEnvelop, envelop } = await buildEnvelop(
+                message,
+                (receiverPublicSigningKey: string, message: string) => {
+                    return encryptAsymmetric(receiverPublicSigningKey, message);
+                },
+                {
+                    from: sender.account,
+                    to: receiver.account,
+                    deliverServiceProfile: deliveryService.profile,
+                    keys: sender.profileKeys,
+                },
+            );
+
+            await request(app)
+                .post(`/new/bob.eth/addMessage`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
+                    encryptedContactName: sha256(receiver.account.ensName),
+                    messageId: '123',
+                });
+
+            await request(app)
+                .post(`/new/alice.eth/addMessage`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
+                    encryptedContactName: sha256(receiver.account.ensName),
+                    messageId: '123',
+                });
+
+            const { body: bobConversations } = await request(app)
+                .get(`/new/bob.eth/getConversations`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+            const { body: aliceConversations } = await request(app)
+                .get(`/new/alice.eth/getConversations`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+
+            expect(bobConversations).toEqual([
+                sha256(receiver.account.ensName),
+            ]);
+            expect(bobConversations.length).toBe(1);
+
+            //Alice has not added any messages
+            expect(aliceConversations).toEqual([]);
+            expect(aliceConversations.length).toBe(0);
+
+            const { status: getMessagesStatus, body: bobMessages } =
+                await request(app)
+                    .get(
+                        `/new/bob.eth/getMessages/${sha256(
+                            receiver.account.ensName,
+                        )}/0`,
+                    )
+                    .set({
+                        authorization: `Bearer ${token}`,
+                    })
+                    .send();
+
+            expect(bobMessages.length).toBe(1);
+            expect(
+                JSON.parse(
+                    JSON.parse(bobMessages[0]).encryptedEnvelopContainer,
+                ),
+            ).toStrictEqual(encryptedEnvelop);
+
+            const { body: aliceMessgaes } = await request(app)
+                .get(
+                    `/new/alice.eth/getMessages/${sha256(
+                        sender.account.ensName,
+                    )}/0`,
+                )
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+
+            expect(aliceMessgaes.length).toBe(0);
+        });
         it('can add message to existing conversation', async () => {
             const {} = await request(app)
                 .post(`/new/bob.eth/addConversation`)

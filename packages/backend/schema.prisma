@@ -12,6 +12,8 @@ model EncryptedMessage {
     encryptedEnvelopContainer String
     conversationId            String
     conversation              Conversation @relation(fields: [conversationId], references: [encryptedId])
+    ownerId                   String
+    owner                     Account      @relation(fields: [ownerId], references: [id])
 }
 
 model Conversation {
@@ -23,6 +25,7 @@ model Conversation {
 }
 
 model Account {
-    id            String         @id
-    conversations Conversation[]
+    id               String             @id
+    conversations    Conversation[]
+    EncryptedMessage EncryptedMessage[]
 }
