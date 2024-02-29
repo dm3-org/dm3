@@ -8,7 +8,7 @@ import {
     getNumberOfMessages,
     getNumberOfConversations,
     toggleHideConversation,
-} from '@dm3-org/dm3-lib-delivery-api';
+} from './storage-http';
 import { MessageRecord } from '../chunkStorage/ChunkStorageTypes';
 import { Encryption, StorageAPI, StorageEnvelopContainer } from '../types';
 export const getCloudStorage = (
@@ -28,7 +28,23 @@ export const getCloudStorage = (
     };
 
     const getConversationList = async (page: number) => {
-        return await getConversations(storageUrl, storageToken, ensName);
+        const encryptedConversations = await getConversations(
+            storageUrl,
+            storageToken,
+            ensName,
+        );
+
+        return await Promise.all(
+            encryptedConversations.map(
+                async (encryptedContactName: string) => ({
+                    contactEnsName: await encryption.encrypt(
+                        encryptedContactName,
+                    ),
+                    isHidden: false,
+                    messageCounter: 0,
+                }),
+            ),
+        );
     };
     const getMessages = async (contactEnsName: string, page: number) => {
         const messageRecords = await getMessagesFromStorage(

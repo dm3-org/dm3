@@ -94,7 +94,7 @@ export const useConversation = (config: Config) => {
                 await init(page + 1);
             }
             await handlePendingConversations();
-            initDefaultContact();
+            //  initDefaultContact();
             setConversationsInitialized(true);
         };
         init();

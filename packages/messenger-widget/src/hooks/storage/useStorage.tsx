@@ -51,11 +51,11 @@ export const useStorage = (
                 profileKeys?.encryptionKeyPair?.publicKey!,
                 data,
             );
-            return stringify(encryptedPayload);
+            return btoa(stringify(encryptedPayload));
         };
         const decrypt = async (data: string) => {
             const payload: EncryptedPayload = JSON.parse(
-                data,
+                atob(data),
             ) as EncryptedPayload;
 
             return await decryptAsymmetric(
