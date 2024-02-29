@@ -17,18 +17,18 @@ export const getMessages =
         }
 
         try {
-            const messages = await db.encryptedMessage.findMany({
+            const messageRecord = await db.encryptedMessage.findMany({
                 skip: page * PAGE_SIZE,
                 take: PAGE_SIZE,
                 where: {
                     conversationId: conversation.encryptedId,
                 },
             });
-            if (messages.length === 0) {
+            if (messageRecord.length === 0) {
                 return [];
             }
 
-            return messages.map((message: any) => JSON.stringify(message));
+            return messageRecord.map((message: any) => JSON.stringify(message));
         } catch (e) {
             console.log('getMessages error', e);
             return [];
