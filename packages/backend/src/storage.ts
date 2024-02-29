@@ -14,7 +14,11 @@ export default () => {
     router.post('/new/:ensName/editMessageBatch', async (req, res, next) => {
         const { encryptedContactName, editMessageBatchPayload } = req.body;
 
-        if (!encryptedContactName || !editMessageBatchPayload) {
+        if (
+            !encryptedContactName ||
+            !editMessageBatchPayload ||
+            !Array.isArray(editMessageBatchPayload)
+        ) {
             res.status(400).send('invalid schema');
             return;
         }
@@ -24,7 +28,7 @@ export default () => {
             await req.app.locals.db.editMessageBatch(
                 ensName,
                 encryptedContactName,
-                JSON.parse(editMessageBatchPayload),
+                editMessageBatchPayload,
             );
             return res.send();
         } catch (e) {
