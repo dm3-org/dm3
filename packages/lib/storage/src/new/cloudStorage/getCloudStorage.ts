@@ -19,6 +19,7 @@ export const getCloudStorage = (
 ): StorageAPI => {
     const _addConversation = async (contactEnsName: string) => {
         const encryptedContactName = await encryption.encrypt(contactEnsName);
+        console.log('store new contact ', encryptedContactName);
         return await addConversation(
             storageUrl,
             storageToken,
@@ -37,7 +38,7 @@ export const getCloudStorage = (
         return await Promise.all(
             encryptedConversations.map(
                 async (encryptedContactName: string) => ({
-                    contactEnsName: await encryption.encrypt(
+                    contactEnsName: await encryption.decrypt(
                         encryptedContactName,
                     ),
                     isHidden: false,
@@ -73,6 +74,8 @@ export const getCloudStorage = (
         contactEnsName: string,
         envelop: StorageEnvelopContainer,
     ) => {
+        const encryptedContactName = await encryption.encrypt(contactEnsName);
+
         const encryptedEnvelopContainer = await encryption.encrypt(
             JSON.stringify(envelop),
         );
@@ -80,7 +83,7 @@ export const getCloudStorage = (
             storageUrl,
             storageToken,
             ensName,
-            contactEnsName,
+            encryptedContactName,
             envelop.envelop.metadata?.encryptedMessageHash!,
             encryptedEnvelopContainer,
         );
@@ -91,6 +94,8 @@ export const getCloudStorage = (
         contactEnsName: string,
         batch: StorageEnvelopContainer[],
     ) => {
+        const encryptedContactName = await encryption.encrypt(contactEnsName);
+
         const encryptedMessages: MessageRecord[] = await Promise.all(
             batch.map(async (message: StorageEnvelopContainer) => {
                 const encryptedEnvelopContainer = await encryption.encrypt(
@@ -106,7 +111,7 @@ export const getCloudStorage = (
             storageUrl,
             storageToken,
             ensName,
-            contactEnsName,
+            encryptedContactName,
             encryptedMessages,
         );
 
@@ -117,6 +122,7 @@ export const getCloudStorage = (
         contactEnsName: string,
         batch: StorageEnvelopContainer[],
     ) => {
+        const encryptedContactName = await encryption.encrypt(contactEnsName);
         const encryptedMessages: MessageRecord[] = await Promise.all(
             batch.map(async (message: StorageEnvelopContainer) => {
                 const encryptedEnvelopContainer = await encryption.encrypt(
@@ -132,7 +138,7 @@ export const getCloudStorage = (
             storageUrl,
             storageToken,
             ensName,
-            contactEnsName,
+            encryptedContactName,
             encryptedMessages,
         );
     };

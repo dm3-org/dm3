@@ -63,7 +63,7 @@ export async function toggleHideConversation(
     );
 }
 
-export function getMessagesFromStorage(
+export async function getMessagesFromStorage(
     storageUrl: string,
     storageToken: string,
     ensName: string,
@@ -74,7 +74,11 @@ export function getMessagesFromStorage(
         ensName,
     )}/getMessages/${encryptedContactName}/${page}`;
 
-    return axios.get(`${storageUrl}${url}`, withAuthHeader(storageToken));
+    const { data } = await axios.get(
+        `${storageUrl}${url}`,
+        withAuthHeader(storageToken),
+    );
+    return data;
 }
 
 export function addMessage(

@@ -19,6 +19,7 @@ export async function encrypt(
     key: string,
     payload: string,
     prevNonce?: string,
+    padding: number = PAD_BLOCKSIZE,
 ): Promise<EncryptedPayload> {
     await _sodium.ready;
     const sodium = _sodium;
@@ -35,7 +36,7 @@ export async function encrypt(
 
     const paddedPayload = sodium.pad(
         ethers.utils.toUtf8Bytes(payload),
-        PAD_BLOCKSIZE,
+        padding,
     );
 
     const encryptedPayload = sodium.crypto_aead_chacha20poly1305_ietf_encrypt(
@@ -55,6 +56,7 @@ export async function encrypt(
 export async function decrypt(
     key: string,
     encryptedPayload: EncryptedPayload,
+    padding: number = PAD_BLOCKSIZE,
 ): Promise<string> {
     await _sodium.ready;
     const sodium = _sodium;
@@ -67,7 +69,7 @@ export async function decrypt(
         ethers.utils.base64.decode(key),
     );
 
-    const unpadded = sodium.unpad(payload, PAD_BLOCKSIZE);
+    const unpadded = sodium.unpad(payload, padding);
 
     return ethers.utils.toUtf8String(unpadded);
 }
@@ -75,6 +77,7 @@ export async function decrypt(
 export async function encryptAsymmetric(
     externalPublicKey: string,
     payload: string,
+    padding: number = PAD_BLOCKSIZE,
 ): Promise<EncryptedPayload> {
     const ephemeralKeyPair = await createKeyPair();
     const sessionKey = await createSenderSessionKey(
@@ -82,7 +85,12 @@ export async function encryptAsymmetric(
         externalPublicKey,
     );
 
-    const encryptedPayload = await encrypt(sessionKey.sharedTx, payload);
+    const encryptedPayload = await encrypt(
+        sessionKey.sharedTx,
+        payload,
+        undefined,
+        padding,
+    );
 
     return {
         ...encryptedPayload,
@@ -94,6 +102,7 @@ export type EncryptAsymmetric = typeof encryptAsymmetric;
 export async function decryptAsymmetric(
     ownEncryptionKeyPair: KeyPair,
     encryptedPayload: EncryptedPayload,
+    padding: number = PAD_BLOCKSIZE,
 ): Promise<string> {
     if (!encryptedPayload.ephemPublicKey) {
         throw Error('ephemPublicKey is missing');
@@ -102,6 +111,6 @@ export async function decryptAsymmetric(
         ownEncryptionKeyPair,
         encryptedPayload.ephemPublicKey,
     );
-    return decrypt(sessionKey.sharedRx, encryptedPayload);
+    return decrypt(sessionKey.sharedRx, encryptedPayload, padding);
 }
 export type DecryptAsymmetric = typeof decryptAsymmetric;

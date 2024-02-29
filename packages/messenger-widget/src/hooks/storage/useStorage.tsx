@@ -50,6 +50,7 @@ export const useStorage = (
             const encryptedPayload: EncryptedPayload = await encryptAsymmetric(
                 profileKeys?.encryptionKeyPair?.publicKey!,
                 data,
+                1,
             );
             return btoa(stringify(encryptedPayload));
         };
@@ -61,6 +62,7 @@ export const useStorage = (
             return await decryptAsymmetric(
                 profileKeys?.encryptionKeyPair!,
                 payload,
+                1,
             );
         };
 
