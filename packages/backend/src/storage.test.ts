@@ -29,7 +29,6 @@ import { getNumberOfMessages } from './persistance/storage/postgres/getNumberOfM
 import { toggleHideConversation } from './persistance/storage/postgres/toggleHideConversation';
 import { MessageRecord } from './persistance/storage/postgres/utils/MessageRecord';
 import storage from './storage';
-import { MessageRecord } from '@dm3-org/dm3-lib-storage';
 
 const keysA = {
     encryptionKeyPair: {

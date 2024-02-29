@@ -9,7 +9,7 @@ export const getOrCreateConversation = async (
     const conversation = await db.conversation.findFirst({
         where: {
             accountId,
-            encryptedId: encryptedContactName,
+            encryptedContactName,
         },
     });
     //If conversation exists, return it
@@ -20,7 +20,7 @@ export const getOrCreateConversation = async (
     return await db.conversation.create({
         data: {
             accountId,
-            encryptedId: encryptedContactName,
+            encryptedContactName,
         },
     });
 };
