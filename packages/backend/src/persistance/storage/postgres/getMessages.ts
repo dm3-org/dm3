@@ -1,10 +1,12 @@
 import { PrismaClient } from '@prisma/client';
+import { getOrCreateAccount } from './utils/getOrCreateAccount';
 
 const PAGE_SIZE = 100;
 
 export const getMessages =
     (db: PrismaClient) =>
     async (ensName: string, contactName: string, page: number) => {
+        const account = await getOrCreateAccount(db, ensName);
         const conversation = await db.conversation.findFirst({
             where: {
                 accountId: ensName,
@@ -21,6 +23,7 @@ export const getMessages =
                 skip: page * PAGE_SIZE,
                 take: PAGE_SIZE,
                 where: {
+                    ownerId: account.id,
                     conversationId: conversation.encryptedId,
                 },
             });

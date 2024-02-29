@@ -318,7 +318,7 @@ describe('Storage', () => {
                 .send({
                     encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
                     encryptedContactName: sha256(receiver.account.ensName),
-                    messageId: '123',
+                    messageId: sha256('bob.eth' + '123'),
                 });
 
             await request(app)
@@ -328,8 +328,8 @@ describe('Storage', () => {
                 })
                 .send({
                     encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
-                    encryptedContactName: sha256(receiver.account.ensName),
-                    messageId: '123',
+                    encryptedContactName: sha256(sender.account.ensName),
+                    messageId: sha256('alice.eth' + '123'),
                 });
 
             const { body: bobConversations } = await request(app)
@@ -350,21 +350,21 @@ describe('Storage', () => {
             ]);
             expect(bobConversations.length).toBe(1);
 
-            //Alice has not added any messages
-            expect(aliceConversations).toEqual([]);
-            expect(aliceConversations.length).toBe(0);
+            expect(aliceConversations.length).toBe(1);
+            expect(aliceConversations).toEqual([
+                sha256(sender.account.ensName),
+            ]);
 
-            const { status: getMessagesStatus, body: bobMessages } =
-                await request(app)
-                    .get(
-                        `/new/bob.eth/getMessages/${sha256(
-                            receiver.account.ensName,
-                        )}/0`,
-                    )
-                    .set({
-                        authorization: `Bearer ${token}`,
-                    })
-                    .send();
+            const { body: bobMessages } = await request(app)
+                .get(
+                    `/new/bob.eth/getMessages/${sha256(
+                        receiver.account.ensName,
+                    )}/0`,
+                )
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
 
             expect(bobMessages.length).toBe(1);
             expect(
@@ -373,7 +373,7 @@ describe('Storage', () => {
                 ),
             ).toStrictEqual(encryptedEnvelop);
 
-            const { body: aliceMessgaes } = await request(app)
+            const { body: aliceMessages } = await request(app)
                 .get(
                     `/new/alice.eth/getMessages/${sha256(
                         sender.account.ensName,
@@ -384,7 +384,7 @@ describe('Storage', () => {
                 })
                 .send();
 
-            expect(aliceMessgaes.length).toBe(0);
+            expect(aliceMessages.length).toBe(1);
         });
         it('can add message to existing conversation', async () => {
             const {} = await request(app)
