@@ -6,7 +6,16 @@ const PAGE_SIZE = 100;
 export const getMessages =
     (db: PrismaClient) =>
     async (ensName: string, contactName: string, page: number) => {
-        const account = await getOrCreateAccount(db, ensName);
+        const account = await db.account.findFirst({
+            where: {
+                id: ensName,
+            },
+        });
+
+        if (!account) {
+            return [];
+        }
+
         const conversation = await db.conversation.findFirst({
             where: {
                 accountId: ensName,
