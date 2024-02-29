@@ -78,7 +78,11 @@ export async function getMessagesFromStorage(
         `${storageUrl}${url}`,
         withAuthHeader(storageToken),
     );
-    return data;
+    return (
+        data.map((message: any) => {
+            return JSON.parse(message);
+        }) ?? []
+    );
 }
 
 export function addMessage(

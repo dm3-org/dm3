@@ -60,9 +60,7 @@ export const getCloudStorage = (
                 const decryptedEnvelopContainer = await encryption.decrypt(
                     messageRecord.encryptedEnvelopContainer,
                 );
-                return {
-                    envelop: JSON.parse(decryptedEnvelopContainer),
-                };
+                return JSON.parse(decryptedEnvelopContainer);
             }),
         );
 

@@ -47,23 +47,25 @@ export const useStorage = (
             return sign(profileKeys?.signingKeyPair?.privateKey!, data);
         };
         const encrypt = async (data: string) => {
-            const encryptedPayload: EncryptedPayload = await encryptAsymmetric(
-                profileKeys?.encryptionKeyPair?.publicKey!,
-                data,
-                1,
-            );
-            return btoa(stringify(encryptedPayload));
+            // const encryptedPayload: EncryptedPayload = await encryptAsymmetric(
+            //     profileKeys?.encryptionKeyPair?.publicKey!,
+            //     data,
+            //     1,
+            // );
+            // return btoa(stringify(encryptedPayload));
+            return data;
         };
         const decrypt = async (data: string) => {
-            const payload: EncryptedPayload = JSON.parse(
-                atob(data),
-            ) as EncryptedPayload;
+            // const payload: EncryptedPayload = JSON.parse(
+            //     atob(data),
+            // ) as EncryptedPayload;
 
-            return await decryptAsymmetric(
-                profileKeys?.encryptionKeyPair!,
-                payload,
-                1,
-            );
+            // return await decryptAsymmetric(
+            //     profileKeys?.encryptionKeyPair!,
+            //     payload,
+            //     1,
+            // );
+            return data;
         };
 
         const s = getCloudStorage(

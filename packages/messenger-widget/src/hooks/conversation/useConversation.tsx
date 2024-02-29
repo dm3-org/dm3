@@ -1,16 +1,15 @@
 /* eslint-disable max-len */
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { Conversation } from '@dm3-org/dm3-lib-storage/dist/new/types';
 import { useContext, useEffect, useMemo, useState } from 'react';
+import { fetchPendingConversations } from '../../adapters/messages';
 import { AuthContext } from '../../context/AuthContext';
 import { StorageContext } from '../../context/StorageContext';
+import { TLDContext } from '../../context/TLDContext';
+import { Config } from '../../interfaces/config';
 import { ContactPreview, getDefaultContract } from '../../interfaces/utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
-import { fetchPendingConversations } from '../../adapters/messages';
-import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
-import { Config } from '../../interfaces/config';
-import { WebSocketContext } from '../../context/WebSocketContext';
-import { TLDContext } from '../../context/TLDContext';
 
 export const useConversation = (config: Config) => {
     const mainnetProvider = useMainnetProvider();
