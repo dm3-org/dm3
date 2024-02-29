@@ -1,7 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 
 export const getNumberOfMessages =
-    (db: PrismaClient) => async (ensName: string, contactName: string) => {
+    (db: PrismaClient) =>
+    async (ensName: string, encryptedContactName: string) => {
         const account = await db.account.findFirst({
             where: {
                 id: ensName,
@@ -13,7 +14,7 @@ export const getNumberOfMessages =
         const conversation = await db.conversation.findFirst({
             where: {
                 accountId: ensName,
-                encryptedId: contactName,
+                encryptedContactName,
             },
         });
         if (!conversation) {
@@ -21,7 +22,7 @@ export const getNumberOfMessages =
         }
         const messages = await db.encryptedMessage.findMany({
             where: {
-                conversationId: conversation.encryptedId,
+                encryptedContactName,
             },
         });
         return messages.length;
