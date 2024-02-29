@@ -19,6 +19,7 @@ export const addMessageBatch =
                 ({ messageId, encryptedEnvelopContainer }) => {
                     return db.encryptedMessage.create({
                         data: {
+                            ownerId: account.id,
                             id: messageId,
                             conversationId: contactName,
                             encryptedEnvelopContainer,
