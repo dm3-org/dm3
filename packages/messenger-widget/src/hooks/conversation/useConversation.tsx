@@ -9,13 +9,12 @@ import { hydrateContract } from './hydrateContact';
 import { fetchPendingConversations } from '../../adapters/messages';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { Config } from '../../interfaces/config';
-import { WebSocketContext } from '../../context/WebSocketContext';
 import { TLDContext } from '../../context/TLDContext';
-import { GlobalContext } from '../../utils/context-utils';
+import { useDm3Configuration } from '../configuration/useDM3Configuration';
 
 export const useConversation = (config: Config) => {
     const mainnetProvider = useMainnetProvider();
-    const { state } = useContext(GlobalContext);
+    const { dm3Configuration } = useDm3Configuration();
     const { account, deliveryServiceToken } = useContext(AuthContext);
     const {
         getConversations,
@@ -95,7 +94,7 @@ export const useConversation = (config: Config) => {
             if (currentConversationsPage.length > 0) {
                 await init(page + 1);
             }
-            await handlePendingConversations(state.dm3Configuration.backendUrl);
+            await handlePendingConversations(dm3Configuration.backendUrl);
             initDefaultContact();
             setConversationsInitialized(true);
         };

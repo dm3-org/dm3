@@ -3,16 +3,16 @@ import { useContext, useEffect } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { Dm3Props } from '../../interfaces/config';
 import { GlobalContext } from '../../utils/context-utils';
-import {
-    ConnectionType,
-    DM3ConfigurationStateType,
-} from '../../utils/enum-type-utils';
+import { ConnectionType } from '../../utils/enum-type-utils';
 import Dashboard from '../../views/Dashboard/Dashboard';
 import { SignIn } from '../SignIn/SignIn';
+import { useDm3Configuration } from '../../hooks/configuration/useDM3Configuration';
 
 function DM3(props: Dm3Props) {
     // fetches context storage
     const { dispatch } = useContext(GlobalContext);
+
+    const { setDm3Configuration } = useDm3Configuration();
 
     const { isLoggedIn, account, deliveryServiceToken } =
         useContext(AuthContext);
@@ -39,11 +39,9 @@ function DM3(props: Dm3Props) {
         if (childElement && childElement.parentElement) {
             childElement.parentElement.classList.add('h-100');
         }
+
         // sets the DM3 confguration provided from props
-        dispatch({
-            type: DM3ConfigurationStateType.DM3Configuration,
-            payload: props.dm3Configuration,
-        });
+        setDm3Configuration(props.dm3Configuration);
     }, []);
 
     return (

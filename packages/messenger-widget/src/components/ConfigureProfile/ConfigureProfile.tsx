@@ -33,12 +33,15 @@ import {
     ConfigureProfileContext,
     ConfigureProfileContextProvider,
 } from './context/ConfigureProfileContext';
+import { useDm3Configuration } from '../../hooks/configuration/useDM3Configuration';
 
 export function ConfigureDM3Profile() {
     // global context state
-    const { state, dispatch } = useContext(GlobalContext);
+    const { dispatch } = useContext(GlobalContext);
 
-    const chainId = useChainId();
+    const { dm3Configuration } = useDm3Configuration();
+
+    const connectedChainId = useChainId();
 
     const {
         account,
@@ -97,7 +100,7 @@ export function ConfigureDM3Profile() {
                 return;
             }
             await submitDm3UsernameClaim(
-                state.dm3Configuration.resolverBackendUrl,
+                dm3Configuration.resolverBackendUrl,
                 profileKeys!,
                 mainnetProvider,
                 account!,
@@ -109,7 +112,7 @@ export function ConfigureDM3Profile() {
             );
         } else {
             const result = await removeAliasFromDm3Name(
-                state.dm3Configuration.resolverBackendUrl,
+                dm3Configuration.resolverBackendUrl,
                 profileKeys!,
                 account!,
                 ethAddress!,
@@ -125,9 +128,9 @@ export function ConfigureDM3Profile() {
     const changeNetwork = (serviceName: string) => {
         const chainId = fetchChainIdFromServiceName(
             serviceName,
-            state.dm3Configuration.chainId,
+            dm3Configuration.chainId,
         );
-        if (chainId && chainId !== chainId) {
+        if (chainId && chainId !== connectedChainId) {
             switchNetwork({ chainId });
         }
     };
@@ -136,7 +139,7 @@ export function ConfigureDM3Profile() {
     useEffect(() => {
         if (account!.ensName) {
             fetchExistingDM3Name(
-                state.dm3Configuration.resolverBackendUrl,
+                dm3Configuration.resolverBackendUrl,
                 mainnetProvider,
                 account!,
                 setExistingDm3Name,
@@ -159,8 +162,8 @@ export function ConfigureDM3Profile() {
     }, [ethAddress]);
 
     useEffect(() => {
-        if (chainId) {
-            setNamingServiceSelected(fetchServiceFromChainId(chainId));
+        if (connectedChainId) {
+            setNamingServiceSelected(fetchServiceFromChainId(connectedChainId));
         }
     }, []);
 
@@ -364,10 +367,7 @@ export function ConfigureDM3Profile() {
                 </div>
             </div>
 
-            {fetchComponent(
-                namingServiceSelected,
-                state.dm3Configuration.chainId,
-            )}
+            {fetchComponent(namingServiceSelected, dm3Configuration.chainId)}
         </div>
     );
 }

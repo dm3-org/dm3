@@ -21,12 +21,14 @@ import {
     ConnectDsResult,
     DeliveryServiceConnector,
 } from './DeliveryServiceConnector';
+import { useDm3Configuration } from '../configuration/useDM3Configuration';
 
 export const useAuth = () => {
     const { resolveAliasToTLD } = useContext(TLDContext);
     const { data: walletClient } = useWalletClient();
     const mainnetProvider = useMainnetProvider();
-    const { state, dispatch } = useContext(GlobalContext);
+    const { dispatch } = useContext(GlobalContext);
+    const { dm3Configuration } = useDm3Configuration();
     const { address } = useAccount({
         onDisconnect: () => signOut(),
     });
@@ -98,7 +100,7 @@ export const useAuth = () => {
         let connectDsResult: ConnectDsResult | undefined;
         try {
             connectDsResult = await DeliveryServiceConnector(
-                state.dm3Configuration,
+                dm3Configuration,
                 mainnetProvider,
                 walletClient!,
                 address!,

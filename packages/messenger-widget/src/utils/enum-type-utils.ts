@@ -6,7 +6,6 @@ import { Modal, UiState, UiViewState } from '../interfaces/context';
 import { MessageAction, MessageProps } from '../interfaces/props';
 import { NewContact } from '../interfaces/utils';
 import { Connection } from '../interfaces/web3';
-import { DM3Configuration } from '../interfaces/config';
 
 export type ActionMap<M extends { [index: string]: any }> = {
     [Key in keyof M]: M[Key] extends undefined
@@ -39,7 +38,6 @@ export type GlobalState = {
     uiState: UiState;
     uiView: UiViewState;
     modal: Modal;
-    dm3Configuration: DM3Configuration;
 };
 
 export type UiStatePayload = {
@@ -55,8 +53,7 @@ export type Actions =
     | ConnectionActions
     | UiStateActions
     | UiViewStateActions
-    | ModalStateActions
-    | DM3ConfigurationStateActions;
+    | ModalStateActions;
 
 export enum ConnectionType {
     ChangeConnectionState = 'CHANGE_CONNECTION_STATE',
@@ -146,17 +143,6 @@ export enum ModalStateType {
     ShowPreferencesModal = 'SHOW_PREFERENCES_MODAL',
     Reset = 'RESET',
 }
-
-export enum DM3ConfigurationStateType {
-    DM3Configuration = 'DM3_CONFIGURATION',
-}
-
-export type DM3ConfigurationStatePayload = {
-    [DM3ConfigurationStateType.DM3Configuration]: DM3Configuration;
-};
-
-export type DM3ConfigurationStateActions =
-    ActionMap<DM3ConfigurationStatePayload>[keyof ActionMap<DM3ConfigurationStatePayload>];
 
 export type ModalStatePayload = {
     [ModalStateType.LoaderContent]: string;

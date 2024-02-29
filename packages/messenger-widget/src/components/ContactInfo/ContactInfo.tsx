@@ -16,6 +16,7 @@ import {
 import { Button } from '../Button/Button';
 import { EnsDetails } from '../EnsDetails/EnsDetails';
 import { closeLoader, startLoader } from '../Loader/Loader';
+import { useDm3Configuration } from '../../hooks/configuration/useDM3Configuration';
 
 export function ContactInfo() {
     const { state, dispatch } = useContext(GlobalContext);
@@ -23,6 +24,7 @@ export function ContactInfo() {
         useContext(ConversationContext);
 
     const mainnetProvider = useMainnetProvider();
+    const { dm3Configuration } = useDm3Configuration();
 
     const [address, setAddress] = useState<string>('');
 
@@ -118,10 +120,7 @@ export function ContactInfo() {
                             propertyKey={'Address'}
                             propertyValue={address}
                             action={() =>
-                                openEtherscan(
-                                    address,
-                                    state.dm3Configuration.chainId,
-                                )
+                                openEtherscan(address, dm3Configuration.chainId)
                             }
                         />
                         <img

@@ -36,21 +36,5 @@ export const initialState = (backendUrl: string): GlobalState => {
             isProfileConfigurationPopupActive: false,
             showPreferencesModal: false,
         },
-        dm3Configuration: {
-            defaultContact: '',
-            defaultServiceUrl: '',
-            ethereumProvider: '',
-            walletConnectProjectId: '',
-            userEnsSubdomain: '',
-            addressEnsSubdomain: '',
-            resolverBackendUrl: '',
-            profileBaseUrl: '',
-            defaultDeliveryService: '',
-            backendUrl: '',
-            chainId: '',
-            resolverAddress: '',
-            showAlways: true,
-            showContacts: true,
-        },
     };
 };

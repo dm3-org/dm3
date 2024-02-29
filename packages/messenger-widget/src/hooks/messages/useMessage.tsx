@@ -19,7 +19,7 @@ import { renderMessage } from './renderer/renderMessage';
 import { handleMessagesFromDeliveryService } from './sources/handleMessagesFromDeliveryService';
 import { handleMessagesFromStorage } from './sources/handleMessagesFromStorage';
 import { handleMessagesFromWebSocket } from './sources/handleMessagesFromWebSocket';
-import { GlobalContext } from '../../utils/context-utils';
+import { useDm3Configuration } from '../configuration/useDM3Configuration';
 
 export type MessageModel = StorageEnvelopContainerNew & {
     reactions: Envelop[];
@@ -32,7 +32,7 @@ export type MessageStorage = {
 
 export const useMessage = () => {
     const mainnetProvider = useMainnetProvider();
-    const { state } = useContext(GlobalContext);
+    const { dm3Configuration } = useDm3Configuration();
 
     const { contacts, selectedContact, addConversation } =
         useContext(ConversationContext);
@@ -269,7 +269,7 @@ export const useMessage = () => {
                 contactName,
             ),
             handleMessagesFromDeliveryService(
-                state.dm3Configuration.backendUrl,
+                dm3Configuration.backendUrl,
                 mainnetProvider!,
                 account!,
                 deliveryServiceToken!,
