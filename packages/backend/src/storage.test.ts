@@ -29,6 +29,7 @@ import { getNumberOfMessages } from './persistance/storage/postgres/getNumberOfM
 import { toggleHideConversation } from './persistance/storage/postgres/toggleHideConversation';
 import { MessageRecord } from './persistance/storage/postgres/utils/MessageRecord';
 import storage from './storage';
+import { MessageRecord } from '@dm3-org/dm3-lib-storage';
 
 const keysA = {
     encryptionKeyPair: {
@@ -274,14 +275,15 @@ describe('Storage', () => {
             const { status: getMessagesStatus, body: messages } = await request(
                 app,
             )
-                .get(`/new/bob.eth/getMessages`)
+                .get(
+                    `/new/bob.eth/getMessages/${sha256(
+                        receiver.account.ensName,
+                    )}/0`,
+                )
                 .set({
                     authorization: `Bearer ${token}`,
                 })
-                .send({
-                    encryptedContactName: sha256(receiver.account.ensName),
-                    page: 0,
-                });
+                .send();
 
             expect(getMessagesStatus).toBe(200);
             expect(messages.length).toBe(1);
@@ -344,14 +346,15 @@ describe('Storage', () => {
             const { status: getMessagesStatus, body: messages } = await request(
                 app,
             )
-                .get(`/new/bob.eth/getMessages`)
+                .get(
+                    `/new/bob.eth/getMessages/${sha256(
+                        receiver.account.ensName,
+                    )}/0`,
+                )
                 .set({
                     authorization: `Bearer ${token}`,
                 })
-                .send({
-                    encryptedContactName: sha256(receiver.account.ensName),
-                    page: 0,
-                });
+                .send();
 
             expect(getMessagesStatus).toBe(200);
             expect(messages.length).toBe(1);
@@ -426,14 +429,15 @@ describe('Storage', () => {
             const { status: getMessagesStatus, body: messages } = await request(
                 app,
             )
-                .get(`/new/bob.eth/getMessages`)
+                .get(
+                    `/new/bob.eth/getMessages/${sha256(
+                        receiver.account.ensName,
+                    )}/0`,
+                )
                 .set({
                     authorization: `Bearer ${token}`,
                 })
-                .send({
-                    encryptedContactName: sha256(receiver.account.ensName),
-                    page: 0,
-                });
+                .send();
 
             expect(getMessagesStatus).toBe(200);
             expect(messages.length).toBe(2);
@@ -503,14 +507,15 @@ describe('Storage', () => {
             const { status: getMessagesStatus, body: messages } = await request(
                 app,
             )
-                .get(`/new/bob.eth/getMessages`)
+                .get(
+                    `/new/bob.eth/getMessages/${sha256(
+                        receiver.account.ensName,
+                    )}/0`,
+                )
                 .set({
                     authorization: `Bearer ${token}`,
                 })
-                .send({
-                    encryptedContactName: sha256(receiver.account.ensName),
-                    page: 0,
-                });
+                .send();
 
             expect(getMessagesStatus).toBe(200);
             expect(messages.length).toBe(2);
@@ -575,13 +580,15 @@ describe('Storage', () => {
                 });
 
             const { status, body } = await request(app)
-                .get(`/new/bob.eth/getNumberOfMessages`)
+                .get(
+                    `/new/bob.eth/getNumberOfMessages/${sha256(
+                        receiver.account.ensName,
+                    )}`,
+                )
                 .set({
                     authorization: `Bearer ${token}`,
                 })
-                .send({
-                    encryptedContactName: sha256(receiver.account.ensName),
-                });
+                .send();
             expect(status).toBe(200);
             expect(body).toBe(2);
         });
@@ -648,21 +655,18 @@ describe('Storage', () => {
                 })
                 .send({
                     encryptedContactName,
-                    editMessageBatchPayload: JSON.stringify(payload),
+                    editMessageBatchPayload: payload,
                 });
 
             expect(status).toBe(200);
 
             //get messages
             const { body } = await request(app)
-                .get(`/new/bob.eth/getMessages`)
+                .get(`/new/bob.eth/getMessages/${encryptedContactName}/0`)
                 .set({
                     authorization: `Bearer ${token}`,
                 })
-                .send({
-                    encryptedContactName,
-                    page: 0,
-                });
+                .send();
 
             expect(body.length).toBe(1);
             console.log('body', body);
@@ -706,21 +710,18 @@ describe('Storage', () => {
                 })
                 .send({
                     encryptedContactName: contactName,
-                    editMessageBatchPayload: JSON.stringify(updatedPayload),
+                    editMessageBatchPayload: updatedPayload,
                 });
 
             expect(editStatus).toBe(200);
 
             //get messages
             const { body } = await request(app)
-                .get(`/new/bob.eth/getMessages`)
+                .get(`/new/bob.eth/getMessages/${contactName}/0`)
                 .set({
                     authorization: `Bearer ${token}`,
                 })
-                .send({
-                    encryptedContactName: contactName,
-                    page: 0,
-                });
+                .send();
 
             expect(body.length).toBe(1);
             expect(JSON.parse(body[0]).encryptedEnvelopContainer).toBe(

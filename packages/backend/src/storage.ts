@@ -14,7 +14,11 @@ export default () => {
     router.post('/new/:ensName/editMessageBatch', async (req, res, next) => {
         const { encryptedContactName, editMessageBatchPayload } = req.body;
 
-        if (!encryptedContactName || !editMessageBatchPayload) {
+        if (
+            !encryptedContactName ||
+            !editMessageBatchPayload ||
+            !Array.isArray(editMessageBatchPayload)
+        ) {
             res.status(400).send('invalid schema');
             return;
         }
@@ -24,7 +28,7 @@ export default () => {
             await req.app.locals.db.editMessageBatch(
                 ensName,
                 encryptedContactName,
-                JSON.parse(editMessageBatchPayload),
+                editMessageBatchPayload,
             );
             return res.send();
         } catch (e) {
@@ -82,44 +86,51 @@ export default () => {
         }
     });
 
-    router.get('/new/:ensName/getMessages/', async (req, res, next) => {
-        const pageNumber = parseInt(req.body.page);
-        const encryptedContactName = req.body.encryptedContactName as string;
+    router.get(
+        '/new/:ensName/getMessages/:encryptedContactName/:page',
+        async (req, res, next) => {
+            const pageNumber = parseInt(req.params.page);
+            const encryptedContactName = req.params.encryptedContactName;
 
-        if (isNaN(pageNumber) || !encryptedContactName) {
-            res.status(400).send('invalid schema');
-            return;
-        }
-        try {
-            const ensName = normalizeEnsName(req.params.ensName);
-            const messages = await req.app.locals.db.getMessagesFromStorage(
-                ensName,
-                encryptedContactName,
-                pageNumber,
-            );
-            return res.json(messages);
-        } catch (e) {
-            next(e);
-        }
-    });
-    router.get('/new/:ensName/getNumberOfMessages/', async (req, res, next) => {
-        const encryptedContactName = req.body.encryptedContactName as string;
+            if (isNaN(pageNumber) || !encryptedContactName) {
+                res.status(400).send('invalid schema');
+                return;
+            }
+            try {
+                const ensName = normalizeEnsName(req.params.ensName);
+                const messages = await req.app.locals.db.getMessagesFromStorage(
+                    ensName,
+                    encryptedContactName,
+                    pageNumber,
+                );
+                return res.json(messages);
+            } catch (e) {
+                next(e);
+            }
+        },
+    );
+    router.get(
+        '/new/:ensName/getNumberOfMessages/:encryptedContactName',
+        async (req, res, next) => {
+            const encryptedContactName = req.params
+                .encryptedContactName as string;
 
-        if (!encryptedContactName) {
-            res.status(400).send('invalid schema');
-            return;
-        }
-        try {
-            const ensName = normalizeEnsName(req.params.ensName);
-            const messages = await req.app.locals.db.getNumberOfMessages(
-                ensName,
-                encryptedContactName,
-            );
-            return res.json(messages);
-        } catch (e) {
-            next(e);
-        }
-    });
+            if (!encryptedContactName) {
+                res.status(400).send('invalid schema');
+                return;
+            }
+            try {
+                const ensName = normalizeEnsName(req.params.ensName);
+                const messages = await req.app.locals.db.getNumberOfMessages(
+                    ensName,
+                    encryptedContactName,
+                );
+                return res.json(messages);
+            } catch (e) {
+                next(e);
+            }
+        },
+    );
 
     router.post('/new/:ensName/addConversation', async (req, res, next) => {
         const { encryptedContactName } = req.body;
