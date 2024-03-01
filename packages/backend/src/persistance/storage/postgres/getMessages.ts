@@ -1,14 +1,25 @@
 import { PrismaClient } from '@prisma/client';
+import { getOrCreateAccount } from './utils/getOrCreateAccount';
 
 const PAGE_SIZE = 100;
 
 export const getMessages =
     (db: PrismaClient) =>
-    async (ensName: string, contactName: string, page: number) => {
+    async (ensName: string, encryptedContactName: string, page: number) => {
+        const account = await db.account.findFirst({
+            where: {
+                id: ensName,
+            },
+        });
+
+        if (!account) {
+            return [];
+        }
+
         const conversation = await db.conversation.findFirst({
             where: {
                 accountId: ensName,
-                encryptedId: contactName,
+                encryptedContactName,
             },
         });
 
@@ -17,18 +28,19 @@ export const getMessages =
         }
 
         try {
-            const messages = await db.encryptedMessage.findMany({
+            const messageRecord = await db.encryptedMessage.findMany({
                 skip: page * PAGE_SIZE,
                 take: PAGE_SIZE,
                 where: {
-                    conversationId: conversation.encryptedId,
+                    ownerId: account.id,
+                    encryptedContactName,
                 },
             });
-            if (messages.length === 0) {
+            if (messageRecord.length === 0) {
                 return [];
             }
 
-            return messages.map((message: any) => JSON.stringify(message));
+            return messageRecord.map((message: any) => JSON.stringify(message));
         } catch (e) {
             console.log('getMessages error', e);
             return [];

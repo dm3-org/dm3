@@ -1,15 +1,15 @@
 /* eslint-disable max-len */
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { Conversation } from '@dm3-org/dm3-lib-storage/dist/new/types';
 import { useContext, useEffect, useMemo, useState } from 'react';
+import { fetchPendingConversations } from '../../adapters/messages';
 import { AuthContext } from '../../context/AuthContext';
 import { StorageContext } from '../../context/StorageContext';
+import { TLDContext } from '../../context/TLDContext';
+import { Config } from '../../interfaces/config';
 import { ContactPreview, getDefaultContract } from '../../interfaces/utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
-import { fetchPendingConversations } from '../../adapters/messages';
-import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
-import { Config } from '../../interfaces/config';
-import { TLDContext } from '../../context/TLDContext';
 import { useDm3Configuration } from '../configuration/useDM3Configuration';
 
 export const useConversation = (config: Config) => {
@@ -91,9 +91,9 @@ export const useConversation = (config: Config) => {
             _setContactsSafe(storedContacts);
 
             //as long as there is no pagination we fetch the next page until we get an empty page
-            if (currentConversationsPage.length > 0) {
-                await init(page + 1);
-            }
+            // if (currentConversationsPage.length > 0) {
+            //     await init(page + 1);
+            // }
             await handlePendingConversations(dm3Configuration.backendUrl);
             initDefaultContact();
             setConversationsInitialized(true);

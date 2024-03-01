@@ -1,9 +1,15 @@
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
-import { MessageRecord, Conversation } from '@dm3-org/dm3-lib-storage';
 import axios from 'axios';
-import { getAxiosConfig } from './utils';
+import { MessageRecord } from '../..';
 
 const STORAGE_PATH = '/storage/new';
+export function withAuthHeader(token: string) {
+    return {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    };
+}
 
 export async function addConversation(
     storageUrl: string,
@@ -11,16 +17,14 @@ export async function addConversation(
     ensName: string,
     encryptedContactName: string,
 ): Promise<void> {
-    const url = `${STORAGE_PATH}/new/${normalizeEnsName(
-        ensName,
-    )}/addConversation`;
+    const url = `${STORAGE_PATH}/${normalizeEnsName(ensName)}/addConversation`;
 
     await axios.post(
         `${storageUrl}${url}`,
         {
             encryptedContactName,
         },
-        getAxiosConfig(storageToken),
+        withAuthHeader(storageToken),
     );
 }
 
@@ -28,14 +32,12 @@ export async function getConversations(
     storageUrl: string,
     storageToken: string,
     ensName: string,
-): Promise<Conversation[]> {
-    const url = `${STORAGE_PATH}/new/${normalizeEnsName(
-        ensName,
-    )}/getConversations`;
+): Promise<string[]> {
+    const url = `${STORAGE_PATH}/${normalizeEnsName(ensName)}/getConversations`;
 
     const { data } = await axios.get(
         `${storageUrl}${url}`,
-        getAxiosConfig(storageToken),
+        withAuthHeader(storageToken),
     );
 
     return data ?? '';
@@ -47,7 +49,7 @@ export async function toggleHideConversation(
     encryptedContactName: string,
     hide: boolean,
 ): Promise<void> {
-    const url = `${STORAGE_PATH}/new/${normalizeEnsName(
+    const url = `${STORAGE_PATH}/${normalizeEnsName(
         ensName,
     )}/toggleHideConversation`;
 
@@ -57,22 +59,30 @@ export async function toggleHideConversation(
             encryptedContactName,
             hide,
         },
-        getAxiosConfig(storageToken),
+        withAuthHeader(storageToken),
     );
 }
 
-export function getMessagesFromStorage(
+export async function getMessagesFromStorage(
     storageUrl: string,
     storageToken: string,
     ensName: string,
     encryptedContactName: string,
     page: number,
 ): Promise<MessageRecord[]> {
-    const url = `/new/${normalizeEnsName(
+    const url = `${STORAGE_PATH}/${normalizeEnsName(
         ensName,
     )}/getMessages/${encryptedContactName}/${page}`;
 
-    return axios.get(`${storageUrl}${url}`, getAxiosConfig(storageToken));
+    const { data } = await axios.get(
+        `${storageUrl}${url}`,
+        withAuthHeader(storageToken),
+    );
+    return (
+        data.map((message: any) => {
+            return JSON.parse(message);
+        }) ?? []
+    );
 }
 
 export function addMessage(
@@ -83,7 +93,7 @@ export function addMessage(
     messageId: string,
     encryptedEnvelopContainer: string,
 ): Promise<void> {
-    const url = `/new/${normalizeEnsName(ensName)}/addMessage`;
+    const url = `${STORAGE_PATH}/${normalizeEnsName(ensName)}/addMessage`;
     return axios.post(
         `${storageUrl}${url}`,
         {
@@ -91,7 +101,7 @@ export function addMessage(
             messageId,
             encryptedEnvelopContainer,
         },
-        getAxiosConfig(storageToken),
+        withAuthHeader(storageToken),
     );
 }
 
@@ -102,14 +112,14 @@ export function addMessageBatch(
     encryptedContactName: string,
     messageBatch: MessageRecord[],
 ): Promise<void> {
-    const url = `/new/${normalizeEnsName(ensName)}/addMessageBatch`;
+    const url = `${STORAGE_PATH}/${normalizeEnsName(ensName)}/addMessageBatch`;
     return axios.post(
         `${storageUrl}${url}`,
         {
             encryptedContactName,
             messageBatch,
         },
-        getAxiosConfig(storageToken),
+        withAuthHeader(storageToken),
     );
 }
 
@@ -120,14 +130,14 @@ export async function editMessageBatch(
     encryptedContactName: string,
     editMessageBatchPayload: MessageRecord[],
 ): Promise<void> {
-    const url = `/new/${normalizeEnsName(ensName)}/editMessageBatch`;
+    const url = `${STORAGE_PATH}/${normalizeEnsName(ensName)}/editMessageBatch`;
     const { status } = await axios.post(
         `${storageUrl}${url}`,
         {
             encryptedContactName,
             editMessageBatchPayload,
         },
-        getAxiosConfig(storageToken),
+        withAuthHeader(storageToken),
     );
 
     if (status !== 200) {
@@ -141,13 +151,13 @@ export async function getNumberOfMessages(
     ensName: string,
     encryptedContactName: string,
 ): Promise<number> {
-    const url = `/new/${normalizeEnsName(
+    const url = `${STORAGE_PATH}/${normalizeEnsName(
         ensName,
     )}/getNumberOfMessages/${encryptedContactName}`;
 
     const { data } = await axios.get(
         `${storageUrl}${url}`,
-        getAxiosConfig(storageToken),
+        withAuthHeader(storageToken),
     );
 
     return data;
@@ -157,11 +167,13 @@ export async function getNumberOfConversations(
     storageToken: string,
     ensName: string,
 ): Promise<number> {
-    const url = `/new/${normalizeEnsName(ensName)}/getNumberOfConversations/`;
+    const url = `${STORAGE_PATH}/${normalizeEnsName(
+        ensName,
+    )}/getNumberOfConversations/`;
 
     const { data } = await axios.get(
         `${storageUrl}${url}`,
-        getAxiosConfig(storageToken),
+        withAuthHeader(storageToken),
     );
 
     return data;

@@ -7,20 +7,26 @@ export const addMessageBatch =
     (db: PrismaClient) =>
     async (
         ensName: string,
-        contactName: string,
+        encryptedContactName: string,
         messageBatch: MessageRecord[],
     ) => {
         try {
             const account = await getOrCreateAccount(db, ensName);
 
-            await getOrCreateConversation(db, account.id, contactName);
+            const conversation = await getOrCreateConversation(
+                db,
+                account.id,
+                encryptedContactName,
+            );
 
             const createMessagePromises = messageBatch.map(
                 ({ messageId, encryptedEnvelopContainer }) => {
                     return db.encryptedMessage.create({
                         data: {
+                            ownerId: account.id,
                             id: messageId,
-                            conversationId: contactName,
+                            conversationId: conversation.id,
+                            encryptedContactName,
                             encryptedEnvelopContainer,
                         },
                     });
