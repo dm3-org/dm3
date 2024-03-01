@@ -7,10 +7,11 @@ import {
     EncryptedPayload,
     decryptAsymmetric,
     encryptAsymmetric,
-    sign,
+    encrypt as _encrypt,
+    decrypt as _decrypt,
 } from '@dm3-org/dm3-lib-crypto';
 import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
-import { stringify } from '@dm3-org/dm3-lib-shared';
+import { sha256, stringify } from '@dm3-org/dm3-lib-shared';
 import {
     Conversation,
     StorageAPI,
@@ -43,19 +44,37 @@ export const useStorage = (
     }, [storageServiceToken, account]);
 
     const init = () => {
-        const signWithProfileKey = (data: string) => {
-            return sign(profileKeys?.signingKeyPair?.privateKey!, data);
+        const encryptSync = async (data: string) => {
+            const accountNonce = sha256(account!.ensName).slice(0, 26);
+            const encryptedPayload: EncryptedPayload = await _encrypt(
+                profileKeys?.encryptionKeyPair?.privateKey!,
+                data,
+                accountNonce,
+                1,
+            );
+            return btoa(stringify(encryptedPayload));
         };
-        const encrypt = async (data: string) => {
+        const decryptSync = async (data: string) => {
+            const payload: EncryptedPayload = JSON.parse(
+                atob(data),
+            ) as EncryptedPayload;
+
+            return await _decrypt(
+                profileKeys?.encryptionKeyPair!.privateKey!,
+                payload,
+                1,
+            );
+        };
+        const encryptAsync = async (data: string) => {
             const encryptedPayload: EncryptedPayload = await encryptAsymmetric(
                 profileKeys?.encryptionKeyPair?.publicKey!,
                 data,
             );
-            return stringify(encryptedPayload);
+            return btoa(stringify(encryptedPayload));
         };
-        const decrypt = async (data: string) => {
+        const decryptAsync = async (data: string) => {
             const payload: EncryptedPayload = JSON.parse(
-                data,
+                atob(data),
             ) as EncryptedPayload;
 
             return await decryptAsymmetric(
@@ -69,8 +88,10 @@ export const useStorage = (
             storageServiceToken!,
             account!.ensName,
             {
-                encrypt,
-                decrypt,
+                encryptAsync,
+                decryptAsync,
+                encryptSync,
+                decryptSync,
             },
         );
 

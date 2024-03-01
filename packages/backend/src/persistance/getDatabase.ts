@@ -7,7 +7,6 @@ import {
     spamFilter,
 } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
-import { UserStorage } from '@dm3-org/dm3-lib-storage';
 import { PrismaClient } from '@prisma/client';
 import { createClient } from 'redis';
 import { getAliasChain, getIdEnsName } from './getIdEnsName';
@@ -19,6 +18,7 @@ import Pending from './pending';
 import Session from './session';
 import Storage from './storage';
 import { MessageRecord } from './storage/postgres/utils/MessageRecord';
+import { UserStorage } from '@dm3-org/dm3-lib-storage';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',

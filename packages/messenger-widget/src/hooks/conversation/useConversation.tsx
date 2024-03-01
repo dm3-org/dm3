@@ -91,11 +91,12 @@ export const useConversation = (config: Config) => {
             _setContactsSafe(storedContacts);
 
             //as long as there is no pagination we fetch the next page until we get an empty page
-            if (currentConversationsPage.length > 0) {
-                await init(page + 1);
-            }
+            // if (currentConversationsPage.length > 0) {
+            //     await init(page + 1);
+            // }
             await handlePendingConversations(dm3Configuration.backendUrl);
-            initDefaultContact();
+            // initDefaultContact();
+
             setConversationsInitialized(true);
         };
         init();

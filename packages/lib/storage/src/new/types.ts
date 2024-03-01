@@ -40,6 +40,8 @@ export interface Conversation {
 }
 
 export type Encryption = {
-    encrypt: (data: string) => Promise<string>;
-    decrypt: (data: string) => Promise<string>;
+    encryptAsync: (data: string) => Promise<string>;
+    decryptAsync: (data: string) => Promise<string>;
+    encryptSync: (data: string) => Promise<string>;
+    decryptSync: (data: string) => Promise<string>;
 };

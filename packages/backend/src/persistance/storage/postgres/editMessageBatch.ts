@@ -7,9 +7,10 @@ export const editMessageBatch =
     (db: PrismaClient) =>
     async (
         ensName: string,
-        contactName: string,
+        encryptedContactName: string,
         editMessageBatchPayload: MessageRecord[],
     ) => {
+        console.log('editMessageBatchPayload', editMessageBatchPayload);
         const account = await getOrCreateAccount(db, ensName);
 
         await Promise.all(
@@ -17,7 +18,7 @@ export const editMessageBatch =
                 const conversation = await getOrCreateConversation(
                     db,
                     account.id,
-                    contactName,
+                    encryptedContactName,
                 );
 
                 const messageExists = await db.encryptedMessage.findFirst({
@@ -29,8 +30,10 @@ export const editMessageBatch =
                 if (!messageExists) {
                     return await db.encryptedMessage.create({
                         data: {
+                            ownerId: account.id,
                             id: payload.messageId,
-                            conversationId: conversation.encryptedId,
+                            conversationId: conversation.id,
+                            encryptedContactName,
                             encryptedEnvelopContainer:
                                 payload.encryptedEnvelopContainer,
                         },
