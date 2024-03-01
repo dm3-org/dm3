@@ -21,7 +21,6 @@ import {
 import auth from './auth';
 import { addConversation } from './persistance/storage/postgres/addConversation';
 import { addMessageBatch } from './persistance/storage/postgres/addMessageBatch';
-import { editMessageBatch } from './persistance/storage/postgres/editMessageBatch';
 import { getConversationList } from './persistance/storage/postgres/getConversationList';
 import { getMessages } from './persistance/storage/postgres/getMessages';
 import { getNumberOfConversations } from './persistance/storage/postgres/getNumberOfConversations';
@@ -29,7 +28,7 @@ import { getNumberOfMessages } from './persistance/storage/postgres/getNumberOfM
 import { toggleHideConversation } from './persistance/storage/postgres/toggleHideConversation';
 import { MessageRecord } from './persistance/storage/postgres/utils/MessageRecord';
 import storage from './storage';
-import { MessageRecord } from '@dm3-org/dm3-lib-storage';
+import { editMessageBatch } from './persistance/storage/postgres/editMessageBatch';
 
 const keysA = {
     encryptionKeyPair: {

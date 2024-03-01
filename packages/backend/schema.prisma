@@ -10,18 +10,20 @@ generator client {
 model EncryptedMessage {
     id                        String       @id
     encryptedEnvelopContainer String
+    encryptedContactName      String
     conversationId            String
-    conversation              Conversation @relation(fields: [conversationId], references: [encryptedId])
+    conversation              Conversation @relation(fields: [conversationId], references: [id])
     ownerId                   String
     owner                     Account      @relation(fields: [ownerId], references: [id])
 }
 
 model Conversation {
-    encryptedId String             @id
-    Message     EncryptedMessage[]
-    Account     Account            @relation(fields: [accountId], references: [id])
-    accountId   String
-    isHidden    Boolean            @default(false)
+    id                   String             @id @default(uuid())
+    encryptedContactName String
+    Message              EncryptedMessage[]
+    Account              Account            @relation(fields: [accountId], references: [id])
+    accountId            String
+    isHidden             Boolean            @default(false)
 }
 
 model Account {
