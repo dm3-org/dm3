@@ -16,17 +16,16 @@ import { Dm3Props } from '../../interfaces/config';
 import './Home.css';
 import { useContext, useMemo } from 'react';
 import { gnosis, goerli, mainnet } from 'wagmi/chains';
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { Loader } from '../../components/Loader/Loader';
 import { AuthContextProvider } from '../../context/AuthContext';
 import { ConversationContextProvider } from '../../context/ConversationContext';
 import { MessageContextProvider } from '../../context/MessageContext';
 import { MainnetProviderContextProvider } from '../../context/ProviderContext';
 import { StorageContextProvider } from '../../context/StorageContext';
+import { TLDContextProvider } from '../../context/TLDContext';
 import { WebSocketContextProvider } from '../../context/WebSocketContext';
 import { GlobalContext } from '../../utils/context-utils';
-import './Home.css';
-import { TLDContextProvider } from '../../context/TLDContext';
-import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 // @ts-ignore
 import { WagmiProvider, http, createConfig } from 'wagmi';
 
