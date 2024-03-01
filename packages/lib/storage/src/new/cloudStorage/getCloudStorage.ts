@@ -18,7 +18,9 @@ export const getCloudStorage = (
     encryption: Encryption,
 ): StorageAPI => {
     const _addConversation = async (contactEnsName: string) => {
-        const encryptedContactName = await encryption.encrypt(contactEnsName);
+        const encryptedContactName = await encryption.encryptSync(
+            contactEnsName,
+        );
         console.log('store new contact ', encryptedContactName);
         return await addConversation(
             storageUrl,
@@ -38,7 +40,7 @@ export const getCloudStorage = (
         return await Promise.all(
             encryptedConversations.map(
                 async (encryptedContactName: string) => ({
-                    contactEnsName: await encryption.decrypt(
+                    contactEnsName: await encryption.decryptSync(
                         encryptedContactName,
                     ),
                     isHidden: false,
@@ -48,16 +50,19 @@ export const getCloudStorage = (
         );
     };
     const getMessages = async (contactEnsName: string, page: number) => {
+        const encryptedContactName = await encryption.encryptSync(
+            contactEnsName,
+        );
         const messageRecords = await getMessagesFromStorage(
             storageUrl,
             storageToken,
             ensName,
-            contactEnsName,
+            encryptedContactName,
             page,
         );
         const decryptedMessageRecords = await Promise.all(
             messageRecords.map(async (messageRecord: MessageRecord) => {
-                const decryptedEnvelopContainer = await encryption.decrypt(
+                const decryptedEnvelopContainer = await encryption.decryptAsync(
                     messageRecord.encryptedEnvelopContainer,
                 );
                 return JSON.parse(decryptedEnvelopContainer);
@@ -72,9 +77,10 @@ export const getCloudStorage = (
         contactEnsName: string,
         envelop: StorageEnvelopContainer,
     ) => {
-        const encryptedContactName = await encryption.encrypt(contactEnsName);
-
-        const encryptedEnvelopContainer = await encryption.encrypt(
+        const encryptedContactName = await encryption.encryptSync(
+            contactEnsName,
+        );
+        const encryptedEnvelopContainer = await encryption.encryptAsync(
             JSON.stringify(envelop),
         );
         await addMessage(
@@ -92,18 +98,24 @@ export const getCloudStorage = (
         contactEnsName: string,
         batch: StorageEnvelopContainer[],
     ) => {
-        const encryptedContactName = await encryption.encrypt(contactEnsName);
-
+        const encryptedContactName = await encryption.encryptSync(
+            contactEnsName,
+        );
         const encryptedMessages: MessageRecord[] = await Promise.all(
-            batch.map(async (message: StorageEnvelopContainer) => {
-                const encryptedEnvelopContainer = await encryption.encrypt(
-                    JSON.stringify(message.envelop),
-                );
-                return {
-                    encryptedEnvelopContainer,
-                    messageId: message.envelop.metadata?.encryptedMessageHash!,
-                };
-            }),
+            batch.map(
+                async (storageEnvelopContainer: StorageEnvelopContainer) => {
+                    const encryptedEnvelopContainer =
+                        await encryption.encryptAsync(
+                            JSON.stringify(storageEnvelopContainer),
+                        );
+                    return {
+                        encryptedEnvelopContainer,
+                        messageId:
+                            storageEnvelopContainer.envelop.metadata
+                                ?.encryptedMessageHash!,
+                    };
+                },
+            ),
         );
         await addMessageBatch(
             storageUrl,
@@ -120,17 +132,24 @@ export const getCloudStorage = (
         contactEnsName: string,
         batch: StorageEnvelopContainer[],
     ) => {
-        const encryptedContactName = await encryption.encrypt(contactEnsName);
+        const encryptedContactName = await encryption.encryptSync(
+            contactEnsName,
+        );
         const encryptedMessages: MessageRecord[] = await Promise.all(
-            batch.map(async (message: StorageEnvelopContainer) => {
-                const encryptedEnvelopContainer = await encryption.encrypt(
-                    JSON.stringify(message.envelop),
-                );
-                return {
-                    encryptedEnvelopContainer,
-                    messageId: message.envelop.metadata?.encryptedMessageHash!,
-                };
-            }),
+            batch.map(
+                async (storageEnvelopContainer: StorageEnvelopContainer) => {
+                    const encryptedEnvelopContainer =
+                        await encryption.encryptAsync(
+                            JSON.stringify(storageEnvelopContainer),
+                        );
+                    return {
+                        encryptedEnvelopContainer,
+                        messageId:
+                            storageEnvelopContainer.envelop.metadata
+                                ?.encryptedMessageHash!,
+                    };
+                },
+            ),
         );
         await editMessageBatch(
             storageUrl,
@@ -142,7 +161,9 @@ export const getCloudStorage = (
     };
 
     const _getNumberOfMessages = async (contactEnsName: string) => {
-        const encryptedContactName = await encryption.encrypt(contactEnsName);
+        const encryptedContactName = await encryption.encryptSync(
+            contactEnsName,
+        );
         return await getNumberOfMessages(
             storageUrl,
             storageToken,
@@ -163,7 +184,9 @@ export const getCloudStorage = (
         contactEnsName: string,
         hide: boolean,
     ) => {
-        const encryptedContactName = await encryption.encrypt(contactEnsName);
+        const encryptedContactName = await encryption.encryptSync(
+            contactEnsName,
+        );
         await toggleHideConversation(
             storageUrl,
             storageToken,
