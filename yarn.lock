@@ -2606,7 +2606,7 @@ __metadata:
     "@rollup/plugin-node-resolve": ^13.3.0
     "@rollup/plugin-typescript": ^8.3.3
     "@rollup/plugin-url": ^7.0.0
-    "@tanstack/react-query": ^5.24.1
+    "@tanstack/react-query": ^5.22.2
     "@testing-library/dom": ^9.3.1
     "@testing-library/jest-dom": ^6.1.3
     "@testing-library/react": ^14.0.0
@@ -2652,7 +2652,7 @@ __metadata:
     typescript: ^4.4.2
     url-loader: ^4.1.1
     uuid: ^8.3.2
-    viem: 2.x
+    viem: ^2.7.12
     wagmi: ^2.5.7
     web-vitals: ^2.1.0
     web3.storage: ^3.5.7
@@ -7235,7 +7235,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^5.24.1":
+"@tanstack/react-query@npm:^5.22.2":
   version: 5.24.1
   resolution: "@tanstack/react-query@npm:5.24.1"
   dependencies:
@@ -33088,27 +33088,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"viem@npm:2.x":
-  version: 2.7.15
-  resolution: "viem@npm:2.7.15"
-  dependencies:
-    "@adraffy/ens-normalize": 1.10.0
-    "@noble/curves": 1.2.0
-    "@noble/hashes": 1.3.2
-    "@scure/bip32": 1.3.2
-    "@scure/bip39": 1.2.1
-    abitype: 1.0.0
-    isows: 1.0.3
-    ws: 8.13.0
-  peerDependencies:
-    typescript: ">=5.0.4"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: d0d3a9b48fcf64298c08d57dd782fdf6f21538c6472ebc87953928d860f5fd6296a7e22f46f230d68b667df6505fa472414cc3d8e7a041ea2a7f1fd45bc013de
-  languageName: node
-  linkType: hard
-
 "viem@npm:^0.3.36":
   version: 0.3.50
   resolution: "viem@npm:0.3.50"
@@ -33166,6 +33145,27 @@ __metadata:
     typescript:
       optional: true
   checksum: c351fdea2d53d2d781ac73c964348b3b9fc5dd46f9eb53903e867705fc9e30a893cb9f2c8d7a00acdcdeca27d14eeebf976eed9f948c28c47018dc9211369117
+  languageName: node
+  linkType: hard
+
+"viem@npm:^2.7.12":
+  version: 2.7.16
+  resolution: "viem@npm:2.7.16"
+  dependencies:
+    "@adraffy/ens-normalize": 1.10.0
+    "@noble/curves": 1.2.0
+    "@noble/hashes": 1.3.2
+    "@scure/bip32": 1.3.2
+    "@scure/bip39": 1.2.1
+    abitype: 1.0.0
+    isows: 1.0.3
+    ws: 8.13.0
+  peerDependencies:
+    typescript: ">=5.0.4"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: d1563bf4f1af2b2ce696081fa8912c2ff0eefb9d48a7b0ae68402cb274f98ecd9199123e747236b9ec3984307942c66ffc2bb2da3e2251154927f255ca8b1756
   languageName: node
   linkType: hard
 

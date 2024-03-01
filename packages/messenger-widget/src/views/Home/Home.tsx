@@ -60,7 +60,7 @@ export function Home(props: Dm3Props) {
     // Note that gnosis mainnet is used for both setups because there is no spaceId testnet deploymend yet
     const wagmiConfigProvider = createConfig({
         connectors,
-        chains: [gnosis, ethChain],
+        chains: [ethChain, gnosis],
         transports: {
             [ethChain.id]: http(),
             [gnosis.id]: http(),
