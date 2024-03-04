@@ -28,7 +28,6 @@ export interface StorageAPI {
 }
 
 export interface StorageEnvelopContainer {
-    messageChunkKey: string;
     messageState: MessageState;
     envelop: Envelop;
 }

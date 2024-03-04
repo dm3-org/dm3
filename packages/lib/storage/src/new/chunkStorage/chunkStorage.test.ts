@@ -2,11 +2,15 @@ import { MessageState } from '@dm3-org/dm3-lib-messaging';
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import { createChunkStorageStorage as createStorage } from './createChunkStorageStorage';
 import { makeEnvelop } from './testHelper';
-import { Chunk, ReadStrategy } from './ChunkStorageTypes';
-import { StorageAPI, StorageEnvelopContainer } from '../types';
+import {
+    Chunk,
+    ReadStrategy,
+    StorageEnvelopContainer,
+} from './ChunkStorageTypes';
+import { StorageAPI } from '../types';
 
 describe('createStorage Integration Tests', () => {
-    let storageApi: StorageAPI;
+    let storageApi: any;
     let remoteKeyValueStore: any;
 
     describe('Remote first', () => {

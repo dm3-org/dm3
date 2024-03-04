@@ -1,5 +1,4 @@
 import { Envelop, MessageState } from '@dm3-org/dm3-lib-messaging';
-import { StorageEnvelopContainer } from '../types';
 
 export const INITIAL_ACCOUNT_MANIFEST = (key: string): AccountManifest => ({
     conversationListCounter: 0,
@@ -76,3 +75,8 @@ export type MessageRecord = {
     messageId: string;
     encryptedEnvelopContainer: string;
 };
+export interface StorageEnvelopContainer {
+    messageState: MessageState;
+    envelop: Envelop;
+    messageChunkKey: string;
+}
