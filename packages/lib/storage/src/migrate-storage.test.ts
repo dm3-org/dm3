@@ -135,4 +135,32 @@ describe('MigrateStorage', () => {
             'bob.addr.user.dm3.eth',
         );
     });
+    it('resolve tld names', async () => {
+        const profileKeys = await getMockProfileKeys();
+        const db = createDB(profileKeys);
+        db.conversations.set(USER_1, [
+            getStorageEnvelopeContainer('hello', 1),
+            getStorageEnvelopeContainer('dm3', 2),
+        ]);
+        db.conversations.set('foo.addr.user.dm3.gno', [
+            getStorageEnvelopeContainer('123', 1),
+            getStorageEnvelopeContainer('456', 2),
+        ]);
+
+        const tldResolver = async (ensName: string) => {
+            return ensName.replace('.eth', '.addr.user.dm3.eth');
+        };
+
+        await migrageStorage(db, newStorage, tldResolver);
+
+        const newConversations = await newStorage.getConversationList(0);
+        0.45;
+        expect(newConversations.length).toBe(2);
+        expect(newConversations[0].contactEnsName).toBe(
+            'alice.addr.user.dm3.eth',
+        );
+        expect(newConversations[1].contactEnsName).toBe(
+            'foo.addr.user.dm3.gno',
+        );
+    });
 });
