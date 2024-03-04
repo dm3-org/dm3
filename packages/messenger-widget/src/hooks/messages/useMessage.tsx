@@ -201,7 +201,7 @@ export const useMessage = () => {
                     message,
                 },
                 messageState: MessageState.Created,
-                messageChunkKey: '',
+
                 reactions: [],
             };
             setMessages((prev) => {
@@ -231,7 +231,6 @@ export const useMessage = () => {
         const messageModel = {
             envelop,
             messageState: MessageState.Created,
-            messageChunkKey: '',
             reactions: [],
         };
 

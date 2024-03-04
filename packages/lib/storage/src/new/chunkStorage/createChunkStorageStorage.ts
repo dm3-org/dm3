@@ -17,13 +17,14 @@ import {
     INITIAL_CONVERSATION_MANIFEST,
     KeyValueStore,
     ReadStrategy,
+    StorageEnvelopContainer,
 } from './ChunkStorageTypes';
 import {
     addConversation,
     addMessages,
     editMessage as editMessages,
 } from './write';
-import { StorageAPI, StorageEnvelopContainer } from '../types';
+import { StorageAPI } from '../types';
 
 /**
  * This function creates a closure that, when invoked, adds a new conversation
@@ -268,7 +269,7 @@ export function createChunkStorageStorage(
         keyValueStoreRemote: KeyValueStore;
         encryption: Encryption;
     }>,
-): StorageAPI {
+) {
     // If no Encryption object is provided, store the data as palintext
     const encryption = options?.encryption ?? {
         encrypt: (input: string) => Promise.resolve(input),

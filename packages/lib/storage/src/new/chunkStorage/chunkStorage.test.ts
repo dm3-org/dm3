@@ -10,7 +10,7 @@ import {
 import { StorageAPI } from '../types';
 
 describe('createStorage Integration Tests', () => {
-    let storageApi: StorageAPI;
+    let storageApi: any;
     let remoteKeyValueStore: any;
 
     describe('Remote first', () => {
