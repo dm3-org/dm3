@@ -29,6 +29,14 @@ import { toggleHideConversation } from './persistance/storage/postgres/toggleHid
 import { MessageRecord } from './persistance/storage/postgres/utils/MessageRecord';
 import storage from './storage';
 import { editMessageBatch } from './persistance/storage/postgres/editMessageBatch';
+import { getUserDbMigrationStatus } from './persistance/storage/getUserDbMigrationStatus';
+import {
+    IDatabase,
+    Redis,
+    getDatabase,
+    getRedisClient,
+} from './persistance/getDatabase';
+import { setUserDbMigrated } from './persistance/storage/setUserDbMigrated';
 
 const keysA = {
     encryptionKeyPair: {
@@ -55,11 +63,16 @@ describe('Storage', () => {
     let sender: MockedUserProfile;
     let receiver: MockedUserProfile;
     let deliveryService: MockedDeliveryServiceProfile;
+
+    let redisClient: Redis;
+
     beforeEach(async () => {
         prisma = new PrismaClient();
+        redisClient = await getRedisClient();
+
+        await redisClient.flushDb();
         app = express();
         app.use(bodyParser.json());
-        app.use(storage());
 
         token = await createAuthToken();
 
@@ -93,6 +106,7 @@ describe('Storage', () => {
                 return (_: any, __: any, ___: any) => {};
             },
             getIdEnsName: async (ensName: string) => ensName,
+
             editMessageBatch: editMessageBatch(prisma),
             addMessageBatch: addMessageBatch(prisma),
             getMessagesFromStorage: getMessages(prisma),
@@ -101,7 +115,10 @@ describe('Storage', () => {
             getNumberOfMessages: getNumberOfMessages(prisma),
             getNumberOfConverations: getNumberOfConversations(prisma),
             toggleHideConversation: toggleHideConversation(prisma),
+            getUserDbMigrationStatus: getUserDbMigrationStatus(redisClient),
+            setUserDbMigrated: setUserDbMigrated(redisClient),
         };
+        app.use(storage(app.locals.db));
 
         app.locals.web3Provider = {
             resolveName: async () =>
@@ -113,6 +130,8 @@ describe('Storage', () => {
         await prisma.encryptedMessage.deleteMany();
         await prisma.conversation.deleteMany();
         await prisma.account.deleteMany();
+        await redisClient.flushDb();
+        await redisClient.disconnect();
     });
 
     describe('addConversation', () => {
@@ -822,6 +841,36 @@ describe('Storage', () => {
             expect(JSON.parse(body[0]).encryptedEnvelopContainer).toBe(
                 updatedPayload[0].encryptedEnvelopContainer,
             );
+        });
+    });
+    describe('Migration', () => {
+        it('should migrate storage', async () => {
+            const { body: preMigrationStatus } = await request(app)
+                .get(`/new/bob.eth/migrationStatus`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+
+            expect(preMigrationStatus).toBe(false);
+
+            const { status } = await request(app)
+                .post(`/new/bob.eth/migrationStatus`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+
+            expect(status).toBe(200);
+
+            const { body: postMigrationStatus } = await request(app)
+                .get(`/new/bob.eth/migrationStatus`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+
+            expect(postMigrationStatus).toBe(true);
         });
     });
 });

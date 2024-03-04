@@ -71,7 +71,7 @@ global.logger = winston.createLogger({
         return res.send('Hello DM3');
     });
     app.use('/profile', Profile());
-    app.use('/storage', Storage());
+    app.use('/storage', Storage(app.locals.db));
     app.use('/auth', Auth());
     app.use('/delivery', Delivery());
     app.use(
