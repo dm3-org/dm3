@@ -2,8 +2,12 @@ import { MessageState } from '@dm3-org/dm3-lib-messaging';
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import { createChunkStorageStorage as createStorage } from './createChunkStorageStorage';
 import { makeEnvelop } from './testHelper';
-import { Chunk, ReadStrategy } from './ChunkStorageTypes';
-import { StorageAPI, StorageEnvelopContainer } from '../types';
+import {
+    Chunk,
+    ReadStrategy,
+    StorageEnvelopContainer,
+} from './ChunkStorageTypes';
+import { StorageAPI } from '../types';
 
 describe('createStorage Integration Tests', () => {
     let storageApi: StorageAPI;
@@ -111,7 +115,6 @@ describe('createStorage Integration Tests', () => {
             expect(messageChunk.length).toBe(1);
             expect(messageChunk[0]).toEqual({
                 ...storageEnvelopContainer,
-                messageChunkKey: messageChunk[0].messageChunkKey,
             });
         });
         it('edit message - edits storage envelop container', async () => {
@@ -413,17 +416,14 @@ describe('createStorage Integration Tests', () => {
                 {
                     envelop,
                     messageState: MessageState.Created,
-                    messageChunkKey: '',
                 },
                 {
                     envelop: envelop2,
                     messageState: MessageState.Created,
-                    messageChunkKey: '',
                 },
                 {
                     envelop: envelop3,
                     messageState: MessageState.Created,
-                    messageChunkKey: '',
                 },
             ]);
 
@@ -490,15 +490,12 @@ describe('createStorage Integration Tests', () => {
 
             expect(messages[0]).toEqual({
                 ...storageEnvelopContainer,
-                messageChunkKey: messages[0].messageChunkKey,
             });
             expect(messages[1]).toEqual({
                 ...storageEnvelopContainer,
-                messageChunkKey: messages[1].messageChunkKey,
             });
             expect(messages[2]).toEqual({
                 ...storageEnvelopContainer,
-                messageChunkKey: messages[2].messageChunkKey,
             });
         });
         it('getMessages -- return [] if no converation exists', async () => {
@@ -579,7 +576,6 @@ describe('createStorage Integration Tests', () => {
             expect(getMessages.length).toBe(1);
             expect(getMessages[0]).toEqual({
                 ...storageEnvelopContainer,
-                messageChunkKey: getMessages[0].messageChunkKey,
             });
         });
         it('hide conversation -- conversation can be hidden', async () => {
@@ -656,7 +652,6 @@ describe('createStorage Integration Tests', () => {
             expect(messageChunk.length).toBe(1);
             expect(messageChunk[0]).toEqual({
                 ...storageEnvelopContainer,
-                messageChunkKey: messageChunk[0].messageChunkKey,
             });
         });
         it('add new message - updates number of messages', async () => {
@@ -694,15 +689,12 @@ describe('createStorage Integration Tests', () => {
 
             expect(messages[0]).toEqual({
                 ...storageEnvelopContainer,
-                messageChunkKey: messages[0].messageChunkKey,
             });
             expect(messages[1]).toEqual({
                 ...storageEnvelopContainer,
-                messageChunkKey: messages[1].messageChunkKey,
             });
             expect(messages[2]).toEqual({
                 ...storageEnvelopContainer,
-                messageChunkKey: messages[2].messageChunkKey,
             });
         });
         it('getMessages -- return [] if no converation exists', async () => {
@@ -753,7 +745,6 @@ describe('createStorage Integration Tests', () => {
             expect(getMessages.length).toBe(1);
             expect(getMessages[0]).toEqual({
                 ...storageEnvelopContainer,
-                messageChunkKey: getMessages[0].messageChunkKey,
             });
         });
         it('hide conversation -- conversation can be hidden', async () => {
