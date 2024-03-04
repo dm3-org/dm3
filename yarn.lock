@@ -2364,7 +2364,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@dm3-org/dm3-lib-crypto@1.0.6, @dm3-org/dm3-lib-crypto@workspace:^, @dm3-org/dm3-lib-crypto@workspace:packages/lib/crypto":
+"@dm3-org/dm3-lib-crypto@workspace:^, @dm3-org/dm3-lib-crypto@workspace:packages/lib/crypto":
   version: 0.0.0-use.local
   resolution: "@dm3-org/dm3-lib-crypto@workspace:packages/lib/crypto"
   dependencies:
@@ -2378,7 +2378,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@dm3-org/dm3-lib-delivery-api@1.0.6, @dm3-org/dm3-lib-delivery-api@workspace:^, @dm3-org/dm3-lib-delivery-api@workspace:packages/lib/delivery-api":
+"@dm3-org/dm3-lib-delivery-api@workspace:^, @dm3-org/dm3-lib-delivery-api@workspace:packages/lib/delivery-api":
   version: 0.0.0-use.local
   resolution: "@dm3-org/dm3-lib-delivery-api@workspace:packages/lib/delivery-api"
   dependencies:
@@ -2425,7 +2425,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@dm3-org/dm3-lib-messaging@1.0.6, @dm3-org/dm3-lib-messaging@workspace:^, @dm3-org/dm3-lib-messaging@workspace:packages/lib/messaging":
+"@dm3-org/dm3-lib-messaging@workspace:^, @dm3-org/dm3-lib-messaging@workspace:packages/lib/messaging":
   version: 0.0.0-use.local
   resolution: "@dm3-org/dm3-lib-messaging@workspace:packages/lib/messaging"
   dependencies:
@@ -2461,7 +2461,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@dm3-org/dm3-lib-profile@1.0.6, @dm3-org/dm3-lib-profile@workspace:^, @dm3-org/dm3-lib-profile@workspace:packages/lib/profile":
+"@dm3-org/dm3-lib-profile@workspace:^, @dm3-org/dm3-lib-profile@workspace:packages/lib/profile":
   version: 0.0.0-use.local
   resolution: "@dm3-org/dm3-lib-profile@workspace:packages/lib/profile"
   dependencies:
@@ -2484,7 +2484,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@dm3-org/dm3-lib-shared@1.0.6, @dm3-org/dm3-lib-shared@workspace:^, @dm3-org/dm3-lib-shared@workspace:packages/lib/shared":
+"@dm3-org/dm3-lib-shared@workspace:^, @dm3-org/dm3-lib-shared@workspace:packages/lib/shared":
   version: 0.0.0-use.local
   resolution: "@dm3-org/dm3-lib-shared@workspace:packages/lib/shared"
   dependencies:
@@ -2493,7 +2493,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@dm3-org/dm3-lib-storage@1.0.6, @dm3-org/dm3-lib-storage@workspace:^, @dm3-org/dm3-lib-storage@workspace:packages/lib/storage":
+"@dm3-org/dm3-lib-storage@workspace:^, @dm3-org/dm3-lib-storage@workspace:packages/lib/storage":
   version: 0.0.0-use.local
   resolution: "@dm3-org/dm3-lib-storage@workspace:packages/lib/storage"
   dependencies:
@@ -2591,12 +2591,12 @@ __metadata:
   resolution: "@dm3-org/dm3-messenger-widget@workspace:packages/messenger-widget"
   dependencies:
     "@babel/core": ^7.22.5
-    "@dm3-org/dm3-lib-crypto": 1.0.6
-    "@dm3-org/dm3-lib-delivery-api": 1.0.6
-    "@dm3-org/dm3-lib-messaging": 1.0.6
-    "@dm3-org/dm3-lib-profile": 1.0.6
-    "@dm3-org/dm3-lib-shared": 1.0.6
-    "@dm3-org/dm3-lib-storage": 1.0.6
+    "@dm3-org/dm3-lib-crypto": "workspace:^"
+    "@dm3-org/dm3-lib-delivery-api": "workspace:^"
+    "@dm3-org/dm3-lib-messaging": "workspace:^"
+    "@dm3-org/dm3-lib-profile": "workspace:^"
+    "@dm3-org/dm3-lib-shared": "workspace:^"
+    "@dm3-org/dm3-lib-storage": "workspace:^"
     "@emoji-mart/data": ^1.1.2
     "@emoji-mart/react": ^1.1.1
     "@popperjs/core": ^2.11.8
