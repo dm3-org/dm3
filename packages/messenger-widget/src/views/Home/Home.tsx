@@ -28,6 +28,7 @@ import { WebSocketContextProvider } from '../../context/WebSocketContext';
 import { GlobalContext } from '../../utils/context-utils';
 // @ts-ignore
 import { WagmiProvider, http, createConfig } from 'wagmi';
+import { DM3ConfigurationContextProvider } from '../../context/DM3ConfigurationContext';
 
 export function Home(props: Dm3Props) {
     // fetches context api data
@@ -74,31 +75,35 @@ export function Home(props: Dm3Props) {
             <WagmiProvider config={wagmiConfigProvider}>
                 <QueryClientProvider client={queryClient}>
                     <RainbowKitProvider theme={darkTheme()}>
-                        <MainnetProviderContextProvider
-                            dm3Configuration={props.dm3Configuration}
-                        >
-                            <TLDContextProvider>
-                                <AuthContextProvider dispatch={dispatch}>
-                                    <WebSocketContextProvider>
-                                        <StorageContextProvider>
-                                            {/* TODO move conversation and message contest further done as it dont need to be stored in the globlal state */}
-                                            <ConversationContextProvider
-                                                config={props.config}
-                                            >
-                                                <MessageContextProvider>
-                                                    <DM3
-                                                        config={props.config}
-                                                        dm3Configuration={
-                                                            props.dm3Configuration
-                                                        }
-                                                    />
-                                                </MessageContextProvider>
-                                            </ConversationContextProvider>
-                                        </StorageContextProvider>
-                                    </WebSocketContextProvider>
-                                </AuthContextProvider>
-                            </TLDContextProvider>
-                        </MainnetProviderContextProvider>
+                        <DM3ConfigurationContextProvider>
+                            <MainnetProviderContextProvider
+                                dm3Configuration={props.dm3Configuration}
+                            >
+                                <TLDContextProvider>
+                                    <AuthContextProvider dispatch={dispatch}>
+                                        <WebSocketContextProvider>
+                                            <StorageContextProvider>
+                                                {/* TODO move conversation and message contest further done as it dont need to be stored in the globlal state */}
+                                                <ConversationContextProvider
+                                                    config={props.config}
+                                                >
+                                                    <MessageContextProvider>
+                                                        <DM3
+                                                            config={
+                                                                props.config
+                                                            }
+                                                            dm3Configuration={
+                                                                props.dm3Configuration
+                                                            }
+                                                        />
+                                                    </MessageContextProvider>
+                                                </ConversationContextProvider>
+                                            </StorageContextProvider>
+                                        </WebSocketContextProvider>
+                                    </AuthContextProvider>
+                                </TLDContextProvider>
+                            </MainnetProviderContextProvider>
+                        </DM3ConfigurationContextProvider>
                     </RainbowKitProvider>
                 </QueryClientProvider>
             </WagmiProvider>

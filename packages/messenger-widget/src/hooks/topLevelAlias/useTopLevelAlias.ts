@@ -5,7 +5,7 @@ import { EthAddressResolver } from './nameService/EthAddress';
 import { EthereumNameService } from './nameService/EthereumNameService';
 import { Genome } from './nameService/Genome';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
-import { useDm3Configuration } from '../configuration/useDM3Configuration';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 const SUPPORTED_NAMESERVICES = (provider: ethers.providers.JsonRpcProvider) => [
     new EthereumNameService(provider),
@@ -20,7 +20,7 @@ export type TldAliasCache = {
 
 export const useTopLevelAlias = () => {
     const mainnetProvider = useMainnetProvider();
-    const { dm3Configuration } = useDm3Configuration();
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const [tldAliasCache, setTldAliasCache] = useState<TldAliasCache>({});
 
     //e.g. 0x1234.gnosis.eth -> 0x1234.gno

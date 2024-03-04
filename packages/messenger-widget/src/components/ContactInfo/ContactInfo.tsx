@@ -16,7 +16,7 @@ import {
 import { Button } from '../Button/Button';
 import { EnsDetails } from '../EnsDetails/EnsDetails';
 import { closeLoader, startLoader } from '../Loader/Loader';
-import { useDm3Configuration } from '../../hooks/configuration/useDM3Configuration';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export function ContactInfo() {
     const { state, dispatch } = useContext(GlobalContext);
@@ -24,7 +24,7 @@ export function ContactInfo() {
         useContext(ConversationContext);
 
     const mainnetProvider = useMainnetProvider();
-    const { dm3Configuration } = useDm3Configuration();
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     const [address, setAddress] = useState<string>('');
 

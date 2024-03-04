@@ -33,13 +33,13 @@ import {
     ConfigureProfileContext,
     ConfigureProfileContextProvider,
 } from './context/ConfigureProfileContext';
-import { useDm3Configuration } from '../../hooks/configuration/useDM3Configuration';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export function ConfigureDM3Profile() {
     // global context state
     const { dispatch } = useContext(GlobalContext);
 
-    const { dm3Configuration } = useDm3Configuration();
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     const connectedChainId = useChainId();
 

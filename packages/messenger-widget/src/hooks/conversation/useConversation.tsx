@@ -10,11 +10,11 @@ import { fetchPendingConversations } from '../../adapters/messages';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { Config } from '../../interfaces/config';
 import { TLDContext } from '../../context/TLDContext';
-import { useDm3Configuration } from '../configuration/useDM3Configuration';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export const useConversation = (config: Config) => {
     const mainnetProvider = useMainnetProvider();
-    const { dm3Configuration } = useDm3Configuration();
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const { account, deliveryServiceToken } = useContext(AuthContext);
     const {
         getConversations,

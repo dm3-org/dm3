@@ -1,10 +1,9 @@
+import './styles/index.css';
+import './styles/common.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import 'react-app-polyfill/stable';
 import ErrorModal from './components/ErrorModal/ErrorModal';
-import './index.css';
 import { Config, DM3Configuration } from './interfaces/config';
-import './styles/common.css';
 import { getConfig } from './utils/config-utils';
 import GlobalContextProvider from './utils/context-utils';
 import { setTheme } from './utils/style-utils';
