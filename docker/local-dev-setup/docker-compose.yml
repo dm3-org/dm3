@@ -1,0 +1,37 @@
+version: '3.1'
+services:
+    db:
+        image: redis
+        restart: always
+        ports:
+            - '6379:6379'
+
+    offchain-resolver-db:
+        image: postgres
+        restart: always
+        container_name: offchain_resolver_db
+        environment:
+            POSTGRES_PASSWORD: example
+        ports:
+            - '5432:5432'
+
+    ccip-resolver:
+        image: dm3org/ccip-resolver:v0.2.7
+        restart: always
+        # depends_on:
+        #     - offchain-resolver
+        environment:
+            SIGNER_PRIVATE_KEY: ${SIGNER_PRIVATE_KEY}
+            LOG_LEVEL: debug
+            CONFIG: |
+                {
+                  "0xae6646c22d8ee6479ee0a39bf63b9bd9e57bad9d": {
+                    "type": "signing",
+                    "handlerUrl": "http://host.docker.internal:8081"
+                  }
+                }
+            PORT: 8181
+            # extra_hosts:
+            #     - 'host.docker.internal:host-gateway'
+        ports:
+            - '8181:8181'
