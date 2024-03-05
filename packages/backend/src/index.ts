@@ -11,7 +11,7 @@ import { startCleanUpPendingMessagesJob } from './cleanup/cleanUpPendingMessages
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import Delivery from './delivery';
 import { onConnection } from './messaging';
-import { getDatabase } from './persistance/getDatabase';
+import { getDatabase } from './persistence/getDatabase';
 import Profile from './profile';
 import RpcProxy from './rpc/rpc-proxy';
 import Storage from './storage';
