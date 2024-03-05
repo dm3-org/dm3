@@ -3,7 +3,7 @@ import makeBlockie from 'ethereum-blockies-base64';
 import { ethers } from 'ethers';
 import humanIcon from '../assets/images/human.svg';
 import { EnsProfileDetails } from '../interfaces/utils';
-import { ENS_PROFILE_BASE_URL, ETHERSCAN_URL } from './common-utils';
+import { ENS_PROFILE_BASE_URL, getEtherscanUrl } from './common-utils';
 import { Actions, RightViewSelected, UiViewStateType } from './enum-type-utils';
 
 // method to get avatar/image url
@@ -82,8 +82,8 @@ export const openEnsProfile = (ensName: string) => {
 };
 
 // method to open etherscan in new tab
-export const openEtherscan = (address: string) => {
-    window.open(ETHERSCAN_URL + address, '_blank');
+export const openEtherscan = (address: string, chainId: string) => {
+    window.open(getEtherscanUrl(chainId) + address, '_blank');
 };
 
 // method to close profile/contact info page

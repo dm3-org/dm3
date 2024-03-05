@@ -1,7 +1,10 @@
 export interface ITLDResolver {
     isResolverForTldName(ensName: string): Promise<boolean>;
     isResolverForAliasName(ensName: string): Promise<boolean>;
-    resolveAliasToTLD(ensName: string): Promise<string>;
+    resolveAliasToTLD(
+        ensName: string,
+        resolverBackendUrl?: string,
+    ): Promise<string>;
     resolveTLDtoAlias(ensName: string): Promise<string>;
 }
 export abstract class TLDResolver implements ITLDResolver {

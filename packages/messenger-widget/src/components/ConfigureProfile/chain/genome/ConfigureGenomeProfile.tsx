@@ -3,7 +3,8 @@ import { SubmitOnChainProfile } from '../SubmitOnChainProfile';
 import { submitGenomeNameTransaction, validateGenomeName } from './bl';
 import { ConfigureProfileContext } from '../../context/ConfigureProfileContext';
 import { GlobalContext } from '../../../../utils/context-utils';
-import { useNetwork } from 'wagmi';
+// @ts-ignore
+import { useChainId } from 'wagmi';
 import { AuthContext } from '../../../../context/AuthContext';
 import { ethers } from 'ethers';
 import { IChain, NAME_TYPE } from '../common';
@@ -11,7 +12,7 @@ import { IChain, NAME_TYPE } from '../common';
 export const ConfigureGenomeProfile = (props: IChain) => {
     const { state, dispatch } = useContext(GlobalContext);
 
-    const { chain } = useNetwork();
+    const chainId = useChainId();
 
     const { ethAddress, account, deliveryServiceToken } =
         useContext(AuthContext);
@@ -21,7 +22,7 @@ export const ConfigureGenomeProfile = (props: IChain) => {
     );
 
     const onSubmitTx = async (name: string) => {
-        if (props.chainToConnect !== chain?.id) {
+        if (props.chainToConnect !== chainId) {
             onShowError(NAME_TYPE.ENS_NAME, 'Invalid chain connected');
             return;
         }

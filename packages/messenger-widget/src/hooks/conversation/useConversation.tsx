@@ -1,18 +1,20 @@
 /* eslint-disable max-len */
-import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { Conversation } from '@dm3-org/dm3-lib-storage/dist/new/types';
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { fetchPendingConversations } from '../../adapters/messages';
 import { AuthContext } from '../../context/AuthContext';
 import { StorageContext } from '../../context/StorageContext';
-import { TLDContext } from '../../context/TLDContext';
-import { Config } from '../../interfaces/config';
 import { ContactPreview, getDefaultContract } from '../../interfaces/utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
+import { fetchPendingConversations } from '../../adapters/messages';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { Config } from '../../interfaces/config';
+import { TLDContext } from '../../context/TLDContext';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export const useConversation = (config: Config) => {
     const mainnetProvider = useMainnetProvider();
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const { account, deliveryServiceToken } = useContext(AuthContext);
     const {
         getConversations,
@@ -92,8 +94,9 @@ export const useConversation = (config: Config) => {
             // if (currentConversationsPage.length > 0) {
             //     await init(page + 1);
             // }
-            await handlePendingConversations();
-            //  initDefaultContact();
+            await handlePendingConversations(dm3Configuration.backendUrl);
+            // initDefaultContact();
+
             setConversationsInitialized(true);
         };
         init();
@@ -123,9 +126,10 @@ export const useConversation = (config: Config) => {
         }
     };
 
-    const handlePendingConversations = async () => {
+    const handlePendingConversations = async (backendUrl: string) => {
         //At first we've to check if there are pending conversations not yet added to the list
         const pendingConversations = await fetchPendingConversations(
+            backendUrl,
             mainnetProvider,
             account!,
             deliveryServiceToken!,

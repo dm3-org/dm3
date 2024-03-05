@@ -105,14 +105,14 @@ export function Message(props: MessageProps) {
                                       ?.envelop.message.signature ===
                                       props.envelop.message.signature
                                 ? 'msg-editing-active'
-                                : 'ms-3 own-msg-background'
+                                : 'ms-3 own-msg-background own-msg-text'
                             : !props.message &&
                               props.envelop.message.metadata.type ===
                                   MessageActionType.DELETE &&
                               (!props.envelop.message.attachments ||
                                   props.envelop.message.attachments.length < 1)
                             ? 'contact-deleted-msg'
-                            : 'contact-msg-background'
+                            : 'contact-msg-background contact-msg-text'
                         ).concat(
                             ' ',
                             props.reactions.length > 0
@@ -258,8 +258,8 @@ export function Message(props: MessageProps) {
                         className={'reacted d-flex'.concat(
                             ' ',
                             props.ownMessage
-                                ? 'background-config-box'
-                                : 'normal-btn-hover',
+                                ? 'own-msg-background'
+                                : 'contact-msg-background',
                         )}
                     >
                         {props.reactions.map((item, index) => {

@@ -4,6 +4,7 @@ import {
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
 import { useContext, useEffect, useMemo, useState } from 'react';
+// @ts-ignore
 import { useAccount, useWalletClient } from 'wagmi';
 import { TLDContext } from '../../context/TLDContext';
 import { GlobalContext } from '../../utils/context-utils';
@@ -20,12 +21,14 @@ import {
     ConnectDsResult,
     DeliveryServiceConnector,
 } from './DeliveryServiceConnector';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export const useAuth = () => {
     const { resolveAliasToTLD } = useContext(TLDContext);
     const { data: walletClient } = useWalletClient();
     const mainnetProvider = useMainnetProvider();
     const { dispatch } = useContext(GlobalContext);
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const { address } = useAccount({
         onDisconnect: () => signOut(),
     });
@@ -97,6 +100,7 @@ export const useAuth = () => {
         let connectDsResult: ConnectDsResult | undefined;
         try {
             connectDsResult = await DeliveryServiceConnector(
+                dm3Configuration,
                 mainnetProvider,
                 walletClient!,
                 address!,

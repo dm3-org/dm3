@@ -1,33 +1,23 @@
 /* eslint-disable no-console */
 import axios from 'axios';
-import { encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
-import {
-    SendDependencies,
-    Message,
-    Envelop,
-    MessageState,
-    buildEnvelop,
-    EncryptionEnvelop,
-} from '@dm3-org/dm3-lib-messaging';
+import { Envelop, EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import {
     Account,
     getDeliveryServiceClient,
-    getDeliveryServiceProfile,
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
-import { log, stringify } from '@dm3-org/dm3-lib-shared';
-import { StorageEnvelopContainer } from '@dm3-org/dm3-lib-storage';
+import { log } from '@dm3-org/dm3-lib-shared';
 import { Connection } from '../interfaces/web3';
 import { withAuthHeader } from './auth';
-import { decryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
 import { ethers } from 'ethers';
 
 export async function fetchPendingConversations(
+    backendUrl: string,
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     token: string,
 ): Promise<string[]> {
-    const deliveryPath = process.env.REACT_APP_BACKEND + '/delivery';
+    const deliveryPath = backendUrl + '/delivery';
     const url = `${deliveryPath}/messages/${account?.ensName!}/pending/`;
 
     const { data } = await getDeliveryServiceClient(
@@ -98,12 +88,13 @@ export async function sendMessage(
 }
 
 export async function fetchNewMessages(
+    backendUrl: string,
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     token: string,
     contactAddress: string,
 ): Promise<EncryptionEnvelop[]> {
-    const deliveryPath = process.env.REACT_APP_BACKEND + '/delivery';
+    const deliveryPath = backendUrl + '/delivery';
     const url = `${deliveryPath}/messages/${normalizeEnsName(
         account!.ensName,
     )}/contact/${contactAddress}`;

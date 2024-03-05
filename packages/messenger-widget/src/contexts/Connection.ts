@@ -36,7 +36,7 @@ export function connectionReducer(
         case ConnectionType.Reset:
             log(`[Connection] reset`, 'info');
             return {
-                defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
+                defaultServiceUrl: '',
             };
 
         default:

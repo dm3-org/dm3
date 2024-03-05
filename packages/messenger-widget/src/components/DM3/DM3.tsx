@@ -6,10 +6,13 @@ import { GlobalContext } from '../../utils/context-utils';
 import { ConnectionType } from '../../utils/enum-type-utils';
 import Dashboard from '../../views/Dashboard/Dashboard';
 import { SignIn } from '../SignIn/SignIn';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 function DM3(props: Dm3Props) {
     // fetches context storage
     const { dispatch } = useContext(GlobalContext);
+
+    const { setDm3Configuration } = useContext(DM3ConfigurationContext);
 
     const { isLoggedIn, account, deliveryServiceToken } =
         useContext(AuthContext);
@@ -36,6 +39,9 @@ function DM3(props: Dm3Props) {
         if (childElement && childElement.parentElement) {
             childElement.parentElement.classList.add('h-100');
         }
+
+        // sets the DM3 confguration provided from props
+        setDm3Configuration(props.dm3Configuration);
     }, []);
 
     return (

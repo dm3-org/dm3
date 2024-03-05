@@ -1,16 +1,15 @@
+import './styles/index.css';
+import './styles/common.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import 'react-app-polyfill/stable';
 import ErrorModal from './components/ErrorModal/ErrorModal';
-import './index.css';
-import { Config } from './interfaces/config';
-import './styles/common.css';
+import { Config, DM3Configuration } from './interfaces/config';
 import { getConfig } from './utils/config-utils';
 import GlobalContextProvider from './utils/context-utils';
 import { setTheme } from './utils/style-utils';
 import { Home } from './views/Home/Home';
 
-export function DM3(props: Partial<Config>) {
+export function DM3(props: DM3Configuration) {
     const propsData: Config = getConfig(props);
     setTheme(propsData.theme);
     return (
@@ -18,7 +17,7 @@ export function DM3(props: Partial<Config>) {
             <div className="dm3-root">
                 <ErrorModal />
                 <GlobalContextProvider>
-                    <Home config={propsData} />
+                    <Home config={propsData} dm3Configuration={props} />
                 </GlobalContextProvider>
             </div>
             {process.env.REACT_APP_COMMIT_HASH && (

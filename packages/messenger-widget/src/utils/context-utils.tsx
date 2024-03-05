@@ -14,12 +14,13 @@ import {
     UiStateActions,
     UiViewStateActions,
 } from './enum-type-utils';
+import { DM3Configuration } from '../interfaces/config';
 
 // custom context
 export const GlobalContext = React.createContext<{
     state: GlobalState;
     dispatch: Dispatch<Actions>;
-}>({ state: initialState, dispatch: () => null });
+}>({ state: initialState(''), dispatch: () => null });
 
 // combined all reducers in single reducer
 const mainReducer = (state: GlobalState, action: Actions): GlobalState => ({
@@ -33,8 +34,14 @@ const mainReducer = (state: GlobalState, action: Actions): GlobalState => ({
 });
 
 // global context provider to handle state sharing
-function GlobalContextProvider(props: GlobalContextProviderProps) {
-    const [state, dispatch] = React.useReducer(mainReducer, initialState);
+function GlobalContextProvider(
+    props: GlobalContextProviderProps,
+    dm3Configuration: DM3Configuration,
+) {
+    const [state, dispatch] = React.useReducer(
+        mainReducer,
+        initialState(dm3Configuration.backendUrl),
+    );
 
     return (
         /** @ts-ignore */

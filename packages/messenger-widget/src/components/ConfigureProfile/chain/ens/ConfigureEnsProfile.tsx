@@ -1,7 +1,8 @@
 /* eslint-disable max-len */
 import { ethers } from 'ethers';
 import { useContext } from 'react';
-import { useNetwork } from 'wagmi';
+// @ts-ignore
+import { useChainId } from 'wagmi';
 import { AuthContext } from '../../../../context/AuthContext';
 import { GlobalContext } from '../../../../utils/context-utils';
 import { ConfigureProfileContext } from '../../context/ConfigureProfileContext';
@@ -12,7 +13,7 @@ import { submitEnsNameTransaction } from './bl';
 export const ConfigureEnsProfile = (props: IChain) => {
     const { dispatch } = useContext(GlobalContext);
 
-    const { chain } = useNetwork();
+    const chainId = useChainId();
 
     const { onShowError, setExistingEnsName, setEnsName } = useContext(
         ConfigureProfileContext,
@@ -24,7 +25,7 @@ export const ConfigureEnsProfile = (props: IChain) => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
 
     const onSubmitTx = async (name: string) => {
-        if (props.chainToConnect !== chain?.id) {
+        if (props.chainToConnect !== chainId) {
             onShowError(NAME_TYPE.ENS_NAME, 'Invalid chain connected');
             return;
         }
