@@ -45,7 +45,7 @@ export function Home(props: Dm3Props) {
         [
             jsonRpcProvider({
                 rpc: () => ({
-                    http: props.config.ethereumProvider as string,
+                    http: props.dm3Configuration.ethereumProvider as string,
                 }),
             }),
         ],
