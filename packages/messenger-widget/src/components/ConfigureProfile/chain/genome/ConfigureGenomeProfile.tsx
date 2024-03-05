@@ -3,7 +3,6 @@ import { SubmitOnChainProfile } from '../SubmitOnChainProfile';
 import { submitGenomeNameTransaction, validateGenomeName } from './bl';
 import { ConfigureProfileContext } from '../../context/ConfigureProfileContext';
 import { GlobalContext } from '../../../../utils/context-utils';
-// @ts-ignore
 import { useChainId } from 'wagmi';
 import { AuthContext } from '../../../../context/AuthContext';
 import { ethers } from 'ethers';
