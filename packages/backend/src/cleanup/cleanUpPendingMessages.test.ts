@@ -1,4 +1,4 @@
-import { IDatabase } from '../persistance/getDatabase';
+import { IDatabase } from '../persistence/getDatabase';
 import { startCleanUpPendingMessagesJob } from './cleanUpPendingMessages';
 
 describe('Cleanup test', () => {
