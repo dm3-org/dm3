@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { ethers } from 'ethers';
 import { FormEvent, useContext, useState } from 'react';
 import closeIcon from '../../assets/images/cross.svg';

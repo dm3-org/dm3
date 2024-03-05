@@ -22,7 +22,7 @@ export const useConversation = (config: Config) => {
         initialized: storageInitialized,
         toggleHideContactAsync,
     } = useContext(StorageContext);
-    const { resolveAliasToTLD } = useContext(TLDContext);
+    const { resolveAliasToTLD, resolveTLDtoAlias } = useContext(TLDContext);
 
     const [contacts, setContacts] = useState<Array<ContactPreview>>([]);
     const [selectedContactName, setSelectedContactName] = useState<
@@ -95,8 +95,7 @@ export const useConversation = (config: Config) => {
             //     await init(page + 1);
             // }
             await handlePendingConversations(dm3Configuration.backendUrl);
-            // initDefaultContact();
-
+            initDefaultContact();
             setConversationsInitialized(true);
         };
         init();
@@ -104,15 +103,26 @@ export const useConversation = (config: Config) => {
 
     const initDefaultContact = async () => {
         if (config.defaultContact) {
+            const aliasName = await resolveTLDtoAlias(
+                normalizeEnsName(config.defaultContact),
+            );
+            const defaultContactIsUser =
+                account?.ensName === normalizeEnsName(aliasName!);
+
+            //We do not want to add the default contact if it is the user
+            if (defaultContactIsUser) {
+                return;
+            }
+
             const contractHasAlreadyBeenAdded = contacts.some(
                 (contact) =>
                     contact.contactDetails.account.ensName ===
-                    normalizeEnsName(config.defaultContact!),
+                    normalizeEnsName(aliasName!),
             );
             if (!contractHasAlreadyBeenAdded) {
                 //I there are no conversations yet we add the default contact
                 const defaultConversation: Conversation = {
-                    contactEnsName: normalizeEnsName(config.defaultContact),
+                    contactEnsName: normalizeEnsName(aliasName!),
                     messageCounter: 0,
                     isHidden: false,
                 };
