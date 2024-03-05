@@ -1,3 +1,4 @@
+import './polyfills';
 import './styles/index.css';
 import './styles/common.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -9,7 +10,7 @@ import GlobalContextProvider from './utils/context-utils';
 import { setTheme } from './utils/style-utils';
 import { Home } from './views/Home/Home';
 
-export function DM3(props: DM3Configuration) {
+function DM3(props: DM3Configuration) {
     const propsData: Config = getConfig(props);
     setTheme(propsData.theme);
     return (
@@ -40,3 +41,9 @@ export function DM3(props: DM3Configuration) {
         </>
     );
 }
+
+// The DM3 component to be included for the widget
+export { DM3 };
+
+// The configuration props to configure the DM3 widget
+export type { DM3Configuration };

@@ -1,9 +1,13 @@
-import './polyfills';
-import { DM3 } from './widget';
-import { DM3Configuration } from './interfaces/config';
+import * as ReactDOM from 'react-dom/client';
+import React from 'react';
+import { Demo } from './demo';
 
-// The DM3 component to be included for the widget
-export { DM3 };
+const root = ReactDOM.createRoot(
+    document.getElementById('root') as HTMLElement,
+);
 
-// The configuration props to configure the DM3 widget
-export type { DM3Configuration };
+root.render(
+    <React.StrictMode>
+        <Demo />
+    </React.StrictMode>,
+);

@@ -1,9 +1,9 @@
 {
   "name": "@dm3-org/dm3-messenger-widget",
   "version": "1.0.12",
-  "main": "./lib/cjs/index.js",
-  "module": "./lib/esm/index.js",
-  "types": "./lib/esm/index.d.ts",
+  "main": "./lib/cjs/widget.js",
+  "module": "./lib/esm/widget.js",
+  "types": "./lib/esm/widget.d.ts",
   "dependencies": {
     "@babel/core": "^7.22.5",
     "@dm3-org/dm3-lib-crypto": "workspace:^",
@@ -55,6 +55,7 @@
     "@types/react-dom": "^18.2.19",
     "prettier": "^2.6.2",
     "react": "^18.2.0",
+    "react-app-rewired": "^2.2.1",
     "react-dom": "^18.2.0",
     "typescript": "^5.3.3"
   },
@@ -63,7 +64,7 @@
     "build:esm": "tsc",
     "build:cjs": "tsc --module commonjs --outDir lib/cjs",
     "build": "yarn clean && yarn build:esm && yarn build:cjs && bash build-script.sh",
-    "start:example": " react-app-rewired start",
+    "start:example": "react-app-rewired start",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
     "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
     "format:check": "prettier --check '*/**/*.{js,ts,tsx,json}'",
