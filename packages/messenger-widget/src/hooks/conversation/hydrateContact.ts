@@ -11,6 +11,7 @@ import { ethers } from 'ethers';
 import { Contact } from '../../interfaces/context';
 import { ContactPreview } from '../../interfaces/utils';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
+import { fetchMessageSizeLimit } from '../messages/sizeLimit/fetchSizeLimit';
 
 export const hydrateContract = async (
     provider: ethers.providers.JsonRpcProvider,
@@ -22,11 +23,13 @@ export const hydrateContract = async (
         conversatoinManifest.contactEnsName,
     );
     const contact = await fetchDsProfile(provider, account);
+    const messageSizeLimit = await fetchMessageSizeLimit(provider, account);
     const contactPreview = await fetchPreview(
         provider,
         conversatoinManifest,
         contact,
         resolveAliasToTLD,
+        messageSizeLimit,
     );
 
     return contactPreview;
@@ -37,6 +40,7 @@ const fetchPreview = async (
     conversatoinManifest: Conversation,
     contact: Contact,
     resolveAliasToTLD: (alias: string) => Promise<string>,
+    messageSizeLimit: number,
 ): Promise<ContactPreview> => {
     return {
         name: await resolveAliasToTLD(contact.account.ensName),
@@ -46,6 +50,7 @@ const fetchPreview = async (
         unreadMsgCount: 21,
         contactDetails: contact,
         isHidden: conversatoinManifest.isHidden,
+        messageSizeLimit: messageSizeLimit,
     };
 };
 

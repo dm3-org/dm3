@@ -20,6 +20,7 @@ import { handleMessagesFromDeliveryService } from './sources/handleMessagesFromD
 import { handleMessagesFromStorage } from './sources/handleMessagesFromStorage';
 import { handleMessagesFromWebSocket } from './sources/handleMessagesFromWebSocket';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { checkIfEnvelopIsInSizeLimit } from './sizeLimit/checkIfEnvelopIsInSizeLimit';
 
 export type MessageModel = StorageEnvelopContainerNew & {
     reactions: Envelop[];
@@ -175,8 +176,12 @@ export const useMessage = () => {
         loadInitialMessages(contact);
     };
 
-    const addMessage = async (_contactName: string, message: Message) => {
+    const addMessage = async (
+        _contactName: string,
+        message: Message,
+    ): Promise<{ isSuccess: boolean; error?: string }> => {
         const contact = normalizeEnsName(_contactName);
+
         //Find the recipient of the message in the contact list
         const recipient = contacts.find(
             (c) => c.contactDetails.account.ensName === contact,
@@ -213,7 +218,7 @@ export const useMessage = () => {
                 };
             });
             storeMessage(contact, messageModel);
-            return;
+            return { isSuccess: true };
         }
 
         //Build the envelop based on the message and the users profileKeys
@@ -229,6 +234,22 @@ export const useMessage = () => {
                 keys: profileKeys!,
             },
         );
+
+        // check if message size in within delivery service message size limit
+        const isMsgInSizeLimit = await checkIfEnvelopIsInSizeLimit(
+            encryptedEnvelop,
+            recipient.messageSizeLimit,
+        );
+
+        // If message size is larger than limit, return with error
+        if (!isMsgInSizeLimit) {
+            return {
+                isSuccess: false,
+                error: 'The size of the message is larger than limit '
+                    .concat(recipient.messageSizeLimit.toString(), ' bytes. ')
+                    .concat('Please reduce the message size.'),
+            };
+        }
 
         //StorageEnvelopContainerNew to store the message in the storage
         const messageModel = {
@@ -256,6 +277,8 @@ export const useMessage = () => {
             () => {},
             () => console.log('submit message error'),
         );
+
+        return { isSuccess: true };
     };
 
     const loadInitialMessages = async (_contactName: string) => {
@@ -319,6 +342,8 @@ export const useMessage = () => {
 };
 
 export type GetMessages = (contact: string) => MessageModel[];
-export type AddMessage = (contact: string, message: Message) => void;
-
+export type AddMessage = (
+    contact: string,
+    message: Message,
+) => Promise<{ isSuccess: boolean; error?: string }>;
 export type ContactLoading = (contact: string) => boolean;

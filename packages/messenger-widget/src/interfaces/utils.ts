@@ -21,6 +21,7 @@ export interface ContactPreview {
     messageCount: number;
     contactDetails: Contact;
     isHidden: boolean;
+    messageSizeLimit: number;
 }
 
 export interface IContactInfo {
@@ -56,6 +57,7 @@ export const getDefaultContract = (ensName: string) => {
             deliveryServiceProfile: undefined,
         },
         isHidden: false,
+        messageSizeLimit: 0,
     };
 
     return newContact;

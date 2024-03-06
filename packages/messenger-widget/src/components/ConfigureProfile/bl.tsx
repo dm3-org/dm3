@@ -87,6 +87,7 @@ export const submitDm3UsernameClaim = async (
     dispatch: React.Dispatch<Actions>,
     setError: Function,
     setDisplayName: Function,
+    setExistingDm3Name: Function,
 ) => {
     try {
         // start loader
@@ -115,6 +116,7 @@ export const submitDm3UsernameClaim = async (
         );
 
         setDisplayName(ensName);
+        setExistingDm3Name(ensName);
     } catch (e) {
         setError('Name is not available', NAME_TYPE.DM3_NAME);
     }

@@ -44,3 +44,4 @@ cp -r ./src/assets ./lib/esm/ && cp -r ./src/assets ./lib/cjs/
 
 echo "Copied all CSS files : $allFilesPath"
 echo "Copied assets folder"
+echo "Build created successfully......."

@@ -108,6 +108,7 @@ export function ConfigureDM3Profile() {
                 dispatch,
                 setError,
                 setDisplayName,
+                setExistingDm3Name,
             );
         } else {
             const result = await removeAliasFromDm3Name(
