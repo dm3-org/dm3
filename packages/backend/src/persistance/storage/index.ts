@@ -10,6 +10,9 @@ import { getNumberOfConversations } from './postgres/getNumberOfConversations';
 import { getNumberOfMessages } from './postgres/getNumberOfMessages';
 import { toggleHideConversation } from './postgres/toggleHideConversation';
 
+import { getUserDbMigrationStatus } from './getUserDbMigrationStatus';
+import { setUserDbMigrated } from './setUserDbMigrated';
+
 export default {
     getUserStorageOld,
     setUserStorageOld,
@@ -21,4 +24,6 @@ export default {
     getNumberOfConversations,
     getNumberOfMessages,
     toggleHideConversation,
+    getUserDbMigrationStatus,
+    setUserDbMigrated,
 };
