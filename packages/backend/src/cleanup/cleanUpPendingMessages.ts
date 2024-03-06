@@ -1,4 +1,4 @@
-import { IDatabase } from '../persistance/getDatabase';
+import { IDatabase } from '../persistence/getDatabase';
 import { logInfo } from '@dm3-org/dm3-lib-shared';
 
 //1 day

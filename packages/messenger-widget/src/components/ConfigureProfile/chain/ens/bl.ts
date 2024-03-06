@@ -1,16 +1,9 @@
 import { createAlias } from '@dm3-org/dm3-lib-delivery-api';
+import { Account, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { ethersHelper, stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
-import {
-    GlobalState,
-    Actions,
-    ModalStateType,
-    CacheType,
-} from '../../../../utils/enum-type-utils';
-import { setContactHeightToMaximum } from '../../../Contacts/bl';
-import { startLoader, closeLoader } from '../../../Loader/Loader';
-import { Account, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
-import { Connection } from '../../../../interfaces/web3';
+import { Actions, ModalStateType } from '../../../../utils/enum-type-utils';
+import { closeLoader, startLoader } from '../../../Loader/Loader';
 import { NAME_TYPE } from '../common';
 
 // method to check ENS name is valid or not
@@ -98,13 +91,6 @@ export const submitEnsNameTransaction = async (
             const response = await ethersHelper.executeTransaction(tx);
             await response.wait();
             setEnsNameFromResolver(ensName);
-
-            dispatch({
-                type: CacheType.AccountName,
-                payload: ensName,
-            });
-
-            setContactHeightToMaximum(true);
         } else {
             throw Error('Error creating publish transaction');
         }

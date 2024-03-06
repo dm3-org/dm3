@@ -118,9 +118,9 @@
 }
 
 .own-msg-text {
-    background: var(--sent-message-text-color);
+    color: var(--sent-message-text-color);
 }
 
 .contact-msg-text {
-    background: var(--received-message-text-color);
+    color: var(--received-message-text-color);
 }

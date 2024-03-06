@@ -1,21 +1,7 @@
-export { useDm3Storage, getDm3Storage } from './location/Dm3Storage';
+export * from './new/types';
+export type { MessageRecord } from './new/chunkStorage/ChunkStorageTypes';
 
-export { googleLoad, googleStore } from './location/GoogleDrive';
-
-export {
-    createDB,
-    getConversationId,
-    sync,
-    sortEnvelops,
-    getConversation,
-    StorageLocation,
-    SyncProcessState,
-    load,
-    createEmptyConversation,
-} from './Storage';
-
-export { web3Store, web3Load } from './location/Web3Storage';
-
-export { createTimestamp } from './Utils';
-
-export type { UserDB, StorageEnvelopContainer, UserStorage } from './Storage';
+export { getCloudStorage } from './new/cloudStorage/getCloudStorage';
+export { migrageStorage } from './new/migrateStorage';
+export { getConversationId, load } from './Storage';
+export type { UserStorage } from './Storage';

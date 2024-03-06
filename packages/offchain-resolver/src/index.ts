@@ -4,7 +4,7 @@ import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import winston from 'winston';
-import { getDatabase } from './persistance/getDatabase';
+import { getDatabase } from './persistence/getDatabase';
 import { resolverEndpoint } from './http/resolverEndpoint';
 import { getWeb3Provider } from './utils/getWeb3Provider';
 

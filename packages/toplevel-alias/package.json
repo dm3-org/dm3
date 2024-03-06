@@ -10,6 +10,7 @@
     "@typechain/hardhat": "^8.0.0",
     "hardhat": "^2.7.1",
     "solidity-coverage": "^0.7.17",
+    "ts-node": "^10.9.2",
     "typechain": "^6.0.5"
   },
   "dependencies": {

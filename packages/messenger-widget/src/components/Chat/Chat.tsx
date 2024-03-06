@@ -1,155 +1,74 @@
-import './Chat.css';
-import { Message } from '../Message/Message';
-import { getConversation } from '@dm3-org/dm3-lib-storage';
-import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
-import { HideFunctionProps, MessageProps } from '../../interfaces/props';
-import { useContext, useEffect, useState } from 'react';
-import { GlobalContext } from '../../utils/context-utils';
-import { MessageInputBox } from '../MessageInputBox/MessageInputBox';
-import ConfigProfileAlertBox from '../ContactProfileAlertBox/ContactProfileAlertBox';
-import {
-    checkUserProfileConfigured,
-    handleMessages,
-    scrollToBottomOfChat,
-} from './bl';
-import { MessageActionType } from '../../utils/enum-type-utils';
-import { useAuth } from '../../hooks/auth/useAuth';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
+import { ConversationContext } from '../../context/ConversationContext';
+import { MessageContext } from '../../context/MessageContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
+import { MessageModel } from '../../hooks/messages/useMessage';
+import { HideFunctionProps } from '../../interfaces/props';
+import { GlobalContext } from '../../utils/context-utils';
+import {
+    MessageActionType,
+    RightViewSelected,
+    UiViewStateType,
+} from '../../utils/enum-type-utils';
+import ConfigProfileAlertBox from '../ContactProfileAlertBox/ContactProfileAlertBox';
+import { Message } from '../Message/Message';
+import { MessageInputBox } from '../MessageInputBox/MessageInputBox';
+import './Chat.css';
+import { scrollToBottomOfChat } from './scrollToBottomOfChat';
 
 export function Chat(props: HideFunctionProps) {
     const { state, dispatch } = useContext(GlobalContext);
-    const { account } = useContext(AuthContext);
-    const { ethAddress, deliveryServiceToken } = useContext(AuthContext);
+    const { ethAddress, deliveryServiceToken, account } =
+        useContext(AuthContext);
+    const { selectedContact } = useContext(ConversationContext);
+    const { getMessages, contactIsLoading } = useContext(MessageContext);
     const mainnetProvider = useMainnetProvider();
 
-    const [messageList, setMessageList] = useState<MessageProps[]>([]);
-    const [isMessageListInitialized, setIsMessageListInitialized] =
-        useState<boolean>(false);
     const [isProfileConfigured, setIsProfileConfigured] =
         useState<boolean>(false);
-    const [showShimEffect, setShowShimEffect] = useState(true);
-
-    const alias = ethAddress && ethAddress + globalConfig.ADDR_ENS_SUBDOMAIN();
-
-    const setProfileCheck = (status: boolean) => {
-        setIsProfileConfigured(status);
-    };
-
-    const updateShowShimEffect = (action: boolean) => {
-        setShowShimEffect(action);
-    };
-
-    const setListOfMessages = (msgs: []) => {
-        setMessageList(msgs);
-    };
-
-    const updateIsMessageListInitialized = (action: boolean) => {
-        setIsMessageListInitialized(action);
-    };
+    const [showShimEffect, setShowShimEffect] = useState(false);
 
     useEffect(() => {
-        setIsMessageListInitialized(false);
+        if (!selectedContact) {
+            dispatch({
+                type: UiViewStateType.SetSelectedRightView,
+                payload: RightViewSelected.Default,
+            });
+            return;
+        }
         setIsProfileConfigured(
-            state.accounts.selectedContact?.account.profile ? true : false,
+            !!selectedContact?.contactDetails.account.profile,
         );
-    }, [state.accounts.selectedContact]);
+    }, [selectedContact]);
+
+    const messages = useMemo(() => {
+        if (!selectedContact?.contactDetails.account.ensName) {
+            return [];
+        }
+        scrollToBottomOfChat();
+        return getMessages(selectedContact?.contactDetails.account.ensName!);
+    }, [selectedContact, getMessages]);
 
     // handles messages list
     useEffect(() => {
-        if (state.accounts.selectedContact) {
-            setShowShimEffect(true);
-        }
-        if (
-            state.accounts.selectedContact &&
-            state.userDb &&
-            state.accounts.contacts
-        ) {
-            try {
-                handleMessages(
-                    state,
-                    mainnetProvider,
-                    account!,
-                    deliveryServiceToken!,
-                    dispatch,
-                    getConversation(
-                        state.accounts.selectedContact.account.ensName,
-                        state.accounts.contacts.map(
-                            (contact) => contact.account,
-                        ),
-                        state.userDb,
-                    ),
-                    alias,
-                    setListOfMessages,
-                    isMessageListInitialized,
-                    updateIsMessageListInitialized,
-                    updateShowShimEffect,
-                    props.hideFunction,
-                );
-            } catch (error) {
-                setListOfMessages([]);
-                setShowShimEffect(false);
-                log(error, 'error');
-            }
-        }
-    }, [state.userDb?.conversations, state.accounts.selectedContact]);
+        const isLoading = contactIsLoading(
+            selectedContact?.contactDetails.account.ensName!,
+        );
+        setShowShimEffect(isLoading);
+    }, [contactIsLoading]);
 
+    // if new message is found scroll based on message type
     useEffect(() => {
         if (
-            messageList.length &&
+            messages.length &&
             (state.modal.lastMessageAction === MessageActionType.NONE ||
                 state.modal.lastMessageAction === MessageActionType.REPLY ||
                 state.modal.lastMessageAction === MessageActionType.NEW)
         ) {
             scrollToBottomOfChat();
         }
-    }, [messageList]);
-
-    useEffect(() => {
-        checkUserProfileConfigured(
-            mainnetProvider,
-            state.accounts.selectedContact?.account.ensName as string,
-            setProfileCheck,
-        );
-        if (state.modal.addConversation.active) {
-            setShowShimEffect(true);
-        }
-        // fetches old message if new contact is added
-        if (
-            !state.modal.addConversation.active &&
-            state.accounts.selectedContact &&
-            state.userDb &&
-            state.accounts.contacts
-        ) {
-            setShowShimEffect(true);
-            try {
-                handleMessages(
-                    state,
-                    mainnetProvider,
-                    account!,
-                    deliveryServiceToken!,
-                    dispatch,
-                    getConversation(
-                        state.accounts.selectedContact.account.ensName,
-                        state.accounts.contacts.map(
-                            (contact) => contact.account,
-                        ),
-                        state.userDb,
-                    ),
-                    alias,
-                    setListOfMessages,
-                    isMessageListInitialized,
-                    updateIsMessageListInitialized,
-                    updateShowShimEffect,
-                    props.hideFunction,
-                );
-            } catch (error) {
-                setListOfMessages([]);
-                setShowShimEffect(false);
-                log(error, 'error');
-            }
-        }
-    }, [state.modal.addConversation.active]);
+    }, [messages]);
 
     /* shimmer effect contacts css */
     const shimmerData: number[] = Array.from({ length: 50 }, (_, i) => i + 1);
@@ -159,7 +78,7 @@ export function Chat(props: HideFunctionProps) {
             id="chat-msgs"
             className={'chat-msgs width-fill '
                 .concat(
-                    state.accounts.selectedContact
+                    selectedContact
                         ? 'highlight-chat-border'
                         : 'highlight-chat-border-none',
                 )
@@ -211,11 +130,40 @@ export function Chat(props: HideFunctionProps) {
                                 : 'chat-height-high',
                         )}
                     >
-                        {messageList.length > 0 &&
-                            messageList.map(
-                                (messageData: MessageProps, index) => (
+                        {messages.length > 0 &&
+                            messages.map(
+                                (
+                                    storageEnvelopContainer: MessageModel,
+                                    index,
+                                ) => (
                                     <div key={index} className="mt-2">
-                                        <Message {...messageData} />
+                                        <Message
+                                            message={
+                                                storageEnvelopContainer.envelop
+                                                    .message.message ?? ''
+                                            }
+                                            time={
+                                                storageEnvelopContainer.envelop.message.metadata?.timestamp.toString() ??
+                                                '0'
+                                            }
+                                            messageState={
+                                                storageEnvelopContainer.messageState
+                                            }
+                                            ownMessage={
+                                                storageEnvelopContainer.envelop
+                                                    .message.metadata?.from ===
+                                                account!.ensName
+                                            }
+                                            envelop={
+                                                storageEnvelopContainer.envelop
+                                            }
+                                            reactions={
+                                                storageEnvelopContainer.reactions
+                                            }
+                                            replyToMessageEnvelop={
+                                                storageEnvelopContainer.replyToMessageEnvelop
+                                            }
+                                        />
                                     </div>
                                 ),
                             )}

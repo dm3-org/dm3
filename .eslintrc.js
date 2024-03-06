@@ -8,7 +8,7 @@ module.exports = {
     plugins: ['no-only-tests'],
     ignorePatterns: ['package.json', '**/*.js', '**/billboard-widget/**'],
     rules: {
-        'max-len': ['error', { code: 120 }],
+        'max-len': ['error', { code: 160 }],
         'no-only-tests/no-only-tests': ['error'],
     },
 };

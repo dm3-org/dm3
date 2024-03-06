@@ -1,31 +1,33 @@
-/* eslint-disable no-console */
+import {
+    Account,
+    ProfileKeys,
+    normalizeEnsName,
+} from '@dm3-org/dm3-lib-profile';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { useAccount, useWalletClient } from 'wagmi';
-import { Account } from '@dm3-org/dm3-lib-profile';
-import { UserDB } from '@dm3-org/dm3-lib-storage';
-import { useEffect, useMemo, useState, useContext } from 'react';
+import { TLDContext } from '../../context/TLDContext';
+import { GlobalContext } from '../../utils/context-utils';
+import {
+    Actions,
+    ConnectionType,
+    ModalStateType,
+    UiStateType,
+    UiViewStateType,
+} from '../../utils/enum-type-utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { AccountConnector } from './AccountConnector';
 import {
     ConnectDsResult,
     DeliveryServiceConnector,
 } from './DeliveryServiceConnector';
-import { GlobalContext } from '../../utils/context-utils';
-import {
-    AccountsType,
-    Actions,
-    CacheType,
-    ConnectionType,
-    ModalStateType,
-    UiStateType,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
-import { useTopLevelAlias } from '../topLevelAlias/useTopLevelAlias';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
-export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
-    const { resolveAliasToTLD } = useTopLevelAlias();
+export const useAuth = () => {
+    const { resolveAliasToTLD } = useContext(TLDContext);
     const { data: walletClient } = useWalletClient();
     const mainnetProvider = useMainnetProvider();
     const { dispatch } = useContext(GlobalContext);
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const { address } = useAccount({
         onDisconnect: () => signOut(),
     });
@@ -44,8 +46,9 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
     const [displayName, setDisplayName] = useState<string | undefined>(
         undefined,
     );
+    const [profileKeys, setProfileKeys] = useState<ProfileKeys | undefined>();
 
-    // Effect to resolve the display name of the account currently logged in.
+    //Effect to resolve the display name of the account currently logged in.
     //The main purpose of that function is check wether the account has been minted via an L2 name service such as
     //genome and therefore has a crosschain name that is resolved with the TopLevelAliasResolver
     useEffect(() => {
@@ -53,11 +56,14 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
             if (!account) {
                 return;
             }
+            //TODO fix tommorow
             const displayName = await resolveAliasToTLD(account?.ensName);
+            console.log('updated account', account);
+            //const displayName = await getAlias(account.ensName);
             setDisplayName(displayName);
         };
         fetchDisplayName();
-    }, [account]);
+    }, [ethAddress, account]);
 
     // can be check to retrive the current auth state
     const isLoggedIn = useMemo<boolean>(
@@ -93,6 +99,7 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
         let connectDsResult: ConnectDsResult | undefined;
         try {
             connectDsResult = await DeliveryServiceConnector(
+                dm3Configuration,
                 mainnetProvider,
                 walletClient!,
                 address!,
@@ -104,12 +111,12 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
             return;
         }
 
-        const { deliveryServiceToken, userDb, signedUserProfile } =
+        const { deliveryServiceToken, signedUserProfile, profileKeys } =
             connectDsResult;
 
-        onStorageSet(userDb);
         setAccount({
             ...account,
+            ensName: normalizeEnsName(account.ensName),
             profile: signedUserProfile.profile,
             profileSignature: signedUserProfile.signature,
         });
@@ -117,10 +124,13 @@ export const useAuth = (onStorageSet: (userDb: UserDB) => void) => {
         setEthAddress(address);
         setDeliveryServiceToken(deliveryServiceToken);
         setIsLoading(false);
+        setProfileKeys(profileKeys);
     };
 
     return {
+        profileKeys,
         cleanSignIn,
+        setDisplayName,
         account,
         displayName,
         ethAddress,
@@ -136,12 +146,7 @@ const resetStates = (dispatch: React.Dispatch<Actions>) => {
     dispatch({
         type: ConnectionType.Reset,
     });
-    dispatch({
-        type: AccountsType.Reset,
-    });
-    dispatch({
-        type: CacheType.Reset,
-    });
+
     dispatch({
         type: UiStateType.Reset,
     });

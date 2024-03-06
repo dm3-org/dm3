@@ -1,13 +1,12 @@
 /* eslint-disable max-len */
 /* eslint-disable no-console */
-import { createWeb3Name } from '@web3-name-sdk/core';
 import { checkUserProfile, getUserProfile } from '@dm3-org/dm3-lib-profile';
 import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
+import { createWeb3Name } from '@web3-name-sdk/core';
 import { ethers } from 'ethers';
 import { WalletClient } from 'viem';
-import { getNameForAddress } from '../../adapters/offchain-resolver-api';
 
-function getAliasForAddress(address: string) {
+function getIdForAddress(address: string) {
     return address + globalConfig.ADDR_ENS_SUBDOMAIN();
 }
 
@@ -22,11 +21,7 @@ export const AccountConnector = (
              * if so we can use that account
              * Otherwise we use the addr_ens_subdomain
              */
-            const ensName =
-                (await getNameForAddress(
-                    address,
-                    process.env.REACT_APP_RESOLVER_BACKEND as string,
-                )) ?? getAliasForAddress(address);
+            const ensName = getIdForAddress(address);
 
             //We're trying to get the profile from the delivery service
             const userProfile = await getUserProfile(mainnetProvider, ensName);
@@ -39,15 +34,29 @@ export const AccountConnector = (
     }
     async function connectOnchainAccount(ensName: string, address: string) {
         let onChainProfile;
+        let offChainProfile;
 
+        const offchainAddrAlias = getIdForAddress(address);
         try {
             onChainProfile = await getUserProfile(mainnetProvider!, ensName);
+            offChainProfile = await getUserProfile(
+                mainnetProvider!,
+                offchainAddrAlias,
+            );
         } catch (error) {
             log(
                 'Cant load profile from chain' + JSON.stringify(error),
                 'error',
             );
             onChainProfile = undefined;
+        }
+        //There might be cases where the onchain profile is not the same as the offchain profile
+        //We find a solution on how we would migrate messages then
+        const profilesAreEqual =
+            JSON.stringify(onChainProfile) === JSON.stringify(offChainProfile);
+
+        if (!profilesAreEqual) {
+            console.log('OnChain Profile is not the same as offchain profile');
         }
 
         /**
@@ -72,7 +81,7 @@ export const AccountConnector = (
 
         return {
             userProfile: onChainProfile,
-            ensName,
+            ensName: offchainAddrAlias,
         };
     }
 

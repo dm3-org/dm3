@@ -1,70 +1,46 @@
-import { Envelop } from '@dm3-org/dm3-lib-messaging';
+import { Envelop, MessageState } from '@dm3-org/dm3-lib-messaging';
 
 export interface StorageAPI {
+    getConversationList: (page: number) => Promise<Conversation[]>;
     getMessages: (
         contactEnsName: string,
         page: number,
-    ) => Promise<MessageChunk | undefined>;
+    ) => Promise<StorageEnvelopContainer[]>;
+    addMessageBatch: (
+        contactEnsName: string,
+        batch: StorageEnvelopContainer[],
+    ) => Promise<string>;
+    editMessageBatch: (
+        contactEnsName: string,
+        editedMessage: StorageEnvelopContainer[],
+    ) => Promise<void>;
     getNumberOfMessages: (contactEnsName: string) => Promise<number>;
     getNumberOfConverations: () => Promise<number>;
-    getConversationList: (
-        page: number,
-    ) => Promise<ConversationList | undefined>;
     addConversation: (contactEnsName: string) => Promise<void>;
-    addMessage: (contactEnsName: string, envelop: Envelop) => Promise<void>;
-}
-
-export enum ReadStrategy {
-    RemoteFirst = 'RemoteFirst',
-    LocalFirst = 'LocalFirst',
-}
-
-export type Read = <T extends Chunk>(key: string) => Promise<T | undefined>;
-export type Write = <T extends Chunk>(key: string, value: T) => Promise<void>;
-
-export type KeyValueStore = {
-    read: Read;
-    write: Write;
-};
-export type Encryption = {
-    encrypt: (data: string) => Promise<string>;
-    decrypt: (data: string) => Promise<string>;
-};
-
-export type Db = {
-    accountEnsName: string;
-    sign: (data: string) => Promise<string>;
-    encryption: Encryption;
-    readStrategy: ReadStrategy;
-    keyValueStoreLocal: KeyValueStore;
-    keyValueStoreRemote?: KeyValueStore;
-    updateLocalStorageOnRemoteRead: <T extends Chunk>(
-        key: string,
-        value: T,
+    addMessage: (
+        contactEnsName: string,
+        envelop: StorageEnvelopContainer,
+    ) => Promise<string>;
+    toggleHideConversation: (
+        contactEnsName: string,
+        isHidden: boolean,
     ) => Promise<void>;
-};
-
-export interface Chunk {
-    key: string;
 }
 
-export interface AccountManifest extends Chunk {
-    conversationListCounter: number;
+export interface StorageEnvelopContainer {
+    messageState: MessageState;
+    envelop: Envelop;
 }
 
-export interface ConversationList extends Chunk {
-    conversationList: string[];
-}
-
-export interface ConversationManifest extends Chunk {
+export interface Conversation {
+    contactEnsName: string;
+    isHidden: boolean;
     messageCounter: number;
 }
 
-export interface MessageChunk extends Chunk {
-    envelops: Envelop[];
-}
-
-export type RemoteFetchCb = <T extends Chunk>(
-    key: string,
-    value: T,
-) => Promise<void>;
+export type Encryption = {
+    encryptAsync: (data: string) => Promise<string>;
+    decryptAsync: (data: string) => Promise<string>;
+    encryptSync: (data: string) => Promise<string>;
+    decryptSync: (data: string) => Promise<string>;
+};

@@ -1,10 +1,13 @@
 /* eslint-disable no-console */
 import { ethers } from 'ethers';
 import { getCachedProvider } from './cache/providerCache';
+import { DM3Configuration } from '../../interfaces/config';
 
-export const _useMainnetProvider = (): ethers.providers.JsonRpcProvider => {
-    const url = process.env.REACT_APP_MAINNET_PROVIDER_RPC;
-    const chainID = process.env.REACT_APP_CHAIN_ID;
+export const _useMainnetProvider = (
+    dm3Configuration: DM3Configuration,
+): ethers.providers.JsonRpcProvider => {
+    const url = dm3Configuration.ethereumProvider;
+    const chainID = dm3Configuration.chainId;
 
     if (chainID !== '1' && chainID !== '5') {
         throw new Error(

@@ -1,20 +1,3 @@
-import { SendDependencies, Message } from '@dm3-org/dm3-lib-messaging';
-import {
-    Account,
-    DeliveryServiceProfile,
-    ProfileKeys,
-} from '@dm3-org/dm3-lib-profile';
-import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
-import { StorageEnvelopContainer } from '@dm3-org/dm3-lib-storage';
-import { submitMessage } from '../adapters/messages';
-import {
-    GlobalState,
-    Actions,
-    UserDbType,
-    LeftViewSelected,
-    UiViewStateType,
-} from './enum-type-utils';
-
 // returns the file extension by extracting from base64
 export const getFileTypeFromBase64 = (file: string): string => {
     return file.substring(file.indexOf('/') + 1, file.indexOf(';base64'));
@@ -114,98 +97,10 @@ export const closeErrorModal = () => {
     data.innerText = '';
 };
 
-export const getHaltDelivery = (state: GlobalState): boolean => {
-    if (state.cache.contacts) {
-        const contacts = state.cache.contacts.filter(
-            (data) =>
-                data.contactDetails.account.ensName ===
-                state.accounts.selectedContact?.account.ensName,
-        );
-        if (contacts.length) {
-            return contacts[0].contactDetails.account.profile
-                ?.publicEncryptionKey &&
-                contacts[0].contactDetails.account?.profile?.publicEncryptionKey
-                ? false
-                : true;
-        } else {
-            return true;
-        }
-    } else {
-        return true;
-    }
-};
-
-export const getDependencies = (
-    state: GlobalState,
-    account: Account,
-): SendDependencies => {
-    const data = {
-        deliverServiceProfile:
-            state.accounts.selectedContact?.deliveryServiceProfile!,
-        from: account!,
-        to: state.accounts.selectedContact?.account as Account,
-        keys: state.userDb?.keys as ProfileKeys,
-    };
-    if (state.cache.contacts) {
-        const contacts = state.cache.contacts.filter(
-            (data) =>
-                data.contactDetails.account.ensName ===
-                state.accounts.selectedContact?.account.ensName,
-        );
-        if (contacts.length) {
-            data.deliverServiceProfile = contacts[0].contactDetails
-                .deliveryServiceProfile as DeliveryServiceProfile;
-            data.to = contacts[0].contactDetails.account;
-        }
-    }
-    return data;
-};
-
-export const sendMessage = async (
-    account: Account,
-    dsToken: string,
-    state: GlobalState,
-    sendDependencies: SendDependencies,
-    messageData: Message,
-    haltDelivery: boolean,
-    dispatch: React.Dispatch<Actions>,
-) => {
-    try {
-        await submitMessage(
-            state.connection,
-            dsToken,
-            sendDependencies,
-            messageData,
-            haltDelivery,
-            (envelops: StorageEnvelopContainer[]) =>
-                envelops.forEach((envelop) =>
-                    dispatch({
-                        type: UserDbType.addMessage,
-                        payload: {
-                            container: envelop,
-                            account: account,
-                        },
-                    }),
-                ),
-        );
-    } catch (e) {
-        log('[handleNewUserMessage] ' + JSON.stringify(e), 'error');
-    }
-};
-
-export const showContactList = (dispatch: React.Dispatch<Actions>) => {
-    dispatch({
-        type: UiViewStateType.SetSelectedLeftView,
-        payload: LeftViewSelected.Contacts,
-    });
-};
-
-export const getLastDm3Name = (nameList: string[]) => {
-    let index = -1;
-    index = nameList.findIndex((data) =>
-        data.endsWith(globalConfig.USER_ENS_SUBDOMAIN()),
-    );
-    return index > -1 ? nameList[index] : null;
+export const getEtherscanUrl = (chainId: string): string => {
+    return chainId === '1'
+        ? 'https://etherscan.io/address/'
+        : 'https://goerli.etherscan.io/address/';
 };
 
 // Constants
@@ -219,9 +114,3 @@ export const ACCOUNT_CHANGE_POPUP_MESSAGE =
     'Your wallet address has changed. Please re-sign in with a signature of your wallet.';
 
 export const ENS_PROFILE_BASE_URL = 'https://app.ens.domains/';
-
-export const ETHERSCAN_URL = [
-    process.env.REACT_APP_CHAIN_ID === '1'
-        ? 'https://etherscan.io/address/'
-        : 'https://goerli.etherscan.io/address/',
-];

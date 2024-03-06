@@ -1,24 +1,27 @@
-import '../../styles/profile-contact.css';
-import { Button } from '../Button/Button';
 import { useContext, useEffect, useState } from 'react';
-import { GlobalContext } from '../../utils/context-utils';
-import profPic from '../../assets/images/human.svg';
 import closeIcon from '../../assets/images/cross.svg';
+import profPic from '../../assets/images/human.svg';
+import { AuthContext } from '../../context/AuthContext';
+import { ConversationContext } from '../../context/ConversationContext';
+import { TLDContext } from '../../context/TLDContext';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 import { EnsProfileDetails } from '../../interfaces/utils';
+import '../../styles/profile-contact.css';
+import { GlobalContext } from '../../utils/context-utils';
 import {
     getAvatarProfilePic,
     getEnsProfileDetails,
     onClose,
     openEnsProfile,
 } from '../../utils/ens-utils';
-import { EnsDetails } from '../EnsDetails/EnsDetails';
+import { Button } from '../Button/Button';
 import { openConfigurationModal } from '../ConfigureProfile/bl';
-import { AuthContext } from '../../context/AuthContext';
-import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
+import { EnsDetails } from '../EnsDetails/EnsDetails';
 
 export function Profile() {
     const { dispatch } = useContext(GlobalContext);
-    const { account, ethAddress } = useContext(AuthContext);
+    const { account, ethAddress, displayName } = useContext(AuthContext);
+    const { setSelectedContactName } = useContext(ConversationContext);
     const mainnetProvider = useMainnetProvider();
 
     const [profilePic, setProfilePic] = useState<string>('');
@@ -63,7 +66,7 @@ export function Profile() {
                     className="pointer-cursor close-icon"
                     src={closeIcon}
                     alt="close"
-                    onClick={() => onClose(dispatch)}
+                    onClick={() => onClose(dispatch, setSelectedContactName)}
                 />
             </div>
 
@@ -77,7 +80,7 @@ export function Profile() {
                 <div className="profile-detail-items mt-3">
                     <EnsDetails
                         propertyKey={'Name'}
-                        propertyValue={account?.ensName as string}
+                        propertyValue={displayName ?? ''}
                     />
                     <EnsDetails
                         propertyKey={'Address'}

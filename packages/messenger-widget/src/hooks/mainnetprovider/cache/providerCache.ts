@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { ethers } from 'ethers';
 
 export const getCachedProvider = (
@@ -15,8 +14,22 @@ export const getCachedProvider = (
                         if (cache.has(key)) {
                             return cache.get(key);
                         }
+
                         //@ts-ignore
                         const result = await target[fnSig](method);
+                        cache.set(key, result);
+                        return result;
+                    }
+
+                    if (method === 'eth_call') {
+                        const [[{ data, to }]] = args;
+                        const key = `${fnSig}-${method}-${to}-${data}`;
+                        if (cache.has(key)) {
+                            return cache.get(key);
+                        }
+
+                        //@ts-ignore
+                        const result = await target[fnSig](method, ...args);
                         cache.set(key, result);
                         return result;
                     }
@@ -25,21 +38,6 @@ export const getCachedProvider = (
                     return target[fnSig](method, ...args);
                 };
             }
-            //TODO figure out how to cache inner call
-            /*      if (fnSig === 'getResolver') {
-                return async (address: string) => {
-                    const key = `${fnSig}-${address}`;
-                    if (cache.has(key)) {
-                        console.log('cache hit ', key);
-                        return cache.get(key);
-                    }
-                    //@ts-ignore
-                    const result = await target[fnSig](address);
-                    //@ts-ignore
-                    cache.set(key, result);
-                    return result;
-                };
-            } */
             //@ts-ignore
             return target[fnSig];
         },

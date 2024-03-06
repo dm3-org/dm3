@@ -17,7 +17,7 @@ import {
     removeNotificationChannel,
     NotificationChannelType,
 } from '@dm3-org/dm3-lib-delivery';
-import { IDatabase } from './persistance/getDatabase';
+import { IDatabase } from './persistence/getDatabase';
 import { validateToggleNotificationChannel } from './validation/notification/enableOrDisableChannelValidation';
 
 // Exporting a function that returns an Express router

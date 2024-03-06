@@ -10,7 +10,7 @@ export const themeColors = {
     activeContactBackgroundColor: 'dimgray',
     configurationBoxBackgroundColor: 'darkgrey',
     configurationBoxBorderColor: '#666876',
-    chatBakgroundColor: '#5c5e54',
+    chatBackgroundColor: '#5c5e54',
     disabledButtonTextColor: 'burlywood',
     errorTextColor: '#C30F1A',
     errorBackgroundColor: '#830B12',

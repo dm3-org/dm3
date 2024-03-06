@@ -2,6 +2,7 @@
 import React from 'react';
 import { _useMainnetProvider } from '../hooks/mainnetprovider/_useMainnetProvider';
 import { ethers } from 'ethers';
+import { DM3Configuration } from '../interfaces/config';
 
 export type MainnetProviderContextType = {
     provider: ethers.providers.JsonRpcProvider;
@@ -14,10 +15,12 @@ export const MainnetProviderContext =
 
 export const MainnetProviderContextProvider = ({
     children,
+    dm3Configuration,
 }: {
     children?: any;
+    dm3Configuration: DM3Configuration;
 }) => {
-    const mainnetProvider = _useMainnetProvider();
+    const mainnetProvider = _useMainnetProvider(dm3Configuration);
     return (
         <MainnetProviderContext.Provider
             value={{

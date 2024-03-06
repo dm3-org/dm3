@@ -1,23 +1,9 @@
 import { Envelop, MessageState } from '@dm3-org/dm3-lib-messaging';
-import {
-    Actions,
-    GlobalState,
-    MessageActionType,
-} from '../utils/enum-type-utils';
-import { Config, Dm3Props } from './config';
+import { MessageActionType } from '../utils/enum-type-utils';
+import { Dm3Props } from './config';
 import { Attachment, ContactPreview } from './utils';
-import { Account } from '@dm3-org/dm3-lib-profile';
-import { ethers } from 'ethers';
 
 export interface DashboardProps {
-    getContacts: (
-        mainnetProvider: ethers.providers.StaticJsonRpcProvider,
-        account: Account,
-        deliveryServiceToken: string,
-        state: GlobalState,
-        dispatch: React.Dispatch<Actions>,
-        props: Config,
-    ) => Promise<void>;
     dm3Props: Dm3Props;
 }
 
@@ -39,10 +25,7 @@ export interface MessageProps {
     messageState: MessageState;
     ownMessage: boolean;
     envelop: Envelop;
-    replyToMsg: string | undefined;
-    replyToMsgFrom: string | undefined;
-    replyToMsgId: string | undefined;
-    replyToMsgEnvelope: Envelop | undefined;
+    replyToMessageEnvelop?: Envelop | undefined;
     reactions: Envelop[];
     isLastMessage?: boolean;
     hideFunction?: string;

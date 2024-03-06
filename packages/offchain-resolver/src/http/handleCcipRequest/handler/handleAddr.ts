@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { IDatabase } from '../../../persistance/IDatabase';
+import { IDatabase } from '../../../persistence/IDatabase';
 import { interceptAddr } from './intercept';
 import { logDebug } from '@dm3-org/dm3-lib-shared';
 
