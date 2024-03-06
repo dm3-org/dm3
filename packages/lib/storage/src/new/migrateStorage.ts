@@ -10,7 +10,6 @@ export const migrageStorage = async (
     //get keys of conversations map
     const keys = Array.from(conversations.keys());
 
-    console.log('migrating conversations', oldStorage);
     await Promise.all(
         keys.map(async (contactName) => {
             const aliasName = await resolveTLDtoAlias(contactName);

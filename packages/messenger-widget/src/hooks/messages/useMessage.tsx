@@ -21,7 +21,6 @@ import { handleMessagesFromStorage } from './sources/handleMessagesFromStorage';
 import { handleMessagesFromWebSocket } from './sources/handleMessagesFromWebSocket';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { checkIfEnvelopIsInSizeLimit } from './sizeLimit/checkIfEnvelopIsInSizeLimit';
-import { ContactPreview } from '../../interfaces/utils';
 
 export type MessageModel = StorageEnvelopContainerNew & {
     reactions: Envelop[];

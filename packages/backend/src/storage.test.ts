@@ -19,16 +19,19 @@ import {
     mockUserProfile,
 } from '../test/testHelper';
 import auth from './auth';
+import { Redis, getRedisClient } from './persistence/getDatabase';
+import { getUserDbMigrationStatus } from './persistence/storage/getUserDbMigrationStatus';
 import { addConversation } from './persistence/storage/postgres/addConversation';
 import { addMessageBatch } from './persistence/storage/postgres/addMessageBatch';
+import { editMessageBatch } from './persistence/storage/postgres/editMessageBatch';
 import { getConversationList } from './persistence/storage/postgres/getConversationList';
 import { getMessages } from './persistence/storage/postgres/getMessages';
 import { getNumberOfConversations } from './persistence/storage/postgres/getNumberOfConversations';
 import { getNumberOfMessages } from './persistence/storage/postgres/getNumberOfMessages';
 import { toggleHideConversation } from './persistence/storage/postgres/toggleHideConversation';
 import { MessageRecord } from './persistence/storage/postgres/utils/MessageRecord';
+import { setUserDbMigrated } from './persistence/storage/setUserDbMigrated';
 import storage from './storage';
-import { editMessageBatch } from './persistence/storage/postgres/editMessageBatch';
 
 const keysA = {
     encryptionKeyPair: {
@@ -55,11 +58,16 @@ describe('Storage', () => {
     let sender: MockedUserProfile;
     let receiver: MockedUserProfile;
     let deliveryService: MockedDeliveryServiceProfile;
+
+    let redisClient: Redis;
+
     beforeEach(async () => {
         prisma = new PrismaClient();
+        redisClient = await getRedisClient();
+
+        await redisClient.flushDb();
         app = express();
         app.use(bodyParser.json());
-        app.use(storage());
 
         token = await createAuthToken();
 
@@ -93,6 +101,7 @@ describe('Storage', () => {
                 return (_: any, __: any, ___: any) => {};
             },
             getIdEnsName: async (ensName: string) => ensName,
+
             editMessageBatch: editMessageBatch(prisma),
             addMessageBatch: addMessageBatch(prisma),
             getMessagesFromStorage: getMessages(prisma),
@@ -101,7 +110,10 @@ describe('Storage', () => {
             getNumberOfMessages: getNumberOfMessages(prisma),
             getNumberOfConverations: getNumberOfConversations(prisma),
             toggleHideConversation: toggleHideConversation(prisma),
+            getUserDbMigrationStatus: getUserDbMigrationStatus(redisClient),
+            setUserDbMigrated: setUserDbMigrated(redisClient),
         };
+        app.use(storage(app.locals.db));
 
         app.locals.web3Provider = {
             resolveName: async () =>
@@ -113,6 +125,8 @@ describe('Storage', () => {
         await prisma.encryptedMessage.deleteMany();
         await prisma.conversation.deleteMany();
         await prisma.account.deleteMany();
+        await redisClient.flushDb();
+        await redisClient.disconnect();
     });
 
     describe('addConversation', () => {
@@ -822,6 +836,36 @@ describe('Storage', () => {
             expect(JSON.parse(body[0]).encryptedEnvelopContainer).toBe(
                 updatedPayload[0].encryptedEnvelopContainer,
             );
+        });
+    });
+    describe('Migration', () => {
+        it('should migrate storage', async () => {
+            const { body: preMigrationStatus } = await request(app)
+                .get(`/new/bob.eth/migrationStatus`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+
+            expect(preMigrationStatus).toBe(false);
+
+            const { status } = await request(app)
+                .post(`/new/bob.eth/migrationStatus`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+
+            expect(status).toBe(200);
+
+            const { body: postMigrationStatus } = await request(app)
+                .get(`/new/bob.eth/migrationStatus`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+
+            expect(postMigrationStatus).toBe(true);
         });
     });
 });

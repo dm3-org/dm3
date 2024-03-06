@@ -4,8 +4,9 @@ import express from 'express';
 import stringify from 'safe-stable-stringify';
 import { auth } from './utils';
 import { sha256 } from '@dm3-org/dm3-lib-shared';
+import { IDatabase } from './persistence/getDatabase';
 
-export default () => {
+export default (db: IDatabase) => {
     const router = express.Router();
 
     //TODO remove
@@ -28,7 +29,7 @@ export default () => {
             const ensName = normalizeEnsName(req.params.ensName);
             const getUniqueMessageId = (messageId: string) =>
                 sha256(ensName + messageId);
-            await req.app.locals.db.editMessageBatch(
+            await db.editMessageBatch(
                 ensName,
                 encryptedContactName,
                 editMessageBatchPayload.map((message) => ({
@@ -55,7 +56,7 @@ export default () => {
         try {
             const ensName = normalizeEnsName(req.params.ensName);
             const uniqueMessageId = sha256(ensName + messageId);
-            const success = await req.app.locals.db.addMessageBatch(
+            const success = await db.addMessageBatch(
                 ensName,
                 encryptedContactName,
                 [{ messageId: uniqueMessageId, encryptedEnvelopContainer }],
@@ -85,7 +86,7 @@ export default () => {
             const getUniqueMessageId = (messageId: string) =>
                 sha256(ensName + messageId);
 
-            await req.app.locals.db.addMessageBatch(
+            await db.addMessageBatch(
                 ensName,
                 encryptedContactName,
                 messageBatch.map((message) => ({
@@ -112,7 +113,7 @@ export default () => {
             }
             try {
                 const ensName = normalizeEnsName(req.params.ensName);
-                const messages = await req.app.locals.db.getMessagesFromStorage(
+                const messages = await db.getMessagesFromStorage(
                     ensName,
                     encryptedContactName,
                     pageNumber,
@@ -135,7 +136,7 @@ export default () => {
             }
             try {
                 const ensName = normalizeEnsName(req.params.ensName);
-                const messages = await req.app.locals.db.getNumberOfMessages(
+                const messages = await db.getNumberOfMessages(
                     ensName,
                     encryptedContactName,
                 );
@@ -154,7 +155,7 @@ export default () => {
         }
         try {
             const ensName = normalizeEnsName(req.params.ensName);
-            const success = await req.app.locals.db.addConversation(
+            const success = await db.addConversation(
                 ensName,
                 encryptedContactName,
             );
@@ -169,9 +170,7 @@ export default () => {
     router.get('/new/:ensName/getConversations', async (req, res, next) => {
         try {
             const ensName = normalizeEnsName(req.params.ensName);
-            const conversations = await req.app.locals.db.getConversationList(
-                ensName,
-            );
+            const conversations = await db.getConversationList(ensName);
             return res.json(conversations);
         } catch (e) {
             next(e);
@@ -182,8 +181,7 @@ export default () => {
         async (req, res, next) => {
             try {
                 const ensName = normalizeEnsName(req.params.ensName);
-                const messages =
-                    await req.app.locals.db.getNumberOfConverations(ensName);
+                const messages = await db.getNumberOfConverations(ensName);
                 return res.json(messages);
             } catch (e) {
                 next(e);
@@ -202,7 +200,7 @@ export default () => {
             try {
                 const ensName = normalizeEnsName(req.params.ensName);
 
-                await req.app.locals.db.toggleHideConversation(
+                await db.toggleHideConversation(
                     ensName,
                     encryptedContactName,
                     hide,
@@ -216,10 +214,30 @@ export default () => {
         },
     );
 
+    router.get('/new/:ensName/migrationStatus', async (req, res, next) => {
+        try {
+            const ensName = normalizeEnsName(req.params.ensName);
+            const status = await db.getUserDbMigrationStatus(ensName);
+            return res.json(status);
+        } catch (e) {
+            next(e);
+        }
+    });
+
+    router.post('/new/:ensName/migrationStatus', async (req, res, next) => {
+        try {
+            const ensName = normalizeEnsName(req.params.ensName);
+            await db.setUserDbMigrated(ensName);
+            return res.send();
+        } catch (e) {
+            next(e);
+        }
+    });
+
     router.get('/:ensName', async (req, res, next) => {
         try {
             const account = normalizeEnsName(req.params.ensName);
-            const userStorage = await req.app.locals.db.getUserStorage(account);
+            const userStorage = await db.getUserStorage(account);
             return res.json(userStorage);
         } catch (e) {
             next(e);
@@ -230,10 +248,7 @@ export default () => {
         try {
             const account = normalizeEnsName(req.params.ensName);
 
-            await req.app.locals.db.setUserStorage(
-                account,
-                stringify(req.body)!,
-            );
+            await db.setUserStorage(account, stringify(req.body)!);
 
             res.json({
                 timestamp: new Date().getTime(),

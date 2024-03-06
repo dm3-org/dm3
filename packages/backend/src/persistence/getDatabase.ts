@@ -30,6 +30,7 @@ export enum RedisPrefix {
     NotificationChannel = 'notificationChannel:',
     GlobalNotification = 'globalNotification:',
     Otp = 'otp:',
+    UserStorageMigrated = 'user.storage.migrated:',
 }
 
 export async function getRedisClient() {
@@ -125,6 +126,10 @@ export async function getDatabase(
         getNumberOfConverations: Storage.getNumberOfConversations(prisma),
         //Storage Toggle Hide Conversation
         toggleHideConversation: Storage.toggleHideConversation(prisma),
+        //Get the user db migration status
+        getUserDbMigrationStatus: Storage.getUserDbMigrationStatus(redis),
+        //Set the user db migration status to true
+        setUserDbMigrated: Storage.setUserDbMigrated(redis),
     };
 }
 
@@ -236,6 +241,8 @@ export interface IDatabase {
         encryptedContactName: string,
         isHidden: boolean,
     ) => Promise<boolean>;
+    getUserDbMigrationStatus: (ensName: string) => Promise<boolean>;
+    setUserDbMigrated: (ensName: string) => Promise<void>;
 }
 
 export type Redis = Awaited<ReturnType<typeof getRedisClient>>;
