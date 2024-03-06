@@ -43,7 +43,6 @@ export function MessageInputField(props: MessageDataProps) {
             account!,
             selectedContact!,
         );
-        props.setMessageText('');
         scrollToBottomOfChat();
     }
 

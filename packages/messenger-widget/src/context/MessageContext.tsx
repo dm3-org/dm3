@@ -6,7 +6,6 @@ import {
     MessageStorage,
     useMessage,
 } from '../hooks/messages/useMessage';
-import { GlobalState } from '../utils/enum-type-utils';
 
 export type MessageContextType = {
     getMessages: GetMessages;
@@ -19,7 +18,10 @@ export type MessageContextType = {
 export const MessageContext = React.createContext<MessageContextType>({
     getMessages: (contact: string) => [],
     getUnreadMessageCount: (contact: string) => 0,
-    addMessage: (contact: string, message: any) => {},
+    addMessage: (contact: string, message: any) =>
+        new Promise(() => {
+            isSuccess: true;
+        }),
     contactIsLoading: (contact: string) => false,
     messages: {},
 });

@@ -7,6 +7,7 @@ import { MessageModel } from '../../hooks/messages/useMessage';
 import { HideFunctionProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
 import {
+    MessageActionType,
     RightViewSelected,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
@@ -56,6 +57,18 @@ export function Chat(props: HideFunctionProps) {
         );
         setShowShimEffect(isLoading);
     }, [contactIsLoading]);
+
+    // if new message is found scroll based on message type
+    useEffect(() => {
+        if (
+            messages.length &&
+            (state.modal.lastMessageAction === MessageActionType.NONE ||
+                state.modal.lastMessageAction === MessageActionType.REPLY ||
+                state.modal.lastMessageAction === MessageActionType.NEW)
+        ) {
+            scrollToBottomOfChat();
+        }
+    }, [messages]);
 
     /* shimmer effect contacts css */
     const shimmerData: number[] = Array.from({ length: 50 }, (_, i) => i + 1);

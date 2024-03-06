@@ -24,7 +24,6 @@ export function SendMessage(props: MessageDataProps) {
             account!,
             selectedContact!,
         );
-        props.setMessageText('');
         scrollToBottomOfChat();
     }
 

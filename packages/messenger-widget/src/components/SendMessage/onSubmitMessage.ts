@@ -14,6 +14,7 @@ import { MessageDataProps } from '../../interfaces/props';
 import { Account } from '@dm3-org/dm3-lib-profile';
 import { AddMessage } from '../../hooks/messages/useMessage';
 import { ContactPreview } from '../../interfaces/utils';
+import { closeErrorModal, openErrorModal } from '../../utils/common-utils';
 
 export const onSubmitMessage = async (
     state: GlobalState,
@@ -24,7 +25,9 @@ export const onSubmitMessage = async (
     account: Account,
     selectedContact: ContactPreview,
 ) => {
-    if (state.uiView.selectedMessageView.actionType === 'REPLY') {
+    if (
+        state.uiView.selectedMessageView.actionType === MessageActionType.REPLY
+    ) {
         const referenceMessageHash =
             state.uiView.selectedMessageView.messageData?.envelop.metadata
                 ?.encryptedMessageHash;
@@ -38,12 +41,19 @@ export const onSubmitMessage = async (
             props.filesSelected.map((file) => file.data),
         );
 
-        addMessage(
+        const { error } = await addMessage(
             selectedContact?.contactDetails.account.ensName!,
             messageData,
         );
 
+        if (error) {
+            openErrorModal(error, false, closeErrorModal);
+            return;
+        }
+
+        props.setFiles([]);
         props.setMessageText('');
+
         scrollToBottomOfChat();
         dispatch({
             type: ModalStateType.LastMessageAction,
@@ -61,7 +71,9 @@ export const onSubmitMessage = async (
 
         return;
     }
-    if (state.uiView.selectedMessageView.actionType === 'EDIT') {
+    if (
+        state.uiView.selectedMessageView.actionType === MessageActionType.EDIT
+    ) {
         const referenceMessageHash =
             state.uiView.selectedMessageView.messageData?.envelop.metadata
                 ?.encryptedMessageHash;
@@ -76,13 +88,19 @@ export const onSubmitMessage = async (
             props.filesSelected.map((file) => file.data),
         );
 
-        await addMessage(
+        const { error } = await addMessage(
             selectedContact?.contactDetails.account.ensName!,
             messageData,
         );
 
-        props.setMessageText('');
+        if (error) {
+            openErrorModal(error, false, closeErrorModal);
+            return;
+        }
+
         props.setFiles([]);
+        props.setMessageText('');
+
         scrollToBottomOfChat();
 
         dispatch({
@@ -94,6 +112,7 @@ export const onSubmitMessage = async (
         });
         return;
     }
+
     const messageData = await createMessage(
         selectedContact?.contactDetails.account.ensName!,
         account!.ensName,
@@ -102,5 +121,17 @@ export const onSubmitMessage = async (
         props.filesSelected.map((file) => file.data),
     );
 
-    addMessage(selectedContact?.contactDetails.account.ensName!, messageData);
+    const { error } = await addMessage(
+        selectedContact?.contactDetails.account.ensName!,
+        messageData,
+    );
+
+    if (error) {
+        openErrorModal(error, false, closeErrorModal);
+        return;
+    }
+
+    props.setFiles([]);
+    props.setMessageText('');
+    scrollToBottomOfChat();
 };
