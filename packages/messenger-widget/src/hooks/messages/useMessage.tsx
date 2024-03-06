@@ -229,6 +229,7 @@ export const useMessage = () => {
                 keys: profileKeys!,
             },
         );
+
         //StorageEnvelopContainerNew to store the message in the storage
         const messageModel = {
             envelop,

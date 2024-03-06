@@ -1,14 +1,16 @@
 import {
     StorageEnvelopContainer as StorageEnvelopContainerNew,
     getCloudStorage,
+    load,
+    migrageStorage,
 } from '@dm3-org/dm3-lib-storage';
 
 import {
     EncryptedPayload,
+    decrypt as _decrypt,
+    encrypt as _encrypt,
     decryptAsymmetric,
     encryptAsymmetric,
-    encrypt as _encrypt,
-    decrypt as _decrypt,
 } from '@dm3-org/dm3-lib-crypto';
 import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { sha256, stringify } from '@dm3-org/dm3-lib-shared';
@@ -16,8 +18,9 @@ import {
     Conversation,
     StorageAPI,
 } from '@dm3-org/dm3-lib-storage/dist/new/types';
-import { useEffect, useState } from 'react';
-import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
+import { useContext, useEffect, useState } from 'react';
+import axios from 'axios';
+import { TLDContext } from '../../context/TLDContext';
 
 //Handels storage sync and offers an interface for other hooks to interact with the storage
 export const useStorage = (
@@ -26,8 +29,7 @@ export const useStorage = (
     storageServiceToken: string | undefined,
     profileKeys: ProfileKeys | undefined,
 ) => {
-    const mainnetProvider = useMainnetProvider();
-
+    const { resolveTLDtoAlias } = useContext(TLDContext);
     const [storageApi, setStorageApi] = useState<StorageAPI | undefined>(
         undefined,
     );
@@ -43,7 +45,7 @@ export const useStorage = (
         init();
     }, [storageServiceToken, account]);
 
-    const init = () => {
+    const init = async () => {
         const encryptSync = async (data: string) => {
             const accountNonce = sha256(account!.ensName).slice(0, 26);
             const encryptedPayload: EncryptedPayload = await _encrypt(
@@ -95,6 +97,7 @@ export const useStorage = (
             },
         );
 
+        await migrate(s);
         setStorageApi(s);
         setInitialized(true);
     };
@@ -164,6 +167,53 @@ export const useStorage = (
             return Promise.resolve(0);
         }
         storageApi.toggleHideConversation(contact, value);
+    };
+
+    //Migration to migrate the old storage to the new storage
+    //Remove after a certain time once every user has migrated
+    const migrate = async (cloudStorage: StorageAPI) => {
+        const hasAlreadyMigrated = await axios.get(
+            `${storageServiceUrl}/storage/new/${account?.ensName}/migrationStatus`,
+            {
+                headers: {
+                    Authorization: `Bearer ${storageServiceToken}`,
+                },
+            },
+        );
+
+        //If the user has already migrated we don't need to do anything
+        if (hasAlreadyMigrated.data === true) {
+            return;
+        }
+
+        //Check if the user has used dm3 before
+        const { data: legacyStorageFile } = await axios.get(
+            `${storageServiceUrl}/storage/${account?.ensName}/`,
+            {
+                headers: {
+                    Authorization: `Bearer ${storageServiceToken}`,
+                },
+            },
+        );
+
+        //If the user has used dm3 before we need to migrate the old storage to the new one
+        if (legacyStorageFile !== null) {
+            const userDb = await load(
+                JSON.parse(legacyStorageFile),
+                profileKeys?.storageEncryptionKey!,
+            );
+            await migrageStorage(userDb, cloudStorage, resolveTLDtoAlias);
+        }
+        //Set the migrationStatus to true. So we won't migrate again
+        await axios.post(
+            `${storageServiceUrl}/storage/new/${account?.ensName}/migrationStatus`,
+            undefined,
+            {
+                headers: {
+                    Authorization: `Bearer ${storageServiceToken}`,
+                },
+            },
+        );
     };
 
     return {
