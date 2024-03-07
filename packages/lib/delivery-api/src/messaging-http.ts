@@ -15,7 +15,7 @@ const DELIVERY_PATH = process.env.REACT_APP_BACKEND + '/delivery';
 export async function syncAcknoledgment(
     provider: ethers.providers.JsonRpcProvider,
     account: Account,
-    acknoledgments: Acknoledgment[],
+    acknowledgements: Acknoledgment[],
     token: string,
     lastMessagePull: number,
 ): Promise<void> {
@@ -29,7 +29,7 @@ export async function syncAcknoledgment(
         profile,
         provider,
         async (url: string) => (await axios.get(url)).data,
-    ).post(url, { acknoledgments }, getAxiosConfig(token));
+    ).post(url, { acknowledgements }, getAxiosConfig(token));
 }
 export type SyncAcknoledgment = typeof syncAcknoledgment;
 
@@ -38,14 +38,14 @@ export type SyncAcknoledgment = typeof syncAcknoledgment;
  * and can be deleted on the delivery service
  * @param provider Ethers provider
  * @param account The dm3 account
- * @param acknoledgments Acknoledgment that messages have been stored
+ * @param acknowledgements Acknoledgment that messages have been stored
  * @param token The auth token
  * @param lastMessagePull Timestamp of the last message pull
  */
 export async function syncAcknowledgment(
     provider: ethers.providers.JsonRpcProvider,
     account: Account,
-    acknoledgments: Acknoledgment[],
+    acknowledgements: Acknoledgment[],
     token: string,
     lastSyncTime: number,
 ): Promise<void> {
@@ -59,7 +59,7 @@ export async function syncAcknowledgment(
         profile,
         provider,
         async (url: string) => (await axios.get(url)).data,
-    ).post(url, { acknoledgments }, getAxiosConfig(token));
+    ).post(url, { acknowledgements }, getAxiosConfig(token));
 }
 export type SyncAcknowledgment = typeof syncAcknoledgment;
 

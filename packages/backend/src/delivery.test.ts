@@ -118,7 +118,7 @@ describe('Delivery', () => {
         });
     });
 
-    describe('syncAcknoledgment', () => {
+    describe('syncAcknowledgement', () => {
         it('Returns 200 if schema is valid', async () => {
             const app = express();
             app.use(bodyParser.json());
@@ -156,14 +156,14 @@ describe('Delivery', () => {
 
             const { status } = await request(app)
                 .post(
-                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknoledgment/12345',
+                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknowledgement/12345',
                 )
                 .set({
                     authorization: `Bearer ${token}`,
                 })
 
                 .send({
-                    acknoledgments: [
+                    acknowledgements: [
                         {
                             contactAddress:
                                 '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
@@ -204,14 +204,14 @@ describe('Delivery', () => {
 
             const { status } = await request(app)
                 .post(
-                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknoledgment/fooo',
+                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknowledgement/fooo',
                 )
                 .set({
                     authorization: `Bearer ${token}`,
                 })
 
                 .send({
-                    acknoledgments: [],
+                    acknowledgements: [],
                 });
 
             expect(status).toBe(400);
@@ -246,7 +246,7 @@ describe('Delivery', () => {
 
             const { status } = await request(app)
                 .post(
-                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknoledgment/1234',
+                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/syncAcknowledgement/1234',
                 )
                 .set({
                     authorization: `Bearer ${token}`,

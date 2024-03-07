@@ -175,10 +175,10 @@ describe('Storage', () => {
 
             db.conversations.set(conversationId, conversation);
 
-            const { acknoledgments, userStorage } = await sync(db, '');
+            const { acknowledgements, userStorage } = await sync(db, '');
 
-            expect(acknoledgments.length).toBe(1);
-            expect(acknoledgments).toStrictEqual([
+            expect(acknowledgements.length).toBe(1);
+            expect(acknowledgements).toStrictEqual([
                 {
                     contactAddress: USER_1,
                     messageDeliveryServiceTimestamp: 123,
@@ -207,10 +207,10 @@ describe('Storage', () => {
             db.conversations.set(conversationId, conversation);
             db.conversations.set(emptyConversion, []);
 
-            const { acknoledgments, userStorage } = await sync(db, '');
+            const { acknowledgements, userStorage } = await sync(db, '');
 
-            expect(acknoledgments.length).toBe(1);
-            expect(acknoledgments).toStrictEqual([
+            expect(acknowledgements.length).toBe(1);
+            expect(acknowledgements).toStrictEqual([
                 {
                     contactAddress: USER_1,
                     messageDeliveryServiceTimestamp: 123,
@@ -231,10 +231,10 @@ describe('Storage', () => {
 
             const db = createDB(profileKeys);
 
-            const { acknoledgments, userStorage } = await sync(db, '');
+            const { acknowledgements, userStorage } = await sync(db, '');
 
-            expect(acknoledgments.length).toBe(0);
-            expect(acknoledgments).toStrictEqual([]);
+            expect(acknowledgements.length).toBe(0);
+            expect(acknowledgements).toStrictEqual([]);
 
             const loadDb = await load(
                 userStorage,

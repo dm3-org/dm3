@@ -57,14 +57,14 @@ export const useStorage = (
             return btoa(stringify(encryptedPayload));
         };
         const decryptSync = async (data: string) => {
-            const payload: EncryptedPayload = JSON.parse(
+            consacknowledgementcryptedPayload = JSON.parse(
                 atob(data),
             ) as EncryptedPayload;
 
             return await _decrypt(
                 profileKeys?.encryptionKeyPair!.privateKey!,
                 payload,
-                1,
+                acknowledgement
             );
         };
         const encryptAsync = async (data: string) => {

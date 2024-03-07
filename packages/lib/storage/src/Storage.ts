@@ -180,13 +180,13 @@ export async function sync(
     deliveryServiceToken: string,
 ): Promise<{
     userStorage: UserStorage;
-    acknoledgments: Acknoledgment[];
+    acknowledgements: Acknoledgment[];
 }> {
     if (!userDb) {
         throw Error(`User db hasn't been create`);
     }
 
-    const acknoledgments: Acknoledgment[] = Array.from(
+    const acknowledgements: Acknoledgment[] = Array.from(
         userDb.conversations.keys(),
     )
         // get newest delivery service query timestamp
@@ -210,7 +210,7 @@ export async function sync(
             (containers): containers is StorageEnvelopContainer[] =>
                 !!containers && containers.length > 0,
         )
-        // create acknoledgments
+        // create acknowledgements
         .map((containers) => ({
             contactAddress: containers[0].envelop.message.metadata.from,
             messageDeliveryServiceTimestamp:
@@ -228,7 +228,7 @@ export async function sync(
                 ),
             ),
         },
-        acknoledgments,
+        acknowledgements,
     };
 }
 /**
