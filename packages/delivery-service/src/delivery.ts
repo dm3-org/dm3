@@ -3,15 +3,11 @@ import express from 'express';
 import { IDatabase } from './persistence/getDatabase';
 import { WithLocals } from './types';
 import { auth } from './utils';
-import {
-    schema,
-    getMessages,
-    Acknowledgement,
-} from '@dm3-org/dm3-lib-delivery';
+import { schema, getMessages, Acknoledgment } from '@dm3-org/dm3-lib-delivery';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import { getConversationId } from '@dm3-org/dm3-lib-storage';
 
-const syncAcknowledgementParamsSchema = {
+const syncAcknoledgmentParamsSchema = {
     type: 'object',
     properties: {
         ensName: { type: 'string' },
@@ -20,15 +16,15 @@ const syncAcknowledgementParamsSchema = {
     required: ['ensName', 'last_message_pull'],
     additionalProperties: false,
 };
-const syncAcknowledgementBodySchema = {
+const syncAcknoledgmentBodySchema = {
     type: 'object',
     properties: {
-        acknowledgements: {
+        acknoledgments: {
             type: 'array',
-            items: schema.Acknowledgement,
+            items: schema.Acknoledgment,
         },
     },
-    required: ['acknowledgements'],
+    required: ['acknoledgments'],
     additionalProperties: false,
 };
 
@@ -114,15 +110,15 @@ export default () => {
     });
     //TODO remove after storage refactoring
     router.post(
-        '/messages/:ensName/syncAcknowledgement/:last_message_pull',
+        '/messages/:ensName/syncAcknoledgment/:last_message_pull',
         async (req, res, next) => {
             const hasValidParams = validateSchema(
-                syncAcknowledgementParamsSchema,
+                syncAcknoledgmentParamsSchema,
                 req.params,
             );
 
             const hasValidBody = validateSchema(
-                syncAcknowledgementBodySchema,
+                syncAcknoledgmentBodySchema,
                 req.body,
             );
 
@@ -142,25 +138,23 @@ export default () => {
                 );
 
                 await Promise.all(
-                    req.body.acknowledgements.map(
-                        async (ack: Acknowledgement) => {
-                            const contactEnsName =
-                                await await req.app.locals.db.getIdEnsName(
-                                    ack.contactAddress,
-                                );
-                            const conversationId = getConversationId(
-                                ensName,
-                                contactEnsName,
+                    req.body.acknoledgments.map(async (ack: Acknoledgment) => {
+                        const contactEnsName =
+                            await await req.app.locals.db.getIdEnsName(
+                                ack.contactAddress,
                             );
+                        const conversationId = getConversationId(
+                            ensName,
+                            contactEnsName,
+                        );
 
-                            const db: IDatabase = req.app.locals.db;
+                        const db: IDatabase = req.app.locals.db;
 
-                            await db.syncAcknowledge(
-                                conversationId,
-                                Number.parseInt(req.params.last_message_pull),
-                            );
-                        },
-                    ),
+                        await db.syncAcknowledge(
+                            conversationId,
+                            Number.parseInt(req.params.last_message_pull),
+                        );
+                    }),
                 );
 
                 res.json();
@@ -173,12 +167,12 @@ export default () => {
         '/messages/:ensName/syncAcknowledgment/:last_message_pull',
         async (req, res, next) => {
             const hasValidParams = validateSchema(
-                syncAcknowledgementParamsSchema,
+                syncAcknoledgmentParamsSchema,
                 req.params,
             );
 
             const hasValidBody = validateSchema(
-                syncAcknowledgementBodySchema,
+                syncAcknoledgmentBodySchema,
                 req.body,
             );
 
@@ -198,25 +192,23 @@ export default () => {
                 );
 
                 await Promise.all(
-                    req.body.acknowledgements.map(
-                        async (ack: Acknowledgement) => {
-                            const contactEnsName =
-                                await await req.app.locals.db.getIdEnsName(
-                                    ack.contactAddress,
-                                );
-                            const conversationId = getConversationId(
-                                ensName,
-                                contactEnsName,
+                    req.body.acknoledgments.map(async (ack: Acknoledgment) => {
+                        const contactEnsName =
+                            await await req.app.locals.db.getIdEnsName(
+                                ack.contactAddress,
                             );
+                        const conversationId = getConversationId(
+                            ensName,
+                            contactEnsName,
+                        );
 
-                            const db: IDatabase = req.app.locals.db;
+                        const db: IDatabase = req.app.locals.db;
 
-                            await db.syncAcknowledge(
-                                conversationId,
-                                Number.parseInt(req.params.last_message_pull),
-                            );
-                        },
-                    ),
+                        await db.syncAcknowledge(
+                            conversationId,
+                            Number.parseInt(req.params.last_message_pull),
+                        );
+                    }),
                 );
 
                 res.json();
