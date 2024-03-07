@@ -1,7 +1,11 @@
 import { globalConfig } from '@dm3-org/dm3-lib-shared';
+import { switchNetwork } from '@wagmi/core';
 import { useContext, useEffect, useState } from 'react';
+import { useChainId } from 'wagmi';
 import closeIcon from '../../assets/images/cross.svg';
 import tickIcon from '../../assets/images/white-tick.svg';
+import { AuthContext } from '../../context/AuthContext';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 import '../../styles/modal.css';
 import { GlobalContext } from '../../utils/context-utils';
 import DeleteDM3Name from '../DeleteDM3Name/DeleteDM3Name';
@@ -19,27 +23,32 @@ import {
     validateName,
 } from './bl';
 import {
-    ConfigureProfileContext,
-    ConfigureProfileContextProvider,
-} from './context/ConfigureProfileContext';
-import { AuthContext } from '../../context/AuthContext';
-import { useNetwork } from 'wagmi';
-import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
-import { switchNetwork } from '@wagmi/core';
-import {
     ACTION_TYPE,
     BUTTON_CLASS,
     NAME_TYPE,
     PROFILE_INPUT_FIELD_CLASS,
 } from './chain/common';
+import {
+    ConfigureProfileContext,
+    ConfigureProfileContextProvider,
+} from './context/ConfigureProfileContext';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export function ConfigureDM3Profile() {
     // global context state
-    const { state, dispatch } = useContext(GlobalContext);
-    const { chain } = useNetwork();
+    const { dispatch } = useContext(GlobalContext);
 
-    const { account, ethAddress, deliveryServiceToken, setAccount } =
-        useContext(AuthContext);
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
+
+    const connectedChainId = useChainId();
+
+    const {
+        account,
+        ethAddress,
+        deliveryServiceToken,
+        setDisplayName,
+        profileKeys,
+    } = useContext(AuthContext);
     const mainnetProvider = useMainnetProvider();
 
     // existing profile details states
@@ -81,7 +90,7 @@ export function ConfigureDM3Profile() {
     // handles claim or delete DM3 user name
     const handleClaimOrRemoveDm3Name = async (
         type: ACTION_TYPE,
-        setAccount: Function,
+        setDisplayName: Function,
     ) => {
         if (type === ACTION_TYPE.CONFIGURE) {
             const name = dm3Name.trim();
@@ -90,18 +99,21 @@ export function ConfigureDM3Profile() {
                 return;
             }
             await submitDm3UsernameClaim(
-                state,
+                dm3Configuration.resolverBackendUrl,
+                profileKeys!,
                 mainnetProvider,
                 account!,
                 deliveryServiceToken!,
                 name,
                 dispatch,
                 setError,
-                setAccount,
+                setDisplayName,
+                setExistingDm3Name,
             );
         } else {
             const result = await removeAliasFromDm3Name(
-                state,
+                dm3Configuration.resolverBackendUrl,
+                profileKeys!,
                 account!,
                 ethAddress!,
                 existingDm3Name as string,
@@ -114,19 +126,24 @@ export function ConfigureDM3Profile() {
 
     // changes network on naming service change
     const changeNetwork = (serviceName: string) => {
-        const chainId = fetchChainIdFromServiceName(serviceName);
-        if (chainId && chainId !== chain?.id) {
+        const chainId = fetchChainIdFromServiceName(
+            serviceName,
+            dm3Configuration.chainId,
+        );
+        if (chainId && chainId !== connectedChainId) {
             switchNetwork({ chainId });
         }
     };
 
     // handles existing ENS name
     useEffect(() => {
-        if (
-            account!.ensName &&
-            !account!.ensName.endsWith(globalConfig.ADDR_ENS_SUBDOMAIN())
-        ) {
-            fetchExistingDM3Name(mainnetProvider, account!, setExistingDm3Name);
+        if (account!.ensName) {
+            fetchExistingDM3Name(
+                dm3Configuration.resolverBackendUrl,
+                mainnetProvider,
+                account!,
+                setExistingDm3Name,
+            );
         }
     }, [account]);
 
@@ -145,8 +162,8 @@ export function ConfigureDM3Profile() {
     }, [ethAddress]);
 
     useEffect(() => {
-        if (chain) {
-            setNamingServiceSelected(fetchServiceFromChainId(chain.id));
+        if (connectedChainId) {
+            setNamingServiceSelected(fetchServiceFromChainId(connectedChainId));
         }
     }, []);
 
@@ -239,7 +256,7 @@ export function ConfigureDM3Profile() {
                                     e.preventDefault();
                                     handleClaimOrRemoveDm3Name(
                                         ACTION_TYPE.CONFIGURE,
-                                        setAccount,
+                                        setDisplayName,
                                     );
                                 }}
                             >
@@ -317,7 +334,7 @@ export function ConfigureDM3Profile() {
                             onClick={() =>
                                 handleClaimOrRemoveDm3Name(
                                     ACTION_TYPE.CONFIGURE,
-                                    setAccount,
+                                    setDisplayName,
                                 )
                             }
                         >
@@ -350,7 +367,7 @@ export function ConfigureDM3Profile() {
                 </div>
             </div>
 
-            {fetchComponent(namingServiceSelected)}
+            {fetchComponent(namingServiceSelected, dm3Configuration.chainId)}
         </div>
     );
 }

@@ -12,15 +12,7 @@ import {
     getStorageKeyCreationMessage,
     sign,
 } from '@dm3-org/dm3-lib-crypto';
-import {
-    UserDB,
-    createDB,
-    getDm3Storage,
-    load,
-} from '@dm3-org/dm3-lib-storage';
 
-import { GetWalletClientResult } from '@wagmi/core';
-import axios from 'axios';
 import {
     getChallenge,
     getNewToken,
@@ -28,16 +20,20 @@ import {
 } from '@dm3-org/dm3-lib-delivery-api';
 import { createProfileKeys as _createProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { globalConfig, stringify } from '@dm3-org/dm3-lib-shared';
+import { GetWalletClientResult } from '@wagmi/core';
+import axios from 'axios';
 import { ethers } from 'ethers';
-import { claimAddress } from '../../adapters/offchain-resolver-api';
+import { claimAddress } from '../../adapters/offchainResolverApi';
+import { DM3Configuration } from '../../interfaces/config';
 
 export type ConnectDsResult = {
-    userDb: UserDB;
     signedUserProfile: SignedUserProfile;
     deliveryServiceToken: string;
+    profileKeys: ProfileKeys;
 };
 
 export const DeliveryServiceConnector = (
+    dm3Configuration: DM3Configuration,
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     walletClient: GetWalletClientResult,
     address: string,
@@ -69,7 +65,7 @@ export const DeliveryServiceConnector = (
     }
     async function profileExistsOnDeliveryService(ensName: string) {
         //TODO move default url to global config
-        const url = `${process.env.REACT_APP_DEFAULT_SERVICE}/profile/${ensName}`;
+        const url = `${dm3Configuration.defaultServiceUrl}/profile/${ensName}`;
         try {
             const { status } = await axios.get(url);
             return status === 200;
@@ -77,38 +73,16 @@ export const DeliveryServiceConnector = (
             return false;
         }
     }
-    async function getUserDbFromDeliveryService(
-        signedUserProfile: SignedUserProfile,
-        ensName: string,
-        profileKeys: ProfileKeys,
-        deliveryServiceToken: string,
-    ) {
-        const storageFile = await getDm3Storage(
-            mainnetProvider,
-            { profile: signedUserProfile.profile, ensName },
-            deliveryServiceToken,
-        );
-
-        if (!storageFile) {
-            //Create new user db object
-            return createDB(profileKeys);
-        }
-        try {
-            //The encrypted session file will now be decrypted, therefore the user has to sign the auth message again.
-            const userDb = await load(
-                JSON.parse(storageFile),
-                profileKeys.storageEncryptionKey,
-            );
-            return userDb;
-        } catch (e) {
-            throw Error('Unable to depcrypt storage file');
-        }
-    }
 
     const signUpWithExistingProfile = async (
         ensName: string,
         signedUserProfile: SignedUserProfile,
     ): Promise<ConnectDsResult> => {
+        await claimAddress(
+            address,
+            dm3Configuration.resolverBackendUrl as string,
+            signedUserProfile,
+        );
         const deliveryServiceToken = await submitUserProfile(
             { ensName, profile: signedUserProfile.profile },
             mainnetProvider,
@@ -116,14 +90,9 @@ export const DeliveryServiceConnector = (
         );
 
         const keys = await createProfileKeys();
-        const userDb = await getUserDbFromDeliveryService(
-            signedUserProfile,
-            ensName,
-            keys,
-            deliveryServiceToken,
-        );
+
         return {
-            userDb,
+            profileKeys: keys,
             deliveryServiceToken,
             signedUserProfile,
         };
@@ -157,15 +126,8 @@ export const DeliveryServiceConnector = (
             keys.signingKeyPair.privateKey,
         );
 
-        const userDb = await getUserDbFromDeliveryService(
-            signedUserProfile,
-            ensName,
-            keys,
-            deliveryServiceToken,
-        );
-
         return {
-            userDb,
+            profileKeys: keys,
             deliveryServiceToken,
             signedUserProfile,
         };
@@ -206,7 +168,7 @@ export const DeliveryServiceConnector = (
         if (
             !(await claimAddress(
                 address!,
-                process.env.REACT_APP_RESOLVER_BACKEND as string,
+                dm3Configuration.resolverBackendUrl as string,
                 signedUserProfile,
             ))
         ) {
@@ -219,11 +181,10 @@ export const DeliveryServiceConnector = (
             mainnetProvider,
             signedUserProfile,
         );
-        const userDb = createDB(keys);
         return {
-            userDb,
             deliveryServiceToken,
             signedUserProfile,
+            profileKeys: keys,
         };
     };
 

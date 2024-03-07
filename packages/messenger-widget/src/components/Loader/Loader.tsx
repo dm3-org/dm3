@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import './Loader.css';
 import { useContext } from 'react';
 import loader from '../../assets/images/loader.svg';

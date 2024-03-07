@@ -1,26 +1,35 @@
-import { Account, hasUserProfile } from '@dm3-org/dm3-lib-profile';
+import { Account, ProfileKeys, hasUserProfile } from '@dm3-org/dm3-lib-profile';
 import {
     Actions,
     ConnectionType,
-    GlobalState,
     ModalStateType,
 } from '../../utils/enum-type-utils';
 
-import { createAlias, getAliasChain } from '@dm3-org/dm3-lib-delivery-api';
+import { createAlias } from '@dm3-org/dm3-lib-delivery-api';
 import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
-import { closeLoader, startLoader } from '../Loader/Loader';
-import { setContactHeightToMaximum } from '../Contacts/bl';
-import { checkEnsDM3Text } from '../../utils/ens-utils';
-import { getLastDm3Name } from '../../utils/common-utils';
-import { ConfigureGenomeProfile } from './chain/genome/ConfigureGenomeProfile';
-import { ConfigureEnsProfile } from './chain/ens/ConfigureEnsProfile';
 import React from 'react';
-import { NAME_TYPE } from './chain/common';
 import {
     claimSubdomain,
     removeAlias,
 } from '../../adapters/offchain-resolver-api';
+import { checkEnsDM3Text } from '../../utils/ens-utils';
+import { closeLoader, startLoader } from '../Loader/Loader';
+import { NAME_TYPE } from './chain/common';
+import { ConfigureEnsProfile } from './chain/ens/ConfigureEnsProfile';
+import { ConfigureGenomeProfile } from './chain/genome/ConfigureGenomeProfile';
+import { Dm3Name } from '../../hooks/topLevelAlias/nameService/Dm3Name';
+
+export const PROFILE_INPUT_FIELD_CLASS =
+    'profile-input font-weight-400 font-size-14 border-radius-6 w-100 line-height-24';
+
+export const BUTTON_CLASS =
+    'configure-btn font-weight-400 font-size-12 border-radius-4 line-height-24';
+
+export enum ACTION_TYPE {
+    CONFIGURE,
+    REMOVE,
+}
 
 // method to open the profile configuration modal
 export const openConfigurationModal = (dispatch: React.Dispatch<Actions>) => {
@@ -69,14 +78,16 @@ export const getEnsName = async (
 
 // method to set new DM3 username
 export const submitDm3UsernameClaim = async (
-    state: GlobalState,
+    resolverBackendUrl: string,
+    profileKeys: ProfileKeys,
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     dsToken: string,
     dm3UserEnsName: string,
     dispatch: React.Dispatch<Actions>,
     setError: Function,
-    setAccount: Function,
+    setDisplayName: Function,
+    setExistingDm3Name: Function,
 ) => {
     try {
         // start loader
@@ -91,9 +102,9 @@ export const submitDm3UsernameClaim = async (
 
         await claimSubdomain(
             dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN(),
-            process.env.REACT_APP_RESOLVER_BACKEND as string,
+            resolverBackendUrl as string,
             account!.ensName,
-            state.userDb!.keys.signingKeyPair.privateKey,
+            profileKeys.signingKeyPair.privateKey,
         );
 
         await createAlias(
@@ -104,9 +115,8 @@ export const submitDm3UsernameClaim = async (
             dsToken!,
         );
 
-        const updatedAccount = { ...account, ensName: ensName };
-        setAccount(updatedAccount);
-        setContactHeightToMaximum(true);
+        setDisplayName(ensName);
+        setExistingDm3Name(ensName);
     } catch (e) {
         setError('Name is not available', NAME_TYPE.DM3_NAME);
     }
@@ -117,7 +127,8 @@ export const submitDm3UsernameClaim = async (
 
 // method to remove aliad
 export const removeAliasFromDm3Name = async (
-    state: GlobalState,
+    resolverBackendUrl: string,
+    profileKeys: ProfileKeys,
     account: Account,
     ethAddress: string,
     dm3UserEnsName: string,
@@ -134,8 +145,8 @@ export const removeAliasFromDm3Name = async (
 
         const result = await removeAlias(
             dm3UserEnsName,
-            process.env.REACT_APP_RESOLVER_BACKEND as string,
-            state.userDb!.keys.signingKeyPair.privateKey,
+            resolverBackendUrl as string,
+            profileKeys.signingKeyPair.privateKey,
         );
 
         if (result) {
@@ -147,7 +158,6 @@ export const removeAliasFromDm3Name = async (
                 },
             });
 
-            setContactHeightToMaximum(true);
             closeLoader();
             return true;
         } else {
@@ -169,22 +179,31 @@ export const validateName = (username: string): boolean => {
 };
 
 export const fetchExistingDM3Name = async (
+    resolverBackendUrl: string,
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     setExistingDm3Name: Function,
 ) => {
     try {
         if (account) {
-            const dm3Names: any = await getAliasChain(account, mainnetProvider);
-            let dm3Name;
-            if (dm3Names && dm3Names.length) {
-                dm3Name = getLastDm3Name(dm3Names);
-            }
-            setExistingDm3Name(dm3Name ? dm3Name : null);
+            const dm3NameService = new Dm3Name(mainnetProvider);
+            const dm3Name = await dm3NameService.resolveAliasToTLD(
+                account.ensName,
+                resolverBackendUrl,
+            );
+            // Not a DM3 name -> 0xa966.beta-addr.dm3.eth
+            // Its DM3 name -> bob.beta-user.dm3.eth
+            // Checks user sub domain for setting DM3 name
+            setExistingDm3Name(
+                dm3Name.endsWith(globalConfig.USER_ENS_SUBDOMAIN())
+                    ? dm3Name
+                    : null,
+            );
         } else {
             setExistingDm3Name(null);
         }
     } catch (error) {
+        console.log('dm3 name : ', error);
         setExistingDm3Name(null);
     }
 };
@@ -205,10 +224,10 @@ export const namingServices = [
     },
 ];
 
-export const fetchComponent = (name: string) => {
+export const fetchComponent = (name: string, chainId: string) => {
     switch (name) {
         case NAME_SERVICES.ENS:
-            if (process.env.REACT_APP_CHAIN_ID === '5') {
+            if (chainId === '5') {
                 return <ConfigureEnsProfile chainToConnect={5} />;
             }
             return <ConfigureEnsProfile chainToConnect={1} />;
@@ -227,11 +246,11 @@ export const fetchServiceFromChainId = (chainId: number): string => {
     return namingServices[0].name;
 };
 
-export const fetchChainIdFromServiceName = (name: string) => {
+export const fetchChainIdFromServiceName = (name: string, chainId: string) => {
     switch (name) {
         case NAME_SERVICES.ENS:
-            if (process.env.REACT_APP_CHAIN_ID === '5') {
-                return Number(process.env.REACT_APP_CHAIN_ID);
+            if (chainId === '5') {
+                return Number(chainId);
             }
             return namingServices[0].chainId;
         case NAME_SERVICES.GENOME:

@@ -1,6 +1,6 @@
 import cors from 'cors';
 import express from 'express';
-import { IDatabase } from './persistance/getDatabase';
+import { IDatabase } from './persistence/getDatabase';
 import { WithLocals } from './types';
 import { auth } from './utils';
 import { schema, getMessages, Acknoledgment } from '@dm3-org/dm3-lib-delivery';

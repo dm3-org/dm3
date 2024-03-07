@@ -1,16 +1,21 @@
 import { useContext, useEffect } from 'react';
+import { AuthContext } from '../../context/AuthContext';
+import { ConversationContext } from '../../context/ConversationContext';
+import { MessageContext } from '../../context/MessageContext';
+import { MessageDataProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
 import {
     MessageActionType,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
-import { MessageDataProps } from '../../interfaces/props';
-import { handleSubmit } from '../MessageInputBox/bl';
-import { AuthContext } from '../../context/AuthContext';
+import { scrollToBottomOfChat } from '../Chat/scrollToBottomOfChat';
+import { onSubmitMessage } from '../SendMessage/onSubmitMessage';
 
 export function MessageInputField(props: MessageDataProps) {
     const { state, dispatch } = useContext(GlobalContext);
-    const { account, deliveryServiceToken } = useContext(AuthContext);
+    const { account, profileKeys } = useContext(AuthContext);
+    const { selectedContact } = useContext(ConversationContext);
+    const { addMessage } = useContext(MessageContext);
 
     function setMessageContent(e: React.ChangeEvent<HTMLInputElement>) {
         // if message action is edit and message length is 0, update message action
@@ -27,20 +32,18 @@ export function MessageInputField(props: MessageDataProps) {
         props.setMessageText(e.target.value);
     }
 
-    function submit(event: React.FormEvent<HTMLFormElement>) {
-        const files = props.filesSelected;
-        const msg = props.message;
-        handleSubmit(
-            deliveryServiceToken!,
-            msg,
+    async function submit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        await onSubmitMessage(
             state,
-            account!,
             dispatch,
-            event,
-            files,
-            props.setMessageText,
-            props.setFiles,
+            addMessage,
+            props,
+            profileKeys,
+            account!,
+            selectedContact!,
         );
+        scrollToBottomOfChat();
     }
 
     // Focus on input field when user selects a msg to EEDIT or REPLY

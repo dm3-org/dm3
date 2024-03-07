@@ -1,34 +1,32 @@
-import './MessageAction.css';
+import { createReactionMessage } from '@dm3-org/dm3-lib-messaging';
+import { useContext, useEffect, useState } from 'react';
+import deleteIcon from '../../assets/images/chat-delete.svg';
 import editIcon from '../../assets/images/edit.svg';
 import replyIcon from '../../assets/images/reply.svg';
-import { MessageProps } from '../../interfaces/props';
-import deleteIcon from '../../assets/images/chat-delete.svg';
-import threeDotsIcon from '../../assets/images/three-dots.svg';
 import saveIcon from '../../assets/images/save.svg';
+import threeDotsIcon from '../../assets/images/three-dots.svg';
+import { AuthContext } from '../../context/AuthContext';
+import { ConversationContext } from '../../context/ConversationContext';
+import { MessageContext } from '../../context/MessageContext';
+import { MessageProps } from '../../interfaces/props';
+import {
+    createNameForFile,
+    getFileTypeFromBase64,
+} from '../../utils/common-utils';
 import { GlobalContext } from '../../utils/context-utils';
-import { useContext, useEffect, useState } from 'react';
 import {
     MessageActionType,
     ModalStateType,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
-import {
-    createNameForFile,
-    getDependencies,
-    getFileTypeFromBase64,
-    getHaltDelivery,
-    sendMessage,
-} from '../../utils/common-utils';
-import {
-    SendDependencies,
-    createReactionMessage,
-} from '@dm3-org/dm3-lib-messaging';
 import { hideMsgActionDropdown } from '../MessageInputBox/bl';
-import { AuthContext } from '../../context/AuthContext';
+import './MessageAction.css';
 
 export function MessageAction(props: MessageProps) {
     const { state, dispatch } = useContext(GlobalContext);
-    const { account, deliveryServiceToken } = useContext(AuthContext);
+    const { account, profileKeys } = useContext(AuthContext);
+    const { addMessage } = useContext(MessageContext);
+    const { selectedContact } = useContext(ConversationContext);
     const [alignmentTop, setAlignmentTop] = useState(false);
 
     // Popular emojis for reaction
@@ -61,19 +59,19 @@ export function MessageAction(props: MessageProps) {
     };
 
     const reactToMessage = async (message: string) => {
-        const userDb = state.userDb;
-
-        if (!userDb) {
-            throw Error('userDB not found');
-        }
-
-        if (!state.accounts.selectedContact) {
+        if (!selectedContact) {
             throw Error('no contact selected');
         }
 
-        const filteredElements = props.reactions.filter(
+        // Filters if the reaction already exists
+        const filteredReactions = props.reactions.filter(
             (data) => data.message.message === message,
         );
+
+        // if same reaction already exists, then it should not be added again so returns
+        if (filteredReactions.length) {
+            return;
+        }
 
         dispatch({
             type: UiViewStateType.SetMessageView,
@@ -83,36 +81,21 @@ export function MessageAction(props: MessageProps) {
             },
         });
 
-        if (filteredElements.length) {
-            return;
-        }
-
         const referenceMessageHash =
             props.envelop.metadata?.encryptedMessageHash;
 
         // react to the message
         const messageData = await createReactionMessage(
-            state.accounts.selectedContact?.account.ensName as string,
+            selectedContact.contactDetails.account.ensName as string,
             account!.ensName,
             message,
-            userDb.keys.signingKeyPair.privateKey as string,
+            profileKeys?.signingKeyPair.privateKey!,
             referenceMessageHash as string,
         );
 
-        const haltDelivery = getHaltDelivery(state);
-        const sendDependencies: SendDependencies = getDependencies(
-            state,
-            account!,
-        );
-
-        await sendMessage(
-            account!,
-            deliveryServiceToken!,
-            state,
-            sendDependencies,
+        await addMessage(
+            selectedContact?.contactDetails.account.ensName!,
             messageData,
-            haltDelivery,
-            dispatch,
         );
 
         dispatch({

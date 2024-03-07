@@ -1,28 +1,30 @@
-import { MessageDataProps } from '../../interfaces/props';
-import sendBtnIcon from '../../assets/images/send-btn.svg';
-import { GlobalContext } from '../../utils/context-utils';
 import { useContext } from 'react';
-import { handleSubmit } from '../MessageInputBox/bl';
+import sendBtnIcon from '../../assets/images/send-btn.svg';
 import { AuthContext } from '../../context/AuthContext';
+import { ConversationContext } from '../../context/ConversationContext';
+import { MessageContext } from '../../context/MessageContext';
+import { MessageDataProps } from '../../interfaces/props';
+import { GlobalContext } from '../../utils/context-utils';
+import { scrollToBottomOfChat } from '../Chat/scrollToBottomOfChat';
+import { onSubmitMessage } from './onSubmitMessage';
 
 export function SendMessage(props: MessageDataProps) {
+    const { account, profileKeys } = useContext(AuthContext);
+    const { addMessage } = useContext(MessageContext);
+    const { selectedContact } = useContext(ConversationContext);
     const { state, dispatch } = useContext(GlobalContext);
-    const { account, deliveryServiceToken } = useContext(AuthContext);
 
-    function submit(event: React.MouseEvent<HTMLImageElement, MouseEvent>) {
-        const files = props.filesSelected;
-        const msg = props.message;
-        handleSubmit(
-            deliveryServiceToken!,
-            msg,
+    async function submit() {
+        await onSubmitMessage(
             state,
-            account!,
             dispatch,
-            event,
-            files,
-            props.setMessageText,
-            props.setFiles,
+            addMessage,
+            props,
+            profileKeys,
+            account!,
+            selectedContact!,
         );
+        scrollToBottomOfChat();
     }
 
     return (
@@ -31,9 +33,7 @@ export function SendMessage(props: MessageDataProps) {
                 className="chat-svg-icon"
                 src={sendBtnIcon}
                 alt="send"
-                onClick={(
-                    event: React.MouseEvent<HTMLImageElement, MouseEvent>,
-                ) => submit(event)}
+                onClick={submit}
             />
         </span>
     );

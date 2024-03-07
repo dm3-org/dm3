@@ -4,7 +4,7 @@ import express from 'express';
 import stringify from 'safe-stable-stringify';
 import { auth } from './utils';
 import { sha256 } from '@dm3-org/dm3-lib-shared';
-import { IDatabase } from './persistance/getDatabase';
+import { IDatabase } from './persistence/getDatabase';
 
 export default (db: IDatabase) => {
     const router = express.Router();

@@ -1,27 +1,24 @@
-import './DeleteMessage.css';
-import '../../styles/modal.css';
-import closeIcon from '../../assets/images/cross.svg';
+import { createDeleteRequestMessage } from '@dm3-org/dm3-lib-messaging';
 import { useContext } from 'react';
+import closeIcon from '../../assets/images/cross.svg';
+import { AuthContext } from '../../context/AuthContext';
+import { ConversationContext } from '../../context/ConversationContext';
+import { MessageContext } from '../../context/MessageContext';
+import '../../styles/modal.css';
 import { GlobalContext } from '../../utils/context-utils';
 import {
     MessageActionType,
     ModalStateType,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
-import {
-    getDependencies,
-    getHaltDelivery,
-    sendMessage,
-} from '../../utils/common-utils';
-import {
-    SendDependencies,
-    createDeleteRequestMessage,
-} from '@dm3-org/dm3-lib-messaging';
-import { AuthContext } from '../../context/AuthContext';
+import './DeleteMessage.css';
 
 export default function DeleteMessage() {
     const { state, dispatch } = useContext(GlobalContext);
-    const { account, deliveryServiceToken } = useContext(AuthContext);
+    const { selectedContact } = useContext(ConversationContext);
+    const { addMessage } = useContext(MessageContext);
+    const { account, deliveryServiceToken, profileKeys } =
+        useContext(AuthContext);
     const closeModal = () => {
         dispatch({
             type: UiViewStateType.SetMessageView,
@@ -33,13 +30,7 @@ export default function DeleteMessage() {
     };
 
     const deleteMessage = async () => {
-        const userDb = state.userDb;
-
-        if (!userDb) {
-            throw Error('userDB not found');
-        }
-
-        if (!state.accounts.selectedContact) {
+        if (!selectedContact) {
             throw Error('no contact selected');
         }
 
@@ -57,27 +48,13 @@ export default function DeleteMessage() {
 
         // delete the message
         const messageData = await createDeleteRequestMessage(
-            state.accounts.selectedContact?.account.ensName as string,
+            selectedContact.contactDetails.account.ensName,
             account!.ensName,
-            userDb.keys.signingKeyPair.privateKey as string,
-            messageHash as string,
+            profileKeys!.signingKeyPair.privateKey,
+            messageHash!,
         );
 
-        const haltDelivery = getHaltDelivery(state);
-        const sendDependencies: SendDependencies = getDependencies(
-            state,
-            account!,
-        );
-
-        await sendMessage(
-            account!,
-            deliveryServiceToken!,
-            state,
-            sendDependencies,
-            messageData,
-            haltDelivery,
-            dispatch,
-        );
+        await addMessage(messageData.metadata.to, messageData);
 
         dispatch({
             type: ModalStateType.LastMessageAction,

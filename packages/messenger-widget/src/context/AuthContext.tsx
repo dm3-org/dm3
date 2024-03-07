@@ -1,12 +1,10 @@
-/* eslint-disable no-console */
-import { Account } from '@dm3-org/dm3-lib-profile';
-import { StorageLocation, UserDB } from '@dm3-org/dm3-lib-storage';
+import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
 import React from 'react';
 import { useAuth } from '../hooks/auth/useAuth';
-import { ConnectionType, UserDbType } from '../utils/enum-type-utils';
 
 export type AuthContextType = {
     cleanSignIn: () => Promise<void>;
+    setDisplayName: Function;
     account: Account | undefined;
     displayName: string | undefined;
     deliveryServiceToken: string | undefined;
@@ -14,11 +12,13 @@ export type AuthContextType = {
     isLoading: boolean;
     hasError: boolean;
     ethAddress: string | undefined;
-    setAccount: Function;
+
+    profileKeys: ProfileKeys | undefined;
 };
 
 export const AuthContext = React.createContext<AuthContextType>({
     cleanSignIn: () => Promise.resolve(),
+    setDisplayName: () => {},
     account: undefined,
     displayName: undefined,
     deliveryServiceToken: undefined,
@@ -26,7 +26,8 @@ export const AuthContext = React.createContext<AuthContextType>({
     isLoading: false,
     hasError: false,
     ethAddress: undefined,
-    setAccount: Function,
+
+    profileKeys: undefined,
 });
 
 export const AuthContextProvider = ({
@@ -36,16 +37,9 @@ export const AuthContextProvider = ({
     children?: any;
     dispatch: Function;
 }) => {
-    const onStorageCreated = (db: UserDB) => {
-        dispatch({
-            type: ConnectionType.ChangeStorageLocation,
-            payload: StorageLocation.dm3Storage,
-        });
-        dispatch({ type: UserDbType.setDB, payload: db! });
-    };
-
     const {
         cleanSignIn,
+        setDisplayName,
         account,
         displayName,
         deliveryServiceToken,
@@ -53,12 +47,14 @@ export const AuthContextProvider = ({
         isLoading,
         hasError,
         ethAddress,
-        setAccount,
-    } = useAuth(onStorageCreated);
+
+        profileKeys,
+    } = useAuth();
     return (
         <AuthContext.Provider
             value={{
                 cleanSignIn,
+                setDisplayName,
                 account,
                 displayName,
                 deliveryServiceToken,
@@ -66,7 +62,7 @@ export const AuthContextProvider = ({
                 isLoading,
                 hasError,
                 ethAddress,
-                setAccount,
+                profileKeys,
             }}
         >
             {children}

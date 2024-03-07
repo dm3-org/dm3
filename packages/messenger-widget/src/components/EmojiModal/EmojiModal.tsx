@@ -1,33 +1,28 @@
-import './EmojiModal.css';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
+import { useContext, useEffect, useRef } from 'react';
+import { AuthContext } from '../../context/AuthContext';
+import { ConversationContext } from '../../context/ConversationContext';
 import { EmojiProps, MessageProps } from '../../interfaces/props';
-import { useRef, useEffect, useContext } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import {
     MessageActionType,
     ModalStateType,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
-import {
-    createReactionMessage,
-    Envelop,
-    SendDependencies,
-} from '@dm3-org/dm3-lib-messaging';
-import {
-    getHaltDelivery,
-    getDependencies,
-    sendMessage,
-} from '../../utils/common-utils';
 import { hideMsgActionDropdown } from '../MessageInputBox/bl';
-import { AuthContext } from '../../context/AuthContext';
+import './EmojiModal.css';
+import { createReactionMessage } from '@dm3-org/dm3-lib-messaging';
+import { MessageContext } from '../../context/MessageContext';
 
 export function EmojiModal(props: EmojiProps) {
     const emojiRef: any = useRef();
 
     const { state, dispatch } = useContext(GlobalContext);
 
-    const { account, deliveryServiceToken } = useContext(AuthContext);
+    const { account, profileKeys } = useContext(AuthContext);
+    const { addMessage } = useContext(MessageContext);
+    const { selectedContact } = useContext(ConversationContext);
 
     // handles mouse click outside of emoji modal and closes the modal automatically
     const handleClickOutside = (e: { target: any }) => {
@@ -45,19 +40,19 @@ export function EmojiModal(props: EmojiProps) {
 
     // Handles emoji selection in normal message or as a message reaction
     const handleEmojiSelect = async (data: string) => {
-        let messageData: MessageProps;
+        let messageProps: MessageProps;
         // emoji reaction
         if (
             state.modal.openEmojiPopup.action &&
             state.modal.openEmojiPopup.data
         ) {
-            messageData = state.modal.openEmojiPopup.data as MessageProps;
+            messageProps = state.modal.openEmojiPopup.data as MessageProps;
             dispatch({
                 type: ModalStateType.OpenEmojiPopup,
                 payload: { action: false, data: undefined },
             });
             setAction();
-            await reactToMessage(data, messageData);
+            await reactToMessage(data, messageProps);
         } else {
             // normal message contianing emoji
             props.setMessage(props.message.concat(data));
@@ -76,19 +71,14 @@ export function EmojiModal(props: EmojiProps) {
     };
 
     const reactToMessage = async (message: string, props: MessageProps) => {
-        const userDb = state.userDb;
-
-        if (!userDb) {
-            throw Error('userDB not found');
-        }
-
-        if (!state.accounts.selectedContact) {
+        if (!selectedContact) {
             throw Error('no contact selected');
         }
 
-        const filteredElements = props.reactions.filter(
-            (data: Envelop) => data.message.message === message,
-        );
+        // @Bhupesh why do we need to filter here
+        // const filteredElemtns = props.reactions.some(
+        //     (data) => data.message.message === message,
+        // );
 
         dispatch({
             type: UiViewStateType.SetMessageView,
@@ -98,36 +88,21 @@ export function EmojiModal(props: EmojiProps) {
             },
         });
 
-        if (filteredElements.length) {
-            return;
-        }
-
         const referenceMessageHash =
             props.envelop.metadata?.encryptedMessageHash;
 
         // react to the message
         const messageData = await createReactionMessage(
-            state.accounts.selectedContact?.account.ensName as string,
+            selectedContact.contactDetails.account.ensName as string,
             account!.ensName,
             message,
-            userDb.keys.signingKeyPair.privateKey as string,
+            profileKeys?.signingKeyPair.privateKey!,
             referenceMessageHash as string,
         );
 
-        const haltDelivery = getHaltDelivery(state);
-        const sendDependencies: SendDependencies = getDependencies(
-            state,
-            account!,
-        );
-
-        await sendMessage(
-            account!,
-            deliveryServiceToken!,
-            state,
-            sendDependencies,
+        await addMessage(
+            selectedContact?.contactDetails.account.ensName!,
             messageData,
-            haltDelivery,
-            dispatch,
         );
 
         dispatch({

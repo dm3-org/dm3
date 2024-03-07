@@ -1,18 +1,18 @@
 /* eslint-disable max-len */
+import { ethers } from 'ethers';
 import { useContext } from 'react';
+import { useChainId } from 'wagmi';
+import { AuthContext } from '../../../../context/AuthContext';
 import { GlobalContext } from '../../../../utils/context-utils';
 import { ConfigureProfileContext } from '../../context/ConfigureProfileContext';
 import { SubmitOnChainProfile } from '../SubmitOnChainProfile';
-import { AuthContext } from '../../../../context/AuthContext';
-import { submitEnsNameTransaction } from './bl';
-import { useMainnetProvider } from '../../../../hooks/mainnetprovider/useMainnetProvider';
-import { useNetwork } from 'wagmi';
 import { IChain, NAME_TYPE, validateEnsName } from '../common';
+import { submitEnsNameTransaction } from './bl';
 
 export const ConfigureEnsProfile = (props: IChain) => {
     const { dispatch } = useContext(GlobalContext);
 
-    const { chain } = useNetwork();
+    const chainId = useChainId();
 
     const { onShowError, setExistingEnsName, setEnsName } = useContext(
         ConfigureProfileContext,
@@ -21,15 +21,15 @@ export const ConfigureEnsProfile = (props: IChain) => {
     const { account, ethAddress, deliveryServiceToken } =
         useContext(AuthContext);
 
-    const mainnetProvider = useMainnetProvider();
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
 
     const onSubmitTx = async (name: string) => {
-        if (props.chainToConnect !== chain?.id) {
+        if (props.chainToConnect !== chainId) {
             onShowError(NAME_TYPE.ENS_NAME, 'Invalid chain connected');
             return;
         }
         await submitEnsNameTransaction(
-            mainnetProvider!,
+            provider!,
             account!,
             ethAddress!,
             deliveryServiceToken!,

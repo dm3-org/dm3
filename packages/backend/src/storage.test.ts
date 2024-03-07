@@ -19,24 +19,19 @@ import {
     mockUserProfile,
 } from '../test/testHelper';
 import auth from './auth';
-import { addConversation } from './persistance/storage/postgres/addConversation';
-import { addMessageBatch } from './persistance/storage/postgres/addMessageBatch';
-import { getConversationList } from './persistance/storage/postgres/getConversationList';
-import { getMessages } from './persistance/storage/postgres/getMessages';
-import { getNumberOfConversations } from './persistance/storage/postgres/getNumberOfConversations';
-import { getNumberOfMessages } from './persistance/storage/postgres/getNumberOfMessages';
-import { toggleHideConversation } from './persistance/storage/postgres/toggleHideConversation';
-import { MessageRecord } from './persistance/storage/postgres/utils/MessageRecord';
+import { Redis, getRedisClient } from './persistence/getDatabase';
+import { getUserDbMigrationStatus } from './persistence/storage/getUserDbMigrationStatus';
+import { addConversation } from './persistence/storage/postgres/addConversation';
+import { addMessageBatch } from './persistence/storage/postgres/addMessageBatch';
+import { editMessageBatch } from './persistence/storage/postgres/editMessageBatch';
+import { getConversationList } from './persistence/storage/postgres/getConversationList';
+import { getMessages } from './persistence/storage/postgres/getMessages';
+import { getNumberOfConversations } from './persistence/storage/postgres/getNumberOfConversations';
+import { getNumberOfMessages } from './persistence/storage/postgres/getNumberOfMessages';
+import { toggleHideConversation } from './persistence/storage/postgres/toggleHideConversation';
+import { MessageRecord } from './persistence/storage/postgres/utils/MessageRecord';
+import { setUserDbMigrated } from './persistence/storage/setUserDbMigrated';
 import storage from './storage';
-import { editMessageBatch } from './persistance/storage/postgres/editMessageBatch';
-import { getUserDbMigrationStatus } from './persistance/storage/getUserDbMigrationStatus';
-import {
-    IDatabase,
-    Redis,
-    getDatabase,
-    getRedisClient,
-} from './persistance/getDatabase';
-import { setUserDbMigrated } from './persistance/storage/setUserDbMigrated';
 
 const keysA = {
     encryptionKeyPair: {

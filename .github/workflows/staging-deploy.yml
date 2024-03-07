@@ -58,6 +58,7 @@ jobs:
                   envsubst '${SSL_CERTIFICATE_BASE_LOC} ${TLS_CERTIFICATE_LOCATION} ${TARGET_HOST}' < ./docker/nginx.conf > ./nginx.conf
                   cat ./.env
             - name: Build docker image
+              shell: bash
               run: |
                   cp ./.env.react packages/messenger-demo/.env
                   docker build --progress=plain -t dm3-backend:latest -f ./docker/Dockerfile .
