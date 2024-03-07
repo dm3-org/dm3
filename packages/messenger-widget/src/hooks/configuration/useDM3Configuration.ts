@@ -19,5 +19,7 @@ export const useDm3Configuration = () => {
         showContacts: true,
     });
 
-    return { dm3Configuration, setDm3Configuration };
+    const [screenWidth, setScreenWidth] = useState<number>(window.innerWidth);
+
+    return { dm3Configuration, setDm3Configuration, screenWidth, setScreenWidth };
 };

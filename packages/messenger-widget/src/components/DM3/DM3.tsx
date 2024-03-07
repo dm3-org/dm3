@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { Dm3Props } from '../../interfaces/config';
 import { GlobalContext } from '../../utils/context-utils';
@@ -12,7 +12,7 @@ function DM3(props: Dm3Props) {
     // fetches context storage
     const { dispatch } = useContext(GlobalContext);
 
-    const { setDm3Configuration } = useContext(DM3ConfigurationContext);
+    const { setDm3Configuration, setScreenWidth, screenWidth } = useContext(DM3ConfigurationContext);
 
     const { isLoggedIn, account, deliveryServiceToken } =
         useContext(AuthContext);
@@ -42,6 +42,17 @@ function DM3(props: Dm3Props) {
 
         // sets the DM3 confguration provided from props
         setDm3Configuration(props.dm3Configuration);
+    }, []);
+
+    // This handles the responsive check of widget
+    useEffect(() => {
+        const handleResize = () => {
+            setScreenWidth(window.innerWidth);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
     }, []);
 
     return (
