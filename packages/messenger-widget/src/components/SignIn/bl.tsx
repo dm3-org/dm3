@@ -7,9 +7,21 @@ export const getIcon = (btnState: ButtonState) => {
         case ButtonState.Failed:
             return null;
         case ButtonState.Loading:
-            return <img className="rotating" src={loader} alt="loader" />;
+            return (
+                <img
+                    className="rotating small-spinner"
+                    src={loader}
+                    alt="loader"
+                />
+            );
         case ButtonState.Success:
-            return <img className="rotating" src={loader} alt="loader" />;
+            return (
+                <img
+                    className="rotating small-spinner"
+                    src={loader}
+                    alt="loader"
+                />
+            );
         case ButtonState.Ideal:
         case ButtonState.Disabled:
         default:
