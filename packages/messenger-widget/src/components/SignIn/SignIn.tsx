@@ -77,10 +77,6 @@ export function SignIn(props: SignInProps) {
                             </div>
                         </div>
 
-                        {isConnecting && (
-                            <p style={{ color: 'white' }}>Connecting</p>
-                        )}
-
                         {!isConnected ? (
                             <LoginButton
                                 text="Connect with Wallet"
