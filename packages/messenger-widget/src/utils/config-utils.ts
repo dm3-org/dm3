@@ -10,7 +10,6 @@ const DefaultConfig: Config = {
     style: {},
     defaultServiceUrl: 'http://localhost:8080' as string,
     showAlways: false,
-    connectionStateChange: undefined,
     miniSignIn: false,
     warnBeforeLeave: false,
     browserStorageBackup: false,

@@ -21,7 +21,9 @@ export const ConfigureEnsProfile = (props: IChain) => {
     const { account, ethAddress, deliveryServiceToken } =
         useContext(AuthContext);
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const provider = new ethers.providers.Web3Provider(
+        window.ethereum as ethers.providers.ExternalProvider,
+    );
 
     const onSubmitTx = async (name: string) => {
         if (props.chainToConnect !== chainId) {

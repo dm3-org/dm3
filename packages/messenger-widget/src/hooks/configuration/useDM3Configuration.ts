@@ -19,5 +19,8 @@ export const useDm3Configuration = () => {
         showContacts: true,
     });
 
-    return { dm3Configuration, setDm3Configuration };
+    return {
+        dm3Configuration,
+        setDm3Configuration,
+    };
 };

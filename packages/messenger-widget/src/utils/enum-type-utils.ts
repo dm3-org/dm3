@@ -1,11 +1,7 @@
 import { Account } from '@dm3-org/dm3-lib-profile';
-import { ethers } from 'ethers';
-import { Socket } from 'socket.io-client';
-import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { Modal, UiState, UiViewState } from '../interfaces/context';
 import { MessageAction, MessageProps } from '../interfaces/props';
 import { NewContact } from '../interfaces/utils';
-import { Connection } from '../interfaces/web3';
 
 export type ActionMap<M extends { [index: string]: any }> = {
     [Key in keyof M]: M[Key] extends undefined
@@ -19,14 +15,7 @@ export type ActionMap<M extends { [index: string]: any }> = {
 };
 
 export type ConnectionPayload = {
-    [ConnectionType.ChangeConnectionState]: ConnectionState;
-    [ConnectionType.ChangeSocket]: Socket<DefaultEventsMap, DefaultEventsMap>;
     [ConnectionType.ChangeAccount]: Account;
-    [ConnectionType.ChangeEthAddress]: string;
-    [ConnectionType.ChangeProvider]: ethers.providers.JsonRpcProvider;
-    [ConnectionType.ChangeStorageToken]: string | undefined;
-    [ConnectionType.ChangeStorageLocation]: any;
-    [ConnectionType.SetDefaultServiceUrl]: string;
     [ConnectionType.Reset]: any;
 };
 
@@ -34,7 +23,6 @@ export type ConnectionActions =
     ActionMap<ConnectionPayload>[keyof ActionMap<ConnectionPayload>];
 
 export type GlobalState = {
-    connection: Connection;
     uiState: UiState;
     uiView: UiViewState;
     modal: Modal;

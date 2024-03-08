@@ -5,11 +5,8 @@ import {
     RightViewSelected,
 } from '../utils/enum-type-utils';
 
-export const initialState = (backendUrl: string): GlobalState => {
+export const initialState = (): GlobalState => {
     return {
-        connection: {
-            defaultServiceUrl: backendUrl,
-        },
         uiState: {
             lastMessagePull: 0,
             proflieExists: false,
