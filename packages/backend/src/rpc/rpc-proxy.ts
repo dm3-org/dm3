@@ -4,7 +4,6 @@ import express from 'express';
 import { handleGetDeliveryServiceProperties } from './methods/handleGetDeliveryServiceProperties';
 import { handleResolveProfileExtension } from './methods/handleResolveProfileExtension';
 
-import { handleSubmitMessage } from './methods/handleSubmitMessage';
 import { WithLocals } from '../types';
 
 const DM3_SUBMIT_MESSAGE = 'dm3_submitMessage';

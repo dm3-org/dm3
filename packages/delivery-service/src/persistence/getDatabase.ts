@@ -83,9 +83,6 @@ export async function getDatabase(
         setSession: Session.setSession(redis),
         setAliasSession: Session.setAliasSession(redis),
         getSession: Session.getSession(redis),
-        //Legacy remove after storage has been merged
-        getUserStorage: Storage.getUserStorageOld(redis),
-        setUserStorage: Storage.setUserStorageOld(redis),
         //Pending
         addPending: Pending.addPending(redis),
         getPending: Pending.getPending(redis),
