@@ -28,7 +28,6 @@ export interface Config {
     defaultServiceUrl: string;
     showAlways: boolean;
     miniSignIn: boolean;
-    connectionStateChange?: (newState: any) => void;
     warnBeforeLeave: boolean;
     browserStorageBackup: boolean;
     showHelp: boolean;

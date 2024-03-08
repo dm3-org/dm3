@@ -25,7 +25,9 @@ export const ConfigureGenomeProfile = (props: IChain) => {
             onShowError(NAME_TYPE.ENS_NAME, 'Invalid chain connected');
             return;
         }
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const provider = new ethers.providers.Web3Provider(
+            window.ethereum as ethers.providers.ExternalProvider,
+        );
         submitGenomeNameTransaction(
             provider,
             deliveryServiceToken!,

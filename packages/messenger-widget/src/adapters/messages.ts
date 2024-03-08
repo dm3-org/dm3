@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import axios from 'axios';
 import { Envelop, EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import {
@@ -7,9 +6,9 @@ import {
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
 import { log } from '@dm3-org/dm3-lib-shared';
-import { Connection } from '../interfaces/web3';
 import { withAuthHeader } from './auth';
 import { ethers } from 'ethers';
+import { Connection } from '../interfaces/utils';
 
 export async function fetchPendingConversations(
     backendUrl: string,

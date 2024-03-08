@@ -3,6 +3,13 @@ import { MessageActionType } from '../utils/enum-type-utils';
 import { Dm3Props } from './config';
 import { Attachment, ContactPreview } from './utils';
 
+export interface SignInProps {
+    hideStorageSelection: boolean;
+    miniSignIn: boolean;
+    defaultStorageLocation: any | undefined;
+    signInImage: string;
+}
+
 export interface DashboardProps {
     dm3Props: Dm3Props;
 }

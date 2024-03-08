@@ -1,6 +1,13 @@
 import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
 import { Contact } from './context';
 import humanIcon from '../assets/images/human.svg';
+import { Socket } from 'socket.io-client';
+import { DefaultEventsMap } from 'socket.io/dist/typed-events';
+
+export interface Connection {
+    socket?: Socket<DefaultEventsMap, DefaultEventsMap>;
+    defaultServiceUrl: string;
+}
 
 export interface EnsProfileDetails {
     email: string | null;

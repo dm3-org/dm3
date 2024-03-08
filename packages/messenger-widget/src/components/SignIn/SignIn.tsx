@@ -6,7 +6,7 @@ import { useContext } from 'react';
 import { useAccount } from 'wagmi';
 import { LoginButton } from './LoginButton';
 import { changeSignInButtonStyle } from './bl';
-import { SignInProps } from '../../interfaces/web3';
+import { SignInProps } from '../../interfaces/props';
 import { AuthContext } from '../../context/AuthContext';
 import { ButtonState } from '../../utils/enum-type-utils';
 import { signInImage } from '../../assets/base64/home-image';
