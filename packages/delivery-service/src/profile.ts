@@ -31,6 +31,9 @@ export default () => {
         },
     );
 
+    /**
+     * todo: remove, does not support multiple ds
+     */
     router.get(
         '/aliasChain/:ensName',
         //@ts-ignore

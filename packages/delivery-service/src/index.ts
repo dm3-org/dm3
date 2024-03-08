@@ -6,7 +6,6 @@ import http from 'http';
 import path from 'path';
 import { Server } from 'socket.io';
 import winston from 'winston';
-import Auth from './auth';
 import { startCleanUpPendingMessagesJob } from './cleanup/cleanUpPendingMessages';
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import Delivery from './delivery';
@@ -70,26 +69,27 @@ global.logger = winston.createLogger({
     app.get('/hello', (req, res) => {
         return res.send('Hello DM3');
     });
-    app.use('/profile', Profile());
-    app.use('/storage', Storage(app.locals.db));
-    app.use('/auth', Auth());
-    app.use('/delivery', Delivery());
+
+    /**
+     *     needed
+     */
+    app.use('/profile', Profile()); // remove in backend
+    app.use('/delivery', Delivery()); // remove in backend
     app.use(
         '/notifications',
         Notifications(app.locals.deliveryServiceProperties),
-    );
-    app.use('/rpc', RpcProxy(new Axios({ url: process.env.RPC })));
+    ); // remove in backend
     app.use(logError);
     app.use(errorHandler);
     //@ts-ignore
     io.use(socketAuth(app));
     //@ts-ignore
     io.on('connection', onConnection(app));
-
     startCleanUpPendingMessagesJob(
         app.locals.db,
         app.locals.deliveryServiceProperties.messageTTL,
-    );
+    ); // remove in backend
+    app.use('/rpc', RpcProxy(new Axios({ url: process.env.RPC }))); // remove in backend
 })();
 
 // TODO include standalone web app
