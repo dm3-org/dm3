@@ -16,6 +16,7 @@ import { MessageInputBox } from '../MessageInputBox/MessageInputBox';
 import './Chat.css';
 import { scrollToBottomOfChat } from './scrollToBottomOfChat';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { MOBILE_SCREEN_WIDTH } from '../../utils/common-utils';
 
 export function Chat(props: HideFunctionProps) {
     const { state, dispatch } = useContext(GlobalContext);
@@ -77,7 +78,7 @@ export function Chat(props: HideFunctionProps) {
             id="chat-msgs"
             className={'chat-msgs width-fill '
                 .concat(
-                    selectedContact && screenWidth >= 800
+                    selectedContact && screenWidth >= MOBILE_SCREEN_WIDTH
                         ? 'highlight-chat-border'
                         : 'highlight-chat-border-none',
                 )

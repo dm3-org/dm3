@@ -9,6 +9,7 @@ import { RightViewSelected } from '../../utils/enum-type-utils';
 import { ContactInfo } from '../../components/ContactInfo/ContactInfo';
 import { HideFunctionProps } from '../../interfaces/props';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { MOBILE_SCREEN_WIDTH } from '../../utils/common-utils';
 
 export default function RightView(props: HideFunctionProps) {
     // fetches context storage
@@ -19,7 +20,7 @@ export default function RightView(props: HideFunctionProps) {
     return (
         <>
             <div className="col-12 p-0 h-100 background-chat chat-screen-container">
-                {screenWidth < 800 ? (
+                {screenWidth < MOBILE_SCREEN_WIDTH ? (
                     <>
                         <RightHeader showContacts={props.showContacts} />
                         {state.uiView.selectedRightView ===
