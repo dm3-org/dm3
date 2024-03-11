@@ -12,13 +12,19 @@ import { ConfigureProfile } from '../../components/ConfigureProfile/ConfigurePro
 import DeleteMessage from '../../components/DeleteMessage/DeleteMessage';
 import { Preferences } from '../../components/Preferences/Preferences';
 import AddConversation from '../../components/AddConversation/AddConversation';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { ConversationContext } from '../../context/ConversationContext';
 
 export default function Dashboard(props: DashboardProps) {
     const { state } = useContext(GlobalContext);
+    const { screenWidth } = useContext(DM3ConfigurationContext);
+    const { selectedContact } = useContext(ConversationContext);
 
     const getRightViewStyleClasses = () => {
         if (props.dm3Props.config.showContacts) {
-            return 'p-0 h-100 col-lg-9 col-md-9 col-sm-12 right-view-container-type';
+            return screenWidth < 800
+                ? 'p-0 h-100 col-12 right-view-container-type'
+                : 'p-0 h-100 col-lg-9 col-md-9 col-sm-12 right-view-container-type';
         } else {
             return 'p-0 h-100 col-12 right-view-container-type';
         }
@@ -26,7 +32,9 @@ export default function Dashboard(props: DashboardProps) {
 
     const getLeftViewStyleClasses = () => {
         if (props.dm3Props.config.showContacts) {
-            return 'col-lg-3 col-md-3 col-sm-12 p-0 h-100 left-view-container-type';
+            return screenWidth < 800
+                ? 'col-12 p-0 h-100 left-view-container-type'
+                : 'col-lg-3 col-md-3 col-sm-12 p-0 h-100 left-view-container-type';
         } else {
             return 'col-lg-3 col-md-3 col-sm-12 p-0 h-100 display-none left-view-container-type';
         }
@@ -47,26 +55,63 @@ export default function Dashboard(props: DashboardProps) {
             {state.uiView.selectedMessageView.actionType ===
                 MessageActionType.DELETE && <DeleteMessage />}
 
-            <div className="row m-0 h-100">
-                <div className={getLeftViewStyleClasses()}>
-                    <LeftView {...props} />
-                </div>
+            {/* Mobile screen UI */}
+            {screenWidth < 800 ? (
+                <div className="row m-0 h-100">
+                    {!selectedContact &&
+                        state.uiView.selectedRightView !==
+                            RightViewSelected.Profile &&
+                        state.uiView.selectedRightView !==
+                            RightViewSelected.ContactInfo && (
+                            <div className={getLeftViewStyleClasses()}>
+                                <LeftView {...props} />
+                            </div>
+                        )}
 
-                <div
-                    className={getRightViewStyleClasses().concat(
-                        state.uiView.selectedRightView ===
-                            RightViewSelected.Profile
-                            ? ' dashboard-right-view-highlight'
-                            : '',
+                    {(state.uiView.selectedRightView ===
+                        RightViewSelected.Profile ||
+                        state.uiView.selectedRightView !==
+                            RightViewSelected.ContactInfo ||
+                        selectedContact) && (
+                        <div className={getRightViewStyleClasses()}>
+                            <RightView
+                                hideFunction={
+                                    props.dm3Props.config.hideFunction
+                                }
+                                showContacts={
+                                    props.dm3Props.config.showContacts
+                                }
+                                defaultContact={
+                                    props.dm3Props.config.defaultContact
+                                }
+                            />
+                        </div>
                     )}
-                >
-                    <RightView
-                        hideFunction={props.dm3Props.config.hideFunction}
-                        showContacts={props.dm3Props.config.showContacts}
-                        defaultContact={props.dm3Props.config.defaultContact}
-                    />
                 </div>
-            </div>
+            ) : (
+                <div className="row m-0 h-100">
+                    <div className={getLeftViewStyleClasses()}>
+                        <LeftView {...props} />
+                    </div>
+
+                    <div
+                        className={getRightViewStyleClasses().concat(
+                            state.uiView.selectedRightView ===
+                                RightViewSelected.Profile
+                                ? ' dashboard-right-view-highlight'
+                                : '',
+                        )}
+                    >
+                        <RightView
+                            hideFunction={props.dm3Props.config.hideFunction}
+                            showContacts={props.dm3Props.config.showContacts}
+                            defaultContact={
+                                props.dm3Props.config.defaultContact
+                            }
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

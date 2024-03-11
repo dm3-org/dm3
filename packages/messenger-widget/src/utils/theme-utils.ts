@@ -42,6 +42,7 @@ export const defaultTheme: any = {
     rainbowModalTextSecondaryColor: 'rgba(255, 255, 255, 0.6)',
     rainbowModalBackgroundColor: '#1a1b1f',
     rainbowModalWalletHoverColor: 'rgba(224, 232, 255, 0.1)',
+    alternateContactBackgroundColor: '#5443931A',
 };
 
 export const getCustomizedTheme = (themeCss: any) => {
@@ -154,5 +155,8 @@ export const getCustomizedTheme = (themeCss: any) => {
         rainbowModalWalletHoverColor:
             themeCss.rainbowModalWalletHoverColor ??
             defaultTheme.rainbowModalWalletHoverColor,
+        alternateContactBackgroundColor:
+            themeCss.alternateContactBackgroundColor ??
+            defaultTheme.alternateContactBackgroundColor,
     };
 };

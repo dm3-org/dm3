@@ -25,7 +25,6 @@ export function Contacts(props: DashboardProps) {
     } = useContext(ConversationContext);
 
     const { getMessages, getUnreadMessageCount } = useContext(MessageContext);
-
     const [isMenuAlignedAtBottom, setIsMenuAlignedAtBottom] = useState<
         boolean | null
     >(null);
@@ -41,22 +40,6 @@ export function Contacts(props: DashboardProps) {
             setSelectedContactName(undefined);
         }
     }, [state.uiView.selectedRightView]);
-
-    // handles UI view on contact select
-    useEffect(() => {
-        if (selectedContact) {
-            // set selected contact
-
-            if (state.uiView.selectedRightView !== RightViewSelected.Chat) {
-                // show chat screen
-                dispatch({
-                    type: UiViewStateType.SetSelectedRightView,
-                    payload: RightViewSelected.Chat,
-                });
-            }
-            setIsMenuAlignedAtBottom(showMenuInBottom(selectedContact.name));
-        }
-    }, [selectedContact]);
 
     useEffect(() => {
         if (
@@ -124,6 +107,21 @@ export function Contacts(props: DashboardProps) {
                                 onClick={() => {
                                     setSelectedContactName(
                                         data.contactDetails.account.ensName,
+                                    );
+                                    if (
+                                        state.uiView.selectedRightView !==
+                                        RightViewSelected.Chat
+                                    ) {
+                                        // show chat screen
+                                        dispatch({
+                                            type: UiViewStateType.SetSelectedRightView,
+                                            payload: RightViewSelected.Chat,
+                                        });
+                                    }
+                                    setIsMenuAlignedAtBottom(
+                                        showMenuInBottom(
+                                            data.contactDetails.account.ensName,
+                                        ),
                                     );
                                 }}
                             >

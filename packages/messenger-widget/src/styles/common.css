@@ -208,3 +208,28 @@ input:focus {
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
     background-color: var(--scrollbar-scroller-color);
 }
+
+/* =================== Mobile Responsive CSS =================== */
+@media only screen and (max-width: 800px) {
+    .menu-icon-container img {
+        width: 1.5rem !important;
+    }
+
+    .menu-icon-container {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+
+    .mobile-profile-icon {
+        display: flex;
+        justify-content: end;
+        align-items: center;
+    }
+}
+
+@media only screen and (min-width: 800px) {
+    .mobile-profile-icon {
+        display: none !important;
+    }
+}

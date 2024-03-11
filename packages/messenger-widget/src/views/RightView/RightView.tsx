@@ -8,28 +8,52 @@ import { Chat } from '../../components/Chat/Chat';
 import { RightViewSelected } from '../../utils/enum-type-utils';
 import { ContactInfo } from '../../components/ContactInfo/ContactInfo';
 import { HideFunctionProps } from '../../interfaces/props';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export default function RightView(props: HideFunctionProps) {
     // fetches context storage
     const { state } = useContext(GlobalContext);
 
+    const { screenWidth } = useContext(DM3ConfigurationContext);
+
     return (
         <>
             <div className="col-12 p-0 h-100 background-chat chat-screen-container">
-                <RightHeader showContacts={props.showContacts} />
-                {state.uiView.selectedRightView ===
-                    RightViewSelected.Default && (
-                    <div className="d-flex justify-content-center align-items-center default-screen">
-                        <img className="img-fluid" src={logo} alt="logo" />
-                    </div>
+                {screenWidth < 800 ? (
+                    <>
+                        <RightHeader showContacts={props.showContacts} />
+                        {state.uiView.selectedRightView ===
+                            RightViewSelected.Chat && (
+                            <Chat hideFunction={props.hideFunction} />
+                        )}
+                        {state.uiView.selectedRightView ===
+                            RightViewSelected.Profile && <Profile />}
+                        {state.uiView.selectedRightView ===
+                            RightViewSelected.ContactInfo && <ContactInfo />}
+                    </>
+                ) : (
+                    <>
+                        <RightHeader showContacts={props.showContacts} />
+                        {state.uiView.selectedRightView ===
+                            RightViewSelected.Default && (
+                            <div className="d-flex justify-content-center align-items-center default-screen">
+                                <img
+                                    className="img-fluid"
+                                    src={logo}
+                                    alt="logo"
+                                />
+                            </div>
+                        )}
+                        {state.uiView.selectedRightView ===
+                            RightViewSelected.Chat && (
+                            <Chat hideFunction={props.hideFunction} />
+                        )}
+                        {state.uiView.selectedRightView ===
+                            RightViewSelected.Profile && <Profile />}
+                        {state.uiView.selectedRightView ===
+                            RightViewSelected.ContactInfo && <ContactInfo />}
+                    </>
                 )}
-                {state.uiView.selectedRightView === RightViewSelected.Chat && (
-                    <Chat hideFunction={props.hideFunction} />
-                )}
-                {state.uiView.selectedRightView ===
-                    RightViewSelected.Profile && <Profile />}
-                {state.uiView.selectedRightView ===
-                    RightViewSelected.ContactInfo && <ContactInfo />}
             </div>
         </>
     );
