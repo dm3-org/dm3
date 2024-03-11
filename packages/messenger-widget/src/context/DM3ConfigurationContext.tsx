@@ -5,6 +5,8 @@ import { useDm3Configuration } from '../hooks/configuration/useDM3Configuration'
 export type DM3ConfigurationContextType = {
     setDm3Configuration: (configuration: DM3Configuration) => void;
     dm3Configuration: DM3Configuration;
+    screenWidth: number;
+    setScreenWidth: (width: number) => void;
 };
 
 export const DM3ConfigurationContext =
@@ -26,6 +28,8 @@ export const DM3ConfigurationContext =
             showAlways: true,
             showContacts: true,
         },
+        screenWidth: window.innerWidth,
+        setScreenWidth: (width: number) => {},
     });
 
 export const DM3ConfigurationContextProvider = ({
@@ -33,13 +37,20 @@ export const DM3ConfigurationContextProvider = ({
 }: {
     children?: any;
 }) => {
-    const { dm3Configuration, setDm3Configuration } = useDm3Configuration();
+    const {
+        dm3Configuration,
+        setDm3Configuration,
+        screenWidth,
+        setScreenWidth,
+    } = useDm3Configuration();
 
     return (
         <DM3ConfigurationContext.Provider
             value={{
                 dm3Configuration,
                 setDm3Configuration,
+                screenWidth,
+                setScreenWidth,
             }}
         >
             {children}

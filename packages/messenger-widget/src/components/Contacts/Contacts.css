@@ -109,3 +109,50 @@
 .display-name {
     font-weight: bolder;
 }
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (max-width: 800px) {
+    .contacts-scroller {
+        padding-left: 0rem !important;
+    }
+
+    .contact-details-container {
+        padding: 0.5rem 0.5rem 0.5rem 2rem !important;
+    }
+
+    .contact-details-container:nth-child(even) {
+        background: var(--alternate-contact-background-color) !important;
+    }
+
+    .contact-details-container:hover {
+        border-radius: 0px;
+        padding-left: 2rem !important;
+        margin-left: 0rem !important;
+        background-color: var(--normal-btn) !important;
+    }
+
+    .pic {
+        height: 2rem !important;
+        width: 2rem !important;
+    }
+
+    .display-name {
+        font-size: 10px !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .contacts-msg {
+        font-size: 10px !important;
+    }
+
+    .configure-msg-box {
+        font-size: 12px !important;
+    }
+
+    .config-btn-container {
+        font-size: 12px !important;
+    }
+}

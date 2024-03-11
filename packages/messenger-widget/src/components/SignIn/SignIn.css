@@ -171,6 +171,9 @@
     .loading-btn {
         height: 18px !important;
     }
+    .small-spinner {
+        width: 1.5rem !important;
+    }
 }
 
 @container signinContainer (max-width: 635px) {

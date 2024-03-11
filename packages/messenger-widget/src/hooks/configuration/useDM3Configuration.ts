@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { DM3Configuration } from '../../interfaces/config';
 
 export const useDm3Configuration = () => {
+    const [screenWidth, setScreenWidth] = useState<number>(window.innerWidth);
+
     const [dm3Configuration, setDm3Configuration] = useState<DM3Configuration>({
         defaultContact: '',
         defaultServiceUrl: '',
@@ -22,5 +24,7 @@ export const useDm3Configuration = () => {
     return {
         dm3Configuration,
         setDm3Configuration,
+        screenWidth,
+        setScreenWidth,
     };
 };

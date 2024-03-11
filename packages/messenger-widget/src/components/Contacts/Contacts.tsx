@@ -17,15 +17,10 @@ import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
 export function Contacts(props: DashboardProps) {
     // fetches context api data
     const { state, dispatch } = useContext(GlobalContext);
-    const {
-        contacts,
-        setSelectedContactName,
-        selectedContact,
-        addConversation,
-    } = useContext(ConversationContext);
+    const { contacts, setSelectedContactName, selectedContact } =
+        useContext(ConversationContext);
 
     const { getMessages, getUnreadMessageCount } = useContext(MessageContext);
-
     const [isMenuAlignedAtBottom, setIsMenuAlignedAtBottom] = useState<
         boolean | null
     >(null);
@@ -42,31 +37,32 @@ export function Contacts(props: DashboardProps) {
         }
     }, [state.uiView.selectedRightView]);
 
-    // handles UI view on contact select
-    useEffect(() => {
-        if (selectedContact) {
-            // set selected contact
-
-            if (state.uiView.selectedRightView !== RightViewSelected.Chat) {
-                // show chat screen
-                dispatch({
-                    type: UiViewStateType.SetSelectedRightView,
-                    payload: RightViewSelected.Chat,
-                });
-            }
-            setIsMenuAlignedAtBottom(showMenuInBottom(selectedContact.name));
-        }
-    }, [selectedContact]);
-
     useEffect(() => {
         if (
             !props.dm3Props.config.showContacts &&
             props.dm3Props.config.defaultContact &&
-            !selectedContact &&
             contacts
         ) {
-            addConversation(props.dm3Props.config.defaultContact);
+            // set the default contact
             setSelectedContactName(props.dm3Props.config.defaultContact);
+
+            // filter out the default contact from contact list
+            const defContact = contacts.filter(
+                (data) => data.name === props.dm3Props.config.defaultContact,
+            );
+
+            if (defContact.length) {
+                // set the contact by its ensName found in contact list
+                setSelectedContactName(
+                    defContact[0].contactDetails.account.ensName,
+                );
+            }
+
+            // show chat screen
+            dispatch({
+                type: UiViewStateType.SetSelectedRightView,
+                payload: RightViewSelected.Chat,
+            });
         }
     }, [contacts]);
 
@@ -124,6 +120,21 @@ export function Contacts(props: DashboardProps) {
                                 onClick={() => {
                                     setSelectedContactName(
                                         data.contactDetails.account.ensName,
+                                    );
+                                    if (
+                                        state.uiView.selectedRightView !==
+                                        RightViewSelected.Chat
+                                    ) {
+                                        // show chat screen
+                                        dispatch({
+                                            type: UiViewStateType.SetSelectedRightView,
+                                            payload: RightViewSelected.Chat,
+                                        });
+                                    }
+                                    setIsMenuAlignedAtBottom(
+                                        showMenuInBottom(
+                                            data.contactDetails.account.ensName,
+                                        ),
                                     );
                                 }}
                             >

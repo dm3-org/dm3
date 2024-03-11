@@ -114,3 +114,5 @@ export const ACCOUNT_CHANGE_POPUP_MESSAGE =
     'Your wallet address has changed. Please re-sign in with a signature of your wallet.';
 
 export const ENS_PROFILE_BASE_URL = 'https://app.ens.domains/';
+
+export const MOBILE_SCREEN_WIDTH = 800;

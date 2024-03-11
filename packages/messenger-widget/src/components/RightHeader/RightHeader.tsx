@@ -17,7 +17,7 @@ import { ConversationContext } from '../../context/ConversationContext';
 export function RightHeader(props: HideFunctionProps) {
     // fetches context storage
     const { state, dispatch } = useContext(GlobalContext);
-    const { account, displayName, ethAddress } = useContext(AuthContext);
+    const { account, displayName } = useContext(AuthContext);
     const { setSelectedContactName } = useContext(ConversationContext);
 
     const mainnetProvider = useMainnetProvider();
@@ -84,7 +84,13 @@ export function RightHeader(props: HideFunctionProps) {
 
             <div className="d-flex align-items-center justify-content-end">
                 <div className="me-2">
-                    <ConnectButton showBalance={false} />
+                    <ConnectButton
+                        showBalance={false}
+                        accountStatus={{
+                            smallScreen: 'avatar',
+                            largeScreen: 'full',
+                        }}
+                    />
                 </div>
                 <span
                     onClick={() => updateView()}

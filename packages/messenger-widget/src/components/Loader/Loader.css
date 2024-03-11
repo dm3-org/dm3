@@ -39,3 +39,15 @@
 .loader-img {
     height: 3rem;
 }
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (max-width: 800px) {
+    .loader-img {
+        height: 2rem !important;
+    }
+    .loader-content{
+        font-size: 14px !important;
+        margin-top: 4rem !important;
+    }
+}

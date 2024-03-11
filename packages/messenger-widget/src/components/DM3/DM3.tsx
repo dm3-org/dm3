@@ -6,7 +6,9 @@ import { SignIn } from '../SignIn/SignIn';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 function DM3(props: Dm3Props) {
-    const { setDm3Configuration } = useContext(DM3ConfigurationContext);
+    const { setDm3Configuration, setScreenWidth } = useContext(
+        DM3ConfigurationContext,
+    );
 
     const { isLoggedIn } = useContext(AuthContext);
 
@@ -19,6 +21,17 @@ function DM3(props: Dm3Props) {
 
         // sets the DM3 confguration provided from props
         setDm3Configuration(props.dm3Configuration);
+    }, []);
+
+    // This handles the responsive check of widget
+    useEffect(() => {
+        const handleResize = () => {
+            setScreenWidth(window.innerWidth);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
     }, []);
 
     return (

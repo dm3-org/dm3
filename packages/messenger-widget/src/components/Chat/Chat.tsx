@@ -2,7 +2,6 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { MessageContext } from '../../context/MessageContext';
-import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 import { MessageModel } from '../../hooks/messages/useMessage';
 import { HideFunctionProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
@@ -16,14 +15,15 @@ import { Message } from '../Message/Message';
 import { MessageInputBox } from '../MessageInputBox/MessageInputBox';
 import './Chat.css';
 import { scrollToBottomOfChat } from './scrollToBottomOfChat';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { MOBILE_SCREEN_WIDTH } from '../../utils/common-utils';
 
 export function Chat(props: HideFunctionProps) {
     const { state, dispatch } = useContext(GlobalContext);
-    const { ethAddress, deliveryServiceToken, account } =
-        useContext(AuthContext);
+    const { account } = useContext(AuthContext);
     const { selectedContact } = useContext(ConversationContext);
+    const { screenWidth } = useContext(DM3ConfigurationContext);
     const { getMessages, contactIsLoading } = useContext(MessageContext);
-    const mainnetProvider = useMainnetProvider();
 
     const [isProfileConfigured, setIsProfileConfigured] =
         useState<boolean>(false);
@@ -78,7 +78,7 @@ export function Chat(props: HideFunctionProps) {
             id="chat-msgs"
             className={'chat-msgs width-fill '
                 .concat(
-                    selectedContact
+                    selectedContact && screenWidth >= MOBILE_SCREEN_WIDTH
                         ? 'highlight-chat-border'
                         : 'highlight-chat-border-none',
                 )

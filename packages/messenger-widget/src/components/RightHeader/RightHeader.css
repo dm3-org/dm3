@@ -13,3 +13,11 @@
 .default-profile-pic {
     height: 1.75rem;
 }
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (max-width: 800px) {
+    .default-profile-pic {
+        height: 1.5rem !important;
+    }
+}

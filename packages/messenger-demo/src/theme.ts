@@ -42,4 +42,5 @@ export const themeColors = {
     rainbowModalTextSecondaryColor: 'yellow',
     rainbowModalWalletHoverColor: 'green',
     rainbowModalBackgroundColor: 'blue',
+    alternateContactBackgroundColor: 'black',
 };

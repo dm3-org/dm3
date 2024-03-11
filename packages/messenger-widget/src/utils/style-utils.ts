@@ -49,6 +49,7 @@ export const setTheme = (theme: string | undefined | null) => {
             --rainbow-modal-text-secondary-color: ${themeDetails.rainbowModalTextSecondaryColor};
             --rainbow-modal-background-color: ${themeDetails.rainbowModalBackgroundColor};
             --rainbow-modal-wallet-hover-color: ${themeDetails.rainbowModalWalletHoverColor};
+            --alternate-contact-background-color: ${themeDetails.alternateContactBackgroundColor};
         }`,
         }),
     );
