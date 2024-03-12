@@ -13,7 +13,6 @@ import { onConnection } from './messaging';
 import { getDatabase } from './persistence/getDatabase';
 import Profile from './profile';
 import RpcProxy from './rpc/rpc-proxy';
-import Storage from './storage';
 import { logInfo } from '@dm3-org/dm3-lib-shared';
 import 'dotenv/config';
 
