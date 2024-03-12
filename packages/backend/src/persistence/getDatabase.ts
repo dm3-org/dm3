@@ -74,15 +74,18 @@ export async function getDatabase(
     const prisma = _prisma ?? (await getPrismaClient());
 
     return {
-        //Messages
-        getIncomingMessages: Messages.getIncomingMessages(redis),
-        getMessages: Messages.getMessages(redis),
-        createMessage: Messages.createMessage(redis),
-        deleteExpiredMessages: Messages.deleteExpiredMessages(redis),
+        // //Messages
+        // getIncomingMessages: Messages.getIncomingMessages(redis),
+        // getMessages: Messages.getMessages(redis),
+        // createMessage: Messages.createMessage(redis),
+        // deleteExpiredMessages: Messages.deleteExpiredMessages(redis),
         //Session
         setSession: Session.setSession(redis),
         setAliasSession: Session.setAliasSession(redis),
         getSession: Session.getSession(redis),
+        //Legacy remove after storage has been merged
+        getUserStorage: Storage.getUserStorageOld(redis),
+        setUserStorage: Storage.setUserStorageOld(redis),
         //Pending
         addPending: Pending.addPending(redis),
         getPending: Pending.getPending(redis),
@@ -131,21 +134,21 @@ export async function getDatabase(
 }
 
 export interface IDatabase {
-    getIncomingMessages: (
-        ensName: string,
-        limit: number,
-    ) => Promise<EncryptionEnvelop[]>;
-    getMessages: (
-        conversionId: string,
-        offset: number,
-        limit: number,
-    ) => Promise<EncryptionEnvelop[]>;
-    createMessage: (
-        conversationId: string,
-        envelop: EncryptionEnvelop,
-        createdAt?: number,
-    ) => Promise<void>;
-    deleteExpiredMessages: (time: number) => Promise<void>;
+    // getIncomingMessages: (
+    //     ensName: string,
+    //     limit: number,
+    // ) => Promise<EncryptionEnvelop[]>;
+    // getMessages: (
+    //     conversionId: string,
+    //     offset: number,
+    //     limit: number,
+    // ) => Promise<EncryptionEnvelop[]>;
+    // createMessage: (
+    //     conversationId: string,
+    //     envelop: EncryptionEnvelop,
+    //     createdAt?: number,
+    // ) => Promise<void>;
+    // deleteExpiredMessages: (time: number) => Promise<void>;
 
     setSession: (ensName: string, session: DSSession) => Promise<void>;
 
