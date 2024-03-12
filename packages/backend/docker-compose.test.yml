@@ -5,7 +5,7 @@ services:
     db:
         image: redis
         restart: always
-        container_name: redis
+        container_name: redis-backend
         ports:
             - '6379:6379'
     postgres:
