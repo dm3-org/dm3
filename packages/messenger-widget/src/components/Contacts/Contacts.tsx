@@ -201,10 +201,6 @@ export function Contacts(props: DashboardProps) {
                                                                     contactDetails={
                                                                         data
                                                                     }
-                                                                    index={
-                                                                        //TODO replace with ID
-                                                                        0
-                                                                    }
                                                                     isMenuAlignedAtBottom={
                                                                         isMenuAlignedAtBottom ===
                                                                         null

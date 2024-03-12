@@ -53,3 +53,17 @@
 .align-top {
     bottom: 1rem !important;
 }
+
+.align-action-item-left {
+    margin-left: -7rem;
+    width: fit-content;
+    min-width: 130px;
+}
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (max-width: 800px) {
+    .msg-reaction-container {
+        font-size: 1rem;
+    }
+}

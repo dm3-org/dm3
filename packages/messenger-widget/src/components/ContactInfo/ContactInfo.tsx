@@ -10,6 +10,7 @@ import '../../styles/profile-contact.css';
 import { GlobalContext } from '../../utils/context-utils';
 import { onClose, openEnsProfile, openEtherscan } from '../../utils/ens-utils';
 import {
+    ModalStateType,
     RightViewSelected,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
@@ -24,7 +25,9 @@ export function ContactInfo() {
         useContext(ConversationContext);
 
     const mainnetProvider = useMainnetProvider();
-    const { dm3Configuration } = useContext(DM3ConfigurationContext);
+    const { dm3Configuration, screenWidth } = useContext(
+        DM3ConfigurationContext,
+    );
 
     const [address, setAddress] = useState<string>('');
 
@@ -60,6 +63,10 @@ export function ContactInfo() {
     useEffect(() => {
         const fetchAddress = async () => {
             if (selectedContact) {
+                dispatch({
+                    type: ModalStateType.LoaderContent,
+                    payload: 'Fetching contact details...',
+                });
                 startLoader();
                 const _address = await getAddress(
                     selectedContact.contactDetails.account.ensName ?? '',
@@ -82,7 +89,9 @@ export function ContactInfo() {
                     className="pointer-cursor close-icon"
                     src={closeIcon}
                     alt="close"
-                    onClick={() => onClose(dispatch, setSelectedContactName)}
+                    onClick={() =>
+                        onClose(dispatch, setSelectedContactName, screenWidth)
+                    }
                 />
             </div>
 

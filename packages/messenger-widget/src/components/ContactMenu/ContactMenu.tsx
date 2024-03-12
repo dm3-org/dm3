@@ -10,17 +10,18 @@ import {
 } from '../../utils/enum-type-utils';
 
 import { ConversationContext } from '../../context/ConversationContext';
+import { closeContactMenu } from '../../utils/common-utils';
 
 export function ContactMenu(props: IContactMenu) {
-    const { state, dispatch } = useContext(GlobalContext);
-    const { hideContact, setSelectedContactName } =
-        useContext(ConversationContext);
+    const { dispatch } = useContext(GlobalContext);
+    const { hideContact } = useContext(ConversationContext);
 
     const onClickOfShowDetails = () => {
         dispatch({
             type: UiViewStateType.SetSelectedRightView,
             payload: RightViewSelected.ContactInfo,
         });
+        closeContactMenu();
     };
 
     const onClickOfHideContact = () => {
@@ -30,6 +31,7 @@ export function ContactMenu(props: IContactMenu) {
             type: UiViewStateType.SetSelectedRightView,
             payload: RightViewSelected.Default,
         });
+        closeContactMenu();
     };
 
     return (

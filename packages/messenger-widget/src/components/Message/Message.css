@@ -2,6 +2,7 @@
     padding: 10px;
     max-width: 38rem;
     margin-right: 0.4rem;
+    font-size: 14px;
 }
 
 .action-container {
@@ -69,11 +70,11 @@
     flex-direction: column;
 }
 
-.reply-preview-own{
+.reply-preview-own {
     background-color: var(--scrollbar-background-color);
 }
 
-.reply-preview-contact{
+.reply-preview-contact {
     background-color: var(--scrollbar-background-color);
 }
 
@@ -123,4 +124,19 @@
 
 .contact-msg-text {
     color: var(--received-message-text-color);
+}
+
+/* =================== Mobile Responsive CSS =================== */
+@media only screen and (max-width: 800px) {
+    .content-style {
+        font-size: 12px;
+    }
+
+    .reacted {
+        font-size: 12px;
+    }
+
+    .msg div .content-style + .msg-action-container {
+        visibility: visible;
+    }
 }

@@ -14,10 +14,34 @@
     height: 1.75rem;
 }
 
+.menu-details {
+    border-radius: 3px;
+    border: 1px solid;
+    position: relative;
+    padding: 0px 2px 0px 2px;
+    height: 1.2rem;
+    width: 1.2rem;
+    background: var(--text-secondary-color);
+}
+
+.menu-details-dropdown-content {
+    display: flex;
+    margin-top: 0rem;
+    margin-left: -8.8rem;
+}
+
 /* =================== Mobile Responsive CSS =================== */
 
 @media only screen and (max-width: 800px) {
     .default-profile-pic {
         height: 1.5rem !important;
+    }
+    .back-btn {
+        height: 1.3rem;
+    }
+    .show-menu-item {
+        display: flex;
+        margin-top: 7rem;
+        margin-left: 12.5rem;
     }
 }

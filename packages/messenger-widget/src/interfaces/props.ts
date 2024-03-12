@@ -22,7 +22,6 @@ export interface IEnsDetails {
 
 export interface IContactMenu {
     contactDetails: ContactPreview;
-    index: number;
     isMenuAlignedAtBottom: boolean;
 }
 

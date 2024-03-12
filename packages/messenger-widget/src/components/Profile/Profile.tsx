@@ -17,11 +17,13 @@ import {
 import { Button } from '../Button/Button';
 import { openConfigurationModal } from '../ConfigureProfile/bl';
 import { EnsDetails } from '../EnsDetails/EnsDetails';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export function Profile() {
     const { dispatch } = useContext(GlobalContext);
     const { account, ethAddress, displayName } = useContext(AuthContext);
     const { setSelectedContactName } = useContext(ConversationContext);
+    const { screenWidth } = useContext(DM3ConfigurationContext);
     const mainnetProvider = useMainnetProvider();
 
     const [profilePic, setProfilePic] = useState<string>('');
@@ -66,7 +68,9 @@ export function Profile() {
                     className="pointer-cursor close-icon"
                     src={closeIcon}
                     alt="close"
-                    onClick={() => onClose(dispatch, setSelectedContactName)}
+                    onClick={() =>
+                        onClose(dispatch, setSelectedContactName, screenWidth)
+                    }
                 />
             </div>
 

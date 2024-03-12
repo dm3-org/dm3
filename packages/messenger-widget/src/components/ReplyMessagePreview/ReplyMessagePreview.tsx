@@ -11,6 +11,9 @@ import { ReplyMessagePreviewProps } from '../../interfaces/props';
 export function ReplyMessagePreview(props: ReplyMessagePreviewProps) {
     const { state, dispatch } = useContext(GlobalContext);
 
+    const fromAddress = state.uiView.selectedMessageView.messageData?.envelop
+        .message.metadata.from as string;
+
     function cancelReply() {
         dispatch({
             type: UiViewStateType.SetMessageView,
@@ -28,10 +31,15 @@ export function ReplyMessagePreview(props: ReplyMessagePreviewProps) {
 font-weight-400 d-flex justify-content-between"
         >
             <div className="user-name">
-                {
-                    state.uiView.selectedMessageView.messageData?.envelop
-                        .message.metadata.from
-                }
+                {fromAddress
+                    .substring(0, 6)
+                    .concat('...')
+                    .concat(
+                        fromAddress.substring(
+                            fromAddress.length - 5,
+                            fromAddress.length,
+                        ),
+                    )}
                 :
                 <div className="text-primary-color">
                     {' ' +
