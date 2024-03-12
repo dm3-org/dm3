@@ -8,7 +8,7 @@ import {
 } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { UserStorage } from '@dm3-org/dm3-lib-storage';
-import { PrismaClient } from '@prisma/client';
+// import { PrismaClient } from '@prisma/client';
 import { createClient } from 'redis';
 import { getAliasChain, getIdEnsName } from './getIdEnsName';
 import Messages from './messages';
@@ -62,16 +62,16 @@ export async function getRedisClient() {
     return client;
 }
 
-export async function getPrismaClient() {
-    return new PrismaClient();
-}
+// export async function getPrismaClient() {
+//     return new PrismaClient();
+// }
 
 export async function getDatabase(
     _redis?: Redis,
-    _prisma?: PrismaClient,
+    // _prisma?: PrismaClient,
 ): Promise<IDatabase> {
     const redis = _redis ?? (await getRedisClient());
-    const prisma = _prisma ?? (await getPrismaClient());
+    // const prisma = _prisma ?? (await getPrismaClient());
 
     return {
         //Messages
