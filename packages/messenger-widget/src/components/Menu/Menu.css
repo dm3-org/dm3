@@ -1,3 +1,7 @@
+#menu-container {
+    background: var(--menu-background-color);
+}
+
 .menu-container {
     padding-top: 1rem;
 }
