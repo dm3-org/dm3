@@ -25,22 +25,27 @@ export function ReplyMessagePreview(props: ReplyMessagePreviewProps) {
         props.setFiles([]);
     }
 
+    const trimSendersAddress = () => {
+        return fromAddress
+            ? fromAddress
+                  .substring(0, 6)
+                  .concat('...')
+                  .concat(
+                      fromAddress.substring(
+                          fromAddress.length - 5,
+                          fromAddress.length,
+                      ),
+                  )
+            : '';
+    };
+
     return (
         <div
             className="reply-content text-primary-color background-config-box font-size-14 
 font-weight-400 d-flex justify-content-between"
         >
             <div className="user-name">
-                {fromAddress
-                    .substring(0, 6)
-                    .concat('...')
-                    .concat(
-                        fromAddress.substring(
-                            fromAddress.length - 5,
-                            fromAddress.length,
-                        ),
-                    )}
-                :
+                {trimSendersAddress()}:
                 <div className="text-primary-color">
                     {' ' +
                         state.uiView.selectedMessageView.messageData?.message
