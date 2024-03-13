@@ -3,7 +3,11 @@ import makeBlockie from 'ethereum-blockies-base64';
 import { ethers } from 'ethers';
 import humanIcon from '../assets/images/human.svg';
 import { EnsProfileDetails } from '../interfaces/utils';
-import { ENS_PROFILE_BASE_URL, getEtherscanUrl } from './common-utils';
+import {
+    ENS_PROFILE_BASE_URL,
+    MOBILE_SCREEN_WIDTH,
+    getEtherscanUrl,
+} from './common-utils';
 import { Actions, RightViewSelected, UiViewStateType } from './enum-type-utils';
 
 // method to get avatar/image url
@@ -90,12 +94,20 @@ export const openEtherscan = (address: string, chainId: string) => {
 export const onClose = (
     dispatch: React.Dispatch<Actions>,
     setSelectedContact: Function,
+    screenWidth: number,
 ) => {
-    setSelectedContact(undefined);
-    dispatch({
-        type: UiViewStateType.SetSelectedRightView,
-        payload: RightViewSelected.Default,
-    });
+    if (screenWidth && screenWidth > MOBILE_SCREEN_WIDTH) {
+        setSelectedContact(undefined);
+        dispatch({
+            type: UiViewStateType.SetSelectedRightView,
+            payload: RightViewSelected.Default,
+        });
+    } else {
+        dispatch({
+            type: UiViewStateType.SetSelectedRightView,
+            payload: RightViewSelected.Chat,
+        });
+    }
 };
 
 // method to check DM3 network profile on ENS

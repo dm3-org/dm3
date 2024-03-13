@@ -87,6 +87,14 @@ export const reloadApp = () => {
     window.location.reload();
 };
 
+// Method to close 3 dot icon menu to in mobile screen
+export const closeContactMenu = () => {
+    const menu = document.querySelector('.dropdown-content');
+    if (menu) {
+        menu.classList.remove('menu-details-dropdown-content');
+    }
+};
+
 // method to close the error modal
 export const closeErrorModal = () => {
     const modal: HTMLElement = document.getElementById(

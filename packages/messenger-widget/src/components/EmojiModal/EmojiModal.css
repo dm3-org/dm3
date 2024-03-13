@@ -10,3 +10,11 @@ em-emoji-picker {
     --rgb-background: var(--emoji-modal-background-color);
     --rgb-color: var(--emoji-modal-text-color);
 }
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (max-width: 800px) {
+    .emoji-modal-container {
+        bottom: 3.5rem;
+    }
+}

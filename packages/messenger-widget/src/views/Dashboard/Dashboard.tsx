@@ -71,7 +71,7 @@ export default function Dashboard(props: DashboardProps) {
 
                     {(state.uiView.selectedRightView ===
                         RightViewSelected.Profile ||
-                        state.uiView.selectedRightView !==
+                        state.uiView.selectedRightView ===
                             RightViewSelected.ContactInfo ||
                         selectedContact) && (
                         <div className={getRightViewStyleClasses()}>

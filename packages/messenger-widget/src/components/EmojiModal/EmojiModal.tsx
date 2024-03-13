@@ -75,10 +75,15 @@ export function EmojiModal(props: EmojiProps) {
             throw Error('no contact selected');
         }
 
-        // @Bhupesh why do we need to filter here
-        // const filteredElemtns = props.reactions.some(
-        //     (data) => data.message.message === message,
-        // );
+        // Filters if the reaction already exists
+        const filteredReactions = props.reactions.filter(
+            (data) => data.message.message === message,
+        );
+
+        // if same reaction already exists, then it should not be added again so returns
+        if (filteredReactions.length) {
+            return;
+        }
 
         dispatch({
             type: UiViewStateType.SetMessageView,

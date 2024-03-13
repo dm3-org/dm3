@@ -10,6 +10,7 @@ import { ConversationContext } from '../../context/ConversationContext';
 import { MessageContext } from '../../context/MessageContext';
 import { MessageProps } from '../../interfaces/props';
 import {
+    MOBILE_SCREEN_WIDTH,
     createNameForFile,
     getFileTypeFromBase64,
 } from '../../utils/common-utils';
@@ -21,12 +22,15 @@ import {
 } from '../../utils/enum-type-utils';
 import { hideMsgActionDropdown } from '../MessageInputBox/bl';
 import './MessageAction.css';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export function MessageAction(props: MessageProps) {
     const { state, dispatch } = useContext(GlobalContext);
     const { account, profileKeys } = useContext(AuthContext);
     const { addMessage } = useContext(MessageContext);
     const { selectedContact } = useContext(ConversationContext);
+    const { screenWidth } = useContext(DM3ConfigurationContext);
+
     const [alignmentTop, setAlignmentTop] = useState(false);
 
     // Popular emojis for reaction
@@ -148,7 +152,13 @@ export function MessageAction(props: MessageProps) {
             id="msg-dropdown"
             className={'msg-dropdown-content font-size-12 font-weight-400'
                 .concat(' ', props.ownMessage ? 'own-msg' : '')
-                .concat(' ', alignmentTop ? 'align-top' : '')}
+                .concat(' ', alignmentTop ? 'align-top' : '')
+                .concat(
+                    ' ',
+                    !props.ownMessage && screenWidth <= MOBILE_SCREEN_WIDTH
+                        ? 'align-action-item-left'
+                        : '',
+                )}
         >
             {props.ownMessage &&
                 (props.message ||
@@ -184,7 +194,18 @@ export function MessageAction(props: MessageProps) {
             {!props.ownMessage && (
                 <div className="msg-reaction d-flex align-items-center justify-content-start p-0">
                     {reactionEmojis.map((item, index) => {
-                        return (
+                        return screenWidth <= MOBILE_SCREEN_WIDTH ? (
+                            index < 2 && (
+                                <div
+                                    data-testid={`reaction-emoji-${index}`}
+                                    className="msg-reaction-container"
+                                    onClick={() => reactedWithEmoji(item)}
+                                    key={index}
+                                >
+                                    {item}
+                                </div>
+                            )
+                        ) : (
                             <div
                                 data-testid={`reaction-emoji-${index}`}
                                 className="msg-reaction-container"

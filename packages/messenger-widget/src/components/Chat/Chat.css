@@ -52,3 +52,14 @@
     display: flex;
     flex-direction: column;
 }
+
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (max-width: 800px) {
+    .skeleton-message{
+        width: 12rem;
+        height: 2rem;
+        margin-top: 8px;
+    }
+}

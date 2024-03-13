@@ -1,3 +1,4 @@
+import './SendMessage.css';
 import { useContext } from 'react';
 import sendBtnIcon from '../../assets/images/send-btn.svg';
 import { AuthContext } from '../../context/AuthContext';
@@ -28,7 +29,7 @@ export function SendMessage(props: MessageDataProps) {
     }
 
     return (
-        <span className="d-flex align-items-center pointer-cursor text-secondary-color">
+        <span className="msg-send-btn align-items-center pointer-cursor text-secondary-color">
             <img
                 className="chat-svg-icon"
                 src={sendBtnIcon}

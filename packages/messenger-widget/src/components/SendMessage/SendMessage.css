@@ -1,0 +1,6 @@
+/* =================== Mobile Responsive CSS =================== */
+@media only screen and (max-width: 350px) {
+    .msg-send-btn {
+        display: none;
+    }
+}
