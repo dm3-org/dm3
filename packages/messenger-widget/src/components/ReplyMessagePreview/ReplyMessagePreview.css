@@ -11,6 +11,7 @@
     color: var(--text-secondary-color);
     padding-right: 3px;
     display: flex;
+    word-break: break-all;
 }
 
 .reply-close-icon {

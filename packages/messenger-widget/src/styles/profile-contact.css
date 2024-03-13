@@ -130,3 +130,27 @@
         padding: 0.8rem 0.5rem 0.8rem 0.5rem !important;
     }
 }
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (max-width: 800px) {
+    .profile-image {
+        width: 5rem;
+    }
+
+    .profile-container-type {
+        margin-top: 2rem;
+    }
+
+    .ens-details {
+        word-break: break-all;
+    }
+
+    .profile-details-container {
+        padding: 2rem 2rem 0rem 2rem;
+    }
+
+    .profile-detail-items{
+        margin-top: 3rem;
+    }
+}

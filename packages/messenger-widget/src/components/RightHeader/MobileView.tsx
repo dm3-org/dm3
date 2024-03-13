@@ -68,7 +68,6 @@ export function MobileView(props: HideFunctionProps) {
                             />
                         )}
 
-                        {/* Add the profile pic of contact  */}
                         <img
                             src={profilePic ? profilePic : humanIcon}
                             alt="pic"
@@ -76,13 +75,7 @@ export function MobileView(props: HideFunctionProps) {
                         />
 
                         <span className="font-size-10 text-primary-color">
-                            {contactName &&
-                                (contactName.length > 20
-                                    ? contactName.substring(
-                                          0,
-                                          contactName.length,
-                                      )
-                                    : contactName)}
+                            {contactName}
                         </span>
                     </div>
 
