@@ -39,10 +39,8 @@ export function NormalView(props: HideFunctionProps) {
     // method to set profile page and set contact
     const updateView = () => {
         if (props.showContacts) {
-            let profileActive: RightViewSelected =
-                state.uiView.selectedRightView;
-            profileActive =
-                profileActive === RightViewSelected.Profile
+            const profileActive =
+                state.uiView.selectedRightView === RightViewSelected.Profile
                     ? RightViewSelected.Default
                     : RightViewSelected.Profile;
 
