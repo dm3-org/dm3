@@ -235,6 +235,13 @@ input:focus {
     .profile-configuration-box {
         font-size: 12px;
     }
+
+    .blur-background {
+        filter: blur(4px);
+        background-color: rgba(0, 0, 0, 0.4);
+        backdrop-filter: brightness(0.3);
+    }
+
 }
 
 @media only screen and (min-width: 800px) {

@@ -24,14 +24,10 @@ export default function Menu() {
             type: UiViewStateType.SetSelectedLeftView,
             payload: LeftViewSelected.Contacts,
         });
-        const element = document.getElementById('menu-container');
-        if (element) {
-            element.classList.remove('menu-container');
-        }
     };
 
     return (
-        <div id="menu-container" className="h-100 width-fill">
+        <div id="menu-container" className="h-100">
             <div className="menu-item-cancel d-flex justify-content-end">
                 <img
                     src={closeIcon}
@@ -107,10 +103,11 @@ export default function Menu() {
             </div>
 
             <div
-                className={'version-container width-fill p-3 font-size-14 '.concat(
+                className={'width-fill p-3 font-size-14'.concat(
+                    ' ',
                     state.uiView.selectedLeftView === LeftViewSelected.Menu
-                        ? ''
-                        : 'display-none',
+                        ? 'version-container'
+                        : '',
                 )}
             >
                 <hr className="line-separator text-secondary-color" />

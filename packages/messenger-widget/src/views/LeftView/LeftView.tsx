@@ -14,7 +14,6 @@ import {
 import { closeLoader, startLoader } from '../../components/Loader/Loader';
 import Menu from '../../components/Menu/Menu';
 import { ConversationContext } from '../../context/ConversationContext';
-import './../../styles/common.css';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
 import { AuthContext } from '../../context/AuthContext';
@@ -75,10 +74,6 @@ export default function LeftView(props: DashboardProps) {
             type: UiViewStateType.SetSelectedLeftView,
             payload: LeftViewSelected.Menu,
         });
-        const element = document.getElementById('menu-container');
-        if (element) {
-            element.classList.add('menu-container');
-        }
     };
 
     return (
@@ -86,9 +81,9 @@ export default function LeftView(props: DashboardProps) {
             <div
                 className={'w-100 height-inherit'.concat(
                     ' ',
-                    state.uiView.selectedLeftView === LeftViewSelected.Contacts
-                        ? ''
-                        : 'display-none',
+                    state.uiView.selectedLeftView === LeftViewSelected.Menu
+                        ? 'blur-background'
+                        : '',
                 )}
             >
                 <div className="menu-icon-container">
@@ -120,11 +115,11 @@ export default function LeftView(props: DashboardProps) {
             </div>
 
             <div
-                className={'w-100 h-100'.concat(
+                className={'h-100'.concat(
                     ' ',
                     state.uiView.selectedLeftView === LeftViewSelected.Menu
-                        ? ''
-                        : 'display-none',
+                        ? 'menu-container'
+                        : '',
                 )}
             >
                 <Menu />
