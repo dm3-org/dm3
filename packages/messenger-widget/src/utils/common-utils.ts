@@ -111,6 +111,11 @@ export const getEtherscanUrl = (chainId: string): string => {
         : 'https://goerli.etherscan.io/address/';
 };
 
+// method to open URL in new tab
+export const openUrlInNewTab = (url: string) => {
+    window.open(url, '_blank');
+};
+
 // Constants
 export const REACT_APP_SUPPORTED_CHAIN_IDS = [5, 10200];
 

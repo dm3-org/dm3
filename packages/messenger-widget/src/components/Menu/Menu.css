@@ -1,5 +1,8 @@
 .menu-container {
     padding-top: 1rem;
+    background: var(--menu-background-color);
+    position: absolute;
+    width: 100%;
 }
 
 .menu-items {
@@ -38,4 +41,15 @@
         transform: translateX(0px);
         opacity: 1;
     }
+}
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (max-width: 800px) {
+
+    .menu-container {
+        width: 70%;
+        box-shadow: 4px 4px 10px 0px #000000B2;
+    }
+
 }

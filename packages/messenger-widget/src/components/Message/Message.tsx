@@ -20,15 +20,12 @@ import { AttachmentThumbnailPreview } from '../AttachmentThumbnailPreview/Attach
 import { MessageAction } from '../MessageAction/MessageAction';
 import './Message.css';
 import { getFilesData, getMessageChangeText, scrollToMessage } from './bl';
-import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
-import { MOBILE_SCREEN_WIDTH } from '../../utils/common-utils';
 
 export function Message(props: MessageProps) {
     const { state, dispatch } = useContext(GlobalContext);
     const { account, profileKeys } = useContext(AuthContext);
     const { addMessage } = useContext(MessageContext);
     const { selectedContact } = useContext(ConversationContext);
-    const { screenWidth } = useContext(DM3ConfigurationContext);
 
     // state to show action items three dots
     const [isHovered, setIsHovered] = useState(false);
@@ -198,16 +195,9 @@ export function Message(props: MessageProps) {
                 <div
                     className={'msg-action-container d-flex pointer-cursor border-radius-3 position-relative'.concat(
                         ' ',
-                        (!props.message &&
-                            props.envelop.message.attachments &&
-                            props.envelop.message.attachments.length) === 0 ||
-                            props.envelop.message.metadata.type ===
-                                MessageActionType.DELETE ||
-                            !props.envelop.metadata?.encryptedMessageHash
-                            ? screenWidth > MOBILE_SCREEN_WIDTH
-                                ? 'hide-action'
-                                : ''
-                            : '',
+                        selectedContact?.contactDetails.account.profile
+                            ? ''
+                            : 'hide-action',
                     )}
                     onMouseOver={handleMouseOver}
                     onMouseLeave={handleMouseOut}

@@ -30,6 +30,10 @@
     margin-left: -8.8rem;
 }
 
+.contact-name-header{
+    word-break: break-all;
+}
+
 /* =================== Mobile Responsive CSS =================== */
 
 @media only screen and (max-width: 800px) {

@@ -50,6 +50,7 @@ export const setTheme = (theme: string | undefined | null) => {
             --rainbow-modal-background-color: ${themeDetails.rainbowModalBackgroundColor};
             --rainbow-modal-wallet-hover-color: ${themeDetails.rainbowModalWalletHoverColor};
             --alternate-contact-background-color: ${themeDetails.alternateContactBackgroundColor};
+            --menu-background-color: ${themeDetails.menuBackgroundColor};
         }`,
         }),
     );
