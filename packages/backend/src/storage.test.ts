@@ -20,7 +20,6 @@ import {
 } from '../test/testHelper';
 import auth from './auth';
 import { Redis, getRedisClient } from './persistence/getDatabase';
-import { getUserDbMigrationStatus } from './persistence/storage/getUserDbMigrationStatus';
 import { addConversation } from './persistence/storage/postgres/addConversation';
 import { addMessageBatch } from './persistence/storage/postgres/addMessageBatch';
 import { editMessageBatch } from './persistence/storage/postgres/editMessageBatch';
@@ -30,7 +29,6 @@ import { getNumberOfConversations } from './persistence/storage/postgres/getNumb
 import { getNumberOfMessages } from './persistence/storage/postgres/getNumberOfMessages';
 import { toggleHideConversation } from './persistence/storage/postgres/toggleHideConversation';
 import { MessageRecord } from './persistence/storage/postgres/utils/MessageRecord';
-import { setUserDbMigrated } from './persistence/storage/setUserDbMigrated';
 import storage from './storage';
 
 const keysA = {
@@ -110,8 +108,6 @@ describe('Storage', () => {
             getNumberOfMessages: getNumberOfMessages(prisma),
             getNumberOfConverations: getNumberOfConversations(prisma),
             toggleHideConversation: toggleHideConversation(prisma),
-            getUserDbMigrationStatus: getUserDbMigrationStatus(redisClient),
-            setUserDbMigrated: setUserDbMigrated(redisClient),
         };
         app.use(storage(app.locals.db));
 
@@ -836,36 +832,6 @@ describe('Storage', () => {
             expect(JSON.parse(body[0]).encryptedEnvelopContainer).toBe(
                 updatedPayload[0].encryptedEnvelopContainer,
             );
-        });
-    });
-    describe('Migration', () => {
-        it('should migrate storage', async () => {
-            const { body: preMigrationStatus } = await request(app)
-                .get(`/new/bob.eth/migrationStatus`)
-                .set({
-                    authorization: `Bearer ${token}`,
-                })
-                .send();
-
-            expect(preMigrationStatus).toBe(false);
-
-            const { status } = await request(app)
-                .post(`/new/bob.eth/migrationStatus`)
-                .set({
-                    authorization: `Bearer ${token}`,
-                })
-                .send();
-
-            expect(status).toBe(200);
-
-            const { body: postMigrationStatus } = await request(app)
-                .get(`/new/bob.eth/migrationStatus`)
-                .set({
-                    authorization: `Bearer ${token}`,
-                })
-                .send();
-
-            expect(postMigrationStatus).toBe(true);
         });
     });
 });

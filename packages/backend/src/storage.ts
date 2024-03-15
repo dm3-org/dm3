@@ -214,49 +214,5 @@ export default (db: IDatabase) => {
         },
     );
 
-    router.get('/new/:ensName/migrationStatus', async (req, res, next) => {
-        try {
-            const ensName = normalizeEnsName(req.params.ensName);
-            const status = await db.getUserDbMigrationStatus(ensName);
-            return res.json(status);
-        } catch (e) {
-            next(e);
-        }
-    });
-
-    router.post('/new/:ensName/migrationStatus', async (req, res, next) => {
-        try {
-            const ensName = normalizeEnsName(req.params.ensName);
-            await db.setUserDbMigrated(ensName);
-            return res.send();
-        } catch (e) {
-            next(e);
-        }
-    });
-
-    router.get('/:ensName', async (req, res, next) => {
-        try {
-            const account = normalizeEnsName(req.params.ensName);
-            const userStorage = await db.getUserStorage(account);
-            return res.json(userStorage);
-        } catch (e) {
-            next(e);
-        }
-    });
-
-    router.post('/:ensName', async (req, res, next) => {
-        try {
-            const account = normalizeEnsName(req.params.ensName);
-
-            await db.setUserStorage(account, stringify(req.body)!);
-
-            res.json({
-                timestamp: new Date().getTime(),
-            });
-        } catch (e) {
-            next(e);
-        }
-    });
-
     return router;
 };
