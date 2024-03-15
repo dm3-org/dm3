@@ -111,25 +111,6 @@ export async function getDatabase(
         setOtp: Otp.setOtp(redis),
         getOtp: Otp.getOtp(redis),
         resetOtp: Otp.resetOtp(redis),
-        // //Storage AddConversation
-        // addConversation: Storage.addConversation(prisma),
-        // getConversationList: Storage.getConversationList(prisma),
-        // //Storage Add Messages
-        // addMessageBatch: Storage.addMessageBatch(prisma),
-        // //Storage Get Messages
-        // getMessagesFromStorage: Storage.getMessages(prisma),
-        // //Storage Edit Message Batch
-        // editMessageBatch: Storage.editMessageBatch(prisma),
-        // //Storage Get Number Of Messages
-        // getNumberOfMessages: Storage.getNumberOfMessages(prisma),
-        // //Storage Get Number Of Converations
-        // getNumberOfConverations: Storage.getNumberOfConversations(prisma),
-        // //Storage Toggle Hide Conversation
-        // toggleHideConversation: Storage.toggleHideConversation(prisma),
-        // //Get the user db migration status
-        // getUserDbMigrationStatus: Storage.getUserDbMigrationStatus(redis),
-        // //Set the user db migration status to true
-        // setUserDbMigrated: Storage.setUserDbMigrated(redis),
     };
 }
 
@@ -210,39 +191,6 @@ export interface IDatabase {
         ensName: string,
         channelType: NotificationChannelType,
     ) => Promise<void>;
-
-    // addConversation: (
-    //     ensName: string,
-    //     encryptedContactName: string,
-    // ) => Promise<boolean>;
-    // getConversationList: (ensName: string) => Promise<string[]>;
-    // addMessageBatch: (
-    //     ensName: string,
-    //     encryptedContactName: string,
-    //     messageBatch: MessageRecord[],
-    // ) => Promise<boolean>;
-    // getMessagesFromStorage: (
-    //     ensName: string,
-    //     encryptedContactName: string,
-    //     page: number,
-    // ) => Promise<string[]>;
-    // editMessageBatch: (
-    //     ensName: string,
-    //     encryptedContactName: string,
-    //     messageBatch: MessageRecord[],
-    // ) => Promise<void>;
-    // getNumberOfMessages: (
-    //     ensName: string,
-    //     encryptedContactName: string,
-    // ) => Promise<number>;
-    // getNumberOfConverations: (ensName: string) => Promise<number>;
-    // toggleHideConversation: (
-    //     ensName: string,
-    //     encryptedContactName: string,
-    //     isHidden: boolean,
-    // ) => Promise<boolean>;
-    // getUserDbMigrationStatus: (ensName: string) => Promise<boolean>;
-    // setUserDbMigrated: (ensName: string) => Promise<void>;
 }
 
 export type Redis = Awaited<ReturnType<typeof getRedisClient>>;
