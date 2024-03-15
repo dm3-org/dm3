@@ -97,29 +97,20 @@ export const onClose = (
     screenWidth: number,
     showContacts: boolean,
 ) => {
-    if (screenWidth && screenWidth > MOBILE_SCREEN_WIDTH) {
-        // If contact list exists, then opens default screen
-        if (showContacts) {
-            setSelectedContact(undefined);
-            dispatch({
-                type: UiViewStateType.SetSelectedRightView,
-                payload: RightViewSelected.Default,
-            });
-            return;
-        }
-
-        // If default contact is enabled, then opens chat screen
+    // If contact list exists, then opens default screen
+    if (screenWidth && screenWidth > MOBILE_SCREEN_WIDTH && showContacts) {
+        setSelectedContact(undefined);
         dispatch({
             type: UiViewStateType.SetSelectedRightView,
-            payload: RightViewSelected.Chat,
+            payload: RightViewSelected.Default,
         });
-    } else {
-        // Opens chat screen for mobile screens
-        dispatch({
-            type: UiViewStateType.SetSelectedRightView,
-            payload: RightViewSelected.Chat,
-        });
+        return;
     }
+
+    dispatch({
+        type: UiViewStateType.SetSelectedRightView,
+        payload: RightViewSelected.Chat,
+    });
 };
 
 // method to check DM3 network profile on ENS
