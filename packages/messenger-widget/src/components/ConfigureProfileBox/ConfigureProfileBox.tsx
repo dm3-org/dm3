@@ -7,22 +7,21 @@ import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
 
 export default function ConfigureProfileBox() {
-    const { state, dispatch } = useContext(GlobalContext);
+    const { dispatch } = useContext(GlobalContext);
     const { selectedContact } = useContext(ConversationContext);
+    const { displayName } = useContext(AuthContext);
 
     const [showConfigBox, setShowConfigBox] = useState<boolean>(false);
 
-    const { account } = useContext(AuthContext);
-
     // fetches sub domain of ENS
-    const isAddrEnsName = account?.ensName?.endsWith(
+    const isAddrEnsName = displayName?.endsWith(
         globalConfig.ADDR_ENS_SUBDOMAIN(),
     );
 
     // handles profile configuration changes
     useEffect(() => {
-        setShowConfigBox(!account?.ensName || isAddrEnsName ? true : false);
-    }, [account?.ensName]);
+        setShowConfigBox(!displayName || isAddrEnsName ? true : false);
+    }, [displayName]);
 
     return showConfigBox ? (
         <div

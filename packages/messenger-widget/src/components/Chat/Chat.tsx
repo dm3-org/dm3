@@ -5,11 +5,7 @@ import { MessageContext } from '../../context/MessageContext';
 import { MessageModel } from '../../hooks/messages/useMessage';
 import { HideFunctionProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
-import {
-    MessageActionType,
-    RightViewSelected,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
+import { MessageActionType } from '../../utils/enum-type-utils';
 import ConfigProfileAlertBox from '../ContactProfileAlertBox/ContactProfileAlertBox';
 import { Message } from '../Message/Message';
 import { MessageInputBox } from '../MessageInputBox/MessageInputBox';
@@ -19,10 +15,13 @@ import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { MOBILE_SCREEN_WIDTH } from '../../utils/common-utils';
 
 export function Chat(props: HideFunctionProps) {
-    const { state, dispatch } = useContext(GlobalContext);
+    const { state } = useContext(GlobalContext);
     const { account } = useContext(AuthContext);
-    const { selectedContact } = useContext(ConversationContext);
-    const { screenWidth } = useContext(DM3ConfigurationContext);
+    const { selectedContact, contacts, setSelectedContactName } =
+        useContext(ConversationContext);
+    const { screenWidth, dm3Configuration } = useContext(
+        DM3ConfigurationContext,
+    );
     const { getMessages, contactIsLoading } = useContext(MessageContext);
 
     const [isProfileConfigured, setIsProfileConfigured] =
@@ -31,10 +30,6 @@ export function Chat(props: HideFunctionProps) {
 
     useEffect(() => {
         if (!selectedContact) {
-            dispatch({
-                type: UiViewStateType.SetSelectedRightView,
-                payload: RightViewSelected.Default,
-            });
             return;
         }
         setIsProfileConfigured(
@@ -69,6 +64,28 @@ export function Chat(props: HideFunctionProps) {
             scrollToBottomOfChat();
         }
     }, [messages]);
+
+    /**
+     *  Load's default contact chat when contact list is not enabled
+     **/
+    useEffect(() => {
+        if (!dm3Configuration.showContacts) {
+            // set the default contact
+            setSelectedContactName(dm3Configuration.defaultContact);
+
+            // filter out the default contact from contact list
+            const defContact = contacts.filter(
+                (data) => data.name === dm3Configuration.defaultContact,
+            );
+
+            if (defContact.length) {
+                // set the contact by its ensName found in contact list
+                setSelectedContactName(
+                    defContact[0].contactDetails.account.ensName,
+                );
+            }
+        }
+    }, []);
 
     /* shimmer effect contacts css */
     const shimmerData: number[] = Array.from({ length: 50 }, (_, i) => i + 1);

@@ -23,7 +23,9 @@ export function Profile() {
     const { dispatch } = useContext(GlobalContext);
     const { account, ethAddress, displayName } = useContext(AuthContext);
     const { setSelectedContactName } = useContext(ConversationContext);
-    const { screenWidth } = useContext(DM3ConfigurationContext);
+    const { screenWidth, dm3Configuration } = useContext(
+        DM3ConfigurationContext,
+    );
     const mainnetProvider = useMainnetProvider();
 
     const [profilePic, setProfilePic] = useState<string>('');
@@ -69,7 +71,12 @@ export function Profile() {
                     src={closeIcon}
                     alt="close"
                     onClick={() =>
-                        onClose(dispatch, setSelectedContactName, screenWidth)
+                        onClose(
+                            dispatch,
+                            setSelectedContactName,
+                            screenWidth,
+                            dm3Configuration.showContacts,
+                        )
                     }
                 />
             </div>

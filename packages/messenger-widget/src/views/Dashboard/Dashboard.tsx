@@ -18,7 +18,9 @@ import { MOBILE_SCREEN_WIDTH } from '../../utils/common-utils';
 
 export default function Dashboard(props: DashboardProps) {
     const { state } = useContext(GlobalContext);
-    const { screenWidth } = useContext(DM3ConfigurationContext);
+    const { screenWidth, dm3Configuration } = useContext(
+        DM3ConfigurationContext,
+    );
     const { selectedContact } = useContext(ConversationContext);
 
     const getRightViewStyleClasses = () => {
@@ -97,9 +99,11 @@ export default function Dashboard(props: DashboardProps) {
 
                     <div
                         className={getRightViewStyleClasses().concat(
+                            ' ',
                             state.uiView.selectedRightView ===
-                                RightViewSelected.Profile
-                                ? ' dashboard-right-view-highlight'
+                                RightViewSelected.Profile &&
+                                dm3Configuration.showContacts
+                                ? 'dashboard-right-view-highlight'
                                 : '',
                         )}
                     >

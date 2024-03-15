@@ -11,10 +11,12 @@ import {
 
 import { ConversationContext } from '../../context/ConversationContext';
 import { closeContactMenu } from '../../utils/common-utils';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export function ContactMenu(props: IContactMenu) {
     const { dispatch } = useContext(GlobalContext);
     const { hideContact } = useContext(ConversationContext);
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     const onClickOfShowDetails = () => {
         dispatch({
@@ -48,13 +50,21 @@ export function ContactMenu(props: IContactMenu) {
                 <img src={detailsIcon} alt="details" className="me-2" />
                 Show Details
             </div>
-            <div
-                className="d-flex align-items-center justify-content-start"
-                onClick={() => onClickOfHideContact()}
-            >
-                <img src={hideIcon} alt="hide" className="me-2" />
-                Hide Contact
-            </div>
+
+            {/* 
+                Hide button is not visible when showContacts is false.
+                User has no option to choose contact means single contact is
+                available for chat, so that can't be hided 
+            */}
+            {dm3Configuration.showContacts && (
+                <div
+                    className="d-flex align-items-center justify-content-start"
+                    onClick={() => onClickOfHideContact()}
+                >
+                    <img src={hideIcon} alt="hide" className="me-2" />
+                    Hide Contact
+                </div>
+            )}
         </div>
     );
 }

@@ -90,7 +90,12 @@ export function ContactInfo() {
                     src={closeIcon}
                     alt="close"
                     onClick={() =>
-                        onClose(dispatch, setSelectedContactName, screenWidth)
+                        onClose(
+                            dispatch,
+                            setSelectedContactName,
+                            screenWidth,
+                            dm3Configuration.showContacts,
+                        )
                     }
                 />
             </div>
@@ -151,12 +156,17 @@ export function ContactInfo() {
                         />
                     </div>
 
-                    <div className="configure-btn-container">
-                        <Button
-                            buttonText="Hide Contact"
-                            actionMethod={onClickOfHideContact}
-                        />
-                    </div>
+                    {/* Hide button is not visible when showContacts is false.
+                    User has no option to choose contact means single contact is
+                    available for chat, so that can't be hided */}
+                    {dm3Configuration.showContacts && (
+                        <div className="configure-btn-container">
+                            <Button
+                                buttonText="Hide Contact"
+                                actionMethod={onClickOfHideContact}
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

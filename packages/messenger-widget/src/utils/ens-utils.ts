@@ -95,14 +95,26 @@ export const onClose = (
     dispatch: React.Dispatch<Actions>,
     setSelectedContact: Function,
     screenWidth: number,
+    showContacts: boolean,
 ) => {
     if (screenWidth && screenWidth > MOBILE_SCREEN_WIDTH) {
-        setSelectedContact(undefined);
+        // If contact list exists, then opens default screen
+        if (showContacts) {
+            setSelectedContact(undefined);
+            dispatch({
+                type: UiViewStateType.SetSelectedRightView,
+                payload: RightViewSelected.Default,
+            });
+            return;
+        }
+
+        // If default contact is enabled, then opens chat screen
         dispatch({
             type: UiViewStateType.SetSelectedRightView,
-            payload: RightViewSelected.Default,
+            payload: RightViewSelected.Chat,
         });
     } else {
+        // Opens chat screen for mobile screens
         dispatch({
             type: UiViewStateType.SetSelectedRightView,
             payload: RightViewSelected.Chat,
