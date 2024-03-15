@@ -140,7 +140,7 @@ export default () => {
                 await Promise.all(
                     req.body.acknoledgments.map(async (ack: Acknoledgment) => {
                         const contactEnsName =
-                            await await req.app.locals.db.getIdEnsName(
+                            await req.app.locals.db.getIdEnsName(
                                 ack.contactAddress,
                             );
                         const conversationId = getConversationId(
@@ -194,7 +194,7 @@ export default () => {
                 await Promise.all(
                     req.body.acknoledgments.map(async (ack: Acknoledgment) => {
                         const contactEnsName =
-                            await await req.app.locals.db.getIdEnsName(
+                            await req.app.locals.db.getIdEnsName(
                                 ack.contactAddress,
                             );
                         const conversationId = getConversationId(

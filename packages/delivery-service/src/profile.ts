@@ -1,10 +1,8 @@
 import { getUserProfile, submitUserProfile } from '@dm3-org/dm3-lib-delivery';
 import { normalizeEnsName, schema } from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
-import express, { NextFunction } from 'express';
+import express from 'express';
 import { WithLocals } from './types';
-import { auth } from './utils';
-import { getAliasChain } from './persistence/getIdEnsName';
 
 export default () => {
     const router = express.Router();
@@ -22,29 +20,6 @@ export default () => {
                 );
                 if (profile) {
                     res.json(profile);
-                } else {
-                    res.sendStatus(404);
-                }
-            } catch (e) {
-                next(e);
-            }
-        },
-    );
-
-    /**
-     * todo: remove, does not support multiple ds
-     */
-    router.get(
-        '/aliasChain/:ensName',
-        //@ts-ignore
-        async (req: express.Request & { app: WithLocals }, res, next) => {
-            try {
-                const chain = await req.app.locals.db.getAliasChain(
-                    req.params.ensName,
-                );
-
-                if (chain.length > 0) {
-                    res.json(chain);
                 } else {
                     res.sendStatus(404);
                 }
@@ -109,31 +84,5 @@ export default () => {
         },
     );
 
-    const aliasAuth = () => {
-        return (
-            req: express.Request & { app: WithLocals },
-            res: express.Response,
-            next: NextFunction,
-        ) => {
-            auth(req, res, next, req.params.ensName);
-        };
-    };
-
-    router.post(
-        '/:ensName/aka/:aliasEnsName',
-        //@ts-ignore
-        aliasAuth(),
-        async (req: express.Request & { app: WithLocals }, res, next) => {
-            try {
-                await req.app.locals.db.setAliasSession(
-                    req.params.ensName,
-                    req.params.aliasEnsName,
-                );
-                res.json({ success: true });
-            } catch (e) {
-                next(e);
-            }
-        },
-    );
     return router;
 };

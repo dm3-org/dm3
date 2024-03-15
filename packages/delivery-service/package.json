@@ -33,7 +33,6 @@
     "createDeliveryServiceProfile": "node --no-warnings ./cli.js",
     "before:tests": "docker-compose -f docker-compose.test.yml up -d",
     "after:tests": "docker-compose -f docker-compose.test.yml down -d"
-
   },
   "devDependencies": {
     "@babel/core": "^7.19.6",

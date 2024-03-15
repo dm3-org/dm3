@@ -162,13 +162,6 @@ export const useStorage = (
         return storageApi.getNumberOfMessages(contact);
     };
 
-    const toggleHideContactAsync = (contact: string, value: boolean) => {
-        if (!storageApi) {
-            return Promise.resolve(0);
-        }
-        storageApi.toggleHideConversation(contact, value);
-    };
-
     //Migration to migrate the old storage to the new storage
     //Remove after a certain time once every user has migrated
     const migrate = async (cloudStorage: StorageAPI) => {

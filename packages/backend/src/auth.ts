@@ -7,6 +7,7 @@ import {
 import express from 'express';
 import cors from 'cors';
 import { WithLocals } from './types';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 
 const getChallengeSchema = {
     type: 'object',
@@ -46,9 +47,7 @@ export default () => {
         //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const idEnsName = await req.app.locals.db.getIdEnsName(
-                    req.params.ensName,
-                );
+                const idEnsName = await normalizeEnsName(req.params.ensName);
 
                 const schemaIsValid = validateSchema(
                     getChallengeSchema,
@@ -79,9 +78,7 @@ export default () => {
         //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const idEnsName = await req.app.locals.db.getIdEnsName(
-                    req.params.ensName,
-                );
+                const idEnsName = await normalizeEnsName(req.params.ensName);
                 const paramsAreValid = validateSchema(
                     createNewSessionTokenParamsSchema,
                     req.params,

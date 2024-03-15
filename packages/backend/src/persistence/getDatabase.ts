@@ -1,19 +1,10 @@
-import {
-    Session as DSSession,
-    IGlobalNotification,
-    IOtp,
-    NotificationChannel,
-    NotificationChannelType,
-    spamFilter,
-} from '@dm3-org/dm3-lib-delivery';
+import { Session as DSSession, spamFilter } from '@dm3-org/dm3-lib-delivery';
 import { PrismaClient } from '@prisma/client';
 import { createClient } from 'redis';
-import { getAliasChain, getIdEnsName } from './getIdEnsName';
 import Pending from './pending';
 import Session from './session';
 import Storage from './storage';
 import { MessageRecord } from './storage/postgres/utils/MessageRecord';
-import { UserStorage } from '@dm3-org/dm3-lib-storage';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -69,22 +60,14 @@ export async function getDatabase(
     const prisma = _prisma ?? (await getPrismaClient());
 
     return {
-        // //Messages
-        // getIncomingMessages: Messages.getIncomingMessages(redis),
-        // getMessages: Messages.getMessages(redis),
-        // createMessage: Messages.createMessage(redis),
-        // deleteExpiredMessages: Messages.deleteExpiredMessages(redis),
         //Session
         setSession: Session.setSession(redis),
-        setAliasSession: Session.setAliasSession(redis),
         getSession: Session.getSession(redis),
 
         //Pending
         addPending: Pending.addPending(redis),
         getPending: Pending.getPending(redis),
         deletePending: Pending.deletePending(redis),
-        getIdEnsName: getIdEnsName(redis),
-        getAliasChain: getAliasChain(redis),
         //Storage AddConversation
         addConversation: Storage.addConversation(prisma),
         getConversationList: Storage.getConversationList(prisma),
@@ -111,6 +94,10 @@ export interface IDatabase {
           })
         | null
     >;
+    addPending: (ensName: string, contactEnsName: string) => Promise<void>;
+    getPending: (ensName: string) => Promise<string[]>;
+    deletePending: (ensName: string) => Promise<void>;
+
     addConversation: (
         ensName: string,
         encryptedContactName: string,
