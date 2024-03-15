@@ -43,7 +43,7 @@ export default function Menu() {
             >
                 <img
                     src={addIcon}
-                    alt="close"
+                    alt="add"
                     className="pointer-cursor menu-item-icon"
                 />
                 Add Conversation
@@ -60,7 +60,7 @@ export default function Menu() {
             >
                 <img
                     src={settingsIcon}
-                    alt="close"
+                    alt="preferences"
                     className="pointer-cursor menu-item-icon"
                 />
                 Preferences

@@ -176,7 +176,7 @@ export default function AddConversation() {
                                     Name
                                 </label>
                                 <div
-                                    className={'conversation-error font-weight-400 ms-3'.concat(
+                                    className={'conversation-error font-weight-400'.concat(
                                         ' ',
                                         showError ? 'show-error' : 'hide-error',
                                     )}
@@ -184,7 +184,7 @@ export default function AddConversation() {
                                     {errorMsg}
                                 </div>
                             </div>
-                            <div className="d-flex align-items-center">
+                            <div className="d-flex add-name-container">
                                 <label
                                     htmlFor="name"
                                     className="font-size-14 font-weight-500"

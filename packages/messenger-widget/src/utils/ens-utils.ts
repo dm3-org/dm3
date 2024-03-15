@@ -95,19 +95,22 @@ export const onClose = (
     dispatch: React.Dispatch<Actions>,
     setSelectedContact: Function,
     screenWidth: number,
+    showContacts: boolean,
 ) => {
-    if (screenWidth && screenWidth > MOBILE_SCREEN_WIDTH) {
+    // If contact list exists, then opens default screen
+    if (screenWidth && screenWidth > MOBILE_SCREEN_WIDTH && showContacts) {
         setSelectedContact(undefined);
         dispatch({
             type: UiViewStateType.SetSelectedRightView,
             payload: RightViewSelected.Default,
         });
-    } else {
-        dispatch({
-            type: UiViewStateType.SetSelectedRightView,
-            payload: RightViewSelected.Chat,
-        });
+        return;
     }
+
+    dispatch({
+        type: UiViewStateType.SetSelectedRightView,
+        payload: RightViewSelected.Chat,
+    });
 };
 
 // method to check DM3 network profile on ENS

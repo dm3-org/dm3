@@ -1,6 +1,6 @@
 // class for input field
 export const INPUT_FIELD_CLASS =
-    'conversation-name font-weight-400 font-size-14 border-radius-6 w-100 line-height-24';
+    'conversation-name font-weight-400 border-radius-6 w-100 line-height-24';
 
 // method to open the conversation modal
 export const openConversationModal = () => {

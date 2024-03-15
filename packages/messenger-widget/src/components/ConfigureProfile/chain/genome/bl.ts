@@ -29,7 +29,7 @@ export const isGenomeNameValid = async (
 ) => {
     const isValidEnsName = ethers.utils.isValidName(ensName);
     if (!isValidEnsName) {
-        setError('Invalid ENS name', NAME_TYPE.ENS_NAME);
+        setError('Invalid GNO name', NAME_TYPE.ENS_NAME);
         return false;
     }
     const isGenomeName = validateGenomeName(ensName);

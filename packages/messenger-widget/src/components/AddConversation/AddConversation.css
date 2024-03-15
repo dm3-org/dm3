@@ -22,6 +22,7 @@
     color: var(--input-field-text-color);
     background: var(--input-field-background-color);
     margin: 0rem 0rem 0rem 1rem;
+    font-size: 14px;
 }
 
 .conversation-name::placeholder {
@@ -47,4 +48,44 @@
     line-height: 14px;
     font-style: italic;
     color: var(--error-text);
+    margin-left: 1rem;
+}
+
+.add-name-container {
+    align-items: center;
+}
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (max-width: 650px) {
+    .add-name-container {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .conversation-description {
+        word-break: break-all;
+        width: fit-content;
+    }
+
+    .conversation-name {
+        margin: 0rem;
+        font-size: 12px;
+    }
+
+    .add-btn {
+        margin-top: 2.7rem;
+    }
+
+    .conversation-error {
+        margin-left: -2.4rem;
+    }
+
+    .conversation-name::placeholder{
+        font-size: 10px;
+    }
+
+    #conversation-modal{
+        padding: 1rem;
+    }
 }

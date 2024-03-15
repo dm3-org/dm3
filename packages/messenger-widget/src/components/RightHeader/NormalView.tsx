@@ -25,8 +25,7 @@ export function NormalView(props: HideFunctionProps) {
     // state to store profile pic of signed in user
     const [profilePic, setProfilePic] = useState<string>('');
 
-    // fetches profile pic of contact for mobile screens
-    // fetched profile pic of signed in user for desktop
+    // fetched profile pic of signed in user
     const fetchAndSetProfilePic = async () => {
         setProfilePic(
             await getAvatarProfilePic(
@@ -38,18 +37,11 @@ export function NormalView(props: HideFunctionProps) {
 
     // method to set profile page and set contact
     const updateView = () => {
-        if (props.showContacts) {
-            const profileActive =
-                state.uiView.selectedRightView === RightViewSelected.Profile
-                    ? RightViewSelected.Default
-                    : RightViewSelected.Profile;
-
-            dispatch({
-                type: UiViewStateType.SetSelectedRightView,
-                payload: profileActive,
-            });
-            setSelectedContactName(undefined);
-        }
+        dispatch({
+            type: UiViewStateType.SetSelectedRightView,
+            payload: RightViewSelected.Profile,
+        });
+        setSelectedContactName(undefined);
     };
 
     // loads the profile pic on page render
