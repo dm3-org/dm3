@@ -20,7 +20,7 @@ export enum RedisPrefix {
 }
 
 export async function getRedisClient() {
-    const url = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
+    const url = process.env.REDIS_URL || 'redis://127.0.0.1:6380';
     const socketConf = {
         socket: {
             tls: true,
