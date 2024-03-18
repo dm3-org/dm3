@@ -1,19 +1,6 @@
-import {
-    Session as DSSession,
-    IGlobalNotification,
-    IOtp,
-    NotificationChannel,
-    NotificationChannelType,
-    spamFilter,
-} from '@dm3-org/dm3-lib-delivery';
-import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
+import { Session as DSSession, spamFilter } from '@dm3-org/dm3-lib-delivery';
 import { PrismaClient } from '@prisma/client';
 import { createClient } from 'redis';
-import { getAliasChain, getIdEnsName } from './getIdEnsName';
-import Messages from './messages';
-import { syncAcknowledge } from './messages/syncAcknowledge';
-import Notification from './notification';
-import Otp from './otp';
 import Pending from './pending';
 import Session from './session';
 import Storage from './storage';
@@ -34,7 +21,7 @@ export enum RedisPrefix {
 }
 
 export async function getRedisClient() {
-    const url = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
+    const url = process.env.REDIS_URL || 'redis://127.0.0.1:6380';
     const socketConf = {
         socket: {
             tls: true,
@@ -74,14 +61,8 @@ export async function getDatabase(
     const prisma = _prisma ?? (await getPrismaClient());
 
     return {
-        //Messages
-        getIncomingMessages: Messages.getIncomingMessages(redis),
-        getMessages: Messages.getMessages(redis),
-        createMessage: Messages.createMessage(redis),
-        deleteExpiredMessages: Messages.deleteExpiredMessages(redis),
         //Session
         setSession: Session.setSession(redis),
-        setAliasSession: Session.setAliasSession(redis),
         getSession: Session.getSession(redis),
         //Legacy remove after storage has been merged
         getUserStorage: Storage.getUserStorageOld(redis),
@@ -90,27 +71,6 @@ export async function getDatabase(
         addPending: Pending.addPending(redis),
         getPending: Pending.getPending(redis),
         deletePending: Pending.deletePending(redis),
-        getIdEnsName: getIdEnsName(redis),
-        getAliasChain: getAliasChain(redis),
-        syncAcknowledge: syncAcknowledge(redis),
-        //Notification
-        getUsersNotificationChannels:
-            Notification.getUsersNotificationChannels(redis),
-        addUsersNotificationChannel:
-            Notification.addUsersNotificationChannel(redis),
-        setNotificationChannelAsVerified:
-            Notification.setNotificationChannelAsVerified(redis),
-        enableOrDisableNotificationChannel:
-            Notification.enableOrDisableNotificationChannel(redis),
-        removeNotificationChannel:
-            Notification.removeNotificationChannel(redis),
-        // Global Notification
-        getGlobalNotification: Notification.getGlobalNotification(redis),
-        setGlobalNotification: Notification.setGlobalNotification(redis),
-        // Verification Otp for Email, Mobile, etc..
-        setOtp: Otp.setOtp(redis),
-        getOtp: Otp.getOtp(redis),
-        resetOtp: Otp.resetOtp(redis),
         //Storage AddConversation
         addConversation: Storage.addConversation(prisma),
         getConversationList: Storage.getConversationList(prisma),
@@ -134,24 +94,7 @@ export async function getDatabase(
 }
 
 export interface IDatabase {
-    getIncomingMessages: (
-        ensName: string,
-        limit: number,
-    ) => Promise<EncryptionEnvelop[]>;
-    getMessages: (
-        conversionId: string,
-        offset: number,
-        limit: number,
-    ) => Promise<EncryptionEnvelop[]>;
-    createMessage: (
-        conversationId: string,
-        envelop: EncryptionEnvelop,
-        createdAt?: number,
-    ) => Promise<void>;
-    deleteExpiredMessages: (time: number) => Promise<void>;
-
     setSession: (ensName: string, session: DSSession) => Promise<void>;
-
     getSession: (ensName: string) => Promise<
         | (DSSession & {
               spamFilterRules: spamFilter.SpamFilterRules;
@@ -161,55 +104,9 @@ export interface IDatabase {
     //Legacy remove after storage has been merged
     getUserStorage: (ensName: string) => Promise<UserStorage | null>;
     setUserStorage: (ensName: string, data: string) => Promise<void>;
-    setAliasSession: (ensName: string, aliasEnsName: string) => Promise<void>;
     addPending: (ensName: string, contactEnsName: string) => Promise<void>;
     getPending: (ensName: string) => Promise<string[]>;
     deletePending: (ensName: string) => Promise<void>;
-    getIdEnsName: (ensName: string) => Promise<string>;
-    getAliasChain: (ensName: string) => Promise<string[]>;
-    syncAcknowledge: (
-        conversationId: string,
-        syncTime: number,
-    ) => Promise<void>;
-    getUsersNotificationChannels: (
-        ensName: string,
-    ) => Promise<NotificationChannel[]>;
-    addUsersNotificationChannel: (
-        ensName: string,
-        channel: NotificationChannel,
-    ) => Promise<void>;
-    setNotificationChannelAsVerified: (
-        ensName: string,
-        channel: NotificationChannelType,
-    ) => Promise<void>;
-    enableOrDisableNotificationChannel: (
-        ensName: string,
-        channel: NotificationChannelType,
-        isEnabled: boolean,
-    ) => Promise<void>;
-    removeNotificationChannel: (
-        ensName: string,
-        channel: NotificationChannelType,
-    ) => Promise<void>;
-    getGlobalNotification: (ensName: string) => Promise<IGlobalNotification>;
-    setGlobalNotification: (
-        ensName: string,
-        isEnabled: boolean,
-    ) => Promise<void>;
-    setOtp: (
-        ensName: string,
-        otp: string,
-        channelType: NotificationChannelType,
-        generatedAt: Date,
-    ) => Promise<void>;
-    getOtp: (
-        ensName: string,
-        channelType: NotificationChannelType,
-    ) => Promise<IOtp | null>;
-    resetOtp: (
-        ensName: string,
-        channelType: NotificationChannelType,
-    ) => Promise<void>;
 
     addConversation: (
         ensName: string,

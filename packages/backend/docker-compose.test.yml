@@ -5,9 +5,9 @@ services:
     db:
         image: redis
         restart: always
-        container_name: redis
+        container_name: redis-backend
         ports:
-            - '6379:6379'
+            - '6380:6379' # map to host port 6380
     postgres:
         image: postgres:13
         restart: always

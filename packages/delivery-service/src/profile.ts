@@ -58,8 +58,7 @@ export default () => {
                     req.app.locals.db.setSession,
                     ensName,
                     req.body,
-                    // disabled get pending to remove it later
-                    async (ensName: string) => [], //(ensName: string) => req.app.locals.db.getPending(ensName),
+                    (ensName: string) => req.app.locals.db.getPending(ensName),
                     (socketId: string) =>
                         req.app.locals.io.sockets.to(socketId).emit('joined'),
                 );

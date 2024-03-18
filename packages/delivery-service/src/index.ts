@@ -1,3 +1,4 @@
+import { Axios } from 'axios';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import express from 'express';
@@ -5,11 +6,14 @@ import http from 'http';
 import path from 'path';
 import { Server } from 'socket.io';
 import winston from 'winston';
-import Auth from './auth';
+import { startCleanUpPendingMessagesJob } from './cleanup/cleanUpPendingMessages';
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
+import Delivery from './delivery';
+import { WithLocals } from './types';
+import { onConnection } from './messaging';
 import { getDatabase } from './persistence/getDatabase';
 import Profile from './profile';
-import Storage from './storage';
+import RpcProxy from './rpc/rpc-proxy';
 import { logInfo } from '@dm3-org/dm3-lib-shared';
 import 'dotenv/config';
 
@@ -21,6 +25,7 @@ import {
     readKeysFromEnv,
     socketAuth,
 } from './utils';
+import Notifications from './notifications';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -64,15 +69,34 @@ global.logger = winston.createLogger({
     app.get('/hello', (req, res) => {
         return res.send('Hello DM3');
     });
+
+    /**
+     *     needed
+     */
     app.use('/profile', Profile());
-    app.use('/storage', Storage(app.locals.db));
-    app.use('/auth', Auth());
+    app.use('/delivery', Delivery());
+    app.use(
+        '/notifications',
+        Notifications(app.locals.deliveryServiceProperties),
+    );
     app.use(logError);
     app.use(errorHandler);
-    //@ts-ignore
-    io.use(socketAuth(app));
-    //@ts-ignore
-    io.on('connection', onConnection(app));
+    // check if app has locals
+    if (!app.locals) {
+        throw new Error('App has no locals');
+    }
+    io.use(
+        socketAuth(app as express.Express & { locals: WithLocals['locals'] }),
+    );
+    io.on(
+        'connection',
+        onConnection(app as express.Express & { locals: WithLocals['locals'] }),
+    );
+    startCleanUpPendingMessagesJob(
+        app.locals.db,
+        app.locals.deliveryServiceProperties.messageTTL,
+    );
+    app.use('/rpc', RpcProxy(new Axios({ url: process.env.RPC })));
 })();
 
 // TODO include standalone web app
