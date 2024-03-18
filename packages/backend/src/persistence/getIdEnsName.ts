@@ -13,21 +13,3 @@ export function getIdEnsName(redis: Redis) {
     };
     return resolveAlias;
 }
-
-export function getAliasChain(redis: Redis) {
-    const resolveAlias = async (
-        ensName: string,
-        chain: string[] = [],
-    ): Promise<string[]> => {
-        const lowerEnsName = normalizeEnsName(
-            (await redis.get(
-                RedisPrefix.Session + 'alias:' + normalizeEnsName(ensName),
-            )) ?? ensName,
-        );
-
-        return lowerEnsName === ensName
-            ? [...chain, ensName]
-            : resolveAlias(lowerEnsName, [...chain, ensName]);
-    };
-    return (ensName: string) => resolveAlias(ensName, []);
-}

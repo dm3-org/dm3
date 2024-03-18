@@ -9,6 +9,7 @@ import winston from 'winston';
 import { startCleanUpPendingMessagesJob } from './cleanup/cleanUpPendingMessages';
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import Delivery from './delivery';
+import { WithLocals } from './types';
 import { onConnection } from './messaging';
 import { getDatabase } from './persistence/getDatabase';
 import Profile from './profile';
@@ -84,10 +85,13 @@ global.logger = winston.createLogger({
     if (!app.locals) {
         throw new Error('App has no locals');
     }
-    //@ts-ignore
-    io.use(socketAuth(app));
-    //@ts-ignore
-    io.on('connection', onConnection(app));
+    io.use(
+        socketAuth(app as express.Express & { locals: WithLocals['locals'] }),
+    );
+    io.on(
+        'connection',
+        onConnection(app as express.Express & { locals: WithLocals['locals'] }),
+    );
     startCleanUpPendingMessagesJob(
         app.locals.db,
         app.locals.deliveryServiceProperties.messageTTL,

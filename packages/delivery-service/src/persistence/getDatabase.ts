@@ -10,7 +10,7 @@ import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { UserStorage } from '@dm3-org/dm3-lib-storage';
 // import { PrismaClient } from '@prisma/client';
 import { createClient } from 'redis';
-import { getAliasChain, getIdEnsName } from './getIdEnsName';
+import { getIdEnsName } from './getIdEnsName';
 import Messages from './messages';
 import { syncAcknowledge } from './messages/syncAcknowledge';
 import Notification from './notification';
@@ -81,7 +81,6 @@ export async function getDatabase(
         deleteExpiredMessages: Messages.deleteExpiredMessages(redis),
         //Session
         setSession: Session.setSession(redis),
-        setAliasSession: Session.setAliasSession(redis),
         getSession: Session.getSession(redis),
         //Legacy remove after storage has been merged
         getUserStorage: Storage.getUserStorageOld(redis),
@@ -91,7 +90,6 @@ export async function getDatabase(
         getPending: Pending.getPending(redis),
         deletePending: Pending.deletePending(redis),
         getIdEnsName: getIdEnsName(redis),
-        getAliasChain: getAliasChain(redis),
         syncAcknowledge: syncAcknowledge(redis),
         //Notification
         getUsersNotificationChannels:
@@ -142,12 +140,10 @@ export interface IDatabase {
     //Legacy remove after storage has been merged
     getUserStorage: (ensName: string) => Promise<UserStorage | null>;
     setUserStorage: (ensName: string, data: string) => Promise<void>;
-    setAliasSession: (ensName: string, aliasEnsName: string) => Promise<void>;
     addPending: (ensName: string, contactEnsName: string) => Promise<void>;
     getPending: (ensName: string) => Promise<string[]>;
     deletePending: (ensName: string) => Promise<void>;
     getIdEnsName: (ensName: string) => Promise<string>;
-    getAliasChain: (ensName: string) => Promise<string[]>;
     syncAcknowledge: (
         conversationId: string,
         syncTime: number,
