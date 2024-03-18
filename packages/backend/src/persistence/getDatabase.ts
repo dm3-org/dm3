@@ -5,6 +5,7 @@ import Pending from './pending';
 import Session from './session';
 import Storage from './storage';
 import { MessageRecord } from './storage/postgres/utils/MessageRecord';
+import { UserStorage } from '@dm3-org/dm3-lib-storage';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -63,7 +64,9 @@ export async function getDatabase(
         //Session
         setSession: Session.setSession(redis),
         getSession: Session.getSession(redis),
-
+        //Legacy remove after storage has been merged
+        getUserStorage: Storage.getUserStorageOld(redis),
+        setUserStorage: Storage.setUserStorageOld(redis),
         //Pending
         addPending: Pending.addPending(redis),
         getPending: Pending.getPending(redis),
@@ -83,6 +86,10 @@ export async function getDatabase(
         getNumberOfConverations: Storage.getNumberOfConversations(prisma),
         //Storage Toggle Hide Conversation
         toggleHideConversation: Storage.toggleHideConversation(prisma),
+        //Get the user db migration status
+        getUserDbMigrationStatus: Storage.getUserDbMigrationStatus(redis),
+        //Set the user db migration status to true
+        setUserDbMigrated: Storage.setUserDbMigrated(redis),
     };
 }
 
@@ -94,6 +101,9 @@ export interface IDatabase {
           })
         | null
     >;
+    //Legacy remove after storage has been merged
+    getUserStorage: (ensName: string) => Promise<UserStorage | null>;
+    setUserStorage: (ensName: string, data: string) => Promise<void>;
     addPending: (ensName: string, contactEnsName: string) => Promise<void>;
     getPending: (ensName: string) => Promise<string[]>;
     deletePending: (ensName: string) => Promise<void>;
@@ -128,6 +138,8 @@ export interface IDatabase {
         encryptedContactName: string,
         isHidden: boolean,
     ) => Promise<boolean>;
+    getUserDbMigrationStatus: (ensName: string) => Promise<boolean>;
+    setUserDbMigrated: (ensName: string) => Promise<void>;
 }
 
 export type Redis = Awaited<ReturnType<typeof getRedisClient>>;
