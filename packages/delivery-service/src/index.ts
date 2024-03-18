@@ -72,14 +72,18 @@ global.logger = winston.createLogger({
     /**
      *     needed
      */
-    app.use('/profile', Profile()); // remove in backend
-    app.use('/delivery', Delivery()); // remove in backend
+    app.use('/profile', Profile());
+    app.use('/delivery', Delivery());
     app.use(
         '/notifications',
         Notifications(app.locals.deliveryServiceProperties),
-    ); // remove in backend
+    );
     app.use(logError);
     app.use(errorHandler);
+    // check if app has locals
+    if (!app.locals) {
+        throw new Error('App has no locals');
+    }
     //@ts-ignore
     io.use(socketAuth(app));
     //@ts-ignore
@@ -87,8 +91,8 @@ global.logger = winston.createLogger({
     startCleanUpPendingMessagesJob(
         app.locals.db,
         app.locals.deliveryServiceProperties.messageTTL,
-    ); // remove in backend
-    app.use('/rpc', RpcProxy(new Axios({ url: process.env.RPC }))); // remove in backend
+    );
+    app.use('/rpc', RpcProxy(new Axios({ url: process.env.RPC })));
 })();
 
 // TODO include standalone web app

@@ -17,12 +17,3 @@ export function setSession(redis: Redis) {
         );
     };
 }
-
-export function setAliasSession(redis: Redis) {
-    return async (ensName: string, aliasEnsName: string) => {
-        await redis.set(
-            RedisPrefix.Session + 'alias:' + normalizeEnsName(aliasEnsName),
-            normalizeEnsName(ensName),
-        );
-    };
-}
