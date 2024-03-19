@@ -1,12 +1,11 @@
-import { validateSchema } from '@dm3-org/dm3-lib-shared';
+import { validateSchema } from '../validateSchema';
 import {
     createChallenge,
     createNewSessionToken,
 } from '@dm3-org/dm3-lib-delivery';
-
 import express from 'express';
 import cors from 'cors';
-import { WithLocals } from './types';
+//import { WithLocals } from './types';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 
 const getChallengeSchema = {
@@ -36,7 +35,8 @@ const createNewSessionTokenBodySchema = {
     additionalProperties: false,
 };
 
-export default () => {
+//@ts-ignore
+export const Auth = (getSession, setSession) => {
     const router = express.Router();
 
     //TODO remove
@@ -59,8 +59,8 @@ export default () => {
                 }
 
                 const challenge = await createChallenge(
-                    req.app.locals.db.getSession,
-                    req.app.locals.db.setSession,
+                    getSession,
+                    setSession,
                     idEnsName,
                 );
 
@@ -96,8 +96,8 @@ export default () => {
                 }
 
                 const token = await createNewSessionToken(
-                    req.app.locals.db.getSession,
-                    req.app.locals.db.setSession,
+                    getSession,
+                    setSession,
                     req.body.signature,
                     idEnsName,
                 );
