@@ -53,7 +53,7 @@ export const ConfigureEnsProfile = (props: IChain) => {
     const label =
         'To publish your dm3 profile, a transaction is sent to set a text record in your ENS name. Transaction costs will apply for setting the profile and administration.';
     const note = 'You can receive dm3 messages directly sent to your ENS name.';
-    const placeholder = 'Enter your ENS name';
+    const placeholder = 'Enter your ENS name connected to your wallet';
 
     return (
         <SubmitOnChainProfile

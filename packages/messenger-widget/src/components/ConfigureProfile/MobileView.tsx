@@ -201,7 +201,7 @@ export function MobileView() {
                                     )}
                                     type="text"
                                     value={dm3Name}
-                                    placeholder="Enter your preferred name"
+                                    placeholder="Enter your preferred name & check availability"
                                     onChange={(
                                         e: React.ChangeEvent<HTMLInputElement>,
                                     ) =>
