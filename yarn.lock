@@ -2500,6 +2500,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@dm3-org/dm3-lib-server-side@workspace:packages/lib/server-side":
+  version: 0.0.0-use.local
+  resolution: "@dm3-org/dm3-lib-server-side@workspace:packages/lib/server-side"
+  dependencies:
+    ethers: 5.7.2
+    typescript: ^4.4.2
+  languageName: unknown
+  linkType: soft
+
 "@dm3-org/dm3-lib-shared@workspace:^, @dm3-org/dm3-lib-shared@workspace:packages/lib/shared":
   version: 0.0.0-use.local
   resolution: "@dm3-org/dm3-lib-shared@workspace:packages/lib/shared"

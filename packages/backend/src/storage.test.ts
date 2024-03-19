@@ -18,7 +18,7 @@ import {
     mockDeliveryServiceProfile,
     mockUserProfile,
 } from '../test/testHelper';
-import { Auth } from '@dm3-org/dm3-lib-shared';
+import { Auth } from '@dm3-org/dm3-lib-server-side';
 import { Redis, getRedisClient } from './persistence/getDatabase';
 import { getUserDbMigrationStatus } from './persistence/storage/getUserDbMigrationStatus';
 import { addConversation } from './persistence/storage/postgres/addConversation';

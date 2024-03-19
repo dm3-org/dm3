@@ -5,7 +5,7 @@ import http from 'http';
 import path from 'path';
 import { Server } from 'socket.io';
 import winston from 'winston';
-import { Auth } from '@dm3-org/dm3-lib-shared';
+import { Auth } from '@dm3-org/dm3-lib-server-side';
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import { getDatabase } from './persistence/getDatabase';
 import Profile from './profile';
