@@ -3,10 +3,10 @@ import {
     createChallenge,
     createNewSessionToken,
 } from '@dm3-org/dm3-lib-delivery';
-
 import express from 'express';
 import cors from 'cors';
-import { WithLocals } from './types';
+//import { WithLocals } from './types';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 
 const getChallengeSchema = {
     type: 'object',
@@ -35,7 +35,8 @@ const createNewSessionTokenBodySchema = {
     additionalProperties: false,
 };
 
-export default () => {
+//@ts-ignore
+export const Auth = (getSession, setSession) => {
     const router = express.Router();
 
     //TODO remove
@@ -46,9 +47,7 @@ export default () => {
         //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const idEnsName = await req.app.locals.db.getIdEnsName(
-                    req.params.ensName,
-                );
+                const idEnsName = await normalizeEnsName(req.params.ensName);
 
                 const schemaIsValid = validateSchema(
                     getChallengeSchema,
@@ -60,8 +59,8 @@ export default () => {
                 }
 
                 const challenge = await createChallenge(
-                    req.app.locals.db.getSession,
-                    req.app.locals.db.setSession,
+                    getSession,
+                    setSession,
                     idEnsName,
                 );
 
@@ -79,9 +78,7 @@ export default () => {
         //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const idEnsName = await req.app.locals.db.getIdEnsName(
-                    req.params.ensName,
-                );
+                const idEnsName = await normalizeEnsName(req.params.ensName);
                 const paramsAreValid = validateSchema(
                     createNewSessionTokenParamsSchema,
                     req.params,
@@ -99,8 +96,8 @@ export default () => {
                 }
 
                 const token = await createNewSessionToken(
-                    req.app.locals.db.getSession,
-                    req.app.locals.db.setSession,
+                    getSession,
+                    setSession,
                     req.body.signature,
                     idEnsName,
                 );

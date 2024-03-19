@@ -4,6 +4,7 @@
     "workspaces": {
         "packages": [
             "packages/lib/shared",
+            "packages/lib/server-side",
             "packages/lib/crypto",
             "packages/lib/profile",
             "packages/lib/messaging",
