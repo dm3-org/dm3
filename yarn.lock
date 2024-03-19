@@ -2247,6 +2247,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@dm3-org/dm3-lib-server-side@workspace:packages/lib/server-side"
   dependencies:
+    "@dm3-org/dm3-lib-delivery": "workspace:^"
+    "@dm3-org/dm3-lib-profile": "workspace:^"
+    "@dm3-org/dm3-lib-shared": "workspace:^"
     express: ^4.18.1
     typescript: ^4.4.2
   languageName: unknown
