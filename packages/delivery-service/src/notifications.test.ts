@@ -1,6 +1,6 @@
 import bodyParser from 'body-parser';
 import express from 'express';
-import auth from './auth';
+import { Auth } from '@dm3-org/dm3-lib-server-side';
 import request from 'supertest';
 import notifications from './notifications';
 import {
@@ -1431,33 +1431,19 @@ describe('Notifications', () => {
 const createAuthToken = async () => {
     const app = express();
     app.use(bodyParser.json());
-    app.use(auth());
-
-    app.locals = {
-        web3Provider: {
-            resolveName: async () =>
-                '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
-        },
-        redisClient: {
-            exists: (_: any) => false,
-        },
-    };
-
-    app.locals.db = {
-        getSession: async (accountAddress: string) =>
-            Promise.resolve({
-                challenge: 'my-Challenge',
-                signedUserProfile: {
-                    profile: {
-                        publicSigningKey: keysA.signingKeyPair.publicKey,
-                    },
+    const getSession = async (accountAddress: string) =>
+        Promise.resolve({
+            challenge: 'my-Challenge',
+            signedUserProfile: {
+                profile: {
+                    publicSigningKey: keysA.signingKeyPair.publicKey,
                 },
-            }),
-        setSession: async (_: string, __: any) => {
-            return (_: any, __: any, ___: any) => {};
-        },
-        getIdEnsName: async (ensName: string) => ensName,
+            },
+        });
+    const setSession = async (_: string, __: any) => {
+        return (_: any, __: any, ___: any) => {};
     };
+    app.use(Auth(getSession, setSession));
 
     const signature =
         '3A893rTBPEa3g9FL2vgDreY3vvXnOiYCOoJURNyctncwH' +
