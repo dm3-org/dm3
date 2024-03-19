@@ -46,6 +46,7 @@ export default function Dashboard(props: DashboardProps) {
     return (
         <div className="h-100">
             <AddConversation />
+
             {/* Preferences popup */}
             {state.modal.showPreferencesModal && <Preferences />}
 

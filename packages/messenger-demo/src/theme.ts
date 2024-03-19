@@ -44,4 +44,5 @@ export const themeColors = {
     rainbowModalBackgroundColor: 'blue',
     alternateContactBackgroundColor: 'black',
     menuBackgroundColor: 'blue',
+    preferencesHighlightedColor: '#8b7ff4',
 };

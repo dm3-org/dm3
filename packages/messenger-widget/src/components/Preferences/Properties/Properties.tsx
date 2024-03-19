@@ -1,7 +1,7 @@
-import { Heading } from './Heading';
+import { Heading } from '../Heading/Heading';
 
-export function Storage() {
-    const heading = 'Storage';
+export function Properties() {
+    const heading = 'Properties';
     const description =
         'Prevent spam from being sent to you by setting rules ' +
         'that senders must fulfill in order for messages to be accepted.';
@@ -9,7 +9,7 @@ export function Storage() {
     return (
         <div>
             <Heading heading={heading} description={description} />
-            <div className="storage"></div>
+            <div className="properties"></div>
         </div>
     );
 }
