@@ -22,7 +22,7 @@ export const preferencesItems = [
         ),
         name: 'Properties',
         component: <Properties />,
-        isEnabled: true,
+        isEnabled: false,
     },
     {
         icon: <img src={dm3Icon} alt="dm3" className="pref-icon me-2" />,
@@ -34,7 +34,7 @@ export const preferencesItems = [
         icon: <img src={spamIcon} alt="spam" className="pref-icon me-2" />,
         name: 'Spam Protection',
         component: <Spam />,
-        isEnabled: true,
+        isEnabled: false,
     },
     {
         icon: (
@@ -46,7 +46,7 @@ export const preferencesItems = [
         ),
         name: 'Notification',
         component: <Notification />,
-        isEnabled: true,
+        isEnabled: false,
     },
     {
         icon: (
@@ -54,7 +54,7 @@ export const preferencesItems = [
         ),
         name: 'Network',
         component: <Network />,
-        isEnabled: true,
+        isEnabled: false,
     },
     {
         icon: (
@@ -62,6 +62,6 @@ export const preferencesItems = [
         ),
         name: 'Storage',
         component: <Storage />,
-        isEnabled: true,
+        isEnabled: false,
     },
 ];
