@@ -18,7 +18,7 @@ import {
     mockDeliveryServiceProfile,
     mockUserProfile,
 } from '../test/testHelper';
-import auth from './auth';
+import { Auth } from '@dm3-org/dm3-lib-shared';
 import { Redis, getRedisClient } from './persistence/getDatabase';
 import { getUserDbMigrationStatus } from './persistence/storage/getUserDbMigrationStatus';
 import { addConversation } from './persistence/storage/postgres/addConversation';
@@ -873,33 +873,19 @@ describe('Storage', () => {
 const createAuthToken = async () => {
     const app = express();
     app.use(bodyParser.json());
-    app.use(auth());
-
-    app.locals = {
-        web3Provider: {
-            resolveName: async () =>
-                '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
-        },
-        redisClient: {
-            exists: (_: any) => false,
-        },
-    };
-
-    app.locals.db = {
-        getSession: async (accountAddress: string) =>
-            Promise.resolve({
-                challenge: 'my-Challenge',
-                signedUserProfile: {
-                    profile: {
-                        publicSigningKey: keysA.signingKeyPair.publicKey,
-                    },
+    const getSession = async (accountAddress: string) =>
+        Promise.resolve({
+            challenge: 'my-Challenge',
+            signedUserProfile: {
+                profile: {
+                    publicSigningKey: keysA.signingKeyPair.publicKey,
                 },
-            }),
-        setSession: async (_: string, __: any) => {
-            return (_: any, __: any, ___: any) => {};
-        },
-        getIdEnsName: async (ensName: string) => ensName,
+            },
+        });
+    const setSession = async (_: string, __: any) => {
+        return (_: any, __: any, ___: any) => {};
     };
+    app.use(Auth(getSession, setSession));
 
     const signature =
         '3A893rTBPEa3g9FL2vgDreY3vvXnOiYCOoJURNyctncwH' +
@@ -911,6 +897,7 @@ const createAuthToken = async () => {
 
     return body.token;
 };
+
 export function makeEnvelop(
     from: string,
     to: string,
