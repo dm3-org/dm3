@@ -8,7 +8,6 @@ import {
     MessageActionType,
     RightViewSelected,
 } from '../../utils/enum-type-utils';
-import { ConfigureProfile } from '../../components/ConfigureProfile/ConfigureProfile';
 import DeleteMessage from '../../components/DeleteMessage/DeleteMessage';
 import { Preferences } from '../../components/Preferences/Preferences';
 import AddConversation from '../../components/AddConversation/AddConversation';
@@ -48,11 +47,9 @@ export default function Dashboard(props: DashboardProps) {
             <AddConversation />
 
             {/* Preferences popup */}
-            {state.modal.showPreferencesModal && <Preferences />}
-
-            {/* Configure profile popup */}
-            {state.modal.isProfileConfigurationPopupActive && (
-                <ConfigureProfile />
+            {(state.modal.showPreferencesModal ||
+                state.modal.isProfileConfigurationPopupActive) && (
+                <Preferences />
             )}
 
             {/* Delete message confirmation popup */}

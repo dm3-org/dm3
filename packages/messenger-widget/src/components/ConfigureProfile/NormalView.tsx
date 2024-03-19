@@ -187,7 +187,7 @@ export function NormalView() {
                             Wallet Address
                         </p>
                         <p
-                            className="m-0 
+                            className="m-0 ms-2
                     font-size-14 font-weight-500 line-height-24 grey-text"
                         >
                             {ethAddress &&
@@ -265,7 +265,7 @@ export function NormalView() {
                                     )}
                                     type="text"
                                     value={dm3Name}
-                                    placeholder="Enter your preferred name and check availability"
+                                    placeholder="Enter your preferred name"
                                     onChange={(
                                         e: React.ChangeEvent<HTMLInputElement>,
                                     ) =>
@@ -315,7 +315,7 @@ export function NormalView() {
                         </div>
                     </div>
                 </div>
-                <div>
+                <div className="me-3">
                     {!existingDm3Name && (
                         <button
                             data-testid="claim-publish"

@@ -57,8 +57,7 @@ export const ConfigureGenomeProfile = (props: IChain) => {
         'You can receive dm3 messages directly sent to your GNO name or to the linked ENS name' +
         '(<yourname>.gnosis.eth).';
 
-    const placeholder =
-        'Enter your GNO name. It must be connected to your wallet';
+    const placeholder = 'Enter your GNO name.';
     return (
         <SubmitOnChainProfile
             handleNameChange={handleNameChange}

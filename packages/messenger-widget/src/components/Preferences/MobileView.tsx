@@ -1,14 +1,26 @@
 import './Preferences.css';
 import { preferencesItems } from './bl';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import closeIcon from '../../assets/images/cross.svg';
 import { GlobalContext } from '../../utils/context-utils';
 import { ModalStateType } from '../../utils/enum-type-utils';
+import { closeConfigurationModal } from '../ConfigureProfile/bl';
 
 export function MobileView() {
     const { dispatch } = useContext(GlobalContext);
+    const { state } = useContext(GlobalContext);
 
     const [optionChoosen, setOptionChoosen] = useState<any>(null);
+
+    /**
+     *  Opens DM3 profile configuration by default if user clicked
+     *  on "Configure Profile" button
+     */
+    useEffect(() => {
+        if (state.modal.isProfileConfigurationPopupActive) {
+            setOptionChoosen(preferencesItems[1]);
+        }
+    }, []);
 
     return (
         <div>
@@ -51,12 +63,13 @@ export function MobileView() {
                                 className="close-modal-icon m-2"
                                 src={closeIcon}
                                 alt="close"
-                                onClick={() =>
+                                onClick={() => {
                                     dispatch({
                                         type: ModalStateType.ShowPreferencesModal,
                                         payload: false,
-                                    })
-                                }
+                                    });
+                                    closeConfigurationModal(dispatch);
+                                }}
                             />
                         </div>
 

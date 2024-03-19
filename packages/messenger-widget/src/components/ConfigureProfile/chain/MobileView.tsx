@@ -81,7 +81,7 @@ export const MobileView = ({
                                     )}
                                     type="text"
                                     value={ensName}
-                                    placeholder={placeholder.split('.')[0]}
+                                    placeholder={placeholder}
                                     onChange={(
                                         e: React.ChangeEvent<HTMLInputElement>,
                                     ) => handleNameChange(e)}

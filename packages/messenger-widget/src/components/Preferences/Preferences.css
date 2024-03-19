@@ -75,7 +75,25 @@
 
 /* =================== Mobile Responsive CSS =================== */
 
+@media only screen and (min-width: 1041px) and (max-width: 1340px) {
+    .back-icon{
+        width: 1.3rem;
+        margin-left: 0.2rem;
+        margin-right: 0.2rem;
+    }
+
+    .preferences-heading{
+        font-size: 1.2rem !important;
+    }
+}
+
 @media only screen and (min-width: 801px) and (max-width: 1040px) {
+    .back-icon{
+        width: 1rem;
+        margin-left: 0.1rem;
+        margin-right: 0.1rem;
+    }
+
     .preferences-item {
         font-size: 12px ;
     }
@@ -85,7 +103,7 @@
     }
 
     .preferences-heading{
-        font-size: 1.2rem !important;
+        font-size: 1rem !important;
     }
 }
 

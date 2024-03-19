@@ -118,7 +118,7 @@ export const NormalView = ({
                         <div className="small-text font-weight-700">{note}</div>
                     </div>
                 </div>
-                <div>
+                <div className="me-3">
                     {!existingEnsName && (
                         <button
                             data-testid="publish-profile"

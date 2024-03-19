@@ -2,15 +2,27 @@ import './Preferences.css';
 import { preferencesItems } from './bl';
 import infoIcon from './../../assets/images/preferences-info.svg';
 import backIcon from './../../assets/images/back.svg';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import closeIcon from '../../assets/images/cross.svg';
 import { ModalStateType } from '../../utils/enum-type-utils';
+import { closeConfigurationModal } from '../ConfigureProfile/bl';
 
 export function NormalView() {
     const { dispatch } = useContext(GlobalContext);
+    const { state } = useContext(GlobalContext);
 
     const [optionChoosen, setOptionChoosen] = useState<any>(null);
+
+    /**
+     *  Opens DM3 profile configuration by default if user clicked
+     *  on "Configure Profile" button
+     */
+    useEffect(() => {
+        if (state.modal.isProfileConfigurationPopupActive) {
+            setOptionChoosen(preferencesItems[1]);
+        }
+    }, []);
 
     return (
         <div>
@@ -27,22 +39,24 @@ export function NormalView() {
                             <div
                                 className={'pt-3 d-flex align-items-center'.concat(
                                     ' ',
-                                    optionChoosen
-                                        ? ''
-                                        : 'justify-content-center',
+                                    // optionChoosen
+                                    //     ? ''
+                                    //     :
+                                    'justify-content-center',
                                 )}
                             >
                                 {optionChoosen && (
-                                    <span>
-                                        <img
-                                            className="back-icon pointer-cursor"
-                                            src={backIcon}
-                                            alt="back"
-                                            onClick={() =>
-                                                setOptionChoosen(null)
-                                            }
-                                        />
-                                    </span>
+                                    // <span>
+                                    <img
+                                        className="back-icon pointer-cursor"
+                                        src={backIcon}
+                                        alt="back"
+                                        onClick={() => {
+                                            setOptionChoosen(null);
+                                            closeConfigurationModal(dispatch);
+                                        }}
+                                    />
+                                    // </span>
                                 )}
                                 <span
                                     className={'preferences-heading d-flex justify-content-center mb-0'.concat(
@@ -101,12 +115,13 @@ export function NormalView() {
                                         className="close-modal-icon m-2"
                                         src={closeIcon}
                                         alt="close"
-                                        onClick={() =>
+                                        onClick={() => {
                                             dispatch({
                                                 type: ModalStateType.ShowPreferencesModal,
                                                 payload: false,
-                                            })
-                                        }
+                                            });
+                                            closeConfigurationModal(dispatch);
+                                        }}
                                     />
                                 </div>
                             )}
