@@ -44,6 +44,7 @@ export const defaultTheme: any = {
     rainbowModalWalletHoverColor: 'rgba(224, 232, 255, 0.1)',
     alternateContactBackgroundColor: '#5443931A',
     menuBackgroundColor: '#2A2B38',
+    preferencesHighlightedColor: '#8b7ff4',
 };
 
 export const getCustomizedTheme = (themeCss: any) => {
@@ -161,5 +162,8 @@ export const getCustomizedTheme = (themeCss: any) => {
             defaultTheme.alternateContactBackgroundColor,
         menuBackgroundColor:
             themeCss.menuBackgroundColor ?? defaultTheme.menuBackgroundColor,
+        preferencesHighlightedColor:
+            themeCss.preferencesHighlightedColor ??
+            defaultTheme.preferencesHighlightedColor,
     };
 };

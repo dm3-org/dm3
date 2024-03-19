@@ -37,6 +37,10 @@ export const openConfigurationModal = (dispatch: React.Dispatch<Actions>) => {
         type: ModalStateType.IsProfileConfigurationPopupActive,
         payload: true,
     });
+    dispatch({
+        type: ModalStateType.ShowPreferencesModal,
+        payload: true,
+    });
 };
 
 // method to close the profile configuration modal

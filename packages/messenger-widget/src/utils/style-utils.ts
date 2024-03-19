@@ -51,6 +51,7 @@ export const setTheme = (theme: string | undefined | null) => {
             --rainbow-modal-wallet-hover-color: ${themeDetails.rainbowModalWalletHoverColor};
             --alternate-contact-background-color: ${themeDetails.alternateContactBackgroundColor};
             --menu-background-color: ${themeDetails.menuBackgroundColor};
+            --preferences-highlighted-color: ${themeDetails.preferencesHighlightedColor};
         }`,
         }),
     );
