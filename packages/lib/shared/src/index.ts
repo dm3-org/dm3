@@ -6,4 +6,3 @@ export * as ethersHelper from './ethersHelper';
 export * as globalConfig from './GlobalConfig';
 export { createJsonDataUri } from './createJsonDataUri';
 export { getSize } from './size';
-export { Auth } from './auth/auth';
