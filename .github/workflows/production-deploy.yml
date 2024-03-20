@@ -54,6 +54,7 @@ jobs:
                 echo "RPC=${{ secrets.RPC }}" >> ./.env
                 echo "URL=${{ secrets.HOST_DOMAIN}}" >> ./.env
                 echo "CERT_MAIL=${{ secrets.CERT_MAIL }}" >> ./.env
+                echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> ./.env
                 envsubst '${TARGET_HOST}' < ./docker/prod/nginx.conf > ./nginx.conf
                 cat ./.env
           - name: Build docker image
