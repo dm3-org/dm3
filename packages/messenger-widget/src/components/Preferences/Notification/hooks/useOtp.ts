@@ -97,6 +97,7 @@ export const useOtp = (
                 if (next) {
                     next.focus();
                     setIsCodeResent(false);
+                    setShowError(false);
                 }
             }
 
@@ -128,6 +129,7 @@ export const useOtp = (
             if (key == 'backspace' || key == 'delete') {
                 target.value = '';
                 setIsCodeResent(false);
+                setShowError(false);
                 const prev = target.previousElementSibling;
                 if (prev) {
                     prev.focus();

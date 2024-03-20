@@ -46,7 +46,7 @@ export const preferencesItems = [
         ),
         name: 'Notification',
         component: <Notification />,
-        isEnabled: false,
+        isEnabled: true,
     },
     {
         icon: (

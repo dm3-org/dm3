@@ -95,12 +95,12 @@ export function VerificationModal(props: IVerificationModal) {
                                 <div className="d-flex align-items-center">
                                     <label
                                         htmlFor={props.type}
-                                        className="font-size-14 font-weight-500 invisible"
+                                        className="font-size-14 font-weight-500 invisible hide-content"
                                     >
                                         {props.type}
                                     </label>
                                     <div
-                                        className={'notification-error font-weight-400 ms-3'.concat(
+                                        className={'notification-error font-weight-400'.concat(
                                             ' ',
                                             showError
                                                 ? 'show-error'
@@ -112,7 +112,7 @@ export function VerificationModal(props: IVerificationModal) {
                                 </div>
 
                                 {/* Input field & verify button */}
-                                <div className="d-flex align-items-center">
+                                <div className="d-flex add-notification-items">
                                     <label
                                         htmlFor={props.type}
                                         className="font-size-14 font-weight-500"
@@ -124,7 +124,12 @@ export function VerificationModal(props: IVerificationModal) {
                                             ' ',
                                             showError ? 'err-background' : '',
                                         )}
-                                        type="text"
+                                        type={
+                                            props.type ===
+                                            VerificationMethod.Email
+                                                ? 'text'
+                                                : 'number'
+                                        }
                                         placeholder={props.placeholder}
                                         value={inputData}
                                         onChange={(
@@ -173,14 +178,14 @@ export function VerificationModal(props: IVerificationModal) {
                                 <div className="d-flex align-items-center">
                                     <label
                                         htmlFor={props.type}
-                                        className="font-size-14 font-weight-500 invisible"
+                                        className="font-size-14 font-weight-500 invisible hide-content"
                                     >
                                         {props.type}
                                     </label>
                                     <p className="notification-description font-weight-300">
                                         {props.content}
                                     </p>
-                                    <div className="invisible">
+                                    <div className="invisible hide-content">
                                         <button
                                             disabled={false}
                                             className={BTN_CLASS}

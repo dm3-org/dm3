@@ -27,17 +27,19 @@ export function OtpVerification(props: IOtpVerification) {
             <div className="pe-3">
                 {/* Error msg */}
                 <div className="d-flex align-items-center">
-                    <label className="font-size-14 font-weight-500 invisible">
+                    <label className="font-size-14 font-weight-500 invisible hide-content">
                         {props.type}
                     </label>
-                    <div
-                        className={'notification-error font-weight-400 ms-3'.concat(
-                            ' ',
-                            showError ? 'show-error' : 'hide-error',
-                        )}
-                    >
-                        {errorMsg}
-                    </div>
+                    {!isCodeResent && (
+                        <div
+                            className={'notification-error font-weight-400'.concat(
+                                ' ',
+                                showError ? 'show-error' : 'hide-error',
+                            )}
+                        >
+                            {errorMsg}
+                        </div>
+                    )}
                     {isCodeResent && (
                         <div className="font-weight-400 ms-3 resent-text">
                             Verification code resent successfully
@@ -46,7 +48,7 @@ export function OtpVerification(props: IOtpVerification) {
                 </div>
 
                 {/* OTP input field */}
-                <div className="d-flex align-items-center">
+                <div className="d-flex add-notification-items">
                     <label
                         htmlFor={props.type}
                         className="font-size-14 font-weight-500"
@@ -94,7 +96,7 @@ export function OtpVerification(props: IOtpVerification) {
                 <div className="d-flex align-items-center">
                     <label
                         htmlFor={props.type}
-                        className="font-size-14 font-weight-500 invisible"
+                        className="font-size-14 font-weight-500 invisible hide-content"
                     >
                         {props.type}
                     </label>

@@ -1,19 +1,26 @@
-import { Heading } from '../Heading/Heading';
-import { Checkbox, Text } from './Content';
-import { NotificationButton } from './NotificationButton';
-import { VerificationModal } from './VerificationModal';
+import { useContext } from 'react';
 import { DeleteIcon } from './DeleteIcon';
+import { Checkbox, Text } from './Content';
+import { Heading } from '../Heading/Heading';
+import { VerificationModal } from './VerificationModal';
+import { NotificationButton } from './NotificationButton';
 import { useNotification } from './hooks/useNotification';
+import { MOBILE_SCREEN_WIDTH } from '../../../utils/common-utils';
 import {
     getVerficationModalContent,
     VerificationMethod,
 } from './hooks/VerificationContent';
+import { DM3ConfigurationContext } from '../../../context/DM3ConfigurationContext';
 
 export function Notification() {
+    const { screenWidth } = useContext(DM3ConfigurationContext);
+
     const heading = 'Notification';
     const description =
-        'Prevent spam from being sent to you by setting rules ' +
-        'that senders must fulfill in order for messages to be accepted.';
+        screenWidth <= MOBILE_SCREEN_WIDTH
+            ? ''
+            : 'Prevent spam from being sent to you by setting rules ' +
+              'that senders must fulfill in order for messages to be accepted.';
 
     const {
         isNotificationsActive,
@@ -46,7 +53,7 @@ export function Notification() {
             )}
 
             {/* Notifications enabled/disabled */}
-            <div className="ms-5 mt-4">
+            <div className="global-notification-container">
                 <div className="d-flex align-items-center">
                     <Checkbox
                         checked={isNotificationsActive}
