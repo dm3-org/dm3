@@ -5,7 +5,7 @@ import { getViewerCountHandler } from './handler/getViewerCount';
 import { getMessagesHandler } from './handler/getMessages';
 import { IDatabase } from '../../persitance/getDatabase';
 import { IViewerService } from '../../service/viewerService/IViewerService';
-import { logDebug, logInfo } from 'dm3-lib-shared';
+import { logDebug, logInfo } from '@dm3-org/dm3-lib-shared';
 
 export function getExternalApi(db: IDatabase, viewerService: IViewerService) {
     const app = express();

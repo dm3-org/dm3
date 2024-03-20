@@ -1,33 +1,95 @@
-import './AddConversation.css';
-import '../../styles/modal.css';
-import closeIcon from '../../assets/images/cross.svg';
-import { INPUT_FIELD_CLASS, addContact, closeConversationModal } from './bl';
-import { FormEvent, useContext, useState } from 'react';
-import { GlobalContext } from '../../utils/context-utils';
-import { showContactList } from '../../utils/common-utils';
 import { ethers } from 'ethers';
+import { FormEvent, useContext, useState } from 'react';
+import closeIcon from '../../assets/images/cross.svg';
+import { AuthContext } from '../../context/AuthContext';
+import { ConversationContext } from '../../context/ConversationContext';
+import { TLDContext } from '../../context/TLDContext';
+import '../../styles/modal.css';
+import { GlobalContext } from '../../utils/context-utils';
+import {
+    LeftViewSelected,
+    ModalStateType,
+    RightViewSelected,
+    UiViewStateType,
+} from '../../utils/enum-type-utils';
+import { closeLoader, startLoader } from '../Loader/Loader';
+import './AddConversation.css';
+import { INPUT_FIELD_CLASS, closeConversationModal } from './bl';
 
 export default function AddConversation() {
-    const { state, dispatch } = useContext(GlobalContext);
+    const { dispatch } = useContext(GlobalContext);
+    const { addConversation, setSelectedContactName } =
+        useContext(ConversationContext);
 
     const [name, setName] = useState<string>('');
     const [showError, setShowError] = useState<boolean>(false);
     const [errorMsg, setErrorMsg] = useState<string>('');
     const [inputClass, setInputClass] = useState<string>(INPUT_FIELD_CLASS);
+    const { resolveTLDtoAlias } = useContext(TLDContext);
+
+    const { ethAddress } = useContext(AuthContext);
 
     // handles new contact submission
-    const submit = (e: React.FormEvent) => {
+    const submit = async (e: React.FormEvent) => {
         e.preventDefault();
         setName(name.trim());
         if (name.length) {
-            addContact(
-                name,
-                state,
-                dispatch,
+            // start loader
+            dispatch({
+                type: ModalStateType.LoaderContent,
+                payload: 'Adding contact...',
+            });
+
+            startLoader();
+
+            const ensNameIsInvalid =
+                ethAddress &&
+                name.split('.')[0] &&
+                ethAddress.toLowerCase() === name.split('.')[0].toLowerCase();
+
+            if (ensNameIsInvalid) {
+                setErrorMsg('Please enter valid ENS name');
+                setShowError(true);
+                return;
+            }
+            //Checks wether the name entered, is an tld name. If yes, the TLD is substituded with the alias name
+            const aliasName = await resolveTLDtoAlias(name);
+            //const aliasName = await getAlias(name);
+
+            closeConversationModal(
                 resetName,
                 showErrorMessage,
                 resetInputFieldClass,
             );
+            const addConversationData = {
+                active: true,
+                ensName: aliasName,
+                processed: false,
+            };
+
+            // set new contact data
+            dispatch({
+                type: ModalStateType.AddConversationData,
+                payload: addConversationData,
+            });
+
+            // set left view to contacts
+            dispatch({
+                type: UiViewStateType.SetSelectedLeftView,
+                payload: LeftViewSelected.Contacts,
+            });
+
+            // set right view to chat
+            dispatch({
+                type: UiViewStateType.SetSelectedRightView,
+                payload: RightViewSelected.Chat,
+            });
+
+            const newContact = await addConversation(aliasName);
+            setSelectedContactName(newContact.contactDetails.account.ensName);
+            closeLoader();
+
+            // close the modal
         } else {
             setErrorMsg('Please enter valid ENS name');
             setShowError(true);
@@ -91,7 +153,10 @@ export default function AddConversation() {
                                     showErrorMessage,
                                     resetInputFieldClass,
                                 );
-                                showContactList(dispatch);
+                                dispatch({
+                                    type: UiViewStateType.SetSelectedLeftView,
+                                    payload: LeftViewSelected.Contacts,
+                                });
                             }}
                         />
                     </div>
@@ -111,7 +176,7 @@ export default function AddConversation() {
                                     Name
                                 </label>
                                 <div
-                                    className={'conversation-error font-weight-400 ms-3'.concat(
+                                    className={'conversation-error font-weight-400'.concat(
                                         ' ',
                                         showError ? 'show-error' : 'hide-error',
                                     )}
@@ -119,7 +184,7 @@ export default function AddConversation() {
                                     {errorMsg}
                                 </div>
                             </div>
-                            <div className="d-flex align-items-center">
+                            <div className="d-flex add-name-container">
                                 <label
                                     htmlFor="name"
                                     className="font-size-14 font-weight-500"

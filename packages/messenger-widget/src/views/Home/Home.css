@@ -7,3 +7,27 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
+
+/* Customization of Rainbow kit CSS */
+[data-rk] {
+    --rk-colors-connectButtonBackground: var(
+        --rainbow-connect-btn-background-color
+    ) !important;
+    --rk-colors-connectButtonText: var(
+        --rainbow-connect-btn-text-color
+    ) !important;
+    --rk-colors-accentColor: var(--rainbow-accent-color) !important;
+    --rk-colors-accentColorForeground: var(
+        --rainbow-accent-foreground-color
+    ) !important;
+    --rk-colors-modalText: var(--rainbow-modal-text-color) !important;
+    --rk-colors-modalTextSecondary: var(
+        --rainbow-modal-text-secondary-color
+    ) !important;
+    --rk-colors-modalBackground: var(
+        --rainbow-modal-background-color
+    ) !important;
+    --rk-colors-menuItemBackground: var(
+        --rainbow-modal-wallet-hover-color
+    ) !important;
+}

@@ -1,10 +1,10 @@
-import { getUserProfile, submitUserProfile } from 'dm3-lib-delivery';
-import { normalizeEnsName, schema } from 'dm3-lib-profile';
-import { validateSchema } from 'dm3-lib-shared';
+import { getUserProfile, submitUserProfile } from '@dm3-org/dm3-lib-delivery';
+import { normalizeEnsName, schema } from '@dm3-org/dm3-lib-profile';
+import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import express, { NextFunction } from 'express';
 import { WithLocals } from './types';
 import { auth } from './utils';
-import { getAliasChain } from './persistance/getIdEnsName';
+import { getAliasChain } from './persistence/getIdEnsName';
 
 export default () => {
     const router = express.Router();
@@ -96,6 +96,8 @@ export default () => {
                     message: 'POST profile',
                     error: JSON.stringify(e),
                 });
+                // eslint-disable-next-line no-console
+                console.log('POST PROFILE ERROR', e);
                 res.status(400).send({
                     message: `Couldn't store profile`,
                     error: JSON.stringify(e),

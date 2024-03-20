@@ -1,29 +1,37 @@
-import './MessageAction.css';
+import { createReactionMessage } from '@dm3-org/dm3-lib-messaging';
+import { useContext, useEffect, useState } from 'react';
+import deleteIcon from '../../assets/images/chat-delete.svg';
 import editIcon from '../../assets/images/edit.svg';
 import replyIcon from '../../assets/images/reply.svg';
-import { MessageProps } from '../../interfaces/props';
-import deleteIcon from '../../assets/images/chat-delete.svg';
-import threeDotsIcon from '../../assets/images/three-dots.svg';
 import saveIcon from '../../assets/images/save.svg';
+import threeDotsIcon from '../../assets/images/three-dots.svg';
+import { AuthContext } from '../../context/AuthContext';
+import { ConversationContext } from '../../context/ConversationContext';
+import { MessageContext } from '../../context/MessageContext';
+import { MessageProps } from '../../interfaces/props';
+import {
+    MOBILE_SCREEN_WIDTH,
+    createNameForFile,
+    getFileTypeFromBase64,
+} from '../../utils/common-utils';
 import { GlobalContext } from '../../utils/context-utils';
-import { useContext } from 'react';
 import {
     MessageActionType,
     ModalStateType,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
-import {
-    createNameForFile,
-    getDependencies,
-    getFileTypeFromBase64,
-    getHaltDelivery,
-    sendMessage,
-} from '../../utils/common-utils';
-import { SendDependencies, createReactionMessage } from 'dm3-lib-messaging';
 import { hideMsgActionDropdown } from '../MessageInputBox/bl';
+import './MessageAction.css';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export function MessageAction(props: MessageProps) {
     const { state, dispatch } = useContext(GlobalContext);
+    const { account, profileKeys } = useContext(AuthContext);
+    const { addMessage } = useContext(MessageContext);
+    const { selectedContact } = useContext(ConversationContext);
+    const { screenWidth } = useContext(DM3ConfigurationContext);
+
+    const [alignmentTop, setAlignmentTop] = useState(false);
 
     // Popular emojis for reaction
     const reactionEmojis = ['🙂', '👍', '👎', '❤️'];
@@ -55,19 +63,19 @@ export function MessageAction(props: MessageProps) {
     };
 
     const reactToMessage = async (message: string) => {
-        const userDb = state.userDb;
-
-        if (!userDb) {
-            throw Error('userDB not found');
-        }
-
-        if (!state.accounts.selectedContact) {
+        if (!selectedContact) {
             throw Error('no contact selected');
         }
 
-        const filteredElements = props.reactions.filter(
+        // Filters if the reaction already exists
+        const filteredReactions = props.reactions.filter(
             (data) => data.message.message === message,
         );
+
+        // if same reaction already exists, then it should not be added again so returns
+        if (filteredReactions.length) {
+            return;
+        }
 
         dispatch({
             type: UiViewStateType.SetMessageView,
@@ -77,31 +85,21 @@ export function MessageAction(props: MessageProps) {
             },
         });
 
-        if (filteredElements.length) {
-            return;
-        }
-
         const referenceMessageHash =
             props.envelop.metadata?.encryptedMessageHash;
 
         // react to the message
         const messageData = await createReactionMessage(
-            state.accounts.selectedContact?.account.ensName as string,
-            state.connection.account!.ensName,
+            selectedContact.contactDetails.account.ensName as string,
+            account!.ensName,
             message,
-            userDb.keys.signingKeyPair.privateKey as string,
+            profileKeys?.signingKeyPair.privateKey!,
             referenceMessageHash as string,
         );
 
-        const haltDelivery = getHaltDelivery(state);
-        const sendDependencies: SendDependencies = getDependencies(state);
-
-        await sendMessage(
-            state,
-            sendDependencies,
+        await addMessage(
+            selectedContact?.contactDetails.account.ensName!,
             messageData,
-            haltDelivery,
-            dispatch,
         );
 
         dispatch({
@@ -126,13 +124,41 @@ export function MessageAction(props: MessageProps) {
         }
     };
 
+    const setDropdownPosition = () => {
+        const inputElement = document.getElementById('msg-input-box-container');
+        const actionElement = document.getElementById('msg-dropdown');
+        if (inputElement && actionElement) {
+            const inputProperties = inputElement.getBoundingClientRect();
+            const actionProperties = actionElement.getBoundingClientRect();
+            if (
+                inputProperties.top - actionProperties.top <
+                actionProperties.height
+            ) {
+                setAlignmentTop(true);
+            } else {
+                setAlignmentTop(false);
+            }
+        } else {
+            setAlignmentTop(false);
+        }
+    };
+
+    useEffect(() => {
+        setDropdownPosition();
+    }, []);
+
     return (
         <div
             id="msg-dropdown"
-            className={'msg-dropdown-content font-size-12 font-weight-400'.concat(
-                ' ',
-                props.ownMessage ? 'own-msg' : '',
-            )}
+            className={'msg-dropdown-content font-size-12 font-weight-400'
+                .concat(' ', props.ownMessage ? 'own-msg' : '')
+                .concat(' ', alignmentTop ? 'align-top' : '')
+                .concat(
+                    ' ',
+                    !props.ownMessage && screenWidth <= MOBILE_SCREEN_WIDTH
+                        ? 'align-action-item-left'
+                        : '',
+                )}
         >
             {props.ownMessage &&
                 (props.message ||
@@ -168,7 +194,18 @@ export function MessageAction(props: MessageProps) {
             {!props.ownMessage && (
                 <div className="msg-reaction d-flex align-items-center justify-content-start p-0">
                     {reactionEmojis.map((item, index) => {
-                        return (
+                        return screenWidth <= MOBILE_SCREEN_WIDTH ? (
+                            index < 2 && (
+                                <div
+                                    data-testid={`reaction-emoji-${index}`}
+                                    className="msg-reaction-container"
+                                    onClick={() => reactedWithEmoji(item)}
+                                    key={index}
+                                >
+                                    {item}
+                                </div>
+                            )
+                        ) : (
                             <div
                                 data-testid={`reaction-emoji-${index}`}
                                 className="msg-reaction-container"

@@ -11,11 +11,11 @@ import { startCleanUpPendingMessagesJob } from './cleanup/cleanUpPendingMessages
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import Delivery from './delivery';
 import { onConnection } from './messaging';
-import { getDatabase } from './persistance/getDatabase';
+import { getDatabase } from './persistence/getDatabase';
 import Profile from './profile';
 import RpcProxy from './rpc/rpc-proxy';
 import Storage from './storage';
-import { logInfo } from 'dm3-lib-shared';
+import { logInfo } from '@dm3-org/dm3-lib-shared';
 import 'dotenv/config';
 
 import {
@@ -66,11 +66,18 @@ global.logger = winston.createLogger({
     app.locals.web3Provider = getWeb3Provider(process.env);
 
     app.use(logRequest);
+
+    app.get('/hello', (req, res) => {
+        return res.send('Hello DM3');
+    });
     app.use('/profile', Profile());
-    app.use('/storage', Storage());
+    app.use('/storage', Storage(app.locals.db));
     app.use('/auth', Auth());
     app.use('/delivery', Delivery());
-    app.use('/notifications', Notifications());
+    app.use(
+        '/notifications',
+        Notifications(app.locals.deliveryServiceProperties),
+    );
     app.use('/rpc', RpcProxy(new Axios({ url: process.env.RPC })));
     app.use(logError);
     app.use(errorHandler);

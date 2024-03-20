@@ -56,6 +56,10 @@
     width: fit-content;
 }
 
+.font-size-10 {
+    font-size: 10px;
+}
+
 .font-size-12 {
     font-size: 12px;
 }
@@ -75,7 +79,7 @@
 .common-btn {
     font-size: 1rem;
     line-height: 1.25rem;
-    padding: 1rem 2rem 1rem 2rem;
+    padding: 0.8rem 2rem 0.8rem 2rem;
     width: 100%;
 }
 
@@ -89,7 +93,7 @@
 }
 
 .highlight-right-border {
-    border-right: 2px solid var(--normal-btn-hover);
+    border-right: 2px solid var(--selected-contact-border-color);
 }
 
 .highlight-right-border-none {
@@ -136,6 +140,20 @@ input:focus {
     padding: 0.9rem 0.7rem 0.7rem 2rem;
 }
 
+.profile-configuration-box {
+    background: var(--info-box-background-color);
+    color: var(--info-box-text-color);
+    font-size: 14px;
+}
+
+.profile-configuration-box-border {
+    border: 1px solid var(--info-box-text-color);
+}
+
+.height-inherit {
+    height: inherit;
+}
+
 /* CSS to rotate the spinner svg image */
 @-webkit-keyframes rotating {
     from {
@@ -180,18 +198,54 @@ input:focus {
 /* CSS to set scrollbar color and size */
 ::-webkit-scrollbar-track {
     padding: 2px 0;
-    background-color: var(--normal-btn-inactive);
+    background-color: var(--scrollbar-background-color);
     border-radius: 15px;
 }
 
 ::-webkit-scrollbar {
     width: 10px;
-    background-color: var(--background-config-box);
+    background-color: var(--scrollbar-scroller-color);
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
     border-radius: 10px;
     box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-    background-color: var(--background-config-box);
+    background-color: var(--scrollbar-scroller-color);
+}
+
+/* =================== Mobile Responsive CSS =================== */
+@media only screen and (max-width: 800px) {
+    .menu-icon-container img {
+        width: 1.5rem !important;
+    }
+
+    .menu-icon-container {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+
+    .mobile-profile-icon {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .profile-configuration-box {
+        font-size: 12px;
+    }
+
+    .blur-background {
+        filter: blur(4px);
+        background-color: rgba(0, 0, 0, 0.4);
+        backdrop-filter: brightness(0.3);
+    }
+
+}
+
+@media only screen and (min-width: 800px) {
+    .mobile-profile-icon {
+        display: none !important;
+    }
 }

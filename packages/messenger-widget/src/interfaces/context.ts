@@ -1,4 +1,4 @@
-import { Account, DeliveryServiceProfile } from 'dm3-lib-profile';
+import { Account, DeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
 import {
     LeftViewSelected,
     MessageActionType,
@@ -53,6 +53,7 @@ export interface Modal {
     openEmojiPopup: { action: boolean; data: MessageProps | undefined };
     lastMessageAction: MessageActionType;
     isProfileConfigurationPopupActive: boolean;
+    showPreferencesModal: boolean;
 }
 
 export interface UiViewState {

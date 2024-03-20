@@ -1,6 +1,6 @@
-import { EncryptionEnvelop } from 'dm3-lib-messaging';
-import { DeliveryServiceProfile } from 'dm3-lib-profile';
-import { logError, logInfo } from 'dm3-lib-shared';
+import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
+import { DeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
+import { logError, logInfo } from '@dm3-org/dm3-lib-shared';
 
 import { io, Socket } from 'socket.io-client';
 

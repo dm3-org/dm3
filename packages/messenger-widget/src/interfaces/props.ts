@@ -1,18 +1,16 @@
-import { Envelop, MessageState } from 'dm3-lib-messaging';
-import {
-    Actions,
-    GlobalState,
-    MessageActionType,
-} from '../utils/enum-type-utils';
-import { Config, Dm3Props } from './config';
+import { Envelop, MessageState } from '@dm3-org/dm3-lib-messaging';
+import { MessageActionType } from '../utils/enum-type-utils';
+import { Dm3Props } from './config';
 import { Attachment, ContactPreview } from './utils';
 
+export interface SignInProps {
+    hideStorageSelection: boolean;
+    miniSignIn: boolean;
+    defaultStorageLocation: any | undefined;
+    signInImage: string;
+}
+
 export interface DashboardProps {
-    getContacts: (
-        state: GlobalState,
-        dispatch: React.Dispatch<Actions>,
-        props: Config,
-    ) => Promise<void>;
     dm3Props: Dm3Props;
 }
 
@@ -24,7 +22,6 @@ export interface IEnsDetails {
 
 export interface IContactMenu {
     contactDetails: ContactPreview;
-    index: number;
     isMenuAlignedAtBottom: boolean;
 }
 
@@ -34,10 +31,7 @@ export interface MessageProps {
     messageState: MessageState;
     ownMessage: boolean;
     envelop: Envelop;
-    replyToMsg: string | undefined;
-    replyToMsgFrom: string | undefined;
-    replyToMsgId: string | undefined;
-    replyToMsgEnvelope: Envelop | undefined;
+    replyToMessageEnvelop?: Envelop | undefined;
     reactions: Envelop[];
     isLastMessage?: boolean;
     hideFunction?: string;
@@ -72,6 +66,7 @@ export interface MessageDataProps {
 export interface AttachmentPreviewProps {
     filesSelected: Attachment[];
     isMyMessage: boolean;
+    isReplyMsgAttachments?: boolean;
 }
 
 export interface ImageModal {

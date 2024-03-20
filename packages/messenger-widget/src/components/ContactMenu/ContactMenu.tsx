@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { useContext } from 'react';
 import detailsIcon from '../../assets/images/details.svg';
 import hideIcon from '../../assets/images/hide.svg';
@@ -7,20 +8,32 @@ import {
     RightViewSelected,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
-import { hideContact } from '../../utils/ens-utils';
+
+import { ConversationContext } from '../../context/ConversationContext';
+import { closeContactMenu } from '../../utils/common-utils';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export function ContactMenu(props: IContactMenu) {
-    const { state, dispatch } = useContext(GlobalContext);
+    const { dispatch } = useContext(GlobalContext);
+    const { hideContact } = useContext(ConversationContext);
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     const onClickOfShowDetails = () => {
         dispatch({
             type: UiViewStateType.SetSelectedRightView,
             payload: RightViewSelected.ContactInfo,
         });
+        closeContactMenu();
     };
 
     const onClickOfHideContact = () => {
-        hideContact(state, dispatch);
+        hideContact(props.contactDetails.contactDetails.account.ensName);
+        //Close the message Modal and show the default one instead
+        dispatch({
+            type: UiViewStateType.SetSelectedRightView,
+            payload: RightViewSelected.Default,
+        });
+        closeContactMenu();
     };
 
     return (
@@ -37,13 +50,21 @@ export function ContactMenu(props: IContactMenu) {
                 <img src={detailsIcon} alt="details" className="me-2" />
                 Show Details
             </div>
-            <div
-                className="d-flex align-items-center justify-content-start"
-                onClick={() => onClickOfHideContact()}
-            >
-                <img src={hideIcon} alt="hide" className="me-2" />
-                Hide Contact
-            </div>
+
+            {/* 
+                Hide button is not visible when showContacts is false.
+                User has no option to choose contact means single contact is
+                available for chat, so that can't be hided 
+            */}
+            {dm3Configuration.showContacts && (
+                <div
+                    className="d-flex align-items-center justify-content-start"
+                    onClick={() => onClickOfHideContact()}
+                >
+                    <img src={hideIcon} alt="hide" className="me-2" />
+                    Hide Contact
+                </div>
+            )}
         </div>
     );
 }

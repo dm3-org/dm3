@@ -1,8 +1,8 @@
 import { parse } from 'yaml';
 import { existsSync, readFileSync } from 'fs';
 import { resolve } from 'path';
-import { logInfo, validateSchema } from 'dm3-lib-shared';
-import { schema, DeliveryServiceProperties } from 'dm3-lib-delivery';
+import { logInfo, validateSchema } from '@dm3-org/dm3-lib-shared';
+import { schema, DeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery';
 
 const DEFAULT_CONFIG_FILE_PATH = resolve(__dirname, './../config.yml');
 const DEFAULT_DELIVERY_SERVICE_PROPERTIES: DeliveryServiceProperties = {
@@ -20,6 +20,7 @@ export function getDeliveryServiceProperties(
         logInfo('Config file not found. Default Config is used');
         return defaultDeliveryServiceProperties;
     }
+
     const yamlString = readFileSync(path, { encoding: 'utf-8' });
 
     const deliveryServiceProfile = parse(yamlString);

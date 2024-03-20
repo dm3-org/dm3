@@ -1,16 +1,19 @@
 /* eslint-disable no-console */
 import { Command, program } from 'commander';
-import { getStorageKeyCreationMessage, createStorageKey } from 'dm3-lib-crypto';
+import {
+    getStorageKeyCreationMessage,
+    createStorageKey,
+} from '@dm3-org/dm3-lib-crypto';
 import {
     createProfileKeys,
     getProfileCreationMessage,
     SignedUserProfile,
     UserProfile,
     DEFAULT_NONCE,
-} from 'dm3-lib-profile';
+} from '@dm3-org/dm3-lib-profile';
 import { ethers } from 'ethers';
 import { getSanitizedWallet } from '../sanitizer/getSanitizedWallet';
-import { stringify } from 'dm3-lib-shared';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 
 const newProfile = async (program: Command) => {
     const { profilePk, deliveryService } = program.opts();

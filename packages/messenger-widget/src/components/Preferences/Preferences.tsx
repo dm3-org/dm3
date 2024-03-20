@@ -1,43 +1,20 @@
 import './Preferences.css';
-import closeIcon from '../../assets/images/cross.svg';
-import { closePreferencesModal } from './bl';
 import { useContext } from 'react';
-import { GlobalContext } from '../../utils/context-utils';
-import { showContactList } from '../../utils/common-utils';
+import { MobileView } from './MobileView';
+import { NormalView } from './NormalView';
+import { MOBILE_SCREEN_WIDTH } from '../../utils/common-utils';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export function Preferences() {
-    const { dispatch } = useContext(GlobalContext);
+    const { screenWidth } = useContext(DM3ConfigurationContext);
 
     return (
-        <div>
-            <div
-                id="preferences-modal"
-                className="modal-container display-none position-fixed w-100 h-100"
-            >
-                <div
-                    className="preferences-modal-content border-radius-6 
-            background-container text-primary-color"
-                >
-                    <div className="d-flex align-items-start">
-                        <div className="width-fill">
-                            <h4 className="font-weight-800 mb-1">
-                                Preferences
-                            </h4>
-                        </div>
-                        <img
-                            className="preferences-close-icon"
-                            src={closeIcon}
-                            alt="close"
-                            onClick={() => {
-                                closePreferencesModal();
-                                showContactList(dispatch);
-                            }}
-                        />
-                    </div>
-
-                    <hr className="line-separator preferences-separator text-secondary-color" />
-                </div>
-            </div>
-        </div>
+        <>
+            {screenWidth <= MOBILE_SCREEN_WIDTH ? (
+                <MobileView />
+            ) : (
+                <NormalView />
+            )}
+        </>
     );
 }

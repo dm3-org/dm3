@@ -148,9 +148,8 @@ describe('Delivery', () => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 getIdEnsName: async (ensName: string) => ensName,
-                syncAcknoledgment: async (
+                syncAcknowledge: async (
                     conversationId: string,
-                    ensName: string,
                     lastMessagePull: string,
                 ) => Promise<void>,
             };

@@ -33,3 +33,124 @@
     width: auto;
     margin-left: 1rem;
 }
+
+/* =================== Container CSS for Profile =================== */
+.profile-container-type {
+    container-type: size;
+    container-name: profileContainer;
+}
+
+@container profileContainer (max-height: 520px) {
+    .profile-image {
+        width: 4rem;
+        height: auto;
+    }
+
+    .ens-btn-container {
+        width: 15rem;
+        margin-top: 0.5rem;
+    }
+
+    .configure-btn-container {
+        width: 15rem;
+        margin-top: 0.5rem;
+    }
+
+    .ens-details {
+        font-size: 0.7rem;
+    }
+}
+
+@container profileContainer (max-height: 400px) {
+    .profile-image {
+        width: 3rem;
+        height: auto;
+    }
+
+    .ens-btn-container {
+        width: 12rem;
+        margin-top: 0.5rem;
+    }
+
+    .configure-btn-container {
+        width: 12rem;
+        margin-top: 0.5rem;
+    }
+
+    .common-btn {
+        padding: 0.8rem 0.5rem 0.8rem 0.5rem !important;
+    }
+}
+
+@container profileContainer (max-height: 340px) {
+    .ens-btn-container {
+        display: none !important;
+    }
+}
+
+/* =================== Container CSS for Contact Info =================== */
+.contact-info-container-type {
+    container-type: size;
+    container-name: contactInfoContainer;
+}
+
+@container contactInfoContainer (max-height: 520px) {
+    .profile-image {
+        width: 4rem;
+        height: auto;
+    }
+
+    .ens-btn-container {
+        width: 15rem;
+        margin-top: 0.5rem;
+    }
+
+    .configure-btn-container {
+        width: 15rem;
+        margin-top: 0.5rem;
+    }
+
+    .copy-btn {
+        height: 1rem;
+    }
+}
+
+@container contactInfoContainer (max-height: 400px) {
+    .ens-btn-container {
+        width: 12rem;
+        margin-top: 0.5rem;
+    }
+
+    .configure-btn-container {
+        width: 12rem;
+        margin-top: 0.5rem;
+    }
+
+    .common-btn {
+        padding: 0.8rem 0.5rem 0.8rem 0.5rem !important;
+    }
+}
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (max-width: 800px) {
+    .profile-image {
+        width: 5rem;
+    }
+
+    .profile-container-type {
+        margin-top: 2rem;
+    }
+
+    .ens-details {
+        word-break: break-all;
+    }
+
+    .profile-details-container {
+        padding: 2rem 2rem 0rem 2rem;
+    }
+
+    .profile-detail-items{
+        margin-top: 3rem;
+    }
+}

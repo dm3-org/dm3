@@ -27,7 +27,7 @@
 }
 
 .grey-text {
-    color: var(--disabled-btn-text);
+    color: var(--profile-configuration-text-color);
 }
 
 .profile-config-container {
@@ -44,16 +44,16 @@
 }
 
 .profile-input {
-    border: 1px solid var(--text-secondary-color);
+    border: 1px solid var(--input-field-border-color);
     padding: 0.3rem 1rem 0.3rem 1rem;
-    color: var(--text-primary-color);
-    background: var(--background-chat);
-    width: 60% !important;
+    color: var(--input-field-text-color);
+    background: var(--input-field-background-color);
+    width: 60%;
 }
 
 .configure-btn {
     padding: 8px 16px 8px 16px;
-    box-shadow: 0px 0px 44px 0px #000000;
+    box-shadow: 0px 0px 44px 0px var(--button-shadow);
     width: fit-content;
 }
 
@@ -63,4 +63,71 @@
 
 .dm3-name-content {
     width: 90%;
+}
+
+.name-service-selector {
+    background: var(--preferences-highlighted-color);
+    font-size: 14px;
+    padding: 0.3rem;
+    font-weight: 500;
+    outline: none;
+}
+
+select:focus-visible {
+    outline: none;
+}
+
+input::placeholder {
+    font-size: 11px;
+}
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (min-width: 800px) and (max-width: 1150px) {
+    input::placeholder {
+        font-size: 9px;
+    }
+}
+
+@media only screen and (max-width: 800px) {
+    .profile-input {
+        padding: 0.2rem 0.5rem 0.2rem 0.5rem;
+        width: 100%;
+    }
+
+    .dm3-name-container {
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    input::placeholder {
+        font-size: 13px !important;
+    }
+
+    .conversation-error {
+        margin-left: 0px !important;
+        height: 14px;
+    }
+
+    .configure-btn {
+        padding: 6px 14px 4px 14px;
+    }
+
+    .dm3-name-content {
+        width: 100%;
+        word-break: break-all;
+        padding: 0rem 0.2rem 0rem 0.2rem;
+    }
+
+    .configuration-items-align{
+        min-width: 0rem;
+    }
+
+    select option {
+        font-size: 12px;
+    }
+
+    .name-service-selector{
+        font-size: 12px;
+    }
 }

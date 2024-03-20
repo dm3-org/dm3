@@ -1,16 +1,15 @@
 /* Absolute Center Spinner */
 .loading {
-    position: fixed;
+    position: absolute;
     z-index: 999;
-    height: 2em;
-    width: 2em;
+    height: 100%;
+    width: 100%;
     overflow: show;
     margin: auto;
     top: 0;
     left: 0;
     bottom: 0;
     right: 0;
-    width: auto;
     display: none !important;
 }
 
@@ -18,7 +17,7 @@
 .loading:before {
     content: '';
     display: block;
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
@@ -30,6 +29,7 @@
     );
 }
 
+
 .loader-content {
     color: var(--text-primary-color);
     position: absolute;
@@ -38,4 +38,16 @@
 
 .loader-img {
     height: 3rem;
+}
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (max-width: 800px) {
+    .loader-img {
+        height: 2rem !important;
+    }
+    .loader-content{
+        font-size: 14px !important;
+        margin-top: 4rem !important;
+    }
 }

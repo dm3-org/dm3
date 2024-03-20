@@ -15,11 +15,13 @@ import { EmojiSelector } from '../EmojiSelector/EmojiSelector';
 import { MessageInputField } from '../MessageInputField/MessageInputField';
 import { SendMessage } from '../SendMessage/SendMessage';
 import { HideFunctionProps } from '../../interfaces/props';
+import { ConversationContext } from '../../context/ConversationContext';
 
 export function MessageInputBox(props: HideFunctionProps) {
     const [message, setMessage] = useState('');
 
     const { state, dispatch } = useContext(GlobalContext);
+    const { selectedContact } = useContext(ConversationContext);
     const [filesSelected, setFilesSelected] = useState<Attachment[]>([]);
 
     function setFiles(files: Attachment[]) {
@@ -66,15 +68,18 @@ export function MessageInputBox(props: HideFunctionProps) {
             },
         });
         setMessage('');
-    }, [state.accounts.selectedContact]);
+    }, [selectedContact]);
 
     useEffect(() => {
         setFilesSelected([]);
         setChatContainerHeight();
-    }, [state.accounts.selectedContact]);
+    }, [selectedContact]);
 
     return (
-        <div className="mb-1 p-1 msg-input-box-container width-fill">
+        <div
+            id="msg-input-box-container"
+            className="mb-1 p-1 msg-input-box-container width-fill"
+        >
             {/* Reply message preview */}
             {state.uiView.selectedMessageView.actionType ===
                 MessageActionType.REPLY && (

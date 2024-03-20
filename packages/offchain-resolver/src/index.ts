@@ -4,7 +4,7 @@ import express from 'express';
 import http from 'http';
 import cors from 'cors';
 import winston from 'winston';
-import { getDatabase } from './persistance/getDatabase';
+import { getDatabase } from './persistence/getDatabase';
 import { resolverEndpoint } from './http/resolverEndpoint';
 import { getWeb3Provider } from './utils/getWeb3Provider';
 
@@ -34,6 +34,8 @@ global.logger = winston.createLogger({
     app.locals.logger = winston.createLogger({
         transports: [new winston.transports.Console()],
     });
+
+    console.log('OffchainResolver env', process.env);
 
     app.locals.db = await getDatabase(app.locals.logger);
     app.locals.config = {

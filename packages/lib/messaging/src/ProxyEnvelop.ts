@@ -1,4 +1,4 @@
-import { EncryptAsymmetric, encryptAsymmetric } from 'dm3-lib-crypto';
+import { EncryptAsymmetric, encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
 import {
     EncryptionEnvelop,
     buildEnvelop,
@@ -11,9 +11,9 @@ import {
     GetResource,
     ProfileKeys,
     getDeliveryServiceProfile,
-} from 'dm3-lib-profile';
+} from '@dm3-org/dm3-lib-profile';
 import { ethers } from 'ethers';
-import { stringify } from 'dm3-lib-shared';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 
 export interface ProxyEnvelop {
     to: string;

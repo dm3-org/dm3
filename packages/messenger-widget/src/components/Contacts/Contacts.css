@@ -1,5 +1,5 @@
 .contacts-scroller {
-    height: 100%;
+    height: calc(100% - 50px) !important;
     padding-left: 1rem;
     margin-top: 2px;
 }
@@ -85,9 +85,9 @@
 }
 
 .contact-details-container-active {
-    border-top: 2px solid var(--normal-btn-hover) !important;
-    border-left: 2px solid var(--normal-btn-hover) !important;
-    border-bottom: 2px solid var(--normal-btn-hover) !important;
+    border-top: 2px solid var(--selected-contact-border-color) !important;
+    border-left: 2px solid var(--selected-contact-border-color) !important;
+    border-bottom: 2px solid var(--selected-contact-border-color) !important;
     background: var(--background-active-contact) !important;
     top: 0;
     bottom: 4rem !important;
@@ -101,10 +101,58 @@
 
 .msg-count {
     border-radius: 3px;
-    background: var(--normal-btn-hover);
+    background: var(--msg-counter-background-color);
     padding: 1px 7px 1px 7px;
+    color: var(--msg-counter-text-color);
 }
 
 .display-name {
     font-weight: bolder;
+}
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (max-width: 800px) {
+    .contacts-scroller {
+        padding-left: 0rem !important;
+    }
+
+    .contact-details-container {
+        padding: 0.5rem 0.5rem 0.5rem 2rem !important;
+    }
+
+    .contact-details-container:nth-child(even) {
+        background: var(--alternate-contact-background-color) !important;
+    }
+
+    .contact-details-container:hover {
+        border-radius: 0px;
+        padding-left: 2rem !important;
+        margin-left: 0rem !important;
+        background-color: var(--normal-btn) !important;
+    }
+
+    .pic {
+        height: 2rem !important;
+        width: 2rem !important;
+    }
+
+    .display-name {
+        font-size: 10px !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .contacts-msg {
+        font-size: 10px !important;
+    }
+
+    .configure-msg-box {
+        font-size: 12px !important;
+    }
+
+    .config-btn-container {
+        font-size: 12px !important;
+    }
 }

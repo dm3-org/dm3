@@ -43,6 +43,7 @@ jobs:
                   echo "REACT_APP_COMMIT_HASH=${{ env.sha_short }}" >> ./.env.react
                   echo "REACT_APP_BRANCH=${{ env.branch }}" >> ./.env.react
                   echo "REACT_APP_BUILD_TIME=${{ env.now }}" >> ./.env.react
+                  echo "REACT_APP_MAINNET_PROVIDER_RPC=${{ secrets.MAINNET_PROVIDER_URL}}" >> ./.env.react
                   echo "REACT_APP_CHAIN_ID=${{ vars.CHAIN_ID }}" >> ./.env.react
                   cat ./.env.react >> ./.env
                   echo "RESOLVER_ADDR=0xae6646c22D8eE6479eE0a39Bf63B9bD9e57bAD9d" >> ./.env
@@ -53,9 +54,11 @@ jobs:
                   echo "ENCRYPTION_PUBLIC_KEY=${{ secrets.ENCRYPTION_PUBLIC_KEY }}" >> ./.env
                   echo "ENCRYPTION_PRIVATE_KEY=${{ secrets.ENCRYPTION_PRIVATE_KEY }}" >> ./.env
                   echo "RPC=${{ secrets.RPC }}" >> ./.env
+                  echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> ./.env
                   envsubst '${SSL_CERTIFICATE_BASE_LOC} ${TLS_CERTIFICATE_LOCATION} ${TARGET_HOST}' < ./docker/nginx.conf > ./nginx.conf
                   cat ./.env
             - name: Build docker image
+              shell: bash
               run: |
                   cp ./.env.react packages/messenger-demo/.env
                   docker build --progress=plain -t dm3-backend:latest -f ./docker/Dockerfile .

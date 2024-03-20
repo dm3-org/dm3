@@ -1,0 +1,90 @@
+name: Prod deploy
+on: 
+  push:
+    branches:
+      - main
+
+jobs:
+    messenger-demo-deploy:
+        environment: prod
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v2
+          - uses: actions/setup-node@v3
+            with:
+                registry-url: 'https://npm.pkg.github.com'
+                node-version: 18.0.0
+                cache: 'yarn'
+          - name: Declare some variables
+            shell: bash
+            run: |
+              echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
+              echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> "$GITHUB_ENV"
+              echo "now=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
+          - name: Prepare SSH
+            run: |
+                mkdir ~/.ssh
+                echo "${{ secrets.HOST_SSH_PUBLIC_KEY }}" > ~/.ssh/known_hosts
+                echo "${{ secrets.DO_SSH_KEY }}" > ./ssh-key
+                chmod 600 ./ssh-key
+          - name: Create .env file
+            env:
+                TARGET_HOST: ${{ secrets.HOST_DOMAIN}}
+                TARGET_IP: ${{ secrets.IP_ADDRESS }}
+            run: |
+                echo "REACT_APP_ADDR_ENS_SUBDOMAIN=.addr.dm3.eth" >> ./.env.react
+                echo "REACT_APP_BACKEND=https://${{ secrets.HOST_DOMAIN}}/api" >> ./.env.react
+                echo "REACT_APP_DEFAULT_DELIVERY_SERVICE=ds.dm3.eth" >> ./.env.react
+                echo "REACT_APP_DEFAULT_SERVICE=https://${{ secrets.HOST_DOMAIN}}/api" >> ./.env.react
+                echo "REACT_APP_ETHEREUM_PROVIDER=${{ secrets.RPC }}" >> ./.env.react
+                echo "REACT_APP_PROFILE_BASE_URL=https://${{ secrets.HOST_DOMAIN}}/api" >> ./.env.react
+                echo "REACT_APP_RESOLVER_BACKEND=https://${{ secrets.HOST_DOMAIN}}/resolver-handler" >> ./.env.react
+                echo "REACT_APP_USER_ENS_SUBDOMAIN=.user.dm3.eth" >> ./.env.react
+                echo "REACT_APP_WALLET_CONNECT_PROJECT_ID=${{ secrets.REACT_APP_WALLET_CONNECT_PROJECT_ID }}" >> ./.env.react
+                echo "REACT_APP_MAINNET_PROVIDER_RPC=${{ secrets.MAINNET_PROVIDER_URL}}" >> ./.env.react
+                echo "REACT_APP_CHAIN_ID=${{ vars.CHAIN_ID }}" >> ./.env.react
+                cat ./.env.react >> ./.env
+                echo "RESOLVER_ADDR=0xae6646c22D8eE6479eE0a39Bf63B9bD9e57bAD9d" >> ./.env
+                echo "SIGNING_PUBLIC_KEY=${{ secrets.SIGNING_PUBLIC_KEY }}" >> ./.env
+                echo "SIGNING_PRIVATE_KEY=${{ secrets.SIGNING_PRIVATE_KEY }}" >> ./.env
+                echo "SIGNER_PRIVATE_KEY=${{ secrets.SIGNER_PRIVATE_KEY }}" >> ./.env
+                echo "SPAM_PROTECTION=${{ secrets.SPAM_PROTECTION }}" >> ./.env
+                echo "ENCRYPTION_PUBLIC_KEY=${{ secrets.ENCRYPTION_PUBLIC_KEY }}" >> ./.env
+                echo "ENCRYPTION_PRIVATE_KEY=${{ secrets.ENCRYPTION_PRIVATE_KEY }}" >> ./.env
+                echo "RPC=${{ secrets.RPC }}" >> ./.env
+                echo "URL=${{ secrets.HOST_DOMAIN}}" >> ./.env
+                echo "CERT_MAIL=${{ secrets.CERT_MAIL }}" >> ./.env
+                echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> ./.env
+                envsubst '${TARGET_HOST}' < ./docker/prod/nginx.conf > ./nginx.conf
+                cat ./.env
+          - name: Build docker image
+            run: |
+                cp ./.env.react packages/messenger-demo/.env
+                cp ./.env.react packages/messenger-web/.env
+                docker build --progress=plain -t dm3-backend:latest -f ./docker/Dockerfile .
+                docker save -o ./dm3-backend.tar dm3-backend:latest
+          - name: Sync files
+            run: |
+                rsync -avz -e 'ssh -i ./ssh-key' ./.env app@${{ secrets.IP_ADDRESS}}:/home/app/dm3
+                rsync -avz -e 'ssh -i ./ssh-key' ./dm3-backend.tar app@${{ secrets.IP_ADDRESS}}:/home/app/dm3 
+                rsync -avz -e 'ssh -i ./ssh-key' ./nginx.conf app@${{ secrets.IP_ADDRESS}}:/home/app/dm3
+                rsync -avz -e 'ssh -i ./ssh-key' ./docker/prod/docker-compose.yml app@${{ secrets.IP_ADDRESS}}:/home/app/dm3
+          - name: Prepare docker
+            run: |
+                ssh -i ./ssh-key app@${{ secrets.IP_ADDRESS}} "\
+                cd dm3 && docker compose down && docker system prune -af"
+                ssh -i ./ssh-key root@${{ secrets.IP_ADDRESS}} "\
+                systemctl restart docker.service"
+          - name: Load docker image
+            run: |
+                ssh -i ./ssh-key app@${{ secrets.IP_ADDRESS}} "\
+                cd dm3 && docker load -i dm3-backend.tar; \
+                rm dm3-backend.tar || true"
+          - name: Firewall config
+            run: |
+                ssh -i ./ssh-key root@${{ secrets.IP_ADDRESS}} "\
+                ufw allow from 172.18.0.1/16 proto tcp to ${{ secrets.IP_ADDRESS }} port 80"
+          - name: Start
+            run: |
+                ssh -i ./ssh-key app@${{ secrets.IP_ADDRESS}} "\
+                cd dm3 && docker compose --env-file .env up -d"

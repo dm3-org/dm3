@@ -1,14 +1,21 @@
 import { useContext, useEffect } from 'react';
+import { AuthContext } from '../../context/AuthContext';
+import { ConversationContext } from '../../context/ConversationContext';
+import { MessageContext } from '../../context/MessageContext';
+import { MessageDataProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
 import {
     MessageActionType,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
-import { MessageDataProps } from '../../interfaces/props';
-import { handleSubmit } from '../MessageInputBox/bl';
+import { scrollToBottomOfChat } from '../Chat/scrollToBottomOfChat';
+import { onSubmitMessage } from '../SendMessage/onSubmitMessage';
 
 export function MessageInputField(props: MessageDataProps) {
     const { state, dispatch } = useContext(GlobalContext);
+    const { account, profileKeys } = useContext(AuthContext);
+    const { selectedContact } = useContext(ConversationContext);
+    const { addMessage } = useContext(MessageContext);
 
     function setMessageContent(e: React.ChangeEvent<HTMLInputElement>) {
         // if message action is edit and message length is 0, update message action
@@ -25,18 +32,18 @@ export function MessageInputField(props: MessageDataProps) {
         props.setMessageText(e.target.value);
     }
 
-    function submit(event: React.FormEvent<HTMLFormElement>) {
-        const files = props.filesSelected;
-        const msg = props.message;
-        handleSubmit(
-            msg,
+    async function submit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        await onSubmitMessage(
             state,
             dispatch,
-            event,
-            files,
-            props.setMessageText,
-            props.setFiles,
+            addMessage,
+            props,
+            profileKeys,
+            account!,
+            selectedContact!,
         );
+        scrollToBottomOfChat();
     }
 
     // Focus on input field when user selects a msg to EEDIT or REPLY
@@ -85,8 +92,7 @@ export function MessageInputField(props: MessageDataProps) {
             <input
                 data-testid="msg-input"
                 id="msg-input"
-                className="text-input-field width-fill height-fill text-primary-color 
-            font-size-14 background-chat"
+                className="text-input-field width-fill height-fill font-size-14"
                 value={props.message}
                 type="text"
                 autoComplete="off"

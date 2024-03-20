@@ -1,20 +1,23 @@
 import bodyParser from 'body-parser';
-import { globalConfig, stringify } from 'dm3-lib-shared';
+import { globalConfig, stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import express from 'express';
 import request from 'supertest';
 import winston from 'winston';
-import { getDatabase, getDbClient } from '../persistance/getDatabase';
-import { IDatabase } from '../persistance/IDatabase';
+import { getDatabase, getDbClient } from '../persistence/getDatabase';
+import { IDatabase } from '../persistence/IDatabase';
 import { profile } from './profile';
-import { UserProfile, getProfileCreationMessage } from 'dm3-lib-profile';
+import {
+    UserProfile,
+    getProfileCreationMessage,
+} from '@dm3-org/dm3-lib-profile';
 import { Interceptor } from './handleCcipRequest/handler/intercept';
 import { PrismaClient } from '@prisma/client';
-import { clearDb } from '../persistance/clearDb';
+import { clearDb } from '../persistence/clearDb';
 import { resolverEndpoint } from './resolverEndpoint';
 import { expect } from 'chai';
 import { encodeEnsName } from './handleCcipRequest/dns/encodeEnsName';
-import { sign } from 'dm3-lib-crypto';
+import { sign } from '@dm3-org/dm3-lib-crypto';
 
 describe('Resolver Endpoint', () => {
     let prismaClient: PrismaClient;

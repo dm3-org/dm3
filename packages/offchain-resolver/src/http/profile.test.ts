@@ -1,22 +1,25 @@
 import bodyParser from 'body-parser';
-import { getProfileCreationMessage, UserProfile } from 'dm3-lib-profile';
-import { stringify } from 'dm3-lib-shared';
+import {
+    getProfileCreationMessage,
+    UserProfile,
+} from '@dm3-org/dm3-lib-profile';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import express from 'express';
 
 import request from 'supertest';
 import winston from 'winston';
-import { getDatabase, getDbClient } from '../persistance/getDatabase';
-import { IDatabase } from '../persistance/IDatabase';
+import { getDatabase, getDbClient } from '../persistence/getDatabase';
+import { IDatabase } from '../persistence/IDatabase';
 import { profile } from './profile';
 
 import { PrismaClient } from '@prisma/client';
 import * as dotenv from 'dotenv';
-import { clearDb } from '../persistance/clearDb';
+import { clearDb } from '../persistence/clearDb';
 
 import { expect } from 'chai';
-import { sign } from 'dm3-lib-crypto';
-import { globalConfig } from 'dm3-lib-shared';
+import { sign } from '@dm3-org/dm3-lib-crypto';
+import { globalConfig } from '@dm3-org/dm3-lib-shared';
 
 dotenv.config();
 

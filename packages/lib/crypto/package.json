@@ -1,31 +1,32 @@
 {
-    "name": "dm3-lib-crypto",
-    "version": "0.2.0",
-    "main": "dist/index.js",
-    "module": "dist-backend/index.js",
-    "types": "dist/index.d.ts",
-    "exports": {
-        ".": {
-            "import": "./dist/index.js",
-            "require": "./dist/index.js"
-        }
-    },
-    "dependencies": {
-        "ethers": "5.7.2",
-        "libsodium-wrappers": "^0.7.10"
-    },
-    "devDependencies": {
-        "@types/libsodium-wrappers": "^0.7.10",
-        "jest": "^28.1.1",
-        "ts-jest": "^28.0.4",
-        "ts-json-schema-generator": "^1.2.0",
-        "typescript": "^4.4.2"
-    },
-    "scripts": {
-        "build": "yarn tsc --declaration",
-        "test": "jest --coverage --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'"
-    },
-    "files": [
-        "dist"
-    ]
+  "name": "@dm3-org/dm3-lib-crypto",
+  "version": "1.1.0",
+  "main": "dist/index.js",
+  "module": "dist-backend/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "ethers": "5.7.2",
+    "libsodium-wrappers": "^0.7.10"
+  },
+  "devDependencies": {
+    "@types/libsodium-wrappers": "^0.7.10",
+    "jest": "^28.1.1",
+    "ts-jest": "^28.0.4",
+    "ts-json-schema-generator": "^1.2.0",
+    "typescript": "^4.4.2"
+  },
+  "scripts": {
+    "build": "yarn tsc --declaration",
+    "test": "jest --coverage --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'"
+  },
+  "files": [
+    "dist"
+  ],
+  "publish": true
 }

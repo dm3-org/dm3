@@ -1,4 +1,4 @@
-import { decryptAsymmetric } from 'dm3-lib-crypto';
+import { decryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
 import { ethers } from 'ethers';
 import { isSpam } from '.';
 import { testData } from '../../../../../test-data/encrypted-envelops.test';

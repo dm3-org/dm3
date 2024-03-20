@@ -4,7 +4,7 @@ import {
     signProfileLink,
     verifyProfileLink,
 } from './ProfileLink';
-import { sign } from 'dm3-lib-crypto';
+import { sign } from '@dm3-org/dm3-lib-crypto';
 
 const signMessage =
     'dm3 Profile Link:\n' +

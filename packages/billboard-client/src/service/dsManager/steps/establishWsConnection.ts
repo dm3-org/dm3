@@ -1,13 +1,13 @@
 /* eslint-disable max-len */
-import { EncryptionEnvelop } from 'dm3-lib-messaging';
-import { DeliveryServiceProfile } from 'dm3-lib-profile';
+import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
+import { DeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
 import { getDeliveryServiceWSClient } from '../../../api/internal/ws/getDeliveryServiceWSConnections';
 import {
     AuthenticatedBillboard,
     AuthenticatedBillboardWithSocket,
     BillboardWithDsProfile,
 } from '../DsManagerImpl';
-import { logInfo } from 'dm3-lib-shared';
+import { logInfo } from '@dm3-org/dm3-lib-shared';
 
 /**
  * Establishes WebSocket connections for authenticated billboards with delivery service profiles, and returns an array of authenticated billboards with their associated WebSocket clients.

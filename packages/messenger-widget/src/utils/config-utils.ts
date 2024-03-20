@@ -1,16 +1,15 @@
-import { StorageLocation } from 'dm3-lib-storage';
 import { Config } from '../interfaces/config';
+import { signInImage } from '../assets/base64/home-image';
 
 // The default configuration of the app
 const DefaultConfig: Config = {
     showContacts: true,
     inline: false,
     hideStorageSelection: false,
-    defaultStorageLocation: StorageLocation.dm3Storage,
+    defaultStorageLocation: undefined,
     style: {},
     defaultServiceUrl: 'http://localhost:8080' as string,
     showAlways: false,
-    connectionStateChange: undefined,
     miniSignIn: false,
     warnBeforeLeave: false,
     browserStorageBackup: false,
@@ -19,6 +18,7 @@ const DefaultConfig: Config = {
     ethereumProvider: '' as string,
     walletConnectProjectId: '' as string,
     hideFunction: '',
+    signInImage: signInImage,
 };
 
 export function getConfig(overwrite: Partial<Config>): Config {

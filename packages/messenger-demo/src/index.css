@@ -63,16 +63,15 @@ code {
 }
 
 .demo-container {
-    width: calc(100% - 40px);
-    height: calc(100% - 70px - 40px);
-    background-color: #000000;
-    border: 1px solid #222222;
     border-radius: 25px;
-    position: absolute;
-    top: 75px;
-    left: 20px;
-    transform: translate(0, 0);
-    z-index: 10;
-    box-shadow: 6px 6px 20px 0 rgba(05, 010, 020, 1);
     overflow: hidden;
+    height: 98vh;
+    width: 98vw;
 }
+
+/* .demo-container { 
+    border-radius: 25px;   Optional property 
+    overflow: hidden;      Optional property only if wanted set border radius 
+    height: 98vh;          If the container has no height, then it is mandatory to set 
+    width: 98vw;           If the container has no width, then it is mandatory to set 
+} */

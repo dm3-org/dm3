@@ -1,21 +1,32 @@
-import '../../styles/profile-contact.css';
-import { Button } from '../Button/Button';
 import { useContext, useEffect, useState } from 'react';
-import { GlobalContext } from '../../utils/context-utils';
-import profPic from '../../assets/images/human.svg';
 import closeIcon from '../../assets/images/cross.svg';
+import profPic from '../../assets/images/human.svg';
+import { AuthContext } from '../../context/AuthContext';
+import { ConversationContext } from '../../context/ConversationContext';
+import { TLDContext } from '../../context/TLDContext';
+import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 import { EnsProfileDetails } from '../../interfaces/utils';
+import '../../styles/profile-contact.css';
+import { GlobalContext } from '../../utils/context-utils';
 import {
     getAvatarProfilePic,
     getEnsProfileDetails,
     onClose,
     openEnsProfile,
 } from '../../utils/ens-utils';
-import { EnsDetails } from '../EnsDetails/EnsDetails';
+import { Button } from '../Button/Button';
 import { openConfigurationModal } from '../ConfigureProfile/bl';
+import { EnsDetails } from '../EnsDetails/EnsDetails';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export function Profile() {
-    const { state, dispatch } = useContext(GlobalContext);
+    const { dispatch } = useContext(GlobalContext);
+    const { account, ethAddress, displayName } = useContext(AuthContext);
+    const { setSelectedContactName } = useContext(ConversationContext);
+    const { screenWidth, dm3Configuration } = useContext(
+        DM3ConfigurationContext,
+    );
+    const mainnetProvider = useMainnetProvider();
 
     const [profilePic, setProfilePic] = useState<string>('');
     const [github, setGithub] = useState<string>('Not set');
@@ -25,8 +36,8 @@ export function Profile() {
     // fetches and updates ENS profile details
     const fetchUserEnsProfileDetails = async () => {
         const ensDetails: EnsProfileDetails = await getEnsProfileDetails(
-            state,
-            state.connection.account?.ensName as string,
+            mainnetProvider!,
+            account?.ensName as string,
         );
         ensDetails.github && setGithub(ensDetails.github);
         ensDetails.twitter && setTwitter(ensDetails.twitter);
@@ -37,8 +48,8 @@ export function Profile() {
     const fetchAndSetProfilePic = async () => {
         setProfilePic(
             await getAvatarProfilePic(
-                state,
-                state.connection.account?.ensName as string,
+                mainnetProvider,
+                account?.ensName as string,
             ),
         );
     };
@@ -49,7 +60,7 @@ export function Profile() {
     }, []);
 
     return (
-        <>
+        <div className="profile-container-type h-100">
             <div
                 className="d-flex align-items-center justify-content-between 
             profile-heading text-primary-color font-weight-500"
@@ -59,7 +70,14 @@ export function Profile() {
                     className="pointer-cursor close-icon"
                     src={closeIcon}
                     alt="close"
-                    onClick={() => onClose(dispatch)}
+                    onClick={() =>
+                        onClose(
+                            dispatch,
+                            setSelectedContactName,
+                            screenWidth,
+                            dm3Configuration.showContacts,
+                        )
+                    }
                 />
             </div>
 
@@ -73,13 +91,11 @@ export function Profile() {
                 <div className="profile-detail-items mt-3">
                     <EnsDetails
                         propertyKey={'Name'}
-                        propertyValue={
-                            state.connection.account?.ensName as string
-                        }
+                        propertyValue={displayName ?? ''}
                     />
                     <EnsDetails
                         propertyKey={'Address'}
-                        propertyValue={state.connection.ethAddress as string}
+                        propertyValue={ethAddress as string}
                     />
                     <EnsDetails propertyKey={'E-Mail'} propertyValue={email} />
                     <EnsDetails propertyKey={'Github'} propertyValue={github} />
@@ -92,9 +108,7 @@ export function Profile() {
                         <Button
                             buttonText="Open ENS profile"
                             actionMethod={() =>
-                                openEnsProfile(
-                                    state.connection.account?.ensName as string,
-                                )
+                                openEnsProfile(account?.ensName as string)
                             }
                         />
                     </div>
@@ -109,6 +123,6 @@ export function Profile() {
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 }

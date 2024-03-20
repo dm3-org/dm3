@@ -1,6 +1,12 @@
-import { log } from 'dm3-lib-shared';
+import { log } from '@dm3-org/dm3-lib-shared';
 import { UiViewState } from '../interfaces/context';
-import { UiViewStateActions, UiViewStateType } from '../utils/enum-type-utils';
+import {
+    LeftViewSelected,
+    MessageActionType,
+    RightViewSelected,
+    UiViewStateActions,
+    UiViewStateType,
+} from '../utils/enum-type-utils';
 
 export function uiViewReducer(
     state: UiViewState,
@@ -26,6 +32,17 @@ export function uiViewReducer(
             return {
                 ...state,
                 selectedMessageView: action.payload,
+            };
+
+        case UiViewStateType.Reset:
+            log(`[UI] reset`, 'info');
+            return {
+                selectedLeftView: LeftViewSelected.Contacts,
+                selectedRightView: RightViewSelected.Default,
+                selectedMessageView: {
+                    messageData: undefined,
+                    actionType: MessageActionType.NONE,
+                },
             };
 
         default:

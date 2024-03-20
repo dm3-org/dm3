@@ -2,13 +2,13 @@
 import {
     DeliveryServiceProfile,
     DeliveryServiceProfileKeys,
-} from 'dm3-lib-profile';
+} from '@dm3-org/dm3-lib-profile';
 import { InstallerArgs } from '../types';
 import {
     createKeyPair,
     createSigningKeyPair,
     createStorageKey,
-} from 'dm3-lib-crypto';
+} from '@dm3-org/dm3-lib-crypto';
 
 export const createDsProfile = async (args: InstallerArgs) => {
     const keys: DeliveryServiceProfileKeys = {

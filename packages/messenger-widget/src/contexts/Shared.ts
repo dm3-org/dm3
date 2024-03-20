@@ -1,61 +1,37 @@
-import { StorageLocation } from 'dm3-lib-storage';
 import {
-    ConnectionState,
     GlobalState,
     LeftViewSelected,
     MessageActionType,
     RightViewSelected,
 } from '../utils/enum-type-utils';
 
-export const initialState: GlobalState = {
-    connection: {
-        connectionState: ConnectionState.CollectingSignInData,
-        storageLocation: StorageLocation.dm3Storage,
-        defaultServiceUrl: process.env.REACT_APP_BACKEND as string,
-    },
-    accounts: {
-        contacts: undefined,
-        selectedContact: undefined,
-    },
-    cache: {
-        abis: new Map<string, string>(),
-        contacts: null,
-        lastConversation: {
-            account: null,
-            message: null,
+export const initialState = (): GlobalState => {
+    return {
+        uiState: {
+            lastMessagePull: 0,
+            proflieExists: false,
+            browserStorageBackup: false,
         },
-        messageSizeLimit: 0,
-        accountName: '',
-    },
-    userDb: undefined,
-    uiState: {
-        lastMessagePull: 0,
-        proflieExists: false,
-        browserStorageBackup: false,
-    },
-    auth: {
-        currentSession: undefined,
-        recentlyUsedSession: undefined,
-        allSessions: {},
-    },
-    uiView: {
-        selectedLeftView: LeftViewSelected.Contacts,
-        selectedRightView: RightViewSelected.Default,
-        selectedMessageView: {
-            messageData: undefined,
-            actionType: MessageActionType.NONE,
+        uiView: {
+            selectedLeftView: LeftViewSelected.Contacts,
+            selectedRightView: RightViewSelected.Default,
+            selectedMessageView: {
+                messageData: undefined,
+                actionType: MessageActionType.NONE,
+            },
         },
-    },
-    modal: {
-        loaderContent: '',
-        contactToHide: undefined,
-        addConversation: {
-            active: false,
-            ensName: undefined,
-            processed: false,
+        modal: {
+            loaderContent: '',
+            contactToHide: undefined,
+            addConversation: {
+                active: false,
+                ensName: undefined,
+                processed: false,
+            },
+            openEmojiPopup: { action: false, data: undefined },
+            lastMessageAction: MessageActionType.NONE,
+            isProfileConfigurationPopupActive: false,
+            showPreferencesModal: false,
         },
-        openEmojiPopup: { action: false, data: undefined },
-        lastMessageAction: MessageActionType.NONE,
-        isProfileConfigurationPopupActive: false,
-    },
+    };
 };

@@ -2,12 +2,12 @@ import {
     SignedUserProfile,
     checkUserProfile,
     normalizeEnsName,
-} from 'dm3-lib-profile';
-import { getDefaultProfileExtension } from 'dm3-lib-profile';
+} from '@dm3-org/dm3-lib-profile';
+import { getDefaultProfileExtension } from '@dm3-org/dm3-lib-profile';
 import { Session } from './Session';
 import { v4 as uuidv4 } from 'uuid';
 import { ethers } from 'ethers';
-import { logDebug } from 'dm3-lib-shared';
+import { logDebug } from '@dm3-org/dm3-lib-shared';
 
 const handlePendingConversations = async (
     ensName: string,

@@ -20,6 +20,22 @@ describe('DM3 test cases', () => {
             ethereumProvider: 'goerli',
             walletConnectProjectId: 'dadsa',
         },
+        dm3Configuration: {
+            defaultContact: '',
+            defaultServiceUrl: '',
+            ethereumProvider: '',
+            walletConnectProjectId: '',
+            userEnsSubdomain: '',
+            addressEnsSubdomain: '',
+            resolverBackendUrl: '',
+            profileBaseUrl: '',
+            defaultDeliveryService: '',
+            backendUrl: '',
+            chainId: '',
+            resolverAddress: '',
+            showAlways: true,
+            showContacts: true,
+        },
     };
 
     it('Renders DM3 component', () => {

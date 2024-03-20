@@ -3,10 +3,10 @@ import {
     GetResource,
     getDeliveryServiceProfile,
     getUserProfile,
-} from 'dm3-lib-profile';
+} from '@dm3-org/dm3-lib-profile';
 import { ProxyEnvelop } from './ProxyEnvelop';
 import { ethers } from 'ethers';
-import { logError } from 'dm3-lib-shared';
+import { logError } from '@dm3-org/dm3-lib-shared';
 import { EncryptionEnvelop } from './Envelop';
 
 export type ProxySendParams = {

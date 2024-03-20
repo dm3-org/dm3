@@ -1,19 +1,14 @@
-import {
-    AccountsType,
-    Actions,
-    GlobalState,
-    ModalStateType,
-    RightViewSelected,
-    UiViewStateType,
-    UserDbType,
-} from './enum-type-utils';
+import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
+import makeBlockie from 'ethereum-blockies-base64';
+import { ethers } from 'ethers';
 import humanIcon from '../assets/images/human.svg';
 import { EnsProfileDetails } from '../interfaces/utils';
-import { globalConfig, log } from 'dm3-lib-shared';
-import { ethers } from 'ethers';
-import { ENS_PROFILE_BASE_URL, ETHERSCAN_URL } from './common-utils';
-import { IContactInfo } from '../interfaces/utils';
-import makeBlockie from 'ethereum-blockies-base64';
+import {
+    ENS_PROFILE_BASE_URL,
+    MOBILE_SCREEN_WIDTH,
+    getEtherscanUrl,
+} from './common-utils';
+import { Actions, RightViewSelected, UiViewStateType } from './enum-type-utils';
 
 // method to get avatar/image url
 export const getAvatar = async (
@@ -25,11 +20,11 @@ export const getAvatar = async (
 
 // method to fetch, check and set avatar
 export const getAvatarProfilePic = async (
-    state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     ensName: string,
 ) => {
-    if (state.connection.provider && ensName) {
-        const provider = state.connection.provider;
+    if (ensName) {
+        const provider = mainnetProvider;
         try {
             if (provider) {
                 const address = await provider.resolveName(ensName);
@@ -57,17 +52,17 @@ export const getAvatarProfilePic = async (
 
 // method to fetch ENS profile details like github, email and twitter
 export const getEnsProfileDetails = async (
-    state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     ensName: string,
 ): Promise<EnsProfileDetails> => {
-    let details: EnsProfileDetails = {
+    const details: EnsProfileDetails = {
         email: null,
         github: null,
         twitter: null,
     };
 
     try {
-        const provider = state.connection.provider;
+        const provider = mainnetProvider;
 
         if (provider && ensName) {
             const resolver = await provider.getResolver(ensName);
@@ -91,115 +86,45 @@ export const openEnsProfile = (ensName: string) => {
 };
 
 // method to open etherscan in new tab
-export const openEtherscan = (address: string) => {
-    window.open(ETHERSCAN_URL + address, '_blank');
+export const openEtherscan = (address: string, chainId: string) => {
+    window.open(getEtherscanUrl(chainId) + address, '_blank');
 };
 
-// method to hide contact from contact list
-export const hideContact = (
-    state: GlobalState,
+// method to close profile/contact info page
+export const onClose = (
     dispatch: React.Dispatch<Actions>,
+    setSelectedContact: Function,
+    screenWidth: number,
+    showContacts: boolean,
 ) => {
-    const ensName = state.accounts.selectedContact?.account.ensName;
-
-    if (ensName) {
-        dispatch({
-            type: ModalStateType.ContactToHide,
-            payload: ensName,
-        });
-        dispatch({
-            type: UserDbType.hideContact,
-            payload: {
-                ensName: ensName,
-            },
-        });
+    // If contact list exists, then opens default screen
+    if (screenWidth && screenWidth > MOBILE_SCREEN_WIDTH && showContacts) {
+        setSelectedContact(undefined);
         dispatch({
             type: UiViewStateType.SetSelectedRightView,
             payload: RightViewSelected.Default,
         });
-        dispatch({
-            type: AccountsType.SetSelectedContact,
-            payload: undefined,
-        });
+        return;
     }
-};
 
-// method to close profile/contact info page
-export const onClose = (dispatch: React.Dispatch<Actions>) => {
-    dispatch({
-        type: AccountsType.SetSelectedContact,
-        payload: undefined,
-    });
     dispatch({
         type: UiViewStateType.SetSelectedRightView,
-        payload: RightViewSelected.Default,
+        payload: RightViewSelected.Chat,
     });
-};
-
-// method to fetch selected contact
-export const getContactSelected = async (
-    state: GlobalState,
-): Promise<IContactInfo | null> => {
-    const key =
-        state.accounts.selectedContact?.account.profile?.publicEncryptionKey;
-    const name = state.accounts.selectedContact?.account.ensName;
-    const cacheContacts = state.cache.contacts;
-
-    if (cacheContacts) {
-        const selectedAccount = cacheContacts.filter(
-            (data) =>
-                (key &&
-                    data.contactDetails.account.profile?.publicEncryptionKey ===
-                        key) ||
-                name === data.contactDetails.account.ensName,
-        );
-
-        if (selectedAccount.length) {
-            let address;
-            const provider = state.connection.provider;
-
-            try {
-                address = await provider?.resolveName(
-                    selectedAccount[0].contactDetails.account.ensName,
-                );
-            } catch (error) {}
-
-            if (!address) {
-                address =
-                    selectedAccount[0].contactDetails.account.ensName.split(
-                        '.',
-                    )[0];
-                address = ethers.utils.isAddress(address) ? address : 'Not set';
-            }
-
-            const info: IContactInfo = {
-                name: selectedAccount[0].contactDetails.account.ensName,
-                address: address ? address : '',
-                image: selectedAccount[0].image,
-            };
-            return info;
-        }
-    }
-    return null;
 };
 
 // method to check DM3 network profile on ENS
 export const checkEnsDM3Text = async (
-    state: GlobalState,
+    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     ensName: string,
 ): Promise<boolean> => {
     try {
-        const provider = state.connection.provider;
-
-        if (provider && ensName) {
-            const resolver = await provider.getResolver(ensName);
-            if (resolver) {
-                const data = await resolver.getText('network.dm3.profile');
-                return data ? true : false;
-            }
+        const resolver = await mainnetProvider.getResolver(ensName);
+        if (!resolver) {
+            return false;
         }
-
-        return false;
+        const data = await resolver.getText('network.dm3.profile');
+        return data ? true : false;
     } catch (error) {
         log(error, 'Error in checking ENS DM3 profile ');
         return false;

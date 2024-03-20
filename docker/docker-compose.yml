@@ -16,9 +16,10 @@ services:
 
   backend:
     image: dm3-backend
-    command: yarn workspace dm3-backend start
+    command: yarn workspace @dm3-org/dm3-backend start
     depends_on:
       - db
+      - dm3-storage
     environment:
       REDIS_URL: redis://db:6379
       SIGNING_PUBLIC_KEY: ${SIGNING_PUBLIC_KEY}
@@ -28,31 +29,45 @@ services:
       RPC: ${RPC}
       PORT: 8081
       LOG_LEVEL: 'debug'
+      DATABASE_URL: ${DATABASE_URL}
 
   db:
     image: redis
     restart: always
+
+  dm3-storage:
+    image: postgres:13
+    restart: always
+    container_name: dm3-storage
+    ports:
+      - '5433:5432'
+    environment:
+      POSTGRES_USER: prisma
+      POSTGRES_PASSWORD: prisma
+      POSTGRES_DB: dm3
 
   offchain-resolver-db:
     image: postgres
     restart: always
     container_name: offchain_resolver_db
     environment:
-        POSTGRES_PASSWORD: example
+      POSTGRES_PASSWORD: example
 
   offchain-resolver:
     image: dm3-backend
-    command: yarn workspace dm3-offchain-resolver start
+    command: yarn workspace @dm3-org/dm3-offchain-resolver start
     depends_on:
       - offchain-resolver-db
     environment:
       DATABASE_URL: postgresql://postgres:example@offchain-resolver-db:5432
       PORT: 8082
+      RPC: ${RPC}
+      REACT_APP_ADDR_ENS_SUBDOMAIN: ${REACT_APP_ADDR_ENS_SUBDOMAIN}
       LOG_LEVEL: 'debug'
 
   web:
     image: dm3-backend
-    command: yarn workspace messenger-demo start
+    command: yarn workspace @dm3-org/dm3-messenger-demo start
     environment:
       REACT_APP_ADDR_ENS_SUBDOMAIN: ${REACT_APP_ADDR_ENS_SUBDOMAIN}
       REACT_APP_BACKEND: ${REACT_APP_BACKEND}
@@ -81,4 +96,3 @@ services:
           }
         }
       PORT: 8181
-      
