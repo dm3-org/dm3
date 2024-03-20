@@ -1,6 +1,6 @@
 {
   "name": "@dm3-org/dm3-integration-tests",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "MIT",
   "dependencies": {
     "@dm3-org/dm3-lib-delivery": "workspace:^",
