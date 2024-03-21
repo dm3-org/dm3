@@ -36,7 +36,7 @@ jobs:
                 echo "REACT_APP_BACKEND=https://${{ secrets.HOST_DOMAIN}}/api" >> ./.env.react
                 echo "REACT_APP_DEFAULT_DELIVERY_SERVICE=ds.dm3.eth" >> ./.env.react
                 echo "REACT_APP_DEFAULT_SERVICE=https://${{ secrets.HOST_DOMAIN}}/api" >> ./.env.react
-                echo "REACT_APP_ETHEREUM_PROVIDER=${{ secrets.RPC }}" >> ./.env.react
+                echo "REACT_APP_MAINNET_PROVIDER_RPC=${{ secrets.RPC }}" >> ./.env.react
                 echo "REACT_APP_PROFILE_BASE_URL=https://${{ secrets.HOST_DOMAIN}}/api" >> ./.env.react
                 echo "REACT_APP_RESOLVER_BACKEND=https://${{ secrets.HOST_DOMAIN}}/resolver-handler" >> ./.env.react
                 echo "REACT_APP_USER_ENS_SUBDOMAIN=.user.dm3.eth" >> ./.env.react
