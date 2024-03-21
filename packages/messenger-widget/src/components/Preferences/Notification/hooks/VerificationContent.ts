@@ -1,12 +1,9 @@
-export enum VerificationMethod {
-    Email = 'Email',
-    Telephone = 'Telephone',
-}
+import { NotificationChannelType } from '@dm3-org/dm3-lib-delivery';
 
 export interface IVerificationModal {
     heading: string;
     description: string;
-    type: VerificationMethod;
+    type: NotificationChannelType;
     placeholder: string;
     content: string;
     action: Function;
@@ -14,14 +11,14 @@ export interface IVerificationModal {
 }
 
 export const getVerficationModalContent = (
-    type: VerificationMethod,
+    type: NotificationChannelType,
     action: Function,
     setVerification: Function,
 ): IVerificationModal => {
     const emailContent: IVerificationModal = {
         heading: 'Add Email',
         description: 'Add and verify email address for dm3 notifications.',
-        type: VerificationMethod.Email,
+        type: NotificationChannelType.EMAIL,
         placeholder: 'Enter your email address.',
         content:
             'Please enter your email address! To verify the ownership of ' +
@@ -30,23 +27,23 @@ export const getVerficationModalContent = (
         setVerification: setVerification,
     };
 
-    const phoneContent: IVerificationModal = {
-        heading: 'Add Telephone',
-        description: 'Add and verify telephone number for dm3 notifications.',
-        type: VerificationMethod.Telephone,
-        placeholder: 'Enter your telephone number.',
-        content:
-            'Please enter your telephone number! To verify the ownership of your telephone ' +
-            'number, you will receive a SMS containing a verification code.',
-        action: action,
-        setVerification: setVerification,
-    };
+    // const phoneContent: IVerificationModal = {
+    //     heading: 'Add Telephone',
+    //     description: 'Add and verify telephone number for dm3 notifications.',
+    //     type: VerificationMethod.Telephone,
+    //     placeholder: 'Enter your telephone number.',
+    //     content:
+    //         'Please enter your telephone number! To verify the ownership of your telephone ' +
+    //         'number, you will receive a SMS containing a verification code.',
+    //     action: action,
+    //     setVerification: setVerification,
+    // };
 
     switch (type) {
-        case VerificationMethod.Email:
+        case NotificationChannelType.EMAIL:
             return emailContent;
-        case VerificationMethod.Telephone:
-            return phoneContent;
+        // case VerificationMethod.Telephone:
+        //     return phoneContent;
         default:
             return emailContent;
     }

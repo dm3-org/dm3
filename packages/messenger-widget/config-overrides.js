@@ -4,7 +4,7 @@ module.exports = function override(config) {
         /**
          * Added to remove errors for smtp as webpack 5
          * doesn't support modules of node.js in react by default
-        **/
+         **/
         fs: false,
         zlib: false,
         net: false,

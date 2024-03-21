@@ -1,8 +1,30 @@
-import { useEffect, useState } from 'react';
-import { VerificationMethod } from './VerificationContent';
+import { useContext, useEffect, useState } from 'react';
 import { log } from '@dm3-org/dm3-lib-shared';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-delivery';
+import { AuthContext } from '../../../../context/AuthContext';
+import {
+    addNotificationChannel,
+    sendOtp,
+    verifyOtp,
+} from '@dm3-org/dm3-lib-delivery-api';
+import { useMainnetProvider } from '../../../../hooks/mainnetprovider/useMainnetProvider';
+
+export const otpContent = (type: NotificationChannelType) => {
+    const email = 'Please enter the verification code, you received by email.';
+    const mobile = 'Please enter the verification code, you received by SMS.';
+
+    if (type === NotificationChannelType.EMAIL) {
+        return email;
+    }
+    // else if (type === VerificationMethod.Telephone) {
+    //     return mobile;
+    // }
+
+    return email;
+};
 
 export const useOtp = (
+    channelType: NotificationChannelType,
     verificationData: string,
     setVerification: Function,
     closeModal: Function,
@@ -12,22 +34,56 @@ export const useOtp = (
     const [inputs, setInputs] = useState<HTMLElement | null>(null);
     const [isCodeResent, setIsCodeResent] = useState<boolean>(false);
 
-    const otpContent = (type: VerificationMethod) => {
-        const email =
-            'Please enter the verification code, you received by email.';
-        const mobile =
-            'Please enter the verification code, you received by SMS.';
+    const mainnetProvider = useMainnetProvider();
+    const { account, deliveryServiceToken } = useContext(AuthContext);
 
-        if (type === VerificationMethod.Email) {
-            return email;
-        } else if (type === VerificationMethod.Telephone) {
-            return mobile;
+    // Adds new notification channel & sends OTP
+    const addNewNotificationChannel = async (
+        channelType: NotificationChannelType,
+        recipientValue: string,
+    ) => {
+        if (account && deliveryServiceToken) {
+            await addNotificationChannel(
+                account,
+                mainnetProvider,
+                deliveryServiceToken,
+                recipientValue,
+                channelType,
+            );
         }
-
-        return email;
     };
 
-    const validateOtp = (
+    // Sends otp for existing notification channel for verification
+    const sendOtpForVerification = async (
+        channelType: NotificationChannelType,
+    ) => {
+        if (account && deliveryServiceToken) {
+            await sendOtp(
+                account,
+                mainnetProvider,
+                deliveryServiceToken,
+                channelType,
+            );
+        }
+    };
+
+    // Verifies otp for notification channel
+    const verifyChannelOtp = async (
+        otp: string,
+        channelType: NotificationChannelType,
+    ) => {
+        if (account && deliveryServiceToken) {
+            await verifyOtp(
+                account,
+                mainnetProvider,
+                deliveryServiceToken,
+                otp,
+                channelType,
+            );
+        }
+    };
+
+    const validateOtp = async (
         otp: string,
         verificationData: string,
         setErrorMsg: Function,
@@ -36,15 +92,11 @@ export const useOtp = (
         closeModal: Function,
     ) => {
         try {
-            if (otp === '12345') {
-                setErrorMsg('');
-                setShowError(false);
-                setVerification(verificationData);
-                closeModal(undefined);
-            } else {
-                setErrorMsg('Invalid OTP');
-                setShowError(true);
-            }
+            await verifyChannelOtp(otp, channelType);
+            setErrorMsg('');
+            setShowError(false);
+            setVerification(verificationData);
+            closeModal(null);
         } catch (error) {
             log(error, 'OTP validation error');
             setErrorMsg('Invalid OTP');
@@ -52,29 +104,26 @@ export const useOtp = (
         }
     };
 
-    const sendOtp = async (
-        type: VerificationMethod,
+    const sendOtpToChannel = async (
+        type: NotificationChannelType,
         inputData: string,
         setErrorMsg: Function,
         setShowError: Function,
         setOtpSent: Function,
+        isResendOtp: boolean,
     ): Promise<boolean> => {
         try {
-            if (type === VerificationMethod.Email) {
-                // send otp
-                setShowError(false);
-                setOtpSent(true);
-                return true;
-            } else if (type === VerificationMethod.Telephone) {
-                // send otp
-                setShowError(false);
-                setOtpSent(true);
-                return true;
+            if (isResendOtp) {
+                await sendOtpForVerification(type);
+            } else {
+                await addNewNotificationChannel(type, inputData);
             }
-            return false;
+            setShowError(false);
+            setOtpSent(true);
+            return true;
         } catch (error) {
             log(error, 'Failed to send otp ');
-            setErrorMsg('Failed to send OTP, please try again');
+            setErrorMsg('Failed to add noti OTP, please try again');
             setShowError(true);
             setOtpSent(false);
             return false;
@@ -158,8 +207,7 @@ export const useOtp = (
         setInputs,
         isCodeResent,
         setIsCodeResent,
-        sendOtp,
-        otpContent,
+        sendOtpToChannel,
         validateOtp,
     };
 };

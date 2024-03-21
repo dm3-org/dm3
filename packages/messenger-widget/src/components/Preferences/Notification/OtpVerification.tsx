@@ -1,12 +1,11 @@
 import './Notification.css';
 import { useOtp } from './hooks/useOtp';
-import { VerificationMethod } from './hooks/VerificationContent';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-delivery';
 
 interface IOtpVerification {
     verificationData: string;
     content: string;
-    type: VerificationMethod;
-    resendOtp: Function;
+    type: NotificationChannelType;
     setVerification: Function;
     closeModal: Function;
 }
@@ -19,8 +18,13 @@ export function OtpVerification(props: IOtpVerification) {
         setErrorMsg,
         isCodeResent,
         setIsCodeResent,
-        sendOtp,
-    } = useOtp(props.verificationData, props.setVerification, props.closeModal);
+        sendOtpToChannel,
+    } = useOtp(
+        props.type,
+        props.verificationData,
+        props.setVerification,
+        props.closeModal,
+    );
 
     return (
         <div>
@@ -76,12 +80,13 @@ export function OtpVerification(props: IOtpVerification) {
                         <span
                             className="d-flex ps-1 pe-1 pointer-cursor text-decoration-underline"
                             onClick={() => {
-                                sendOtp(
+                                sendOtpToChannel(
                                     props.type,
                                     props.verificationData,
                                     setErrorMsg,
                                     setShowError,
                                     setIsCodeResent,
+                                    true,
                                 );
                             }}
                         >

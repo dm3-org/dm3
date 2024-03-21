@@ -4,13 +4,13 @@ import closeIcon from '../../../assets/images/cross.svg';
 import { FormEvent } from 'react';
 import { OtpVerification } from './OtpVerification';
 import { useVerification } from './hooks/useVerification';
-import { VerificationMethod } from './hooks/VerificationContent';
-import { useOtp } from './hooks/useOtp';
+import { otpContent } from './hooks/useOtp';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-delivery';
 
 export interface IVerificationModal {
     heading: string;
     description: string;
-    type: VerificationMethod;
+    type: NotificationChannelType;
     placeholder: string;
     content: string;
     action: Function;
@@ -33,16 +33,9 @@ export function VerificationModal(props: IVerificationModal) {
         setErrorMsg,
         otpSent,
         setOtpSent,
-        resendOtp,
         submit,
         handleInputChange,
-    } = useVerification(props.action, props.setVerification);
-
-    const { otpContent } = useOtp(
-        inputData,
-        props.setVerification,
-        props.action,
-    );
+    } = useVerification(props.action, props.setVerification, props.type);
 
     return (
         <div>
@@ -69,7 +62,7 @@ export function VerificationModal(props: IVerificationModal) {
                             src={closeIcon}
                             alt="close"
                             onClick={() => {
-                                props.action(undefined);
+                                props.action(null);
                             }}
                         />
                     </div>
@@ -126,7 +119,7 @@ export function VerificationModal(props: IVerificationModal) {
                                         )}
                                         type={
                                             props.type ===
-                                            VerificationMethod.Email
+                                            NotificationChannelType.EMAIL
                                                 ? 'text'
                                                 : 'number'
                                         }
@@ -202,7 +195,6 @@ export function VerificationModal(props: IVerificationModal) {
                             setVerification={props.setVerification}
                             type={props.type}
                             content={otpContent(props.type)}
-                            resendOtp={resendOtp}
                             closeModal={props.action}
                         />
                     )}

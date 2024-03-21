@@ -1,26 +1,34 @@
 import { useContext, useEffect, useState } from 'react';
 import {
     IVerificationModal,
-    VerificationMethod,
     getVerficationModalContent,
 } from './VerificationContent';
 import { log } from '@dm3-org/dm3-lib-shared';
-import { getAllNotificationChannels, getGlobalNotification, toggleGlobalNotifications } from '@dm3-org/dm3-lib-delivery-api';
+import {
+    getAllNotificationChannels,
+    getGlobalNotification,
+    removeNotificationChannel,
+    toggleGlobalNotifications,
+    toggleNotificationChannel,
+} from '@dm3-org/dm3-lib-delivery-api';
 import { AuthContext } from '../../../../context/AuthContext';
 import { useMainnetProvider } from '../../../../hooks/mainnetprovider/useMainnetProvider';
-import { NotificationChannel, NotificationChannelType } from '@dm3-org/dm3-lib-delivery';
+import {
+    NotificationChannel,
+    NotificationChannelType,
+} from '@dm3-org/dm3-lib-delivery';
 
 export const useNotification = () => {
-
     const { account, deliveryServiceToken } = useContext(AuthContext);
     const mainnetProvider = useMainnetProvider();
 
     // States for active notifications
     const [isNotificationsActive, setIsNotificationsActive] =
-        useState<boolean>(true);
-    const [isEmailActive, setIsEmailActive] = useState<boolean>(true);
-    const [isMobileActive, setIsMobileActive] = useState<boolean>(true);
-    const [isPushNotifyActive, setIsPushNotifyActive] = useState<boolean>(true);
+        useState<boolean>(false);
+    const [isEmailActive, setIsEmailActive] = useState<boolean>(false);
+    const [isMobileActive, setIsMobileActive] = useState<boolean>(false);
+    const [isPushNotifyActive, setIsPushNotifyActive] =
+        useState<boolean>(false);
 
     // States to manage email & phone no.
     const [email, setEmail] = useState<string | null>(null);
@@ -28,59 +36,50 @@ export const useNotification = () => {
 
     // States related to popup for verification
     const [activeVerification, setActiveVerification] = useState<
-        VerificationMethod | undefined
+        NotificationChannelType | undefined
     >(undefined);
 
     const [activeVerificationContent, setActiveVerificationContent] =
         useState<IVerificationModal>(
             getVerficationModalContent(
-                VerificationMethod.Email,
+                NotificationChannelType.EMAIL,
                 setActiveVerification,
                 setEmail,
             ),
         );
 
-    const updateNotificationActive = (action: boolean) => {
+    const updateNotificationActive = async (action: boolean) => {
         setIsNotificationsActive(action);
         setIsEmailActive(action);
         setIsMobileActive(action);
         setIsPushNotifyActive(action);
-    };
-
-    const deleteEmail = async () => {
-        try {
-            setEmail(null);
-        } catch (error) {
-            log(error, 'Failed to remove email ID');
-        }
-    };
-
-    const deletePhone = async () => {
-        try {
-            setPhone(null);
-        } catch (error) {
-            log(error, 'Failed to remove phone no.');
-        }
+        toggleGlobalChannel(action);
     };
 
     // Fetches and sets global notification
     const fetchGlobalNotification = async () => {
         if (account) {
             try {
-                const notification = await getGlobalNotification(account, mainnetProvider);
-                console.log("globa : ", notification);
+                const notification = await getGlobalNotification(
+                    account,
+                    mainnetProvider,
+                );
                 setIsNotificationsActive(notification.isEnabled);
+                await fetchUserNotificationChannels();
             } catch (error) {
-                log(`Failed to fetch global notification : ${error}`, "error");
+                log(`Failed to fetch global notification : ${error}`, 'error');
             }
         }
-    }
+    };
 
     // Fetches and sets all notification channels
     const fetchUserNotificationChannels = async () => {
         if (account) {
             try {
-                const notificationChannels = await getAllNotificationChannels(account, mainnetProvider);
+                const notificationChannels = await getAllNotificationChannels(
+                    account,
+                    mainnetProvider,
+                );
                 notificationChannels.forEach((channel: NotificationChannel) => {
                     switch (channel.type) {
                         case NotificationChannelType.EMAIL:
@@ -90,35 +89,85 @@ export const useNotification = () => {
                         default:
                             break;
                     }
-                })
+                });
             } catch (error) {
-                log(`Failed to fetch notification channels : ${error}`, "error");
+                log(
+                    `Failed to fetch notification channels : ${error}`,
+                    'error',
+                );
             }
         }
-    }
+    };
 
     // Toggles global notification channel
-    const toggleGlobalChannel = async (toggleValue: boolean) => {
+    const toggleGlobalChannel = async (toggle: boolean) => {
         if (account && deliveryServiceToken) {
             try {
                 await toggleGlobalNotifications(
                     account,
                     mainnetProvider,
                     deliveryServiceToken,
-                    toggleValue
+                    toggle,
                 );
-                console.log("Set global notification : success")
-                // set this and other values accordingly
-                // setIsNotificationsActive(notification.isEnabled);
+                await fetchUserNotificationChannels();
             } catch (error) {
-                log(`Failed to toggle global channel : ${error}`, "error");
+                log(`Failed to toggle global channel : ${error}`, 'error');
             }
         }
-    }
+    };
+
+    // Toggles specific notification channel
+    const toggleSpecificNotificationChannel = async (
+        toggle: boolean,
+        channelType: NotificationChannelType,
+        setChannelEnabled: (action: boolean) => void,
+    ) => {
+        if (account && deliveryServiceToken) {
+            try {
+                setChannelEnabled(toggle);
+                await toggleNotificationChannel(
+                    account,
+                    mainnetProvider,
+                    deliveryServiceToken,
+                    toggle,
+                    channelType,
+                );
+                toggle && (await fetchUserNotificationChannels());
+            } catch (error) {
+                log(
+                    `Failed to toggle notification channel : ${error}`,
+                    'error',
+                );
+            }
+        }
+    };
+
+    // Remove specific notification channel
+    const removeSpecificNotificationChannel = async (
+        channelType: NotificationChannelType,
+        resetChannel: (action: null) => void,
+    ) => {
+        if (account && deliveryServiceToken) {
+            try {
+                await removeNotificationChannel(
+                    account,
+                    mainnetProvider,
+                    deliveryServiceToken,
+                    channelType,
+                );
+                resetChannel(null);
+            } catch (error) {
+                log(
+                    `Failed to remove notification channel : ${error}`,
+                    'error',
+                );
+            }
+        }
+    };
 
     useEffect(() => {
-        toggleGlobalChannel(true);
-    }, [])
+        fetchGlobalNotification();
+    }, []);
 
     return {
         isNotificationsActive,
@@ -133,11 +182,11 @@ export const useNotification = () => {
         phone,
         setPhone,
         updateNotificationActive,
-        deleteEmail,
-        deletePhone,
         activeVerification,
         setActiveVerification,
         activeVerificationContent,
         setActiveVerificationContent,
+        toggleSpecificNotificationChannel,
+        removeSpecificNotificationChannel,
     };
 };
