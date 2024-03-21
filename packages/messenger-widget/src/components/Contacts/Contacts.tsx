@@ -13,6 +13,7 @@ import { ContactMenu } from '../ContactMenu/ContactMenu';
 import './Contacts.css';
 import { showMenuInBottom } from './bl';
 import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
+import { ContactPreview } from '../../interfaces/utils';
 
 export function Contacts(props: DashboardProps) {
     // fetches context api data
@@ -66,6 +67,19 @@ export function Contacts(props: DashboardProps) {
         }
     }, [contacts]);
 
+    const filterDuplicateContacts = (contacts: ContactPreview[]) => {
+        const uniqueContacts = contacts.filter(
+            (contact: any, index: number, self: any) =>
+                index ===
+                self.findIndex(
+                    (t: any) =>
+                        t.contactDetails.account.ensName ===
+                        contact.contactDetails.account.ensName,
+                ),
+        );
+        return uniqueContacts;
+    };
+
     /* Hidden content for highlighting css */
     const hiddenData: number[] = Array.from({ length: 22 }, (_, i) => i + 1);
 
@@ -99,7 +113,7 @@ export function Contacts(props: DashboardProps) {
             )}
         >
             {contacts.length > 0 &&
-                contacts.map((data) => {
+                filterDuplicateContacts(contacts).map((data) => {
                     const id = data.contactDetails.account.ensName;
                     const unreadMessageCount = getUnreadMessageCount(id);
 
