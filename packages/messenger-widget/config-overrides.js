@@ -1,6 +1,17 @@
 const webpack = require('webpack');
 module.exports = function override(config) {
-    const fallback = config.resolve.fallback || {};
+    const fallback = config.resolve.fallback || {
+        /**
+         * Added to remove errors for smtp as webpack 5
+         * doesn't support modules of node.js in react by default
+        **/
+        fs: false,
+        zlib: false,
+        net: false,
+        dns: false,
+        tls: false,
+        child_process: false,
+    };
     Object.assign(fallback, {
         crypto: require.resolve('crypto-browserify'),
         stream: require.resolve('stream-browserify'),
