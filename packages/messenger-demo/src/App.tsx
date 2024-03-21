@@ -29,6 +29,7 @@ import { DM3, DM3Configuration } from '@dm3-org/dm3-messenger-widget';
 
 function App() {
     const props: DM3Configuration = {
+        defaultContact: 'help.dm3.eth',
         userEnsSubdomain: process.env.REACT_APP_USER_ENS_SUBDOMAIN as string,
         addressEnsSubdomain: process.env.REACT_APP_ADDR_ENS_SUBDOMAIN as string,
         resolverBackendUrl: process.env.REACT_APP_RESOLVER_BACKEND as string,
@@ -39,10 +40,9 @@ function App() {
         chainId: process.env.REACT_APP_CHAIN_ID as string,
         resolverAddress: process.env.REACT_APP_RESOLVER_ADDR as string,
         defaultServiceUrl: process.env.REACT_APP_DEFAULT_SERVICE as string,
-        ethereumProvider: process.env.REACT_APP_ETHEREUM_PROVIDER as string,
+        ethereumProvider: process.env.REACT_APP_MAINNET_PROVIDER_RPC as string,
         walletConnectProjectId: process.env
             .REACT_APP_WALLET_CONNECT_PROJECT_ID as string,
-        defaultContact: 'help.dm3.eth',
         showAlways: true,
         hideFunction: undefined, // OPTINAL PARAMETER : 'attachments,edit,delete' or undefined
         showContacts: true, // true for all contacts / false for default contact
