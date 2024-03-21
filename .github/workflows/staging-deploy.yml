@@ -61,6 +61,7 @@ jobs:
               shell: bash
               run: |
                   cp ./.env.react packages/messenger-demo/.env
+                  cp ./.env.react packages/messenger-web/.env
                   docker build --progress=plain -t dm3-backend:latest -f ./docker/Dockerfile .
                   docker save -o ./dm3-backend.tar dm3-backend:latest
             - name: Prepare docker
