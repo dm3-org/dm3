@@ -45,11 +45,13 @@ export type ToggleGlobalNotifications = typeof toggleGlobalNotifications;
  * fetchs the global notifications configured or not for a given account
  * @param account The dm3 account
  * @param provider Ethers provider
+ * @param token The auth token
  * @returns An object containing isEnabled or not
  */
 export async function getGlobalNotification(
     account: Account,
     provider: ethers.providers.JsonRpcProvider,
+    token: string,
 ): Promise<{ isEnabled: boolean }> {
     const { profile, ensName } = checkAccount(account);
 
@@ -59,7 +61,7 @@ export async function getGlobalNotification(
         profile,
         provider,
         async (url: string) => (await axios.get(url)).data,
-    ).get(url);
+    ).get(url, getAxiosConfig(token));
 
     return data;
 }
@@ -105,11 +107,13 @@ export type AddNotificationChannel = typeof addNotificationChannel;
  * fetchs all the notifications channels for a given account
  * @param account The dm3 account
  * @param provider Ethers provider
+ * @param token The auth token
  * @returns An array of notification channels
  */
 export async function getAllNotificationChannels(
     account: Account,
     provider: ethers.providers.JsonRpcProvider,
+    token: string,
 ): Promise<NotificationChannel[]> {
     const { profile, ensName } = checkAccount(account);
 
@@ -119,7 +123,7 @@ export async function getAllNotificationChannels(
         profile,
         provider,
         async (url: string) => (await axios.get(url)).data,
-    ).get(url);
+    ).get(url, getAxiosConfig(token));
 
     return data;
 }
