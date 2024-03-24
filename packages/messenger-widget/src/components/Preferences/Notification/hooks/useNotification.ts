@@ -60,13 +60,15 @@ export const useNotification = () => {
     const fetchGlobalNotification = async () => {
         if (account && deliveryServiceToken) {
             try {
-                const notification = await getGlobalNotification(
+                const { data, status } = await getGlobalNotification(
                     account,
                     mainnetProvider,
                     deliveryServiceToken,
                 );
-                setIsNotificationsActive(notification.isEnabled);
-                await fetchUserNotificationChannels();
+                if (status === 200) {
+                    setIsNotificationsActive(data.isEnabled);
+                    await fetchUserNotificationChannels();
+                }
             } catch (error) {
                 log(`Failed to fetch global notification : ${error}`, 'error');
             }
@@ -77,23 +79,25 @@ export const useNotification = () => {
     const fetchUserNotificationChannels = async () => {
         if (account && deliveryServiceToken) {
             try {
-                const channels: any = await getAllNotificationChannels(
+                const { data, status } = await getAllNotificationChannels(
                     account,
                     mainnetProvider,
                     deliveryServiceToken,
                 );
-                channels.notificationChannels.forEach(
-                    (channel: NotificationChannel) => {
-                        switch (channel.type) {
-                            case NotificationChannelType.EMAIL:
-                                setIsEmailActive(channel.config.isVerified);
-                                setEmail(channel.config.recipientValue);
-                                break;
-                            default:
-                                break;
-                        }
-                    },
-                );
+                if (status === 200) {
+                    data.notificationChannels.forEach(
+                        (channel: NotificationChannel) => {
+                            switch (channel.type) {
+                                case NotificationChannelType.EMAIL:
+                                    setIsEmailActive(channel.config.isVerified);
+                                    setEmail(channel.config.recipientValue);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        },
+                    );
+                }
             } catch (error) {
                 log(
                     `Failed to fetch notification channels : ${error}`,
@@ -107,13 +111,15 @@ export const useNotification = () => {
     const toggleGlobalChannel = async (toggle: boolean) => {
         if (account && deliveryServiceToken) {
             try {
-                await toggleGlobalNotifications(
+                const { status } = await toggleGlobalNotifications(
                     account,
                     mainnetProvider,
                     deliveryServiceToken,
                     toggle,
                 );
-                await fetchUserNotificationChannels();
+                if (status === 200) {
+                    await fetchUserNotificationChannels();
+                }
             } catch (error) {
                 log(`Failed to toggle global channel : ${error}`, 'error');
             }
@@ -129,14 +135,16 @@ export const useNotification = () => {
         if (account && deliveryServiceToken) {
             try {
                 setChannelEnabled(toggle);
-                await toggleNotificationChannel(
+                const { status } = await toggleNotificationChannel(
                     account,
                     mainnetProvider,
                     deliveryServiceToken,
                     toggle,
                     channelType,
                 );
-                toggle && (await fetchUserNotificationChannels());
+                if (toggle && status === 200) {
+                    await fetchUserNotificationChannels();
+                }
             } catch (error) {
                 log(
                     `Failed to toggle notification channel : ${error}`,
@@ -153,13 +161,15 @@ export const useNotification = () => {
     ) => {
         if (account && deliveryServiceToken) {
             try {
-                await removeNotificationChannel(
+                const { status } = await removeNotificationChannel(
                     account,
                     mainnetProvider,
                     deliveryServiceToken,
                     channelType,
                 );
-                resetChannel(null);
+                if (status === 200) {
+                    resetChannel(null);
+                }
             } catch (error) {
                 log(
                     `Failed to remove notification channel : ${error}`,

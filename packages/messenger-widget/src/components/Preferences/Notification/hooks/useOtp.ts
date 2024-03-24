@@ -43,7 +43,7 @@ export const useOtp = (
         recipientValue: string,
     ) => {
         if (account && deliveryServiceToken) {
-            await addNotificationChannel(
+            return await addNotificationChannel(
                 account,
                 mainnetProvider,
                 deliveryServiceToken,
@@ -58,7 +58,7 @@ export const useOtp = (
         channelType: NotificationChannelType,
     ) => {
         if (account && deliveryServiceToken) {
-            await sendOtp(
+            return await sendOtp(
                 account,
                 mainnetProvider,
                 deliveryServiceToken,
@@ -73,7 +73,7 @@ export const useOtp = (
         channelType: NotificationChannelType,
     ) => {
         if (account && deliveryServiceToken) {
-            await verifyOtp(
+            return await verifyOtp(
                 account,
                 mainnetProvider,
                 deliveryServiceToken,
@@ -92,11 +92,16 @@ export const useOtp = (
         closeModal: Function,
     ) => {
         try {
-            await verifyChannelOtp(otp, channelType);
-            setErrorMsg('');
-            setShowError(false);
-            setVerification(verificationData);
-            closeModal(null);
+            const { data, status } = await verifyChannelOtp(otp, channelType);
+            if (status === 200) {
+                setErrorMsg('');
+                setShowError(false);
+                setVerification(verificationData);
+                closeModal(null);
+            } else {
+                setErrorMsg(data.error);
+                setShowError(true);
+            }
         } catch (error) {
             log(error, 'OTP validation error');
             setErrorMsg('Invalid OTP');
@@ -113,17 +118,25 @@ export const useOtp = (
         isResendOtp: boolean,
     ): Promise<boolean> => {
         try {
+            let response;
             if (isResendOtp) {
-                await sendOtpForVerification(type);
+                response = await sendOtpForVerification(type);
             } else {
-                await addNewNotificationChannel(type, inputData);
+                response = await addNewNotificationChannel(type, inputData);
             }
-            setShowError(false);
-            setOtpSent(true);
-            return true;
+            if (response && response.status === 200) {
+                setShowError(false);
+                setOtpSent(true);
+                return true;
+            } else {
+                setErrorMsg(response.data.error);
+                setShowError(true);
+                setOtpSent(false);
+                return false;
+            }
         } catch (error) {
             log(error, 'Failed to send otp ');
-            setErrorMsg('Failed to add noti OTP, please try again');
+            setErrorMsg('Failed to send OTP, please try again');
             setShowError(true);
             setOtpSent(false);
             return false;
