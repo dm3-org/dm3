@@ -58,11 +58,12 @@ export const useNotification = () => {
 
     // Fetches and sets global notification
     const fetchGlobalNotification = async () => {
-        if (account) {
+        if (account && deliveryServiceToken) {
             try {
                 const notification = await getGlobalNotification(
                     account,
                     mainnetProvider,
+                    deliveryServiceToken,
                 );
                 setIsNotificationsActive(notification.isEnabled);
                 await fetchUserNotificationChannels();
@@ -74,22 +75,25 @@ export const useNotification = () => {
 
     // Fetches and sets all notification channels
     const fetchUserNotificationChannels = async () => {
-        if (account) {
+        if (account && deliveryServiceToken) {
             try {
-                const notificationChannels = await getAllNotificationChannels(
+                const channels: any = await getAllNotificationChannels(
                     account,
                     mainnetProvider,
+                    deliveryServiceToken,
                 );
-                notificationChannels.forEach((channel: NotificationChannel) => {
-                    switch (channel.type) {
-                        case NotificationChannelType.EMAIL:
-                            setIsEmailActive(channel.config.isVerified);
-                            setEmail(channel.config.recipientValue);
-                            break;
-                        default:
-                            break;
-                    }
-                });
+                channels.notificationChannels.forEach(
+                    (channel: NotificationChannel) => {
+                        switch (channel.type) {
+                            case NotificationChannelType.EMAIL:
+                                setIsEmailActive(channel.config.isVerified);
+                                setEmail(channel.config.recipientValue);
+                                break;
+                            default:
+                                break;
+                        }
+                    },
+                );
             } catch (error) {
                 log(
                     `Failed to fetch notification channels : ${error}`,
