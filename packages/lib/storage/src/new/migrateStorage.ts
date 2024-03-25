@@ -17,7 +17,12 @@ export const migrageStorage = async (
             const aliasName = await resolveTLDtoAlias(contactName);
             const messages = await oldStorage.conversations.get(contactName);
             await newStorage.addMessageBatch(aliasName, messages ?? []);
-            console.log('migration done of ', contactName);
+            console.log(
+                'migration done of ',
+                contactName,
+                messages?.length ?? 0,
+                'messages migrated',
+            );
         }),
     );
     console.log('storage migration successful');
