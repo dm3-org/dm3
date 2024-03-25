@@ -9,7 +9,7 @@ import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 const SUPPORTED_NAMESERVICES = (provider: ethers.providers.JsonRpcProvider) => [
     new EthereumNameService(provider),
-    new Genome(),
+    new Genome(provider),
     new Dm3Name(provider),
     new EthAddressResolver(),
 ];
