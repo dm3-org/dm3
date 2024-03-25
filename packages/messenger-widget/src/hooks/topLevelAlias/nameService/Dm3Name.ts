@@ -34,8 +34,15 @@ export class Dm3Name implements ITLDResolver {
     }
 
     private async hasDm3NameProfile(ensName: string): Promise<boolean> {
-        const ensNameHasAddress = await this.provider.resolveName(ensName);
-        return !!ensNameHasAddress;
+        try {
+            const ensNameHasAddress = await this.provider.resolveName(ensName);
+            return !!ensNameHasAddress;
+        } catch (err) {
+            console.log(
+                `Cant resolve Dm3name for ${ensName} to address error: ${err}`,
+            );
+            return false;
+        }
     }
 
     //e.g. 0x1234.user.dm3.eth -> myname.user.dm3.eth
