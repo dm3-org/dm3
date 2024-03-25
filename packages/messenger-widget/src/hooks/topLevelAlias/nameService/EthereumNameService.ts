@@ -56,17 +56,24 @@ export class EthereumNameService implements ITLDResolver {
     }
 
     private async hasDm3ProfileOnEnsProfile(ensName: string): Promise<boolean> {
-        const ensNameHasAddress = await this.provider.resolveName(ensName);
-        const resolver = await this.provider.getResolver(ensName);
-        if (!resolver) {
+        try {
+            const ensNameHasAddress = await this.provider.resolveName(ensName);
+            const resolver = await this.provider.getResolver(ensName);
+            if (!resolver) {
+                return false;
+            }
+            const dm3Profile = await resolver.getText('network.dm3.profile');
+
+            if (!dm3Profile) {
+                return false;
+            }
+
+            return !!ensNameHasAddress;
+        } catch (err) {
+            console.log(
+                `Cant resolve ENSname ${ensName} to address error: ${err}`,
+            );
             return false;
         }
-        const dm3Profile = await resolver.getText('network.dm3.profile');
-
-        if (!dm3Profile) {
-            return false;
-        }
-
-        return !!ensNameHasAddress;
     }
 }
