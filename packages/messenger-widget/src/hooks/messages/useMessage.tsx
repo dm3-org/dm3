@@ -87,6 +87,7 @@ export const useMessage = () => {
                 profileKeys!,
                 selectedContact!,
                 encryptedEnvelop,
+                resolveTLDtoAlias,
             );
         });
 
