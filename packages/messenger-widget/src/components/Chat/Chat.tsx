@@ -13,6 +13,8 @@ import './Chat.css';
 import { scrollToBottomOfChat } from './scrollToBottomOfChat';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { MOBILE_SCREEN_WIDTH } from '../../utils/common-utils';
+import { TLDContext } from '../../context/TLDContext';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 
 export function Chat(props: HideFunctionProps) {
     const { state } = useContext(GlobalContext);
@@ -28,6 +30,8 @@ export function Chat(props: HideFunctionProps) {
         useState<boolean>(false);
     const [showShimEffect, setShowShimEffect] = useState(false);
 
+    const { resolveTLDtoAlias } = useContext(TLDContext);
+
     useEffect(() => {
         if (!selectedContact) {
             return;
@@ -37,12 +41,47 @@ export function Chat(props: HideFunctionProps) {
         );
     }, [selectedContact]);
 
-    const messages = useMemo(() => {
-        if (!selectedContact?.contactDetails.account.ensName) {
-            return [];
-        }
-        scrollToBottomOfChat();
-        return getMessages(selectedContact?.contactDetails.account.ensName!);
+    const [messages, setMessages] = useState<MessageModel[]>([]);
+
+    //Some messages from the old storage might not have the alias resolved yet. We need to fetch them so they are not appearing as our own messages
+    //It would be ideal to do this in useMessage but for now at least it works
+    useEffect(() => {
+        const messagesWithAlias = async () => {
+            setShowShimEffect(true);
+            if (!selectedContact?.contactDetails.account.ensName) {
+                setShowShimEffect(false);
+                return;
+            }
+            scrollToBottomOfChat();
+            const messagesWithResolvedAlias = getMessages(
+                selectedContact?.contactDetails.account.ensName!,
+            );
+            const messages = await Promise.all(
+                messagesWithResolvedAlias.map(async (message) => {
+                    return {
+                        ...message,
+                        envelop: {
+                            ...message.envelop,
+                            message: {
+                                ...message.envelop.message,
+                                metadata: {
+                                    ...message.envelop.message.metadata,
+                                    from: normalizeEnsName(
+                                        await resolveTLDtoAlias(
+                                            message.envelop.message.metadata
+                                                ?.from ?? '',
+                                        ),
+                                    ),
+                                },
+                            },
+                        },
+                    };
+                }),
+            );
+            setMessages(messages);
+            setShowShimEffect(false);
+        };
+        messagesWithAlias();
     }, [selectedContact, getMessages]);
 
     // handles messages list
