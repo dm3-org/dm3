@@ -21,6 +21,7 @@ import { handleMessagesFromStorage } from './sources/handleMessagesFromStorage';
 import { handleMessagesFromWebSocket } from './sources/handleMessagesFromWebSocket';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { checkIfEnvelopIsInSizeLimit } from './sizeLimit/checkIfEnvelopIsInSizeLimit';
+import { TLDContext } from '../../context/TLDContext';
 
 export type MessageModel = StorageEnvelopContainerNew & {
     reactions: Envelop[];
@@ -42,6 +43,8 @@ export const useMessage = () => {
 
     const { onNewMessage, removeOnNewMessageListener, socket } =
         useContext(WebSocketContext);
+
+    const { resolveTLDtoAlias } = useContext(TLDContext);
 
     const {
         getNumberOfMessages,
@@ -70,7 +73,7 @@ export const useMessage = () => {
 
     //Effect to reset the messages when the storage is initialized, i.e on account change
     useEffect(() => {
-        setMessages({});
+        setMessages({}); //Check
         setContactsLoading([]);
     }, [storageInitialized, account]);
 
@@ -79,11 +82,12 @@ export const useMessage = () => {
         onNewMessage((encryptedEnvelop: EncryptionEnvelop) => {
             handleMessagesFromWebSocket(
                 addConversation,
-                setMessages,
+                setMessages, //TODO
                 storeMessage,
                 profileKeys!,
                 selectedContact!,
                 encryptedEnvelop,
+                resolveTLDtoAlias,
             );
         });
 
@@ -106,6 +110,7 @@ export const useMessage = () => {
         );
 
         setMessages((prev) => {
+            //Check no new messages are added here
             return {
                 ...prev,
                 [contact]: [
@@ -168,6 +173,7 @@ export const useMessage = () => {
             return;
         }
         setMessages((prev) => {
+            //Check no new messages are added here
             return {
                 ...prev,
                 [contact]: [],
@@ -212,6 +218,7 @@ export const useMessage = () => {
                 reactions: [],
             };
             setMessages((prev) => {
+                //Check message has been added previously
                 return {
                     ...prev,
                     [contact]: [...(prev[contact] ?? []), messageModel],
@@ -323,16 +330,43 @@ export const useMessage = () => {
                 );
             });
 
+        const withResolvedAliasNames = await resolveAliasNames(messages);
+
         setMessages((prev) => {
             return {
                 ...prev,
-                [contactName]: messages,
+                [contactName]: withResolvedAliasNames,
             };
         });
 
         setContactsLoading((prev) => {
             return prev.filter((contact) => contact !== contactName);
         });
+    };
+    //Some messages from the old storage might not have the alias resolved yet. We need to fetch them so they are not appearing as our own messages
+    const resolveAliasNames = async (messages: MessageModel[]) => {
+        return await Promise.all(
+            messages.map(async (message) => {
+                return {
+                    ...message,
+                    envelop: {
+                        ...message.envelop,
+                        message: {
+                            ...message.envelop.message,
+                            metadata: {
+                                ...message.envelop.message.metadata,
+                                from: normalizeEnsName(
+                                    await resolveTLDtoAlias(
+                                        message.envelop.message.metadata
+                                            ?.from ?? '',
+                                    ),
+                                ),
+                            },
+                        },
+                    },
+                };
+            }),
+        );
     };
 
     return {

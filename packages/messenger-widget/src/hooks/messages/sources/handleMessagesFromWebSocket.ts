@@ -16,6 +16,7 @@ export const handleMessagesFromWebSocket = async (
     profileKeys: ProfileKeys,
     selectedContact: ContactPreview,
     encryptedEnvelop: EncryptionEnvelop,
+    resolveTLDtoAlias: Function,
 ) => {
     const decryptedEnvelop: Envelop = {
         message: JSON.parse(
@@ -33,7 +34,11 @@ export const handleMessagesFromWebSocket = async (
         metadata: encryptedEnvelop.metadata,
     };
 
-    const contact = normalizeEnsName(decryptedEnvelop.message.metadata.from);
+    const contact = normalizeEnsName(
+        await resolveTLDtoAlias(decryptedEnvelop.message.metadata.from),
+    );
+
+    decryptedEnvelop.message.metadata.from = contact;
     await addConversation(contact);
 
     const messageState =
