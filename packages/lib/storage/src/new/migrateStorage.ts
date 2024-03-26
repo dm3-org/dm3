@@ -11,10 +11,17 @@ export const migrageStorage = async (
     //get keys of conversations map
     const keys = Array.from(conversations.keys());
 
+    console.log('legacy conversations ', keys);
+
     await Promise.all(
         keys.map(async (contactName) => {
-            console.log('start migration of', contactName);
             const aliasName = await resolveTLDtoAlias(contactName);
+            console.log(
+                'start migration of',
+                contactName,
+                ' alias ',
+                aliasName,
+            );
             const messages = await oldStorage.conversations.get(contactName);
             await newStorage.addMessageBatch(aliasName, messages ?? []);
             console.log(
