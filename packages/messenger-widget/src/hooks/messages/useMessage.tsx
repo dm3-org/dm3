@@ -310,6 +310,9 @@ export const useMessage = () => {
         const messages = flatten
             //filter duplicates
             .filter((message, index, self) => {
+                if (!message.envelop.metadata?.encryptedMessageHash) {
+                    return true;
+                }
                 return (
                     index ===
                     self.findIndex(

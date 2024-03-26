@@ -16,6 +16,12 @@ export const handleMessagesFromStorage = async (
         contactName,
         Math.floor(numberOfmessages / MAX_MESSAGES_PER_CHUNK),
     );
+    console.log(
+        'get messages from storage for ',
+        contactName,
+        ' res ',
+        storedMessages,
+    );
 
     return storedMessages.map(
         (message) =>
