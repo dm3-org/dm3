@@ -53,6 +53,7 @@ export const getCloudStorage = (
         const encryptedContactName = await encryption.encryptSync(
             contactEnsName,
         );
+
         const messageRecords = await getMessagesFromStorage(
             storageUrl,
             storageToken,
@@ -88,7 +89,8 @@ export const getCloudStorage = (
             storageToken,
             ensName,
             encryptedContactName,
-            envelop.envelop.metadata?.encryptedMessageHash!,
+            envelop.envelop.metadata?.encryptedMessageHash! ??
+                envelop.envelop.id,
             encryptedEnvelopContainer,
         );
         return '';
@@ -112,7 +114,8 @@ export const getCloudStorage = (
                         encryptedEnvelopContainer,
                         messageId:
                             storageEnvelopContainer.envelop.metadata
-                                ?.encryptedMessageHash!,
+                                ?.encryptedMessageHash! ??
+                            storageEnvelopContainer.envelop.id,
                     };
                 },
             ),
