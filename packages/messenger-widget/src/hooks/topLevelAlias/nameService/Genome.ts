@@ -29,7 +29,8 @@ export class Genome implements ITLDResolver {
     }
     //e.g. max.gno => 0x1234.addr.dm3.eth
     async resolveTLDtoAlias(ensName: string): Promise<string> {
-        const address = await this.provider.resolveName(ensName);
+        const aliasName = ensName.replace(TOP_LEVEL_DOMAIN, TOP_LEVEL_ALIAS);
+        const address = await this.provider.resolveName(aliasName);
         if (!address) {
             throw new Error('No address found for ' + ensName);
         }
