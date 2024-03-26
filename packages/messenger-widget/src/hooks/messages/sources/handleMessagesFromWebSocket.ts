@@ -5,9 +5,9 @@ import {
     MessageState,
 } from '@dm3-org/dm3-lib-messaging';
 import { ProfileKeys, normalizeEnsName } from '@dm3-org/dm3-lib-profile';
-import { AddMessage, MessageStorage } from '../useMessage';
-import { AddConversation, StoreMessageAsync } from '../../storage/useStorage';
 import { ContactPreview } from '../../../interfaces/utils';
+import { AddConversation, StoreMessageAsync } from '../../storage/useStorage';
+import { MessageStorage } from '../useMessage';
 
 export const handleMessagesFromWebSocket = async (
     addConversation: AddConversation,
