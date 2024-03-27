@@ -162,6 +162,7 @@ export const fetchExistingDM3Name = async (
 const enum NAME_SERVICES {
     ENS = 'Ethereum Network - Ethereum Name Service (ENS)',
     GENOME = 'Gnosis Network - Genome/SpaceID',
+    OPTIMISM = 'Optimism Network',
 }
 
 export const namingServices = [
@@ -172,6 +173,10 @@ export const namingServices = [
     {
         name: NAME_SERVICES.GENOME,
         chainId: 100,
+    },
+    {
+        name: NAME_SERVICES.OPTIMISM,
+        chainId: 11155420,
     },
 ];
 
@@ -230,6 +235,9 @@ export const fetchDM3NameComponent = (name: string) => {
         case DM3_NAME_SERVICES.CLOUD:
             return <ConfigureCloudNameProfile />;
         case DM3_NAME_SERVICES.OPTIMISM:
-            return <ConfigureOptimismNameProfile />;
+            const chainToConnect = namingServices[2].chainId;
+            return (
+                <ConfigureOptimismNameProfile chainToConnect={chainToConnect} />
+            );
     }
 };
