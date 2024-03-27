@@ -35,6 +35,7 @@ export const ConfigureOptimismNameProfile = (props: IChain) => {
     // Set new OP DM3 username
     const submitDm3UsernameClaim = async (opName: string) => {
         try {
+            console.log('lets goooooooooo OP');
             // start loader
             dispatch({
                 type: ModalStateType.LoaderContent,
@@ -62,8 +63,8 @@ export const ConfigureOptimismNameProfile = (props: IChain) => {
             const ensName = `${opName}${opParentDomain}`;
             await registerOpName(opProvider, dispatch, setError, ensName);
 
-            setDisplayName(ensName);
-            setExistingDm3Name(ensName);
+            //setDisplayName(ensName);
+            //setExistingDm3Name(ensName);
         } catch (e) {
             setError('Name is not available', NAME_TYPE.DM3_NAME);
         }

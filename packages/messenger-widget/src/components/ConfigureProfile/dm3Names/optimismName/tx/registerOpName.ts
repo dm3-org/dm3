@@ -3,6 +3,10 @@ import { Actions, ModalStateType } from '../../../../../utils/enum-type-utils';
 import { closeLoader, startLoader } from '../../../../Loader/Loader';
 import { getConractInstance } from '@dm3-org/dm3-lib-shared/dist/ethersHelper';
 import { NAME_TYPE } from '../../../chain/common';
+import { ethersHelper } from '@dm3-org/dm3-lib-shared';
+
+const dm3NameRegistrarAddressSepolia =
+    '0xF5b24cD05D6e6E9b8AC2B97cD90C38a8F2Df57FB';
 
 export const registerOpName = async (
     provider: ethers.providers.StaticJsonRpcProvider,
@@ -24,6 +28,22 @@ export const registerOpName = async (
         return;
     }
     console.log('OP name is available');
+
+    const dm3NameRegistrar = getConractInstance(
+        dm3NameRegistrarAddressSepolia,
+        ['function register(string calldata name) external '],
+        provider!,
+    );
+
+    const label = opName.split('.')[0];
+    const res = await ethersHelper.executeTransaction({
+        method: dm3NameRegistrar.register,
+        args: [label],
+    });
+
+    console.log('res', res);
+    await res.wait();
+    closeLoader();
 };
 
 const isOpNameAvailable = async (
@@ -33,14 +53,13 @@ const isOpNameAvailable = async (
 ) => {
     const isValidEnsName = ethers.utils.isValidName(opName);
     if (!isValidEnsName) {
+        console.log('Invalid OP name');
         setError('Invalid OP name', NAME_TYPE.OP_NAME);
         return false;
     }
-    const dm3NameRegistrarAddress =
-        '0xF5b24cD05D6e6E9b8AC2B97cD90C38a8F2Df57FB';
 
     const dm3NameRegistrar = getConractInstance(
-        dm3NameRegistrarAddress,
+        dm3NameRegistrarAddressSepolia,
         ['function owner(bytes32 node) external view returns (address)'],
         provider!,
     );
@@ -48,7 +67,8 @@ const isOpNameAvailable = async (
     const node = ethers.utils.namehash(opName);
     const owner = await dm3NameRegistrar.owner(node);
 
-    if (owner !== null) {
+    if (owner !== ethers.constants.AddressZero) {
+        console.log('name already claimed');
         setError('name already claimed ', NAME_TYPE.OP_NAME);
         return false;
     }
