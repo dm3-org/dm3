@@ -13,11 +13,13 @@ export function ConfigureDM3Profile() {
 
     return (
         <>
-            {screenWidth <= MOBILE_SCREEN_WIDTH ? (
-                <MobileView />
-            ) : (
-                <NormalView />
-            )}
+            <ConfigureDM3NameContextProvider>
+                {screenWidth <= MOBILE_SCREEN_WIDTH ? (
+                    <MobileView />
+                ) : (
+                    <NormalView />
+                )}
+            </ConfigureDM3NameContextProvider>
         </>
     );
 }
@@ -25,9 +27,7 @@ export function ConfigureDM3Profile() {
 export function ConfigureProfile() {
     return (
         <ConfigureProfileContextProvider>
-            <ConfigureDM3NameContextProvider>
-                <ConfigureDM3Profile />
-            </ConfigureDM3NameContextProvider>
+            <ConfigureDM3Profile />
         </ConfigureProfileContextProvider>
     );
 }
