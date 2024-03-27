@@ -14,7 +14,6 @@ import {
 import { closeLoader, startLoader } from '../../components/Loader/Loader';
 import Menu from '../../components/Menu/Menu';
 import { ConversationContext } from '../../context/ConversationContext';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
 import { AuthContext } from '../../context/AuthContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
@@ -95,13 +94,6 @@ export default function LeftView(props: DashboardProps) {
                     />
                     {/* Profile icon and address to show in mobile screens */}
                     <div className="mobile-profile-icon">
-                        <ConnectButton
-                            showBalance={false}
-                            accountStatus={{
-                                smallScreen: 'avatar',
-                                largeScreen: 'full',
-                            }}
-                        />
                         <img
                             src={profilePic ? profilePic : humanIcon}
                             alt="menu"

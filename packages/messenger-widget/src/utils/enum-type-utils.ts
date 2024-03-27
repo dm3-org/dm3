@@ -5,13 +5,13 @@ import { NewContact } from '../interfaces/utils';
 
 export type ActionMap<M extends { [index: string]: any }> = {
     [Key in keyof M]: M[Key] extends undefined
-        ? {
-              type: Key;
-          }
-        : {
-              type: Key;
-              payload: M[Key];
-          };
+    ? {
+        type: Key;
+    }
+    : {
+        type: Key;
+        payload: M[Key];
+    };
 };
 
 export type ConnectionPayload = {
@@ -156,4 +156,11 @@ export enum MessageActionType {
     REPLY = 'REPLY',
     REACT = 'REACTION',
     NONE = 'NONE',
+}
+
+export enum SiweValidityStatus {
+    TO_BE_INITIATED = 'TO_BE_INITIATED',
+    IN_PROGRESS = 'IN_PROGRESS',
+    VALIDATED = 'VALIDATED',
+    ERROR = 'ERROR',
 }
