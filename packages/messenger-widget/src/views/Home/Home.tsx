@@ -12,7 +12,7 @@ import {
     walletConnectWallet,
 } from '@rainbow-me/rainbowkit/wallets';
 import { configureChains, createConfig, mainnet, WagmiConfig } from 'wagmi';
-import { gnosis, goerli } from 'wagmi/chains';
+import { gnosis, goerli, optimism, optimismSepolia } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import DM3 from '../../components/DM3/DM3';
 import { Dm3Props } from '../../interfaces/config';
@@ -37,8 +37,8 @@ export function Home(props: Dm3Props) {
     // because there is no spaceId testnet deploymend yet
     const _chains =
         props.dm3Configuration.chainId === '1'
-            ? [mainnet, gnosis]
-            : [goerli, gnosis];
+            ? [mainnet, optimism, gnosis]
+            : [goerli, optimismSepolia, gnosis];
 
     const { chains, publicClient } = configureChains(
         [..._chains],
