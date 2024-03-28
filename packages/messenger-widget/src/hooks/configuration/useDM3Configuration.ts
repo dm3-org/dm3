@@ -3,7 +3,7 @@ import { DM3Configuration, Siwe } from '../../interfaces/config';
 import { SiweValidityStatus } from '../../utils/enum-type-utils';
 import { log } from '@dm3-org/dm3-lib-shared';
 import { closeLoader } from '../../components/Loader/Loader';
-import { closeErrorModal, openErrorModal } from '../../utils/common-utils';
+import { openErrorModal } from '../../utils/common-utils';
 
 export const useDm3Configuration = () => {
     const [screenWidth, setScreenWidth] = useState<number>(window.innerWidth);
@@ -39,14 +39,14 @@ export const useDm3Configuration = () => {
             }
             setSiweValidityStatus(SiweValidityStatus.ERROR);
             closeLoader();
-            openErrorModal("Invalid SIWE credentials", false);
+            openErrorModal('Invalid SIWE credentials', false);
         } catch (error) {
             log(error, 'Error validating SIWE');
             setSiweValidityStatus(SiweValidityStatus.ERROR);
             closeLoader();
-            openErrorModal("Invalid SIWE credentials", false);
+            openErrorModal('Invalid SIWE credentials', false);
         }
-    }
+    };
 
     return {
         dm3Configuration,
@@ -55,6 +55,6 @@ export const useDm3Configuration = () => {
         setScreenWidth,
         siweValidityStatus,
         setSiweValidityStatus,
-        validateSiweCredentials
+        validateSiweCredentials,
     };
 };

@@ -44,10 +44,11 @@ function App() {
         walletConnectProjectId: process.env
             .REACT_APP_WALLET_CONNECT_PROJECT_ID as string,
         showAlways: true,
-        hideFunction: undefined, // OPTINAL PARAMETER : 'attachments,edit,delete' or undefined
+        hideFunction: undefined, // OPTIONAL PARAMETER : 'attachments,edit,delete' or undefined
         showContacts: true, // true for all contacts / false for default contact
-        theme: undefined, // OPTINAL PARAMETER : undefined/themeColors
-        signInImage: undefined, // OPTINAL PARAMETER : string URL of image
+        theme: undefined, // OPTIONAL PARAMETER : undefined/themeColors
+        signInImage: undefined, // OPTIONAL PARAMETER : string URL of image
+        siwe: undefined, // OPTIONAL PARAMETER
     };
 
     return (

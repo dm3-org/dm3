@@ -1,15 +1,18 @@
+import { Siwe } from '../Siwe/Siwe';
+import { SignIn } from '../SignIn/SignIn';
 import { useContext, useEffect } from 'react';
-import { AuthContext } from '../../context/AuthContext';
+import { startLoader } from '../Loader/Loader';
 import { Dm3Props } from '../../interfaces/config';
 import Dashboard from '../../views/Dashboard/Dashboard';
-import { SignIn } from '../SignIn/SignIn';
-import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
-import { ModalStateType, SiweValidityStatus } from '../../utils/enum-type-utils';
+import { AuthContext } from '../../context/AuthContext';
 import { GlobalContext } from '../../utils/context-utils';
-import { closeLoader, startLoader } from '../Loader/Loader';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import {
+    ModalStateType,
+    SiweValidityStatus,
+} from '../../utils/enum-type-utils';
 
 function DM3(props: Dm3Props) {
-
     const { dispatch } = useContext(GlobalContext);
 
     const {
@@ -18,9 +21,7 @@ function DM3(props: Dm3Props) {
         setSiweValidityStatus,
         validateSiweCredentials,
         siweValidityStatus,
-    } = useContext(
-        DM3ConfigurationContext,
-    );
+    } = useContext(DM3ConfigurationContext);
 
     const { isLoggedIn } = useContext(AuthContext);
 
@@ -46,31 +47,37 @@ function DM3(props: Dm3Props) {
         };
     }, []);
 
-    // validate SIWE credentials 
+    // validate SIWE credentials
     useEffect(() => {
         const validateSiwe = async () => {
             if (props.dm3Configuration.siwe) {
                 dispatch({
                     type: ModalStateType.LoaderContent,
-                    payload: "Validating SIWE credentials"
+                    payload: 'Validating SIWE credentials',
                 });
                 startLoader();
                 setSiweValidityStatus(SiweValidityStatus.IN_PROGRESS);
                 await validateSiweCredentials(props.dm3Configuration.siwe);
             }
-        }
+        };
         validateSiwe();
     }, []);
 
     return (
         <div id="data-rk-child" className="h-100">
             {!isLoggedIn ? (
-                <SignIn
-                    hideStorageSelection={props.config.hideStorageSelection}
-                    defaultStorageLocation={props.config.defaultStorageLocation}
-                    miniSignIn={props.config.miniSignIn}
-                    signInImage={props.config.signInImage as string}
-                />
+                props.dm3Configuration.siwe ? (
+                    <Siwe backgroundImage={props.config.signInImage} />
+                ) : (
+                    <SignIn
+                        hideStorageSelection={props.config.hideStorageSelection}
+                        defaultStorageLocation={
+                            props.config.defaultStorageLocation
+                        }
+                        miniSignIn={props.config.miniSignIn}
+                        signInImage={props.config.signInImage as string}
+                    />
+                )
             ) : (
                 <div className="h-100 background-container">
                     <Dashboard dm3Props={props} />

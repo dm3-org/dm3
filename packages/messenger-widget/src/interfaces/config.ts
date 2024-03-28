@@ -16,7 +16,7 @@ export interface DM3Configuration {
     hideFunction?: string;
     theme?: any;
     signInImage?: string;
-    siwe?: Siwe
+    siwe?: Siwe;
 }
 
 export interface Config {

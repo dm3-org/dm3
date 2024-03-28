@@ -21,12 +21,7 @@ export function Demo() {
         showContacts: true, // true for all contacts / false for default contact
         theme: undefined, // OPTIONAL PARAMETER : undefined/themeColors
         signInImage: undefined, // OPTIONAL PARAMETER : string URL of image
-        siwe: {  // OPTIONAL PARAMETER
-            address: "",
-            message: "",
-            secret: "",
-            signature: ""
-        }
+        siwe: undefined, // OPTIONAL PARAMETER
     };
 
     return (

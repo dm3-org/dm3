@@ -8,14 +8,14 @@ export type DM3ConfigurationContextType = {
     dm3Configuration: DM3Configuration;
     screenWidth: number;
     setScreenWidth: (width: number) => void;
-    siweValidityStatus: SiweValidityStatus,
-    setSiweValidityStatus: (status: SiweValidityStatus) => void,
-    validateSiweCredentials: (data: Siwe) => void,
+    siweValidityStatus: SiweValidityStatus;
+    setSiweValidityStatus: (status: SiweValidityStatus) => void;
+    validateSiweCredentials: (data: Siwe) => void;
 };
 
 export const DM3ConfigurationContext =
     React.createContext<DM3ConfigurationContextType>({
-        setDm3Configuration: (configuration: DM3Configuration) => { },
+        setDm3Configuration: (configuration: DM3Configuration) => {},
         dm3Configuration: {
             defaultContact: '',
             defaultServiceUrl: '',
@@ -33,10 +33,10 @@ export const DM3ConfigurationContext =
             showContacts: true,
         },
         screenWidth: window.innerWidth,
-        setScreenWidth: (width: number) => { },
+        setScreenWidth: (width: number) => {},
         siweValidityStatus: SiweValidityStatus.TO_BE_INITIATED,
-        setSiweValidityStatus: (status: SiweValidityStatus) => { },
-        validateSiweCredentials: (data: Siwe) => { },
+        setSiweValidityStatus: (status: SiweValidityStatus) => {},
+        validateSiweCredentials: (data: Siwe) => {},
     });
 
 export const DM3ConfigurationContextProvider = ({
@@ -51,7 +51,7 @@ export const DM3ConfigurationContextProvider = ({
         setScreenWidth,
         siweValidityStatus,
         setSiweValidityStatus,
-        validateSiweCredentials
+        validateSiweCredentials,
     } = useDm3Configuration();
 
     return (
@@ -63,7 +63,7 @@ export const DM3ConfigurationContextProvider = ({
                 setScreenWidth,
                 siweValidityStatus,
                 setSiweValidityStatus,
-                validateSiweCredentials
+                validateSiweCredentials,
             }}
         >
             {children}

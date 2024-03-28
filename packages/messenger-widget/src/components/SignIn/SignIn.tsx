@@ -43,8 +43,9 @@ export function SignIn(props: SignInProps) {
             <div className="row m-0 p-0 h-100">
                 <div
                     style={{
-                        backgroundImage: `url(${props.signInImage ?? signInImage
-                            })`,
+                        backgroundImage: `url(${
+                            props.signInImage ?? signInImage
+                        })`,
                     }}
                     className="col-lg-7 col-md-7 col-sm-0 p-0 home-image-container background-container"
                 ></div>
