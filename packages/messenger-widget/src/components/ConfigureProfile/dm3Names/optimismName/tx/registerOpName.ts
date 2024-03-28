@@ -1,12 +1,8 @@
-import { ethers } from 'ethers';
-import { Actions, ModalStateType } from '../../../../../utils/enum-type-utils';
-import { closeLoader, startLoader } from '../../../../Loader/Loader';
-import { getConractInstance } from '@dm3-org/dm3-lib-shared/dist/ethersHelper';
-import { NAME_TYPE } from '../../../chain/common';
 import { ethersHelper } from '@dm3-org/dm3-lib-shared';
-
-const dm3NameRegistrarAddressSepolia =
-    '0xF5b24cD05D6e6E9b8AC2B97cD90C38a8F2Df57FB';
+import { ethers } from 'ethers';
+import { Actions } from '../../../../../utils/enum-type-utils';
+import { NAME_TYPE } from '../../../chain/common';
+import { getDm3NameRegistrar } from './getDm3NameRegistrar';
 
 export const registerOpName = async (
     provider: ethers.providers.StaticJsonRpcProvider,
@@ -14,26 +10,13 @@ export const registerOpName = async (
     setError: Function,
     opName: string,
 ) => {
-    dispatch({
-        type: ModalStateType.LoaderContent,
-        payload: 'Publishing profile...',
-    });
-
-    startLoader();
-
     const isAvailable = await isOpNameAvailable(provider, opName, setError);
-
     if (!isAvailable) {
-        closeLoader();
-        return;
+        return false;
     }
     console.log('OP name is available');
 
-    const dm3NameRegistrar = getConractInstance(
-        dm3NameRegistrarAddressSepolia,
-        ['function register(string calldata name) external '],
-        provider!,
-    );
+    const dm3NameRegistrar = getDm3NameRegistrar(provider);
 
     const label = opName.split('.')[0];
     const res = await ethersHelper.executeTransaction({
@@ -43,7 +26,7 @@ export const registerOpName = async (
 
     console.log('res', res);
     await res.wait();
-    closeLoader();
+    return true;
 };
 
 const isOpNameAvailable = async (
@@ -58,11 +41,7 @@ const isOpNameAvailable = async (
         return false;
     }
 
-    const dm3NameRegistrar = getConractInstance(
-        dm3NameRegistrarAddressSepolia,
-        ['function owner(bytes32 node) external view returns (address)'],
-        provider!,
-    );
+    const dm3NameRegistrar = getDm3NameRegistrar(provider);
 
     const node = ethers.utils.namehash(opName);
     const owner = await dm3NameRegistrar.owner(node);

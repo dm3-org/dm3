@@ -108,7 +108,7 @@ export const submitEnsNameTransaction = async (
     closeLoader();
 };
 
-async function getPublishProfileOnchainTransaction(
+export async function getPublishProfileOnchainTransaction(
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     ensName: string,
