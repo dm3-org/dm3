@@ -12,7 +12,7 @@ import {
     walletConnectWallet,
 } from '@rainbow-me/rainbowkit/wallets';
 import { configureChains, createConfig, mainnet, WagmiConfig } from 'wagmi';
-import { gnosis, goerli, optimism, optimismSepolia } from 'wagmi/chains';
+import { gnosis, optimism, optimismSepolia, sepolia } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import DM3 from '../../components/DM3/DM3';
 import { Dm3Props } from '../../interfaces/config';
@@ -38,7 +38,7 @@ export function Home(props: Dm3Props) {
     const _chains =
         props.dm3Configuration.chainId === '1'
             ? [mainnet, optimism, gnosis]
-            : [goerli, optimismSepolia, gnosis];
+            : [sepolia, optimismSepolia, gnosis];
 
     const { chains, publicClient } = configureChains(
         [..._chains],
