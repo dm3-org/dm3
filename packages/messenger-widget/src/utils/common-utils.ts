@@ -108,7 +108,7 @@ export const closeErrorModal = () => {
 export const getEtherscanUrl = (chainId: string): string => {
     return chainId === '1'
         ? 'https://etherscan.io/address/'
-        : 'https://goerli.etherscan.io/address/';
+        : 'https://sepolia.etherscan.io/address/';
 };
 
 // method to open URL in new tab

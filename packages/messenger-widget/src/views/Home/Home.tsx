@@ -11,23 +11,29 @@ import {
     rainbowWallet,
     walletConnectWallet,
 } from '@rainbow-me/rainbowkit/wallets';
-import { configureChains, createConfig, mainnet, WagmiConfig } from 'wagmi';
-import { gnosis, optimism, optimismSepolia, sepolia } from 'wagmi/chains';
+import { useContext, useMemo } from 'react';
+import {
+    configureChains,
+    createConfig,
+    mainnet,
+    sepolia,
+    WagmiConfig,
+} from 'wagmi';
+import { gnosis, optimism, optimismSepolia } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import DM3 from '../../components/DM3/DM3';
-import { Dm3Props } from '../../interfaces/config';
-import './Home.css';
-import { useContext, useMemo } from 'react';
 import { Loader } from '../../components/Loader/Loader';
 import { AuthContextProvider } from '../../context/AuthContext';
 import { ConversationContextProvider } from '../../context/ConversationContext';
+import { DM3ConfigurationContextProvider } from '../../context/DM3ConfigurationContext';
 import { MessageContextProvider } from '../../context/MessageContext';
 import { MainnetProviderContextProvider } from '../../context/ProviderContext';
 import { StorageContextProvider } from '../../context/StorageContext';
 import { TLDContextProvider } from '../../context/TLDContext';
 import { WebSocketContextProvider } from '../../context/WebSocketContext';
+import { Dm3Props } from '../../interfaces/config';
 import { GlobalContext } from '../../utils/context-utils';
-import { DM3ConfigurationContextProvider } from '../../context/DM3ConfigurationContext';
+import './Home.css';
 
 export function Home(props: Dm3Props) {
     // fetches context api data

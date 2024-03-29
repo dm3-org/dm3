@@ -46,7 +46,7 @@ jobs:
                   echo "REACT_APP_MAINNET_PROVIDER_RPC=${{ secrets.MAINNET_PROVIDER_URL}}" >> ./.env.react
                   echo "REACT_APP_CHAIN_ID=${{ vars.CHAIN_ID }}" >> ./.env.react
                   cat ./.env.react >> ./.env
-                  echo "RESOLVER_ADDR=0xae6646c22D8eE6479eE0a39Bf63B9bD9e57bAD9d" >> ./.env
+                  echo "RESOLVER_ADDR=0x88c8cC822095cdE6F92c8d20311C8e7dE6A98694" >> ./.env
                   echo "SIGNING_PUBLIC_KEY=${{ secrets.SIGNING_PUBLIC_KEY }}" >> ./.env
                   echo "SIGNING_PRIVATE_KEY=${{ secrets.SIGNING_PRIVATE_KEY }}" >> ./.env
                   echo "SIGNER_PRIVATE_KEY=${{ secrets.SIGNER_PRIVATE_KEY }}" >> ./.env

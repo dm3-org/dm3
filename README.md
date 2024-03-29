@@ -198,3 +198,11 @@ and add a postmark (incoming timestamp) to the incoming envelope.
 ```
 
 After processing the envelope, the delivery service forwards the message to the receiver app.
+
+# Deployments
+
+## Sepolia
+
+**ERC3668Resolver**: 0x88c8cC822095cdE6F92c8d20311C8e7dE6A98694
+
+**SignatureVerifier**: 0xA76d65E1241CF77944AB66835Bb5389a3E53A269

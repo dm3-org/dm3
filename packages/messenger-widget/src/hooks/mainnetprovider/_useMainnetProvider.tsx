@@ -21,6 +21,7 @@ export const _useMainnetProvider = (
     const sepoliaProvider = new ethers.providers.JsonRpcProvider(url, {
         name: 'sepolia',
         chainId: 11155111,
+        ensAddress: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e',
     });
 
     const mainnetProvider = new ethers.providers.JsonRpcProvider(url, {

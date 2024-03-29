@@ -183,8 +183,8 @@ export const namingServices = [
 export const fetchComponent = (name: string, chainId: string) => {
     switch (name) {
         case NAME_SERVICES.ENS:
-            if (chainId === '5') {
-                return <ConfigureEnsProfile chainToConnect={5} />;
+            if (chainId === '11155111') {
+                return <ConfigureEnsProfile chainToConnect={11155111} />;
             }
             return <ConfigureEnsProfile chainToConnect={1} />;
         case NAME_SERVICES.GENOME:
@@ -205,7 +205,7 @@ export const fetchServiceFromChainId = (chainId: number): string => {
 export const fetchChainIdFromServiceName = (name: string, chainId: string) => {
     switch (name) {
         case NAME_SERVICES.ENS:
-            if (chainId === '5') {
+            if (chainId === '11155111') {
                 return Number(chainId);
             }
             return namingServices[0].chainId;
