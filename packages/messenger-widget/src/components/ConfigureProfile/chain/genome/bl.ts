@@ -25,16 +25,16 @@ export const isGenomeNameValid = async (
     provider: ethers.providers.StaticJsonRpcProvider,
     ensName: string,
     ethAddress: string,
-    setError: Function,
+    setError: (type: NAME_TYPE | undefined, msg: string) => void,
 ) => {
     const isValidEnsName = ethers.utils.isValidName(ensName);
     if (!isValidEnsName) {
-        setError('Invalid GNO name', NAME_TYPE.ENS_NAME);
+        setError(NAME_TYPE.ENS_NAME, 'Invalid GNO name');
         return false;
     }
     const isGenomeName = validateGenomeName(ensName);
     if (!isGenomeName) {
-        setError('Genome name has to end with ', NAME_TYPE.ENS_NAME);
+        setError(NAME_TYPE.ENS_NAME, 'Genome name has to end with ');
         return false;
     }
 
@@ -51,7 +51,7 @@ export const isGenomeNameValid = async (
     const owner = await genomeRegistry.owner(node);
 
     if (owner === null) {
-        setError('owner not found', NAME_TYPE.ENS_NAME);
+        setError(NAME_TYPE.ENS_NAME, 'owner not found');
         return false;
     }
     if (
@@ -60,8 +60,8 @@ export const isGenomeNameValid = async (
             ethersHelper.formatAddress(ethAddress!)
     ) {
         setError(
-            'You are not the owner/manager of this name',
             NAME_TYPE.ENS_NAME,
+            'You are not the owner/manager of this name',
         );
         return false;
     }
@@ -116,7 +116,7 @@ export const submitGenomeNameTransaction = async (
     ensName: string,
     ethAddress: string,
     setEnsNameFromResolver: Function,
-    setError: Function,
+    setError: (type: NAME_TYPE | undefined, msg: string) => void,
 ) => {
     try {
         // start loader
@@ -162,10 +162,10 @@ export const submitGenomeNameTransaction = async (
     } catch (e: any) {
         const check = e.toString().includes('user rejected transaction');
         setError(
+            NAME_TYPE.ENS_NAME,
             check
                 ? 'User rejected transaction'
                 : 'You are not the owner/manager of this name',
-            NAME_TYPE.ENS_NAME,
         );
     }
 

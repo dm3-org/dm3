@@ -11,18 +11,18 @@ const isEnsNameValid = async (
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     ensName: string,
     ethAddress: string,
-    setError: Function,
+    setError: (type: NAME_TYPE | undefined, msg: string) => void,
 ): Promise<boolean> => {
     const isValidEnsName = ethers.utils.isValidName(ensName);
     if (!isValidEnsName) {
-        setError('Invalid ENS name', NAME_TYPE.ENS_NAME);
+        setError(NAME_TYPE.ENS_NAME, 'Invalid ENS name');
         return false;
     }
 
     const address = await ethersHelper.resolveOwner(mainnetProvider!, ensName);
 
     if (address === null) {
-        setError('Resolver not found', NAME_TYPE.ENS_NAME);
+        setError(NAME_TYPE.ENS_NAME, 'Resolver not found');
         return false;
     }
 
@@ -34,8 +34,8 @@ const isEnsNameValid = async (
             ethersHelper.formatAddress(ethAddress!)
     ) {
         setError(
-            'You are not the owner/manager of this name',
             NAME_TYPE.ENS_NAME,
+            'You are not the owner/manager of this name',
         );
         return false;
     }
@@ -51,7 +51,7 @@ export const submitEnsNameTransaction = async (
     dispatch: React.Dispatch<Actions>,
     ensName: string,
     setEnsNameFromResolver: Function,
-    setError: Function,
+    setError: (type: NAME_TYPE | undefined, msg: string) => void,
 ) => {
     try {
         // start loader
@@ -97,10 +97,10 @@ export const submitEnsNameTransaction = async (
     } catch (e: any) {
         const check = e.toString().includes('user rejected transaction');
         setError(
+            NAME_TYPE.ENS_NAME,
             check
                 ? 'User rejected transaction'
                 : 'You are not the owner/manager of this name',
-            NAME_TYPE.ENS_NAME,
         );
     }
 
