@@ -3,7 +3,6 @@ import { useContext } from 'react';
 import { useChainId } from 'wagmi';
 import { AuthContext } from '../../../../context/AuthContext';
 import { GlobalContext } from '../../../../utils/context-utils';
-import { getPublishProfileOnchainTransaction } from '../../chain/ens/bl';
 import { ConfigureDM3NameContext } from '../../context/ConfigureDM3NameContext';
 import { ModalStateType } from './../../../../utils/enum-type-utils';
 import { closeLoader, startLoader } from './../../../Loader/Loader';
@@ -19,8 +18,7 @@ export const ConfigureOptimismNameProfile = (props: IChain) => {
     );
     const chainId = useChainId();
 
-    const { account, deliveryServiceToken, profileKeys, setDisplayName } =
-        useContext(AuthContext);
+    const { account, setDisplayName } = useContext(AuthContext);
 
     // Modify it as per actual op name extension. It's written as per figma design.
     const nameExtension = '.op.dm3.eth';
