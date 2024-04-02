@@ -1,9 +1,9 @@
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
-import { goerli } from 'wagmi/chains';
+import { sepolia } from 'wagmi/chains';
 
 import { publicProvider } from 'wagmi/providers/public';
-const { chains, publicClient } = configureChains([goerli], [publicProvider()]);
+const { chains, publicClient } = configureChains([sepolia], [publicProvider()]);
 
 const { connectors } = getDefaultWallets({
     appName: 'BillboardwidgetDemo',

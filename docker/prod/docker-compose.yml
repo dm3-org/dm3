@@ -21,7 +21,7 @@ services:
   backend:
     image: dm3-backend
     restart: always
-    command: yarn workspace dm3-backend start
+    command: yarn workspace @dm3-org/dm3-backend start
     depends_on:
       - db
     environment:
@@ -34,6 +34,7 @@ services:
       RPC: ${RPC}
       PORT: 8081
       LOG_LEVEL: 'debug'
+      DATABASE_URL: ${DATABASE_URL}
 
   db:
     image: redis
@@ -41,28 +42,48 @@ services:
     volumes:
       - /mnt/dm3_prod_volume/db/redis:/data
 
+  dm3-storage:
+    image: postgres:13
+    restart: always
+    container_name: dm3-storage
+    ports:
+      - '5433:5432'
+    environment:
+      POSTGRES_USER: prisma
+      POSTGRES_PASSWORD: prisma
+      POSTGRES_DB: dm3
+    volumes:
+      - /mnt/dm3_prod_volume/storage/postgres:/var/lib/postgresql/data
 
   offchain-resolver-db:
     image: postgres
     restart: always
     container_name: offchain_resolver_db
     environment:
-        POSTGRES_PASSWORD: example
+      POSTGRES_PASSWORD: example
     volumes:
       - /mnt/dm3_prod_volume/db/postgres:/var/lib/postgresql/data
 
   offchain-resolver:
     image: dm3-backend
     restart: always
-    command: yarn workspace dm3-offchain-resolver start
+    command: yarn workspace @dm3-org/dm3-offchain-resolver start
     depends_on:
       - offchain-resolver-db
     environment:
       DATABASE_URL: postgresql://postgres:example@offchain-resolver-db:5432
       PORT: 8082
+      RPC: ${RPC}
+      REACT_APP_ADDR_ENS_SUBDOMAIN: ${REACT_APP_ADDR_ENS_SUBDOMAIN}
       LOG_LEVEL: 'debug'
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8082/0x26139b2349282de5ee2bd9c7a53171a28d6a6c84/0xf8c30f63000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000001c0a62696c6c626f617264310762622d7573657203646d3303657468000000000000000000000000000000000000000000000000000000000000000000000000243b3b57de8d7fcfd6548aae2cdb5851741139459856caadb3b9ad3d27872ae921b2348a7d000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014bcd6de065fd7e889e3ec86aa2d2780d7553ab3cc000000000000000000000000"]
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:8082/0x26139b2349282de5ee2bd9c7a53171a28d6a6c84/0xf8c30f63000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000001c0a62696c6c626f617264310762622d7573657203646d3303657468000000000000000000000000000000000000000000000000000000000000000000000000243b3b57de8d7fcfd6548aae2cdb5851741139459856caadb3b9ad3d27872ae921b2348a7d000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014bcd6de065fd7e889e3ec86aa2d2780d7553ab3cc000000000000000000000000"
+        ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -71,14 +92,14 @@ services:
 
   web:
     image: dm3-backend
-    command: yarn workspace messenger-web start
+    command: yarn workspace @dm3-org/dm3-messenger-web start
     restart: always
     environment:
       REACT_APP_ADDR_ENS_SUBDOMAIN: ${REACT_APP_ADDR_ENS_SUBDOMAIN}
       REACT_APP_BACKEND: ${REACT_APP_BACKEND}
       REACT_APP_DEFAULT_DELIVERY_SERVICE: ${REACT_APP_DEFAULT_DELIVERY_SERVICE}
       REACT_APP_DEFAULT_SERVICE: ${REACT_APP_DEFAULT_SERVICE}
-      REACT_APP_ETHEREUM_PROVIDER: ${REACT_APP_ETHEREUM_PROVIDER}
+      REACT_APP_MAINNET_PROVIDER_RPC: ${REACT_APP_MAINNET_PROVIDER_RPC}
       REACT_APP_PROFILE_BASE_URL: ${REACT_APP_PROFILE_BASE_URL}
       REACT_APP_RESOLVER_BACKEND: ${REACT_APP_RESOLVER_BACKEND}
       REACT_APP_USER_ENS_SUBDOMAIN: ${REACT_APP_USER_ENS_SUBDOMAIN}

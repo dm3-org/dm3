@@ -57,7 +57,7 @@ global.logger = winston.createLogger({
     app.locals.deliveryServiceProperties = getDeliveryServiceProperties();
 
     app.locals.db = await getDatabase();
-    app.locals.web3Provider = getWeb3Provider(process.env);
+    app.locals.web3Provider = await getWeb3Provider(process.env);
 
     app.use(logRequest);
 

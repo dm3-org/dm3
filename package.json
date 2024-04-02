@@ -12,7 +12,6 @@
             "packages/lib/storage",
             "packages/lib/delivery-api",
             "packages/lib/offchainResolver-api",
-            "packages/lib/billboard-api",
             "packages/backend",
             "packages/integration-tests",
             "packages/offchain-resolver",
@@ -20,8 +19,6 @@
             "packages/messenger-demo",
             "packages/messenger-web",
             "packages/cli",
-            "packages/billboard-client",
-            "packages/billboard-widget",
             "packages/toplevel-alias",
             "packages/delivery-service"
         ],

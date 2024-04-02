@@ -4,13 +4,9 @@ import {
     getDeliveryServiceClient,
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
-
 import { ethers } from 'ethers';
 import { checkAccount, getAxiosConfig } from './utils';
-import {
-    NotificationChannel,
-    NotificationChannelType,
-} from '@dm3-org/dm3-lib-delivery';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-delivery';
 
 const NOTIFICATIONS_PATH = process.env.REACT_APP_BACKEND + '/notifications';
 
@@ -31,13 +27,13 @@ export async function toggleGlobalNotifications(
 
     const url = `${NOTIFICATIONS_PATH}/global/${normalizeEnsName(ensName)}`;
 
-    const { data } = await getDeliveryServiceClient(
+    const { data, status } = await getDeliveryServiceClient(
         profile,
         provider,
         async (url: string) => (await axios.post(url)).data,
     ).post(url, { isEnabled }, getAxiosConfig(token));
 
-    return data;
+    return { data, status };
 }
 export type ToggleGlobalNotifications = typeof toggleGlobalNotifications;
 
@@ -45,23 +41,24 @@ export type ToggleGlobalNotifications = typeof toggleGlobalNotifications;
  * fetchs the global notifications configured or not for a given account
  * @param account The dm3 account
  * @param provider Ethers provider
- * @returns An object containing isEnabled or not
+ * @param token The auth token
  */
 export async function getGlobalNotification(
     account: Account,
     provider: ethers.providers.JsonRpcProvider,
-): Promise<{ isEnabled: boolean }> {
+    token: string,
+): Promise<any> {
     const { profile, ensName } = checkAccount(account);
 
     const url = `${NOTIFICATIONS_PATH}/global/${normalizeEnsName(ensName)}`;
 
-    const { data } = await getDeliveryServiceClient(
+    const { data, status } = await getDeliveryServiceClient(
         profile,
         provider,
         async (url: string) => (await axios.get(url)).data,
-    ).get(url);
+    ).get(url, getAxiosConfig(token));
 
-    return data;
+    return { data, status };
 }
 export type GetGlobalNotification = typeof getGlobalNotification;
 
@@ -84,7 +81,7 @@ export async function addNotificationChannel(
 
     const url = `${NOTIFICATIONS_PATH}/${normalizeEnsName(ensName)}`;
 
-    const { data } = await getDeliveryServiceClient(
+    const { data, status } = await getDeliveryServiceClient(
         profile,
         provider,
         async (url: string) => (await axios.post(url)).data,
@@ -97,7 +94,7 @@ export async function addNotificationChannel(
         getAxiosConfig(token),
     );
 
-    return data;
+    return { data, status };
 }
 export type AddNotificationChannel = typeof addNotificationChannel;
 
@@ -105,23 +102,24 @@ export type AddNotificationChannel = typeof addNotificationChannel;
  * fetchs all the notifications channels for a given account
  * @param account The dm3 account
  * @param provider Ethers provider
- * @returns An array of notification channels
+ * @param token The auth token
  */
 export async function getAllNotificationChannels(
     account: Account,
     provider: ethers.providers.JsonRpcProvider,
-): Promise<NotificationChannel[]> {
+    token: string,
+): Promise<any> {
     const { profile, ensName } = checkAccount(account);
 
     const url = `${NOTIFICATIONS_PATH}/${normalizeEnsName(ensName)}`;
 
-    const { data } = await getDeliveryServiceClient(
+    const { data, status } = await getDeliveryServiceClient(
         profile,
         provider,
         async (url: string) => (await axios.get(url)).data,
-    ).get(url);
+    ).get(url, getAxiosConfig(token));
 
-    return data;
+    return { data, status };
 }
 export type GetAllNotificationChannels = typeof getAllNotificationChannels;
 
@@ -142,7 +140,7 @@ export async function sendOtp(
 
     const url = `${NOTIFICATIONS_PATH}/otp/${normalizeEnsName(ensName)}`;
 
-    const { data } = await getDeliveryServiceClient(
+    const { data, status } = await getDeliveryServiceClient(
         profile,
         provider,
         async (url: string) => (await axios.post(url)).data,
@@ -154,7 +152,7 @@ export async function sendOtp(
         getAxiosConfig(token),
     );
 
-    return data;
+    return { data, status };
 }
 export type SendOtp = typeof sendOtp;
 
@@ -177,7 +175,7 @@ export async function verifyOtp(
 
     const url = `${NOTIFICATIONS_PATH}/otp/verify/${normalizeEnsName(ensName)}`;
 
-    const { data } = await getDeliveryServiceClient(
+    const { data, status } = await getDeliveryServiceClient(
         profile,
         provider,
         async (url: string) => (await axios.post(url)).data,
@@ -190,7 +188,7 @@ export async function verifyOtp(
         getAxiosConfig(token),
     );
 
-    return data;
+    return { data, status };
 }
 export type VerifyOtp = typeof verifyOtp;
 
@@ -213,7 +211,7 @@ export async function toggleNotificationChannel(
 
     const url = `${NOTIFICATIONS_PATH}/channel/${normalizeEnsName(ensName)}`;
 
-    const { data } = await getDeliveryServiceClient(
+    const { data, status } = await getDeliveryServiceClient(
         profile,
         provider,
         async (url: string) => (await axios.post(url)).data,
@@ -226,7 +224,7 @@ export async function toggleNotificationChannel(
         getAxiosConfig(token),
     );
 
-    return data;
+    return { data, status };
 }
 
 export type ToggleNotificationChannel = typeof toggleNotificationChannel;
@@ -250,13 +248,13 @@ export async function removeNotificationChannel(
         ensName,
     )}`;
 
-    const { data } = await getDeliveryServiceClient(
+    const { data, status } = await getDeliveryServiceClient(
         profile,
         provider,
         async (url: string) => (await axios.delete(url)).data,
     ).delete(url, getAxiosConfig(token));
 
-    return data;
+    return { data, status };
 }
 
 export type RemoveNotificationChannel = typeof removeNotificationChannel;

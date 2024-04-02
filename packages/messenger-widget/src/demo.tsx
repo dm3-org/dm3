@@ -12,7 +12,7 @@ export function Demo() {
         chainId: process.env.REACT_APP_CHAIN_ID as string,
         resolverAddress: process.env.REACT_APP_RESOLVER_ADDR as string,
         defaultServiceUrl: process.env.REACT_APP_DEFAULT_SERVICE as string,
-        ethereumProvider: process.env.REACT_APP_ETHEREUM_PROVIDER as string,
+        ethereumProvider: process.env.REACT_APP_MAINNET_PROVIDER_RPC as string,
         walletConnectProjectId: process.env
             .REACT_APP_WALLET_CONNECT_PROJECT_ID as string,
         defaultContact: 'defaultcontact.eth',
