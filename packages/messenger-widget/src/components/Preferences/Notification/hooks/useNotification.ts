@@ -89,8 +89,10 @@ export const useNotification = () => {
                         (channel: NotificationChannel) => {
                             switch (channel.type) {
                                 case NotificationChannelType.EMAIL:
-                                    setIsEmailActive(channel.config.isVerified);
-                                    setEmail(channel.config.recipientValue);
+                                    if(channel.config.isVerified){
+                                        setIsEmailActive(true);
+                                        setEmail(channel.config.recipientValue);
+                                    }
                                     break;
                                 default:
                                     break;
