@@ -319,10 +319,11 @@ const checkNotificationIsEnabledAndNotVerified = (
  *  checks existing otp generated time should have difference of
  *  RESEND_VERIFICATION_OTP_TIME_PERIOD from current time
  */
-const isAllowedtoSendNewOtp = (otpGeneratedAtTime: Date): boolean => {
+const isAllowedtoSendNewOtp = (otpGeneratedAtTime: string): boolean => {
     return (
         new Date().getTime() >=
-        otpGeneratedAtTime.getTime() + RESEND_VERIFICATION_OTP_TIME_PERIOD
+        new Date(otpGeneratedAtTime).getTime() +
+            RESEND_VERIFICATION_OTP_TIME_PERIOD
     );
 };
 
