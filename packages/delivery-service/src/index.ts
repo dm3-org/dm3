@@ -24,7 +24,7 @@ import {
     logRequest,
     readKeysFromEnv,
     socketAuth,
-} from './utils';
+} from '@dm3-org/dm3-lib-server-side';
 import Notifications from './notifications';
 
 const app = express();
@@ -45,6 +45,9 @@ global.logger = winston.createLogger({
     level: process.env.LOG_LEVEL ?? 'info',
     transports: [new winston.transports.Console()],
 });
+
+// our library expects a default logger to be present
+winston.loggers.add('default', global.logger);
 
 (async () => {
     const io = new Server(server, {

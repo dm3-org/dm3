@@ -3,7 +3,8 @@ import { ethers } from 'ethers';
 import { Express, NextFunction, Request, Response } from 'express';
 import { Socket } from 'socket.io';
 import { ExtendedError } from 'socket.io/dist/namespace';
-import { WithLocals } from './types';
+import winston from 'winston';
+//import { WithLocals } from './types';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { checkToken } from '@dm3-org/dm3-lib-delivery';
 import { KeyPair } from '@dm3-org/dm3-lib-crypto';
@@ -29,7 +30,7 @@ export async function auth(
     ) {
         next();
     } else {
-        global.logger.warn({
+        winston.loggers.get('default').warn({
             method: 'AUTH',
             error: 'Token check failed',
             normalizedEnsName,
@@ -38,6 +39,7 @@ export async function auth(
     }
 }
 
+//@ts-ignore
 export function socketAuth(app: Express & WithLocals) {
     return async (
         socket: Socket,
@@ -48,7 +50,7 @@ export function socketAuth(app: Express & WithLocals) {
                 socket.handshake.auth.account.ensName,
             );
 
-            global.logger.info({
+            winston.loggers.get('default').info({
                 method: 'WS CONNECT',
                 ensName,
                 socketId: socket.id,
@@ -82,7 +84,7 @@ export function socketAuth(app: Express & WithLocals) {
 }
 
 export function logRequest(req: Request, res: Response, next: NextFunction) {
-    global.logger.info({
+    winston.loggers.get('default').info({
         method: req.method,
         url: req.url,
         timestamp: new Date().getTime(),
@@ -96,7 +98,7 @@ export function logError(
     res: Response,
     next: NextFunction,
 ) {
-    global.logger.error({
+    winston.loggers.get('default').error({
         method: req.method,
         url: req.url,
         error: error.toString(),
@@ -138,4 +140,32 @@ export function readKeysFromEnv(env: NodeJS.ProcessEnv): {
             privateKey: readKey('ENCRYPTION_PRIVATE_KEY'),
         },
     };
+}
+
+export async function getWeb3Provider(
+    env: NodeJS.ProcessEnv,
+): Promise<ethers.providers.JsonRpcProvider> {
+    const readKey = (keyName: string) => {
+        const key = env[keyName];
+        if (!key) {
+            throw Error(`Missing ${keyName} in env`);
+        }
+
+        return key;
+    };
+
+    const rpc = readKey('RPC');
+    //It has turned out, that requests to the provider are not the reason for the backend beeing so slow.
+    //Caching request however would be still usefull, however that would require to implement a proper cache invalidation strategy.
+    //TODO build proper cache
+    const provider = new ethers.providers.JsonRpcProvider(rpc);
+    //Autodected the current network
+    const nw = await provider.getNetwork();
+
+    return new ethers.providers.JsonRpcProvider(rpc, {
+        ...nw,
+        ensAddress: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e',
+    });
+
+    // return getCachedProvider(new ethers.providers.JsonRpcProvider(rpc));
 }
