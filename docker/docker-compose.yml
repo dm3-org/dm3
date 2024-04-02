@@ -32,7 +32,7 @@ services:
       DATABASE_URL: ${DATABASE_URL}
 
     volumes:
-      - /home/app/dm3/config.yml:/app/packages/backend/src/config/config.yml
+      - /home/app/dm3/config.yml:/app/packages/backend/dist/config.yml
 
   db:
     image: redis
