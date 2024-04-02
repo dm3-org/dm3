@@ -65,11 +65,13 @@ function DM3(props: Dm3Props) {
 
             console.log('resolver', resolver);
             const i = new ethers.utils.Interface([
+                //0xa700fc32000000000000000000000000f5b24cd05d6e6e9b8ac2b97cd90c38a8f2df57fb
                 'function addr(bytes32) returns(address)',
+                //0xa700fc32000000000000000000000000f5b24cd05d6e6e9b8ac2b97cd90c38a8f2df57fb
                 'function text(bytes32 node, string calldata key) external view returns (string memory)',
                 'function resolve(bytes,bytes) returns (bytes memory result)',
             ]);
-            const innerReq = i.encodeFunctionData('text', [node, 'foo']);
+            const innerReq = i.encodeFunctionData('addr', [node]);
             const outerReq = i.encodeFunctionData('resolve', [
                 ethers.utils.dnsEncode(name),
                 innerReq,
@@ -78,7 +80,7 @@ function DM3(props: Dm3Props) {
             const res = await provider.call({
                 to: '0x2BAD1FeC0a2629757470984284C11EA00adB8E6F',
                 data: outerReq,
-                ccipReadEnabled: false,
+                ccipReadEnabled: true,
             });
 
             console.log('res', res);
