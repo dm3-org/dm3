@@ -122,7 +122,6 @@ export const useStorage = (
         if (!storageApi) {
             throw Error('Storage not initialized');
         }
-        console.log('storeMessageAsync', contact, envelop);
         storageApi.addMessage(contact, envelop);
     };
     const storeMessageBatch = async (
@@ -132,7 +131,6 @@ export const useStorage = (
         if (!storageApi) {
             throw Error('Storage not initialized');
         }
-        console.log('storeMessageAsync', contact, batch);
         await storageApi.addMessageBatch(contact, batch);
     };
     const getConversations = async (page: number) => {
@@ -183,7 +181,7 @@ export const useStorage = (
 
         //If the user has already migrated we don't need to do anything
         if (hasAlreadyMigrated.data === true) {
-            return;
+            //  return;
         }
 
         //Check if the user has used dm3 before
@@ -202,6 +200,7 @@ export const useStorage = (
                 JSON.parse(legacyStorageFile),
                 profileKeys?.storageEncryptionKey!,
             );
+            await printUserDb();
             await migrageStorage(userDb, cloudStorage, resolveTLDtoAlias);
         }
         //Set the migrationStatus to true. So we won't migrate again
@@ -214,6 +213,27 @@ export const useStorage = (
                 },
             },
         );
+    };
+    const printUserDb = async () => {
+        const { data: legacyStorageFile } = await axios.get(
+            `${storageServiceUrl}/storage/${account?.ensName}/`,
+            {
+                headers: {
+                    Authorization: `Bearer ${storageServiceToken}`,
+                },
+            },
+        );
+        if (legacyStorageFile === null) {
+            return;
+        }
+        const userDb = await load(
+            JSON.parse(legacyStorageFile),
+            profileKeys?.storageEncryptionKey!,
+        );
+        userDb.conversations.forEach((value, key) => {
+            console.log('key', key);
+            console.log('value', value);
+        });
     };
 
     return {

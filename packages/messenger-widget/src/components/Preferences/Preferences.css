@@ -3,7 +3,7 @@
     border: none;
     position: relative;
     width: 80%;
-    height: 90% !important;
+    height: 90%;
     top: 50%;
     transform: translateY(-50%);
 }
@@ -34,6 +34,7 @@
 .preferences-item {
     cursor: pointer;
     padding: 0.5rem 1.3rem 0.5rem 1.3rem;
+    font-size: 1rem;
 }
 
 .preferences-aside-content {
@@ -54,7 +55,7 @@
     position: absolute;
     bottom: 1rem;
     width: 100%;
-    padding-left: 2rem;
+    justify-content: center;
 }
 
 .back-icon {
@@ -64,10 +65,78 @@
 }
 
 .preferences-text-highlighted {
-    color: #8b7ff4;
+    color: var(--preferences-highlighted-color);
 }
 
 .preferences-content {
     border-top-right-radius: 6px;
     padding: 0.5rem 0rem 0.5rem 2rem;
+}
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (min-width: 1041px) and (max-width: 1340px) {
+    .back-icon{
+        width: 1.3rem;
+        margin-left: 0.2rem;
+        margin-right: 0.2rem;
+    }
+
+    .preferences-heading{
+        font-size: 1.2rem !important;
+    }
+}
+
+@media only screen and (min-width: 801px) and (max-width: 1040px) {
+    .back-icon{
+        width: 1rem;
+        margin-left: 0.1rem;
+        margin-right: 0.1rem;
+    }
+
+    .preferences-item {
+        font-size: 12px ;
+    }
+
+    .pref-icon{
+        width: 1.2rem !important;
+    }
+
+    .preferences-heading{
+        font-size: 1rem !important;
+    }
+}
+
+@media only screen and (max-width: 800px) {
+    .preferences-component {
+        background: var(--background-container);
+    }
+
+    .preferences-topic {
+        font-size: 1rem;
+    }
+
+    .preferences-content {
+        padding: 0.5rem 0rem 0.5rem 0.5rem;
+    }
+
+    .preferences-aside-content {
+        display: flex;
+        justify-content: space-between;
+        background: var(--info-box-background-color);
+        height: fit-content;
+    }
+
+    .preferences-item {
+        padding: 0.5rem 0rem 0.5rem 0.5rem;
+        margin: 0.2rem;
+        border-radius: 7px;
+    }
+
+    .preferences-modal-content {
+        width: 90%;
+        height: 95%;
+        background: var(--background-container);
+    }
+
 }

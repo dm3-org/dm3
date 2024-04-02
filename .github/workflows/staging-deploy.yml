@@ -35,7 +35,7 @@ jobs:
                   echo "REACT_APP_BACKEND=http://${{ secrets.HOST_DOMAIN}}/api" >> ./.env.react
                   echo "REACT_APP_DEFAULT_DELIVERY_SERVICE=beta-ds.dm3.eth" >> ./.env.react
                   echo "REACT_APP_DEFAULT_SERVICE=http://${{ secrets.HOST_DOMAIN}}/api" >> ./.env.react
-                  echo "REACT_APP_ETHEREUM_PROVIDER=${{ secrets.RPC }}" >> ./.env.react
+                  echo "REACT_APP_MAINNET_PROVIDER_RPC=${{ secrets.RPC }}" >> ./.env.react
                   echo "REACT_APP_PROFILE_BASE_URL=http://${{ secrets.HOST_DOMAIN}}/api" >> ./.env.react
                   echo "REACT_APP_RESOLVER_BACKEND=http://${{ secrets.HOST_DOMAIN}}/resolver-handler" >> ./.env.react
                   echo "REACT_APP_USER_ENS_SUBDOMAIN=.beta-user.dm3.eth" >> ./.env.react
@@ -46,7 +46,7 @@ jobs:
                   echo "REACT_APP_MAINNET_PROVIDER_RPC=${{ secrets.MAINNET_PROVIDER_URL}}" >> ./.env.react
                   echo "REACT_APP_CHAIN_ID=${{ vars.CHAIN_ID }}" >> ./.env.react
                   cat ./.env.react >> ./.env
-                  echo "RESOLVER_ADDR=0xae6646c22D8eE6479eE0a39Bf63B9bD9e57bAD9d" >> ./.env
+                  echo "RESOLVER_ADDR=0x88c8cC822095cdE6F92c8d20311C8e7dE6A98694" >> ./.env
                   echo "SIGNING_PUBLIC_KEY=${{ secrets.SIGNING_PUBLIC_KEY }}" >> ./.env
                   echo "SIGNING_PRIVATE_KEY=${{ secrets.SIGNING_PRIVATE_KEY }}" >> ./.env
                   echo "SIGNER_PRIVATE_KEY=${{ secrets.SIGNER_PRIVATE_KEY }}" >> ./.env
@@ -61,6 +61,7 @@ jobs:
               shell: bash
               run: |
                   cp ./.env.react packages/messenger-demo/.env
+                  cp ./.env.react packages/messenger-web/.env
                   docker build --progress=plain -t dm3-backend:latest -f ./docker/Dockerfile .
                   docker save -o ./dm3-backend.tar dm3-backend:latest
             - name: Prepare docker

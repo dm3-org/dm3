@@ -68,7 +68,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
                 await req.app.locals.db.getGlobalNotification(account);
 
             // Sending the fetched global notification setting as a JSON response
-            res.json(globalNotification);
+            return res.status(200).json(globalNotification);
         } catch (e) {
             // Passing the error to the next middleware
             next(e);

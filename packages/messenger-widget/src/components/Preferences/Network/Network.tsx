@@ -1,4 +1,4 @@
-import { Heading } from './Heading';
+import { Heading } from '../Heading/Heading';
 
 export function Network() {
     const heading = 'Network';

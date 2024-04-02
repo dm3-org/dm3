@@ -67,13 +67,13 @@ services:
 
   web:
     image: dm3-backend
-    command: yarn workspace @dm3-org/dm3-messenger-demo start
+    command: yarn workspace @dm3-org/dm3-messenger-web start
     environment:
       REACT_APP_ADDR_ENS_SUBDOMAIN: ${REACT_APP_ADDR_ENS_SUBDOMAIN}
       REACT_APP_BACKEND: ${REACT_APP_BACKEND}
       REACT_APP_DEFAULT_DELIVERY_SERVICE: ${REACT_APP_DEFAULT_DELIVERY_SERVICE}
       REACT_APP_DEFAULT_SERVICE: ${REACT_APP_DEFAULT_SERVICE}
-      REACT_APP_ETHEREUM_PROVIDER: ${REACT_APP_ETHEREUM_PROVIDER}
+      REACT_APP_MAINNET_PROVIDER_RPC: ${REACT_APP_MAINNET_PROVIDER_RPC}
       REACT_APP_PROFILE_BASE_URL: ${REACT_APP_PROFILE_BASE_URL}
       REACT_APP_RESOLVER_BACKEND: ${REACT_APP_RESOLVER_BACKEND}
       REACT_APP_USER_ENS_SUBDOMAIN: ${REACT_APP_USER_ENS_SUBDOMAIN}
@@ -90,7 +90,7 @@ services:
       LOG_LEVEL: debug
       CONFIG: |
         {
-          "0xae6646c22d8ee6479ee0a39bf63b9bd9e57bad9d": {
+          "0x88c8cc822095cde6f92c8d20311c8e7de6a98694": {
             "type": "signing",
             "handlerUrl": "http://offchain-resolver:8082"
           }

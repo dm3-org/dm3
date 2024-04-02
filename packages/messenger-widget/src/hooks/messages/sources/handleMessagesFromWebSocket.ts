@@ -5,9 +5,9 @@ import {
     MessageState,
 } from '@dm3-org/dm3-lib-messaging';
 import { ProfileKeys, normalizeEnsName } from '@dm3-org/dm3-lib-profile';
-import { AddMessage, MessageStorage } from '../useMessage';
-import { AddConversation, StoreMessageAsync } from '../../storage/useStorage';
 import { ContactPreview } from '../../../interfaces/utils';
+import { AddConversation, StoreMessageAsync } from '../../storage/useStorage';
+import { MessageStorage } from '../useMessage';
 
 export const handleMessagesFromWebSocket = async (
     addConversation: AddConversation,
@@ -16,6 +16,7 @@ export const handleMessagesFromWebSocket = async (
     profileKeys: ProfileKeys,
     selectedContact: ContactPreview,
     encryptedEnvelop: EncryptionEnvelop,
+    resolveTLDtoAlias: Function,
 ) => {
     const decryptedEnvelop: Envelop = {
         message: JSON.parse(
@@ -33,7 +34,11 @@ export const handleMessagesFromWebSocket = async (
         metadata: encryptedEnvelop.metadata,
     };
 
-    const contact = normalizeEnsName(decryptedEnvelop.message.metadata.from);
+    const contact = normalizeEnsName(
+        await resolveTLDtoAlias(decryptedEnvelop.message.metadata.from),
+    );
+
+    decryptedEnvelop.message.metadata.from = contact;
     await addConversation(contact);
 
     const messageState =

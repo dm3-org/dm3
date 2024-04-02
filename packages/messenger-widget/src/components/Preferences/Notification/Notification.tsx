@@ -1,4 +1,4 @@
-import { Heading } from '../Heading';
+import { Heading } from '../Heading/Heading';
 import { Checkbox, Text } from './Content';
 import { NotificationButton } from './NotificationButton';
 import { VerificationModal } from './VerificationModal';
