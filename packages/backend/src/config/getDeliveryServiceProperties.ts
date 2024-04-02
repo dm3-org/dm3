@@ -16,7 +16,13 @@ export function getDeliveryServiceProperties(
     path: string = DEFAULT_CONFIG_FILE_PATH,
     defaultDeliveryServiceProperties: DeliveryServiceProperties = DEFAULT_DELIVERY_SERVICE_PROPERTIES,
 ): DeliveryServiceProperties {
+    console.log('resolve dir', __dirname);
     console.log('looking for config.yml in ', path);
+    console.log('resolve root: ', resolve(__dirname, './config.yml'));
+    console.log(
+        'can find config ',
+        existsSync(resolve(__dirname, './config.yml')),
+    );
     if (!existsSync(path)) {
         logInfo('Config file not found. Default Config is used');
         return defaultDeliveryServiceProperties;
