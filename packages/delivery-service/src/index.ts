@@ -24,7 +24,7 @@ import {
     logRequest,
     readKeysFromEnv,
     socketAuth,
-} from './utils';
+} from '@dm3-org/dm3-lib-server-side';
 import Notifications from './notifications';
 
 const app = express();
@@ -85,9 +85,7 @@ global.logger = winston.createLogger({
     if (!app.locals) {
         throw new Error('App has no locals');
     }
-    io.use(
-        socketAuth(app as express.Express & { locals: WithLocals['locals'] }),
-    );
+    io.use(socketAuth(app.locals.db, app.locals.web3Provider));
     io.on(
         'connection',
         onConnection(app as express.Express & { locals: WithLocals['locals'] }),

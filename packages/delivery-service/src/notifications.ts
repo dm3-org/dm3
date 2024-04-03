@@ -2,7 +2,7 @@
 import cors from 'cors';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import express from 'express';
-import { auth } from './utils';
+import { auth } from '@dm3-org/dm3-lib-server-side';
 import {
     validateNewNotificationChannelData,
     validateNotificationChannelType,
@@ -28,7 +28,16 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
     router.use(cors());
 
     // Adding a route parameter middleware named 'ensName'
-    router.param('ensName', auth);
+    router.param('ensName', (req, res, next, ensName: string) => {
+        auth(
+            req,
+            res,
+            next,
+            ensName,
+            req.app.locals.db,
+            req.app.locals.web3Provider,
+        );
+    });
 
     // Defining a route to enable/disable global notifications
     router.post('/global/:ensName', async (req, res, next) => {
