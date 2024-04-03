@@ -1,5 +1,4 @@
-import { DeliveryInformation } from '@dm3-org/dm3-lib-messaging';
-import { logError, logInfo } from '@dm3-org/dm3-lib-shared';
+import { logError } from '@dm3-org/dm3-lib-shared';
 import nodemailer from 'nodemailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { NotificationType } from '../types';
@@ -7,11 +6,11 @@ import { fetchEmailSubjectAndTemplate } from '../getEmailTemplate';
 
 // email server configuration
 export type EmailNotificationServerConfig = {
-    host: string;
-    port: number;
-    username: string;
-    password: string;
-    emailID: string;
+    smtpHost: string;
+    smtpPort: number;
+    smtpUsername: string;
+    smtpPassword: string;
+    smtpEmail: string;
 };
 
 type UserEmailConfig = {
@@ -27,11 +26,11 @@ export function Email(config: EmailNotificationServerConfig) {
             // create transport with email credentials
             const transport: nodemailer.Transporter<SMTPTransport.SentMessageInfo> =
                 nodemailer.createTransport({
-                    host: config.host,
-                    port: config.port,
+                    host: config.smtpHost,
+                    port: config.smtpPort,
                     auth: {
-                        user: config.username,
-                        pass: config.password,
+                        user: config.smtpUsername,
+                        pass: config.smtpPassword,
                     },
                 });
 
@@ -43,7 +42,7 @@ export function Email(config: EmailNotificationServerConfig) {
 
             // send the email using nodemailer
             await transport.sendMail({
-                from: config.emailID,
+                from: config.smtpEmail,
                 to: mailConfig.recipientEmailId,
                 subject: subject,
                 html: template,
@@ -53,7 +52,6 @@ export function Email(config: EmailNotificationServerConfig) {
             transport.close();
         } catch (err) {
             logError('Send mail failed ' + err);
-            logInfo('cred : ' + JSON.stringify(config));
         }
     };
 
