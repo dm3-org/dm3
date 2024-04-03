@@ -17,8 +17,12 @@ import {
     NotificationChannel,
     NotificationChannelType,
 } from '@dm3-org/dm3-lib-delivery';
+import { GlobalContext } from '../../../../utils/context-utils';
+import { ModalStateType } from '../../../../utils/enum-type-utils';
+import { closeLoader, startLoader } from '../../../Loader/Loader';
 
 export const useNotification = () => {
+    const {dispatch} = useContext(GlobalContext);
     const { account, deliveryServiceToken } = useContext(AuthContext);
     const mainnetProvider = useMainnetProvider();
 
@@ -182,7 +186,16 @@ export const useNotification = () => {
     };
 
     useEffect(() => {
-        fetchGlobalNotification();
+        const fetchNotificationDetails = async() => {
+            dispatch({
+                type: ModalStateType.LoaderContent,
+                payload: 'Fetching notification channels...'
+            });
+            startLoader();
+            await fetchGlobalNotification();
+            closeLoader();
+        }
+        fetchNotificationDetails();
     }, []);
 
     return {
