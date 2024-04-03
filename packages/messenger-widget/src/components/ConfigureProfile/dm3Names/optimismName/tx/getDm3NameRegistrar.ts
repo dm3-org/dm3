@@ -1,14 +1,14 @@
 import { ethersHelper } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 
-const dm3NameRegistrarAddressSepolia =
-    '0xF5b24cD05D6e6E9b8AC2B97cD90C38a8F2Df57FB';
+const dm3NameRegistrarAddressOPMainnet =
+    '0xa9369F43Ab09613cA32bC3b51201493bD24CED63';
 
 export const getDm3NameRegistrar = (
     provider: ethers.providers.StaticJsonRpcProvider,
 ) =>
     ethersHelper.getConractInstance(
-        dm3NameRegistrarAddressSepolia,
+        dm3NameRegistrarAddressOPMainnet,
         [
             'function register(string calldata name) external',
             'function owner(bytes32 node) external view returns (address)',
