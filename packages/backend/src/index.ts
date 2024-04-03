@@ -20,7 +20,7 @@ import {
     logRequest,
     readKeysFromEnv,
     socketAuth,
-} from './utils';
+} from '@dm3-org/dm3-lib-server-side';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -40,6 +40,8 @@ global.logger = winston.createLogger({
     level: process.env.LOG_LEVEL ?? 'info',
     transports: [new winston.transports.Console()],
 });
+
+winston.loggers.add('default', global.logger);
 
 (async () => {
     const io = new Server(server, {
