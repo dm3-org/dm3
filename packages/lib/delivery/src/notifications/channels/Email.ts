@@ -27,7 +27,6 @@ export function Email(config: EmailNotificationServerConfig) {
             // create transport with email credentials
             const transport: nodemailer.Transporter<SMTPTransport.SentMessageInfo> =
                 nodemailer.createTransport({
-                    service: 'gmail',
                     host: '465',
                     port: config.port,
                     auth: {
