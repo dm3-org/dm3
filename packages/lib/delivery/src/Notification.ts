@@ -329,7 +329,7 @@ const isAllowedtoSendNewOtp = (otpGeneratedAtTime: string): boolean => {
 
 // validates OTP with the existing OTP in DB
 const validateOtp = (otpRecord: IOtp, otpToValidate: string) => {
-    const generatedAt = otpRecord.generatedAt;
+    const generatedAt = new Date(otpRecord.generatedAt);
     // throw error if otp is invalid
     if (otpRecord.otp !== otpToValidate) {
         throw new NotificationError('Invalid OTP');
