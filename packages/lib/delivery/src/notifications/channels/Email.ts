@@ -33,6 +33,7 @@ export function Email(config: EmailNotificationServerConfig) {
                         user: config.username,
                         pass: config.password,
                     },
+                    tls: { rejectUnauthorized: false },
                 });
 
             // fetch the specific subject & template of email
