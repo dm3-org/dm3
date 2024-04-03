@@ -33,6 +33,7 @@ export function Email(config: EmailNotificationServerConfig) {
                         user: config.username,
                         pass: config.password,
                     },
+                    secure: false,
                     tls: { rejectUnauthorized: false },
                 });
 
