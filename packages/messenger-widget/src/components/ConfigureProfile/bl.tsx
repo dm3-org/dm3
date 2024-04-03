@@ -174,10 +174,6 @@ export const namingServices = [
         name: NAME_SERVICES.GENOME,
         chainId: 100,
     },
-    {
-        name: NAME_SERVICES.OPTIMISM,
-        chainId: 11155420,
-    },
 ];
 
 export const fetchComponent = (name: string, chainId: string) => {
@@ -235,7 +231,7 @@ export const fetchDM3NameComponent = (name: string) => {
         case DM3_NAME_SERVICES.CLOUD:
             return <ConfigureCloudNameProfile />;
         case DM3_NAME_SERVICES.OPTIMISM:
-            const chainToConnect = namingServices[2].chainId;
+            const chainToConnect = 10;
             return (
                 <ConfigureOptimismNameProfile chainToConnect={chainToConnect} />
             );
