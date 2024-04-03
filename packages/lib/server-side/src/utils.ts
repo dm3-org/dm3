@@ -2,8 +2,9 @@
 import { ethers } from 'ethers';
 import { Express, NextFunction, Request, Response } from 'express';
 import { Socket } from 'socket.io';
+import winston from 'winston';
 import { ExtendedError } from 'socket.io/dist/namespace';
-import { WithLocals } from './types';
+import { WithLocals } from '../../../backend/src/types';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { checkToken } from '@dm3-org/dm3-lib-delivery';
 import { KeyPair } from '@dm3-org/dm3-lib-crypto';
