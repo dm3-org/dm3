@@ -28,7 +28,7 @@
     "@types/uuid": "^8.3.4",
     "@types/whatwg-encoding": "^2.0.0",
     "jest": "^28.1.1",
-    "nodemailer": "4.7.0",
+    "nodemailer": "6.9.7",
     "ts-jest": "^28.0.4",
     "ts-json-schema-generator": "^0.98.0",
     "typescript": "^4.4.2"
