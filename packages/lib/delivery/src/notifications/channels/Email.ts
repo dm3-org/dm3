@@ -14,7 +14,7 @@ export type EmailNotificationServerConfig = {
 };
 
 type UserEmailConfig = {
-    recipientEmailId: string;
+    recipientValue: string;
     notificationType: NotificationType;
     notificationContent: any; // object that can contain OTP to send in email and other details also in funture
 };
@@ -43,7 +43,7 @@ export function Email(config: EmailNotificationServerConfig) {
             // send the email using nodemailer
             await transport.sendMail({
                 from: config.smtpEmail,
-                to: mailConfig.recipientEmailId,
+                to: mailConfig.recipientValue,
                 subject: subject,
                 html: template,
             });
