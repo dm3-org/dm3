@@ -75,7 +75,7 @@ winston.loggers.add('default', global.logger);
     app.use(logError);
     app.use(errorHandler);
     //@ts-ignore
-    io.use(socketAuth(app));
+    io.use(socketAuth(app.locals.db, app.locals.web3Provider));
     //@ts-ignore
     io.on('connection', onConnection(app));
 })();
