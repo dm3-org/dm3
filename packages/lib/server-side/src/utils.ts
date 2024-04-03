@@ -30,7 +30,7 @@ export async function auth(
     ) {
         next();
     } else {
-        global.logger.warn({
+        winston.loggers.get('default').warn({
             method: 'AUTH',
             error: 'Token check failed',
             normalizedEnsName,
@@ -49,7 +49,7 @@ export function socketAuth(app: Express & WithLocals) {
                 socket.handshake.auth.account.ensName,
             );
 
-            global.logger.info({
+            winston.loggers.get('default').info({
                 method: 'WS CONNECT',
                 ensName,
                 socketId: socket.id,
@@ -83,7 +83,7 @@ export function socketAuth(app: Express & WithLocals) {
 }
 
 export function logRequest(req: Request, res: Response, next: NextFunction) {
-    global.logger.info({
+    winston.loggers.get('default').info({
         method: req.method,
         url: req.url,
         timestamp: new Date().getTime(),
@@ -97,7 +97,7 @@ export function logError(
     res: Response,
     next: NextFunction,
 ) {
-    global.logger.error({
+    winston.loggers.get('default').error({
         method: req.method,
         url: req.url,
         error: error.toString(),
