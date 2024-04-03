@@ -2134,7 +2134,7 @@ __metadata:
     "@types/whatwg-encoding": ^2.0.0
     ethers: 5.7.2
     jest: ^28.1.1
-    nodemailer: 4.7.0
+    nodemailer: 6.9.7
     ts-jest: ^28.0.4
     ts-json-schema-generator: ^0.98.0
     typescript: ^4.4.2
@@ -23023,10 +23023,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nodemailer@npm:4.7.0":
-  version: 4.7.0
-  resolution: "nodemailer@npm:4.7.0"
-  checksum: 33f8774cd1883c693b4cafe66eb599e2351c3e0dfa29f4d37dcfcc26ad789490e9cede64784f4cd79db8ee7675381aafb9e52243859977a5c1ecd2fff6607d97
+"nodemailer@npm:6.9.7":
+  version: 6.9.7
+  resolution: "nodemailer@npm:6.9.7"
+  checksum: 0cf66d27aed3bd2cbdff9939402cec3d2119c31b2b9ff4af3bcd59f48287ea75b90c0ce2cd9eb0df838164972cd25581b4b723c91fd673e2608bcb28445ccb1b
   languageName: node
   linkType: hard
 
