@@ -1,5 +1,5 @@
 import { DeliveryInformation } from '@dm3-org/dm3-lib-messaging';
-import { logError } from '@dm3-org/dm3-lib-shared';
+import { logError, logInfo } from '@dm3-org/dm3-lib-shared';
 import nodemailer from 'nodemailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { NotificationType } from '../types';
@@ -33,8 +33,6 @@ export function Email(config: EmailNotificationServerConfig) {
                         user: config.username,
                         pass: config.password,
                     },
-                    secure: true,
-                    tls: { rejectUnauthorized: false },
                 });
 
             // fetch the specific subject & template of email
@@ -55,6 +53,7 @@ export function Email(config: EmailNotificationServerConfig) {
             transport.close();
         } catch (err) {
             logError('Send mail failed ' + err);
+            logInfo('cred : ' + JSON.stringify(config));
         }
     };
 
