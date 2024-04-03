@@ -2,7 +2,7 @@ import cors from 'cors';
 import express from 'express';
 import { IDatabase } from './persistence/getDatabase';
 import { WithLocals } from './types';
-import { auth } from './utils';
+import { auth } from '@dm3-org/dm3-lib-server-side';
 import { schema, getMessages, Acknoledgment } from '@dm3-org/dm3-lib-delivery';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import { getConversationId } from '@dm3-org/dm3-lib-storage';
@@ -32,7 +32,16 @@ export default () => {
     const router = express.Router();
     //TODO remove
     router.use(cors());
-    router.param('ensName', auth);
+    router.param('ensName', (req, res, next, ensName: string) => {
+        auth(
+            req,
+            res,
+            next,
+            ensName,
+            req.app.locals.db,
+            req.app.locals.web3Provider,
+        );
+    });
 
     router.get(
         '/messages/:ensName/contact/:contactEnsName',
