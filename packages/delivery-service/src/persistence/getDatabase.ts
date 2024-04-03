@@ -1,10 +1,8 @@
 import {
-    Session as DSSession,
     IGlobalNotification,
     IOtp,
     NotificationChannel,
     NotificationChannelType,
-    spamFilter,
 } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { UserStorage } from '@dm3-org/dm3-lib-storage';
@@ -18,7 +16,7 @@ import Otp from './otp';
 import Pending from './pending';
 import Session from './session';
 import Storage from './storage';
-import { MessageRecord } from './storage/postgres/utils/MessageRecord';
+import { ISessionDatabase } from '@dm3-org/dm3-lib-server-side';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -112,7 +110,7 @@ export async function getDatabase(
     };
 }
 
-export interface IDatabase {
+export interface IDatabase extends ISessionDatabase {
     getIncomingMessages: (
         ensName: string,
         limit: number,
@@ -129,14 +127,6 @@ export interface IDatabase {
     ) => Promise<void>;
     deleteExpiredMessages: (time: number) => Promise<void>;
 
-    setSession: (ensName: string, session: DSSession) => Promise<void>;
-
-    getSession: (ensName: string) => Promise<
-        | (DSSession & {
-              spamFilterRules: spamFilter.SpamFilterRules;
-          })
-        | null
-    >;
     //Legacy remove after storage has been merged
     getUserStorage: (ensName: string) => Promise<UserStorage | null>;
     setUserStorage: (ensName: string, data: string) => Promise<void>;

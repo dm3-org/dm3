@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
+import type { ISessionDatabase } from './iSessionDatabase';
 import { ethers } from 'ethers';
 import { Express, NextFunction, Request, Response } from 'express';
 import { Socket } from 'socket.io';
 import winston from 'winston';
 import { ExtendedError } from 'socket.io/dist/namespace';
-import { WithLocals } from '../../../backend/src/types';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { checkToken } from '@dm3-org/dm3-lib-delivery';
 import { KeyPair } from '@dm3-org/dm3-lib-crypto';
@@ -14,6 +14,8 @@ export async function auth(
     res: Response,
     next: NextFunction,
     ensName: string,
+    db: ISessionDatabase,
+    web3Provider: ethers.providers.JsonRpcProvider,
 ) {
     const normalizedEnsName = normalizeEnsName(ensName);
     const authHeader = req.headers['authorization'];
@@ -22,8 +24,8 @@ export async function auth(
     if (
         token &&
         (await checkToken(
-            req.app.locals.web3Provider,
-            req.app.locals.db.getSession,
+            web3Provider,
+            db.getSession,
             normalizedEnsName,
             token,
         ))
@@ -39,7 +41,10 @@ export async function auth(
     }
 }
 
-export function socketAuth(app: Express & WithLocals) {
+export function socketAuth(
+    db: ISessionDatabase,
+    web3Provider: ethers.providers.JsonRpcProvider,
+) {
     return async (
         socket: Socket,
         next: (err?: ExtendedError | undefined) => void,
@@ -57,20 +62,20 @@ export function socketAuth(app: Express & WithLocals) {
 
             if (
                 !(await checkToken(
-                    app.locals.web3Provider,
-                    app.locals.db.getSession,
+                    web3Provider,
+                    db.getSession,
                     ensName,
                     socket.handshake.auth.token as string,
                 ))
             ) {
                 return next(new Error('invalid username'));
             }
-            const session = await app.locals.db.getSession(ensName);
+            const session = await db.getSession(ensName);
             if (!session) {
                 throw Error('Could not get session');
             }
 
-            await app.locals.db.setSession(ensName, {
+            await db.setSession(ensName, {
                 ...session,
                 socketId: socket.id,
             });

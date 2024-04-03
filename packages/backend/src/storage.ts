@@ -1,6 +1,9 @@
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import cors from 'cors';
 import express from 'express';
+import { Express, NextFunction, Request, Response } from 'express';
+import { ethers } from 'ethers';
+import { ISessionDatabase } from '@dm3-org/dm3-lib-server-side';
 import stringify from 'safe-stable-stringify';
 import { auth } from '@dm3-org/dm3-lib-server-side';
 import { sha256 } from '@dm3-org/dm3-lib-shared';
@@ -11,7 +14,19 @@ export default (db: IDatabase) => {
 
     //TODO remove
     router.use(cors());
-    router.param('ensName', auth);
+    router.param(
+        'ensName',
+        (req: Request, res: Response, next: NextFunction, ensName: string) => {
+            auth(
+                req,
+                res,
+                next,
+                ensName,
+                req.app.locals.db,
+                req.app.locals.web3Provider,
+            );
+        },
+    );
 
     router.post('/new/:ensName/editMessageBatch', async (req, res, next) => {
         const { encryptedContactName, editMessageBatchPayload } = req.body;

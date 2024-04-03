@@ -6,6 +6,7 @@ import Session from './session';
 import Storage from './storage';
 import { MessageRecord } from './storage/postgres/utils/MessageRecord';
 import { UserStorage } from '@dm3-org/dm3-lib-storage';
+import { ISessionDatabase } from '@dm3-org/dm3-lib-server-side';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -93,7 +94,7 @@ export async function getDatabase(
     };
 }
 
-export interface IDatabase {
+export interface IDatabase extends ISessionDatabase {
     setSession: (ensName: string, session: DSSession) => Promise<void>;
     getSession: (ensName: string) => Promise<
         | (DSSession & {
