@@ -2,8 +2,15 @@ import { getUserProfile, submitUserProfile } from '@dm3-org/dm3-lib-delivery';
 import { normalizeEnsName, schema } from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import express from 'express';
+import { ethers } from 'ethers';
+import { Server } from 'socket.io';
+import { IDatabase } from './persistence/getDatabase';
 
-export default () => {
+export default (
+    db: IDatabase,
+    web3Provider: ethers.providers.JsonRpcProvider,
+    io: Server,
+) => {
     const router = express.Router();
 
     router.get(
@@ -13,10 +20,7 @@ export default () => {
             try {
                 const ensName = normalizeEnsName(req.params.ensName);
 
-                const profile = await getUserProfile(
-                    req.app.locals.db.getSession,
-                    ensName,
-                );
+                const profile = await getUserProfile(db.getSession, ensName);
                 if (profile) {
                     res.json(profile);
                 } else {
@@ -52,14 +56,14 @@ export default () => {
                 });
 
                 const data = await submitUserProfile(
-                    req.app.locals.web3Provider,
-                    req.app.locals.db.getSession,
-                    req.app.locals.db.setSession,
+                    web3Provider,
+                    db.getSession,
+                    db.setSession,
                     ensName,
                     req.body,
-                    (ensName: string) => req.app.locals.db.getPending(ensName),
+                    (ensName: string) => db.getPending(ensName),
                     (socketId: string) =>
-                        req.app.locals.io.sockets.to(socketId).emit('joined'),
+                        io.sockets.to(socketId).emit('joined'),
                 );
                 global.logger.debug({
                     message: 'POST profile',

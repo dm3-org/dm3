@@ -1,16 +1,21 @@
 import { Axios } from 'axios';
+import { Server } from 'socket.io';
 import 'dotenv/config';
 import express from 'express';
 import { handleGetDeliveryServiceProperties } from './methods/handleGetDeliveryServiceProperties';
+import { DeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery';
 import { handleResolveProfileExtension } from './methods/handleResolveProfileExtension';
-
 import { handleSubmitMessage } from './methods/handleSubmitMessage';
 
 const DM3_SUBMIT_MESSAGE = 'dm3_submitMessage';
 const DM3_GET_DELIVERY_SERVICE_PROPERTIES = 'dm3_getDeliveryServiceProperties';
 const DM3_GET_PROFILE_EXTENSION = 'dm3_getProfileExtension';
 
-export default (axios: Axios) => {
+export default (
+    axios: Axios,
+    deliveryServiceProperties: DeliveryServiceProperties,
+    io: Server,
+) => {
     const router = express.Router();
 
     router.post('/', async (req, res, next) => {
@@ -23,10 +28,19 @@ export default (axios: Axios) => {
 
         switch (method) {
             case DM3_SUBMIT_MESSAGE:
-                return handleSubmitMessage(req as express.Request, res);
+                return handleSubmitMessage(
+                    req as express.Request,
+                    res,
+                    io,
+                    deliveryServiceProperties,
+                );
 
             case DM3_GET_DELIVERY_SERVICE_PROPERTIES:
-                return handleGetDeliveryServiceProperties(req, res);
+                return handleGetDeliveryServiceProperties(
+                    req,
+                    res,
+                    deliveryServiceProperties,
+                );
 
             case DM3_GET_PROFILE_EXTENSION:
                 return handleResolveProfileExtension(axios)(

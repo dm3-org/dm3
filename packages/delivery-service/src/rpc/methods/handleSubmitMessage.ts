@@ -1,13 +1,21 @@
-import { schema, incomingMessage } from '@dm3-org/dm3-lib-delivery';
+import {
+    schema,
+    incomingMessage,
+    DeliveryServiceProperties,
+} from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
-import { validateSchema } from '@dm3-org/dm3-lib-shared';
+import { validateSchema, logError } from '@dm3-org/dm3-lib-shared';
+import { getWeb3Provider, readKeysFromEnv } from '@dm3-org/dm3-lib-server-side';
 import 'dotenv/config';
 import express from 'express';
-import { logDebug, logError, logInfo } from '@dm3-org/dm3-lib-shared';
+import { Server } from 'socket.io';
+import { getDatabase } from '../../persistence/getDatabase';
 
 export async function handleSubmitMessage(
     req: express.Request,
     res: express.Response,
+    io: Server,
+    deliveryServiceProperties: DeliveryServiceProperties,
 ) {
     const {
         params: [stringifiedEnvelop, token],
@@ -41,21 +49,25 @@ export async function handleSubmitMessage(
         return res.status(400).send({ error });
     }
 
+    const db = await getDatabase();
+    const keys = readKeysFromEnv(process.env);
+    const web3Provider = await getWeb3Provider(process.env);
+
     try {
         await incomingMessage(
             { envelop, token },
-            req.app.locals.keys.signing,
-            req.app.locals.keys.encryption,
-            req.app.locals.deliveryServiceProperties.sizeLimit,
-            req.app.locals.deliveryServiceProperties.notificationChannel,
-            req.app.locals.db.getSession,
-            req.app.locals.db.createMessage,
+            keys.signing,
+            keys.encryption,
+            deliveryServiceProperties.sizeLimit,
+            deliveryServiceProperties.notificationChannel,
+            db.getSession,
+            db.createMessage,
             (socketId: string, envelop: EncryptionEnvelop) => {
-                req.app.locals.io.sockets.to(socketId).emit('message', envelop);
+                io.sockets.to(socketId).emit('message', envelop);
             },
-            req.app.locals.web3Provider,
-            req.app.locals.db.getIdEnsName,
-            req.app.locals.db.getUsersNotificationChannels,
+            web3Provider,
+            db.getIdEnsName,
+            db.getUsersNotificationChannels,
         );
         res.send(200);
     } catch (error) {
