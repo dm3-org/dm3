@@ -18,7 +18,6 @@ import {
     getWeb3Provider,
     logError,
     logRequest,
-    readKeysFromEnv,
     socketAuth,
 } from '@dm3-org/dm3-lib-server-side';
 
@@ -53,13 +52,8 @@ winston.loggers.add('default', global.logger);
         },
     });
 
-    app.locals.io = io;
-
-    app.locals.keys = readKeysFromEnv(process.env);
-    app.locals.deliveryServiceProperties = getDeliveryServiceProperties();
-
-    app.locals.db = await getDatabase();
-    app.locals.web3Provider = await getWeb3Provider(process.env);
+    const db = await getDatabase();
+    const web3Provider = await getWeb3Provider(process.env);
 
     app.use(logRequest);
 
@@ -67,15 +61,11 @@ winston.loggers.add('default', global.logger);
         return res.send('Hello DM3');
     });
     app.use('/profile', Profile());
-    app.use('/storage', Storage(app.locals.db));
-    app.use(
-        '/auth',
-        Auth(app.locals.db.getSession as any, app.locals.db.setSession as any),
-    );
+    app.use('/storage', Storage(db));
+    app.use('/auth', Auth(db.getSession as any, db.setSession as any));
     app.use(logError);
     app.use(errorHandler);
-    //@ts-ignore
-    io.use(socketAuth(app.locals.db, app.locals.web3Provider));
+    io.use(socketAuth(db, web3Provider));
     //@ts-ignore
     io.on('connection', onConnection(app));
 })();

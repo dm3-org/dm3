@@ -3,6 +3,8 @@ import { normalizeEnsName, schema } from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import express from 'express';
 import { WithLocals } from './types';
+import { getDatabase } from './persistence/getDatabase';
+import { getWeb3Provider } from '@dm3-org/dm3-lib-server-side';
 
 export default () => {
     const router = express.Router();
@@ -15,7 +17,9 @@ export default () => {
                 const ensName = normalizeEnsName(req.params.ensName);
 
                 const profile = await getUserProfile(
-                    req.app.locals.db.getSession,
+                    (
+                        await getDatabase()
+                    ).getSession,
                     ensName,
                 );
                 if (profile) {
@@ -52,14 +56,17 @@ export default () => {
                         process.env.DISABLE_SESSION_CHECK === 'true',
                 });
 
+                const db = await getDatabase();
+                const web3Provider = await getWeb3Provider(process.env);
+
                 const data = await submitUserProfile(
-                    req.app.locals.web3Provider,
-                    req.app.locals.db.getSession,
-                    req.app.locals.db.setSession,
+                    web3Provider,
+                    db.getSession,
+                    db.setSession,
                     ensName,
                     req.body,
                     // disabled get pending to remove it later
-                    async (ensName: string) => [], //(ensName: string) => req.app.locals.db.getPending(ensName),
+                    async (ensName: string) => [], //(ensName: string) => db.getPending(ensName),
                     (socketId: string) =>
                         req.app.locals.io.sockets.to(socketId).emit('joined'),
                 );
