@@ -3,7 +3,7 @@ import cors from 'cors';
 import express from 'express';
 import { NextFunction, Request, Response } from 'express';
 import stringify from 'safe-stable-stringify';
-import { auth } from '@dm3-org/dm3-lib-server-side';
+import { auth, getWeb3Provider } from '@dm3-org/dm3-lib-server-side';
 import { sha256 } from '@dm3-org/dm3-lib-shared';
 import { IDatabase } from './persistence/getDatabase';
 
@@ -15,8 +15,14 @@ export default (db: IDatabase) => {
 
     router.param(
         'ensName',
-        (req: Request, res: Response, next: NextFunction, ensName: string) => {
-            auth(req, res, next, ensName, db, req.app.locals.web3Provider);
+        async (
+            req: Request,
+            res: Response,
+            next: NextFunction,
+            ensName: string,
+        ) => {
+            const web3Provider = await getWeb3Provider(process.env);
+            auth(req, res, next, ensName, db, web3Provider);
         },
     );
 
