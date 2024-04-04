@@ -1,9 +1,7 @@
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import cors from 'cors';
 import express from 'express';
-import { Express, NextFunction, Request, Response } from 'express';
-import { ethers } from 'ethers';
-import { getWeb3Provider } from '@dm3-org/dm3-lib-server-side';
+import { NextFunction, Request, Response } from 'express';
 import stringify from 'safe-stable-stringify';
 import { auth } from '@dm3-org/dm3-lib-server-side';
 import { sha256 } from '@dm3-org/dm3-lib-shared';
