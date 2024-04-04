@@ -475,9 +475,10 @@ describe('Notifications', () => {
                 });
 
             expect(status).toBe(200);
-            expect(setGlobalNotificationMock).toHaveBeenCalledWith('bob.eth', {
-                isEnabled: true,
-            });
+            expect(setGlobalNotificationMock).toHaveBeenCalledWith(
+                'bob.eth',
+                true,
+            );
         });
 
         it('Disable global notifications', async () => {
@@ -517,9 +518,10 @@ describe('Notifications', () => {
                 });
 
             expect(status).toBe(200);
-            expect(setGlobalNotificationMock).toHaveBeenCalledWith('bob.eth', {
-                isEnabled: false,
-            });
+            expect(setGlobalNotificationMock).toHaveBeenCalledWith(
+                'bob.eth',
+                false,
+            );
         });
 
         it('Returns 400 if req.body is invalid', async () => {
