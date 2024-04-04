@@ -46,9 +46,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             }
 
             // set global notification to the database
-            await req.app.locals.db.setGlobalNotification(account, {
-                isEnabled,
-            });
+            await req.app.locals.db.setGlobalNotification(account, isEnabled);
 
             // Sending a success response
             res.sendStatus(200);
