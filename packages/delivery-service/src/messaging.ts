@@ -1,10 +1,12 @@
-import { Socket } from 'socket.io';
+import { Socket, Server } from 'socket.io';
 import express from 'express';
-import { WithLocals } from './types';
+import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { schema, checkToken, incomingMessage } from '@dm3-org/dm3-lib-delivery';
+import { getWeb3Provider, readKeysFromEnv } from '@dm3-org/dm3-lib-server-side';
+import { getDatabase } from './persistence/getDatabase';
 
 const pendingMessageSchema = {
     type: 'object',
@@ -17,7 +19,7 @@ const pendingMessageSchema = {
     additionalProperties: false,
 };
 
-export function onConnection(app: express.Application & WithLocals) {
+export function onConnection(app: express.Application, io: Server) {
     return (socket: Socket) => {
         socket.on('disconnect', () => {
             global.logger.info({
@@ -36,6 +38,11 @@ export function onConnection(app: express.Application & WithLocals) {
                 callback,
             ) => {
                 try {
+                    const keys = readKeysFromEnv(process.env);
+                    const deliveryServiceProperties =
+                        getDeliveryServiceProperties();
+                    const db = await getDatabase();
+                    const web3Provider = await getWeb3Provider(process.env);
                     global.logger.info({
                         method: 'WS INCOMING MESSAGE',
                     });
@@ -57,26 +64,23 @@ export function onConnection(app: express.Application & WithLocals) {
 
                     global.logger.info({
                         method: 'WS INCOMING MESSAGE',
-                        keys: app.locals.keys.encryption,
+                        keys: keys.encryption,
                     });
 
                     await incomingMessage(
                         data,
-                        app.locals.keys.signing,
-                        app.locals.keys.encryption,
-                        app.locals.deliveryServiceProperties.sizeLimit,
-                        app.locals.deliveryServiceProperties
-                            .notificationChannel,
-                        app.locals.db.getSession,
-                        app.locals.db.createMessage,
+                        keys.signing,
+                        keys.encryption,
+                        deliveryServiceProperties.sizeLimit,
+                        deliveryServiceProperties.notificationChannel,
+                        db.getSession,
+                        db.createMessage,
                         (socketId: string, envelop: EncryptionEnvelop) => {
-                            app.locals.io.sockets
-                                .to(socketId)
-                                .emit('message', envelop);
+                            io.sockets.to(socketId).emit('message', envelop);
                         },
-                        app.locals.web3Provider,
-                        app.locals.db.getIdEnsName,
-                        app.locals.db.getUsersNotificationChannels,
+                        web3Provider,
+                        db.getIdEnsName,
+                        db.getUsersNotificationChannels,
                     ),
                         callback({ response: 'success' });
                 } catch (error: any) {
@@ -91,6 +95,7 @@ export function onConnection(app: express.Application & WithLocals) {
 
         socket.on('pendingMessage', async (data, callback) => {
             const isSchemaValid = validateSchema(pendingMessageSchema, data);
+            const db = await getDatabase();
 
             if (!isSchemaValid) {
                 const error = 'invalid schema';
@@ -109,10 +114,8 @@ export function onConnection(app: express.Application & WithLocals) {
             const contactEnsName = normalizeEnsName(data.contactEnsName);
 
             try {
-                idEnsName = await app.locals.db.getIdEnsName(ensName);
-                idContactEnsName = await app.locals.db.getIdEnsName(
-                    contactEnsName,
-                );
+                idEnsName = await db.getIdEnsName(ensName);
+                idContactEnsName = await db.getIdEnsName(contactEnsName);
             } catch (error) {
                 global.logger.warn({
                     method: 'WS PENDING MESSAGE',
@@ -127,11 +130,12 @@ export function onConnection(app: express.Application & WithLocals) {
                 ensName,
                 contactEnsName,
             });
+            const web3Provider = await getWeb3Provider(process.env);
             try {
                 if (
                     !(await checkToken(
-                        app.locals.web3Provider,
-                        app.locals.db.getSession,
+                        web3Provider,
+                        db.getSession,
                         idEnsName,
                         data.token,
                     ))
@@ -144,7 +148,7 @@ export function onConnection(app: express.Application & WithLocals) {
                     return callback({ error });
                 }
 
-                await app.locals.db.addPending(ensName, idContactEnsName);
+                await db.addPending(ensName, idContactEnsName);
 
                 callback({ response: 'success' });
             } catch (error) {

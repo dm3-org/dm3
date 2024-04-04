@@ -3,6 +3,7 @@ import cors from 'cors';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import express from 'express';
 import { auth } from '@dm3-org/dm3-lib-server-side';
+import { ethers } from 'ethers';
 import {
     validateNewNotificationChannelData,
     validateNotificationChannelType,
@@ -21,7 +22,11 @@ import { IDatabase } from './persistence/getDatabase';
 import { validateToggleNotificationChannel } from './validation/notification/enableOrDisableChannelValidation';
 
 // Exporting a function that returns an Express router
-export default (deliveryServiceProperties: DeliveryServiceProperties) => {
+export default (
+    deliveryServiceProperties: DeliveryServiceProperties,
+    db: IDatabase,
+    web3Provider: ethers.providers.JsonRpcProvider,
+) => {
     const router = express.Router();
 
     // Applying CORS middleware to allow cross-origin requests
@@ -29,14 +34,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
 
     // Adding a route parameter middleware named 'ensName'
     router.param('ensName', (req, res, next, ensName: string) => {
-        auth(
-            req,
-            res,
-            next,
-            ensName,
-            req.app.locals.db,
-            req.app.locals.web3Provider,
-        );
+        auth(req, res, next, ensName, db, web3Provider);
     });
 
     // Defining a route to enable/disable global notifications
@@ -55,9 +53,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             }
 
             // set global notification to the database
-            await req.app.locals.db.setGlobalNotification(account, {
-                isEnabled,
-            });
+            await db.setGlobalNotification(account, isEnabled);
 
             // Sending a success response
             res.sendStatus(200);
@@ -73,8 +69,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             const account = normalizeEnsName(req.params.ensName);
 
             // fetching global notification setting for a user from the database
-            const globalNotification =
-                await req.app.locals.db.getGlobalNotification(account);
+            const globalNotification = await db.getGlobalNotification(account);
 
             // Sending the fetched global notification setting as a JSON response
             return res.status(200).json(globalNotification);
@@ -112,8 +107,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             }
 
             // Fetch global notification data of user from database
-            const globalNotification =
-                await req.app.locals.db.getGlobalNotification(account);
+            const globalNotification = await db.getGlobalNotification(account);
 
             // if global notification is turned off
             if (!globalNotification.isEnabled) {
@@ -128,7 +122,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
                 notificationChannelType,
                 otp,
                 deliveryServiceProperties.notificationChannel,
-                req.app.locals.db as IDatabase,
+                db,
             );
 
             // Sending a success response
@@ -165,8 +159,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             }
 
             // Fetch global notification data of user from database
-            const globalNotification =
-                await req.app.locals.db.getGlobalNotification(account);
+            const globalNotification = await db.getGlobalNotification(account);
 
             // if global notification is turned off
             if (!globalNotification.isEnabled) {
@@ -179,7 +172,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
                 account,
                 notificationChannelType,
                 deliveryServiceProperties.notificationChannel,
-                req.app.locals.db as IDatabase,
+                db,
             );
 
             // Sending a success response
@@ -217,8 +210,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             }
 
             // Fetch global notification data of user from database
-            const globalNotification =
-                await req.app.locals.db.getGlobalNotification(account);
+            const globalNotification = await db.getGlobalNotification(account);
 
             // if global notification is turned off
             if (!globalNotification.isEnabled) {
@@ -233,7 +225,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
                 isEnabled,
                 notificationChannelType,
                 deliveryServiceProperties.notificationChannel,
-                req.app.locals.db as IDatabase,
+                db,
             );
 
             // Sending a success response
@@ -272,8 +264,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             }
 
             // Fetch global notification data of user from database
-            const globalNotification =
-                await req.app.locals.db.getGlobalNotification(account);
+            const globalNotification = await db.getGlobalNotification(account);
 
             // Throw error if global notification is turned off
             if (!globalNotification.isEnabled) {
@@ -288,7 +279,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
                 recipientValue,
                 account,
                 deliveryServiceProperties.notificationChannel,
-                req.app.locals.db as IDatabase,
+                db,
             );
 
             // Sending a success response
@@ -310,8 +301,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             const account = normalizeEnsName(req.params.ensName);
 
             // Fetch global notification data of user from database
-            const globalNotification =
-                await req.app.locals.db.getGlobalNotification(account);
+            const globalNotification = await db.getGlobalNotification(account);
 
             // if global notification is turned off
             if (!globalNotification.isEnabled) {
@@ -319,8 +309,9 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             }
 
             // Getting notification channels for a user from the database
-            const notificationChannels =
-                await req.app.locals.db.getUsersNotificationChannels(account);
+            const notificationChannels = await db.getUsersNotificationChannels(
+                account,
+            );
 
             // Sending the fetched notification channels as a JSON response
             return res.status(200).json({ notificationChannels });
@@ -350,8 +341,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             }
 
             // Fetch global notification data of user from database
-            const globalNotification =
-                await req.app.locals.db.getGlobalNotification(account);
+            const globalNotification = await db.getGlobalNotification(account);
 
             // if global notification is turned off
             if (!globalNotification.isEnabled) {
@@ -364,7 +354,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             await removeNotificationChannel(
                 account,
                 channelType as NotificationChannelType,
-                req.app.locals.db as IDatabase,
+                db,
             );
 
             // Sending a success response
