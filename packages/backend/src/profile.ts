@@ -3,7 +3,6 @@ import { normalizeEnsName, schema } from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import express from 'express';
 import { Server } from 'socket.io';
-import { WithLocals } from './types';
 import { getDatabase } from './persistence/getDatabase';
 import { getWeb3Provider } from '@dm3-org/dm3-lib-server-side';
 
