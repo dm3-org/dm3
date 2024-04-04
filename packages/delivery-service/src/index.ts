@@ -21,7 +21,6 @@ import {
     getWeb3Provider,
     logError,
     logRequest,
-    readKeysFromEnv,
     socketAuth,
 } from '@dm3-org/dm3-lib-server-side';
 import Notifications from './notifications';
@@ -69,7 +68,7 @@ global.logger = winston.createLogger({
     /**
      *     needed
      */
-    app.use('/profile', Profile());
+    app.use('/profile', Profile(db, web3Provider, io));
     app.use('/delivery', Delivery());
     app.use(
         '/notifications',
@@ -80,7 +79,14 @@ global.logger = winston.createLogger({
     io.use(socketAuth(db, web3Provider));
     io.on('connection', onConnection(app, io));
     startCleanUpPendingMessagesJob(db, deliveryServiceProperties.messageTTL);
-    app.use('/rpc', RpcProxy(new Axios({ url: process.env.RPC })));
+    app.use(
+        '/rpc',
+        RpcProxy(
+            new Axios({ url: process.env.RPC }),
+            deliveryServiceProperties,
+            io,
+        ),
+    );
 })();
 
 // TODO include standalone web app

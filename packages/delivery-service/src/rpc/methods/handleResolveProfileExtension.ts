@@ -1,6 +1,7 @@
 import { Axios } from 'axios';
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import express from 'express';
+import { getDatabase } from '../../persistence/getDatabase';
 
 export function handleResolveProfileExtension(axios: Axios) {
     return async (req: express.Request, res: express.Response) => {
@@ -8,11 +9,13 @@ export function handleResolveProfileExtension(axios: Axios) {
             params: [ensName],
         } = req.body;
 
-        const idEnsName = await req.app.locals.db.getIdEnsName(ensName);
+        const db = await getDatabase();
+
+        const idEnsName = await db.getIdEnsName(ensName);
 
         //Get the Session to retrive profileExtension
 
-        const session = await req.app.locals.db.getSession(idEnsName);
+        const session = await db.getSession(idEnsName);
 
         //The requesito ens-name it not known to the delivery service
         if (!session) {

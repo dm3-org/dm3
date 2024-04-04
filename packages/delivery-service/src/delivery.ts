@@ -1,6 +1,6 @@
 import cors from 'cors';
 import express from 'express';
-import { IDatabase, getDatabase } from './persistence/getDatabase';
+import { getDatabase } from './persistence/getDatabase';
 import {
     auth,
     getWeb3Provider,

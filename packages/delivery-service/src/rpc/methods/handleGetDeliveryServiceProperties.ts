@@ -1,13 +1,12 @@
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import express from 'express';
-
+import { DeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery';
 export function handleGetDeliveryServiceProperties(
     req: express.Request,
     res: express.Response,
+    deliveryServiceProperties: DeliveryServiceProperties,
 ) {
-    const response = req.app.locals.deliveryServiceProperties;
-
-    if (!response) {
+    if (!deliveryServiceProperties) {
         global.logger.error({
             method: 'RPC GET DELIVERY SERVICE PROPERTIES',
             error: 'No Delivery Service Properties Set',
@@ -20,5 +19,5 @@ export function handleGetDeliveryServiceProperties(
 
     return res
         .status(200)
-        .send({ jsonrpc: '2.0', result: stringify(response) });
+        .send({ jsonrpc: '2.0', result: stringify(deliveryServiceProperties) });
 }
