@@ -15,7 +15,7 @@ export function DeleteIcon(props: IDeleteIcon) {
         useContext(NotificationContext);
 
     return (
-        <div className="d-flex align-items-center ms-5">
+        <div className="notification-delete-container">
             <span className="highlighted-notification-data">{props.data}</span>
             <img
                 className="ms-3 pointer-cursor"

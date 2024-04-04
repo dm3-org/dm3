@@ -289,6 +289,13 @@ input[type='number'] {
     margin-left: 2rem;
 }
 
+.notification-delete-container{
+    display: flex;
+    align-items: center;
+    margin-left: 3rem;
+    word-break: break-word;
+}
+
 /* =================== Mobile Responsive CSS =================== */
 
 @media only screen and (max-width: 800px) {
@@ -346,6 +353,10 @@ input[type='number'] {
 
     .global-notification-container {
         margin-left: 1rem;
+    }
+
+    .notification-delete-container{
+        margin-left: 0.5rem;
     }
     
 }

@@ -70,6 +70,7 @@ export const useNotification = () => {
                     deliveryServiceToken,
                 );
                 if (status === 200) {
+                    console.log("data : ", data);
                     setIsNotificationsActive(data.isEnabled);
                     await fetchUserNotificationChannels();
                 }
@@ -117,11 +118,12 @@ export const useNotification = () => {
     const toggleGlobalChannel = async (toggle: boolean) => {
         if (account && deliveryServiceToken) {
             try {
+                const isEnabled = toggle;
                 const { status } = await toggleGlobalNotifications(
                     account,
                     mainnetProvider,
                     deliveryServiceToken,
-                    toggle,
+                    isEnabled,
                 );
                 if (status === 200) {
                     await fetchUserNotificationChannels();
@@ -167,6 +169,11 @@ export const useNotification = () => {
     ) => {
         if (account && deliveryServiceToken) {
             try {
+                dispatch({
+                    type: ModalStateType.LoaderContent,
+                    payload: 'Removing notification channel...'
+                });
+                startLoader();
                 const { status } = await removeNotificationChannel(
                     account,
                     mainnetProvider,
@@ -176,11 +183,13 @@ export const useNotification = () => {
                 if (status === 200) {
                     resetChannel(null);
                 }
+                closeLoader();
             } catch (error) {
                 log(
                     `Failed to remove notification channel : ${error}`,
                     'error',
                 );
+                closeLoader();
             }
         }
     };

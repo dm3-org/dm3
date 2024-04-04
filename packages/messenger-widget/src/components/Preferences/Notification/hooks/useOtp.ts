@@ -8,6 +8,9 @@ import {
     verifyOtp,
 } from '@dm3-org/dm3-lib-delivery-api';
 import { useMainnetProvider } from '../../../../hooks/mainnetprovider/useMainnetProvider';
+import { closeLoader, startLoader } from '../../../Loader/Loader';
+import { GlobalContext } from '../../../../utils/context-utils';
+import { ModalStateType } from '../../../../utils/enum-type-utils';
 
 export const otpContent = (type: NotificationChannelType) => {
     const email = 'Please enter the verification code, you received by email.';
@@ -36,6 +39,7 @@ export const useOtp = (
 
     const mainnetProvider = useMainnetProvider();
     const { account, deliveryServiceToken } = useContext(AuthContext);
+    const {dispatch} = useContext(GlobalContext);
 
     // Adds new notification channel & sends OTP
     const addNewNotificationChannel = async (
@@ -92,6 +96,11 @@ export const useOtp = (
         closeModal: Function,
     ) => {
         try {
+            dispatch({
+                type: ModalStateType.LoaderContent,
+                payload: 'Verifying OTP...'
+            });
+            startLoader();
             const { data, status } = await verifyChannelOtp(otp, channelType);
             if (status === 200) {
                 setErrorMsg('');
@@ -102,10 +111,12 @@ export const useOtp = (
                 setErrorMsg(data.error);
                 setShowError(true);
             }
+            closeLoader();
         } catch (error) {
             log(error, 'OTP validation error');
             setErrorMsg('Invalid OTP');
             setShowError(true);
+            closeLoader();
         }
     };
 
@@ -120,10 +131,23 @@ export const useOtp = (
         try {
             let response;
             if (isResendOtp) {
+                dispatch({
+                    type: ModalStateType.LoaderContent,
+                    payload: 'Sending OTP...'
+                });
+                startLoader();
                 response = await sendOtpForVerification(type);
             } else {
+                dispatch({
+                    type: ModalStateType.LoaderContent,
+                    payload: 'Configuring notification channel...'
+                });
+                startLoader();
                 response = await addNewNotificationChannel(type, inputData);
             }
+            
+            closeLoader();
+
             if (response && response.status === 200) {
                 setShowError(false);
                 setOtpSent(true);
@@ -139,6 +163,7 @@ export const useOtp = (
             setErrorMsg('Failed to send OTP, please try again');
             setShowError(true);
             setOtpSent(false);
+            closeLoader();
             return false;
         }
     };
