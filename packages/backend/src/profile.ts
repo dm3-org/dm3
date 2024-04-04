@@ -2,17 +2,18 @@ import { getUserProfile, submitUserProfile } from '@dm3-org/dm3-lib-delivery';
 import { normalizeEnsName, schema } from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import express from 'express';
+import { Server } from 'socket.io';
 import { WithLocals } from './types';
 import { getDatabase } from './persistence/getDatabase';
 import { getWeb3Provider } from '@dm3-org/dm3-lib-server-side';
 
-export default () => {
+export default (io: Server) => {
     const router = express.Router();
 
     router.get(
         '/:ensName',
         //@ts-ignore
-        async (req: express.Request & { app: WithLocals }, res, next) => {
+        async (req: express.Request, res, next) => {
             try {
                 const ensName = normalizeEnsName(req.params.ensName);
 
@@ -36,7 +37,7 @@ export default () => {
     router.post(
         '/:ensName',
         //@ts-ignore
-        async (req: express.Request & { app: WithLocals }, res, next) => {
+        async (req: express.Request, res, next) => {
             try {
                 const schemaIsValid = validateSchema(
                     schema.SignedUserProfile,
@@ -68,7 +69,7 @@ export default () => {
                     // disabled get pending to remove it later
                     async (ensName: string) => [], //(ensName: string) => db.getPending(ensName),
                     (socketId: string) =>
-                        req.app.locals.io.sockets.to(socketId).emit('joined'),
+                        io.sockets.to(socketId).emit('joined'),
                 );
                 global.logger.debug({
                     message: 'POST profile',
