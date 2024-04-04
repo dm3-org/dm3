@@ -9,7 +9,6 @@ import winston from 'winston';
 import { startCleanUpPendingMessagesJob } from './cleanup/cleanUpPendingMessages';
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import Delivery from './delivery';
-import { WithLocals } from './types';
 import { onConnection } from './messaging';
 import { getDatabase } from './persistence/getDatabase';
 import Profile from './profile';
@@ -56,13 +55,10 @@ global.logger = winston.createLogger({
         },
     });
 
-    app.locals.io = io;
+    const deliveryServiceProperties = getDeliveryServiceProperties();
 
-    app.locals.keys = readKeysFromEnv(process.env);
-    app.locals.deliveryServiceProperties = getDeliveryServiceProperties();
-
-    app.locals.db = await getDatabase();
-    app.locals.web3Provider = getWeb3Provider(process.env);
+    const db = await getDatabase();
+    const web3Provider = await getWeb3Provider(process.env);
 
     app.use(logRequest);
 
@@ -77,23 +73,13 @@ global.logger = winston.createLogger({
     app.use('/delivery', Delivery());
     app.use(
         '/notifications',
-        Notifications(app.locals.deliveryServiceProperties),
+        Notifications(deliveryServiceProperties, db, web3Provider),
     );
     app.use(logError);
     app.use(errorHandler);
-    // check if app has locals
-    if (!app.locals) {
-        throw new Error('App has no locals');
-    }
-    io.use(socketAuth(app.locals.db, app.locals.web3Provider));
-    io.on(
-        'connection',
-        onConnection(app as express.Express & { locals: WithLocals['locals'] }),
-    );
-    startCleanUpPendingMessagesJob(
-        app.locals.db,
-        app.locals.deliveryServiceProperties.messageTTL,
-    );
+    io.use(socketAuth(db, web3Provider));
+    io.on('connection', onConnection(app, io));
+    startCleanUpPendingMessagesJob(db, deliveryServiceProperties.messageTTL);
     app.use('/rpc', RpcProxy(new Axios({ url: process.env.RPC })));
 })();
 

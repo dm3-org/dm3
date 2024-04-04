@@ -2,7 +2,6 @@ import { getUserProfile, submitUserProfile } from '@dm3-org/dm3-lib-delivery';
 import { normalizeEnsName, schema } from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import express from 'express';
-import { WithLocals } from './types';
 
 export default () => {
     const router = express.Router();
@@ -10,7 +9,7 @@ export default () => {
     router.get(
         '/:ensName',
         //@ts-ignore
-        async (req: express.Request & { app: WithLocals }, res, next) => {
+        async (req: express.Request, res, next) => {
             try {
                 const ensName = normalizeEnsName(req.params.ensName);
 
@@ -32,7 +31,7 @@ export default () => {
     router.post(
         '/:ensName',
         //@ts-ignore
-        async (req: express.Request & { app: WithLocals }, res, next) => {
+        async (req: express.Request, res, next) => {
             try {
                 const schemaIsValid = validateSchema(
                     schema.SignedUserProfile,

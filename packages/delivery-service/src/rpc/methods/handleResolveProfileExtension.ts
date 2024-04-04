@@ -1,13 +1,9 @@
 import { Axios } from 'axios';
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import express from 'express';
-import { WithLocals } from '../../types';
 
 export function handleResolveProfileExtension(axios: Axios) {
-    return async (
-        req: express.Request & { app: WithLocals },
-        res: express.Response,
-    ) => {
+    return async (req: express.Request, res: express.Response) => {
         const {
             params: [ensName],
         } = req.body;
