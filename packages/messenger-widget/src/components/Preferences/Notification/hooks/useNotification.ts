@@ -22,7 +22,7 @@ import { ModalStateType } from '../../../../utils/enum-type-utils';
 import { closeLoader, startLoader } from '../../../Loader/Loader';
 
 export const useNotification = () => {
-    const {dispatch} = useContext(GlobalContext);
+    const { dispatch } = useContext(GlobalContext);
     const { account, deliveryServiceToken } = useContext(AuthContext);
     const mainnetProvider = useMainnetProvider();
 
@@ -70,7 +70,6 @@ export const useNotification = () => {
                     deliveryServiceToken,
                 );
                 if (status === 200) {
-                    console.log("data : ", data);
                     setIsNotificationsActive(data.isEnabled);
                     await fetchUserNotificationChannels();
                 }
@@ -94,10 +93,15 @@ export const useNotification = () => {
                         (channel: NotificationChannel) => {
                             switch (channel.type) {
                                 case NotificationChannelType.EMAIL:
-                                    if(channel.config.isVerified){
+                                    setEmail(channel.config.recipientValue);
+                                    if (
+                                        channel.config.isEnabled &&
+                                        channel.config.isVerified
+                                    ) {
                                         setIsEmailActive(true);
-                                        setEmail(channel.config.recipientValue);
+                                        break;
                                     }
+                                    setIsEmailActive(false);
                                     break;
                                 default:
                                     break;
@@ -115,42 +119,48 @@ export const useNotification = () => {
     };
 
     // Toggles global notification channel
-    const toggleGlobalChannel = async (toggle: boolean) => {
+    const toggleGlobalChannel = async (isEnabled: boolean) => {
         if (account && deliveryServiceToken) {
             try {
-                const isEnabled = toggle;
+                dispatch({
+                    type: ModalStateType.LoaderContent,
+                    payload: 'Configuring global notification ...',
+                });
+                startLoader();
                 const { status } = await toggleGlobalNotifications(
                     account,
                     mainnetProvider,
                     deliveryServiceToken,
                     isEnabled,
                 );
-                if (status === 200) {
+                if (status === 200 && isEnabled) {
                     await fetchUserNotificationChannels();
                 }
+                closeLoader();
             } catch (error) {
                 log(`Failed to toggle global channel : ${error}`, 'error');
+                closeLoader();
             }
         }
     };
 
     // Toggles specific notification channel
     const toggleSpecificNotificationChannel = async (
-        toggle: boolean,
-        channelType: NotificationChannelType,
+        isEnabled: boolean,
+        notificationChannelType: NotificationChannelType,
         setChannelEnabled: (action: boolean) => void,
     ) => {
         if (account && deliveryServiceToken) {
             try {
-                setChannelEnabled(toggle);
+                setChannelEnabled(isEnabled);
                 const { status } = await toggleNotificationChannel(
                     account,
                     mainnetProvider,
                     deliveryServiceToken,
-                    toggle,
-                    channelType,
+                    isEnabled,
+                    notificationChannelType,
                 );
-                if (toggle && status === 200) {
+                if (isEnabled && status === 200) {
                     await fetchUserNotificationChannels();
                 }
             } catch (error) {
@@ -171,7 +181,7 @@ export const useNotification = () => {
             try {
                 dispatch({
                     type: ModalStateType.LoaderContent,
-                    payload: 'Removing notification channel...'
+                    payload: `Removing ${channelType.toLowerCase()} channel...`,
                 });
                 startLoader();
                 const { status } = await removeNotificationChannel(
@@ -195,15 +205,15 @@ export const useNotification = () => {
     };
 
     useEffect(() => {
-        const fetchNotificationDetails = async() => {
+        const fetchNotificationDetails = async () => {
             dispatch({
                 type: ModalStateType.LoaderContent,
-                payload: 'Fetching notification channels...'
+                payload: 'Fetching notification channels...',
             });
             startLoader();
             await fetchGlobalNotification();
             closeLoader();
-        }
+        };
         fetchNotificationDetails();
     }, []);
 

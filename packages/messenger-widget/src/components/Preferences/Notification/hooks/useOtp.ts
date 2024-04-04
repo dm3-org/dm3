@@ -39,7 +39,7 @@ export const useOtp = (
 
     const mainnetProvider = useMainnetProvider();
     const { account, deliveryServiceToken } = useContext(AuthContext);
-    const {dispatch} = useContext(GlobalContext);
+    const { dispatch } = useContext(GlobalContext);
 
     // Adds new notification channel & sends OTP
     const addNewNotificationChannel = async (
@@ -98,7 +98,7 @@ export const useOtp = (
         try {
             dispatch({
                 type: ModalStateType.LoaderContent,
-                payload: 'Verifying OTP...'
+                payload: 'Verifying OTP...',
             });
             startLoader();
             const { data, status } = await verifyChannelOtp(otp, channelType);
@@ -133,19 +133,19 @@ export const useOtp = (
             if (isResendOtp) {
                 dispatch({
                     type: ModalStateType.LoaderContent,
-                    payload: 'Sending OTP...'
+                    payload: 'Sending OTP...',
                 });
                 startLoader();
                 response = await sendOtpForVerification(type);
             } else {
                 dispatch({
                     type: ModalStateType.LoaderContent,
-                    payload: 'Configuring notification channel...'
+                    payload: `Configuring ${type.toLowerCase()} channel...`,
                 });
                 startLoader();
                 response = await addNewNotificationChannel(type, inputData);
             }
-            
+
             closeLoader();
 
             if (response && response.status === 200) {
@@ -246,6 +246,5 @@ export const useOtp = (
         isCodeResent,
         setIsCodeResent,
         sendOtpToChannel,
-        validateOtp,
     };
 };

@@ -83,7 +83,7 @@ export function Notification() {
                         }
                         heading="Email"
                     />
-                    {email ? (
+                    {email && isNotificationsActive ? (
                         <DeleteIcon
                             data={email}
                             type={NotificationChannelType.EMAIL}
