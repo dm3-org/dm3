@@ -181,7 +181,7 @@ export const useStorage = (
 
         //If the user has already migrated we don't need to do anything
         if (hasAlreadyMigrated.data === true) {
-            //  return;
+            return;
         }
 
         //Check if the user has used dm3 before
