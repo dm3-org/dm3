@@ -4,7 +4,7 @@ import { globalConfig } from '@dm3-org/dm3-lib-shared';
 
 const TOP_LEVEL_DOMAIN = '.op.dm3.eth';
 const EVM_FETCHER_CONTRACT_ADDRESS =
-    '0x2BAD1FeC0a2629757470984284C11EA00adB8E6F';
+    '0xa9369F43Ab09613cA32bC3b51201493bD24CED63';
 
 function getIdForAddress(address: string) {
     return address + globalConfig.ADDR_ENS_SUBDOMAIN();
@@ -32,8 +32,11 @@ export class OptimismNames implements ITLDResolver {
             return false;
         }
         //Use the reverse record to get the owner of the name
-        const reverseNode = `${address.slice(2).toLowerCase()}.addr.reverse`;
+        const reverseNode = ethers.utils.namehash(
+            `${address.slice(2).toLowerCase()}.addr.reverse`,
+        );
         const name = await this.lookupAddressCcip(ensName, reverseNode);
+        console.log('op name', name);
 
         return this.hasDm3ProfileOnEnsProfile(name);
     }
@@ -44,7 +47,9 @@ export class OptimismNames implements ITLDResolver {
             return ensName;
         }
         //Use the reverse record to get the owner of the name
-        const reverseNode = `${address.slice(2).toLowerCase()}.addr.reverse`;
+        const reverseNode = ethers.utils.namehash(
+            `${address.slice(2).toLowerCase()}.addr.reverse`,
+        );
         const resolvedName = await this.lookupAddressCcip(ensName, reverseNode);
         return resolvedName ?? ensName;
     }
