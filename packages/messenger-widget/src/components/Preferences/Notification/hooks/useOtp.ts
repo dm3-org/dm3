@@ -36,6 +36,9 @@ export const useOtp = (
     const [errorMsg, setErrorMsg] = useState<string>('');
     const [inputs, setInputs] = useState<HTMLElement | null>(null);
     const [isCodeResent, setIsCodeResent] = useState<boolean>(false);
+    const [otpData, setOtpData] = useState<string>('');
+    const [isVerificationInProcess, setIsVerificationInProcess] =
+        useState<boolean>(false);
 
     const mainnetProvider = useMainnetProvider();
     const { account, deliveryServiceToken } = useContext(AuthContext);
@@ -77,6 +80,7 @@ export const useOtp = (
         channelType: NotificationChannelType,
     ) => {
         if (account && deliveryServiceToken) {
+            console.log('Verify method is calledd : ', otp);
             return await verifyOtp(
                 account,
                 mainnetProvider,
@@ -112,11 +116,15 @@ export const useOtp = (
                 setShowError(true);
             }
             closeLoader();
+            setIsVerificationInProcess(false);
+            setOtpData('');
         } catch (error) {
             log(error, 'OTP validation error');
             setErrorMsg('Invalid OTP');
             setShowError(true);
             closeLoader();
+            setIsVerificationInProcess(false);
+            setOtpData('');
         }
     };
 
@@ -168,45 +176,41 @@ export const useOtp = (
         }
     };
 
+    const handleInputChange = function (e: Event) {
+        const target: any = e.target;
+        const val = target.value;
+
+        if (isNaN(val)) {
+            target.value = '';
+            return;
+        }
+
+        if (val != '') {
+            const next = target.nextElementSibling;
+            if (next) {
+                next.focus();
+                setIsCodeResent(false);
+                setShowError(false);
+            }
+        }
+
+        // checks otp and calls backend to validate
+        const otpElements: any = document.getElementsByClassName('otp');
+        if (otpElements && otpElements.length) {
+            let data = '';
+            for (let index = 0; index < otpElements.length; index++) {
+                data = data.concat(otpElements[index].value);
+            }
+            if (data.length === 5) {
+                setOtpData(data);
+                setIsVerificationInProcess(true);
+            }
+        }
+    };
+
     // handles input field value change
     if (inputs) {
-        inputs.addEventListener('input', function (e) {
-            const target: any = e.target;
-            const val = target.value;
-
-            if (isNaN(val)) {
-                target.value = '';
-                return;
-            }
-
-            if (val != '') {
-                const next = target.nextElementSibling;
-                if (next) {
-                    next.focus();
-                    setIsCodeResent(false);
-                    setShowError(false);
-                }
-            }
-
-            // checks otp and calls backend to validate
-            const otpElements: any = document.getElementsByClassName('otp');
-            if (otpElements && otpElements.length) {
-                let data = '';
-                for (let index = 0; index < otpElements.length; index++) {
-                    data = data.concat(otpElements[index].value);
-                }
-                if (data.length === 5) {
-                    validateOtp(
-                        data,
-                        verificationData,
-                        setErrorMsg,
-                        setShowError,
-                        setVerification,
-                        closeModal,
-                    );
-                }
-            }
-        });
+        inputs.addEventListener('input', handleInputChange);
 
         // handles clearing of otp
         inputs.addEventListener('keyup', function (e) {
@@ -225,6 +229,22 @@ export const useOtp = (
             }
         });
     }
+
+    // Handles debouncing of API call to verify OTP
+    useEffect(() => {
+        if (isVerificationInProcess) {
+            setTimeout(() => {
+                validateOtp(
+                    otpData,
+                    verificationData,
+                    setErrorMsg,
+                    setShowError,
+                    setVerification,
+                    closeModal,
+                );
+            }, 1000);
+        }
+    }, [isVerificationInProcess]);
 
     // focus on OTP input field
     useEffect(() => {
