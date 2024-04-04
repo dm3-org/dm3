@@ -6,7 +6,6 @@ import path from 'path';
 import { Server } from 'socket.io';
 import winston from 'winston';
 import { Auth } from '@dm3-org/dm3-lib-server-side';
-import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import { getDatabase } from './persistence/getDatabase';
 import Profile from './profile';
 import Storage from './storage';
@@ -60,7 +59,7 @@ winston.loggers.add('default', global.logger);
     app.get('/hello', (req, res) => {
         return res.send('Hello DM3');
     });
-    app.use('/profile', Profile());
+    app.use('/profile', Profile(io));
     app.use('/storage', Storage(db));
     app.use('/auth', Auth(db.getSession as any, db.setSession as any));
     app.use(logError);
