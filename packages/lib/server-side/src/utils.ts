@@ -159,7 +159,7 @@ export async function getWeb3Provider(
     };
 
     const rpc = readKey('RPC');
-    //It has turned out, that requests to the provider are not the reason for the backend beeing so slow.
+    //It has turned out, that requests to the provider are not the reason for the backend being so slow.
     //Caching request however would be still usefull, however that would require to implement a proper cache invalidation strategy.
     //TODO build proper cache
     const provider = new ethers.providers.JsonRpcProvider(rpc);
