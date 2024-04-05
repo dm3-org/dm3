@@ -3,22 +3,21 @@ import { normalizeEnsName, schema } from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import express from 'express';
 import { Server } from 'socket.io';
-import { getDatabase } from './persistence/getDatabase';
+import { IDatabase } from './persistence/getDatabase';
 import { ethers } from 'ethers';
 
-export default (io: Server, web3Provider: ethers.providers.JsonRpcProvider) => {
+export default (
+    db: IDatabase,
+    io: Server,
+    web3Provider: ethers.providers.JsonRpcProvider,
+) => {
     const router = express.Router();
 
     router.get('/:ensName', async (req: express.Request, res, next) => {
         try {
             const ensName = normalizeEnsName(req.params.ensName);
 
-            const profile = await getUserProfile(
-                (
-                    await getDatabase()
-                ).getSession,
-                ensName,
-            );
+            const profile = await getUserProfile(db.getSession, ensName);
             if (profile) {
                 res.json(profile);
             } else {
@@ -48,8 +47,6 @@ export default (io: Server, web3Provider: ethers.providers.JsonRpcProvider) => {
                 disableSessionCheck:
                     process.env.DISABLE_SESSION_CHECK === 'true',
             });
-
-            const db = await getDatabase();
 
             const data = await submitUserProfile(
                 web3Provider,
