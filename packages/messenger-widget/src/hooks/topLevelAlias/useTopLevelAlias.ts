@@ -6,10 +6,12 @@ import { EthereumNameService } from './nameService/EthereumNameService';
 import { Genome } from './nameService/Genome';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { OptimismNames } from './nameService/OptimismNames';
 
 const SUPPORTED_NAMESERVICES = (provider: ethers.providers.JsonRpcProvider) => [
     new EthereumNameService(provider),
     new Genome(provider),
+    new OptimismNames(provider),
     new Dm3Name(provider),
     new EthAddressResolver(),
 ];

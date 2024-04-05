@@ -1,24 +1,20 @@
-import { Account, ProfileKeys, hasUserProfile } from '@dm3-org/dm3-lib-profile';
+import React from 'react';
+import { ethers } from 'ethers';
 import {
     Actions,
     ConnectionType,
     ModalStateType,
 } from '../../utils/enum-type-utils';
-
-import { createAlias } from '@dm3-org/dm3-lib-delivery-api';
-import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
-import { ethers } from 'ethers';
-import React from 'react';
-import {
-    claimSubdomain,
-    removeAlias,
-} from '../../adapters/offchain-resolver-api';
 import { checkEnsDM3Text } from '../../utils/ens-utils';
+import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
 import { closeLoader, startLoader } from '../Loader/Loader';
-import { NAME_TYPE } from './chain/common';
+import { removeAlias } from '../../adapters/offchain-resolver-api';
 import { ConfigureEnsProfile } from './chain/ens/ConfigureEnsProfile';
-import { ConfigureGenomeProfile } from './chain/genome/ConfigureGenomeProfile';
 import { Dm3Name } from '../../hooks/topLevelAlias/nameService/Dm3Name';
+import { ConfigureGenomeProfile } from './chain/genome/ConfigureGenomeProfile';
+import { Account, ProfileKeys, hasUserProfile } from '@dm3-org/dm3-lib-profile';
+import { ConfigureCloudNameProfile } from './dm3Names/cloudName/ConfigureCloudNameProfile';
+import { ConfigureOptimismNameProfile } from './dm3Names/optimismName/ConfigureOptimismNameProfile';
 
 export const PROFILE_INPUT_FIELD_CLASS =
     'profile-input font-weight-400 font-size-14 border-radius-6 w-100 line-height-24';
@@ -78,55 +74,6 @@ export const getEnsName = async (
     } catch (error) {
         log(error, 'Configure profile');
     }
-};
-
-// method to set new DM3 username
-export const submitDm3UsernameClaim = async (
-    resolverBackendUrl: string,
-    profileKeys: ProfileKeys,
-    mainnetProvider: ethers.providers.StaticJsonRpcProvider,
-    account: Account,
-    dsToken: string,
-    dm3UserEnsName: string,
-    dispatch: React.Dispatch<Actions>,
-    setError: Function,
-    setDisplayName: Function,
-    setExistingDm3Name: Function,
-) => {
-    try {
-        // start loader
-        dispatch({
-            type: ModalStateType.LoaderContent,
-            payload: 'Publishing profile...',
-        });
-
-        startLoader();
-
-        const ensName = dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN();
-
-        await claimSubdomain(
-            dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN(),
-            resolverBackendUrl as string,
-            account!.ensName,
-            profileKeys.signingKeyPair.privateKey,
-        );
-
-        await createAlias(
-            account!,
-            mainnetProvider!,
-            account!.ensName,
-            ensName,
-            dsToken!,
-        );
-
-        setDisplayName(ensName);
-        setExistingDm3Name(ensName);
-    } catch (e) {
-        setError('Name is not available', NAME_TYPE.DM3_NAME);
-    }
-
-    // stop loader
-    closeLoader();
 };
 
 // method to remove aliad
@@ -215,6 +162,7 @@ export const fetchExistingDM3Name = async (
 const enum NAME_SERVICES {
     ENS = 'Ethereum Network - Ethereum Name Service (ENS)',
     GENOME = 'Gnosis Network - Genome/SpaceID',
+    OPTIMISM = 'Optimism Network',
 }
 
 export const namingServices = [
@@ -261,5 +209,31 @@ export const fetchChainIdFromServiceName = (name: string, chainId: string) => {
             return namingServices[1].chainId;
         default:
             return namingServices[0].chainId;
+    }
+};
+
+const enum DM3_NAME_SERVICES {
+    CLOUD = 'Cloud-Service by dm3 (... .user.dm3.eth)',
+    OPTIMISM = 'Optimism (... .op.dm3.eth)',
+}
+
+export const dm3NamingServices = [
+    {
+        name: DM3_NAME_SERVICES.CLOUD,
+    },
+    {
+        name: DM3_NAME_SERVICES.OPTIMISM,
+    },
+];
+
+export const fetchDM3NameComponent = (name: string) => {
+    switch (name) {
+        case DM3_NAME_SERVICES.CLOUD:
+            return <ConfigureCloudNameProfile />;
+        case DM3_NAME_SERVICES.OPTIMISM:
+            const chainToConnect = 10;
+            return (
+                <ConfigureOptimismNameProfile chainToConnect={chainToConnect} />
+            );
     }
 };

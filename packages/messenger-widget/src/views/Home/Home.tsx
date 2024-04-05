@@ -19,7 +19,7 @@ import {
     sepolia,
     WagmiConfig,
 } from 'wagmi';
-import { gnosis } from 'wagmi/chains';
+import { gnosis, optimism, optimismSepolia } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import DM3 from '../../components/DM3/DM3';
 import { Loader } from '../../components/Loader/Loader';
@@ -43,8 +43,8 @@ export function Home(props: Dm3Props) {
     // because there is no spaceId testnet deploymend yet
     const _chains =
         props.dm3Configuration.chainId === '1'
-            ? [mainnet, gnosis]
-            : [sepolia, gnosis];
+            ? [mainnet, optimism, gnosis]
+            : [sepolia, optimismSepolia, gnosis];
 
     const { chains, publicClient } = configureChains(
         [..._chains],
