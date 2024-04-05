@@ -1,6 +1,6 @@
 {
   "name": "@dm3-org/dm3-messenger-widget",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "main": "./lib/cjs/widget.js",
   "module": "./lib/esm/widget.js",
   "types": "./lib/esm/widget.d.ts",
