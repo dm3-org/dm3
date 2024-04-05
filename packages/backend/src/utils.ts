@@ -140,9 +140,9 @@ export function readKeysFromEnv(env: NodeJS.ProcessEnv): {
     };
 }
 
-export function getWeb3Provider(
+export async function getWeb3Provider(
     env: NodeJS.ProcessEnv,
-): ethers.providers.JsonRpcProvider {
+): Promise<ethers.providers.JsonRpcProvider> {
     const readKey = (keyName: string) => {
         const key = env[keyName];
         if (!key) {
@@ -156,7 +156,15 @@ export function getWeb3Provider(
     //It has turned out, that requests to the provider are not the reason for the backend beeing so slow.
     //Caching request however would be still usefull, however that would require to implement a proper cache invalidation strategy.
     //TODO build proper cache
-    return new ethers.providers.JsonRpcProvider(rpc);
+    const provider = new ethers.providers.JsonRpcProvider(rpc);
+    //Autodected the current network
+    const nw = await provider.getNetwork();
+
+    return new ethers.providers.JsonRpcProvider(rpc, {
+        ...nw,
+        ensAddress: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e',
+    });
+
     // return getCachedProvider(new ethers.providers.JsonRpcProvider(rpc));
 }
 

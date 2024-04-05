@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 export enum NAME_TYPE {
     ENS_NAME,
     DM3_NAME,
+    OP_NAME,
 }
 
 export enum ACTION_TYPE {

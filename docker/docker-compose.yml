@@ -31,6 +31,9 @@ services:
       LOG_LEVEL: 'debug'
       DATABASE_URL: ${DATABASE_URL}
 
+    volumes:
+      - /home/app/dm3/config.yml:/app/packages/backend/dist/config.yml
+
   db:
     image: redis
     restart: always
@@ -90,7 +93,7 @@ services:
       LOG_LEVEL: debug
       CONFIG: |
         {
-          "0xae6646c22d8ee6479ee0a39bf63b9bd9e57bad9d": {
+          "0x88c8cc822095cde6f92c8d20311c8e7de6a98694": {
             "type": "signing",
             "handlerUrl": "http://offchain-resolver:8082"
           }

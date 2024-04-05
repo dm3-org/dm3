@@ -46,9 +46,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
             }
 
             // set global notification to the database
-            await req.app.locals.db.setGlobalNotification(account, {
-                isEnabled,
-            });
+            await req.app.locals.db.setGlobalNotification(account, isEnabled);
 
             // Sending a success response
             res.sendStatus(200);
@@ -68,7 +66,7 @@ export default (deliveryServiceProperties: DeliveryServiceProperties) => {
                 await req.app.locals.db.getGlobalNotification(account);
 
             // Sending the fetched global notification setting as a JSON response
-            res.json(globalNotification);
+            return res.status(200).json(globalNotification);
         } catch (e) {
             // Passing the error to the next middleware
             next(e);

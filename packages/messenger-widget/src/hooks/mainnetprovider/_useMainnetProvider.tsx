@@ -9,26 +9,27 @@ export const _useMainnetProvider = (
     const url = dm3Configuration.ethereumProvider;
     const chainID = dm3Configuration.chainId;
 
-    if (chainID !== '1' && chainID !== '5') {
+    if (chainID !== '1' && chainID !== '11155111') {
         throw new Error(
-            'Chain ID is not set to please use either goerli or mainnet',
+            'Chain ID is not set to please use either sepolia or mainnet',
         );
     }
     if (!url) {
         throw new Error('Mainnet provider not set in env');
     }
 
-    const goerliProvider = new ethers.providers.JsonRpcProvider(url, {
-        name: 'goerli',
-        chainId: 5,
+    const sepoliaProvider = new ethers.providers.JsonRpcProvider(url, {
+        name: 'sepolia',
+        chainId: 11155111,
+        ensAddress: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e',
     });
 
     const mainnetProvider = new ethers.providers.JsonRpcProvider(url, {
         name: 'mainnet',
         chainId: 1,
     });
-    // Mainnet provider provides access to a mainnet provider. On testnet that would be goerli
-    const provider = chainID === '1' ? mainnetProvider : goerliProvider;
+    // Mainnet provider provides access to a mainnet provider. On testnet that would be sepolia
+    const provider = chainID === '1' ? mainnetProvider : sepoliaProvider;
 
     return getCachedProvider(provider);
 };
