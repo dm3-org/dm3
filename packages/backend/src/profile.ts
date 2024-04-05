@@ -4,9 +4,9 @@ import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import express from 'express';
 import { Server } from 'socket.io';
 import { getDatabase } from './persistence/getDatabase';
-import { getWeb3Provider } from '@dm3-org/dm3-lib-server-side';
+import { ethers } from 'ethers';
 
-export default (io: Server) => {
+export default (io: Server, web3Provider: ethers.providers.JsonRpcProvider) => {
     const router = express.Router();
 
     router.get('/:ensName', async (req: express.Request, res, next) => {
@@ -50,7 +50,6 @@ export default (io: Server) => {
             });
 
             const db = await getDatabase();
-            const web3Provider = await getWeb3Provider(process.env);
 
             const data = await submitUserProfile(
                 web3Provider,
