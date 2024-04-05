@@ -3,11 +3,15 @@ import cors from 'cors';
 import express from 'express';
 import { NextFunction, Request, Response } from 'express';
 import stringify from 'safe-stable-stringify';
-import { auth, getWeb3Provider } from '@dm3-org/dm3-lib-server-side';
+import { auth } from '@dm3-org/dm3-lib-server-side';
 import { sha256 } from '@dm3-org/dm3-lib-shared';
 import { IDatabase } from './persistence/getDatabase';
+import { ethers } from 'ethers';
 
-export default (db: IDatabase) => {
+export default (
+    db: IDatabase,
+    web3Provider: ethers.providers.JsonRpcProvider,
+) => {
     const router = express.Router();
 
     //TODO remove
@@ -21,7 +25,6 @@ export default (db: IDatabase) => {
             next: NextFunction,
             ensName: string,
         ) => {
-            const web3Provider = await getWeb3Provider(process.env);
             auth(req, res, next, ensName, db, web3Provider);
         },
     );
