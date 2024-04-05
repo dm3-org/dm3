@@ -85,6 +85,7 @@ global.logger = winston.createLogger({
             new Axios({ url: process.env.RPC }),
             deliveryServiceProperties,
             io,
+            web3Provider,
         ),
     );
 })();
