@@ -5,8 +5,9 @@ import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { schema, checkToken, incomingMessage } from '@dm3-org/dm3-lib-delivery';
-import { getWeb3Provider, readKeysFromEnv } from '@dm3-org/dm3-lib-server-side';
+import { readKeysFromEnv } from '@dm3-org/dm3-lib-server-side';
 import { getDatabase } from './persistence/getDatabase';
+import { ethers } from 'ethers';
 
 const pendingMessageSchema = {
     type: 'object',
@@ -19,7 +20,11 @@ const pendingMessageSchema = {
     additionalProperties: false,
 };
 
-export function onConnection(app: express.Application, io: Server) {
+export function onConnection(
+    app: express.Application,
+    io: Server,
+    web3Provider: ethers.providers.JsonRpcProvider,
+) {
     return (socket: Socket) => {
         socket.on('disconnect', () => {
             global.logger.info({
@@ -42,7 +47,6 @@ export function onConnection(app: express.Application, io: Server) {
                     const deliveryServiceProperties =
                         getDeliveryServiceProperties();
                     const db = await getDatabase();
-                    const web3Provider = await getWeb3Provider(process.env);
                     global.logger.info({
                         method: 'WS INCOMING MESSAGE',
                     });
@@ -130,7 +134,6 @@ export function onConnection(app: express.Application, io: Server) {
                 ensName,
                 contactEnsName,
             });
-            const web3Provider = await getWeb3Provider(process.env);
             try {
                 if (
                     !(await checkToken(
