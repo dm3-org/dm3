@@ -45,6 +45,11 @@ global.logger = winston.createLogger({
 });
 
 (async () => {
+    // load environment
+    const deliveryServiceProperties = getDeliveryServiceProperties();
+    const db = await getDatabase();
+    const web3Provider = await getWeb3Provider(process.env);
+
     const io = new Server(server, {
         cors: {
             origin: '*',
@@ -53,11 +58,6 @@ global.logger = winston.createLogger({
             optionsSuccessStatus: 204,
         },
     });
-
-    const deliveryServiceProperties = getDeliveryServiceProperties();
-
-    const db = await getDatabase();
-    const web3Provider = await getWeb3Provider(process.env);
 
     app.use(logRequest);
 
@@ -69,7 +69,7 @@ global.logger = winston.createLogger({
      *     needed
      */
     app.use('/profile', Profile(db, web3Provider, io));
-    app.use('/delivery', Delivery());
+    app.use('/delivery', Delivery(web3Provider));
     app.use(
         '/notifications',
         Notifications(deliveryServiceProperties, db, web3Provider),
@@ -77,7 +77,7 @@ global.logger = winston.createLogger({
     app.use(logError);
     app.use(errorHandler);
     io.use(socketAuth(db, web3Provider));
-    io.on('connection', onConnection(app, io));
+    io.on('connection', onConnection(app, io, web3Provider));
     startCleanUpPendingMessagesJob(db, deliveryServiceProperties.messageTTL);
     app.use(
         '/rpc',

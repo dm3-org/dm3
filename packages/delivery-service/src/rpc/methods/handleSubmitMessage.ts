@@ -5,17 +5,19 @@ import {
 } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { validateSchema, logError } from '@dm3-org/dm3-lib-shared';
-import { getWeb3Provider, readKeysFromEnv } from '@dm3-org/dm3-lib-server-side';
+import { readKeysFromEnv } from '@dm3-org/dm3-lib-server-side';
 import 'dotenv/config';
 import express from 'express';
 import { Server } from 'socket.io';
 import { getDatabase } from '../../persistence/getDatabase';
+import { ethers } from 'ethers';
 
 export async function handleSubmitMessage(
     req: express.Request,
     res: express.Response,
     io: Server,
     deliveryServiceProperties: DeliveryServiceProperties,
+    web3Provider: ethers.providers.JsonRpcProvider,
 ) {
     const {
         params: [stringifiedEnvelop, token],
@@ -51,7 +53,6 @@ export async function handleSubmitMessage(
 
     const db = await getDatabase();
     const keys = readKeysFromEnv(process.env);
-    const web3Provider = await getWeb3Provider(process.env);
 
     try {
         await incomingMessage(
