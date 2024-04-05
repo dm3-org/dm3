@@ -1,5 +1,4 @@
 import bodyParser from 'body-parser';
-
 import {
     UserProfile,
     getProfileCreationMessage,
@@ -10,34 +9,32 @@ import express from 'express';
 import request from 'supertest';
 import profile from './profile';
 import winston from 'winston';
+import { Server } from 'socket.io';
+import http from 'http';
 
-async function getEnsTextRecord(
-    provider: ethers.providers.JsonRpcProvider,
-    ensName: string,
-    recordKey: string,
-) {
-    try {
-        const resolver = await provider.getResolver(ensName);
-        if (resolver === null) {
-            return;
-        }
-
-        return await resolver.getText(recordKey);
-    } catch (e) {
-        return undefined;
-    }
-}
 global.logger = winston.createLogger({
     transports: [new winston.transports.Console()],
 });
+
+const createProfile = async (app: express.Express) => {
+    app.use(bodyParser.json());
+    const server = http.createServer(app);
+    const io = new Server(server, {
+        cors: {
+            origin: '*',
+            methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+            preflightContinue: false,
+            optionsSuccessStatus: 204,
+        },
+    });
+    app.use(profile(io));
+};
 
 describe('Profile', () => {
     describe('getProfile', () => {
         it('Returns 200 if schema is valid', async () => {
             const app = express();
-            app.use(bodyParser.json());
-            app.use(profile());
-
+            createProfile(app);
             app.locals.db = {
                 getSession: async (ensName: string) => ({
                     signedUserProfile: {},
@@ -59,8 +56,7 @@ describe('Profile', () => {
     describe('submitUserProfile', () => {
         it('Returns 200 if schema is valid', async () => {
             const app = express();
-            app.use(bodyParser.json());
-            app.use(profile());
+            createProfile(app);
 
             const mnemonic =
                 'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
@@ -107,8 +103,7 @@ describe('Profile', () => {
         });
         it('Returns 400 if schema is invalid', async () => {
             const app = express();
-            app.use(bodyParser.json());
-            app.use(profile());
+            createProfile(app);
 
             app.locals.db = {
                 getSession: async (accountAddress: string) =>
