@@ -1,14 +1,11 @@
 import cors from 'cors';
 import express from 'express';
 import { getDatabase } from './persistence/getDatabase';
-import {
-    auth,
-    getWeb3Provider,
-    readKeysFromEnv,
-} from '@dm3-org/dm3-lib-server-side';
+import { auth, readKeysFromEnv } from '@dm3-org/dm3-lib-server-side';
 import { schema, getMessages, Acknoledgment } from '@dm3-org/dm3-lib-delivery';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import { getConversationId } from '@dm3-org/dm3-lib-storage';
+import { ethers } from 'ethers';
 
 const syncAcknoledgmentParamsSchema = {
     type: 'object',
@@ -31,13 +28,12 @@ const syncAcknoledgmentBodySchema = {
     additionalProperties: false,
 };
 
-export default () => {
+export default (web3Provider: ethers.providers.JsonRpcProvider) => {
     const router = express.Router();
     //TODO remove
     router.use(cors());
     router.param('ensName', async (req, res, next, ensName: string) => {
         const db = await getDatabase();
-        const web3Provider = await getWeb3Provider(process.env);
         auth(req, res, next, ensName, db, web3Provider);
     });
 
