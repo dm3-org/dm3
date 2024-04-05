@@ -11,12 +11,15 @@ import profile from './profile';
 import winston from 'winston';
 import { Server } from 'socket.io';
 import http from 'http';
+import storage from './storage';
+import { IDatabase, getDatabase } from './persistence/getDatabase';
+import { Session, spamFilter } from '@dm3-org/dm3-lib-delivery';
 
 global.logger = winston.createLogger({
     transports: [new winston.transports.Console()],
 });
 
-const createProfile = async (app: express.Express) => {
+const setUpApp = async (app: express.Express) => {
     app.use(bodyParser.json());
     const server = http.createServer(app);
     const io = new Server(server, {
@@ -34,16 +37,25 @@ describe('Profile', () => {
     describe('getProfile', () => {
         it('Returns 200 if schema is valid', async () => {
             const app = express();
-            createProfile(app);
-            app.locals.db = {
-                getSession: async (ensName: string) => ({
-                    signedUserProfile: {},
-                }),
-                setSession: async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
+            setUpApp(app);
+            const dbBase = await getDatabase();
+
+            const dbMock = {
+                // getSession: async (ensName: string) => ({
+                //     signedUserProfile: {},
+                // }),
+                // setSession: async (_: string, __: any) => {
+                //     return (_: any, __: any, ___: any) => {};
+                // },
+                setSession: async (_: string, __: Session) => {
+                    //return (_: any, __: any, ___: any) => {};
                 },
                 getIdEnsName: async (ensName: string) => ensName,
             };
+
+            const db: IDatabase = { ...dbBase, ...dbMock };
+
+            app.use(storage(db));
 
             const { status } = await request(app)
                 .get('/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870')
@@ -56,7 +68,7 @@ describe('Profile', () => {
     describe('submitUserProfile', () => {
         it('Returns 200 if schema is valid', async () => {
             const app = express();
-            createProfile(app);
+            setUpApp(app);
 
             const mnemonic =
                 'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
@@ -103,7 +115,7 @@ describe('Profile', () => {
         });
         it('Returns 400 if schema is invalid', async () => {
             const app = express();
-            createProfile(app);
+            setUpApp(app);
 
             app.locals.db = {
                 getSession: async (accountAddress: string) =>
