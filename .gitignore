@@ -64,3 +64,5 @@ packages/lib/**/dist
 
 packages/**/.yarn
 temp
+
+config.yml
