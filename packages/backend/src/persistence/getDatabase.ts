@@ -2,8 +2,6 @@ import {
     Session as DSSession,
     IGlobalNotification,
     IOtp,
-    NotificationChannel,
-    NotificationChannelType,
     spamFilter,
 } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
@@ -19,6 +17,10 @@ import Session from './session';
 import Storage from './storage';
 import { MessageRecord } from './storage/postgres/utils/MessageRecord';
 import { UserStorage } from '@dm3-org/dm3-lib-storage';
+import {
+    NotificationChannel,
+    NotificationChannelType,
+} from '@dm3-org/dm3-lib-shared';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
