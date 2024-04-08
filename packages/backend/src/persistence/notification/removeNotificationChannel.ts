@@ -1,7 +1,7 @@
 import {
-    NotificationChannel,
     NotificationChannelType,
-} from '@dm3-org/dm3-lib-delivery';
+    NotificationChannel,
+} from '@dm3-org/dm3-lib-shared';
 import { Redis, RedisPrefix } from '../getDatabase';
 import { getIdEnsName } from '../getIdEnsName';
 import { stringify } from '@dm3-org/dm3-lib-shared';

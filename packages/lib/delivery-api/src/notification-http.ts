@@ -6,7 +6,7 @@ import {
 } from '@dm3-org/dm3-lib-profile';
 import { ethers } from 'ethers';
 import { checkAccount, getAxiosConfig } from './utils';
-import { NotificationChannelType } from '@dm3-org/dm3-lib-delivery';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 
 const NOTIFICATIONS_PATH = process.env.REACT_APP_BACKEND + '/notifications';
 

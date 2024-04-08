@@ -10,7 +10,7 @@ import { SpamFilterRules } from './spam-filter/SpamFilterRules';
 import {
     NotificationChannel,
     NotificationChannelType,
-} from './notifications/types';
+} from '@dm3-org/dm3-lib-shared';
 
 const SENDER_NAME = 'alice.eth';
 const RECEIVER_NAME = 'bob.eth';
