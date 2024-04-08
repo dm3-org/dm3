@@ -2,7 +2,7 @@
 import React from 'react';
 import { useConversation } from '../hooks/conversation/useConversation';
 import { ContactPreview } from '../interfaces/utils';
-import { Config, Dm3Props } from '../interfaces/config';
+import { DM3Configuration } from '../interfaces/config';
 
 export type ConversationContextType = {
     contacts: ContactPreview[];
@@ -33,7 +33,7 @@ export const ConversationContextProvider = ({
     config,
 }: {
     children?: any;
-    config: Config;
+    config: DM3Configuration;
 }) => {
     const {
         addConversation,

@@ -2,7 +2,6 @@ import '../../styles/common.css';
 import { Contacts } from '../../components/Contacts/Contacts';
 import menuIcon from '../../assets/images/menu.svg';
 import ConfigureProfileBox from '../../components/ConfigureProfileBox/ConfigureProfileBox';
-import { DashboardProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
 import { useContext, useEffect, useState } from 'react';
 import {
@@ -19,10 +18,12 @@ import { getAvatarProfilePic } from '../../utils/ens-utils';
 import { AuthContext } from '../../context/AuthContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 import humanIcon from '../../assets/images/human.svg';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
-export default function LeftView(props: DashboardProps) {
+export default function LeftView() {
     // fetches context api data
     const { state, dispatch } = useContext(GlobalContext);
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const { initialized } = useContext(ConversationContext);
     const { account } = useContext(AuthContext);
 
@@ -43,7 +44,7 @@ export default function LeftView(props: DashboardProps) {
 
     // method to set profile page and set contact
     const updateView = () => {
-        if (props.dm3Props.dm3Configuration.showContacts) {
+        if (dm3Configuration.showContacts) {
             dispatch({
                 type: UiViewStateType.SetSelectedRightView,
                 payload: RightViewSelected.Profile,
@@ -110,7 +111,7 @@ export default function LeftView(props: DashboardProps) {
                         />
                     </div>
                 </div>
-                <Contacts {...props} />
+                <Contacts />
                 <ConfigureProfileBox />
             </div>
 

@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 /* eslint-disable no-console */
+import './Home.css';
 import {
     connectorsForWallets,
     darkTheme,
@@ -33,7 +34,6 @@ import { TLDContextProvider } from '../../context/TLDContext';
 import { WebSocketContextProvider } from '../../context/WebSocketContext';
 import { Dm3Props } from '../../interfaces/config';
 import { GlobalContext } from '../../utils/context-utils';
-import './Home.css';
 
 export function Home(props: Dm3Props) {
     // fetches context api data
@@ -42,7 +42,7 @@ export function Home(props: Dm3Props) {
     //Use different chains depending on the environment. Note that gnosis mainnet is used for both setups
     // because there is no spaceId testnet deploymend yet
     const _chains =
-        props.dm3Configuration.chainId === '1'
+        props.config.chainId === '1'
             ? [mainnet, optimism, gnosis]
             : [sepolia, optimismSepolia, gnosis];
 
@@ -51,7 +51,7 @@ export function Home(props: Dm3Props) {
         [
             jsonRpcProvider({
                 rpc: () => ({
-                    http: props.dm3Configuration.ethereumProvider as string,
+                    http: props.config.ethereumProvider as string,
                 }),
             }),
         ],
@@ -63,17 +63,17 @@ export function Home(props: Dm3Props) {
                 groupName: 'Popular',
                 wallets: [
                     rainbowWallet({
-                        projectId: props.dm3Configuration
+                        projectId: props.config
                             .walletConnectProjectId as string,
                         chains,
                     }),
                     metaMaskWallet({
-                        projectId: props.dm3Configuration
+                        projectId: props.config
                             .walletConnectProjectId as string,
                         chains,
                     }),
                     walletConnectWallet({
-                        projectId: props.dm3Configuration
+                        projectId: props.config
                             .walletConnectProjectId as string,
                         chains,
                     }),
@@ -97,7 +97,7 @@ export function Home(props: Dm3Props) {
                 <RainbowKitProvider chains={chains} theme={darkTheme()}>
                     <DM3ConfigurationContextProvider>
                         <MainnetProviderContextProvider
-                            dm3Configuration={props.dm3Configuration}
+                            dm3Configuration={props.config}
                         >
                             <TLDContextProvider>
                                 <AuthContextProvider dispatch={dispatch}>
@@ -110,9 +110,6 @@ export function Home(props: Dm3Props) {
                                                 <MessageContextProvider>
                                                     <DM3
                                                         config={props.config}
-                                                        dm3Configuration={
-                                                            props.dm3Configuration
-                                                        }
                                                     />
                                                 </MessageContextProvider>
                                             </ConversationContextProvider>

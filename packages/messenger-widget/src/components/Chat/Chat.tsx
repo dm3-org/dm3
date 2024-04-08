@@ -1,20 +1,19 @@
+import './Chat.css';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { MessageContext } from '../../context/MessageContext';
 import { MessageModel } from '../../hooks/messages/useMessage';
-import { HideFunctionProps } from '../../interfaces/props';
 import { MOBILE_SCREEN_WIDTH } from '../../utils/common-utils';
 import { GlobalContext } from '../../utils/context-utils';
 import { MessageActionType } from '../../utils/enum-type-utils';
 import ConfigProfileAlertBox from '../ContactProfileAlertBox/ContactProfileAlertBox';
 import { Message } from '../Message/Message';
 import { MessageInputBox } from '../MessageInputBox/MessageInputBox';
-import './Chat.css';
 import { scrollToBottomOfChat } from './scrollToBottomOfChat';
 
-export function Chat(props: HideFunctionProps) {
+export function Chat() {
     const { state } = useContext(GlobalContext);
     const { account } = useContext(AuthContext);
     const { selectedContact, contacts, setSelectedContactName } =
@@ -98,7 +97,10 @@ export function Chat(props: HideFunctionProps) {
                         ? 'highlight-chat-border'
                         : 'highlight-chat-border-none',
                 )
-                .concat(' ', !props.showContacts ? ' ps-2 pe-2' : '')}
+                .concat(
+                    ' ',
+                    !dm3Configuration.showContacts ? ' ps-2 pe-2' : '',
+                )}
         >
             {/* Shimmer effect while messages are loading */}
             {showShimEffect && (
@@ -186,7 +188,7 @@ export function Chat(props: HideFunctionProps) {
                     </div>
 
                     {/* Message, emoji and file attachments */}
-                    <MessageInputBox hideFunction={props.hideFunction} />
+                    <MessageInputBox />
                 </>
             )}
         </div>

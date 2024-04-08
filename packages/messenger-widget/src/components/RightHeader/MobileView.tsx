@@ -4,7 +4,6 @@ import humanIcon from '../../assets/images/human.svg';
 import backIcon from '../../assets/images/back.svg';
 import threeDotsIcon from '../../assets/images/three-dots.svg';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
-import { HideFunctionProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
 import { RightViewSelected } from '../../utils/enum-type-utils';
@@ -12,12 +11,14 @@ import { ConversationContext } from '../../context/ConversationContext';
 import { closeContactMenu } from '../../utils/common-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
 import { ContactPreview } from '../../interfaces/utils';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
-export function MobileView(props: HideFunctionProps) {
+export function MobileView() {
     // fetches context storage
     const { state } = useContext(GlobalContext);
     const { setSelectedContactName, selectedContact } =
         useContext(ConversationContext);
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     const mainnetProvider = useMainnetProvider();
 
@@ -57,7 +58,7 @@ export function MobileView(props: HideFunctionProps) {
                     )}
                 >
                     <div className="d-flex justify-content-between align-items-center">
-                        {props.showContacts && (
+                        {dm3Configuration.showContacts && (
                             <img
                                 src={backIcon}
                                 alt="pic"

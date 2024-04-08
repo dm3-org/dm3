@@ -9,7 +9,7 @@ import { ethers } from 'ethers';
 import { IChain, NAME_TYPE } from '../common';
 
 export const ConfigureGenomeProfile = (props: IChain) => {
-    const { state, dispatch } = useContext(GlobalContext);
+    const { dispatch } = useContext(GlobalContext);
 
     const chainId = useChainId();
 

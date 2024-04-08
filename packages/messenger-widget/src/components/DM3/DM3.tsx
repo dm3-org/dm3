@@ -21,7 +21,7 @@ function DM3(props: Dm3Props) {
         }
 
         // sets the DM3 confguration provided from props
-        setDm3Configuration(props.dm3Configuration);
+        setDm3Configuration(props.config);
     }, []);
 
     // This handles the responsive check of widget
@@ -97,15 +97,10 @@ function DM3(props: Dm3Props) {
     return (
         <div id="data-rk-child" className="h-100">
             {!isLoggedIn ? (
-                <SignIn
-                    hideStorageSelection={props.config.hideStorageSelection}
-                    defaultStorageLocation={props.config.defaultStorageLocation}
-                    miniSignIn={props.config.miniSignIn}
-                    signInImage={props.config.signInImage as string}
-                />
+                <SignIn />
             ) : (
                 <div className="h-100 background-container">
-                    <Dashboard dm3Props={props} />
+                    <Dashboard />
                 </div>
             )}
         </div>

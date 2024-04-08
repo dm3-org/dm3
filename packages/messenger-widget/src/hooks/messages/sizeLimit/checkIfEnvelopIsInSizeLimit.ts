@@ -1,6 +1,5 @@
 import { EncryptionEnvelop, getEnvelopSize } from '@dm3-org/dm3-lib-messaging';
 import { log } from '@dm3-org/dm3-lib-shared';
-import { closeErrorModal, openErrorModal } from '../../../utils/common-utils';
 
 export const checkIfEnvelopIsInSizeLimit = async (
     encryptedEnvelop: EncryptionEnvelop,

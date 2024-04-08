@@ -9,8 +9,7 @@ import { ModalStateType } from '../../utils/enum-type-utils';
 import { closeConfigurationModal } from '../ConfigureProfile/bl';
 
 export function NormalView() {
-    const { dispatch } = useContext(GlobalContext);
-    const { state } = useContext(GlobalContext);
+    const { state, dispatch } = useContext(GlobalContext);
 
     const [optionChoosen, setOptionChoosen] = useState<any>(null);
 

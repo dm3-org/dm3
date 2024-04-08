@@ -20,14 +20,13 @@ import { closeLoader, startLoader } from '../Loader/Loader';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export function ContactInfo() {
-    const { state, dispatch } = useContext(GlobalContext);
+    const { dispatch } = useContext(GlobalContext);
     const { selectedContact, setSelectedContactName, hideContact } =
         useContext(ConversationContext);
-
-    const mainnetProvider = useMainnetProvider();
     const { dm3Configuration, screenWidth } = useContext(
         DM3ConfigurationContext,
     );
+    const mainnetProvider = useMainnetProvider();
 
     const [address, setAddress] = useState<string>('');
 

@@ -3,7 +3,6 @@ import closeIcon from '../../assets/images/cross.svg';
 import profPic from '../../assets/images/human.svg';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
-import { TLDContext } from '../../context/TLDContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 import { EnsProfileDetails } from '../../interfaces/utils';
 import '../../styles/profile-contact.css';

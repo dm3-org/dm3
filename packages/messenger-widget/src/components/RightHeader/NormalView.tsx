@@ -5,7 +5,6 @@ import humanIcon from '../../assets/images/human.svg';
 import menuIcon from '../../assets/images/menu.svg';
 import { AuthContext } from '../../context/AuthContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
-import { HideFunctionProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
 import {
@@ -13,12 +12,14 @@ import {
     UiViewStateType,
 } from '../../utils/enum-type-utils';
 import { ConversationContext } from '../../context/ConversationContext';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
-export function NormalView(props: HideFunctionProps) {
+export function NormalView() {
     // fetches context storage
     const { state, dispatch } = useContext(GlobalContext);
     const { account, displayName } = useContext(AuthContext);
     const { setSelectedContactName } = useContext(ConversationContext);
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     const mainnetProvider = useMainnetProvider();
 
@@ -51,7 +52,7 @@ export function NormalView(props: HideFunctionProps) {
 
     return (
         <div
-            className={(props.showContacts
+            className={(dm3Configuration.showContacts
                 ? 'justify-content-end'
                 : 'justify-content-between'
             ).concat(
@@ -63,10 +64,12 @@ export function NormalView(props: HideFunctionProps) {
                 ),
             )}
         >
-            {!props.showContacts && (
+            {!dm3Configuration.showContacts && (
                 <div
                     className={
-                        !props.showContacts ? 'p-2' : 'menu-icon-container'
+                        !dm3Configuration.showContacts
+                            ? 'p-2'
+                            : 'menu-icon-container'
                     }
                 >
                     <img src={menuIcon} className="pointer-cursor" alt="menu" />

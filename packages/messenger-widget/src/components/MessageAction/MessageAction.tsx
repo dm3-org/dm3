@@ -25,7 +25,7 @@ import './MessageAction.css';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export function MessageAction(props: MessageProps) {
-    const { state, dispatch } = useContext(GlobalContext);
+    const { dispatch } = useContext(GlobalContext);
     const { account, profileKeys } = useContext(AuthContext);
     const { addMessage } = useContext(MessageContext);
     const { selectedContact } = useContext(ConversationContext);

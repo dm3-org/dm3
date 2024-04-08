@@ -7,11 +7,10 @@ import { GlobalContext } from '../../utils/context-utils';
 import { Chat } from '../../components/Chat/Chat';
 import { RightViewSelected } from '../../utils/enum-type-utils';
 import { ContactInfo } from '../../components/ContactInfo/ContactInfo';
-import { HideFunctionProps } from '../../interfaces/props';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { MOBILE_SCREEN_WIDTH } from '../../utils/common-utils';
 
-export default function RightView(props: HideFunctionProps) {
+export default function RightView() {
     // fetches context storage
     const { state } = useContext(GlobalContext);
 
@@ -22,11 +21,9 @@ export default function RightView(props: HideFunctionProps) {
             <div className="col-12 p-0 h-100 background-chat chat-screen-container">
                 {screenWidth < MOBILE_SCREEN_WIDTH ? (
                     <>
-                        <RightHeader showContacts={props.showContacts} />
+                        <RightHeader />
                         {state.uiView.selectedRightView ===
-                            RightViewSelected.Chat && (
-                            <Chat hideFunction={props.hideFunction} />
-                        )}
+                            RightViewSelected.Chat && <Chat />}
                         {state.uiView.selectedRightView ===
                             RightViewSelected.Profile && <Profile />}
                         {state.uiView.selectedRightView ===
@@ -34,7 +31,7 @@ export default function RightView(props: HideFunctionProps) {
                     </>
                 ) : (
                     <>
-                        <RightHeader showContacts={props.showContacts} />
+                        <RightHeader />
                         {state.uiView.selectedRightView ===
                             RightViewSelected.Default && (
                             <div className="d-flex justify-content-center align-items-center default-screen">
@@ -46,9 +43,7 @@ export default function RightView(props: HideFunctionProps) {
                             </div>
                         )}
                         {state.uiView.selectedRightView ===
-                            RightViewSelected.Chat && (
-                            <Chat hideFunction={props.hideFunction} />
-                        )}
+                            RightViewSelected.Chat && <Chat />}
                         {state.uiView.selectedRightView ===
                             RightViewSelected.Profile && <Profile />}
                         {state.uiView.selectedRightView ===

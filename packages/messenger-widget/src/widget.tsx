@@ -4,21 +4,19 @@ import './styles/common.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import ErrorModal from './components/ErrorModal/ErrorModal';
-import { Config, DM3Configuration } from './interfaces/config';
-import { getConfig } from './utils/config-utils';
+import { DM3Configuration } from './interfaces/config';
 import GlobalContextProvider from './utils/context-utils';
 import { setTheme } from './utils/style-utils';
 import { Home } from './views/Home/Home';
 
 function DM3(props: DM3Configuration) {
-    const propsData: Config = getConfig(props);
-    setTheme(propsData.theme);
+    setTheme(props.theme);
     return (
         <>
             <div className="dm3-root">
                 <ErrorModal />
                 <GlobalContextProvider>
-                    <Home config={propsData} dm3Configuration={props} />
+                    <Home config={props} />
                 </GlobalContextProvider>
             </div>
             {process.env.REACT_APP_COMMIT_HASH && (

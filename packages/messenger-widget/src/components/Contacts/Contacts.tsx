@@ -1,27 +1,28 @@
+import './Contacts.css';
 import { useContext, useEffect, useState } from 'react';
 import loader from '../../assets/images/loader.svg';
 import threeDotsIcon from '../../assets/images/three-dots.svg';
 import { ConversationContext } from '../../context/ConversationContext';
 import { MessageContext } from '../../context/MessageContext';
-import { DashboardProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
 import {
     RightViewSelected,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
-import './Contacts.css';
 import { showMenuInBottom } from './bl';
 import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
 import { ContactPreview } from '../../interfaces/utils';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
-export function Contacts(props: DashboardProps) {
+export function Contacts() {
     // fetches context api data
     const { state, dispatch } = useContext(GlobalContext);
     const { contacts, setSelectedContactName, selectedContact } =
         useContext(ConversationContext);
-
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const { getMessages, getUnreadMessageCount } = useContext(MessageContext);
+
     const [isMenuAlignedAtBottom, setIsMenuAlignedAtBottom] = useState<
         boolean | null
     >(null);
@@ -40,16 +41,16 @@ export function Contacts(props: DashboardProps) {
 
     useEffect(() => {
         if (
-            !props.dm3Props.config.showContacts &&
-            props.dm3Props.config.defaultContact &&
+            !dm3Configuration.showContacts &&
+            dm3Configuration.defaultContact &&
             contacts
         ) {
             // set the default contact
-            setSelectedContactName(props.dm3Props.config.defaultContact);
+            setSelectedContactName(dm3Configuration.defaultContact);
 
             // filter out the default contact from contact list
             const defContact = contacts.filter(
-                (data) => data.name === props.dm3Props.config.defaultContact,
+                (data) => data.name === dm3Configuration.defaultContact,
             );
 
             if (defContact.length) {

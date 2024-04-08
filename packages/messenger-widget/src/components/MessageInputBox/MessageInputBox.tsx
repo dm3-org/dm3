@@ -14,14 +14,16 @@ import { AttachmentSelector } from '../AttachmentSelector/AttachmentSelector';
 import { EmojiSelector } from '../EmojiSelector/EmojiSelector';
 import { MessageInputField } from '../MessageInputField/MessageInputField';
 import { SendMessage } from '../SendMessage/SendMessage';
-import { HideFunctionProps } from '../../interfaces/props';
 import { ConversationContext } from '../../context/ConversationContext';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
-export function MessageInputBox(props: HideFunctionProps) {
+export function MessageInputBox() {
     const [message, setMessage] = useState('');
 
     const { state, dispatch } = useContext(GlobalContext);
     const { selectedContact } = useContext(ConversationContext);
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
+
     const [filesSelected, setFilesSelected] = useState<Attachment[]>([]);
 
     function setFiles(files: Attachment[]) {
@@ -113,8 +115,8 @@ export function MessageInputBox(props: HideFunctionProps) {
                     <div className="d-flex align-items-center width-fill">
                         <div className="d-flex align-items-center text-secondary-color">
                             {/* Attachment selector modal */}
-                            {(!props.hideFunction ||
-                                !props.hideFunction
+                            {(!dm3Configuration.hideFunction ||
+                                !dm3Configuration.hideFunction
                                     .split(',')
                                     .includes('attachments')) && (
                                 <AttachmentSelector

@@ -2,7 +2,6 @@ import './Dashboard.css';
 import { useContext } from 'react';
 import LeftView from '../LeftView/LeftView';
 import RightView from '../RightView/RightView';
-import { DashboardProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
 import {
     MessageActionType,
@@ -15,15 +14,16 @@ import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { MOBILE_SCREEN_WIDTH } from '../../utils/common-utils';
 
-export default function Dashboard(props: DashboardProps) {
+export default function Dashboard() {
     const { state } = useContext(GlobalContext);
+
     const { screenWidth, dm3Configuration } = useContext(
         DM3ConfigurationContext,
     );
     const { selectedContact } = useContext(ConversationContext);
 
     const getRightViewStyleClasses = () => {
-        if (props.dm3Props.config.showContacts) {
+        if (dm3Configuration.showContacts) {
             return screenWidth < MOBILE_SCREEN_WIDTH
                 ? 'p-0 h-100 col-12 right-view-container-type'
                 : 'p-0 h-100 col-lg-9 col-md-9 col-sm-12 right-view-container-type';
@@ -33,7 +33,7 @@ export default function Dashboard(props: DashboardProps) {
     };
 
     const getLeftViewStyleClasses = () => {
-        if (props.dm3Props.config.showContacts) {
+        if (dm3Configuration.showContacts) {
             return screenWidth < MOBILE_SCREEN_WIDTH
                 ? 'col-12 p-0 h-100 left-view-container-type'
                 : 'col-lg-3 col-md-3 col-sm-12 p-0 h-100 left-view-container-type';
@@ -65,7 +65,7 @@ export default function Dashboard(props: DashboardProps) {
                         state.uiView.selectedRightView !==
                             RightViewSelected.ContactInfo && (
                             <div className={getLeftViewStyleClasses()}>
-                                <LeftView {...props} />
+                                <LeftView />
                             </div>
                         )}
 
@@ -75,24 +75,14 @@ export default function Dashboard(props: DashboardProps) {
                             RightViewSelected.ContactInfo ||
                         selectedContact) && (
                         <div className={getRightViewStyleClasses()}>
-                            <RightView
-                                hideFunction={
-                                    props.dm3Props.config.hideFunction
-                                }
-                                showContacts={
-                                    props.dm3Props.config.showContacts
-                                }
-                                defaultContact={
-                                    props.dm3Props.config.defaultContact
-                                }
-                            />
+                            <RightView />
                         </div>
                     )}
                 </div>
             ) : (
                 <div className="row m-0 h-100">
                     <div className={getLeftViewStyleClasses()}>
-                        <LeftView {...props} />
+                        <LeftView />
                     </div>
 
                     <div
@@ -105,13 +95,7 @@ export default function Dashboard(props: DashboardProps) {
                                 : '',
                         )}
                     >
-                        <RightView
-                            hideFunction={props.dm3Props.config.hideFunction}
-                            showContacts={props.dm3Props.config.showContacts}
-                            defaultContact={
-                                props.dm3Props.config.defaultContact
-                            }
-                        />
+                        <RightView />
                     </div>
                 </div>
             )}

@@ -17,8 +17,8 @@ export default function DeleteMessage() {
     const { state, dispatch } = useContext(GlobalContext);
     const { selectedContact } = useContext(ConversationContext);
     const { addMessage } = useContext(MessageContext);
-    const { account, deliveryServiceToken, profileKeys } =
-        useContext(AuthContext);
+    const { account, profileKeys } = useContext(AuthContext);
+
     const closeModal = () => {
         dispatch({
             type: UiViewStateType.SetMessageView,
