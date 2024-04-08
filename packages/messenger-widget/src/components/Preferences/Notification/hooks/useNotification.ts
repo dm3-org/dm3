@@ -16,7 +16,7 @@ import { useMainnetProvider } from '../../../../hooks/mainnetprovider/useMainnet
 import {
     NotificationChannel,
     NotificationChannelType,
-} from '@dm3-org/dm3-lib-delivery';
+} from '@dm3-org/dm3-lib-shared';
 import { GlobalContext } from '../../../../utils/context-utils';
 import { ModalStateType } from '../../../../utils/enum-type-utils';
 import { closeLoader, startLoader } from '../../../Loader/Loader';

@@ -1,6 +1,6 @@
 import './Notification.css';
 import { useOtp } from './hooks/useOtp';
-import { NotificationChannelType } from '@dm3-org/dm3-lib-delivery';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 
 interface IOtpVerification {
     verificationData: string;

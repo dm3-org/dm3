@@ -5,7 +5,7 @@ import { FormEvent } from 'react';
 import { OtpVerification } from './OtpVerification';
 import { useVerification } from './hooks/useVerification';
 import { otpContent } from './hooks/useOtp';
-import { NotificationChannelType } from '@dm3-org/dm3-lib-delivery';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 
 export interface IVerificationModal {
     heading: string;

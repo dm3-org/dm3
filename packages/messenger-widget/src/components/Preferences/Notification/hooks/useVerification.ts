@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useOtp } from './useOtp';
-import { NotificationChannelType } from '@dm3-org/dm3-lib-delivery';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 
 export const useVerification = (
     closeModal: Function,

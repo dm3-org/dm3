@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { log } from '@dm3-org/dm3-lib-shared';
-import { NotificationChannelType } from '@dm3-org/dm3-lib-delivery';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 import { AuthContext } from '../../../../context/AuthContext';
 import {
     addNotificationChannel,
