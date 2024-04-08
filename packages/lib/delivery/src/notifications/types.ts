@@ -1,5 +1,8 @@
 import { DeliveryInformation } from '@dm3-org/dm3-lib-messaging';
-import { NotificationChannel, NotificationChannelType } from '@dm3-org/dm3-lib-shared';
+import {
+    NotificationChannel,
+    NotificationChannelType,
+} from '@dm3-org/dm3-lib-shared';
 
 /**
  * Notification type describes which kind of notification it is :

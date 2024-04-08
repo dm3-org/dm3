@@ -1,4 +1,4 @@
-import { NotificationChannel } from "@dm3-org/dm3-lib-shared";
+import { NotificationChannel } from '@dm3-org/dm3-lib-shared';
 
 export interface DeliveryServiceProperties {
     messageTTL: number;

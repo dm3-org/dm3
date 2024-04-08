@@ -7,8 +7,10 @@ import { stringify } from '../../shared/src/stringify';
 import { getConversationId, getMessages, incomingMessage } from './Messages';
 import { Session } from './Session';
 import { SpamFilterRules } from './spam-filter/SpamFilterRules';
-import { NotificationChannel, NotificationChannelType } from '@dm3-org/dm3-lib-shared';
-
+import {
+    NotificationChannel,
+    NotificationChannelType,
+} from '@dm3-org/dm3-lib-shared';
 
 const SENDER_NAME = 'alice.eth';
 const RECEIVER_NAME = 'bob.eth';

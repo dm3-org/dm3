@@ -1,12 +1,13 @@
 import { DeliveryInformation } from '@dm3-org/dm3-lib-messaging';
-import {
-    NotificationType,
-} from './types';
+import { NotificationType } from './types';
 import {
     NotificationBroker,
     _setupNotficationBroker,
 } from './broker/NotificationBroker';
-import { NotificationChannel, NotificationChannelType } from '@dm3-org/dm3-lib-shared';
+import {
+    NotificationChannel,
+    NotificationChannelType,
+} from '@dm3-org/dm3-lib-shared';
 
 jest.mock('nodemailer');
 

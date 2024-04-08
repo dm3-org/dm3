@@ -17,7 +17,10 @@ import Session from './session';
 import Storage from './storage';
 import { MessageRecord } from './storage/postgres/utils/MessageRecord';
 import { UserStorage } from '@dm3-org/dm3-lib-storage';
-import { NotificationChannel, NotificationChannelType } from '@dm3-org/dm3-lib-shared';
+import {
+    NotificationChannel,
+    NotificationChannelType,
+} from '@dm3-org/dm3-lib-shared';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',

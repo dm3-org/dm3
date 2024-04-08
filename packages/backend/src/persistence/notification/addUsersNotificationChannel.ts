@@ -1,7 +1,4 @@
-import {
-    NotificationUserConfig,
-    schema,
-} from '@dm3-org/dm3-lib-delivery';
+import { NotificationUserConfig, schema } from '@dm3-org/dm3-lib-delivery';
 import { Redis, RedisPrefix } from '../getDatabase';
 import { NotificationChannel, validateSchema } from '@dm3-org/dm3-lib-shared';
 import { getIdEnsName } from '../getIdEnsName';

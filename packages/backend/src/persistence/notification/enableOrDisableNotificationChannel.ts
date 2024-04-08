@@ -1,10 +1,11 @@
-import {
-    NotificationError,
-} from '@dm3-org/dm3-lib-delivery';
+import { NotificationError } from '@dm3-org/dm3-lib-delivery';
 import { Redis, RedisPrefix } from '../getDatabase';
 import { getIdEnsName } from '../getIdEnsName';
 import { stringify } from '@dm3-org/dm3-lib-shared';
-import { NotificationChannelType, NotificationChannel } from '@dm3-org/dm3-lib-shared';
+import {
+    NotificationChannelType,
+    NotificationChannel,
+} from '@dm3-org/dm3-lib-shared';
 
 export function enableOrDisableNotificationChannel(redis: Redis) {
     return async (

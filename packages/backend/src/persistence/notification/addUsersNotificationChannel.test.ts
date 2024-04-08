@@ -1,5 +1,7 @@
-
-import { NotificationChannel, NotificationChannelType } from '@dm3-org/dm3-lib-shared';
+import {
+    NotificationChannel,
+    NotificationChannelType,
+} from '@dm3-org/dm3-lib-shared';
 import { IDatabase, Redis, getDatabase, getRedisClient } from '../getDatabase';
 import winston from 'winston';
 

@@ -1,10 +1,9 @@
-import { NotificationChannelType, NotificationChannel } from '@dm3-org/dm3-lib-shared';
-import { NotificationError } from './errors/NotificationError';
 import {
-    IOtp,
-    NotificationBroker,
-    NotificationType,
-} from './notifications';
+    NotificationChannelType,
+    NotificationChannel,
+} from '@dm3-org/dm3-lib-shared';
+import { NotificationError } from './errors/NotificationError';
+import { IOtp, NotificationBroker, NotificationType } from './notifications';
 import { generateOtp } from './notifications/generateOtp';
 
 // LENGTH of OTP. Ex: 5 digits
