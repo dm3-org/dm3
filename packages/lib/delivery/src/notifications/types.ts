@@ -1,12 +1,5 @@
 import { DeliveryInformation } from '@dm3-org/dm3-lib-messaging';
-
-/**
- * Every notification channel that is supported by the delivery service must be listed here
- * Notification channel is medium of getting notified. It can be email, phone no. push notification etc...
- */
-export enum NotificationChannelType {
-    EMAIL = 'EMAIL',
-}
+import { NotificationChannel, NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 
 /**
  * Notification type describes which kind of notification it is :
@@ -19,12 +12,6 @@ export enum NotificationType {
     OTP = 'OTP',
 }
 
-//The properties of a notification channel.
-// Those properties are stored in the DB to let the user specify their notificatin channels
-export interface NotificationChannel {
-    type: NotificationChannelType;
-    config: any;
-}
 export type GetNotificationChannels = (
     user: string,
 ) => Promise<NotificationChannel[]>;

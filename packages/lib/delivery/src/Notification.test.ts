@@ -1,4 +1,4 @@
-import { NotificationChannel, NotificationChannelType } from './notifications';
+import { NotificationChannel, NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 import {
     RESEND_VERIFICATION_OTP_TIME_PERIOD,
     addNewNotificationChannel,

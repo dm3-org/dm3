@@ -1,4 +1,4 @@
-import { NotificationChannel } from '@dm3-org/dm3-lib-delivery';
+import { NotificationChannel } from '@dm3-org/dm3-lib-shared';
 import { Redis, RedisPrefix } from '../getDatabase';
 import { getIdEnsName } from '../getIdEnsName';
 

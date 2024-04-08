@@ -1,9 +1,8 @@
+import { NotificationChannelType, NotificationChannel } from '@dm3-org/dm3-lib-shared';
 import { NotificationError } from './errors/NotificationError';
 import {
     IOtp,
     NotificationBroker,
-    NotificationChannel,
-    NotificationChannelType,
     NotificationType,
 } from './notifications';
 import { generateOtp } from './notifications/generateOtp';

@@ -4,7 +4,7 @@ import {
     UserProfile,
 } from '@dm3-org/dm3-lib-profile';
 import { ethers } from 'ethers';
-import { stringify } from '@dm3-org/dm3-lib-shared';
+import { NotificationChannel, stringify } from '@dm3-org/dm3-lib-shared';
 
 import {
     decryptAsymmetric,
@@ -23,7 +23,6 @@ import { logDebug, sha256 } from '@dm3-org/dm3-lib-shared';
 import { NotificationBroker } from './notifications';
 import {
     GetNotificationChannels,
-    NotificationChannel,
     NotificationType,
 } from './notifications/types';
 import { checkToken, Session } from './Session';
