@@ -1,11 +1,7 @@
 import { Account, DeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
-import {
-    LeftViewSelected,
-    MessageActionType,
-    RightViewSelected,
-} from '../utils/enum-type-utils';
+import { MessageActionType } from '../utils/enum-type-utils';
 import { ContactPreview, NewContact } from './utils';
-import { MessageAction, MessageProps } from './props';
+import { MessageProps } from './props';
 
 export interface Contact {
     account: Account;
@@ -48,10 +44,4 @@ export interface Modal {
     lastMessageAction: MessageActionType;
     isProfileConfigurationPopupActive: boolean;
     showPreferencesModal: boolean;
-}
-
-export interface UiViewState {
-    selectedLeftView: LeftViewSelected;
-    selectedRightView: RightViewSelected;
-    selectedMessageView: MessageAction;
 }
