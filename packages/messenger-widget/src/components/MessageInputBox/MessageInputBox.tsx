@@ -2,10 +2,7 @@ import './MessageInputBox.css';
 import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '../../utils/context-utils';
 import { setAttachmentsOnEditMessage } from './bl';
-import {
-    MessageActionType,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
+import { MessageActionType } from '../../utils/enum-type-utils';
 import { EmojiModal } from '../EmojiModal/EmojiModal';
 import { Attachment } from '../../interfaces/utils';
 import { ReplyMessagePreview } from '../ReplyMessagePreview/ReplyMessagePreview';
@@ -16,14 +13,15 @@ import { MessageInputField } from '../MessageInputField/MessageInputField';
 import { SendMessage } from '../SendMessage/SendMessage';
 import { ConversationContext } from '../../context/ConversationContext';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { UiViewContext } from '../../context/UiViewContext';
 
 export function MessageInputBox() {
-    const [message, setMessage] = useState('');
-
-    const { state, dispatch } = useContext(GlobalContext);
+    const { state } = useContext(GlobalContext);
     const { selectedContact } = useContext(ConversationContext);
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
+    const { messageView, setMessageView } = useContext(UiViewContext);
 
+    const [message, setMessage] = useState('');
     const [filesSelected, setFilesSelected] = useState<Attachment[]>([]);
 
     function setFiles(files: Attachment[]) {
@@ -50,24 +48,16 @@ export function MessageInputBox() {
     }, [filesSelected]);
 
     useEffect(() => {
-        if (
-            state.uiView.selectedMessageView.actionType ===
-            MessageActionType.EDIT
-        ) {
-            setMessage(
-                state.uiView.selectedMessageView.messageData?.message as string,
-            );
-            setAttachmentsOnEditMessage(state, setFiles);
+        if (messageView.actionType === MessageActionType.EDIT) {
+            setMessage(messageView.messageData?.message as string);
+            setAttachmentsOnEditMessage(messageView, setFiles);
         }
-    }, [state.uiView.selectedMessageView]);
+    }, [messageView]);
 
     useEffect(() => {
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                actionType: MessageActionType.NONE,
-                messageData: undefined,
-            },
+        setMessageView({
+            actionType: MessageActionType.NONE,
+            messageData: undefined,
         });
         setMessage('');
     }, [selectedContact]);
@@ -83,8 +73,7 @@ export function MessageInputBox() {
             className="mb-1 p-1 msg-input-box-container width-fill"
         >
             {/* Reply message preview */}
-            {state.uiView.selectedMessageView.actionType ===
-                MessageActionType.REPLY && (
+            {messageView.actionType === MessageActionType.REPLY && (
                 <ReplyMessagePreview setFiles={setFiles} />
             )}
 
@@ -98,8 +87,7 @@ export function MessageInputBox() {
                 <div
                     className={'chat-action-items width-fill border-radius-6'.concat(
                         ' ',
-                        state.uiView.selectedMessageView.actionType ===
-                            MessageActionType.REPLY
+                        messageView.actionType === MessageActionType.REPLY
                             ? 'reply-msg-active'
                             : '',
                     )}

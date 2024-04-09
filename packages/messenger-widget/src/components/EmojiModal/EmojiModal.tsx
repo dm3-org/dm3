@@ -5,21 +5,18 @@ import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { EmojiProps, MessageProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
-import {
-    MessageActionType,
-    ModalStateType,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
+import { MessageActionType, ModalStateType } from '../../utils/enum-type-utils';
 import { hideMsgActionDropdown } from '../MessageInputBox/bl';
 import './EmojiModal.css';
 import { createReactionMessage } from '@dm3-org/dm3-lib-messaging';
 import { MessageContext } from '../../context/MessageContext';
+import { UiViewContext } from '../../context/UiViewContext';
 
 export function EmojiModal(props: EmojiProps) {
     const emojiRef: any = useRef();
 
     const { state, dispatch } = useContext(GlobalContext);
-
+    const { setMessageView } = useContext(UiViewContext);
     const { account, profileKeys } = useContext(AuthContext);
     const { addMessage } = useContext(MessageContext);
     const { selectedContact } = useContext(ConversationContext);
@@ -60,12 +57,9 @@ export function EmojiModal(props: EmojiProps) {
     };
 
     const setAction = () => {
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                messageData: undefined,
-                actionType: MessageActionType.REACT,
-            },
+        setMessageView({
+            messageData: undefined,
+            actionType: MessageActionType.REACT,
         });
         hideMsgActionDropdown();
     };
@@ -85,12 +79,9 @@ export function EmojiModal(props: EmojiProps) {
             return;
         }
 
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                actionType: MessageActionType.NONE,
-                messageData: undefined,
-            },
+        setMessageView({
+            actionType: MessageActionType.NONE,
+            messageData: undefined,
         });
 
         const referenceMessageHash =

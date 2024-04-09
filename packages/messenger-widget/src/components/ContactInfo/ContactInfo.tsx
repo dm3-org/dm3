@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import copyIcon from '../../assets/images/copy.svg';
@@ -9,23 +8,25 @@ import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvid
 import '../../styles/profile-contact.css';
 import { GlobalContext } from '../../utils/context-utils';
 import { onClose, openEnsProfile, openEtherscan } from '../../utils/ens-utils';
-import {
-    ModalStateType,
-    RightViewSelected,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
+import { ModalStateType, RightViewSelected } from '../../utils/enum-type-utils';
 import { Button } from '../Button/Button';
 import { EnsDetails } from '../EnsDetails/EnsDetails';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { UiViewContext } from '../../context/UiViewContext';
 
 export function ContactInfo() {
     const { dispatch } = useContext(GlobalContext);
+
     const { selectedContact, setSelectedContactName, hideContact } =
         useContext(ConversationContext);
+
     const { dm3Configuration, screenWidth } = useContext(
         DM3ConfigurationContext,
     );
+
+    const { setSelectedRightView } = useContext(UiViewContext);
+
     const mainnetProvider = useMainnetProvider();
 
     const [address, setAddress] = useState<string>('');
@@ -53,10 +54,7 @@ export function ContactInfo() {
         }
         hideContact(selectedContact.contactDetails.account.ensName);
         //Close the message Modal and show the default one instead
-        dispatch({
-            type: UiViewStateType.SetSelectedRightView,
-            payload: RightViewSelected.Default,
-        });
+        setSelectedRightView(RightViewSelected.Default);
     };
 
     useEffect(() => {
@@ -90,7 +88,7 @@ export function ContactInfo() {
                     alt="close"
                     onClick={() =>
                         onClose(
-                            dispatch,
+                            setSelectedRightView,
                             setSelectedContactName,
                             screenWidth,
                             dm3Configuration.showContacts,

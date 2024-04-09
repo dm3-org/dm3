@@ -17,14 +17,21 @@ import { Button } from '../Button/Button';
 import { openConfigurationModal } from '../ConfigureProfile/bl';
 import { EnsDetails } from '../EnsDetails/EnsDetails';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { UiViewContext } from '../../context/UiViewContext';
 
 export function Profile() {
     const { dispatch } = useContext(GlobalContext);
+
     const { account, ethAddress, displayName } = useContext(AuthContext);
+
     const { setSelectedContactName } = useContext(ConversationContext);
+
     const { screenWidth, dm3Configuration } = useContext(
         DM3ConfigurationContext,
     );
+
+    const { setSelectedRightView } = useContext(UiViewContext);
+
     const mainnetProvider = useMainnetProvider();
 
     const [profilePic, setProfilePic] = useState<string>('');
@@ -71,7 +78,7 @@ export function Profile() {
                     alt="close"
                     onClick={() =>
                         onClose(
-                            dispatch,
+                            setSelectedRightView,
                             setSelectedContactName,
                             screenWidth,
                             dm3Configuration.showContacts,

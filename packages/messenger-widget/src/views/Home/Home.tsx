@@ -12,7 +12,7 @@ import {
     rainbowWallet,
     walletConnectWallet,
 } from '@rainbow-me/rainbowkit/wallets';
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 import {
     configureChains,
     createConfig,
@@ -33,12 +33,9 @@ import { StorageContextProvider } from '../../context/StorageContext';
 import { TLDContextProvider } from '../../context/TLDContext';
 import { WebSocketContextProvider } from '../../context/WebSocketContext';
 import { Dm3Props } from '../../interfaces/config';
-import { GlobalContext } from '../../utils/context-utils';
+import { UiViewContextProvider } from '../../context/UiViewContext';
 
 export function Home(props: Dm3Props) {
-    // fetches context api data
-    const { dispatch } = useContext(GlobalContext);
-
     //Use different chains depending on the environment. Note that gnosis mainnet is used for both setups
     // because there is no spaceId testnet deploymend yet
     const _chains =
@@ -96,28 +93,32 @@ export function Home(props: Dm3Props) {
             <WagmiConfig config={wagmiConfig}>
                 <RainbowKitProvider chains={chains} theme={darkTheme()}>
                     <DM3ConfigurationContextProvider>
-                        <MainnetProviderContextProvider
-                            dm3Configuration={props.config}
-                        >
-                            <TLDContextProvider>
-                                <AuthContextProvider dispatch={dispatch}>
-                                    <WebSocketContextProvider>
-                                        <StorageContextProvider>
-                                            {/* TODO move conversation and message contest further done as it dont need to be stored in the globlal state */}
-                                            <ConversationContextProvider
-                                                config={props.config}
-                                            >
-                                                <MessageContextProvider>
-                                                    <DM3
-                                                        config={props.config}
-                                                    />
-                                                </MessageContextProvider>
-                                            </ConversationContextProvider>
-                                        </StorageContextProvider>
-                                    </WebSocketContextProvider>
-                                </AuthContextProvider>
-                            </TLDContextProvider>
-                        </MainnetProviderContextProvider>
+                        <UiViewContextProvider>
+                            <MainnetProviderContextProvider
+                                dm3Configuration={props.config}
+                            >
+                                <TLDContextProvider>
+                                    <AuthContextProvider>
+                                        <WebSocketContextProvider>
+                                            <StorageContextProvider>
+                                                {/* TODO move conversation and message contest further done as it dont need to be stored in the globlal state */}
+                                                <ConversationContextProvider
+                                                    config={props.config}
+                                                >
+                                                    <MessageContextProvider>
+                                                        <DM3
+                                                            config={
+                                                                props.config
+                                                            }
+                                                        />
+                                                    </MessageContextProvider>
+                                                </ConversationContextProvider>
+                                            </StorageContextProvider>
+                                        </WebSocketContextProvider>
+                                    </AuthContextProvider>
+                                </TLDContextProvider>
+                            </MainnetProviderContextProvider>
+                        </UiViewContextProvider>
                     </DM3ConfigurationContextProvider>
                 </RainbowKitProvider>
             </WagmiConfig>

@@ -4,29 +4,27 @@ import { ConversationContext } from '../../context/ConversationContext';
 import { MessageContext } from '../../context/MessageContext';
 import { MessageDataProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
-import {
-    MessageActionType,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
+import { MessageActionType } from '../../utils/enum-type-utils';
 import { scrollToBottomOfChat } from '../Chat/scrollToBottomOfChat';
 import { onSubmitMessage } from '../SendMessage/onSubmitMessage';
+import { UiViewContext } from '../../context/UiViewContext';
 
 export function MessageInputField(props: MessageDataProps) {
-    const { state, dispatch } = useContext(GlobalContext);
+    const { dispatch } = useContext(GlobalContext);
     const { account, profileKeys } = useContext(AuthContext);
     const { selectedContact } = useContext(ConversationContext);
     const { addMessage } = useContext(MessageContext);
+    const { setMessageView, messageView } = useContext(UiViewContext);
+
+    const resetMessageView = {
+        actionType: MessageActionType.NONE,
+        messageData: undefined,
+    };
 
     function setMessageContent(e: React.ChangeEvent<HTMLInputElement>) {
         // if message action is edit and message length is 0, update message action
         if (!e.target.value.length) {
-            dispatch({
-                type: UiViewStateType.SetMessageView,
-                payload: {
-                    actionType: MessageActionType.NONE,
-                    messageData: undefined,
-                },
-            });
+            setMessageView(resetMessageView);
             props.setFiles([]);
         }
         props.setMessageText(e.target.value);
@@ -35,7 +33,8 @@ export function MessageInputField(props: MessageDataProps) {
     async function submit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         await onSubmitMessage(
-            state,
+            messageView,
+            setMessageView,
             dispatch,
             addMessage,
             props,
@@ -49,10 +48,8 @@ export function MessageInputField(props: MessageDataProps) {
     // Focus on input field when user selects a msg to EEDIT or REPLY
     useEffect(() => {
         if (
-            state.uiView.selectedMessageView.actionType ===
-                MessageActionType.EDIT ||
-            state.uiView.selectedMessageView.actionType ===
-                MessageActionType.REPLY
+            messageView.actionType === MessageActionType.EDIT ||
+            messageView.actionType === MessageActionType.REPLY
         ) {
             const inputField = document.getElementById(
                 'msg-input',
@@ -61,22 +58,15 @@ export function MessageInputField(props: MessageDataProps) {
                 inputField.focus();
             }
         }
-    }, [state.uiView.selectedMessageView.actionType]);
+    }, [messageView.actionType]);
 
     // Closes EDIT MSG if ESC button is clicked
     document.body.addEventListener('keydown', function (e) {
         if (
             e.key === 'Escape' &&
-            state.uiView.selectedMessageView.actionType ===
-                MessageActionType.EDIT
+            messageView.actionType === MessageActionType.EDIT
         ) {
-            dispatch({
-                type: UiViewStateType.SetMessageView,
-                payload: {
-                    actionType: MessageActionType.NONE,
-                    messageData: undefined,
-                },
-            });
+            setMessageView(resetMessageView);
             props.setFiles([]);
             props.setMessageText('');
         }

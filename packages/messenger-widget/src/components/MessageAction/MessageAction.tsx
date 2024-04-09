@@ -1,3 +1,4 @@
+import './MessageAction.css';
 import { createReactionMessage } from '@dm3-org/dm3-lib-messaging';
 import { useContext, useEffect, useState } from 'react';
 import deleteIcon from '../../assets/images/chat-delete.svg';
@@ -15,14 +16,10 @@ import {
     getFileTypeFromBase64,
 } from '../../utils/common-utils';
 import { GlobalContext } from '../../utils/context-utils';
-import {
-    MessageActionType,
-    ModalStateType,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
+import { MessageActionType, ModalStateType } from '../../utils/enum-type-utils';
 import { hideMsgActionDropdown } from '../MessageInputBox/bl';
-import './MessageAction.css';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { UiViewContext } from '../../context/UiViewContext';
 
 export function MessageAction(props: MessageProps) {
     const { dispatch } = useContext(GlobalContext);
@@ -30,6 +27,7 @@ export function MessageAction(props: MessageProps) {
     const { addMessage } = useContext(MessageContext);
     const { selectedContact } = useContext(ConversationContext);
     const { screenWidth } = useContext(DM3ConfigurationContext);
+    const { setMessageView } = useContext(UiViewContext);
 
     const [alignmentTop, setAlignmentTop] = useState(false);
 
@@ -52,12 +50,9 @@ export function MessageAction(props: MessageProps) {
     };
 
     const setAction = (action: MessageActionType) => {
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                messageData: props,
-                actionType: action,
-            },
+        setMessageView({
+            messageData: props,
+            actionType: action,
         });
         hideMsgActionDropdown();
     };
@@ -77,12 +72,9 @@ export function MessageAction(props: MessageProps) {
             return;
         }
 
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                actionType: MessageActionType.NONE,
-                messageData: undefined,
-            },
+        setMessageView({
+            actionType: MessageActionType.NONE,
+            messageData: undefined,
         });
 
         const referenceMessageHash =

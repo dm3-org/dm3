@@ -7,14 +7,14 @@ import {
 
 export const initialState = (): GlobalState => {
     return {
-        uiView: {
-            selectedLeftView: LeftViewSelected.Contacts,
-            selectedRightView: RightViewSelected.Default,
-            selectedMessageView: {
-                messageData: undefined,
-                actionType: MessageActionType.NONE,
-            },
-        },
+        // uiView: {
+        //     selectedLeftView: LeftViewSelected.Contacts,
+        //     selectedRightView: RightViewSelected.Default,
+        //     selectedMessageView: {
+        //         messageData: undefined,
+        //         actionType: MessageActionType.NONE,
+        //     },
+        // },
         modal: {
             loaderContent: '',
             contactToHide: undefined,

@@ -5,23 +5,21 @@ import threeDotsIcon from '../../assets/images/three-dots.svg';
 import { ConversationContext } from '../../context/ConversationContext';
 import { MessageContext } from '../../context/MessageContext';
 import { GlobalContext } from '../../utils/context-utils';
-import {
-    RightViewSelected,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
+import { RightViewSelected } from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
 import { showMenuInBottom } from './bl';
 import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
 import { ContactPreview } from '../../interfaces/utils';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { UiViewContext } from '../../context/UiViewContext';
 
 export function Contacts() {
-    // fetches context api data
-    const { state, dispatch } = useContext(GlobalContext);
-    const { contacts, setSelectedContactName, selectedContact } =
-        useContext(ConversationContext);
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const { getMessages, getUnreadMessageCount } = useContext(MessageContext);
+    const { selectedRightView, setSelectedRightView } =
+        useContext(UiViewContext);
+    const { contacts, setSelectedContactName, selectedContact } =
+        useContext(ConversationContext);
 
     const [isMenuAlignedAtBottom, setIsMenuAlignedAtBottom] = useState<
         boolean | null
@@ -32,12 +30,12 @@ export function Contacts() {
     useEffect(() => {
         if (
             selectedContact &&
-            state.uiView.selectedRightView !== RightViewSelected.Chat &&
-            state.uiView.selectedRightView !== RightViewSelected.ContactInfo
+            selectedRightView !== RightViewSelected.Chat &&
+            selectedRightView !== RightViewSelected.ContactInfo
         ) {
             setSelectedContactName(undefined);
         }
-    }, [state.uiView.selectedRightView]);
+    }, [selectedRightView]);
 
     useEffect(() => {
         if (
@@ -61,10 +59,7 @@ export function Contacts() {
             }
 
             // show chat screen
-            dispatch({
-                type: UiViewStateType.SetSelectedRightView,
-                payload: RightViewSelected.Chat,
-            });
+            setSelectedRightView(RightViewSelected.Chat);
         }
     }, [contacts]);
 
@@ -137,14 +132,12 @@ export function Contacts() {
                                         data.contactDetails.account.ensName,
                                     );
                                     if (
-                                        state.uiView.selectedRightView !==
+                                        selectedRightView !==
                                         RightViewSelected.Chat
                                     ) {
-                                        // show chat screen
-                                        dispatch({
-                                            type: UiViewStateType.SetSelectedRightView,
-                                            payload: RightViewSelected.Chat,
-                                        });
+                                        setSelectedRightView(
+                                            RightViewSelected.Chat,
+                                        );
                                     }
                                     setIsMenuAlignedAtBottom(
                                         showMenuInBottom(

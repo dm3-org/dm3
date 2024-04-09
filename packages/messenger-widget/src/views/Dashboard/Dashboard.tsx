@@ -13,6 +13,7 @@ import AddConversation from '../../components/AddConversation/AddConversation';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { MOBILE_SCREEN_WIDTH } from '../../utils/common-utils';
+import { UiViewContext } from '../../context/UiViewContext';
 
 export default function Dashboard() {
     const { state } = useContext(GlobalContext);
@@ -20,6 +21,9 @@ export default function Dashboard() {
     const { screenWidth, dm3Configuration } = useContext(
         DM3ConfigurationContext,
     );
+
+    const { selectedRightView, messageView } = useContext(UiViewContext);
+
     const { selectedContact } = useContext(ConversationContext);
 
     const getRightViewStyleClasses = () => {
@@ -53,26 +57,23 @@ export default function Dashboard() {
             )}
 
             {/* Delete message confirmation popup */}
-            {state.uiView.selectedMessageView.actionType ===
-                MessageActionType.DELETE && <DeleteMessage />}
+            {messageView.actionType === MessageActionType.DELETE && (
+                <DeleteMessage />
+            )}
 
             {/* Mobile screen UI */}
             {screenWidth < MOBILE_SCREEN_WIDTH ? (
                 <div className="row m-0 h-100">
                     {!selectedContact &&
-                        state.uiView.selectedRightView !==
-                            RightViewSelected.Profile &&
-                        state.uiView.selectedRightView !==
-                            RightViewSelected.ContactInfo && (
+                        selectedRightView !== RightViewSelected.Profile &&
+                        selectedRightView !== RightViewSelected.ContactInfo && (
                             <div className={getLeftViewStyleClasses()}>
                                 <LeftView />
                             </div>
                         )}
 
-                    {(state.uiView.selectedRightView ===
-                        RightViewSelected.Profile ||
-                        state.uiView.selectedRightView ===
-                            RightViewSelected.ContactInfo ||
+                    {(selectedRightView === RightViewSelected.Profile ||
+                        selectedRightView === RightViewSelected.ContactInfo ||
                         selectedContact) && (
                         <div className={getRightViewStyleClasses()}>
                             <RightView />
@@ -88,8 +89,7 @@ export default function Dashboard() {
                     <div
                         className={getRightViewStyleClasses().concat(
                             ' ',
-                            state.uiView.selectedRightView ===
-                                RightViewSelected.Profile &&
+                            selectedRightView === RightViewSelected.Profile &&
                                 dm3Configuration.showContacts
                                 ? 'dashboard-right-view-highlight'
                                 : '',

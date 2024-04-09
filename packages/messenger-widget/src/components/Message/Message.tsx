@@ -1,3 +1,4 @@
+import './Message.css';
 import {
     Envelop,
     MessageState,
@@ -11,21 +12,18 @@ import { ConversationContext } from '../../context/ConversationContext';
 import { MessageContext } from '../../context/MessageContext';
 import { MessageProps } from '../../interfaces/props';
 import { GlobalContext } from '../../utils/context-utils';
-import {
-    MessageActionType,
-    ModalStateType,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
+import { MessageActionType, ModalStateType } from '../../utils/enum-type-utils';
 import { AttachmentThumbnailPreview } from '../AttachmentThumbnailPreview/AttachmentThumbnailPreview';
 import { MessageAction } from '../MessageAction/MessageAction';
-import './Message.css';
 import { getFilesData, getMessageChangeText, scrollToMessage } from './bl';
+import { UiViewContext } from '../../context/UiViewContext';
 
 export function Message(props: MessageProps) {
-    const { state, dispatch } = useContext(GlobalContext);
+    const { dispatch } = useContext(GlobalContext);
     const { account, profileKeys } = useContext(AuthContext);
     const { addMessage } = useContext(MessageContext);
     const { selectedContact } = useContext(ConversationContext);
+    const { messageView, setMessageView } = useContext(UiViewContext);
 
     // state to show action items three dots
     const [isHovered, setIsHovered] = useState(false);
@@ -54,12 +52,9 @@ export function Message(props: MessageProps) {
 
         const messageHash = deleteEmojiData.metadata?.encryptedMessageHash;
 
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                actionType: MessageActionType.NONE,
-                messageData: undefined,
-            },
+        setMessageView({
+            actionType: MessageActionType.NONE,
+            messageData: undefined,
         });
 
         // delete the message
@@ -99,10 +94,10 @@ export function Message(props: MessageProps) {
                               (!props.envelop.message.attachments ||
                                   props.envelop.message.attachments.length < 1)
                                 ? 'own-deleted-msg'
-                                : state.uiView.selectedMessageView
-                                      .actionType === MessageActionType.EDIT &&
-                                  state.uiView.selectedMessageView.messageData
-                                      ?.envelop.message.signature ===
+                                : messageView.actionType ===
+                                      MessageActionType.EDIT &&
+                                  messageView.messageData?.envelop.message
+                                      .signature ===
                                       props.envelop.message.signature
                                 ? 'msg-editing-active'
                                 : 'ms-3 own-msg-background own-msg-text'

@@ -3,21 +3,17 @@ import {
     createEditMessage,
     createMessage,
 } from '@dm3-org/dm3-lib-messaging';
-import {
-    GlobalState,
-    MessageActionType,
-    ModalStateType,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
+import { MessageActionType, ModalStateType } from '../../utils/enum-type-utils';
 import { scrollToBottomOfChat } from '../Chat/scrollToBottomOfChat';
-import { MessageDataProps } from '../../interfaces/props';
+import { MessageAction, MessageDataProps } from '../../interfaces/props';
 import { Account } from '@dm3-org/dm3-lib-profile';
 import { AddMessage } from '../../hooks/messages/useMessage';
 import { ContactPreview } from '../../interfaces/utils';
 import { closeErrorModal, openErrorModal } from '../../utils/common-utils';
 
 export const onSubmitMessage = async (
-    state: GlobalState,
+    messageView: MessageAction,
+    setMessageView: (view: MessageAction) => void,
     dispatch: any,
     addMessage: AddMessage,
     props: MessageDataProps,
@@ -25,12 +21,9 @@ export const onSubmitMessage = async (
     account: Account,
     selectedContact: ContactPreview,
 ) => {
-    if (
-        state.uiView.selectedMessageView.actionType === MessageActionType.REPLY
-    ) {
+    if (messageView.actionType === MessageActionType.REPLY) {
         const referenceMessageHash =
-            state.uiView.selectedMessageView.messageData?.envelop.metadata
-                ?.encryptedMessageHash;
+            messageView.messageData?.envelop.metadata?.encryptedMessageHash;
 
         const messageData = await createReplyMessage(
             selectedContact?.contactDetails.account.ensName!,
@@ -61,22 +54,16 @@ export const onSubmitMessage = async (
         });
 
         // Removes preview of reply to message in the UI
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                actionType: MessageActionType.NONE,
-                messageData: undefined,
-            },
+        setMessageView({
+            actionType: MessageActionType.NONE,
+            messageData: undefined,
         });
 
         return;
     }
-    if (
-        state.uiView.selectedMessageView.actionType === MessageActionType.EDIT
-    ) {
+    if (messageView.actionType === MessageActionType.EDIT) {
         const referenceMessageHash =
-            state.uiView.selectedMessageView.messageData?.envelop.metadata
-                ?.encryptedMessageHash;
+            messageView.messageData?.envelop.metadata?.encryptedMessageHash;
 
         // reply to the original message
         const messageData = await createEditMessage(
@@ -103,13 +90,11 @@ export const onSubmitMessage = async (
 
         scrollToBottomOfChat();
 
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                actionType: MessageActionType.NONE,
-                messageData: undefined,
-            },
+        setMessageView({
+            actionType: MessageActionType.NONE,
+            messageData: undefined,
         });
+
         return;
     }
 

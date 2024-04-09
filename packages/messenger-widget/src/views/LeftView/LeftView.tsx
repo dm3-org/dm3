@@ -8,7 +8,6 @@ import {
     LeftViewSelected,
     ModalStateType,
     RightViewSelected,
-    UiViewStateType,
 } from '../../utils/enum-type-utils';
 import { closeLoader, startLoader } from '../../components/Loader/Loader';
 import Menu from '../../components/Menu/Menu';
@@ -19,13 +18,17 @@ import { AuthContext } from '../../context/AuthContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 import humanIcon from '../../assets/images/human.svg';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { UiViewContext } from '../../context/UiViewContext';
 
 export default function LeftView() {
     // fetches context api data
-    const { state, dispatch } = useContext(GlobalContext);
+    const { dispatch } = useContext(GlobalContext);
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const { initialized } = useContext(ConversationContext);
     const { account } = useContext(AuthContext);
+
+    const { setSelectedLeftView, setSelectedRightView, selectedLeftView } =
+        useContext(UiViewContext);
 
     const mainnetProvider = useMainnetProvider();
 
@@ -45,10 +48,7 @@ export default function LeftView() {
     // method to set profile page and set contact
     const updateView = () => {
         if (dm3Configuration.showContacts) {
-            dispatch({
-                type: UiViewStateType.SetSelectedRightView,
-                payload: RightViewSelected.Profile,
-            });
+            setSelectedRightView(RightViewSelected.Profile);
         }
     };
 
@@ -71,10 +71,7 @@ export default function LeftView() {
 
     // method to open menu item
     const openMenuItem = () => {
-        dispatch({
-            type: UiViewStateType.SetSelectedLeftView,
-            payload: LeftViewSelected.Menu,
-        });
+        setSelectedLeftView(LeftViewSelected.Menu);
     };
 
     return (
@@ -82,7 +79,7 @@ export default function LeftView() {
             <div
                 className={'w-100 height-inherit'.concat(
                     ' ',
-                    state.uiView.selectedLeftView === LeftViewSelected.Menu
+                    selectedLeftView === LeftViewSelected.Menu
                         ? 'blur-background'
                         : '',
                 )}
@@ -118,7 +115,7 @@ export default function LeftView() {
             <div
                 className={'h-100'.concat(
                     ' ',
-                    state.uiView.selectedLeftView === LeftViewSelected.Menu
+                    selectedLeftView === LeftViewSelected.Menu
                         ? 'menu-container'
                         : '',
                 )}

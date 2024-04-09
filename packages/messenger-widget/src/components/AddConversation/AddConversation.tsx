@@ -1,3 +1,4 @@
+import './AddConversation.css';
 import { ethers } from 'ethers';
 import { FormEvent, useContext, useState } from 'react';
 import closeIcon from '../../assets/images/cross.svg';
@@ -10,24 +11,25 @@ import {
     LeftViewSelected,
     ModalStateType,
     RightViewSelected,
-    UiViewStateType,
 } from '../../utils/enum-type-utils';
 import { closeLoader, startLoader } from '../Loader/Loader';
-import './AddConversation.css';
 import { INPUT_FIELD_CLASS, closeConversationModal } from './bl';
+import { UiViewContext } from '../../context/UiViewContext';
 
 export default function AddConversation() {
     const { dispatch } = useContext(GlobalContext);
+
     const { addConversation, setSelectedContactName } =
         useContext(ConversationContext);
+    const { ethAddress } = useContext(AuthContext);
+    const { resolveTLDtoAlias } = useContext(TLDContext);
+    const { setSelectedLeftView, setSelectedRightView } =
+        useContext(UiViewContext);
 
     const [name, setName] = useState<string>('');
     const [showError, setShowError] = useState<boolean>(false);
     const [errorMsg, setErrorMsg] = useState<string>('');
     const [inputClass, setInputClass] = useState<string>(INPUT_FIELD_CLASS);
-    const { resolveTLDtoAlias } = useContext(TLDContext);
-
-    const { ethAddress } = useContext(AuthContext);
 
     // handles new contact submission
     const submit = async (e: React.FormEvent) => {
@@ -74,16 +76,10 @@ export default function AddConversation() {
             });
 
             // set left view to contacts
-            dispatch({
-                type: UiViewStateType.SetSelectedLeftView,
-                payload: LeftViewSelected.Contacts,
-            });
+            setSelectedLeftView(LeftViewSelected.Contacts);
 
             // set right view to chat
-            dispatch({
-                type: UiViewStateType.SetSelectedRightView,
-                payload: RightViewSelected.Chat,
-            });
+            setSelectedRightView(RightViewSelected.Chat);
 
             const newContact = await addConversation(aliasName);
             setSelectedContactName(newContact.contactDetails.account.ensName);
@@ -153,10 +149,7 @@ export default function AddConversation() {
                                     showErrorMessage,
                                     resetInputFieldClass,
                                 );
-                                dispatch({
-                                    type: UiViewStateType.SetSelectedLeftView,
-                                    payload: LeftViewSelected.Contacts,
-                                });
+                                setSelectedLeftView(LeftViewSelected.Contacts);
                             }}
                         />
                     </div>

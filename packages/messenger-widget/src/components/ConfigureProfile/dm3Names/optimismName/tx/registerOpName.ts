@@ -1,12 +1,10 @@
 import { ethersHelper } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
-import { Actions } from '../../../../../utils/enum-type-utils';
 import { NAME_TYPE } from '../../../chain/common';
 import { getDm3NameRegistrar } from './getDm3NameRegistrar';
 
 export const registerOpName = async (
     provider: ethers.providers.StaticJsonRpcProvider,
-    dispatch: React.Dispatch<Actions>,
     setError: Function,
     opName: string,
 ) => {

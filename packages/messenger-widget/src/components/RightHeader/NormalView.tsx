@@ -5,21 +5,21 @@ import humanIcon from '../../assets/images/human.svg';
 import menuIcon from '../../assets/images/menu.svg';
 import { AuthContext } from '../../context/AuthContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
-import { GlobalContext } from '../../utils/context-utils';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
-import {
-    RightViewSelected,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
+import { RightViewSelected } from '../../utils/enum-type-utils';
 import { ConversationContext } from '../../context/ConversationContext';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { UiViewContext } from '../../context/UiViewContext';
 
 export function NormalView() {
-    // fetches context storage
-    const { state, dispatch } = useContext(GlobalContext);
     const { account, displayName } = useContext(AuthContext);
+
     const { setSelectedContactName } = useContext(ConversationContext);
+
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
+
+    const { setSelectedRightView, selectedRightView } =
+        useContext(UiViewContext);
 
     const mainnetProvider = useMainnetProvider();
 
@@ -38,10 +38,7 @@ export function NormalView() {
 
     // method to set profile page and set contact
     const updateView = () => {
-        dispatch({
-            type: UiViewStateType.SetSelectedRightView,
-            payload: RightViewSelected.Profile,
-        });
+        setSelectedRightView(RightViewSelected.Profile);
         setSelectedContactName(undefined);
     };
 
@@ -58,7 +55,7 @@ export function NormalView() {
             ).concat(
                 ' col-12 d-flex align-items-center pr-0 profile-name-container'.concat(
                     ' ',
-                    state.uiView.selectedRightView === RightViewSelected.Profile
+                    selectedRightView === RightViewSelected.Profile
                         ? ' background-chat'
                         : ' background-container',
                 ),

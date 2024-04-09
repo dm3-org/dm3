@@ -6,27 +6,25 @@ import { ConversationContext } from '../../context/ConversationContext';
 import { MessageContext } from '../../context/MessageContext';
 import '../../styles/modal.css';
 import { GlobalContext } from '../../utils/context-utils';
-import {
-    MessageActionType,
-    ModalStateType,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
+import { MessageActionType, ModalStateType } from '../../utils/enum-type-utils';
 import './DeleteMessage.css';
+import { UiViewContext } from '../../context/UiViewContext';
 
 export default function DeleteMessage() {
-    const { state, dispatch } = useContext(GlobalContext);
+    const { dispatch } = useContext(GlobalContext);
+
     const { selectedContact } = useContext(ConversationContext);
     const { addMessage } = useContext(MessageContext);
     const { account, profileKeys } = useContext(AuthContext);
+    const { messageView, setMessageView } = useContext(UiViewContext);
+
+    const resetMessageView = {
+        actionType: MessageActionType.NONE,
+        messageData: undefined,
+    };
 
     const closeModal = () => {
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                actionType: MessageActionType.NONE,
-                messageData: undefined,
-            },
-        });
+        setMessageView(resetMessageView);
     };
 
     const deleteMessage = async () => {
@@ -35,16 +33,9 @@ export default function DeleteMessage() {
         }
 
         const messageHash =
-            state.uiView.selectedMessageView.messageData?.envelop.metadata
-                ?.encryptedMessageHash;
+            messageView.messageData?.envelop.metadata?.encryptedMessageHash;
 
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                actionType: MessageActionType.NONE,
-                messageData: undefined,
-            },
-        });
+        setMessageView(resetMessageView);
 
         // delete the message
         const messageData = await createDeleteRequestMessage(

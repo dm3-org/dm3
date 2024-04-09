@@ -11,7 +11,7 @@ import {
     Actions,
     ConnectionType,
     ModalStateType,
-    UiViewStateType,
+    // UiViewStateType,
 } from '../../utils/enum-type-utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { AccountConnector } from './AccountConnector';
@@ -20,6 +20,7 @@ import {
     DeliveryServiceConnector,
 } from './DeliveryServiceConnector';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { UiViewContext } from '../../context/UiViewContext';
 
 export const useAuth = () => {
     const { resolveAliasToTLD } = useContext(TLDContext);
@@ -27,6 +28,8 @@ export const useAuth = () => {
     const mainnetProvider = useMainnetProvider();
     const { dispatch } = useContext(GlobalContext);
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
+    const { resetViewStates } = useContext(UiViewContext);
+
     const { address } = useAccount({
         onDisconnect: () => signOut(),
     });
@@ -126,6 +129,16 @@ export const useAuth = () => {
         setProfileKeys(profileKeys);
     };
 
+    const resetStates = (dispatch: React.Dispatch<Actions>) => {
+        dispatch({
+            type: ConnectionType.Reset,
+        });
+        resetViewStates();
+        dispatch({
+            type: ModalStateType.Reset,
+        });
+    };
+
     return {
         profileKeys,
         cleanSignIn,
@@ -139,16 +152,4 @@ export const useAuth = () => {
         hasError,
         setAccount,
     };
-};
-
-const resetStates = (dispatch: React.Dispatch<Actions>) => {
-    dispatch({
-        type: ConnectionType.Reset,
-    });
-    dispatch({
-        type: UiViewStateType.Reset,
-    });
-    dispatch({
-        type: ModalStateType.Reset,
-    });
 };

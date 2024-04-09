@@ -4,7 +4,6 @@ import humanIcon from '../../assets/images/human.svg';
 import backIcon from '../../assets/images/back.svg';
 import threeDotsIcon from '../../assets/images/three-dots.svg';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
-import { GlobalContext } from '../../utils/context-utils';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
 import { RightViewSelected } from '../../utils/enum-type-utils';
 import { ConversationContext } from '../../context/ConversationContext';
@@ -12,12 +11,14 @@ import { closeContactMenu } from '../../utils/common-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
 import { ContactPreview } from '../../interfaces/utils';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { UiViewContext } from '../../context/UiViewContext';
 
 export function MobileView() {
-    // fetches context storage
-    const { state } = useContext(GlobalContext);
+    const { selectedRightView } = useContext(UiViewContext);
+
     const { setSelectedContactName, selectedContact } =
         useContext(ConversationContext);
+
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     const mainnetProvider = useMainnetProvider();
@@ -51,7 +52,7 @@ export function MobileView() {
 
     return (
         <>
-            {state.uiView.selectedRightView === RightViewSelected.Chat && (
+            {selectedRightView === RightViewSelected.Chat && (
                 <div
                     className={'justify-content-between'.concat(
                         ' col-12 d-flex align-items-center pr-0 profile-name-container background-container',

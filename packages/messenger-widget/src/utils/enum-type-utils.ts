@@ -23,13 +23,13 @@ export type ConnectionActions =
     ActionMap<ConnectionPayload>[keyof ActionMap<ConnectionPayload>];
 
 export type GlobalState = {
-    uiView: UiViewState;
+    // uiView: UiViewState;
     modal: Modal;
 };
 
 export type Actions =
     | ConnectionActions
-    | UiViewStateActions
+    // | UiViewStateActions
     | ModalStateActions;
 
 export enum ConnectionType {
@@ -44,11 +44,11 @@ export enum ConnectionType {
     Reset = 'RESET',
 }
 
-export enum SelectedRightView {
-    Error,
-    Chat,
-    UserInfo,
-}
+// export enum SelectedRightView {
+//     Error,
+//     Chat,
+//     UserInfo,
+// }
 
 export enum ConnectionState {
     CollectingSignInData,
@@ -87,22 +87,22 @@ export enum LeftViewSelected {
     Menu,
 }
 
-export enum UiViewStateType {
-    SetSelectedRightView = 'SET_SELECTED_RIGHT_VIEW',
-    SetSelectedLeftView = 'SET_SELECTED_LEFT_VIEW',
-    SetMessageView = 'SET_MESSAGE_VIEW',
-    Reset = 'RESET',
-}
+// export enum UiViewStateType {
+//     SetSelectedRightView = 'SET_SELECTED_RIGHT_VIEW',
+//     SetSelectedLeftView = 'SET_SELECTED_LEFT_VIEW',
+//     SetMessageView = 'SET_MESSAGE_VIEW',
+//     Reset = 'RESET',
+// }
 
-export type UiViewStatePayload = {
-    [UiViewStateType.SetSelectedLeftView]: LeftViewSelected;
-    [UiViewStateType.SetSelectedRightView]: RightViewSelected;
-    [UiViewStateType.SetMessageView]: MessageAction;
-    [UiViewStateType.Reset]: any;
-};
+// export type UiViewStatePayload = {
+//     [UiViewStateType.SetSelectedLeftView]: LeftViewSelected;
+//     [UiViewStateType.SetSelectedRightView]: RightViewSelected;
+//     [UiViewStateType.SetMessageView]: MessageAction;
+//     [UiViewStateType.Reset]: any;
+// };
 
-export type UiViewStateActions =
-    ActionMap<UiViewStatePayload>[keyof ActionMap<UiViewStatePayload>];
+// export type UiViewStateActions =
+//     ActionMap<UiViewStatePayload>[keyof ActionMap<UiViewStatePayload>];
 
 export enum ModalStateType {
     LoaderContent = 'LOADER_CONTENT',

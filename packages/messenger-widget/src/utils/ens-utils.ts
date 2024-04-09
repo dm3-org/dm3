@@ -8,7 +8,7 @@ import {
     MOBILE_SCREEN_WIDTH,
     getEtherscanUrl,
 } from './common-utils';
-import { Actions, RightViewSelected, UiViewStateType } from './enum-type-utils';
+import { RightViewSelected } from './enum-type-utils';
 
 // method to get avatar/image url
 export const getAvatar = async (
@@ -92,7 +92,7 @@ export const openEtherscan = (address: string, chainId: string) => {
 
 // method to close profile/contact info page
 export const onClose = (
-    dispatch: React.Dispatch<Actions>,
+    setSelectedRightView: (view: RightViewSelected) => void,
     setSelectedContact: Function,
     screenWidth: number,
     showContacts: boolean,
@@ -100,17 +100,10 @@ export const onClose = (
     // If contact list exists, then opens default screen
     if (screenWidth && screenWidth > MOBILE_SCREEN_WIDTH && showContacts) {
         setSelectedContact(undefined);
-        dispatch({
-            type: UiViewStateType.SetSelectedRightView,
-            payload: RightViewSelected.Default,
-        });
+        setSelectedRightView(RightViewSelected.Default);
         return;
     }
-
-    dispatch({
-        type: UiViewStateType.SetSelectedRightView,
-        payload: RightViewSelected.Chat,
-    });
+    setSelectedRightView(RightViewSelected.Chat);
 };
 
 // method to check DM3 network profile on ENS

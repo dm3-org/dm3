@@ -6,24 +6,20 @@ import aboutIcon from '../../assets/images/about.svg';
 import termsIcon from '../../assets/images/terms.svg';
 import privacyIcon from '../../assets/images/privacy.svg';
 import settingsIcon from '../../assets/images/settings.svg';
-import {
-    LeftViewSelected,
-    ModalStateType,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
+import { LeftViewSelected, ModalStateType } from '../../utils/enum-type-utils';
 import { GlobalContext } from '../../utils/context-utils';
 import { openConversationModal } from '../AddConversation/bl';
 import { openUrlInNewTab } from '../../utils/common-utils';
+import { UiViewContext } from '../../context/UiViewContext';
 
 export default function Menu() {
     // fetches context api data
-    const { state, dispatch } = useContext(GlobalContext);
+    const { dispatch } = useContext(GlobalContext);
+
+    const { selectedLeftView, setSelectedLeftView } = useContext(UiViewContext);
 
     const showContactList = () => {
-        dispatch({
-            type: UiViewStateType.SetSelectedLeftView,
-            payload: LeftViewSelected.Contacts,
-        });
+        setSelectedLeftView(LeftViewSelected.Contacts);
     };
 
     return (
@@ -105,7 +101,7 @@ export default function Menu() {
             <div
                 className={'width-fill p-3 font-size-14'.concat(
                     ' ',
-                    state.uiView.selectedLeftView === LeftViewSelected.Menu
+                    selectedLeftView === LeftViewSelected.Menu
                         ? 'version-container'
                         : '',
                 )}
