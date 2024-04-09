@@ -1,5 +1,5 @@
 // Import React and the CSS for this component
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './Dm3Widget.css';
 
 // Ignore TypeScript errors for the next line
@@ -7,11 +7,36 @@ import './Dm3Widget.css';
 // Import the DM3 component from the 'messenger-widget' package
 import { DM3, DM3Configuration } from '@dm3-org/dm3-messenger-widget';
 
+// Custom hook for retrieving and checking the 'messageto' URL parameter.
+const useMessageTo = (): [string | null, () => boolean] => {
+    // State to store the 'messageto' parameter value.
+    const [messageTo, setMessageTo] = useState<string | null>(null);
+
+    // Effect hook to parse and set the 'messageto' parameter from the URL on component mount.
+    useEffect(() => {
+        const searchParams = new URLSearchParams(window.location.search);
+        setMessageTo(searchParams.get('messageTo'));
+    }, []);
+
+    // Function to check if the 'messageto' parameter is set (not null).
+    const isMessageToSet = (): boolean => {
+        return messageTo !== null;
+    };
+
+    // Returns the 'messageto' parameter value and the check function.
+    return [messageTo, isMessageToSet];
+};
+
 // Define the Dm3Widget component
 const Dm3Widget: React.FC = () => {
+    // check messageTo
+    const [messageTo, isMessageToSet] = useMessageTo();
+
+    console.log('MESSAGETO: %s', messageTo);
+
     // Define the props for the DM3 component
     const props: DM3Configuration = {
-        defaultContact: 'contact.dm3.eth',
+        defaultContact: isMessageToSet() ? messageTo! : 'contact.dm3.eth',
         userEnsSubdomain: process.env.REACT_APP_USER_ENS_SUBDOMAIN as string,
         addressEnsSubdomain: process.env.REACT_APP_ADDR_ENS_SUBDOMAIN as string,
         resolverBackendUrl: process.env.REACT_APP_RESOLVER_BACKEND as string,
@@ -27,7 +52,7 @@ const Dm3Widget: React.FC = () => {
             .REACT_APP_WALLET_CONNECT_PROJECT_ID as string,
         showAlways: true,
         hideFunction: 'attachments', // Optional parameter: 'attachments,edit,delete' or undefined
-        showContacts: true, // true for all contacts / false for default contact
+        showContacts: !isMessageToSet(), // true for all contacts / false for default contact
     };
 
     // Return the JSX for this component
