@@ -50,7 +50,7 @@ const Dm3Widget: React.FC = () => {
 
     // Define the configuration props for the DM3 component
     const props: DM3Configuration = {
-        defaultContact: isMessageToSet() ? messageTo! : 'contact.dm3.eth',
+        defaultContact: isMessageToSet() ? messageTo! : 'contact.dm3.eth', // If messageTo is set, use it as the default contact
         userEnsSubdomain: process.env.REACT_APP_USER_ENS_SUBDOMAIN as string,
         addressEnsSubdomain: process.env.REACT_APP_ADDR_ENS_SUBDOMAIN as string,
         resolverBackendUrl: process.env.REACT_APP_RESOLVER_BACKEND as string,
