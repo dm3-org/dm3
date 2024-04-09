@@ -1,5 +1,5 @@
 /* Basic styles for the navigation bar */
-.navbar {
+.navbar_header {
     display: flex; /* Use flexbox for layout */
     justify-content: center; /* Center items horizontally in the container */
     align-items: center; /* Center items vertically in the container */
@@ -12,6 +12,17 @@
     position: absolute; /* Position the link absolutely within the navbar */
     left: 21px; /* Position from the left */
     top: 25px; /* Position from the top */
+}
+
+/* Style for the link wrapping the logo with hover effect */
+.logo-link img {
+    height: 29px;
+    transition: transform 0.3s ease; /* Smooth transition for the transform */
+    display: block; /* Ensure the image is block level to correctly apply transformations */
+}
+
+.logo-link img:hover {
+    transform: scale(1.1); /* Scale up the logo on hover */
 }
 
 /* Styles for the message tag */
@@ -37,12 +48,22 @@
     color: rgba(139, 127, 244, 1); /* Text color */
 }
 
+/* Styles for the message tag text */
+.message-tag span {
+    font-weight: 300;
+}
+
+.message-tag strong {
+    margin-left: 5px;
+    font-weight: bold;
+}
+
 /* Media query for devices with a max width of 599px */
 @media (max-width: 599px) {
     .message-tag {
         position: absolute; /* Ensure the tag is positioned absolutely */
         top: 0; /* Keep it at the top */
-        margin-left: 60px; /* Adjust based on the logo's size to avoid overlap */
+        margin-left: 80px; /* Adjust based on the logo's size to avoid overlap */
     }
 }
 
