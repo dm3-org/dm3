@@ -1,5 +1,5 @@
 import { Account } from '@dm3-org/dm3-lib-profile';
-import { Modal, UiState, UiViewState } from '../interfaces/context';
+import { Modal, UiViewState } from '../interfaces/context';
 import { MessageAction, MessageProps } from '../interfaces/props';
 import { NewContact } from '../interfaces/utils';
 
@@ -23,23 +23,12 @@ export type ConnectionActions =
     ActionMap<ConnectionPayload>[keyof ActionMap<ConnectionPayload>];
 
 export type GlobalState = {
-    uiState: UiState;
     uiView: UiViewState;
     modal: Modal;
 };
 
-export type UiStatePayload = {
-    [UiStateType.SetProfileExists]: boolean;
-    [UiStateType.SetBrowserStorageBackup]: boolean;
-    [UiStateType.Reset]: any;
-};
-
-export type UiStateActions =
-    ActionMap<UiStatePayload>[keyof ActionMap<UiStatePayload>];
-
 export type Actions =
     | ConnectionActions
-    | UiStateActions
     | UiViewStateActions
     | ModalStateActions;
 
@@ -59,12 +48,6 @@ export enum SelectedRightView {
     Error,
     Chat,
     UserInfo,
-}
-
-export enum UiStateType {
-    SetProfileExists = 'SET_PROFILE_EXISTS',
-    SetBrowserStorageBackup = 'SET_BROWSER_STORAGE_BACKUP',
-    Reset = 'RESET',
 }
 
 export enum ConnectionState {

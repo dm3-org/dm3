@@ -11,7 +11,6 @@ import {
     Actions,
     ConnectionType,
     ModalStateType,
-    UiStateType,
     UiViewStateType,
 } from '../../utils/enum-type-utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
@@ -145,10 +144,6 @@ export const useAuth = () => {
 const resetStates = (dispatch: React.Dispatch<Actions>) => {
     dispatch({
         type: ConnectionType.Reset,
-    });
-
-    dispatch({
-        type: UiStateType.Reset,
     });
     dispatch({
         type: UiViewStateType.Reset,

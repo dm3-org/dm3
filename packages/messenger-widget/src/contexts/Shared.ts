@@ -7,11 +7,6 @@ import {
 
 export const initialState = (): GlobalState => {
     return {
-        uiState: {
-            lastMessagePull: 0,
-            proflieExists: false,
-            browserStorageBackup: false,
-        },
         uiView: {
             selectedLeftView: LeftViewSelected.Contacts,
             selectedRightView: RightViewSelected.Default,

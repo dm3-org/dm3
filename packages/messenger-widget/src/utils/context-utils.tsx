@@ -1,14 +1,12 @@
 import React, { Dispatch } from 'react';
 import { modalReducer } from '../contexts/Modal';
 import { initialState } from '../contexts/Shared';
-import { uiStateReducer } from '../contexts/UiState';
 import { uiViewReducer } from '../contexts/UiView';
 import { GlobalContextProviderProps } from '../interfaces/context';
 import {
     Actions,
     GlobalState,
     ModalStateActions,
-    UiStateActions,
     UiViewStateActions,
 } from './enum-type-utils';
 
@@ -20,7 +18,6 @@ export const GlobalContext = React.createContext<{
 
 // combined all reducers in single reducer
 const mainReducer = (state: GlobalState, action: Actions): GlobalState => ({
-    uiState: uiStateReducer(state.uiState, action as UiStateActions),
     uiView: uiViewReducer(state.uiView, action as UiViewStateActions),
     modal: modalReducer(state.modal, action as ModalStateActions),
 });

@@ -36,12 +36,6 @@ export interface Cache {
     accountName: string;
 }
 
-export interface UiState {
-    lastMessagePull: number;
-    proflieExists: boolean;
-    browserStorageBackup: boolean;
-}
-
 export interface GlobalContextProviderProps {
     children: JSX.Element;
 }
