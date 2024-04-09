@@ -10,7 +10,12 @@ const Header: React.FC = () => {
     return (
         // Navigation bar container
         <nav className="navbar_header fixed-top navbar-light">
-            <a href="https://dm3.network" target="_blank" rel="noopener noreferrer" className="logo-link">
+            <a
+                href="https://dm3.network"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="logo-link"
+            >
                 <img src="/dm3-logo.png" alt="dm3 Network Logo" />
             </a>
 
