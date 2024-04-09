@@ -2,17 +2,16 @@ import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { useChainId } from 'wagmi';
 import { AuthContext } from '../../../../context/AuthContext';
-import { GlobalContext } from '../../../../utils/context-utils';
 import { ConfigureDM3NameContext } from '../../context/ConfigureDM3NameContext';
-import { ModalStateType } from './../../../../utils/enum-type-utils';
 import { closeLoader, startLoader } from './../../../Loader/Loader';
 import { IChain, NAME_TYPE } from './../../chain/common';
 import { DM3Name } from './../DM3Name';
 import { publishProfile } from './tx/publishProfile';
 import { registerOpName } from './tx/registerOpName';
+import { ModalContext } from '../../../../context/ModalContext';
 
 export const ConfigureOptimismNameProfile = (props: IChain) => {
-    const { dispatch } = useContext(GlobalContext);
+    const { setLoaderContent } = useContext(ModalContext);
     const { setExistingDm3Name, setError } = useContext(
         ConfigureDM3NameContext,
     );
@@ -28,10 +27,7 @@ export const ConfigureOptimismNameProfile = (props: IChain) => {
     const registerOpNameAndPublishProfile = async (opName: string) => {
         try {
             // start loader
-            dispatch({
-                type: ModalStateType.LoaderContent,
-                payload: 'Claim OP name...',
-            });
+            setLoaderContent('Claim OP name...');
             startLoader();
 
             if (props.chainToConnect !== chainId) {
@@ -62,11 +58,8 @@ export const ConfigureOptimismNameProfile = (props: IChain) => {
                 closeLoader();
                 return;
             }
-            dispatch({
-                type: ModalStateType.LoaderContent,
-                payload: 'Publishing profile.',
-            });
 
+            setLoaderContent('Publishing profile...');
             await publishProfile(opProvider, account!, ensName);
 
             setDisplayName(ensName);

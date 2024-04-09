@@ -1,30 +1,28 @@
 import './AddConversation.css';
+import '../../styles/modal.css';
 import { ethers } from 'ethers';
 import { FormEvent, useContext, useState } from 'react';
 import closeIcon from '../../assets/images/cross.svg';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { TLDContext } from '../../context/TLDContext';
-import '../../styles/modal.css';
-import { GlobalContext } from '../../utils/context-utils';
 import {
     LeftViewSelected,
-    ModalStateType,
     RightViewSelected,
 } from '../../utils/enum-type-utils';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { INPUT_FIELD_CLASS, closeConversationModal } from './bl';
 import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
 
 export default function AddConversation() {
-    const { dispatch } = useContext(GlobalContext);
-
     const { addConversation, setSelectedContactName } =
         useContext(ConversationContext);
     const { ethAddress } = useContext(AuthContext);
     const { resolveTLDtoAlias } = useContext(TLDContext);
     const { setSelectedLeftView, setSelectedRightView } =
         useContext(UiViewContext);
+    const { setLoaderContent, setAddConversation } = useContext(ModalContext);
 
     const [name, setName] = useState<string>('');
     const [showError, setShowError] = useState<boolean>(false);
@@ -37,11 +35,7 @@ export default function AddConversation() {
         setName(name.trim());
         if (name.length) {
             // start loader
-            dispatch({
-                type: ModalStateType.LoaderContent,
-                payload: 'Adding contact...',
-            });
-
+            setLoaderContent('Adding contact...');
             startLoader();
 
             const ensNameIsInvalid =
@@ -70,10 +64,7 @@ export default function AddConversation() {
             };
 
             // set new contact data
-            dispatch({
-                type: ModalStateType.AddConversationData,
-                payload: addConversationData,
-            });
+            setAddConversation(addConversationData);
 
             // set left view to contacts
             setSelectedLeftView(LeftViewSelected.Contacts);

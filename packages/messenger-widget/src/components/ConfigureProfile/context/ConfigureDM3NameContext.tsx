@@ -1,6 +1,5 @@
 import { NAME_TYPE } from '../chain/common';
 import { AuthContext } from '../../../context/AuthContext';
-import { GlobalContext } from '../../../utils/context-utils';
 import React, { useContext, useEffect, useState } from 'react';
 import { ConfigureProfileContext } from './ConfigureProfileContext';
 import { DM3ConfigurationContext } from '../../../context/DM3ConfigurationContext';
@@ -11,6 +10,7 @@ import {
     removeAliasFromDm3Name,
     validateName,
 } from '../bl';
+import { ModalContext } from '../../../context/ModalContext';
 
 export interface ConfigureDM3NameContextType {
     existingDm3Name: string | null;
@@ -63,7 +63,7 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
 
     const mainnetProvider = useMainnetProvider();
 
-    const { dispatch } = useContext(GlobalContext);
+    const { setLoaderContent } = useContext(ModalContext);
 
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
@@ -105,10 +105,8 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
             const result = await removeAliasFromDm3Name(
                 dm3Configuration.resolverBackendUrl,
                 profileKeys!,
-                account!,
-                ethAddress!,
                 existingDm3Name as string,
-                dispatch,
+                setLoaderContent,
                 setError,
             );
             result && setExistingDm3Name(null);

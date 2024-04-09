@@ -15,19 +15,20 @@ import {
     createNameForFile,
     getFileTypeFromBase64,
 } from '../../utils/common-utils';
-import { GlobalContext } from '../../utils/context-utils';
-import { MessageActionType, ModalStateType } from '../../utils/enum-type-utils';
+import { MessageActionType } from '../../utils/enum-type-utils';
 import { hideMsgActionDropdown } from '../MessageInputBox/bl';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
 
 export function MessageAction(props: MessageProps) {
-    const { dispatch } = useContext(GlobalContext);
     const { account, profileKeys } = useContext(AuthContext);
     const { addMessage } = useContext(MessageContext);
     const { selectedContact } = useContext(ConversationContext);
     const { screenWidth } = useContext(DM3ConfigurationContext);
     const { setMessageView } = useContext(UiViewContext);
+    const { setOpenEmojiPopup, setLastMessageAction } =
+        useContext(ModalContext);
 
     const [alignmentTop, setAlignmentTop] = useState(false);
 
@@ -41,10 +42,7 @@ export function MessageAction(props: MessageProps) {
             await reactToMessage(emoji);
         } else {
             // open the emoji modal for more emojis
-            dispatch({
-                type: ModalStateType.OpenEmojiPopup,
-                payload: { action: true, data: props },
-            });
+            setOpenEmojiPopup({ action: true, data: props });
             hideMsgActionDropdown();
         }
     };
@@ -94,10 +92,7 @@ export function MessageAction(props: MessageProps) {
             messageData,
         );
 
-        dispatch({
-            type: ModalStateType.LastMessageAction,
-            payload: MessageActionType.REACT,
-        });
+        setLastMessageAction(MessageActionType.REACT);
     };
 
     // download all the attachments in the message

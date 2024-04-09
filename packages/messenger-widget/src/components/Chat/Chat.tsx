@@ -6,15 +6,14 @@ import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { MessageContext } from '../../context/MessageContext';
 import { MessageModel } from '../../hooks/messages/useMessage';
 import { MOBILE_SCREEN_WIDTH } from '../../utils/common-utils';
-import { GlobalContext } from '../../utils/context-utils';
 import { MessageActionType } from '../../utils/enum-type-utils';
 import ConfigProfileAlertBox from '../ContactProfileAlertBox/ContactProfileAlertBox';
 import { Message } from '../Message/Message';
 import { MessageInputBox } from '../MessageInputBox/MessageInputBox';
 import { scrollToBottomOfChat } from './scrollToBottomOfChat';
+import { ModalContext } from '../../context/ModalContext';
 
 export function Chat() {
-    const { state } = useContext(GlobalContext);
     const { account } = useContext(AuthContext);
     const { selectedContact, contacts, setSelectedContactName } =
         useContext(ConversationContext);
@@ -22,6 +21,7 @@ export function Chat() {
         DM3ConfigurationContext,
     );
     const { getMessages, contactIsLoading } = useContext(MessageContext);
+    const { lastMessageAction } = useContext(ModalContext);
 
     const [isProfileConfigured, setIsProfileConfigured] =
         useState<boolean>(false);
@@ -55,9 +55,9 @@ export function Chat() {
     useEffect(() => {
         if (
             messages.length &&
-            (state.modal.lastMessageAction === MessageActionType.NONE ||
-                state.modal.lastMessageAction === MessageActionType.REPLY ||
-                state.modal.lastMessageAction === MessageActionType.NEW)
+            (lastMessageAction === MessageActionType.NONE ||
+                lastMessageAction === MessageActionType.REPLY ||
+                lastMessageAction === MessageActionType.NEW)
         ) {
             scrollToBottomOfChat();
         }

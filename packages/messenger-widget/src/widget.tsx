@@ -5,7 +5,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import ErrorModal from './components/ErrorModal/ErrorModal';
 import { DM3Configuration } from './interfaces/config';
-import GlobalContextProvider from './utils/context-utils';
 import { setTheme } from './utils/style-utils';
 import { Home } from './views/Home/Home';
 
@@ -15,9 +14,7 @@ function DM3(props: DM3Configuration) {
         <>
             <div className="dm3-root">
                 <ErrorModal />
-                <GlobalContextProvider>
-                    <Home config={props} />
-                </GlobalContextProvider>
+                <Home config={props} />
             </div>
             {process.env.REACT_APP_COMMIT_HASH && (
                 <div

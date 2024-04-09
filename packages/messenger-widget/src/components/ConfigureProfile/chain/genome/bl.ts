@@ -3,9 +3,7 @@ import { Account, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { ethersHelper, stringify } from '@dm3-org/dm3-lib-shared';
 import { getConractInstance } from '@dm3-org/dm3-lib-shared/dist/ethersHelper';
 import { ethers } from 'ethers';
-import { Actions, ModalStateType } from '../../../../utils/enum-type-utils';
 import { closeLoader, startLoader } from '../../../Loader/Loader';
-
 import { Address, namehash, toHex } from 'viem';
 import { NAME_TYPE } from '../common';
 
@@ -112,7 +110,7 @@ export const submitGenomeNameTransaction = async (
     provider: ethers.providers.StaticJsonRpcProvider,
     dsToken: string,
     account: Account,
-    dispatch: React.Dispatch<Actions>,
+    setLoaderContent: (content: string) => void,
     ensName: string,
     ethAddress: string,
     setEnsNameFromResolver: Function,
@@ -120,11 +118,7 @@ export const submitGenomeNameTransaction = async (
 ) => {
     try {
         // start loader
-        dispatch({
-            type: ModalStateType.LoaderContent,
-            payload: 'Publishing profile...',
-        });
-
+        setLoaderContent('Publishing profile...');
         startLoader();
 
         const isValid = await isGenomeNameValid(

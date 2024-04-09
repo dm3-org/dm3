@@ -3,13 +3,16 @@ import { preferencesItems } from './bl';
 import infoIcon from './../../assets/images/preferences-info.svg';
 import backIcon from './../../assets/images/back.svg';
 import { useContext, useEffect, useState } from 'react';
-import { GlobalContext } from '../../utils/context-utils';
 import closeIcon from '../../assets/images/cross.svg';
-import { ModalStateType } from '../../utils/enum-type-utils';
 import { closeConfigurationModal } from '../ConfigureProfile/bl';
+import { ModalContext } from '../../context/ModalContext';
 
 export function NormalView() {
-    const { state, dispatch } = useContext(GlobalContext);
+    const {
+        setShowPreferencesModal,
+        showProfileConfigurationModal,
+        setShowProfileConfigurationModal,
+    } = useContext(ModalContext);
 
     const [optionChoosen, setOptionChoosen] = useState<any>(null);
 
@@ -18,7 +21,7 @@ export function NormalView() {
      *  on "Configure Profile" button
      */
     useEffect(() => {
-        if (state.modal.isProfileConfigurationPopupActive) {
+        if (showProfileConfigurationModal) {
             setOptionChoosen(preferencesItems[1]);
         }
     }, []);
@@ -36,26 +39,22 @@ export function NormalView() {
                     <div className="row m-0 h-100 w-100">
                         <div className="col-2 m-0 p-0 preferences-aside-content border-radius-6">
                             <div
-                                className={'pt-3 d-flex align-items-center'.concat(
-                                    ' ',
-                                    // optionChoosen
-                                    //     ? ''
-                                    //     :
-                                    'justify-content-center',
-                                )}
+                                className={
+                                    'pt-3 d-flex align-items-center justify-content-center'
+                                }
                             >
                                 {optionChoosen && (
-                                    // <span>
                                     <img
                                         className="back-icon pointer-cursor"
                                         src={backIcon}
                                         alt="back"
                                         onClick={() => {
                                             setOptionChoosen(null);
-                                            closeConfigurationModal(dispatch);
+                                            closeConfigurationModal(
+                                                setShowProfileConfigurationModal,
+                                            );
                                         }}
                                     />
-                                    // </span>
                                 )}
                                 <span
                                     className={'preferences-heading d-flex justify-content-center mb-0'.concat(
@@ -115,11 +114,10 @@ export function NormalView() {
                                         src={closeIcon}
                                         alt="close"
                                         onClick={() => {
-                                            dispatch({
-                                                type: ModalStateType.ShowPreferencesModal,
-                                                payload: false,
-                                            });
-                                            closeConfigurationModal(dispatch);
+                                            setShowPreferencesModal(false);
+                                            closeConfigurationModal(
+                                                setShowProfileConfigurationModal,
+                                            );
                                         }}
                                     />
                                 </div>

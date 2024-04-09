@@ -3,7 +3,7 @@ import {
     createEditMessage,
     createMessage,
 } from '@dm3-org/dm3-lib-messaging';
-import { MessageActionType, ModalStateType } from '../../utils/enum-type-utils';
+import { MessageActionType } from '../../utils/enum-type-utils';
 import { scrollToBottomOfChat } from '../Chat/scrollToBottomOfChat';
 import { MessageAction, MessageDataProps } from '../../interfaces/props';
 import { Account } from '@dm3-org/dm3-lib-profile';
@@ -14,7 +14,7 @@ import { closeErrorModal, openErrorModal } from '../../utils/common-utils';
 export const onSubmitMessage = async (
     messageView: MessageAction,
     setMessageView: (view: MessageAction) => void,
-    dispatch: any,
+    setLastMessageAction: (action: MessageActionType) => void,
     addMessage: AddMessage,
     props: MessageDataProps,
     profileKeys: any,
@@ -48,10 +48,7 @@ export const onSubmitMessage = async (
         props.setMessageText('');
 
         scrollToBottomOfChat();
-        dispatch({
-            type: ModalStateType.LastMessageAction,
-            payload: MessageActionType.REPLY,
-        });
+        setLastMessageAction(MessageActionType.REPLY);
 
         // Removes preview of reply to message in the UI
         setMessageView({

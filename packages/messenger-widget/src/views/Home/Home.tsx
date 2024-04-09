@@ -34,10 +34,11 @@ import { TLDContextProvider } from '../../context/TLDContext';
 import { WebSocketContextProvider } from '../../context/WebSocketContext';
 import { Dm3Props } from '../../interfaces/config';
 import { UiViewContextProvider } from '../../context/UiViewContext';
+import { ModalContextProvider } from '../../context/ModalContext';
 
 export function Home(props: Dm3Props) {
     //Use different chains depending on the environment. Note that gnosis mainnet is used for both setups
-    // because there is no spaceId testnet deploymend yet
+    // because there is no spaceId testnet deployment yet
     const _chains =
         props.config.chainId === '1'
             ? [mainnet, optimism, gnosis]
@@ -94,30 +95,32 @@ export function Home(props: Dm3Props) {
                 <RainbowKitProvider chains={chains} theme={darkTheme()}>
                     <DM3ConfigurationContextProvider>
                         <UiViewContextProvider>
-                            <MainnetProviderContextProvider
-                                dm3Configuration={props.config}
-                            >
-                                <TLDContextProvider>
-                                    <AuthContextProvider>
-                                        <WebSocketContextProvider>
-                                            <StorageContextProvider>
-                                                {/* TODO move conversation and message contest further done as it dont need to be stored in the globlal state */}
-                                                <ConversationContextProvider
-                                                    config={props.config}
-                                                >
-                                                    <MessageContextProvider>
-                                                        <DM3
-                                                            config={
-                                                                props.config
-                                                            }
-                                                        />
-                                                    </MessageContextProvider>
-                                                </ConversationContextProvider>
-                                            </StorageContextProvider>
-                                        </WebSocketContextProvider>
-                                    </AuthContextProvider>
-                                </TLDContextProvider>
-                            </MainnetProviderContextProvider>
+                            <ModalContextProvider>
+                                <MainnetProviderContextProvider
+                                    dm3Configuration={props.config}
+                                >
+                                    <TLDContextProvider>
+                                        <AuthContextProvider>
+                                            <WebSocketContextProvider>
+                                                <StorageContextProvider>
+                                                    {/* TODO move conversation and message contest further done as it dont need to be stored in the globlal state */}
+                                                    <ConversationContextProvider
+                                                        config={props.config}
+                                                    >
+                                                        <MessageContextProvider>
+                                                            <DM3
+                                                                config={
+                                                                    props.config
+                                                                }
+                                                            />
+                                                        </MessageContextProvider>
+                                                    </ConversationContextProvider>
+                                                </StorageContextProvider>
+                                            </WebSocketContextProvider>
+                                        </AuthContextProvider>
+                                    </TLDContextProvider>
+                                </MainnetProviderContextProvider>
+                            </ModalContextProvider>
                         </UiViewContextProvider>
                     </DM3ConfigurationContextProvider>
                 </RainbowKitProvider>

@@ -2,11 +2,9 @@ import '../../styles/common.css';
 import { Contacts } from '../../components/Contacts/Contacts';
 import menuIcon from '../../assets/images/menu.svg';
 import ConfigureProfileBox from '../../components/ConfigureProfileBox/ConfigureProfileBox';
-import { GlobalContext } from '../../utils/context-utils';
 import { useContext, useEffect, useState } from 'react';
 import {
     LeftViewSelected,
-    ModalStateType,
     RightViewSelected,
 } from '../../utils/enum-type-utils';
 import { closeLoader, startLoader } from '../../components/Loader/Loader';
@@ -19,13 +17,13 @@ import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvid
 import humanIcon from '../../assets/images/human.svg';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
 
 export default function LeftView() {
-    // fetches context api data
-    const { dispatch } = useContext(GlobalContext);
-    const { dm3Configuration } = useContext(DM3ConfigurationContext);
-    const { initialized } = useContext(ConversationContext);
     const { account } = useContext(AuthContext);
+    const { setLoaderContent } = useContext(ModalContext);
+    const { initialized } = useContext(ConversationContext);
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     const { setSelectedLeftView, setSelectedRightView, selectedLeftView } =
         useContext(UiViewContext);
@@ -55,10 +53,7 @@ export default function LeftView() {
     // handles starting loader on page load
     useEffect(() => {
         if (!initialized) {
-            dispatch({
-                type: ModalStateType.LoaderContent,
-                payload: 'Fetching contacts...',
-            });
+            setLoaderContent('Fetching contacts...');
             startLoader();
             return;
         }

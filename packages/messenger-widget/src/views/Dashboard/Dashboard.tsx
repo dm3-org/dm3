@@ -2,7 +2,6 @@ import './Dashboard.css';
 import { useContext } from 'react';
 import LeftView from '../LeftView/LeftView';
 import RightView from '../RightView/RightView';
-import { GlobalContext } from '../../utils/context-utils';
 import {
     MessageActionType,
     RightViewSelected,
@@ -14,17 +13,16 @@ import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { MOBILE_SCREEN_WIDTH } from '../../utils/common-utils';
 import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
 
 export default function Dashboard() {
-    const { state } = useContext(GlobalContext);
-
     const { screenWidth, dm3Configuration } = useContext(
         DM3ConfigurationContext,
     );
-
     const { selectedRightView, messageView } = useContext(UiViewContext);
-
     const { selectedContact } = useContext(ConversationContext);
+    const { showPreferencesModal, showProfileConfigurationModal } =
+        useContext(ModalContext);
 
     const getRightViewStyleClasses = () => {
         if (dm3Configuration.showContacts) {
@@ -51,8 +49,7 @@ export default function Dashboard() {
             <AddConversation />
 
             {/* Preferences popup */}
-            {(state.modal.showPreferencesModal ||
-                state.modal.isProfileConfigurationPopupActive) && (
+            {(showPreferencesModal || showProfileConfigurationModal) && (
                 <Preferences />
             )}
 

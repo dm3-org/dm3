@@ -3,18 +3,18 @@ import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { MessageContext } from '../../context/MessageContext';
 import { MessageDataProps } from '../../interfaces/props';
-import { GlobalContext } from '../../utils/context-utils';
 import { MessageActionType } from '../../utils/enum-type-utils';
 import { scrollToBottomOfChat } from '../Chat/scrollToBottomOfChat';
 import { onSubmitMessage } from '../SendMessage/onSubmitMessage';
 import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
 
 export function MessageInputField(props: MessageDataProps) {
-    const { dispatch } = useContext(GlobalContext);
     const { account, profileKeys } = useContext(AuthContext);
     const { selectedContact } = useContext(ConversationContext);
     const { addMessage } = useContext(MessageContext);
     const { setMessageView, messageView } = useContext(UiViewContext);
+    const { setLastMessageAction } = useContext(ModalContext);
 
     const resetMessageView = {
         actionType: MessageActionType.NONE,
@@ -35,7 +35,7 @@ export function MessageInputField(props: MessageDataProps) {
         await onSubmitMessage(
             messageView,
             setMessageView,
-            dispatch,
+            setLastMessageAction,
             addMessage,
             props,
             profileKeys,

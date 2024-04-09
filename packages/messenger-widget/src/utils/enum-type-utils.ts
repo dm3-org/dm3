@@ -1,7 +1,4 @@
 import { Account } from '@dm3-org/dm3-lib-profile';
-import { Modal } from '../interfaces/context';
-import { MessageProps } from '../interfaces/props';
-import { NewContact } from '../interfaces/utils';
 
 export type ActionMap<M extends { [index: string]: any }> = {
     [Key in keyof M]: M[Key] extends undefined
@@ -22,11 +19,7 @@ export type ConnectionPayload = {
 export type ConnectionActions =
     ActionMap<ConnectionPayload>[keyof ActionMap<ConnectionPayload>];
 
-export type GlobalState = {
-    modal: Modal;
-};
-
-export type Actions = ConnectionActions | ModalStateActions;
+export type Actions = ConnectionActions;
 
 export enum ConnectionType {
     ChangeConnectionState = 'CHANGE_CONNECTION_STATE',
@@ -76,34 +69,6 @@ export enum LeftViewSelected {
     Contacts,
     Menu,
 }
-
-export enum ModalStateType {
-    LoaderContent = 'LOADER_CONTENT',
-    AddConversationData = 'ADD_CONVERSATION_DATA',
-    ContactToHide = 'CONTACT_TO_HIDE',
-    OpenEmojiPopup = 'OPEN_EMOJI_MODAL',
-    LastMessageAction = 'LAST_MESSAGE_ACTION',
-    IsProfileConfigurationPopupActive = 'IS_PROFILE_CONFIGURATION_POPUP_ACTIVE',
-    ShowPreferencesModal = 'SHOW_PREFERENCES_MODAL',
-    Reset = 'RESET',
-}
-
-export type ModalStatePayload = {
-    [ModalStateType.LoaderContent]: string;
-    [ModalStateType.AddConversationData]: NewContact;
-    [ModalStateType.ContactToHide]: string | undefined;
-    [ModalStateType.OpenEmojiPopup]: {
-        action: boolean;
-        data: MessageProps | undefined;
-    };
-    [ModalStateType.LastMessageAction]: MessageActionType;
-    [ModalStateType.IsProfileConfigurationPopupActive]: boolean;
-    [ModalStateType.ShowPreferencesModal]: boolean;
-    [ModalStateType.Reset]: any;
-};
-
-export type ModalStateActions =
-    ActionMap<ModalStatePayload>[keyof ActionMap<ModalStatePayload>];
 
 export enum MessageActionType {
     NEW = 'NEW',

@@ -11,19 +11,19 @@ import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { MessageContext } from '../../context/MessageContext';
 import { MessageProps } from '../../interfaces/props';
-import { GlobalContext } from '../../utils/context-utils';
-import { MessageActionType, ModalStateType } from '../../utils/enum-type-utils';
+import { MessageActionType } from '../../utils/enum-type-utils';
 import { AttachmentThumbnailPreview } from '../AttachmentThumbnailPreview/AttachmentThumbnailPreview';
 import { MessageAction } from '../MessageAction/MessageAction';
 import { getFilesData, getMessageChangeText, scrollToMessage } from './bl';
 import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
 
 export function Message(props: MessageProps) {
-    const { dispatch } = useContext(GlobalContext);
     const { account, profileKeys } = useContext(AuthContext);
     const { addMessage } = useContext(MessageContext);
     const { selectedContact } = useContext(ConversationContext);
     const { messageView, setMessageView } = useContext(UiViewContext);
+    const { setLastMessageAction } = useContext(ModalContext);
 
     // state to show action items three dots
     const [isHovered, setIsHovered] = useState(false);
@@ -67,10 +67,7 @@ export function Message(props: MessageProps) {
 
         await addMessage(messageData.metadata.to, messageData);
 
-        dispatch({
-            type: ModalStateType.LastMessageAction,
-            payload: MessageActionType.NONE,
-        });
+        setLastMessageAction(MessageActionType.NONE);
     };
 
     return (

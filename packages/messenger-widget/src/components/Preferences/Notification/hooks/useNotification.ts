@@ -17,14 +17,14 @@ import {
     NotificationChannel,
     NotificationChannelType,
 } from '@dm3-org/dm3-lib-shared';
-import { GlobalContext } from '../../../../utils/context-utils';
-import { ModalStateType } from '../../../../utils/enum-type-utils';
 import { closeLoader, startLoader } from '../../../Loader/Loader';
+import { ModalContext } from '../../../../context/ModalContext';
 
 export const useNotification = () => {
-    const { dispatch } = useContext(GlobalContext);
-    const { account, deliveryServiceToken } = useContext(AuthContext);
     const mainnetProvider = useMainnetProvider();
+
+    const { account, deliveryServiceToken } = useContext(AuthContext);
+    const { setLoaderContent } = useContext(ModalContext);
 
     // States for active notifications
     const [isNotificationsActive, setIsNotificationsActive] =
@@ -122,10 +122,7 @@ export const useNotification = () => {
     const toggleGlobalChannel = async (isEnabled: boolean) => {
         if (account && deliveryServiceToken) {
             try {
-                dispatch({
-                    type: ModalStateType.LoaderContent,
-                    payload: 'Configuring global notification ...',
-                });
+                setLoaderContent('Configuring global notification ...');
                 startLoader();
                 const { status } = await toggleGlobalNotifications(
                     account,
@@ -179,10 +176,9 @@ export const useNotification = () => {
     ) => {
         if (account && deliveryServiceToken) {
             try {
-                dispatch({
-                    type: ModalStateType.LoaderContent,
-                    payload: `Removing ${channelType.toLowerCase()} channel...`,
-                });
+                setLoaderContent(
+                    `Removing ${channelType.toLowerCase()} channel...`,
+                );
                 startLoader();
                 const { status } = await removeNotificationChannel(
                     account,
@@ -206,10 +202,7 @@ export const useNotification = () => {
 
     useEffect(() => {
         const fetchNotificationDetails = async () => {
-            dispatch({
-                type: ModalStateType.LoaderContent,
-                payload: 'Fetching notification channels...',
-            });
+            setLoaderContent('Fetching notification channels...');
             startLoader();
             await fetchGlobalNotification();
             closeLoader();

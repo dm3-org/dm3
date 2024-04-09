@@ -9,8 +9,7 @@ import {
 } from '@dm3-org/dm3-lib-delivery-api';
 import { useMainnetProvider } from '../../../../hooks/mainnetprovider/useMainnetProvider';
 import { closeLoader, startLoader } from '../../../Loader/Loader';
-import { GlobalContext } from '../../../../utils/context-utils';
-import { ModalStateType } from '../../../../utils/enum-type-utils';
+import { ModalContext } from '../../../../context/ModalContext';
 
 export const otpContent = (type: NotificationChannelType) => {
     const email = 'Please enter the verification code, you received by email.';
@@ -42,7 +41,7 @@ export const useOtp = (
 
     const mainnetProvider = useMainnetProvider();
     const { account, deliveryServiceToken } = useContext(AuthContext);
-    const { dispatch } = useContext(GlobalContext);
+    const { setLoaderContent } = useContext(ModalContext);
 
     // Adds new notification channel & sends OTP
     const addNewNotificationChannel = async (
@@ -100,12 +99,11 @@ export const useOtp = (
         closeModal: Function,
     ) => {
         try {
-            dispatch({
-                type: ModalStateType.LoaderContent,
-                payload: 'Verifying OTP...',
-            });
+            setLoaderContent('Verifying OTP...');
             startLoader();
+
             const { data, status } = await verifyChannelOtp(otp, channelType);
+
             if (status === 200) {
                 setErrorMsg('');
                 setShowError(false);
@@ -139,17 +137,13 @@ export const useOtp = (
         try {
             let response;
             if (isResendOtp) {
-                dispatch({
-                    type: ModalStateType.LoaderContent,
-                    payload: 'Sending OTP...',
-                });
+                setLoaderContent('Sending OTP...');
                 startLoader();
                 response = await sendOtpForVerification(type);
             } else {
-                dispatch({
-                    type: ModalStateType.LoaderContent,
-                    payload: `Configuring ${type.toLowerCase()} channel...`,
-                });
+                setLoaderContent(
+                    `Configuring ${type.toLowerCase()} channel...`,
+                );
                 startLoader();
                 response = await addNewNotificationChannel(type, inputData);
             }

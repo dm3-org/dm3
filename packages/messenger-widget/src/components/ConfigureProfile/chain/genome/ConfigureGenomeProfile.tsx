@@ -2,16 +2,16 @@ import { useContext } from 'react';
 import { SubmitOnChainProfile } from '../SubmitOnChainProfile';
 import { submitGenomeNameTransaction, validateGenomeName } from './bl';
 import { ConfigureProfileContext } from '../../context/ConfigureProfileContext';
-import { GlobalContext } from '../../../../utils/context-utils';
 import { useChainId } from 'wagmi';
 import { AuthContext } from '../../../../context/AuthContext';
 import { ethers } from 'ethers';
 import { IChain, NAME_TYPE } from '../common';
+import { ModalContext } from '../../../../context/ModalContext';
 
 export const ConfigureGenomeProfile = (props: IChain) => {
-    const { dispatch } = useContext(GlobalContext);
-
     const chainId = useChainId();
+
+    const { setLoaderContent } = useContext(ModalContext);
 
     const { ethAddress, account, deliveryServiceToken } =
         useContext(AuthContext);
@@ -32,7 +32,7 @@ export const ConfigureGenomeProfile = (props: IChain) => {
             provider,
             deliveryServiceToken!,
             account!,
-            dispatch,
+            setLoaderContent,
             name,
             ethAddress!,
             (str: string) => setExistingEnsName(str),

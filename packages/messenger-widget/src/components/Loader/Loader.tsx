@@ -1,8 +1,7 @@
-/* eslint-disable no-console */
 import './Loader.css';
 import { useContext } from 'react';
 import loader from '../../assets/images/loader.svg';
-import { GlobalContext } from '../../utils/context-utils';
+import { ModalContext } from '../../context/ModalContext';
 
 export const closeLoader = () => {
     const loader = document.getElementsByClassName('loading')[0] as HTMLElement;
@@ -15,12 +14,12 @@ export const startLoader = () => {
 };
 
 export function Loader() {
-    const { state } = useContext(GlobalContext);
+    const { loaderContent } = useContext(ModalContext);
 
     return (
         <div className="loading d-flex justify-content-center align-items-center">
             <img className="rotating loader-img" src={loader} alt="loader" />
-            <div className="loader-content">{state.modal.loaderContent}</div>
+            <div className="loader-content">{loaderContent}</div>
         </div>
     );
 }

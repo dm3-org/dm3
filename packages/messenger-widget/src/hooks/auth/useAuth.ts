@@ -6,13 +6,6 @@ import {
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useAccount, useWalletClient } from 'wagmi';
 import { TLDContext } from '../../context/TLDContext';
-import { GlobalContext } from '../../utils/context-utils';
-import {
-    Actions,
-    ConnectionType,
-    ModalStateType,
-    // UiViewStateType,
-} from '../../utils/enum-type-utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { AccountConnector } from './AccountConnector';
 import {
@@ -21,14 +14,16 @@ import {
 } from './DeliveryServiceConnector';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
 
 export const useAuth = () => {
+    const mainnetProvider = useMainnetProvider();
+
     const { resolveAliasToTLD } = useContext(TLDContext);
     const { data: walletClient } = useWalletClient();
-    const mainnetProvider = useMainnetProvider();
-    const { dispatch } = useContext(GlobalContext);
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const { resetViewStates } = useContext(UiViewContext);
+    const { resetModalStates } = useContext(ModalContext);
 
     const { address } = useAccount({
         onDisconnect: () => signOut(),
@@ -83,7 +78,7 @@ export const useAuth = () => {
     const signOut = () => {
         setAccount(undefined);
         setDeliveryServiceToken(undefined);
-        resetStates(dispatch);
+        resetStates();
     };
     const cleanSignIn = async () => {
         setIsLoading(true);
@@ -129,14 +124,12 @@ export const useAuth = () => {
         setProfileKeys(profileKeys);
     };
 
-    const resetStates = (dispatch: React.Dispatch<Actions>) => {
-        dispatch({
-            type: ConnectionType.Reset,
-        });
+    const resetStates = () => {
+        // dispatch({
+        //     type: ConnectionType.Reset,
+        // });
         resetViewStates();
-        dispatch({
-            type: ModalStateType.Reset,
-        });
+        resetModalStates();
     };
 
     return {

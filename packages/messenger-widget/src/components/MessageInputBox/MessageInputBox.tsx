@@ -1,6 +1,5 @@
 import './MessageInputBox.css';
 import { useContext, useEffect, useState } from 'react';
-import { GlobalContext } from '../../utils/context-utils';
 import { setAttachmentsOnEditMessage } from './bl';
 import { MessageActionType } from '../../utils/enum-type-utils';
 import { EmojiModal } from '../EmojiModal/EmojiModal';
@@ -14,12 +13,13 @@ import { SendMessage } from '../SendMessage/SendMessage';
 import { ConversationContext } from '../../context/ConversationContext';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
 
 export function MessageInputBox() {
-    const { state } = useContext(GlobalContext);
     const { selectedContact } = useContext(ConversationContext);
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const { messageView, setMessageView } = useContext(UiViewContext);
+    const { openEmojiPopup } = useContext(ModalContext);
 
     const [message, setMessage] = useState('');
     const [filesSelected, setFilesSelected] = useState<Attachment[]>([]);
@@ -78,7 +78,7 @@ export function MessageInputBox() {
             )}
 
             {/* Emoji popup modal */}
-            {state.modal.openEmojiPopup.action && (
+            {openEmojiPopup.action && (
                 <EmojiModal message={message} setMessage={setMessage} />
             )}
 

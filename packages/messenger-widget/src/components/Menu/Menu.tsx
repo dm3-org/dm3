@@ -6,16 +6,14 @@ import aboutIcon from '../../assets/images/about.svg';
 import termsIcon from '../../assets/images/terms.svg';
 import privacyIcon from '../../assets/images/privacy.svg';
 import settingsIcon from '../../assets/images/settings.svg';
-import { LeftViewSelected, ModalStateType } from '../../utils/enum-type-utils';
-import { GlobalContext } from '../../utils/context-utils';
+import { LeftViewSelected } from '../../utils/enum-type-utils';
 import { openConversationModal } from '../AddConversation/bl';
 import { openUrlInNewTab } from '../../utils/common-utils';
 import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
 
 export default function Menu() {
-    // fetches context api data
-    const { dispatch } = useContext(GlobalContext);
-
+    const { setShowPreferencesModal } = useContext(ModalContext);
     const { selectedLeftView, setSelectedLeftView } = useContext(UiViewContext);
 
     const showContactList = () => {
@@ -48,10 +46,7 @@ export default function Menu() {
                 className="d-flex align-items-center justify-content-start pointer-cursor 
             menu-items font-weight-400 text-primary-color"
                 onClick={() => {
-                    dispatch({
-                        type: ModalStateType.ShowPreferencesModal,
-                        payload: true,
-                    });
+                    setShowPreferencesModal(true);
                 }}
             >
                 <img

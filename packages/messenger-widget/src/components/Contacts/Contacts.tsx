@@ -4,7 +4,6 @@ import loader from '../../assets/images/loader.svg';
 import threeDotsIcon from '../../assets/images/three-dots.svg';
 import { ConversationContext } from '../../context/ConversationContext';
 import { MessageContext } from '../../context/MessageContext';
-import { GlobalContext } from '../../utils/context-utils';
 import { RightViewSelected } from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
 import { showMenuInBottom } from './bl';

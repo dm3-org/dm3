@@ -1,7 +1,5 @@
 import { Account, DeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
-import { MessageActionType } from '../utils/enum-type-utils';
-import { ContactPreview, NewContact } from './utils';
-import { MessageProps } from './props';
+import { ContactPreview } from './utils';
 
 export interface Contact {
     account: Account;
@@ -30,18 +28,4 @@ export interface Cache {
     };
     messageSizeLimit: number;
     accountName: string;
-}
-
-export interface GlobalContextProviderProps {
-    children: JSX.Element;
-}
-
-export interface Modal {
-    loaderContent: string;
-    addConversation: NewContact;
-    contactToHide: string | undefined;
-    openEmojiPopup: { action: boolean; data: MessageProps | undefined };
-    lastMessageAction: MessageActionType;
-    isProfileConfigurationPopupActive: boolean;
-    showPreferencesModal: boolean;
 }
