@@ -1,15 +1,58 @@
-.beta-btn {
-    border-radius: 20px;
-    font-size: 12px;
-    line-height: 14px;
-    padding: 0.25rem 0.5rem;
-    color: var(--normal-btn-hover);
-    background-color: hsla(0, 0%, 0%, 0.333);
-    border-width: 1px;
-    border-style: dashed;
+/* Basic styles for the navigation bar */
+.navbar {
+    display: flex; /* Use flexbox for layout */
+    justify-content: center; /* Center items horizontally in the container */
+    align-items: center; /* Center items vertically in the container */
+    position: relative; /* Positioning context for absolute positioned children */
+    height: 60px; /* Set a fixed height for the navbar */
 }
 
-.beta-btn:hover {
-    background-color: var(--normal-btn-hover);
-    color: white;
+/* Style for the link wrapping the logo */
+.logo-link {
+    position: absolute; /* Position the link absolutely within the navbar */
+    left: 21px; /* Position from the left */
+    top: 25px; /* Position from the top */
+}
+
+/* Styles for the message tag */
+.message-tag {
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0%,
+        /* Start with transparent color at the top */ rgba(40, 32, 74, 1) 100%
+            /* End with a solid purple color at the bottom */
+    );
+    border-left: 1px solid rgba(84, 67, 147, 1); /* Lighter purple border on the left */
+    border-right: 1px solid rgba(84, 67, 147, 1); /* Lighter purple border on the right */
+    border-bottom: 1px solid rgba(84, 67, 147, 1); /* Lighter purple border at the bottom */
+    border-top: none; /* No border at the top */
+    border-radius: 0 0 10px 10px; /* Rounded corners at the bottom */
+    padding: 8px 16px; /* Padding inside the tag */
+    display: flex; /* Use flexbox for layout */
+    align-items: center; /* Center items vertically */
+    justify-content: center; /* Center items horizontally */
+    top: 0; /* Position at the top of its container */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    transition: transform 0.5s ease; /* Smooth transition for transformations */
+    color: rgba(139, 127, 244, 1); /* Text color */
+}
+
+/* Media query for devices with a max width of 599px */
+@media (max-width: 599px) {
+    .message-tag {
+        position: absolute; /* Ensure the tag is positioned absolutely */
+        top: 0; /* Keep it at the top */
+        margin-left: 60px; /* Adjust based on the logo's size to avoid overlap */
+    }
+}
+
+/* Media query for devices with a minimum width of 600px */
+@media (min-width: 600px) {
+    .message-tag {
+        position: absolute; /* Ensure the tag is positioned absolutely */
+        left: 50%; /* Center the tag horizontally */
+        transform: translateX(
+            -50%
+        ); /* Adjust its position to truly center it */
+    }
 }

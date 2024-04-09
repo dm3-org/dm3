@@ -1,31 +1,12 @@
 // Import React and the CSS for this component
-import React, { useEffect, useState } from 'react';
 import './Dm3Widget.css';
+
+import { useMessageTo } from './useMessageTo';
 
 // Ignore TypeScript errors for the next line
 //@ts-ignore
 // Import the DM3 component from the 'messenger-widget' package
 import { DM3, DM3Configuration } from '@dm3-org/dm3-messenger-widget';
-
-// Custom hook for retrieving and checking the 'messageto' URL parameter.
-const useMessageTo = (): [string | null, () => boolean] => {
-    // State to store the 'messageto' parameter value.
-    const [messageTo, setMessageTo] = useState<string | null>(null);
-
-    // Effect hook to parse and set the 'messageto' parameter from the URL on component mount.
-    useEffect(() => {
-        const searchParams = new URLSearchParams(window.location.search);
-        setMessageTo(searchParams.get('messageTo'));
-    }, []);
-
-    // Function to check if the 'messageto' parameter is set (not null).
-    const isMessageToSet = (): boolean => {
-        return messageTo !== null;
-    };
-
-    // Returns the 'messageto' parameter value and the check function.
-    return [messageTo, isMessageToSet];
-};
 
 // Define the Dm3Widget component
 const Dm3Widget: React.FC = () => {
