@@ -11,6 +11,7 @@ export interface DM3Configuration {
     backendUrl: string;
     chainId: string;
     resolverAddress: string;
+    genomeRegistryAddress: string;
     showAlways: boolean;
     showContacts: boolean;
     hideFunction?: string;

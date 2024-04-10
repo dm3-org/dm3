@@ -35,7 +35,7 @@ const isOpNameAvailable = async (
     const isValidEnsName = ethers.utils.isValidName(opName);
     if (!isValidEnsName) {
         console.log('Invalid OP name');
-        setError('Invalid OP name', NAME_TYPE.OP_NAME);
+        setError('Invalid OP name', NAME_TYPE.DM3_NAME);
         return false;
     }
 
@@ -46,7 +46,7 @@ const isOpNameAvailable = async (
 
     if (owner !== ethers.constants.AddressZero) {
         console.log('name already claimed');
-        setError('name already claimed ', NAME_TYPE.OP_NAME);
+        setError('name already claimed ', NAME_TYPE.DM3_NAME);
         return false;
     }
 

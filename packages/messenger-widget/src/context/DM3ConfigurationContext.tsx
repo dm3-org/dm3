@@ -25,6 +25,7 @@ export const DM3ConfigurationContext =
             backendUrl: '',
             chainId: '',
             resolverAddress: '',
+            genomeRegistryAddress: '',
             showAlways: true,
             showContacts: true,
         },

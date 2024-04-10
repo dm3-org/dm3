@@ -23,6 +23,7 @@ export const isGenomeNameValid = async (
     provider: ethers.providers.StaticJsonRpcProvider,
     ensName: string,
     ethAddress: string,
+    genomeRegistryAddress: string,
     setError: (type: NAME_TYPE | undefined, msg: string) => void,
 ) => {
     const isValidEnsName = ethers.utils.isValidName(ensName);
@@ -35,9 +36,6 @@ export const isGenomeNameValid = async (
         setError(NAME_TYPE.ENS_NAME, 'Genome name has to end with ');
         return false;
     }
-
-    //TODO move to props
-    const genomeRegistryAddress = '0x5dC881dDA4e4a8d312be3544AD13118D1a04Cb17';
 
     const genomeRegistry = getConractInstance(
         genomeRegistryAddress,
@@ -113,6 +111,7 @@ export const submitGenomeNameTransaction = async (
     setLoaderContent: (content: string) => void,
     ensName: string,
     ethAddress: string,
+    genomeRegistryAddress: string,
     setEnsNameFromResolver: Function,
     setError: (type: NAME_TYPE | undefined, msg: string) => void,
 ) => {
@@ -125,6 +124,7 @@ export const submitGenomeNameTransaction = async (
             provider,
             ensName,
             ethAddress,
+            genomeRegistryAddress,
             setError,
         );
 
@@ -138,7 +138,7 @@ export const submitGenomeNameTransaction = async (
             account,
             ensName!,
         );
-        //TODO Handle crosschain transaction
+
         if (tx) {
             await createAlias(
                 account!,

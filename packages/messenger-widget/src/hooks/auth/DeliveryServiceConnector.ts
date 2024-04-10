@@ -54,8 +54,6 @@ export const DeliveryServiceConnector = (
             address,
         );
 
-        //For what ever reason the wallet client is not typed
-        //@ts-ignore
         const signature = await walletClient.signMessage({
             message: storageKeyCreationMessage,
         });
@@ -64,7 +62,8 @@ export const DeliveryServiceConnector = (
         return await _createProfileKeys(storageKey, nonce);
     }
     async function profileExistsOnDeliveryService(ensName: string) {
-        //TODO move default url to global config
+        //TODO move default url to global config (Alex)
+        // Tested by changing it to global config, but there is some error from backend (Bhupesh)
         const url = `${dm3Configuration.defaultServiceUrl}/profile/${ensName}`;
         try {
             const { status } = await axios.get(url);

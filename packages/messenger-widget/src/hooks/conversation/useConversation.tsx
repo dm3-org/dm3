@@ -86,8 +86,11 @@ export const useConversation = (config: DM3Configuration) => {
                     );
                 }),
             );
-            //It might be the case that contacts are added via websocket. In this case we do not want to add them again
 
+            /**
+             * It might be the case that contacts are added via websocket.
+             * In this case we do not want to add them again
+             */
             _setContactsSafe(storedContacts);
 
             //as long as there is no pagination we fetch the next page until we get an empty page
@@ -176,7 +179,11 @@ export const useConversation = (config: DM3Configuration) => {
         //Return the new onhydrated contact
         return newContact;
     };
-    //When a conversation is added via the AddContacts dialog it should appeat in the conversation list immediately. Hence we're doing a hydrate here asynchroniously in the background
+
+    /**
+     * When a conversation is added via the AddContacts dialog it should appeat in the conversation list immediately.
+     * Hence we're doing a hydrate here asynchroniously in the background
+     */
     const hydrateExistingContactAsync = async (contact: ContactPreview) => {
         const conversation: Conversation = {
             contactEnsName: contact.contactDetails.account.ensName,

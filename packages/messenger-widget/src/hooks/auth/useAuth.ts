@@ -53,10 +53,8 @@ export const useAuth = () => {
             if (!account) {
                 return;
             }
-            //TODO fix tommorow
             const displayName = await resolveAliasToTLD(account?.ensName);
             console.log('updated account', account);
-            //const displayName = await getAlias(account.ensName);
             setDisplayName(displayName);
         };
         fetchDisplayName();
@@ -125,9 +123,6 @@ export const useAuth = () => {
     };
 
     const resetStates = () => {
-        // dispatch({
-        //     type: ConnectionType.Reset,
-        // });
         resetViewStates();
         resetModalStates();
     };

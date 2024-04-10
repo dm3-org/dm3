@@ -5,6 +5,9 @@ import Dashboard from '../../views/Dashboard/Dashboard';
 import { SignIn } from '../SignIn/SignIn';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { ethers } from 'ethers';
+import { MessageContextProvider } from '../../context/MessageContext';
+import { ConversationContextProvider } from '../../context/ConversationContext';
+import { Loader } from '../Loader/Loader';
 
 function DM3(props: Dm3Props) {
     const { setDm3Configuration, setScreenWidth } = useContext(
@@ -96,13 +99,18 @@ function DM3(props: Dm3Props) {
 
     return (
         <div id="data-rk-child" className="h-100">
-            {!isLoggedIn ? (
-                <SignIn />
-            ) : (
-                <div className="h-100 background-container">
-                    <Dashboard />
-                </div>
-            )}
+            <ConversationContextProvider config={props.config}>
+                <MessageContextProvider>
+                    <Loader />
+                    {!isLoggedIn ? (
+                        <SignIn />
+                    ) : (
+                        <div className="h-100 background-container">
+                            <Dashboard />
+                        </div>
+                    )}
+                </MessageContextProvider>
+            </ConversationContextProvider>
         </div>
     );
 }

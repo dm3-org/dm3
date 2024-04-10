@@ -1,5 +1,5 @@
 import './Dashboard.css';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import LeftView from '../LeftView/LeftView';
 import RightView from '../RightView/RightView';
 import {
@@ -20,9 +20,21 @@ export default function Dashboard() {
         DM3ConfigurationContext,
     );
     const { selectedRightView, messageView } = useContext(UiViewContext);
-    const { selectedContact } = useContext(ConversationContext);
+    const { selectedContact, setSelectedContactName } =
+        useContext(ConversationContext);
     const { showPreferencesModal, showProfileConfigurationModal } =
         useContext(ModalContext);
+
+    // handles active contact removal
+    useEffect(() => {
+        if (
+            selectedContact &&
+            selectedRightView !== RightViewSelected.Chat &&
+            selectedRightView !== RightViewSelected.ContactInfo
+        ) {
+            setSelectedContactName(undefined);
+        }
+    }, [selectedRightView]);
 
     const getRightViewStyleClasses = () => {
         if (dm3Configuration.showContacts) {

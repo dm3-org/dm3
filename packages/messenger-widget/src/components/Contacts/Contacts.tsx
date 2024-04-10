@@ -24,18 +24,6 @@ export function Contacts() {
         boolean | null
     >(null);
 
-    // handles active contact removal
-    // move to a better place (profile window) and Contact Info
-    useEffect(() => {
-        if (
-            selectedContact &&
-            selectedRightView !== RightViewSelected.Chat &&
-            selectedRightView !== RightViewSelected.ContactInfo
-        ) {
-            setSelectedContactName(undefined);
-        }
-    }, [selectedRightView]);
-
     useEffect(() => {
         if (
             !dm3Configuration.showContacts &&

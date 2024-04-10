@@ -23,11 +23,8 @@ import {
 import { gnosis, optimism, optimismSepolia } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import DM3 from '../../components/DM3/DM3';
-import { Loader } from '../../components/Loader/Loader';
 import { AuthContextProvider } from '../../context/AuthContext';
-import { ConversationContextProvider } from '../../context/ConversationContext';
 import { DM3ConfigurationContextProvider } from '../../context/DM3ConfigurationContext';
-import { MessageContextProvider } from '../../context/MessageContext';
 import { MainnetProviderContextProvider } from '../../context/ProviderContext';
 import { StorageContextProvider } from '../../context/StorageContext';
 import { TLDContextProvider } from '../../context/TLDContext';
@@ -37,8 +34,11 @@ import { UiViewContextProvider } from '../../context/UiViewContext';
 import { ModalContextProvider } from '../../context/ModalContext';
 
 export function Home(props: Dm3Props) {
-    //Use different chains depending on the environment. Note that gnosis mainnet is used for both setups
-    // because there is no spaceId testnet deployment yet
+    /**
+     * Use different chains depending on the environment.
+     * Note that gnosis mainnet is used for both setups.
+     * Its because there is no spaceId testnet deployment yet.
+     */
     const _chains =
         props.config.chainId === '1'
             ? [mainnet, optimism, gnosis]
@@ -90,7 +90,6 @@ export function Home(props: Dm3Props) {
 
     return (
         <div className="h-100 position-relative">
-            <Loader />
             <WagmiConfig config={wagmiConfig}>
                 <RainbowKitProvider chains={chains} theme={darkTheme()}>
                     <DM3ConfigurationContextProvider>
@@ -103,18 +102,9 @@ export function Home(props: Dm3Props) {
                                         <AuthContextProvider>
                                             <WebSocketContextProvider>
                                                 <StorageContextProvider>
-                                                    {/* TODO move conversation and message contest further done as it dont need to be stored in the globlal state */}
-                                                    <ConversationContextProvider
+                                                    <DM3
                                                         config={props.config}
-                                                    >
-                                                        <MessageContextProvider>
-                                                            <DM3
-                                                                config={
-                                                                    props.config
-                                                                }
-                                                            />
-                                                        </MessageContextProvider>
-                                                    </ConversationContextProvider>
+                                                    />
                                                 </StorageContextProvider>
                                             </WebSocketContextProvider>
                                         </AuthContextProvider>

@@ -17,6 +17,7 @@ describe('DM3 test cases', () => {
             backendUrl: '',
             chainId: '',
             resolverAddress: '',
+            genomeRegistryAddress: '',
             showAlways: true,
             showContacts: true,
         },

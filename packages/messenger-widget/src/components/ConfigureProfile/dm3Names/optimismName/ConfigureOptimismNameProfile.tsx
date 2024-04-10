@@ -34,10 +34,9 @@ export const ConfigureOptimismNameProfile = (props: IChain) => {
                 console.log(
                     'Invalid chain connected. Please switch to optimism network.',
                 );
-                //TODO @Bhupesh the error seems to be not rendered properly. Can you have a look why not ?
                 setError(
                     'Invalid chain connected. Please switch to optimism network.',
-                    NAME_TYPE.OP_NAME,
+                    NAME_TYPE.DM3_NAME,
                 );
                 closeLoader();
 

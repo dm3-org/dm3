@@ -74,7 +74,7 @@ export const submitEnsNameTransaction = async (
             account,
             ensName!,
         );
-        //TODO Handle crosschain transaction
+
         if (tx) {
             await createAlias(
                 account!,

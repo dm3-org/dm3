@@ -17,6 +17,7 @@ export const useDm3Configuration = () => {
         backendUrl: '',
         chainId: '',
         resolverAddress: '',
+        genomeRegistryAddress: '',
         showAlways: true,
         showContacts: true,
     });

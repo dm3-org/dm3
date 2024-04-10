@@ -7,6 +7,7 @@ import { AuthContext } from '../../../../context/AuthContext';
 import { ethers } from 'ethers';
 import { IChain, NAME_TYPE } from '../common';
 import { ModalContext } from '../../../../context/ModalContext';
+import { DM3ConfigurationContext } from '../../../../context/DM3ConfigurationContext';
 
 export const ConfigureGenomeProfile = (props: IChain) => {
     const chainId = useChainId();
@@ -19,6 +20,8 @@ export const ConfigureGenomeProfile = (props: IChain) => {
     const { onShowError, setExistingEnsName, setEnsName } = useContext(
         ConfigureProfileContext,
     );
+
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     const onSubmitTx = async (name: string) => {
         if (props.chainToConnect !== chainId) {
@@ -35,6 +38,7 @@ export const ConfigureGenomeProfile = (props: IChain) => {
             setLoaderContent,
             name,
             ethAddress!,
+            dm3Configuration.genomeRegistryAddress,
             (str: string) => setExistingEnsName(str),
             onShowError,
         );
