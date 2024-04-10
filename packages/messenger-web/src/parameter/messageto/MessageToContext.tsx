@@ -1,5 +1,4 @@
 import { createContext, useContext } from 'react';
-import { useMessageTo } from './useMessageTo'; // Import the custom hook to manage the message destination
 
 // Define a type for the context value
 interface MessageToContextType {
