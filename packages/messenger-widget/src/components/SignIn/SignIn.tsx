@@ -55,6 +55,14 @@ export function SignIn() {
                     className="signin-data-container col-lg-5 col-md-5 col-sm-12 p-0 d-flex flex-column 
                 justify-content-center background-container"
                 >
+                    <div className="d-flex justify-content-end rainbow-connect-btn">
+                        {!isConnected && (
+                            <div className="normal-btn wal-not-connected">
+                                Wallet not connected
+                            </div>
+                        )}
+                    </div>
+
                     <div className="d-flex flex-column height-fill content-data-container">
                         <div className="d-flex flex-column justify-content-center">
                             <DM3Logo />
