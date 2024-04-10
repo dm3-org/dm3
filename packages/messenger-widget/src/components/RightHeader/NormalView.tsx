@@ -1,5 +1,4 @@
 import './RightHeader.css';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useContext, useEffect, useState } from 'react';
 import humanIcon from '../../assets/images/human.svg';
 import menuIcon from '../../assets/images/menu.svg';
@@ -74,15 +73,6 @@ export function NormalView() {
             )}
 
             <div className="d-flex align-items-center justify-content-end">
-                <div className="me-2">
-                    <ConnectButton
-                        showBalance={false}
-                        accountStatus={{
-                            smallScreen: 'avatar',
-                            largeScreen: 'full',
-                        }}
-                    />
-                </div>
                 <span
                     onClick={() => updateView()}
                     className="profile-name font-weight-500 pointer-cursor text-secondary-color"

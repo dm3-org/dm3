@@ -10,7 +10,6 @@ import {
 import { closeLoader, startLoader } from '../../components/Loader/Loader';
 import Menu from '../../components/Menu/Menu';
 import { ConversationContext } from '../../context/ConversationContext';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
 import { AuthContext } from '../../context/AuthContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
@@ -20,7 +19,7 @@ import { UiViewContext } from '../../context/UiViewContext';
 import { ModalContext } from '../../context/ModalContext';
 
 export default function LeftView() {
-    const { account } = useContext(AuthContext);
+    const { account, displayName } = useContext(AuthContext);
     const { setLoaderContent } = useContext(ModalContext);
     const { initialized } = useContext(ConversationContext);
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
@@ -86,15 +85,14 @@ export default function LeftView() {
                         alt="menu"
                         onClick={() => openMenuItem()}
                     />
-                    {/* Profile icon and address to show in mobile screens */}
+                    {/* Profile icon to show in mobile screens */}
                     <div className="mobile-profile-icon">
-                        <ConnectButton
-                            showBalance={false}
-                            accountStatus={{
-                                smallScreen: 'avatar',
-                                largeScreen: 'full',
-                            }}
-                        />
+                        <span
+                            onClick={() => updateView()}
+                            className="font-weight-500 pointer-cursor text-secondary-color ps-1 pe-1"
+                        >
+                            {displayName}
+                        </span>
                         <img
                             src={profilePic ? profilePic : humanIcon}
                             alt="menu"
