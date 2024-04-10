@@ -1,11 +1,11 @@
 import React from 'react';
 import './Header.css'; // Import the CSS file for styling
-import { useMessageTo } from './useMessageTo'; // Import the custom hook to get the messageTo parameter
+import { useMessageToContext } from './parameter/messageto/MessageToContext'; // Import the custom hook context to get the messageTo parameter
 
 // Define the Header component as a functional component
 const Header: React.FC = () => {
     // Use the useMessageTo hook to check if the messageTo parameter is set
-    const [messageTo, isMessageToSet] = useMessageTo();
+    const { messageTo, isMessageToSet } = useMessageToContext();
 
     return (
         // Navigation bar container

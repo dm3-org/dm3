@@ -1,4 +1,3 @@
-// Filename: useMessageTo.ts
 import { useState, useEffect } from 'react';
 
 /**

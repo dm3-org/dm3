@@ -1,41 +1,12 @@
 import React from 'react';
 import './Dm3Widget.css';
 
-// Custom hook to manage message destination
-import { useMessageTo } from './useMessageTo';
+// Custom hook context to manage message destination
+import { useMessageToContext } from './parameter/messageto/MessageToContext';
 // Importing the DM3 component and its configuration type from the DM3 Messenger Widget package
 import { DM3, DM3Configuration } from '@dm3-org/dm3-messenger-widget';
-
-/**
- * Helper function to generate a weekly-based pseudo-random image path.
- * It uses the current week of the year to ensure the image remains consistent throughout the week,
- * but changes weekly.
- * @returns The path to the selected image.
- */
-const getWeeklyImagePath = (): string => {
-    const now = new Date();
-    const startOfYear = new Date(now.getFullYear(), 0, 0);
-    const diff = now.getTime() - startOfYear.getTime();
-    const oneDay = 86400000; // Milliseconds per day
-    const dayOfYear = Math.floor(diff / oneDay);
-    const weekOfYear = Math.floor(dayOfYear / 7);
-
-    const simpleHash = (week: number): number => {
-        let hash = 0;
-        const str = week.toString();
-        for (let i = 0; i < str.length; i++) {
-            const char = str.charCodeAt(i);
-            hash = (hash << 5) - hash + char;
-            hash = hash & hash; // Convert to 32bit integer
-        }
-        return Math.abs(hash);
-    };
-
-    const numberOfImages = 12; // Adjust based on the actual number of images available
-    const index = simpleHash(weekOfYear) % numberOfImages;
-    const imageName = `${(index + 1).toString().padStart(3, '0')}.jpg`;
-    return `/signin/${imageName}`; // Adjust the path as needed
-};
+// Import helper function to get the dynamic image path (randomly chosen per week) 
+import { getWeeklyImagePath } from './utils/getWeeklyImagePath';
 
 /**
  * The Dm3Widget component integrates the DM3 messenger widget with additional logic
@@ -43,7 +14,7 @@ const getWeeklyImagePath = (): string => {
  */
 const Dm3Widget: React.FC = () => {
     // Use the custom hook to get the message destination and check if it's set
-    const [messageTo, isMessageToSet] = useMessageTo();
+    const { messageTo, isMessageToSet } = useMessageToContext();
 
     // Determine the image path using the helper function
     const signInImagePath = getWeeklyImagePath();
