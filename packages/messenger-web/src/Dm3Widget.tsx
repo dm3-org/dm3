@@ -5,7 +5,7 @@ import './Dm3Widget.css';
 import { useMessageToContext } from './parameter/messageto/MessageToContext';
 // Importing the DM3 component and its configuration type from the DM3 Messenger Widget package
 import { DM3, DM3Configuration } from '@dm3-org/dm3-messenger-widget';
-// Import helper function to get the dynamic image path (randomly chosen per week) 
+// Import helper function to get the dynamic image path (randomly chosen per week)
 import { getWeeklyImagePath } from './utils/getWeeklyImagePath';
 
 /**
