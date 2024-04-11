@@ -3,8 +3,9 @@ import {
     UserProfile,
     getProfileCreationMessage,
 } from '@dm3-org/dm3-lib-profile';
-import { stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
+import { stringify } from '@dm3-org/dm3-lib-shared';
+import { SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import express from 'express';
 import request from 'supertest';
 import profile from './profile';
@@ -19,7 +20,12 @@ global.logger = winston.createLogger({
     transports: [new winston.transports.Console()],
 });
 
-const setUpApp = async (app: express.Express) => {
+const web3ProviderMock: ethers.providers.JsonRpcProvider =
+    new ethers.providers.JsonRpcProvider();
+
+let mockToken = 'mockAuthToken';
+
+const setUpApp = async (app: express.Express, db: IDatabase) => {
     app.use(bodyParser.json());
     const server = http.createServer(app);
     const io = new Server(server, {
@@ -30,35 +36,54 @@ const setUpApp = async (app: express.Express) => {
             optionsSuccessStatus: 204,
         },
     });
-    app.use(profile(io));
+    app.use(profile(db, io, web3ProviderMock));
+};
+
+const createDbMock = async () => {
+    const dbBase = await getDatabase();
+
+    const sessionMocked = {
+        challenge: '123',
+        token: mockToken,
+        signedUserProfile: {
+            // profile: { publicSigningKey: keysA.signingKeyPair.publicKey },
+        },
+    } as Session & { spamFilterRules: spamFilter.SpamFilterRules };
+
+    const dbMock = {
+        getSession: async (ensName: string) =>
+            Promise.resolve<
+                Session & {
+                    spamFilterRules: spamFilter.SpamFilterRules;
+                }
+            >(sessionMocked),
+        // setSession: async (_: string, __: any) => {
+        //     return (_: any, __: any, ___: any) => {};
+        // },
+        setSession: async (_: string, __: Session) => {
+            //return (_: any, __: any, ___: any) => {};
+        },
+        getIdEnsName: async (ensName: string) => ensName,
+    };
+
+    const db: IDatabase = { ...dbBase, ...dbMock };
+    return db;
 };
 
 describe('Profile', () => {
     describe('getProfile', () => {
-        it('Returns 200 if schema is valid', async () => {
+        it.only('Returns 200 if schema is valid', async () => {
             const app = express();
-            setUpApp(app);
-            const dbBase = await getDatabase();
 
-            const dbMock = {
-                // getSession: async (ensName: string) => ({
-                //     signedUserProfile: {},
-                // }),
-                // setSession: async (_: string, __: any) => {
-                //     return (_: any, __: any, ___: any) => {};
-                // },
-                setSession: async (_: string, __: Session) => {
-                    //return (_: any, __: any, ___: any) => {};
-                },
-                getIdEnsName: async (ensName: string) => ensName,
-            };
-
-            const db: IDatabase = { ...dbBase, ...dbMock };
-
-            app.use(storage(db));
+            const db = await createDbMock();
+            app.use(storage(db, web3ProviderMock));
+            setUpApp(app, db);
 
             const { status } = await request(app)
                 .get('/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870')
+                .set({
+                    authorization: `Bearer ${mockToken}`,
+                })
                 .send();
 
             expect(status).toBe(200);
@@ -68,7 +93,7 @@ describe('Profile', () => {
     describe('submitUserProfile', () => {
         it('Returns 200 if schema is valid', async () => {
             const app = express();
-            setUpApp(app);
+            setUpApp(app, await createDbMock());
 
             const mnemonic =
                 'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
@@ -115,7 +140,7 @@ describe('Profile', () => {
         });
         it('Returns 400 if schema is invalid', async () => {
             const app = express();
-            setUpApp(app);
+            setUpApp(app, await createDbMock());
 
             app.locals.db = {
                 getSession: async (accountAddress: string) =>
