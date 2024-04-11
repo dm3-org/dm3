@@ -6,6 +6,7 @@ import {
 import { ethers } from 'ethers';
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import { SignedUserProfile } from '@dm3-org/dm3-lib-profile';
+import { createClient } from 'redis';
 import express from 'express';
 import request from 'supertest';
 import profile from './profile';
@@ -25,7 +26,11 @@ const web3ProviderMock: ethers.providers.JsonRpcProvider =
 
 let mockToken = 'mockAuthToken';
 
-const setUpApp = async (app: express.Express, db: IDatabase) => {
+const setUpApp = async (
+    app: express.Express,
+    db: IDatabase,
+    web3Provider: ethers.providers.JsonRpcProvider,
+) => {
     app.use(bodyParser.json());
     const server = http.createServer(app);
     const io = new Server(server, {
@@ -36,11 +41,12 @@ const setUpApp = async (app: express.Express, db: IDatabase) => {
             optionsSuccessStatus: 204,
         },
     });
-    app.use(profile(db, io, web3ProviderMock));
+    app.use(profile(db, io, web3Provider));
 };
 
 const createDbMock = async () => {
-    const dbBase = await getDatabase();
+    // //const Redis = await createClient();
+    const dbBase = await getDatabase(); //_redis: Redis);
 
     const sessionMocked = {
         challenge: '123',
@@ -72,12 +78,12 @@ const createDbMock = async () => {
 
 describe('Profile', () => {
     describe('getProfile', () => {
-        it.only('Returns 200 if schema is valid', async () => {
+        it('Returns 200 if user profile exists', async () => {
             const app = express();
 
             const db = await createDbMock();
             app.use(storage(db, web3ProviderMock));
-            setUpApp(app, db);
+            setUpApp(app, db, web3ProviderMock);
 
             const { status } = await request(app)
                 .get('/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870')
@@ -91,27 +97,28 @@ describe('Profile', () => {
     });
 
     describe('submitUserProfile', () => {
-        it('Returns 200 if schema is valid', async () => {
-            const app = express();
-            setUpApp(app, await createDbMock());
-
+        it('Returns 200 if user profile creation was successful', async () => {
             const mnemonic =
                 'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
 
             const wallet = ethers.Wallet.fromMnemonic(mnemonic);
 
-            app.locals = {
-                web3Provider: { resolveName: async () => wallet.address },
-                db: {
-                    getSession: async (ensName: string) =>
-                        Promise.resolve(null),
-                    setSession: async (_: string, __: any) => {
-                        return (_: any, __: any, ___: any) => {};
-                    },
-                    getPending: (_: any) => [],
-                    getIdEnsName: async (ensName: string) => ensName,
-                },
+            // this provider must return the address of the wallet when resolveName is called
+            const _web3ProviderMock = {
+                resolveName: async () => wallet.address,
             };
+            // the db must return null when getSession is called
+            const _dbMock = {
+                getSession: async (ensName: string) => Promise.resolve(null),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                getPending: (_: any) => [],
+                getIdEnsName: async (ensName: string) => ensName,
+            };
+
+            const app = express();
+            setUpApp(app, _dbMock as any, _web3ProviderMock as any);
 
             const userProfile: UserProfile = {
                 publicSigningKey: '2',
@@ -132,25 +139,30 @@ describe('Profile', () => {
                 signature,
             };
 
-            const { status } = await request(app)
+            const response = await request(app)
                 .post(`/${wallet.address}`)
                 .send(signedUserProfile);
 
+            // log status message
+            console.log(response.info);
+            const status = response.status;
+
             expect(status).toBe(200);
         });
+
         it('Returns 400 if schema is invalid', async () => {
             const app = express();
-            setUpApp(app, await createDbMock());
+            setUpApp(app, await createDbMock(), web3ProviderMock);
 
-            app.locals.db = {
-                getSession: async (accountAddress: string) =>
-                    Promise.resolve(null),
-                setSession: async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
-                },
-                getPending: (_: any) => [],
-                getIdEnsName: async (ensName: string) => ensName,
-            };
+            // app.locals.db = {
+            //     getSession: async (accountAddress: string) =>
+            //         Promise.resolve(null),
+            //     setSession: async (_: string, __: any) => {
+            //         return (_: any, __: any, ___: any) => {};
+            //     },
+            //     getPending: (_: any) => [],
+            //     getIdEnsName: async (ensName: string) => ensName,
+            // };
 
             const userProfile: UserProfile = {
                 publicSigningKey: '2',
