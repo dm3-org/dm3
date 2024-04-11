@@ -35,6 +35,11 @@ export const useModal = () => {
     const [showPreferencesModal, setShowPreferencesModal] =
         useState<boolean>(false);
 
+    const [showAddConversationModal, setShowAddConversationModal] =
+        useState<boolean>(false);
+
+    const [showAboutModal, setShowAboutModal] = useState<boolean>(false);
+
     const resetModalStates = () => {
         setLoaderContent('');
         setContactToHide(undefined);
@@ -47,6 +52,8 @@ export const useModal = () => {
         setLastMessageAction(MessageActionType.NONE);
         setShowProfileConfigurationModal(false);
         setShowPreferencesModal(false);
+        setShowAboutModal(false);
+        setShowAddConversationModal(false);
     };
 
     return {
@@ -64,6 +71,10 @@ export const useModal = () => {
         setShowProfileConfigurationModal,
         showPreferencesModal,
         setShowPreferencesModal,
+        showAboutModal,
+        setShowAboutModal,
+        showAddConversationModal,
+        setShowAddConversationModal,
         resetModalStates,
     };
 };

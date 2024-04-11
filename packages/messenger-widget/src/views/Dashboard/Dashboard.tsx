@@ -14,6 +14,7 @@ import { ConversationContext } from '../../context/ConversationContext';
 import { MOBILE_SCREEN_WIDTH } from '../../utils/common-utils';
 import { UiViewContext } from '../../context/UiViewContext';
 import { ModalContext } from '../../context/ModalContext';
+import About from '../../components/About/About';
 
 export default function Dashboard() {
     const { screenWidth, dm3Configuration } = useContext(
@@ -22,8 +23,12 @@ export default function Dashboard() {
     const { selectedRightView, messageView } = useContext(UiViewContext);
     const { selectedContact, setSelectedContactName } =
         useContext(ConversationContext);
-    const { showPreferencesModal, showProfileConfigurationModal } =
-        useContext(ModalContext);
+    const {
+        showPreferencesModal,
+        showProfileConfigurationModal,
+        showAboutModal,
+        showAddConversationModal,
+    } = useContext(ModalContext);
 
     // handles active contact removal
     useEffect(() => {
@@ -58,7 +63,11 @@ export default function Dashboard() {
 
     return (
         <div className="h-100">
-            <AddConversation />
+            {/* Add Conversation popup */}
+            {showAddConversationModal && <AddConversation />}
+
+            {/* About popup */}
+            {showAboutModal && <About />}
 
             {/* Preferences popup */}
             {(showPreferencesModal || showProfileConfigurationModal) && (

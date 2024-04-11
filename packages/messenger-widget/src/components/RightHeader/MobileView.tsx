@@ -2,7 +2,6 @@ import './RightHeader.css';
 import { useContext, useEffect, useState } from 'react';
 import humanIcon from '../../assets/images/human.svg';
 import backIcon from '../../assets/images/back.svg';
-import threeDotsIcon from '../../assets/images/three-dots.svg';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
 import { RightViewSelected } from '../../utils/enum-type-utils';
@@ -82,12 +81,12 @@ export function MobileView() {
                     </div>
 
                     <div>
-                        <img
+                        <div
                             className="menu-details"
-                            src={threeDotsIcon}
-                            alt="menu"
                             onClick={() => openMenu()}
-                        />
+                        >
+                            ···
+                        </div>
                         {
                             <ContactMenu
                                 contactDetails={

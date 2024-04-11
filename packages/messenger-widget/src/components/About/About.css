@@ -1,0 +1,40 @@
+.about-modal-content {
+    margin: auto;
+    padding: 2rem;
+    border: none;
+    width: fit-content;
+    top: 15%;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.about-description {
+    width: 30rem;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 16px;
+    margin: 1rem 0rem 0rem 0rem;
+}
+
+.separator {
+    margin: 1rem 0rem 2rem 0rem;
+}
+
+.highlight-links {
+    color: var(--preferences-highlighted-color);
+}
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (max-width: 650px) {
+
+    .about-description {
+        word-break: break-all;
+        width: fit-content;
+    }
+
+    #about-modal{
+        padding: 1rem;
+    }
+}

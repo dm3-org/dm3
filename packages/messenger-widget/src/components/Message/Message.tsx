@@ -5,7 +5,6 @@ import {
     createDeleteRequestMessage,
 } from '@dm3-org/dm3-lib-messaging';
 import { useContext, useState } from 'react';
-import threeDotsIcon from '../../assets/images/three-dots.svg';
 import tickIcon from '../../assets/images/tick.svg';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
@@ -194,11 +193,7 @@ export function Message(props: MessageProps) {
                     onMouseOver={handleMouseOver}
                     onMouseLeave={handleMouseOut}
                 >
-                    <img
-                        className="msg-action-dot"
-                        src={threeDotsIcon}
-                        alt="action"
-                    />
+                    <div className="msg-action-btn">···</div>
                     {isHovered && <MessageAction {...props} />}
                 </div>
             </div>

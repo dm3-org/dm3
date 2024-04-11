@@ -51,6 +51,10 @@
     background-color: var(--normal-btn-hover);
 }
 
+.info-no-highlight:hover {
+    background-color: unset;
+}
+
 .preferences-info {
     position: absolute;
     bottom: 1rem;

@@ -94,7 +94,7 @@ export function NormalView() {
                             })}
 
                             <div className="d-flex text-primary-color preferences-info">
-                                <span className="d-flex pointer-cursor preferences-item">
+                                <span className="d-flex pointer-cursor preferences-item info-no-highlight">
                                     <img
                                         src={infoIcon}
                                         alt="info"

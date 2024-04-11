@@ -11,9 +11,12 @@ import {
     RightViewSelected,
 } from '../../utils/enum-type-utils';
 import { closeLoader, startLoader } from '../Loader/Loader';
-import { INPUT_FIELD_CLASS, closeConversationModal } from './bl';
 import { UiViewContext } from '../../context/UiViewContext';
 import { ModalContext } from '../../context/ModalContext';
+
+// class for input field
+export const INPUT_FIELD_CLASS =
+    'conversation-name font-weight-400 border-radius-6 w-100 line-height-24';
 
 export default function AddConversation() {
     const { addConversation, setSelectedContactName } =
@@ -22,7 +25,11 @@ export default function AddConversation() {
     const { resolveTLDtoAlias } = useContext(TLDContext);
     const { setSelectedLeftView, setSelectedRightView } =
         useContext(UiViewContext);
-    const { setLoaderContent, setAddConversation } = useContext(ModalContext);
+    const {
+        setShowAddConversationModal,
+        setLoaderContent,
+        setAddConversation,
+    } = useContext(ModalContext);
 
     const [name, setName] = useState<string>('');
     const [showError, setShowError] = useState<boolean>(false);
@@ -50,13 +57,7 @@ export default function AddConversation() {
             }
             //Checks wether the name entered, is an tld name. If yes, the TLD is substituded with the alias name
             const aliasName = await resolveTLDtoAlias(name);
-            //const aliasName = await getAlias(name);
 
-            closeConversationModal(
-                resetName,
-                showErrorMessage,
-                resetInputFieldClass,
-            );
             const addConversationData = {
                 active: true,
                 ensName: aliasName,
@@ -77,6 +78,7 @@ export default function AddConversation() {
             closeLoader();
 
             // close the modal
+            setShowAddConversationModal(false);
         } else {
             setErrorMsg('Please enter valid ENS name');
             setShowError(true);
@@ -94,27 +96,11 @@ export default function AddConversation() {
         }
     };
 
-    // resets name to default
-    const resetName = () => {
-        setName('');
-    };
-
-    // sets error message whether to show or not
-    const showErrorMessage = (value: boolean, content: string) => {
-        setErrorMsg(content);
-        setShowError(value);
-    };
-
-    // resets class to default
-    const resetInputFieldClass = () => {
-        setInputClass(INPUT_FIELD_CLASS);
-    };
-
     return (
         <div>
             <div
                 id="conversation-modal"
-                className="modal-container display-none position-fixed w-100 h-100"
+                className="modal-container position-fixed w-100 h-100"
             >
                 <div
                     className="conversation-modal-content border-radius-6 
@@ -134,14 +120,7 @@ export default function AddConversation() {
                             className="close-modal-icon"
                             src={closeIcon}
                             alt="close"
-                            onClick={() => {
-                                closeConversationModal(
-                                    resetName,
-                                    showErrorMessage,
-                                    resetInputFieldClass,
-                                );
-                                setSelectedLeftView(LeftViewSelected.Contacts);
-                            }}
+                            onClick={() => setShowAddConversationModal(false)}
                         />
                     </div>
 

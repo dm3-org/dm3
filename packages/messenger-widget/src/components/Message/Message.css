@@ -38,13 +38,8 @@
 .msg-action-container {
     height: fit-content;
     width: fit-content;
-    border: 1px solid var(--text-primary-color);
     visibility: hidden;
-}
-
-.msg-action-dot {
-    height: 0.9rem;
-    width: 0.9rem;
+    background: var(--menu-background-color);
 }
 
 .msg-action-container:hover {
@@ -125,6 +120,23 @@
 
 .contact-msg-text {
     color: var(--received-message-text-color);
+}
+
+.msg-action-btn{
+    color: var(--text-secondary-color);
+    font-size: 1.2rem;
+    font-weight: bolder;
+    display: flex;
+    align-items: center;
+    height: 1.2rem;
+    padding-left: 0.1rem;
+    padding-right: 0.1rem;
+    border-radius: 3px;
+}
+
+.msg-action-btn:hover{
+    background: var(--normal-btn-hover);
+    color: var(--text-primary-color);
 }
 
 /* =================== Mobile Responsive CSS =================== */

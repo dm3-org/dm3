@@ -18,6 +18,10 @@ export type ModalContextType = {
     setShowProfileConfigurationModal: (show: boolean) => void;
     showPreferencesModal: boolean;
     setShowPreferencesModal: (show: boolean) => void;
+    showAboutModal: boolean;
+    setShowAboutModal: (show: boolean) => void;
+    showAddConversationModal: boolean;
+    setShowAddConversationModal: (show: boolean) => void;
     resetModalStates: () => void;
 };
 
@@ -40,6 +44,10 @@ export const ModalContext = React.createContext<ModalContextType>({
     setShowProfileConfigurationModal: (show: boolean) => {},
     showPreferencesModal: false,
     setShowPreferencesModal: (show: boolean) => {},
+    showAboutModal: false,
+    setShowAboutModal: (show: boolean) => {},
+    showAddConversationModal: false,
+    setShowAddConversationModal: (show: boolean) => {},
     resetModalStates: () => {},
 });
 
@@ -59,6 +67,10 @@ export const ModalContextProvider = ({ children }: { children?: any }) => {
         setShowProfileConfigurationModal,
         showPreferencesModal,
         setShowPreferencesModal,
+        showAboutModal,
+        setShowAboutModal,
+        showAddConversationModal,
+        setShowAddConversationModal,
         resetModalStates,
     } = useModal();
 
@@ -79,6 +91,10 @@ export const ModalContextProvider = ({ children }: { children?: any }) => {
                 setShowProfileConfigurationModal,
                 showPreferencesModal,
                 setShowPreferencesModal,
+                showAboutModal,
+                setShowAboutModal,
+                showAddConversationModal,
+                setShowAddConversationModal,
                 resetModalStates,
             }}
         >
