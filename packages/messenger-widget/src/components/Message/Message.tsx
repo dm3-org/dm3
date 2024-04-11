@@ -193,7 +193,13 @@ export function Message(props: MessageProps) {
                     onMouseOver={handleMouseOver}
                     onMouseLeave={handleMouseOut}
                 >
-                    <div className="msg-action-btn">···</div>
+                    <div
+                        className={'msg-action-btn'.concat(
+                            isHovered ? ' msg-action-btn-highlighted' : '',
+                        )}
+                    >
+                        ···
+                    </div>
                     {isHovered && <MessageAction {...props} />}
                 </div>
             </div>

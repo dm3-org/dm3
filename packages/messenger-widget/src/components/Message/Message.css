@@ -139,6 +139,11 @@
     color: var(--text-primary-color);
 }
 
+.msg-action-btn-highlighted{
+    background: var(--normal-btn-hover);
+    color: var(--text-primary-color);
+}
+
 /* =================== Mobile Responsive CSS =================== */
 @media only screen and (max-width: 800px) {
     .content-style {

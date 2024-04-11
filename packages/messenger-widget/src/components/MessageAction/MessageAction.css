@@ -7,11 +7,11 @@
     z-index: 1;
     border: 1px solid #000000;
     border-radius: 5px;
-    margin-top: 1rem;
+    margin-top: 1.2rem;
 }
 
 .own-msg {
-    margin-left: -9rem;
+    margin-left: -8.7rem;
 }
 
 .msg-dropdown-content-top-align {
@@ -60,6 +60,12 @@
     min-width: 130px;
 }
 
+#msg-dropdown:hover{
+    .msg-action-btn{
+        background: var(--normal-btn-hover);
+        color: var(--text-primary-color);
+    }
+}
 /* =================== Mobile Responsive CSS =================== */
 
 @media only screen and (max-width: 800px) {
