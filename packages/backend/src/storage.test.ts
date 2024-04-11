@@ -1,10 +1,12 @@
 import { encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
+import { Session, spamFilter } from '@dm3-org/dm3-lib-delivery';
 import {
     Envelop,
     Message,
     buildEnvelop,
     createMessage,
 } from '@dm3-org/dm3-lib-messaging';
+import { Auth } from '@dm3-org/dm3-lib-server-side';
 import { sha256 } from '@dm3-org/dm3-lib-shared';
 import { PrismaClient } from '@prisma/client';
 import bodyParser from 'body-parser';
@@ -18,29 +20,16 @@ import {
     mockDeliveryServiceProfile,
     mockUserProfile,
 } from '../test/testHelper';
-import { Auth, getWeb3Provider } from '@dm3-org/dm3-lib-server-side';
 import {
-    Redis,
-    getRedisClient,
-    getDatabase,
     IDatabase,
+    Redis,
+    getDatabase,
+    getRedisClient,
 } from './persistence/getDatabase';
-import { Session, spamFilter } from '@dm3-org/dm3-lib-delivery';
 
-import { getUserDbMigrationStatus } from './persistence/storage/getUserDbMigrationStatus';
-import { addConversation } from './persistence/storage/postgres/addConversation';
-import { addMessageBatch } from './persistence/storage/postgres/addMessageBatch';
-import { editMessageBatch } from './persistence/storage/postgres/editMessageBatch';
-import { getConversationList } from './persistence/storage/postgres/getConversationList';
-import { getMessages } from './persistence/storage/postgres/getMessages';
-import { getNumberOfConversations } from './persistence/storage/postgres/getNumberOfConversations';
-import { getNumberOfMessages } from './persistence/storage/postgres/getNumberOfMessages';
-import { toggleHideConversation } from './persistence/storage/postgres/toggleHideConversation';
-import { MessageRecord } from './persistence/storage/postgres/utils/MessageRecord';
-import { setUserDbMigrated } from './persistence/storage/setUserDbMigrated';
-import storage from './storage';
 import { SignedUserProfile } from '@dm3-org/dm3-lib-profile';
-import session from './persistence/session';
+import { MessageRecord } from './persistence/storage/postgres/utils/MessageRecord';
+import storage from './storage';
 
 const keysA = {
     encryptionKeyPair: {
@@ -67,7 +56,6 @@ describe('Storage', () => {
     let sender: MockedUserProfile;
     let receiver: MockedUserProfile;
     let deliveryService: MockedDeliveryServiceProfile;
-
     let redisClient: Redis;
 
     beforeEach(async () => {
