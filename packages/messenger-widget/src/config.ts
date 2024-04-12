@@ -1,1 +1,3 @@
-export const DM3_VERSION = '1.2.0';
+export const dm3Config = {
+    version: '1.2.0',
+};
