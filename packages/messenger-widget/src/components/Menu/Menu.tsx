@@ -17,7 +17,7 @@ import {
 import { UiViewContext } from '../../context/UiViewContext';
 import { ModalContext } from '../../context/ModalContext';
 import { useDisconnect } from 'wagmi';
-import packageJson from './../../../package.json';
+import { DM3_VERSION } from '../../config';
 
 export default function Menu() {
     const {
@@ -132,7 +132,7 @@ export default function Menu() {
                 <hr className="line-separator text-secondary-color" />
                 <div className="font-weight-800 text-secondary-color">dm3</div>
                 <div className="text-secondary-color">
-                    Version {packageJson.version}
+                    Version {DM3_VERSION}
                 </div>
                 <div
                     className="text-secondary-color pointer-cursor"

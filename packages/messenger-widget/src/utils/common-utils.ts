@@ -134,7 +134,7 @@ export const TERMS_AND_CONDITIONS = 'https://dm3.network/terms-and-conditions';
 
 export const PRIVACY_POLICY = 'https://dm3.network/privacy-policy';
 
-export const GITHUB = 'https://github.com/dm3-org/dme';
+export const GITHUB = 'https://github.com/dm3-org/dm3';
 
 export const SPECIFICATION = 'https://specification.dm3.network';
 
