@@ -46,7 +46,7 @@ const setUpApp = async (
 
 const createDbMock = async () => {
     // //const Redis = await createClient();
-    const dbBase = await getDatabase(); //_redis: Redis);
+    // const dbBase = await getDatabase(); //_redis: Redis);
 
     const sessionMocked = {
         challenge: '123',
@@ -72,8 +72,10 @@ const createDbMock = async () => {
         getIdEnsName: async (ensName: string) => ensName,
     };
 
-    const db: IDatabase = { ...dbBase, ...dbMock };
-    return db;
+    return dbMock as any;
+
+    // const db: IDatabase = { ...dbBase, ...dbMock };
+    // return db;
 };
 
 describe('Profile', () => {
@@ -82,15 +84,22 @@ describe('Profile', () => {
             const app = express();
 
             const db = await createDbMock();
+            // I don't know why this function is needed in this test.
+            // Remove it after storage migration.
+            db.getUserStorage = () => {};
             app.use(storage(db, web3ProviderMock));
             setUpApp(app, db, web3ProviderMock);
 
-            const { status } = await request(app)
+            const response = await request(app)
                 .get('/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870')
                 .set({
                     authorization: `Bearer ${mockToken}`,
                 })
                 .send();
+
+            console.log(response.error);
+
+            const status = response.status;
 
             expect(status).toBe(200);
         });
