@@ -1,21 +1,19 @@
-import bodyParser from 'body-parser';
+import { Session, spamFilter } from '@dm3-org/dm3-lib-delivery';
 import {
     UserProfile,
     getProfileCreationMessage,
 } from '@dm3-org/dm3-lib-profile';
-import { ethers } from 'ethers';
 import { stringify } from '@dm3-org/dm3-lib-shared';
-import { SignedUserProfile } from '@dm3-org/dm3-lib-profile';
-import { createClient } from 'redis';
+import bodyParser from 'body-parser';
+import { ethers } from 'ethers';
 import express from 'express';
-import request from 'supertest';
-import profile from './profile';
-import winston from 'winston';
-import { Server } from 'socket.io';
 import http from 'http';
+import { Server } from 'socket.io';
+import request from 'supertest';
+import winston from 'winston';
+import { IDatabase } from './persistence/getDatabase';
+import profile from './profile';
 import storage from './storage';
-import { IDatabase, getDatabase } from './persistence/getDatabase';
-import { Session, spamFilter } from '@dm3-org/dm3-lib-delivery';
 
 global.logger = winston.createLogger({
     transports: [new winston.transports.Console()],
@@ -33,27 +31,15 @@ const setUpApp = async (
 ) => {
     app.use(bodyParser.json());
     const server = http.createServer(app);
-    const io = new Server(server, {
-        cors: {
-            origin: '*',
-            methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-            preflightContinue: false,
-            optionsSuccessStatus: 204,
-        },
-    });
+    const io = new Server(server, {});
     app.use(profile(db, io, web3Provider));
 };
 
 const createDbMock = async () => {
-    // //const Redis = await createClient();
-    // const dbBase = await getDatabase(); //_redis: Redis);
-
     const sessionMocked = {
         challenge: '123',
         token: mockToken,
-        signedUserProfile: {
-            // profile: { publicSigningKey: keysA.signingKeyPair.publicKey },
-        },
+        signedUserProfile: {},
     } as Session & { spamFilterRules: spamFilter.SpamFilterRules };
 
     const dbMock = {
@@ -63,19 +49,11 @@ const createDbMock = async () => {
                     spamFilterRules: spamFilter.SpamFilterRules;
                 }
             >(sessionMocked),
-        // setSession: async (_: string, __: any) => {
-        //     return (_: any, __: any, ___: any) => {};
-        // },
-        setSession: async (_: string, __: Session) => {
-            //return (_: any, __: any, ___: any) => {};
-        },
+        setSession: async (_: string, __: Session) => {},
         getIdEnsName: async (ensName: string) => ensName,
     };
 
     return dbMock as any;
-
-    // const db: IDatabase = { ...dbBase, ...dbMock };
-    // return db;
 };
 
 describe('Profile', () => {
@@ -162,16 +140,6 @@ describe('Profile', () => {
         it('Returns 400 if schema is invalid', async () => {
             const app = express();
             setUpApp(app, await createDbMock(), web3ProviderMock);
-
-            // app.locals.db = {
-            //     getSession: async (accountAddress: string) =>
-            //         Promise.resolve(null),
-            //     setSession: async (_: string, __: any) => {
-            //         return (_: any, __: any, ___: any) => {};
-            //     },
-            //     getPending: (_: any) => [],
-            //     getIdEnsName: async (ensName: string) => ensName,
-            // };
 
             const userProfile: UserProfile = {
                 publicSigningKey: '2',
