@@ -17,6 +17,7 @@ import {
 import { UiViewContext } from '../../context/UiViewContext';
 import { ModalContext } from '../../context/ModalContext';
 import { useDisconnect } from 'wagmi';
+import packageJson from './../../../package.json';
 
 export default function Menu() {
     const {
@@ -130,7 +131,9 @@ export default function Menu() {
             >
                 <hr className="line-separator text-secondary-color" />
                 <div className="font-weight-800 text-secondary-color">dm3</div>
-                <div className="text-secondary-color">Version 1.1</div>
+                <div className="text-secondary-color">
+                    Version {packageJson.version}
+                </div>
                 <div
                     className="text-secondary-color pointer-cursor"
                     onClick={() => openUrlInNewTab(DM3_NETWORK)}

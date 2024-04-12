@@ -4,7 +4,6 @@ import { ConversationContext } from '../../context/ConversationContext';
 import { MessageContext } from '../../context/MessageContext';
 import { MessageDataProps } from '../../interfaces/props';
 import { MessageActionType } from '../../utils/enum-type-utils';
-import { scrollToBottomOfChat } from '../Chat/scrollToBottomOfChat';
 import { onSubmitMessage } from '../SendMessage/onSubmitMessage';
 import { UiViewContext } from '../../context/UiViewContext';
 import { ModalContext } from '../../context/ModalContext';
@@ -42,7 +41,6 @@ export function MessageInputField(props: MessageDataProps) {
             account!,
             selectedContact!,
         );
-        scrollToBottomOfChat();
     }
 
     // Focus on input field when user selects a msg to EEDIT or REPLY

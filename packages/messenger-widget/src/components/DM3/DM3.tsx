@@ -7,12 +7,20 @@ import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { ethers } from 'ethers';
 import { MessageContextProvider } from '../../context/MessageContext';
 import { ConversationContextProvider } from '../../context/ConversationContext';
-import { Loader } from '../Loader/Loader';
+import { Loader, startLoader } from '../Loader/Loader';
+import { SiweValidityStatus } from '../../utils/enum-type-utils';
+import { ModalContext } from '../../context/ModalContext';
+import { Siwe } from '../Siwe/Siwe';
 
 function DM3(props: Dm3Props) {
-    const { setDm3Configuration, setScreenWidth } = useContext(
-        DM3ConfigurationContext,
-    );
+    const {
+        setDm3Configuration,
+        setScreenWidth,
+        setSiweValidityStatus,
+        validateSiweCredentials,
+    } = useContext(DM3ConfigurationContext);
+
+    const { setLoaderContent } = useContext(ModalContext);
 
     const { isLoggedIn } = useContext(AuthContext);
 
@@ -36,6 +44,19 @@ function DM3(props: Dm3Props) {
         return () => {
             window.removeEventListener('resize', handleResize);
         };
+    }, []);
+
+    // validate SIWE credentials
+    useEffect(() => {
+        const validateSiwe = async () => {
+            if (props.config.siwe) {
+                setLoaderContent('Validating SIWE credentials');
+                startLoader();
+                setSiweValidityStatus(SiweValidityStatus.IN_PROGRESS);
+                await validateSiweCredentials(props.config.siwe);
+            }
+        };
+        validateSiwe();
     }, []);
 
     useEffect(() => {
@@ -103,7 +124,11 @@ function DM3(props: Dm3Props) {
                 <MessageContextProvider>
                     <Loader />
                     {!isLoggedIn ? (
-                        <SignIn />
+                        props.config.siwe ? (
+                            <Siwe backgroundImage={props.config.signInImage} />
+                        ) : (
+                            <SignIn />
+                        )
                     ) : (
                         <div className="h-100 background-container">
                             <Dashboard />

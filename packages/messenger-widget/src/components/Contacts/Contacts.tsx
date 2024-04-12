@@ -64,7 +64,7 @@ export function Contacts() {
     };
 
     /* Hidden content for highlighting css */
-    const hiddenData: number[] = Array.from({ length: 22 }, (_, i) => i + 1);
+    const hiddenData: number[] = Array.from({ length: 44 }, (_, i) => i + 1);
 
     const scroller = document.getElementById('chat-scroller');
 
@@ -238,33 +238,18 @@ export function Contacts() {
                 })}
 
             {/* Hidden content for highlighting css */}
-            {contacts.length < 10 &&
-                hiddenData.map((data) => (
-                    <div
-                        key={data}
-                        className={
-                            selectedContact
-                                ? 'highlight-right-border'
-                                : 'highlight-right-border-none'
-                        }
-                    >
-                        <div className="hidden-data"></div>
-                    </div>
-                ))}
-
-            {contacts.length >= 10 &&
-                hiddenData.slice(11).map((data) => (
-                    <div
-                        key={data}
-                        className={
-                            selectedContact
-                                ? 'highlight-right-border'
-                                : 'highlight-right-border-none'
-                        }
-                    >
-                        <div className="hidden-data"></div>
-                    </div>
-                ))}
+            {hiddenData.map((data) => (
+                <div
+                    key={data}
+                    className={
+                        selectedContact
+                            ? 'highlight-right-border'
+                            : 'highlight-right-border-none'
+                    }
+                >
+                    <div className="hidden-data"></div>
+                </div>
+            ))}
         </div>
     );
 }

@@ -26,3 +26,10 @@ export enum MessageActionType {
     REACT = 'REACTION',
     NONE = 'NONE',
 }
+
+export enum SiweValidityStatus {
+    TO_BE_INITIATED = 'TO_BE_INITIATED',
+    IN_PROGRESS = 'IN_PROGRESS',
+    VALIDATED = 'VALIDATED',
+    ERROR = 'ERROR',
+}

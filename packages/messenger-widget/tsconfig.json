@@ -17,6 +17,7 @@
       "noUnusedLocals": false,
       "noUnusedParameters": false,
       "noImplicitReturns": false,
+      "resolveJsonModule": true
     },
     "include": ["src", "declaration.d.ts"],
     "exclude": ["node_modules", "lib"],

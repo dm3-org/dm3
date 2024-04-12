@@ -150,7 +150,7 @@ export function MessageAction(props: MessageProps) {
             {props.ownMessage &&
                 (props.message ||
                     (props.envelop.message.attachments &&
-                        props.envelop.message.attachments.length)) &&
+                        props.envelop.message.attachments.length > 0)) &&
                 props.envelop.metadata?.encryptedMessageHash &&
                 (!props.hideFunction ||
                     !props.hideFunction.split(',').includes('edit')) && (
@@ -218,7 +218,7 @@ export function MessageAction(props: MessageProps) {
 
             {(props.message ||
                 (props.envelop.message.attachments &&
-                    props.envelop.message.attachments.length)) &&
+                    props.envelop.message.attachments.length > 0)) &&
                 props.envelop.metadata?.encryptedMessageHash && (
                     <div
                         data-testid="reply-msg"
