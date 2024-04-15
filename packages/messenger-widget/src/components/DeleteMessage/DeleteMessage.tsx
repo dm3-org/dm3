@@ -46,7 +46,7 @@ export default function DeleteMessage() {
 
         await addMessage(messageData.metadata.to, messageData);
 
-        setLastMessageAction(MessageActionType.NONE);
+        setLastMessageAction(MessageActionType.DELETE);
     };
 
     return (

@@ -4,12 +4,12 @@ import {
     createMessage,
 } from '@dm3-org/dm3-lib-messaging';
 import { MessageActionType } from '../../utils/enum-type-utils';
-import { scrollToBottomOfChat } from '../Chat/scrollToBottomOfChat';
 import { MessageAction, MessageDataProps } from '../../interfaces/props';
 import { Account } from '@dm3-org/dm3-lib-profile';
 import { AddMessage } from '../../hooks/messages/useMessage';
 import { ContactPreview } from '../../interfaces/utils';
 import { closeErrorModal, openErrorModal } from '../../utils/common-utils';
+import { scrollToBottomOfChat } from '../Chat/scrollToBottomOfChat';
 
 export const onSubmitMessage = async (
     messageView: MessageAction,
@@ -44,18 +44,17 @@ export const onSubmitMessage = async (
             return;
         }
 
-        props.setFiles([]);
-        props.setMessageText('');
-
-        scrollToBottomOfChat();
-        setLastMessageAction(MessageActionType.REPLY);
-
         // Removes preview of reply to message in the UI
         setMessageView({
             actionType: MessageActionType.NONE,
             messageData: undefined,
         });
 
+        props.setFiles([]);
+        props.setMessageText('');
+
+        setLastMessageAction(MessageActionType.REPLY);
+        scrollToBottomOfChat();
         return;
     }
     if (messageView.actionType === MessageActionType.EDIT) {
@@ -82,15 +81,14 @@ export const onSubmitMessage = async (
             return;
         }
 
-        props.setFiles([]);
-        props.setMessageText('');
-
-        scrollToBottomOfChat();
-
         setMessageView({
             actionType: MessageActionType.NONE,
             messageData: undefined,
         });
+
+        props.setFiles([]);
+        props.setMessageText('');
+        setLastMessageAction(MessageActionType.EDIT);
 
         return;
     }

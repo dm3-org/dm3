@@ -51,14 +51,9 @@ export function Chat() {
         setShowShimEffect(isLoading);
     }, [contactIsLoading]);
 
-    // if new message is found scroll based on message type
+    // scrolls to bottom of chat when messages are loaded
     useEffect(() => {
-        if (
-            messages.length &&
-            (lastMessageAction === MessageActionType.NONE ||
-                lastMessageAction === MessageActionType.REPLY ||
-                lastMessageAction === MessageActionType.NEW)
-        ) {
+        if (messages.length && lastMessageAction === MessageActionType.NONE) {
             scrollToBottomOfChat();
         }
     }, [messages]);

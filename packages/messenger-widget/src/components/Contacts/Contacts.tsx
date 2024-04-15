@@ -4,13 +4,17 @@ import loader from '../../assets/images/loader.svg';
 import threeDotsIcon from '../../assets/images/three-dots.svg';
 import { ConversationContext } from '../../context/ConversationContext';
 import { MessageContext } from '../../context/MessageContext';
-import { RightViewSelected } from '../../utils/enum-type-utils';
+import {
+    MessageActionType,
+    RightViewSelected,
+} from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
 import { showMenuInBottom } from './bl';
 import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
 import { ContactPreview } from '../../interfaces/utils';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
 
 export function Contacts() {
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
@@ -19,6 +23,7 @@ export function Contacts() {
         useContext(UiViewContext);
     const { contacts, setSelectedContactName, selectedContact } =
         useContext(ConversationContext);
+    const { setLastMessageAction } = useContext(ModalContext);
 
     const [isMenuAlignedAtBottom, setIsMenuAlignedAtBottom] = useState<
         boolean | null
@@ -115,6 +120,11 @@ export function Contacts() {
                                         : '',
                                 )}
                                 onClick={() => {
+                                    // On change of contact, message action is set to none
+                                    // so that it automatically scrolls to latest message.
+                                    setLastMessageAction(
+                                        MessageActionType.NONE,
+                                    );
                                     setSelectedContactName(
                                         data.contactDetails.account.ensName,
                                     );

@@ -72,4 +72,7 @@
     .msg-reaction-container {
         font-size: 1rem;
     }
+    .msg-react-separator {
+        margin: 0rem 0rem 0rem 0rem;
+    }
 }
