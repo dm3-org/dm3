@@ -1,8 +1,11 @@
+import { Auth, getWeb3Provider } from '@dm3-org/dm3-lib-server-side';
 import bodyParser from 'body-parser';
 import express from 'express';
-import { Auth } from '@dm3-org/dm3-lib-server-side';
 import request from 'supertest';
 import notifications from './notifications';
+import { getDatabase, IDatabase } from './persistence/getDatabase';
+import { ethers } from 'ethers';
+
 import {
     DeliveryServiceProperties,
     NotificationChannelType,
@@ -23,21 +26,24 @@ const keysA = {
 };
 
 describe('Notifications', () => {
+    // let db: IDatabase;
+    // let web3Provider: ethers.providers.JsonRpcProvider;
     const deliveryServiceProperties: DeliveryServiceProperties = {
         messageTTL: 12345,
         sizeLimit: 456,
         notificationChannel: [],
     };
 
+    // beforeEach(async () => {
+    //     db = await getDatabase();
+    // });
+
     describe('get NotificationChannels', () => {
         it('Returns empty array as global notification is turned off', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
 
-            const token = await createAuthToken();
-
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -62,10 +68,21 @@ describe('Notifications', () => {
                     Promise.resolve([]),
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
+
             const { status, body } = await request(app)
                 .get(`/bob.eth`)
                 .set({
@@ -82,11 +99,7 @@ describe('Notifications', () => {
         it('Returns 200 with empty notification channels as global notification is turned on', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
-
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -111,10 +124,21 @@ describe('Notifications', () => {
                     Promise.resolve({ isEnabled: true }),
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
+
             const { status, body } = await request(app)
                 .get(`/bob.eth`)
                 .set({
@@ -133,12 +157,9 @@ describe('Notifications', () => {
         it('Returns 400 on setup email notifications as email ID is invalid', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
             const addUsersNotificationChannelMock = jest.fn();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -152,10 +173,19 @@ describe('Notifications', () => {
                 addUsersNotificationChannel: addUsersNotificationChannelMock,
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status } = await request(app)
                 .post(`/bob.eth`)
@@ -173,12 +203,9 @@ describe('Notifications', () => {
         it('Returns 400 on setup email notifications as notificationChannelType is invalid', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
             const addUsersNotificationChannelMock = jest.fn();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -192,10 +219,20 @@ describe('Notifications', () => {
                 addUsersNotificationChannel: addUsersNotificationChannelMock,
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status } = await request(app)
                 .post(`/bob.eth`)
@@ -213,12 +250,9 @@ describe('Notifications', () => {
         it('Returns 400 on setup email notifications as globalNotifications is turned off', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
             const addUsersNotificationChannelMock = jest.fn();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -234,10 +268,19 @@ describe('Notifications', () => {
                 addUsersNotificationChannel: addUsersNotificationChannelMock,
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status } = await request(app)
                 .post(`/bob.eth`)
@@ -272,15 +315,12 @@ describe('Notifications', () => {
 
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
 
             const addNewNotificationChannelMock = jest.fn();
             const addUsersNotificationChannelMock = jest.fn();
             const setOtpMock = jest.fn();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -308,10 +348,19 @@ describe('Notifications', () => {
                 addUsersNotificationChannel: addUsersNotificationChannelMock,
                 setOtp: setOtpMock,
             };
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status, body } = await request(app)
                 .post(`/bob.eth`)
@@ -329,15 +378,12 @@ describe('Notifications', () => {
         it('Returns 400 as Email notification channel is not supported in delivery service', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
 
             const addNewNotificationChannelMock = jest.fn();
             const addUsersNotificationChannelMock = jest.fn();
             const setOtpMock = jest.fn();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -365,10 +411,19 @@ describe('Notifications', () => {
                 addUsersNotificationChannel: addUsersNotificationChannelMock,
                 setOtp: setOtpMock,
             };
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status, body } = await request(app)
                 .post(`/bob.eth`)
@@ -390,11 +445,7 @@ describe('Notifications', () => {
         it('Returns 200 and false as global notification is not enabled', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
-
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -419,10 +470,20 @@ describe('Notifications', () => {
                     }),
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
+
             const { status, body } = await request(app)
                 .get(`/global/bob.eth`)
                 .set({
@@ -441,13 +502,9 @@ describe('Notifications', () => {
         it('Enable global notifications', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
-
             const setGlobalNotificationMock = jest.fn();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -460,10 +517,20 @@ describe('Notifications', () => {
                 getIdEnsName: async (ensName: string) => ensName,
                 setGlobalNotification: setGlobalNotificationMock,
             };
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status } = await request(app)
                 .post(`/global/bob.eth`)
@@ -483,13 +550,9 @@ describe('Notifications', () => {
         it('Disable global notifications', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
-
             const setGlobalNotificationMock = jest.fn();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -502,10 +565,19 @@ describe('Notifications', () => {
                 getIdEnsName: async (ensName: string) => ensName,
                 setGlobalNotification: setGlobalNotificationMock,
             };
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status } = await request(app)
                 .post(`/global/bob.eth`)
@@ -525,13 +597,9 @@ describe('Notifications', () => {
         it('Returns 400 if req.body is invalid', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
-
             const setGlobalNotificationMock = jest.fn();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -544,10 +612,19 @@ describe('Notifications', () => {
                 getIdEnsName: async (ensName: string) => ensName,
                 setGlobalNotification: setGlobalNotificationMock,
             };
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status } = await request(app)
                 .post(`/global/bob.eth`)
@@ -566,12 +643,9 @@ describe('Notifications', () => {
         it('Returns 400 on resend email verification OTP as globalNotifications is turned off', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
             const resendOtpMock = jest.fn();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -587,10 +661,19 @@ describe('Notifications', () => {
                 resendOtp: resendOtpMock,
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status } = await request(app)
                 .post(`/otp/bob.eth`)
@@ -607,12 +690,9 @@ describe('Notifications', () => {
         it('Returns 400 on resend email verification OTP as notificationChannelType is invalid', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
             const resendOtpMock = jest.fn();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -626,10 +706,20 @@ describe('Notifications', () => {
                 resendOtp: resendOtpMock,
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status } = await request(app)
                 .post(`/otp/bob.eth`)
@@ -663,16 +753,13 @@ describe('Notifications', () => {
 
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
 
             const resendOtpMock = jest.fn();
             const setOtpMock = jest.fn();
             const addUsersNotificationChannelMock = jest.fn();
             const getOtpMock = jest.fn();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -701,10 +788,19 @@ describe('Notifications', () => {
                 setOtp: setOtpMock,
                 getOtp: getOtpMock,
             };
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status, body } = await request(app)
                 .post(`/otp/bob.eth`)
@@ -723,12 +819,9 @@ describe('Notifications', () => {
         it('Returns 400 on verify email OTP as otp is not set in body', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
             const verifyOtpMock = jest.fn();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -744,10 +837,19 @@ describe('Notifications', () => {
                 verifyOtp: verifyOtpMock,
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status, body } = await request(app)
                 .post(`/otp/verify/bob.eth`)
@@ -767,12 +869,9 @@ describe('Notifications', () => {
         it('Returns 400 on verify email OTP as notification channel is not set in body', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
             const verifyOtpMock = jest.fn();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -788,10 +887,19 @@ describe('Notifications', () => {
                 verifyOtp: verifyOtpMock,
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status, body } = await request(app)
                 .post(`/otp/verify/bob.eth`)
@@ -811,12 +919,9 @@ describe('Notifications', () => {
         it('Returns 400 on verify email OTP as notification channel is invalid', async () => {
             const app = express();
             app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
             const verifyOtpMock = jest.fn();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -832,10 +937,19 @@ describe('Notifications', () => {
                 verifyOtp: verifyOtpMock,
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status, body } = await request(app)
                 .post(`/otp/verify/bob.eth`)
@@ -871,12 +985,6 @@ describe('Notifications', () => {
                 ],
             };
 
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
-
             const getUsersNotificationChannels = () =>
                 Promise.resolve([
                     {
@@ -899,7 +1007,7 @@ describe('Notifications', () => {
             const resetOtpMock = jest.fn();
             const setNotificationChannelAsVerifiedMock = jest.fn();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -919,10 +1027,22 @@ describe('Notifications', () => {
                     setNotificationChannelAsVerifiedMock,
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status } = await request(app)
                 .post(`/otp/verify/bob.eth`)
@@ -940,13 +1060,7 @@ describe('Notifications', () => {
 
     describe('Enable/Disable Email notification channel', () => {
         it('Returns 400 as isEnabled is not set in body', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
-
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -961,10 +1075,21 @@ describe('Notifications', () => {
                     Promise.resolve({ isEnabled: true }),
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status, body } = await request(app)
                 .post(`/channel/bob.eth`)
@@ -982,13 +1107,7 @@ describe('Notifications', () => {
         });
 
         it('Returns 400 as isEnabled value is invalid in body', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
-
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -1003,10 +1122,21 @@ describe('Notifications', () => {
                     Promise.resolve({ isEnabled: true }),
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status, body } = await request(app)
                 .post(`/channel/bob.eth`)
@@ -1025,13 +1155,7 @@ describe('Notifications', () => {
         });
 
         it('Returns 400 as notification channel type is not set in body', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
-
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -1046,10 +1170,22 @@ describe('Notifications', () => {
                     Promise.resolve({ isEnabled: true }),
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status, body } = await request(app)
                 .post(`/channel/bob.eth`)
@@ -1067,13 +1203,7 @@ describe('Notifications', () => {
         });
 
         it('Returns 400 as notification channel type value is invalid in body', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
-
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -1088,10 +1218,21 @@ describe('Notifications', () => {
                     Promise.resolve({ isEnabled: true }),
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status, body } = await request(app)
                 .post(`/channel/bob.eth`)
@@ -1110,13 +1251,7 @@ describe('Notifications', () => {
         });
 
         it('Returns 400 as global notification channel is turned off', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
-
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -1131,10 +1266,22 @@ describe('Notifications', () => {
                     Promise.resolve({ isEnabled: false }),
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status, body } = await request(app)
                 .post(`/channel/bob.eth`)
@@ -1170,13 +1317,7 @@ describe('Notifications', () => {
                 ],
             };
 
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
-
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -1203,10 +1344,22 @@ describe('Notifications', () => {
                 enableOrDisableNotificationChannel: jest.fn(),
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status, body } = await request(app)
                 .post(`/channel/bob.eth`)
@@ -1239,13 +1392,7 @@ describe('Notifications', () => {
                 ],
             };
 
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
-
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -1272,10 +1419,22 @@ describe('Notifications', () => {
                 enableOrDisableNotificationChannel: jest.fn(),
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status, body } = await request(app)
                 .post(`/channel/bob.eth`)
@@ -1293,13 +1452,7 @@ describe('Notifications', () => {
 
     describe('Remove Email notification channel', () => {
         it('Returns 400 on as channel type is invalid in params', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
-
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -1314,10 +1467,22 @@ describe('Notifications', () => {
                     Promise.resolve({ isEnabled: true }),
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status, body } = await request(app)
                 .delete(`/channel/test/bob.eth`)
@@ -1333,13 +1498,7 @@ describe('Notifications', () => {
         });
 
         it('Returns 400 as global notifications is turned off', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
-
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -1354,10 +1513,22 @@ describe('Notifications', () => {
                     Promise.resolve({ isEnabled: false }),
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status, body } = await request(app)
                 .delete(`/channel/EMAIL/bob.eth`)
@@ -1373,12 +1544,6 @@ describe('Notifications', () => {
         });
 
         it('Removes Email notification channel', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(notifications(deliveryServiceProperties));
-
-            const token = await createAuthToken();
-
             const getUsersNotificationChannels = () =>
                 Promise.resolve([
                     {
@@ -1393,7 +1558,7 @@ describe('Notifications', () => {
 
             const removeNotificationChannelMock = jest.fn();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: '123',
@@ -1410,10 +1575,21 @@ describe('Notifications', () => {
                 removeNotificationChannel: removeNotificationChannelMock,
             };
 
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                ),
+            );
+
+            const token = await createAuthToken();
 
             const { status, body } = await request(app)
                 .delete(`/channel/EMAIL/bob.eth`)
