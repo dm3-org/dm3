@@ -4,6 +4,7 @@ import request from 'supertest';
 import { Auth } from '@dm3-org/dm3-lib-server-side';
 import delivery from './delivery';
 import winston from 'winston';
+import { env } from 'process';
 
 const keysA = {
     encryptionKeyPair: {
@@ -25,24 +26,26 @@ global.logger = winston.createLogger({
 describe('Delivery', () => {
     describe('getMessages', () => {
         it('Returns 200 if schema is valid', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(delivery());
-            (app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
-            }),
-                (app.locals.keys = {
-                    signing: keysA.signingKeyPair,
-                    encryption: keysA.encryptionKeyPair,
-                }),
-                (app.locals.redisClient = {
-                    exists: (_: any) => false,
-                });
+            };
+            const keys = {
+                signing: keysA.signingKeyPair,
+                encryption: keysA.encryptionKeyPair,
+            };
+            process.env.SIGNING_PUBLIC_KEY = keys.signing.publicKey;
+            process.env.SIGNING_PRIVATE_KEY = keys.signing.privateKey;
+            process.env.ENCRYPTION_PUBLIC_KEY = keys.encryption.publicKey;
+            process.env.ENCRYPTION_PRIVATE_KEY = keys.encryption.privateKey;
+
+            // const redisClient = {
+            //     exists: (_: any) => false,
+            // };
 
             const token = await createAuthToken();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) =>
                     Promise.resolve({
                         challenge: 'my-Challenge',
@@ -60,6 +63,9 @@ describe('Delivery', () => {
                 getMessages: () => Promise.resolve([]),
                 getIdEnsName: async (ensName: string) => ensName,
             };
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(delivery(web3Provider as any, db as any));
 
             const { status } = await request(app)
                 .get('/messages/alice.eth/contact/bob.eth')
@@ -75,23 +81,14 @@ describe('Delivery', () => {
 
     describe('getPendingMessages', () => {
         it('Returns 200 if schema is valid', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(delivery());
-
-            app.locals.redisClient = {
-                exists: (_: any) => false,
-                sMembers: (_: any) => [],
-                del: (_: any) => {},
-            };
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
             };
 
             const token = await createAuthToken();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) => ({
                     challenge: '123',
                     token,
@@ -103,6 +100,15 @@ describe('Delivery', () => {
                 deletePending: (_: any) => [],
                 getIdEnsName: async (ensName: string) => ensName,
             };
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(delivery(web3Provider as any, db as any));
+
+            // const redisClient = {
+            //     exists: (_: any) => false,
+            //     sMembers: (_: any) => [],
+            //     del: (_: any) => {},
+            // };
 
             const { status } = await request(app)
                 .post(
@@ -120,26 +126,14 @@ describe('Delivery', () => {
 
     describe('syncAcknoledgment', () => {
         it('Returns 200 if schema is valid', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(delivery());
-
-            app.locals.redisClient = {
-                exists: (_: any) => false,
-                sMembers: (_: any) => [],
-                del: (_: any) => {},
-                hSet: (_: any, __: any, ___: any) => {},
-                hGetAll: () => ['123', '456'],
-                zRemRangeByScore: (_: any, __: any, ___: any) => 0,
-            };
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
             };
 
             const token = await createAuthToken();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) => ({
                     challenge: '123',
                     token,
@@ -153,6 +147,18 @@ describe('Delivery', () => {
                     lastMessagePull: string,
                 ) => Promise<void>,
             };
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(delivery(web3Provider as any, db as any));
+
+            // const redisClient = {
+            //     exists: (_: any) => false,
+            //     sMembers: (_: any) => [],
+            //     del: (_: any) => {},
+            //     hSet: (_: any, __: any, ___: any) => {},
+            //     hGetAll: () => ['123', '456'],
+            //     zRemRangeByScore: (_: any, __: any, ___: any) => 0,
+            // };
 
             const { status } = await request(app)
                 .post(
@@ -175,23 +181,14 @@ describe('Delivery', () => {
             expect(status).toBe(200);
         });
         it('Returns 400 if params are invalid', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(delivery());
-
-            app.locals.redisClient = {
-                exists: (_: any) => false,
-                sMembers: (_: any) => [],
-                del: (_: any) => {},
-            };
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
             };
 
             const token = await createAuthToken();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) => ({
                     challenge: '123',
                     token,
@@ -201,6 +198,15 @@ describe('Delivery', () => {
                 },
                 getIdEnsName: async (ensName: string) => ensName,
             };
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(delivery(web3Provider as any, db as any));
+
+            // const redisClient = {
+            //     exists: (_: any) => false,
+            //     sMembers: (_: any) => [],
+            //     del: (_: any) => {},
+            // };
 
             const { status } = await request(app)
                 .post(
@@ -217,23 +223,14 @@ describe('Delivery', () => {
             expect(status).toBe(400);
         });
         it('Returns 400 if body is invalid', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(delivery());
-
-            app.locals.redisClient = {
-                exists: (_: any) => false,
-                sMembers: (_: any) => [],
-                del: (_: any) => {},
-            };
-            app.locals.web3Provider = {
+            const web3Provider = {
                 resolveName: async () =>
                     '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
             };
 
             const token = await createAuthToken();
 
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) => ({
                     challenge: '123',
                     token,
@@ -243,6 +240,15 @@ describe('Delivery', () => {
                 },
                 getIdEnsName: async (ensName: string) => ensName,
             };
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(delivery(web3Provider as any, db as any));
+
+            // const redisClient = {
+            //     exists: (_: any) => false,
+            //     sMembers: (_: any) => [],
+            //     del: (_: any) => {},
+            // };
 
             const { status } = await request(app)
                 .post(
