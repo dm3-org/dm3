@@ -1,13 +1,13 @@
-import { Socket, Server } from 'socket.io';
-import express from 'express';
-import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
-import { validateSchema } from '@dm3-org/dm3-lib-shared';
+import { checkToken, incomingMessage, schema } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
-import { schema, checkToken, incomingMessage } from '@dm3-org/dm3-lib-delivery';
 import { readKeysFromEnv } from '@dm3-org/dm3-lib-server-side';
-import { getDatabase } from './persistence/getDatabase';
+import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
+import express from 'express';
+import { Server, Socket } from 'socket.io';
+import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
+import { IDatabase } from './persistence/getDatabase';
 
 const pendingMessageSchema = {
     type: 'object',
@@ -24,6 +24,7 @@ export function onConnection(
     app: express.Application,
     io: Server,
     web3Provider: ethers.providers.JsonRpcProvider,
+    db: IDatabase,
 ) {
     return (socket: Socket) => {
         socket.on('disconnect', () => {
@@ -46,7 +47,6 @@ export function onConnection(
                     const keys = readKeysFromEnv(process.env);
                     const deliveryServiceProperties =
                         getDeliveryServiceProperties();
-                    const db = await getDatabase();
                     global.logger.info({
                         method: 'WS INCOMING MESSAGE',
                     });
@@ -99,11 +99,9 @@ export function onConnection(
 
         socket.on('pendingMessage', async (data, callback) => {
             const isSchemaValid = validateSchema(pendingMessageSchema, data);
-            const db = await getDatabase();
 
             if (!isSchemaValid) {
                 const error = 'invalid schema';
-
                 global.logger.warn({
                     method: 'WS PENDING MESSAGE',
                     error,

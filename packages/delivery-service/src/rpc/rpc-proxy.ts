@@ -1,12 +1,13 @@
-import { Axios } from 'axios';
-import { Server } from 'socket.io';
-import 'dotenv/config';
-import express from 'express';
-import { handleGetDeliveryServiceProperties } from './methods/handleGetDeliveryServiceProperties';
 import { DeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery';
+import { Axios } from 'axios';
+import 'dotenv/config';
+import { ethers } from 'ethers';
+import express from 'express';
+import { Server } from 'socket.io';
+import { handleGetDeliveryServiceProperties } from './methods/handleGetDeliveryServiceProperties';
 import { handleResolveProfileExtension } from './methods/handleResolveProfileExtension';
 import { handleSubmitMessage } from './methods/handleSubmitMessage';
-import { ethers } from 'ethers';
+import { IDatabase } from '../persistence/getDatabase';
 
 const DM3_SUBMIT_MESSAGE = 'dm3_submitMessage';
 const DM3_GET_DELIVERY_SERVICE_PROPERTIES = 'dm3_getDeliveryServiceProperties';
@@ -17,6 +18,7 @@ export default (
     deliveryServiceProperties: DeliveryServiceProperties,
     io: Server,
     web3Provider: ethers.providers.JsonRpcProvider,
+    db: IDatabase,
 ) => {
     const router = express.Router();
 
@@ -36,6 +38,7 @@ export default (
                     io,
                     deliveryServiceProperties,
                     web3Provider,
+                    db,
                 );
 
             case DM3_GET_DELIVERY_SERVICE_PROPERTIES:
@@ -46,7 +49,7 @@ export default (
                 );
 
             case DM3_GET_PROFILE_EXTENSION:
-                return handleResolveProfileExtension(axios)(
+                return handleResolveProfileExtension(axios, db)(
                     req as express.Request,
                     res,
                 );

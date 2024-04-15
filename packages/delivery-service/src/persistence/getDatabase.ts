@@ -60,10 +60,6 @@ export async function getRedisClient() {
     return client;
 }
 
-// export async function getPrismaClient() {
-//     return new PrismaClient();
-// }
-
 export async function getDatabase(
     _redis?: Redis,
     // _prisma?: PrismaClient,
