@@ -34,11 +34,7 @@ global.logger = winston.createLogger({
 describe('Profile', () => {
     describe('getProfile', () => {
         it('Returns 200 if schema is valid', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(profile());
-
-            app.locals.db = {
+            const db = {
                 getSession: async (ensName: string) => ({
                     signedUserProfile: {},
                 }),
@@ -47,6 +43,10 @@ describe('Profile', () => {
                 },
                 getIdEnsName: async (ensName: string) => ensName,
             };
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(profile(db as any, {} as any, {} as any));
 
             const { status } = await request(app)
                 .get('/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870')
@@ -58,27 +58,23 @@ describe('Profile', () => {
 
     describe('submitUserProfile', () => {
         it('Returns 200 if schema is valid', async () => {
+            const web3Provider = { resolveName: async () => wallet.address };
+            const db = {
+                getSession: async (ensName: string) => Promise.resolve(null),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                getPending: (_: any) => [],
+                getIdEnsName: async (ensName: string) => ensName,
+            };
             const app = express();
             app.use(bodyParser.json());
-            app.use(profile());
+            app.use(profile(db as any, web3Provider as any, {} as any));
 
             const mnemonic =
                 'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
 
             const wallet = ethers.Wallet.fromMnemonic(mnemonic);
-
-            app.locals = {
-                web3Provider: { resolveName: async () => wallet.address },
-                db: {
-                    getSession: async (ensName: string) =>
-                        Promise.resolve(null),
-                    setSession: async (_: string, __: any) => {
-                        return (_: any, __: any, ___: any) => {};
-                    },
-                    getPending: (_: any) => [],
-                    getIdEnsName: async (ensName: string) => ensName,
-                },
-            };
 
             const userProfile: UserProfile = {
                 publicSigningKey: '2',
@@ -106,11 +102,7 @@ describe('Profile', () => {
             expect(status).toBe(200);
         });
         it('Returns 400 if schema is invalid', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(profile());
-
-            app.locals.db = {
+            const db = {
                 getSession: async (accountAddress: string) =>
                     Promise.resolve(null),
                 setSession: async (_: string, __: any) => {
@@ -119,6 +111,10 @@ describe('Profile', () => {
                 getPending: (_: any) => [],
                 getIdEnsName: async (ensName: string) => ensName,
             };
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(profile(db as any, {} as any, {} as any));
 
             const userProfile: UserProfile = {
                 publicSigningKey: '2',
