@@ -69,7 +69,7 @@ global.logger = winston.createLogger({
      *     needed
      */
     app.use('/profile', Profile(db, web3Provider, io));
-    app.use('/delivery', Delivery(web3Provider));
+    app.use('/delivery', Delivery(web3Provider, db));
     app.use(
         '/notifications',
         Notifications(deliveryServiceProperties, db, web3Provider),
@@ -77,7 +77,7 @@ global.logger = winston.createLogger({
     app.use(logError);
     app.use(errorHandler);
     io.use(socketAuth(db, web3Provider));
-    io.on('connection', onConnection(app, io, web3Provider));
+    io.on('connection', onConnection(app, io, web3Provider, db));
     startCleanUpPendingMessagesJob(db, deliveryServiceProperties.messageTTL);
     app.use(
         '/rpc',
@@ -86,6 +86,7 @@ global.logger = winston.createLogger({
             deliveryServiceProperties,
             io,
             web3Provider,
+            db,
         ),
     );
 })();

@@ -1,11 +1,11 @@
-import cors from 'cors';
-import express from 'express';
-import { getDatabase } from './persistence/getDatabase';
+import { Acknoledgment, getMessages, schema } from '@dm3-org/dm3-lib-delivery';
 import { auth, readKeysFromEnv } from '@dm3-org/dm3-lib-server-side';
-import { schema, getMessages, Acknoledgment } from '@dm3-org/dm3-lib-delivery';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import { getConversationId } from '@dm3-org/dm3-lib-storage';
+import cors from 'cors';
 import { ethers } from 'ethers';
+import express from 'express';
+import { IDatabase } from './persistence/getDatabase';
 
 const syncAcknoledgmentParamsSchema = {
     type: 'object',
@@ -28,19 +28,20 @@ const syncAcknoledgmentBodySchema = {
     additionalProperties: false,
 };
 
-export default (web3Provider: ethers.providers.JsonRpcProvider) => {
+export default (
+    web3Provider: ethers.providers.JsonRpcProvider,
+    db: IDatabase,
+) => {
     const router = express.Router();
     //TODO remove
     router.use(cors());
     router.param('ensName', async (req, res, next, ensName: string) => {
-        const db = await getDatabase();
         auth(req, res, next, ensName, db, web3Provider);
     });
 
     router.get(
         '/messages/:ensName/contact/:contactEnsName',
         async (req: express.Request, res, next) => {
-            const db = await getDatabase();
             const keys = readKeysFromEnv(process.env);
             try {
                 const idEnsName = await db.getIdEnsName(req.params.ensName);
@@ -81,7 +82,6 @@ export default (web3Provider: ethers.providers.JsonRpcProvider) => {
         //@ts-ignore
         async (req: express.Request, res, next) => {
             try {
-                const db = await getDatabase();
                 const incomingMessages = await db.getIncomingMessages(
                     req.params.ensName,
                     //Fetch the last 10 messages per conversation
@@ -97,7 +97,6 @@ export default (web3Provider: ethers.providers.JsonRpcProvider) => {
 
     router.post('/messages/:ensName/pending', async (req, res, next) => {
         try {
-            const db = await getDatabase();
             const account = await db.getIdEnsName(req.params.ensName);
             const pending = await db.getPending(account);
             await db.deletePending(account);
@@ -128,8 +127,6 @@ export default (web3Provider: ethers.providers.JsonRpcProvider) => {
                 Number.parseInt(req.params.last_message_pull),
             );
 
-            const db = await getDatabase();
-
             if (!hasValidParams || !isLastMessagePullNumber || !hasValidBody) {
                 return res.send(400);
             }
@@ -139,8 +136,6 @@ export default (web3Provider: ethers.providers.JsonRpcProvider) => {
 
                 await Promise.all(
                     req.body.acknoledgments.map(async (ack: Acknoledgment) => {
-                        const db = await getDatabase();
-
                         const contactEnsName = await db.getIdEnsName(
                             ack.contactAddress,
                         );
@@ -174,8 +169,6 @@ export default (web3Provider: ethers.providers.JsonRpcProvider) => {
                 syncAcknoledgmentBodySchema,
                 req.body,
             );
-
-            const db = await getDatabase();
 
             // eslint-disable-next-line max-len
             //Express transform number inputs into strings. So we have to check if a string used as last_message_pull can be converted to a number later on.

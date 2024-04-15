@@ -9,7 +9,7 @@ import { readKeysFromEnv } from '@dm3-org/dm3-lib-server-side';
 import 'dotenv/config';
 import express from 'express';
 import { Server } from 'socket.io';
-import { getDatabase } from '../../persistence/getDatabase';
+import { IDatabase } from '../../persistence/getDatabase';
 import { ethers } from 'ethers';
 
 export async function handleSubmitMessage(
@@ -18,6 +18,7 @@ export async function handleSubmitMessage(
     io: Server,
     deliveryServiceProperties: DeliveryServiceProperties,
     web3Provider: ethers.providers.JsonRpcProvider,
+    db: IDatabase,
 ) {
     const {
         params: [stringifiedEnvelop, token],
@@ -51,7 +52,6 @@ export async function handleSubmitMessage(
         return res.status(400).send({ error });
     }
 
-    const db = await getDatabase();
     const keys = readKeysFromEnv(process.env);
 
     try {
