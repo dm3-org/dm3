@@ -49,9 +49,15 @@ describe('rpc-Proxy', () => {
 
             const app = express();
             app.use(bodyParser.json());
-            app.use(RpcProxy(axiosMock as Axios));
-
-            global.logger = logger;
+            app.use(
+                RpcProxy(
+                    axiosMock as Axios,
+                    {} as any,
+                    {} as any,
+                    {} as any,
+                    {} as any,
+                ),
+            );
 
             const { body } = await request(app)
                 .post('/')
@@ -78,42 +84,51 @@ describe('rpc-Proxy', () => {
                 post: mockPost,
             } as Partial<Axios>;
 
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(RpcProxy(axiosMock as Axios));
-
-            app.locals = {
-                logger,
-                keys: {
-                    signing: keysA.signingKeyPair,
-                    encryption: keysA.encryptionKeyPair,
-                },
-                deliveryServiceProperties: {
-                    sizeLimit: 2 ** 14,
-                    notificationChannel: [],
-                },
-                web3Provider: {
-                    resolveName: async () =>
-                        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
-                },
-                loadSession: getSession,
-                redisClient: {
-                    zAdd: () => {},
-                },
-                db: {
-                    createMessage: () => {},
-                    getSession,
-                    getIdEnsName: async (ensName: string) => ensName,
-                    getUsersNotificationChannels: () => Promise.resolve([]),
-                },
-                io: {
-                    sockets: {
-                        to: (_: any) => ({
-                            emit: (_: any, __any: any) => {},
-                        }),
-                    },
+            const keys = {
+                signing: keysA.signingKeyPair,
+                encryption: keysA.encryptionKeyPair,
+            };
+            process.env.SIGNING_PUBLIC_KEY = keys.signing.publicKey;
+            process.env.SIGNING_PRIVATE_KEY = keys.signing.privateKey;
+            process.env.ENCRYPTION_PUBLIC_KEY = keys.encryption.publicKey;
+            process.env.ENCRYPTION_PRIVATE_KEY = keys.encryption.privateKey;
+            const deliveryServiceProperties = {
+                sizeLimit: 2 ** 14,
+                notificationChannel: [],
+            };
+            const web3Provider = {
+                resolveName: async () =>
+                    '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+            };
+            const loadSession = getSession;
+            const redisClient = {
+                zAdd: () => {},
+            };
+            const db = {
+                createMessage: () => {},
+                getSession,
+                getIdEnsName: async (ensName: string) => ensName,
+                getUsersNotificationChannels: () => Promise.resolve([]),
+            };
+            const io = {
+                sockets: {
+                    to: (_: any) => ({
+                        emit: (_: any, __any: any) => {},
+                    }),
                 },
             };
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(
+                RpcProxy(
+                    axiosMock as Axios,
+                    deliveryServiceProperties as any,
+                    io as any,
+                    web3Provider as any,
+                    db as any,
+                ),
+            );
 
             const { status } = await request(app)
                 .post('/')
@@ -149,18 +164,23 @@ describe('rpc-Proxy', () => {
                 post: mockPost,
             } as Partial<Axios>;
 
+            const deliveryServiceProperties = {
+                messageTTL: 0,
+                sizeLimit: 0,
+                notificationChannel: [],
+            };
+
             const app = express();
             app.use(bodyParser.json());
-            app.use(RpcProxy(axiosMock as Axios));
-
-            app.locals = {
-                logger,
-                deliveryServiceProperties: {
-                    messageTTL: 0,
-                    sizeLimit: 0,
-                    notificationChannel: [],
-                },
-            };
+            app.use(
+                RpcProxy(
+                    axiosMock as Axios,
+                    deliveryServiceProperties as any,
+                    {} as any,
+                    {} as any,
+                    {} as any,
+                ),
+            );
 
             const { status, body } = await request(app).post('/').send({
                 jsonrpc: '2.0',
@@ -190,7 +210,15 @@ describe('rpc-Proxy', () => {
 
             const app = express();
             app.use(bodyParser.json());
-            app.use(RpcProxy(axiosMock as Axios));
+            app.use(
+                RpcProxy(
+                    axiosMock as Axios,
+                    {} as any,
+                    {} as any,
+                    {} as any,
+                    {} as any,
+                ),
+            );
 
             const { status } = await request(app).post('/');
 
@@ -210,21 +238,26 @@ describe('rpc-Proxy', () => {
                 post: mockPost,
             } as Partial<Axios>;
 
+            const web3Provider = {
+                resolveName: (_: string) => Promise.resolve(RECEIVER_NAME),
+            };
+            const db = {
+                getIdEnsName: async (ensName: string) => ensName,
+                getSession: (_: string) => Promise.resolve(null),
+                getUsersNotificationChannels: () => Promise.resolve([]),
+            };
+
             const app = express();
             app.use(bodyParser.json());
-            app.use(RpcProxy(axiosMock as Axios));
-
-            app.locals = {
-                logger,
-                web3Provider: {
-                    resolveName: (_: string) => Promise.resolve(RECEIVER_NAME),
-                },
-                db: {
-                    getIdEnsName: async (ensName: string) => ensName,
-                    getSession: (_: string) => Promise.resolve(null),
-                    getUsersNotificationChannels: () => Promise.resolve([]),
-                },
-            };
+            app.use(
+                RpcProxy(
+                    axiosMock as Axios,
+                    {} as any,
+                    {} as any,
+                    web3Provider as any,
+                    db as any,
+                ),
+            );
 
             const { status, body } = await request(app)
                 .post('/')
@@ -249,40 +282,45 @@ describe('rpc-Proxy', () => {
                 post: mockPost,
             } as Partial<Axios>;
 
+            const web3Provider = {
+                resolveName: (_: string) => Promise.resolve(RECEIVER_NAME),
+            };
+            const db = {
+                getIdEnsName: async (ensName: string) => ensName,
+                getSession: (_: string) =>
+                    Promise.resolve({
+                        account: '',
+                        signedUserProfile: {
+                            profile: {
+                                publicEncryptionKey: '',
+                                publicSigningKey: '',
+                                deliveryServices: '',
+                            },
+                            signature: '',
+                        },
+                        token: '',
+                        publicMessageHeadUri: '',
+                        createdAt: 0,
+                        socketId: '',
+                        challenge: '',
+                        profileExtension: {
+                            notSupportedMessageTypes: ['NEW'],
+                        },
+                    }),
+                getUsersNotificationChannels: () => Promise.resolve([]),
+            };
+
             const app = express();
             app.use(bodyParser.json());
-            app.use(RpcProxy(axiosMock as Axios));
-
-            app.locals = {
-                logger,
-                web3Provider: {
-                    resolveName: (_: string) => Promise.resolve(RECEIVER_NAME),
-                },
-                db: {
-                    getIdEnsName: async (ensName: string) => ensName,
-                    getSession: (_: string) =>
-                        Promise.resolve({
-                            account: '',
-                            signedUserProfile: {
-                                profile: {
-                                    publicEncryptionKey: '',
-                                    publicSigningKey: '',
-                                    deliveryServices: '',
-                                },
-                                signature: '',
-                            },
-                            token: '',
-                            publicMessageHeadUri: '',
-                            createdAt: 0,
-                            socketId: '',
-                            challenge: '',
-                            profileExtension: {
-                                notSupportedMessageTypes: ['NEW'],
-                            },
-                        }),
-                    getUsersNotificationChannels: () => Promise.resolve([]),
-                },
-            };
+            app.use(
+                RpcProxy(
+                    axiosMock as Axios,
+                    {} as any,
+                    {} as any,
+                    web3Provider as any,
+                    db as any,
+                ),
+            );
 
             const { status, body } = await request(app)
                 .post('/')
