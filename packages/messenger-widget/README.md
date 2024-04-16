@@ -241,7 +241,7 @@ Follow the below given steps :-
 
         return (
             <main className={styles.dm3Container}>
-            <DM3 {...props} />
+               <DM3 {...props} />
             </main>
         );
     }
@@ -343,8 +343,12 @@ const props: DM3Configuration = {
    defaultContact: 'help.dm3.eth',
 }
 ```
-This is default contact's ENS name which is set in the contact list. It will be by default added in the contact list when the widget is used and no need to add the contact explicitly.
-
+This is default contact's ENS name which is set in the contact list. It will be by default added in the contact list when the widget is used and no need to add the contact explicitly. It is mandatory property.
+```js
+Example : 
+   defaultContact: 'help.dm3.eth'
+   defaultContact: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F.dm3.eth'
+```
 2. hideFunction
 ```js
 const props: DM3Configuration = {
