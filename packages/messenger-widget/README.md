@@ -1,3 +1,4 @@
+<a name="readme-top"></a>
 # Messenger Widget
 
 DM3 Protocol enables decentral, open, and secure messaging based on established web3 services like ENS and IPFS.
@@ -264,5 +265,71 @@ yarn run dev
 1. Next.js version should be equal or greater than 13 to use the DM3 library.
 2. Next.js app must contain app directory. It should not use the pages directory like the old version.
 ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Vite App integration :
+
+1. Create a new vite app with typescript.
+2. Follow all the steps similar to React.js integration.
+3. Don't create .env file instead use the below configuration.
+4. Add the following properties in vite.config.ts file 
+
+   #### For Sepolia testnet :
+
+   ```sh
+   import { defineConfig } from 'vite'
+   import react from '@vitejs/plugin-react'
+
+   export default defineConfig({
+      plugins: [react()],
+      define: {
+         'process.env': {
+            REACT_APP_ADDR_ENS_SUBDOMAIN: ".beta-addr.dm3.eth",
+            REACT_APP_BACKEND: "http://134.122.95.165/api",
+            REACT_APP_DEFAULT_DELIVERY_SERVICE: "beta-ds.dm3.eth",
+            REACT_APP_DEFAULT_SERVICE: "http://134.122.95.165/api",
+            REACT_APP_MAINNET_PROVIDER_RPC: "https://eth-sepolia.g.alchemy.com/v2/<alchemy-key>",
+            REACT_APP_PROFILE_BASE_URL: "http://134.122.95.165/api",
+            REACT_APP_RESOLVER_BACKEND: "http://134.122.95.165/resolver-handler",
+            REACT_APP_USER_ENS_SUBDOMAIN: ".beta-user.dm3.eth",
+            REACT_APP_WALLET_CONNECT_PROJECT_ID: "27b3e102adae76b4d4902a035da435e7",
+            REACT_APP_RESOLVER_ADDR: "0xae6646c22D8eE6479eE0a39Bf63B9bD9e57bAD9d",
+            REACT_APP_CHAIN_ID: "11155111"
+         }
+      }
+   })
+   ```
+
+
+   #### For Ethereum mainnet :
+
+   ```sh
+   import { defineConfig } from 'vite'
+   import react from '@vitejs/plugin-react'
+
+   export default defineConfig({
+      plugins: [react()],
+      define: {
+         'process.env': {
+            REACT_APP_ADDR_ENS_SUBDOMAIN: ".addr.dm3.eth",
+            REACT_APP_BACKEND: "https://app.dm3.network/api",
+            REACT_APP_DEFAULT_DELIVERY_SERVICE: "ds.dm3.eth",
+            REACT_APP_DEFAULT_SERVICE: "https://app.dm3.network/api",
+            REACT_APP_MAINNET_PROVIDER_RPC: "https://eth-sepolia.g.alchemy.com/v2/<alchemy-key>",
+            REACT_APP_PROFILE_BASE_URL: "https://app.dm3.network/api",
+            REACT_APP_RESOLVER_BACKEND: "https://app.dm3.network/resolver-handler",
+            REACT_APP_USER_ENS_SUBDOMAIN: ".user.dm3.eth",
+            REACT_APP_WALLET_CONNECT_PROJECT_ID: "27b3e102adae76b4d4902a035da435e7",
+            REACT_APP_RESOLVER_ADDR: "0xae6646c22D8eE6479eE0a39Bf63B9bD9e57bAD9d",
+            REACT_APP_CHAIN_ID: "1"
+         }
+      }
+   })
+   ```
+5. Start the project by running following command in terminal
+   ```sh
+   yarn run dev
+   ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
