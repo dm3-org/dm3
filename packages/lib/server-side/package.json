@@ -23,7 +23,7 @@
   },
   "scripts": {
     "build": "yarn tsc --declaration",
-    "test": "jest"
+    "test": "jest --coverage"
   },
   "files": [
     "dist"

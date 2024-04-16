@@ -1,9 +1,7 @@
 import bodyParser from 'body-parser';
-import express from 'express';
-import { auth } from './utils';
+import express, { NextFunction, Request, Response } from 'express';
 import request from 'supertest';
-import { NextFunction, Request, Response } from 'express';
-import { ISessionDatabase } from './iSessionDatabase';
+import { auth } from './utils';
 
 describe('Utils', () => {
     describe('Auth', () => {
