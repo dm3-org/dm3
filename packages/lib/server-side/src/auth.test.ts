@@ -1,15 +1,21 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 import request from 'supertest';
-import auth from './auth';
+import { Auth } from './auth';
 import { ethers } from 'ethers';
 import winston from 'winston';
 
-global.logger = winston.createLogger({
-    transports: [new winston.transports.Console()],
-});
+// global.logger = winston.createLogger({
+//     transports: [new winston.transports.Console()],
+// });
 
 describe('Auth', () => {
+    const getSessionMock = async (ensName: string) =>
+        Promise.resolve({ challenge: '123' });
+    const setSessionMock = async (_: string, __: any) => {
+        return (_: any, __: any, ___: any) => {};
+    };
+
     const keysA = {
         encryptionKeyPair: {
             publicKey: 'eHmMq29FeiPKfNPkSctPuZGXvV0sKeO/KZkX2nXvMgw=',
@@ -29,25 +35,16 @@ describe('Auth', () => {
             it('Returns 200 if schema is valid', async () => {
                 const app = express();
                 app.use(bodyParser.json());
-                app.use(auth());
+                app.use(Auth(getSessionMock, setSessionMock));
 
-                app.locals.db = {
-                    getSession: async (ensName: string) => ({
-                        challenge: '123',
-                    }),
-                    setSession: async (_: string, __: any) => {
-                        return (_: any, __: any, ___: any) => {};
-                    },
-                    getIdEnsName: async (ensName: string) => ensName,
-                };
-
-                const { status } = await request(app)
+                const response = await request(app)
                     .get(
                         '/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870.dev-addr.dm3.eth',
                     )
                     .send();
 
-                expect(status).toBe(200);
+                expect(response.status).toBe(200);
+                expect(response.body).toEqual({ challenge: '123' });
             });
         });
     });
@@ -57,17 +54,8 @@ describe('Auth', () => {
             it('Returns 400 if params is invalid', async () => {
                 const app = express();
                 app.use(bodyParser.json());
-                app.use(auth());
+                app.use(Auth(getSessionMock, setSessionMock));
 
-                app.locals.db = {
-                    getSession: async (ensName: string) => ({
-                        challenge: '123',
-                    }),
-                    setSession: async (_: string, __: any) => {
-                        return (_: any, __: any, ___: any) => {};
-                    },
-                    getIdEnsName: async (ensName: string) => ensName,
-                };
                 const mnemonic =
                     'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
 
@@ -84,17 +72,8 @@ describe('Auth', () => {
             it('Returns 400 if body is invalid', async () => {
                 const app = express();
                 app.use(bodyParser.json());
-                app.use(auth());
+                app.use(Auth(getSessionMock, setSessionMock));
 
-                app.locals.db = {
-                    getSession: async (ensName: string) => ({
-                        challenge: '123',
-                    }),
-                    setSession: async (_: string, __: any) => {
-                        return (_: any, __: any, ___: any) => {};
-                    },
-                    getIdEnsName: async (ensName: string) => ensName,
-                };
                 const mnemonic =
                     'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
 
@@ -111,25 +90,18 @@ describe('Auth', () => {
                 expect(status).toBe(400);
             });
             it('Returns 200 if schema is valid', async () => {
+                const getSessionMockLocal = async (ensName: string) => ({
+                    challenge: 'my-Challenge',
+                    signedUserProfile: {
+                        profile: {
+                            publicSigningKey: keysA.signingKeyPair.publicKey,
+                        },
+                    },
+                });
+
                 const app = express();
                 app.use(bodyParser.json());
-                app.use(auth());
-
-                app.locals.db = {
-                    getSession: async (ensName: string) => ({
-                        challenge: 'my-Challenge',
-                        signedUserProfile: {
-                            profile: {
-                                publicSigningKey:
-                                    keysA.signingKeyPair.publicKey,
-                            },
-                        },
-                    }),
-                    setSession: async (_: string, __: any) => {
-                        return (_: any, __: any, ___: any) => {};
-                    },
-                    getIdEnsName: async (ensName: string) => ensName,
-                };
+                app.use(Auth(getSessionMockLocal, setSessionMock));
 
                 const signature =
                     '3A893rTBPEa3g9FL2vgDreY3vvXnOiYCOoJURNyctncwH' +
