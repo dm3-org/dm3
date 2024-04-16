@@ -1,13 +1,8 @@
 import bodyParser from 'body-parser';
+import { ethers } from 'ethers';
 import express from 'express';
 import request from 'supertest';
 import { Auth } from './auth';
-import { ethers } from 'ethers';
-import winston from 'winston';
-
-// global.logger = winston.createLogger({
-//     transports: [new winston.transports.Console()],
-// });
 
 describe('Auth', () => {
     const getSessionMock = async (ensName: string) =>
