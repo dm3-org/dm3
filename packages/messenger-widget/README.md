@@ -29,6 +29,8 @@ Follow the below given steps :-
    touch .env
    ```
 5. Copy the below content and paste it in .env file
+
+   #### For Sepolia testnet :
    ```sh
     REACT_APP_ADDR_ENS_SUBDOMAIN=.beta-addr.dm3.eth
     REACT_APP_BACKEND=http://134.122.95.165/api
@@ -42,6 +44,22 @@ Follow the below given steps :-
     REACT_APP_CHAIN_ID=11155111
     REACT_APP_RESOLVER_ADDR=0xae6646c22D8eE6479eE0a39Bf63B9bD9e57bAD9d
    ```
+
+   #### For Ethereum mainnet :
+   ```sh
+    REACT_APP_ADDR_ENS_SUBDOMAIN=.addr.dm3.eth
+    REACT_APP_USER_ENS_SUBDOMAIN=.user.dm3.eth
+    REACT_APP_BACKEND=https://app.dm3.network/api
+    REACT_APP_DEFAULT_DELIVERY_SERVICE=ds.dm3.eth
+    REACT_APP_DEFAULT_SERVICE=https://app.dm3.network/api
+    REACT_APP_PROFILE_BASE_URL=https://app.dm3.network/api
+    REACT_APP_RESOLVER_BACKEND=https://app.dm3.network/resolver-handler
+    REACT_APP_WALLET_CONNECT_PROJECT_ID=27b3e102adae76b4d4902a035da435e7
+    REACT_APP_MAINNET_PROVIDER_RPC=https://eth-mainnet.g.alchemy.com/v2/<alchemy-key>
+    REACT_APP_CHAIN_ID=1
+    REACT_APP_RESOLVER_ADDR=0xae6646c22D8eE6479eE0a39Bf63B9bD9e57bAD9d
+   ```
+
 6. Replace the alchemy-key of REACT_APP_MAINNET_PROVIDER_RPC with your original key
 7. In the file src/App.tsx use the widget in this way
    ```sh
@@ -63,10 +81,10 @@ Follow the below given steps :-
             walletConnectProjectId: process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID as string,
             defaultContact: 'help.dm3.eth',
             showAlways: true,
-            hideFunction: undefined, // OPTIONAL PARAMETER : 'attachments,edit,delete' or undefined
-            showContacts: true, // true for all contacts / false for default contact
-            theme: undefined, // OPTIONAL PARAMETER : undefined/themeColors
-            signInImage: undefined, // OPTIONAL PARAMETER : string URL of image
+            hideFunction: undefined, 
+            showContacts: true,
+            theme: undefined, 
+            signInImage: undefined,
         };
 
         return (
