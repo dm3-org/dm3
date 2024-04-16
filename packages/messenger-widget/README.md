@@ -32,7 +32,7 @@ Follow the below given steps :-
 5. Copy the below content and paste it in .env file
 
    #### For Sepolia testnet :
-   ```sh
+   ```ini
     REACT_APP_ADDR_ENS_SUBDOMAIN=.beta-addr.dm3.eth
     REACT_APP_BACKEND=http://134.122.95.165/api
     REACT_APP_DEFAULT_DELIVERY_SERVICE=beta-ds.dm3.eth
@@ -47,7 +47,7 @@ Follow the below given steps :-
    ```
 
    #### For Ethereum mainnet :
-   ```sh
+   ```ini
     REACT_APP_ADDR_ENS_SUBDOMAIN=.addr.dm3.eth
     REACT_APP_USER_ENS_SUBDOMAIN=.user.dm3.eth
     REACT_APP_BACKEND=https://app.dm3.network/api
@@ -63,7 +63,7 @@ Follow the below given steps :-
 
 6. Replace the alchemy-key of REACT_APP_MAINNET_PROVIDER_RPC with your original key
 7. In the file src/App.tsx use the widget in this way
-   ```sh
+   ```js
    import { DM3, DM3Configuration } from '@dm3-org/dm3-messenger-widget';
 
     function App() {
@@ -98,7 +98,7 @@ Follow the below given steps :-
     export default App;
    ```
 8. Add the following style to the dm3-container in App.css file
-   ```sh
+   ```css
     .demo-container {
         border-radius: 25px;  /* Optional property */
         overflow: hidden;  /* Optional property only if wanted set border radius */
@@ -121,7 +121,7 @@ Follow the below given steps :-
    yarn create next-app
    ```
 2. It will prompt a few options to choose for the next app configuration. Follow the options selected below : 
-   ```sh
+   ```js
    ✔ What is your project named? … dm3-app
    ✔ Would you like to use TypeScript? … Yes
    ✔ Would you like to use ESLint? … Yes
@@ -145,7 +145,7 @@ Follow the below given steps :-
 6. Copy the below content and paste it in .env file
 
    #### For Sepolia testnet :
-   ```sh
+   ```ini
     REACT_APP_ADDR_ENS_SUBDOMAIN=.beta-addr.dm3.eth
     REACT_APP_BACKEND=http://134.122.95.165/api
     REACT_APP_DEFAULT_DELIVERY_SERVICE=beta-ds.dm3.eth
@@ -160,7 +160,7 @@ Follow the below given steps :-
    ```
 
    #### For Ethereum mainnet :
-   ```sh
+   ```ini
     REACT_APP_ADDR_ENS_SUBDOMAIN=.addr.dm3.eth
     REACT_APP_USER_ENS_SUBDOMAIN=.user.dm3.eth
     REACT_APP_BACKEND=https://app.dm3.network/api
@@ -176,7 +176,7 @@ Follow the below given steps :-
 
 7. Replace the alchemy-key of REACT_APP_MAINNET_PROVIDER_RPC with your original key
 8. Add the following properties in next.config.mjs file 
-   ```sh
+   ```js
    /** @type {import('next').NextConfig} */
    const nextConfig = {
       reactStrictMode: true,
@@ -212,7 +212,7 @@ Follow the below given steps :-
    export default nextConfig;
    ```
 9. In the file app/page.tsx use the widget in this way
-   ```sh
+   ```js
    'use client';
    import styles from "./page.module.css";
    import { DM3, DM3Configuration } from '@dm3-org/dm3-messenger-widget';
@@ -247,7 +247,7 @@ Follow the below given steps :-
     }
    ```
 10. Add the following style to the dm3Container in page.module.css file
-   ```sh
+   ```css
    .demo-container {
       border-radius: 25px;  /* Optional property */
       overflow: hidden;  /* Optional property only if wanted set border radius */
@@ -277,7 +277,7 @@ yarn run dev
 
    #### For Sepolia testnet :
 
-   ```sh
+   ```js
    import { defineConfig } from 'vite'
    import react from '@vitejs/plugin-react'
 
@@ -304,7 +304,7 @@ yarn run dev
 
    #### For Ethereum mainnet :
 
-   ```sh
+   ```js
    import { defineConfig } from 'vite'
    import react from '@vitejs/plugin-react'
 
@@ -333,3 +333,126 @@ yarn run dev
    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+#### Widget props customization :
+
+1. defaultContact
+```js
+const props: DM3Configuration = {
+   ...
+   defaultContact: 'help.dm3.eth',
+}
+```
+This is default contact's ENS name which is set in the contact list. It will be by default added in the contact list when the widget is used and no need to add the contact explicitly.
+
+2. hideFunction
+```js
+const props: DM3Configuration = {
+   ...
+   hideFunction: 'attachments',
+}
+```
+This is a optional property and not mandatory to set. Its by default undefined. User can set the functionalities to be hided in the widget using this. Multiple properties can be set separated by comma.
+```js
+Example : 
+   hideFunction: 'attachments'
+   hideFunction: 'edit'
+   hideFunction: 'delete'
+   hideFunction: 'edit,delete'
+   hideFunction: 'attachments,edit,delete'
+   hideFunction: undefined
+```
+
+3. showContacts
+```js
+const props: DM3Configuration = {
+   ...
+   showContacts: true,
+}
+```
+This is a mandatory property of type boolean. The value true enables the widget to show entire contacts list and many contacts can be added in the list dynamically.
+The value false represents only the default contact is active and chatting can be done with that contact only.
+```js
+Example : 
+   showContacts: true
+   showContacts: false
+```
+
+4. signInImage
+```js
+const props: DM3Configuration = {
+   ...
+   signInImage: "https://myimage.png",
+}
+```
+This is a optional property of type string. The base64 string url of any image can be set or any web url of an image. This is a image to be shown on Sign in screen of widget.
+```js
+Example : 
+   signInImage: undefined
+   signInImage: "https://letsenhance.io/static/8f5e523ee6b2479e26ecc91b9c25261e/1015f/MainAfter.jpg"
+```
+
+5. theme
+```js
+const props: DM3Configuration = {
+   ...
+   theme: undefined,
+}
+```
+This is a optional property of type object. Its used to customize the styling, look & feel of the widget. Colors can be set for different components.
+```js
+Example : 
+   theme: undefined
+   theme: {
+      backgroundColor: '#eeeeee',
+      buttonBorderColor: '#dddddd',
+      configBoxBorderColor: 'red',
+      buttonColor: 'darkgray',
+      hoverButtonColor: 'chocolate',
+      inactiveButtonColor: 'sieena',
+      primaryTextColor: 'black',
+      secondaryTextColor: 'white',
+      activeContactBackgroundColor: 'dimgray',
+      configurationBoxBackgroundColor: 'darkgrey',
+      configurationBoxBorderColor: '#666876',
+      chatBackgroundColor: '#5c5e54',
+      disabledButtonTextColor: 'burlywood',
+      errorTextColor: '#C30F1A',
+      errorBackgroundColor: '#830B12',
+      attachmentBackgroundColor: '#202129',
+      selectedContactBorderColor: 'orange',
+      profileConfigurationTextColor: 'pink',
+      receivedMessageBackgroundColor: 'pink',
+      receivedMessageTextColor: 'white',
+      sentMessageBackgroundColor: 'blue',
+      sentMessageTextColor: 'white',
+      infoBoxBackgroundColor: 'green',
+      infoBoxTextColor: 'yellow',
+      buttonShadow: '#000000',
+      msgCounterBackgroundColor: 'yellow',
+      msgCounterTextColor: 'white',
+      scrollbarBackgroundColor: 'black',
+      scrollbarScrollerColor: 'white',
+      inputFieldBackgroundColor: 'saddlebrown',
+      inputFieldTextColor: '#FFFF',
+      inputFieldBorderColor: '#81828D',
+      emojiModalBackgroundColor: '262, 240, 283', // It must be in RGB format EX: 240,248,255
+      emojiModalTextColor: '102, 51, 153', // It must be in RGB format EX: 240,248,255
+      emojiModalAccentColor: '255, 105, 180', // It must be in RGB format EX: 240,248,255
+      rainbowConnectBtnBackgroundColor: 'blue',
+      rainbowConnectBtnTextColor: 'white',
+      rainbowAccentColor: 'orange',
+      rainbowAccentForegroundColor: 'pink',
+      rainbowModalTextColor: 'white',
+      rainbowModalTextSecondaryColor: 'yellow',
+      rainbowModalWalletHoverColor: 'green',
+      rainbowModalBackgroundColor: 'blue',
+      alternateContactBackgroundColor: 'black',
+      menuBackgroundColor: 'blue',
+      preferencesHighlightedColor: '#8b7ff4',
+   }
+```
+
+#### NOTE : 
+`Rest all other properties are mandatory and not customizable. They must have the value as shown in the .env configuration.`
+
