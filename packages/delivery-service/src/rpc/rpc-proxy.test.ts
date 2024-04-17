@@ -100,10 +100,6 @@ describe('rpc-Proxy', () => {
                 resolveName: async () =>
                     '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
             };
-            const loadSession = getSession;
-            const redisClient = {
-                zAdd: () => {},
-            };
             const db = {
                 createMessage: () => {},
                 getSession,
