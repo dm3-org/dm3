@@ -1,6 +1,15 @@
+import {
+    errorHandler,
+    getWeb3Provider,
+    logError,
+    logRequest,
+    socketAuth,
+} from '@dm3-org/dm3-lib-server-side';
+import { logInfo } from '@dm3-org/dm3-lib-shared';
 import { Axios } from 'axios';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import 'dotenv/config';
 import express from 'express';
 import http from 'http';
 import path from 'path';
@@ -10,20 +19,10 @@ import { startCleanUpPendingMessagesJob } from './cleanup/cleanUpPendingMessages
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import Delivery from './delivery';
 import { onConnection } from './messaging';
+import Notifications from './notifications';
 import { getDatabase } from './persistence/getDatabase';
 import Profile from './profile';
 import RpcProxy from './rpc/rpc-proxy';
-import { logInfo } from '@dm3-org/dm3-lib-shared';
-import 'dotenv/config';
-
-import {
-    errorHandler,
-    getWeb3Provider,
-    logError,
-    logRequest,
-    socketAuth,
-} from '@dm3-org/dm3-lib-server-side';
-import Notifications from './notifications';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
