@@ -2032,7 +2032,6 @@ __metadata:
     jest: ^29.2.2
     jest-mock-extended: 2.0.4
     prettier: ^2.6.2
-    prisma: ^5.10.1
     redis: ^4.1.0
     socket.io: ^4.5.1
     superagent: ^8.0.3
