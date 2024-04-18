@@ -1,10 +1,11 @@
 import { checkToken, incomingMessage, schema } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
-import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
-import { readKeysFromEnv } from '@dm3-org/dm3-lib-server-side';
+import {
+    DeliveryServiceProfileKeys,
+    normalizeEnsName,
+} from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
-import express from 'express';
 import { Server, Socket } from 'socket.io';
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import { IDatabase } from './persistence/getDatabase';
@@ -21,10 +22,10 @@ const pendingMessageSchema = {
 };
 
 export function onConnection(
-    app: express.Application,
     io: Server,
     web3Provider: ethers.providers.JsonRpcProvider,
     db: IDatabase,
+    keys: DeliveryServiceProfileKeys,
 ) {
     return (socket: Socket) => {
         socket.on('disconnect', () => {
@@ -34,6 +35,9 @@ export function onConnection(
             });
         });
 
+        /**
+         * Transfer an encrypted message to the delivery service the recipient uses
+         */
         socket.on(
             'submitMessage',
             async (
@@ -44,7 +48,6 @@ export function onConnection(
                 callback,
             ) => {
                 try {
-                    const keys = readKeysFromEnv(process.env);
                     const deliveryServiceProperties =
                         getDeliveryServiceProperties();
                     global.logger.info({
@@ -68,13 +71,13 @@ export function onConnection(
 
                     global.logger.info({
                         method: 'WS INCOMING MESSAGE',
-                        keys: keys.encryption,
+                        keys: keys.encryptionKeyPair.publicKey,
                     });
 
                     await incomingMessage(
                         data,
-                        keys.signing,
-                        keys.encryption,
+                        keys.signingKeyPair,
+                        keys.encryptionKeyPair,
                         deliveryServiceProperties.sizeLimit,
                         deliveryServiceProperties.notificationChannel,
                         db.getSession,
@@ -97,6 +100,10 @@ export function onConnection(
             },
         );
 
+        /**
+         * Queue a message for a user that has not yet published their profile.
+         * The queue is managed on the delivery service of the sending user.
+         */
         socket.on('pendingMessage', async (data, callback) => {
             const isSchemaValid = validateSchema(pendingMessageSchema, data);
 

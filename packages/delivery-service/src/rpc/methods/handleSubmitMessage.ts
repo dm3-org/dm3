@@ -5,12 +5,12 @@ import {
 } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { validateSchema, logError } from '@dm3-org/dm3-lib-shared';
-import { readKeysFromEnv } from '@dm3-org/dm3-lib-server-side';
 import 'dotenv/config';
 import express from 'express';
 import { Server } from 'socket.io';
 import { IDatabase } from '../../persistence/getDatabase';
 import { ethers } from 'ethers';
+import { DeliveryServiceProfileKeys } from '@dm3-org/dm3-lib-profile';
 
 export async function handleSubmitMessage(
     req: express.Request,
@@ -19,6 +19,7 @@ export async function handleSubmitMessage(
     deliveryServiceProperties: DeliveryServiceProperties,
     web3Provider: ethers.providers.JsonRpcProvider,
     db: IDatabase,
+    keys: DeliveryServiceProfileKeys,
 ) {
     const {
         params: [stringifiedEnvelop, token],
@@ -52,13 +53,11 @@ export async function handleSubmitMessage(
         return res.status(400).send({ error });
     }
 
-    const keys = readKeysFromEnv(process.env);
-
     try {
         await incomingMessage(
             { envelop, token },
-            keys.signing,
-            keys.encryption,
+            keys.signingKeyPair,
+            keys.encryptionKeyPair,
             deliveryServiceProperties.sizeLimit,
             deliveryServiceProperties.notificationChannel,
             db.getSession,

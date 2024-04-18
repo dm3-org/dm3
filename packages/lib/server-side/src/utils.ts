@@ -5,7 +5,10 @@ import { Express, NextFunction, Request, Response } from 'express';
 import { Socket } from 'socket.io';
 import winston from 'winston';
 import { ExtendedError } from 'socket.io/dist/namespace';
-import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import {
+    DeliveryServiceProfileKeys,
+    normalizeEnsName,
+} from '@dm3-org/dm3-lib-profile';
 import { checkToken } from '@dm3-org/dm3-lib-delivery';
 import { KeyPair } from '@dm3-org/dm3-lib-crypto';
 
@@ -121,10 +124,9 @@ export function errorHandler(
     res.render('error', { error: err });
 }
 
-export function readKeysFromEnv(env: NodeJS.ProcessEnv): {
-    encryption: KeyPair;
-    signing: KeyPair;
-} {
+export function readKeysFromEnv(
+    env: NodeJS.ProcessEnv,
+): DeliveryServiceProfileKeys {
     const readKey = (keyName: string) => {
         const key = env[keyName];
         if (!key) {
@@ -135,11 +137,11 @@ export function readKeysFromEnv(env: NodeJS.ProcessEnv): {
     };
 
     return {
-        signing: {
+        signingKeyPair: {
             publicKey: readKey('SIGNING_PUBLIC_KEY'),
             privateKey: readKey('SIGNING_PRIVATE_KEY'),
         },
-        encryption: {
+        encryptionKeyPair: {
             publicKey: readKey('ENCRYPTION_PUBLIC_KEY'),
             privateKey: readKey('ENCRYPTION_PRIVATE_KEY'),
         },
