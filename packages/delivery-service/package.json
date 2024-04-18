@@ -17,7 +17,6 @@
     "dotenv": "^16.0.1",
     "ethers": "5.7.2",
     "express": "^4.18.1",
-    "prisma": "^5.10.1",
     "redis": "^4.1.0",
     "socket.io": "^4.5.1",
     "winston": "^3.8.1",
@@ -25,8 +24,7 @@
   },
   "scripts": {
     "docker:up": "docker-compose up -d",
-    "prisma-init": "prisma generate && prisma migrate dev ",
-    "start": "yarn prisma-init && node  ./dist/index.js",
+    "start": "node  ./dist/index.js",
     "start-inspect": "node --inspect=0.0.0.0:9229  ./dist/index.js",
     "test": "yarn run before:tests &&  jest --coverage --runInBand --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'; yarn run after:tests",
     "build": "yarn tsc && cp ./config.yml ./dist/config.yml | true",
