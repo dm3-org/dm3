@@ -1,11 +1,12 @@
 import { Acknoledgment, getMessages, schema } from '@dm3-org/dm3-lib-delivery';
-import { auth, readKeysFromEnv } from '@dm3-org/dm3-lib-server-side';
+import { auth } from '@dm3-org/dm3-lib-server-side';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import { getConversationId } from '@dm3-org/dm3-lib-storage';
 import cors from 'cors';
 import { ethers } from 'ethers';
 import express from 'express';
 import { IDatabase } from './persistence/getDatabase';
+import { DeliveryServiceProfileKeys } from '@dm3-org/dm3-lib-profile';
 
 const syncAcknoledgmentParamsSchema = {
     type: 'object',
@@ -31,6 +32,7 @@ const syncAcknoledgmentBodySchema = {
 export default (
     web3Provider: ethers.providers.JsonRpcProvider,
     db: IDatabase,
+    keys: DeliveryServiceProfileKeys,
 ) => {
     const router = express.Router();
     //TODO remove
@@ -42,7 +44,6 @@ export default (
     router.get(
         '/messages/:ensName/contact/:contactEnsName',
         async (req: express.Request, res, next) => {
-            const keys = readKeysFromEnv(process.env);
             try {
                 const idEnsName = await db.getIdEnsName(req.params.ensName);
 
@@ -52,7 +53,7 @@ export default (
 
                 const newMessages = await getMessages(
                     db.getMessages,
-                    keys.encryption,
+                    keys.encryptionKeyPair,
                     idEnsName,
                     idContactEnsName,
                 );
