@@ -22,23 +22,22 @@ const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
 const keyPair = createKeyPair();
 
+const keysA = {
+    encryptionKeyPair: {
+        publicKey: 'eHmMq29FeiPKfNPkSctPuZGXvV0sKeO/KZkX2nXvMgw=',
+        privateKey: 'pMI77F2w3GK+omZCB4A61WDqISOOnWGXR2f/MTLbqbY=',
+    },
+    signingKeyPair: {
+        publicKey: '+tkDQWZfv9ixBmObsf8tgTHTZajwAE9muTtFAUj2e9I=',
+        privateKey:
+            '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJX62QNBZl+/2LEGY5ux/y2BMdNlqPAAT2a5O0UBSPZ70g==',
+    },
+    storageEncryptionKey: '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJU=',
+    storageEncryptionNonce: 0,
+};
+
 describe('rpc-Proxy', () => {
     describe('routing', () => {
-        const keysA = {
-            encryptionKeyPair: {
-                publicKey: 'eHmMq29FeiPKfNPkSctPuZGXvV0sKeO/KZkX2nXvMgw=',
-                privateKey: 'pMI77F2w3GK+omZCB4A61WDqISOOnWGXR2f/MTLbqbY=',
-            },
-            signingKeyPair: {
-                publicKey: '+tkDQWZfv9ixBmObsf8tgTHTZajwAE9muTtFAUj2e9I=',
-                privateKey:
-                    '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJX62QNBZl+/2LEGY5ux/y2BMdNlqPAAT2a5O0UBSPZ70g==',
-            },
-            storageEncryptionKey:
-                '+DpeBjCzICFoi743/466yJunsHR55Bhr3GnqcS4cuJU=',
-            storageEncryptionNonce: 0,
-        };
-
         it('Should route non-dm3 related messages to the rpc node', async () => {
             const mockPost = jest.fn((url: string, body: any) => {
                 return Promise.resolve({ data: 'Forwarded' });
@@ -56,6 +55,7 @@ describe('rpc-Proxy', () => {
                     {} as any,
                     {} as any,
                     {} as any,
+                    keysA,
                 ),
             );
 
@@ -123,6 +123,7 @@ describe('rpc-Proxy', () => {
                     io as any,
                     web3Provider as any,
                     db as any,
+                    keysA,
                 ),
             );
 
@@ -175,6 +176,7 @@ describe('rpc-Proxy', () => {
                     {} as any,
                     {} as any,
                     {} as any,
+                    keysA,
                 ),
             );
 
@@ -213,6 +215,7 @@ describe('rpc-Proxy', () => {
                     {} as any,
                     {} as any,
                     {} as any,
+                    keysA,
                 ),
             );
 
@@ -252,6 +255,7 @@ describe('rpc-Proxy', () => {
                     {} as any,
                     web3Provider as any,
                     db as any,
+                    keysA,
                 ),
             );
 
@@ -315,6 +319,7 @@ describe('rpc-Proxy', () => {
                     {} as any,
                     web3Provider as any,
                     db as any,
+                    keysA,
                 ),
             );
 
