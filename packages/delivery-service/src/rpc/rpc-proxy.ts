@@ -27,7 +27,7 @@ export default (
     router.post('/', async (req, res, next) => {
         //RPC must be called with a method name
         if (req.body?.method === undefined) {
-            return res.send(400);
+            return res.sendStatus(400);
         }
 
         const { method } = req.body;
