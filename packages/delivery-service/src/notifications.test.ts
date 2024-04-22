@@ -1,10 +1,8 @@
-import { Auth, getWeb3Provider } from '@dm3-org/dm3-lib-server-side';
+import { Auth } from '@dm3-org/dm3-lib-server-side';
 import bodyParser from 'body-parser';
 import express from 'express';
 import request from 'supertest';
 import notifications from './notifications';
-import { getDatabase, IDatabase } from './persistence/getDatabase';
-import { ethers } from 'ethers';
 
 import {
     DeliveryServiceProperties,
