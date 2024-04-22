@@ -4,7 +4,6 @@ import request from 'supertest';
 import { Auth } from '@dm3-org/dm3-lib-server-side';
 import delivery from './delivery';
 import winston from 'winston';
-import { env } from 'process';
 
 const keysA = {
     encryptionKeyPair: {
@@ -30,19 +29,6 @@ describe('Delivery', () => {
                 resolveName: async () =>
                     '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
             };
-            const keys = {
-                signing: keysA.signingKeyPair,
-                encryption: keysA.encryptionKeyPair,
-            };
-            process.env.SIGNING_PUBLIC_KEY = keys.signing.publicKey;
-            process.env.SIGNING_PRIVATE_KEY = keys.signing.privateKey;
-            process.env.ENCRYPTION_PUBLIC_KEY = keys.encryption.publicKey;
-            process.env.ENCRYPTION_PRIVATE_KEY = keys.encryption.privateKey;
-
-            // const redisClient = {
-            //     exists: (_: any) => false,
-            // };
-
             const token = await createAuthToken();
 
             const db = {
@@ -65,7 +51,7 @@ describe('Delivery', () => {
             };
             const app = express();
             app.use(bodyParser.json());
-            app.use(delivery(web3Provider as any, db as any));
+            app.use(delivery(web3Provider as any, db as any, keysA));
 
             const { status } = await request(app)
                 .get('/messages/alice.eth/contact/bob.eth')
@@ -102,7 +88,7 @@ describe('Delivery', () => {
             };
             const app = express();
             app.use(bodyParser.json());
-            app.use(delivery(web3Provider as any, db as any));
+            app.use(delivery(web3Provider as any, db as any, keysA));
 
             // const redisClient = {
             //     exists: (_: any) => false,
@@ -149,7 +135,7 @@ describe('Delivery', () => {
             };
             const app = express();
             app.use(bodyParser.json());
-            app.use(delivery(web3Provider as any, db as any));
+            app.use(delivery(web3Provider as any, db as any, keysA));
 
             // const redisClient = {
             //     exists: (_: any) => false,
@@ -200,7 +186,7 @@ describe('Delivery', () => {
             };
             const app = express();
             app.use(bodyParser.json());
-            app.use(delivery(web3Provider as any, db as any));
+            app.use(delivery(web3Provider as any, db as any, keysA));
 
             // const redisClient = {
             //     exists: (_: any) => false,
@@ -242,7 +228,7 @@ describe('Delivery', () => {
             };
             const app = express();
             app.use(bodyParser.json());
-            app.use(delivery(web3Provider as any, db as any));
+            app.use(delivery(web3Provider as any, db as any, keysA));
 
             // const redisClient = {
             //     exists: (_: any) => false,
