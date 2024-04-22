@@ -110,6 +110,11 @@ nodemailer.createTransport.mockReturnValue({
 });
 
 describe('Messages', () => {
+    // fixes tests with fake timers failing locally (at least for malteish), see
+    // https://stackoverflow.com/questions/77694957/typeerror-cannot-assign-to-read-only-property-performance-of-object-object
+    Object.defineProperty(global, 'performance', {
+        writable: true,
+    });
     describe('incomingMessage', () => {
         it('rejctes an incoming message if the token is not valid', async () => {
             const storeNewMessage = async (
