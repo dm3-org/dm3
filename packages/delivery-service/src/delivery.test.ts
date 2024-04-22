@@ -1,9 +1,9 @@
+import { Auth } from '@dm3-org/dm3-lib-server-side';
 import bodyParser from 'body-parser';
 import express from 'express';
 import request from 'supertest';
-import { Auth } from '@dm3-org/dm3-lib-server-side';
-import delivery from './delivery';
 import winston from 'winston';
+import delivery from './delivery';
 
 const keysA = {
     encryptionKeyPair: {
