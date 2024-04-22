@@ -129,7 +129,7 @@ export default (
             );
 
             if (!hasValidParams || !isLastMessagePullNumber || !hasValidBody) {
-                return res.send(400);
+                return res.sendStatus(400);
             }
 
             try {
@@ -178,7 +178,7 @@ export default (
             );
 
             if (!hasValidParams || !isLastMessagePullNumber || !hasValidBody) {
-                return res.send(400);
+                return res.sendStatus(400);
             }
 
             try {

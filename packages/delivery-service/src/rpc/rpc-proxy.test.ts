@@ -2,8 +2,8 @@ import { Axios } from 'axios';
 import bodyParser from 'body-parser';
 import express from 'express';
 import request from 'supertest';
-import RpcProxy from './rpc-proxy';
 import { testData } from '../../../../test-data/encrypted-envelops.test';
+import RpcProxy from './rpc-proxy';
 
 import { createKeyPair } from '@dm3-org/dm3-lib-crypto';
 import { normalizeEnsName, UserProfile } from '@dm3-org/dm3-lib-profile';
