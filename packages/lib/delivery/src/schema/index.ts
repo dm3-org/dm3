@@ -9,3 +9,4 @@ export const DeliveryServiceProperties = DeliveryServicePropertiesSchema;
 export const MessageSubmission = MessageSubmissionSchema;
 export const Session = SessionSchema;
 export const NotificationChannel = NotificationChannelSchema;
+export const EncryptionEnvelop = EncryptionEnvelopSchema;

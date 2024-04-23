@@ -1,9 +1,8 @@
 import {
-    schema,
     incomingMessage,
     DeliveryServiceProperties,
 } from '@dm3-org/dm3-lib-delivery';
-import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
+import { EncryptionEnvelop, schema } from '@dm3-org/dm3-lib-messaging';
 import { validateSchema, logError } from '@dm3-org/dm3-lib-shared';
 import 'dotenv/config';
 import express from 'express';
@@ -22,13 +21,8 @@ export async function handleSubmitMessage(
     keys: DeliveryServiceProfileKeys,
 ) {
     const {
-        params: [stringifiedEnvelop, token],
+        params: [stringifiedEnvelop],
     } = req.body;
-
-    if (!token) {
-        logError('Auth token missing');
-        return res.status(400).send('Auth token missing');
-    }
 
     if (!stringifiedEnvelop) {
         logError('Envelop missing');
@@ -45,10 +39,10 @@ export async function handleSubmitMessage(
         return res.status(400).send('Error parsing envelop');
     }
 
-    const isSchemaValid = validateSchema(schema.MessageSubmission, {
+    const isSchemaValid = validateSchema(
+        schema.EncryptionEnvelopeSchema,
         envelop,
-        token,
-    });
+    );
 
     if (!isSchemaValid) {
         const error = 'invalid schema';
@@ -62,7 +56,7 @@ export async function handleSubmitMessage(
 
     try {
         await incomingMessage(
-            { envelop, token },
+            envelop,
             keys.signingKeyPair,
             keys.encryptionKeyPair,
             deliveryServiceProperties.sizeLimit,
