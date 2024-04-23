@@ -81,11 +81,47 @@ describe('Messaging', () => {
     //The same data used in Messages.test
     const data = {
         envelop: testData.envelopA,
-        token: '123',
+        //token: '123',
     };
 
     describe('submitMessage', () => {
-        it.only('returns success if schema is valid', (done: any) => {
+        it('returns success if schema is valid', (done: any) => {
+            //We expect the callback function to be called once with
+            // the value 'success'
+            expect.assertions(1);
+
+            const callback = (e: any) => {
+                // Even though the method fails jest doesn't recognize it because
+                // of the catch block used in messaging.ts. So we have to throw
+                // another error if the callback returns anything else then the expected
+                // result.
+                expect(e.response).toBe('success');
+                done();
+            };
+
+            const getSocketMock = () => {
+                return {
+                    on: async (name: string, onSubmitMessage: any) => {
+                        //We just want to test the submitMessage callback fn
+                        if (name === 'submitMessage') {
+                            await onSubmitMessage(
+                                { ...data, token: '123' },
+                                callback,
+                            );
+                        }
+                    },
+                } as unknown as Socket;
+            };
+
+            onConnection(
+                io as any,
+                web3Provider as any,
+                db as any,
+                keysA,
+            )(getSocketMock());
+        });
+
+        it('returns success even without token if schema is valid', (done: any) => {
             //We expect the callback function to be called once with
             // the value 'success'
             expect.assertions(1);
