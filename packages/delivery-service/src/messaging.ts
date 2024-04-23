@@ -56,7 +56,7 @@ export function onConnection(
 
                     const isSchemaValid = validateSchema(
                         schema.EncryptionEnvelopeSchema,
-                        data,
+                        data.envelop,
                     );
 
                     if (!isSchemaValid) {
