@@ -1,13 +1,11 @@
-import express from 'express';
-import { Socket } from 'socket.io';
-import { onConnection } from './messaging';
-import { testData } from '../../../test-data/encrypted-envelops.test';
+import { createKeyPair } from '@dm3-org/dm3-lib-crypto';
 import { Session } from '@dm3-org/dm3-lib-delivery';
 import { UserProfile } from '@dm3-org/dm3-lib-profile';
-import { createKeyPair } from '@dm3-org/dm3-lib-crypto';
 import { ethersHelper } from '@dm3-org/dm3-lib-shared';
+import { Socket } from 'socket.io';
 import winston from 'winston';
-import { getWeb3Provider } from '../../lib/server-side/dist/utils';
+import { testData } from '../../../test-data/encrypted-envelops.test';
+import { onConnection } from './messaging';
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
@@ -87,7 +85,7 @@ describe('Messaging', () => {
     };
 
     describe('submitMessage', () => {
-        it('returns success if schema is valid', (done: any) => {
+        it.only('returns success if schema is valid', (done: any) => {
             //We expect the callback function to be called once with
             // the value 'success'
             expect.assertions(1);

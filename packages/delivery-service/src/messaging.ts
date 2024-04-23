@@ -1,5 +1,5 @@
-import { checkToken, incomingMessage, schema } from '@dm3-org/dm3-lib-delivery';
-import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
+import { checkToken, incomingMessage } from '@dm3-org/dm3-lib-delivery';
+import { EncryptionEnvelop, schema } from '@dm3-org/dm3-lib-messaging';
 import {
     DeliveryServiceProfileKeys,
     normalizeEnsName,
@@ -55,7 +55,7 @@ export function onConnection(
                     });
 
                     const isSchemaValid = validateSchema(
-                        schema.MessageSubmission,
+                        schema.EncryptionEnvelopeSchema,
                         data,
                     );
 
@@ -75,7 +75,7 @@ export function onConnection(
                     });
 
                     await incomingMessage(
-                        data,
+                        data.envelop,
                         keys.signingKeyPair,
                         keys.encryptionKeyPair,
                         deliveryServiceProperties.sizeLimit,
