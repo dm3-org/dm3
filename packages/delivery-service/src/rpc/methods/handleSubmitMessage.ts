@@ -25,17 +25,24 @@ export async function handleSubmitMessage(
         params: [stringifiedEnvelop, token],
     } = req.body;
 
-    const envelop = JSON.parse(stringifiedEnvelop);
-
     if (!token) {
         logError('Auth token missing');
         return res.status(400).send('Auth token missing');
     }
 
-    if (!envelop) {
+    if (!stringifiedEnvelop) {
         logError('Envelop missing');
 
         return res.status(400).send('Envelop missing');
+    }
+
+    let envelop;
+    try {
+        envelop = JSON.parse(stringifiedEnvelop);
+    } catch (error) {
+        logError('Error parsing envelop');
+
+        return res.status(400).send('Error parsing envelop');
     }
 
     const isSchemaValid = validateSchema(schema.MessageSubmission, {
