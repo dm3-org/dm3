@@ -138,7 +138,7 @@ export async function incomingMessage(
         receiverSession,
     });
 
-    //Checkes if the message is spam
+    //Checks if the message is spam
     if (await isSpam(provider, receiverSession, deliveryInformation)) {
         logDebug({
             text: 'incomingMessage is spam',
