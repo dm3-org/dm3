@@ -58,25 +58,8 @@ export default (
                 );
 
             default:
-                return forwardToRpcNode(axios)(req, res, next);
+                return res.status(405).send({ error: 'Method not allowed' });
         }
     });
     return router;
 };
-
-const forwardToRpcNode =
-    (axios: Axios) =>
-    async (
-        req: express.Request,
-        res: express.Response,
-        next: express.NextFunction,
-    ) => {
-        global.logger.info('Forward method to rpc url');
-        try {
-            const data = (await axios.post(process.env.RPC as string, req.body))
-                .data;
-            res.json(data);
-        } catch (e) {
-            next(e);
-        }
-    };

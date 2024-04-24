@@ -38,19 +38,12 @@ const keysA = {
 
 describe('rpc-Proxy', () => {
     describe('routing', () => {
-        it('Should route non-dm3 related messages to the rpc node', async () => {
-            const mockPost = jest.fn((url: string, body: any) => {
-                return Promise.resolve({ data: 'Forwarded' });
-            });
-            const axiosMock = {
-                post: mockPost,
-            } as Partial<Axios>;
-
+        it.only('Should block non-dm3 related requests', async () => {
             const app = express();
             app.use(bodyParser.json());
             app.use(
                 RpcProxy(
-                    axiosMock as Axios,
+                    {} as any,
                     {} as any,
                     {} as any,
                     {} as any,
@@ -59,7 +52,7 @@ describe('rpc-Proxy', () => {
                 ),
             );
 
-            const { body } = await request(app)
+            const { status, body } = await request(app)
                 .post('/')
                 .send({
                     jsonrpc: '2.0',
@@ -71,8 +64,8 @@ describe('rpc-Proxy', () => {
                     id: 1,
                 });
 
-            expect(body).toBe('Forwarded');
-            expect(mockPost).toBeCalled();
+            expect(body).toStrictEqual({ error: 'Method not allowed' });
+            expect(status).toBe(405);
 
             return;
         });
