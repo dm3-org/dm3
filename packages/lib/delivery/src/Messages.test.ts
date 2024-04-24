@@ -116,7 +116,7 @@ describe('Messages', () => {
         writable: true,
     });
     describe('incomingMessage', () => {
-        it('rejctes an incoming message if the token is not valid', async () => {
+        it('accepts an incoming message', async () => {
             const storeNewMessage = async (
                 conversationId: string,
                 envelop: EncryptionEnvelop,
@@ -127,20 +127,18 @@ describe('Messages', () => {
             await expect(() =>
                 incomingMessage(
                     {
-                        envelop: {
-                            message: '',
-                            metadata: {
-                                version: '',
-                                encryptionScheme: 'x25519-chacha20-poly1305',
-                                deliveryInformation: stringify(
-                                    testData.deliveryInformation,
-                                ),
-                                encryptedMessageHash: '',
-                                signature: '',
-                            },
+                        message: '',
+                        metadata: {
+                            version: '',
+                            encryptionScheme: 'x25519-chacha20-poly1305',
+                            deliveryInformation: stringify(
+                                testData.deliveryInformation,
+                            ),
+                            encryptedMessageHash: '',
+                            signature: '',
                         },
-                        token: 'abc',
                     },
+
                     keysA.signingKeyPair,
                     keysA.encryptionKeyPair,
                     2 ** 14,
@@ -155,7 +153,7 @@ describe('Messages', () => {
                     async () => '',
                     getNotificationChannels,
                 ),
-            ).rejects.toEqual(Error('Token check failed'));
+            ).not.toThrow();
         });
 
         it('rejects an incoming message if it is to large', async () => {
@@ -169,17 +167,14 @@ describe('Messages', () => {
             await expect(() =>
                 incomingMessage(
                     {
-                        envelop: {
-                            metadata: {
-                                encryptionScheme: 'x25519-chacha20-poly1305',
-                                deliveryInformation: '',
-                                encryptedMessageHash: '',
-                                signature: '',
-                                version: '',
-                            },
-                            message: '',
+                        metadata: {
+                            encryptionScheme: 'x25519-chacha20-poly1305',
+                            deliveryInformation: '',
+                            encryptedMessageHash: '',
+                            signature: '',
+                            version: '',
                         },
-                        token: '123',
+                        message: '',
                     },
                     keysA.signingKeyPair,
                     keysA.encryptionKeyPair,
@@ -205,19 +200,16 @@ describe('Messages', () => {
             await expect(() =>
                 incomingMessage(
                     {
-                        envelop: {
-                            message: '',
-                            metadata: {
-                                encryptionScheme: 'x25519-chacha20-poly1305',
-                                version: '',
-                                encryptedMessageHash: '',
-                                signature: '',
-                                deliveryInformation: stringify(
-                                    testData.deliveryInformationB,
-                                ),
-                            },
+                        message: '',
+                        metadata: {
+                            encryptionScheme: 'x25519-chacha20-poly1305',
+                            version: '',
+                            encryptedMessageHash: '',
+                            signature: '',
+                            deliveryInformation: stringify(
+                                testData.deliveryInformationB,
+                            ),
                         },
-                        token: '123',
                     },
                     keysA.signingKeyPair,
                     keysA.encryptionKeyPair,
@@ -267,19 +259,16 @@ describe('Messages', () => {
             try {
                 await incomingMessage(
                     {
-                        envelop: {
-                            message: '',
-                            metadata: {
-                                encryptionScheme: 'x25519-chacha20-poly1305',
-                                encryptedMessageHash: '',
-                                signature: '',
-                                version: '',
-                                deliveryInformation: stringify(
-                                    testData.deliveryInformation,
-                                ),
-                            },
+                        message: '',
+                        metadata: {
+                            encryptionScheme: 'x25519-chacha20-poly1305',
+                            encryptedMessageHash: '',
+                            signature: '',
+                            version: '',
+                            deliveryInformation: stringify(
+                                testData.deliveryInformation,
+                            ),
                         },
-                        token: '123',
                     },
                     keysA.signingKeyPair,
                     keysA.encryptionKeyPair,
@@ -331,19 +320,16 @@ describe('Messages', () => {
             try {
                 await incomingMessage(
                     {
-                        envelop: {
-                            message: '',
-                            metadata: {
-                                encryptionScheme: 'x25519-chacha20-poly1305',
-                                version: '',
-                                encryptedMessageHash: '',
-                                signature: '',
-                                deliveryInformation: stringify(
-                                    testData.deliveryInformation,
-                                ),
-                            },
+                        message: '',
+                        metadata: {
+                            encryptionScheme: 'x25519-chacha20-poly1305',
+                            version: '',
+                            encryptedMessageHash: '',
+                            signature: '',
+                            deliveryInformation: stringify(
+                                testData.deliveryInformation,
+                            ),
                         },
-                        token: '123',
                     },
                     keysA.signingKeyPair,
                     keysA.encryptionKeyPair,
@@ -402,20 +388,17 @@ describe('Messages', () => {
             try {
                 await incomingMessage(
                     {
-                        envelop: {
-                            message: '',
-                            metadata: {
-                                encryptionScheme: 'x25519-chacha20-poly1305',
-                                deliveryInformation: stringify(
-                                    testData.deliveryInformation,
-                                ),
+                        message: '',
+                        metadata: {
+                            encryptionScheme: 'x25519-chacha20-poly1305',
+                            deliveryInformation: stringify(
+                                testData.deliveryInformation,
+                            ),
 
-                                version: '',
-                                encryptedMessageHash: '',
-                                signature: '',
-                            },
+                            version: '',
+                            encryptedMessageHash: '',
+                            signature: '',
                         },
-                        token: '123',
                     },
                     keysA.signingKeyPair,
                     keysA.encryptionKeyPair,
@@ -480,19 +463,16 @@ describe('Messages', () => {
 
             await incomingMessage(
                 {
-                    envelop: {
-                        message: '',
-                        metadata: {
-                            version: '',
-                            encryptedMessageHash: '',
-                            signature: '',
-                            encryptionScheme: 'x25519-chacha20-poly1305',
-                            deliveryInformation: stringify(
-                                testData.deliveryInformation,
-                            ),
-                        },
+                    message: '',
+                    metadata: {
+                        version: '',
+                        encryptedMessageHash: '',
+                        signature: '',
+                        encryptionScheme: 'x25519-chacha20-poly1305',
+                        deliveryInformation: stringify(
+                            testData.deliveryInformation,
+                        ),
                     },
-                    token: '123',
                 },
                 keysA.signingKeyPair,
                 keysA.encryptionKeyPair,
@@ -536,19 +516,16 @@ describe('Messages', () => {
 
             await incomingMessage(
                 {
-                    envelop: {
-                        message: '',
-                        metadata: {
-                            version: '',
-                            encryptedMessageHash: '',
-                            signature: '',
-                            encryptionScheme: 'x25519-chacha20-poly1305',
-                            deliveryInformation: stringify(
-                                testData.deliveryInformation,
-                            ),
-                        },
+                    message: '',
+                    metadata: {
+                        version: '',
+                        encryptedMessageHash: '',
+                        signature: '',
+                        encryptionScheme: 'x25519-chacha20-poly1305',
+                        deliveryInformation: stringify(
+                            testData.deliveryInformation,
+                        ),
                     },
-                    token: '123',
                 },
                 keysA.signingKeyPair,
                 keysA.encryptionKeyPair,
@@ -625,19 +602,16 @@ describe('Messages', () => {
 
             await incomingMessage(
                 {
-                    envelop: {
-                        message: '',
-                        metadata: {
-                            encryptionScheme: 'x25519-chacha20-poly1305',
-                            deliveryInformation: stringify(
-                                testData.deliveryInformation,
-                            ),
-                            version: '',
-                            encryptedMessageHash: '',
-                            signature: '',
-                        },
+                    message: '',
+                    metadata: {
+                        encryptionScheme: 'x25519-chacha20-poly1305',
+                        deliveryInformation: stringify(
+                            testData.deliveryInformation,
+                        ),
+                        version: '',
+                        encryptedMessageHash: '',
+                        signature: '',
                     },
-                    token: '123',
                 },
                 keysA.signingKeyPair,
                 keysA.encryptionKeyPair,
