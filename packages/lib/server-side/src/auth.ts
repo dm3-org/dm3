@@ -42,41 +42,37 @@ export const Auth = (getSession, setSession) => {
     //TODO remove
     router.use(cors());
 
-    router.get(
-        '/:ensName',
-        //@ts-ignore
-        async (req: express.Request & { app: WithLocals }, res, next) => {
-            try {
-                const idEnsName = await normalizeEnsName(req.params.ensName);
+    router.get('/:ensName', async (req: express.Request, res, next) => {
+        try {
+            const idEnsName = normalizeEnsName(req.params.ensName);
 
-                const schemaIsValid = validateSchema(
-                    getChallengeSchema,
-                    req.params,
-                );
+            const schemaIsValid = validateSchema(
+                getChallengeSchema,
+                req.params,
+            );
 
-                if (!schemaIsValid) {
-                    return res.send(400);
-                }
-
-                const challenge = await createChallenge(
-                    getSession,
-                    setSession,
-                    idEnsName,
-                );
-
-                res.json({
-                    challenge,
-                });
-            } catch (e) {
-                next(e);
+            if (!schemaIsValid) {
+                return res.send(400);
             }
-        },
-    );
+
+            const challenge = await createChallenge(
+                getSession,
+                setSession,
+                idEnsName,
+            );
+
+            res.json({
+                challenge,
+            });
+        } catch (e) {
+            next(e);
+        }
+    });
 
     router.post(
         '/:ensName',
         //@ts-ignore
-        async (req: express.Request & { app: WithLocals }, res, next) => {
+        async (req: express.Request, res, next) => {
             try {
                 const idEnsName = await normalizeEnsName(req.params.ensName);
                 const paramsAreValid = validateSchema(

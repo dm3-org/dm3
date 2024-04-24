@@ -1,5 +1,5 @@
 import { checkSignature, decryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
-import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
+import { EncryptionEnvelop, Postmark } from '@dm3-org/dm3-lib-messaging';
 import { UserProfile, normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { sha256 } from '@dm3-org/dm3-lib-shared';
 import { BigNumber, ethers } from 'ethers';
@@ -7,13 +7,11 @@ import { testData } from '../../../../test-data/encrypted-envelops.test';
 import { stringify } from '../../shared/src/stringify';
 import { getConversationId, getMessages, incomingMessage } from './Messages';
 import { Session } from './Session';
-import { SpamFilterRules } from './spam-filter/SpamFilterRules';
-import { Postmark } from '@dm3-org/dm3-lib-messaging';
 import {
     NotificationChannel,
     NotificationChannelType,
 } from './notifications/types';
-import { sign } from 'crypto';
+import { SpamFilterRules } from './spam-filter/SpamFilterRules';
 
 const SENDER_NAME = 'alice.eth';
 const RECEIVER_NAME = 'bob.eth';
