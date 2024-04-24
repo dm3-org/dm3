@@ -25,7 +25,7 @@
     "typescript": "^4.4.2"
   },
   "scripts": {
-    "build": "yarn tsc --declaration ",
+    "build": "yarn tsc --declaration  --declarationMap",
     "test": "jest --coverage --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'"
   },
   "files": [
