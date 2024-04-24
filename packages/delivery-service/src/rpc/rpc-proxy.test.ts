@@ -38,7 +38,7 @@ const keysA = {
 
 describe('rpc-Proxy', () => {
     describe('routing', () => {
-        it.only('Should block non-dm3 related requests', async () => {
+        it('Should block non-dm3 related requests', async () => {
             const app = express();
             app.use(bodyParser.json());
             app.use(
