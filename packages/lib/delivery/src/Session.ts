@@ -32,9 +32,9 @@ export async function checkToken(
     const address = await provider.resolveName(ensName);
 
     if (!address) {
-        // Couln't resolve ENS name
+        // Couldn't resolve ENS name
         logDebug({
-            text: `checkToken - Couln't resolve ENS name`,
+            text: `checkToken - Couldn't resolve ENS name`,
         });
         return false;
     }
@@ -51,33 +51,43 @@ export async function checkToken(
 
     // check jwt for validity
     try {
-        // will throw if signature is invalid
+        // will throw if signature is invalid or exp is in the past
         const jwtPayload = verify(token, serverSecret, {
             algorithms: ['HS256'],
         });
-        //@ts-ignore
-        const { user, exp, iat } = jwtPayload;
-        if (!user || user !== ensName) {
+
+        // check if type is string -> invalid
+        if (typeof jwtPayload == 'string') {
+            logDebug({
+                text: `jwt invalid: jwtPayload is a string`,
+            });
+            return false;
+        }
+
+        // check if expected fields are present
+        if (!('user' in jwtPayload)) {
+            logDebug({
+                text: `jwt invalid: user missing`,
+            });
+            return false;
+        }
+
+        if (jwtPayload.user !== ensName) {
             logDebug({
                 text: `jwt invalid: user mismatch`,
             });
             return false;
         }
-        if (!iat || iat > Date.now() / 1000) {
+
+        if (!jwtPayload.iat || jwtPayload.iat > Date.now() / 1000) {
             logDebug({
-                text: `jwt invalid: iat in the future`,
-            });
-            return false;
-        }
-        if (!exp || exp < Date.now() / 1000) {
-            logDebug({
-                text: `jwt invalid: expired`,
+                text: `jwt invalid: iat missing or in the future`,
             });
             return false;
         }
     } catch (error) {
         logDebug({
-            text: `jwt invalid: signature error`,
+            text: `jwt invalid: ${error}`,
             error,
         });
         return false;
