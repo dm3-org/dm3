@@ -19,6 +19,7 @@ export async function auth(
     ensName: string,
     db: ISessionDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
+    serverSecret: string,
 ) {
     const normalizedEnsName = normalizeEnsName(ensName);
     const authHeader = req.headers['authorization'];
@@ -31,6 +32,7 @@ export async function auth(
             db.getSession,
             normalizedEnsName,
             token,
+            serverSecret,
         ))
     ) {
         next();
@@ -47,6 +49,7 @@ export async function auth(
 export function socketAuth(
     db: ISessionDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
+    serverSecret: string,
 ) {
     return async (
         socket: Socket,
@@ -69,6 +72,7 @@ export function socketAuth(
                     db.getSession,
                     ensName,
                     socket.handshake.auth.token as string,
+                    serverSecret,
                 ))
             ) {
                 return next(new Error('invalid username'));
@@ -174,6 +178,15 @@ export async function getWeb3Provider(
     });
 
     // return getCachedProvider(new ethers.providers.JsonRpcProvider(rpc));
+}
+
+export function getServerSecret(env: NodeJS.ProcessEnv): string {
+    const secret = env.SERVER_SECRET;
+    if (!secret) {
+        throw Error('Missing SERVER_SECRET in env');
+    }
+
+    return secret;
 }
 
 const getCachedProvider = (
