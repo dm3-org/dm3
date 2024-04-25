@@ -39,6 +39,9 @@ const createNewSessionTokenBodySchema = {
 export const Auth = (getSession, setSession) => {
     const router = express.Router();
 
+    // todo: inject secret
+    const serverSecret = 'secret81759';
+
     //TODO remove
     router.use(cors());
 
@@ -69,43 +72,38 @@ export const Auth = (getSession, setSession) => {
         }
     });
 
-    router.post(
-        '/:ensName',
-        //@ts-ignore
-        async (req: express.Request, res, next) => {
-            try {
-                const idEnsName = await normalizeEnsName(req.params.ensName);
-                const paramsAreValid = validateSchema(
-                    createNewSessionTokenParamsSchema,
-                    req.params,
-                );
+    router.post('/:ensName', async (req: express.Request, res, next) => {
+        try {
+            const idEnsName = await normalizeEnsName(req.params.ensName);
+            const paramsAreValid = validateSchema(
+                createNewSessionTokenParamsSchema,
+                req.params,
+            );
 
-                const bodyIsValid = validateSchema(
-                    createNewSessionTokenBodySchema,
-                    req.body,
-                );
+            const bodyIsValid = validateSchema(
+                createNewSessionTokenBodySchema,
+                req.body,
+            );
 
-                const schemaIsValid = paramsAreValid && bodyIsValid;
+            const schemaIsValid = paramsAreValid && bodyIsValid;
 
-                if (!schemaIsValid) {
-                    return res.send(400);
-                }
-
-                const token = await createNewSessionToken(
-                    getSession,
-                    setSession,
-                    req.body.signature,
-                    idEnsName,
-                );
-
-                res.json({
-                    token,
-                });
-            } catch (e) {
-                next(e);
+            if (!schemaIsValid) {
+                return res.send(400);
             }
-        },
-    );
+
+            const jwt = await createNewSessionToken(
+                getSession,
+                setSession,
+                req.body.signature,
+                idEnsName,
+                serverSecret,
+            );
+
+            res.json(jwt);
+        } catch (e) {
+            next(e);
+        }
+    });
 
     return router;
 };
