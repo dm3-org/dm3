@@ -10,7 +10,6 @@ import {
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
 import { checkToken } from '@dm3-org/dm3-lib-delivery';
-import { KeyPair } from '@dm3-org/dm3-lib-crypto';
 
 export async function auth(
     req: Request,

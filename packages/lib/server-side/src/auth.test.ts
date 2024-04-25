@@ -4,6 +4,8 @@ import express from 'express';
 import request from 'supertest';
 import { Auth } from './auth';
 
+const serverSecret = 'testSecret';
+
 describe('Auth', () => {
     const getSessionMock = async (ensName: string) =>
         Promise.resolve({ challenge: '123' });
@@ -30,7 +32,7 @@ describe('Auth', () => {
             it('Returns 200 if schema is valid', async () => {
                 const app = express();
                 app.use(bodyParser.json());
-                app.use(Auth(getSessionMock, setSessionMock));
+                app.use(Auth(getSessionMock, setSessionMock, serverSecret));
 
                 const response = await request(app)
                     .get(
@@ -49,7 +51,7 @@ describe('Auth', () => {
             it('Returns 400 if params is invalid', async () => {
                 const app = express();
                 app.use(bodyParser.json());
-                app.use(Auth(getSessionMock, setSessionMock));
+                app.use(Auth(getSessionMock, setSessionMock, serverSecret));
 
                 const mnemonic =
                     'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
@@ -67,7 +69,7 @@ describe('Auth', () => {
             it('Returns 400 if body is invalid', async () => {
                 const app = express();
                 app.use(bodyParser.json());
-                app.use(Auth(getSessionMock, setSessionMock));
+                app.use(Auth(getSessionMock, setSessionMock, serverSecret));
 
                 const mnemonic =
                     'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
@@ -96,7 +98,9 @@ describe('Auth', () => {
 
                 const app = express();
                 app.use(bodyParser.json());
-                app.use(Auth(getSessionMockLocal, setSessionMock));
+                app.use(
+                    Auth(getSessionMockLocal, setSessionMock, serverSecret),
+                );
 
                 const signature =
                     '3A893rTBPEa3g9FL2vgDreY3vvXnOiYCOoJURNyctncwH' +

@@ -2,10 +2,17 @@ import bodyParser from 'body-parser';
 import express, { NextFunction, Request, Response } from 'express';
 import request from 'supertest';
 import { auth } from './utils';
+import { sign } from 'jsonwebtoken';
+
+const serverSecret = 'testSecret';
 
 describe('Utils', () => {
     describe('Auth', () => {
         it('Returns 200 if token is valid', async () => {
+            const token = sign({ user: 'alice.eth' }, serverSecret, {
+                expiresIn: '1h',
+            });
+
             const getSession = async (accountAddress: string) =>
                 Promise.resolve({
                     signedUserProfile: {},
@@ -45,6 +52,7 @@ describe('Utils', () => {
                         ensName,
                         db as any,
                         web3Provider as any,
+                        serverSecret,
                     );
                 },
             );
@@ -56,13 +64,15 @@ describe('Utils', () => {
 
             const { status, body } = await request(app)
                 .get('/alice.eth')
-                .set({ authorization: `Bearer testToken` })
-
+                .set({ authorization: 'Bearer ' + token })
                 .send();
 
             expect(status).toBe(200);
         });
         it('Returns 401 if user is unknown', async () => {
+            const token = sign({ user: 'alice.eth' }, serverSecret, {
+                expiresIn: '1h',
+            });
             const db = {
                 getSession: async (accountAddress: string) =>
                     Promise.resolve(null),
@@ -95,6 +105,7 @@ describe('Utils', () => {
                         ensName,
                         db as any,
                         web3Provider as any,
+                        serverSecret,
                     );
                 },
             );
@@ -115,13 +126,16 @@ describe('Utils', () => {
 
             const { status, body } = await request(app)
                 .get('/0x25A643B6e52864d0eD816F1E43c0CF49C83B8292')
-                .set({ authorization: `Bearer bar` })
+                .set({ authorization: 'Bearer ' + token })
 
                 .send();
 
             expect(status).toBe(401);
         });
-        it('Returns 401 if token is invalid', async () => {
+        it('Returns 401 if token is from wrong user', async () => {
+            const token = sign({ user: 'some.other.name' }, serverSecret, {
+                expiresIn: '1h',
+            });
             const db = {
                 getSession: async (accountAddress: string) =>
                     Promise.resolve({
@@ -157,6 +171,7 @@ describe('Utils', () => {
                         ensName,
                         db as any,
                         web3Provider as any,
+                        serverSecret,
                     );
                 },
             );
@@ -168,7 +183,7 @@ describe('Utils', () => {
 
             const { status, body } = await request(app)
                 .get('/0x25A643B6e52864d0eD816F1E43c0CF49C83B8292')
-                .set({ authorization: `Bearer bar` })
+                .set({ authorization: 'Bearer ' + token })
 
                 .send();
 
@@ -211,6 +226,7 @@ describe('Utils', () => {
                         ensName,
                         db as any,
                         web3Provider as any,
+                        serverSecret,
                     );
                 },
             );
