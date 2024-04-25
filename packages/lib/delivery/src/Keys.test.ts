@@ -3,6 +3,7 @@ import { Session } from './Session';
 
 const RANDO_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 const SENDER_ADDRESS = '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1';
+const SERVER_SECRET = 'my-secret-for-jwt';
 
 const keysA = {
     encryptionKeyPair: {
@@ -67,6 +68,7 @@ describe('Keys', () => {
                     setSession,
                     '',
                     RANDO_ADDRESS,
+                    SERVER_SECRET,
                 );
             }).rejects.toEqual(Error('Session not found'));
         });
@@ -80,6 +82,7 @@ describe('Keys', () => {
                     setSession,
                     '',
                     RANDO_ADDRESS,
+                    SERVER_SECRET,
                 );
             }).rejects.toEqual(Error('No pending challenge'));
         });
@@ -108,6 +111,7 @@ describe('Keys', () => {
                 setSession,
                 signature,
                 SENDER_ADDRESS,
+                SERVER_SECRET,
             );
 
             expect(token).not.toBeUndefined();
@@ -138,6 +142,7 @@ describe('Keys', () => {
                     setSession,
                     signature,
                     SENDER_ADDRESS,
+                    SERVER_SECRET,
                 );
             }).rejects.toEqual(Error('Signature invalid'));
         });
