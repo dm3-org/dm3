@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import { ProfileExtension, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { logDebug } from '@dm3-org/dm3-lib-shared';
+import { verify } from 'jsonwebtoken';
 
 //1Year
 const TTL = 31536000000;
@@ -23,6 +24,7 @@ export async function checkToken(
     getSession: (ensName: string) => Promise<Session | null>,
     ensName: string,
     token: string,
+    serverSecret: string,
 ): Promise<boolean> {
     logDebug({
         text: 'checkToken',
@@ -39,32 +41,48 @@ export async function checkToken(
 
     const session = await getSession(ensName.toLocaleLowerCase());
 
-    //There is no account for the requesting accoung
+    //There is no account for the requesting account
     if (!session) {
         logDebug({
-            text: `checkToken - There is no account for the requesting accoung`,
+            text: `checkToken - There is no account for the requesting account`,
         });
         return false;
     }
 
-    const tokenIsValid = token === session.token;
-
-    //The account has a session but the token is wrong
-    if (!tokenIsValid) {
+    // check jwt for validity
+    try {
+        // will throw if signature is invalid
+        const jwtPayload = verify(token, serverSecret, {
+            algorithms: ['HS256'],
+        });
+        //@ts-ignore
+        const { user, exp, iat } = jwtPayload;
+        if (!user || user !== ensName) {
+            logDebug({
+                text: `jwt invalid: user mismatch`,
+            });
+            return false;
+        }
+        if (!iat || iat > Date.now() / 1000) {
+            logDebug({
+                text: `jwt invalid: iat in the future`,
+            });
+            return false;
+        }
+        if (!exp || exp < Date.now() / 1000) {
+            logDebug({
+                text: `jwt invalid: expired`,
+            });
+            return false;
+        }
+    } catch (error) {
         logDebug({
-            text: `checkToken - The account has a session but the token is wrong`,
+            text: `jwt invalid: signature error`,
+            error,
         });
         return false;
     }
 
-    const isTokenExpired = session.createdAt + TTL < new Date().getTime();
-    //The token is exceeded
-    if (isTokenExpired) {
-        logDebug({
-            text: `checkToken - The token is exceeded`,
-        });
-        return false;
-    }
-
+    // the token is valid only if all checks passed
     return true;
 }

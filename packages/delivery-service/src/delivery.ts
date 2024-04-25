@@ -33,12 +33,13 @@ export default (
     web3Provider: ethers.providers.JsonRpcProvider,
     db: IDatabase,
     keys: DeliveryServiceProfileKeys,
+    serverSecret: string,
 ) => {
     const router = express.Router();
     //TODO remove
     router.use(cors());
     router.param('ensName', async (req, res, next, ensName: string) => {
-        auth(req, res, next, ensName, db, web3Provider);
+        auth(req, res, next, ensName, db, web3Provider, serverSecret);
     });
 
     router.get(

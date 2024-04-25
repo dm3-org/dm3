@@ -5,6 +5,7 @@ import {
     logRequest,
     socketAuth,
     readKeysFromEnv,
+    getServerSecret,
 } from '@dm3-org/dm3-lib-server-side';
 import { logInfo } from '@dm3-org/dm3-lib-shared';
 import { Axios } from 'axios';
@@ -50,6 +51,7 @@ global.logger = winston.createLogger({
     const db = await getDatabase();
     const web3Provider = await getWeb3Provider(process.env);
     const keys = readKeysFromEnv(process.env);
+    const serverSecret = getServerSecret(process.env);
 
     const io = new Server(server, {
         cors: {
@@ -70,15 +72,20 @@ global.logger = winston.createLogger({
      *     needed
      */
     app.use('/profile', Profile(db, web3Provider, io));
-    app.use('/delivery', Delivery(web3Provider, db, keys));
+    app.use('/delivery', Delivery(web3Provider, db, keys, serverSecret));
     app.use(
         '/notifications',
-        Notifications(deliveryServiceProperties, db, web3Provider),
+        Notifications(
+            deliveryServiceProperties,
+            db,
+            web3Provider,
+            serverSecret,
+        ),
     );
     app.use(logError);
     app.use(errorHandler);
-    io.use(socketAuth(db, web3Provider));
-    io.on('connection', onConnection(io, web3Provider, db, keys));
+    io.use(socketAuth(db, web3Provider, serverSecret));
+    io.on('connection', onConnection(io, web3Provider, db, keys, serverSecret));
     startCleanUpPendingMessagesJob(db, deliveryServiceProperties.messageTTL);
     app.use(
         '/rpc',

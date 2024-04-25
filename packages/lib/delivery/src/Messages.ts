@@ -111,7 +111,7 @@ export async function incomingMessage(
         throw Error('Message is too large');
     }
 
-    //Decryptes the encrypted DeliveryInformation with the KeyPair of the deliveryService
+    //Decrypts the encrypted DeliveryInformation with the KeyPair of the deliveryService
 
     const deliveryInformation: DeliveryInformation =
         await decryptDeliveryInformation(envelop, encryptionKeyPair);

@@ -26,6 +26,7 @@ export function onConnection(
     web3Provider: ethers.providers.JsonRpcProvider,
     db: IDatabase,
     keys: DeliveryServiceProfileKeys,
+    serverSecret: string,
 ) {
     return (socket: Socket) => {
         socket.on('disconnect', () => {
@@ -146,6 +147,7 @@ export function onConnection(
                         db.getSession,
                         idEnsName,
                         data.token,
+                        serverSecret,
                     ))
                 ) {
                     const error = 'Token check failed';

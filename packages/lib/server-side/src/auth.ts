@@ -36,11 +36,8 @@ const createNewSessionTokenBodySchema = {
 };
 
 //@ts-ignore
-export const Auth = (getSession, setSession) => {
+export const Auth = (getSession, setSession, serverSecret: string) => {
     const router = express.Router();
-
-    // todo: inject secret
-    const serverSecret = 'secret81759';
 
     //TODO remove
     router.use(cors());

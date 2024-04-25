@@ -11,6 +11,7 @@ import { ethers } from 'ethers';
 export default (
     db: IDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
+    serverSecret: string,
 ) => {
     const router = express.Router();
 
@@ -25,7 +26,7 @@ export default (
             next: NextFunction,
             ensName: string,
         ) => {
-            auth(req, res, next, ensName, db, web3Provider);
+            auth(req, res, next, ensName, db, web3Provider, serverSecret);
         },
     );
 
