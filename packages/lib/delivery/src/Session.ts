@@ -65,7 +65,11 @@ export async function checkToken(
         }
 
         // check if expected fields are present
-        if (!('user' in jwtPayload)) {
+        if (
+            !('user' in jwtPayload) ||
+            !('iat' in jwtPayload) ||
+            !('exp' in jwtPayload)
+        ) {
             logDebug({
                 text: `jwt invalid: user missing`,
             });
@@ -75,13 +79,6 @@ export async function checkToken(
         if (jwtPayload.user !== ensName) {
             logDebug({
                 text: `jwt invalid: user mismatch`,
-            });
-            return false;
-        }
-
-        if (!jwtPayload.iat || jwtPayload.iat > Date.now() / 1000) {
-            logDebug({
-                text: `jwt invalid: iat missing or in the future`,
             });
             return false;
         }
