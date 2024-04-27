@@ -14,6 +14,7 @@ import winston from 'winston';
 import { IDatabase } from './persistence/getDatabase';
 import profile from './profile';
 import storage from './storage';
+import { sign } from 'jsonwebtoken';
 
 global.logger = winston.createLogger({
     transports: [new winston.transports.Console()],
@@ -22,7 +23,11 @@ global.logger = winston.createLogger({
 const web3ProviderMock: ethers.providers.JsonRpcProvider =
     new ethers.providers.JsonRpcProvider();
 
-let mockToken = 'mockAuthToken';
+const serverSecret = 'veryImportantSecretToGenerateAndValidateJSONWebTokens';
+
+let token = sign({ user: 'some.authenticated.user' }, serverSecret, {
+    expiresIn: '1h',
+});
 
 const setUpApp = async (
     app: express.Express,
@@ -38,7 +43,7 @@ const setUpApp = async (
 const createDbMock = async () => {
     const sessionMocked = {
         challenge: '123',
-        token: mockToken,
+        token: token,
         signedUserProfile: {},
     } as Session & { spamFilterRules: spamFilter.SpamFilterRules };
 
@@ -62,16 +67,20 @@ describe('Profile', () => {
             const app = express();
 
             const db = await createDbMock();
+
+            const _web3Provider = {
+                resolveName: async () => 'some.ens.name',
+            };
             // I don't know why this function is needed in this test.
             // Remove it after storage migration.
             db.getUserStorage = () => {};
-            app.use(storage(db, web3ProviderMock));
+            app.use(storage(db, _web3Provider as any, serverSecret));
             setUpApp(app, db, web3ProviderMock);
 
             const response = await request(app)
-                .get('/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870')
+                .get('/some.user.we.want.to.get.profile.of')
                 .set({
-                    authorization: `Bearer ${mockToken}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
 
