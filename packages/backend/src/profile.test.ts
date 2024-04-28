@@ -25,7 +25,7 @@ const web3ProviderMock: ethers.providers.JsonRpcProvider =
 
 const serverSecret = 'veryImportantSecretToGenerateAndValidateJSONWebTokens';
 
-let token = sign({ user: 'some.authenticated.user' }, serverSecret, {
+let token = sign({ user: 'alice.eth' }, serverSecret, {
     expiresIn: '1h',
 });
 
@@ -43,7 +43,7 @@ const setUpApp = async (
 const createDbMock = async () => {
     const sessionMocked = {
         challenge: '123',
-        token: token,
+        token: 'deprecated token that is not used anymore',
         signedUserProfile: {},
     } as Session & { spamFilterRules: spamFilter.SpamFilterRules };
 
@@ -53,7 +53,7 @@ const createDbMock = async () => {
                 Session & {
                     spamFilterRules: spamFilter.SpamFilterRules;
                 }
-            >(sessionMocked),
+            >(sessionMocked), // returns some valid session
         setSession: async (_: string, __: Session) => {},
         getIdEnsName: async (ensName: string) => ensName,
     };
@@ -69,7 +69,8 @@ describe('Profile', () => {
             const db = await createDbMock();
 
             const _web3Provider = {
-                resolveName: async () => 'some.ens.name',
+                resolveName: async () =>
+                    '0x95222290DD7278Aa3Ddd389Cc1E1d165CC4BAfe5',
             };
             // I don't know why this function is needed in this test.
             // Remove it after storage migration.
@@ -78,7 +79,7 @@ describe('Profile', () => {
             setUpApp(app, db, web3ProviderMock);
 
             const response = await request(app)
-                .get('/some.user.we.want.to.get.profile.of')
+                .get('/alice.eth')
                 .set({
                     authorization: 'Bearer ' + token,
                 })

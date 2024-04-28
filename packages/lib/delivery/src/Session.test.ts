@@ -1,5 +1,5 @@
 import { checkToken, Session } from './Session';
-import { sign } from 'jsonwebtoken';
+import { sign, verify } from 'jsonwebtoken';
 
 const serverSecret = 'veryImportantSecretToGenerateAndValidateJSONWebTokens';
 // create valid jwt
@@ -93,17 +93,26 @@ describe('Session', () => {
             expect(isValid).toBe(false);
         });
 
-        it('Should return false token issuance date is in the future ', async () => {
+        it('Should return false if token issuance date is in the future ', async () => {
             const getSession = (_: string) =>
                 Promise.resolve({ token: token, createdAt: 1 } as Session);
 
-            const oneMinuteInTheFuture = new Date().getTime() / 1000 + 60;
-            // this token is not valid yet
+            const tokenBody = verify(token, serverSecret);
+            if (
+                !tokenBody ||
+                typeof tokenBody === 'string' ||
+                !tokenBody.exp ||
+                !tokenBody.user ||
+                !tokenBody.iat
+            ) {
+                throw Error('Invalid token');
+            }
+            // create invalid token
             const _token = sign(
                 {
-                    user: 'alice.eth',
-                    iat: oneMinuteInTheFuture,
-                    exp: oneMinuteInTheFuture,
+                    user: tokenBody.user,
+                    exp: tokenBody.exp,
+                    iat: tokenBody.iat + 1, // issued in the future
                 },
                 serverSecret,
             );
