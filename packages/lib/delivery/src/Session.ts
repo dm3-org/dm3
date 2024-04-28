@@ -76,6 +76,13 @@ export async function checkToken(
             return false;
         }
 
+        if (!jwtPayload.iat || jwtPayload.iat > Date.now() / 1000) {
+            logDebug({
+                text: `jwt invalid: iat missing or in the future`,
+            });
+            return false;
+        }
+
         if (jwtPayload.user !== ensName) {
             logDebug({
                 text: `jwt invalid: user mismatch`,
