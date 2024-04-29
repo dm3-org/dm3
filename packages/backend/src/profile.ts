@@ -1,5 +1,10 @@
-import { getUserProfile, submitUserProfile } from '@dm3-org/dm3-lib-delivery';
+import {
+    getUserProfile,
+    submitUserProfile,
+    submitUserProfileSiwe,
+} from '@dm3-org/dm3-lib-delivery';
 import { normalizeEnsName, schema } from '@dm3-org/dm3-lib-profile';
+import { schema as dsSchema } from '@dm3-org/dm3-lib-delivery';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import express, { NextFunction } from 'express';
 import { WithLocals } from './types';
@@ -75,6 +80,53 @@ export default () => {
                 });
 
                 const data = await submitUserProfile(
+                    req.app.locals.web3Provider,
+                    req.app.locals.db.getSession,
+                    req.app.locals.db.setSession,
+                    ensName,
+                    req.body,
+                    (ensName: string) => req.app.locals.db.getPending(ensName),
+                    (socketId: string) =>
+                        req.app.locals.io.sockets.to(socketId).emit('joined'),
+                );
+                global.logger.debug({
+                    message: 'POST profile',
+                    ensName,
+                    data,
+                });
+
+                res.json(data);
+            } catch (e) {
+                global.logger.warn({
+                    message: 'POST profile',
+                    error: JSON.stringify(e),
+                });
+                // eslint-disable-next-line no-console
+                console.log('POST PROFILE ERROR', e);
+                res.status(400).send({
+                    message: `Couldn't store profile`,
+                    error: JSON.stringify(e),
+                });
+            }
+        },
+    );
+    router.post(
+        '/siwe/:ensName',
+        //@ts-ignore
+        async (req: express.Request & { app: WithLocals }, res, next) => {
+            try {
+                const schemaIsValid = validateSchema(
+                    dsSchema.SiwePayload,
+                    req.body,
+                );
+
+                if (!schemaIsValid) {
+                    global.logger.error({ message: 'invalid schema' });
+                    return res.status(400).send({ error: 'invalid schema' });
+                }
+                const ensName = normalizeEnsName(req.params.ensName);
+
+                const data = await submitUserProfileSiwe(
                     req.app.locals.web3Provider,
                     req.app.locals.db.getSession,
                     req.app.locals.db.setSession,

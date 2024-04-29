@@ -142,7 +142,7 @@ export async function getUserProfile(
     return session?.signedUserProfile;
 }
 
-interface SiwePayload {
+export interface SiwePayload {
     address: string;
     message: string;
     signature: string;

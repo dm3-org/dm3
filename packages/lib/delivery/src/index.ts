@@ -1,5 +1,9 @@
 export { createChallenge, createNewSessionToken } from './Keys';
-export { submitUserProfile, getUserProfile } from './UserProfile';
+export {
+    submitUserProfile,
+    submitUserProfileSiwe,
+    getUserProfile,
+} from './UserProfile';
 export {
     getMessages,
     incomingMessage,
@@ -14,6 +18,7 @@ export { checkToken } from './Session';
 export type { Session } from './Session';
 
 export type { DeliveryServiceProperties } from './Delivery';
+export type { SiwePayload } from './UserProfile';
 
 export * from './notifications';
 export {
