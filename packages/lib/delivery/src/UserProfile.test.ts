@@ -1,11 +1,16 @@
-import { ethers } from 'ethers';
 import {
     getProfileCreationMessage,
+    SignedUserProfile,
     UserProfile,
 } from '@dm3-org/dm3-lib-profile';
 import { stringify } from '@dm3-org/dm3-lib-shared';
+import { ethers } from 'ethers';
 import { Session } from './Session';
-import { getUserProfile, submitUserProfile } from './UserProfile';
+import {
+    getUserProfile,
+    submitUserProfile,
+    submitUserProfileSiwe,
+} from './UserProfile';
 
 const SENDER_NAME = 'alice.eth';
 const RANDO_NAME = 'bob.eth';
@@ -169,6 +174,238 @@ describe('UserProfile', () => {
                 setSession,
                 SENDER_NAME,
                 singedUserProfile,
+                getPendingConversations,
+                send,
+            );
+
+            expect(setSession).toBeCalled();
+        });
+    });
+    describe('SubmitUserProfileSiwe', () => {
+        it('rejects a userProfile with a wrong SIWE wrong signature', async () => {
+            const setSession = jest.fn();
+            const getSession = () => Promise.resolve(null);
+            const getPendingConversations = () => Promise.resolve([]);
+            const send = () => {};
+
+            const siweMsg = 'my dapp msg';
+            const secret = 'my-secret';
+
+            const ownerWallet = ethers.Wallet.createRandom();
+            const carrierWallet = new ethers.Wallet(
+                ethers.utils.sha256(ethers.utils.toUtf8Bytes(secret)),
+            );
+
+            //Sign profile
+            const profileSigMessage = getProfileCreationMessage(
+                stringify(emptyProfile),
+                carrierWallet.address,
+            );
+            //Sign profile with carrier msg
+            const profileSig = await carrierWallet.signMessage(
+                profileSigMessage,
+            );
+
+            const signedUserProfile: SignedUserProfile = {
+                profile: emptyProfile,
+                signature: profileSig,
+            };
+
+            const siwePayload = {
+                //Check ownership of the address
+                address: ownerWallet.address,
+                message: siweMsg + '123',
+                signature: await ownerWallet.signMessage(siweMsg),
+
+                //Account that signed the userProfile on behalf of the address
+                carrierAddress: carrierWallet.address,
+                signedUserProfile,
+            };
+
+            await expect(async () => {
+                await submitUserProfileSiwe(
+                    { resolveName: () => RANDO_ADDRESS } as any,
+                    getSession,
+                    setSession,
+                    RANDO_NAME,
+                    siwePayload,
+                    getPendingConversations,
+                    send,
+                );
+            }).rejects.toEqual(Error('SIWE Signature invalid.'));
+            expect(setSession).not.toBeCalled();
+        });
+        it('rejects a userProfile with an invalid userProfile', async () => {
+            const setSession = jest.fn();
+            const getSession = () => Promise.resolve(null);
+            const getPendingConversations = () => Promise.resolve([]);
+            const send = () => {};
+
+            const siweMsg = 'my dapp msg';
+            const secret = 'my-secret';
+
+            const ownerWallet = ethers.Wallet.createRandom();
+            const carrierWallet = new ethers.Wallet(
+                ethers.utils.sha256(ethers.utils.toUtf8Bytes(secret)),
+            );
+
+            //Sign profile
+            const profileSigMessage = getProfileCreationMessage(
+                stringify(emptyProfile),
+                carrierWallet.address,
+            );
+            //Sign profile with carrier msg
+            const profileSig = await carrierWallet.signMessage(
+                profileSigMessage,
+            );
+
+            const signedUserProfile: SignedUserProfile = {
+                profile: emptyProfile,
+                signature: profileSig,
+            };
+
+            const siwePayload = {
+                //Check ownership of the address
+                address: ownerWallet.address,
+                message: siweMsg,
+                signature: await ownerWallet.signMessage(siweMsg),
+
+                //Use the worng address to provoke the exception
+                carrierAddress: ownerWallet.address,
+                signedUserProfile,
+            };
+
+            await expect(async () => {
+                await submitUserProfileSiwe(
+                    { resolveName: () => RANDO_ADDRESS } as any,
+                    getSession,
+                    setSession,
+                    RANDO_NAME,
+                    siwePayload,
+                    getPendingConversations,
+                    send,
+                );
+            }).rejects.toEqual(Error('Signature invalid.'));
+            expect(setSession).not.toBeCalled();
+        });
+
+        it('rejects a userProfile that already exists', async () => {
+            const setSession = () => Promise.resolve();
+            const getSession = async (address: string) => {
+                const session = async (
+                    account: string,
+                    token: string,
+                    profile: UserProfile,
+                ): Promise<Session> => {
+                    const signedUserProfile = await signProfile(profile);
+                    return {
+                        account,
+                        signedUserProfile,
+                        token,
+                        createdAt: new Date().getTime(),
+                        profileExtension: {
+                            encryptionAlgorithm: [],
+                            notSupportedMessageTypes: [],
+                        },
+                    };
+                };
+
+                return session(SENDER_NAME, '123', emptyProfile);
+            };
+            const getPendingConversations = () => Promise.resolve([]);
+            const send = () => {};
+
+            const siweMsg = 'my dapp msg';
+            const secret = 'my-secret';
+
+            const ownerWallet = ethers.Wallet.createRandom();
+            const carrierWallet = new ethers.Wallet(
+                ethers.utils.sha256(ethers.utils.toUtf8Bytes(secret)),
+            );
+
+            //Sign profile
+            const profileSigMessage = getProfileCreationMessage(
+                stringify(emptyProfile),
+                carrierWallet.address,
+            );
+            //Sign profile with carrier msg
+            const profileSig = await carrierWallet.signMessage(
+                profileSigMessage,
+            );
+
+            const signedUserProfile: SignedUserProfile = {
+                profile: emptyProfile,
+                signature: profileSig,
+            };
+
+            const siwePayload = {
+                //Check ownership of the address
+                address: ownerWallet.address,
+                message: siweMsg,
+                signature: await ownerWallet.signMessage(siweMsg),
+
+                //Use the worng address to provoke the exception
+                carrierAddress: carrierWallet.address,
+                signedUserProfile,
+            };
+            await expect(async () => {
+                await submitUserProfileSiwe(
+                    { resolveName: () => SENDER_ADDRESS } as any,
+                    getSession,
+                    setSession,
+                    SENDER_NAME,
+                    siwePayload,
+                    getPendingConversations,
+                    send,
+                );
+            }).rejects.toEqual(Error('Profile exists already'));
+        });
+
+        it('stores a newly created user profile', async () => {
+            const setSession = jest.fn();
+            const getSession = () => Promise.resolve(null);
+            const getPendingConversations = () => Promise.resolve([]);
+            const send = () => {};
+            const siweMsg = 'my dapp msg';
+            const secret = 'my-secret';
+
+            const ownerWallet = ethers.Wallet.createRandom();
+            const carrierWallet = new ethers.Wallet(
+                ethers.utils.sha256(ethers.utils.toUtf8Bytes(secret)),
+            );
+
+            //Sign profile
+            const profileSigMessage = getProfileCreationMessage(
+                stringify(emptyProfile),
+                carrierWallet.address,
+            );
+            //Sign profile with carrier msg
+            const profileSig = await carrierWallet.signMessage(
+                profileSigMessage,
+            );
+
+            const signedUserProfile: SignedUserProfile = {
+                profile: emptyProfile,
+                signature: profileSig,
+            };
+
+            const siwePayload = {
+                //Check ownership of the address
+                address: ownerWallet.address,
+                message: siweMsg,
+                signature: await ownerWallet.signMessage(siweMsg),
+
+                //Use the worng address to provoke the exception
+                carrierAddress: carrierWallet.address,
+                signedUserProfile,
+            };
+
+            await submitUserProfileSiwe(
+                { resolveName: () => RANDO_ADDRESS } as any,
+                getSession,
+                setSession,
+                RANDO_NAME,
+                siwePayload,
                 getPendingConversations,
                 send,
             );

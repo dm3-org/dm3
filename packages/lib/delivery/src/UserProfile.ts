@@ -1,6 +1,8 @@
 import {
     SignedUserProfile,
     checkUserProfile,
+    checkUserProfileWithAddress,
+    formatAddress,
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
 import { getDefaultProfileExtension } from '@dm3-org/dm3-lib-profile';
@@ -71,6 +73,65 @@ export async function submitUserProfile(
 
     return session.token;
 }
+export async function submitUserProfileSiwe(
+    provider: ethers.providers.JsonRpcProvider,
+    getSession: (accountAddress: string) => Promise<Session | null>,
+    setSession: (accountAddress: string, session: Session) => Promise<void>,
+    ensName: string,
+    siwePayload: SiwePayload,
+    getPendingConversations: (accountAddress: string) => Promise<string[]>,
+    send: (socketId: string) => void,
+): Promise<string> {
+    const account = normalizeEnsName(ensName);
+
+    //First Check if SIWE has been signed by address using ECRecoverey
+    const isCorrectSiwe =
+        ethers.utils.recoverAddress(
+            ethers.utils.hashMessage(siwePayload.message),
+            siwePayload.signature,
+        ) === formatAddress(siwePayload.address);
+
+    if (!isCorrectSiwe) {
+        logDebug('submitUserProfile -SIWE Signature invalid');
+        throw Error('SIWE Signature invalid.');
+    }
+
+    //Second Check if profile has been signed by carrier
+    //We don't need to resolve the address as it is done during wallet signIn.
+    //Instead we have to check if the carrier address is the same as the address in the signedUserProfile
+    if (
+        !(await checkUserProfileWithAddress(
+            siwePayload.signedUserProfile,
+            siwePayload.carrierAddress,
+        ))
+    ) {
+        logDebug('submitUserProfile - Signature invalid');
+        throw Error('Signature invalid.');
+    }
+
+    if (await getSession(account)) {
+        logDebug('submitUserProfile - Profile exists already');
+        throw Error('Profile exists already');
+    }
+
+    const session: Session = {
+        account,
+        signedUserProfile: siwePayload.signedUserProfile,
+        token: uuidv4(),
+        createdAt: new Date().getTime(),
+        profileExtension: getDefaultProfileExtension(),
+    };
+    logDebug({ text: 'submitUserProfile', session });
+    await setSession(account.toLocaleLowerCase(), session);
+    await handlePendingConversations(
+        account,
+        getSession,
+        getPendingConversations,
+        send,
+    );
+
+    return session.token;
+}
 
 export async function getUserProfile(
     getSession: (accountAddress: string) => Promise<Session | null>,
@@ -79,4 +140,12 @@ export async function getUserProfile(
     const account = normalizeEnsName(ensName);
     const session = await getSession(account);
     return session?.signedUserProfile;
+}
+
+interface SiwePayload {
+    address: string;
+    message: string;
+    signature: string;
+    carrierAddress: string;
+    signedUserProfile: SignedUserProfile;
 }
