@@ -4,22 +4,17 @@ import './styles/common.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import ErrorModal from './components/ErrorModal/ErrorModal';
-import { Config, DM3Configuration } from './interfaces/config';
-import { getConfig } from './utils/config-utils';
-import GlobalContextProvider from './utils/context-utils';
+import { DM3Configuration, Siwe } from './interfaces/config';
 import { setTheme } from './utils/style-utils';
 import { Home } from './views/Home/Home';
 
 function DM3(props: DM3Configuration) {
-    const propsData: Config = getConfig(props);
-    setTheme(propsData.theme);
+    setTheme(props.theme);
     return (
         <>
             <div className="dm3-root">
                 <ErrorModal />
-                <GlobalContextProvider>
-                    <Home config={propsData} dm3Configuration={props} />
-                </GlobalContextProvider>
+                <Home config={props} />
             </div>
             {process.env.REACT_APP_COMMIT_HASH && (
                 <div
@@ -45,5 +40,5 @@ function DM3(props: DM3Configuration) {
 // The DM3 component to be included for the widget
 export { DM3 };
 
-// The configuration props to configure the DM3 widget
-export type { DM3Configuration };
+// The configuration props to configure the DM3 widget & SIWE object
+export type { DM3Configuration, Siwe };

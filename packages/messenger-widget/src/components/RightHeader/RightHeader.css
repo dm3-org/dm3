@@ -7,7 +7,7 @@
 }
 
 .profile-name-container {
-    padding: 0.5rem;
+    padding: 0.7rem;
 }
 
 .default-profile-pic {
@@ -15,13 +15,23 @@
 }
 
 .menu-details {
+    font-size: 1.2rem;
+    font-weight: bolder;
+    display: flex;
+    align-items: center;
+    padding-left: 0.1rem;
+    padding-right: 0.1rem;
     border-radius: 3px;
-    border: 1px solid;
     position: relative;
-    padding: 0px 2px 0px 2px;
     height: 1.2rem;
     width: 1.2rem;
-    background: var(--text-secondary-color);
+    background: var(--menu-background-color);
+    color: var(--text-secondary-color);
+}
+
+.menu-details:hover{
+    background: var(--normal-btn-hover);
+    color: var(--text-primary-color);
 }
 
 .menu-details-dropdown-content {
@@ -31,7 +41,8 @@
 }
 
 .contact-name-header{
-    word-break: break-all;
+    word-break: break-word;
+    hyphens: auto;
 }
 
 /* =================== Mobile Responsive CSS =================== */

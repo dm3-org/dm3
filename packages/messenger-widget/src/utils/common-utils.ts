@@ -129,3 +129,18 @@ export const ACCOUNT_CHANGE_POPUP_MESSAGE =
 export const ENS_PROFILE_BASE_URL = 'https://app.ens.domains/';
 
 export const MOBILE_SCREEN_WIDTH = 800;
+
+export const TERMS_AND_CONDITIONS = 'https://dm3.network/terms-and-conditions';
+
+export const PRIVACY_POLICY = 'https://dm3.network/privacy-policy';
+
+export const GITHUB = 'https://github.com/dm3-org/dm3';
+
+export const SPECIFICATION = 'https://specification.dm3.network';
+
+export const COMMUNITY = 'https://t.me/dm3protocol';
+
+export const NPM =
+    'https://www.npmjs.com/package/@dm3-org/dm3-messenger-widget';
+
+export const DM3_NETWORK = 'https://dm3.network';

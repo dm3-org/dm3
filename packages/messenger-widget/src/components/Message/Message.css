@@ -3,7 +3,8 @@
     max-width: 38rem;
     margin-right: 0.4rem;
     font-size: 14px;
-    word-break: break-all;
+    word-break: break-word;
+    hyphens: auto;
 }
 
 .action-container {
@@ -19,7 +20,7 @@
 
 .time-style {
     font-size: 10px;
-    margin-right: 1.45rem;
+    margin-right: 1.6rem;
     margin-top: -2px;
 }
 
@@ -38,13 +39,8 @@
 .msg-action-container {
     height: fit-content;
     width: fit-content;
-    border: 1px solid var(--text-primary-color);
     visibility: hidden;
-}
-
-.msg-action-dot {
-    height: 0.9rem;
-    width: 0.9rem;
+    background: var(--menu-background-color);
 }
 
 .msg-action-container:hover {
@@ -125,6 +121,28 @@
 
 .contact-msg-text {
     color: var(--received-message-text-color);
+}
+
+.msg-action-btn{
+    color: var(--text-secondary-color);
+    font-size: 1.2rem;
+    font-weight: bolder;
+    display: flex;
+    align-items: center;
+    height: 1.2rem;
+    padding-left: 0.1rem;
+    padding-right: 0.1rem;
+    border-radius: 3px;
+}
+
+.msg-action-btn:hover{
+    background: var(--normal-btn-hover);
+    color: var(--text-primary-color);
+}
+
+.msg-action-btn-highlighted{
+    background: var(--normal-btn-hover);
+    color: var(--text-primary-color);
 }
 
 /* =================== Mobile Responsive CSS =================== */

@@ -2,16 +2,17 @@ import { useContext } from 'react';
 import { SubmitOnChainProfile } from '../SubmitOnChainProfile';
 import { submitGenomeNameTransaction, validateGenomeName } from './bl';
 import { ConfigureProfileContext } from '../../context/ConfigureProfileContext';
-import { GlobalContext } from '../../../../utils/context-utils';
 import { useChainId } from 'wagmi';
 import { AuthContext } from '../../../../context/AuthContext';
 import { ethers } from 'ethers';
 import { IChain, NAME_TYPE } from '../common';
+import { ModalContext } from '../../../../context/ModalContext';
+import { DM3ConfigurationContext } from '../../../../context/DM3ConfigurationContext';
 
 export const ConfigureGenomeProfile = (props: IChain) => {
-    const { state, dispatch } = useContext(GlobalContext);
-
     const chainId = useChainId();
+
+    const { setLoaderContent } = useContext(ModalContext);
 
     const { ethAddress, account, deliveryServiceToken } =
         useContext(AuthContext);
@@ -19,6 +20,8 @@ export const ConfigureGenomeProfile = (props: IChain) => {
     const { onShowError, setExistingEnsName, setEnsName } = useContext(
         ConfigureProfileContext,
     );
+
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     const onSubmitTx = async (name: string) => {
         if (props.chainToConnect !== chainId) {
@@ -32,9 +35,10 @@ export const ConfigureGenomeProfile = (props: IChain) => {
             provider,
             deliveryServiceToken!,
             account!,
-            dispatch,
+            setLoaderContent,
             name,
             ethAddress!,
+            dm3Configuration.genomeRegistryAddress,
             (str: string) => setExistingEnsName(str),
             onShowError,
         );

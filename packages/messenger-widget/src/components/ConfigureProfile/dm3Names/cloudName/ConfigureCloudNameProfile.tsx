@@ -4,18 +4,17 @@ import { NAME_TYPE } from '../../chain/common';
 import { globalConfig } from '@dm3-org/dm3-lib-shared';
 import { createAlias } from '@dm3-org/dm3-lib-delivery-api';
 import { AuthContext } from '../../../../context/AuthContext';
-import { GlobalContext } from '../../../../utils/context-utils';
 import { closeLoader, startLoader } from '../../../Loader/Loader';
-import { ModalStateType } from '../../../../utils/enum-type-utils';
 import { claimSubdomain } from '../../../../adapters/offchainResolverApi';
 import { ConfigureDM3NameContext } from '../../context/ConfigureDM3NameContext';
 import { DM3ConfigurationContext } from '../../../../context/DM3ConfigurationContext';
 import { useMainnetProvider } from '../../../../hooks/mainnetprovider/useMainnetProvider';
+import { ModalContext } from '../../../../context/ModalContext';
 
 export const ConfigureCloudNameProfile = () => {
     const mainnetProvider = useMainnetProvider();
 
-    const { dispatch } = useContext(GlobalContext);
+    const { setLoaderContent } = useContext(ModalContext);
 
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
@@ -33,11 +32,7 @@ export const ConfigureCloudNameProfile = () => {
     const submitDm3UsernameClaim = async (dm3UserEnsName: string) => {
         try {
             // start loader
-            dispatch({
-                type: ModalStateType.LoaderContent,
-                payload: 'Publishing profile...',
-            });
-
+            setLoaderContent('Publishing profile...');
             startLoader();
 
             const ensName = dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN();

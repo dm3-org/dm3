@@ -8,11 +8,11 @@ import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
 import { fetchPendingConversations } from '../../adapters/messages';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
-import { Config } from '../../interfaces/config';
+import { DM3Configuration } from '../../interfaces/config';
 import { TLDContext } from '../../context/TLDContext';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
-export const useConversation = (config: Config) => {
+export const useConversation = (config: DM3Configuration) => {
     const mainnetProvider = useMainnetProvider();
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const { account, deliveryServiceToken } = useContext(AuthContext);
@@ -86,8 +86,11 @@ export const useConversation = (config: Config) => {
                     );
                 }),
             );
-            //It might be the case that contacts are added via websocket. In this case we do not want to add them again
 
+            /**
+             * It might be the case that contacts are added via websocket.
+             * In this case we do not want to add them again
+             */
             _setContactsSafe(storedContacts);
 
             //as long as there is no pagination we fetch the next page until we get an empty page
@@ -176,7 +179,11 @@ export const useConversation = (config: Config) => {
         //Return the new onhydrated contact
         return newContact;
     };
-    //When a conversation is added via the AddContacts dialog it should appeat in the conversation list immediately. Hence we're doing a hydrate here asynchroniously in the background
+
+    /**
+     * When a conversation is added via the AddContacts dialog it should appeat in the conversation list immediately.
+     * Hence we're doing a hydrate here asynchroniously in the background
+     */
     const hydrateExistingContactAsync = async (contact: ContactPreview) => {
         const conversation: Conversation = {
             contactEnsName: contact.contactDetails.account.ensName,

@@ -1,10 +1,4 @@
-import React from 'react';
 import { ethers } from 'ethers';
-import {
-    Actions,
-    ConnectionType,
-    ModalStateType,
-} from '../../utils/enum-type-utils';
 import { checkEnsDM3Text } from '../../utils/ens-utils';
 import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
 import { closeLoader, startLoader } from '../Loader/Loader';
@@ -28,23 +22,19 @@ export enum ACTION_TYPE {
 }
 
 // method to open the profile configuration modal
-export const openConfigurationModal = (dispatch: React.Dispatch<Actions>) => {
-    dispatch({
-        type: ModalStateType.IsProfileConfigurationPopupActive,
-        payload: true,
-    });
-    dispatch({
-        type: ModalStateType.ShowPreferencesModal,
-        payload: true,
-    });
+export const openConfigurationModal = (
+    setShowProfileConfigurationModal: (show: boolean) => void,
+    setShowPreferencesModal: (show: boolean) => void,
+) => {
+    setShowProfileConfigurationModal(true);
+    setShowPreferencesModal(true);
 };
 
 // method to close the profile configuration modal
-export const closeConfigurationModal = (dispatch: React.Dispatch<Actions>) => {
-    dispatch({
-        type: ModalStateType.IsProfileConfigurationPopupActive,
-        payload: false,
-    });
+export const closeConfigurationModal = (
+    setShowProfileConfigurationModal: (show: boolean) => void,
+) => {
+    setShowProfileConfigurationModal(false);
 };
 
 // method to fetch ENS name
@@ -80,18 +70,12 @@ export const getEnsName = async (
 export const removeAliasFromDm3Name = async (
     resolverBackendUrl: string,
     profileKeys: ProfileKeys,
-    account: Account,
-    ethAddress: string,
     dm3UserEnsName: string,
-    dispatch: React.Dispatch<Actions>,
+    setLoaderContent: (content: string) => void,
     setError: Function,
 ) => {
     try {
-        dispatch({
-            type: ModalStateType.LoaderContent,
-            payload: 'Removing alias...',
-        });
-
+        setLoaderContent('Removing alias...');
         startLoader();
 
         const result = await removeAlias(
@@ -100,21 +84,8 @@ export const removeAliasFromDm3Name = async (
             profileKeys.signingKeyPair.privateKey,
         );
 
-        if (result) {
-            dispatch({
-                type: ConnectionType.ChangeAccount,
-                payload: {
-                    ...account!,
-                    ensName: ethAddress + globalConfig.ADDR_ENS_SUBDOMAIN(),
-                },
-            });
-
-            closeLoader();
-            return true;
-        } else {
-            closeLoader();
-            return false;
-        }
+        closeLoader();
+        return result;
     } catch (e) {
         setError('Failed to remove alias', e);
         closeLoader();

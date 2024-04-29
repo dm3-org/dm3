@@ -3,16 +3,16 @@ import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { useChainId } from 'wagmi';
 import { AuthContext } from '../../../../context/AuthContext';
-import { GlobalContext } from '../../../../utils/context-utils';
 import { ConfigureProfileContext } from '../../context/ConfigureProfileContext';
 import { SubmitOnChainProfile } from '../SubmitOnChainProfile';
 import { IChain, NAME_TYPE, validateEnsName } from '../common';
 import { submitEnsNameTransaction } from './bl';
+import { ModalContext } from '../../../../context/ModalContext';
 
 export const ConfigureEnsProfile = (props: IChain) => {
-    const { dispatch } = useContext(GlobalContext);
-
     const chainId = useChainId();
+
+    const { setLoaderContent } = useContext(ModalContext);
 
     const { onShowError, setExistingEnsName, setEnsName } = useContext(
         ConfigureProfileContext,
@@ -35,7 +35,7 @@ export const ConfigureEnsProfile = (props: IChain) => {
             account!,
             ethAddress!,
             deliveryServiceToken!,
-            dispatch,
+            setLoaderContent,
             name,
             (str: string) => setExistingEnsName(str),
             onShowError,

@@ -1,5 +1,4 @@
 import { useContext } from 'react';
-import tickIcon from '../../../assets/images/white-tick.svg';
 import { ConfigureProfileContext } from '../context/ConfigureProfileContext';
 import {
     ACTION_TYPE,

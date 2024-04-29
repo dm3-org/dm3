@@ -2,17 +2,16 @@ import { ethers } from 'ethers';
 import { useContext } from 'react';
 import { useChainId } from 'wagmi';
 import { AuthContext } from '../../../../context/AuthContext';
-import { GlobalContext } from '../../../../utils/context-utils';
 import { ConfigureDM3NameContext } from '../../context/ConfigureDM3NameContext';
-import { ModalStateType } from './../../../../utils/enum-type-utils';
 import { closeLoader, startLoader } from './../../../Loader/Loader';
 import { IChain, NAME_TYPE } from './../../chain/common';
 import { DM3Name } from './../DM3Name';
 import { publishProfile } from './tx/publishProfile';
 import { registerOpName } from './tx/registerOpName';
+import { ModalContext } from '../../../../context/ModalContext';
 
 export const ConfigureOptimismNameProfile = (props: IChain) => {
-    const { dispatch } = useContext(GlobalContext);
+    const { setLoaderContent } = useContext(ModalContext);
     const { setExistingDm3Name, setError } = useContext(
         ConfigureDM3NameContext,
     );
@@ -24,28 +23,20 @@ export const ConfigureOptimismNameProfile = (props: IChain) => {
     const nameExtension = '.op.dm3.eth';
     const placeholder = 'Enter your preferred name and check availability.';
 
-    /**
-     * Modify the logic here for the OP names
-     */
     // Set new OP DM3 username
     const registerOpNameAndPublishProfile = async (opName: string) => {
         try {
-            console.log('lets goooooooooo OP');
             // start loader
-            dispatch({
-                type: ModalStateType.LoaderContent,
-                payload: 'Claim OP name...',
-            });
+            setLoaderContent('Claim OP name...');
             startLoader();
 
             if (props.chainToConnect !== chainId) {
                 console.log(
                     'Invalid chain connected. Please switch to optimism network.',
                 );
-                //TODO @Bhupesh the error seems to be not rendered properly. Can you have a look why not ?
                 setError(
                     'Invalid chain connected. Please switch to optimism network.',
-                    NAME_TYPE.OP_NAME,
+                    NAME_TYPE.DM3_NAME,
                 );
                 closeLoader();
 
@@ -58,7 +49,6 @@ export const ConfigureOptimismNameProfile = (props: IChain) => {
             const ensName = `${opName}${opParentDomain}`;
             const registerNameRes = await registerOpName(
                 opProvider,
-                dispatch,
                 setError,
                 ensName,
             );
@@ -67,11 +57,8 @@ export const ConfigureOptimismNameProfile = (props: IChain) => {
                 closeLoader();
                 return;
             }
-            dispatch({
-                type: ModalStateType.LoaderContent,
-                payload: 'Publishing profile.',
-            });
 
+            setLoaderContent('Publishing profile...');
             await publishProfile(opProvider, account!, ensName);
 
             setDisplayName(ensName);

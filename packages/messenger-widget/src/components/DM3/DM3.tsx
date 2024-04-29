@@ -5,11 +5,22 @@ import Dashboard from '../../views/Dashboard/Dashboard';
 import { SignIn } from '../SignIn/SignIn';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { ethers } from 'ethers';
+import { MessageContextProvider } from '../../context/MessageContext';
+import { ConversationContextProvider } from '../../context/ConversationContext';
+import { Loader, startLoader } from '../Loader/Loader';
+import { SiweValidityStatus } from '../../utils/enum-type-utils';
+import { ModalContext } from '../../context/ModalContext';
+import { Siwe } from '../Siwe/Siwe';
 
 function DM3(props: Dm3Props) {
-    const { setDm3Configuration, setScreenWidth } = useContext(
-        DM3ConfigurationContext,
-    );
+    const {
+        setDm3Configuration,
+        setScreenWidth,
+        setSiweValidityStatus,
+        validateSiweCredentials,
+    } = useContext(DM3ConfigurationContext);
+
+    const { setLoaderContent } = useContext(ModalContext);
 
     const { isLoggedIn } = useContext(AuthContext);
 
@@ -21,7 +32,7 @@ function DM3(props: Dm3Props) {
         }
 
         // sets the DM3 confguration provided from props
-        setDm3Configuration(props.dm3Configuration);
+        setDm3Configuration(props.config);
     }, []);
 
     // This handles the responsive check of widget
@@ -33,6 +44,19 @@ function DM3(props: Dm3Props) {
         return () => {
             window.removeEventListener('resize', handleResize);
         };
+    }, []);
+
+    // validate SIWE credentials
+    useEffect(() => {
+        const validateSiwe = async () => {
+            if (props.config.siwe) {
+                setLoaderContent('Validating SIWE credentials');
+                startLoader();
+                setSiweValidityStatus(SiweValidityStatus.IN_PROGRESS);
+                await validateSiweCredentials(props.config.siwe);
+            }
+        };
+        validateSiwe();
     }, []);
 
     useEffect(() => {
@@ -96,18 +120,22 @@ function DM3(props: Dm3Props) {
 
     return (
         <div id="data-rk-child" className="h-100">
-            {!isLoggedIn ? (
-                <SignIn
-                    hideStorageSelection={props.config.hideStorageSelection}
-                    defaultStorageLocation={props.config.defaultStorageLocation}
-                    miniSignIn={props.config.miniSignIn}
-                    signInImage={props.config.signInImage as string}
-                />
-            ) : (
-                <div className="h-100 background-container">
-                    <Dashboard dm3Props={props} />
-                </div>
-            )}
+            <ConversationContextProvider config={props.config}>
+                <MessageContextProvider>
+                    <Loader />
+                    {!isLoggedIn ? (
+                        props.config.siwe ? (
+                            <Siwe backgroundImage={props.config.signInImage} />
+                        ) : (
+                            <SignIn />
+                        )
+                    ) : (
+                        <div className="h-100 background-container">
+                            <Dashboard />
+                        </div>
+                    )}
+                </MessageContextProvider>
+            </ConversationContextProvider>
         </div>
     );
 }

@@ -35,6 +35,8 @@ const Dm3Widget: React.FC = () => {
         ethereumProvider: process.env.REACT_APP_MAINNET_PROVIDER_RPC as string,
         walletConnectProjectId: process.env
             .REACT_APP_WALLET_CONNECT_PROJECT_ID as string,
+        genomeRegistryAddress: process.env
+            .REACT_APP_GENOME_REGISTRY_ADDRESS as string,
         showAlways: true,
         hideFunction: 'attachments', // Optional parameter to hide certain UI elements
         showContacts: !isMessageToSet(), // Show all contacts or only the default based on the message destination

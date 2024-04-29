@@ -1,38 +1,27 @@
-/* eslint-disable no-console */
 import { useContext } from 'react';
 import detailsIcon from '../../assets/images/details.svg';
 import hideIcon from '../../assets/images/hide.svg';
 import { IContactMenu } from '../../interfaces/props';
-import { GlobalContext } from '../../utils/context-utils';
-import {
-    RightViewSelected,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
-
+import { RightViewSelected } from '../../utils/enum-type-utils';
 import { ConversationContext } from '../../context/ConversationContext';
 import { closeContactMenu } from '../../utils/common-utils';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { UiViewContext } from '../../context/UiViewContext';
 
 export function ContactMenu(props: IContactMenu) {
-    const { dispatch } = useContext(GlobalContext);
     const { hideContact } = useContext(ConversationContext);
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
+    const { setSelectedRightView } = useContext(UiViewContext);
 
     const onClickOfShowDetails = () => {
-        dispatch({
-            type: UiViewStateType.SetSelectedRightView,
-            payload: RightViewSelected.ContactInfo,
-        });
+        setSelectedRightView(RightViewSelected.ContactInfo);
         closeContactMenu();
     };
 
     const onClickOfHideContact = () => {
         hideContact(props.contactDetails.contactDetails.account.ensName);
         //Close the message Modal and show the default one instead
-        dispatch({
-            type: UiViewStateType.SetSelectedRightView,
-            payload: RightViewSelected.Default,
-        });
+        setSelectedRightView(RightViewSelected.Default);
         closeContactMenu();
     };
 

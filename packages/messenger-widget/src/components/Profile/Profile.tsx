@@ -3,11 +3,9 @@ import closeIcon from '../../assets/images/cross.svg';
 import profPic from '../../assets/images/human.svg';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
-import { TLDContext } from '../../context/TLDContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 import { EnsProfileDetails } from '../../interfaces/utils';
 import '../../styles/profile-contact.css';
-import { GlobalContext } from '../../utils/context-utils';
 import {
     getAvatarProfilePic,
     getEnsProfileDetails,
@@ -18,14 +16,23 @@ import { Button } from '../Button/Button';
 import { openConfigurationModal } from '../ConfigureProfile/bl';
 import { EnsDetails } from '../EnsDetails/EnsDetails';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
 
 export function Profile() {
-    const { dispatch } = useContext(GlobalContext);
     const { account, ethAddress, displayName } = useContext(AuthContext);
+
     const { setSelectedContactName } = useContext(ConversationContext);
+
     const { screenWidth, dm3Configuration } = useContext(
         DM3ConfigurationContext,
     );
+
+    const { setSelectedRightView } = useContext(UiViewContext);
+
+    const { setShowProfileConfigurationModal, setShowPreferencesModal } =
+        useContext(ModalContext);
+
     const mainnetProvider = useMainnetProvider();
 
     const [profilePic, setProfilePic] = useState<string>('');
@@ -72,7 +79,7 @@ export function Profile() {
                     alt="close"
                     onClick={() =>
                         onClose(
-                            dispatch,
+                            setSelectedRightView,
                             setSelectedContactName,
                             screenWidth,
                             dm3Configuration.showContacts,
@@ -117,7 +124,10 @@ export function Profile() {
                         <Button
                             buttonText="Configure dm3 profile"
                             actionMethod={() =>
-                                openConfigurationModal(dispatch)
+                                openConfigurationModal(
+                                    setShowProfileConfigurationModal,
+                                    setShowPreferencesModal,
+                                )
                             }
                         />
                     </div>

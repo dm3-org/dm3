@@ -15,12 +15,15 @@ export function Demo() {
         ethereumProvider: process.env.REACT_APP_MAINNET_PROVIDER_RPC as string,
         walletConnectProjectId: process.env
             .REACT_APP_WALLET_CONNECT_PROJECT_ID as string,
+        genomeRegistryAddress: process.env
+            .REACT_APP_GENOME_REGISTRY_ADDRESS as string,
         defaultContact: 'defaultcontact.eth',
         showAlways: true,
         hideFunction: undefined, // OPTIONAL PARAMETER : 'attachments,edit,delete' or undefined
         showContacts: true, // true for all contacts / false for default contact
         theme: undefined, // OPTIONAL PARAMETER : undefined/themeColors
         signInImage: undefined, // OPTIONAL PARAMETER : string URL of image
+        siwe: undefined, // OPTIONAL PARAMETER : sign in with ethereum
     };
 
     return (

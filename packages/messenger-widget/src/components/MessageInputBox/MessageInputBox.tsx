@@ -1,11 +1,7 @@
 import './MessageInputBox.css';
 import { useContext, useEffect, useState } from 'react';
-import { GlobalContext } from '../../utils/context-utils';
 import { setAttachmentsOnEditMessage } from './bl';
-import {
-    MessageActionType,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
+import { MessageActionType } from '../../utils/enum-type-utils';
 import { EmojiModal } from '../EmojiModal/EmojiModal';
 import { Attachment } from '../../interfaces/utils';
 import { ReplyMessagePreview } from '../ReplyMessagePreview/ReplyMessagePreview';
@@ -14,14 +10,18 @@ import { AttachmentSelector } from '../AttachmentSelector/AttachmentSelector';
 import { EmojiSelector } from '../EmojiSelector/EmojiSelector';
 import { MessageInputField } from '../MessageInputField/MessageInputField';
 import { SendMessage } from '../SendMessage/SendMessage';
-import { HideFunctionProps } from '../../interfaces/props';
 import { ConversationContext } from '../../context/ConversationContext';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
 
-export function MessageInputBox(props: HideFunctionProps) {
-    const [message, setMessage] = useState('');
-
-    const { state, dispatch } = useContext(GlobalContext);
+export function MessageInputBox() {
     const { selectedContact } = useContext(ConversationContext);
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
+    const { messageView, setMessageView } = useContext(UiViewContext);
+    const { openEmojiPopup } = useContext(ModalContext);
+
+    const [message, setMessage] = useState('');
     const [filesSelected, setFilesSelected] = useState<Attachment[]>([]);
 
     function setFiles(files: Attachment[]) {
@@ -48,24 +48,16 @@ export function MessageInputBox(props: HideFunctionProps) {
     }, [filesSelected]);
 
     useEffect(() => {
-        if (
-            state.uiView.selectedMessageView.actionType ===
-            MessageActionType.EDIT
-        ) {
-            setMessage(
-                state.uiView.selectedMessageView.messageData?.message as string,
-            );
-            setAttachmentsOnEditMessage(state, setFiles);
+        if (messageView.actionType === MessageActionType.EDIT) {
+            setMessage(messageView.messageData?.message as string);
+            setAttachmentsOnEditMessage(messageView, setFiles);
         }
-    }, [state.uiView.selectedMessageView]);
+    }, [messageView]);
 
     useEffect(() => {
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                actionType: MessageActionType.NONE,
-                messageData: undefined,
-            },
+        setMessageView({
+            actionType: MessageActionType.NONE,
+            messageData: undefined,
         });
         setMessage('');
     }, [selectedContact]);
@@ -81,13 +73,12 @@ export function MessageInputBox(props: HideFunctionProps) {
             className="mb-1 p-1 msg-input-box-container width-fill"
         >
             {/* Reply message preview */}
-            {state.uiView.selectedMessageView.actionType ===
-                MessageActionType.REPLY && (
+            {messageView.actionType === MessageActionType.REPLY && (
                 <ReplyMessagePreview setFiles={setFiles} />
             )}
 
             {/* Emoji popup modal */}
-            {state.modal.openEmojiPopup.action && (
+            {openEmojiPopup.action && (
                 <EmojiModal message={message} setMessage={setMessage} />
             )}
 
@@ -96,8 +87,7 @@ export function MessageInputBox(props: HideFunctionProps) {
                 <div
                     className={'chat-action-items width-fill border-radius-6'.concat(
                         ' ',
-                        state.uiView.selectedMessageView.actionType ===
-                            MessageActionType.REPLY
+                        messageView.actionType === MessageActionType.REPLY
                             ? 'reply-msg-active'
                             : '',
                     )}
@@ -113,8 +103,8 @@ export function MessageInputBox(props: HideFunctionProps) {
                     <div className="d-flex align-items-center width-fill">
                         <div className="d-flex align-items-center text-secondary-color">
                             {/* Attachment selector modal */}
-                            {(!props.hideFunction ||
-                                !props.hideFunction
+                            {(!dm3Configuration.hideFunction ||
+                                !dm3Configuration.hideFunction
                                     .split(',')
                                     .includes('attachments')) && (
                                 <AttachmentSelector

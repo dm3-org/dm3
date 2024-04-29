@@ -115,7 +115,8 @@ input::placeholder {
 
     .dm3-name-content {
         width: 100%;
-        word-break: break-all;
+        word-break: break-word;
+        hyphens: auto;
         padding: 0rem 0.2rem 0rem 0.2rem;
     }
 

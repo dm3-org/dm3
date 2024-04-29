@@ -8,12 +8,6 @@
     container-name: rightView;
 }
 
-@container rightView (max-width: 890px) {
-    .profile-name {
-        display: none !important;
-    }
-}
-
 /* ========================= Container CSS for Left View ======================== */
 .left-view-container-type {
     container-type: size;

@@ -87,5 +87,8 @@
       "src/lib/**/*.{js,jsx,ts,tsx}"
     ]
   },
+  "browser": {
+    "child_process": false
+  },
   "publish": true
 }

@@ -6,14 +6,6 @@ import {
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useAccount, useWalletClient } from 'wagmi';
 import { TLDContext } from '../../context/TLDContext';
-import { GlobalContext } from '../../utils/context-utils';
-import {
-    Actions,
-    ConnectionType,
-    ModalStateType,
-    UiStateType,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { AccountConnector } from './AccountConnector';
 import {
@@ -21,13 +13,18 @@ import {
     DeliveryServiceConnector,
 } from './DeliveryServiceConnector';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
 
 export const useAuth = () => {
+    const mainnetProvider = useMainnetProvider();
+
     const { resolveAliasToTLD } = useContext(TLDContext);
     const { data: walletClient } = useWalletClient();
-    const mainnetProvider = useMainnetProvider();
-    const { dispatch } = useContext(GlobalContext);
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
+    const { resetViewStates } = useContext(UiViewContext);
+    const { resetModalStates } = useContext(ModalContext);
+
     const { address } = useAccount({
         onDisconnect: () => signOut(),
     });
@@ -56,10 +53,8 @@ export const useAuth = () => {
             if (!account) {
                 return;
             }
-            //TODO fix tommorow
             const displayName = await resolveAliasToTLD(account?.ensName);
             console.log('updated account', account);
-            //const displayName = await getAlias(account.ensName);
             setDisplayName(displayName);
         };
         fetchDisplayName();
@@ -81,7 +76,7 @@ export const useAuth = () => {
     const signOut = () => {
         setAccount(undefined);
         setDeliveryServiceToken(undefined);
-        resetStates(dispatch);
+        resetStates();
     };
     const cleanSignIn = async () => {
         setIsLoading(true);
@@ -127,6 +122,11 @@ export const useAuth = () => {
         setProfileKeys(profileKeys);
     };
 
+    const resetStates = () => {
+        resetViewStates();
+        resetModalStates();
+    };
+
     return {
         profileKeys,
         cleanSignIn,
@@ -140,20 +140,4 @@ export const useAuth = () => {
         hasError,
         setAccount,
     };
-};
-
-const resetStates = (dispatch: React.Dispatch<Actions>) => {
-    dispatch({
-        type: ConnectionType.Reset,
-    });
-
-    dispatch({
-        type: UiStateType.Reset,
-    });
-    dispatch({
-        type: UiViewStateType.Reset,
-    });
-    dispatch({
-        type: ModalStateType.Reset,
-    });
 };

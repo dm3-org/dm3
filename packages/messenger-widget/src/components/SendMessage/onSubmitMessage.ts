@@ -3,34 +3,27 @@ import {
     createEditMessage,
     createMessage,
 } from '@dm3-org/dm3-lib-messaging';
-import {
-    GlobalState,
-    MessageActionType,
-    ModalStateType,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
-import { scrollToBottomOfChat } from '../Chat/scrollToBottomOfChat';
-import { MessageDataProps } from '../../interfaces/props';
+import { MessageActionType } from '../../utils/enum-type-utils';
+import { MessageAction, MessageDataProps } from '../../interfaces/props';
 import { Account } from '@dm3-org/dm3-lib-profile';
 import { AddMessage } from '../../hooks/messages/useMessage';
 import { ContactPreview } from '../../interfaces/utils';
 import { closeErrorModal, openErrorModal } from '../../utils/common-utils';
+import { scrollToBottomOfChat } from '../Chat/scrollToBottomOfChat';
 
 export const onSubmitMessage = async (
-    state: GlobalState,
-    dispatch: any,
+    messageView: MessageAction,
+    setMessageView: (view: MessageAction) => void,
+    setLastMessageAction: (action: MessageActionType) => void,
     addMessage: AddMessage,
     props: MessageDataProps,
     profileKeys: any,
     account: Account,
     selectedContact: ContactPreview,
 ) => {
-    if (
-        state.uiView.selectedMessageView.actionType === MessageActionType.REPLY
-    ) {
+    if (messageView.actionType === MessageActionType.REPLY) {
         const referenceMessageHash =
-            state.uiView.selectedMessageView.messageData?.envelop.metadata
-                ?.encryptedMessageHash;
+            messageView.messageData?.envelop.metadata?.encryptedMessageHash;
 
         const messageData = await createReplyMessage(
             selectedContact?.contactDetails.account.ensName!,
@@ -51,32 +44,22 @@ export const onSubmitMessage = async (
             return;
         }
 
+        // Removes preview of reply to message in the UI
+        setMessageView({
+            actionType: MessageActionType.NONE,
+            messageData: undefined,
+        });
+
         props.setFiles([]);
         props.setMessageText('');
 
+        setLastMessageAction(MessageActionType.REPLY);
         scrollToBottomOfChat();
-        dispatch({
-            type: ModalStateType.LastMessageAction,
-            payload: MessageActionType.REPLY,
-        });
-
-        // Removes preview of reply to message in the UI
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                actionType: MessageActionType.NONE,
-                messageData: undefined,
-            },
-        });
-
         return;
     }
-    if (
-        state.uiView.selectedMessageView.actionType === MessageActionType.EDIT
-    ) {
+    if (messageView.actionType === MessageActionType.EDIT) {
         const referenceMessageHash =
-            state.uiView.selectedMessageView.messageData?.envelop.metadata
-                ?.encryptedMessageHash;
+            messageView.messageData?.envelop.metadata?.encryptedMessageHash;
 
         // reply to the original message
         const messageData = await createEditMessage(
@@ -98,18 +81,15 @@ export const onSubmitMessage = async (
             return;
         }
 
+        setMessageView({
+            actionType: MessageActionType.NONE,
+            messageData: undefined,
+        });
+
         props.setFiles([]);
         props.setMessageText('');
+        setLastMessageAction(MessageActionType.EDIT);
 
-        scrollToBottomOfChat();
-
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                actionType: MessageActionType.NONE,
-                messageData: undefined,
-            },
-        });
         return;
     }
 

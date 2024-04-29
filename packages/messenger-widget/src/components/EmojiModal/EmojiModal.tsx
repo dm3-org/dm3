@@ -1,28 +1,26 @@
+import './EmojiModal.css';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import { useContext, useEffect, useRef } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { EmojiProps, MessageProps } from '../../interfaces/props';
-import { GlobalContext } from '../../utils/context-utils';
-import {
-    MessageActionType,
-    ModalStateType,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
+import { MessageActionType } from '../../utils/enum-type-utils';
 import { hideMsgActionDropdown } from '../MessageInputBox/bl';
-import './EmojiModal.css';
 import { createReactionMessage } from '@dm3-org/dm3-lib-messaging';
 import { MessageContext } from '../../context/MessageContext';
+import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
 
 export function EmojiModal(props: EmojiProps) {
     const emojiRef: any = useRef();
 
-    const { state, dispatch } = useContext(GlobalContext);
-
+    const { setMessageView } = useContext(UiViewContext);
     const { account, profileKeys } = useContext(AuthContext);
     const { addMessage } = useContext(MessageContext);
     const { selectedContact } = useContext(ConversationContext);
+    const { setOpenEmojiPopup, openEmojiPopup, setLastMessageAction } =
+        useContext(ModalContext);
 
     // handles mouse click outside of emoji modal and closes the modal automatically
     const handleClickOutside = (e: { target: any }) => {
@@ -31,10 +29,7 @@ export function EmojiModal(props: EmojiProps) {
             return;
         } else if (emojiRef.current && !emojiRef.current.contains(e.target)) {
             // close the popup when clicked outside
-            dispatch({
-                type: ModalStateType.OpenEmojiPopup,
-                payload: { action: false, data: undefined },
-            });
+            setOpenEmojiPopup({ action: false, data: undefined });
         }
     };
 
@@ -42,30 +37,21 @@ export function EmojiModal(props: EmojiProps) {
     const handleEmojiSelect = async (data: string) => {
         let messageProps: MessageProps;
         // emoji reaction
-        if (
-            state.modal.openEmojiPopup.action &&
-            state.modal.openEmojiPopup.data
-        ) {
-            messageProps = state.modal.openEmojiPopup.data as MessageProps;
-            dispatch({
-                type: ModalStateType.OpenEmojiPopup,
-                payload: { action: false, data: undefined },
-            });
+        if (openEmojiPopup.action && openEmojiPopup.data) {
+            messageProps = openEmojiPopup.data as MessageProps;
+            setOpenEmojiPopup({ action: false, data: undefined });
             setAction();
             await reactToMessage(data, messageProps);
         } else {
-            // normal message contianing emoji
+            // normal message containing emoji
             props.setMessage(props.message.concat(data));
         }
     };
 
     const setAction = () => {
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                messageData: undefined,
-                actionType: MessageActionType.REACT,
-            },
+        setMessageView({
+            messageData: undefined,
+            actionType: MessageActionType.REACT,
         });
         hideMsgActionDropdown();
     };
@@ -85,12 +71,9 @@ export function EmojiModal(props: EmojiProps) {
             return;
         }
 
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                actionType: MessageActionType.NONE,
-                messageData: undefined,
-            },
+        setMessageView({
+            actionType: MessageActionType.NONE,
+            messageData: undefined,
         });
 
         const referenceMessageHash =
@@ -110,10 +93,7 @@ export function EmojiModal(props: EmojiProps) {
             messageData,
         );
 
-        dispatch({
-            type: ModalStateType.LastMessageAction,
-            payload: MessageActionType.REACT,
-        });
+        setLastMessageAction(MessageActionType.REACT);
     };
 
     // handles click on outside of emoji modal to autoclose the modal

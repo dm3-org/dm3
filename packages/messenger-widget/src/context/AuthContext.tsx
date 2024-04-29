@@ -12,7 +12,6 @@ export type AuthContextType = {
     isLoading: boolean;
     hasError: boolean;
     ethAddress: string | undefined;
-
     profileKeys: ProfileKeys | undefined;
 };
 
@@ -26,17 +25,10 @@ export const AuthContext = React.createContext<AuthContextType>({
     isLoading: false,
     hasError: false,
     ethAddress: undefined,
-
     profileKeys: undefined,
 });
 
-export const AuthContextProvider = ({
-    children,
-    dispatch,
-}: {
-    children?: any;
-    dispatch: Function;
-}) => {
+export const AuthContextProvider = ({ children }: { children?: any }) => {
     const {
         cleanSignIn,
         setDisplayName,
@@ -47,7 +39,6 @@ export const AuthContextProvider = ({
         isLoading,
         hasError,
         ethAddress,
-
         profileKeys,
     } = useAuth();
     return (

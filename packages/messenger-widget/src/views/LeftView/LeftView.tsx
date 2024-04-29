@@ -2,29 +2,30 @@ import '../../styles/common.css';
 import { Contacts } from '../../components/Contacts/Contacts';
 import menuIcon from '../../assets/images/menu.svg';
 import ConfigureProfileBox from '../../components/ConfigureProfileBox/ConfigureProfileBox';
-import { DashboardProps } from '../../interfaces/props';
-import { GlobalContext } from '../../utils/context-utils';
 import { useContext, useEffect, useState } from 'react';
 import {
     LeftViewSelected,
-    ModalStateType,
     RightViewSelected,
-    UiViewStateType,
 } from '../../utils/enum-type-utils';
 import { closeLoader, startLoader } from '../../components/Loader/Loader';
 import Menu from '../../components/Menu/Menu';
 import { ConversationContext } from '../../context/ConversationContext';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
 import { AuthContext } from '../../context/AuthContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 import humanIcon from '../../assets/images/human.svg';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
 
-export default function LeftView(props: DashboardProps) {
-    // fetches context api data
-    const { state, dispatch } = useContext(GlobalContext);
+export default function LeftView() {
+    const { account, displayName } = useContext(AuthContext);
+    const { setLoaderContent } = useContext(ModalContext);
     const { initialized } = useContext(ConversationContext);
-    const { account } = useContext(AuthContext);
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
+
+    const { setSelectedLeftView, setSelectedRightView, selectedLeftView } =
+        useContext(UiViewContext);
 
     const mainnetProvider = useMainnetProvider();
 
@@ -43,21 +44,15 @@ export default function LeftView(props: DashboardProps) {
 
     // method to set profile page and set contact
     const updateView = () => {
-        if (props.dm3Props.dm3Configuration.showContacts) {
-            dispatch({
-                type: UiViewStateType.SetSelectedRightView,
-                payload: RightViewSelected.Profile,
-            });
+        if (dm3Configuration.showContacts) {
+            setSelectedRightView(RightViewSelected.Profile);
         }
     };
 
     // handles starting loader on page load
     useEffect(() => {
         if (!initialized) {
-            dispatch({
-                type: ModalStateType.LoaderContent,
-                payload: 'Fetching contacts...',
-            });
+            setLoaderContent('Fetching contacts...');
             startLoader();
             return;
         }
@@ -70,10 +65,7 @@ export default function LeftView(props: DashboardProps) {
 
     // method to open menu item
     const openMenuItem = () => {
-        dispatch({
-            type: UiViewStateType.SetSelectedLeftView,
-            payload: LeftViewSelected.Menu,
-        });
+        setSelectedLeftView(LeftViewSelected.Menu);
     };
 
     return (
@@ -81,7 +73,7 @@ export default function LeftView(props: DashboardProps) {
             <div
                 className={'w-100 height-inherit'.concat(
                     ' ',
-                    state.uiView.selectedLeftView === LeftViewSelected.Menu
+                    selectedLeftView === LeftViewSelected.Menu
                         ? 'blur-background'
                         : '',
                 )}
@@ -93,15 +85,14 @@ export default function LeftView(props: DashboardProps) {
                         alt="menu"
                         onClick={() => openMenuItem()}
                     />
-                    {/* Profile icon and address to show in mobile screens */}
+                    {/* Profile icon to show in mobile screens */}
                     <div className="mobile-profile-icon">
-                        <ConnectButton
-                            showBalance={false}
-                            accountStatus={{
-                                smallScreen: 'avatar',
-                                largeScreen: 'full',
-                            }}
-                        />
+                        <span
+                            onClick={() => updateView()}
+                            className="font-weight-500 pointer-cursor text-secondary-color ps-1 pe-1"
+                        >
+                            {displayName}
+                        </span>
                         <img
                             src={profilePic ? profilePic : humanIcon}
                             alt="menu"
@@ -110,14 +101,14 @@ export default function LeftView(props: DashboardProps) {
                         />
                     </div>
                 </div>
-                <Contacts {...props} />
+                <Contacts />
                 <ConfigureProfileBox />
             </div>
 
             <div
                 className={'h-100'.concat(
                     ' ',
-                    state.uiView.selectedLeftView === LeftViewSelected.Menu
+                    selectedLeftView === LeftViewSelected.Menu
                         ? 'menu-container'
                         : '',
                 )}
