@@ -294,6 +294,7 @@ input[type='number'] {
     align-items: center;
     margin-left: 3rem;
     word-break: break-word;
+    hyphens: auto;
 }
 
 /* =================== Mobile Responsive CSS =================== */
@@ -308,7 +309,8 @@ input[type='number'] {
     }
 
     .notification-description {
-        word-break: break-all;
+        hyphens: auto;
+        word-break: break-word;
         width: fit-content;
         margin: 1rem 0rem 0rem 0rem;
     }

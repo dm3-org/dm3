@@ -27,6 +27,13 @@ export const getAvatarProfilePic = async (
         const provider = mainnetProvider;
         try {
             if (provider) {
+                const resolver = await provider.getResolver(ensName);
+                if (resolver) {
+                    const avatar = await resolver
+                        .getText('avatar')
+                        .catch(() => null);
+                    if (avatar) return avatar;
+                }
                 const address = await provider.resolveName(ensName);
                 if (address) {
                     const pic = makeBlockie(address);

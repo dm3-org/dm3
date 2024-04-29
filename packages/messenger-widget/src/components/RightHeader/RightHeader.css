@@ -41,7 +41,8 @@
 }
 
 .contact-name-header{
-    word-break: break-all;
+    word-break: break-word;
+    hyphens: auto;
 }
 
 /* =================== Mobile Responsive CSS =================== */
