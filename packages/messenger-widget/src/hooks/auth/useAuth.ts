@@ -1,20 +1,25 @@
 import {
     Account,
     ProfileKeys,
+    SignedUserProfile,
+    getUserProfile,
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useAccount, useWalletClient } from 'wagmi';
 import { TLDContext } from '../../context/TLDContext';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
-import { AccountConnector } from './AccountConnector';
+import { AccountConnector, getIdForAddress } from './AccountConnector';
 import {
     ConnectDsResult,
     DeliveryServiceConnector,
+    SignMessageFn,
 } from './DeliveryServiceConnector';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { UiViewContext } from '../../context/UiViewContext';
 import { ModalContext } from '../../context/ModalContext';
+import { ethers } from 'ethers';
+import { sha256, toUtf8Bytes } from 'ethers/lib/utils';
 
 export const useAuth = () => {
     const mainnetProvider = useMainnetProvider();
@@ -78,6 +83,7 @@ export const useAuth = () => {
         setDeliveryServiceToken(undefined);
         resetStates();
     };
+    //The normal sign in function that is used when the user signs in with their own account, using a web3 provider like wallet connect or metamask
     const cleanSignIn = async () => {
         setIsLoading(true);
         setHasError(false);
@@ -91,15 +97,52 @@ export const useAuth = () => {
             throw Error('error fetching dm3Account');
         }
 
+        await _login(
+            account.ensName,
+            address!,
+            account.userProfile,
+            (message: string) => walletClient!.signMessage({ message }),
+        );
+    };
+
+    //Siwe signin is used when a siwe message has been provided by an app using dm3 as a widget.
+    //The user is signed in with a random account based on the provided secret
+    const siweSignIn = async () => {
+        //First we have to create a wallet based on the provided siwe secret
+        const secret = dm3Configuration.siwe?.secret;
+        if (!secret) {
+            throw Error('No SIWE secret provided');
+        }
+        const carrierWallet = new ethers.Wallet(sha256(toUtf8Bytes(secret)));
+
+        //Check if the account has been used already
+        const ensName = getIdForAddress(carrierWallet.address);
+        const userProfile = await getUserProfile(mainnetProvider, ensName);
+
+        await _login(
+            ensName,
+            carrierWallet.address!,
+            userProfile,
+            (msg: string) => carrierWallet.signMessage(msg),
+        );
+    };
+    const _login = async (
+        ensName: string,
+        address: string,
+        userProfile: SignedUserProfile | undefined,
+        signMessage: SignMessageFn,
+    ) => {
+        console.log('start login ');
         let connectDsResult: ConnectDsResult | undefined;
         try {
             connectDsResult = await DeliveryServiceConnector(
                 dm3Configuration,
                 mainnetProvider,
-                walletClient!,
+                signMessage,
                 address!,
-            ).login(account.ensName, account.userProfile);
+            ).login(ensName, userProfile);
         } catch (e) {
+            console.log(e);
             setHasError(true);
             setIsLoading(false);
             setEthAddress(undefined);
@@ -111,7 +154,7 @@ export const useAuth = () => {
 
         setAccount({
             ...account,
-            ensName: normalizeEnsName(account.ensName),
+            ensName: normalizeEnsName(ensName),
             profile: signedUserProfile.profile,
             profileSignature: signedUserProfile.signature,
         });
@@ -130,6 +173,7 @@ export const useAuth = () => {
     return {
         profileKeys,
         cleanSignIn,
+        siweSignIn,
         setDisplayName,
         account,
         displayName,

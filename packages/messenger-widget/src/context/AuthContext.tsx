@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/auth/useAuth';
 
 export type AuthContextType = {
     cleanSignIn: () => Promise<void>;
+    siweSignIn: () => Promise<void>;
     setDisplayName: Function;
     account: Account | undefined;
     displayName: string | undefined;
@@ -17,6 +18,7 @@ export type AuthContextType = {
 
 export const AuthContext = React.createContext<AuthContextType>({
     cleanSignIn: () => Promise.resolve(),
+    siweSignIn: () => Promise.resolve(),
     setDisplayName: () => {},
     account: undefined,
     displayName: undefined,
@@ -31,6 +33,7 @@ export const AuthContext = React.createContext<AuthContextType>({
 export const AuthContextProvider = ({ children }: { children?: any }) => {
     const {
         cleanSignIn,
+        siweSignIn,
         setDisplayName,
         account,
         displayName,
@@ -45,6 +48,7 @@ export const AuthContextProvider = ({ children }: { children?: any }) => {
         <AuthContext.Provider
             value={{
                 cleanSignIn,
+                siweSignIn,
                 setDisplayName,
                 account,
                 displayName,
