@@ -127,7 +127,6 @@ export default () => {
                 const ensName = normalizeEnsName(req.params.ensName);
 
                 const data = await submitUserProfileSiwe(
-                    req.app.locals.web3Provider,
                     req.app.locals.db.getSession,
                     req.app.locals.db.setSession,
                     ensName,

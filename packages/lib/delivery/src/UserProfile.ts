@@ -74,7 +74,6 @@ export async function submitUserProfile(
     return session.token;
 }
 export async function submitUserProfileSiwe(
-    provider: ethers.providers.JsonRpcProvider,
     getSession: (accountAddress: string) => Promise<Session | null>,
     setSession: (accountAddress: string, session: Session) => Promise<void>,
     ensName: string,
@@ -83,8 +82,9 @@ export async function submitUserProfileSiwe(
     send: (socketId: string) => void,
 ): Promise<string> {
     const account = normalizeEnsName(ensName);
+    //Check if the leftmost part of the account is the address of the carrier
 
-    //First Check if SIWE has been signed by address using ECRecoverey
+    //First Check if SIWE has been signed by the address using ECRecoverey
     const isCorrectSiwe =
         ethers.utils.recoverAddress(
             ethers.utils.hashMessage(siwePayload.message),

@@ -224,7 +224,6 @@ describe('UserProfile', () => {
 
             await expect(async () => {
                 await submitUserProfileSiwe(
-                    { resolveName: () => RANDO_ADDRESS } as any,
                     getSession,
                     setSession,
                     RANDO_NAME,
@@ -277,7 +276,6 @@ describe('UserProfile', () => {
 
             await expect(async () => {
                 await submitUserProfileSiwe(
-                    { resolveName: () => RANDO_ADDRESS } as any,
                     getSession,
                     setSession,
                     RANDO_NAME,
@@ -350,7 +348,6 @@ describe('UserProfile', () => {
             };
             await expect(async () => {
                 await submitUserProfileSiwe(
-                    { resolveName: () => SENDER_ADDRESS } as any,
                     getSession,
                     setSession,
                     SENDER_NAME,
@@ -401,7 +398,6 @@ describe('UserProfile', () => {
             };
 
             await submitUserProfileSiwe(
-                { resolveName: () => RANDO_ADDRESS } as any,
                 getSession,
                 setSession,
                 RANDO_NAME,
