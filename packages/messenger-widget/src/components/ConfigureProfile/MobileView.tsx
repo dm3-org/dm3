@@ -50,8 +50,12 @@ export function MobileView() {
 
     // handles ENS name and address
     useEffect(() => {
-        getEnsName(mainnetProvider, ethAddress!, account!, (name: string) =>
-            setEnsName(name),
+        getEnsName(
+            mainnetProvider,
+            ethAddress!,
+            account!,
+            (name: string) => setEnsName(name),
+            dm3Configuration.addressEnsSubdomain,
         );
     }, [ethAddress]);
 

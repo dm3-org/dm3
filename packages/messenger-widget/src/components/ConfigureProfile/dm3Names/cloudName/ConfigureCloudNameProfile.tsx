@@ -1,7 +1,6 @@
 import { useContext } from 'react';
 import { DM3Name } from './../DM3Name';
 import { NAME_TYPE } from '../../chain/common';
-import { globalConfig } from '@dm3-org/dm3-lib-shared';
 import { createAlias } from '@dm3-org/dm3-lib-delivery-api';
 import { AuthContext } from '../../../../context/AuthContext';
 import { closeLoader, startLoader } from '../../../Loader/Loader';
@@ -25,7 +24,7 @@ export const ConfigureCloudNameProfile = () => {
     const { account, deliveryServiceToken, profileKeys, setDisplayName } =
         useContext(AuthContext);
 
-    const nameExtension = globalConfig.USER_ENS_SUBDOMAIN();
+    const nameExtension = dm3Configuration.userEnsSubdomain;
     const placeholder = 'Enter your preferred name and check availability.';
 
     // Set new cloud DM3 username
@@ -35,11 +34,11 @@ export const ConfigureCloudNameProfile = () => {
             setLoaderContent('Publishing profile...');
             startLoader();
 
-            const ensName = dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN();
+            const ensName = dm3UserEnsName! + dm3Configuration.userEnsSubdomain;
 
             if (profileKeys) {
                 await claimSubdomain(
-                    dm3UserEnsName! + globalConfig.USER_ENS_SUBDOMAIN(),
+                    dm3UserEnsName! + dm3Configuration.userEnsSubdomain,
                     dm3Configuration.resolverBackendUrl as string,
                     account!.ensName,
                     profileKeys.signingKeyPair.privateKey,

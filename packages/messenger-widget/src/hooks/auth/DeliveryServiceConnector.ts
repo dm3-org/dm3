@@ -19,7 +19,7 @@ import {
     submitUserProfile,
 } from '@dm3-org/dm3-lib-delivery-api';
 import { createProfileKeys as _createProfileKeys } from '@dm3-org/dm3-lib-profile';
-import { globalConfig, stringify } from '@dm3-org/dm3-lib-shared';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 import { GetWalletClientResult } from '@wagmi/core';
 import axios from 'axios';
 import { ethers } from 'ethers';
@@ -39,6 +39,8 @@ export const DeliveryServiceConnector = (
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     signMessage: SignMessageFn,
     address: string,
+    defaultDeliveryService: string,
+    addrEnsSubdomain: string,
 ) => {
     async function createProfileKeys(
         nonce: string = DEFAULT_NONCE,
@@ -134,7 +136,7 @@ export const DeliveryServiceConnector = (
             const profile: UserProfile = {
                 publicSigningKey: signingKeyPair.publicKey,
                 publicEncryptionKey: encryptionKeyPair.publicKey,
-                deliveryServices: [globalConfig.DEFAULT_DELIVERY_SERVICE()],
+                deliveryServices: [defaultDeliveryService],
             };
             try {
                 const profileCreationMessage = getProfileCreationMessage(
@@ -164,7 +166,7 @@ export const DeliveryServiceConnector = (
         ) {
             throw Error(`Couldn't claim address subdomain`);
         }
-        const ensName = address + globalConfig.ADDR_ENS_SUBDOMAIN();
+        const ensName = address + addrEnsSubdomain;
 
         const deliveryServiceToken = await submitUserProfile(
             { ensName, profile: signedUserProfile.profile },
