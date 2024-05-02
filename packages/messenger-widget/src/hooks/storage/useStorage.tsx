@@ -96,8 +96,6 @@ export const useStorage = (
                 decryptSync,
             },
         );
-
-        await migrate(s);
         setStorageApi(s);
         setInitialized(true);
     };
