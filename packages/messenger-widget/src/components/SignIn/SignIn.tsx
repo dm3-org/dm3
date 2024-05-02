@@ -1,16 +1,16 @@
 /* eslint-disable max-len */
 /* eslint-disable no-console */
-import './SignIn.css';
-import DM3Logo from './DM3Logo';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { useContext } from 'react';
 import { useAccount } from 'wagmi';
-import { LoginButton } from './LoginButton';
-import { changeSignInButtonStyle } from './bl';
-import { AuthContext } from '../../context/AuthContext';
-import { ButtonState } from '../../utils/enum-type-utils';
 import { signInImage } from '../../assets/base64/home-image';
-import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { AuthContext } from '../../context/AuthContext';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { ButtonState } from '../../utils/enum-type-utils';
+import DM3Logo from './DM3Logo';
+import { LoginButton } from './LoginButton';
+import './SignIn.css';
+import { changeSignInButtonStyle } from './bl';
 
 export function SignIn() {
     const { isConnected } = useAccount();

@@ -4,6 +4,8 @@ import { SiweValidityStatus } from '../../utils/enum-type-utils';
 import { closeLoader } from '../../components/Loader/Loader';
 import { openErrorModal } from '../../utils/common-utils';
 import { log } from '@dm3-org/dm3-lib-shared';
+import { ethers } from 'ethers';
+import { formatAddress } from '@dm3-org/dm3-lib-profile';
 
 export const useDm3Configuration = () => {
     const [screenWidth, setScreenWidth] = useState<number>(window.innerWidth);
@@ -30,10 +32,16 @@ export const useDm3Configuration = () => {
     });
 
     const validateSiweCredentials = async (data: Siwe) => {
+        console.log('Validating SIWE credentials');
+
         try {
             // Implement the logic, call the backend function to check siwe is valid
-            const isValid = false;
-            if (isValid) {
+            const isValidSiwe =
+                ethers.utils.recoverAddress(
+                    ethers.utils.hashMessage(data.message),
+                    data.signature,
+                ) === formatAddress(data.address);
+            if (isValidSiwe) {
                 setSiweValidityStatus(SiweValidityStatus.VALIDATED);
                 closeLoader();
                 return;

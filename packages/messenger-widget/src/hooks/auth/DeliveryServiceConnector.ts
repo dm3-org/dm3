@@ -31,11 +31,13 @@ export type ConnectDsResult = {
     deliveryServiceToken: string;
     profileKeys: ProfileKeys;
 };
+//Interface to support different kinds of signers
+export type SignMessageFn = (message: string) => Promise<string>;
 
 export const DeliveryServiceConnector = (
     dm3Configuration: DM3Configuration,
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
-    walletClient: GetWalletClientResult,
+    signMessage: SignMessageFn,
     address: string,
     defaultDeliveryService: string,
     addrEnsSubdomain: string,
@@ -43,10 +45,6 @@ export const DeliveryServiceConnector = (
     async function createProfileKeys(
         nonce: string = DEFAULT_NONCE,
     ): Promise<ProfileKeys> {
-        if (!walletClient) {
-            throw Error('No wallet client');
-        }
-
         if (!address) {
             throw Error('No eth address');
         }
@@ -56,10 +54,7 @@ export const DeliveryServiceConnector = (
             address,
         );
 
-        const signature = await walletClient.signMessage({
-            message: storageKeyCreationMessage,
-        });
-
+        const signature = await signMessage(storageKeyCreationMessage);
         const storageKey = await createStorageKey(signature);
         return await _createProfileKeys(storageKey, nonce);
     }
@@ -148,15 +143,11 @@ export const DeliveryServiceConnector = (
                     stringify(profile),
                     address!,
                 );
-
-                //@ts-ignore
-                const sig = await walletClient.signMessage({
-                    message: profileCreationMessage,
-                });
+                const signature = await signMessage(profileCreationMessage);
 
                 return {
                     profile,
-                    signature: sig,
+                    signature,
                 } as SignedUserProfile;
             } catch (error: any) {
                 const err = error?.message.split(':');

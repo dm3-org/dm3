@@ -1,12 +1,11 @@
 /* eslint-disable max-len */
-/* eslint-disable no-console */
 import { checkUserProfile, getUserProfile } from '@dm3-org/dm3-lib-profile';
 import { log } from '@dm3-org/dm3-lib-shared';
 import { createWeb3Name } from '@web3-name-sdk/core';
 import { ethers } from 'ethers';
 import { WalletClient } from 'viem';
 
-function getIdForAddress(address: string, addrEnsSubdomain: string) {
+export function getIdForAddress(address: string, addrEnsSubdomain: string) {
     return address + addrEnsSubdomain;
 }
 
