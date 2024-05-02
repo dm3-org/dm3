@@ -20,6 +20,7 @@ import { UiViewContext } from '../../context/UiViewContext';
 import { ModalContext } from '../../context/ModalContext';
 import { ethers } from 'ethers';
 import { sha256, toUtf8Bytes } from 'ethers/lib/utils';
+import { closeLoader, startLoader } from '../../components/Loader/Loader';
 
 export const useAuth = () => {
     const mainnetProvider = useMainnetProvider();
@@ -109,9 +110,11 @@ export const useAuth = () => {
     //Siwe signin is used when a siwe message has been provided by an app using dm3 as a widget.
     //The user is signed in with a random account based on the provided secret
     const siweSignIn = async () => {
+        startLoader();
         //First we have to create a wallet based on the provided siwe secret
         const secret = dm3Configuration.siwe?.secret;
         if (!secret) {
+            closeLoader();
             throw Error('No SIWE secret provided');
         }
         const carrierWallet = new ethers.Wallet(sha256(toUtf8Bytes(secret)));
@@ -129,6 +132,7 @@ export const useAuth = () => {
             userProfile,
             (msg: string) => carrierWallet.signMessage(msg),
         );
+        closeLoader();
     };
     const _login = async (
         ensName: string,
