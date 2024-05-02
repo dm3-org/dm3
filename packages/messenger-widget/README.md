@@ -86,6 +86,7 @@ Follow the below given steps :-
             showContacts: true,
             theme: undefined, 
             signInImage: undefined,
+            siwe: undefined
         };
 
         return (
@@ -237,6 +238,7 @@ Follow the below given steps :-
             showContacts: true,
             theme: undefined, 
             signInImage: undefined,
+            siwe: undefined,
         };
 
         return (
@@ -396,7 +398,38 @@ Example :
    signInImage: "https://letsenhance.io/static/8f5e523ee6b2479e26ecc91b9c25261e/1015f/MainAfter.jpg"
 ```
 
-5. theme
+5. siwe
+```js
+const props: DM3Configuration = {
+   ...
+   siwe: "https://myimage.png",
+}
+```
+This is a optional property of type obejct. Using this one can signin into DM3 with the SIWE (Sign In With Ethereum). All the properties of the object are mandatory.
+
+
+#### Address : 
+The address of the user's wallet
+#### Message : 
+The login message. This can be any SIWE-like message. This message might not be confidential and also could contain a timestamp.
+#### Signature : 
+The signature to the above message.
+#### Secret : 
+A unique secret identifier This value is the secret entropy to be used as a seed for the internal keys to be derived from. It must not be shared anywhere else. Also, the embedding app is responsible for storing this securely, as it is "the key" for the communication. For instance, this could be a derivation, signature,... from an internally used private key.
+IMPORTANT The embedding app is responsible for security, recovery, etc.
+
+```js
+Example : 
+   signInImage: undefined
+   signInImage: {
+        address: "0xe7861D923e1B055bB25CD49569d20903c44692c5",
+        message: "my msg",
+        signature: '0xc9c8df80009a302559642d67adeea12d6e3f2ecbd7702986596b4012a5f5956e70c2a2c658f7c02e9255499049ea518fdf714cadc121b0319aee80f7ae28b0181b',
+        secret: "my-super-secret0"
+    }
+```
+
+6. theme
 ```js
 const props: DM3Configuration = {
    ...
