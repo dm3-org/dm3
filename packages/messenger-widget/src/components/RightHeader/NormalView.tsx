@@ -31,6 +31,7 @@ export function NormalView() {
             await getAvatarProfilePic(
                 mainnetProvider,
                 account?.ensName as string,
+                dm3Configuration.addressEnsSubdomain,
             ),
         );
     };

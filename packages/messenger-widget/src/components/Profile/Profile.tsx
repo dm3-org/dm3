@@ -57,6 +57,7 @@ export function Profile() {
             await getAvatarProfilePic(
                 mainnetProvider,
                 account?.ensName as string,
+                dm3Configuration.addressEnsSubdomain,
             ),
         );
     };

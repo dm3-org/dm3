@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { checkEnsDM3Text } from '../../utils/ens-utils';
-import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
+import { log } from '@dm3-org/dm3-lib-shared';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { removeAlias } from '../../adapters/offchain-resolver-api';
 import { ConfigureEnsProfile } from './chain/ens/ConfigureEnsProfile';
@@ -43,12 +43,11 @@ export const getEnsName = async (
     ethAddress: string,
     account: Account,
     setEnsNameFromResolver: Function,
+    addrEnsSubdomain: string,
 ) => {
     try {
         if (ethAddress) {
-            const isAddrEnsName = account.ensName?.endsWith(
-                globalConfig.ADDR_ENS_SUBDOMAIN(),
-            );
+            const isAddrEnsName = account.ensName?.endsWith(addrEnsSubdomain);
             const name = await mainnetProvider.lookupAddress(ethAddress);
             if (name && !isAddrEnsName) {
                 const hasProfile = await hasUserProfile(mainnetProvider, name);
@@ -105,10 +104,16 @@ export const fetchExistingDM3Name = async (
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     setExistingDm3Name: Function,
+    addrEnsSubdomain: string,
+    userEnsSubdomain: string,
 ) => {
     try {
         if (account) {
-            const dm3NameService = new Dm3Name(mainnetProvider);
+            const dm3NameService = new Dm3Name(
+                mainnetProvider,
+                addrEnsSubdomain,
+                userEnsSubdomain,
+            );
             const dm3Name = await dm3NameService.resolveAliasToTLD(
                 account.ensName,
                 resolverBackendUrl,
@@ -117,9 +122,7 @@ export const fetchExistingDM3Name = async (
             // Its DM3 name -> bob.beta-user.dm3.eth
             // Checks user sub domain for setting DM3 name
             setExistingDm3Name(
-                dm3Name.endsWith(globalConfig.USER_ENS_SUBDOMAIN())
-                    ? dm3Name
-                    : null,
+                dm3Name.endsWith(userEnsSubdomain) ? dm3Name : null,
             );
         } else {
             setExistingDm3Name(null);

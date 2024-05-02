@@ -1,18 +1,19 @@
 /* eslint-disable max-len */
 /* eslint-disable no-console */
 import { checkUserProfile, getUserProfile } from '@dm3-org/dm3-lib-profile';
-import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
+import { log } from '@dm3-org/dm3-lib-shared';
 import { createWeb3Name } from '@web3-name-sdk/core';
 import { ethers } from 'ethers';
 import { WalletClient } from 'viem';
 
-function getIdForAddress(address: string) {
-    return address + globalConfig.ADDR_ENS_SUBDOMAIN();
+function getIdForAddress(address: string, addrEnsSubdomain: string) {
+    return address + addrEnsSubdomain;
 }
 
 export const AccountConnector = (
     walletClient: WalletClient,
     mainnetProvider: ethers.providers.JsonRpcProvider,
+    addrEnsSubdomain: string,
 ) => {
     async function connectOffchainAccount(address: string) {
         try {
@@ -21,7 +22,7 @@ export const AccountConnector = (
              * if so we can use that account
              * Otherwise we use the addr_ens_subdomain
              */
-            const ensName = getIdForAddress(address);
+            const ensName = getIdForAddress(address, addrEnsSubdomain);
 
             //We're trying to get the profile from the delivery service
             const userProfile = await getUserProfile(mainnetProvider, ensName);
@@ -36,7 +37,7 @@ export const AccountConnector = (
         let onChainProfile;
         let offChainProfile;
 
-        const offchainAddrAlias = getIdForAddress(address);
+        const offchainAddrAlias = getIdForAddress(address, addrEnsSubdomain);
         try {
             onChainProfile = await getUserProfile(mainnetProvider!, ensName);
             offChainProfile = await getUserProfile(

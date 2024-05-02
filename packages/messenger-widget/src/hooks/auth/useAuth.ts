@@ -85,6 +85,7 @@ export const useAuth = () => {
         const account = await AccountConnector(
             walletClient!,
             mainnetProvider,
+            dm3Configuration.addressEnsSubdomain,
         ).connect(address!);
 
         if (!account) {
@@ -98,6 +99,8 @@ export const useAuth = () => {
                 mainnetProvider,
                 walletClient!,
                 address!,
+                dm3Configuration.defaultDeliveryService,
+                dm3Configuration.addressEnsSubdomain,
             ).login(account.ensName, account.userProfile);
         } catch (e) {
             setHasError(true);

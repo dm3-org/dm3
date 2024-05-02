@@ -1,4 +1,4 @@
-import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
+import { log } from '@dm3-org/dm3-lib-shared';
 import makeBlockie from 'ethereum-blockies-base64';
 import { ethers } from 'ethers';
 import humanIcon from '../assets/images/human.svg';
@@ -22,6 +22,7 @@ export const getAvatar = async (
 export const getAvatarProfilePic = async (
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     ensName: string,
+    addrEnsSubdomain: string,
 ) => {
     if (ensName) {
         const provider = mainnetProvider;
@@ -38,9 +39,7 @@ export const getAvatarProfilePic = async (
                 if (address) {
                     const pic = makeBlockie(address);
                     return pic ? (pic as string) : (humanIcon as string);
-                } else if (
-                    ensName.endsWith(globalConfig.ADDR_ENS_SUBDOMAIN())
-                ) {
+                } else if (ensName.endsWith(addrEnsSubdomain)) {
                     const pic = makeBlockie(ensName.split('.')[0]);
                     return pic ? (pic as string) : (humanIcon as string);
                 } else {

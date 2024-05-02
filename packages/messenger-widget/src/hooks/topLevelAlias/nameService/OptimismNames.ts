@@ -1,20 +1,24 @@
 import { ethers } from 'ethers';
 import { ITLDResolver } from './TLDResolver';
-import { globalConfig } from '@dm3-org/dm3-lib-shared';
 
 const TOP_LEVEL_DOMAIN = '.op.dm3.eth';
 const EVM_FETCHER_CONTRACT_ADDRESS =
     '0xa9369F43Ab09613cA32bC3b51201493bD24CED63';
 
-function getIdForAddress(address: string) {
-    return address + globalConfig.ADDR_ENS_SUBDOMAIN();
+function getIdForAddress(address: string, addrEnsSubdomain: string) {
+    return address + addrEnsSubdomain;
 }
 
 export class OptimismNames implements ITLDResolver {
     private readonly provider: ethers.providers.JsonRpcProvider;
+    private readonly addrEnsSubdomain: string;
 
-    constructor(provider: ethers.providers.JsonRpcProvider) {
+    constructor(
+        provider: ethers.providers.JsonRpcProvider,
+        addrEnsSubdomain: string,
+    ) {
         this.provider = provider;
+        this.addrEnsSubdomain = addrEnsSubdomain;
     }
     //e.g. max.op.dm3.eth => 0x1234.addr.dm3.eth
     async isResolverForTldName(ensName: string): Promise<boolean> {
@@ -59,7 +63,10 @@ export class OptimismNames implements ITLDResolver {
         if (!address) {
             throw new Error('No address found for ' + ensName);
         }
-        return getIdForAddress(ethers.utils.getAddress(address));
+        return getIdForAddress(
+            ethers.utils.getAddress(address),
+            this.addrEnsSubdomain,
+        );
     }
     private async hasDm3ProfileOnEnsProfile(opName: string): Promise<boolean> {
         try {

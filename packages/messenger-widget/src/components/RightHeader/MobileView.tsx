@@ -30,7 +30,11 @@ export function MobileView() {
     // fetches profile pic of contact selected
     const fetchAndSetProfilePic = async () => {
         setProfilePic(
-            await getAvatarProfilePic(mainnetProvider, contactName as string),
+            await getAvatarProfilePic(
+                mainnetProvider,
+                contactName as string,
+                dm3Configuration.addressEnsSubdomain,
+            ),
         );
     };
 
