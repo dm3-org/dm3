@@ -91,6 +91,7 @@ export const useAuth = () => {
         const account = await AccountConnector(
             walletClient!,
             mainnetProvider,
+            dm3Configuration.addressEnsSubdomain,
         ).connect(address!);
 
         if (!account) {
@@ -116,7 +117,10 @@ export const useAuth = () => {
         const carrierWallet = new ethers.Wallet(sha256(toUtf8Bytes(secret)));
 
         //Check if the account has been used already
-        const ensName = getIdForAddress(carrierWallet.address);
+        const ensName = getIdForAddress(
+            carrierWallet.address,
+            dm3Configuration.addressEnsSubdomain,
+        );
         const userProfile = await getUserProfile(mainnetProvider, ensName);
 
         await _login(
@@ -140,6 +144,8 @@ export const useAuth = () => {
                 mainnetProvider,
                 signMessage,
                 address!,
+                dm3Configuration.defaultDeliveryService,
+                dm3Configuration.addressEnsSubdomain,
             ).login(ensName, userProfile);
         } catch (e) {
             console.log(e);

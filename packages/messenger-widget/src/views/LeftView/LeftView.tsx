@@ -38,6 +38,7 @@ export default function LeftView() {
             await getAvatarProfilePic(
                 mainnetProvider,
                 account?.ensName as string,
+                dm3Configuration.addressEnsSubdomain,
             ),
         );
     };

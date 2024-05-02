@@ -125,6 +125,8 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
                 mainnetProvider,
                 account!,
                 setExistingDm3Name,
+                dm3Configuration.addressEnsSubdomain,
+                dm3Configuration.userEnsSubdomain,
             );
         }
     }, [account]);

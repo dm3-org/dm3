@@ -1,6 +1,5 @@
 import '../../styles/modal.css';
 import './ConfigureProfile.css';
-import { globalConfig } from '@dm3-org/dm3-lib-shared';
 import { switchNetwork } from '@wagmi/core';
 import { useContext, useEffect, useState } from 'react';
 import { useChainId } from 'wagmi';
@@ -52,8 +51,12 @@ export function NormalView() {
 
     // handles ENS name and address
     useEffect(() => {
-        getEnsName(mainnetProvider, ethAddress!, account!, (name: string) =>
-            setEnsName(name),
+        getEnsName(
+            mainnetProvider,
+            ethAddress!,
+            account!,
+            (name: string) => setEnsName(name),
+            dm3Configuration.addressEnsSubdomain,
         );
     }, [ethAddress]);
 
@@ -84,7 +87,8 @@ export function NormalView() {
                     font-size-14 font-weight-500 line-height-24 grey-text"
                         >
                             {ethAddress &&
-                                ethAddress + globalConfig.ADDR_ENS_SUBDOMAIN()}
+                                ethAddress +
+                                    dm3Configuration.addressEnsSubdomain}
                         </p>
                     </div>
                     <div className="address-details">

@@ -83,6 +83,7 @@ export const useConversation = (config: DM3Configuration) => {
                         mainnetProvider,
                         conversation,
                         resolveAliasToTLD,
+                        dm3Configuration.addressEnsSubdomain,
                     );
                 }),
             );
@@ -133,6 +134,7 @@ export const useConversation = (config: DM3Configuration) => {
                     mainnetProvider,
                     defaultConversation,
                     resolveAliasToTLD,
+                    dm3Configuration.addressEnsSubdomain,
                 );
                 _setContactsSafe([hydratedDefaultContact]);
             }
@@ -194,6 +196,7 @@ export const useConversation = (config: DM3Configuration) => {
             mainnetProvider,
             conversation,
             resolveAliasToTLD,
+            dm3Configuration.addressEnsSubdomain,
         );
         setContacts((prev) => {
             return prev.map((existingContact) => {
