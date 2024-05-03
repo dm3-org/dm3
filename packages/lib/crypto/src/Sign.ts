@@ -1,5 +1,4 @@
 import { ethers } from 'ethers';
-import _sodium from 'libsodium-wrappers';
 import { initializeLibSodiumWrapper } from './libsodium/initializeLibSodiumWrapper';
 
 export async function sign(
