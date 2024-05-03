@@ -8,11 +8,14 @@ import { SubmitOnChainProfile } from '../SubmitOnChainProfile';
 import { IChain, NAME_TYPE, validateEnsName } from '../common';
 import { submitEnsNameTransaction } from './bl';
 import { ModalContext } from '../../../../context/ModalContext';
+import { ConfigureDM3NameContext } from '../../context/ConfigureDM3NameContext';
 
 export const ConfigureEnsProfile = (props: IChain) => {
     const chainId = useChainId();
 
     const { setLoaderContent } = useContext(ModalContext);
+
+    const { setDm3Name } = useContext(ConfigureDM3NameContext);
 
     const { onShowError, setExistingEnsName, setEnsName } = useContext(
         ConfigureProfileContext,
@@ -43,6 +46,7 @@ export const ConfigureEnsProfile = (props: IChain) => {
     };
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onShowError(undefined, '');
+        setDm3Name('');
         const check = validateEnsName(e.target.value);
         setEnsName(e.target.value);
         if (!check) {

@@ -1,7 +1,6 @@
 import './Preferences.css';
 import { preferencesItems } from './bl';
 import infoIcon from './../../assets/images/preferences-info.svg';
-import backIcon from './../../assets/images/back.svg';
 import { useContext, useEffect, useState } from 'react';
 import closeIcon from '../../assets/images/cross.svg';
 import { closeConfigurationModal } from '../ConfigureProfile/bl';
@@ -43,19 +42,6 @@ export function NormalView() {
                                     'pt-3 d-flex align-items-center justify-content-center'
                                 }
                             >
-                                {optionChoosen && (
-                                    <img
-                                        className="back-icon pointer-cursor"
-                                        src={backIcon}
-                                        alt="back"
-                                        onClick={() => {
-                                            setOptionChoosen(null);
-                                            closeConfigurationModal(
-                                                setShowProfileConfigurationModal,
-                                            );
-                                        }}
-                                    />
-                                )}
                                 <span
                                     className={'preferences-heading d-flex justify-content-center mb-0'.concat(
                                         ' ',

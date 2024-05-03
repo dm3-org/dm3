@@ -87,6 +87,9 @@ input::placeholder {
     input::placeholder {
         font-size: 9px;
     }
+    .conversation-error {
+        font-size: 0.7rem !important;
+    }
 }
 
 @media only screen and (max-width: 800px) {
@@ -107,6 +110,7 @@ input::placeholder {
     .conversation-error {
         margin-left: 0px !important;
         height: 14px;
+        font-size: 0.6rem !important;
     }
 
     .configure-btn {
