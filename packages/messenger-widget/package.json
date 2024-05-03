@@ -88,7 +88,7 @@
     ],
     "setupFiles": [
       "<rootDir>/jest.config.ts"
-   ]
+    ]
   },
   "browser": {
     "child_process": false
