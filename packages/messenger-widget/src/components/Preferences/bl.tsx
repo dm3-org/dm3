@@ -51,7 +51,7 @@ export const preferencesItems = [
                 <Notification />
             </NotificationContextProvider>
         ),
-        isEnabled: true,
+        isEnabled: false,
     },
     {
         icon: (
