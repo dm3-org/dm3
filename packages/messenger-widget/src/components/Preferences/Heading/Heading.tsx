@@ -3,6 +3,8 @@ import { useContext } from 'react';
 import closeIcon from '../../../assets/images/cross.svg';
 import { ModalContext } from '../../../context/ModalContext';
 import { closeConfigurationModal } from '../../ConfigureProfile/bl';
+import { MOBILE_SCREEN_WIDTH } from '../../../utils/common-utils';
+import { DM3ConfigurationContext } from '../../../context/DM3ConfigurationContext';
 
 export interface IHeading {
     heading: string;
@@ -10,6 +12,8 @@ export interface IHeading {
 }
 
 export function Heading(props: IHeading) {
+    const { screenWidth } = useContext(DM3ConfigurationContext);
+
     const { setShowPreferencesModal, setShowProfileConfigurationModal } =
         useContext(ModalContext);
 
@@ -23,15 +27,19 @@ export function Heading(props: IHeading) {
                     {props.description}
                 </span>
             </div>
-            <img
-                className="close-modal-icon m-2"
-                src={closeIcon}
-                alt="close"
-                onClick={() => {
-                    setShowPreferencesModal(false);
-                    closeConfigurationModal(setShowProfileConfigurationModal);
-                }}
-            />
+            {screenWidth > MOBILE_SCREEN_WIDTH && (
+                <img
+                    className="close-modal-icon m-2"
+                    src={closeIcon}
+                    alt="close"
+                    onClick={() => {
+                        setShowPreferencesModal(false);
+                        closeConfigurationModal(
+                            setShowProfileConfigurationModal,
+                        );
+                    }}
+                />
+            )}
         </div>
     );
 }

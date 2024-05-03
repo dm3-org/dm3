@@ -82,10 +82,8 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
         type: NAME_TYPE,
     ) => {
         onShowError(undefined, '');
-        const check = validateName(e.target.value);
         setDm3Name(e.target.value);
         setEnsName('');
-        !check && setError('Invalid name', NAME_TYPE.DM3_NAME);
     };
 
     // handles claim or delete DM3 user name
@@ -98,6 +96,13 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
             const name = dm3Name.trim();
             if (!name.length) {
                 onShowError(NAME_TYPE.DM3_NAME, 'DM3 name cannot be empty');
+                return;
+            }
+            if (!validateName(name)) {
+                setError(
+                    'Invalid name, please provide a name that is at least 4 characters long',
+                    NAME_TYPE.DM3_NAME,
+                );
                 return;
             }
             await submitDm3UsernameClaim(name);

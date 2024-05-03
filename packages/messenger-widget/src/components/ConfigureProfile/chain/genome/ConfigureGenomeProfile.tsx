@@ -8,6 +8,7 @@ import { ethers } from 'ethers';
 import { IChain, NAME_TYPE } from '../common';
 import { ModalContext } from '../../../../context/ModalContext';
 import { DM3ConfigurationContext } from '../../../../context/DM3ConfigurationContext';
+import { ConfigureDM3NameContext } from '../../context/ConfigureDM3NameContext';
 
 export const ConfigureGenomeProfile = (props: IChain) => {
     const chainId = useChainId();
@@ -20,6 +21,8 @@ export const ConfigureGenomeProfile = (props: IChain) => {
     const { onShowError, setExistingEnsName, setEnsName } = useContext(
         ConfigureProfileContext,
     );
+
+    const { setDm3Name } = useContext(ConfigureDM3NameContext);
 
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
@@ -46,6 +49,7 @@ export const ConfigureGenomeProfile = (props: IChain) => {
 
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onShowError(undefined, '');
+        setDm3Name('');
         const check = validateGenomeName(e.target.value);
         setEnsName(e.target.value);
         if (!check) {
