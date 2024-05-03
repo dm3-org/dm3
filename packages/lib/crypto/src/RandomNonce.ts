@@ -1,9 +1,9 @@
 import { ethers } from 'ethers';
 import _sodium from 'libsodium-wrappers';
+import { initializeLibSodiumWrapper } from './libsodium/initializeLibSodiumWrapper';
 
 export async function getRandomNonce(): Promise<string> {
-    await _sodium.ready;
-    const sodium = _sodium;
+    const sodium = await initializeLibSodiumWrapper();
 
     const nonce = ethers.utils.hexlify(
         sodium.randombytes_buf(

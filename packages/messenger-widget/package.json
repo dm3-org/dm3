@@ -68,7 +68,7 @@
     "lint": "eslint '*/**/*.{js,ts,tsx}' --fix",
     "format": "prettier --write '*/**/*.{js,ts,tsx,json}'",
     "format:check": "prettier --check '*/**/*.{js,ts,tsx,json}'",
-    "test": "echo skip tests"
+    "test": "CI=true react-app-rewired test --transformIgnorePatterns \"node_modules/(?!dm3-lib-\\w*)/\""
   },
   "browserslist": {
     "production": [
@@ -85,7 +85,10 @@
   "jest": {
     "collectCoverageFrom": [
       "src/lib/**/*.{js,jsx,ts,tsx}"
-    ]
+    ],
+    "setupFiles": [
+      "<rootDir>/jest.config.ts"
+   ]
   },
   "browser": {
     "child_process": false
