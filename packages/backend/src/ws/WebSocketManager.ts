@@ -8,11 +8,16 @@ import { ethers } from 'ethers';
 export const UNAUTHORIZED = 'unauthorized';
 export const AUTHORIZED = 'authorized';
 
-export class WebSockerManager {
+export class WebSocketManager {
     private readonly connections: Map<string, Socket[]> = new Map();
     private readonly web3Provider: ethers.providers.Web3Provider;
     private readonly db: IDatabase;
 
+    /**
+     * @param {http.Server} httpServer - The HTTP server instance.
+     * @param {ethers.providers.Web3Provider} web3Provider - ethers web3provider instance.
+     * @param {IDatabase} db - The database instance.
+     */
     constructor(
         httpServer: http.Server,
         web3Provider: ethers.providers.Web3Provider,
@@ -32,11 +37,20 @@ export class WebSockerManager {
             this.addConnection(c);
         });
     }
+    /**
+     * Checks if a user is connected.
+     * @param {string} ensName - The ENS name of the user.
+     * @returns {boolean} - Returns true if the user is connected with at least one socket, false otherwise.
+     */
     public isConnected(ensName: string) {
         const connections = this.connections.get(ensName);
         return !!(connections && connections.length > 0);
     }
-
+    /**
+     * Adds a new connection to the connections map.
+     * @private
+     * @param {Socket} connection - The socket connection instance.
+     */
     private async addConnection(connection: Socket) {
         try {
             const { account, token } = connection.handshake.auth;
@@ -71,6 +85,11 @@ export class WebSockerManager {
             connection.disconnect();
         }
     }
+    /**
+     * Removes a connection from the connections map.
+     * @private
+     * @param {Socket} connection - The socket connection instance.
+     */
     private removeConnection(connection: Socket) {
         const ensName = normalizeEnsName(
             connection.handshake.auth.account.ensName,

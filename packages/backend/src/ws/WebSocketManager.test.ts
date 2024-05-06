@@ -1,6 +1,6 @@
 import { io as Client } from 'socket.io-client';
 import { createServer, Server as HttpServerType } from 'http';
-import { AUTHORIZED, UNAUTHORIZED, WebSockerManager } from './WebSocketManager';
+import { AUTHORIZED, UNAUTHORIZED, WebSocketManager } from './WebSocketManager';
 describe('WebSocketManager', () => {
     let client0;
     let client1;
@@ -23,7 +23,7 @@ describe('WebSocketManager', () => {
             const mockedWeb3Provider = {} as any;
             const mockedDatabase = {} as any;
 
-            new WebSockerManager(
+            new WebSocketManager(
                 httpServer,
                 mockedWeb3Provider,
                 mockedDatabase,
@@ -41,8 +41,12 @@ describe('WebSocketManager', () => {
             expect(socket0IsConnected).toBe(false);
         });
         it('reject socket without session', async () => {
-            const mockedWeb3Provider = {} as any;
-            const mockedDatabase = {} as any;
+            const mockedWeb3Provider = {
+                resolveName: (_: string) => Promise.resolve('0x'),
+            } as any;
+            const mockedDatabase = {
+                getSession: () => Promise.resolve(null),
+            } as any;
 
             client0 = await Client('http://localhost:4060', {
                 auth: {
@@ -53,7 +57,7 @@ describe('WebSocketManager', () => {
                 },
             });
 
-            new WebSockerManager(
+            new WebSocketManager(
                 httpServer,
                 mockedWeb3Provider,
                 mockedDatabase,
@@ -82,7 +86,7 @@ describe('WebSocketManager', () => {
                     }),
             } as any;
 
-            new WebSockerManager(
+            new WebSocketManager(
                 httpServer,
                 mockedWeb3Provider,
                 mockedDatabase,
@@ -125,7 +129,7 @@ describe('WebSocketManager', () => {
                     }),
             } as any;
 
-            const wsManager = new WebSockerManager(
+            const wsManager = new WebSocketManager(
                 httpServer,
                 mockedWeb3Provider,
                 mockedDatabase,
@@ -168,7 +172,7 @@ describe('WebSocketManager', () => {
                     }),
             } as any;
 
-            const wsManager = new WebSockerManager(
+            const wsManager = new WebSocketManager(
                 httpServer,
                 mockedWeb3Provider,
                 mockedDatabase,
@@ -233,7 +237,7 @@ describe('WebSocketManager', () => {
                     }),
             } as any;
 
-            const wsManager = new WebSockerManager(
+            const wsManager = new WebSocketManager(
                 httpServer,
                 mockedWeb3Provider,
                 mockedDatabase,
@@ -276,7 +280,7 @@ describe('WebSocketManager', () => {
                     }),
             } as any;
 
-            const wsManager = new WebSockerManager(
+            const wsManager = new WebSocketManager(
                 httpServer,
                 mockedWeb3Provider,
                 mockedDatabase,
@@ -364,7 +368,7 @@ describe('WebSocketManager', () => {
                     }),
             } as any;
 
-            const wsManager = new WebSockerManager(
+            const wsManager = new WebSocketManager(
                 httpServer,
                 mockedWeb3Provider,
                 mockedDatabase,
