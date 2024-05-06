@@ -84,9 +84,6 @@ describe('Profile', () => {
                     authorization: 'Bearer ' + token,
                 })
                 .send();
-
-            console.log(response.error);
-
             const status = response.status;
 
             expect(status).toBe(200);
@@ -140,8 +137,6 @@ describe('Profile', () => {
                 .post(`/${wallet.address}`)
                 .send(signedUserProfile);
 
-            // log status message
-            console.log(response.info);
             const status = response.status;
 
             expect(status).toBe(200);
