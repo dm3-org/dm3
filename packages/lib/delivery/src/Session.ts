@@ -71,7 +71,7 @@ export async function checkToken(
             !('exp' in jwtPayload)
         ) {
             logDebug({
-                text: `jwt invalid: user missing`,
+                text: `jwt invalid: content missing`,
             });
             return false;
         }
