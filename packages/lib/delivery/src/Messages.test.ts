@@ -677,7 +677,7 @@ describe('Messages', () => {
 
             const mockWsManager: IWebSocketManager = {
                 isConnected: function (ensName: string): Promise<boolean> {
-                    return Promise.resolve(false);
+                    return Promise.resolve(true);
                 },
             };
 
