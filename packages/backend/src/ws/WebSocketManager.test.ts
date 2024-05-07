@@ -156,7 +156,7 @@ describe('WebSocketManager', () => {
             ]);
 
             expect(socket0IsConnected).toBe(true);
-            const isConnected = wsManager.isConnected('bob.eth');
+            const isConnected = await wsManager.isConnected('bob.eth');
             expect(isConnected).toBe(true);
         });
         it('returns true if name has at least one session', async () => {
@@ -220,7 +220,7 @@ describe('WebSocketManager', () => {
             expect(isConnected).toBe(true);
 
             client0.close();
-            await wait(100);
+            await wait(500);
             isConnected = await wsManager.isConnected('bob.eth');
             expect(isConnected).toBe(true);
         });
@@ -350,7 +350,7 @@ describe('WebSocketManager', () => {
             expect(await wsManager.isConnected('vitalik.eth')).toBe(true);
 
             client1.close();
-            await wait(100);
+            await wait(500);
             expect(await wsManager.isConnected('bob.eth')).toBe(true);
             expect(await wsManager.isConnected('alice.eth')).toBe(false);
             expect(await wsManager.isConnected('vitalik.eth')).toBe(true);
@@ -399,7 +399,7 @@ describe('WebSocketManager', () => {
             expect(isConnected).toBe(true);
 
             client0.close();
-            await wait(100);
+            await wait(500);
             isConnected = await wsManager.isConnected('bob.eth');
             expect(isConnected).toBe(false);
         });
