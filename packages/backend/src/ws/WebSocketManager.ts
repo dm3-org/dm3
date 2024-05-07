@@ -67,6 +67,7 @@ export class WebSocketManager {
             const session = await this.db.getSession(ensName);
             //If the ensName has not a valid session we disconnect the socket
             if (!hasSession || !session) {
+                console.log('connection refused for ', ensName);
                 connection.emit(UNAUTHORIZED);
                 connection.disconnect();
             }
@@ -75,11 +76,14 @@ export class WebSocketManager {
             this.connections.set(ensName, [...oldConnections, connection]);
             //Send the authorized event
             connection.emit(AUTHORIZED);
+            console.log('connection established for ', ensName);
             //When the socket disconnects we wan't them no longer in our connections List
             connection.on('disconnect', () => {
+                console.log('connection closed for ', ensName);
                 this.removeConnection(connection);
             });
         } catch (e) {
+            console.error(e);
             //If there is an error we disconnect the socket and send the unauthorized event
             connection.emit(UNAUTHORIZED);
             connection.disconnect();
