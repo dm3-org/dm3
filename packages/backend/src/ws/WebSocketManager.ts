@@ -4,11 +4,12 @@ import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { checkToken } from '@dm3-org/dm3-lib-delivery';
 import { IDatabase } from '../persistence/getDatabase';
 import { ethers } from 'ethers';
+import { IWebSocketManager } from '@dm3-org/dm3-lib-shared';
 
 export const UNAUTHORIZED = 'unauthorized';
 export const AUTHORIZED = 'authorized';
 
-export class WebSocketManager {
+export class WebSocketManager implements IWebSocketManager {
     private readonly connections: Map<string, Socket[]> = new Map();
     private readonly web3Provider: ethers.providers.Web3Provider;
     private readonly db: IDatabase;
@@ -42,7 +43,7 @@ export class WebSocketManager {
      * @param {string} ensName - The ENS name of the user.
      * @returns {boolean} - Returns true if the user is connected with at least one socket, false otherwise.
      */
-    public isConnected(ensName: string) {
+    public async isConnected(ensName: string) {
         const connections = this.connections.get(ensName);
         return !!(connections && connections.length > 0);
     }

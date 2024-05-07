@@ -216,12 +216,12 @@ describe('WebSocketManager', () => {
 
             expect(socket0IsConnected).toBe(true);
             expect(socket1IsConnected).toBe(true);
-            let isConnected = wsManager.isConnected('bob.eth');
+            let isConnected = await wsManager.isConnected('bob.eth');
             expect(isConnected).toBe(true);
 
             client0.close();
             await wait(100);
-            isConnected = wsManager.isConnected('bob.eth');
+            isConnected = await wsManager.isConnected('bob.eth');
             expect(isConnected).toBe(true);
         });
         it('returns false if name is unknown', async () => {
@@ -264,7 +264,7 @@ describe('WebSocketManager', () => {
             ]);
 
             expect(socket0IsConnected).toBe(true);
-            const isConnected = wsManager.isConnected('alice.eth');
+            const isConnected = await wsManager.isConnected('alice.eth');
             expect(isConnected).toBe(false);
         });
         it('keeps track of different independant sessions', async () => {
@@ -395,12 +395,12 @@ describe('WebSocketManager', () => {
             ]);
 
             expect(socket0IsConnected).toBe(true);
-            let isConnected = wsManager.isConnected('bob.eth');
+            let isConnected = await wsManager.isConnected('bob.eth');
             expect(isConnected).toBe(true);
 
             client0.close();
             await wait(100);
-            isConnected = wsManager.isConnected('bob.eth');
+            isConnected = await wsManager.isConnected('bob.eth');
             expect(isConnected).toBe(false);
         });
     });
