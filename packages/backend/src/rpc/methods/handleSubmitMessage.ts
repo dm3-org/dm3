@@ -57,6 +57,7 @@ export async function handleSubmitMessage(
             req.app.locals.web3Provider,
             req.app.locals.db.getIdEnsName,
             req.app.locals.db.getUsersNotificationChannels,
+            req.app.locals.webSocketManager,
         );
         res.send(200);
     } catch (error) {

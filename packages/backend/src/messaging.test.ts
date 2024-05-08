@@ -75,6 +75,9 @@ describe('Messaging', () => {
                             }),
                         },
                     },
+                    webSocketManager: {
+                        isConnected: (_: string) => false,
+                    },
                 } as any,
             } as express.Express & WithLocals;
 
@@ -139,6 +142,9 @@ describe('Messaging', () => {
                                 emit: (_: any, __any: any) => {},
                             }),
                         },
+                    },
+                    webSocketManager: {
+                        isConnected: (_: string) => true,
                     },
                 } as any,
             } as express.Express & WithLocals;

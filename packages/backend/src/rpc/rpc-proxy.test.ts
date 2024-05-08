@@ -113,6 +113,9 @@ describe('rpc-Proxy', () => {
                         }),
                     },
                 },
+                webSocketManager: {
+                    isConnected: (_: string) => false,
+                },
             };
 
             const { status } = await request(app)

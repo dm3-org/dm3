@@ -27,6 +27,8 @@ export async function checkToken(
     logDebug({
         text: 'checkToken',
     });
+    //WHY DO WE DO THAT ?
+    //TODO figure out why we do that
     const address = await provider.resolveName(ensName);
 
     if (!address) {
