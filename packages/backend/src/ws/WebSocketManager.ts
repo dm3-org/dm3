@@ -57,14 +57,14 @@ export class WebSocketManager implements IWebSocketManager {
             const { account, token } = connection.handshake.auth;
 
             const ensName = normalizeEnsName(account.ensName);
-            //Use the already existing function cechkToken to check weather the token matches the provided ensName
+            //Use the already existing function checkToken to check whether the token matches the provided ensName
             const hasSession = await checkToken(
                 this.web3Provider,
                 this.db.getSession,
                 ensName,
                 token,
             );
-            //retrive the session from the db
+            //retrieve the session from the db
             const session = await this.db.getSession(ensName);
             //If the ensName has not a valid session we disconnect the socket
             if (!hasSession || !session) {
@@ -78,7 +78,7 @@ export class WebSocketManager implements IWebSocketManager {
             //Send the authorized event
             connection.emit(AUTHORIZED);
             console.log('connection established for ', ensName);
-            //When the socket disconnects we wan't them no longer in our connections List
+            //When the socket disconnects we want them no longer in our connections List
             connection.on('disconnect', () => {
                 console.log('connection closed for ', ensName);
                 this.removeConnection(connection);
