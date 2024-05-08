@@ -77,6 +77,7 @@ export function onConnection(app: express.Application & WithLocals) {
                         app.locals.web3Provider,
                         app.locals.db.getIdEnsName,
                         app.locals.db.getUsersNotificationChannels,
+                        app.locals.webSocketManager,
                     ),
                         callback({ response: 'success' });
                 } catch (error: any) {

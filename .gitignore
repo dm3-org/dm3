@@ -22,7 +22,7 @@ node_modules
 # production
 build
 **/*/build
-#**/*/lib
+packages/messenger-widget/lib/**/
 
 
 # misc
