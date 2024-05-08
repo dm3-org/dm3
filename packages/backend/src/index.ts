@@ -69,7 +69,7 @@ global.logger = winston.createLogger({
 
     app.use(logRequest);
     app.locals.webSocketManager = new WebSocketManager(
-        server,
+        io,
         app.locals.web3Provider,
         app.locals.db,
     );
