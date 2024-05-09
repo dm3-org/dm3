@@ -21,6 +21,7 @@ export { createProxyEnvelop } from './ProxyEnvelop';
 export type { ProxyEnvelop } from './ProxyEnvelop';
 export type {
     Message,
+    Attachment,
     MessageMetadata,
     Postmark,
     SendDependencies,
