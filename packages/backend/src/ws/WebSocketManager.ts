@@ -1,10 +1,9 @@
-import { Server, Socket } from 'socket.io';
-import http from 'http';
-import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { checkToken } from '@dm3-org/dm3-lib-delivery';
-import { IDatabase } from '../persistence/getDatabase';
-import { ethers } from 'ethers';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { IWebSocketManager } from '@dm3-org/dm3-lib-shared';
+import { ethers } from 'ethers';
+import { Socket, Server as SocketIOServer } from 'socket.io';
+import { IDatabase } from '../persistence/getDatabase';
 
 export const UNAUTHORIZED = 'unauthorized';
 export const AUTHORIZED = 'authorized';
@@ -13,6 +12,7 @@ export class WebSocketManager implements IWebSocketManager {
     private readonly connections: Map<string, Socket[]> = new Map();
     private readonly web3Provider: ethers.providers.Web3Provider;
     private readonly db: IDatabase;
+    private readonly server: SocketIOServer;
 
     /**
      * @param {http.Server} httpServer - The HTTP server instance.
@@ -20,24 +20,21 @@ export class WebSocketManager implements IWebSocketManager {
      * @param {IDatabase} db - The database instance.
      */
     constructor(
-        httpServer: http.Server,
+        server: SocketIOServer,
         web3Provider: ethers.providers.Web3Provider,
         db: IDatabase,
     ) {
         //Establish Ws
-        const server = new Server(httpServer, {
-            cors: {
-                origin: '*',
-            },
-        });
         this.web3Provider = web3Provider;
         this.db = db;
+        this.server = server;
 
         //register listener
-        server.on('connection', (c: Socket) => {
+        this.server.on('connection', (c: Socket) => {
             this.addConnection(c);
         });
     }
+
     /**
      * Checks if a user is connected.
      * @param {string} ensName - The ENS name of the user.
