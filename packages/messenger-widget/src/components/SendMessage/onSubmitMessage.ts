@@ -31,7 +31,7 @@ export const onSubmitMessage = async (
             props.message,
             profileKeys?.signingKeyPair.privateKey!,
             referenceMessageHash!,
-            props.filesSelected.map((file) => file.data),
+            props.filesSelected,
         );
 
         const { error } = await addMessage(
@@ -68,7 +68,7 @@ export const onSubmitMessage = async (
             props.message,
             profileKeys!.signingKeyPair.privateKey,
             referenceMessageHash as string,
-            props.filesSelected.map((file) => file.data),
+            props.filesSelected,
         );
 
         const { error } = await addMessage(
@@ -98,7 +98,7 @@ export const onSubmitMessage = async (
         account!.ensName,
         props.message,
         profileKeys?.signingKeyPair.privateKey!,
-        props.filesSelected.map((file) => file.data),
+        props.filesSelected,
     );
 
     const { error } = await addMessage(

@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 import { setAttachmentsOnEditMessage } from './bl';
 import { MessageActionType } from '../../utils/enum-type-utils';
 import { EmojiModal } from '../EmojiModal/EmojiModal';
-import { Attachment } from '../../interfaces/utils';
+import { IAttachmentPreview } from '../../interfaces/utils';
 import { ReplyMessagePreview } from '../ReplyMessagePreview/ReplyMessagePreview';
 import { AttachmentPreview } from '../AttachmentPreview/AttachmentPreview';
 import { AttachmentSelector } from '../AttachmentSelector/AttachmentSelector';
@@ -22,9 +22,11 @@ export function MessageInputBox() {
     const { openEmojiPopup } = useContext(ModalContext);
 
     const [message, setMessage] = useState('');
-    const [filesSelected, setFilesSelected] = useState<Attachment[]>([]);
+    const [filesSelected, setFilesSelected] = useState<IAttachmentPreview[]>(
+        [],
+    );
 
-    function setFiles(files: Attachment[]) {
+    function setFiles(files: IAttachmentPreview[]) {
         setFilesSelected(files);
     }
 

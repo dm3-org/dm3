@@ -1,5 +1,5 @@
 import { MessageAction } from '../../interfaces/props';
-import { Attachment } from '../../interfaces/utils';
+import { IAttachmentPreview } from '../../interfaces/utils';
 import {
     generateRandomStringForId,
     getFileTypeFromBase64,
@@ -30,16 +30,17 @@ export const setAttachmentsOnEditMessage = (
 ) => {
     const attachments = messageView.messageData?.envelop.message.attachments;
     if (attachments && attachments.length) {
-        const fileList: Attachment[] = [];
+        const fileList: IAttachmentPreview[] = [];
         let fileType;
         let id;
         for (const attachment of attachments) {
             id = generateRandomStringForId();
-            fileType = getFileTypeFromBase64(attachment);
+            fileType = getFileTypeFromBase64(attachment.data);
             fileList.push({
                 id: id,
-                name: id.substring(0, 5).concat('.', fileType),
-                data: attachment,
+                name:
+                    attachment.name ?? id.substring(0, 5).concat('.', fileType),
+                data: attachment.data,
                 isImage: isFileAImage(fileType),
             });
         }

@@ -43,7 +43,7 @@ export interface NewContact {
     processed: boolean;
 }
 
-export interface Attachment {
+export interface IAttachmentPreview {
     id: string;
     data: string;
     name: string;
