@@ -28,7 +28,10 @@ export const ConfigureGenomeProfile = (props: IChain) => {
 
     const onSubmitTx = async (name: string) => {
         if (props.chainToConnect !== chainId) {
-            onShowError(NAME_TYPE.ENS_NAME, 'Invalid chain connected');
+            onShowError(
+                NAME_TYPE.ENS_NAME,
+                'Invalid chain connected. Please switch to Gnosis network.',
+            );
             return;
         }
         const provider = new ethers.providers.Web3Provider(

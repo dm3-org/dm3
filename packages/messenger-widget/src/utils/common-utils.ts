@@ -144,3 +144,11 @@ export const NPM =
     'https://www.npmjs.com/package/@dm3-org/dm3-messenger-widget';
 
 export const DM3_NETWORK = 'https://dm3.network';
+
+export const supportedChains = {
+    ethereumMainnet: 1,
+    ethereumTestnet: 11155111, // ETH Sepolia testnet
+    optimismMainnet: 10,
+    optimismTestnet: 11155420, // Optimism Sepolia testnet
+    gnosisMainnet: 100,
+};

@@ -30,7 +30,10 @@ export const ConfigureEnsProfile = (props: IChain) => {
 
     const onSubmitTx = async (name: string) => {
         if (props.chainToConnect !== chainId) {
-            onShowError(NAME_TYPE.ENS_NAME, 'Invalid chain connected');
+            onShowError(
+                NAME_TYPE.ENS_NAME,
+                'Invalid chain connected. Please switch to Ethereum network.',
+            );
             return;
         }
         await submitEnsNameTransaction(
