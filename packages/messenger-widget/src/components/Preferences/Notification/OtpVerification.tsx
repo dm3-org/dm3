@@ -19,6 +19,7 @@ export function OtpVerification(props: IOtpVerification) {
         isCodeResent,
         setIsCodeResent,
         sendOtpToChannel,
+        handleOtpPaste,
     } = useOtp(
         props.type,
         props.verificationData,
@@ -59,7 +60,7 @@ export function OtpVerification(props: IOtpVerification) {
                     >
                         {props.type}
                     </label>
-                    <div id="inputs">
+                    <div id="inputs" onPaste={() => handleOtpPaste()}>
                         {/* OTP of length 5 */}
                         {Array.from({ length: 5 }, (_, i) => i + 1).map(
                             (data) => {

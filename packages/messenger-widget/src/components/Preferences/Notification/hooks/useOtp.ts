@@ -79,7 +79,6 @@ export const useOtp = (
         channelType: NotificationChannelType,
     ) => {
         if (account && deliveryServiceToken) {
-            console.log('Verify method is calledd : ', otp);
             return await verifyOtp(
                 account,
                 mainnetProvider,
@@ -91,7 +90,6 @@ export const useOtp = (
     };
 
     const validateOtp = async (
-        otp: string,
         verificationData: string,
         setErrorMsg: Function,
         setShowError: Function,
@@ -101,8 +99,10 @@ export const useOtp = (
         try {
             setLoaderContent('Verifying OTP...');
             startLoader();
-
-            const { data, status } = await verifyChannelOtp(otp, channelType);
+            const { data, status } = await verifyChannelOtp(
+                otpData,
+                channelType,
+            );
 
             if (status === 200) {
                 setErrorMsg('');
@@ -202,6 +202,32 @@ export const useOtp = (
         }
     };
 
+    const clearOtpField = () => {
+        const otpElements: any = document.getElementsByClassName('otp');
+        if (otpElements && otpElements.length) {
+            for (let index = 0; index < otpElements.length; index++) {
+                otpElements[index].value = '';
+            }
+        }
+    };
+
+    const handleOtpPaste = async () => {
+        try {
+            clearOtpField();
+            const textCopied = await navigator.clipboard.readText();
+            const otpElements: any = document.getElementsByClassName('otp');
+            if (otpElements && otpElements.length && textCopied.length) {
+                for (let index = 0; index < otpElements.length; index++) {
+                    otpElements[index].value = textCopied[index]
+                        ? textCopied[index]
+                        : '';
+                }
+                setOtpData(textCopied);
+                setIsVerificationInProcess(true);
+            }
+        } catch (error) {}
+    };
+
     // handles input field value change
     if (inputs) {
         inputs.addEventListener('input', handleInputChange);
@@ -229,7 +255,6 @@ export const useOtp = (
         if (isVerificationInProcess) {
             setTimeout(() => {
                 validateOtp(
-                    otpData,
                     verificationData,
                     setErrorMsg,
                     setShowError,
@@ -260,5 +285,6 @@ export const useOtp = (
         isCodeResent,
         setIsCodeResent,
         sendOtpToChannel,
+        handleOtpPaste,
     };
 };
