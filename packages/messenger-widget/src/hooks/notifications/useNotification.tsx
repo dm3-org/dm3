@@ -13,8 +13,6 @@ import {
 } from '@dm3-org/dm3-lib-shared';
 import { AuthContext } from '../../context/AuthContext';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
-import { ModalContext } from '../../context/ModalContext';
-import { closeLoader, startLoader } from '../../components/Loader/Loader';
 import { IVerificationModal } from '../../components/Preferences/Notification/VerificationModal';
 import { getVerficationModalContent } from '../../components/Preferences/Notification/hooks/VerificationContent';
 
@@ -22,7 +20,6 @@ export const useNotification = () => {
     const mainnetProvider = useMainnetProvider();
 
     const { account, deliveryServiceToken } = useContext(AuthContext);
-    const { setLoaderContent } = useContext(ModalContext);
 
     // States for active notifications
     const [isNotificationsActive, setIsNotificationsActive] =
@@ -40,6 +37,10 @@ export const useNotification = () => {
     const [activeVerification, setActiveVerification] = useState<
         NotificationChannelType | undefined
     >(undefined);
+
+    // States to handle loader in notification screen
+    const [isLoading, setIsloading] = useState<boolean>(false);
+    const [loaderData, setLoaderData] = useState<string>('');
 
     const [activeVerificationContent, setActiveVerificationContent] =
         useState<IVerificationModal>(
@@ -115,8 +116,8 @@ export const useNotification = () => {
     const toggleGlobalChannel = async (isEnabled: boolean) => {
         if (account && deliveryServiceToken) {
             try {
-                setLoaderContent('Configuring global notification ...');
-                startLoader();
+                setLoaderData('Configuring global notification ...');
+                setIsloading(true);
                 const { status } = await toggleGlobalNotifications(
                     account,
                     mainnetProvider,
@@ -126,10 +127,10 @@ export const useNotification = () => {
                 if (status === 200 && isEnabled) {
                     await fetchUserNotificationChannels();
                 }
-                closeLoader();
+                setIsloading(false);
             } catch (error) {
                 log(`Failed to toggle global channel : ${error}`, 'error');
-                closeLoader();
+                setIsloading(false);
             }
         }
     };
@@ -169,10 +170,10 @@ export const useNotification = () => {
     ) => {
         if (account && deliveryServiceToken) {
             try {
-                setLoaderContent(
+                setLoaderData(
                     `Removing ${channelType.toLowerCase()} channel...`,
                 );
-                startLoader();
+                setIsloading(true);
                 const { status } = await removeNotificationChannel(
                     account,
                     mainnetProvider,
@@ -182,13 +183,13 @@ export const useNotification = () => {
                 if (status === 200) {
                     resetChannel(null);
                 }
-                closeLoader();
+                setIsloading(false);
             } catch (error) {
                 log(
                     `Failed to remove notification channel : ${error}`,
                     'error',
                 );
-                closeLoader();
+                setIsloading(false);
             }
         }
     };
@@ -219,5 +220,7 @@ export const useNotification = () => {
         setActiveVerificationContent,
         toggleSpecificNotificationChannel,
         removeSpecificNotificationChannel,
+        isLoading,
+        loaderData,
     };
 };
