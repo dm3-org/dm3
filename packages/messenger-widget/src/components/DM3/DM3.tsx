@@ -10,6 +10,7 @@ import Dashboard from '../../views/Dashboard/Dashboard';
 import { Loader, startLoader } from '../Loader/Loader';
 import { SignIn } from '../SignIn/SignIn';
 import { Siwe } from '../Siwe/Siwe';
+import { NotificationContextProvider } from '../../context/NotificationContext';
 
 function DM3(props: Dm3Props) {
     const {
@@ -70,9 +71,11 @@ function DM3(props: Dm3Props) {
                             <SignIn />
                         )
                     ) : (
-                        <div className="h-100 background-container">
-                            <Dashboard />
-                        </div>
+                        <NotificationContextProvider>
+                            <div className="h-100 background-container">
+                                <Dashboard />
+                            </div>
+                        </NotificationContextProvider>
                     )}
                 </MessageContextProvider>
             </ConversationContextProvider>

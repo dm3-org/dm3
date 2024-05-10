@@ -1,8 +1,4 @@
 import { useContext, useEffect, useState } from 'react';
-import {
-    IVerificationModal,
-    getVerficationModalContent,
-} from './VerificationContent';
 import { log } from '@dm3-org/dm3-lib-shared';
 import {
     getAllNotificationChannels,
@@ -11,14 +7,16 @@ import {
     toggleGlobalNotifications,
     toggleNotificationChannel,
 } from '@dm3-org/dm3-lib-delivery-api';
-import { AuthContext } from '../../../../context/AuthContext';
-import { useMainnetProvider } from '../../../../hooks/mainnetprovider/useMainnetProvider';
 import {
     NotificationChannel,
     NotificationChannelType,
 } from '@dm3-org/dm3-lib-shared';
-import { closeLoader, startLoader } from '../../../Loader/Loader';
-import { ModalContext } from '../../../../context/ModalContext';
+import { AuthContext } from '../../context/AuthContext';
+import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
+import { ModalContext } from '../../context/ModalContext';
+import { closeLoader, startLoader } from '../../components/Loader/Loader';
+import { IVerificationModal } from '../../components/Preferences/Notification/VerificationModal';
+import { getVerficationModalContent } from '../../components/Preferences/Notification/hooks/VerificationContent';
 
 export const useNotification = () => {
     const mainnetProvider = useMainnetProvider();
@@ -93,13 +91,8 @@ export const useNotification = () => {
                         (channel: NotificationChannel) => {
                             switch (channel.type) {
                                 case NotificationChannelType.EMAIL:
-                                    if (
-                                        channel.config.isEnabled &&
-                                        channel.config.isVerified
-                                    ) {
+                                    if (channel.config.isVerified) {
                                         setEmail(channel.config.recipientValue);
-                                        setIsEmailActive(true);
-                                        break;
                                     }
                                     setIsEmailActive(channel.config.isEnabled);
                                     break;
@@ -202,10 +195,7 @@ export const useNotification = () => {
 
     useEffect(() => {
         const fetchNotificationDetails = async () => {
-            setLoaderContent('Fetching notification channels...');
-            startLoader();
             await fetchGlobalNotification();
-            closeLoader();
         };
         fetchNotificationDetails();
     }, []);

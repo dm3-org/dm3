@@ -1,7 +1,7 @@
 import React from 'react';
-import { useNotification } from './hooks/useNotification';
-import { IVerificationModal } from './VerificationModal';
+import { useNotification } from './../hooks/notifications/useNotification';
 import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
+import { IVerificationModal } from '../components/Preferences/Notification/VerificationModal';
 
 export type NotificationContextType = {
     isNotificationsActive: boolean;

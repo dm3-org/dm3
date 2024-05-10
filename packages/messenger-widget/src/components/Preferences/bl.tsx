@@ -10,7 +10,6 @@ import { Notification } from './Notification/Notification';
 import { Network } from './Network/Network';
 import { Storage } from './Storage/Storage';
 import { DM3Profile } from './DM3Profile/DM3Profile';
-import { NotificationContextProvider } from './Notification/Context';
 
 export const preferencesItems = [
     {
@@ -46,11 +45,7 @@ export const preferencesItems = [
             />
         ),
         name: 'Notification',
-        component: (
-            <NotificationContextProvider>
-                <Notification />
-            </NotificationContextProvider>
-        ),
+        component: <Notification />,
         isEnabled: true,
     },
     {

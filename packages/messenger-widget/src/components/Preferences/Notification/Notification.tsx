@@ -2,13 +2,13 @@ import { useContext } from 'react';
 import { DeleteIcon } from './DeleteIcon';
 import { Checkbox, Text } from './Content';
 import { Heading } from '../Heading/Heading';
-import { NotificationContext } from './Context';
 import { VerificationModal } from './VerificationModal';
 import { NotificationButton } from './NotificationButton';
 import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 import { MOBILE_SCREEN_WIDTH } from '../../../utils/common-utils';
 import { getVerficationModalContent } from './hooks/VerificationContent';
 import { DM3ConfigurationContext } from '../../../context/DM3ConfigurationContext';
+import { NotificationContext } from '../../../context/NotificationContext';
 
 export function Notification() {
     const { screenWidth } = useContext(DM3ConfigurationContext);
