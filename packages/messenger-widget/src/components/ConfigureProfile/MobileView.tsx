@@ -26,7 +26,11 @@ export function MobileView() {
 
     const { account, ethAddress } = useContext(AuthContext);
 
-    const { setEnsName } = useContext(ConfigureProfileContext);
+    const {
+        setEnsName,
+        dm3NameServiceSelected,
+        setDm3NameServiceSelected
+    } = useContext(ConfigureProfileContext);
 
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
@@ -34,10 +38,6 @@ export function MobileView() {
     const [namingServiceSelected, setNamingServiceSelected] = useState<string>(
         namingServices[0].name,
     );
-
-    // DM3 Name service selected
-    const [dm3NameServiceSelected, setDm3NameServiceSelected] =
-        useState<string>(dm3NamingServices[0].name);
 
     // changes network on ENS/GNO naming service change
     const changeNetworkForEnsName = (serviceName: string) => {

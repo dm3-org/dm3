@@ -10,6 +10,7 @@ import {
     NAME_TYPE,
     PROFILE_INPUT_FIELD_CLASS,
 } from '../chain/common';
+import deleteIcon from "../../../assets/images/delete.svg";
 
 export const NormalView = ({
     nameExtension,
@@ -31,6 +32,7 @@ export const NormalView = ({
         handleNameChange,
         handleClaimOrRemoveDm3Name,
         updateDeleteConfirmation,
+        setShowDeleteConfirmation
     } = useContext(ConfigureDM3NameContext);
 
     return (
@@ -120,17 +122,16 @@ export const NormalView = ({
                 grey-text d-flex align-items-center"
                                 >
                                     {existingDm3Name}
-                                    {/* COMMENTED AS IT DOESN'T WORK NOW, BUT NEEDED LATER */}
-                                    {/* <img
-                        className="ms-4 pointer-cursor"
-                        src={deleteIcon}
-                        alt="remove"
-                        onClick={() =>
-                            setShowDeleteConfirmation(
-                                true,
-                            )
-                        }
-                    /> */}
+                                    <img
+                                        className="ms-4 pointer-cursor"
+                                        src={deleteIcon}
+                                        alt="remove"
+                                        onClick={() =>
+                                            setShowDeleteConfirmation(
+                                                true,
+                                            )
+                                        }
+                                    />
                                 </p>
                             </>
                         )}

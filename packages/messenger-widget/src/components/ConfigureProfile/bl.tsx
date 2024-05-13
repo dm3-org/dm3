@@ -195,7 +195,7 @@ export const fetchChainIdFromServiceName = (name: string, chainId: string) => {
     }
 };
 
-const enum DM3_NAME_SERVICES {
+export const enum DM3_NAME_SERVICES {
     CLOUD = 'Cloud-Service by dm3 (... .user.dm3.eth)',
     OPTIMISM = 'Optimism (... .op.dm3.eth)',
 }

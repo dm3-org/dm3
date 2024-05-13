@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { NAME_TYPE } from '../chain/common';
+import { dm3NamingServices } from '../bl';
 
 export interface ConfigureProfileContextType {
     existingEnsName: string | null;
@@ -9,17 +10,21 @@ export interface ConfigureProfileContextType {
     onShowError: (type: NAME_TYPE | undefined, msg: string) => void;
     ensName: string;
     setEnsName: (name: string) => void;
+    dm3NameServiceSelected: string;
+    setDm3NameServiceSelected: (name: string) => void;
 }
 
 export const ConfigureProfileContext =
     React.createContext<ConfigureProfileContextType>({
         existingEnsName: '',
-        setExistingEnsName: (name: string | null) => {},
+        setExistingEnsName: (name: string | null) => { },
         errorMsg: '',
         showError: undefined,
-        onShowError: (type: NAME_TYPE | undefined, msg: string) => {},
+        onShowError: (type: NAME_TYPE | undefined, msg: string) => { },
         ensName: '',
-        setEnsName: (name: string) => {},
+        setEnsName: (name: string) => { },
+        dm3NameServiceSelected: '',
+        setDm3NameServiceSelected: (name: string) => { }
     });
 
 export const ConfigureProfileContextProvider = (props: { children?: any }) => {
@@ -31,6 +36,11 @@ export const ConfigureProfileContextProvider = (props: { children?: any }) => {
     const [existingEnsName, setExistingEnsName] = useState<string | null>(null);
 
     const [errorMsg, setErrorMsg] = useState<string>('');
+
+    // DM3 Name service selected
+    const [dm3NameServiceSelected, setDm3NameServiceSelected] =
+        useState<string>(dm3NamingServices[0].name);
+
     return (
         <ConfigureProfileContext.Provider
             value={{
@@ -44,6 +54,8 @@ export const ConfigureProfileContextProvider = (props: { children?: any }) => {
                 },
                 ensName: ensName,
                 setEnsName: setEnsName,
+                dm3NameServiceSelected,
+                setDm3NameServiceSelected
             }}
         >
             {props.children}
