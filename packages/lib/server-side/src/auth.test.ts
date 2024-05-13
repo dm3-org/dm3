@@ -105,7 +105,7 @@ describe('Auth', () => {
         });
     });
 
-    describe.only('createNewSessionToken', () => {
+    describe('createNewSessionToken', () => {
         describe('schema', () => {
             it('Returns 400 if params is invalid', async () => {
                 const app = express();
@@ -166,7 +166,7 @@ describe('Auth', () => {
 
                 expect(status).toBe(400);
             });
-            it.only('Returns 200 if schema is valid', async () => {
+            it('Returns 200 if schema is valid', async () => {
                 const sessionMocked = {
                     challenge: 'deprecated challenge that is not used anymore',
                     token: 'deprecated token that is not used anymore',

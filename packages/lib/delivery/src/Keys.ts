@@ -90,7 +90,7 @@ export async function createNewSessionToken(
         typeof challengePayload == 'string' ||
         !validateSchema(challengeJwtPayloadSchema, challengePayload) ||
         // this check is already done in validateSchema, but the compiler doesn't understand that, so we do it again
-        !('user' in challengePayload)
+        !('account' in challengePayload)
     ) {
         throw Error('Provided challenge is not valid');
     }
@@ -99,7 +99,9 @@ export async function createNewSessionToken(
         // todo: get public signing key from public profile
         !(await checkSignature(
             session.signedUserProfile.profile.publicSigningKey,
-            challengePayload.challenge,
+            // we expect the whole jwt to be signed, not just the challenge-part of the payload.
+            // This way, the client does not have to understand the jwt.
+            challenge,
             signature,
         ))
     ) {
