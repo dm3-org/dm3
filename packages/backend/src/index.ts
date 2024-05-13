@@ -62,10 +62,7 @@ winston.loggers.add('default', global.logger);
     });
     app.use('/profile', Profile(db, io, web3Provider));
     app.use('/storage', Storage(db, web3Provider, serverSecret));
-    app.use(
-        '/auth',
-        Auth(db.getSession as any, db.setSession as any, serverSecret),
-    );
+    app.use('/auth', Auth(db.getSession as any, serverSecret));
     app.use(logError);
     app.use(errorHandler);
     io.use(socketAuth(db, web3Provider, serverSecret));
