@@ -2,7 +2,7 @@ import './Notification.css';
 import deleteIcon from '../../../assets/images/delete.svg';
 import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 import { useContext } from 'react';
-import { NotificationContext } from './Context';
+import { NotificationContext } from '../../../context/NotificationContext';
 
 interface IDeleteIcon {
     data: string;

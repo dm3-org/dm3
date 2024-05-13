@@ -1,7 +1,7 @@
 import React from 'react';
-import { useNotification } from './hooks/useNotification';
-import { IVerificationModal } from './VerificationModal';
+import { useNotification } from './../hooks/notifications/useNotification';
 import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
+import { IVerificationModal } from '../components/Preferences/Notification/VerificationModal';
 
 export type NotificationContextType = {
     isNotificationsActive: boolean;
@@ -31,6 +31,8 @@ export type NotificationContextType = {
         channelType: NotificationChannelType,
         resetChannel: (action: null) => void,
     ) => void;
+    isLoading: boolean;
+    loaderData: string;
 };
 
 export const NotificationContext = React.createContext<NotificationContextType>(
@@ -70,6 +72,8 @@ export const NotificationContext = React.createContext<NotificationContextType>(
             channelType: NotificationChannelType,
             resetChannel: (action: null) => void,
         ) => {},
+        isLoading: false,
+        loaderData: '',
     },
 );
 
@@ -97,6 +101,8 @@ export const NotificationContextProvider = ({
         setActiveVerificationContent,
         toggleSpecificNotificationChannel,
         removeSpecificNotificationChannel,
+        isLoading,
+        loaderData,
     } = useNotification();
 
     return (
@@ -120,6 +126,8 @@ export const NotificationContextProvider = ({
                 setActiveVerificationContent,
                 toggleSpecificNotificationChannel,
                 removeSpecificNotificationChannel,
+                isLoading,
+                loaderData,
             }}
         >
             {children}

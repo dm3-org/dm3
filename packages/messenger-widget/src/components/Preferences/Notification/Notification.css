@@ -297,6 +297,17 @@ input[type='number'] {
     hyphens: auto;
 }
 
+.notification-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: -webkit-fill-available;
+    width: -webkit-fill-available;
+    position: fixed;
+    z-index: 100;
+    backdrop-filter: blur(2px);
+}
+
 /* =================== Mobile Responsive CSS =================== */
 
 @media only screen and (max-width: 800px) {

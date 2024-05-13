@@ -9,12 +9,14 @@ import {
 } from './common';
 
 export const NormalView = ({
+    propertyName,
     label,
     note,
     placeholder,
     onSubmitTx,
     handleNameChange,
 }: {
+    propertyName: string;
     label: string;
     note: string;
     placeholder: string;
@@ -55,7 +57,7 @@ export const NormalView = ({
                         className="m-0 font-size-14 font-weight-500 line-height-24 
                                         title-content invisible"
                     >
-                        ENS Name
+                        {propertyName}
                     </p>
 
                     <div
@@ -75,7 +77,7 @@ export const NormalView = ({
                 <div className="dm3-name-container">
                     <div className="d-flex align-items-center">
                         <p className="m-0 font-size-14 font-weight-500 line-height-24 title-content">
-                            ENS Name
+                            {propertyName}
                         </p>
                         {!existingEnsName ? (
                             <form

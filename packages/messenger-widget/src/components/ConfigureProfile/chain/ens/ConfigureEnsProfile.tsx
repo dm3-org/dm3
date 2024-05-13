@@ -30,7 +30,10 @@ export const ConfigureEnsProfile = (props: IChain) => {
 
     const onSubmitTx = async (name: string) => {
         if (props.chainToConnect !== chainId) {
-            onShowError(NAME_TYPE.ENS_NAME, 'Invalid chain connected');
+            onShowError(
+                NAME_TYPE.ENS_NAME,
+                'Invalid chain connected. Please switch to Ethereum network.',
+            );
             return;
         }
         await submitEnsNameTransaction(
@@ -54,6 +57,8 @@ export const ConfigureEnsProfile = (props: IChain) => {
         }
     };
 
+    const propertyName = 'ENS Name';
+
     const label =
         'To publish your dm3 profile, a transaction is sent to set a text record in your ENS name. Transaction costs will apply for setting the profile and administration.';
     const note = 'You can receive dm3 messages directly sent to your ENS name.';
@@ -61,6 +66,7 @@ export const ConfigureEnsProfile = (props: IChain) => {
 
     return (
         <SubmitOnChainProfile
+            propertyName={propertyName}
             handleNameChange={handleNameChange}
             label={label}
             note={note}

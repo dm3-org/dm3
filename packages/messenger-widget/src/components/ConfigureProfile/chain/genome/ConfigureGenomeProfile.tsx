@@ -28,7 +28,10 @@ export const ConfigureGenomeProfile = (props: IChain) => {
 
     const onSubmitTx = async (name: string) => {
         if (props.chainToConnect !== chainId) {
-            onShowError(NAME_TYPE.ENS_NAME, 'Invalid chain connected');
+            onShowError(
+                NAME_TYPE.ENS_NAME,
+                'Invalid chain connected. Please switch to Gnosis network.',
+            );
             return;
         }
         const provider = new ethers.providers.Web3Provider(
@@ -57,6 +60,8 @@ export const ConfigureGenomeProfile = (props: IChain) => {
         }
     };
 
+    const propertyName = 'GNO Name';
+
     const label =
         'To publish your dm3 profile, a transaction is sent to set a text record in your GNO name.' +
         'Transaction costs will apply for setting the profile and administration.';
@@ -68,6 +73,7 @@ export const ConfigureGenomeProfile = (props: IChain) => {
     const placeholder = 'Enter your GNO name connected to your wallet';
     return (
         <SubmitOnChainProfile
+            propertyName={propertyName}
             handleNameChange={handleNameChange}
             label={label}
             note={note}
