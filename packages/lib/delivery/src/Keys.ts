@@ -43,6 +43,8 @@ export async function createChallenge(
 
 /**
  * Creates a JWT that can be used to authenticate the user with the given ens name
+ * Very helpful in unit tests, too, since it can be used to authenticate the user
+ * (only if you know the server secret)
  * Resources:
  *  https://jwt.io/
  *  https://www.npmjs.com/package/jsonwebtoken
@@ -51,12 +53,12 @@ export async function createChallenge(
  * @param validFor time in seconds the JWT is valid for, defaults to 1 hour
  * @returns JWT
  */
-function generateAuthJWT(
+export function generateAuthJWT(
     ensName: string,
     serverSecret: string,
     validFor: number = 60 * 60,
 ) {
-    return sign({ account: ensName }, serverSecret, {
+    return sign({ account: normalizeEnsName(ensName) }, serverSecret, {
         expiresIn: validFor,
         notBefore: 0, // can not be used before now
     });

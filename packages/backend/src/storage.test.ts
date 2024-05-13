@@ -1,5 +1,9 @@
 import { encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
-import { Session, spamFilter } from '@dm3-org/dm3-lib-delivery';
+import {
+    Session,
+    spamFilter,
+    generateAuthJWT,
+} from '@dm3-org/dm3-lib-delivery';
 import {
     Envelop,
     Message,
@@ -53,7 +57,7 @@ global.logger = winston.createLogger({
 
 describe('Storage', () => {
     let app;
-    let token = sign({ user: 'bob.eth' }, serverSecret, {
+    let token = generateAuthJWT({ account: 'bob.eth' }, serverSecret, {
         expiresIn: '1h',
     });
     let prisma: PrismaClient;
@@ -340,9 +344,7 @@ describe('Storage', () => {
                     messageId: sha256('bob.eth' + '123'),
                 });
 
-            const tokenAlice = sign({ user: 'alice.eth' }, serverSecret, {
-                expiresIn: '1h',
-            });
+            const tokenAlice = generateAuthJWT('alice.eth', serverSecret);
 
             await request(app)
                 .post(`/new/alice.eth/addMessage`)

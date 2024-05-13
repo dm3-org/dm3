@@ -1,4 +1,8 @@
-export { createChallenge, createNewSessionToken } from './Keys';
+export {
+    createChallenge,
+    createNewSessionToken,
+    generateAuthJWT,
+} from './Keys';
 export { submitUserProfile, getUserProfile } from './UserProfile';
 export {
     getMessages,

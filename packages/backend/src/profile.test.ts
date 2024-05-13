@@ -1,4 +1,8 @@
-import { Session, spamFilter } from '@dm3-org/dm3-lib-delivery';
+import {
+    Session,
+    spamFilter,
+    generateAuthJWT,
+} from '@dm3-org/dm3-lib-delivery';
 import {
     UserProfile,
     getProfileCreationMessage,
@@ -25,9 +29,7 @@ const web3ProviderMock: ethers.providers.JsonRpcProvider =
 
 const serverSecret = 'veryImportantSecretToGenerateAndValidateJSONWebTokens';
 
-let token = sign({ user: 'alice.eth' }, serverSecret, {
-    expiresIn: '1h',
-});
+let token = generateAuthJWT('alice.eth', serverSecret);
 
 const setUpApp = async (
     app: express.Express,

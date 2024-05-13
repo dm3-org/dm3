@@ -1,11 +1,10 @@
 import { checkToken, Session } from './Session';
 import { sign, verify } from 'jsonwebtoken';
+import { generateAuthJWT } from './Keys';
 
 const serverSecret = 'veryImportantSecretToGenerateAndValidateJSONWebTokens';
 // create valid jwt
-const token = sign({ user: 'alice.eth' }, serverSecret, {
-    expiresIn: '1h',
-});
+const token = generateAuthJWT('alice.eth', serverSecret);
 
 describe('Session', () => {
     describe('checkToken', () => {
@@ -48,9 +47,7 @@ describe('Session', () => {
         });
 
         it('Should return false if the token is signed with a different secret ', async () => {
-            const token = sign({ user: 'alice.eth' }, 'attackersSecret', {
-                expiresIn: '1h',
-            });
+            const token = generateAuthJWT('alice.eth', 'attackersSecret');
             const getSession = (_: string) =>
                 Promise.resolve({ token: 'bar' } as Session);
 
@@ -70,12 +67,17 @@ describe('Session', () => {
 
         it('Should return false if a session exists but the token is expired ', async () => {
             const getSession = (_: string) =>
-                Promise.resolve({ token: token, createdAt: 1 } as Session);
+                Promise.resolve({ token: 'foo', createdAt: 1 } as Session);
 
             const oneMinuteAgo = new Date().getTime() / 1000 - 60;
             // this token expired a minute ago
             const _token = sign(
-                { user: 'alice.eth', iat: oneMinuteAgo, exp: oneMinuteAgo },
+                {
+                    account: 'alice.eth',
+                    iat: oneMinuteAgo,
+                    exp: oneMinuteAgo,
+                    nbf: oneMinuteAgo,
+                },
                 serverSecret,
             );
 
@@ -95,23 +97,25 @@ describe('Session', () => {
 
         it('Should return false if token issuance date is in the future ', async () => {
             const getSession = (_: string) =>
-                Promise.resolve({ token: token, createdAt: 1 } as Session);
+                Promise.resolve({ token: 'foo', createdAt: 1 } as Session);
 
             const tokenBody = verify(token, serverSecret);
             if (
                 !tokenBody ||
                 typeof tokenBody === 'string' ||
                 !tokenBody.exp ||
-                !tokenBody.user ||
-                !tokenBody.iat
+                !tokenBody.account ||
+                !tokenBody.iat ||
+                !tokenBody.nbf
             ) {
                 throw Error('Invalid token');
             }
             // create invalid token
             const _token = sign(
                 {
-                    user: tokenBody.user,
+                    account: tokenBody.account,
                     exp: tokenBody.exp,
+                    nbf: tokenBody.nbf + 1,
                     iat: tokenBody.iat + 1, // issued in the future
                 },
                 serverSecret,
