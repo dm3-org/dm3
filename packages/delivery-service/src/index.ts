@@ -88,7 +88,17 @@ global.logger = winston.createLogger({
     app.use(logError);
     app.use(errorHandler);
     io.use(socketAuth(db, web3Provider, serverSecret));
-    io.on('connection', onConnection(io, web3Provider, db, keys, serverSecret));
+    io.on(
+        'connection',
+        onConnection(
+            io,
+            web3Provider,
+            db,
+            keys,
+            serverSecret,
+            webSocketManager,
+        ),
+    );
     startCleanUpPendingMessagesJob(db, deliveryServiceProperties.messageTTL);
     app.use(
         '/rpc',
@@ -99,6 +109,7 @@ global.logger = winston.createLogger({
             web3Provider,
             db,
             keys,
+            webSocketManager,
         ),
     );
 })();

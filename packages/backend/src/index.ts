@@ -19,7 +19,6 @@ import winston from 'winston';
 import { getDatabase } from './persistence/getDatabase';
 import Profile from './profile';
 import Storage from './storage';
-import { WebSocketManager } from './ws/WebSocketManager';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
