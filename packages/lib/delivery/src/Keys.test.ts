@@ -1,5 +1,8 @@
+import { sign } from '@dm3-org/dm3-lib-crypto';
 import { createChallenge, createNewSessionToken } from './Keys';
+import * as spamFilter from './spam-filter/SpamFilterRules';
 import { Session } from './Session';
+import { JsonWebTokenError } from 'jsonwebtoken';
 
 const RANDO_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 const SENDER_ADDRESS = '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1';
@@ -26,125 +29,151 @@ describe('Keys', () => {
             const setSession = () => Promise.resolve();
 
             await expect(async () => {
-                await createChallenge(getSession, setSession, RANDO_ADDRESS);
+                await createChallenge(getSession, RANDO_ADDRESS, SERVER_SECRET);
             }).rejects.toEqual(Error('Session not found'));
         });
 
-        it('Returns already existing challenge', async () => {
+        it('Ignores challenge field in database', async () => {
             const getSession = () =>
                 Promise.resolve({ challenge: 'foo' } as Session);
-            const setSession = () => Promise.resolve();
 
             const challenge = await createChallenge(
                 getSession,
-                setSession,
                 RANDO_ADDRESS,
+                SERVER_SECRET,
             );
 
-            expect(challenge).toBe('foo');
+            expect(challenge).not.toBe('foo');
         });
-        it('Creates a new challenge if the session does not contain a session yet', async () => {
+        it('Creates a new challenge even if called multiple times', async () => {
             const getSession = () => Promise.resolve({} as Session);
-            const setSession = jest.fn();
 
-            const challenge = await createChallenge(
+            const challenge1 = await createChallenge(
                 getSession,
-                setSession,
                 RANDO_ADDRESS,
+                SERVER_SECRET,
             );
 
-            expect(challenge).not.toBeUndefined();
-            expect(setSession).toBeCalled();
+            const challenge2 = await createChallenge(
+                getSession,
+                RANDO_ADDRESS,
+                SERVER_SECRET,
+            );
+
+            expect(challenge1).not.toBeUndefined();
+            expect(challenge2).not.toBeUndefined();
+            expect(challenge1).not.toBe(challenge2);
         });
     });
     describe('CreateNewSessionToken', () => {
         it('Throws Exception if Session was not found', async () => {
             const getSession = () => Promise.resolve(null);
-            const setSession = () => Promise.resolve();
 
             await expect(async () => {
                 await createNewSessionToken(
                     getSession,
-                    setSession,
-                    '',
+                    'signature',
+                    'challenge',
                     RANDO_ADDRESS,
                     SERVER_SECRET,
                 );
             }).rejects.toEqual(Error('Session not found'));
         });
-        it('Throws Exception if No challenge exists', async () => {
+        it('Throws Exception if the challenge is not valid', async () => {
             const getSession = () => Promise.resolve({} as Session);
-            const setSession = () => Promise.resolve();
 
             await expect(async () => {
                 await createNewSessionToken(
                     getSession,
-                    setSession,
-                    '',
+                    'signature',
+                    'challenge',
                     RANDO_ADDRESS,
                     SERVER_SECRET,
                 );
-            }).rejects.toEqual(Error('No pending challenge'));
+            }).rejects.toEqual(new JsonWebTokenError('jwt malformed'));
         });
 
         it('Returns token if challenge was correct', async () => {
-            const challenge = 'my-Challenge';
-            expect.assertions(2);
-
-            const getSession = () =>
-                Promise.resolve({
-                    challenge,
-                    signedUserProfile: {
-                        profile: {
-                            publicSigningKey: keysA.signingKeyPair.publicKey,
-                        },
+            const sessionMocked = {
+                challenge: '123',
+                token: 'deprecated token that is not used anymore',
+                signedUserProfile: {
+                    profile: {
+                        publicSigningKey: keysA.signingKeyPair.publicKey,
                     },
-                } as Session);
-            const setSession = jest.fn();
+                },
+            } as Session & {
+                spamFilterRules: spamFilter.SpamFilterRules;
+            };
 
-            const signature =
-                '3A893rTBPEa3g9FL2vgDreY3vvXnOiYCOoJURNyctncwH' +
-                '0En/mcwo/t2v2jtQx/pcnOpTzuJwLuZviTQjd9vBQ==';
+            const getSession = async (ensName: string) =>
+                Promise.resolve<
+                    Session & {
+                        spamFilterRules: spamFilter.SpamFilterRules;
+                    }
+                >(sessionMocked);
+
+            // create valid challenge jwt
+            const challenge = await createChallenge(
+                getSession,
+                SENDER_ADDRESS,
+                SERVER_SECRET,
+            );
+
+            const signature = await sign(
+                keysA.signingKeyPair.privateKey,
+                challenge,
+            );
 
             const token = await createNewSessionToken(
                 getSession,
-                setSession,
                 signature,
+                challenge,
                 SENDER_ADDRESS,
                 SERVER_SECRET,
             );
 
             expect(token).not.toBeUndefined();
-            expect(setSession).toBeCalled();
         });
 
         it('Throws Exception if challange was solved wrong', async () => {
-            const challenge = 'my-Challenge';
-
-            const getSession = () =>
-                Promise.resolve({
-                    challenge,
-                    signedUserProfile: {
-                        profile: {
-                            publicSigningKey: keysA.signingKeyPair.publicKey,
-                        },
+            const sessionMocked = {
+                challenge: '123',
+                token: 'deprecated token that is not used anymore',
+                signedUserProfile: {
+                    profile: {
+                        publicSigningKey: keysA.signingKeyPair.publicKey,
                     },
-                } as Session);
-            const setSession = () => Promise.resolve();
+                },
+            } as Session & {
+                spamFilterRules: spamFilter.SpamFilterRules;
+            };
 
-            const signature =
-                'YgT2r48h7JxDmOEzvM9UBjYnGV+K0ouLDsei44tdH2+ps' +
-                'rR4nbPY1fQJialx6fKly62tgkE5vs5EGbU+Bf+IBA==';
+            const getSession = async (ensName: string) =>
+                Promise.resolve<
+                    Session & {
+                        spamFilterRules: spamFilter.SpamFilterRules;
+                    }
+                >(sessionMocked);
+
+            // create valid challenge jwt
+            const challenge = await createChallenge(
+                getSession,
+                SENDER_ADDRESS,
+                SERVER_SECRET,
+            );
+
+            const signature = 'invalid signature';
 
             await expect(async () => {
                 await createNewSessionToken(
                     getSession,
-                    setSession,
                     signature,
+                    challenge,
                     SENDER_ADDRESS,
                     SERVER_SECRET,
                 );
-            }).rejects.toEqual(Error('Signature invalid'));
+            }).rejects.toEqual(TypeError('invalid signature length'));
         });
     });
 });
