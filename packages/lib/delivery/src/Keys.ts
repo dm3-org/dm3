@@ -2,12 +2,25 @@ import { v4 as uuidv4 } from 'uuid';
 import { Session } from './Session';
 import { checkSignature } from '@dm3-org/dm3-lib-crypto';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
-import { sign } from 'jsonwebtoken';
+import { validateSchema } from '@dm3-org/dm3-lib-shared';
+import { sign, verify } from 'jsonwebtoken';
+
+const challengeJwtPayloadSchema = {
+    type: 'object',
+    properties: {
+        account: { type: 'string' },
+        iat: { type: 'number' },
+        exp: { type: 'number' },
+        nbf: { type: 'number' },
+        challenge: { type: 'string' },
+    },
+    required: ['account', 'iat', 'exp', 'nbf', 'challenge'],
+};
 
 export async function createChallenge(
     getSession: (accountAddress: string) => Promise<Session | null>,
-    setSession: (accountAddress: string, session: Session) => Promise<void>,
     ensName: string,
+    serverSecret: string,
 ) {
     const account = normalizeEnsName(ensName);
     const session = await getSession(account);
@@ -16,11 +29,15 @@ export async function createChallenge(
         throw Error('Session not found');
     }
 
-    if (session.challenge) {
-        return session.challenge;
-    }
-    const challenge = uuidv4();
-    await setSession(account, { ...session, challenge });
+    // generates a jwt with a new, unique challenge
+    const challenge = sign(
+        { account: ensName, challenge: uuidv4() },
+        serverSecret,
+        {
+            expiresIn: 15 * 60, // challenge is valid for 15 minutes
+            notBefore: 0, // can not be used before now
+        },
+    );
     return challenge;
 }
 
@@ -29,12 +46,12 @@ export async function createChallenge(
  * Resources:
  *  https://jwt.io/
  *  https://www.npmjs.com/package/jsonwebtoken
- * @param ensName ens id of the user
+ * @param ensName ens id of the account
  * @param serverSecret secret value that is used to sign the JWT
  * @param validFor time in seconds the JWT is valid for, defaults to 1 hour
  * @returns JWT
  */
-function generateJWT(
+function generateAuthJWT(
     ensName: string,
     serverSecret: string,
     validFor: number = 60 * 60,
@@ -47,8 +64,8 @@ function generateJWT(
 
 export async function createNewSessionToken(
     getSession: (ensName: string) => Promise<Session | null>,
-    setSession: (ensName: string, session: Session) => Promise<void>,
     signature: string,
+    challenge: string,
     ensName: string,
     serverSecret: string,
 ): Promise<string> {
@@ -58,15 +75,31 @@ export async function createNewSessionToken(
         throw Error('Session not found');
     }
 
-    if (!session.challenge) {
-        throw Error('No pending challenge');
+    // if (!session.challenge) {
+    //     throw Error('No pending challenge');
+    // }
+
+    // check the challenge jwt the user provided. It must be a valid
+    // jwt signed by us.
+    const challengePayload = verify(challenge, serverSecret, {
+        algorithms: ['HS256'],
+    });
+
+    // check if the payload of the challenge-jwt has the proper schema
+    if (
+        typeof challengePayload == 'string' ||
+        !validateSchema(challengeJwtPayloadSchema, challengePayload) ||
+        // this check is already done in validateSchema, but the compiler doesn't understand that, so we do it again
+        !('user' in challengePayload)
+    ) {
+        throw Error('Provided challenge is not valid');
     }
 
     if (
         // todo: get public signing key from public profile
         !(await checkSignature(
             session.signedUserProfile.profile.publicSigningKey,
-            session.challenge,
+            challengePayload.challenge,
             signature,
         ))
     ) {
@@ -74,8 +107,6 @@ export async function createNewSessionToken(
     }
 
     // todo: create jwt instead, which does not have to be stored in the session
-    const jwt = generateJWT(ensName, serverSecret);
-    // todo: remove challenge from session
-    await setSession(ensName, { ...session, challenge: undefined, token: jwt });
+    const jwt = generateAuthJWT(ensName, serverSecret);
     return jwt;
 }

@@ -53,7 +53,7 @@ describe('Set Session', () => {
         });
     });
 
-    it('Rejcts session with an invalid schema', async () => {
+    it('Rejects session with an invalid schema', async () => {
         const invalidSession = {} as Session;
         try {
             await db.setSession('foo', invalidSession);

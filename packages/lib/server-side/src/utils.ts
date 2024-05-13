@@ -192,7 +192,7 @@ export function getServerSecret(env: NodeJS.ProcessEnv): string {
             ethers.utils.base64.decode(secretInput),
         );
         if (!secret) {
-            throw Error('Missing SERVER_SECRET in env');
+            throw Error('Failed to load server secret for jwt');
         }
 
         return secret;

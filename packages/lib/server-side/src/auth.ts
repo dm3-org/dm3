@@ -30,13 +30,14 @@ const createNewSessionTokenBodySchema = {
     type: 'object',
     properties: {
         signature: { type: 'string' },
+        challenge: { type: 'string' },
     },
-    required: ['signature'],
+    required: ['signature', 'challenge'],
     additionalProperties: false,
 };
 
 //@ts-ignore
-export const Auth = (getSession, setSession, serverSecret: string) => {
+export const Auth = (getSession, serverSecret: string) => {
     const router = express.Router();
 
     //TODO remove
@@ -57,13 +58,11 @@ export const Auth = (getSession, setSession, serverSecret: string) => {
 
             const challenge = await createChallenge(
                 getSession,
-                setSession,
                 idEnsName,
+                serverSecret,
             );
 
-            res.json({
-                challenge,
-            });
+            res.json(challenge);
         } catch (e) {
             next(e);
         }
@@ -90,8 +89,8 @@ export const Auth = (getSession, setSession, serverSecret: string) => {
 
             const jwt = await createNewSessionToken(
                 getSession,
-                setSession,
                 req.body.signature,
+                req.body.challenge,
                 idEnsName,
                 serverSecret,
             );
