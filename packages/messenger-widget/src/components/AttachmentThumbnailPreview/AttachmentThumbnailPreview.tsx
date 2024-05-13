@@ -1,7 +1,7 @@
 import './AttachmentThumbnailPreview.css';
 import attachmentIcon from '../../assets/images/attachment.svg';
 import { AttachmentPreviewProps } from '../../interfaces/props';
-import { Attachment } from '../../interfaces/utils';
+import { IAttachmentPreview } from '../../interfaces/utils';
 import { useState } from 'react';
 import { ImageViewModal } from '../ImageViewModal/ImageViewModal';
 
@@ -13,7 +13,7 @@ export function AttachmentThumbnailPreview(props: AttachmentPreviewProps) {
         setImageUri(uri);
     }
 
-    function showImagePreview(item: Attachment) {
+    function showImagePreview(item: IAttachmentPreview) {
         if (item.isImage) {
             setImageUri(item.data);
         }

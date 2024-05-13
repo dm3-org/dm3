@@ -100,12 +100,18 @@ export function MessageAction(props: MessageProps) {
         hideMsgActionDropdown();
         if (props.envelop.message.attachments) {
             const link = document.createElement('a');
-            props.envelop.message.attachments.forEach((base64, index) => {
-                link.href = base64;
-                link.download = createNameForFile(
-                    index,
-                    getFileTypeFromBase64(base64),
-                );
+            props.envelop.message.attachments.forEach((attachment, index) => {
+                //In case some attachments with the old spec are present.
+                //In order to not break the download functionality, we need to check if the attachment has a data property
+                const attachmentData = attachment.data ?? attachment;
+
+                link.href = attachmentData;
+                link.download =
+                    attachment.name ??
+                    createNameForFile(
+                        index,
+                        getFileTypeFromBase64(attachmentData),
+                    );
                 link.click();
             });
         }

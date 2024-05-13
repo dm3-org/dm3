@@ -4,7 +4,7 @@ import { MessageProps } from '../../interfaces/props';
 import { MessageActionType } from '../../utils/enum-type-utils';
 import { AttachmentThumbnailPreview } from '../AttachmentThumbnailPreview/AttachmentThumbnailPreview';
 import {
-    getFilesData,
+    getFilesAttachments,
     getMessageReactionStyleClassses,
     getMessageStyleClasses,
 } from './bl';
@@ -38,7 +38,7 @@ export function Message(props: MessageProps) {
                         props.envelop.message.metadata.type !==
                             MessageActionType.DELETE && (
                             <AttachmentThumbnailPreview
-                                filesSelected={getFilesData(
+                                filesSelected={getFilesAttachments(
                                     props.envelop.message.attachments,
                                 )}
                                 isMyMessage={props.ownMessage}

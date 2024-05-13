@@ -1,5 +1,5 @@
 import { MessageAction, MessageProps } from '../../interfaces/props';
-import { Attachment } from '../../interfaces/utils';
+import { IAttachmentPreview as AttachmentModel } from '../../interfaces/utils';
 import {
     createNameForFile,
     generateRandomStringForId,
@@ -7,6 +7,7 @@ import {
 } from '../../utils/common-utils';
 import { MessageActionType } from '../../utils/enum-type-utils';
 import { isFileAImage } from '../MessageInputBox/bl';
+import { Attachment } from '@dm3-org/dm3-lib-messaging';
 
 export const scrollToMessage = (replyFromMessageId: string) => {
     const element = document.getElementById(replyFromMessageId) as HTMLElement;
@@ -24,15 +25,18 @@ export const getMessageChangeText = (props: MessageProps): string => {
     }
 };
 
-export const getFilesData = (files: string[]) => {
-    const data: Attachment[] = [];
+export const getFilesAttachments = (files: Attachment[]) => {
+    const data: AttachmentModel[] = [];
     let fileType;
     files.forEach((file, index) => {
-        fileType = getFileTypeFromBase64(file);
+        //In case some attachments with the old spec are present.
+        //In order to not break the download functionality, we need to check if the attachment has a data
+        const attachmentData = file.data ?? file;
+        fileType = getFileTypeFromBase64(attachmentData);
         data.push({
             id: generateRandomStringForId(),
-            name: createNameForFile(index, fileType),
-            data: file,
+            name: file.name ?? createNameForFile(index, fileType),
+            data: attachmentData,
             isImage: isFileAImage(fileType),
         });
     });

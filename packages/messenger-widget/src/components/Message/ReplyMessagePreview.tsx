@@ -1,5 +1,5 @@
 import './Message.css';
-import { getFilesData, scrollToMessage } from './bl';
+import { getFilesAttachments, scrollToMessage } from './bl';
 import { MessageProps } from '../../interfaces/props';
 import { MessageActionType } from '../../utils/enum-type-utils';
 import { AttachmentThumbnailPreview } from '../AttachmentThumbnailPreview/AttachmentThumbnailPreview';
@@ -22,9 +22,8 @@ export function ReplyMessagePreview(props: MessageProps) {
                 }
             >
                 <AttachmentThumbnailPreview
-                    filesSelected={getFilesData(
-                        props.replyToMessageEnvelop?.message
-                            .attachments as string[],
+                    filesSelected={getFilesAttachments(
+                        props.replyToMessageEnvelop?.message.attachments ?? [],
                     )}
                     isMyMessage={props.ownMessage}
                     isReplyMsgAttachments={true}

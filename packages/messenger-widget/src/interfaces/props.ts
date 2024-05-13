@@ -1,6 +1,6 @@
 import { Envelop, MessageState } from '@dm3-org/dm3-lib-messaging';
 import { MessageActionType } from '../utils/enum-type-utils';
-import { Attachment, ContactPreview } from './utils';
+import { IAttachmentPreview, ContactPreview } from './utils';
 
 export interface IEnsDetails {
     propertyKey: string;
@@ -40,19 +40,19 @@ export interface ReplyMessagePreviewProps {
 }
 
 export interface AttachmentProps {
-    filesSelected: Attachment[];
+    filesSelected: IAttachmentPreview[];
     setFiles: Function;
 }
 
 export interface MessageDataProps {
     message: string;
-    filesSelected: Attachment[];
+    filesSelected: IAttachmentPreview[];
     setFiles: Function;
     setMessageText: Function;
 }
 
 export interface AttachmentPreviewProps {
-    filesSelected: Attachment[];
+    filesSelected: IAttachmentPreview[];
     isMyMessage: boolean;
     isReplyMsgAttachments?: boolean;
 }
