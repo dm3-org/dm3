@@ -63,7 +63,12 @@ global.logger = winston.createLogger({
         },
     });
 
-    const webSocketManager = new WebSocketManager(io, web3Provider, db);
+    const webSocketManager = new WebSocketManager(
+        io,
+        web3Provider,
+        db,
+        serverSecret,
+    );
 
     app.use(logRequest);
 

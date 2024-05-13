@@ -1,11 +1,10 @@
-import {
-    IGlobalNotification,
-    IOtp,
-    NotificationChannel,
-    NotificationChannelType,
-} from '@dm3-org/dm3-lib-delivery';
+import { IGlobalNotification, IOtp } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { UserStorage } from '@dm3-org/dm3-lib-storage';
+import {
+    NotificationChannel,
+    NotificationChannelType,
+} from '@dm3-org/dm3-lib-shared';
 // import { PrismaClient } from '@prisma/client';
 import { createClient } from 'redis';
 import { getIdEnsName } from './getIdEnsName';

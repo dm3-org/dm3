@@ -13,7 +13,7 @@ export class WebSocketManager implements IWebSocketManager {
     private readonly web3Provider: ethers.providers.JsonRpcProvider;
     private readonly db: IDatabase;
     private readonly server: SocketIOServer;
-
+    private readonly serverSecret: string;
     /**
      * @param {http.Server} httpServer - The HTTP server instance.
      * @param {ethers.providers.JsonRpcProvider} web3Provider - ethers JsonRpcProvider instance.
@@ -23,11 +23,13 @@ export class WebSocketManager implements IWebSocketManager {
         server: SocketIOServer,
         web3Provider: ethers.providers.JsonRpcProvider,
         db: IDatabase,
+        serverSecret: string,
     ) {
         //Establish Ws
         this.web3Provider = web3Provider;
         this.db = db;
         this.server = server;
+        this.serverSecret = serverSecret;
 
         //register listener
         this.server.on('connection', (c: Socket) => {
@@ -60,6 +62,7 @@ export class WebSocketManager implements IWebSocketManager {
                 this.db.getSession,
                 ensName,
                 token,
+                this.serverSecret,
             );
             //retrieve the session from the db
             const session = await this.db.getSession(ensName);
