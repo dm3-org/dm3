@@ -9,6 +9,7 @@ import { ethers } from 'ethers';
 import { Server, Socket } from 'socket.io';
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import { IDatabase } from './persistence/getDatabase';
+import { IWebSocketManager } from '@dm3-org/dm3-lib-shared';
 
 const pendingMessageSchema = {
     type: 'object',
@@ -27,6 +28,7 @@ export function onConnection(
     db: IDatabase,
     keys: DeliveryServiceProfileKeys,
     serverSecret: string,
+    webSocketManager: IWebSocketManager,
 ) {
     return (socket: Socket) => {
         socket.on('disconnect', () => {

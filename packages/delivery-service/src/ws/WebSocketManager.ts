@@ -10,18 +10,18 @@ export const AUTHORIZED = 'authorized';
 
 export class WebSocketManager implements IWebSocketManager {
     private readonly connections: Map<string, Socket[]> = new Map();
-    private readonly web3Provider: ethers.providers.Web3Provider;
+    private readonly web3Provider: ethers.providers.JsonRpcProvider;
     private readonly db: IDatabase;
     private readonly server: SocketIOServer;
 
     /**
      * @param {http.Server} httpServer - The HTTP server instance.
-     * @param {ethers.providers.Web3Provider} web3Provider - ethers web3provider instance.
+     * @param {ethers.providers.JsonRpcProvider} web3Provider - ethers JsonRpcProvider instance.
      * @param {IDatabase} db - The database instance.
      */
     constructor(
         server: SocketIOServer,
-        web3Provider: ethers.providers.Web3Provider,
+        web3Provider: ethers.providers.JsonRpcProvider,
         db: IDatabase,
     ) {
         //Establish Ws

@@ -9,6 +9,7 @@ import { handleResolveProfileExtension } from './methods/handleResolveProfileExt
 import { handleSubmitMessage } from './methods/handleSubmitMessage';
 import { IDatabase } from '../persistence/getDatabase';
 import { DeliveryServiceProfileKeys } from '@dm3-org/dm3-lib-profile';
+import { IWebSocketManager } from '@dm3-org/dm3-lib-shared';
 
 const DM3_SUBMIT_MESSAGE = 'dm3_submitMessage';
 const DM3_GET_DELIVERY_SERVICE_PROPERTIES = 'dm3_getDeliveryServiceProperties';
@@ -21,6 +22,7 @@ export default (
     web3Provider: ethers.providers.JsonRpcProvider,
     db: IDatabase,
     keys: DeliveryServiceProfileKeys,
+    webSocketManager: IWebSocketManager,
 ) => {
     const router = express.Router();
 
@@ -42,6 +44,7 @@ export default (
                     web3Provider,
                     db,
                     keys,
+                    webSocketManager,
                 );
 
             case DM3_GET_DELIVERY_SERVICE_PROPERTIES:

@@ -58,11 +58,6 @@ winston.loggers.add('default', global.logger);
     const serverSecret = getServerSecret(process.env);
 
     app.use(logRequest);
-    app.locals.webSocketManager = new WebSocketManager(
-        io,
-        app.locals.web3Provider,
-        app.locals.db,
-    );
 
     app.get('/hello', (req, res) => {
         return res.send('Hello DM3');

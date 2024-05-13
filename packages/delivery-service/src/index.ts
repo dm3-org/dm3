@@ -25,6 +25,7 @@ import Notifications from './notifications';
 import { getDatabase } from './persistence/getDatabase';
 import Profile from './profile';
 import RpcProxy from './rpc/rpc-proxy';
+import { WebSocketManager } from './ws/WebSocketManager';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -61,6 +62,8 @@ global.logger = winston.createLogger({
             optionsSuccessStatus: 204,
         },
     });
+
+    const webSocketManager = new WebSocketManager(io, web3Provider, db);
 
     app.use(logRequest);
 

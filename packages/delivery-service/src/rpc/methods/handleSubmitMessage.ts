@@ -10,6 +10,7 @@ import { Server } from 'socket.io';
 import { IDatabase } from '../../persistence/getDatabase';
 import { ethers } from 'ethers';
 import { DeliveryServiceProfileKeys } from '@dm3-org/dm3-lib-profile';
+import { IWebSocketManager } from '@dm3-org/dm3-lib-shared';
 
 export async function handleSubmitMessage(
     req: express.Request,
@@ -19,6 +20,7 @@ export async function handleSubmitMessage(
     web3Provider: ethers.providers.JsonRpcProvider,
     db: IDatabase,
     keys: DeliveryServiceProfileKeys,
+    webSocketManager: IWebSocketManager,
 ) {
     const {
         params: [stringifiedEnvelop],
@@ -69,6 +71,7 @@ export async function handleSubmitMessage(
             web3Provider,
             db.getIdEnsName,
             db.getUsersNotificationChannels,
+            webSocketManager,
         );
         res.send(200);
     } catch (error) {
