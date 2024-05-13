@@ -68,7 +68,7 @@ export async function checkToken(
 
         // check if expected fields are present
         if (
-            !('user' in jwtPayload) ||
+            !('account' in jwtPayload) ||
             !('iat' in jwtPayload) ||
             !('exp' in jwtPayload)
         ) {
@@ -85,9 +85,9 @@ export async function checkToken(
             return false;
         }
 
-        if (jwtPayload.user !== ensName) {
+        if (jwtPayload.account !== ensName) {
             logDebug({
-                text: `jwt invalid: user mismatch`,
+                text: `jwt invalid: account mismatch`,
             });
             return false;
         }

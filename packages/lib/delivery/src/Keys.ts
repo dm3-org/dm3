@@ -56,10 +56,10 @@ function generateAuthJWT(
     serverSecret: string,
     validFor: number = 60 * 60,
 ) {
-    return sign(
-        { user: ensName, exp: Math.floor(Date.now() / 1000) + validFor },
-        serverSecret,
-    );
+    return sign({ account: ensName }, serverSecret, {
+        expiresIn: validFor,
+        notBefore: 0, // can not be used before now
+    });
 }
 
 export async function createNewSessionToken(
@@ -74,10 +74,6 @@ export async function createNewSessionToken(
     if (!session) {
         throw Error('Session not found');
     }
-
-    // if (!session.challenge) {
-    //     throw Error('No pending challenge');
-    // }
 
     // check the challenge jwt the user provided. It must be a valid
     // jwt signed by us.
