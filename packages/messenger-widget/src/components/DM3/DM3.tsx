@@ -1,14 +1,26 @@
 import { useContext, useEffect } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import { Dm3Props } from '../../interfaces/config';
-import Dashboard from '../../views/Dashboard/Dashboard';
-import { SignIn } from '../SignIn/SignIn';
+import { ConversationContextProvider } from '../../context/ConversationContext';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { MessageContextProvider } from '../../context/MessageContext';
+import { ModalContext } from '../../context/ModalContext';
+import { Dm3Props } from '../../interfaces/config';
+import { SiweValidityStatus } from '../../utils/enum-type-utils';
+import Dashboard from '../../views/Dashboard/Dashboard';
+import { Loader, startLoader } from '../Loader/Loader';
+import { SignIn } from '../SignIn/SignIn';
+import { Siwe } from '../Siwe/Siwe';
+import { NotificationContextProvider } from '../../context/NotificationContext';
 
 function DM3(props: Dm3Props) {
-    const { setDm3Configuration, setScreenWidth } = useContext(
-        DM3ConfigurationContext,
-    );
+    const {
+        setDm3Configuration,
+        setScreenWidth,
+        setSiweValidityStatus,
+        validateSiweCredentials,
+    } = useContext(DM3ConfigurationContext);
+
+    const { setLoaderContent } = useContext(ModalContext);
 
     const { isLoggedIn } = useContext(AuthContext);
 
@@ -20,7 +32,7 @@ function DM3(props: Dm3Props) {
         }
 
         // sets the DM3 confguration provided from props
-        setDm3Configuration(props.dm3Configuration);
+        setDm3Configuration(props.config);
     }, []);
 
     // This handles the responsive check of widget
@@ -34,20 +46,39 @@ function DM3(props: Dm3Props) {
         };
     }, []);
 
+    // validate SIWE credentials
+    useEffect(() => {
+        const validateSiwe = async () => {
+            if (props.config.siwe) {
+                setLoaderContent('Validating SIWE credentials');
+                startLoader();
+                setSiweValidityStatus(SiweValidityStatus.IN_PROGRESS);
+                await validateSiweCredentials(props.config.siwe);
+            }
+        };
+        validateSiwe();
+    }, []);
+
     return (
         <div id="data-rk-child" className="h-100">
-            {!isLoggedIn ? (
-                <SignIn
-                    hideStorageSelection={props.config.hideStorageSelection}
-                    defaultStorageLocation={props.config.defaultStorageLocation}
-                    miniSignIn={props.config.miniSignIn}
-                    signInImage={props.config.signInImage as string}
-                />
-            ) : (
-                <div className="h-100 background-container">
-                    <Dashboard dm3Props={props} />
-                </div>
-            )}
+            <ConversationContextProvider config={props.config}>
+                <MessageContextProvider>
+                    <Loader />
+                    {!isLoggedIn ? (
+                        props.config.siwe ? (
+                            <Siwe backgroundImage={props.config.signInImage} />
+                        ) : (
+                            <SignIn />
+                        )
+                    ) : (
+                        <NotificationContextProvider>
+                            <div className="h-100 background-container">
+                                <Dashboard />
+                            </div>
+                        </NotificationContextProvider>
+                    )}
+                </MessageContextProvider>
+            </ConversationContextProvider>
         </div>
     );
 }

@@ -22,7 +22,7 @@ node_modules
 # production
 build
 **/*/build
-packages/messenger*/lib
+packages/messenger-widget/lib/**/
 
 
 # misc
@@ -64,3 +64,5 @@ packages/lib/**/dist
 
 packages/**/.yarn
 temp
+
+config.yml

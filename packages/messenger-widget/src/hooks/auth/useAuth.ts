@@ -1,33 +1,36 @@
 import {
     Account,
     ProfileKeys,
+    SignedUserProfile,
+    getUserProfile,
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useAccount, useWalletClient } from 'wagmi';
 import { TLDContext } from '../../context/TLDContext';
-import { GlobalContext } from '../../utils/context-utils';
-import {
-    Actions,
-    ConnectionType,
-    ModalStateType,
-    UiStateType,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
-import { AccountConnector } from './AccountConnector';
+import { AccountConnector, getIdForAddress } from './AccountConnector';
 import {
     ConnectDsResult,
     DeliveryServiceConnector,
+    SignMessageFn,
 } from './DeliveryServiceConnector';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
+import { ethers } from 'ethers';
+import { sha256, toUtf8Bytes } from 'ethers/lib/utils';
+import { closeLoader, startLoader } from '../../components/Loader/Loader';
 
 export const useAuth = () => {
+    const mainnetProvider = useMainnetProvider();
+
     const { resolveAliasToTLD } = useContext(TLDContext);
     const { data: walletClient } = useWalletClient();
-    const mainnetProvider = useMainnetProvider();
-    const { dispatch } = useContext(GlobalContext);
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
+    const { resetViewStates } = useContext(UiViewContext);
+    const { resetModalStates } = useContext(ModalContext);
+
     const { address } = useAccount({
         onDisconnect: () => signOut(),
     });
@@ -56,10 +59,8 @@ export const useAuth = () => {
             if (!account) {
                 return;
             }
-            //TODO fix tommorow
             const displayName = await resolveAliasToTLD(account?.ensName);
             console.log('updated account', account);
-            //const displayName = await getAlias(account.ensName);
             setDisplayName(displayName);
         };
         fetchDisplayName();
@@ -81,8 +82,9 @@ export const useAuth = () => {
     const signOut = () => {
         setAccount(undefined);
         setDeliveryServiceToken(undefined);
-        resetStates(dispatch);
+        resetStates();
     };
+    //The normal sign in function that is used when the user signs in with their own account, using a web3 provider like wallet connect or metamask
     const cleanSignIn = async () => {
         setIsLoading(true);
         setHasError(false);
@@ -90,21 +92,67 @@ export const useAuth = () => {
         const account = await AccountConnector(
             walletClient!,
             mainnetProvider,
+            dm3Configuration.addressEnsSubdomain,
         ).connect(address!);
 
         if (!account) {
             throw Error('error fetching dm3Account');
         }
 
+        await _login(
+            account.ensName,
+            address!,
+            account.userProfile,
+            (message: string) => walletClient!.signMessage({ message }),
+        );
+    };
+
+    //Siwe signin is used when a siwe message has been provided by an app using dm3 as a widget.
+    //The user is signed in with a random account based on the provided secret
+    const siweSignIn = async () => {
+        startLoader();
+        //First we have to create a wallet based on the provided siwe secret
+        const secret = dm3Configuration.siwe?.secret;
+        if (!secret) {
+            closeLoader();
+            throw Error('No SIWE secret provided');
+        }
+        const carrierWallet = new ethers.Wallet(sha256(toUtf8Bytes(secret)));
+
+        //Check if the account has been used already
+        const ensName = getIdForAddress(
+            carrierWallet.address,
+            dm3Configuration.addressEnsSubdomain,
+        );
+        const userProfile = await getUserProfile(mainnetProvider, ensName);
+
+        await _login(
+            ensName,
+            carrierWallet.address!,
+            userProfile,
+            (msg: string) => carrierWallet.signMessage(msg),
+        );
+        closeLoader();
+    };
+    const _login = async (
+        ensName: string,
+        address: string,
+        userProfile: SignedUserProfile | undefined,
+        signMessage: SignMessageFn,
+    ) => {
+        console.log('start login ');
         let connectDsResult: ConnectDsResult | undefined;
         try {
             connectDsResult = await DeliveryServiceConnector(
                 dm3Configuration,
                 mainnetProvider,
-                walletClient!,
+                signMessage,
                 address!,
-            ).login(account.ensName, account.userProfile);
+                dm3Configuration.defaultDeliveryService,
+                dm3Configuration.addressEnsSubdomain,
+            ).login(ensName, userProfile);
         } catch (e) {
+            console.log(e);
             setHasError(true);
             setIsLoading(false);
             setEthAddress(undefined);
@@ -116,7 +164,7 @@ export const useAuth = () => {
 
         setAccount({
             ...account,
-            ensName: normalizeEnsName(account.ensName),
+            ensName: normalizeEnsName(ensName),
             profile: signedUserProfile.profile,
             profileSignature: signedUserProfile.signature,
         });
@@ -127,9 +175,15 @@ export const useAuth = () => {
         setProfileKeys(profileKeys);
     };
 
+    const resetStates = () => {
+        resetViewStates();
+        resetModalStates();
+    };
+
     return {
         profileKeys,
         cleanSignIn,
+        siweSignIn,
         setDisplayName,
         account,
         displayName,
@@ -140,20 +194,4 @@ export const useAuth = () => {
         hasError,
         setAccount,
     };
-};
-
-const resetStates = (dispatch: React.Dispatch<Actions>) => {
-    dispatch({
-        type: ConnectionType.Reset,
-    });
-
-    dispatch({
-        type: UiStateType.Reset,
-    });
-    dispatch({
-        type: UiViewStateType.Reset,
-    });
-    dispatch({
-        type: ModalStateType.Reset,
-    });
 };

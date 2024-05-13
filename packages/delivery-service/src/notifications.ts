@@ -16,10 +16,10 @@ import {
     sendOtp,
     toggleNotificationChannel,
     removeNotificationChannel,
-    NotificationChannelType,
 } from '@dm3-org/dm3-lib-delivery';
 import { IDatabase } from './persistence/getDatabase';
 import { validateToggleNotificationChannel } from './validation/notification/enableOrDisableChannelValidation';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 
 // Exporting a function that returns an Express router
 export default (

@@ -6,3 +6,6 @@ export * as ethersHelper from './ethersHelper';
 export * as globalConfig from './GlobalConfig';
 export { createJsonDataUri } from './createJsonDataUri';
 export { getSize } from './size';
+export { NotificationChannelType } from './notification';
+export type { NotificationChannel } from './notification';
+export type { IWebSocketManager } from './IWebSocketManager';

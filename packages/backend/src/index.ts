@@ -19,6 +19,7 @@ import winston from 'winston';
 import { getDatabase } from './persistence/getDatabase';
 import Profile from './profile';
 import Storage from './storage';
+import { WebSocketManager } from './ws/WebSocketManager';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -42,6 +43,7 @@ global.logger = winston.createLogger({
 winston.loggers.add('default', global.logger);
 
 (async () => {
+    //TODO REPLACE WITH WS MANAGER
     const io = new Server(server, {
         cors: {
             origin: '*',
@@ -56,6 +58,11 @@ winston.loggers.add('default', global.logger);
     const serverSecret = getServerSecret(process.env);
 
     app.use(logRequest);
+    app.locals.webSocketManager = new WebSocketManager(
+        io,
+        app.locals.web3Provider,
+        app.locals.db,
+    );
 
     app.get('/hello', (req, res) => {
         return res.send('Hello DM3');

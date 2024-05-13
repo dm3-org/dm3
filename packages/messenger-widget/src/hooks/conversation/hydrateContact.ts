@@ -17,6 +17,7 @@ export const hydrateContract = async (
     provider: ethers.providers.JsonRpcProvider,
     conversatoinManifest: Conversation,
     resolveAliasToTLD: (alias: string) => Promise<string>,
+    addrEnsSubdomain: string,
 ) => {
     const account = await fetchAccount(
         provider,
@@ -30,6 +31,7 @@ export const hydrateContract = async (
         contact,
         resolveAliasToTLD,
         messageSizeLimit,
+        addrEnsSubdomain,
     );
 
     return contactPreview;
@@ -41,11 +43,16 @@ const fetchPreview = async (
     contact: Contact,
     resolveAliasToTLD: (alias: string) => Promise<string>,
     messageSizeLimit: number,
+    addrEnsSubdomain: string,
 ): Promise<ContactPreview> => {
     return {
         name: await resolveAliasToTLD(contact.account.ensName),
         message: '',
-        image: await getAvatarProfilePic(provider, contact.account.ensName),
+        image: await getAvatarProfilePic(
+            provider,
+            contact.account.ensName,
+            addrEnsSubdomain,
+        ),
         messageCount: conversatoinManifest.messageCounter,
         unreadMsgCount: 21,
         contactDetails: contact,

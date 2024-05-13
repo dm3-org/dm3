@@ -3,12 +3,14 @@ import { Email } from '../channels/Email';
 import {
     INotificationBroker,
     GetNotificationChannels,
-    NotificationChannel,
-    NotificationChannelType,
     INotificationChannel,
     NotificationType,
 } from '../types';
 import { NotificationError } from '../../errors/NotificationError';
+import {
+    NotificationChannel,
+    NotificationChannelType,
+} from '@dm3-org/dm3-lib-shared';
 
 /**
  * Sets up the notification broker with supported notification channels.

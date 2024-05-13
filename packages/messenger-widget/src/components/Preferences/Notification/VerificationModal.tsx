@@ -4,13 +4,13 @@ import closeIcon from '../../../assets/images/cross.svg';
 import { FormEvent } from 'react';
 import { OtpVerification } from './OtpVerification';
 import { useVerification } from './hooks/useVerification';
-import { VerificationMethod } from './hooks/VerificationContent';
-import { useOtp } from './hooks/useOtp';
+import { otpContent } from './hooks/useOtp';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 
 export interface IVerificationModal {
     heading: string;
     description: string;
-    type: VerificationMethod;
+    type: NotificationChannelType;
     placeholder: string;
     content: string;
     action: Function;
@@ -33,16 +33,9 @@ export function VerificationModal(props: IVerificationModal) {
         setErrorMsg,
         otpSent,
         setOtpSent,
-        resendOtp,
         submit,
         handleInputChange,
-    } = useVerification(props.action, props.setVerification);
-
-    const { otpContent } = useOtp(
-        inputData,
-        props.setVerification,
-        props.action,
-    );
+    } = useVerification(props.action, props.setVerification, props.type);
 
     return (
         <div>
@@ -69,7 +62,7 @@ export function VerificationModal(props: IVerificationModal) {
                             src={closeIcon}
                             alt="close"
                             onClick={() => {
-                                props.action(undefined);
+                                props.action(null);
                             }}
                         />
                     </div>
@@ -95,12 +88,12 @@ export function VerificationModal(props: IVerificationModal) {
                                 <div className="d-flex align-items-center">
                                     <label
                                         htmlFor={props.type}
-                                        className="font-size-14 font-weight-500 invisible"
+                                        className="font-size-14 font-weight-500 invisible hide-content"
                                     >
                                         {props.type}
                                     </label>
                                     <div
-                                        className={'notification-error font-weight-400 ms-3'.concat(
+                                        className={'notification-error font-weight-400'.concat(
                                             ' ',
                                             showError
                                                 ? 'show-error'
@@ -112,7 +105,7 @@ export function VerificationModal(props: IVerificationModal) {
                                 </div>
 
                                 {/* Input field & verify button */}
-                                <div className="d-flex align-items-center">
+                                <div className="d-flex add-notification-items">
                                     <label
                                         htmlFor={props.type}
                                         className="font-size-14 font-weight-500"
@@ -124,7 +117,12 @@ export function VerificationModal(props: IVerificationModal) {
                                             ' ',
                                             showError ? 'err-background' : '',
                                         )}
-                                        type="text"
+                                        type={
+                                            props.type ===
+                                            NotificationChannelType.EMAIL
+                                                ? 'text'
+                                                : 'number'
+                                        }
                                         placeholder={props.placeholder}
                                         value={inputData}
                                         onChange={(
@@ -173,14 +171,14 @@ export function VerificationModal(props: IVerificationModal) {
                                 <div className="d-flex align-items-center">
                                     <label
                                         htmlFor={props.type}
-                                        className="font-size-14 font-weight-500 invisible"
+                                        className="font-size-14 font-weight-500 invisible hide-content"
                                     >
                                         {props.type}
                                     </label>
                                     <p className="notification-description font-weight-300">
                                         {props.content}
                                     </p>
-                                    <div className="invisible">
+                                    <div className="invisible hide-content">
                                         <button
                                             disabled={false}
                                             className={BTN_CLASS}
@@ -197,7 +195,6 @@ export function VerificationModal(props: IVerificationModal) {
                             setVerification={props.setVerification}
                             type={props.type}
                             content={otpContent(props.type)}
-                            resendOtp={resendOtp}
                             closeModal={props.action}
                         />
                     )}

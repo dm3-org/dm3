@@ -4,7 +4,7 @@ import { fetchNewMessages } from '../../../adapters/messages';
 import { MessageModel } from '../useMessage';
 import { ethers } from 'ethers';
 import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
-import { StoreMessageAsync, StoreMessageBatch } from '../../storage/useStorage';
+import { StoreMessageBatch } from '../../storage/useStorage';
 import { syncAcknowledgment } from '@dm3-org/dm3-lib-delivery-api';
 
 export const handleMessagesFromDeliveryService = async (

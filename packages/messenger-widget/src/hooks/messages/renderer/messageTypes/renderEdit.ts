@@ -1,7 +1,7 @@
 import { MessageModel } from '../../useMessage';
 
 export const renderEdit = (messages: MessageModel[]) => {
-    //To apply insertins we have to find every message that is an edit and find the original message
+    //To apply insertions we have to find every message that is an edit and find the original message
     //A message can be edited multiple times so we always have to find the original message
     //A path for a simple edit looks like [NEW, EDIT]
     //A path of a message that has been edited multiple times looks like [NEW, EDIT, EDIT, EDIT,...]

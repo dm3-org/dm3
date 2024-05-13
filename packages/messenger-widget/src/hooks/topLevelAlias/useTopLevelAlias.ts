@@ -6,11 +6,17 @@ import { EthereumNameService } from './nameService/EthereumNameService';
 import { Genome } from './nameService/Genome';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { OptimismNames } from './nameService/OptimismNames';
 
-const SUPPORTED_NAMESERVICES = (provider: ethers.providers.JsonRpcProvider) => [
-    new EthereumNameService(provider),
-    new Genome(provider),
-    new Dm3Name(provider),
+const SUPPORTED_NAMESERVICES = (
+    provider: ethers.providers.JsonRpcProvider,
+    addrEnsSubdomain: string,
+    userEnsSubdomain: string,
+) => [
+    new EthereumNameService(provider, addrEnsSubdomain, userEnsSubdomain),
+    new Genome(provider, addrEnsSubdomain),
+    new OptimismNames(provider, addrEnsSubdomain),
+    new Dm3Name(provider, addrEnsSubdomain, userEnsSubdomain),
     new EthAddressResolver(),
 ];
 
@@ -29,8 +35,17 @@ export const useTopLevelAlias = () => {
         if (aliasTldCache[ensName]) {
             return aliasTldCache[ensName];
         }
-        for (const nameservice of SUPPORTED_NAMESERVICES(mainnetProvider)) {
-            if (await nameservice.isResolverForAliasName(ensName)) {
+        for (const nameservice of SUPPORTED_NAMESERVICES(
+            mainnetProvider,
+            dm3Configuration.addressEnsSubdomain,
+            dm3Configuration.userEnsSubdomain,
+        )) {
+            if (
+                await nameservice.isResolverForAliasName(
+                    ensName,
+                    dm3Configuration.addressEnsSubdomain,
+                )
+            ) {
                 const tldName = await nameservice.resolveAliasToTLD(
                     ensName,
                     dm3Configuration.resolverBackendUrl,
@@ -46,9 +61,16 @@ export const useTopLevelAlias = () => {
         if (tldAliasCache[ensName]) {
             return tldAliasCache[ensName];
         }
-        for (const nameservice of SUPPORTED_NAMESERVICES(mainnetProvider)) {
+        for (const nameservice of SUPPORTED_NAMESERVICES(
+            mainnetProvider,
+            dm3Configuration.addressEnsSubdomain,
+            dm3Configuration.userEnsSubdomain,
+        )) {
             if (await nameservice.isResolverForTldName(ensName)) {
-                const aliasName = await nameservice.resolveTLDtoAlias(ensName);
+                const aliasName = await nameservice.resolveTLDtoAlias(
+                    ensName,
+                    dm3Configuration.addressEnsSubdomain,
+                );
                 setTldAliasCache((prev) => ({ ...prev, [ensName]: aliasName }));
                 return aliasName;
             }

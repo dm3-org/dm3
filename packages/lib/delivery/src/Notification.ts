@@ -1,11 +1,9 @@
-import { NotificationError } from './errors/NotificationError';
 import {
-    IOtp,
-    NotificationBroker,
-    NotificationChannel,
     NotificationChannelType,
-    NotificationType,
-} from './notifications';
+    NotificationChannel,
+} from '@dm3-org/dm3-lib-shared';
+import { NotificationError } from './errors/NotificationError';
+import { IOtp, NotificationBroker, NotificationType } from './notifications';
 import { generateOtp } from './notifications/generateOtp';
 
 // LENGTH of OTP. Ex: 5 digits
@@ -319,16 +317,17 @@ const checkNotificationIsEnabledAndNotVerified = (
  *  checks existing otp generated time should have difference of
  *  RESEND_VERIFICATION_OTP_TIME_PERIOD from current time
  */
-const isAllowedtoSendNewOtp = (otpGeneratedAtTime: Date): boolean => {
+const isAllowedtoSendNewOtp = (otpGeneratedAtTime: string): boolean => {
     return (
         new Date().getTime() >=
-        otpGeneratedAtTime.getTime() + RESEND_VERIFICATION_OTP_TIME_PERIOD
+        new Date(otpGeneratedAtTime).getTime() +
+            RESEND_VERIFICATION_OTP_TIME_PERIOD
     );
 };
 
 // validates OTP with the existing OTP in DB
 const validateOtp = (otpRecord: IOtp, otpToValidate: string) => {
-    const generatedAt = otpRecord.generatedAt;
+    const generatedAt = new Date(otpRecord.generatedAt);
     // throw error if otp is invalid
     if (otpRecord.otp !== otpToValidate) {
         throw new NotificationError('Invalid OTP');

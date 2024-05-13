@@ -1,4 +1,4 @@
-import { NotificationChannelType } from '@dm3-org/dm3-lib-delivery';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 
 /* eslint-disable max-len */
 const EMAIL_REGEX =

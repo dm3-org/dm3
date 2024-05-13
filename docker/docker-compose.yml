@@ -17,6 +17,7 @@ services:
   backend:
     image: dm3-backend
     command: yarn workspace @dm3-org/dm3-backend start
+    restart: always
     depends_on:
       - db
       - dm3-storage
@@ -30,6 +31,9 @@ services:
       PORT: 8081
       LOG_LEVEL: 'debug'
       DATABASE_URL: ${DATABASE_URL}
+
+    volumes:
+      - /home/app/dm3/config.yml:/app/packages/backend/dist/config.yml
 
   db:
     image: redis

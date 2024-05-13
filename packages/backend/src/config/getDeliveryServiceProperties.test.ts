@@ -2,7 +2,7 @@ import { existsSync, unlinkSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 import { stringify } from 'yaml';
 import { getDeliveryServiceProperties } from './getDeliveryServiceProperties';
-import { NotificationChannelType } from '@dm3-org/dm3-lib-delivery';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 
 describe('ReadDeliveryServiceProperties', () => {
     let path: string;

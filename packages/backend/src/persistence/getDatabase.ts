@@ -1,4 +1,10 @@
-import { Session as DSSession, spamFilter } from '@dm3-org/dm3-lib-delivery';
+import {
+    Session as DSSession,
+    IGlobalNotification,
+    IOtp,
+    spamFilter,
+} from '@dm3-org/dm3-lib-delivery';
+import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { PrismaClient } from '@prisma/client';
 import { createClient } from 'redis';
 import Pending from './pending';
@@ -7,6 +13,10 @@ import Storage from './storage';
 import { MessageRecord } from './storage/postgres/utils/MessageRecord';
 import { UserStorage } from '@dm3-org/dm3-lib-storage';
 import { ISessionDatabase } from '@dm3-org/dm3-lib-server-side';
+import {
+    NotificationChannel,
+    NotificationChannelType,
+} from '@dm3-org/dm3-lib-shared';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',

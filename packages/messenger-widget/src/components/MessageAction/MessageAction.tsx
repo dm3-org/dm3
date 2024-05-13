@@ -1,3 +1,4 @@
+import './MessageAction.css';
 import { createReactionMessage } from '@dm3-org/dm3-lib-messaging';
 import { useContext, useEffect, useState } from 'react';
 import deleteIcon from '../../assets/images/chat-delete.svg';
@@ -14,22 +15,20 @@ import {
     createNameForFile,
     getFileTypeFromBase64,
 } from '../../utils/common-utils';
-import { GlobalContext } from '../../utils/context-utils';
-import {
-    MessageActionType,
-    ModalStateType,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
+import { MessageActionType } from '../../utils/enum-type-utils';
 import { hideMsgActionDropdown } from '../MessageInputBox/bl';
-import './MessageAction.css';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
 
 export function MessageAction(props: MessageProps) {
-    const { state, dispatch } = useContext(GlobalContext);
     const { account, profileKeys } = useContext(AuthContext);
     const { addMessage } = useContext(MessageContext);
     const { selectedContact } = useContext(ConversationContext);
     const { screenWidth } = useContext(DM3ConfigurationContext);
+    const { setMessageView } = useContext(UiViewContext);
+    const { setOpenEmojiPopup, setLastMessageAction } =
+        useContext(ModalContext);
 
     const [alignmentTop, setAlignmentTop] = useState(false);
 
@@ -43,21 +42,15 @@ export function MessageAction(props: MessageProps) {
             await reactToMessage(emoji);
         } else {
             // open the emoji modal for more emojis
-            dispatch({
-                type: ModalStateType.OpenEmojiPopup,
-                payload: { action: true, data: props },
-            });
+            setOpenEmojiPopup({ action: true, data: props });
             hideMsgActionDropdown();
         }
     };
 
     const setAction = (action: MessageActionType) => {
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                messageData: props,
-                actionType: action,
-            },
+        setMessageView({
+            messageData: props,
+            actionType: action,
         });
         hideMsgActionDropdown();
     };
@@ -77,12 +70,9 @@ export function MessageAction(props: MessageProps) {
             return;
         }
 
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                actionType: MessageActionType.NONE,
-                messageData: undefined,
-            },
+        setMessageView({
+            actionType: MessageActionType.NONE,
+            messageData: undefined,
         });
 
         const referenceMessageHash =
@@ -102,10 +92,7 @@ export function MessageAction(props: MessageProps) {
             messageData,
         );
 
-        dispatch({
-            type: ModalStateType.LastMessageAction,
-            payload: MessageActionType.REACT,
-        });
+        setLastMessageAction(MessageActionType.REACT);
     };
 
     // download all the attachments in the message
@@ -113,12 +100,18 @@ export function MessageAction(props: MessageProps) {
         hideMsgActionDropdown();
         if (props.envelop.message.attachments) {
             const link = document.createElement('a');
-            props.envelop.message.attachments.forEach((base64, index) => {
-                link.href = base64;
-                link.download = createNameForFile(
-                    index,
-                    getFileTypeFromBase64(base64),
-                );
+            props.envelop.message.attachments.forEach((attachment, index) => {
+                //In case some attachments with the old spec are present.
+                //In order to not break the download functionality, we need to check if the attachment has a data property
+                const attachmentData = attachment.data ?? attachment;
+
+                link.href = attachmentData;
+                link.download =
+                    attachment.name ??
+                    createNameForFile(
+                        index,
+                        getFileTypeFromBase64(attachmentData),
+                    );
                 link.click();
             });
         }
@@ -163,7 +156,7 @@ export function MessageAction(props: MessageProps) {
             {props.ownMessage &&
                 (props.message ||
                     (props.envelop.message.attachments &&
-                        props.envelop.message.attachments.length)) &&
+                        props.envelop.message.attachments.length > 0)) &&
                 props.envelop.metadata?.encryptedMessageHash &&
                 (!props.hideFunction ||
                     !props.hideFunction.split(',').includes('edit')) && (
@@ -231,7 +224,7 @@ export function MessageAction(props: MessageProps) {
 
             {(props.message ||
                 (props.envelop.message.attachments &&
-                    props.envelop.message.attachments.length)) &&
+                    props.envelop.message.attachments.length > 0)) &&
                 props.envelop.metadata?.encryptedMessageHash && (
                     <div
                         data-testid="reply-msg"

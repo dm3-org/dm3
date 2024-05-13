@@ -3,9 +3,7 @@ import { Account, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { ethersHelper, stringify } from '@dm3-org/dm3-lib-shared';
 import { getConractInstance } from '@dm3-org/dm3-lib-shared/dist/ethersHelper';
 import { ethers } from 'ethers';
-import { Actions, ModalStateType } from '../../../../utils/enum-type-utils';
 import { closeLoader, startLoader } from '../../../Loader/Loader';
-
 import { Address, namehash, toHex } from 'viem';
 import { NAME_TYPE } from '../common';
 
@@ -25,21 +23,19 @@ export const isGenomeNameValid = async (
     provider: ethers.providers.StaticJsonRpcProvider,
     ensName: string,
     ethAddress: string,
-    setError: Function,
+    genomeRegistryAddress: string,
+    setError: (type: NAME_TYPE | undefined, msg: string) => void,
 ) => {
     const isValidEnsName = ethers.utils.isValidName(ensName);
     if (!isValidEnsName) {
-        setError('Invalid GNO name', NAME_TYPE.ENS_NAME);
+        setError(NAME_TYPE.ENS_NAME, 'Invalid GNO name');
         return false;
     }
     const isGenomeName = validateGenomeName(ensName);
     if (!isGenomeName) {
-        setError('Genome name has to end with ', NAME_TYPE.ENS_NAME);
+        setError(NAME_TYPE.ENS_NAME, 'Genome name has to end with ');
         return false;
     }
-
-    //TODO move to props
-    const genomeRegistryAddress = '0x5dC881dDA4e4a8d312be3544AD13118D1a04Cb17';
 
     const genomeRegistry = getConractInstance(
         genomeRegistryAddress,
@@ -51,7 +47,7 @@ export const isGenomeNameValid = async (
     const owner = await genomeRegistry.owner(node);
 
     if (owner === null) {
-        setError('owner not found', NAME_TYPE.ENS_NAME);
+        setError(NAME_TYPE.ENS_NAME, 'owner not found');
         return false;
     }
     if (
@@ -60,8 +56,8 @@ export const isGenomeNameValid = async (
             ethersHelper.formatAddress(ethAddress!)
     ) {
         setError(
-            'You are not the owner/manager of this name',
             NAME_TYPE.ENS_NAME,
+            'You are not the owner/manager of this name',
         );
         return false;
     }
@@ -112,25 +108,23 @@ export const submitGenomeNameTransaction = async (
     provider: ethers.providers.StaticJsonRpcProvider,
     dsToken: string,
     account: Account,
-    dispatch: React.Dispatch<Actions>,
+    setLoaderContent: (content: string) => void,
     ensName: string,
     ethAddress: string,
+    genomeRegistryAddress: string,
     setEnsNameFromResolver: Function,
-    setError: Function,
+    setError: (type: NAME_TYPE | undefined, msg: string) => void,
 ) => {
     try {
         // start loader
-        dispatch({
-            type: ModalStateType.LoaderContent,
-            payload: 'Publishing profile...',
-        });
-
+        setLoaderContent('Publishing profile...');
         startLoader();
 
         const isValid = await isGenomeNameValid(
             provider,
             ensName,
             ethAddress,
+            genomeRegistryAddress,
             setError,
         );
 
@@ -144,7 +138,7 @@ export const submitGenomeNameTransaction = async (
             account,
             ensName!,
         );
-        //TODO Handle crosschain transaction
+
         if (tx) {
             await createAlias(
                 account!,
@@ -162,10 +156,10 @@ export const submitGenomeNameTransaction = async (
     } catch (e: any) {
         const check = e.toString().includes('user rejected transaction');
         setError(
+            NAME_TYPE.ENS_NAME,
             check
                 ? 'User rejected transaction'
                 : 'You are not the owner/manager of this name',
-            NAME_TYPE.ENS_NAME,
         );
     }
 

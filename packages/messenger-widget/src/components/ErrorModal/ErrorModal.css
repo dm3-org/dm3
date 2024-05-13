@@ -22,3 +22,15 @@
 #ok-btn {
     padding: 0.3rem 2rem 0.3rem 2rem;
 }
+
+@media only screen and (max-width: 800px) {
+    .error-modal-content {
+        width: 50%;
+    }
+}
+
+@media only screen and (max-width: 500px) {
+    .error-modal-content {
+        width: 70%;
+    }
+}

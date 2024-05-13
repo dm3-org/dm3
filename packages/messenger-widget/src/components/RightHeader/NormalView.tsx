@@ -1,24 +1,24 @@
 import './RightHeader.css';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useContext, useEffect, useState } from 'react';
 import humanIcon from '../../assets/images/human.svg';
 import menuIcon from '../../assets/images/menu.svg';
 import { AuthContext } from '../../context/AuthContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
-import { HideFunctionProps } from '../../interfaces/props';
-import { GlobalContext } from '../../utils/context-utils';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
-import {
-    RightViewSelected,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
+import { RightViewSelected } from '../../utils/enum-type-utils';
 import { ConversationContext } from '../../context/ConversationContext';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { UiViewContext } from '../../context/UiViewContext';
 
-export function NormalView(props: HideFunctionProps) {
-    // fetches context storage
-    const { state, dispatch } = useContext(GlobalContext);
+export function NormalView() {
     const { account, displayName } = useContext(AuthContext);
+
     const { setSelectedContactName } = useContext(ConversationContext);
+
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
+
+    const { setSelectedRightView, selectedRightView } =
+        useContext(UiViewContext);
 
     const mainnetProvider = useMainnetProvider();
 
@@ -31,16 +31,14 @@ export function NormalView(props: HideFunctionProps) {
             await getAvatarProfilePic(
                 mainnetProvider,
                 account?.ensName as string,
+                dm3Configuration.addressEnsSubdomain,
             ),
         );
     };
 
     // method to set profile page and set contact
     const updateView = () => {
-        dispatch({
-            type: UiViewStateType.SetSelectedRightView,
-            payload: RightViewSelected.Profile,
-        });
+        setSelectedRightView(RightViewSelected.Profile);
         setSelectedContactName(undefined);
     };
 
@@ -51,22 +49,24 @@ export function NormalView(props: HideFunctionProps) {
 
     return (
         <div
-            className={(props.showContacts
+            className={(dm3Configuration.showContacts
                 ? 'justify-content-end'
                 : 'justify-content-between'
             ).concat(
                 ' col-12 d-flex align-items-center pr-0 profile-name-container'.concat(
                     ' ',
-                    state.uiView.selectedRightView === RightViewSelected.Profile
+                    selectedRightView === RightViewSelected.Profile
                         ? ' background-chat'
                         : ' background-container',
                 ),
             )}
         >
-            {!props.showContacts && (
+            {!dm3Configuration.showContacts && (
                 <div
                     className={
-                        !props.showContacts ? 'p-2' : 'menu-icon-container'
+                        !dm3Configuration.showContacts
+                            ? 'p-2'
+                            : 'menu-icon-container'
                     }
                 >
                     <img src={menuIcon} className="pointer-cursor" alt="menu" />
@@ -74,15 +74,6 @@ export function NormalView(props: HideFunctionProps) {
             )}
 
             <div className="d-flex align-items-center justify-content-end">
-                <div className="me-2">
-                    <ConnectButton
-                        showBalance={false}
-                        accountStatus={{
-                            smallScreen: 'avatar',
-                            largeScreen: 'full',
-                        }}
-                    />
-                </div>
                 <span
                     onClick={() => updateView()}
                     className="profile-name font-weight-500 pointer-cursor text-secondary-color"

@@ -1,21 +1,23 @@
 import './ConfigureProfileBox.css';
 import { useContext, useEffect, useState } from 'react';
-import { GlobalContext } from '../../utils/context-utils';
-import { globalConfig } from '@dm3-org/dm3-lib-shared';
 import { openConfigurationModal } from '../ConfigureProfile/bl';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
+import { ModalContext } from '../../context/ModalContext';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export default function ConfigureProfileBox() {
-    const { dispatch } = useContext(GlobalContext);
-    const { selectedContact } = useContext(ConversationContext);
     const { displayName } = useContext(AuthContext);
+    const { selectedContact } = useContext(ConversationContext);
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
+    const { setShowProfileConfigurationModal, setShowPreferencesModal } =
+        useContext(ModalContext);
 
     const [showConfigBox, setShowConfigBox] = useState<boolean>(false);
 
     // fetches sub domain of ENS
     const isAddrEnsName = displayName?.endsWith(
-        globalConfig.ADDR_ENS_SUBDOMAIN(),
+        dm3Configuration.addressEnsSubdomain,
     );
 
     // handles profile configuration changes
@@ -45,7 +47,12 @@ export default function ConfigureProfileBox() {
                         data-testid="config-prof-btn"
                         className="border-radius-6 background-config-box text-primary-color 
                         profile-configuration-box-border"
-                        onClick={() => openConfigurationModal(dispatch)}
+                        onClick={() =>
+                            openConfigurationModal(
+                                setShowProfileConfigurationModal,
+                                setShowPreferencesModal,
+                            )
+                        }
                     >
                         Configure Profile
                     </button>

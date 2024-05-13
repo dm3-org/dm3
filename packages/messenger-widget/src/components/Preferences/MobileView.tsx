@@ -2,13 +2,15 @@ import './Preferences.css';
 import { preferencesItems } from './bl';
 import { useContext, useEffect, useState } from 'react';
 import closeIcon from '../../assets/images/cross.svg';
-import { GlobalContext } from '../../utils/context-utils';
-import { ModalStateType } from '../../utils/enum-type-utils';
 import { closeConfigurationModal } from '../ConfigureProfile/bl';
+import { ModalContext } from '../../context/ModalContext';
 
 export function MobileView() {
-    const { dispatch } = useContext(GlobalContext);
-    const { state } = useContext(GlobalContext);
+    const {
+        setShowPreferencesModal,
+        showProfileConfigurationModal,
+        setShowProfileConfigurationModal,
+    } = useContext(ModalContext);
 
     const [optionChoosen, setOptionChoosen] = useState<any>(null);
 
@@ -17,7 +19,7 @@ export function MobileView() {
      *  on "Configure Profile" button
      */
     useEffect(() => {
-        if (state.modal.isProfileConfigurationPopupActive) {
+        if (showProfileConfigurationModal) {
             setOptionChoosen(preferencesItems[1]);
         }
     }, []);
@@ -64,11 +66,10 @@ export function MobileView() {
                                 src={closeIcon}
                                 alt="close"
                                 onClick={() => {
-                                    dispatch({
-                                        type: ModalStateType.ShowPreferencesModal,
-                                        payload: false,
-                                    });
-                                    closeConfigurationModal(dispatch);
+                                    setShowPreferencesModal(false);
+                                    closeConfigurationModal(
+                                        setShowProfileConfigurationModal,
+                                    );
                                 }}
                             />
                         </div>

@@ -73,7 +73,7 @@ export const useMessage = () => {
 
     //Effect to reset the messages when the storage is initialized, i.e on account change
     useEffect(() => {
-        setMessages({}); //Check
+        setMessages({});
         setContactsLoading([]);
     }, [storageInitialized, account]);
 
@@ -82,7 +82,7 @@ export const useMessage = () => {
         onNewMessage((encryptedEnvelop: EncryptionEnvelop) => {
             handleMessagesFromWebSocket(
                 addConversation,
-                setMessages, //TODO
+                setMessages,
                 storeMessage,
                 profileKeys!,
                 selectedContact!,
@@ -203,7 +203,11 @@ export const useMessage = () => {
             () => {},
             () => {},
         );
-        //Check if the recipient has a PublicEncrptionKey if not only keep the msg at the senders storage
+
+        /**
+         * Check if the recipient has a PublicEncrptionKey
+         * if not only keep the msg at the senders storage
+         */
         const recipientIsDm3User =
             !!recipient?.contactDetails.account.profile?.publicEncryptionKey;
 
@@ -343,7 +347,11 @@ export const useMessage = () => {
             return prev.filter((contact) => contact !== contactName);
         });
     };
-    //Some messages from the old storage might not have the alias resolved yet. We need to fetch them so they are not appearing as our own messages
+
+    /**
+     * Some messages from the old storage might not have the alias resolved yet.
+     * We need to fetch them so they are not appearing as our own messages.
+     */
     const resolveAliasNames = async (messages: MessageModel[]) => {
         return await Promise.all(
             messages.map(async (message) => {

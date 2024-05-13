@@ -1,9 +1,9 @@
-import { Attachment } from '../../interfaces/utils';
+import { MessageAction } from '../../interfaces/props';
+import { IAttachmentPreview } from '../../interfaces/utils';
 import {
     generateRandomStringForId,
     getFileTypeFromBase64,
 } from '../../utils/common-utils';
-import { GlobalState } from '../../utils/enum-type-utils';
 
 export const hideMsgActionDropdown = () => {
     const element = document.getElementById('msg-dropdown') as HTMLElement;
@@ -25,23 +25,22 @@ export const isFileAImage = (type: string): boolean => {
 };
 
 export const setAttachmentsOnEditMessage = (
-    state: GlobalState,
+    messageView: MessageAction,
     setFiles: Function,
 ) => {
-    const attachments =
-        state.uiView.selectedMessageView.messageData?.envelop.message
-            .attachments;
+    const attachments = messageView.messageData?.envelop.message.attachments;
     if (attachments && attachments.length) {
-        const fileList: Attachment[] = [];
+        const fileList: IAttachmentPreview[] = [];
         let fileType;
         let id;
         for (const attachment of attachments) {
             id = generateRandomStringForId();
-            fileType = getFileTypeFromBase64(attachment);
+            fileType = getFileTypeFromBase64(attachment.data);
             fileList.push({
                 id: id,
-                name: id.substring(0, 5).concat('.', fileType),
-                data: attachment,
+                name:
+                    attachment.name ?? id.substring(0, 5).concat('.', fileType),
+                data: attachment.data,
                 isImage: isFileAImage(fileType),
             });
         }

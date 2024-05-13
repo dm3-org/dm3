@@ -4,10 +4,8 @@ import express from 'express';
 import request from 'supertest';
 import notifications from './notifications';
 
-import {
-    DeliveryServiceProperties,
-    NotificationChannelType,
-} from '@dm3-org/dm3-lib-delivery';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
+import { DeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery';
 
 const keysA = {
     encryptionKeyPair: {

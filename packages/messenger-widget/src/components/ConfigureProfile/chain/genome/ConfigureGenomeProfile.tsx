@@ -2,16 +2,18 @@ import { useContext } from 'react';
 import { SubmitOnChainProfile } from '../SubmitOnChainProfile';
 import { submitGenomeNameTransaction, validateGenomeName } from './bl';
 import { ConfigureProfileContext } from '../../context/ConfigureProfileContext';
-import { GlobalContext } from '../../../../utils/context-utils';
 import { useChainId } from 'wagmi';
 import { AuthContext } from '../../../../context/AuthContext';
 import { ethers } from 'ethers';
 import { IChain, NAME_TYPE } from '../common';
+import { ModalContext } from '../../../../context/ModalContext';
+import { DM3ConfigurationContext } from '../../../../context/DM3ConfigurationContext';
+import { ConfigureDM3NameContext } from '../../context/ConfigureDM3NameContext';
 
 export const ConfigureGenomeProfile = (props: IChain) => {
-    const { state, dispatch } = useContext(GlobalContext);
-
     const chainId = useChainId();
+
+    const { setLoaderContent } = useContext(ModalContext);
 
     const { ethAddress, account, deliveryServiceToken } =
         useContext(AuthContext);
@@ -20,9 +22,16 @@ export const ConfigureGenomeProfile = (props: IChain) => {
         ConfigureProfileContext,
     );
 
+    const { setDm3Name } = useContext(ConfigureDM3NameContext);
+
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
+
     const onSubmitTx = async (name: string) => {
         if (props.chainToConnect !== chainId) {
-            onShowError(NAME_TYPE.ENS_NAME, 'Invalid chain connected');
+            onShowError(
+                NAME_TYPE.ENS_NAME,
+                'Invalid chain connected. Please switch to Gnosis network.',
+            );
             return;
         }
         const provider = new ethers.providers.Web3Provider(
@@ -32,9 +41,10 @@ export const ConfigureGenomeProfile = (props: IChain) => {
             provider,
             deliveryServiceToken!,
             account!,
-            dispatch,
+            setLoaderContent,
             name,
             ethAddress!,
+            dm3Configuration.genomeRegistryAddress,
             (str: string) => setExistingEnsName(str),
             onShowError,
         );
@@ -42,12 +52,15 @@ export const ConfigureGenomeProfile = (props: IChain) => {
 
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onShowError(undefined, '');
+        setDm3Name('');
         const check = validateGenomeName(e.target.value);
         setEnsName(e.target.value);
         if (!check) {
             onShowError(NAME_TYPE.ENS_NAME, 'Invalid GNO name');
         }
     };
+
+    const propertyName = 'GNO Name';
 
     const label =
         'To publish your dm3 profile, a transaction is sent to set a text record in your GNO name.' +
@@ -60,6 +73,7 @@ export const ConfigureGenomeProfile = (props: IChain) => {
     const placeholder = 'Enter your GNO name connected to your wallet';
     return (
         <SubmitOnChainProfile
+            propertyName={propertyName}
             handleNameChange={handleNameChange}
             label={label}
             note={note}

@@ -51,6 +51,10 @@
     background-color: var(--normal-btn-hover);
 }
 
+.info-no-highlight:hover {
+    background-color: unset;
+}
+
 .preferences-info {
     position: absolute;
     bottom: 1rem;
@@ -129,7 +133,7 @@
 
     .preferences-item {
         padding: 0.5rem 0rem 0.5rem 0.5rem;
-        margin: 0.2rem;
+        margin: 0.4rem;
         border-radius: 7px;
     }
 

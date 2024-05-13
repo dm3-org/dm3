@@ -1,19 +1,25 @@
-import { Heading } from '../Heading/Heading';
-import { Checkbox, Text } from './Content';
-import { NotificationButton } from './NotificationButton';
-import { VerificationModal } from './VerificationModal';
+import { useContext } from 'react';
 import { DeleteIcon } from './DeleteIcon';
-import { useNotification } from './hooks/useNotification';
-import {
-    getVerficationModalContent,
-    VerificationMethod,
-} from './hooks/VerificationContent';
+import { Checkbox, Text } from './Content';
+import { Heading } from '../Heading/Heading';
+import { VerificationModal } from './VerificationModal';
+import { NotificationButton } from './NotificationButton';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
+import { MOBILE_SCREEN_WIDTH } from '../../../utils/common-utils';
+import { getVerficationModalContent } from './hooks/VerificationContent';
+import { DM3ConfigurationContext } from '../../../context/DM3ConfigurationContext';
+import { NotificationContext } from '../../../context/NotificationContext';
+import loader from '../../../assets/images/loader.svg';
 
 export function Notification() {
+    const { screenWidth } = useContext(DM3ConfigurationContext);
+
     const heading = 'Notification';
     const description =
-        'Prevent spam from being sent to you by setting rules ' +
-        'that senders must fulfill in order for messages to be accepted.';
+        screenWidth <= MOBILE_SCREEN_WIDTH
+            ? ''
+            : 'Prevent spam from being sent to you by setting rules ' +
+              'that senders must fulfill in order for messages to be accepted.';
 
     const {
         isNotificationsActive,
@@ -28,16 +34,17 @@ export function Notification() {
         phone,
         setPhone,
         updateNotificationActive,
-        deleteEmail,
-        deletePhone,
         activeVerification,
         setActiveVerification,
         activeVerificationContent,
         setActiveVerificationContent,
-    } = useNotification();
+        toggleSpecificNotificationChannel,
+        isLoading,
+        loaderData,
+    } = useContext(NotificationContext);
 
     return (
-        <div>
+        <div className="position-relative h-100">
             <Heading heading={heading} description={description} />
 
             {/* Verification popup */}
@@ -45,8 +52,20 @@ export function Notification() {
                 <VerificationModal {...activeVerificationContent} />
             )}
 
+            {/* Shows loader on the screen while any action is in progress */}
+            {isLoading && (
+                <div className="notification-loading">
+                    <img
+                        className="rotating loader-img"
+                        src={loader}
+                        alt="loader"
+                    />
+                    <div className="loader-content">{loaderData}</div>
+                </div>
+            )}
+
             {/* Notifications enabled/disabled */}
-            <div className="ms-5 mt-4">
+            <div className="global-notification-container">
                 <div className="d-flex align-items-center">
                     <Checkbox
                         checked={isNotificationsActive}
@@ -70,24 +89,32 @@ export function Notification() {
                     <Checkbox
                         checked={isEmailActive}
                         disabled={!isNotificationsActive}
-                        action={setIsEmailActive}
+                        action={() =>
+                            toggleSpecificNotificationChannel(
+                                !isEmailActive,
+                                NotificationChannelType.EMAIL,
+                                setIsEmailActive,
+                            )
+                        }
                         heading="Email"
                     />
-                    {email ? (
+                    {email && isNotificationsActive ? (
                         <DeleteIcon
                             data={email}
-                            type={VerificationMethod.Email}
-                            deleteNotification={deleteEmail}
+                            type={NotificationChannelType.EMAIL}
+                            deleteNotification={setEmail}
                         />
                     ) : (
                         <NotificationButton
                             text="Add Email"
-                            disabled={!isNotificationsActive}
+                            disabled={!isNotificationsActive || !isEmailActive}
                             action={() => {
-                                setActiveVerification(VerificationMethod.Email);
+                                setActiveVerification(
+                                    NotificationChannelType.EMAIL,
+                                );
                                 setActiveVerificationContent(
                                     getVerficationModalContent(
-                                        VerificationMethod.Email,
+                                        NotificationChannelType.EMAIL,
                                         setActiveVerification,
                                         setEmail,
                                     ),
@@ -105,7 +132,7 @@ export function Notification() {
             </div>
 
             {/* Mobile notifications enabled/disabled */}
-            <div className="notification-content-left mt-4">
+            {/* <div className="notification-content-left mt-4">
                 <div className="d-flex  align-items-center">
                     <Checkbox
                         checked={isMobileActive}
@@ -145,10 +172,10 @@ export function Notification() {
                         'message is waiting for you at a delivery service.'
                     }
                 />
-            </div>
+            </div> */}
 
             {/* Push notifications enabled/disabled */}
-            <div className="notification-content-left mt-4">
+            {/* <div className="notification-content-left mt-4">
                 <div className="d-flex align-items-center">
                     <Checkbox
                         checked={isPushNotifyActive}
@@ -161,7 +188,7 @@ export function Notification() {
                     disabled={!isNotificationsActive}
                     text={'Enable push notifications to your browser.'}
                 />
-            </div>
+            </div> */}
         </div>
     );
 }

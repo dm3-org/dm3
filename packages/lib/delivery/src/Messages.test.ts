@@ -8,9 +8,10 @@ import { stringify } from '../../shared/src/stringify';
 import { getConversationId, getMessages, incomingMessage } from './Messages';
 import { Session } from './Session';
 import {
+    IWebSocketManager,
     NotificationChannel,
     NotificationChannelType,
-} from './notifications/types';
+} from '@dm3-org/dm3-lib-shared';
 import { SpamFilterRules } from './spam-filter/SpamFilterRules';
 
 const SENDER_NAME = 'alice.eth';
@@ -118,6 +119,12 @@ describe('Messages', () => {
                 envelop: EncryptionEnvelop,
             ) => {};
 
+            const mockWsManager: IWebSocketManager = {
+                isConnected: function (ensName: string): Promise<boolean> {
+                    return Promise.resolve(false);
+                },
+            };
+
             expect.assertions(1);
 
             await expect(() =>
@@ -148,6 +155,7 @@ describe('Messages', () => {
                     } as any,
                     async () => '',
                     getNotificationChannels,
+                    mockWsManager,
                 ),
             ).not.toThrow();
         });
@@ -157,6 +165,12 @@ describe('Messages', () => {
                 conversationId: string,
                 envelop: EncryptionEnvelop,
             ) => {};
+
+            const mockWsManager: IWebSocketManager = {
+                isConnected: function (ensName: string): Promise<boolean> {
+                    return Promise.resolve(false);
+                },
+            };
 
             expect.assertions(1);
 
@@ -182,6 +196,7 @@ describe('Messages', () => {
                     {} as ethers.providers.JsonRpcProvider,
                     async () => '',
                     getNotificationChannels,
+                    mockWsManager,
                 ),
             ).rejects.toEqual(Error('Message is too large'));
         });
@@ -190,6 +205,12 @@ describe('Messages', () => {
                 conversationId: string,
                 envelop: EncryptionEnvelop,
             ) => {};
+
+            const mockWsManager: IWebSocketManager = {
+                isConnected: function (ensName: string): Promise<boolean> {
+                    return Promise.resolve(false);
+                },
+            };
 
             expect.assertions(1);
 
@@ -220,6 +241,7 @@ describe('Messages', () => {
                     } as any,
                     async () => '',
                     getNotificationChannels,
+                    mockWsManager,
                 ),
             ).rejects.toEqual(Error('unknown session'));
         });
@@ -249,6 +271,12 @@ describe('Messages', () => {
                 messageContainer = { conversationId, envelop };
             };
 
+            const mockWsManager: IWebSocketManager = {
+                isConnected: function (ensName: string): Promise<boolean> {
+                    return Promise.resolve(false);
+                },
+            };
+
             try {
                 await incomingMessage(
                     {
@@ -273,6 +301,7 @@ describe('Messages', () => {
                     provider,
                     async () => '',
                     getNotificationChannels,
+                    mockWsManager,
                 );
                 fail();
             } catch (err: any) {
@@ -307,6 +336,12 @@ describe('Messages', () => {
                 messageContainer = { conversationId, envelop };
             };
 
+            const mockWsManager: IWebSocketManager = {
+                isConnected: function (ensName: string): Promise<boolean> {
+                    return Promise.resolve(false);
+                },
+            };
+
             try {
                 await incomingMessage(
                     {
@@ -331,6 +366,7 @@ describe('Messages', () => {
                     provider,
                     async () => '',
                     getNotificationChannels,
+                    mockWsManager,
                 );
                 fail();
             } catch (err: any) {
@@ -372,6 +408,12 @@ describe('Messages', () => {
                 messageContainer = { conversationId, envelop };
             };
 
+            const mockWsManager: IWebSocketManager = {
+                isConnected: function (ensName: string): Promise<boolean> {
+                    return Promise.resolve(false);
+                },
+            };
+
             try {
                 await incomingMessage(
                     {
@@ -397,6 +439,7 @@ describe('Messages', () => {
                     provider,
                     async () => '',
                     getNotificationChannels,
+                    mockWsManager,
                 );
                 fail();
             } catch (err: any) {
@@ -448,6 +491,12 @@ describe('Messages', () => {
                 },
             ];
 
+            const mockWsManager: IWebSocketManager = {
+                isConnected: function (ensName: string): Promise<boolean> {
+                    return Promise.resolve(false);
+                },
+            };
+
             await incomingMessage(
                 {
                     message: '',
@@ -474,6 +523,7 @@ describe('Messages', () => {
                 } as any,
                 async (ensName) => ensName,
                 getNotificationChannels,
+                mockWsManager,
             );
 
             expect(sendMailMock).toHaveBeenCalled();
@@ -497,6 +547,12 @@ describe('Messages', () => {
             const sendMock = jest.fn();
 
             const now = Date.now();
+
+            const mockWsManager: IWebSocketManager = {
+                isConnected: function (ensName: string): Promise<boolean> {
+                    return Promise.resolve(false);
+                },
+            };
 
             await incomingMessage(
                 {
@@ -524,6 +580,7 @@ describe('Messages', () => {
                 } as any,
                 async (ensName) => ensName,
                 getNotificationChannels,
+                mockWsManager,
             );
 
             const conversationId = getConversationId('alice.eth', 'bob.eth');
@@ -593,6 +650,12 @@ describe('Messages', () => {
             const _getSession = (address: string) => getSession(address, 'foo');
             const now = Date.now();
 
+            const mockWsManager: IWebSocketManager = {
+                isConnected: function (ensName: string): Promise<boolean> {
+                    return Promise.resolve(true);
+                },
+            };
+
             await incomingMessage(
                 {
                     message: '',
@@ -619,6 +682,7 @@ describe('Messages', () => {
                 } as any,
                 async (ensName) => ensName,
                 getNotificationChannels,
+                mockWsManager,
             );
 
             const conversationId = getConversationId('alice.eth', 'bob.eth');

@@ -89,6 +89,7 @@ export function onConnection(
                         web3Provider,
                         db.getIdEnsName,
                         db.getUsersNotificationChannels,
+                        webSocketManager,
                     ),
                         callback({ response: 'success' });
                 } catch (error: any) {

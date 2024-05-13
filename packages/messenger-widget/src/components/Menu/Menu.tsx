@@ -6,24 +6,31 @@ import aboutIcon from '../../assets/images/about.svg';
 import termsIcon from '../../assets/images/terms.svg';
 import privacyIcon from '../../assets/images/privacy.svg';
 import settingsIcon from '../../assets/images/settings.svg';
+import disconnectWallet from '../../assets/images/disconnect-wallet.svg';
+import { LeftViewSelected } from '../../utils/enum-type-utils';
 import {
-    LeftViewSelected,
-    ModalStateType,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
-import { GlobalContext } from '../../utils/context-utils';
-import { openConversationModal } from '../AddConversation/bl';
-import { openUrlInNewTab } from '../../utils/common-utils';
+    DM3_NETWORK,
+    PRIVACY_POLICY,
+    TERMS_AND_CONDITIONS,
+    openUrlInNewTab,
+} from '../../utils/common-utils';
+import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
+import { useDisconnect } from 'wagmi';
+import { dm3Config } from '../../config';
 
 export default function Menu() {
-    // fetches context api data
-    const { state, dispatch } = useContext(GlobalContext);
+    const {
+        setShowPreferencesModal,
+        setShowAddConversationModal,
+        setShowAboutModal,
+    } = useContext(ModalContext);
+    const { selectedLeftView, setSelectedLeftView } = useContext(UiViewContext);
+
+    const { disconnect } = useDisconnect();
 
     const showContactList = () => {
-        dispatch({
-            type: UiViewStateType.SetSelectedLeftView,
-            payload: LeftViewSelected.Contacts,
-        });
+        setSelectedLeftView(LeftViewSelected.Contacts);
     };
 
     return (
@@ -39,7 +46,7 @@ export default function Menu() {
             <div
                 className="d-flex align-items-center justify-content-start pointer-cursor 
             menu-items font-weight-400 text-primary-color"
-                onClick={() => openConversationModal()}
+                onClick={() => setShowAddConversationModal(true)}
             >
                 <img
                     src={addIcon}
@@ -52,10 +59,7 @@ export default function Menu() {
                 className="d-flex align-items-center justify-content-start pointer-cursor 
             menu-items font-weight-400 text-primary-color"
                 onClick={() => {
-                    dispatch({
-                        type: ModalStateType.ShowPreferencesModal,
-                        payload: true,
-                    });
+                    setShowPreferencesModal(true);
                 }}
             >
                 <img
@@ -66,11 +70,26 @@ export default function Menu() {
                 Preferences
             </div>
 
+            <hr className="ms-3 me-3 mb-3 line-separator separator text-secondary-color" />
+
+            <div
+                className="d-flex align-items-center justify-content-start pointer-cursor 
+            menu-items font-weight-400 text-primary-color"
+                onClick={() => disconnect()}
+            >
+                <img
+                    src={disconnectWallet}
+                    alt="disconnect"
+                    className="pointer-cursor menu-item-icon"
+                />
+                Disconnect Wallet
+            </div>
+
             <hr className="ms-3 me-3 line-separator separator text-secondary-color" />
 
             <div
                 className="d-flex align-items-center font-size-12 mb-1 text-primary-color pointer-cursor"
-                onClick={() => openUrlInNewTab('')}
+                onClick={() => setShowAboutModal(true)}
             >
                 <img
                     src={aboutIcon}
@@ -81,7 +100,7 @@ export default function Menu() {
             </div>
             <div
                 className="d-flex align-items-center font-size-12 mb-1 text-primary-color pointer-cursor"
-                onClick={() => openUrlInNewTab('')}
+                onClick={() => openUrlInNewTab(TERMS_AND_CONDITIONS)}
             >
                 <img
                     src={termsIcon}
@@ -92,7 +111,7 @@ export default function Menu() {
             </div>
             <div
                 className="d-flex align-items-center font-size-12 mb-1 text-primary-color pointer-cursor"
-                onClick={() => openUrlInNewTab('')}
+                onClick={() => openUrlInNewTab(PRIVACY_POLICY)}
             >
                 <img
                     src={privacyIcon}
@@ -105,19 +124,21 @@ export default function Menu() {
             <div
                 className={'width-fill p-3 font-size-14'.concat(
                     ' ',
-                    state.uiView.selectedLeftView === LeftViewSelected.Menu
+                    selectedLeftView === LeftViewSelected.Menu
                         ? 'version-container'
                         : '',
                 )}
             >
                 <hr className="line-separator text-secondary-color" />
                 <div className="font-weight-800 text-secondary-color">dm3</div>
-                <div className="text-secondary-color">Version 1.1</div>
+                <div className="text-secondary-color">
+                    Version {dm3Config.version}
+                </div>
                 <div
-                    className="text-secondary-color"
-                    onClick={() => openUrlInNewTab('https://dm3.network')}
+                    className="text-secondary-color pointer-cursor"
+                    onClick={() => openUrlInNewTab(DM3_NETWORK)}
                 >
-                    https://dm3.network
+                    {DM3_NETWORK}
                 </div>
             </div>
         </div>

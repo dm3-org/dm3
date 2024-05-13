@@ -4,7 +4,11 @@ import {
     UserProfile,
 } from '@dm3-org/dm3-lib-profile';
 import { ethers } from 'ethers';
-import { stringify } from '@dm3-org/dm3-lib-shared';
+import {
+    IWebSocketManager,
+    NotificationChannel,
+    stringify,
+} from '@dm3-org/dm3-lib-shared';
 
 import {
     decryptAsymmetric,
@@ -23,7 +27,6 @@ import { logDebug, sha256 } from '@dm3-org/dm3-lib-shared';
 import { NotificationBroker } from './notifications';
 import {
     GetNotificationChannels,
-    NotificationChannel,
     NotificationType,
 } from './notifications/types';
 import { checkToken, Session } from './Session';
@@ -104,6 +107,7 @@ export async function incomingMessage(
     provider: ethers.providers.JsonRpcProvider,
     getIdEnsName: (name: string) => Promise<string>,
     getUsersNotificationChannels: GetNotificationChannels,
+    wsManager: IWebSocketManager,
 ): Promise<void> {
     logDebug('incomingMessage');
     //Checks the size of the incoming message
@@ -178,9 +182,10 @@ export async function incomingMessage(
     }
 
     //If there is currently a webSocket connection open to the receiver, the message will be directly send.
-    if (receiverSession.socketId) {
+    if (await wsManager.isConnected(deliveryInformation.to)) {
         //Client is already connect to the delivery service and the message can be dispatched
-        send(receiverSession.socketId, envelopWithPostmark);
+        //TODO MOVE send method to the WebSocketManager
+        send(receiverSession.socketId!, envelopWithPostmark);
         logDebug({
             text: 'WS send to socketId ',
             receiverSessionSocketId: receiverSession.socketId,

@@ -226,6 +226,7 @@
 }
 
 .notification-error {
+    margin-left: 1rem;
     font-size: 0.8rem;
     line-height: 14px;
     font-style: italic;
@@ -277,4 +278,98 @@ input[type='number'] {
     font-style: italic;
     margin-bottom: 0.4rem;
     color: green !important;
+}
+
+.add-notification-items {
+    align-items: center;
+}
+
+.global-notification-container {
+    margin-top: 1.5rem;
+    margin-left: 2rem;
+}
+
+.notification-delete-container{
+    display: flex;
+    align-items: center;
+    margin-left: 3rem;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+.notification-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: -webkit-fill-available;
+    width: -webkit-fill-available;
+    position: fixed;
+    z-index: 100;
+    backdrop-filter: blur(2px);
+}
+
+/* =================== Mobile Responsive CSS =================== */
+
+@media only screen and (max-width: 800px) {
+    .notification-content-left {
+        margin-left: 1rem;
+    }
+
+    .notification-text {
+        margin-right: 1rem;
+    }
+
+    .notification-description {
+        hyphens: auto;
+        word-break: break-word;
+        width: fit-content;
+        margin: 1rem 0rem 0rem 0rem;
+    }
+
+    .line-separator {
+        width: 100%;
+    }
+
+    .hide-content {
+        display: none;
+    }
+
+    .notification-input-field {
+        margin: 1rem 0rem 0rem 0rem;
+    }
+
+    .verify-btn {
+        margin-top: 1rem;
+    }
+
+    .notification-error {
+        margin: 0rem;
+    }
+
+    .add-notification-items {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .resend-code {
+        padding-left: 0rem;
+        margin-top: 1rem;
+    }
+
+    #inputs {
+        margin-top: 1rem;
+    }
+
+    .notification-btn {
+        height: 2rem;
+    }
+
+    .global-notification-container {
+        margin-left: 1rem;
+    }
+
+    .notification-delete-container{
+        margin-left: 0.5rem;
+    }
+    
 }
