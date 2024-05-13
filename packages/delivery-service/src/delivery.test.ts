@@ -1,9 +1,10 @@
-import { Auth } from '@dm3-org/dm3-lib-server-side';
 import bodyParser from 'body-parser';
 import express from 'express';
 import request from 'supertest';
 import winston from 'winston';
 import delivery from './delivery';
+import { sign } from 'jsonwebtoken';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 
 const keysA = {
     encryptionKeyPair: {
@@ -19,6 +20,8 @@ const keysA = {
     storageEncryptionNonce: 0,
 };
 
+const serverSecret = 'veryImportantSecret';
+
 global.logger = winston.createLogger({
     transports: [new winston.transports.Console()],
 });
@@ -29,7 +32,7 @@ describe('Delivery', () => {
                 resolveName: async () =>
                     '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
             };
-            const token = await createAuthToken();
+            const token = await createAuthToken('alice.eth');
 
             const db = {
                 getSession: async (ensName: string) =>
@@ -51,7 +54,9 @@ describe('Delivery', () => {
             };
             const app = express();
             app.use(bodyParser.json());
-            app.use(delivery(web3Provider as any, db as any, keysA));
+            app.use(
+                delivery(web3Provider as any, db as any, keysA, serverSecret),
+            );
 
             const { status } = await request(app)
                 .get('/messages/alice.eth/contact/bob.eth')
@@ -72,7 +77,9 @@ describe('Delivery', () => {
                     '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
             };
 
-            const token = await createAuthToken();
+            const token = await createAuthToken(
+                '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
+            );
 
             const db = {
                 getSession: async (ensName: string) => ({
@@ -88,13 +95,9 @@ describe('Delivery', () => {
             };
             const app = express();
             app.use(bodyParser.json());
-            app.use(delivery(web3Provider as any, db as any, keysA));
-
-            // const redisClient = {
-            //     exists: (_: any) => false,
-            //     sMembers: (_: any) => [],
-            //     del: (_: any) => {},
-            // };
+            app.use(
+                delivery(web3Provider as any, db as any, keysA, serverSecret),
+            );
 
             const { status } = await request(app)
                 .post(
@@ -117,7 +120,9 @@ describe('Delivery', () => {
                     '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
             };
 
-            const token = await createAuthToken();
+            const token = await createAuthToken(
+                '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
+            );
 
             const db = {
                 getSession: async (ensName: string) => ({
@@ -135,16 +140,9 @@ describe('Delivery', () => {
             };
             const app = express();
             app.use(bodyParser.json());
-            app.use(delivery(web3Provider as any, db as any, keysA));
-
-            // const redisClient = {
-            //     exists: (_: any) => false,
-            //     sMembers: (_: any) => [],
-            //     del: (_: any) => {},
-            //     hSet: (_: any, __: any, ___: any) => {},
-            //     hGetAll: () => ['123', '456'],
-            //     zRemRangeByScore: (_: any, __: any, ___: any) => 0,
-            // };
+            app.use(
+                delivery(web3Provider as any, db as any, keysA, serverSecret),
+            );
 
             const { status } = await request(app)
                 .post(
@@ -172,7 +170,9 @@ describe('Delivery', () => {
                     '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
             };
 
-            const token = await createAuthToken();
+            const token = await createAuthToken(
+                '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
+            );
 
             const db = {
                 getSession: async (ensName: string) => ({
@@ -186,13 +186,9 @@ describe('Delivery', () => {
             };
             const app = express();
             app.use(bodyParser.json());
-            app.use(delivery(web3Provider as any, db as any, keysA));
-
-            // const redisClient = {
-            //     exists: (_: any) => false,
-            //     sMembers: (_: any) => [],
-            //     del: (_: any) => {},
-            // };
+            app.use(
+                delivery(web3Provider as any, db as any, keysA, serverSecret),
+            );
 
             const { status } = await request(app)
                 .post(
@@ -214,7 +210,9 @@ describe('Delivery', () => {
                     '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
             };
 
-            const token = await createAuthToken();
+            const token = await createAuthToken(
+                '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
+            );
 
             const db = {
                 getSession: async (ensName: string) => ({
@@ -228,13 +226,9 @@ describe('Delivery', () => {
             };
             const app = express();
             app.use(bodyParser.json());
-            app.use(delivery(web3Provider as any, db as any, keysA));
-
-            // const redisClient = {
-            //     exists: (_: any) => false,
-            //     sMembers: (_: any) => [],
-            //     del: (_: any) => {},
-            // };
+            app.use(
+                delivery(web3Provider as any, db as any, keysA, serverSecret),
+            );
 
             const { status } = await request(app)
                 .post(
@@ -253,33 +247,9 @@ describe('Delivery', () => {
     });
 });
 
-const createAuthToken = async () => {
-    const app = express();
-    app.use(bodyParser.json());
-
-    const getSession = async (accountAddress: string) =>
-        Promise.resolve({
-            challenge: 'my-Challenge',
-            signedUserProfile: {
-                profile: {
-                    publicSigningKey: keysA.signingKeyPair.publicKey,
-                },
-            },
-        });
-    const setSession = async (_: string, __: any) => {
-        return (_: any, __: any, ___: any) => {};
-    };
-    app.use(Auth(getSession, setSession));
-
-    const signature =
-        '3A893rTBPEa3g9FL2vgDreY3vvXnOiYCOoJURNyctncwH' +
-        '0En/mcwo/t2v2jtQx/pcnOpTzuJwLuZviTQjd9vBQ==';
-
-    const { body } = await request(app)
-        .post(`/0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1`)
-        .send({
-            signature,
-        });
-
-    return body.token;
+const createAuthToken = async (ensName: string) => {
+    return sign({ account: normalizeEnsName(ensName) }, serverSecret, {
+        expiresIn: 60,
+        notBefore: 0, // can not be used before now
+    });
 };
