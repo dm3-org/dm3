@@ -1,14 +1,13 @@
+import { createKeyPair } from '@dm3-org/dm3-lib-crypto';
+import { normalizeEnsName, UserProfile } from '@dm3-org/dm3-lib-profile';
+import { IWebSocketManager, stringify } from '@dm3-org/dm3-lib-shared';
 import { Axios } from 'axios';
 import bodyParser from 'body-parser';
 import express from 'express';
 import request from 'supertest';
+import winston from 'winston';
 import { testData } from '../../../../test-data/encrypted-envelops.test';
 import RpcProxy from './rpc-proxy';
-
-import { createKeyPair } from '@dm3-org/dm3-lib-crypto';
-import { normalizeEnsName, UserProfile } from '@dm3-org/dm3-lib-profile';
-import { stringify } from '@dm3-org/dm3-lib-shared';
-import winston from 'winston';
 
 global.logger = winston.createLogger({
     transports: [new winston.transports.Console()],
@@ -19,6 +18,12 @@ const RECEIVER_NAME = 'bob.eth';
 
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
+
+const mockWsManager: IWebSocketManager = {
+    isConnected: function (ensName: string): Promise<boolean> {
+        return Promise.resolve(false);
+    },
+};
 
 const keyPair = createKeyPair();
 
@@ -49,6 +54,7 @@ describe('rpc-Proxy', () => {
                     {} as any,
                     {} as any,
                     keysA,
+                    mockWsManager,
                 ),
             );
 
@@ -117,6 +123,7 @@ describe('rpc-Proxy', () => {
                     web3Provider as any,
                     db as any,
                     keysA,
+                    mockWsManager,
                 ),
             );
 
@@ -194,6 +201,7 @@ describe('rpc-Proxy', () => {
                     web3Provider as any,
                     db as any,
                     keysA,
+                    mockWsManager,
                 ),
             );
 
@@ -246,6 +254,7 @@ describe('rpc-Proxy', () => {
                     {} as any,
                     {} as any,
                     keysA,
+                    {} as any,
                 ),
             );
 
@@ -285,6 +294,7 @@ describe('rpc-Proxy', () => {
                     {} as any,
                     {} as any,
                     keysA,
+                    mockWsManager,
                 ),
             );
 
@@ -325,6 +335,7 @@ describe('rpc-Proxy', () => {
                     web3Provider as any,
                     db as any,
                     keysA,
+                    mockWsManager,
                 ),
             );
 
@@ -389,6 +400,7 @@ describe('rpc-Proxy', () => {
                     web3Provider as any,
                     db as any,
                     keysA,
+                    mockWsManager,
                 ),
             );
 
