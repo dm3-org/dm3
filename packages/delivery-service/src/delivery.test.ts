@@ -82,8 +82,8 @@ describe('Delivery', () => {
 
             const db = {
                 getSession: async (ensName: string) => ({
-                    challenge: '123',
-                    token,
+                    challenge: 'deprecated challenge',
+                    token: 'deprecated token that is not used anymore',
                 }),
                 setSession: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};

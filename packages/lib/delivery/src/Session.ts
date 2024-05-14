@@ -70,7 +70,8 @@ export async function checkToken(
         if (
             !('account' in jwtPayload) ||
             !('iat' in jwtPayload) ||
-            !('exp' in jwtPayload)
+            !('exp' in jwtPayload) ||
+            !('nbf' in jwtPayload)
         ) {
             logDebug({
                 text: `jwt invalid: content missing`,
