@@ -92,12 +92,29 @@ export const removeAliasFromDm3Name = async (
         return false;
     }
 };
-export const validateName = (username: string): boolean => {
-    return (
-        username.length > 3 &&
-        !username.includes('.') &&
-        ethers.utils.isValidName(username)
-    );
+export const validateName = (username: string, serviceType: string) => {
+    if (username.length < 4) {
+        return {
+            isValid: false,
+            error: 'Invalid name, please provide a name that is at least 4 characters long',
+        };
+    }
+    if (serviceType !== DM3_NAME_SERVICES.OPTIMISM && username.includes('.')) {
+        return {
+            isValid: false,
+            error: 'Invalid name, should not contain dots',
+        };
+    }
+    if (!ethers.utils.isValidName(username)) {
+        return {
+            isValid: false,
+            error: 'Invalid name, should not contain special characters',
+        };
+    }
+    return {
+        isValid: true,
+        error: '',
+    };
 };
 
 export const fetchExistingDM3Name = async (

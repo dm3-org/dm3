@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { DM3Name } from './../DM3Name';
 import { NAME_TYPE } from '../../chain/common';
 import { createAlias } from '@dm3-org/dm3-lib-delivery-api';
@@ -9,6 +9,7 @@ import { ConfigureDM3NameContext } from '../../context/ConfigureDM3NameContext';
 import { DM3ConfigurationContext } from '../../../../context/DM3ConfigurationContext';
 import { useMainnetProvider } from '../../../../hooks/mainnetprovider/useMainnetProvider';
 import { ModalContext } from '../../../../context/ModalContext';
+import { ConfigureProfileContext } from '../../context/ConfigureProfileContext';
 
 export const ConfigureCloudNameProfile = () => {
     const mainnetProvider = useMainnetProvider();
@@ -17,7 +18,9 @@ export const ConfigureCloudNameProfile = () => {
 
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
-    const { setExistingDm3Name, setError } = useContext(
+    const { dm3NameServiceSelected } = useContext(ConfigureProfileContext);
+
+    const { setExistingDm3Name, setError, setDm3Name } = useContext(
         ConfigureDM3NameContext,
     );
 
@@ -62,6 +65,12 @@ export const ConfigureCloudNameProfile = () => {
         // stop loader
         closeLoader();
     };
+
+    // on change of dropdown selected, error vanishes
+    useEffect(() => {
+        setError('', undefined);
+        setDm3Name('');
+    }, [dm3NameServiceSelected]);
 
     return (
         <DM3Name

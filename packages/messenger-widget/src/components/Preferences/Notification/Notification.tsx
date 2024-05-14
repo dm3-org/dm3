@@ -73,6 +73,9 @@ export function Notification() {
                         action={(d: boolean) => updateNotificationActive(d)}
                         heading="Activate Notifications"
                     />
+                    <span className="experimental-fun">
+                        Experimental function. Do not use in production!
+                    </span>
                 </div>
                 <Text
                     disabled={false}
