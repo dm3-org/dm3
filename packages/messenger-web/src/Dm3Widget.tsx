@@ -38,7 +38,6 @@ const Dm3Widget: React.FC = () => {
         genomeRegistryAddress: process.env
             .REACT_APP_GENOME_REGISTRY_ADDRESS as string,
         showAlways: true,
-        hideFunction: 'attachments', // Optional parameter to hide certain UI elements
         showContacts: !isMessageToSet(), // Show all contacts or only the default based on the message destination
         signInImage: signInImagePath, // Dynamic image path based on the current week
     };
