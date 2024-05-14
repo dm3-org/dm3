@@ -82,7 +82,7 @@ export async function getMessages(
 }
 
 /**
- * Handles an incomming message.
+ * Handles an incoming message.
  * Either stores the message or sends it directly to the receiver if a socketId is provided
  * In order to be considered valid a incoming message has to meet the following criterias
  * 1. The message size must be lower than the sizeLimit specified by the deliveryService {@see messageIsToLarge}
@@ -111,7 +111,7 @@ export async function incomingMessage(
 ): Promise<void> {
     logDebug('incomingMessage');
     //Checks the size of the incoming message
-    if (messageIsToLarge(envelop, sizeLimit)) {
+    if (messageIsTooLarge(envelop, sizeLimit)) {
         throw Error('Message is too large');
     }
 
@@ -203,7 +203,7 @@ export async function incomingMessage(
     }
 }
 
-function messageIsToLarge(
+function messageIsTooLarge(
     envelop: EncryptionEnvelop,
     sizeLimit: number,
 ): boolean {

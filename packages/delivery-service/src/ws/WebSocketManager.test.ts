@@ -2,6 +2,9 @@ import { io as Client } from 'socket.io-client';
 import { Server as SocketIoServer } from 'socket.io';
 import { createServer, Server as HttpServerType } from 'http';
 import { AUTHORIZED, UNAUTHORIZED, WebSocketManager } from './WebSocketManager';
+import { generateAuthJWT } from '@dm3-org/dm3-lib-delivery';
+
+const serverSecret = 'verySecretAndImportantServerSecret';
 describe('WebSocketManager', () => {
     let client0;
     let client1;
@@ -37,6 +40,7 @@ describe('WebSocketManager', () => {
                 socketIoServer,
                 mockedWeb3Provider,
                 mockedDatabase,
+                serverSecret,
             );
             client0 = await Client('http://localhost:4060');
 
@@ -63,7 +67,7 @@ describe('WebSocketManager', () => {
                     account: {
                         ensName: 'bob.eth',
                     },
-                    token: 'token',
+                    token: generateAuthJWT('bob.eth', serverSecret),
                 },
             });
 
@@ -71,6 +75,7 @@ describe('WebSocketManager', () => {
                 socketIoServer,
                 mockedWeb3Provider,
                 mockedDatabase,
+                serverSecret,
             );
 
             const [socket0IsConnected] = await Promise.all([
@@ -100,6 +105,7 @@ describe('WebSocketManager', () => {
                 socketIoServer,
                 mockedWeb3Provider,
                 mockedDatabase,
+                serverSecret,
             );
 
             client0 = await Client('http://localhost:4060', {
@@ -107,7 +113,7 @@ describe('WebSocketManager', () => {
                     account: {
                         ensName: 'bob.eth',
                     },
-                    token: 'token',
+                    token: generateAuthJWT('bob.eth', serverSecret),
                 },
             });
 
@@ -134,7 +140,7 @@ describe('WebSocketManager', () => {
             const mockedDatabase = {
                 getSession: () =>
                     Promise.resolve({
-                        token: 'token',
+                        token: 'old token that is not used anymore',
                         createdAt: new Date().getTime(),
                     }),
             } as any;
@@ -143,6 +149,7 @@ describe('WebSocketManager', () => {
                 socketIoServer,
                 mockedWeb3Provider,
                 mockedDatabase,
+                serverSecret,
             );
 
             client0 = await Client('http://localhost:4060', {
@@ -150,7 +157,7 @@ describe('WebSocketManager', () => {
                     account: {
                         ensName: 'bob.eth',
                     },
-                    token: 'token',
+                    token: generateAuthJWT('bob.eth', serverSecret),
                 },
             });
 
@@ -177,7 +184,7 @@ describe('WebSocketManager', () => {
             const mockedDatabase = {
                 getSession: () =>
                     Promise.resolve({
-                        token: 'token',
+                        token: 'old token that is not used anymore',
                         createdAt: new Date().getTime(),
                     }),
             } as any;
@@ -186,6 +193,7 @@ describe('WebSocketManager', () => {
                 socketIoServer,
                 mockedWeb3Provider,
                 mockedDatabase,
+                serverSecret,
             );
 
             client0 = await Client('http://localhost:4060', {
@@ -193,7 +201,7 @@ describe('WebSocketManager', () => {
                     account: {
                         ensName: 'bob.eth',
                     },
-                    token: 'token',
+                    token: generateAuthJWT('bob.eth', serverSecret),
                 },
             });
             client1 = await Client('http://localhost:4060', {
@@ -201,7 +209,7 @@ describe('WebSocketManager', () => {
                     account: {
                         ensName: 'bob.eth',
                     },
-                    token: 'token',
+                    token: generateAuthJWT('bob.eth', serverSecret),
                 },
             });
 
@@ -242,7 +250,7 @@ describe('WebSocketManager', () => {
             const mockedDatabase = {
                 getSession: () =>
                     Promise.resolve({
-                        token: 'token',
+                        token: 'old token that is not used anymore',
                         createdAt: new Date().getTime(),
                     }),
             } as any;
@@ -251,6 +259,7 @@ describe('WebSocketManager', () => {
                 socketIoServer,
                 mockedWeb3Provider,
                 mockedDatabase,
+                serverSecret,
             );
 
             client0 = await Client('http://localhost:4060', {
@@ -258,7 +267,7 @@ describe('WebSocketManager', () => {
                     account: {
                         ensName: 'bob.eth',
                     },
-                    token: 'token',
+                    token: generateAuthJWT('bob.eth', serverSecret),
                 },
             });
 
@@ -277,7 +286,7 @@ describe('WebSocketManager', () => {
             const isConnected = await wsManager.isConnected('alice.eth');
             expect(isConnected).toBe(false);
         });
-        it('keeps track of different independant sessions', async () => {
+        it('keeps track of different independent sessions', async () => {
             const mockedWeb3Provider = {
                 resolveName: (_: string) => Promise.resolve('0x123'),
             } as any;
@@ -285,7 +294,7 @@ describe('WebSocketManager', () => {
             const mockedDatabase = {
                 getSession: () =>
                     Promise.resolve({
-                        token: 'token',
+                        token: 'old token that is not used anymore',
                         createdAt: new Date().getTime(),
                     }),
             } as any;
@@ -294,6 +303,7 @@ describe('WebSocketManager', () => {
                 socketIoServer,
                 mockedWeb3Provider,
                 mockedDatabase,
+                serverSecret,
             );
 
             client0 = await Client('http://localhost:4060', {
@@ -301,7 +311,7 @@ describe('WebSocketManager', () => {
                     account: {
                         ensName: 'bob.eth',
                     },
-                    token: 'token',
+                    token: generateAuthJWT('bob.eth', serverSecret),
                 },
             });
 
@@ -310,7 +320,7 @@ describe('WebSocketManager', () => {
                     account: {
                         ensName: 'alice.eth',
                     },
-                    token: 'token',
+                    token: generateAuthJWT('alice.eth', serverSecret),
                 },
             });
 
@@ -319,7 +329,7 @@ describe('WebSocketManager', () => {
                     account: {
                         ensName: 'vitalik.eth',
                     },
-                    token: 'token',
+                    token: generateAuthJWT('vitalik.eth', serverSecret),
                 },
             });
 
@@ -373,7 +383,7 @@ describe('WebSocketManager', () => {
             const mockedDatabase = {
                 getSession: () =>
                     Promise.resolve({
-                        token: 'token',
+                        token: 'old token that is not used anymore',
                         createdAt: new Date().getTime(),
                     }),
             } as any;
@@ -382,6 +392,7 @@ describe('WebSocketManager', () => {
                 socketIoServer,
                 mockedWeb3Provider,
                 mockedDatabase,
+                serverSecret,
             );
 
             client0 = await Client('http://localhost:4060', {
@@ -389,7 +400,7 @@ describe('WebSocketManager', () => {
                     account: {
                         ensName: 'bob.eth',
                     },
-                    token: 'token',
+                    token: generateAuthJWT('bob.eth', serverSecret),
                 },
             });
 
