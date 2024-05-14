@@ -14,7 +14,6 @@ import Notification from './notification';
 import Otp from './otp';
 import Pending from './pending';
 import Session from './session';
-import Storage from './storage';
 import { ISessionDatabase } from '@dm3-org/dm3-lib-server-side';
 
 export enum RedisPrefix {
@@ -75,9 +74,6 @@ export async function getDatabase(
         //Session
         setSession: Session.setSession(redis),
         getSession: Session.getSession(redis),
-        //Legacy remove after storage has been merged
-        getUserStorage: Storage.getUserStorageOld(redis),
-        setUserStorage: Storage.setUserStorageOld(redis),
         //Pending
         addPending: Pending.addPending(redis),
         getPending: Pending.getPending(redis),
@@ -121,10 +117,6 @@ export interface IDatabase extends ISessionDatabase {
         createdAt?: number,
     ) => Promise<void>;
     deleteExpiredMessages: (time: number) => Promise<void>;
-
-    //Legacy remove after storage has been merged
-    getUserStorage: (ensName: string) => Promise<UserStorage | null>;
-    setUserStorage: (ensName: string, data: string) => Promise<void>;
     addPending: (ensName: string, contactEnsName: string) => Promise<void>;
     getPending: (ensName: string) => Promise<string[]>;
     deletePending: (ensName: string) => Promise<void>;
