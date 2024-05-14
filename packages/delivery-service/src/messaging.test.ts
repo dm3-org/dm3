@@ -1,17 +1,25 @@
 import { createKeyPair } from '@dm3-org/dm3-lib-crypto';
 import { Session } from '@dm3-org/dm3-lib-delivery';
 import { UserProfile } from '@dm3-org/dm3-lib-profile';
-import { ethersHelper } from '@dm3-org/dm3-lib-shared';
+import { IWebSocketManager, ethersHelper } from '@dm3-org/dm3-lib-shared';
 import { Socket } from 'socket.io';
 import winston from 'winston';
 import { testData } from '../../../test-data/encrypted-envelops.test';
 import { onConnection } from './messaging';
+
 const SENDER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
 const RECEIVER_ADDRESS = '0xDd36ae7F9a8E34FACf1e110c6e9d37D0dc917855';
 
 global.logger = winston.createLogger({
     transports: [new winston.transports.Console()],
 });
+
+const serverSecret = 'secret';
+const mockWsManager: IWebSocketManager = {
+    isConnected: function (ensName: string): Promise<boolean> {
+        return Promise.resolve(false);
+    },
+};
 const keysA = {
     encryptionKeyPair: {
         publicKey: 'eHmMq29FeiPKfNPkSctPuZGXvV0sKeO/KZkX2nXvMgw=',
@@ -118,6 +126,8 @@ describe('Messaging', () => {
                 web3Provider as any,
                 db as any,
                 keysA,
+                serverSecret,
+                mockWsManager,
             )(getSocketMock());
         });
 
@@ -151,6 +161,8 @@ describe('Messaging', () => {
                 web3Provider as any,
                 db as any,
                 keysA,
+                serverSecret,
+                mockWsManager,
             )(getSocketMock());
         });
         it.skip('returns error if message is spam', (done: any) => {
@@ -195,6 +207,8 @@ describe('Messaging', () => {
                 web3Provider as any,
                 db as any,
                 keysA,
+                serverSecret,
+                mockWsManager,
             )(getSocketMock());
         });
         it('Throws error if schema is invalid', async () => {
@@ -230,6 +244,8 @@ describe('Messaging', () => {
                 web3Provider as any,
                 db as any,
                 keysA,
+                serverSecret,
+                mockWsManager,
             )(getSocketMock());
         });
     });
@@ -261,6 +277,8 @@ describe('Messaging', () => {
                 web3Provider as any,
                 db as any,
                 keysA,
+                serverSecret,
+                mockWsManager,
             )(getSocketMock());
         });
     });

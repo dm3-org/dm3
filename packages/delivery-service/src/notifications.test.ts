@@ -1,11 +1,14 @@
-import { Auth } from '@dm3-org/dm3-lib-server-side';
+import {
+    DeliveryServiceProperties,
+    generateAuthJWT,
+} from '@dm3-org/dm3-lib-delivery';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 import bodyParser from 'body-parser';
 import express from 'express';
 import request from 'supertest';
 import notifications from './notifications';
 
-import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
-import { DeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery';
+const serverSecret = 'secret';
 
 const keysA = {
     encryptionKeyPair: {
@@ -74,10 +77,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status, body } = await request(app)
                 .get(`/bob.eth`)
@@ -130,10 +134,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status, body } = await request(app)
                 .get(`/bob.eth`)
@@ -178,10 +183,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status } = await request(app)
                 .post(`/bob.eth`)
@@ -225,10 +231,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status } = await request(app)
                 .post(`/bob.eth`)
@@ -273,10 +280,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status } = await request(app)
                 .post(`/bob.eth`)
@@ -353,10 +361,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status, body } = await request(app)
                 .post(`/bob.eth`)
@@ -416,10 +425,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status, body } = await request(app)
                 .post(`/bob.eth`)
@@ -475,10 +485,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status, body } = await request(app)
                 .get(`/global/bob.eth`)
@@ -523,10 +534,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status } = await request(app)
                 .post(`/global/bob.eth`)
@@ -571,10 +583,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status } = await request(app)
                 .post(`/global/bob.eth`)
@@ -619,10 +632,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status } = await request(app)
                 .post(`/global/bob.eth`)
@@ -668,10 +682,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status } = await request(app)
                 .post(`/otp/bob.eth`)
@@ -714,10 +729,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status } = await request(app)
                 .post(`/otp/bob.eth`)
@@ -795,10 +811,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status, body } = await request(app)
                 .post(`/otp/bob.eth`)
@@ -844,10 +861,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status, body } = await request(app)
                 .post(`/otp/verify/bob.eth`)
@@ -894,10 +912,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status, body } = await request(app)
                 .post(`/otp/verify/bob.eth`)
@@ -944,10 +963,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status, body } = await request(app)
                 .post(`/otp/verify/bob.eth`)
@@ -1037,10 +1057,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status } = await request(app)
                 .post(`/otp/verify/bob.eth`)
@@ -1084,10 +1105,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status, body } = await request(app)
                 .post(`/channel/bob.eth`)
@@ -1131,10 +1153,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status, body } = await request(app)
                 .post(`/channel/bob.eth`)
@@ -1180,10 +1203,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status, body } = await request(app)
                 .post(`/channel/bob.eth`)
@@ -1227,10 +1251,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status, body } = await request(app)
                 .post(`/channel/bob.eth`)
@@ -1276,10 +1301,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status, body } = await request(app)
                 .post(`/channel/bob.eth`)
@@ -1354,10 +1380,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status, body } = await request(app)
                 .post(`/channel/bob.eth`)
@@ -1429,10 +1456,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status, body } = await request(app)
                 .post(`/channel/bob.eth`)
@@ -1477,10 +1505,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status, body } = await request(app)
                 .delete(`/channel/test/bob.eth`)
@@ -1523,10 +1552,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status, body } = await request(app)
                 .delete(`/channel/EMAIL/bob.eth`)
@@ -1584,10 +1614,11 @@ describe('Notifications', () => {
                     deliveryServiceProperties,
                     db as any,
                     web3Provider as any,
+                    serverSecret,
                 ),
             );
 
-            const token = await createAuthToken();
+            const token = generateAuthJWT('bob.eth', serverSecret);
 
             const { status, body } = await request(app)
                 .delete(`/channel/EMAIL/bob.eth`)
@@ -1601,31 +1632,3 @@ describe('Notifications', () => {
         });
     });
 });
-
-const createAuthToken = async () => {
-    const app = express();
-    app.use(bodyParser.json());
-    const getSession = async (accountAddress: string) =>
-        Promise.resolve({
-            challenge: 'my-Challenge',
-            signedUserProfile: {
-                profile: {
-                    publicSigningKey: keysA.signingKeyPair.publicKey,
-                },
-            },
-        });
-    const setSession = async (_: string, __: any) => {
-        return (_: any, __: any, ___: any) => {};
-    };
-    app.use(Auth(getSession, setSession));
-
-    const signature =
-        '3A893rTBPEa3g9FL2vgDreY3vvXnOiYCOoJURNyctncwH' +
-        '0En/mcwo/t2v2jtQx/pcnOpTzuJwLuZviTQjd9vBQ==';
-
-    const { body } = await request(app).post(`/bob.eth`).send({
-        signature,
-    });
-
-    return body.token;
-};
