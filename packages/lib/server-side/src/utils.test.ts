@@ -9,8 +9,9 @@ const serverSecret = 'testSecret';
 describe('Utils', () => {
     describe('Auth', () => {
         it('Returns 200 if token is valid', async () => {
-            const token = sign({ user: 'alice.eth' }, serverSecret, {
+            const token = sign({ account: 'alice.eth' }, serverSecret, {
                 expiresIn: '1h',
+                notBefore: 0,
             });
 
             const getSession = async (accountAddress: string) =>
@@ -69,9 +70,10 @@ describe('Utils', () => {
 
             expect(status).toBe(200);
         });
-        it('Returns 401 if user is missing', async () => {
+        it('Returns 401 if account is missing', async () => {
             const token = sign({}, serverSecret, {
                 expiresIn: '1h',
+                notBefore: 0,
             });
 
             const getSession = async (accountAddress: string) =>
@@ -130,8 +132,8 @@ describe('Utils', () => {
 
             expect(status).toBe(401);
         });
-        it('Returns 401 if user is unknown', async () => {
-            const token = sign({ user: 'alice.eth' }, serverSecret, {
+        it('Returns 401 if account is unknown', async () => {
+            const token = sign({ account: 'alice.eth' }, serverSecret, {
                 expiresIn: '1h',
             });
             const db = {
@@ -193,8 +195,8 @@ describe('Utils', () => {
 
             expect(status).toBe(401);
         });
-        it('Returns 401 if token is from wrong user', async () => {
-            const token = sign({ user: 'some.other.name' }, serverSecret, {
+        it('Returns 401 if token is from wrong account', async () => {
+            const token = sign({ account: 'some.other.name' }, serverSecret, {
                 expiresIn: '1h',
             });
             const db = {
@@ -252,7 +254,7 @@ describe('Utils', () => {
         });
         it('Returns 401 if token is expired or exp is missing', async () => {
             expect.assertions(2);
-            let token = sign({ user: 'some.other.name' }, serverSecret, {
+            let token = sign({ account: 'some.other.name' }, serverSecret, {
                 expiresIn: '1s', // valid for 1 second
             });
             const tokenBody = verify(token, serverSecret);
@@ -260,7 +262,7 @@ describe('Utils', () => {
                 !tokenBody ||
                 typeof tokenBody === 'string' ||
                 !tokenBody.exp ||
-                !tokenBody.user ||
+                !tokenBody.account ||
                 !tokenBody.iat
             ) {
                 throw Error('Invalid token');
@@ -268,7 +270,7 @@ describe('Utils', () => {
 
             token = sign(
                 {
-                    user: tokenBody.user,
+                    account: tokenBody.account,
                     exp: tokenBody.exp - 1000, // expired
                     iat: tokenBody.iat,
                 },
@@ -332,7 +334,7 @@ describe('Utils', () => {
             // check what happens if exp is missing
             token = sign(
                 {
-                    user: tokenBody.user,
+                    account: tokenBody.account,
                     //exp: tokenBody.exp - 1000, // expired
                     iat: tokenBody.iat,
                 },
@@ -349,25 +351,28 @@ describe('Utils', () => {
         });
         it('Returns 401 if token issuance date is in the future or missing', async () => {
             expect.assertions(2);
-            let token = sign({ user: 'some.other.name' }, serverSecret, {
+            let token = sign({ account: 'some.other.name' }, serverSecret, {
                 expiresIn: '1h',
+                notBefore: 0,
             });
             const tokenBody = verify(token, serverSecret);
             if (
                 !tokenBody ||
                 typeof tokenBody === 'string' ||
                 !tokenBody.exp ||
-                !tokenBody.user ||
-                !tokenBody.iat
+                !tokenBody.account ||
+                !tokenBody.iat ||
+                !tokenBody.nbf
             ) {
                 throw Error('Invalid token');
             }
             // create invalid token
             token = sign(
                 {
-                    user: tokenBody.user,
+                    account: tokenBody.account,
                     exp: tokenBody.exp,
                     iat: tokenBody.iat + 1000, // issued in the future
+                    nbf: tokenBody.nbf,
                 },
                 serverSecret,
             );
@@ -428,8 +433,9 @@ describe('Utils', () => {
             // check what happens if iat is missing
             token = sign(
                 {
-                    user: tokenBody.user,
+                    account: tokenBody.account,
                     exp: tokenBody.exp,
+                    nbf: tokenBody.nbf,
                     // iat is missing
                 },
                 serverSecret,

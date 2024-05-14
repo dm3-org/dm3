@@ -1,8 +1,8 @@
 import { encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
 import {
     Session,
-    spamFilter,
     generateAuthJWT,
+    spamFilter,
 } from '@dm3-org/dm3-lib-delivery';
 import {
     Envelop,
@@ -10,7 +10,7 @@ import {
     buildEnvelop,
     createMessage,
 } from '@dm3-org/dm3-lib-messaging';
-import { Auth } from '@dm3-org/dm3-lib-server-side';
+import { SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { sha256 } from '@dm3-org/dm3-lib-shared';
 import { PrismaClient } from '@prisma/client';
 import bodyParser from 'body-parser';
@@ -30,10 +30,8 @@ import {
     getDatabase,
     getRedisClient,
 } from './persistence/getDatabase';
-import { SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { MessageRecord } from './persistence/storage/postgres/utils/MessageRecord';
 import storage from './storage';
-import { sign } from 'jsonwebtoken';
 
 const keysA = {
     encryptionKeyPair: {
@@ -57,9 +55,7 @@ global.logger = winston.createLogger({
 
 describe('Storage', () => {
     let app;
-    let token = generateAuthJWT({ account: 'bob.eth' }, serverSecret, {
-        expiresIn: '1h',
-    });
+    let token = generateAuthJWT('bob.eth', serverSecret);
     let prisma: PrismaClient;
     let sender: MockedUserProfile;
     let receiver: MockedUserProfile;
