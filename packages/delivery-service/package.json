@@ -26,7 +26,7 @@
     "docker:up": "docker-compose up -d",
     "start": "node  ./dist/index.js",
     "start-inspect": "node --inspect=0.0.0.0:9229  ./dist/index.js",
-    "test": "yarn run before:tests &&  jest --coverage --runInBand --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'; yarn run after:tests",
+    "test": "yarn run before:tests &&  jest --coverage --runInBand --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'",
     "build": "yarn tsc && cp ./config.yml ./dist/config.yml | true",
     "createDeliveryServiceProfile": "node --no-warnings ./cli.js",
     "before:tests": "docker-compose -f docker-compose.test.yml up -d",
