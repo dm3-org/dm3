@@ -73,7 +73,9 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
 
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
-    const { setEnsName, onShowError, dm3NameServiceSelected } = useContext(ConfigureProfileContext);
+    const { setEnsName, onShowError, dm3NameServiceSelected } = useContext(
+        ConfigureProfileContext,
+    );
 
     const { account, ethAddress, deliveryServiceToken, profileKeys } =
         useContext(AuthContext);
@@ -104,11 +106,9 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
                 onShowError(NAME_TYPE.DM3_NAME, 'DM3 name cannot be empty');
                 return;
             }
-            if (!validateName(name)) {
-                setError(
-                    'Invalid name, please provide a name that is at least 4 characters long',
-                    NAME_TYPE.DM3_NAME,
-                );
+            const validityCheck = validateName(name, dm3NameServiceSelected);
+            if (!validityCheck.isValid) {
+                setError(validityCheck.error, NAME_TYPE.DM3_NAME);
                 return;
             }
             await submitDm3UsernameClaim(name);

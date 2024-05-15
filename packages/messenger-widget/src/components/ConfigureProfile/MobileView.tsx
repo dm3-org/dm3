@@ -1,13 +1,11 @@
 import '../../styles/modal.css';
 import './ConfigureProfile.css';
-import { useContext, useEffect, useState } from 'react';
-import { useChainId, useSwitchNetwork } from 'wagmi';
+import { useContext, useEffect } from 'react';
+import { useChainId } from 'wagmi';
 import { AuthContext } from '../../context/AuthContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 import {
     dm3NamingServices,
-    fetchChainIdFromDM3ServiceName,
-    fetchChainIdFromServiceName,
     fetchComponent,
     fetchDM3NameComponent,
     fetchServiceFromChainId,
@@ -20,8 +18,6 @@ import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 export function MobileView() {
     const connectedChainId = useChainId();
 
-    const { switchNetwork } = useSwitchNetwork();
-
     const mainnetProvider = useMainnetProvider();
 
     const { account, ethAddress } = useContext(AuthContext);
@@ -29,37 +25,12 @@ export function MobileView() {
     const {
         setEnsName,
         dm3NameServiceSelected,
-        setDm3NameServiceSelected
+        setDm3NameServiceSelected,
+        namingServiceSelected,
+        setNamingServiceSelected,
     } = useContext(ConfigureProfileContext);
 
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
-
-    // ENS Name service selected
-    const [namingServiceSelected, setNamingServiceSelected] = useState<string>(
-        namingServices[0].name,
-    );
-
-    // changes network on ENS/GNO naming service change
-    const changeNetworkForEnsName = (serviceName: string) => {
-        const chainId = fetchChainIdFromServiceName(
-            serviceName,
-            dm3Configuration.chainId,
-        );
-        if (chainId && chainId !== connectedChainId && switchNetwork) {
-            switchNetwork(chainId);
-        }
-    };
-
-    // changes network on DM3 naming service change
-    const changeNetworkForDm3Name = (serviceName: string) => {
-        const chainId = fetchChainIdFromDM3ServiceName(
-            serviceName,
-            dm3Configuration.chainId,
-        );
-        if (chainId && chainId !== connectedChainId && switchNetwork) {
-            switchNetwork(chainId);
-        }
-    };
 
     // handles ENS name and address
     useEffect(() => {
@@ -89,7 +60,6 @@ export function MobileView() {
                         value={dm3NameServiceSelected}
                         onChange={(e) => {
                             setDm3NameServiceSelected(e.target.value);
-                            changeNetworkForDm3Name(e.target.value);
                         }}
                     >
                         {dm3NamingServices &&
@@ -118,7 +88,6 @@ export function MobileView() {
                         value={namingServiceSelected}
                         onChange={(e) => {
                             setNamingServiceSelected(e.target.value);
-                            changeNetworkForEnsName(e.target.value);
                         }}
                     >
                         {namingServices &&
