@@ -80,7 +80,7 @@ jobs:
             - id: workspace-test
               uses: ./test-action
               with:
-                  workspace-name: '@dm3-org/dm3-cli-tests'
+                  workspace-name: '@dm3-org/dm3-cli'
                   package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-crypto-test:
         runs-on: ubuntu-latest
