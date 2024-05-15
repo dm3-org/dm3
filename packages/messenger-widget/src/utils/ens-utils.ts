@@ -1,4 +1,4 @@
-import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
+import { log } from '@dm3-org/dm3-lib-shared';
 import makeBlockie from 'ethereum-blockies-base64';
 import { ethers } from 'ethers';
 import humanIcon from '../assets/images/human.svg';
@@ -8,7 +8,7 @@ import {
     MOBILE_SCREEN_WIDTH,
     getEtherscanUrl,
 } from './common-utils';
-import { Actions, RightViewSelected, UiViewStateType } from './enum-type-utils';
+import { RightViewSelected } from './enum-type-utils';
 
 // method to get avatar/image url
 export const getAvatar = async (
@@ -22,18 +22,24 @@ export const getAvatar = async (
 export const getAvatarProfilePic = async (
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     ensName: string,
+    addrEnsSubdomain: string,
 ) => {
     if (ensName) {
         const provider = mainnetProvider;
         try {
             if (provider) {
+                const resolver = await provider.getResolver(ensName);
+                if (resolver) {
+                    const avatar = await resolver
+                        .getText('avatar')
+                        .catch(() => null);
+                    if (avatar) return avatar;
+                }
                 const address = await provider.resolveName(ensName);
                 if (address) {
                     const pic = makeBlockie(address);
                     return pic ? (pic as string) : (humanIcon as string);
-                } else if (
-                    ensName.endsWith(globalConfig.ADDR_ENS_SUBDOMAIN())
-                ) {
+                } else if (ensName.endsWith(addrEnsSubdomain)) {
                     const pic = makeBlockie(ensName.split('.')[0]);
                     return pic ? (pic as string) : (humanIcon as string);
                 } else {
@@ -92,7 +98,7 @@ export const openEtherscan = (address: string, chainId: string) => {
 
 // method to close profile/contact info page
 export const onClose = (
-    dispatch: React.Dispatch<Actions>,
+    setSelectedRightView: (view: RightViewSelected) => void,
     setSelectedContact: Function,
     screenWidth: number,
     showContacts: boolean,
@@ -100,17 +106,10 @@ export const onClose = (
     // If contact list exists, then opens default screen
     if (screenWidth && screenWidth > MOBILE_SCREEN_WIDTH && showContacts) {
         setSelectedContact(undefined);
-        dispatch({
-            type: UiViewStateType.SetSelectedRightView,
-            payload: RightViewSelected.Default,
-        });
+        setSelectedRightView(RightViewSelected.Default);
         return;
     }
-
-    dispatch({
-        type: UiViewStateType.SetSelectedRightView,
-        payload: RightViewSelected.Chat,
-    });
+    setSelectedRightView(RightViewSelected.Chat);
 };
 
 // method to check DM3 network profile on ENS

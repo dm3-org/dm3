@@ -1,21 +1,23 @@
 /* eslint-disable max-len */
 /* eslint-disable no-console */
-import './SignIn.css';
-import DM3Logo from './DM3Logo';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { useContext } from 'react';
 import { useAccount } from 'wagmi';
-import { LoginButton } from './LoginButton';
-import { changeSignInButtonStyle } from './bl';
-import { SignInProps } from '../../interfaces/props';
-import { AuthContext } from '../../context/AuthContext';
-import { ButtonState } from '../../utils/enum-type-utils';
 import { signInImage } from '../../assets/base64/home-image';
-import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit';
+import { AuthContext } from '../../context/AuthContext';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { ButtonState } from '../../utils/enum-type-utils';
+import DM3Logo from './DM3Logo';
+import { LoginButton } from './LoginButton';
+import './SignIn.css';
+import { changeSignInButtonStyle } from './bl';
 
-export function SignIn(props: SignInProps) {
+export function SignIn() {
     const { isConnected } = useAccount();
 
     const { cleanSignIn, isLoading } = useContext(AuthContext);
+
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     // open rainbow wallet modal function
     const { openConnectModal } = useConnectModal();
@@ -44,7 +46,7 @@ export function SignIn(props: SignInProps) {
                 <div
                     style={{
                         backgroundImage: `url(${
-                            props.signInImage ?? signInImage
+                            dm3Configuration.signInImage ?? signInImage
                         })`,
                     }}
                     className="col-lg-7 col-md-7 col-sm-0 p-0 home-image-container background-container"
@@ -54,14 +56,13 @@ export function SignIn(props: SignInProps) {
                 justify-content-center background-container"
                 >
                     <div className="d-flex justify-content-end rainbow-connect-btn">
-                        {isConnected ? (
-                            <ConnectButton showBalance={false} />
-                        ) : (
+                        {!isConnected && (
                             <div className="normal-btn wal-not-connected">
                                 Wallet not connected
                             </div>
                         )}
                     </div>
+
                     <div className="d-flex flex-column height-fill content-data-container">
                         <div className="d-flex flex-column justify-content-center">
                             <DM3Logo />

@@ -1,25 +1,29 @@
-import { globalConfig } from '@dm3-org/dm3-lib-shared';
 import { ITLDResolver } from './TLDResolver';
 import { ethers } from 'ethers';
 
-function getIdForAddress(address: string) {
-    return address + globalConfig.ADDR_ENS_SUBDOMAIN();
+function getIdForAddress(address: string, addrEnsSubdomain: string) {
+    return address + addrEnsSubdomain;
 }
 
 export class EthereumNameService implements ITLDResolver {
     private readonly provider: ethers.providers.JsonRpcProvider;
-    constructor(provider: ethers.providers.JsonRpcProvider) {
+    private readonly addrEnsSubdomain: string;
+    private readonly userEnsSubdomain: string;
+
+    constructor(
+        provider: ethers.providers.JsonRpcProvider,
+        addrEnsSubdomain: string,
+        userEnsSubdomain: string,
+    ) {
         this.provider = provider;
+        this.addrEnsSubdomain = addrEnsSubdomain;
+        this.userEnsSubdomain = userEnsSubdomain;
     }
 
     //e.g. max.eth => 0x1234.addr.dm3.eth
     async isResolverForTldName(ensName: string): Promise<boolean> {
-        const isUserSubdomain = ensName.endsWith(
-            globalConfig.USER_ENS_SUBDOMAIN(),
-        );
-        const isAddrSubdomain = ensName.endsWith(
-            globalConfig.ADDR_ENS_SUBDOMAIN(),
-        );
+        const isUserSubdomain = ensName.endsWith(this.userEnsSubdomain);
+        const isAddrSubdomain = ensName.endsWith(this.addrEnsSubdomain);
         const isEnsDomain = ensName.endsWith('.eth');
 
         if (isUserSubdomain || isAddrSubdomain || !isEnsDomain) {
@@ -34,7 +38,10 @@ export class EthereumNameService implements ITLDResolver {
         if (!address) {
             throw new Error('No address found for ' + ensName);
         }
-        return getIdForAddress(ethers.utils.getAddress(address));
+        return getIdForAddress(
+            ethers.utils.getAddress(address),
+            this.addrEnsSubdomain,
+        );
     }
     //e.g. 0x1234.addr.dm3.eth => max.eth
     async isResolverForAliasName(ensName: string): Promise<boolean> {

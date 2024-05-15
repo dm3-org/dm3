@@ -1,12 +1,6 @@
-import React from 'react';
 import { ethers } from 'ethers';
-import {
-    Actions,
-    ConnectionType,
-    ModalStateType,
-} from '../../utils/enum-type-utils';
 import { checkEnsDM3Text } from '../../utils/ens-utils';
-import { globalConfig, log } from '@dm3-org/dm3-lib-shared';
+import { log } from '@dm3-org/dm3-lib-shared';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { removeAlias } from '../../adapters/offchain-resolver-api';
 import { ConfigureEnsProfile } from './chain/ens/ConfigureEnsProfile';
@@ -15,6 +9,7 @@ import { ConfigureGenomeProfile } from './chain/genome/ConfigureGenomeProfile';
 import { Account, ProfileKeys, hasUserProfile } from '@dm3-org/dm3-lib-profile';
 import { ConfigureCloudNameProfile } from './dm3Names/cloudName/ConfigureCloudNameProfile';
 import { ConfigureOptimismNameProfile } from './dm3Names/optimismName/ConfigureOptimismNameProfile';
+import { supportedChains } from '../../utils/common-utils';
 
 export const PROFILE_INPUT_FIELD_CLASS =
     'profile-input font-weight-400 font-size-14 border-radius-6 w-100 line-height-24';
@@ -28,23 +23,19 @@ export enum ACTION_TYPE {
 }
 
 // method to open the profile configuration modal
-export const openConfigurationModal = (dispatch: React.Dispatch<Actions>) => {
-    dispatch({
-        type: ModalStateType.IsProfileConfigurationPopupActive,
-        payload: true,
-    });
-    dispatch({
-        type: ModalStateType.ShowPreferencesModal,
-        payload: true,
-    });
+export const openConfigurationModal = (
+    setShowProfileConfigurationModal: (show: boolean) => void,
+    setShowPreferencesModal: (show: boolean) => void,
+) => {
+    setShowProfileConfigurationModal(true);
+    setShowPreferencesModal(true);
 };
 
 // method to close the profile configuration modal
-export const closeConfigurationModal = (dispatch: React.Dispatch<Actions>) => {
-    dispatch({
-        type: ModalStateType.IsProfileConfigurationPopupActive,
-        payload: false,
-    });
+export const closeConfigurationModal = (
+    setShowProfileConfigurationModal: (show: boolean) => void,
+) => {
+    setShowProfileConfigurationModal(false);
 };
 
 // method to fetch ENS name
@@ -53,12 +44,11 @@ export const getEnsName = async (
     ethAddress: string,
     account: Account,
     setEnsNameFromResolver: Function,
+    addrEnsSubdomain: string,
 ) => {
     try {
         if (ethAddress) {
-            const isAddrEnsName = account.ensName?.endsWith(
-                globalConfig.ADDR_ENS_SUBDOMAIN(),
-            );
+            const isAddrEnsName = account.ensName?.endsWith(addrEnsSubdomain);
             const name = await mainnetProvider.lookupAddress(ethAddress);
             if (name && !isAddrEnsName) {
                 const hasProfile = await hasUserProfile(mainnetProvider, name);
@@ -80,18 +70,12 @@ export const getEnsName = async (
 export const removeAliasFromDm3Name = async (
     resolverBackendUrl: string,
     profileKeys: ProfileKeys,
-    account: Account,
-    ethAddress: string,
     dm3UserEnsName: string,
-    dispatch: React.Dispatch<Actions>,
+    setLoaderContent: (content: string) => void,
     setError: Function,
 ) => {
     try {
-        dispatch({
-            type: ModalStateType.LoaderContent,
-            payload: 'Removing alias...',
-        });
-
+        setLoaderContent('Removing alias...');
         startLoader();
 
         const result = await removeAlias(
@@ -100,33 +84,37 @@ export const removeAliasFromDm3Name = async (
             profileKeys.signingKeyPair.privateKey,
         );
 
-        if (result) {
-            dispatch({
-                type: ConnectionType.ChangeAccount,
-                payload: {
-                    ...account!,
-                    ensName: ethAddress + globalConfig.ADDR_ENS_SUBDOMAIN(),
-                },
-            });
-
-            closeLoader();
-            return true;
-        } else {
-            closeLoader();
-            return false;
-        }
+        closeLoader();
+        return result;
     } catch (e) {
         setError('Failed to remove alias', e);
         closeLoader();
         return false;
     }
 };
-export const validateName = (username: string): boolean => {
-    return (
-        username.length > 3 &&
-        !username.includes('.') &&
-        ethers.utils.isValidName(username)
-    );
+export const validateName = (username: string, serviceType: string) => {
+    if (username.length < 4) {
+        return {
+            isValid: false,
+            error: 'Invalid name, please provide a name that is at least 4 characters long',
+        };
+    }
+    if (serviceType !== DM3_NAME_SERVICES.OPTIMISM && username.includes('.')) {
+        return {
+            isValid: false,
+            error: 'Invalid name, should not contain dots',
+        };
+    }
+    if (!ethers.utils.isValidName(username)) {
+        return {
+            isValid: false,
+            error: 'Invalid name, should not contain special characters',
+        };
+    }
+    return {
+        isValid: true,
+        error: '',
+    };
 };
 
 export const fetchExistingDM3Name = async (
@@ -134,10 +122,16 @@ export const fetchExistingDM3Name = async (
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     setExistingDm3Name: Function,
+    addrEnsSubdomain: string,
+    userEnsSubdomain: string,
 ) => {
     try {
         if (account) {
-            const dm3NameService = new Dm3Name(mainnetProvider);
+            const dm3NameService = new Dm3Name(
+                mainnetProvider,
+                addrEnsSubdomain,
+                userEnsSubdomain,
+            );
             const dm3Name = await dm3NameService.resolveAliasToTLD(
                 account.ensName,
                 resolverBackendUrl,
@@ -146,9 +140,7 @@ export const fetchExistingDM3Name = async (
             // Its DM3 name -> bob.beta-user.dm3.eth
             // Checks user sub domain for setting DM3 name
             setExistingDm3Name(
-                dm3Name.endsWith(globalConfig.USER_ENS_SUBDOMAIN())
-                    ? dm3Name
-                    : null,
+                dm3Name.endsWith(userEnsSubdomain) ? dm3Name : null,
             );
         } else {
             setExistingDm3Name(null);
@@ -168,23 +160,31 @@ const enum NAME_SERVICES {
 export const namingServices = [
     {
         name: NAME_SERVICES.ENS,
-        chainId: 1,
+        chainId: supportedChains.ethereumMainnet,
     },
     {
         name: NAME_SERVICES.GENOME,
-        chainId: 100,
+        chainId: supportedChains.gnosisMainnet,
     },
 ];
 
 export const fetchComponent = (name: string, chainId: string) => {
     switch (name) {
         case NAME_SERVICES.ENS:
-            if (chainId === '11155111') {
-                return <ConfigureEnsProfile chainToConnect={11155111} />;
+            if (Number(chainId) === supportedChains.ethereumTestnet) {
+                return (
+                    <ConfigureEnsProfile
+                        chainToConnect={supportedChains.ethereumTestnet}
+                    />
+                );
             }
-            return <ConfigureEnsProfile chainToConnect={1} />;
+            return (
+                <ConfigureEnsProfile
+                    chainToConnect={supportedChains.ethereumMainnet}
+                />
+            );
         case NAME_SERVICES.GENOME:
-            const genomeChainId = namingServices[1].chainId;
+            const genomeChainId = supportedChains.gnosisMainnet;
             return <ConfigureGenomeProfile chainToConnect={genomeChainId} />;
     }
 };
@@ -201,14 +201,14 @@ export const fetchServiceFromChainId = (chainId: number): string => {
 export const fetchChainIdFromServiceName = (name: string, chainId: string) => {
     switch (name) {
         case NAME_SERVICES.ENS:
-            if (chainId === '11155111') {
-                return Number(chainId);
+            if (Number(chainId) === supportedChains.ethereumTestnet) {
+                return supportedChains.ethereumTestnet;
             }
-            return namingServices[0].chainId;
+            return supportedChains.ethereumMainnet;
         case NAME_SERVICES.GENOME:
-            return namingServices[1].chainId;
+            return supportedChains.gnosisMainnet;
         default:
-            return namingServices[0].chainId;
+            return supportedChains.ethereumMainnet;
     }
 };
 
@@ -226,14 +226,44 @@ export const dm3NamingServices = [
     },
 ];
 
-export const fetchDM3NameComponent = (name: string) => {
+export const fetchDM3NameComponent = (
+    name: string,
+    envConfiguredChainId: string,
+) => {
     switch (name) {
         case DM3_NAME_SERVICES.CLOUD:
             return <ConfigureCloudNameProfile />;
         case DM3_NAME_SERVICES.OPTIMISM:
-            const chainToConnect = 10;
+            const chainToConnect =
+                Number(envConfiguredChainId) === supportedChains.ethereumTestnet
+                    ? supportedChains.optimismTestnet
+                    : supportedChains.optimismMainnet;
             return (
                 <ConfigureOptimismNameProfile chainToConnect={chainToConnect} />
             );
+    }
+};
+
+export const fetchChainIdFromDM3ServiceName = (
+    name: string,
+    envConfiguredChainId: string,
+) => {
+    switch (name) {
+        case DM3_NAME_SERVICES.CLOUD:
+            if (
+                Number(envConfiguredChainId) === supportedChains.ethereumTestnet
+            ) {
+                return Number(supportedChains.ethereumTestnet);
+            }
+            return supportedChains.ethereumMainnet;
+        case DM3_NAME_SERVICES.OPTIMISM:
+            if (
+                Number(envConfiguredChainId) === supportedChains.ethereumTestnet
+            ) {
+                return supportedChains.optimismTestnet;
+            }
+            return supportedChains.optimismMainnet;
+        default:
+            return supportedChains.ethereumMainnet;
     }
 };

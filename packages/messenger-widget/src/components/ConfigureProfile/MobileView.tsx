@@ -1,13 +1,11 @@
 import '../../styles/modal.css';
 import './ConfigureProfile.css';
-import { switchNetwork } from '@wagmi/core';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 import { useChainId } from 'wagmi';
 import { AuthContext } from '../../context/AuthContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
 import {
     dm3NamingServices,
-    fetchChainIdFromServiceName,
     fetchComponent,
     fetchDM3NameComponent,
     fetchServiceFromChainId,
@@ -24,34 +22,24 @@ export function MobileView() {
 
     const { account, ethAddress } = useContext(AuthContext);
 
-    const { setEnsName } = useContext(ConfigureProfileContext);
+    const {
+        setEnsName,
+        dm3NameServiceSelected,
+        setDm3NameServiceSelected,
+        namingServiceSelected,
+        setNamingServiceSelected,
+    } = useContext(ConfigureProfileContext);
 
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
-    // ENS Name service selected
-    const [namingServiceSelected, setNamingServiceSelected] = useState<string>(
-        namingServices[0].name,
-    );
-
-    // DM3 Name service selected
-    const [dm3NameServiceSelected, setDm3NameServiceSelected] =
-        useState<string>(dm3NamingServices[0].name);
-
-    // changes network on naming service change
-    const changeNetwork = (serviceName: string) => {
-        const chainId = fetchChainIdFromServiceName(
-            serviceName,
-            dm3Configuration.chainId,
-        );
-        if (chainId && chainId !== connectedChainId) {
-            switchNetwork({ chainId });
-        }
-    };
-
     // handles ENS name and address
     useEffect(() => {
-        getEnsName(mainnetProvider, ethAddress!, account!, (name: string) =>
-            setEnsName(name),
+        getEnsName(
+            mainnetProvider,
+            ethAddress!,
+            account!,
+            (name: string) => setEnsName(name),
+            dm3Configuration.addressEnsSubdomain,
         );
     }, [ethAddress]);
 
@@ -86,7 +74,10 @@ export function MobileView() {
                 </div>
             </div>
 
-            {fetchDM3NameComponent(dm3NameServiceSelected)}
+            {fetchDM3NameComponent(
+                dm3NameServiceSelected,
+                dm3Configuration.chainId,
+            )}
 
             {/* ENS Name */}
             <div className="mt-3 d-flex ps-2 align-items-baseline">
@@ -97,7 +88,6 @@ export function MobileView() {
                         value={namingServiceSelected}
                         onChange={(e) => {
                             setNamingServiceSelected(e.target.value);
-                            changeNetwork(e.target.value);
                         }}
                     >
                         {namingServices &&

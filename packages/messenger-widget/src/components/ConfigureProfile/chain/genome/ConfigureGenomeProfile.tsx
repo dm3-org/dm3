@@ -1,40 +1,76 @@
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { SubmitOnChainProfile } from '../SubmitOnChainProfile';
 import { submitGenomeNameTransaction, validateGenomeName } from './bl';
 import { ConfigureProfileContext } from '../../context/ConfigureProfileContext';
-import { GlobalContext } from '../../../../utils/context-utils';
-import { useChainId } from 'wagmi';
+import { useChainId, useSwitchNetwork } from 'wagmi';
 import { AuthContext } from '../../../../context/AuthContext';
 import { ethers } from 'ethers';
 import { IChain, NAME_TYPE } from '../common';
+import { ModalContext } from '../../../../context/ModalContext';
+import { DM3ConfigurationContext } from '../../../../context/DM3ConfigurationContext';
+import { ConfigureDM3NameContext } from '../../context/ConfigureDM3NameContext';
+import { fetchChainIdFromServiceName } from '../../bl';
 
 export const ConfigureGenomeProfile = (props: IChain) => {
-    const { state, dispatch } = useContext(GlobalContext);
+    const connectedChainId = useChainId();
 
-    const chainId = useChainId();
+    const { switchNetwork } = useSwitchNetwork();
+
+    const { setLoaderContent } = useContext(ModalContext);
 
     const { ethAddress, account, deliveryServiceToken } =
         useContext(AuthContext);
 
-    const { onShowError, setExistingEnsName, setEnsName } = useContext(
-        ConfigureProfileContext,
-    );
+    const {
+        onShowError,
+        setExistingEnsName,
+        setEnsName,
+        namingServiceSelected,
+    } = useContext(ConfigureProfileContext);
 
-    const onSubmitTx = async (name: string) => {
-        if (props.chainToConnect !== chainId) {
-            onShowError(NAME_TYPE.ENS_NAME, 'Invalid chain connected');
+    const { setDm3Name } = useContext(ConfigureDM3NameContext);
+
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
+
+    const [gnosisName, setGnosisName] = useState<string>('');
+
+    // changes network on GNO naming service change
+    const changeNetwork = async (gnoName: string) => {
+        const chainId = fetchChainIdFromServiceName(
+            namingServiceSelected,
+            dm3Configuration.chainId,
+        );
+        if (chainId && chainId !== connectedChainId && switchNetwork) {
+            switchNetwork(chainId);
+            setGnosisName(gnoName);
+        } else {
+            await registerAndPublish(gnoName);
+        }
+    };
+
+    const onSubmitTx = async (gnoName: string) => {
+        changeNetwork(gnoName);
+    };
+
+    const registerAndPublish = async (name: string) => {
+        if (props.chainToConnect !== connectedChainId) {
+            onShowError(
+                NAME_TYPE.ENS_NAME,
+                'Invalid chain connected. Please switch to Gnosis network.',
+            );
             return;
         }
         const provider = new ethers.providers.Web3Provider(
             window.ethereum as ethers.providers.ExternalProvider,
         );
-        submitGenomeNameTransaction(
+        await submitGenomeNameTransaction(
             provider,
             deliveryServiceToken!,
             account!,
-            dispatch,
+            setLoaderContent,
             name,
             ethAddress!,
+            dm3Configuration.genomeRegistryAddress,
             (str: string) => setExistingEnsName(str),
             onShowError,
         );
@@ -42,12 +78,35 @@ export const ConfigureGenomeProfile = (props: IChain) => {
 
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         onShowError(undefined, '');
+        setDm3Name('');
         const check = validateGenomeName(e.target.value);
         setEnsName(e.target.value);
         if (!check) {
             onShowError(NAME_TYPE.ENS_NAME, 'Invalid GNO name');
         }
     };
+
+    // on change of network by user, GNO name is published
+    useEffect(() => {
+        if (
+            connectedChainId ===
+                fetchChainIdFromServiceName(
+                    namingServiceSelected,
+                    dm3Configuration.chainId,
+                ) &&
+            gnosisName.length
+        ) {
+            registerAndPublish(gnosisName);
+        }
+    }, [connectedChainId]);
+
+    // on change of dropdown selected, error vanishes
+    useEffect(() => {
+        onShowError(undefined, '');
+        setEnsName('');
+    }, [namingServiceSelected]);
+
+    const propertyName = 'GNO Name';
 
     const label =
         'To publish your dm3 profile, a transaction is sent to set a text record in your GNO name.' +
@@ -60,6 +119,7 @@ export const ConfigureGenomeProfile = (props: IChain) => {
     const placeholder = 'Enter your GNO name connected to your wallet';
     return (
         <SubmitOnChainProfile
+            propertyName={propertyName}
             handleNameChange={handleNameChange}
             label={label}
             note={note}

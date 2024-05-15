@@ -1,7 +1,8 @@
 import { Redis, RedisPrefix } from '../getDatabase';
 import { getIdEnsName } from '../getIdEnsName';
-import { IOtp, NotificationChannelType } from '@dm3-org/dm3-lib-delivery';
+import { IOtp } from '@dm3-org/dm3-lib-delivery';
 import { SEPARATION_OPERATOR } from './setOtp';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 
 export function getOtp(redis: Redis) {
     return async (

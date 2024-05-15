@@ -1,55 +1,46 @@
+import './Contacts.css';
 import { useContext, useEffect, useState } from 'react';
 import loader from '../../assets/images/loader.svg';
 import threeDotsIcon from '../../assets/images/three-dots.svg';
 import { ConversationContext } from '../../context/ConversationContext';
 import { MessageContext } from '../../context/MessageContext';
-import { DashboardProps } from '../../interfaces/props';
-import { GlobalContext } from '../../utils/context-utils';
 import {
+    MessageActionType,
     RightViewSelected,
-    UiViewStateType,
 } from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
-import './Contacts.css';
 import { showMenuInBottom } from './bl';
 import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
 import { ContactPreview } from '../../interfaces/utils';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
 
-export function Contacts(props: DashboardProps) {
-    // fetches context api data
-    const { state, dispatch } = useContext(GlobalContext);
+export function Contacts() {
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
+    const { getMessages, getUnreadMessageCount } = useContext(MessageContext);
+    const { selectedRightView, setSelectedRightView } =
+        useContext(UiViewContext);
     const { contacts, setSelectedContactName, selectedContact } =
         useContext(ConversationContext);
+    const { setLastMessageAction } = useContext(ModalContext);
 
-    const { getMessages, getUnreadMessageCount } = useContext(MessageContext);
     const [isMenuAlignedAtBottom, setIsMenuAlignedAtBottom] = useState<
         boolean | null
     >(null);
 
-    // handles active contact removal
-    // move to a better place (profile window) and Contact Info
     useEffect(() => {
         if (
-            selectedContact &&
-            state.uiView.selectedRightView !== RightViewSelected.Chat &&
-            state.uiView.selectedRightView !== RightViewSelected.ContactInfo
-        ) {
-            setSelectedContactName(undefined);
-        }
-    }, [state.uiView.selectedRightView]);
-
-    useEffect(() => {
-        if (
-            !props.dm3Props.config.showContacts &&
-            props.dm3Props.config.defaultContact &&
+            !dm3Configuration.showContacts &&
+            dm3Configuration.defaultContact &&
             contacts
         ) {
             // set the default contact
-            setSelectedContactName(props.dm3Props.config.defaultContact);
+            setSelectedContactName(dm3Configuration.defaultContact);
 
             // filter out the default contact from contact list
             const defContact = contacts.filter(
-                (data) => data.name === props.dm3Props.config.defaultContact,
+                (data) => data.name === dm3Configuration.defaultContact,
             );
 
             if (defContact.length) {
@@ -60,10 +51,7 @@ export function Contacts(props: DashboardProps) {
             }
 
             // show chat screen
-            dispatch({
-                type: UiViewStateType.SetSelectedRightView,
-                payload: RightViewSelected.Chat,
-            });
+            setSelectedRightView(RightViewSelected.Chat);
         }
     }, [contacts]);
 
@@ -81,7 +69,7 @@ export function Contacts(props: DashboardProps) {
     };
 
     /* Hidden content for highlighting css */
-    const hiddenData: number[] = Array.from({ length: 22 }, (_, i) => i + 1);
+    const hiddenData: number[] = Array.from({ length: 44 }, (_, i) => i + 1);
 
     const scroller = document.getElementById('chat-scroller');
 
@@ -132,18 +120,21 @@ export function Contacts(props: DashboardProps) {
                                         : '',
                                 )}
                                 onClick={() => {
+                                    // On change of contact, message action is set to none
+                                    // so that it automatically scrolls to latest message.
+                                    setLastMessageAction(
+                                        MessageActionType.NONE,
+                                    );
                                     setSelectedContactName(
                                         data.contactDetails.account.ensName,
                                     );
                                     if (
-                                        state.uiView.selectedRightView !==
+                                        selectedRightView !==
                                         RightViewSelected.Chat
                                     ) {
-                                        // show chat screen
-                                        dispatch({
-                                            type: UiViewStateType.SetSelectedRightView,
-                                            payload: RightViewSelected.Chat,
-                                        });
+                                        setSelectedRightView(
+                                            RightViewSelected.Chat,
+                                        );
                                     }
                                     setIsMenuAlignedAtBottom(
                                         showMenuInBottom(
@@ -257,33 +248,18 @@ export function Contacts(props: DashboardProps) {
                 })}
 
             {/* Hidden content for highlighting css */}
-            {contacts.length < 10 &&
-                hiddenData.map((data) => (
-                    <div
-                        key={data}
-                        className={
-                            selectedContact
-                                ? 'highlight-right-border'
-                                : 'highlight-right-border-none'
-                        }
-                    >
-                        <div className="hidden-data"></div>
-                    </div>
-                ))}
-
-            {contacts.length >= 10 &&
-                hiddenData.slice(11).map((data) => (
-                    <div
-                        key={data}
-                        className={
-                            selectedContact
-                                ? 'highlight-right-border'
-                                : 'highlight-right-border-none'
-                        }
-                    >
-                        <div className="hidden-data"></div>
-                    </div>
-                ))}
+            {hiddenData.map((data) => (
+                <div
+                    key={data}
+                    className={
+                        selectedContact
+                            ? 'highlight-right-border'
+                            : 'highlight-right-border-none'
+                    }
+                >
+                    <div className="hidden-data"></div>
+                </div>
+            ))}
         </div>
     );
 }

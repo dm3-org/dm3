@@ -1,7 +1,8 @@
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import { Redis, RedisPrefix } from '../getDatabase';
 import { getIdEnsName } from '../getIdEnsName';
-import { IOtp, NotificationChannelType } from '@dm3-org/dm3-lib-delivery';
+import { IOtp } from '@dm3-org/dm3-lib-delivery';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 
 export const SEPARATION_OPERATOR = '=';
 

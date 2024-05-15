@@ -30,8 +30,12 @@ export interface MessageMetadata {
 export interface Message {
     message?: string;
     metadata: MessageMetadata;
-    attachments?: string[];
+    attachments?: Attachment[];
     signature: string;
+}
+export interface Attachment {
+    name?: string;
+    data: string;
 }
 
 export type MessageType =
@@ -86,7 +90,7 @@ async function internalCreateMessage(
     message: string,
     privateKey: string,
     type?: MessageType,
-    attachments?: string[],
+    attachments?: Attachment[],
     referenceMessageHash?: string,
 ): Promise<Message> {
     const messgeWithoutSig: Omit<Message, 'signature'> = {
@@ -122,7 +126,7 @@ export async function createMessage(
     from: string,
     message: string,
     privateKey: string,
-    attachments?: string[],
+    attachments?: Attachment[],
 ): Promise<Message> {
     return internalCreateMessage(
         to,
@@ -179,7 +183,7 @@ export async function createEditMessage(
     message: string,
     privateKey: string,
     referenceMessageHash: string,
-    attachments?: string[],
+    attachments?: Attachment[],
 ): Promise<Message> {
     return internalCreateMessage(
         to,
@@ -208,7 +212,7 @@ export async function createReplyMessage(
     message: string,
     privateKey: string,
     referenceMessageHash: string,
-    attachments?: string[],
+    attachments?: Attachment[],
 ): Promise<Message> {
     return internalCreateMessage(
         to,

@@ -27,6 +27,7 @@ import {
     socketAuth,
 } from './utils';
 import Notifications from './notifications';
+import { WebSocketManager } from './ws/WebSocketManager';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -48,6 +49,7 @@ global.logger = winston.createLogger({
 });
 
 (async () => {
+    //TODO REPLACE WITH WS MANAGER
     const io = new Server(server, {
         cors: {
             origin: '*',
@@ -66,6 +68,11 @@ global.logger = winston.createLogger({
     app.locals.web3Provider = await getWeb3Provider(process.env);
 
     app.use(logRequest);
+    app.locals.webSocketManager = new WebSocketManager(
+        io,
+        app.locals.web3Provider,
+        app.locals.db,
+    );
 
     app.get('/hello', (req, res) => {
         return res.send('Hello DM3');

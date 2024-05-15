@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+import '../../styles/profile-contact.css';
 import { ethers } from 'ethers';
 import { useContext, useEffect, useState } from 'react';
 import copyIcon from '../../assets/images/copy.svg';
@@ -6,28 +6,25 @@ import closeIcon from '../../assets/images/cross.svg';
 import profilePic from '../../assets/images/human.svg';
 import { ConversationContext } from '../../context/ConversationContext';
 import { useMainnetProvider } from '../../hooks/mainnetprovider/useMainnetProvider';
-import '../../styles/profile-contact.css';
-import { GlobalContext } from '../../utils/context-utils';
 import { onClose, openEnsProfile, openEtherscan } from '../../utils/ens-utils';
-import {
-    ModalStateType,
-    RightViewSelected,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
+import { RightViewSelected } from '../../utils/enum-type-utils';
 import { Button } from '../Button/Button';
 import { EnsDetails } from '../EnsDetails/EnsDetails';
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
 
 export function ContactInfo() {
-    const { state, dispatch } = useContext(GlobalContext);
     const { selectedContact, setSelectedContactName, hideContact } =
         useContext(ConversationContext);
-
-    const mainnetProvider = useMainnetProvider();
     const { dm3Configuration, screenWidth } = useContext(
         DM3ConfigurationContext,
     );
+    const { setSelectedRightView } = useContext(UiViewContext);
+    const { setLoaderContent } = useContext(ModalContext);
+
+    const mainnetProvider = useMainnetProvider();
 
     const [address, setAddress] = useState<string>('');
 
@@ -54,19 +51,13 @@ export function ContactInfo() {
         }
         hideContact(selectedContact.contactDetails.account.ensName);
         //Close the message Modal and show the default one instead
-        dispatch({
-            type: UiViewStateType.SetSelectedRightView,
-            payload: RightViewSelected.Default,
-        });
+        setSelectedRightView(RightViewSelected.Default);
     };
 
     useEffect(() => {
         const fetchAddress = async () => {
             if (selectedContact) {
-                dispatch({
-                    type: ModalStateType.LoaderContent,
-                    payload: 'Fetching contact details...',
-                });
+                setLoaderContent('Fetching contact details...');
                 startLoader();
                 const _address = await getAddress(
                     selectedContact.contactDetails.account.ensName ?? '',
@@ -91,7 +82,7 @@ export function ContactInfo() {
                     alt="close"
                     onClick={() =>
                         onClose(
-                            dispatch,
+                            setSelectedRightView,
                             setSelectedContactName,
                             screenWidth,
                             dm3Configuration.showContacts,

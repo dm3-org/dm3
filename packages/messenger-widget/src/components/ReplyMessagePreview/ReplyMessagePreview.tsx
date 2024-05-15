@@ -1,26 +1,20 @@
 import './ReplyMessagePreview.css';
 import { useContext } from 'react';
 import closeIcon from '../../assets/images/cross.svg';
-import { GlobalContext } from '../../utils/context-utils';
-import {
-    MessageActionType,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
+import { MessageActionType } from '../../utils/enum-type-utils';
 import { ReplyMessagePreviewProps } from '../../interfaces/props';
+import { UiViewContext } from '../../context/UiViewContext';
 
 export function ReplyMessagePreview(props: ReplyMessagePreviewProps) {
-    const { state, dispatch } = useContext(GlobalContext);
+    const { messageView, setMessageView } = useContext(UiViewContext);
 
-    const fromAddress = state.uiView.selectedMessageView.messageData?.envelop
-        .message.metadata.from as string;
+    const fromAddress = messageView.messageData?.envelop.message.metadata
+        .from as string;
 
     function cancelReply() {
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                messageData: undefined,
-                actionType: MessageActionType.NONE,
-            },
+        setMessageView({
+            actionType: MessageActionType.NONE,
+            messageData: undefined,
         });
         props.setFiles([]);
     }
@@ -34,7 +28,7 @@ font-weight-400 d-flex justify-content-between"
                 {fromAddress}:
                 <div className="text-primary-color">
                     {' ' +
-                        state.uiView.selectedMessageView.messageData?.message
+                        messageView.messageData?.message
                             .substring(0, 20)
                             .concat('...')}
                 </div>

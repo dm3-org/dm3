@@ -2,7 +2,6 @@ import { createAlias } from '@dm3-org/dm3-lib-delivery-api';
 import { Account, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { ethersHelper, stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
-import { Actions, ModalStateType } from '../../../../utils/enum-type-utils';
 import { closeLoader, startLoader } from '../../../Loader/Loader';
 import { NAME_TYPE } from '../common';
 
@@ -48,18 +47,14 @@ export const submitEnsNameTransaction = async (
     account: Account,
     ethAddress: string,
     dsToken: string,
-    dispatch: React.Dispatch<Actions>,
+    setLoaderContent: (content: string) => void,
     ensName: string,
     setEnsNameFromResolver: Function,
     setError: (type: NAME_TYPE | undefined, msg: string) => void,
 ) => {
     try {
         // start loader
-        dispatch({
-            type: ModalStateType.LoaderContent,
-            payload: 'Publishing profile...',
-        });
-
+        setLoaderContent('Publishing profile...');
         startLoader();
 
         const isValid = await isEnsNameValid(
@@ -79,7 +74,7 @@ export const submitEnsNameTransaction = async (
             account,
             ensName!,
         );
-        //TODO Handle crosschain transaction
+
         if (tx) {
             await createAlias(
                 account!,

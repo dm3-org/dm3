@@ -3,9 +3,7 @@ import { Account, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { ethersHelper, stringify } from '@dm3-org/dm3-lib-shared';
 import { getConractInstance } from '@dm3-org/dm3-lib-shared/dist/ethersHelper';
 import { ethers } from 'ethers';
-import { Actions, ModalStateType } from '../../../../utils/enum-type-utils';
 import { closeLoader, startLoader } from '../../../Loader/Loader';
-
 import { Address, namehash, toHex } from 'viem';
 import { NAME_TYPE } from '../common';
 
@@ -25,6 +23,7 @@ export const isGenomeNameValid = async (
     provider: ethers.providers.StaticJsonRpcProvider,
     ensName: string,
     ethAddress: string,
+    genomeRegistryAddress: string,
     setError: (type: NAME_TYPE | undefined, msg: string) => void,
 ) => {
     const isValidEnsName = ethers.utils.isValidName(ensName);
@@ -37,9 +36,6 @@ export const isGenomeNameValid = async (
         setError(NAME_TYPE.ENS_NAME, 'Genome name has to end with ');
         return false;
     }
-
-    //TODO move to props
-    const genomeRegistryAddress = '0x5dC881dDA4e4a8d312be3544AD13118D1a04Cb17';
 
     const genomeRegistry = getConractInstance(
         genomeRegistryAddress,
@@ -112,25 +108,23 @@ export const submitGenomeNameTransaction = async (
     provider: ethers.providers.StaticJsonRpcProvider,
     dsToken: string,
     account: Account,
-    dispatch: React.Dispatch<Actions>,
+    setLoaderContent: (content: string) => void,
     ensName: string,
     ethAddress: string,
+    genomeRegistryAddress: string,
     setEnsNameFromResolver: Function,
     setError: (type: NAME_TYPE | undefined, msg: string) => void,
 ) => {
     try {
         // start loader
-        dispatch({
-            type: ModalStateType.LoaderContent,
-            payload: 'Publishing profile...',
-        });
-
+        setLoaderContent('Publishing profile...');
         startLoader();
 
         const isValid = await isGenomeNameValid(
             provider,
             ensName,
             ethAddress,
+            genomeRegistryAddress,
             setError,
         );
 
@@ -144,7 +138,7 @@ export const submitGenomeNameTransaction = async (
             account,
             ensName!,
         );
-        //TODO Handle crosschain transaction
+
         if (tx) {
             await createAlias(
                 account!,

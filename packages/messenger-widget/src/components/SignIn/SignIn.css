@@ -34,7 +34,7 @@
 
 .sign-in-logo {
     height: auto !important;
-    width: 100% !important;
+    width: 200px;
     fill: var(--text-primary-color) !important;
 }
 
@@ -90,10 +90,6 @@
 
     .details{
         line-height: 17px !important;
-    }
-
-    .sign-in-logo {
-        width: 50% !important;
     }
 
     .wal-not-connected {

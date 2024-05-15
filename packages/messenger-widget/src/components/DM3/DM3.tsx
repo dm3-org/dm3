@@ -1,15 +1,26 @@
 import { useContext, useEffect } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import { Dm3Props } from '../../interfaces/config';
-import Dashboard from '../../views/Dashboard/Dashboard';
-import { SignIn } from '../SignIn/SignIn';
+import { ConversationContextProvider } from '../../context/ConversationContext';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
-import { ethers } from 'ethers';
+import { MessageContextProvider } from '../../context/MessageContext';
+import { ModalContext } from '../../context/ModalContext';
+import { Dm3Props } from '../../interfaces/config';
+import { SiweValidityStatus } from '../../utils/enum-type-utils';
+import Dashboard from '../../views/Dashboard/Dashboard';
+import { Loader, startLoader } from '../Loader/Loader';
+import { SignIn } from '../SignIn/SignIn';
+import { Siwe } from '../Siwe/Siwe';
+import { NotificationContextProvider } from '../../context/NotificationContext';
 
 function DM3(props: Dm3Props) {
-    const { setDm3Configuration, setScreenWidth } = useContext(
-        DM3ConfigurationContext,
-    );
+    const {
+        setDm3Configuration,
+        setScreenWidth,
+        setSiweValidityStatus,
+        validateSiweCredentials,
+    } = useContext(DM3ConfigurationContext);
+
+    const { setLoaderContent } = useContext(ModalContext);
 
     const { isLoggedIn } = useContext(AuthContext);
 
@@ -21,7 +32,7 @@ function DM3(props: Dm3Props) {
         }
 
         // sets the DM3 confguration provided from props
-        setDm3Configuration(props.dm3Configuration);
+        setDm3Configuration(props.config);
     }, []);
 
     // This handles the responsive check of widget
@@ -35,79 +46,39 @@ function DM3(props: Dm3Props) {
         };
     }, []);
 
+    // validate SIWE credentials
     useEffect(() => {
-        const fn = async () => {
-            const reverseRecord = `${'0x9a0b49ee9562f042112fd5d2e34dbef7a3f690f5'
-                .slice(2)
-                .toLowerCase()}.addr.reverse`;
-
-            const reverseNode = ethers.utils.namehash(reverseRecord);
-
-            console.log('reverseNode', reverseNode);
-
-            const name = 'ojmoinmkmji.op.dm3.eth';
-            const node = ethers.utils.namehash(name);
-
-            console.log('node', node);
-            const rpc =
-                'https://eth-sepolia.g.alchemy.com/v2/cBTHRhVcZ3Vt4BOFpA_Hi5DcTB1KQQV1';
-            const provider = new ethers.providers.JsonRpcProvider(rpc, {
-                name: 'sepolia',
-                chainId: 11155111,
-                ensAddress: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e',
-            });
-
-            const resolver = new ethers.providers.Resolver(
-                provider,
-                '0x2BAD1FeC0a2629757470984284C11EA00adB8E6F',
-                name,
-            );
-
-            console.log('resolver', resolver);
-            const i = new ethers.utils.Interface([
-                //0xa700fc32000000000000000000000000f5b24cd05d6e6e9b8ac2b97cd90c38a8f2df57fb
-                'function addr(bytes32) returns(address)',
-                //0xa700fc32000000000000000000000000f5b24cd05d6e6e9b8ac2b97cd90c38a8f2df57fb
-                'function text(bytes32 node, string calldata key) external view returns (string memory)',
-                'function resolve(bytes,bytes) returns (bytes memory result)',
-            ]);
-            const innerReq = i.encodeFunctionData('addr', [node]);
-            const outerReq = i.encodeFunctionData('resolve', [
-                ethers.utils.dnsEncode(name),
-                innerReq,
-            ]);
-
-            const res = await provider.call({
-                to: '0x2BAD1FeC0a2629757470984284C11EA00adB8E6F',
-                data: outerReq,
-                ccipReadEnabled: true,
-            });
-
-            console.log('res', res);
-
-            //decode function result
-
-            const decoded = i.decodeFunctionResult('resolve', res);
-
-            console.log('decoded', decoded);
+        const validateSiwe = async () => {
+            if (props.config.siwe) {
+                setLoaderContent('Validating SIWE credentials');
+                startLoader();
+                setSiweValidityStatus(SiweValidityStatus.IN_PROGRESS);
+                await validateSiweCredentials(props.config.siwe);
+            }
         };
-        fn();
+        validateSiwe();
     }, []);
 
     return (
         <div id="data-rk-child" className="h-100">
-            {!isLoggedIn ? (
-                <SignIn
-                    hideStorageSelection={props.config.hideStorageSelection}
-                    defaultStorageLocation={props.config.defaultStorageLocation}
-                    miniSignIn={props.config.miniSignIn}
-                    signInImage={props.config.signInImage as string}
-                />
-            ) : (
-                <div className="h-100 background-container">
-                    <Dashboard dm3Props={props} />
-                </div>
-            )}
+            <ConversationContextProvider config={props.config}>
+                <MessageContextProvider>
+                    <Loader />
+                    {!isLoggedIn ? (
+                        props.config.siwe ? (
+                            <Siwe backgroundImage={props.config.signInImage} />
+                        ) : (
+                            <SignIn />
+                        )
+                    ) : (
+                        <NotificationContextProvider>
+                            <div className="h-100 background-container">
+                                <Dashboard />
+                            </div>
+                        </NotificationContextProvider>
+                    )}
+                </MessageContextProvider>
+            </ConversationContextProvider>
         </div>
     );
 }

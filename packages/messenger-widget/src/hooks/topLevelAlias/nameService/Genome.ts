@@ -1,21 +1,25 @@
 import { ethers } from 'ethers';
 import { ITLDResolver, TLDResolver } from './TLDResolver';
 import { createWeb3Name } from '@web3-name-sdk/core';
-import { globalConfig } from '@dm3-org/dm3-lib-shared';
 
 const TOP_LEVEL_DOMAIN = '.gno';
 //Change to .gnosis as soon as they changed the resolver in their governance
 const TOP_LEVEL_ALIAS = '.alex1234.eth';
 
-function getIdForAddress(address: string) {
-    return address + globalConfig.ADDR_ENS_SUBDOMAIN();
+function getIdForAddress(address: string, addrEnsSubdomain: string) {
+    return address + addrEnsSubdomain;
 }
 
 export class Genome implements ITLDResolver {
     private readonly provider: ethers.providers.JsonRpcProvider;
+    private readonly addrEnsSubdomain: string;
 
-    constructor(provider: ethers.providers.JsonRpcProvider) {
+    constructor(
+        provider: ethers.providers.JsonRpcProvider,
+        addrEnsSubdomain: string,
+    ) {
         this.provider = provider;
+        this.addrEnsSubdomain = addrEnsSubdomain;
     }
     //e.g. max.gno => 0x1234.addr.dm3.eth
     async isResolverForTldName(ensName: string): Promise<boolean> {
@@ -34,7 +38,10 @@ export class Genome implements ITLDResolver {
         if (!address) {
             throw new Error('No address found for ' + ensName);
         }
-        return getIdForAddress(ethers.utils.getAddress(address));
+        return getIdForAddress(
+            ethers.utils.getAddress(address),
+            this.addrEnsSubdomain,
+        );
     }
     //e.g. 0x1234.addr.dm3.eth => max.gno
     async isResolverForAliasName(ensName: string): Promise<boolean> {

@@ -1,6 +1,5 @@
 import { NAME_TYPE } from '../chain/common';
 import { AuthContext } from '../../../context/AuthContext';
-import { GlobalContext } from '../../../utils/context-utils';
 import React, { useContext, useEffect, useState } from 'react';
 import { ConfigureProfileContext } from './ConfigureProfileContext';
 import { DM3ConfigurationContext } from '../../../context/DM3ConfigurationContext';
@@ -11,6 +10,7 @@ import {
     removeAliasFromDm3Name,
     validateName,
 } from '../bl';
+import { ModalContext } from '../../../context/ModalContext';
 
 export interface ConfigureDM3NameContextType {
     existingDm3Name: string | null;
@@ -63,11 +63,13 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
 
     const mainnetProvider = useMainnetProvider();
 
-    const { dispatch } = useContext(GlobalContext);
+    const { setLoaderContent } = useContext(ModalContext);
 
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
-    const { setEnsName, onShowError } = useContext(ConfigureProfileContext);
+    const { setEnsName, onShowError, dm3NameServiceSelected } = useContext(
+        ConfigureProfileContext,
+    );
 
     const { account, ethAddress, deliveryServiceToken, profileKeys } =
         useContext(AuthContext);
@@ -82,10 +84,8 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
         type: NAME_TYPE,
     ) => {
         onShowError(undefined, '');
-        const check = validateName(e.target.value);
         setDm3Name(e.target.value);
         setEnsName('');
-        !check && setError('Invalid name', NAME_TYPE.DM3_NAME);
     };
 
     // handles claim or delete DM3 user name
@@ -100,15 +100,18 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
                 onShowError(NAME_TYPE.DM3_NAME, 'DM3 name cannot be empty');
                 return;
             }
+            const validityCheck = validateName(name, dm3NameServiceSelected);
+            if (!validityCheck.isValid) {
+                setError(validityCheck.error, NAME_TYPE.DM3_NAME);
+                return;
+            }
             await submitDm3UsernameClaim(name);
         } else {
             const result = await removeAliasFromDm3Name(
                 dm3Configuration.resolverBackendUrl,
                 profileKeys!,
-                account!,
-                ethAddress!,
                 existingDm3Name as string,
-                dispatch,
+                setLoaderContent,
                 setError,
             );
             result && setExistingDm3Name(null);
@@ -127,6 +130,8 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
                 mainnetProvider,
                 account!,
                 setExistingDm3Name,
+                dm3Configuration.addressEnsSubdomain,
+                dm3Configuration.userEnsSubdomain,
             );
         }
     }, [account]);

@@ -1,21 +1,19 @@
+import './Chat.css';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { MessageContext } from '../../context/MessageContext';
 import { MessageModel } from '../../hooks/messages/useMessage';
-import { HideFunctionProps } from '../../interfaces/props';
 import { MOBILE_SCREEN_WIDTH } from '../../utils/common-utils';
-import { GlobalContext } from '../../utils/context-utils';
 import { MessageActionType } from '../../utils/enum-type-utils';
 import ConfigProfileAlertBox from '../ContactProfileAlertBox/ContactProfileAlertBox';
 import { Message } from '../Message/Message';
 import { MessageInputBox } from '../MessageInputBox/MessageInputBox';
-import './Chat.css';
 import { scrollToBottomOfChat } from './scrollToBottomOfChat';
+import { ModalContext } from '../../context/ModalContext';
 
-export function Chat(props: HideFunctionProps) {
-    const { state } = useContext(GlobalContext);
+export function Chat() {
     const { account } = useContext(AuthContext);
     const { selectedContact, contacts, setSelectedContactName } =
         useContext(ConversationContext);
@@ -23,6 +21,7 @@ export function Chat(props: HideFunctionProps) {
         DM3ConfigurationContext,
     );
     const { getMessages, contactIsLoading } = useContext(MessageContext);
+    const { lastMessageAction } = useContext(ModalContext);
 
     const [isProfileConfigured, setIsProfileConfigured] =
         useState<boolean>(false);
@@ -52,14 +51,9 @@ export function Chat(props: HideFunctionProps) {
         setShowShimEffect(isLoading);
     }, [contactIsLoading]);
 
-    // if new message is found scroll based on message type
+    // scrolls to bottom of chat when messages are loaded
     useEffect(() => {
-        if (
-            messages.length &&
-            (state.modal.lastMessageAction === MessageActionType.NONE ||
-                state.modal.lastMessageAction === MessageActionType.REPLY ||
-                state.modal.lastMessageAction === MessageActionType.NEW)
-        ) {
+        if (messages.length && lastMessageAction === MessageActionType.NONE) {
             scrollToBottomOfChat();
         }
     }, [messages]);
@@ -98,7 +92,10 @@ export function Chat(props: HideFunctionProps) {
                         ? 'highlight-chat-border'
                         : 'highlight-chat-border-none',
                 )
-                .concat(' ', !props.showContacts ? ' ps-2 pe-2' : '')}
+                .concat(
+                    ' ',
+                    !dm3Configuration.showContacts ? ' ps-2 pe-2' : '',
+                )}
         >
             {/* Shimmer effect while messages are loading */}
             {showShimEffect && (
@@ -186,7 +183,7 @@ export function Chat(props: HideFunctionProps) {
                     </div>
 
                     {/* Message, emoji and file attachments */}
-                    <MessageInputBox hideFunction={props.hideFunction} />
+                    <MessageInputBox />
                 </>
             )}
         </div>

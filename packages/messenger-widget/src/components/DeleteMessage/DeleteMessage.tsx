@@ -1,32 +1,29 @@
-import { createDeleteRequestMessage } from '@dm3-org/dm3-lib-messaging';
+import './DeleteMessage.css';
+import '../../styles/modal.css';
 import { useContext } from 'react';
+import { createDeleteRequestMessage } from '@dm3-org/dm3-lib-messaging';
 import closeIcon from '../../assets/images/cross.svg';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { MessageContext } from '../../context/MessageContext';
-import '../../styles/modal.css';
-import { GlobalContext } from '../../utils/context-utils';
-import {
-    MessageActionType,
-    ModalStateType,
-    UiViewStateType,
-} from '../../utils/enum-type-utils';
-import './DeleteMessage.css';
+import { MessageActionType } from '../../utils/enum-type-utils';
+import { UiViewContext } from '../../context/UiViewContext';
+import { ModalContext } from '../../context/ModalContext';
 
 export default function DeleteMessage() {
-    const { state, dispatch } = useContext(GlobalContext);
     const { selectedContact } = useContext(ConversationContext);
     const { addMessage } = useContext(MessageContext);
-    const { account, deliveryServiceToken, profileKeys } =
-        useContext(AuthContext);
+    const { account, profileKeys } = useContext(AuthContext);
+    const { messageView, setMessageView } = useContext(UiViewContext);
+    const { setLastMessageAction } = useContext(ModalContext);
+
+    const resetMessageView = {
+        actionType: MessageActionType.NONE,
+        messageData: undefined,
+    };
+
     const closeModal = () => {
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                actionType: MessageActionType.NONE,
-                messageData: undefined,
-            },
-        });
+        setMessageView(resetMessageView);
     };
 
     const deleteMessage = async () => {
@@ -35,16 +32,9 @@ export default function DeleteMessage() {
         }
 
         const messageHash =
-            state.uiView.selectedMessageView.messageData?.envelop.metadata
-                ?.encryptedMessageHash;
+            messageView.messageData?.envelop.metadata?.encryptedMessageHash;
 
-        dispatch({
-            type: UiViewStateType.SetMessageView,
-            payload: {
-                actionType: MessageActionType.NONE,
-                messageData: undefined,
-            },
-        });
+        setMessageView(resetMessageView);
 
         // delete the message
         const messageData = await createDeleteRequestMessage(
@@ -56,10 +46,7 @@ export default function DeleteMessage() {
 
         await addMessage(messageData.metadata.to, messageData);
 
-        dispatch({
-            type: ModalStateType.LastMessageAction,
-            payload: MessageActionType.NONE,
-        });
+        setLastMessageAction(MessageActionType.DELETE);
     };
 
     return (

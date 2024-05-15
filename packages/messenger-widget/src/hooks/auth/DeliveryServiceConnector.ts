@@ -19,7 +19,7 @@ import {
     submitUserProfile,
 } from '@dm3-org/dm3-lib-delivery-api';
 import { createProfileKeys as _createProfileKeys } from '@dm3-org/dm3-lib-profile';
-import { globalConfig, stringify } from '@dm3-org/dm3-lib-shared';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 import { GetWalletClientResult } from '@wagmi/core';
 import axios from 'axios';
 import { ethers } from 'ethers';
@@ -31,20 +31,20 @@ export type ConnectDsResult = {
     deliveryServiceToken: string;
     profileKeys: ProfileKeys;
 };
+//Interface to support different kinds of signers
+export type SignMessageFn = (message: string) => Promise<string>;
 
 export const DeliveryServiceConnector = (
     dm3Configuration: DM3Configuration,
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
-    walletClient: GetWalletClientResult,
+    signMessage: SignMessageFn,
     address: string,
+    defaultDeliveryService: string,
+    addrEnsSubdomain: string,
 ) => {
     async function createProfileKeys(
         nonce: string = DEFAULT_NONCE,
     ): Promise<ProfileKeys> {
-        if (!walletClient) {
-            throw Error('No wallet client');
-        }
-
         if (!address) {
             throw Error('No eth address');
         }
@@ -54,17 +54,13 @@ export const DeliveryServiceConnector = (
             address,
         );
 
-        //For what ever reason the wallet client is not typed
-        //@ts-ignore
-        const signature = await walletClient.signMessage({
-            message: storageKeyCreationMessage,
-        });
-
+        const signature = await signMessage(storageKeyCreationMessage);
         const storageKey = await createStorageKey(signature);
         return await _createProfileKeys(storageKey, nonce);
     }
     async function profileExistsOnDeliveryService(ensName: string) {
-        //TODO move default url to global config
+        //TODO move default url to global config (Alex)
+        // Tested by changing it to global config, but there is some error from backend (Bhupesh)
         const url = `${dm3Configuration.defaultServiceUrl}/profile/${ensName}`;
         try {
             const { status } = await axios.get(url);
@@ -140,22 +136,18 @@ export const DeliveryServiceConnector = (
             const profile: UserProfile = {
                 publicSigningKey: signingKeyPair.publicKey,
                 publicEncryptionKey: encryptionKeyPair.publicKey,
-                deliveryServices: [globalConfig.DEFAULT_DELIVERY_SERVICE()],
+                deliveryServices: [defaultDeliveryService],
             };
             try {
                 const profileCreationMessage = getProfileCreationMessage(
                     stringify(profile),
                     address!,
                 );
-
-                //@ts-ignore
-                const sig = await walletClient.signMessage({
-                    message: profileCreationMessage,
-                });
+                const signature = await signMessage(profileCreationMessage);
 
                 return {
                     profile,
-                    signature: sig,
+                    signature,
                 } as SignedUserProfile;
             } catch (error: any) {
                 const err = error?.message.split(':');
@@ -174,7 +166,7 @@ export const DeliveryServiceConnector = (
         ) {
             throw Error(`Couldn't claim address subdomain`);
         }
-        const ensName = address + globalConfig.ADDR_ENS_SUBDOMAIN();
+        const ensName = address + addrEnsSubdomain;
 
         const deliveryServiceToken = await submitUserProfile(
             { ensName, profile: signedUserProfile.profile },

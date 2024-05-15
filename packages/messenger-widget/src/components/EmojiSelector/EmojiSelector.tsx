@@ -1,10 +1,9 @@
 import { useContext } from 'react';
 import emojiIcon from '../../assets/images/emoji.svg';
-import { GlobalContext } from '../../utils/context-utils';
-import { ModalStateType } from '../../utils/enum-type-utils';
+import { ModalContext } from '../../context/ModalContext';
 
 export function EmojiSelector() {
-    const { state, dispatch } = useContext(GlobalContext);
+    const { setOpenEmojiPopup, openEmojiPopup } = useContext(ModalContext);
 
     return (
         <span className="d-flex smile-icon">
@@ -15,12 +14,9 @@ export function EmojiSelector() {
                 src={emojiIcon}
                 alt="emoji"
                 onClick={() => {
-                    dispatch({
-                        type: ModalStateType.OpenEmojiPopup,
-                        payload: {
-                            action: !state.modal.openEmojiPopup.action,
-                            data: undefined,
-                        },
+                    setOpenEmojiPopup({
+                        action: !openEmojiPopup.action,
+                        data: undefined,
                     });
                 }}
             />

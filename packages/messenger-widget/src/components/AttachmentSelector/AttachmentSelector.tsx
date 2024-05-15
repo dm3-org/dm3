@@ -1,6 +1,6 @@
 import { ChangeEvent } from 'react';
 import fileIcon from '../../assets/images/file.svg';
-import { Attachment } from '../../interfaces/utils';
+import { IAttachmentPreview } from '../../interfaces/utils';
 import { isFileAImage } from '../MessageInputBox/bl';
 import { AttachmentProps } from '../../interfaces/props';
 import { generateRandomStringForId } from '../../utils/common-utils';
@@ -34,7 +34,7 @@ export function AttachmentSelector(props: AttachmentProps) {
     ) => {
         if (event) {
             const filesData: FileList | null = event.target.files;
-            const fileList: Attachment[] = [];
+            const fileList: IAttachmentPreview[] = [];
             if (filesData) {
                 const files = Array.from(filesData);
                 for (const file of files) {
