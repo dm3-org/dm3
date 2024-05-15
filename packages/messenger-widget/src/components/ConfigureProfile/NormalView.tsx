@@ -72,7 +72,7 @@ export function NormalView() {
                         >
                             {ethAddress &&
                                 ethAddress +
-                                dm3Configuration.addressEnsSubdomain}
+                                    dm3Configuration.addressEnsSubdomain}
                         </p>
                     </div>
                     <div className="address-details">

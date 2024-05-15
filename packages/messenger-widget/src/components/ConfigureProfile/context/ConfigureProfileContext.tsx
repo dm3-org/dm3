@@ -19,16 +19,16 @@ export interface ConfigureProfileContextType {
 export const ConfigureProfileContext =
     React.createContext<ConfigureProfileContextType>({
         existingEnsName: '',
-        setExistingEnsName: (name: string | null) => { },
+        setExistingEnsName: (name: string | null) => {},
         errorMsg: '',
         showError: undefined,
-        onShowError: (type: NAME_TYPE | undefined, msg: string) => { },
+        onShowError: (type: NAME_TYPE | undefined, msg: string) => {},
         ensName: '',
-        setEnsName: (name: string) => { },
+        setEnsName: (name: string) => {},
         dm3NameServiceSelected: '',
-        setDm3NameServiceSelected: (serviceName: string) => { },
+        setDm3NameServiceSelected: (serviceName: string) => {},
         namingServiceSelected: '',
-        setNamingServiceSelected: (serviceName: string) => { },
+        setNamingServiceSelected: (serviceName: string) => {},
     });
 
 export const ConfigureProfileContextProvider = (props: { children?: any }) => {
