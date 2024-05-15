@@ -69,6 +69,19 @@ jobs:
               with:
                   workspace-name: '@dm3-org/dm3-integration-tests'
                   package-pat: ${{ secrets.PACKAGE_PAT }}
+    cli-test:
+        runs-on: ubuntu-latest
+        needs: build
+        defaults:
+            run:
+                working-directory: 'packages/cli'
+        steps:
+            - uses: actions/checkout@v1
+            - id: workspace-test
+              uses: ./test-action
+              with:
+                  workspace-name: '@dm3-org/dm3-cli-tests'
+                  package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-crypto-test:
         runs-on: ubuntu-latest
         needs: build
