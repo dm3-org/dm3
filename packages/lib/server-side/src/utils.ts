@@ -1,15 +1,15 @@
 /* eslint-disable no-console */
-import type { ISessionDatabase } from './iSessionDatabase';
-import { ethers } from 'ethers';
-import { Express, NextFunction, Request, Response } from 'express';
-import { Socket } from 'socket.io';
-import winston from 'winston';
-import { ExtendedError } from 'socket.io/dist/namespace';
+import { checkToken } from '@dm3-org/dm3-lib-delivery';
 import {
     DeliveryServiceProfileKeys,
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
-import { checkToken } from '@dm3-org/dm3-lib-delivery';
+import { ethers } from 'ethers';
+import { NextFunction, Request, Response } from 'express';
+import { Socket } from 'socket.io';
+import { ExtendedError } from 'socket.io/dist/namespace';
+import winston from 'winston';
+import type { ISessionDatabase } from './iSessionDatabase';
 
 export async function auth(
     req: Request,

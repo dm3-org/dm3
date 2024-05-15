@@ -1,10 +1,14 @@
 import bodyParser from 'body-parser';
 import express, { NextFunction, Request, Response } from 'express';
+import { sign, verify } from 'jsonwebtoken';
 import request from 'supertest';
+import winston from 'winston';
 import { auth } from './utils';
-import { sign, verify, JwtPayload } from 'jsonwebtoken';
 
 const serverSecret = 'testSecret';
+winston.loggers.add('default', {
+    transports: [new winston.transports.Console({ level: 'silly' })],
+});
 
 describe('Utils', () => {
     describe('Auth', () => {

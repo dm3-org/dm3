@@ -1,11 +1,11 @@
 import {
     errorHandler,
+    getServerSecret,
     getWeb3Provider,
     logError,
     logRequest,
-    socketAuth,
     readKeysFromEnv,
-    getServerSecret,
+    socketAuth,
 } from '@dm3-org/dm3-lib-server-side';
 import { logInfo } from '@dm3-org/dm3-lib-shared';
 import { Axios } from 'axios';
@@ -14,7 +14,6 @@ import cors from 'cors';
 import 'dotenv/config';
 import express from 'express';
 import http from 'http';
-import path from 'path';
 import { Server } from 'socket.io';
 import winston from 'winston';
 import { startCleanUpPendingMessagesJob } from './cleanup/cleanUpPendingMessages';
