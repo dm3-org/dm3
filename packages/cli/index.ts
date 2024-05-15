@@ -96,7 +96,7 @@ const cli = async () => {
             break;
         }
 
-        case 'onchainDs': {
+        case 'onChainDs': {
             const args = program.opts();
             const { pk, domain, gateway, rpc, profilePk, deliveryService } =
                 args;

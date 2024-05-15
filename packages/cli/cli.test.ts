@@ -323,14 +323,14 @@ describe('cli', () => {
     describe('setup onChain', () => {
         describe('sanitize input', () => {
             it('reverts for unknown input', async () => {
-                const res = await cli('dm3 setup onchainDs --efeh');
+                const res = await cli('dm3 setup onChainDs --efeh');
                 expect(res.stderr).to.equal("error: unknown option '--efeh'");
             });
 
             it('reverts if rpc url is undefined', async () => {
                 const wallet = ethers.Wallet.createRandom();
                 const res = await cli(
-                    `dm3 setup onchainDs --pk ${wallet.privateKey} --domain test.eth`,
+                    `dm3 setup onChainDs --pk ${wallet.privateKey} --domain test.eth`,
                 );
                 expect(res.stderr).to.equal(
                     'error: option --rpc <rpc> argument missing',
@@ -339,7 +339,7 @@ describe('cli', () => {
 
             it('reverts if privateKey is undefined', async () => {
                 const res = await cli(
-                    'dm3 setup onchainDs --rpc www.rpc.io --domain test.eth',
+                    'dm3 setup onChainDs --rpc www.rpc.io --domain test.eth',
                 );
                 expect(res.stderr).to.equal(
                     'error: option --pk <pk> argument missing',
@@ -347,7 +347,7 @@ describe('cli', () => {
             });
             it('reverts if privateKey is invalid', async () => {
                 const res = await cli(
-                    'dm3 setup onchainDs --rpc www.rpc.io --domain test.eth --pk 123',
+                    'dm3 setup onChainDs --rpc www.rpc.io --domain test.eth --pk 123',
                 );
                 expect(res.stderr).to.equal(
                     'error: option --pk <pk> argument invalid',
@@ -356,19 +356,19 @@ describe('cli', () => {
             it('reverts if domain is undefined', async () => {
                 const wallet = ethers.Wallet.createRandom();
                 const res = await cli(
-                    `dm3 setup onchainDs --rpc www.rpc.io --pk ${wallet.privateKey}`,
+                    `dm3 setup onChainDs --rpc www.rpc.io --pk ${wallet.privateKey}`,
                 );
                 expect(res.stderr).to.equal(
                     'error: option --domain <domain> argument missing',
                 );
             });
         });
-        describe('setup onchainDsAll', () => {
+        describe('setup onChainDsAll', () => {
             it('test all', async () => {
                 const owner = ethers.Wallet.createRandom();
 
                 const res = await cli(
-                    `dm3 setup onchainDs 
+                    `dm3 setup onChainDs 
                     --rpc  http://127.0.0.1:8545
                     --pk ${alice.privateKey} 
                     --domain alice.eth 
@@ -400,7 +400,7 @@ describe('cli', () => {
             });
             it('test all with random profile wallet', async () => {
                 const res = await cli(
-                    `dm3 setup onchainDs 
+                    `dm3 setup onChainDs 
                     --rpc  http://127.0.0.1:8545
                     --pk ${alice.privateKey} 
                     --domain alice.eth 
@@ -436,7 +436,7 @@ describe('cli', () => {
                 );
 
                 const res = await cli(
-                    `dm3 setup onchainDs 
+                    `dm3 setup onChainDs 
                     --rpc  http://127.0.0.1:8545
                     --pk ${underfundedWallet.privateKey} 
                     --domain alice.eth 
