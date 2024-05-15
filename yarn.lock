@@ -2049,7 +2049,6 @@ __metadata:
   dependencies:
     "@ensdomains/ens-contracts": ^0.0.22
     "@nomicfoundation/hardhat-chai-matchers": ^2.0.2
-    "@nomiclabs/hardhat-ethers": ^2.2.3
     ccip-resolver: ^0.2.8
     commander: ^11.0.0
     ethers: 5.7.2
@@ -4753,7 +4752,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nomiclabs/hardhat-ethers@npm:^2.0.3, @nomiclabs/hardhat-ethers@npm:^2.2.3":
+"@nomiclabs/hardhat-ethers@npm:^2.0.3":
   version: 2.2.3
   resolution: "@nomiclabs/hardhat-ethers@npm:2.2.3"
   peerDependencies:

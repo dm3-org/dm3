@@ -1,21 +1,21 @@
 import {
-    ENSRegistry__factory,
-    ERC3668Resolver__factory,
-} from 'ccip-resolver/dist/typechain/';
-import { expect } from 'chai';
-import { Wallet } from 'ethers';
-import execa from 'execa';
-import { ethers } from 'hardhat';
-
-import publicResolverArtifact from '@ensdomains/resolver/build/contracts/PublicResolver.json';
-import {
     createKeyPair,
     createSigningKeyPair,
     createStorageKey,
 } from '@dm3-org/dm3-lib-crypto';
+import publicResolverArtifact from '@ensdomains/resolver/build/contracts/PublicResolver.json';
+import {
+    ENSRegistry__factory,
+    ERC3668Resolver__factory,
+} from 'ccip-resolver/dist/typechain/';
+import { expect } from 'chai';
+import { Wallet, ethers } from 'ethers';
+import execa from 'execa';
+
+const hre = require('hardhat');
+
 describe('cli', () => {
     let alice, owner: Wallet;
-    let rpc: string;
     let ensRegistry, publicResolver, erc3668Resolver;
 
     afterEach(async () => {
@@ -25,17 +25,26 @@ describe('cli', () => {
     });
 
     beforeEach(async () => {
+        //await hre.network.provider.send('hardhat_reset');
         execa.command(`yarn start-hh-node`, {
             detached: true,
         });
 
-        const wait = (ms: number) =>
-            new Promise((resolve) => setTimeout(resolve, ms));
+        const wait = () =>
+            new Promise((resolve) => {
+                const i = setInterval(async () => {
+                    const provider = new ethers.providers.JsonRpcProvider(
+                        'http://127.0.0.1:8545/',
+                    );
+                    try {
+                        await provider.detectNetwork();
+                        clearInterval(i);
+                        resolve('done');
+                    } catch (e) {}
+                }, 100);
+            });
 
-        //Wait unitl hh node has started
-        await wait(2000);
-
-        rpc = ethers.provider.connection.url;
+        await wait();
 
         const provider = new ethers.providers.JsonRpcProvider(
             'http://127.0.0.1:8545/',
@@ -48,13 +57,13 @@ describe('cli', () => {
         owner = new Wallet(
             '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
         );
-
         const ownerWithProvider = owner.connect(provider);
         const aliceWithProvider = alice.connect(provider);
 
         ensRegistry = await new ENSRegistry__factory()
             .connect(ownerWithProvider)
             .deploy();
+
         erc3668Resolver = await new ERC3668Resolver__factory()
             .connect(ownerWithProvider)
             .deploy(
