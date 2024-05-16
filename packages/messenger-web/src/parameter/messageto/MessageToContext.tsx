@@ -3,7 +3,7 @@ import { createContext, useContext } from 'react';
 // Define a type for the context value
 interface MessageToContextType {
     messageTo: string | null;
-    isMessageToSet: () => boolean;
+    isMessageToSet: boolean;
 }
 
 // Create the context with an initial undefined value. The actual value is provided by the provider.
