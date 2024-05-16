@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import { useContext } from 'react';
-import { useChainId } from 'wagmi';
+import { useContext, useEffect, useState } from 'react';
+import { useChainId, useSwitchNetwork } from 'wagmi';
 import { AuthContext } from '../../../../context/AuthContext';
 import { ConfigureDM3NameContext } from '../../context/ConfigureDM3NameContext';
 import { closeLoader, startLoader } from './../../../Loader/Loader';
@@ -9,28 +9,57 @@ import { DM3Name } from './../DM3Name';
 import { publishProfile } from './tx/publishProfile';
 import { registerOpName } from './tx/registerOpName';
 import { ModalContext } from '../../../../context/ModalContext';
+import { fetchChainIdFromDM3ServiceName } from '../../bl';
+import { DM3ConfigurationContext } from '../../../../context/DM3ConfigurationContext';
+import { ConfigureProfileContext } from '../../context/ConfigureProfileContext';
 
 export const ConfigureOptimismNameProfile = (props: IChain) => {
+    const connectedChainId = useChainId();
+
+    const { switchNetwork } = useSwitchNetwork();
+
     const { setLoaderContent } = useContext(ModalContext);
-    const { setExistingDm3Name, setError } = useContext(
-        ConfigureDM3NameContext,
-    );
-    const chainId = useChainId();
 
     const { account, setDisplayName } = useContext(AuthContext);
+
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
+
+    const { dm3NameServiceSelected } = useContext(ConfigureProfileContext);
+
+    const { setExistingDm3Name, setError, setDm3Name } = useContext(
+        ConfigureDM3NameContext,
+    );
+
+    const [optimismName, setOptimismName] = useState<string>('');
 
     // Modify it as per actual op name extension. It's written as per figma design.
     const nameExtension = '.op.dm3.eth';
     const placeholder = 'Enter your preferred name and check availability.';
 
-    // Set new OP DM3 username
+    const changeNetwork = async (opName: string) => {
+        const chainId = fetchChainIdFromDM3ServiceName(
+            dm3NameServiceSelected,
+            dm3Configuration.chainId,
+        );
+        if (chainId && chainId !== connectedChainId && switchNetwork) {
+            switchNetwork(chainId);
+            setOptimismName(opName);
+        } else {
+            await registerAndPublish(opName);
+        }
+    };
+
     const registerOpNameAndPublishProfile = async (opName: string) => {
+        changeNetwork(opName);
+    };
+
+    const registerAndPublish = async (opName: string) => {
         try {
             // start loader
             setLoaderContent('Claim OP name...');
             startLoader();
 
-            if (props.chainToConnect !== chainId) {
+            if (props.chainToConnect !== connectedChainId) {
                 console.log(
                     'Invalid chain connected. Please switch to optimism network.',
                 );
@@ -64,12 +93,33 @@ export const ConfigureOptimismNameProfile = (props: IChain) => {
             setDisplayName(ensName);
             setExistingDm3Name(ensName);
         } catch (e) {
+            // check user rejects
             setError('Name is not available', NAME_TYPE.DM3_NAME);
         }
 
         // stop loader
         closeLoader();
     };
+
+    // on change of network by user, OP name is published
+    useEffect(() => {
+        if (
+            connectedChainId ===
+                fetchChainIdFromDM3ServiceName(
+                    dm3NameServiceSelected,
+                    dm3Configuration.chainId,
+                ) &&
+            optimismName.length
+        ) {
+            registerAndPublish(optimismName);
+        }
+    }, [connectedChainId]);
+
+    // on change of dropdown selected, error vanishes
+    useEffect(() => {
+        setError('', undefined);
+        setDm3Name('');
+    }, [dm3NameServiceSelected]);
 
     return (
         <DM3Name

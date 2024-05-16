@@ -1,6 +1,6 @@
 {
   "name": "@dm3-org/dm3-lib-delivery",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist-backend/index.js",

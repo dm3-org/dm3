@@ -21,7 +21,7 @@ const Dm3Widget: React.FC = () => {
 
     // Define the configuration props for the DM3 component
     const props: DM3Configuration = {
-        defaultContact: isMessageToSet() ? messageTo! : 'contact.dm3.eth', // If messageTo is set, use it as the default contact
+        defaultContact: isMessageToSet ? messageTo! : 'contact.dm3.eth', // If messageTo is set, use it as the default contact
         userEnsSubdomain: process.env.REACT_APP_USER_ENS_SUBDOMAIN as string,
         addressEnsSubdomain: process.env.REACT_APP_ADDR_ENS_SUBDOMAIN as string,
         resolverBackendUrl: process.env.REACT_APP_RESOLVER_BACKEND as string,
@@ -38,8 +38,7 @@ const Dm3Widget: React.FC = () => {
         genomeRegistryAddress: process.env
             .REACT_APP_GENOME_REGISTRY_ADDRESS as string,
         showAlways: true,
-        hideFunction: 'attachments', // Optional parameter to hide certain UI elements
-        showContacts: !isMessageToSet(), // Show all contacts or only the default based on the message destination
+        showContacts: !isMessageToSet, // Show all contacts or only the default based on the message destination
         signInImage: signInImagePath, // Dynamic image path based on the current week
     };
 
