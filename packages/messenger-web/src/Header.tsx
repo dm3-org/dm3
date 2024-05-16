@@ -20,7 +20,7 @@ const Header: React.FC = () => {
             </a>
 
             {/* Conditionally render the message tag if the messageTo parameter is set */}
-            {isMessageToSet() && (
+            {isMessageToSet && (
                 <div className="message-tag">
                     <span>Send message to:</span>
                     <strong>{messageTo}</strong>
