@@ -1,17 +1,18 @@
-import { decryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
-import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
+import { checkSignature, decryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
+import { EncryptionEnvelop, Postmark } from '@dm3-org/dm3-lib-messaging';
 import { UserProfile, normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { sha256 } from '@dm3-org/dm3-lib-shared';
 import { BigNumber, ethers } from 'ethers';
 import { testData } from '../../../../test-data/encrypted-envelops.test';
 import { stringify } from '../../shared/src/stringify';
 import { getConversationId, getMessages, incomingMessage } from './Messages';
 import { Session } from './Session';
-import { SpamFilterRules } from './spam-filter/SpamFilterRules';
 import {
     IWebSocketManager,
     NotificationChannel,
     NotificationChannelType,
 } from '@dm3-org/dm3-lib-shared';
+import { SpamFilterRules } from './spam-filter/SpamFilterRules';
 
 const SENDER_NAME = 'alice.eth';
 const RECEIVER_NAME = 'bob.eth';
@@ -112,7 +113,7 @@ nodemailer.createTransport.mockReturnValue({
 
 describe('Messages', () => {
     describe('incomingMessage', () => {
-        it('rejctes an incoming message if the token is not valid', async () => {
+        it('accepts an incoming message', async () => {
             const storeNewMessage = async (
                 conversationId: string,
                 envelop: EncryptionEnvelop,
@@ -129,20 +130,18 @@ describe('Messages', () => {
             await expect(() =>
                 incomingMessage(
                     {
-                        envelop: {
-                            message: '',
-                            metadata: {
-                                version: '',
-                                encryptionScheme: 'x25519-chacha20-poly1305',
-                                deliveryInformation: stringify(
-                                    testData.deliveryInformation,
-                                ),
-                                encryptedMessageHash: '',
-                                signature: '',
-                            },
+                        message: '',
+                        metadata: {
+                            version: '',
+                            encryptionScheme: 'x25519-chacha20-poly1305',
+                            deliveryInformation: stringify(
+                                testData.deliveryInformation,
+                            ),
+                            encryptedMessageHash: '',
+                            signature: '',
                         },
-                        token: 'abc',
                     },
+
                     keysA.signingKeyPair,
                     keysA.encryptionKeyPair,
                     2 ** 14,
@@ -158,7 +157,7 @@ describe('Messages', () => {
                     getNotificationChannels,
                     mockWsManager,
                 ),
-            ).rejects.toEqual(Error('Token check failed'));
+            ).not.toThrow();
         });
 
         it('rejects an incoming message if it is to large', async () => {
@@ -178,17 +177,14 @@ describe('Messages', () => {
             await expect(() =>
                 incomingMessage(
                     {
-                        envelop: {
-                            metadata: {
-                                encryptionScheme: 'x25519-chacha20-poly1305',
-                                deliveryInformation: '',
-                                encryptedMessageHash: '',
-                                signature: '',
-                                version: '',
-                            },
-                            message: '',
+                        metadata: {
+                            encryptionScheme: 'x25519-chacha20-poly1305',
+                            deliveryInformation: '',
+                            encryptedMessageHash: '',
+                            signature: '',
+                            version: '',
                         },
-                        token: '123',
+                        message: '',
                     },
                     keysA.signingKeyPair,
                     keysA.encryptionKeyPair,
@@ -221,19 +217,16 @@ describe('Messages', () => {
             await expect(() =>
                 incomingMessage(
                     {
-                        envelop: {
-                            message: '',
-                            metadata: {
-                                encryptionScheme: 'x25519-chacha20-poly1305',
-                                version: '',
-                                encryptedMessageHash: '',
-                                signature: '',
-                                deliveryInformation: stringify(
-                                    testData.deliveryInformationB,
-                                ),
-                            },
+                        message: '',
+                        metadata: {
+                            encryptionScheme: 'x25519-chacha20-poly1305',
+                            version: '',
+                            encryptedMessageHash: '',
+                            signature: '',
+                            deliveryInformation: stringify(
+                                testData.deliveryInformationB,
+                            ),
                         },
-                        token: '123',
                     },
                     keysA.signingKeyPair,
                     keysA.encryptionKeyPair,
@@ -254,9 +247,6 @@ describe('Messages', () => {
         });
         //TODO remove skip once spam-filter is implemented
         it.skip('rejects message if the senders nonce is below the threshold', async () => {
-            //Mock the time so we can test the message with the incomming timestamp
-            jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
-
             let messageContainer: {
                 conversationId?: string;
                 envelop?: EncryptionEnvelop;
@@ -290,19 +280,16 @@ describe('Messages', () => {
             try {
                 await incomingMessage(
                     {
-                        envelop: {
-                            message: '',
-                            metadata: {
-                                encryptionScheme: 'x25519-chacha20-poly1305',
-                                encryptedMessageHash: '',
-                                signature: '',
-                                version: '',
-                                deliveryInformation: stringify(
-                                    testData.deliveryInformation,
-                                ),
-                            },
+                        message: '',
+                        metadata: {
+                            encryptionScheme: 'x25519-chacha20-poly1305',
+                            encryptedMessageHash: '',
+                            signature: '',
+                            version: '',
+                            deliveryInformation: stringify(
+                                testData.deliveryInformation,
+                            ),
                         },
-                        token: '123',
                     },
                     keysA.signingKeyPair,
                     keysA.encryptionKeyPair,
@@ -324,9 +311,6 @@ describe('Messages', () => {
             }
         });
         it('rejects message if the senders eth balance is below the threshold', async () => {
-            //Mock the time so we can test the message with the incomming timestamp
-            jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
-
             let messageContainer: {
                 conversationId?: string;
                 envelop?: EncryptionEnvelop;
@@ -361,19 +345,16 @@ describe('Messages', () => {
             try {
                 await incomingMessage(
                     {
-                        envelop: {
-                            message: '',
-                            metadata: {
-                                encryptionScheme: 'x25519-chacha20-poly1305',
-                                version: '',
-                                encryptedMessageHash: '',
-                                signature: '',
-                                deliveryInformation: stringify(
-                                    testData.deliveryInformation,
-                                ),
-                            },
+                        message: '',
+                        metadata: {
+                            encryptionScheme: 'x25519-chacha20-poly1305',
+                            version: '',
+                            encryptedMessageHash: '',
+                            signature: '',
+                            deliveryInformation: stringify(
+                                testData.deliveryInformation,
+                            ),
                         },
-                        token: '123',
                     },
                     keysA.signingKeyPair,
                     keysA.encryptionKeyPair,
@@ -396,9 +377,6 @@ describe('Messages', () => {
         });
         //TODO remove skip once spam-filter is implemented
         it.skip('rejects message if the senders token balance is below the threshold', async () => {
-            //Mock the time so we can test the message with the incomming timestamp
-            jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
-
             let messageContainer: {
                 conversationId?: string;
                 envelop?: EncryptionEnvelop;
@@ -439,20 +417,17 @@ describe('Messages', () => {
             try {
                 await incomingMessage(
                     {
-                        envelop: {
-                            message: '',
-                            metadata: {
-                                encryptionScheme: 'x25519-chacha20-poly1305',
-                                deliveryInformation: stringify(
-                                    testData.deliveryInformation,
-                                ),
+                        message: '',
+                        metadata: {
+                            encryptionScheme: 'x25519-chacha20-poly1305',
+                            deliveryInformation: stringify(
+                                testData.deliveryInformation,
+                            ),
 
-                                version: '',
-                                encryptedMessageHash: '',
-                                signature: '',
-                            },
+                            version: '',
+                            encryptedMessageHash: '',
+                            signature: '',
                         },
-                        token: '123',
                     },
                     keysA.signingKeyPair,
                     keysA.encryptionKeyPair,
@@ -524,19 +499,16 @@ describe('Messages', () => {
 
             await incomingMessage(
                 {
-                    envelop: {
-                        message: '',
-                        metadata: {
-                            version: '',
-                            encryptedMessageHash: '',
-                            signature: '',
-                            encryptionScheme: 'x25519-chacha20-poly1305',
-                            deliveryInformation: stringify(
-                                testData.deliveryInformation,
-                            ),
-                        },
+                    message: '',
+                    metadata: {
+                        version: '',
+                        encryptedMessageHash: '',
+                        signature: '',
+                        encryptionScheme: 'x25519-chacha20-poly1305',
+                        deliveryInformation: stringify(
+                            testData.deliveryInformation,
+                        ),
                     },
-                    token: '123',
                 },
                 keysA.signingKeyPair,
                 keysA.encryptionKeyPair,
@@ -560,11 +532,6 @@ describe('Messages', () => {
             expect(sendMessageViaSocketMock).not.toBeCalled();
         });
         it('stores proper incoming message', async () => {
-            //Mock the time so we can test the message with the incomming timestamp
-            jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
-
-            //Value stored at config
-
             let messageContainer: {
                 conversationId?: string;
                 envelop?: EncryptionEnvelop;
@@ -579,6 +546,8 @@ describe('Messages', () => {
 
             const sendMock = jest.fn();
 
+            const now = Date.now();
+
             const mockWsManager: IWebSocketManager = {
                 isConnected: function (ensName: string): Promise<boolean> {
                     return Promise.resolve(false);
@@ -587,19 +556,16 @@ describe('Messages', () => {
 
             await incomingMessage(
                 {
-                    envelop: {
-                        message: '',
-                        metadata: {
-                            version: '',
-                            encryptedMessageHash: '',
-                            signature: '',
-                            encryptionScheme: 'x25519-chacha20-poly1305',
-                            deliveryInformation: stringify(
-                                testData.deliveryInformation,
-                            ),
-                        },
+                    message: '',
+                    metadata: {
+                        version: '',
+                        encryptedMessageHash: '',
+                        signature: '',
+                        encryptionScheme: 'x25519-chacha20-poly1305',
+                        deliveryInformation: stringify(
+                            testData.deliveryInformation,
+                        ),
                     },
-                    token: '123',
                 },
                 keysA.signingKeyPair,
                 keysA.encryptionKeyPair,
@@ -643,22 +609,30 @@ describe('Messages', () => {
                 }),
             );
 
-            //Check Postmark
-            expect(JSON.parse(actualPostmark)).toStrictEqual({
-                incommingTimestamp: 1577836800000,
-                messageHash:
-                    '0xd7c617eb7ffee435e7d4e7f6b13d46ccdf88d2e5463148c50659e5cd88d248b5',
-                signature:
-                    'lEsyB5CPB/AtOgY1rbeyjRQ8u1jaKHyOStrBiRmWT6IpRM/vPNOBU+IUU5FWLZl2v5WC+/aA7+tkflblGHvWDQ==',
-            });
+            // check postmark
+            const { incommingTimestamp, messageHash, signature } =
+                JSON.parse(actualPostmark);
+            expect(incommingTimestamp).toBeGreaterThanOrEqual(now);
+            expect(incommingTimestamp).toBeLessThanOrEqual(Date.now());
+            expect(messageHash).toBe(
+                '0xd7c617eb7ffee435e7d4e7f6b13d46ccdf88d2e5463148c50659e5cd88d248b5',
+            );
+            const postmarkWithoutSig: Omit<Postmark, 'signature'> = {
+                messageHash,
+                incommingTimestamp,
+            };
+            expect(
+                await checkSignature(
+                    keysA.signingKeyPair.publicKey,
+                    sha256(stringify(postmarkWithoutSig)),
+                    signature,
+                ),
+            ).toBe(true);
             //Check if the message was submitted to the socket
             expect(sendMock).not.toBeCalled();
         });
 
         it('stores proper incoming message and submit it if receiver is connected to a socket', async () => {
-            //Mock the time so we can test the message with the incomming timestamp
-            jest.useFakeTimers().setSystemTime(new Date('2020-01-01'));
-
             let messageContainer: {
                 conversationId?: string;
                 envelop?: EncryptionEnvelop;
@@ -674,6 +648,7 @@ describe('Messages', () => {
             const sendMock = jest.fn();
 
             const _getSession = (address: string) => getSession(address, 'foo');
+            const now = Date.now();
 
             const mockWsManager: IWebSocketManager = {
                 isConnected: function (ensName: string): Promise<boolean> {
@@ -683,19 +658,16 @@ describe('Messages', () => {
 
             await incomingMessage(
                 {
-                    envelop: {
-                        message: '',
-                        metadata: {
-                            encryptionScheme: 'x25519-chacha20-poly1305',
-                            deliveryInformation: stringify(
-                                testData.deliveryInformation,
-                            ),
-                            version: '',
-                            encryptedMessageHash: '',
-                            signature: '',
-                        },
+                    message: '',
+                    metadata: {
+                        encryptionScheme: 'x25519-chacha20-poly1305',
+                        deliveryInformation: stringify(
+                            testData.deliveryInformation,
+                        ),
+                        version: '',
+                        encryptedMessageHash: '',
+                        signature: '',
                     },
-                    token: '123',
                 },
                 keysA.signingKeyPair,
                 keysA.encryptionKeyPair,
@@ -739,14 +711,25 @@ describe('Messages', () => {
                 }),
             );
 
-            //Check Postmark
-            expect(JSON.parse(actualPostmark)).toStrictEqual({
-                incommingTimestamp: 1577836800000,
-                messageHash:
-                    '0xd7c617eb7ffee435e7d4e7f6b13d46ccdf88d2e5463148c50659e5cd88d248b5',
-                signature:
-                    'lEsyB5CPB/AtOgY1rbeyjRQ8u1jaKHyOStrBiRmWT6IpRM/vPNOBU+IUU5FWLZl2v5WC+/aA7+tkflblGHvWDQ==',
-            });
+            // check postmark
+            const { incommingTimestamp, messageHash, signature } =
+                JSON.parse(actualPostmark);
+            expect(incommingTimestamp).toBeGreaterThanOrEqual(now);
+            expect(incommingTimestamp).toBeLessThanOrEqual(Date.now());
+            expect(messageHash).toBe(
+                '0xd7c617eb7ffee435e7d4e7f6b13d46ccdf88d2e5463148c50659e5cd88d248b5',
+            );
+            const postmarkWithoutSig: Omit<Postmark, 'signature'> = {
+                messageHash,
+                incommingTimestamp,
+            };
+            expect(
+                await checkSignature(
+                    keysA.signingKeyPair.publicKey,
+                    sha256(stringify(postmarkWithoutSig)),
+                    signature,
+                ),
+            ).toBe(true);
             //Check if the message was submitted to the socket
             expect(sendMock).toBeCalled();
         });

@@ -18,11 +18,13 @@
     "@dm3-org/dm3-lib-shared": "workspace:^",
     "@types/libsodium-wrappers": "^0.7.10",
     "ethers": "5.7.2",
+    "jsonwebtoken": "^9.0.2",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/data-urls": "^3.0.1",
     "@types/jest": "^28.1.1",
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^16.7.13",
     "@types/nodemailer": "^6.4.9",
     "@types/uuid": "^8.3.4",
@@ -35,7 +37,7 @@
   },
   "scripts": {
     "build:schema": "sh ./schemas.sh",
-    "build": "yarn build:schema && yarn tsc --declaration",
+    "build": "yarn build:schema && yarn tsc --declaration --declarationMap",
     "test": "jest --coverage --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'"
   },
   "files": [

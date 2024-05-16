@@ -21,7 +21,7 @@
     "typescript": "^4.4.2"
   },
   "scripts": {
-    "build": "yarn tsc --declaration",
+    "build": "yarn tsc --declaration  --declarationMap",
     "test": "echo 'no tests'"
   },
   "files": [

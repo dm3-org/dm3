@@ -1,10 +1,16 @@
 import { encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
 import {
+    Session,
+    generateAuthJWT,
+    spamFilter,
+} from '@dm3-org/dm3-lib-delivery';
+import {
     Envelop,
     Message,
     buildEnvelop,
     createMessage,
 } from '@dm3-org/dm3-lib-messaging';
+import { SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { sha256 } from '@dm3-org/dm3-lib-shared';
 import { PrismaClient } from '@prisma/client';
 import bodyParser from 'body-parser';
@@ -18,19 +24,13 @@ import {
     mockDeliveryServiceProfile,
     mockUserProfile,
 } from '../test/testHelper';
-import auth from './auth';
-import { Redis, getRedisClient } from './persistence/getDatabase';
-import { getUserDbMigrationStatus } from './persistence/storage/getUserDbMigrationStatus';
-import { addConversation } from './persistence/storage/postgres/addConversation';
-import { addMessageBatch } from './persistence/storage/postgres/addMessageBatch';
-import { editMessageBatch } from './persistence/storage/postgres/editMessageBatch';
-import { getConversationList } from './persistence/storage/postgres/getConversationList';
-import { getMessages } from './persistence/storage/postgres/getMessages';
-import { getNumberOfConversations } from './persistence/storage/postgres/getNumberOfConversations';
-import { getNumberOfMessages } from './persistence/storage/postgres/getNumberOfMessages';
-import { toggleHideConversation } from './persistence/storage/postgres/toggleHideConversation';
+import {
+    IDatabase,
+    Redis,
+    getDatabase,
+    getRedisClient,
+} from './persistence/getDatabase';
 import { MessageRecord } from './persistence/storage/postgres/utils/MessageRecord';
-import { setUserDbMigrated } from './persistence/storage/setUserDbMigrated';
 import storage from './storage';
 
 const keysA = {
@@ -47,18 +47,19 @@ const keysA = {
     storageEncryptionNonce: 0,
 };
 
+const serverSecret = 'veryImportantSecretToGenerateAndValidateJSONWebTokens';
+
 global.logger = winston.createLogger({
     transports: [new winston.transports.Console()],
 });
 
 describe('Storage', () => {
     let app;
-    let token;
+    let token = generateAuthJWT('bob.eth', serverSecret);
     let prisma: PrismaClient;
     let sender: MockedUserProfile;
     let receiver: MockedUserProfile;
     let deliveryService: MockedDeliveryServiceProfile;
-
     let redisClient: Redis;
 
     beforeEach(async () => {
@@ -69,7 +70,7 @@ describe('Storage', () => {
         app = express();
         app.use(bodyParser.json());
 
-        token = await createAuthToken();
+        //token = await createAuthToken();
 
         const bobWallet = ethers.Wallet.createRandom();
         const aliceWallet = ethers.Wallet.createRandom();
@@ -86,39 +87,43 @@ describe('Storage', () => {
             'http://localhost:3000',
         );
 
-        app.locals.db = {
+        const db = await getDatabase(redisClient, prisma);
+
+        const sessionMocked = {
+            challenge: '123',
+            token,
+            signedUserProfile: {
+                profile: {
+                    publicSigningKey: keysA.signingKeyPair.publicKey,
+                },
+            } as SignedUserProfile,
+        } as Session & { spamFilterRules: spamFilter.SpamFilterRules };
+
+        const dbMocked = {
             getSession: async (ensName: string) =>
-                Promise.resolve({
-                    challenge: '123',
-                    token,
-                    signedUserProfile: {
-                        profile: {
-                            publicSigningKey: keysA.signingKeyPair.publicKey,
-                        },
-                    },
-                }),
-            setSession: async (_: string, __: any) => {
-                return (_: any, __: any, ___: any) => {};
-            },
+                Promise.resolve<
+                    Session & {
+                        spamFilterRules: spamFilter.SpamFilterRules;
+                    }
+                >(sessionMocked),
+            setSession: async (_: string, __: Session) => {},
             getIdEnsName: async (ensName: string) => ensName,
-
-            editMessageBatch: editMessageBatch(prisma),
-            addMessageBatch: addMessageBatch(prisma),
-            getMessagesFromStorage: getMessages(prisma),
-            addConversation: addConversation(prisma),
-            getConversationList: getConversationList(prisma),
-            getNumberOfMessages: getNumberOfMessages(prisma),
-            getNumberOfConverations: getNumberOfConversations(prisma),
-            toggleHideConversation: toggleHideConversation(prisma),
-            getUserDbMigrationStatus: getUserDbMigrationStatus(redisClient),
-            setUserDbMigrated: setUserDbMigrated(redisClient),
         };
-        app.use(storage(app.locals.db));
+        const dbFinal: IDatabase = { ...db, ...dbMocked };
 
-        app.locals.web3Provider = {
+        //const web3ProviderBase = getWeb3Provider(process.env);
+
+        const web3ProviderMock = {
             resolveName: async () =>
                 '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
         };
+
+        // const web3Provider: ethers.providers.JsonRpcProvider = {
+        //     ...web3ProviderBase,
+        //     ...web3ProviderMock,
+        // };
+
+        app.use(storage(dbFinal, web3ProviderMock as any, serverSecret));
     });
 
     afterEach(async () => {
@@ -136,7 +141,7 @@ describe('Storage', () => {
             const { status } = await request(app)
                 .post(`/new/bob.eth/addConversation`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedContactName: aliceId,
@@ -146,7 +151,7 @@ describe('Storage', () => {
             const { body } = await request(app)
                 .get(`/new/bob.eth/getConversations`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
 
@@ -161,7 +166,7 @@ describe('Storage', () => {
             await request(app)
                 .post(`/new/bob.eth/addConversation`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedContactName: aliceId,
@@ -169,7 +174,7 @@ describe('Storage', () => {
             await request(app)
                 .post(`/new/bob.eth/addConversation`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedContactName: ronId,
@@ -177,7 +182,7 @@ describe('Storage', () => {
             await request(app)
                 .post(`/new/bob.eth/addConversation`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedContactName: aliceId,
@@ -186,7 +191,7 @@ describe('Storage', () => {
             const { body } = await request(app)
                 .get(`/new/bob.eth/getConversations`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
 
@@ -203,7 +208,7 @@ describe('Storage', () => {
             const {} = await request(app)
                 .post(`/new/bob.eth/addConversation`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedContactName: sha256(aliceId),
@@ -211,7 +216,7 @@ describe('Storage', () => {
             const {} = await request(app)
                 .post(`/new/bob.eth/addConversation`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedContactName: sha256(ronId),
@@ -220,7 +225,7 @@ describe('Storage', () => {
             const { status: hideStatus } = await request(app)
                 .post(`/new/bob.eth/toggleHideConversation`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedContactName: sha256(aliceId),
@@ -232,7 +237,7 @@ describe('Storage', () => {
             const { status: getMessagesStatus, body } = await request(app)
                 .get(`/new/bob.eth/getConversations`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
 
@@ -265,7 +270,7 @@ describe('Storage', () => {
             const { status } = await request(app)
                 .post(`/new/bob.eth/addMessage`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
@@ -277,7 +282,7 @@ describe('Storage', () => {
             const { body } = await request(app)
                 .get(`/new/bob.eth/getConversations`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
 
@@ -294,7 +299,7 @@ describe('Storage', () => {
                     )}/0`,
                 )
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
 
@@ -327,7 +332,7 @@ describe('Storage', () => {
             await request(app)
                 .post(`/new/bob.eth/addMessage`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
@@ -335,10 +340,12 @@ describe('Storage', () => {
                     messageId: sha256('bob.eth' + '123'),
                 });
 
+            const tokenAlice = generateAuthJWT('alice.eth', serverSecret);
+
             await request(app)
                 .post(`/new/alice.eth/addMessage`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + tokenAlice,
                 })
                 .send({
                     encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
@@ -349,13 +356,13 @@ describe('Storage', () => {
             const { body: bobConversations } = await request(app)
                 .get(`/new/bob.eth/getConversations`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
             const { body: aliceConversations } = await request(app)
                 .get(`/new/alice.eth/getConversations`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + tokenAlice,
                 })
                 .send();
 
@@ -376,7 +383,7 @@ describe('Storage', () => {
                     )}/0`,
                 )
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
 
@@ -394,7 +401,7 @@ describe('Storage', () => {
                     )}/0`,
                 )
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + tokenAlice,
                 })
                 .send();
 
@@ -404,7 +411,7 @@ describe('Storage', () => {
             const {} = await request(app)
                 .post(`/new/bob.eth/addConversation`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedContactName: sha256(receiver.account.ensName),
@@ -432,7 +439,7 @@ describe('Storage', () => {
             const { status } = await request(app)
                 .post(`/new/bob.eth/addMessage`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
@@ -444,7 +451,7 @@ describe('Storage', () => {
             const { body } = await request(app)
                 .get(`/new/bob.eth/getConversations`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
 
@@ -461,7 +468,7 @@ describe('Storage', () => {
                     )}/0`,
                 )
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
 
@@ -494,7 +501,7 @@ describe('Storage', () => {
             await request(app)
                 .post(`/new/bob.eth/addMessage`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
@@ -504,7 +511,7 @@ describe('Storage', () => {
             await request(app)
                 .post(`/new/bob.eth/addMessage`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
@@ -515,7 +522,7 @@ describe('Storage', () => {
             const { status } = await request(app)
                 .post(`/new/bob.eth/addMessage`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
@@ -528,7 +535,7 @@ describe('Storage', () => {
             const { body } = await request(app)
                 .get(`/new/bob.eth/getConversations`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
 
@@ -544,7 +551,7 @@ describe('Storage', () => {
                     )}/0`,
                 )
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
 
@@ -583,7 +590,7 @@ describe('Storage', () => {
             const { status } = await request(app)
                 .post(`/new/bob.eth/addMessageBatch`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedContactName: sha256(receiver.account.ensName),
@@ -605,7 +612,7 @@ describe('Storage', () => {
             const { body } = await request(app)
                 .get(`/new/bob.eth/getConversations`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
 
@@ -622,7 +629,7 @@ describe('Storage', () => {
                     )}/0`,
                 )
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
 
@@ -658,7 +665,7 @@ describe('Storage', () => {
             const {} = await request(app)
                 .post(`/new/bob.eth/addMessage`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
@@ -669,7 +676,7 @@ describe('Storage', () => {
             const {} = await request(app)
                 .post(`/new/bob.eth/addMessage`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
@@ -680,7 +687,7 @@ describe('Storage', () => {
             const { status: addDuplicateStatus } = await request(app)
                 .post(`/new/bob.eth/addMessage`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedEnvelopContainer: JSON.stringify(encryptedEnvelop),
@@ -695,7 +702,7 @@ describe('Storage', () => {
                     )}`,
                 )
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
             expect(status).toBe(200);
@@ -710,7 +717,7 @@ describe('Storage', () => {
             const { status } = await request(app)
                 .post(`/new/bob.eth/addConversation`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedContactName: aliceId,
@@ -720,7 +727,7 @@ describe('Storage', () => {
             const { status: secondStatus } = await request(app)
                 .post(`/new/bob.eth/addConversation`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedContactName: 'testContact',
@@ -730,7 +737,7 @@ describe('Storage', () => {
             const { status: thirdStatus } = await request(app)
                 .post(`/new/bob.eth/addConversation`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedContactName: 'testContact2',
@@ -740,7 +747,7 @@ describe('Storage', () => {
             const { status: fourthStatus, body } = await request(app)
                 .get(`/new/bob.eth/getNumberOfConversations`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
             expect(fourthStatus).toBe(200);
@@ -760,7 +767,7 @@ describe('Storage', () => {
             const { status } = await request(app)
                 .post(`/new/bob.eth/editMessageBatch`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedContactName,
@@ -773,7 +780,7 @@ describe('Storage', () => {
             const { body } = await request(app)
                 .get(`/new/bob.eth/getMessages/${encryptedContactName}/0`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
 
@@ -796,7 +803,7 @@ describe('Storage', () => {
             const { status } = await request(app)
                 .post(`/new/bob.eth/addMessage`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedEnvelopContainer: JSON.stringify(originalPayload),
@@ -815,7 +822,7 @@ describe('Storage', () => {
             const { status: editStatus } = await request(app)
                 .post(`/new/bob.eth/editMessageBatch`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send({
                     encryptedContactName: contactName,
@@ -828,7 +835,7 @@ describe('Storage', () => {
             const { body } = await request(app)
                 .get(`/new/bob.eth/getMessages/${contactName}/0`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
 
@@ -843,7 +850,7 @@ describe('Storage', () => {
             const { body: preMigrationStatus } = await request(app)
                 .get(`/new/bob.eth/migrationStatus`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
 
@@ -852,7 +859,7 @@ describe('Storage', () => {
             const { status } = await request(app)
                 .post(`/new/bob.eth/migrationStatus`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
 
@@ -861,7 +868,7 @@ describe('Storage', () => {
             const { body: postMigrationStatus } = await request(app)
                 .get(`/new/bob.eth/migrationStatus`)
                 .set({
-                    authorization: `Bearer ${token}`,
+                    authorization: 'Bearer ' + token,
                 })
                 .send();
 
@@ -870,47 +877,34 @@ describe('Storage', () => {
     });
 });
 
-const createAuthToken = async () => {
-    const app = express();
-    app.use(bodyParser.json());
-    app.use(auth());
+// const createAuthToken = async () => {
+//     const app = express();
+//     app.use(bodyParser.json());
+//     const getSession = async (accountAddress: string) =>
+//         Promise.resolve({
+//             challenge: 'my-Challenge',
+//             signedUserProfile: {
+//                 profile: {
+//                     publicSigningKey: keysA.signingKeyPair.publicKey,
+//                 },
+//             },
+//         });
+//     const setSession = async (_: string, __: any) => {
+//         return (_: any, __: any, ___: any) => {};
+//     };
+//     app.use(Auth(getSession, setSession, serverSecret));
 
-    app.locals = {
-        web3Provider: {
-            resolveName: async () =>
-                '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
-        },
-        redisClient: {
-            exists: (_: any) => false,
-        },
-    };
+//     const signature =
+//         '3A893rTBPEa3g9FL2vgDreY3vvXnOiYCOoJURNyctncwH' +
+//         '0En/mcwo/t2v2jtQx/pcnOpTzuJwLuZviTQjd9vBQ==';
 
-    app.locals.db = {
-        getSession: async (accountAddress: string) =>
-            Promise.resolve({
-                challenge: 'my-Challenge',
-                signedUserProfile: {
-                    profile: {
-                        publicSigningKey: keysA.signingKeyPair.publicKey,
-                    },
-                },
-            }),
-        setSession: async (_: string, __: any) => {
-            return (_: any, __: any, ___: any) => {};
-        },
-        getIdEnsName: async (ensName: string) => ensName,
-    };
+//     const { body } = await request(app).post(`/bob.eth`).send({
+//         signature,
+//     });
 
-    const signature =
-        '3A893rTBPEa3g9FL2vgDreY3vvXnOiYCOoJURNyctncwH' +
-        '0En/mcwo/t2v2jtQx/pcnOpTzuJwLuZviTQjd9vBQ==';
+//     return body.token;
+// };
 
-    const { body } = await request(app).post(`/bob.eth`).send({
-        signature,
-    });
-
-    return body.token;
-};
 export function makeEnvelop(
     from: string,
     to: string,
