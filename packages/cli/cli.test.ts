@@ -12,8 +12,6 @@ import { expect } from 'chai';
 import { Wallet, ethers } from 'ethers';
 import execa from 'execa';
 
-const hre = require('hardhat');
-
 describe('cli', () => {
     let alice, owner: Wallet;
     let ensRegistry, publicResolver, erc3668Resolver;
@@ -25,7 +23,6 @@ describe('cli', () => {
     });
 
     beforeEach(async () => {
-        //await hre.network.provider.send('hardhat_reset');
         execa.command(`yarn start-hh-node`, {
             detached: true,
         });
