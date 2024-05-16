@@ -1,6 +1,7 @@
 {
   "name": "@dm3-org/dm3-cli",
   "version": "0.1.0",
+  "license": "BSD",
   "scripts": {
     "dm3": "ts-node index.ts",
     "test": "npx hardhat test cli.test.ts --network hardhat",
@@ -22,5 +23,5 @@
     "ts-jest": "^28.0.4",
     "typescript": "^4.4.2"
   },
-  "publish": false
+  "publish": true
 }
