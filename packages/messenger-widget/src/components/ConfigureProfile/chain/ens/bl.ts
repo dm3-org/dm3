@@ -150,3 +150,15 @@ export async function getPublishProfileOnchainTransaction(
         args: [node, key, value],
     };
 }
+
+export const fetchExistingEnsName = async (
+    address: string,
+    provider: ethers.providers.StaticJsonRpcProvider,
+): Promise<string | null> => {
+    try {
+        return await provider.lookupAddress(address);
+    } catch (error) {
+        console.log('Failed to query ENS name : ', error);
+        return null;
+    }
+};
