@@ -83,7 +83,7 @@ jobs:
             - name: Load docker image
               run: |
                   ssh -i ./ssh-key app@${{ secrets.HOST_DOMAIN}} "\
-                  cd dm3 && docker load -i dm3-backend.tar && docker load -i dm3-delivery-service.tar"
+                  cd dm3 && docker load -i dm3-backend.tar # && docker load -i dm3-delivery-service.tar"
             - name: Firewall config
               run: |
                   ssh -i ./ssh-key root@${{ secrets.HOST_DOMAIN}} "\
