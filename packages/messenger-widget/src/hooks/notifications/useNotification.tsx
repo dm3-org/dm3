@@ -97,6 +97,9 @@ export const useNotification = () => {
                                     }
                                     setIsEmailActive(channel.config.isEnabled);
                                     break;
+                                case NotificationChannelType.PUSH:
+                                    setIsPushNotifyActive(channel.config.isEnabled);
+                                    break;
                                 default:
                                     break;
                             }
@@ -163,6 +166,39 @@ export const useNotification = () => {
         }
     };
 
+
+    // Enable push notification channel
+    const enablePushNotificationChannel = async () => {
+        if (account && deliveryServiceToken) {
+            try {
+                setLoaderData("Configuring push notifications...");
+                setIsloading(true);
+                // TODO: replace the empty string with publicVapidKey
+                const subscription = await subscribeToPushNotification("");
+                // TODO: send subscription data in req.body : PushSubscription
+                const { status } = await toggleNotificationChannel(
+                    account,
+                    mainnetProvider,
+                    deliveryServiceToken,
+                    true,
+                    NotificationChannelType.PUSH,
+                    // subscription
+                );
+                if (status === 200) {
+                    await fetchUserNotificationChannels();
+                }
+                setIsloading(false);
+            } catch (error) {
+                log(
+                    `Failed to toggle push notification channel : ${error}`,
+                    'error',
+                );
+                setIsloading(false);
+            }
+        }
+    };
+
+
     // Remove specific notification channel
     const removeSpecificNotificationChannel = async (
         channelType: NotificationChannelType,
@@ -194,12 +230,57 @@ export const useNotification = () => {
         }
     };
 
+    const subscribeToPushNotification = async (publicVapidKey: string): Promise<PushSubscription | undefined> => {
+        if ('serviceWorker' in navigator) {
+
+            console.log('Registering service worker...');
+            const registration = await navigator.serviceWorker.register('/worker.js', { scope: '/' });
+            console.log('Registered service worker...');
+
+            const subscription: PushSubscription = await registration.pushManager.
+                subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: publicVapidKey
+                });
+
+            console.log('Registered push...');
+
+            // on subscribing notification, requests to enable browser notification if not enabled
+            requestNotificationPermission();
+            return subscription;
+        }
+    }
+
+    const requestNotificationPermission = async () => {
+        if (!("Notification" in window)) {
+            console.log("This browser does not support notifications...");
+            return;
+        }
+        if (Notification.permission === "granted") {
+            console.log("Push notification permission already granted...");
+            return;
+        }
+        if (Notification.permission !== "denied") {
+            const permission = await Notification.requestPermission();
+            if (permission === "granted") {
+                console.log("Push notification permission granted...");
+            }
+        }
+    }
+
     useEffect(() => {
         const fetchNotificationDetails = async () => {
             await fetchGlobalNotification();
         };
         fetchNotificationDetails();
     }, []);
+
+    // enables the push notification when chekc box is ticked
+    useEffect(() => {
+        if (isPushNotifyActive) {
+            enablePushNotificationChannel();
+        }
+    }, [isPushNotifyActive])
 
     return {
         isNotificationsActive,

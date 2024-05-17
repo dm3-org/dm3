@@ -206,6 +206,7 @@ export async function toggleNotificationChannel(
     token: string,
     isEnabled: boolean,
     notificationChannelType: NotificationChannelType,
+    subscription?: PushSubscription
 ): Promise<any> {
     const { profile, ensName } = checkAccount(account);
 
@@ -220,6 +221,7 @@ export async function toggleNotificationChannel(
         {
             isEnabled,
             notificationChannelType,
+            subscription
         },
         getAxiosConfig(token),
     );

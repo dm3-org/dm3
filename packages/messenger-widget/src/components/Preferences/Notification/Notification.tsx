@@ -19,7 +19,7 @@ export function Notification() {
         screenWidth <= MOBILE_SCREEN_WIDTH
             ? ''
             : 'Prevent spam from being sent to you by setting rules ' +
-              'that senders must fulfill in order for messages to be accepted.';
+            'that senders must fulfill in order for messages to be accepted.';
 
     const {
         isNotificationsActive,
@@ -178,12 +178,22 @@ export function Notification() {
             </div> */}
 
             {/* Push notifications enabled/disabled */}
-            {/* <div className="notification-content-left mt-4">
+            <div className="notification-content-left mt-4">
                 <div className="d-flex align-items-center">
                     <Checkbox
                         checked={isPushNotifyActive}
                         disabled={!isNotificationsActive}
-                        action={setIsPushNotifyActive}
+                        action={() => {
+                            if (isPushNotifyActive) {
+                                toggleSpecificNotificationChannel(
+                                    !isPushNotifyActive,
+                                    NotificationChannelType.PUSH,
+                                    setIsPushNotifyActive,
+                                )
+                            } else {
+                                setIsPushNotifyActive(!isPushNotifyActive)
+                            }
+                        }}
                         heading="Push Notifications"
                     />
                 </div>
@@ -191,7 +201,7 @@ export function Notification() {
                     disabled={!isNotificationsActive}
                     text={'Enable push notifications to your browser.'}
                 />
-            </div> */}
+            </div>
         </div>
     );
 }
