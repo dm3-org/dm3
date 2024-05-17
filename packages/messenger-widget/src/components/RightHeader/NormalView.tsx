@@ -75,6 +75,7 @@ export function NormalView() {
 
             <div className="d-flex align-items-center justify-content-end">
                 <span
+                    data-testid="display-name-id"
                     onClick={() => updateView()}
                     className="profile-name font-weight-500 pointer-cursor text-secondary-color"
                 >
