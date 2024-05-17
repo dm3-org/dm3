@@ -6,6 +6,7 @@ import { ethers } from 'ethers';
 import { closeLoader, startLoader } from '../../../Loader/Loader';
 import { Address, namehash, toHex } from 'viem';
 import { NAME_TYPE } from '../common';
+import { createWeb3Name } from '@web3-name-sdk/core';
 
 //Space id uses the namehash of the name + the GNO identifier to calculate the node
 const GNO_IDENTIFIER = BigInt(
@@ -23,7 +24,6 @@ export const isGenomeNameValid = async (
     provider: ethers.providers.StaticJsonRpcProvider,
     ensName: string,
     ethAddress: string,
-    genomeRegistryAddress: string,
     setError: (type: NAME_TYPE | undefined, msg: string) => void,
 ) => {
     const isValidEnsName = ethers.utils.isValidName(ensName);
@@ -36,15 +36,8 @@ export const isGenomeNameValid = async (
         setError(NAME_TYPE.ENS_NAME, 'Genome name has to end with ');
         return false;
     }
-
-    const genomeRegistry = getConractInstance(
-        genomeRegistryAddress,
-        ['function owner(bytes32 node) external view returns (address)'],
-        provider!,
-    );
-
-    const node = getSpaceIdNode(ensName);
-    const owner = await genomeRegistry.owner(node);
+    const web3Name = createWeb3Name();
+    const owner = await web3Name.getAddress(ensName);
 
     if (owner === null) {
         setError(NAME_TYPE.ENS_NAME, 'owner not found');
@@ -111,7 +104,6 @@ export const submitGenomeNameTransaction = async (
     setLoaderContent: (content: string) => void,
     ensName: string,
     ethAddress: string,
-    genomeRegistryAddress: string,
     setEnsNameFromResolver: Function,
     setError: (type: NAME_TYPE | undefined, msg: string) => void,
 ) => {
@@ -124,7 +116,6 @@ export const submitGenomeNameTransaction = async (
             provider,
             ensName,
             ethAddress,
-            genomeRegistryAddress,
             setError,
         );
 
