@@ -1,7 +1,6 @@
 import { createAlias } from '@dm3-org/dm3-lib-delivery-api';
 import { Account, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
-import { ethersHelper, stringify } from '@dm3-org/dm3-lib-shared';
-import { getConractInstance } from '@dm3-org/dm3-lib-shared/dist/ethersHelper';
+import { ethersHelper, log, stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import { closeLoader, startLoader } from '../../../Loader/Loader';
 import { Address, namehash, toHex } from 'viem';
@@ -160,4 +159,20 @@ export const submitGenomeNameTransaction = async (
 
 export const validateGenomeName = (ensName: string) => {
     return ensName.endsWith('.gno');
+};
+
+export const fetchExistingGnoName = async (
+    address: string,
+    chainId: number,
+): Promise<string | null> => {
+    try {
+        const web3Name = createWeb3Name();
+        return await web3Name.getDomainName({
+            address,
+            queryChainIdList: [chainId],
+        });
+    } catch (error) {
+        console.log('Failed to query GNO name : ', error);
+        return null;
+    }
 };

@@ -1,6 +1,10 @@
 import { useContext, useEffect, useState } from 'react';
 import { SubmitOnChainProfile } from '../SubmitOnChainProfile';
-import { submitGenomeNameTransaction, validateGenomeName } from './bl';
+import {
+    fetchExistingGnoName,
+    submitGenomeNameTransaction,
+    validateGenomeName,
+} from './bl';
 import { ConfigureProfileContext } from '../../context/ConfigureProfileContext';
 import { useChainId, useSwitchNetwork } from 'wagmi';
 import { AuthContext } from '../../../../context/AuthContext';
@@ -10,6 +14,7 @@ import { ModalContext } from '../../../../context/ModalContext';
 import { DM3ConfigurationContext } from '../../../../context/DM3ConfigurationContext';
 import { ConfigureDM3NameContext } from '../../context/ConfigureDM3NameContext';
 import { fetchChainIdFromServiceName } from '../../bl';
+import { supportedChains } from '../../../../utils/common-utils';
 
 export const ConfigureGenomeProfile = (props: IChain) => {
     const connectedChainId = useChainId();
@@ -104,6 +109,21 @@ export const ConfigureGenomeProfile = (props: IChain) => {
         onShowError(undefined, '');
         setEnsName('');
     }, [namingServiceSelected]);
+
+    // Fetches existing GNO name if exists
+    useEffect(() => {
+        const fetchGnoName = async () => {
+            if (ethAddress) {
+                setExistingEnsName(
+                    await fetchExistingGnoName(
+                        ethAddress,
+                        supportedChains.gnosisMainnet,
+                    ),
+                );
+            }
+        };
+        fetchGnoName();
+    }, []);
 
     const propertyName = 'GNO Name';
 

@@ -6,7 +6,7 @@ import { AuthContext } from '../../../../context/AuthContext';
 import { ConfigureProfileContext } from '../../context/ConfigureProfileContext';
 import { SubmitOnChainProfile } from '../SubmitOnChainProfile';
 import { IChain, NAME_TYPE, validateEnsName } from '../common';
-import { submitEnsNameTransaction } from './bl';
+import { fetchExistingEnsName, submitEnsNameTransaction } from './bl';
 import { ModalContext } from '../../../../context/ModalContext';
 import { ConfigureDM3NameContext } from '../../context/ConfigureDM3NameContext';
 import { fetchChainIdFromServiceName } from '../../bl';
@@ -100,6 +100,18 @@ export const ConfigureEnsProfile = (props: IChain) => {
             registerAndPublish(ethereumName);
         }
     }, [connectedChainId]);
+
+    // Fetches existing ENS name if exists
+    useEffect(() => {
+        const fetchEnsName = async () => {
+            if (ethAddress) {
+                setExistingEnsName(
+                    await fetchExistingEnsName(ethAddress, provider),
+                );
+            }
+        };
+        fetchEnsName();
+    }, []);
 
     // on change of dropdown selected, error vanishes
     useEffect(() => {
