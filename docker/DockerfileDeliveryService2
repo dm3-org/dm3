@@ -6,8 +6,10 @@ COPY . .
 
 
 # are g++, python and make really needed?
-RUN apk add --update python3 make g++ curl bash\
-   && rm -rf /var/cache/apk/*
+# RUN apk add --update python3 make g++ curl bash\
+#    && rm -rf /var/cache/apk/*
+RUN apk add --update bash\
+    && rm -rf /var/cache/apk/*
 
 RUN yarn install
 
@@ -22,22 +24,30 @@ RUN for lib in `ls`; do cd $lib; yarn pack --filename ../$lib.tgz; cd ..;  done
 WORKDIR /app/packages/delivery-service
 RUN yarn build
 # pack delivery service into archive
-RUN yarn pack --filename ../delivery-service.tgz
+RUN yarn pack --filename delivery-service.tgz
 
 # start over with a new image
 FROM node:18-alpine
-WORKDIR /app/packages/delivery-service
+WORKDIR /app
 
 # copy and extract the delivery service archive
 COPY --from=build /app/packages/delivery-service/delivery-service.tgz /app
 RUN tar -xvzf delivery-service.tgz
 RUN rm delivery-service.tgz
 RUN mv package/* .
+#RUN rmdir package
 
-# copy and add the libraries archives
-COPY --from=build /app/packages/lib/*.tgz /app
-RUN for lib in `ls *.tgz`; do yarn add file:$lib; done
+# copy and add the libraries archives. 
+# We could omit some, but it's easier to just add all of them
+RUN mkdir libs
+COPY --from=build /app/packages/lib/*.tgz libs
+# quickfix because server-side is not published yet
+RUN yarn cache clean
+RUN yarn add file:libs/server-side.tgz
+RUN for lib in `ls libs`; do yarn add file:libs/$lib; done
 
 # install dependencies
 RUN yarn
+
+# done. start the package with `yarn start` in /app
 
