@@ -9,7 +9,9 @@ RUN apk add --update bash\
 
 # copy the whole relevant package into the image
 COPY ./packages/delivery-service/ /app/
-RUN sed -i '/.*server-side.*/d' ./package.json
+#RUN sed -i '/.*server-side.*/d' ./package.json
+# manually remove all references to libraries. we will replace them in the next step.
+RUN sed -i '/.*dm3-org\/dm3-lib.*/d' ./package.json
 # RUN tar -xvzf delivery-service.tgz
 # RUN rm delivery-service.tgz
 # RUN mv package/* .
@@ -19,13 +21,13 @@ RUN cat package.json
 
 # install server-side
 COPY ./packages/lib/server-side.tgz /app
-# COPY ./packages/lib/crypto.tgz /app
-# COPY ./packages/lib/delivery.tgz /app
-# COPY ./packages/lib/messaging.tgz /app
-# COPY ./packages/lib/profile.tgz /app
-# COPY ./packages/lib/shared.tgz /app
-#RUN yarn add file:server-side.tgz file:crypto.tgz file:delivery.tgz file:messaging.tgz file:profile.tgz file:shared.tgz
-RUN yarn add file:server-side.tgz 
+COPY ./packages/lib/crypto.tgz /app
+COPY ./packages/lib/delivery.tgz /app
+COPY ./packages/lib/messaging.tgz /app
+COPY ./packages/lib/profile.tgz /app
+COPY ./packages/lib/shared.tgz /app
+RUN yarn add file:server-side.tgz file:crypto.tgz file:delivery.tgz file:messaging.tgz file:profile.tgz file:shared.tgz
+# RUN yarn add file:server-side.tgz 
 
 # # RUN yarn install
 
@@ -66,4 +68,6 @@ RUN yarn add file:server-side.tgz
 # RUN yarn
 
 # # done. start the package with `yarn start` in /app
+
+# TODO: add ENTRYPOINT ["executable", "param1", "param2"] to start the service
 
