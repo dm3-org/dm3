@@ -49,7 +49,7 @@ services:
             POSTGRES_DB: dm3
 
     delivery-service:
-        image: dm3-delivery-service
+        image: dm3-backend #dm3-delivery-service
         command: yarn workspace @dm3-org/delivery-service start
         restart: always
         depends_on:

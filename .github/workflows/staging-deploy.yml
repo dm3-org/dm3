@@ -64,8 +64,8 @@ jobs:
                   cp ./.env.react packages/messenger-web/.env
                   docker build --progress=plain -t dm3-backend:latest -f ./docker/Dockerfile .
                   docker save -o ./dm3-backend.tar dm3-backend:latest
-                  docker build --progress=plain -t dm3-delivery-service:latest -f ./docker/DockerfileDeliveryService .
-                  docker save -o ./dm3-delivery-service.tar dm3-delivery-service:latest
+                  # docker build --progress=plain -t dm3-delivery-service:latest -f ./docker/DockerfileDeliveryService .
+                  # docker save -o ./dm3-delivery-service.tar dm3-delivery-service:latest
             - name: Prepare docker
               run: |
                   ssh -i ./ssh-key app@${{ secrets.HOST_DOMAIN}} "\
@@ -77,7 +77,7 @@ jobs:
               run: |
                   rsync -avz -e 'ssh -i ./ssh-key' ./.env app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
                   rsync -avz -e 'ssh -i ./ssh-key' ./dm3-backend.tar app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3 
-                  rsync -avz -e 'ssh -i ./ssh-key' ./dm3-delivery-service.tar app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
+                  # rsync -avz -e 'ssh -i ./ssh-key' ./dm3-delivery-service.tar app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
                   rsync -avz -e 'ssh -i ./ssh-key' ./nginx.conf app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
                   rsync -avz -e 'ssh -i ./ssh-key' ./docker/docker-compose.yml app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
             - name: Load docker image
