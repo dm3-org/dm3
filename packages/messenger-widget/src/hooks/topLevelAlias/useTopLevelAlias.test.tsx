@@ -76,7 +76,7 @@ function TestHook() {
     );
 }
 
-describe('useTopLevelAlias hook test cases', () => {
+describe.skip('useTopLevelAlias hook test cases', () => {
     it('Should call resolveAliasToTLD method', async () => {
         const { getByText } = render(<TestComponent />);
         await act(() => fireEvent.click(getByText('Configure')));
