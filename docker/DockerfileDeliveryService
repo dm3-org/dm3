@@ -1,0 +1,25 @@
+FROM --platform=linux/amd64 node:18-alpine
+WORKDIR /app
+
+# copy relevant files
+COPY . .
+# COPY yarn.lock .
+# RUN mkdir packages
+# COPY packages/delivery-service packages/delivery-service
+# COPY packages/lib packages/lib
+
+
+
+
+RUN apk add --update python3 make g++ curl bash\
+   && rm -rf /var/cache/apk/*
+
+RUN yarn install
+
+# build libraries
+WORKDIR /app/packages/lib
+RUN yarn build
+
+# build delivers service
+WORKDIR /app/packages/delivery-service
+RUN yarn build
