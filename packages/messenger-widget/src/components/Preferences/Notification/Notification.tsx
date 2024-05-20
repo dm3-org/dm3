@@ -19,7 +19,7 @@ export function Notification() {
         screenWidth <= MOBILE_SCREEN_WIDTH
             ? ''
             : 'Prevent spam from being sent to you by setting rules ' +
-            'that senders must fulfill in order for messages to be accepted.';
+              'that senders must fulfill in order for messages to be accepted.';
 
     const {
         isNotificationsActive,
@@ -189,9 +189,9 @@ export function Notification() {
                                     !isPushNotifyActive,
                                     NotificationChannelType.PUSH,
                                     setIsPushNotifyActive,
-                                )
+                                );
                             } else {
-                                setIsPushNotifyActive(!isPushNotifyActive)
+                                setIsPushNotifyActive(!isPushNotifyActive);
                             }
                         }}
                         heading="Push Notifications"

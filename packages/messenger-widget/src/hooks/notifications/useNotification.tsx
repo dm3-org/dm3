@@ -15,11 +15,13 @@ import { AuthContext } from '../../context/AuthContext';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { IVerificationModal } from '../../components/Preferences/Notification/VerificationModal';
 import { getVerficationModalContent } from '../../components/Preferences/Notification/hooks/VerificationContent';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export const useNotification = () => {
     const mainnetProvider = useMainnetProvider();
 
     const { account, deliveryServiceToken } = useContext(AuthContext);
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     // States for active notifications
     const [isNotificationsActive, setIsNotificationsActive] =
@@ -98,7 +100,9 @@ export const useNotification = () => {
                                     setIsEmailActive(channel.config.isEnabled);
                                     break;
                                 case NotificationChannelType.PUSH:
-                                    setIsPushNotifyActive(channel.config.isEnabled);
+                                    setIsPushNotifyActive(
+                                        channel.config.isEnabled,
+                                    );
                                     break;
                                 default:
                                     break;
@@ -166,23 +170,22 @@ export const useNotification = () => {
         }
     };
 
-
     // Enable push notification channel
     const enablePushNotificationChannel = async () => {
         if (account && deliveryServiceToken) {
             try {
-                setLoaderData("Configuring push notifications...");
+                setLoaderData('Configuring push notifications...');
                 setIsloading(true);
-                // TODO: replace the empty string with publicVapidKey
-                const subscription = await subscribeToPushNotification("");
-                // TODO: send subscription data in req.body : PushSubscription
+                const subscription = await subscribeToPushNotification(
+                    dm3Configuration.publicVapidKey,
+                );
                 const { status } = await toggleNotificationChannel(
                     account,
                     mainnetProvider,
                     deliveryServiceToken,
                     true,
                     NotificationChannelType.PUSH,
-                    // subscription
+                    subscription,
                 );
                 if (status === 200) {
                     await fetchUserNotificationChannels();
@@ -197,7 +200,6 @@ export const useNotification = () => {
             }
         }
     };
-
 
     // Remove specific notification channel
     const removeSpecificNotificationChannel = async (
@@ -230,17 +232,21 @@ export const useNotification = () => {
         }
     };
 
-    const subscribeToPushNotification = async (publicVapidKey: string): Promise<PushSubscription | undefined> => {
+    const subscribeToPushNotification = async (
+        publicVapidKey: string,
+    ): Promise<PushSubscription | undefined> => {
         if ('serviceWorker' in navigator) {
-
             console.log('Registering service worker...');
-            const registration = await navigator.serviceWorker.register('/worker.js', { scope: '/' });
+            const registration = await navigator.serviceWorker.register(
+                './../../service-worker.js',
+                { scope: '/' },
+            );
             console.log('Registered service worker...');
 
-            const subscription: PushSubscription = await registration.pushManager.
-                subscribe({
+            const subscription: PushSubscription =
+                await registration.pushManager.subscribe({
                     userVisibleOnly: true,
-                    applicationServerKey: publicVapidKey
+                    applicationServerKey: publicVapidKey,
                 });
 
             console.log('Registered push...');
@@ -249,24 +255,24 @@ export const useNotification = () => {
             requestNotificationPermission();
             return subscription;
         }
-    }
+    };
 
     const requestNotificationPermission = async () => {
-        if (!("Notification" in window)) {
-            console.log("This browser does not support notifications...");
+        console.log('Notification.permission : ', Notification.permission);
+        if (!('Notification' in window)) {
+            console.log('This browser does not support notifications...');
             return;
         }
-        if (Notification.permission === "granted") {
-            console.log("Push notification permission already granted...");
+        if (Notification.permission === 'granted') {
+            console.log('Push notification permission already granted...');
             return;
         }
-        if (Notification.permission !== "denied") {
-            const permission = await Notification.requestPermission();
-            if (permission === "granted") {
-                console.log("Push notification permission granted...");
-            }
+
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+            console.log('Push notification permission granted...');
         }
-    }
+    };
 
     useEffect(() => {
         const fetchNotificationDetails = async () => {
@@ -280,7 +286,7 @@ export const useNotification = () => {
         if (isPushNotifyActive) {
             enablePushNotificationChannel();
         }
-    }, [isPushNotifyActive])
+    }, [isPushNotifyActive]);
 
     return {
         isNotificationsActive,

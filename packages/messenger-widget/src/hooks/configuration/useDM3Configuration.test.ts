@@ -20,6 +20,7 @@ const config: DM3Configuration = {
     genomeRegistryAddress: '',
     showAlways: true,
     showContacts: true,
+    publicVapidKey: '',
 };
 
 describe('useDM3Configuration hook test cases', () => {
