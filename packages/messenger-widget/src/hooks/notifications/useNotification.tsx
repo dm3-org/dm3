@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { log } from '@dm3-org/dm3-lib-shared';
 import {
+    addNotificationChannel,
     getAllNotificationChannels,
     getGlobalNotification,
     removeNotificationChannel,
@@ -179,14 +180,15 @@ export const useNotification = () => {
                 const subscription = await subscribeToPushNotification(
                     dm3Configuration.publicVapidKey,
                 );
-                const { status } = await toggleNotificationChannel(
+
+                const { status } = await addNotificationChannel(
                     account,
                     mainnetProvider,
                     deliveryServiceToken,
-                    true,
-                    NotificationChannelType.PUSH,
                     subscription,
+                    NotificationChannelType.PUSH,
                 );
+
                 if (status === 200) {
                     await fetchUserNotificationChannels();
                 }
@@ -281,10 +283,15 @@ export const useNotification = () => {
         fetchNotificationDetails();
     }, []);
 
-    // enables the push notification when chekc box is ticked
+    // add/remove the push notification based in checkbox tick
     useEffect(() => {
         if (isPushNotifyActive) {
             enablePushNotificationChannel();
+        } else {
+            removeSpecificNotificationChannel(
+                NotificationChannelType.PUSH,
+                () => {},
+            );
         }
     }, [isPushNotifyActive]);
 

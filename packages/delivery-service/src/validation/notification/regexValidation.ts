@@ -7,7 +7,7 @@ const EMAIL_REGEX =
 // checks regex pattern for recipient value
 export const checkRegexPattern = (
     notificationChannelType: string,
-    recipientValue: string,
+    recipientValue: string | PushSubscription,
 ) => {
     switch (notificationChannelType) {
         case NotificationChannelType.EMAIL:
@@ -16,6 +16,8 @@ export const checkRegexPattern = (
                 .toLowerCase()
                 .match(EMAIL_REGEX);
             return patternCheck;
+        case NotificationChannelType.PUSH:
+            return true;
         default:
             return null;
     }

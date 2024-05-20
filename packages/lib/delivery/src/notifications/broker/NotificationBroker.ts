@@ -109,6 +109,7 @@ export const NotificationBroker = (
                     type: NotificationChannelType.EMAIL,
                     send: Email(channel.config).send,
                 };
+            // TODO: write a case for PUSH type
             default:
                 throw new NotificationError(
                     `Notification channel ${channel.type} is currently not supported by the DS`,

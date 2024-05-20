@@ -25,6 +25,7 @@ import { getDatabase } from './persistence/getDatabase';
 import Profile from './profile';
 import RpcProxy from './rpc/rpc-proxy';
 import { WebSocketManager } from './ws/WebSocketManager';
+import webpush from 'web-push';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -52,6 +53,12 @@ global.logger = winston.createLogger({
     const web3Provider = await getWeb3Provider(process.env);
     const keys = readKeysFromEnv(process.env);
     const serverSecret = getServerSecret(process.env);
+
+    webpush.setVapidDetails(
+        `mailto:${deliveryServiceProperties.vapidEmailId}`,
+        deliveryServiceProperties.publicVapidKey,
+        deliveryServiceProperties.privateVapidKey,
+    );
 
     const io = new Server(server, {
         cors: {

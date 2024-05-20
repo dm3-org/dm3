@@ -2021,6 +2021,7 @@ __metadata:
     "@types/node": ^20.3.1
     "@types/redis": ^4.0.11
     "@types/supertest": ^2.0.12
+    "@types/web-push": ^3.6.3
     axios: ^0.27.2
     babel-cli: ^6.26.0
     babel-jest: ^29.2.2
@@ -2038,6 +2039,7 @@ __metadata:
     supertest: ^6.3.1
     ts-node: ^10.9.1
     typescript: ^4.4.2
+    web-push: ^3.6.7
     winston: ^3.8.1
     yaml: ^2.1.3
   languageName: unknown
@@ -7319,6 +7321,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/web-push@npm:^3.6.3":
+  version: 3.6.3
+  resolution: "@types/web-push@npm:3.6.3"
+  dependencies:
+    "@types/node": "*"
+  checksum: 6fc6ac93dbb87d99ae1d08f065d1c80620ac69d966796d358363849903aaf6dcbf222cf3914a05b92db542289618484ef8cf5d6b50d1737d56527e9f2c65f578
+  languageName: node
+  linkType: hard
+
 "@types/web3-provider-engine@npm:^14.0.0":
   version: 14.0.3
   resolution: "@types/web3-provider-engine@npm:14.0.3"
@@ -8800,6 +8811,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"agent-base@npm:^7.0.2":
+  version: 7.1.1
+  resolution: "agent-base@npm:7.1.1"
+  dependencies:
+    debug: ^4.3.4
+  checksum: 51c158769c5c051482f9ca2e6e1ec085ac72b5a418a9b31b4e82fe6c0a6699adb94c1c42d246699a587b3335215037091c79e0de512c516f73b6ea844202f037
+  languageName: node
+  linkType: hard
+
 "agentkeepalive@npm:^4.2.1, agentkeepalive@npm:^4.3.0":
   version: 4.5.0
   resolution: "agentkeepalive@npm:4.5.0"
@@ -9327,7 +9347,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"asn1.js@npm:^5.2.0":
+"asn1.js@npm:^5.2.0, asn1.js@npm:^5.3.0":
   version: 5.4.1
   resolution: "asn1.js@npm:5.4.1"
   dependencies:
@@ -17611,6 +17631,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"http_ece@npm:1.2.0":
+  version: 1.2.0
+  resolution: "http_ece@npm:1.2.0"
+  checksum: 8b716baa83eb985104abe60fd7acdc5198e3d626e9608bdfa1de62851b6b420d89735b483d51045688e14c8fa2031a8f182ac1067394db61c307c7e541983b38
+  languageName: node
+  linkType: hard
+
 "https-browserify@npm:^1.0.0":
   version: 1.0.0
   resolution: "https-browserify@npm:1.0.0"
@@ -17625,6 +17652,16 @@ __metadata:
     agent-base: 6
     debug: 4
   checksum: 571fccdf38184f05943e12d37d6ce38197becdd69e58d03f43637f7fa1269cf303a7d228aa27e5b27bbd3af8f09fd938e1c91dcfefff2df7ba77c20ed8dfc765
+  languageName: node
+  linkType: hard
+
+"https-proxy-agent@npm:^7.0.0":
+  version: 7.0.4
+  resolution: "https-proxy-agent@npm:7.0.4"
+  dependencies:
+    agent-base: ^7.0.2
+    debug: 4
+  checksum: daaab857a967a2519ddc724f91edbbd388d766ff141b9025b629f92b9408fc83cee8a27e11a907aede392938e9c398e240d643e178408a59e4073539cde8cfe9
   languageName: node
   linkType: hard
 
@@ -30480,6 +30517,21 @@ __metadata:
     "@zxing/text-encoding":
       optional: true
   checksum: 2234a2b122f41006ce07859b3c0bf2e18f46144fda2907d5db0b571b76aa5c26977c646100ad9c00d2f8a4f6f2b848bc02147845d8c447ab365ec4eff376338d
+  languageName: node
+  linkType: hard
+
+"web-push@npm:^3.6.7":
+  version: 3.6.7
+  resolution: "web-push@npm:3.6.7"
+  dependencies:
+    asn1.js: ^5.3.0
+    http_ece: 1.2.0
+    https-proxy-agent: ^7.0.0
+    jws: ^4.0.0
+    minimist: ^1.2.5
+  bin:
+    web-push: src/cli.js
+  checksum: 306862864675a28702f378c779dfc87f5f2d717fadbcb622c8b40231e0ec074a5592251cb937b96a7e85dcfeafd475d12f0ec9044be210134ad386872d8e56ec
   languageName: node
   linkType: hard
 

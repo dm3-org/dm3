@@ -5,4 +5,7 @@ export interface DeliveryServiceProperties {
     //Number of bytes an envelop object should not exceed
     sizeLimit: number;
     notificationChannel: NotificationChannel[];
+    vapidEmailId: string;
+    publicVapidKey: string;
+    privateVapidKey: string;
 }
