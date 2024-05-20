@@ -67,8 +67,6 @@ winston.loggers.add('default', global.logger);
     app.use(logError);
     app.use(errorHandler);
     io.use(socketAuth(db, web3Provider, serverSecret));
-    //@ts-ignore
-    io.on('connection', onConnection(app));
 })();
 
 // TODO include standalone web app

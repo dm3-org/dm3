@@ -49,6 +49,7 @@ yarn-error.log*
 
 packages/lib/**/dist.backend
 packages/lib/**/dist
+packages/messenger-widget/**/lib
 
 **/*/.env
 **/*/.nyc_output

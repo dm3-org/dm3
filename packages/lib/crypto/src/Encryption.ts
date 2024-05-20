@@ -1,11 +1,11 @@
 import { ethers } from 'ethers';
-import _sodium, { unpad } from 'libsodium-wrappers';
 import {
     createKeyPair,
     createReceiverSessionKey,
     createSenderSessionKey,
     KeyPair,
 } from './KeyCreation';
+import { initializeLibSodiumWrapper } from './libsodium/initializeLibSodiumWrapper';
 
 export interface EncryptedPayload {
     nonce: string;
@@ -21,8 +21,7 @@ export async function encrypt(
     prevNonce?: string,
     padding: number = PAD_BLOCKSIZE,
 ): Promise<EncryptedPayload> {
-    await _sodium.ready;
-    const sodium = _sodium;
+    const sodium = await initializeLibSodiumWrapper();
 
     const nonce = prevNonce
         ? ethers.utils.arrayify(prevNonce)
@@ -58,8 +57,7 @@ export async function decrypt(
     encryptedPayload: EncryptedPayload,
     padding: number = PAD_BLOCKSIZE,
 ): Promise<string> {
-    await _sodium.ready;
-    const sodium = _sodium;
+    const sodium = await initializeLibSodiumWrapper();
 
     const payload = sodium.crypto_aead_chacha20poly1305_ietf_decrypt(
         null,

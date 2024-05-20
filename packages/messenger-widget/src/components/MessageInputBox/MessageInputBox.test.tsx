@@ -4,8 +4,8 @@ import '@testing-library/jest-dom';
 
 describe('MessageInputBox test cases', () => {
     it('Renders MessageInputBox component', () => {
-        const { getByRole } = render(<MessageInputBox />);
-        const element = getByRole('div');
+        const { getByTestId } = render(<MessageInputBox />);
+        const element = getByTestId('msg-input-box-container');
         expect(element).toBeInTheDocument();
     });
 });

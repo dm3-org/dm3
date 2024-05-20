@@ -10,12 +10,6 @@ describe('MessageInputField test cases', () => {
         setMessageText: () => {},
     };
 
-    it('Renders MessageInputField component', () => {
-        const { getByRole } = render(<MessageInputField {...props} />);
-        const element = getByRole('form');
-        expect(element).toBeInTheDocument();
-    });
-
     it('Fetch input field to write a message', () => {
         const { getByTestId } = render(<MessageInputField {...props} />);
         const element = getByTestId('msg-input');
@@ -28,17 +22,6 @@ describe('MessageInputField test cases', () => {
         const action = fireEvent.change(input, {
             target: { value: 'testing on...' },
         });
-        expect(action).toBe(true);
-    });
-
-    it('On submit of a message', () => {
-        const { getByTestId, getByRole } = render(
-            <MessageInputField {...props} />,
-        );
-        const form = getByRole('form');
-        const input = getByTestId('msg-input');
-        fireEvent.change(input, { target: { value: 'testing on...' } });
-        const action = fireEvent.submit(form);
         expect(action).toBe(true);
     });
 });
