@@ -74,7 +74,8 @@ jobs:
               working-directory: 'packages/lib'
               shell: bash
               # pack libraries into archives. they are copied to and used in the delivery service image.
-              run: for lib in `ls`; do cd $lib; yarn pack --filename ../$lib.tgz; cd ..;  done
+              # we ignore the billboard-api library because it is not properly connected to our monorepo
+              run: for lib in `ls -I billboard-api`; do cd $lib; yarn pack --filename ../$lib.tgz; cd ..;  done
             - name: Create docker image for delivery service
               working-directory: '/'
               shell: bash
