@@ -57,7 +57,7 @@ jobs:
                   echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> ./.env
                   envsubst '${SSL_CERTIFICATE_BASE_LOC} ${TLS_CERTIFICATE_LOCATION} ${TARGET_HOST}' < ./docker/nginx.conf > ./nginx.conf
                   cat ./.env
-            - name: Build docker images
+            - name: Build unified docker image
               shell: bash
               run: |
                   cp ./.env.react packages/messenger-demo/.env
@@ -95,7 +95,7 @@ jobs:
                   rsync -avz -e 'ssh -i ./ssh-key' ./dm3-delivery-service.tar app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
                   rsync -avz -e 'ssh -i ./ssh-key' ./nginx.conf app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
                   rsync -avz -e 'ssh -i ./ssh-key' ./docker/docker-compose.yml app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
-            - name: Load docker image
+            - name: Load docker images
               run: |
                   ssh -i ./ssh-key app@${{ secrets.HOST_DOMAIN}} "\
                   cd dm3 && docker load -i dm3-backend.tar && docker load -i dm3-delivery-service.tar"
