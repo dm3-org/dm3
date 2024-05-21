@@ -78,7 +78,7 @@ global.logger = winston.createLogger({
     /**
      *     needed
      */
-    app.use('/profile', Profile(db, web3Provider, io));
+    app.use('/profile', Profile(db, web3Provider, io, serverSecret));
     app.use('/delivery', Delivery(web3Provider, db, keys, serverSecret));
     app.use(
         '/notifications',
