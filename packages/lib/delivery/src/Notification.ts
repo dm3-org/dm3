@@ -62,7 +62,7 @@ export async function addNewNotificationChannel(
     });
 
     // send OTP only when notification type is not PUSH
-    if (NotificationChannelType.PUSH) {
+    if (notificationChannelType === NotificationChannelType.PUSH) {
         // set notification channel as verified
         db.setNotificationChannelAsVerified(ensName, notificationChannelType);
     } else {

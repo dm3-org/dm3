@@ -10,9 +10,6 @@ const DEFAULT_DELIVERY_SERVICE_PROPERTIES: DeliveryServiceProperties = {
     //100Kb
     sizeLimit: 100000,
     notificationChannel: [],
-    vapidEmailId: '',
-    publicVapidKey: '',
-    privateVapidKey: '',
 };
 
 export function getDeliveryServiceProperties(
