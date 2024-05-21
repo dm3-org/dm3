@@ -15,8 +15,8 @@ services:
 
     backend:
         image: dm3-backend
-        command: yarn workspace @dm3-org/dm3-backend start
         restart: always
+        command: yarn workspace @dm3-org/dm3-backend start
         depends_on:
             - db
             - dm3-storage
