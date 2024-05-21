@@ -64,15 +64,22 @@ jobs:
                   cp ./.env.react packages/messenger-web/.env
                   docker build --progress=plain -t dm3-backend:latest -f ./docker/Dockerfile .
                   docker save -o ./dm3-backend.tar dm3-backend:latest
-            - name: Build docker image for delivery service
+            - name: Build repository
               shell: bash
               run: |
                   yarn install
                   # build all workspaces
                   yarn build
-                  # pack libraries into archives. they are copied to and used in the delivery service image.
-                  for lib in `ls`; do cd $lib; yarn pack --filename ../$lib.tgz; cd ..;  done
-                  docker build --progress=plain -t dm3-deliver-service:latest -f ./docker/DockerfileDeliveryService .
+            - name: Export libraries
+              working-directory: 'packages/lib'
+              shell: bash
+              # pack libraries into archives. they are copied to and used in the delivery service image.
+              run: for lib in `ls`; do cd $lib; yarn pack --filename ../$lib.tgz; cd ..;  done
+            - name: Create docker image for delivery service
+              working-directory: '/'
+              shell: bash
+              run: |
+                  docker build --progress=plain -t dm3-delivery-service:latest -f ./docker/DockerfileDeliveryService .
                   docker save -o ./dm3-delivery-service.tar dm3-delivery-service:latest
             - name: Prepare docker
               run: |
