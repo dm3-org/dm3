@@ -57,7 +57,7 @@ jobs:
                   echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> ./.env
                   envsubst '${SSL_CERTIFICATE_BASE_LOC} ${TLS_CERTIFICATE_LOCATION} ${TARGET_HOST}' < ./docker/nginx.conf > ./nginx.conf
                   cat ./.env
-            - name: Build docker images
+            - name: Build unified docker image
               shell: bash
               run: |
                   cp ./.env.react packages/messenger-demo/.env
@@ -87,7 +87,7 @@ jobs:
                   cd dm3 && docker compose down && docker system prune -af"
                   ssh -i ./ssh-key root@${{ secrets.HOST_DOMAIN}} "\
                   systemctl restart docker.service \
-                  rm /home/app/dm3-backend.tar || true"
+                  rm /home/app/*.tar || true"
             - name: Sync files
               run: |
                   rsync -avz -e 'ssh -i ./ssh-key' ./.env app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
@@ -95,10 +95,11 @@ jobs:
                   rsync -avz -e 'ssh -i ./ssh-key' ./dm3-delivery-service.tar app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
                   rsync -avz -e 'ssh -i ./ssh-key' ./nginx.conf app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
                   rsync -avz -e 'ssh -i ./ssh-key' ./docker/docker-compose.yml app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
-            - name: Load docker image
+            - name: Load docker images
               run: |
                   ssh -i ./ssh-key app@${{ secrets.HOST_DOMAIN}} "\
-                  cd dm3 && docker load -i dm3-backend.tar && docker load -i dm3-delivery-service.tar"
+                  cd dm3 && ls |grep -E 'dm3-.*tar' | xargs --no-run-if-empty -L 1 docker load -i; \
+                  rm dm3-*.tar || true"
             - name: Firewall config
               run: |
                   ssh -i ./ssh-key root@${{ secrets.HOST_DOMAIN}} "\
