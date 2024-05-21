@@ -56,6 +56,7 @@ describe('UserProfile', () => {
                     setSession,
                     RANDO_NAME,
                     singedUserProfile,
+                    'my-secret',
                     getPendingConversations,
                     send,
                 );
@@ -98,6 +99,7 @@ describe('UserProfile', () => {
                     setSession,
                     SENDER_NAME,
                     singedUserProfile,
+                    'my-secret',
                     getPendingConversations,
                     send,
                 );
@@ -118,6 +120,7 @@ describe('UserProfile', () => {
                 setSession,
                 SENDER_NAME,
                 singedUserProfile,
+                'my-secret',
                 getPendingConversations,
                 send,
             );
@@ -147,6 +150,7 @@ describe('UserProfile', () => {
                 setSession,
                 SENDER_NAME,
                 singedUserProfile,
+                'my-secret',
                 getPendingConversations,
                 send,
             );
@@ -169,6 +173,7 @@ describe('UserProfile', () => {
                 setSession,
                 SENDER_NAME,
                 singedUserProfile,
+                'my-secret',
                 getPendingConversations,
                 send,
             );

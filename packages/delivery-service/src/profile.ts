@@ -10,6 +10,7 @@ export default (
     db: IDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
     io: Server,
+    serverSecret: string,
 ) => {
     const router = express.Router();
 
@@ -54,6 +55,7 @@ export default (
                 db.setSession,
                 ensName,
                 req.body,
+                serverSecret,
                 (ensName: string) => db.getPending(ensName),
                 (socketId: string) => io.sockets.to(socketId).emit('joined'),
             );
