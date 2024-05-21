@@ -77,7 +77,6 @@ jobs:
               # we ignore the billboard-api library because it is not properly connected to our monorepo
               run: for lib in `ls -I billboard-api`; do cd $lib; yarn pack --filename ../$lib.tgz; cd ..;  done
             - name: Create docker image for delivery service
-              working-directory: '/'
               shell: bash
               run: |
                   docker build --progress=plain -t dm3-delivery-service:latest -f ./docker/DockerfileDeliveryService .
