@@ -79,17 +79,17 @@ export const DeliveryServiceConnector = (
             dm3Configuration.resolverBackendUrl as string,
             signedUserProfile,
         );
-        const deliveryServiceToken = await submitUserProfile(
-            { ensName, profile: signedUserProfile.profile },
-            mainnetProvider,
-            signedUserProfile,
-        );
+        // const deliveryServiceToken = await submitUserProfile(
+        //     { ensName, profile: signedUserProfile.profile },
+        //     mainnetProvider,
+        //     signedUserProfile,
+        // );
 
         const keys = await createProfileKeys();
 
         return {
             profileKeys: keys,
-            deliveryServiceToken,
+            deliveryServiceToken: '',
             signedUserProfile,
         };
     };
@@ -168,13 +168,13 @@ export const DeliveryServiceConnector = (
         }
         const ensName = address + addrEnsSubdomain;
 
-        const deliveryServiceToken = await submitUserProfile(
-            { ensName, profile: signedUserProfile.profile },
-            mainnetProvider,
-            signedUserProfile,
-        );
+        // const deliveryServiceToken = await submitUserProfile(
+        //     { ensName, profile: signedUserProfile.profile },
+        //     mainnetProvider,
+        //     signedUserProfile,
+        // );
         return {
-            deliveryServiceToken,
+            deliveryServiceToken: '',
             signedUserProfile,
             profileKeys: keys,
         };

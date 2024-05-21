@@ -1,7 +1,6 @@
 import { useContext, useEffect } from 'react';
 import { DM3Name } from './../DM3Name';
 import { NAME_TYPE } from '../../chain/common';
-import { createAlias } from '@dm3-org/dm3-lib-delivery-api';
 import { AuthContext } from '../../../../context/AuthContext';
 import { closeLoader, startLoader } from '../../../Loader/Loader';
 import { claimSubdomain } from '../../../../adapters/offchainResolverApi';
@@ -45,14 +44,6 @@ export const ConfigureCloudNameProfile = () => {
                     dm3Configuration.resolverBackendUrl as string,
                     account!.ensName,
                     profileKeys.signingKeyPair.privateKey,
-                );
-
-                await createAlias(
-                    account!,
-                    mainnetProvider!,
-                    account!.ensName,
-                    ensName,
-                    deliveryServiceToken!,
                 );
 
                 setDisplayName(ensName);

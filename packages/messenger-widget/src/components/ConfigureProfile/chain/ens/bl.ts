@@ -1,4 +1,3 @@
-import { createAlias } from '@dm3-org/dm3-lib-delivery-api';
 import { Account, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { ethersHelper, stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
@@ -76,13 +75,6 @@ export const submitEnsNameTransaction = async (
         );
 
         if (tx) {
-            await createAlias(
-                account!,
-                mainnetProvider!,
-                account!.ensName,
-                ensName!,
-                dsToken,
-            );
             const response = await ethersHelper.executeTransaction(tx);
             await response.wait();
             setEnsNameFromResolver(ensName);
