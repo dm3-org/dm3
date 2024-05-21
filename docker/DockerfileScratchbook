@@ -4,10 +4,7 @@ WORKDIR /app
 # copy the whole repository to the container
 COPY . .
 
-
-# are g++, python and make really needed?
-# RUN apk add --update python3 make g++ curl bash\
-#    && rm -rf /var/cache/apk/*
+# install bash for the following commands
 RUN apk add --update bash\
     && rm -rf /var/cache/apk/*
 
