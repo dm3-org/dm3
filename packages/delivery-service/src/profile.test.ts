@@ -46,7 +46,7 @@ describe('Profile', () => {
 
             const app = express();
             app.use(bodyParser.json());
-            app.use(profile(db as any, {} as any, {} as any));
+            app.use(profile(db as any, {} as any, {} as any, 'my-secret'));
 
             const { status } = await request(app)
                 .get('/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870')
@@ -69,7 +69,9 @@ describe('Profile', () => {
             };
             const app = express();
             app.use(bodyParser.json());
-            app.use(profile(db as any, web3Provider as any, {} as any));
+            app.use(
+                profile(db as any, web3Provider as any, {} as any, 'my-secret'),
+            );
 
             const mnemonic =
                 'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
@@ -114,7 +116,7 @@ describe('Profile', () => {
 
             const app = express();
             app.use(bodyParser.json());
-            app.use(profile(db as any, {} as any, {} as any));
+            app.use(profile(db as any, {} as any, {} as any, 'my-secret'));
 
             const userProfile: UserProfile = {
                 publicSigningKey: '2',

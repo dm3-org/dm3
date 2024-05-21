@@ -35,11 +35,12 @@ const setUpApp = async (
     app: express.Express,
     db: IDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
+    serverSecret: string = 'my-secret',
 ) => {
     app.use(bodyParser.json());
     const server = http.createServer(app);
     const io = new Server(server, {});
-    app.use(profile(db, io, web3Provider));
+    app.use(profile(db, io, web3Provider, serverSecret));
 };
 
 const createDbMock = async () => {

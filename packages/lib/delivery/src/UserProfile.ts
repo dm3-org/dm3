@@ -8,6 +8,7 @@ import { Session } from './Session';
 import { v4 as uuidv4 } from 'uuid';
 import { ethers } from 'ethers';
 import { logDebug } from '@dm3-org/dm3-lib-shared';
+import { generateAuthJWT } from './Keys';
 
 const handlePendingConversations = async (
     ensName: string,
@@ -35,6 +36,7 @@ export async function submitUserProfile(
     setSession: (accountAddress: string, session: Session) => Promise<void>,
     ensName: string,
     signedUserProfile: SignedUserProfile,
+    serverSecret: string,
     getPendingConversations: (accountAddress: string) => Promise<string[]>,
     send: (socketId: string) => void,
 ): Promise<string> {
@@ -56,7 +58,7 @@ export async function submitUserProfile(
     const session: Session = {
         account,
         signedUserProfile,
-        token: uuidv4(),
+        token: generateAuthJWT(ensName, serverSecret),
         createdAt: new Date().getTime(),
         profileExtension: getDefaultProfileExtension(),
     };

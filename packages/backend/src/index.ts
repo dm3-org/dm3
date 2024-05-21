@@ -61,7 +61,7 @@ winston.loggers.add('default', global.logger);
     app.get('/hello', (req, res) => {
         return res.send('Hello DM3');
     });
-    app.use('/profile', Profile(db, io, web3Provider));
+    app.use('/profile', Profile(db, io, web3Provider, serverSecret));
     app.use('/storage', Storage(db, web3Provider, serverSecret));
     app.use('/auth', Auth(db.getSession as any, serverSecret));
     app.use(logError);
