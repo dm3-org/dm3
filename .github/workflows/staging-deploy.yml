@@ -57,15 +57,23 @@ jobs:
                   echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> ./.env
                   envsubst '${SSL_CERTIFICATE_BASE_LOC} ${TLS_CERTIFICATE_LOCATION} ${TARGET_HOST}' < ./docker/nginx.conf > ./nginx.conf
                   cat ./.env
-            - name: Build docker image
+            - name: Build docker images
               shell: bash
               run: |
                   cp ./.env.react packages/messenger-demo/.env
                   cp ./.env.react packages/messenger-web/.env
                   docker build --progress=plain -t dm3-backend:latest -f ./docker/Dockerfile .
                   docker save -o ./dm3-backend.tar dm3-backend:latest
-                  # docker build --progress=plain -t dm3-delivery-service:latest -f ./docker/DockerfileDeliveryService .
-                  # docker save -o ./dm3-delivery-service.tar dm3-delivery-service:latest
+            - name: Build docker image for delivery service
+              shell: bash
+              run: |
+                  yarn install
+                  # build all workspaces
+                  yarn build
+                  # pack libraries into archives. they are copied to and used in the delivery service image.
+                  for lib in `ls`; do cd $lib; yarn pack --filename ../$lib.tgz; cd ..;  done
+                  docker build --progress=plain -t dm3-deliver-service:latest -f ./docker/DockerfileDeliveryService .
+                  docker save -o ./dm3-delivery-service.tar dm3-delivery-service:latest
             - name: Prepare docker
               run: |
                   ssh -i ./ssh-key app@${{ secrets.HOST_DOMAIN}} "\
@@ -77,13 +85,13 @@ jobs:
               run: |
                   rsync -avz -e 'ssh -i ./ssh-key' ./.env app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
                   rsync -avz -e 'ssh -i ./ssh-key' ./dm3-backend.tar app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3 
-                  # rsync -avz -e 'ssh -i ./ssh-key' ./dm3-delivery-service.tar app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
+                  rsync -avz -e 'ssh -i ./ssh-key' ./dm3-delivery-service.tar app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
                   rsync -avz -e 'ssh -i ./ssh-key' ./nginx.conf app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
                   rsync -avz -e 'ssh -i ./ssh-key' ./docker/docker-compose.yml app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
             - name: Load docker image
               run: |
                   ssh -i ./ssh-key app@${{ secrets.HOST_DOMAIN}} "\
-                  cd dm3 && docker load -i dm3-backend.tar # && docker load -i dm3-delivery-service.tar"
+                  cd dm3 && docker load -i dm3-backend.tar && docker load -i dm3-delivery-service.tar"
             - name: Firewall config
               run: |
                   ssh -i ./ssh-key root@${{ secrets.HOST_DOMAIN}} "\
