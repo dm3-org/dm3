@@ -21,12 +21,18 @@ describe('ReadDeliveryServiceProperties', () => {
             messageTTL: 12345,
             sizeLimit: 456,
             notificationChannel: [],
+            vapidEmailId: '',
+            publicVapidKey: '',
+            privateVapidKey: '',
         });
 
         expect(config).toStrictEqual({
             messageTTL: 12345,
             sizeLimit: 456,
             notificationChannel: [],
+            vapidEmailId: '',
+            publicVapidKey: '',
+            privateVapidKey: '',
         });
     });
 
@@ -37,6 +43,9 @@ describe('ReadDeliveryServiceProperties', () => {
                 messageTTL: 12345,
                 sizeLimit: 456,
                 notificationChannel: [],
+                vapidEmailId: '',
+                publicVapidKey: '',
+                privateVapidKey: '',
             }),
             { encoding: 'utf-8' },
         );
@@ -46,6 +55,9 @@ describe('ReadDeliveryServiceProperties', () => {
             messageTTL: 12345,
             sizeLimit: 456,
             notificationChannel: [],
+            vapidEmailId: '',
+            publicVapidKey: '',
+            privateVapidKey: '',
         });
     });
     it('Adds default properties if config.yml is not fully specified', () => {

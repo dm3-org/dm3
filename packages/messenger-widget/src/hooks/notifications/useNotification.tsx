@@ -181,6 +181,9 @@ export const useNotification = () => {
                     dm3Configuration.publicVapidKey,
                 );
 
+                if (!subscription)
+                    throw new Error('Failed to subscribe webpush notification');
+
                 const { status } = await addNotificationChannel(
                     account,
                     mainnetProvider,
