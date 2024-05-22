@@ -1,3 +1,4 @@
+import { sign } from '@dm3-org/dm3-lib-crypto';
 import {
     ProfileKeys,
     SignedUserProfile,
@@ -9,18 +10,13 @@ import { stringify } from '@dm3-org/dm3-lib-shared';
 import axios from 'axios';
 import { ethers } from 'ethers';
 import { claimAddress } from '../../adapters/offchainResolverApi';
-import {
-    getChallenge,
-    getNewToken,
-    submitUserProfile,
-} from '@dm3-org/dm3-lib-delivery-api';
 import { ConnectDsResult } from '../auth/DeliveryServiceConnector';
-import { sign } from '@dm3-org/dm3-lib-crypto';
+import { JwtInterceptor } from './JwtInterceptor';
 
 //Interface to support different kinds of signers
 export type SignMessageFn = (message: string) => Promise<string>;
 //Facilitates either BE or DS
-export abstract class ServerSideConnector {
+export abstract class ServerSideConnector extends JwtInterceptor {
     private readonly mainnetProvider: ethers.providers.StaticJsonRpcProvider;
     private readonly signMessage: SignMessageFn;
     private readonly defaultDeliveryServiceEnsName: string;
@@ -42,6 +38,7 @@ export abstract class ServerSideConnector {
         address: string,
         profileKeys: ProfileKeys,
     ) {
+        super(baseUrl);
         this.mainnetProvider = mainnetProvider;
         this.signMessage = signMessage;
         this.defaultDeliveryServiceEnsName = defaultDeliveryServiceEnsName;
@@ -61,10 +58,7 @@ export abstract class ServerSideConnector {
 
         //User has profile either onchain or at the resolver and has already sign up with the DS
         if (profileIsKnownToDs) {
-            return await this.loginWithExistingProfile(
-                this.ensName,
-                signedUserProfile,
-            );
+            return await this.loginWithExistingProfile(signedUserProfile);
         }
         //  User has profile onchain but not interacted with the DS yet
         if (userHasProfile) {
@@ -73,12 +67,8 @@ export abstract class ServerSideConnector {
         //User has neither an onchain profile nor a profile on the resolver
         return await this.createNewProfileAndLogin();
     }
-
-    //TBD child can use this method to call a method from the DS
-    protected async fetch() {
-        //Make request to Server
-        //If 401 then re-authenticate
-        //and try again
+    protected override onReAuth(): Promise<string> {
+        return this.reAuth();
     }
 
     private async createNewProfileAndLogin() {
@@ -135,6 +125,7 @@ export abstract class ServerSideConnector {
         //Todo move api call to lib
         const url = `${this.baseUrl}/profile/${ensName}`;
         const { data } = await axios.post(url, signedUserProfile);
+        this.setAuthToken(data);
         return {
             deliveryServiceToken: data,
             signedUserProfile,
@@ -143,43 +134,39 @@ export abstract class ServerSideConnector {
     }
 
     private async loginWithExistingProfile(
-        ensName: string,
         signedUserProfile: SignedUserProfile,
     ): Promise<ConnectDsResult> {
-        const reAuth = async (
-            ensName: string,
-            profile: UserProfile,
-            privateSigningKey: string,
-        ) => {
-            //Todo move to lib
-            const url = `${this.baseUrl}/auth/${normalizeEnsName(ensName)}`;
-            const { data } = await axios.get(url);
-
-            const challenge = data.challenge;
-            const signature = await sign(privateSigningKey, challenge);
-
-            const getNewTokenUrl = `${this.baseUrl}/auth/${normalizeEnsName(
-                ensName,
-            )}`;
-            //Todo move to lib
-            const { data: getNewTokenData } = await axios.post(getNewTokenUrl, {
-                signature,
-            });
-
-            return getNewTokenData.token;
-        };
         const keys = this.profileKeys;
-        const deliveryServiceToken = await reAuth(
-            ensName,
-            signedUserProfile.profile,
-            keys.signingKeyPair.privateKey,
-        );
+        const deliveryServiceToken = await this.reAuth();
+        this.setAuthToken(deliveryServiceToken);
 
         return {
             profileKeys: keys,
             deliveryServiceToken,
             signedUserProfile,
         };
+    }
+
+    private async reAuth() {
+        //TODO check if we need alias subdomain
+        const url = `${this.baseUrl}/auth/${normalizeEnsName(this.ensName)}`;
+        const { data } = await axios.get(url);
+
+        const challenge = data.challenge;
+        const signature = await sign(
+            this.profileKeys.signingKeyPair.privateKey,
+            challenge,
+        );
+
+        const getNewTokenUrl = `${this.baseUrl}/auth/${normalizeEnsName(
+            this.ensName,
+        )}`;
+        //Todo move to lib
+        const { data: getNewTokenData } = await axios.post(getNewTokenUrl, {
+            signature,
+        });
+
+        return getNewTokenData.token;
     }
 
     private async profileExistsOnDeliveryService() {
