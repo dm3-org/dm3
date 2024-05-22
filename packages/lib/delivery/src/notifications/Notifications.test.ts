@@ -128,12 +128,6 @@ describe('Notifications', () => {
     });
 
     it('Send Push notification for a new message', async () => {
-        const sendNotificationMock = jest.fn();
-
-        jest.mock('NotificationBroker', () => ({
-            sendNotification: sendNotificationMock,
-        }));
-
         const dsNotificationChannels: NotificationChannel[] = [
             {
                 type: NotificationChannelType.PUSH,
@@ -160,9 +154,9 @@ describe('Notifications', () => {
             },
         };
 
-        const getUsersNotificationChannels = (user: string) => {
-            return Promise.resolve([channel1]);
-        };
+        const notificationChannelsMocked = jest
+            .fn()
+            .mockReturnValue(Promise.resolve([channel1]));
 
         const { sendNotification } = NotificationBroker(
             dsNotificationChannels,
@@ -175,9 +169,9 @@ describe('Notifications', () => {
                 from: 'bob.eth',
                 deliveryInstruction: 'saddsdsadsadsad',
             },
-            getUsersNotificationChannels,
+            notificationChannelsMocked,
         );
 
-        expect(sendNotificationMock).toHaveBeenCalled();
+        expect(notificationChannelsMocked).toHaveBeenCalled();
     });
 });

@@ -843,6 +843,7 @@ describe('Notification', () => {
                 },
             };
 
+            const setNotificationChannelAsVerified = jest.fn();
             const addUsersNotificationChannel = jest.fn();
             const getUsersNotificationChannels = () => Promise.resolve([]);
 
@@ -860,6 +861,7 @@ describe('Notification', () => {
             const db = {
                 getUsersNotificationChannels,
                 addUsersNotificationChannel,
+                setNotificationChannelAsVerified,
             };
 
             await addNewNotificationChannel(
