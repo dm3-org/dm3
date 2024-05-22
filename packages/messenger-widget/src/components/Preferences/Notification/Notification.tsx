@@ -184,15 +184,7 @@ export function Notification() {
                         checked={isPushNotifyActive}
                         disabled={!isNotificationsActive}
                         action={() => {
-                            if (isPushNotifyActive) {
-                                toggleSpecificNotificationChannel(
-                                    !isPushNotifyActive,
-                                    NotificationChannelType.PUSH,
-                                    setIsPushNotifyActive,
-                                );
-                            } else {
-                                setIsPushNotifyActive(!isPushNotifyActive);
-                            }
+                            setIsPushNotifyActive(!isPushNotifyActive);
                         }}
                         heading="Push Notifications"
                     />
