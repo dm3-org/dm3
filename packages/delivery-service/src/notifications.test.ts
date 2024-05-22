@@ -1806,6 +1806,7 @@ describe('Notifications', () => {
 
             const addNewNotificationChannelMock = jest.fn();
             const addUsersNotificationChannelMock = jest.fn();
+            const setNotificationChannelAsVerifiedMock = jest.fn();
 
             const db = {
                 getSession: async (ensName: string) =>
@@ -1827,10 +1828,12 @@ describe('Notifications', () => {
                             config: {
                                 recipientValue: recipientValue,
                                 isEnabled: true,
-                                isVerified: false,
+                                isVerified: true,
                             },
                         },
                     ]),
+                setNotificationChannelAsVerified:
+                    setNotificationChannelAsVerifiedMock,
                 addNewNotificationChannel: addNewNotificationChannelMock,
                 addUsersNotificationChannel: addUsersNotificationChannelMock,
             };
