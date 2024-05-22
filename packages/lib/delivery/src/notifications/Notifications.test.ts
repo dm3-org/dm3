@@ -126,4 +126,58 @@ describe('Notifications', () => {
 
         expect(sendNewMsgMailMock).not.toHaveBeenCalled();
     });
+
+    it('Send Push notification for a new message', async () => {
+        const sendNotificationMock = jest.fn();
+
+        jest.mock('NotificationBroker', () => ({
+            sendNotification: sendNotificationMock,
+        }));
+
+        const dsNotificationChannels: NotificationChannel[] = [
+            {
+                type: NotificationChannelType.PUSH,
+                config: {
+                    vapidEmailId: 'test@gmail.com',
+                    publicVapidKey: 'dbiwqeqwewqosa',
+                    privateVapidKey: 'wqieyiwqeqwnsd',
+                },
+            },
+        ];
+
+        const channel1 = {
+            type: NotificationChannelType.PUSH,
+            config: {
+                recipientValue: {
+                    endpoint: 'https://test.com',
+                    keys: {
+                        auth: 'authkey',
+                        p256dh: 'p256dh',
+                    },
+                },
+                isEnabled: true,
+                isVerified: true,
+            },
+        };
+
+        const getUsersNotificationChannels = (user: string) => {
+            return Promise.resolve([channel1]);
+        };
+
+        const { sendNotification } = NotificationBroker(
+            dsNotificationChannels,
+            NotificationType.NEW_MESSAGE,
+        );
+
+        await sendNotification(
+            {
+                to: 'ethan.eth',
+                from: 'bob.eth',
+                deliveryInstruction: 'saddsdsadsadsad',
+            },
+            getUsersNotificationChannels,
+        );
+
+        expect(sendNotificationMock).toHaveBeenCalled();
+    });
 });

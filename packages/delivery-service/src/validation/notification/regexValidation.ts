@@ -17,7 +17,7 @@ export const checkRegexPattern = (
                 .match(EMAIL_REGEX);
             return patternCheck;
         case NotificationChannelType.PUSH:
-            return true;
+            return typeof recipientValue !== 'string' ? true : false;
         default:
             return null;
     }

@@ -70,3 +70,71 @@ describe('Removes EMAIL notification channel', () => {
         expect(notificationChannelsAfterRemoval).toEqual([]);
     });
 });
+
+describe('Removes PUSH notification channel', () => {
+    let redisClient: Redis;
+    let db: IDatabase;
+
+    beforeEach(async () => {
+        redisClient = await getRedisClient();
+        db = await getDatabase(redisClient);
+        await redisClient.flushDb();
+    });
+
+    afterEach(async () => {
+        await redisClient.flushDb();
+        await redisClient.disconnect();
+    });
+
+    it('Removes PUSH notification channel of specific ENS name', async () => {
+        const recipientValue = {
+            endpoint: 'https://test.com',
+            keys: {
+                auth: 'authkey',
+                p256dh: 'p256dh',
+            },
+        };
+
+        const notificationChannel: NotificationChannel = {
+            type: NotificationChannelType.PUSH,
+            config: {
+                recipientValue: recipientValue,
+            },
+        };
+
+        // add PUSH notification channel
+        await db.addUsersNotificationChannel(USER_ADDRESS, notificationChannel);
+
+        const expectedNotificationChannels = [
+            {
+                type: NotificationChannelType.PUSH,
+                config: {
+                    recipientValue: recipientValue,
+                    isEnabled: true,
+                    isVerified: false,
+                },
+            },
+        ];
+
+        // fetch notification channels
+        const notificationChannels = await db.getUsersNotificationChannels(
+            USER_ADDRESS,
+        );
+
+        // expects to have PUSH notification channel
+        expect(expectedNotificationChannels).toEqual(notificationChannels);
+
+        // removes PUSH notification channel
+        await db.removeNotificationChannel(
+            USER_ADDRESS,
+            NotificationChannelType.PUSH,
+        );
+
+        // fetch notification channels
+        const notificationChannelsAfterRemoval =
+            await db.getUsersNotificationChannels(USER_ADDRESS);
+
+        // expects to have notification channel as empty array
+        expect(notificationChannelsAfterRemoval).toEqual([]);
+    });
+});
