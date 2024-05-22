@@ -60,6 +60,8 @@ services:
             RPC: ${RPC}
             PORT: 8083
             LOG_LEVEL: 'debug'
+        volumes:
+      - /home/app/dm3/config.yml:/app/packages/backend/dist/config.yml
 
     db-delivery-service:
         image: redis
