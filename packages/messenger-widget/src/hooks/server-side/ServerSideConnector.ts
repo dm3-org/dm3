@@ -50,61 +50,17 @@ export abstract class ServerSideConnector extends JwtInterceptor {
         this.profileKeys = profileKeys;
     }
 
-    public async login(signedUserProfile?: SignedUserProfile) {
-        const userHasProfile = !!signedUserProfile;
+    public async login(signedUserProfile: SignedUserProfile) {
         const isAlreadySignedUp = await this.profileExistsOnDeliveryService();
-
-        const profileIsKnownToDs = userHasProfile && isAlreadySignedUp;
-
         //User has profile either onchain or at the resolver and has already sign up with the DS
-        if (profileIsKnownToDs) {
+        if (isAlreadySignedUp) {
             return await this.loginWithExistingProfile(signedUserProfile);
         }
         //  User has profile onchain but not interacted with the DS yet
-        if (userHasProfile) {
-            return await this.signUpWithExistingProfile(signedUserProfile);
-        }
-        //User has neither an onchain profile nor a profile on the resolver
-        return await this.createNewProfileAndLogin();
+        return await this.signUpWithExistingProfile(signedUserProfile);
     }
     protected override onReAuth(): Promise<string> {
         return this.reAuth();
-    }
-
-    private async createNewProfileAndLogin() {
-        const createNewSignedUserProfile = async ({
-            signingKeyPair,
-            encryptionKeyPair,
-        }: ProfileKeys) => {
-            const profile: UserProfile = {
-                publicSigningKey: signingKeyPair.publicKey,
-                publicEncryptionKey: encryptionKeyPair.publicKey,
-                deliveryServices: [this.defaultDeliveryServiceEnsName],
-            };
-            try {
-                const profileCreationMessage = getProfileCreationMessage(
-                    stringify(profile),
-                    this.address,
-                );
-                const signature = await this.signMessage(
-                    profileCreationMessage,
-                );
-
-                return {
-                    profile,
-                    signature,
-                } as SignedUserProfile;
-            } catch (error: any) {
-                const err = error?.message.split(':');
-                throw Error(err.length > 1 ? err[1] : err[0]);
-            }
-        };
-        //sign a new profile that will be used to claim the address subdomain
-        const signedUserProfile = await createNewSignedUserProfile(
-            this.profileKeys,
-        );
-
-        return this.signUpWithExistingProfile(signedUserProfile);
     }
 
     private async signUpWithExistingProfile(
@@ -150,6 +106,8 @@ export abstract class ServerSideConnector extends JwtInterceptor {
     private async reAuth() {
         //TODO check if we need alias subdomain
         const url = `${this.baseUrl}/auth/${normalizeEnsName(this.ensName)}`;
+        console.log('reauth', url);
+
         const { data } = await axios.get(url);
 
         const challenge = data.challenge;

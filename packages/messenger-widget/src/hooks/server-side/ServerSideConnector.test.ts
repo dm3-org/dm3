@@ -40,39 +40,6 @@ describe('Server Side Connector', () => {
         //setup axios mock
     });
 
-    describe('initial login', () => {
-        it('publish profile and retrive token', async () => {
-            //mock claim address call
-
-            axiosMock = new MockAdapter(axios);
-            axiosMock
-                .onPost('http://resolver.api/profile/address')
-                .reply(200, {});
-
-            const url = `http://ds1.api/profile/${
-                userAddress + '.addr.dm3.eth'
-            }`;
-            axiosMock.onPost(url).reply(200, 'token');
-
-            const mockProvider = {} as any;
-            const signMessage = async (message: string) =>
-                Promise.resolve(message + ' signed');
-
-            const connector = new ServerSideConnectorStub(
-                mockProvider,
-                signMessage,
-                'ds.eth',
-                'http://ds1.api',
-                'http://resolver.api',
-                '.addr.dm3.eth',
-                'alice.eth',
-                userAddress,
-                profileKeys,
-            );
-            const dsResult = await connector.login();
-            expect(dsResult.deliveryServiceToken).toBe('token');
-        });
-    });
     describe('relogin with existing profile', () => {
         it('solve challenge and retrive token', async () => {
             axiosMock = new MockAdapter(axios);
@@ -81,7 +48,7 @@ describe('Server Side Connector', () => {
                 .onPost('http://resolver.api/profile/address')
                 .reply(200, {});
 
-            axiosMock.onGet('http://ds1.api/profile/alice.eth').reply(200, {});
+            axiosMock.onGet('http://ds1.api/profile/alice.eth').reply(404, {});
 
             const url = `http://ds1.api/profile/${
                 userAddress + '.addr.dm3.eth'
@@ -92,6 +59,13 @@ describe('Server Side Connector', () => {
             const signMessage = async (message: string) =>
                 Promise.resolve(message + ' signed');
 
+            const signedUserProfile = await createNewSignedUserProfile(
+                profileKeys,
+                userAddress,
+                signMessage,
+            );
+
+            console.log('check 1');
             const connector = new ServerSideConnectorStub(
                 mockProvider,
                 signMessage,
@@ -103,15 +77,13 @@ describe('Server Side Connector', () => {
                 userAddress,
                 profileKeys,
             );
-            const dsResult = await connector.login();
+            const dsResult = await connector.login(signedUserProfile);
             expect(dsResult.deliveryServiceToken).toBe('token');
 
-            //We create another connector to test relogin
-            const signedUserProfile = await createNewSignedUserProfile(
-                profileKeys,
-                userAddress,
-                signMessage,
-            );
+            console.log('check 2');
+
+            //Alice is now logged in
+            axiosMock.onGet('http://ds1.api/profile/alice.eth').reply(200, {});
 
             //Mock challenge
             axiosMock.onGet('http://ds1.api/auth/alice.eth').reply(200, {
@@ -121,6 +93,7 @@ describe('Server Side Connector', () => {
                 token: 'token2',
             });
 
+            //We create another connector to test relogin
             const newConnector = new ServerSideConnectorStub(
                 mockProvider,
                 signMessage,
@@ -221,6 +194,11 @@ describe('Server Side Connector', () => {
             const signMessage = async (message: string) =>
                 Promise.resolve(message + ' signed');
 
+            const signedUserProfile = await createNewSignedUserProfile(
+                profileKeys,
+                userAddress,
+                signMessage,
+            );
             const connector = new ServerSideConnectorStub(
                 mockProvider,
                 signMessage,
@@ -232,7 +210,7 @@ describe('Server Side Connector', () => {
                 userAddress,
                 profileKeys,
             );
-            await connector.login();
+            await connector.login(signedUserProfile);
             const testRes = await connector.testHeader();
             expect(testRes).toBe(true);
         });
@@ -263,6 +241,12 @@ describe('Server Side Connector', () => {
             const signMessage = async (message: string) =>
                 Promise.resolve(message + ' signed');
 
+            const signedUserProfile = await createNewSignedUserProfile(
+                profileKeys,
+                userAddress,
+                signMessage,
+            );
+
             const connector = new ServerSideConnectorStub(
                 mockProvider,
                 signMessage,
@@ -274,7 +258,7 @@ describe('Server Side Connector', () => {
                 userAddress,
                 profileKeys,
             );
-            await connector.login();
+            await connector.login(signedUserProfile);
             const testRes = await connector.testReAuth();
             expect(testRes).toBe(true);
         });
