@@ -3,12 +3,19 @@ import {
     SignedUserProfile,
     UserProfile,
     getProfileCreationMessage,
+    normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import axios from 'axios';
 import { ethers } from 'ethers';
 import { claimAddress } from '../../adapters/offchainResolverApi';
-import { submitUserProfile } from '@dm3-org/dm3-lib-delivery-api';
+import {
+    getChallenge,
+    getNewToken,
+    submitUserProfile,
+} from '@dm3-org/dm3-lib-delivery-api';
+import { ConnectDsResult } from '../auth/DeliveryServiceConnector';
+import { sign } from '@dm3-org/dm3-lib-crypto';
 
 //Interface to support different kinds of signers
 export type SignMessageFn = (message: string) => Promise<string>;
@@ -53,25 +60,26 @@ export abstract class ServerSideConnector {
         const profileIsKnownToDs = userHasProfile && isAlreadySignedUp;
 
         //User has profile either onchain or at the resolver and has already sign up with the DS
-        // if (profileIsKnownToDs) {
-        //     return await loginWithExistingProfile(
-        //         this.ensName,
-        //         signedUserProfile,
-        //     );
-        // }
-        // //User has profile onchain but not interacted with the DS yet
-        // if (userHasProfile) {
-        //     return await signUpWithExistingProfile(
-        //         this.ensName,
-        //         signedUserProfile,
-        //     );
-        // }
+        if (profileIsKnownToDs) {
+            return await this.loginWithExistingProfile(
+                this.ensName,
+                signedUserProfile,
+            );
+        }
+        //  User has profile onchain but not interacted with the DS yet
+        if (userHasProfile) {
+            return await this.signUpWithExistingProfile(signedUserProfile);
+        }
         //User has neither an onchain profile nor a profile on the resolver
         return await this.createNewProfileAndLogin();
     }
 
     //TBD child can use this method to call a method from the DS
-    protected async fetch() {}
+    protected async fetch() {
+        //Make request to Server
+        //If 401 then re-authenticate
+        //and try again
+    }
 
     private async createNewProfileAndLogin() {
         const createNewSignedUserProfile = async ({
@@ -101,9 +109,18 @@ export abstract class ServerSideConnector {
                 throw Error(err.length > 1 ? err[1] : err[0]);
             }
         };
-        const keys = this.profileKeys;
+        //sign a new profile that will be used to claim the address subdomain
+        const signedUserProfile = await createNewSignedUserProfile(
+            this.profileKeys,
+        );
 
-        const signedUserProfile = await createNewSignedUserProfile(keys);
+        return this.signUpWithExistingProfile(signedUserProfile);
+    }
+
+    private async signUpWithExistingProfile(
+        signedUserProfile: SignedUserProfile,
+    ): Promise<ConnectDsResult> {
+        //TODO move claimAddress to useAuth
         if (
             !(await claimAddress(
                 this.address,
@@ -113,28 +130,59 @@ export abstract class ServerSideConnector {
         ) {
             throw Error(`Couldn't claim address subdomain`);
         }
+
         const ensName = this.address + this.addrEnsSubdomain;
+        //Todo move api call to lib
         const url = `${this.baseUrl}/profile/${ensName}`;
-        // const deliveryServiceToken = await submitUserProfile(
-        //     this.baseUrl,
-        //     { ensName, profile: signedUserProfile.profile },
-        //     signedUserProfile,
-        // );
-
-        console.log('url', url);
-
         const { data } = await axios.post(url, signedUserProfile);
-        console.log(data);
         return {
             deliveryServiceToken: data,
             signedUserProfile,
+            profileKeys: this.profileKeys,
+        };
+    }
+
+    private async loginWithExistingProfile(
+        ensName: string,
+        signedUserProfile: SignedUserProfile,
+    ): Promise<ConnectDsResult> {
+        const reAuth = async (
+            ensName: string,
+            profile: UserProfile,
+            privateSigningKey: string,
+        ) => {
+            //Todo move to lib
+            const url = `${this.baseUrl}/auth/${normalizeEnsName(ensName)}`;
+            const { data } = await axios.get(url);
+
+            const challenge = data.challenge;
+            const signature = await sign(privateSigningKey, challenge);
+
+            const getNewTokenUrl = `${this.baseUrl}/auth/${normalizeEnsName(
+                ensName,
+            )}`;
+            //Todo move to lib
+            const { data: getNewTokenData } = await axios.post(getNewTokenUrl, {
+                signature,
+            });
+
+            return getNewTokenData.token;
+        };
+        const keys = this.profileKeys;
+        const deliveryServiceToken = await reAuth(
+            ensName,
+            signedUserProfile.profile,
+            keys.signingKeyPair.privateKey,
+        );
+
+        return {
             profileKeys: keys,
+            deliveryServiceToken,
+            signedUserProfile,
         };
     }
 
     private async profileExistsOnDeliveryService() {
-        //TODO move default url to global config (Alex)
-        // Tested by changing it to global config, but there is some error from backend (Bhupesh)
         const path = `${this.baseUrl}/profile/${this.ensName}`;
         try {
             const { status } = await axios.get(path);
