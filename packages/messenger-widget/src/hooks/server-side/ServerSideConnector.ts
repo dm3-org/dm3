@@ -17,53 +17,43 @@ import { JwtInterceptor } from './JwtInterceptor';
 export type SignMessageFn = (message: string) => Promise<string>;
 //Facilitates either BE or DS
 export abstract class ServerSideConnector extends JwtInterceptor {
-    private readonly mainnetProvider: ethers.providers.StaticJsonRpcProvider;
-    private readonly signMessage: SignMessageFn;
-    private readonly defaultDeliveryServiceEnsName: string;
     private readonly baseUrl: string;
     private readonly resolverBackendUrl: string;
-    private readonly addrEnsSubdomain: string;
     private readonly ensName: string;
     private readonly address: string;
     private readonly profileKeys: ProfileKeys;
 
     constructor(
-        mainnetProvider: ethers.providers.StaticJsonRpcProvider,
-        signMessage: SignMessageFn,
-        defaultDeliveryServiceEnsName: string,
         baseUrl: string,
         resolverBackendUrl: string,
         addrEnsSubdomain: string,
-        ensName: string,
         address: string,
         profileKeys: ProfileKeys,
     ) {
         super(baseUrl);
-        this.mainnetProvider = mainnetProvider;
-        this.signMessage = signMessage;
-        this.defaultDeliveryServiceEnsName = defaultDeliveryServiceEnsName;
+
         this.baseUrl = baseUrl;
         this.resolverBackendUrl = resolverBackendUrl;
-        this.addrEnsSubdomain = addrEnsSubdomain;
-        this.ensName = ensName;
         this.address = address;
         this.profileKeys = profileKeys;
+
+        this.ensName = this.address + addrEnsSubdomain;
     }
 
     public async login(signedUserProfile: SignedUserProfile) {
         const isAlreadySignedUp = await this.profileExistsOnDeliveryService();
         //User has profile either onchain or at the resolver and has already sign up with the DS
         if (isAlreadySignedUp) {
-            return await this.loginWithExistingProfile(signedUserProfile);
+            return await this._login(signedUserProfile);
         }
         //  User has profile onchain but not interacted with the DS yet
-        return await this.signUpWithExistingProfile(signedUserProfile);
+        return await this._signUp(signedUserProfile);
     }
     protected override onReAuth(): Promise<string> {
         return this.reAuth();
     }
 
-    private async signUpWithExistingProfile(
+    private async _signUp(
         signedUserProfile: SignedUserProfile,
     ): Promise<ConnectDsResult> {
         //TODO move claimAddress to useAuth
@@ -77,9 +67,8 @@ export abstract class ServerSideConnector extends JwtInterceptor {
             throw Error(`Couldn't claim address subdomain`);
         }
 
-        const ensName = this.address + this.addrEnsSubdomain;
         //Todo move api call to lib
-        const url = `${this.baseUrl}/profile/${ensName}`;
+        const url = `${this.baseUrl}/profile/${this.ensName}`;
         const { data } = await axios.post(url, signedUserProfile);
         this.setAuthToken(data);
         return {
@@ -89,7 +78,7 @@ export abstract class ServerSideConnector extends JwtInterceptor {
         };
     }
 
-    private async loginWithExistingProfile(
+    private async _login(
         signedUserProfile: SignedUserProfile,
     ): Promise<ConnectDsResult> {
         const keys = this.profileKeys;

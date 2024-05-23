@@ -67,13 +67,9 @@ describe('Server Side Connector', () => {
 
             console.log('check 1');
             const connector = new ServerSideConnectorStub(
-                mockProvider,
-                signMessage,
-                'ds.eth',
                 'http://ds1.api',
                 'http://resolver.api',
                 '.addr.dm3.eth',
-                'alice.eth',
                 userAddress,
                 profileKeys,
             );
@@ -95,13 +91,9 @@ describe('Server Side Connector', () => {
 
             //We create another connector to test relogin
             const newConnector = new ServerSideConnectorStub(
-                mockProvider,
-                signMessage,
-                'ds.eth',
                 'http://ds1.api',
                 'http://resolver.api',
                 '.addr.dm3.eth',
-                'alice.eth',
                 userAddress,
                 profileKeys,
             );
@@ -141,13 +133,9 @@ describe('Server Side Connector', () => {
             });
 
             const newConnector = new ServerSideConnectorStub(
-                mockProvider,
-                signMessage,
-                'ds.eth',
                 'http://ds1.api',
                 'http://resolver.api',
                 '.addr.dm3.eth',
-                'alice.eth',
                 userAddress,
                 profileKeys,
             );
@@ -163,13 +151,9 @@ describe('Server Side Connector', () => {
             axiosMock.onGet('http://ds1.api/test').reply(500, {});
 
             const connector = new ServerSideConnectorStub(
-                {} as any,
-                async () => '',
-                'ds.eth',
                 'http://ds1.api',
                 'http://resolver.api',
                 '.addr.dm3.eth',
-                'alice.eth',
                 userAddress,
                 profileKeys,
             );
@@ -190,7 +174,6 @@ describe('Server Side Connector', () => {
 
             axiosMock.onGet('http://ds1.api/test1').reply(200);
 
-            const mockProvider = {} as any;
             const signMessage = async (message: string) =>
                 Promise.resolve(message + ' signed');
 
@@ -200,13 +183,9 @@ describe('Server Side Connector', () => {
                 signMessage,
             );
             const connector = new ServerSideConnectorStub(
-                mockProvider,
-                signMessage,
-                'ds.eth',
                 'http://ds1.api',
                 'http://resolver.api',
                 '.addr.dm3.eth',
-                'alice.eth',
                 userAddress,
                 profileKeys,
             );
@@ -248,13 +227,9 @@ describe('Server Side Connector', () => {
             );
 
             const connector = new ServerSideConnectorStub(
-                mockProvider,
-                signMessage,
-                'ds.eth',
                 'http://ds1.api',
                 'http://resolver.api',
                 '.addr.dm3.eth',
-                'alice.eth',
                 userAddress,
                 profileKeys,
             );
