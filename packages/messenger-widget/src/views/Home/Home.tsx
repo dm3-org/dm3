@@ -32,6 +32,7 @@ import { WebSocketContextProvider } from '../../context/WebSocketContext';
 import { Dm3Props } from '../../interfaces/config';
 import { UiViewContextProvider } from '../../context/UiViewContext';
 import { ModalContextProvider } from '../../context/ModalContext';
+import { DeliveryServiceContextProvider } from '../../context/DeliveryServiceContext';
 
 export function Home(props: Dm3Props) {
     /**
@@ -100,13 +101,17 @@ export function Home(props: Dm3Props) {
                                 >
                                     <TLDContextProvider>
                                         <AuthContextProvider>
-                                            <WebSocketContextProvider>
-                                                <StorageContextProvider>
-                                                    <DM3
-                                                        config={props.config}
-                                                    />
-                                                </StorageContextProvider>
-                                            </WebSocketContextProvider>
+                                            <DeliveryServiceContextProvider>
+                                                <WebSocketContextProvider>
+                                                    <StorageContextProvider>
+                                                        <DM3
+                                                            config={
+                                                                props.config
+                                                            }
+                                                        />
+                                                    </StorageContextProvider>
+                                                </WebSocketContextProvider>
+                                            </DeliveryServiceContextProvider>
                                         </AuthContextProvider>
                                     </TLDContextProvider>
                                 </MainnetProviderContextProvider>

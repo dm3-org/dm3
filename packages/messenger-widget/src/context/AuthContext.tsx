@@ -10,6 +10,7 @@ export type AuthContextType = {
     displayName: string | undefined;
     deliveryServiceToken: string | undefined;
     isLoggedIn: boolean;
+    isProfileReady: boolean;
     isLoading: boolean;
     hasError: boolean;
     ethAddress: string | undefined;
@@ -24,6 +25,7 @@ export const AuthContext = React.createContext<AuthContextType>({
     displayName: undefined,
     deliveryServiceToken: undefined,
     isLoggedIn: false,
+    isProfileReady: false,
     isLoading: false,
     hasError: false,
     ethAddress: undefined,
@@ -39,6 +41,7 @@ export const AuthContextProvider = ({ children }: { children?: any }) => {
         displayName,
         deliveryServiceToken,
         isLoggedIn,
+        isProfileReady,
         isLoading,
         hasError,
         ethAddress,
@@ -54,6 +57,7 @@ export const AuthContextProvider = ({ children }: { children?: any }) => {
                 displayName,
                 deliveryServiceToken,
                 isLoggedIn,
+                isProfileReady,
                 isLoading,
                 hasError,
                 ethAddress,
