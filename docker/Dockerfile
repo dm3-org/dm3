@@ -5,3 +5,4 @@ RUN apk add --update python3 make g++ curl bash\
    && rm -rf /var/cache/apk/*
 RUN yarn install
 RUN yarn build
+EXPOSE 3300 9229 8081

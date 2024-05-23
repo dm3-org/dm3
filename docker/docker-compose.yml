@@ -16,8 +16,9 @@ services:
 
   backend:
     image: dm3-backend
-    command: yarn workspace @dm3-org/dm3-backend start
+    command: yarn workspace @dm3-org/dm3-backend start-inspect
     restart: always
+    ports: -'3300:3300' - '8081:8081' - '9229:9229'
     depends_on:
       - db
       - dm3-storage
