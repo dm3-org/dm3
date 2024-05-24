@@ -53,6 +53,7 @@ export const ConfigureCloudNameProfile = () => {
                     account!.ensName,
                     ensName,
                     deliveryServiceToken!,
+                    dm3Configuration.backendUrl,
                 );
 
                 setDisplayName(ensName);

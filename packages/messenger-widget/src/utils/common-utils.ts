@@ -116,9 +116,6 @@ export const openUrlInNewTab = (url: string) => {
     window.open(url, '_blank');
 };
 
-// Constants
-export const REACT_APP_SUPPORTED_CHAIN_IDS = [5, 10200];
-
 /*  eslint-disable */
 export const INVALID_NETWORK_POPUP_MESSAGE =
     'Invalid network selected. Please click OK and sign in again to continue using DM3 chat with Ethereum main network!';

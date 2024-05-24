@@ -70,6 +70,7 @@ export const useNotification = () => {
                     account,
                     mainnetProvider,
                     deliveryServiceToken,
+                    dm3Configuration.backendUrl,
                 );
                 if (status === 200) {
                     setIsNotificationsActive(data.isEnabled);
@@ -89,6 +90,7 @@ export const useNotification = () => {
                     account,
                     mainnetProvider,
                     deliveryServiceToken,
+                    dm3Configuration.backendUrl,
                 );
                 if (status === 200) {
                     data.notificationChannels.forEach(
@@ -131,6 +133,7 @@ export const useNotification = () => {
                     mainnetProvider,
                     deliveryServiceToken,
                     isEnabled,
+                    dm3Configuration.backendUrl,
                 );
                 if (status === 200 && isEnabled) {
                     await fetchUserNotificationChannels();
@@ -158,6 +161,7 @@ export const useNotification = () => {
                     deliveryServiceToken,
                     isEnabled,
                     notificationChannelType,
+                    dm3Configuration.backendUrl,
                 );
                 if (isEnabled && status === 200) {
                     await fetchUserNotificationChannels();
@@ -190,6 +194,7 @@ export const useNotification = () => {
                     deliveryServiceToken,
                     subscription,
                     NotificationChannelType.PUSH,
+                    dm3Configuration.backendUrl,
                 );
 
                 if (status === 200) {
@@ -222,6 +227,7 @@ export const useNotification = () => {
                     mainnetProvider,
                     deliveryServiceToken,
                     channelType,
+                    dm3Configuration.backendUrl,
                 );
                 if (status === 200) {
                     resetChannel(null);

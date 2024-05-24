@@ -9,8 +9,6 @@ import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { ethers } from 'ethers';
 import { checkAccount, getAxiosConfig } from './utils';
 
-const DELIVERY_PATH = process.env.REACT_APP_BACKEND + '/delivery';
-
 //TOOD REMOVE AFTER STORAGE REFACTOR
 export async function syncAcknoledgment(
     provider: ethers.providers.JsonRpcProvider,
@@ -18,10 +16,11 @@ export async function syncAcknoledgment(
     acknoledgments: Acknoledgment[],
     token: string,
     lastMessagePull: number,
+    backendUrl: string,
 ): Promise<void> {
     const { profile } = checkAccount(account);
-
-    const url = `${DELIVERY_PATH}/messages/${normalizeEnsName(
+    const deliveryPath = backendUrl + '/delivery';
+    const url = `${deliveryPath}/messages/${normalizeEnsName(
         account!.ensName,
     )}/syncAcknoledgment/${lastMessagePull}`;
 
@@ -41,6 +40,7 @@ export type SyncAcknoledgment = typeof syncAcknoledgment;
  * @param acknoledgments Acknoledgment that messages have been stored
  * @param token The auth token
  * @param lastMessagePull Timestamp of the last message pull
+ * @param backendUrl Backend url
  */
 export async function syncAcknowledgment(
     provider: ethers.providers.JsonRpcProvider,
@@ -48,10 +48,11 @@ export async function syncAcknowledgment(
     acknoledgments: Acknoledgment[],
     token: string,
     lastSyncTime: number,
+    backendUrl: string,
 ): Promise<void> {
     const { profile } = checkAccount(account);
-
-    const url = `${DELIVERY_PATH}/messages/${normalizeEnsName(
+    const deliveryPath = backendUrl + '/delivery';
+    const url = `${deliveryPath}/messages/${normalizeEnsName(
         account!.ensName,
     )}/syncAcknowledgment/${lastSyncTime}`;
 
@@ -69,16 +70,18 @@ export type SyncAcknowledgment = typeof syncAcknoledgment;
  * @param token The auth token
  * @param contactEnsName The sender ENS name
  * @param provider Ethers provider
+ * @param backendUrl Backend url
  */
 export async function getNewMessages(
     account: Account,
     token: string,
     contactEnsName: string,
     provider: ethers.providers.JsonRpcProvider,
+    backendUrl: string,
 ): Promise<EncryptionEnvelop[]> {
     const { profile } = checkAccount(account);
-
-    const url = `${DELIVERY_PATH}/messages/${normalizeEnsName(
+    const deliveryPath = backendUrl + '/delivery';
+    const url = `${deliveryPath}/messages/${normalizeEnsName(
         account!.ensName,
     )}/contact/${contactEnsName}`;
 

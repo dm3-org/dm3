@@ -75,6 +75,7 @@ export const handleMessagesFromDeliveryService = async (
         ],
         deliveryServiceToken!,
         lastSyncTime,
+        backendUrl,
     );
     return messagesSortedASC;
 };

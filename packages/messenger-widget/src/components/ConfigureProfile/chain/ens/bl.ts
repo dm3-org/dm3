@@ -51,6 +51,7 @@ export const submitEnsNameTransaction = async (
     ensName: string,
     setEnsNameFromResolver: Function,
     setError: (type: NAME_TYPE | undefined, msg: string) => void,
+    backendUrl: string,
 ) => {
     try {
         // start loader
@@ -82,6 +83,7 @@ export const submitEnsNameTransaction = async (
                 account!.ensName,
                 ensName!,
                 dsToken,
+                backendUrl,
             );
             const response = await ethersHelper.executeTransaction(tx);
             await response.wait();

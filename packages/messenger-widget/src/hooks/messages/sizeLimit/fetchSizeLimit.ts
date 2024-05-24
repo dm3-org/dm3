@@ -6,11 +6,13 @@ import { ethers } from 'ethers';
 export const fetchMessageSizeLimit = async (
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
+    backendUrl: string,
 ) => {
     try {
         const details = await getDeliveryServiceProperties(
             mainnetProvider as ethers.providers.JsonRpcProvider,
             account as Account,
+            backendUrl,
         );
         return details.sizeLimit;
     } catch (error) {

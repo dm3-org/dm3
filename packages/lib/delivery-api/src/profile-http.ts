@@ -9,21 +9,21 @@ import {
 import { ethers } from 'ethers';
 import { checkAccount, getAxiosConfig } from './utils';
 
-const PROFILE_PATH = process.env.REACT_APP_BACKEND + '/profile';
-
 /**
  * fetchs the alias chain for a given account
  * @param account The dm3 account
  * @param provider Ethers provider
+ * @param backendUrl Backend url
  * @returns  an array containing the ENS names of the aliases
  */
 export async function getAliasChain(
     account: Account,
     provider: ethers.providers.JsonRpcProvider,
+    backendUrl: string,
 ): Promise<string> {
     const { profile, ensName } = checkAccount(account);
-
-    const url = `${PROFILE_PATH}/aliasChain/${normalizeEnsName(ensName)}`;
+    const profilePath = backendUrl + '/profile';
+    const url = `${profilePath}/aliasChain/${normalizeEnsName(ensName)}`;
 
     const { data } = await getDeliveryServiceClient(
         profile,
@@ -40,16 +40,18 @@ export type GetAliasChain = typeof getAliasChain;
  * @param account The dm3 account
  * @param provider Ethers provider
  * @param signedUserProfile the signed user profile
+ * @param backendUrl Backend url
  * @returns the auth token
  */
 export async function submitUserProfile(
     account: Account,
     provider: ethers.providers.JsonRpcProvider,
     signedUserProfile: SignedUserProfile,
+    backendUrl: string,
 ): Promise<string> {
     const { profile, ensName } = checkAccount(account);
-
-    const url = `${PROFILE_PATH}/${normalizeEnsName(ensName)}`;
+    const profilePath = backendUrl + '/profile';
+    const url = `${profilePath}/${normalizeEnsName(ensName)}`;
 
     const { data } = await getDeliveryServiceClient(
         profile,
@@ -67,7 +69,7 @@ export type SubmitUserProfile = typeof submitUserProfile;
  * @param provider Ethers provider
  * @param token The auth token
  * @param contactEnsName The sender ENS name
-
+ * @param backendUrl Backend url
  */
 export async function createAlias(
     account: Account,
@@ -75,10 +77,11 @@ export async function createAlias(
     ensName: string,
     aliasEnsName: string,
     token: string,
+    backendUrl: string,
 ): Promise<string> {
     const { profile } = checkAccount(account);
-
-    const url = `${PROFILE_PATH}/${normalizeEnsName(
+    const profilePath = backendUrl + '/profile';
+    const url = `${profilePath}/${normalizeEnsName(
         ensName,
     )}/aka/${normalizeEnsName(aliasEnsName)}`;
 

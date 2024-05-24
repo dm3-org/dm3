@@ -8,20 +8,20 @@ import {
 import { ethers } from 'ethers';
 import { checkAccount } from './utils';
 
-const AUTH_SERVICE_PATH = process.env.REACT_APP_BACKEND + '/auth';
-
 /**
  * request an auth token challenge
  * @param account The dm3 account
  * @param provider Ethers provider
+ * @param backendUrl Backend url
  */
 export async function getChallenge(
     account: Account,
     provider: ethers.providers.JsonRpcProvider,
+    backendUrl: string,
 ): Promise<string> {
     const { profile, ensName } = checkAccount(account);
-
-    const url = `${AUTH_SERVICE_PATH}/${normalizeEnsName(ensName)}`;
+    const authServicePath = backendUrl + '/auth';
+    const url = `${authServicePath}/${normalizeEnsName(ensName)}`;
 
     const { data } = await getDeliveryServiceClient(
         profile,
@@ -38,15 +38,17 @@ export type GetChallenge = typeof getChallenge;
  * @param account The dm3 account
  * @param provider Ethers provider
  * @param signature Signature created by signing the challenge
+ * @param backendUrl Backend url
  */
 export async function getNewToken(
     account: Account,
     provider: ethers.providers.JsonRpcProvider,
     signature: string,
+    backendUrl: string,
 ): Promise<string> {
     const { profile, ensName } = checkAccount(account);
-
-    const url = `${AUTH_SERVICE_PATH}/${normalizeEnsName(ensName)}`;
+    const authServicePath = backendUrl + '/auth';
+    const url = `${authServicePath}/${normalizeEnsName(ensName)}`;
 
     const { data } = await getDeliveryServiceClient(
         profile,

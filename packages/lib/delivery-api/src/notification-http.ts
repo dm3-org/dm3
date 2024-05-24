@@ -8,24 +8,24 @@ import { ethers } from 'ethers';
 import { checkAccount, getAxiosConfig } from './utils';
 import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 
-const NOTIFICATIONS_PATH = process.env.REACT_APP_BACKEND + '/notifications';
-
 /**
  * toggles global notification (enable/disable)
  * @param account The dm3 account
  * @param provider Ethers provider
  * @param token The auth token
  * @param isEnabled reflects to enable or disable
+ * @param backendUrl Backend url
  */
 export async function toggleGlobalNotifications(
     account: Account,
     provider: ethers.providers.JsonRpcProvider,
     token: string,
     isEnabled: boolean,
+    backendUrl: string,
 ): Promise<any> {
     const { profile, ensName } = checkAccount(account);
-
-    const url = `${NOTIFICATIONS_PATH}/global/${normalizeEnsName(ensName)}`;
+    const notificationsPath = backendUrl + '/notifications';
+    const url = `${notificationsPath}/global/${normalizeEnsName(ensName)}`;
 
     const { data, status } = await getDeliveryServiceClient(
         profile,
@@ -42,15 +42,17 @@ export type ToggleGlobalNotifications = typeof toggleGlobalNotifications;
  * @param account The dm3 account
  * @param provider Ethers provider
  * @param token The auth token
+ * @param backendUrl Backend url
  */
 export async function getGlobalNotification(
     account: Account,
     provider: ethers.providers.JsonRpcProvider,
     token: string,
+    backendUrl: string,
 ): Promise<any> {
     const { profile, ensName } = checkAccount(account);
-
-    const url = `${NOTIFICATIONS_PATH}/global/${normalizeEnsName(ensName)}`;
+    const notificationsPath = backendUrl + '/notifications';
+    const url = `${notificationsPath}/global/${normalizeEnsName(ensName)}`;
 
     const { data, status } = await getDeliveryServiceClient(
         profile,
@@ -69,6 +71,7 @@ export type GetGlobalNotification = typeof getGlobalNotification;
  * @param token The auth token
  * @param recipientValue The emailID, mobileNo, etc.. for notifications
  * @param notificationChannelType Notification channel type
+ * @param backendUrl Backend url
  */
 export async function addNotificationChannel(
     account: Account,
@@ -76,10 +79,11 @@ export async function addNotificationChannel(
     token: string,
     recipientValue: string | PushSubscription,
     notificationChannelType: NotificationChannelType,
+    backendUrl: string,
 ): Promise<any> {
     const { profile, ensName } = checkAccount(account);
-
-    const url = `${NOTIFICATIONS_PATH}/${normalizeEnsName(ensName)}`;
+    const notificationsPath = backendUrl + '/notifications';
+    const url = `${notificationsPath}/${normalizeEnsName(ensName)}`;
 
     const { data, status } = await getDeliveryServiceClient(
         profile,
@@ -103,15 +107,17 @@ export type AddNotificationChannel = typeof addNotificationChannel;
  * @param account The dm3 account
  * @param provider Ethers provider
  * @param token The auth token
+ * @param backendUrl Backend url
  */
 export async function getAllNotificationChannels(
     account: Account,
     provider: ethers.providers.JsonRpcProvider,
     token: string,
+    backendUrl: string,
 ): Promise<any> {
     const { profile, ensName } = checkAccount(account);
-
-    const url = `${NOTIFICATIONS_PATH}/${normalizeEnsName(ensName)}`;
+    const notificationsPath = backendUrl + '/notifications';
+    const url = `${notificationsPath}/${normalizeEnsName(ensName)}`;
 
     const { data, status } = await getDeliveryServiceClient(
         profile,
@@ -129,16 +135,18 @@ export type GetAllNotificationChannels = typeof getAllNotificationChannels;
  * @param provider Ethers provider
  * @param token The auth token
  * @param notificationChannelType Notification channel type
+ * @param backendUrl Backend url
  */
 export async function sendOtp(
     account: Account,
     provider: ethers.providers.JsonRpcProvider,
     token: string,
     notificationChannelType: NotificationChannelType,
+    backendUrl: string,
 ): Promise<any> {
     const { profile, ensName } = checkAccount(account);
-
-    const url = `${NOTIFICATIONS_PATH}/otp/${normalizeEnsName(ensName)}`;
+    const notificationsPath = backendUrl + '/notifications';
+    const url = `${notificationsPath}/otp/${normalizeEnsName(ensName)}`;
 
     const { data, status } = await getDeliveryServiceClient(
         profile,
@@ -163,6 +171,7 @@ export type SendOtp = typeof sendOtp;
  * @param token The auth token
  * @param otp The otp to be verified
  * @param notificationChannelType Notification channel type
+ * @param backendUrl Backend url
  */
 export async function verifyOtp(
     account: Account,
@@ -170,10 +179,11 @@ export async function verifyOtp(
     token: string,
     otp: string,
     notificationChannelType: NotificationChannelType,
+    backendUrl: string,
 ): Promise<any> {
     const { profile, ensName } = checkAccount(account);
-
-    const url = `${NOTIFICATIONS_PATH}/otp/verify/${normalizeEnsName(ensName)}`;
+    const notificationsPath = backendUrl + '/notifications';
+    const url = `${notificationsPath}/otp/verify/${normalizeEnsName(ensName)}`;
 
     const { data, status } = await getDeliveryServiceClient(
         profile,
@@ -199,6 +209,7 @@ export type VerifyOtp = typeof verifyOtp;
  * @param token The auth token
  * @param isEnabled The boolean value to enable or disable
  * @param notificationChannelType Notification channel type
+ * @param backendUrl Backend url
  */
 export async function toggleNotificationChannel(
     account: Account,
@@ -206,10 +217,11 @@ export async function toggleNotificationChannel(
     token: string,
     isEnabled: boolean,
     notificationChannelType: NotificationChannelType,
+    backendUrl: string,
 ): Promise<any> {
     const { profile, ensName } = checkAccount(account);
-
-    const url = `${NOTIFICATIONS_PATH}/channel/${normalizeEnsName(ensName)}`;
+    const notificationsPath = backendUrl + '/notifications';
+    const url = `${notificationsPath}/channel/${normalizeEnsName(ensName)}`;
 
     const { data, status } = await getDeliveryServiceClient(
         profile,
@@ -235,16 +247,18 @@ export type ToggleNotificationChannel = typeof toggleNotificationChannel;
  * @param provider Ethers provider
  * @param token The auth token
  * @param channelType Notification channel type
+ * @param backendUrl Backend url
  */
 export async function removeNotificationChannel(
     account: Account,
     provider: ethers.providers.JsonRpcProvider,
     token: string,
     channelType: NotificationChannelType,
+    backendUrl: string,
 ): Promise<any> {
     const { profile, ensName } = checkAccount(account);
-
-    const url = `${NOTIFICATIONS_PATH}/channel/${channelType}/${normalizeEnsName(
+    const notificationsPath = backendUrl + '/notifications';
+    const url = `${notificationsPath}/channel/${channelType}/${normalizeEnsName(
         ensName,
     )}`;
 

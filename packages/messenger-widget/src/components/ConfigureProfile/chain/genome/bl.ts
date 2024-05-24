@@ -114,6 +114,7 @@ export const submitGenomeNameTransaction = async (
     genomeRegistryAddress: string,
     setEnsNameFromResolver: Function,
     setError: (type: NAME_TYPE | undefined, msg: string) => void,
+    backendUrl: string,
 ) => {
     try {
         // start loader
@@ -146,6 +147,7 @@ export const submitGenomeNameTransaction = async (
                 account!.ensName,
                 ensName!,
                 dsToken,
+                backendUrl,
             );
             const response = await ethersHelper.executeTransaction(tx);
             await response.wait();

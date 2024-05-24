@@ -18,13 +18,18 @@ export const hydrateContract = async (
     conversatoinManifest: Conversation,
     resolveAliasToTLD: (alias: string) => Promise<string>,
     addrEnsSubdomain: string,
+    backendUrl: string,
 ) => {
     const account = await fetchAccount(
         provider,
         conversatoinManifest.contactEnsName,
     );
     const contact = await fetchDsProfile(provider, account);
-    const messageSizeLimit = await fetchMessageSizeLimit(provider, account);
+    const messageSizeLimit = await fetchMessageSizeLimit(
+        provider,
+        account,
+        backendUrl,
+    );
     const contactPreview = await fetchPreview(
         provider,
         conversatoinManifest,

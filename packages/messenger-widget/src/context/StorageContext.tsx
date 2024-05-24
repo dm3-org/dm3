@@ -12,6 +12,7 @@ import {
     useStorage,
 } from '../hooks/storage/useStorage';
 import { AuthContext } from './AuthContext';
+import { DM3ConfigurationContext } from './DM3ConfigurationContext';
 
 export type StorageContextType = {
     storeMessage: StoreMessageAsync;
@@ -50,6 +51,8 @@ export const StorageContextProvider = ({ children }: { children?: any }) => {
     const { account, deliveryServiceToken, profileKeys } =
         useContext(AuthContext);
 
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
+
     const {
         storeMessageAsync,
         storeMessageBatch,
@@ -62,7 +65,7 @@ export const StorageContextProvider = ({ children }: { children?: any }) => {
         initialized,
     } = useStorage(
         account,
-        process.env.REACT_APP_DEFAULT_SERVICE!,
+        dm3Configuration.defaultServiceUrl,
         deliveryServiceToken,
         profileKeys,
     );

@@ -10,6 +10,7 @@ import {
 import { useMainnetProvider } from '../../../../hooks/mainnetprovider/useMainnetProvider';
 import { closeLoader, startLoader } from '../../../Loader/Loader';
 import { ModalContext } from '../../../../context/ModalContext';
+import { DM3ConfigurationContext } from '../../../../context/DM3ConfigurationContext';
 
 export const otpContent = (type: NotificationChannelType) => {
     const email = 'Please enter the verification code, you received by email.';
@@ -42,6 +43,7 @@ export const useOtp = (
     const mainnetProvider = useMainnetProvider();
     const { account, deliveryServiceToken } = useContext(AuthContext);
     const { setLoaderContent } = useContext(ModalContext);
+    const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     // Adds new notification channel & sends OTP
     const addNewNotificationChannel = async (
@@ -55,6 +57,7 @@ export const useOtp = (
                 deliveryServiceToken,
                 recipientValue,
                 channelType,
+                dm3Configuration.backendUrl,
             );
         }
     };
@@ -69,6 +72,7 @@ export const useOtp = (
                 mainnetProvider,
                 deliveryServiceToken,
                 channelType,
+                dm3Configuration.backendUrl,
             );
         }
     };
@@ -85,6 +89,7 @@ export const useOtp = (
                 deliveryServiceToken,
                 otp,
                 channelType,
+                dm3Configuration.backendUrl,
             );
         }
     };

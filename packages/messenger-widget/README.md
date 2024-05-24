@@ -206,21 +206,6 @@ Follow the below given steps :-
          });
          return config;
       },
-      env: {
-         REACT_APP_ADDR_ENS_SUBDOMAIN: process.env.NEXT_PUBLIC_ADDR_ENS_SUBDOMAIN,
-         REACT_APP_USER_ENS_SUBDOMAIN: process.env.NEXT_PUBLIC_USER_ENS_SUBDOMAIN,
-         REACT_APP_BACKEND: process.env.NEXT_PUBLIC_BACKEND,
-         REACT_APP_DEFAULT_DELIVERY_SERVICE: process.env.NEXT_PUBLIC_DEFAULT_DELIVERY_SERVICE,
-         REACT_APP_DEFAULT_SERVICE: process.env.NEXT_PUBLIC_DEFAULT_SERVICE,
-         REACT_APP_PROFILE_BASE_URL: process.env.NEXT_PUBLIC_PROFILE_BASE_URL,
-         REACT_APP_RESOLVER_BACKEND: process.env.NEXT_PUBLIC_RESOLVER_BACKEND,
-         REACT_APP_WALLET_CONNECT_PROJECT_ID: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID,
-         REACT_APP_CHAIN_ID: process.env.NEXT_PUBLIC_CHAIN_ID,
-         REACT_APP_MAINNET_PROVIDER_RPC: process.env.NEXT_PUBLIC_MAINNET_PROVIDER_RPC,
-         RESOLVER_ADDR: process.env.NEXT_PUBLIC_RESOLVER_ADDR,
-         REACT_APP_GENOME_REGISTRY_ADDRESS: process.env.NEXT_PUBLIC_GENOME_REGISTRY_ADDRESS,
-         REACT_APP_PUBLIC_VAPID_KEY: process.env.NEXT_PUBLIC_PUBLIC_VAPID_KEY
-      },
    };
 
    export default nextConfig;
@@ -234,20 +219,20 @@ Follow the below given steps :-
     export default function Home() {
 
         const props: DM3Configuration = {
-            userEnsSubdomain: process.env.REACT_APP_USER_ENS_SUBDOMAIN as string,
-            addressEnsSubdomain: process.env.REACT_APP_ADDR_ENS_SUBDOMAIN as string,
-            resolverBackendUrl: process.env.REACT_APP_RESOLVER_BACKEND as string,
-            profileBaseUrl: process.env.REACT_APP_PROFILE_BASE_URL as string,
-            defaultDeliveryService: process.env.REACT_APP_DEFAULT_DELIVERY_SERVICE as string,
-            backendUrl: process.env.REACT_APP_BACKEND as string,
-            chainId: process.env.REACT_APP_CHAIN_ID as string,
-            resolverAddress: process.env.REACT_APP_RESOLVER_ADDR as string,
-            defaultServiceUrl: process.env.REACT_APP_DEFAULT_SERVICE as string,
-            ethereumProvider: process.env.REACT_APP_MAINNET_PROVIDER_RPC as string,
-            walletConnectProjectId: process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID as string,
+            userEnsSubdomain: process.env.NEXT_PUBLIC_USER_ENS_SUBDOMAIN as string,
+            addressEnsSubdomain: process.env.NEXT_PUBLIC_ADDR_ENS_SUBDOMAIN as string,
+            resolverBackendUrl: process.env.NEXT_PUBLIC_RESOLVER_BACKEND as string,
+            profileBaseUrl: process.env.NEXT_PUBLIC_PROFILE_BASE_URL as string,
+            defaultDeliveryService: process.env.NEXT_PUBLIC_DEFAULT_DELIVERY_SERVICE as string,
+            backendUrl: process.env.NEXT_PUBLIC_BACKEND as string,
+            chainId: process.env.NEXT_PUBLIC_CHAIN_ID as string,
+            resolverAddress: process.env.NEXT_PUBLIC_RESOLVER_ADDR as string,
+            defaultServiceUrl: process.env.NEXT_PUBLIC_DEFAULT_SERVICE as string,
+            ethereumProvider: process.env.NEXT_PUBLIC_MAINNET_PROVIDER_RPC as string,
+            walletConnectProjectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID as string,
             genomeRegistryAddress: process.env
-            .REACT_APP_GENOME_REGISTRY_ADDRESS as string,
-            publicVapidKey: process.env.REACT_APP_PUBLIC_VAPID_KEY as string,
+            .NEXT_PUBLIC_GENOME_REGISTRY_ADDRESS as string,
+            publicVapidKey: process.env.NEXT_PUBLIC_PUBLIC_VAPID_KEY as string,
             defaultContact: 'help.dm3.eth',
             showAlways: true,
             hideFunction: undefined, 

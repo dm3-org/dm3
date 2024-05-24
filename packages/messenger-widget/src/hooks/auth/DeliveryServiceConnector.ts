@@ -83,6 +83,7 @@ export const DeliveryServiceConnector = (
             { ensName, profile: signedUserProfile.profile },
             mainnetProvider,
             signedUserProfile,
+            dm3Configuration.backendUrl,
         );
 
         const keys = await createProfileKeys();
@@ -106,6 +107,7 @@ export const DeliveryServiceConnector = (
             const challenge = await getChallenge(
                 { profile, ensName },
                 mainnetProvider,
+                dm3Configuration.backendUrl,
             );
 
             const signature = await sign(privateSigningKey, challenge);
@@ -113,6 +115,7 @@ export const DeliveryServiceConnector = (
                 { profile, ensName },
                 mainnetProvider,
                 signature,
+                dm3Configuration.backendUrl,
             );
         };
         const keys = await createProfileKeys();
@@ -172,6 +175,7 @@ export const DeliveryServiceConnector = (
             { ensName, profile: signedUserProfile.profile },
             mainnetProvider,
             signedUserProfile,
+            dm3Configuration.backendUrl,
         );
         return {
             deliveryServiceToken,

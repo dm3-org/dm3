@@ -73,6 +73,7 @@ export const ConfigureGenomeProfile = (props: IChain) => {
             dm3Configuration.genomeRegistryAddress,
             (str: string) => setExistingEnsName(str),
             onShowError,
+            dm3Configuration.backendUrl,
         );
     };
 

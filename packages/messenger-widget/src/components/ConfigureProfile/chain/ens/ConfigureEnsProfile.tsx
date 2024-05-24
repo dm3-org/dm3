@@ -74,6 +74,7 @@ export const ConfigureEnsProfile = (props: IChain) => {
             ethName,
             (str: string) => setExistingEnsName(str),
             onShowError,
+            dm3Configuration.backendUrl,
         );
     };
 
