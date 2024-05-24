@@ -36,9 +36,6 @@ services:
             LOG_LEVEL: 'debug'
             DATABASE_URL: ${DATABASE_URL}
 
-        volumes:
-            - /home/app/dm3/config.yml:/app/packages/backend/dist/config.yml
-
     db:
         image: redis
         restart: always
@@ -73,7 +70,7 @@ services:
             PORT: 8083
             LOG_LEVEL: 'debug'
         volumes:
-            - /home/app/dm3/config.yml:/app/packages/backend/dist/config.yml
+            - /home/app/dm3/config.yml:/app/dist/config.yml
 
     db-delivery-service:
         image: redis
