@@ -15,14 +15,17 @@ export const useDeliveryService = () => {
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const mainnetProvider = useMainnetProvider();
 
+    const [isInitialized, setIsInitialized] = useState<boolean>(false);
+
     //Keep connectors in state
     const [connectors, setConnectors] = useState<DeliveryServiceConnector[]>(
         [],
     );
 
+    //Initializer for the delivery service connectors
     useEffect(() => {
         const initializeDs = async () => {
-            console.log('initialize');
+            console.log('initialize useDelivery');
             if (!isProfileReady) {
                 console.log('profile is not ready');
                 return;
@@ -48,14 +51,11 @@ export const useDeliveryService = () => {
 
                         return undefined;
                     }
-                    const resolverBackendUrl =
-                        dm3Configuration.resolverBackendUrl;
-                    const addrEnsSubdomain =
-                        dm3Configuration.addressEnsSubdomain;
+
                     return new DeliveryServiceConnector(
                         baseUrl,
-                        resolverBackendUrl,
-                        addrEnsSubdomain,
+                        dm3Configuration.resolverBackendUrl,
+                        dm3Configuration.addressEnsSubdomain,
                         ethAddress!,
                         profileKeys!,
                     );
@@ -77,7 +77,12 @@ export const useDeliveryService = () => {
 
             setConnectors(onlyValidConnectors);
             console.log('connectors', onlyValidConnectors);
+            setIsInitialized(true);
         };
         initializeDs();
     }, [isProfileReady]);
+
+    const fetch = () => {
+        //TODO think about strategies to use the delivery services. For the start we just query the first one
+    };
 };
