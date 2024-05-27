@@ -44,18 +44,9 @@ describe('Server Side Connector', () => {
         it('solve challenge and retrive token', async () => {
             axiosMock = new MockAdapter(axios);
 
-            axiosMock
-                .onPost('http://resolver.api/profile/address')
-                .reply(200, {});
-
-            axiosMock.onGet('http://ds1.api/profile/alice.eth').reply(404, {});
-
-            const url = `http://ds1.api/profile/${
-                userAddress + '.addr.dm3.eth'
-            }`;
-            axiosMock.onPost(url).reply(200, 'token');
-
-            const mockProvider = {} as any;
+            const aliceEnsName = normalizeEnsName(
+                `${userAddress}.addr.dm3.eth`,
+            );
             const signMessage = async (message: string) =>
                 Promise.resolve(message + ' signed');
 
@@ -65,7 +56,17 @@ describe('Server Side Connector', () => {
                 signMessage,
             );
 
-            console.log('check 1');
+            axiosMock
+                .onPost(`http://resolver.api/profile/address`)
+                .reply(200, {});
+
+            axiosMock
+                .onGet(`http://ds1.api/profile/${aliceEnsName}`)
+                .reply(404, {});
+
+            const url = `http://ds1.api/profile/${aliceEnsName}`;
+            axiosMock.onPost(url).reply(200, 'token');
+
             const connector = new ServerSideConnectorStub(
                 'http://ds1.api',
                 'http://resolver.api',
@@ -76,16 +77,16 @@ describe('Server Side Connector', () => {
             const dsResult = await connector.login(signedUserProfile);
             expect(dsResult.deliveryServiceToken).toBe('token');
 
-            console.log('check 2');
-
             //Alice is now logged in
-            axiosMock.onGet('http://ds1.api/profile/alice.eth').reply(200, {});
+            axiosMock
+                .onGet(`http://ds1.api/profile/${aliceEnsName}`)
+                .reply(200, {});
 
             //Mock challenge
-            axiosMock.onGet('http://ds1.api/auth/alice.eth').reply(200, {
+            axiosMock.onGet(`http://ds1.api/auth/${aliceEnsName}`).reply(200, {
                 challenge: 'challenge',
             });
-            axiosMock.onPost('http://ds1.api/auth/alice.eth').reply(200, {
+            axiosMock.onPost(`http://ds1.api/auth/${aliceEnsName}`).reply(200, {
                 token: 'token2',
             });
 
@@ -103,20 +104,23 @@ describe('Server Side Connector', () => {
     });
     describe('signup with existing profile', () => {
         it('publish perviosly created profile and login', async () => {
+            const aliceEnsName = normalizeEnsName(
+                `${userAddress}.addr.dm3.eth`,
+            );
+
             axiosMock = new MockAdapter(axios);
 
             axiosMock
                 .onPost('http://resolver.api/profile/address')
                 .reply(200, {});
 
-            axiosMock.onGet('http://ds1.api/profile/alice.eth').reply(404, {});
+            axiosMock
+                .onGet(`http://ds1.api/profile/${aliceEnsName}`)
+                .reply(404, {});
 
-            const url = `http://ds1.api/profile/${
-                userAddress + '.addr.dm3.eth'
-            }`;
+            const url = `http://ds1.api/profile/${aliceEnsName}`;
             axiosMock.onPost(url).reply(200, 'new-token');
 
-            const mockProvider = {} as any;
             const signMessage = async (message: string) =>
                 Promise.resolve(message + ' signed');
 
@@ -128,7 +132,7 @@ describe('Server Side Connector', () => {
             );
 
             //Mock challenge
-            axiosMock.onGet('http://ds1.api/auth/alice.eth').reply(200, {
+            axiosMock.onGet(`http://ds1.api/auth/${aliceEnsName}`).reply(200, {
                 challenge: 'challenge',
             });
 
@@ -161,15 +165,16 @@ describe('Server Side Connector', () => {
             expect(testRes).toBe(true);
         });
         it('uses token for authentication', async () => {
+            const aliceEnsName = normalizeEnsName(
+                `${userAddress}.addr.dm3.eth`,
+            );
             //mock test request
             axiosMock = new MockAdapter(axios);
             axiosMock
                 .onPost('http://resolver.api/profile/address')
                 .reply(200, {});
 
-            const url = `http://ds1.api/profile/${
-                userAddress + '.addr.dm3.eth'
-            }`;
+            const url = `http://ds1.api/profile/${aliceEnsName}`;
             axiosMock.onPost(url).reply(200, 'token');
 
             axiosMock.onGet('http://ds1.api/test1').reply(200);
@@ -194,29 +199,29 @@ describe('Server Side Connector', () => {
             expect(testRes).toBe(true);
         });
         it('renews token when requests returns 401', async () => {
+            const aliceEnsName = normalizeEnsName(
+                `${userAddress}.addr.dm3.eth`,
+            );
             //mock test request
             axiosMock = new MockAdapter(axios);
             axiosMock
                 .onPost('http://resolver.api/profile/address')
                 .reply(200, {});
 
-            const url = `http://ds1.api/profile/${
-                userAddress + '.addr.dm3.eth'
-            }`;
+            const url = `http://ds1.api/profile/${aliceEnsName}`;
             axiosMock.onPost(url).reply(200, 'token');
 
             axiosMock.onGet('http://ds1.api/test1').replyOnce(401);
             axiosMock.onGet('http://ds1.api/test1').reply(200);
 
             //Mock challenge
-            axiosMock.onGet('http://ds1.api/auth/alice.eth').reply(200, {
+            axiosMock.onGet(`http://ds1.api/auth/${aliceEnsName}`).reply(200, {
                 challenge: 'challenge',
             });
-            axiosMock.onPost('http://ds1.api/auth/alice.eth').reply(200, {
+            axiosMock.onPost(`http://ds1.api/auth/${aliceEnsName}`).reply(200, {
                 token: 'reauth',
             });
 
-            const mockProvider = {} as any;
             const signMessage = async (message: string) =>
                 Promise.resolve(message + ' signed');
 

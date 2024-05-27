@@ -37,7 +37,7 @@ export abstract class ServerSideConnector extends JwtInterceptor {
         this.address = address;
         this.profileKeys = profileKeys;
 
-        this.ensName = this.address + addrEnsSubdomain;
+        this.ensName = normalizeEnsName(this.address + addrEnsSubdomain);
     }
 
     public async login(signedUserProfile: SignedUserProfile) {
@@ -66,13 +66,12 @@ export abstract class ServerSideConnector extends JwtInterceptor {
         ) {
             throw Error(`Couldn't claim address subdomain`);
         }
-
-        //Todo move api call to lib
-        const url = `${this.baseUrl}/profile/${this.ensName}`;
-        const { data } = await axios.post(url, signedUserProfile);
-        this.setAuthToken(data);
+        const deliveryServiceToken = await this.submitUserProfile(
+            signedUserProfile,
+        );
+        this.setAuthToken(deliveryServiceToken);
         return {
-            deliveryServiceToken: data,
+            deliveryServiceToken,
             signedUserProfile,
             profileKeys: this.profileKeys,
         };
@@ -95,7 +94,6 @@ export abstract class ServerSideConnector extends JwtInterceptor {
     private async reAuth() {
         //TODO check if we need alias subdomain
         const url = `${this.baseUrl}/auth/${normalizeEnsName(this.ensName)}`;
-        console.log('reauth', url);
 
         const { data } = await axios.get(url);
 
@@ -124,5 +122,11 @@ export abstract class ServerSideConnector extends JwtInterceptor {
         } catch (err) {
             return false;
         }
+    }
+
+    private async submitUserProfile(signedUserProfile: SignedUserProfile) {
+        const url = `${this.baseUrl}/profile/${this.ensName}`;
+        const { data } = await axios.post(url, signedUserProfile);
+        return data;
     }
 }
