@@ -34,6 +34,7 @@ export type ConnectDsResult = {
 //Interface to support different kinds of signers
 export type SignMessageFn = (message: string) => Promise<string>;
 
+//THIS IS THE WRONG CONNECTOR AND WILL BE REMOVED
 export const DeliveryServiceConnector = (
     dm3Configuration: DM3Configuration,
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,

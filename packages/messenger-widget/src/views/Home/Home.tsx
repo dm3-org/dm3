@@ -33,6 +33,7 @@ import { Dm3Props } from '../../interfaces/config';
 import { UiViewContextProvider } from '../../context/UiViewContext';
 import { ModalContextProvider } from '../../context/ModalContext';
 import { DeliveryServiceContextProvider } from '../../context/DeliveryServiceContext';
+import { BackendContextProvider } from '../../context/BackendContext';
 
 export function Home(props: Dm3Props) {
     /**
@@ -102,15 +103,17 @@ export function Home(props: Dm3Props) {
                                     <TLDContextProvider>
                                         <AuthContextProvider>
                                             <DeliveryServiceContextProvider>
-                                                <WebSocketContextProvider>
-                                                    <StorageContextProvider>
-                                                        <DM3
-                                                            config={
-                                                                props.config
-                                                            }
-                                                        />
-                                                    </StorageContextProvider>
-                                                </WebSocketContextProvider>
+                                                <BackendContextProvider>
+                                                    <WebSocketContextProvider>
+                                                        <StorageContextProvider>
+                                                            <DM3
+                                                                config={
+                                                                    props.config
+                                                                }
+                                                            />
+                                                        </StorageContextProvider>
+                                                    </WebSocketContextProvider>
+                                                </BackendContextProvider>
                                             </DeliveryServiceContextProvider>
                                         </AuthContextProvider>
                                     </TLDContextProvider>
