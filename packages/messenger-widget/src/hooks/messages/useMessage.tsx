@@ -34,8 +34,9 @@ export const useMessage = () => {
     const { contacts, selectedContact, addConversation } =
         useContext(ConversationContext);
     const { account, profileKeys } = useContext(AuthContext);
-    const { getDeliveryServiceTokens, fetchNewMessages, syncAcknowledgment } =
-        useContext(DeliveryServiceContext);
+    const { fetchNewMessages, syncAcknowledgment } = useContext(
+        DeliveryServiceContext,
+    );
 
     const { onNewMessage, removeOnNewMessageListener } = useContext(
         DeliveryServiceContext,
@@ -189,8 +190,6 @@ export const useMessage = () => {
         const recipient = contacts.find(
             (c) => c.contactDetails.account.ensName === contact,
         );
-
-        const deliveryServiceToken = getDeliveryServiceTokens()[0];
 
         // For whatever reason we've to create a PendingEntry before we can send a message
         //We should probably refactor this to be more clear on the backend side

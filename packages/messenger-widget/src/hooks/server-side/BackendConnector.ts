@@ -1,4 +1,5 @@
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { IBackendConnector } from '@dm3-org/dm3-lib-shared';
 import { ServerSideConnector } from './ServerSideConnector';
 
 export class BackendConnector

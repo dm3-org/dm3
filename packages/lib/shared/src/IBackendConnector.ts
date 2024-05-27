@@ -1,4 +1,4 @@
-interface IBackendConnector {
+export interface IBackendConnector {
     addConversation(ensName: string, encryptedContactName: string): void;
     getConversations(ensName: string): Promise<string[]>;
     toggleHideConversation(

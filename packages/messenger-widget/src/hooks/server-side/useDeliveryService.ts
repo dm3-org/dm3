@@ -155,6 +155,7 @@ export const useDeliveryService = () => {
             );
         },
         fetchPendingConversations: (ensName: string) => {
+            const connectors = _getConnectors();
             return connectors[0].fetchPendingConversations(ensName);
         },
         fetchNewMessages: (ensName: string, contactAddress: string) => {

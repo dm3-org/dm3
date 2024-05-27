@@ -8,8 +8,6 @@ export type AuthContextType = {
     setDisplayName: Function;
     account: Account | undefined;
     displayName: string | undefined;
-    deliveryServiceToken: string | undefined;
-    isLoggedIn: boolean;
     isProfileReady: boolean;
     isLoading: boolean;
     hasError: boolean;
@@ -23,8 +21,6 @@ export const AuthContext = React.createContext<AuthContextType>({
     setDisplayName: () => {},
     account: undefined,
     displayName: undefined,
-    deliveryServiceToken: undefined,
-    isLoggedIn: false,
     isProfileReady: false,
     isLoading: false,
     hasError: false,
@@ -39,8 +35,6 @@ export const AuthContextProvider = ({ children }: { children?: any }) => {
         setDisplayName,
         account,
         displayName,
-        deliveryServiceToken,
-        isLoggedIn,
         isProfileReady,
         isLoading,
         hasError,
@@ -55,8 +49,6 @@ export const AuthContextProvider = ({ children }: { children?: any }) => {
                 setDisplayName,
                 account,
                 displayName,
-                deliveryServiceToken,
-                isLoggedIn,
                 isProfileReady,
                 isLoading,
                 hasError,

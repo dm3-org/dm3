@@ -4,39 +4,39 @@ import { useBackend } from '../hooks/server-side/useBackend';
 
 export type BackendContextType = {
     isInitialized: boolean;
-    addConversation?: (ensName: string, encryptedContactName: string) => void;
-    getConversations?: (ensName: string) => Promise<string[]>;
-    toggleHideConversation?: (
+    addConversation: (ensName: string, encryptedContactName: string) => void;
+    getConversations: (ensName: string) => Promise<string[]>;
+    toggleHideConversation: (
         ensName: string,
         encryptedContactName: string,
         hide: boolean,
     ) => void;
-    getMessagesFromStorage?: (
+    getMessagesFromStorage: (
         ensName: string,
         encryptedContactName: string,
         pageNumber: number,
     ) => Promise<string[]>;
-    addMessage?: (
+    addMessage: (
         ensName: string,
         encryptedContactName: string,
         messageId: string,
         encryptedEnvelopContainer: string,
     ) => Promise<void>;
-    addMessageBatch?: (
+    addMessageBatch: (
         ensName: string,
         encryptedContactName: string,
         messages: string[],
     ) => void;
-    editMessageBatch?: (
+    editMessageBatch: (
         ensName: string,
         encryptedContactName: string,
         messages: string[],
     ) => void;
-    getNumberOfMessages?: (
+    getNumberOfMessages: (
         ensName: string,
         encryptedContactName: string,
     ) => Promise<number>;
-    getNumberOfConversations?: (ensName: string) => Promise<number>;
+    getNumberOfConversations: (ensName: string) => Promise<number>;
 };
 
 export const BackendContext = React.createContext<BackendContextType>({

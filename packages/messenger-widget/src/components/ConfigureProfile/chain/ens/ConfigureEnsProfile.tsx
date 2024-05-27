@@ -31,8 +31,6 @@ export const ConfigureEnsProfile = (props: IChain) => {
 
     const { account, ethAddress } = useContext(AuthContext);
 
-    const { getDeliveryServiceTokens } = useContext(DeliveryServiceContext);
-
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     const [ethereumName, setEthereumName] = useState<string>('');
@@ -67,12 +65,10 @@ export const ConfigureEnsProfile = (props: IChain) => {
             );
             return;
         }
-        const deliveryServiceToken = getDeliveryServiceTokens()[0];
         await submitEnsNameTransaction(
             provider!,
             account!,
             ethAddress!,
-            deliveryServiceToken!,
             setLoaderContent,
             ethName,
             (str: string) => setExistingEnsName(str),

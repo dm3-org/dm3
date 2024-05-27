@@ -105,7 +105,6 @@ const getPublishProfileOnchainTransaction = async (
 
 export const submitGenomeNameTransaction = async (
     provider: ethers.providers.StaticJsonRpcProvider,
-    dsToken: string,
     account: Account,
     setLoaderContent: (content: string) => void,
     ensName: string,

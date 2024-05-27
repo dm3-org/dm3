@@ -13,14 +13,9 @@ import {
     sign,
 } from '@dm3-org/dm3-lib-crypto';
 
-import {
-    getChallenge,
-    getNewToken,
-    submitUserProfile,
-} from '@dm3-org/dm3-lib-delivery-api';
+import { getChallenge, getNewToken } from '@dm3-org/dm3-lib-delivery-api';
 import { createProfileKeys as _createProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { stringify } from '@dm3-org/dm3-lib-shared';
-import { GetWalletClientResult } from '@wagmi/core';
 import axios from 'axios';
 import { ethers } from 'ethers';
 import { claimAddress } from '../../adapters/offchainResolverApi';

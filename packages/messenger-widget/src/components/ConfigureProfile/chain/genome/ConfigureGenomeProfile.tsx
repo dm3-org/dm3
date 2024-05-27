@@ -19,8 +19,6 @@ export const ConfigureGenomeProfile = (props: IChain) => {
 
     const { setLoaderContent } = useContext(ModalContext);
 
-    const { getDeliveryServiceTokens } = useContext(DeliveryServiceContext);
-
     const { ethAddress, account } = useContext(AuthContext);
 
     const {
@@ -65,10 +63,8 @@ export const ConfigureGenomeProfile = (props: IChain) => {
         const provider = new ethers.providers.Web3Provider(
             window.ethereum as ethers.providers.ExternalProvider,
         );
-        const deliveryServiceToken = getDeliveryServiceTokens()[0];
         await submitGenomeNameTransaction(
             provider,
-            deliveryServiceToken!,
             account!,
             setLoaderContent,
             name,

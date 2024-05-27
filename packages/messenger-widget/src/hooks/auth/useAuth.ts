@@ -41,9 +41,6 @@ export const useAuth = () => {
     });
 
     const [account, setAccount] = useState<Account | undefined>(undefined);
-    const [deliveryServiceToken, setDeliveryServiceToken] = useState<
-        string | undefined
-    >(undefined);
 
     const [ethAddress, setEthAddress] = useState<string | undefined>(undefined);
 
@@ -71,11 +68,6 @@ export const useAuth = () => {
         fetchDisplayName();
     }, [ethAddress, account]);
 
-    // can be check to retrive the current auth state
-    const isLoggedIn = useMemo<boolean>(
-        () => !!account && !!deliveryServiceToken,
-        [account, deliveryServiceToken],
-    );
     const isProfileReady = useMemo<boolean>(
         () => !!account && !!profileKeys,
         [account, profileKeys],
@@ -90,7 +82,6 @@ export const useAuth = () => {
 
     const signOut = () => {
         setAccount(undefined);
-        setDeliveryServiceToken(undefined);
         resetStates();
     };
     //The normal sign in function that is used when the user signs in with their own account, using a web3 provider like wallet connect or metamask
@@ -225,8 +216,6 @@ export const useAuth = () => {
         account,
         displayName,
         ethAddress,
-        deliveryServiceToken,
-        isLoggedIn,
         isProfileReady,
         isLoading,
         hasError,

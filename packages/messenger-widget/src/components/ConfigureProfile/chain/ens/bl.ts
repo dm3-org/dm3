@@ -45,7 +45,6 @@ export const submitEnsNameTransaction = async (
     mainnetProvider: ethers.providers.StaticJsonRpcProvider,
     account: Account,
     ethAddress: string,
-    dsToken: string,
     setLoaderContent: (content: string) => void,
     ensName: string,
     setEnsNameFromResolver: Function,

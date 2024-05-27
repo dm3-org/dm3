@@ -8,7 +8,6 @@ import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 
 export type DeliveryServiceContextType = {
     getDeliveryServiceProperties: () => Promise<DeliveryServiceProperties>[];
-    getDeliveryServiceTokens: () => string[];
     isInitialized: boolean;
     addNotificationChannel?: (
         ensName: string,
@@ -50,7 +49,6 @@ export type DeliveryServiceContextType = {
 export const DeliveryServiceContext =
     React.createContext<DeliveryServiceContextType>({
         getDeliveryServiceProperties: () => [],
-        getDeliveryServiceTokens: () => [],
         isInitialized: false,
         addNotificationChannel: (
             ensName: string,
@@ -118,7 +116,6 @@ export const DeliveryServiceContextProvider = ({
             value={{
                 isInitialized,
                 getDeliveryServiceProperties,
-                getDeliveryServiceTokens,
                 addNotificationChannel,
                 sendOtp,
                 verifyOtp,
