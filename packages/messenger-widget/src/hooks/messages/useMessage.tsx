@@ -14,14 +14,13 @@ import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { StorageContext } from '../../context/StorageContext';
 import { WebSocketContext } from '../../context/WebSocketContext';
-import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { renderMessage } from './renderer/renderMessage';
 import { handleMessagesFromDeliveryService } from './sources/handleMessagesFromDeliveryService';
 import { handleMessagesFromStorage } from './sources/handleMessagesFromStorage';
 import { handleMessagesFromWebSocket } from './sources/handleMessagesFromWebSocket';
-import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { checkIfEnvelopIsInSizeLimit } from './sizeLimit/checkIfEnvelopIsInSizeLimit';
 import { TLDContext } from '../../context/TLDContext';
+import { DeliveryServiceContext } from '../../context/DeliveryServiceContext';
 
 export type MessageModel = StorageEnvelopContainerNew & {
     reactions: Envelop[];
@@ -33,13 +32,11 @@ export type MessageStorage = {
 };
 
 export const useMessage = () => {
-    const mainnetProvider = useMainnetProvider();
-    const { dm3Configuration } = useContext(DM3ConfigurationContext);
-
     const { contacts, selectedContact, addConversation } =
         useContext(ConversationContext);
-    const { account, profileKeys, deliveryServiceToken } =
-        useContext(AuthContext);
+    const { account, profileKeys } = useContext(AuthContext);
+    const { getDeliveryServiceTokens, fetchNewMessages, syncAcknowledgment } =
+        useContext(DeliveryServiceContext);
 
     const { onNewMessage, removeOnNewMessageListener, socket } =
         useContext(WebSocketContext);
@@ -193,6 +190,8 @@ export const useMessage = () => {
             (c) => c.contactDetails.account.ensName === contact,
         );
 
+        const deliveryServiceToken = getDeliveryServiceTokens()[0];
+
         // For whatever reason we've to create a PendingEntry before we can send a message
         //We should probably refactor this to be more clear on the backend side
         createPendingEntry(
@@ -293,8 +292,8 @@ export const useMessage = () => {
     };
 
     const loadInitialMessages = async (_contactName: string) => {
+        if (!fetchNewMessages || !syncAcknowledgment) return;
         const contactName = normalizeEnsName(_contactName);
-
         const initialMessages = await Promise.all([
             handleMessagesFromStorage(
                 setContactsLoading,
@@ -303,13 +302,12 @@ export const useMessage = () => {
                 contactName,
             ),
             handleMessagesFromDeliveryService(
-                dm3Configuration.backendUrl,
-                mainnetProvider!,
                 account!,
-                deliveryServiceToken!,
                 profileKeys!,
                 storeMessageBatch,
                 contactName,
+                fetchNewMessages,
+                syncAcknowledgment,
             ),
         ]);
 

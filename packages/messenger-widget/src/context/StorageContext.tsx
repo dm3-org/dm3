@@ -12,6 +12,7 @@ import {
     useStorage,
 } from '../hooks/storage/useStorage';
 import { AuthContext } from './AuthContext';
+import { DeliveryServiceContext } from './DeliveryServiceContext';
 
 export type StorageContextType = {
     storeMessage: StoreMessageAsync;
@@ -47,8 +48,8 @@ export const StorageContext = React.createContext<StorageContextType>({
 });
 
 export const StorageContextProvider = ({ children }: { children?: any }) => {
-    const { account, deliveryServiceToken, profileKeys } =
-        useContext(AuthContext);
+    const { account, profileKeys } = useContext(AuthContext);
+    const { getDeliveryServiceTokens } = useContext(DeliveryServiceContext);
 
     const {
         storeMessageAsync,
@@ -63,7 +64,7 @@ export const StorageContextProvider = ({ children }: { children?: any }) => {
     } = useStorage(
         account,
         process.env.REACT_APP_DEFAULT_SERVICE!,
-        deliveryServiceToken,
+        getDeliveryServiceTokens()[0],
         profileKeys,
     );
     return (

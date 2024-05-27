@@ -11,6 +11,7 @@ import { ModalContext } from '../../../../context/ModalContext';
 import { ConfigureDM3NameContext } from '../../context/ConfigureDM3NameContext';
 import { fetchChainIdFromServiceName } from '../../bl';
 import { DM3ConfigurationContext } from '../../../../context/DM3ConfigurationContext';
+import { DeliveryServiceContext } from '../../../../context/DeliveryServiceContext';
 
 export const ConfigureEnsProfile = (props: IChain) => {
     const connectedChainId = useChainId();
@@ -28,8 +29,9 @@ export const ConfigureEnsProfile = (props: IChain) => {
         namingServiceSelected,
     } = useContext(ConfigureProfileContext);
 
-    const { account, ethAddress, deliveryServiceToken } =
-        useContext(AuthContext);
+    const { account, ethAddress } = useContext(AuthContext);
+
+    const { getDeliveryServiceTokens } = useContext(DeliveryServiceContext);
 
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
@@ -65,6 +67,7 @@ export const ConfigureEnsProfile = (props: IChain) => {
             );
             return;
         }
+        const deliveryServiceToken = getDeliveryServiceTokens()[0];
         await submitEnsNameTransaction(
             provider!,
             account!,

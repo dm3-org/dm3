@@ -5,11 +5,12 @@ import { useCallback, useContext, useEffect, useState } from 'react';
 import socketIOClient, { Socket } from 'socket.io-client';
 import { AuthContext } from '../../context/AuthContext';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
+import { DeliveryServiceContext } from '../../context/DeliveryServiceContext';
 
 export const useWebSocket = () => {
-    const { isLoggedIn, account, deliveryServiceToken } =
-        useContext(AuthContext);
+    const { isLoggedIn, account } = useContext(AuthContext);
     const mainnetProvider = useMainnetProvider();
+    const { getDeliveryServiceTokens } = useContext(DeliveryServiceContext);
 
     const [deliveryServiceUrl, setdeliveryServiceUrl] = useState('');
     const [socket, setSocket] = useState<Socket>();
@@ -46,7 +47,7 @@ export const useWebSocket = () => {
                     transports: ['websocket'],
                 },
             );
-
+            const deliveryServiceToken = getDeliveryServiceTokens()[0];
             socket.auth = {
                 account: account,
                 token: deliveryServiceToken!,
