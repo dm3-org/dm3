@@ -1,10 +1,12 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { DeliveryServiceConnector } from './DeliveryServiceConnector';
 import { getDeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import axios from 'axios';
+import { EncryptionEnvelop, Envelop } from '@dm3-org/dm3-lib-messaging';
+import socketIOClient, { Socket } from 'socket.io-client';
 
 export const useDeliveryService = () => {
     //Get Dependencies from authHook
@@ -92,6 +94,26 @@ export const useDeliveryService = () => {
         const connectors = _getConnectors();
         return connectors.map((c) => c.getDeliveryServiceProperties());
     };
+    const onNewMessage = useCallback(
+        (cb: OnNewMessagCallback) => {
+            const connectors = _getConnectors();
+            connectors.forEach((c) =>
+                c.registerWebSocketListener('message', cb),
+            );
+        },
+        [connectors],
+    );
 
-    return { getDeliveryServiceProperties, isInitialized };
+    const removeOnNewMessageListener = useCallback(() => {
+        const connectors = _getConnectors();
+        connectors.forEach((c) => c.unregisterWebSocketListener('message'));
+    }, [connectors]);
+
+    return {
+        getDeliveryServiceProperties,
+        isInitialized,
+        onNewMessage,
+        removeOnNewMessageListener,
+    };
 };
+export type OnNewMessagCallback = (envelop: EncryptionEnvelop) => void;

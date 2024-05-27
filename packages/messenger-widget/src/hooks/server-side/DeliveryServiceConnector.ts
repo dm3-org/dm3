@@ -32,4 +32,21 @@ export class DeliveryServiceConnector extends ServerSideConnector {
         const url = `/getNewMessages/${contactEnsName}`;
         return this.getAuthenticatedAxiosClient().get(url);
     }
+
+    public registerWebSocketListener(
+        eventName: string,
+        cb: (...args: any[]) => void,
+    ) {
+        const socket = this.getAuthenticatedWebSocketClient();
+        socket.on(eventName, cb);
+    }
+
+    public unregisterWebSocketListener(eventName: string) {
+        const socket = this.getAuthenticatedWebSocketClient();
+        socket.removeListener(eventName);
+    }
+    public emit = (eventName: string, ...args: any[]) => {
+        const socket = this.getAuthenticatedWebSocketClient();
+        socket.emit(eventName, ...args);
+    };
 }

@@ -1,20 +1,42 @@
 import React from 'react';
 import { useDeliveryService } from '../hooks/server-side/useDeliveryService';
 
-export type DeliveryServiceContextType = {};
+export type DeliveryServiceContextType = {
+    getDeliveryServiceProperties: () => void;
+    isInitialized: boolean;
+    onNewMessage: (_: any) => void;
+    removeOnNewMessageListener: () => void;
+};
 
 export const DeliveryServiceContext =
-    React.createContext<DeliveryServiceContextType>({});
+    React.createContext<DeliveryServiceContextType>({
+        isInitialized: false,
+        getDeliveryServiceProperties: () => {},
+        onNewMessage: () => {},
+        removeOnNewMessageListener: () => {},
+    });
 
 export const DeliveryServiceContextProvider = ({
     children,
 }: {
     children?: any;
 }) => {
-    const ds = useDeliveryService();
+    const {
+        getDeliveryServiceProperties,
+        isInitialized,
+        onNewMessage,
+        removeOnNewMessageListener,
+    } = useDeliveryService();
 
     return (
-        <DeliveryServiceContext.Provider value={{}}>
+        <DeliveryServiceContext.Provider
+            value={{
+                getDeliveryServiceProperties,
+                isInitialized,
+                onNewMessage,
+                removeOnNewMessageListener,
+            }}
+        >
             {children}
         </DeliveryServiceContext.Provider>
     );
