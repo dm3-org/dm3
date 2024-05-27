@@ -43,6 +43,8 @@ export type DeliveryServiceContextType = {
         ensName: string,
         notificationChannelType: NotificationChannelType,
     ) => any;
+    onNewMessage: (_: any) => void;
+    removeOnNewMessageListener: () => void;
 };
 
 export const DeliveryServiceContext =
@@ -83,6 +85,8 @@ export const DeliveryServiceContext =
             ensName: string,
             notificationChannelType: NotificationChannelType,
         ) => {},
+        onNewMessage: () => {},
+        removeOnNewMessageListener: () => {},
     });
 
 export const DeliveryServiceContextProvider = ({
@@ -105,6 +109,8 @@ export const DeliveryServiceContextProvider = ({
         toggleGlobalNotifications,
         toggleNotificationChannel,
         removeNotificationChannel,
+        onNewMessage,
+        removeOnNewMessageListener,
     } = useDeliveryService();
 
     return (
@@ -124,6 +130,8 @@ export const DeliveryServiceContextProvider = ({
                 toggleGlobalNotifications,
                 toggleNotificationChannel,
                 removeNotificationChannel,
+                onNewMessage,
+                removeOnNewMessageListener,
             }}
         >
             {children}
