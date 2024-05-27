@@ -82,7 +82,16 @@ export const useDeliveryService = () => {
         initializeDs();
     }, [isProfileReady]);
 
-    const fetch = () => {
+    const _getConnectors = () => {
         //TODO think about strategies to use the delivery services. For the start we just query the first one
+        const [ds] = connectors;
+        return [ds];
     };
+
+    const getDeliveryServiceProperties = () => {
+        const connectors = _getConnectors();
+        return connectors.map((c) => c.getDeliveryServiceProperties());
+    };
+
+    return { getDeliveryServiceProperties, isInitialized };
 };
