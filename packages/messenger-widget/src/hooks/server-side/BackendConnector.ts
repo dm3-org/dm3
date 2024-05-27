@@ -5,9 +5,12 @@ export class BackendConnector
     extends ServerSideConnector
     implements IBackendConnector
 {
-    public addConversation(ensName: string, encryptedContactName: string) {
+    public async addConversation(
+        ensName: string,
+        encryptedContactName: string,
+    ) {
         const url = `/${normalizeEnsName(ensName)}/addConversation`;
-        this.getAuthenticatedAxiosClient().post(url, {
+        await this.getAuthenticatedAxiosClient().post(url, {
             encryptedContactName,
         });
     }
@@ -22,7 +25,7 @@ export class BackendConnector
         hide: boolean,
     ) {
         const url = `/${normalizeEnsName(ensName)}/toggleHideConversation`;
-        this.getAuthenticatedAxiosClient().post(url, {
+        await this.getAuthenticatedAxiosClient().post(url, {
             encryptedContactName,
             hide,
         });

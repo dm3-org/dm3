@@ -23,8 +23,7 @@ export const ConfigureCloudNameProfile = () => {
         ConfigureDM3NameContext,
     );
 
-    const { account, deliveryServiceToken, profileKeys, setDisplayName } =
-        useContext(AuthContext);
+    const { account, profileKeys, setDisplayName } = useContext(AuthContext);
 
     const nameExtension = dm3Configuration.userEnsSubdomain;
     const placeholder = 'Enter your preferred name and check availability.';

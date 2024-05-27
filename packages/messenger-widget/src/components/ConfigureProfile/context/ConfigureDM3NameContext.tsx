@@ -71,8 +71,7 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
         ConfigureProfileContext,
     );
 
-    const { account, ethAddress, deliveryServiceToken, profileKeys } =
-        useContext(AuthContext);
+    const { account, profileKeys } = useContext(AuthContext);
 
     const setError = (error: string, type: NAME_TYPE | undefined) => {
         onShowError(type, error);

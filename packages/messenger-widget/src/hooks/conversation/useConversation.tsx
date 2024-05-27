@@ -6,16 +6,17 @@ import { StorageContext } from '../../context/StorageContext';
 import { ContactPreview, getDefaultContract } from '../../interfaces/utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
-import { fetchPendingConversations } from '../../adapters/messages';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { DM3Configuration } from '../../interfaces/config';
 import { TLDContext } from '../../context/TLDContext';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { DeliveryServiceContext } from '../../context/DeliveryServiceContext';
 
 export const useConversation = (config: DM3Configuration) => {
     const mainnetProvider = useMainnetProvider();
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
-    const { account, deliveryServiceToken } = useContext(AuthContext);
+    const { account } = useContext(AuthContext);
+    const { fetchPendingConversations } = useContext(DeliveryServiceContext);
     const {
         getConversations,
         addConversationAsync,
@@ -143,16 +144,14 @@ export const useConversation = (config: DM3Configuration) => {
 
     const handlePendingConversations = async (backendUrl: string) => {
         //At first we've to check if there are pending conversations not yet added to the list
-        const pendingConversations = await fetchPendingConversations(
-            backendUrl,
-            mainnetProvider,
-            account!,
-            deliveryServiceToken!,
-        );
-        //Every pending conversation is going to be added to the conversation list
-        pendingConversations.forEach((pendingConversation) => {
-            addConversation(pendingConversation);
-        });
+        if (fetchPendingConversations) {
+            const pendingConversations: string[] =
+                await fetchPendingConversations(account?.ensName as string);
+            //Every pending conversation is going to be added to the conversation list
+            pendingConversations.forEach((pendingConversation) => {
+                addConversation(pendingConversation);
+            });
+        }
     };
 
     const addConversation = (_ensName: string) => {

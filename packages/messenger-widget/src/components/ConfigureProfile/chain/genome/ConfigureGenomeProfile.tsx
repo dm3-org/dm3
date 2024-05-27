@@ -10,6 +10,7 @@ import { ModalContext } from '../../../../context/ModalContext';
 import { DM3ConfigurationContext } from '../../../../context/DM3ConfigurationContext';
 import { ConfigureDM3NameContext } from '../../context/ConfigureDM3NameContext';
 import { fetchChainIdFromServiceName } from '../../bl';
+import { DeliveryServiceContext } from '../../../../context/DeliveryServiceContext';
 
 export const ConfigureGenomeProfile = (props: IChain) => {
     const connectedChainId = useChainId();
@@ -18,8 +19,9 @@ export const ConfigureGenomeProfile = (props: IChain) => {
 
     const { setLoaderContent } = useContext(ModalContext);
 
-    const { ethAddress, account, deliveryServiceToken } =
-        useContext(AuthContext);
+    const { getDeliveryServiceTokens } = useContext(DeliveryServiceContext);
+
+    const { ethAddress, account } = useContext(AuthContext);
 
     const {
         onShowError,
@@ -63,6 +65,7 @@ export const ConfigureGenomeProfile = (props: IChain) => {
         const provider = new ethers.providers.Web3Provider(
             window.ethereum as ethers.providers.ExternalProvider,
         );
+        const deliveryServiceToken = getDeliveryServiceTokens()[0];
         await submitGenomeNameTransaction(
             provider,
             deliveryServiceToken!,
