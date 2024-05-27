@@ -1,6 +1,5 @@
 /* eslint-disable max-len */
 /* eslint-disable no-console */
-import './Home.css';
 import {
     connectorsForWallets,
     darkTheme,
@@ -24,16 +23,16 @@ import { gnosis, optimism, optimismSepolia } from 'wagmi/chains';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import DM3 from '../../components/DM3/DM3';
 import { AuthContextProvider } from '../../context/AuthContext';
+import { BackendContextProvider } from '../../context/BackendContext';
+import { DeliveryServiceContextProvider } from '../../context/DeliveryServiceContext';
 import { DM3ConfigurationContextProvider } from '../../context/DM3ConfigurationContext';
+import { ModalContextProvider } from '../../context/ModalContext';
 import { MainnetProviderContextProvider } from '../../context/ProviderContext';
 import { StorageContextProvider } from '../../context/StorageContext';
 import { TLDContextProvider } from '../../context/TLDContext';
-import { WebSocketContextProvider } from '../../context/WebSocketContext';
-import { Dm3Props } from '../../interfaces/config';
 import { UiViewContextProvider } from '../../context/UiViewContext';
-import { ModalContextProvider } from '../../context/ModalContext';
-import { DeliveryServiceContextProvider } from '../../context/DeliveryServiceContext';
-import { BackendContextProvider } from '../../context/BackendContext';
+import { Dm3Props } from '../../interfaces/config';
+import './Home.css';
 
 export function Home(props: Dm3Props) {
     /**
@@ -104,15 +103,13 @@ export function Home(props: Dm3Props) {
                                         <AuthContextProvider>
                                             <DeliveryServiceContextProvider>
                                                 <BackendContextProvider>
-                                                    <WebSocketContextProvider>
-                                                        <StorageContextProvider>
-                                                            <DM3
-                                                                config={
-                                                                    props.config
-                                                                }
-                                                            />
-                                                        </StorageContextProvider>
-                                                    </WebSocketContextProvider>
+                                                    <StorageContextProvider>
+                                                        <DM3
+                                                            config={
+                                                                props.config
+                                                            }
+                                                        />
+                                                    </StorageContextProvider>
                                                 </BackendContextProvider>
                                             </DeliveryServiceContextProvider>
                                         </AuthContextProvider>

@@ -1,35 +1,31 @@
 import {
+    createStorageKey,
+    getStorageKeyCreationMessage,
+} from '@dm3-org/dm3-lib-crypto';
+import {
     Account,
     DEFAULT_NONCE,
     ProfileKeys,
     SignedUserProfile,
     UserProfile,
+    createProfileKeys as _createProfileKeys,
     getProfileCreationMessage,
     getUserProfile,
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
-import { useContext, useEffect, useMemo, useState } from 'react';
-import { useAccount, useWalletClient } from 'wagmi';
-import { TLDContext } from '../../context/TLDContext';
-import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
-import { AccountConnector, getIdForAddress } from './AccountConnector';
-import {
-    ConnectDsResult,
-    DeliveryServiceConnector,
-    SignMessageFn,
-} from './DeliveryServiceConnector';
-import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
-import { UiViewContext } from '../../context/UiViewContext';
-import { ModalContext } from '../../context/ModalContext';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import { sha256, toUtf8Bytes } from 'ethers/lib/utils';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { useAccount, useWalletClient } from 'wagmi';
 import { closeLoader, startLoader } from '../../components/Loader/Loader';
-import {
-    createStorageKey,
-    getStorageKeyCreationMessage,
-} from '@dm3-org/dm3-lib-crypto';
-import { createProfileKeys as _createProfileKeys } from '@dm3-org/dm3-lib-profile';
-import { stringify } from '@dm3-org/dm3-lib-shared';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { ModalContext } from '../../context/ModalContext';
+import { TLDContext } from '../../context/TLDContext';
+import { UiViewContext } from '../../context/UiViewContext';
+import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
+import { AccountConnector, getIdForAddress } from './AccountConnector';
+import { SignMessageFn } from './DeliveryServiceConnector';
 
 export const useAuth = () => {
     const mainnetProvider = useMainnetProvider();
