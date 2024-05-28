@@ -45,6 +45,7 @@ export const useDeliveryService = () => {
 
             const connectors = deliveryServices
                 .map(async (dsName) => {
+                    console.log('ds name', await dsName);
                     return await getDeliveryServiceProfile(
                         dsName,
                         mainnetProvider!,
@@ -57,12 +58,13 @@ export const useDeliveryService = () => {
                         console.log(
                             '[fetchDeliverServicePorfile] Cant resolve deliveryServiceUrl',
                         );
-
                         return undefined;
                     }
 
+                    console.log('ds ', await ds);
+
                     return new DeliveryServiceConnector(
-                        baseUrl.replace('/api', '/ds'),
+                        baseUrl,
                         dm3Configuration.resolverBackendUrl,
                         dm3Configuration.addressEnsSubdomain,
                         ethAddress!,

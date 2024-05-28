@@ -23,7 +23,7 @@ export const useBackend = (): IBackendConnector & {
             }
             //We only need to initialize the backend connector once si
             const beConnector = new BackendConnector(
-                dm3Configuration.backendUrl + '/',
+                dm3Configuration.backendUrl,
                 dm3Configuration.resolverBackendUrl,
                 dm3Configuration.addressEnsSubdomain,
                 ethAddress!,

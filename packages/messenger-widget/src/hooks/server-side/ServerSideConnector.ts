@@ -91,7 +91,7 @@ export abstract class ServerSideConnector extends JwtInterceptor {
 
     private async reAuth() {
         //TODO check if we need alias subdomain
-        const url = `${this.baseUrl}auth/${normalizeEnsName(this.ensName)}`;
+        const url = `${this.baseUrl}/auth/${normalizeEnsName(this.ensName)}`;
 
         const { data: challenge } = await axios.get(url);
 
@@ -110,7 +110,7 @@ export abstract class ServerSideConnector extends JwtInterceptor {
     }
 
     private async profileExistsOnDeliveryService() {
-        const path = `${this.baseUrl}profile/${this.ensName}`;
+        const path = `${this.baseUrl}/profile/${this.ensName}`;
         try {
             const { status } = await axios.get(path);
             return status === 200;
@@ -120,7 +120,7 @@ export abstract class ServerSideConnector extends JwtInterceptor {
     }
 
     private async submitUserProfile(signedUserProfile: SignedUserProfile) {
-        const url = `${this.baseUrl}profile/${this.ensName}`;
+        const url = `${this.baseUrl}/profile/${this.ensName}`;
         const { data } = await axios.post(url, signedUserProfile);
         return data;
     }
