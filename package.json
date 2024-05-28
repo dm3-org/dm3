@@ -1,8 +1,10 @@
 {
     "name": "dm3",
+    "private": true,
     "workspaces": {
         "packages": [
             "packages/lib/shared",
+            "packages/lib/server-side",
             "packages/lib/crypto",
             "packages/lib/profile",
             "packages/lib/messaging",
@@ -17,7 +19,8 @@
             "packages/messenger-demo",
             "packages/messenger-web",
             "packages/cli",
-            "packages/toplevel-alias"
+            "packages/toplevel-alias",
+            "packages/delivery-service"
         ],
         "nohoist": [
             "**/react",

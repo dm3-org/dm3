@@ -33,7 +33,7 @@ function DM3(props: Dm3Props) {
 
         // sets the DM3 confguration provided from props
         setDm3Configuration(props.config);
-    }, []);
+    }, [props]);
 
     // This handles the responsive check of widget
     useEffect(() => {

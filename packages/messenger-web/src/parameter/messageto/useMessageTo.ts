@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 /**
  * A custom hook for retrieving the 'messageTo' URL parameter value.
  * It returns the value of 'messageTo' and a function to check if it's set.
  */
-export const useMessageTo = (): [string | null, () => boolean] => {
+export const useMessageTo = (): [string | null, boolean] => {
     // State to store the value of 'messageTo'
     const [messageTo, setMessageTo] = useState<string | null>(null);
 
@@ -19,10 +19,10 @@ export const useMessageTo = (): [string | null, () => boolean] => {
         setMessageTo(paramValue);
     }, []); // Empty dependency array means this effect runs once on mount
 
-    // Function to check if 'messageTo' is set (not null and not an empty string)
-    const isMessageToSet = (): boolean => {
+    // useMemo keeps track of the 'messageTo' value and returns a boolean indicating if it's set
+    const isMessageToSet = useMemo(() => {
         return messageTo !== null && messageTo.trim() !== '';
-    };
+    }, [messageTo]);
 
     // Return the 'messageTo' value and the 'isMessageToSet' function
     return [messageTo, isMessageToSet];

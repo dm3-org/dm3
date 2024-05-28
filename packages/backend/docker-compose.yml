@@ -7,7 +7,7 @@ services:
         restart: always
         container_name: redis
         ports:
-            - '6379:6379'
+            - '6380:6379' # map to host port 6380
     dm3-storage:
         image: postgres:13
         restart: always

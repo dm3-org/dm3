@@ -38,10 +38,6 @@ export interface Acknoledgment {
     messageDeliveryServiceTimestamp: number;
 }
 
-export interface MessageSubmission {
-    token: string;
-    envelop: EncryptionEnvelop;
-}
 export function getConversationId(ensNameA: string, ensNameB: string): string {
     return [normalizeEnsName(ensNameA), normalizeEnsName(ensNameB)]
         .sort()
@@ -86,7 +82,7 @@ export async function getMessages(
 }
 
 /**
- * Handles an incomming message.
+ * Handles an incoming message.
  * Either stores the message or sends it directly to the receiver if a socketId is provided
  * In order to be considered valid a incoming message has to meet the following criterias
  * 1. The message size must be lower than the sizeLimit specified by the deliveryService {@see messageIsToLarge}
@@ -95,7 +91,7 @@ export async function getMessages(
  * 4. The message must pass every {@see SpamFilterRule} the receiver declared
  */
 export async function incomingMessage(
-    { envelop, token }: { envelop: EncryptionEnvelop; token: string },
+    envelop: EncryptionEnvelop,
     signingKeyPair: KeyPair,
     encryptionKeyPair: KeyPair,
     sizeLimit: number,
@@ -113,16 +109,13 @@ export async function incomingMessage(
     getUsersNotificationChannels: GetNotificationChannels,
     wsManager: IWebSocketManager,
 ): Promise<void> {
-    logDebug({
-        text: 'incomingMessage',
-        token,
-    });
+    logDebug('incomingMessage');
     //Checks the size of the incoming message
-    if (messageIsToLarge(envelop, sizeLimit)) {
+    if (messageIsTooLarge(envelop, sizeLimit)) {
         throw Error('Message is too large');
     }
 
-    //Decryptes the encrypted DeliveryInformation with the KeyPair of the deliveryService
+    //Decrypts the encrypted DeliveryInformation with the KeyPair of the deliveryService
 
     const deliveryInformation: DeliveryInformation =
         await decryptDeliveryInformation(envelop, encryptionKeyPair);
@@ -134,23 +127,7 @@ export async function incomingMessage(
     );
     logDebug({ text: 'incomingMessage', conversationId, deliveryInformation });
 
-    //Checks if the sender is authenticated
-    const tokenIsValid = await checkToken(
-        provider,
-        getSession,
-        deliveryInformation.from,
-        token,
-    );
-
-    if (!tokenIsValid) {
-        //Token is invalid
-        logDebug({
-            text: 'incomingMessage token invalid',
-        });
-        throw Error('Token check failed');
-    }
-
-    //Retrives the session of the receiver
+    //Retrieves the session of the receiver
     const receiverSession = await getSession(deliveryInformation.to);
     if (!receiverSession) {
         logDebug({
@@ -165,7 +142,7 @@ export async function incomingMessage(
         receiverSession,
     });
 
-    //Checkes if the message is spam
+    //Checks if the message is spam
     if (await isSpam(provider, receiverSession, deliveryInformation)) {
         logDebug({
             text: 'incomingMessage is spam',
@@ -226,7 +203,7 @@ export async function incomingMessage(
     }
 }
 
-function messageIsToLarge(
+function messageIsTooLarge(
     envelop: EncryptionEnvelop,
     sizeLimit: number,
 ): boolean {

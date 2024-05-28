@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import { ProfileExtension, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { logDebug } from '@dm3-org/dm3-lib-shared';
+import { verify } from 'jsonwebtoken';
 
 //1Year
 const TTL = 31536000000;
@@ -23,6 +24,7 @@ export async function checkToken(
     getSession: (ensName: string) => Promise<Session | null>,
     ensName: string,
     token: string,
+    serverSecret: string,
 ): Promise<boolean> {
     logDebug({
         text: 'checkToken',
@@ -32,41 +34,72 @@ export async function checkToken(
     const address = await provider.resolveName(ensName);
 
     if (!address) {
-        // Couln't resolve ENS name
+        // Couldn't resolve ENS name
         logDebug({
-            text: `checkToken - Couln't resolve ENS name`,
+            text: `checkToken - Couldn't resolve ENS name`,
         });
         return false;
     }
 
     const session = await getSession(ensName.toLocaleLowerCase());
 
-    //There is no account for the requesting accoung
+    //There is no account for the requesting account
     if (!session) {
         logDebug({
-            text: `checkToken - There is no account for the requesting accoung`,
+            text: `checkToken - There is no account for the requesting account`,
         });
         return false;
     }
 
-    const tokenIsValid = token === session.token;
+    // check jwt for validity
+    try {
+        // will throw if signature is invalid or exp is in the past
+        const jwtPayload = verify(token, serverSecret, {
+            algorithms: ['HS256'],
+        });
 
-    //The account has a session but the token is wrong
-    if (!tokenIsValid) {
+        // check if type is string -> invalid
+        if (typeof jwtPayload == 'string') {
+            logDebug({
+                text: `jwt invalid: jwtPayload is a string`,
+            });
+            return false;
+        }
+
+        // check if expected fields are present
+        if (
+            !('account' in jwtPayload) ||
+            !('iat' in jwtPayload) ||
+            !('exp' in jwtPayload) ||
+            !('nbf' in jwtPayload)
+        ) {
+            logDebug({
+                text: `jwt invalid: content missing`,
+            });
+            return false;
+        }
+
+        if (!jwtPayload.iat || jwtPayload.iat > Date.now() / 1000) {
+            logDebug({
+                text: `jwt invalid: iat missing or in the future`,
+            });
+            return false;
+        }
+
+        if (jwtPayload.account !== ensName) {
+            logDebug({
+                text: `jwt invalid: account mismatch`,
+            });
+            return false;
+        }
+    } catch (error) {
         logDebug({
-            text: `checkToken - The account has a session but the token is wrong`,
+            text: `jwt invalid: ${error}`,
+            error,
         });
         return false;
     }
 
-    const isTokenExpired = session.createdAt + TTL < new Date().getTime();
-    //The token is exceeded
-    if (isTokenExpired) {
-        logDebug({
-            text: `checkToken - The token is exceeded`,
-        });
-        return false;
-    }
-
+    // the token is valid only if all checks passed
     return true;
 }

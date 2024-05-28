@@ -13,6 +13,7 @@ import {
 import { closeLoader, startLoader } from '../Loader/Loader';
 import { UiViewContext } from '../../context/UiViewContext';
 import { ModalContext } from '../../context/ModalContext';
+import { labelToName } from 'whatwg-encoding';
 
 // class for input field
 export const INPUT_FIELD_CLASS =
@@ -127,6 +128,7 @@ export default function AddConversation() {
                     <hr className="line-separator separator text-secondary-color" />
 
                     <form
+                        aria-label="add-conv-form"
                         onSubmit={(e: React.FormEvent) => submit(e)}
                         className="mt-4 mb-2 d-flex"
                     >
@@ -149,12 +151,14 @@ export default function AddConversation() {
                             </div>
                             <div className="d-flex add-name-container">
                                 <label
+                                    title="add-conv-label"
                                     htmlFor="name"
                                     className="font-size-14 font-weight-500"
                                 >
                                     Name
                                 </label>
                                 <input
+                                    data-testid="add-conv-input"
                                     id="add-conv-input"
                                     className={inputClass.concat(
                                         ' ',

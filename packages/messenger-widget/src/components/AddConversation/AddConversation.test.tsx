@@ -47,14 +47,14 @@ describe('AddConversation test cases', () => {
     });
 
     it('Fetch Add Conversation name label', () => {
-        const { getByRole } = render(<AddConversation />);
-        const element = getByRole('label');
+        const { getByTitle } = render(<AddConversation />);
+        const element = getByTitle('add-conv-label');
         expect(element).toBeInTheDocument();
     });
 
     it('Must handle change in input field', () => {
-        const { getByRole } = render(<AddConversation />);
-        const element = getByRole('input');
+        const { getByTestId } = render(<AddConversation />);
+        const element = getByTestId('add-conv-input');
         const action = fireEvent.change(element, {
             target: { value: 'new.user' },
         });

@@ -22,15 +22,16 @@ describe('ContactInfo test cases', () => {
     });
 
     it('Click open ENS profile', () => {
-        const { getByRole } = render(<ContactInfo />);
-        const button = getByRole('Open ENS profile');
+        window.open = jest.fn();
+        const { getByText } = render(<ContactInfo />);
+        const button = getByText('Open ENS profile');
         const action = fireEvent.click(button);
         expect(action).toBe(true);
     });
 
     it('Click hide contact', () => {
-        const { getByRole } = render(<ContactInfo />);
-        const button = getByRole('Hide Contact');
+        const { getByText } = render(<ContactInfo />);
+        const button = getByText('Hide Contact');
         const action = fireEvent.click(button);
         expect(action).toBe(true);
     });

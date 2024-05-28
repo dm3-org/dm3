@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { sha256 } from 'ethers/lib/utils';
-import _sodium from 'libsodium-wrappers';
+import { initializeLibSodiumWrapper } from './libsodium/initializeLibSodiumWrapper';
 
 export interface KeyPair {
     publicKey: string;
@@ -13,8 +13,7 @@ export interface SessionKey {
 }
 
 export async function createSigningKeyPair(seed?: string): Promise<KeyPair> {
-    await _sodium.ready;
-    const sodium = _sodium;
+    const sodium = await initializeLibSodiumWrapper();
     const keys = seed
         ? sodium.crypto_sign_seed_keypair(ethers.utils.base64.decode(seed))
         : sodium.crypto_sign_keypair();
@@ -56,8 +55,7 @@ export async function createStorageKey(
 }
 
 export async function createKeyPair(seed?: string): Promise<KeyPair> {
-    await _sodium.ready;
-    const sodium = _sodium;
+    const sodium = await initializeLibSodiumWrapper();
     const keys = seed
         ? sodium.crypto_kx_seed_keypair(ethers.utils.base64.decode(seed))
         : sodium.crypto_kx_keypair();
@@ -72,8 +70,7 @@ export async function createSenderSessionKey(
     keyPair: KeyPair,
     externalPublicKey: string,
 ): Promise<SessionKey> {
-    await _sodium.ready;
-    const sodium = _sodium;
+    const sodium = await initializeLibSodiumWrapper();
     const sessionKey = sodium.crypto_kx_client_session_keys(
         ethers.utils.base64.decode(keyPair.publicKey),
         ethers.utils.base64.decode(keyPair.privateKey),
@@ -90,8 +87,7 @@ export async function createReceiverSessionKey(
     keyPair: KeyPair,
     externalPublicKey: string,
 ): Promise<SessionKey> {
-    await _sodium.ready;
-    const sodium = _sodium;
+    const sodium = await initializeLibSodiumWrapper();
     const sessionKey = sodium.crypto_kx_server_session_keys(
         ethers.utils.base64.decode(keyPair.publicKey),
         ethers.utils.base64.decode(keyPair.privateKey),

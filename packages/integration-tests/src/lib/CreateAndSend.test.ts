@@ -109,8 +109,6 @@ describe('Profile creation and sending a message', () => {
     });
 
     it('should send a message from Alice to Bob', async () => {
-        expect.assertions(2);
-
         // Function to get HTTP Ressoucres, only needed for IPFS or HTTP profiles (deprecated)
         // Use CCIP instead of IPFS or HTTP profiles
         const getRessource = async (uri: string) => null as any;
