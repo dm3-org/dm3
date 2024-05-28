@@ -183,17 +183,8 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
             );
 
             if (tx) {
-                const result = await removeAliasFromDm3Name(
-                    dm3Configuration.resolverBackendUrl,
-                    profileKeys!,
-                    existingDm3Name as string,
-                    setLoaderContent,
-                    setError,
-                );
-                if (result) {
-                    setExistingDm3Name(null);
-                    setDisplayName('');
-                }
+                setExistingDm3Name(null);
+                setDisplayName('');
                 const response = await ethersHelper.executeTransaction(tx);
                 await response.wait();
                 /** TODO : Remove this line if not required*/
@@ -205,7 +196,7 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
             const check = e.toString().includes('user rejected transaction');
             const errorMsg = check
                 ? 'User rejected transaction'
-                : 'Failed to remove DM3 name';
+                : 'Failed to remove OP name';
             setError(errorMsg, NAME_TYPE.DM3_NAME);
             closeLoader();
             return {

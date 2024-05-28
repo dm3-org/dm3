@@ -66,7 +66,7 @@ export const getEnsName = async (
     }
 };
 
-// method to remove aliad
+// method to remove alias
 export const removeAliasFromDm3Name = async (
     resolverBackendUrl: string,
     profileKeys: ProfileKeys,
