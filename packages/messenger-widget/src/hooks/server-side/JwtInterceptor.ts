@@ -32,6 +32,7 @@ export abstract class JwtInterceptor {
     protected setAuthToken(token: string) {
         this.axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         this.initializeSocketIO(token);
+        console.log('Token set');
     }
 
     protected async onSucces(res: AxiosResponse) {

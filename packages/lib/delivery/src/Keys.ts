@@ -86,9 +86,7 @@ export async function createNewSessionToken(
     // check if the payload of the challenge-jwt has the proper schema
     if (
         typeof challengePayload == 'string' ||
-        !validateSchema(challengeJwtPayloadSchema, challengePayload) ||
-        // this check is already done in validateSchema, but the compiler doesn't understand that, so we do it again
-        !('account' in challengePayload)
+        !validateSchema(challengeJwtPayloadSchema, challengePayload)
     ) {
         throw Error('Provided challenge is not valid');
     }

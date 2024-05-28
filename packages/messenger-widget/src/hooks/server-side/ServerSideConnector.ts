@@ -12,6 +12,7 @@ import { ethers } from 'ethers';
 import { claimAddress } from '../../adapters/offchainResolverApi';
 import { ConnectDsResult } from '../auth/DeliveryServiceConnector';
 import { JwtInterceptor } from './JwtInterceptor';
+import { JwtPayload, decode } from 'jsonwebtoken';
 
 //Interface to support different kinds of signers
 export type SignMessageFn = (message: string) => Promise<string>;
@@ -57,15 +58,12 @@ export abstract class ServerSideConnector extends JwtInterceptor {
         signedUserProfile: SignedUserProfile,
     ): Promise<ConnectDsResult> {
         //TODO move claimAddress to useAuth
-        if (
-            !(await claimAddress(
-                this.address,
-                this.resolverBackendUrl as string,
-                signedUserProfile,
-            ))
-        ) {
-            throw Error(`Couldn't claim address subdomain`);
-        }
+        await claimAddress(
+            this.address,
+            this.resolverBackendUrl as string,
+            signedUserProfile,
+        );
+
         const deliveryServiceToken = await this.submitUserProfile(
             signedUserProfile,
         );
@@ -93,29 +91,26 @@ export abstract class ServerSideConnector extends JwtInterceptor {
 
     private async reAuth() {
         //TODO check if we need alias subdomain
-        const url = `${this.baseUrl}/auth/${normalizeEnsName(this.ensName)}`;
+        const url = `${this.baseUrl}auth/${normalizeEnsName(this.ensName)}`;
 
-        const { data } = await axios.get(url);
+        const { data: challenge } = await axios.get(url);
 
-        const challenge = data.challenge;
         const signature = await sign(
             this.profileKeys.signingKeyPair.privateKey,
             challenge,
         );
 
-        const getNewTokenUrl = `${this.baseUrl}/auth/${normalizeEnsName(
-            this.ensName,
-        )}`;
         //Todo move to lib
-        const { data: getNewTokenData } = await axios.post(getNewTokenUrl, {
+        const { data: newToken } = await axios.post(url, {
             signature,
+            challenge,
         });
 
-        return getNewTokenData.token;
+        return newToken;
     }
 
     private async profileExistsOnDeliveryService() {
-        const path = `${this.baseUrl}/profile/${this.ensName}`;
+        const path = `${this.baseUrl}profile/${this.ensName}`;
         try {
             const { status } = await axios.get(path);
             return status === 200;
@@ -125,7 +120,7 @@ export abstract class ServerSideConnector extends JwtInterceptor {
     }
 
     private async submitUserProfile(signedUserProfile: SignedUserProfile) {
-        const url = `${this.baseUrl}/profile/${this.ensName}`;
+        const url = `${this.baseUrl}profile/${this.ensName}`;
         const { data } = await axios.post(url, signedUserProfile);
         return data;
     }

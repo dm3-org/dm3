@@ -8,7 +8,8 @@ export const useBackend = (): IBackendConnector & {
     isInitialized: boolean;
 } => {
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
-    const { ethAddress, profileKeys, isProfileReady } = useContext(AuthContext);
+    const { ethAddress, profileKeys, isProfileReady, account } =
+        useContext(AuthContext);
 
     const [isInitialized, setIsInitialized] = useState<boolean>(false);
     const [beConnector, setbeConnector] = useState<BackendConnector>();
@@ -22,12 +23,18 @@ export const useBackend = (): IBackendConnector & {
             }
             //We only need to initialize the backend connector once si
             const beConnector = new BackendConnector(
-                dm3Configuration.backendUrl,
+                dm3Configuration.backendUrl + '/',
                 dm3Configuration.resolverBackendUrl,
                 dm3Configuration.addressEnsSubdomain,
                 ethAddress!,
                 profileKeys!,
             );
+
+            const signedUserProfile = {
+                profile: account?.profile!,
+                signature: account?.profileSignature!,
+            };
+            await beConnector.login(signedUserProfile);
             setbeConnector(beConnector);
             setIsInitialized(true);
         };

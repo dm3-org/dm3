@@ -98,6 +98,7 @@ export const Auth = (getSession, serverSecret: string) => {
             res.json(jwt);
         } catch (e) {
             next(e);
+            console.log();
         }
     });
 

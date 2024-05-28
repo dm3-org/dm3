@@ -23,22 +23,22 @@ export type DeliveryServiceContextType = {
         otp: string,
         notificationChannelType: NotificationChannelType,
     ) => any;
-    fetchPendingConversations?: (ensName: string) => any;
-    fetchNewMessages?: (ensName: string, contactAddress: string) => any;
-    syncAcknowledgment?: (
+    fetchPendingConversations: (ensName: string) => any;
+    fetchNewMessages: (ensName: string, contactAddress: string) => any;
+    syncAcknowledgment: (
         ensName: string,
         acknoledgments: Acknoledgment[],
         lastSyncTime: number,
     ) => void;
-    getGlobalNotification?: (ensName: string) => any;
-    getAllNotificationChannels?: (ensName: string) => any;
-    toggleGlobalNotifications?: (ensName: string, isEnabled: boolean) => any;
-    toggleNotificationChannel?: (
+    getGlobalNotification: (ensName: string) => any;
+    getAllNotificationChannels: (ensName: string) => any;
+    toggleGlobalNotifications: (ensName: string, isEnabled: boolean) => any;
+    toggleNotificationChannel: (
         ensName: string,
         isEnabled: boolean,
         notificationChannelType: NotificationChannelType,
     ) => any;
-    removeNotificationChannel?: (
+    removeNotificationChannel: (
         ensName: string,
         notificationChannelType: NotificationChannelType,
     ) => any;

@@ -10,14 +10,18 @@ export class BackendConnector
         ensName: string,
         encryptedContactName: string,
     ) {
-        const url = `/${normalizeEnsName(ensName)}/addConversation`;
+        const url = `/storage/new/${normalizeEnsName(ensName)}/addConversation`;
         await this.getAuthenticatedAxiosClient().post(url, {
             encryptedContactName,
         });
     }
     public async getConversations(ensName: string) {
-        const url = `/${normalizeEnsName(ensName)}/getConversations`;
-        const { data } = await this.getAuthenticatedAxiosClient().get(url);
+        const url = `/storage/new/${normalizeEnsName(
+            ensName,
+        )}/getConversations`;
+        const axios = this.getAuthenticatedAxiosClient();
+
+        const { data } = await axios.get(url);
         return data ?? [];
     }
     public async toggleHideConversation(
@@ -25,7 +29,9 @@ export class BackendConnector
         encryptedContactName: string,
         hide: boolean,
     ) {
-        const url = `/${normalizeEnsName(ensName)}/toggleHideConversation`;
+        const url = `/storage/new/${normalizeEnsName(
+            ensName,
+        )}/toggleHideConversation`;
         await this.getAuthenticatedAxiosClient().post(url, {
             encryptedContactName,
             hide,
@@ -36,7 +42,7 @@ export class BackendConnector
         encryptedContactName: string,
         pageNumber: number,
     ) {
-        const url = `/${normalizeEnsName(
+        const url = `/storage/new/${normalizeEnsName(
             ensName,
         )}/getMessages/${encryptedContactName}/${pageNumber}`;
 
@@ -55,7 +61,7 @@ export class BackendConnector
         messageId: string,
         encryptedEnvelopContainer: string,
     ) {
-        const url = `/${normalizeEnsName(ensName)}/addMessage`;
+        const url = `/storage/new/${normalizeEnsName(ensName)}/addMessage`;
         await this.getAuthenticatedAxiosClient().post(url, {
             encryptedContactName,
             messageId,
@@ -68,7 +74,7 @@ export class BackendConnector
         encryptedContactName: string,
         messageBatch: any[],
     ) {
-        const url = `/${normalizeEnsName(ensName)}/addMessageBatch`;
+        const url = `/storage/new/${normalizeEnsName(ensName)}/addMessageBatch`;
         const { status } = await this.getAuthenticatedAxiosClient().post(url, {
             encryptedContactName,
             messageBatch,
@@ -82,7 +88,9 @@ export class BackendConnector
         encryptedContactName: string,
         messageBatch: any[],
     ) {
-        const url = `/${normalizeEnsName(ensName)}/editMessageBatch`;
+        const url = `/storage/new/${normalizeEnsName(
+            ensName,
+        )}/editMessageBatch`;
         await this.getAuthenticatedAxiosClient().post(url, {
             encryptedContactName,
             messageBatch,
@@ -92,7 +100,7 @@ export class BackendConnector
         ensName: string,
         encryptedContactName: string,
     ) {
-        const url = `/${normalizeEnsName(
+        const url = `/storage/new/${normalizeEnsName(
             ensName,
         )}/getNumberOfMessages/${encryptedContactName}`;
         const { data } = await this.getAuthenticatedAxiosClient().get(url);
@@ -100,7 +108,9 @@ export class BackendConnector
     }
 
     public async getNumberOfConversations(ensName: string) {
-        const url = `/${normalizeEnsName(ensName)}/getNumberOfConversations`;
+        const url = `/storage/new/${normalizeEnsName(
+            ensName,
+        )}/getNumberOfConversations`;
         const { data } = await this.getAuthenticatedAxiosClient().get(url);
         return data ?? 0;
     }

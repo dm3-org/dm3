@@ -17,6 +17,7 @@ export const useNotification = () => {
         toggleGlobalNotifications,
         toggleNotificationChannel,
         removeNotificationChannel,
+        isInitialized,
     } = useContext(DeliveryServiceContext);
 
     // States for active notifications
@@ -183,11 +184,12 @@ export const useNotification = () => {
     };
 
     useEffect(() => {
+        if (!isInitialized) return;
         const fetchNotificationDetails = async () => {
             await fetchGlobalNotification();
         };
         fetchNotificationDetails();
-    }, []);
+    }, [isInitialized]);
 
     return {
         isNotificationsActive,
