@@ -832,4 +832,106 @@ describe('Notification', () => {
             expect(removeNotificationChannelMock).toHaveBeenCalled();
         });
     });
+
+    describe('Adds Push Notification Channel', () => {
+        it('adds push notification channel', async () => {
+            const recipientValue = {
+                endpoint: 'https://test.com',
+                keys: {
+                    auth: 'authkey',
+                    p256dh: 'p256dh',
+                },
+            };
+
+            const setNotificationChannelAsVerified = jest.fn();
+            const addUsersNotificationChannel = jest.fn();
+            const getUsersNotificationChannels = () => Promise.resolve([]);
+
+            const notificationChannels: NotificationChannel[] = [
+                {
+                    type: NotificationChannelType.PUSH,
+                    config: {
+                        vapidEmailId: 'test@gmail.com',
+                        publicVapidKey: 'dbiwqeqwewqosa',
+                        privateVapidKey: 'wqieyiwqeqwnsd',
+                    },
+                },
+            ];
+
+            const db = {
+                getUsersNotificationChannels,
+                addUsersNotificationChannel,
+                setNotificationChannelAsVerified,
+            };
+
+            await addNewNotificationChannel(
+                NotificationChannelType.PUSH,
+                recipientValue as any,
+                '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
+                notificationChannels,
+                db,
+            );
+
+            expect(addUsersNotificationChannel).toBeCalled();
+        });
+    });
+
+    describe('Removes Push notification channel', () => {
+        it('Should throw error as Push notification channel is not configured', async () => {
+            const getUsersNotificationChannels = () => Promise.resolve([]);
+
+            const db = {
+                getUsersNotificationChannels,
+            };
+
+            try {
+                await removeNotificationChannel(
+                    '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
+                    NotificationChannelType.PUSH,
+                    db,
+                );
+            } catch (error: any) {
+                expect(error.message).toBe(
+                    'PUSH notification channel is not configured',
+                );
+            }
+        });
+
+        it('Should remove Push notification channel', async () => {
+            const recipientValue = {
+                endpoint: 'https://test.com',
+                keys: {
+                    auth: 'authkey',
+                    p256dh: 'p256dh',
+                },
+            };
+
+            const getUsersNotificationChannels = () =>
+                Promise.resolve([
+                    {
+                        type: NotificationChannelType.PUSH,
+                        config: {
+                            recipientValue: recipientValue,
+                            isVerified: false,
+                            isEnabled: true,
+                        },
+                    },
+                ]);
+
+            const removeNotificationChannelMock = jest.fn();
+
+            const db = {
+                getUsersNotificationChannels,
+                removeNotificationChannel: removeNotificationChannelMock,
+            };
+
+            await removeNotificationChannel(
+                '0x71cb05ee1b1f506ff321da3dac38f25c0c9ce6e1',
+                NotificationChannelType.PUSH,
+                db,
+            );
+
+            expect(removeNotificationChannelMock).toHaveBeenCalled();
+        });
+    });
 });
