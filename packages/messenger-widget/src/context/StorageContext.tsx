@@ -12,6 +12,10 @@ import {
     useStorage,
 } from '../hooks/storage/useStorage';
 import { AuthContext } from './AuthContext';
+import { DeliveryServiceContext } from './DeliveryServiceContext';
+import { BackendConnector } from '../hooks/server-side/BackendConnector';
+import { BackendContext, BackendContextProvider } from './BackendContext';
+import { IBackendConnector } from '@dm3-org/dm3-lib-shared';
 
 export type StorageContextType = {
     storeMessage: StoreMessageAsync;
@@ -47,8 +51,8 @@ export const StorageContext = React.createContext<StorageContextType>({
 });
 
 export const StorageContextProvider = ({ children }: { children?: any }) => {
-    const { account, deliveryServiceToken, profileKeys } =
-        useContext(AuthContext);
+    const { account, profileKeys } = useContext(AuthContext);
+    const backendContext = useContext(BackendContext);
 
     const {
         storeMessageAsync,
@@ -60,12 +64,7 @@ export const StorageContextProvider = ({ children }: { children?: any }) => {
         getMessages,
         toggleHideContactAsync,
         initialized,
-    } = useStorage(
-        account,
-        process.env.REACT_APP_DEFAULT_SERVICE!,
-        deliveryServiceToken,
-        profileKeys,
-    );
+    } = useStorage(account, backendContext, profileKeys);
     return (
         <StorageContext.Provider
             value={{

@@ -13,7 +13,7 @@ import {
     encryptAsymmetric,
 } from '@dm3-org/dm3-lib-crypto';
 import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
-import { sha256, stringify } from '@dm3-org/dm3-lib-shared';
+import { IBackendConnector, sha256, stringify } from '@dm3-org/dm3-lib-shared';
 import {
     Conversation,
     StorageAPI,
@@ -21,12 +21,12 @@ import {
 import { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { TLDContext } from '../../context/TLDContext';
+import { BackendContextType } from '../../context/BackendContext';
 
 //Handels storage sync and offers an interface for other hooks to interact with the storage
 export const useStorage = (
     account: Account | undefined,
-    storageServiceUrl: string,
-    storageServiceToken: string | undefined,
+    backendContext: BackendContextType,
     profileKeys: ProfileKeys | undefined,
 ) => {
     const { resolveTLDtoAlias } = useContext(TLDContext);
@@ -39,11 +39,11 @@ export const useStorage = (
     useEffect(() => {
         setInitialized(false);
         setStorageApi(undefined);
-        if (!storageServiceToken) {
+        if (!account || !profileKeys || !backendContext.isInitialized) {
             return;
         }
         init();
-    }, [storageServiceToken, account]);
+    }, [profileKeys, account, backendContext]);
 
     const init = async () => {
         const encryptSync = async (data: string) => {
@@ -85,17 +85,12 @@ export const useStorage = (
             );
         };
 
-        const s = getCloudStorage(
-            storageServiceUrl,
-            storageServiceToken!,
-            account!.ensName,
-            {
-                encryptAsync,
-                decryptAsync,
-                encryptSync,
-                decryptSync,
-            },
-        );
+        const s = getCloudStorage(backendContext, account!.ensName, {
+            encryptAsync,
+            decryptAsync,
+            encryptSync,
+            decryptSync,
+        });
         setStorageApi(s);
         setInitialized(true);
     };
@@ -166,75 +161,6 @@ export const useStorage = (
             return Promise.resolve(0);
         }
         storageApi.toggleHideConversation(contact, value);
-    };
-
-    //Migration to migrate the old storage to the new storage
-    //Remove after a certain time once every user has migrated
-    const migrate = async (cloudStorage: StorageAPI) => {
-        const hasAlreadyMigrated = await axios.get(
-            `${storageServiceUrl}/storage/new/${account?.ensName}/migrationStatus`,
-            {
-                headers: {
-                    Authorization: `Bearer ${storageServiceToken}`,
-                },
-            },
-        );
-
-        //If the user has already migrated we don't need to do anything
-        if (hasAlreadyMigrated.data === true) {
-            return;
-        }
-
-        //Check if the user has used dm3 before
-        const { data: legacyStorageFile } = await axios.get(
-            `${storageServiceUrl}/storage/${account?.ensName}/`,
-            {
-                headers: {
-                    Authorization: `Bearer ${storageServiceToken}`,
-                },
-            },
-        );
-
-        //If the user has used dm3 before we need to migrate the old storage to the new one
-        if (legacyStorageFile !== null) {
-            const userDb = await load(
-                JSON.parse(legacyStorageFile),
-                profileKeys?.storageEncryptionKey!,
-            );
-            await printUserDb();
-            await migrageStorage(userDb, cloudStorage, resolveTLDtoAlias);
-        }
-        //Set the migrationStatus to true. So we won't migrate again
-        await axios.post(
-            `${storageServiceUrl}/storage/new/${account?.ensName}/migrationStatus`,
-            undefined,
-            {
-                headers: {
-                    Authorization: `Bearer ${storageServiceToken}`,
-                },
-            },
-        );
-    };
-    const printUserDb = async () => {
-        const { data: legacyStorageFile } = await axios.get(
-            `${storageServiceUrl}/storage/${account?.ensName}/`,
-            {
-                headers: {
-                    Authorization: `Bearer ${storageServiceToken}`,
-                },
-            },
-        );
-        if (legacyStorageFile === null) {
-            return;
-        }
-        const userDb = await load(
-            JSON.parse(legacyStorageFile),
-            profileKeys?.storageEncryptionKey!,
-        );
-        userDb.conversations.forEach((value, key) => {
-            console.log('key', key);
-            console.log('value', value);
-        });
     };
 
     return {

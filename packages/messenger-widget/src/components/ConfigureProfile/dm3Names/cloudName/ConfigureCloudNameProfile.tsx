@@ -1,7 +1,6 @@
 import { useContext, useEffect } from 'react';
 import { DM3Name } from './../DM3Name';
 import { NAME_TYPE } from '../../chain/common';
-import { createAlias } from '@dm3-org/dm3-lib-delivery-api';
 import { AuthContext } from '../../../../context/AuthContext';
 import { closeLoader, startLoader } from '../../../Loader/Loader';
 import { claimSubdomain } from '../../../../adapters/offchainResolverApi';
@@ -24,8 +23,7 @@ export const ConfigureCloudNameProfile = () => {
         ConfigureDM3NameContext,
     );
 
-    const { account, deliveryServiceToken, profileKeys, setDisplayName } =
-        useContext(AuthContext);
+    const { account, profileKeys, setDisplayName } = useContext(AuthContext);
 
     const nameExtension = dm3Configuration.userEnsSubdomain;
     const placeholder = 'Enter your preferred name and check availability.';
@@ -45,14 +43,6 @@ export const ConfigureCloudNameProfile = () => {
                     dm3Configuration.resolverBackendUrl as string,
                     account!.ensName,
                     profileKeys.signingKeyPair.privateKey,
-                );
-
-                await createAlias(
-                    account!,
-                    mainnetProvider!,
-                    account!.ensName,
-                    ensName,
-                    deliveryServiceToken!,
                 );
 
                 setDisplayName(ensName);

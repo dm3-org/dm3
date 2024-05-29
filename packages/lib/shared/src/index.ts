@@ -9,3 +9,4 @@ export { getSize } from './size';
 export { NotificationChannelType } from './notification';
 export type { NotificationChannel } from './notification';
 export type { IWebSocketManager } from './IWebSocketManager';
+export type { IBackendConnector } from './IBackendConnector';

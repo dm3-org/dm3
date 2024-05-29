@@ -58,14 +58,19 @@ export async function claimAddress(
     offchainResolverUrl: string,
     signedUserProfile: SignedUserProfile,
 ) {
-    const url = `${offchainResolverUrl}/profile/address`;
-    const data = {
-        signedUserProfile,
-        address,
-    };
+    try {
+        const url = `${offchainResolverUrl}/profile/address`;
+        const data = {
+            signedUserProfile,
+            address,
+        };
 
-    const { status } = await axios.post(url, data);
-    return status === 200;
+        const { status } = await axios.post(url, data);
+        return status === 200;
+    } catch (err) {
+        console.log('subdomain alreday claimed');
+        return false;
+    }
 }
 
 /**

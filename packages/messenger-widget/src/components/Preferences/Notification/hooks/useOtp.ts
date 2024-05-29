@@ -2,14 +2,9 @@ import { useContext, useEffect, useState } from 'react';
 import { log } from '@dm3-org/dm3-lib-shared';
 import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 import { AuthContext } from '../../../../context/AuthContext';
-import {
-    addNotificationChannel,
-    sendOtp,
-    verifyOtp,
-} from '@dm3-org/dm3-lib-delivery-api';
-import { useMainnetProvider } from '../../../../hooks/mainnetprovider/useMainnetProvider';
 import { closeLoader, startLoader } from '../../../Loader/Loader';
 import { ModalContext } from '../../../../context/ModalContext';
+import { DeliveryServiceContext } from '../../../../context/DeliveryServiceContext';
 
 export const otpContent = (type: NotificationChannelType) => {
     const email = 'Please enter the verification code, you received by email.';
@@ -39,20 +34,20 @@ export const useOtp = (
     const [isVerificationInProcess, setIsVerificationInProcess] =
         useState<boolean>(false);
 
-    const mainnetProvider = useMainnetProvider();
-    const { account, deliveryServiceToken } = useContext(AuthContext);
+    const { account } = useContext(AuthContext);
     const { setLoaderContent } = useContext(ModalContext);
+    const { addNotificationChannel, sendOtp, verifyOtp } = useContext(
+        DeliveryServiceContext,
+    );
 
     // Adds new notification channel & sends OTP
     const addNewNotificationChannel = async (
         channelType: NotificationChannelType,
         recipientValue: string,
     ) => {
-        if (account && deliveryServiceToken) {
+        if (account && addNotificationChannel) {
             return await addNotificationChannel(
-                account,
-                mainnetProvider,
-                deliveryServiceToken,
+                account.ensName,
                 recipientValue,
                 channelType,
             );
@@ -63,13 +58,8 @@ export const useOtp = (
     const sendOtpForVerification = async (
         channelType: NotificationChannelType,
     ) => {
-        if (account && deliveryServiceToken) {
-            return await sendOtp(
-                account,
-                mainnetProvider,
-                deliveryServiceToken,
-                channelType,
-            );
+        if (account && sendOtp) {
+            return await sendOtp(account.ensName, channelType);
         }
     };
 
@@ -78,14 +68,8 @@ export const useOtp = (
         otp: string,
         channelType: NotificationChannelType,
     ) => {
-        if (account && deliveryServiceToken) {
-            return await verifyOtp(
-                account,
-                mainnetProvider,
-                deliveryServiceToken,
-                otp,
-                channelType,
-            );
+        if (account && verifyOtp) {
+            return await verifyOtp(account.ensName, otp, channelType);
         }
     };
 
