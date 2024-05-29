@@ -1,19 +1,8 @@
-import {
-    addConversation,
-    addMessageBatch,
-    addMessage,
-    editMessageBatch,
-    getConversations,
-    getMessagesFromStorage,
-    getNumberOfMessages,
-    getNumberOfConversations,
-    toggleHideConversation,
-} from './storage-http';
+import { IBackendConnector } from '@dm3-org/dm3-lib-shared';
 import { MessageRecord } from '../chunkStorage/ChunkStorageTypes';
 import { Encryption, StorageAPI, StorageEnvelopContainer } from '../types';
 export const getCloudStorage = (
-    storageUrl: string,
-    storageToken: string,
+    backendConnector: IBackendConnector,
     ensName: string,
     encryption: Encryption,
 ): StorageAPI => {
@@ -22,18 +11,14 @@ export const getCloudStorage = (
             contactEnsName,
         );
         console.log('store new contact ', encryptedContactName);
-        return await addConversation(
-            storageUrl,
-            storageToken,
+        return await backendConnector.addConversation(
             ensName,
             encryptedContactName,
         );
     };
 
     const getConversationList = async (page: number) => {
-        const encryptedConversations = await getConversations(
-            storageUrl,
-            storageToken,
+        const encryptedConversations = await backendConnector.getConversations(
             ensName,
         );
 
@@ -54,9 +39,7 @@ export const getCloudStorage = (
             contactEnsName,
         );
 
-        const messageRecords = await getMessagesFromStorage(
-            storageUrl,
-            storageToken,
+        const messageRecords = await backendConnector.getMessagesFromStorage(
             ensName,
             encryptedContactName,
             page,
@@ -84,15 +67,15 @@ export const getCloudStorage = (
         const encryptedEnvelopContainer = await encryption.encryptAsync(
             JSON.stringify(envelop),
         );
-        await addMessage(
-            storageUrl,
-            storageToken,
+
+        await backendConnector.addMessage(
             ensName,
             encryptedContactName,
             envelop.envelop.metadata?.encryptedMessageHash! ??
                 envelop.envelop.id,
             encryptedEnvelopContainer,
         );
+
         return '';
     };
 
@@ -120,9 +103,8 @@ export const getCloudStorage = (
                 },
             ),
         );
-        await addMessageBatch(
-            storageUrl,
-            storageToken,
+
+        await backendConnector.addMessageBatch(
             ensName,
             encryptedContactName,
             encryptedMessages,
@@ -154,9 +136,7 @@ export const getCloudStorage = (
                 },
             ),
         );
-        await editMessageBatch(
-            storageUrl,
-            storageToken,
+        await backendConnector.editMessageBatch(
             ensName,
             encryptedContactName,
             encryptedMessages,
@@ -167,20 +147,15 @@ export const getCloudStorage = (
         const encryptedContactName = await encryption.encryptSync(
             contactEnsName,
         );
-        return await getNumberOfMessages(
-            storageUrl,
-            storageToken,
+
+        return await backendConnector.getNumberOfMessages(
             ensName,
             encryptedContactName,
         );
     };
 
     const _getNumberOfConversations = async () => {
-        return await getNumberOfConversations(
-            storageUrl,
-            storageToken,
-            ensName,
-        );
+        return await backendConnector.getNumberOfConversations(ensName);
     };
 
     const _toggleHideConversation = async (
@@ -190,9 +165,7 @@ export const getCloudStorage = (
         const encryptedContactName = await encryption.encryptSync(
             contactEnsName,
         );
-        await toggleHideConversation(
-            storageUrl,
-            storageToken,
+        await backendConnector.toggleHideConversation(
             ensName,
             encryptedContactName,
             hide,

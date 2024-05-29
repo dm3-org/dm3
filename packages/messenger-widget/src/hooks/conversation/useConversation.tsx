@@ -6,22 +6,27 @@ import { StorageContext } from '../../context/StorageContext';
 import { ContactPreview, getDefaultContract } from '../../interfaces/utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
-import { fetchPendingConversations } from '../../adapters/messages';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { DM3Configuration } from '../../interfaces/config';
 import { TLDContext } from '../../context/TLDContext';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { DeliveryServiceContext } from '../../context/DeliveryServiceContext';
 
 export const useConversation = (config: DM3Configuration) => {
     const mainnetProvider = useMainnetProvider();
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
-    const { account, deliveryServiceToken } = useContext(AuthContext);
+    const { account } = useContext(AuthContext);
+    const {
+        fetchPendingConversations,
+        isInitialized: deliveryServiceInitialized,
+    } = useContext(DeliveryServiceContext);
     const {
         getConversations,
         addConversationAsync,
         initialized: storageInitialized,
         toggleHideContactAsync,
     } = useContext(StorageContext);
+
     const { resolveAliasToTLD, resolveTLDtoAlias } = useContext(TLDContext);
 
     const [contacts, setContacts] = useState<Array<ContactPreview>>([]);
@@ -62,7 +67,11 @@ export const useConversation = (config: DM3Configuration) => {
         setSelectedContactName(undefined);
         setContacts([]);
         const init = async (page: number = 0) => {
-            if (!account || !storageInitialized) {
+            if (
+                !account ||
+                !storageInitialized ||
+                !deliveryServiceInitialized
+            ) {
                 return;
             }
             const currentConversationsPage = await getConversations(page);
@@ -103,7 +112,7 @@ export const useConversation = (config: DM3Configuration) => {
             setConversationsInitialized(true);
         };
         init();
-    }, [storageInitialized, account]);
+    }, [storageInitialized, account, deliveryServiceInitialized]);
 
     const initDefaultContact = async () => {
         if (config.defaultContact) {
@@ -143,11 +152,9 @@ export const useConversation = (config: DM3Configuration) => {
 
     const handlePendingConversations = async (backendUrl: string) => {
         //At first we've to check if there are pending conversations not yet added to the list
-        const pendingConversations = await fetchPendingConversations(
-            backendUrl,
-            mainnetProvider,
-            account!,
-            deliveryServiceToken!,
+
+        const pendingConversations: string[] = await fetchPendingConversations(
+            account?.ensName as string,
         );
         //Every pending conversation is going to be added to the conversation list
         pendingConversations.forEach((pendingConversation) => {

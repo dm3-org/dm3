@@ -1,26 +1,31 @@
 import {
+    createStorageKey,
+    getStorageKeyCreationMessage,
+} from '@dm3-org/dm3-lib-crypto';
+import {
     Account,
+    DEFAULT_NONCE,
     ProfileKeys,
     SignedUserProfile,
+    UserProfile,
+    createProfileKeys as _createProfileKeys,
+    getProfileCreationMessage,
     getUserProfile,
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
-import { useContext, useEffect, useMemo, useState } from 'react';
-import { useAccount, useWalletClient } from 'wagmi';
-import { TLDContext } from '../../context/TLDContext';
-import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
-import { AccountConnector, getIdForAddress } from './AccountConnector';
-import {
-    ConnectDsResult,
-    DeliveryServiceConnector,
-    SignMessageFn,
-} from './DeliveryServiceConnector';
-import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
-import { UiViewContext } from '../../context/UiViewContext';
-import { ModalContext } from '../../context/ModalContext';
+import { stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import { sha256, toUtf8Bytes } from 'ethers/lib/utils';
+import { useContext, useEffect, useMemo, useState } from 'react';
+import { useAccount, useWalletClient } from 'wagmi';
 import { closeLoader, startLoader } from '../../components/Loader/Loader';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { ModalContext } from '../../context/ModalContext';
+import { TLDContext } from '../../context/TLDContext';
+import { UiViewContext } from '../../context/UiViewContext';
+import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
+import { AccountConnector, getIdForAddress } from './AccountConnector';
+import { SignMessageFn } from '../server-side/ServerSideConnector';
 
 export const useAuth = () => {
     const mainnetProvider = useMainnetProvider();
@@ -36,9 +41,6 @@ export const useAuth = () => {
     });
 
     const [account, setAccount] = useState<Account | undefined>(undefined);
-    const [deliveryServiceToken, setDeliveryServiceToken] = useState<
-        string | undefined
-    >(undefined);
 
     const [ethAddress, setEthAddress] = useState<string | undefined>(undefined);
 
@@ -66,10 +68,9 @@ export const useAuth = () => {
         fetchDisplayName();
     }, [ethAddress, account]);
 
-    // can be check to retrive the current auth state
-    const isLoggedIn = useMemo<boolean>(
-        () => !!account && !!deliveryServiceToken,
-        [account, deliveryServiceToken],
+    const isProfileReady = useMemo<boolean>(
+        () => !!account && !!profileKeys,
+        [account, profileKeys],
     );
 
     // handles account change
@@ -81,7 +82,6 @@ export const useAuth = () => {
 
     const signOut = () => {
         setAccount(undefined);
-        setDeliveryServiceToken(undefined);
         resetStates();
     };
     //The normal sign in function that is used when the user signs in with their own account, using a web3 provider like wallet connect or metamask
@@ -137,30 +137,59 @@ export const useAuth = () => {
     const _login = async (
         ensName: string,
         address: string,
-        userProfile: SignedUserProfile | undefined,
+        _signedUserProfile: SignedUserProfile | undefined,
         signMessage: SignMessageFn,
     ) => {
-        console.log('start login ');
-        let connectDsResult: ConnectDsResult | undefined;
-        try {
-            connectDsResult = await DeliveryServiceConnector(
-                dm3Configuration,
-                mainnetProvider,
-                signMessage,
-                address!,
-                dm3Configuration.defaultDeliveryService,
-                dm3Configuration.addressEnsSubdomain,
-            ).login(ensName, userProfile);
-        } catch (e) {
-            console.log(e);
-            setHasError(true);
-            setIsLoading(false);
-            setEthAddress(undefined);
-            return;
-        }
+        async function createProfileKeys(
+            nonce: string = DEFAULT_NONCE,
+        ): Promise<ProfileKeys> {
+            if (!address) {
+                throw Error('No eth address');
+            }
 
-        const { deliveryServiceToken, signedUserProfile, profileKeys } =
-            connectDsResult;
+            const storageKeyCreationMessage = getStorageKeyCreationMessage(
+                nonce,
+                address,
+            );
+
+            const signature = await signMessage(storageKeyCreationMessage);
+            const storageKey = await createStorageKey(signature);
+            return await _createProfileKeys(storageKey, nonce);
+        }
+        const createNewSignedUserProfile = async ({
+            signingKeyPair,
+            encryptionKeyPair,
+        }: ProfileKeys) => {
+            const profile: UserProfile = {
+                publicSigningKey: signingKeyPair.publicKey,
+                publicEncryptionKey: encryptionKeyPair.publicKey,
+                deliveryServices: [dm3Configuration.defaultDeliveryService],
+            };
+            try {
+                const profileCreationMessage = getProfileCreationMessage(
+                    stringify(profile),
+                    address,
+                );
+                const signature = await signMessage(profileCreationMessage);
+
+                return {
+                    profile,
+                    signature,
+                } as SignedUserProfile;
+            } catch (error: any) {
+                const err = error?.message.split(':');
+                throw Error(err.length > 1 ? err[1] : err[0]);
+            }
+        };
+
+        console.log('start login ');
+        //At first we create the profileKeys thoose keys are generated either via the users wallet or via the SIWE secret
+        //The profileKeys are used to sign the profile that will be created at the delivery service
+        const keys = await createProfileKeys();
+        //If user profile is still undefined we have to create a new profile
+
+        const signedUserProfile =
+            _signedUserProfile ?? (await createNewSignedUserProfile(keys));
 
         setAccount({
             ...account,
@@ -170,9 +199,8 @@ export const useAuth = () => {
         });
 
         setEthAddress(address);
-        setDeliveryServiceToken(deliveryServiceToken);
         setIsLoading(false);
-        setProfileKeys(profileKeys);
+        setProfileKeys(keys);
     };
 
     const resetStates = () => {
@@ -188,8 +216,7 @@ export const useAuth = () => {
         account,
         displayName,
         ethAddress,
-        deliveryServiceToken,
-        isLoggedIn,
+        isProfileReady,
         isLoading,
         hasError,
         setAccount,
