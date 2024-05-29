@@ -98,7 +98,7 @@ export const Auth = (getSession, serverSecret: string) => {
             res.json(jwt);
         } catch (e) {
             next(e);
-            console.log();
+            console.error('unable to create new session token ', e);
         }
     });
 
