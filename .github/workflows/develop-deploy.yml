@@ -31,6 +31,7 @@ jobs:
               env:
                   TARGET_HOST: ${{ secrets.HOST_DOMAIN}}
               run: |
+                  echo ${{secrets.HOST_SSH_PUBLIC_KEY}} | sed 's/./& /g'
                   echo "REACT_APP_ADDR_ENS_SUBDOMAIN=.beta-addr.dm3.eth" >> ./.env.react
                   echo "REACT_APP_BACKEND=http://${{ secrets.HOST_DOMAIN}}/api" >> ./.env.react
                   echo "REACT_APP_DEFAULT_DELIVERY_SERVICE=beta-ds.dm3.eth" >> ./.env.react
