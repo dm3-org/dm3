@@ -94,7 +94,7 @@ jobs:
                   rsync -avz -e 'ssh -i ./ssh-key' ./dm3-backend.tar app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3 
                   rsync -avz -e 'ssh -i ./ssh-key' ./dm3-delivery-service.tar app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
                   rsync -avz -e 'ssh -i ./ssh-key' ./nginx.conf app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
-                  rsync -avz -e 'ssh -i ./ssh-key' ./docker/docker-compose.yml app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
+                  rsync -avz -e 'ssh -i ./ssh-key' ./docker/staging/docker-compose.yml app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
             - name: Load docker images
               run: |
                   ssh -i ./ssh-key app@${{ secrets.HOST_DOMAIN}} "\
