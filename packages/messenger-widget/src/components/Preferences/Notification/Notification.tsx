@@ -178,12 +178,14 @@ export function Notification() {
             </div> */}
 
             {/* Push notifications enabled/disabled */}
-            {/* <div className="notification-content-left mt-4">
+            <div className="notification-content-left mt-4">
                 <div className="d-flex align-items-center">
                     <Checkbox
                         checked={isPushNotifyActive}
                         disabled={!isNotificationsActive}
-                        action={setIsPushNotifyActive}
+                        action={() => {
+                            setIsPushNotifyActive(!isPushNotifyActive);
+                        }}
                         heading="Push Notifications"
                     />
                 </div>
@@ -191,7 +193,7 @@ export function Notification() {
                     disabled={!isNotificationsActive}
                     text={'Enable push notifications to your browser.'}
                 />
-            </div> */}
+            </div>
         </div>
     );
 }

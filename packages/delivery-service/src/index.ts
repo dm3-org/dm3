@@ -8,7 +8,7 @@ import {
     readKeysFromEnv,
     socketAuth,
 } from '@dm3-org/dm3-lib-server-side';
-import { logInfo } from '@dm3-org/dm3-lib-shared';
+import { NotificationChannelType, logInfo } from '@dm3-org/dm3-lib-shared';
 import { Axios } from 'axios';
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -26,6 +26,7 @@ import { getDatabase } from './persistence/getDatabase';
 import Profile from './profile';
 import RpcProxy from './rpc/rpc-proxy';
 import { WebSocketManager } from './ws/WebSocketManager';
+import webpush from 'web-push';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -53,6 +54,20 @@ global.logger = winston.createLogger({
     const web3Provider = await getWeb3Provider(process.env);
     const keys = readKeysFromEnv(process.env);
     const serverSecret = getServerSecret(process.env);
+
+    // set the push notification configuration
+    const pushNotificationConfig =
+        deliveryServiceProperties.notificationChannel.filter(
+            (data) => data.type === NotificationChannelType.PUSH,
+        );
+
+    if (pushNotificationConfig.length) {
+        webpush.setVapidDetails(
+            `mailto:${pushNotificationConfig[0].config.vapidEmailId}`,
+            pushNotificationConfig[0].config.publicVapidKey,
+            pushNotificationConfig[0].config.privateVapidKey,
+        );
+    }
 
     const io = new Server(server, {
         cors: {
