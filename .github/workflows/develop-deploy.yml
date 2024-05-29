@@ -83,12 +83,12 @@ jobs:
             #       docker build --progress=plain -t dm3-delivery-service:latest -f ./docker/DockerfileDeliveryService .
             #       docker save -o ./dm3-delivery-service.tar dm3-delivery-service:latest
             # - name: Prepare docker
-              run: |
-                  ssh -i ./ssh-key app@${{ secrets.HOST_DOMAIN}} "\
-                  cd dm3 && docker compose down && docker system prune -af"
-                  ssh -i ./ssh-key root@${{ secrets.HOST_DOMAIN}} "\
-                  systemctl restart docker.service \
-                  rm /home/app/*.tar || true"
+              # run: |
+              #     ssh -i ./ssh-key app@${{ secrets.HOST_DOMAIN}} "\
+              #     cd dm3 && docker compose down && docker system prune -af"
+              #     ssh -i ./ssh-key root@${{ secrets.HOST_DOMAIN}} "\
+              #     systemctl restart docker.service \
+              #     rm /home/app/*.tar || true"
             - name: Sync files
               run: |
                   rsync -avz -e 'ssh -i ./ssh-key' ./.env app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
