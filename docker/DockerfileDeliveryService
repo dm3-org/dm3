@@ -1,25 +1,28 @@
-FROM --platform=linux/amd64 node:18-alpine
+FROM --platform=linux/amd64 node:18-alpine as build
 WORKDIR /app
 
-# copy relevant files
-COPY . .
-# COPY yarn.lock .
-# RUN mkdir packages
-# COPY packages/delivery-service packages/delivery-service
-# COPY packages/lib packages/lib
+# install bash 
+RUN apk add --update bash\
+    && rm -rf /var/cache/apk/*
 
+# copy the relevant package into the image
+COPY ./packages/delivery-service/ /app/
 
+# install libraries
+## manually remove all references to libraries. we will replace them in the next step.
+RUN sed -i '/.*dm3-org\/dm3-lib.*/d' ./package.json
+## copy from local archives
+COPY ./packages/lib/*.tgz /app
+## install the libraries, selecting only the ones we need
+RUN yarn add file:server-side.tgz file:crypto.tgz file:delivery.tgz file:messaging.tgz file:profile.tgz file:shared.tgz file:storage.tgz
+## remove all archives because they are not needed anymore
+RUN rm /app/*.tgz
 
-
-RUN apk add --update python3 make g++ curl bash\
-   && rm -rf /var/cache/apk/*
-
+# make sure all dependencies are installed
 RUN yarn install
 
-# build libraries
-WORKDIR /app/packages/lib
-RUN yarn build
+# define the default command the image should execute
+ENTRYPOINT ["yarn", "start"]
 
-# build delivers service
-WORKDIR /app/packages/delivery-service
-RUN yarn build
+
+
