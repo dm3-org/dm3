@@ -1,4 +1,3 @@
-import { createAlias } from '@dm3-org/dm3-lib-delivery-api';
 import { Account, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { ethersHelper, stringify } from '@dm3-org/dm3-lib-shared';
 import { getConractInstance } from '@dm3-org/dm3-lib-shared/dist/ethersHelper';
@@ -106,7 +105,6 @@ const getPublishProfileOnchainTransaction = async (
 
 export const submitGenomeNameTransaction = async (
     provider: ethers.providers.StaticJsonRpcProvider,
-    dsToken: string,
     account: Account,
     setLoaderContent: (content: string) => void,
     ensName: string,
@@ -140,13 +138,6 @@ export const submitGenomeNameTransaction = async (
         );
 
         if (tx) {
-            await createAlias(
-                account!,
-                provider!,
-                account!.ensName,
-                ensName!,
-                dsToken,
-            );
             const response = await ethersHelper.executeTransaction(tx);
             await response.wait();
             setEnsNameFromResolver(ensName);

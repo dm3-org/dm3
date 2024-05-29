@@ -1,6 +1,6 @@
 {
   "name": "@dm3-org/dm3-lib-server-side",
-  "version": "1.0.6",
+  "version": "0.0.1-alpha1",
   "main": "dist/index.js",
   "module": "dist-backend/index.js",
   "types": "dist/index.d.ts",

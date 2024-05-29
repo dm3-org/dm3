@@ -1,27 +1,26 @@
 import { useContext, useEffect, useState } from 'react';
 import { log } from '@dm3-org/dm3-lib-shared';
 import {
-    addNotificationChannel,
-    getAllNotificationChannels,
-    getGlobalNotification,
-    removeNotificationChannel,
-    toggleGlobalNotifications,
-    toggleNotificationChannel,
-} from '@dm3-org/dm3-lib-delivery-api';
-import {
     NotificationChannel,
     NotificationChannelType,
 } from '@dm3-org/dm3-lib-shared';
 import { AuthContext } from '../../context/AuthContext';
-import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { IVerificationModal } from '../../components/Preferences/Notification/VerificationModal';
 import { getVerficationModalContent } from '../../components/Preferences/Notification/hooks/VerificationContent';
+import { DeliveryServiceContext } from '../../context/DeliveryServiceContext';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 
 export const useNotification = () => {
-    const mainnetProvider = useMainnetProvider();
-
-    const { account, deliveryServiceToken } = useContext(AuthContext);
+    const { account } = useContext(AuthContext);
+    const {
+        addNotificationChannel,
+        getGlobalNotification,
+        getAllNotificationChannels,
+        toggleGlobalNotifications,
+        toggleNotificationChannel,
+        removeNotificationChannel,
+        isInitialized,
+    } = useContext(DeliveryServiceContext);
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
 
     // States for active notifications
@@ -64,12 +63,10 @@ export const useNotification = () => {
 
     // Fetches and sets global notification
     const fetchGlobalNotification = async () => {
-        if (account && deliveryServiceToken) {
+        if (account && getGlobalNotification) {
             try {
                 const { data, status } = await getGlobalNotification(
-                    account,
-                    mainnetProvider,
-                    deliveryServiceToken,
+                    account.ensName,
                 );
                 if (status === 200) {
                     setIsNotificationsActive(data.isEnabled);
@@ -83,12 +80,10 @@ export const useNotification = () => {
 
     // Fetches and sets all notification channels
     const fetchUserNotificationChannels = async () => {
-        if (account && deliveryServiceToken) {
+        if (account && getAllNotificationChannels) {
             try {
                 const { data, status } = await getAllNotificationChannels(
-                    account,
-                    mainnetProvider,
-                    deliveryServiceToken,
+                    account.ensName,
                 );
                 if (status === 200) {
                     data.notificationChannels.forEach(
@@ -122,14 +117,12 @@ export const useNotification = () => {
 
     // Toggles global notification channel
     const toggleGlobalChannel = async (isEnabled: boolean) => {
-        if (account && deliveryServiceToken) {
+        if (account && toggleGlobalNotifications) {
             try {
                 setLoaderData('Configuring global notification ...');
                 setIsloading(true);
                 const { status } = await toggleGlobalNotifications(
-                    account,
-                    mainnetProvider,
-                    deliveryServiceToken,
+                    account.ensName,
                     isEnabled,
                 );
                 if (status === 200 && isEnabled) {
@@ -149,13 +142,11 @@ export const useNotification = () => {
         notificationChannelType: NotificationChannelType,
         setChannelEnabled: (action: boolean) => void,
     ) => {
-        if (account && deliveryServiceToken) {
+        if (account && toggleNotificationChannel) {
             try {
                 setChannelEnabled(isEnabled);
                 const { status } = await toggleNotificationChannel(
-                    account,
-                    mainnetProvider,
-                    deliveryServiceToken,
+                    account.ensName,
                     isEnabled,
                     notificationChannelType,
                 );
@@ -173,7 +164,7 @@ export const useNotification = () => {
 
     // Enable push notification channel
     const enablePushNotificationChannel = async () => {
-        if (account && deliveryServiceToken) {
+        if (account && addNotificationChannel) {
             try {
                 setLoaderData('Configuring push notifications...');
                 setIsloading(true);
@@ -185,9 +176,7 @@ export const useNotification = () => {
                     throw new Error('Failed to subscribe webpush notification');
 
                 const { status } = await addNotificationChannel(
-                    account,
-                    mainnetProvider,
-                    deliveryServiceToken,
+                    account.ensName,
                     subscription,
                     NotificationChannelType.PUSH,
                 );
@@ -211,16 +200,14 @@ export const useNotification = () => {
         channelType: NotificationChannelType,
         resetChannel: (action: null) => void,
     ) => {
-        if (account && deliveryServiceToken) {
+        if (account && removeNotificationChannel) {
             try {
                 setLoaderData(
                     `Removing ${channelType.toLowerCase()} channel...`,
                 );
                 setIsloading(true);
                 const { status } = await removeNotificationChannel(
-                    account,
-                    mainnetProvider,
-                    deliveryServiceToken,
+                    account.ensName,
                     channelType,
                 );
                 if (status === 200) {
@@ -280,11 +267,12 @@ export const useNotification = () => {
     };
 
     useEffect(() => {
+        if (!isInitialized) return;
         const fetchNotificationDetails = async () => {
             await fetchGlobalNotification();
         };
         fetchNotificationDetails();
-    }, []);
+    }, [isInitialized]);
 
     // add/remove the push notification based in checkbox tick
     useEffect(() => {
