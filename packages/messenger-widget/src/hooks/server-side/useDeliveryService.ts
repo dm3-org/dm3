@@ -5,7 +5,6 @@ import { DeliveryServiceConnector } from './DeliveryServiceConnector';
 import { getDeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import axios from 'axios';
-import { ConnectDsResult } from '../auth/DeliveryServiceConnector';
 import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop, Envelop } from '@dm3-org/dm3-lib-messaging';
@@ -26,10 +25,6 @@ export const useDeliveryService = () => {
     const [connectors, setConnectors] = useState<DeliveryServiceConnector[]>(
         [],
     );
-
-    const [deliveryServiceTokens, setDeliveryServiceTokens] = useState<
-        ConnectDsResult[]
-    >([]);
 
     //Initializer for the delivery service connectors
     useEffect(() => {
@@ -82,13 +77,11 @@ export const useDeliveryService = () => {
                 signature: account?.profileSignature!,
             };
             //Sign in connectors
-            setDeliveryServiceTokens(
-                await Promise.all(
-                    onlyValidConnectors.map((c) => c.login(signedUserProfile)),
-                ),
-            );
 
-            setConnectors(onlyValidConnectors);
+            await Promise.all(
+                onlyValidConnectors.map((c) => c.login(signedUserProfile)),
+            ),
+                setConnectors(onlyValidConnectors);
             console.log('connectors', onlyValidConnectors);
             setIsInitialized(true);
         };
@@ -115,10 +108,6 @@ export const useDeliveryService = () => {
         [connectors],
     );
 
-    const getDeliveryServiceTokens = () => {
-        return deliveryServiceTokens.map((d) => d.deliveryServiceToken);
-    };
-
     const removeOnNewMessageListener = useCallback(() => {
         const connectors = _getConnectors();
         //connectors.forEach((c) => c.unregisterWebSocketListener('message'));
@@ -127,7 +116,6 @@ export const useDeliveryService = () => {
     return {
         isInitialized,
         getDeliveryServiceProperties,
-        getDeliveryServiceTokens,
         addNotificationChannel: (
             ensName: string,
             recipientValue: string,

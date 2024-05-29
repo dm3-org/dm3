@@ -25,7 +25,7 @@ import { TLDContext } from '../../context/TLDContext';
 import { UiViewContext } from '../../context/UiViewContext';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { AccountConnector, getIdForAddress } from './AccountConnector';
-import { SignMessageFn } from './DeliveryServiceConnector';
+import { SignMessageFn } from '../server-side/ServerSideConnector';
 
 export const useAuth = () => {
     const mainnetProvider = useMainnetProvider();

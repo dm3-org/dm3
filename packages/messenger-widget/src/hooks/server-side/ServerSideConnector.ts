@@ -10,7 +10,6 @@ import { stringify } from '@dm3-org/dm3-lib-shared';
 import axios from 'axios';
 import { ethers } from 'ethers';
 import { claimAddress } from '../../adapters/offchainResolverApi';
-import { ConnectDsResult } from '../auth/DeliveryServiceConnector';
 import { JwtInterceptor } from './JwtInterceptor';
 import { JwtPayload, decode } from 'jsonwebtoken';
 
@@ -54,9 +53,7 @@ export abstract class ServerSideConnector extends JwtInterceptor {
         return this.reAuth();
     }
 
-    private async _signUp(
-        signedUserProfile: SignedUserProfile,
-    ): Promise<ConnectDsResult> {
+    private async _signUp(signedUserProfile: SignedUserProfile) {
         //TODO move claimAddress to useAuth
         await claimAddress(
             this.address,
@@ -75,9 +72,7 @@ export abstract class ServerSideConnector extends JwtInterceptor {
         };
     }
 
-    private async _login(
-        signedUserProfile: SignedUserProfile,
-    ): Promise<ConnectDsResult> {
+    private async _login(signedUserProfile: SignedUserProfile) {
         const keys = this.profileKeys;
         const deliveryServiceToken = await this.reAuth();
         this.setAuthToken(deliveryServiceToken);

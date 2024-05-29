@@ -95,7 +95,6 @@ export const DeliveryServiceContextProvider = ({
     const {
         isInitialized,
         getDeliveryServiceProperties,
-        getDeliveryServiceTokens,
         addNotificationChannel,
         sendOtp,
         verifyOtp,
