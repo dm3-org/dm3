@@ -1,13 +1,16 @@
-name: Develop deploy
+name: deploy
 on:
     push:
         branches:
             - testing
+            - develop
 
 jobs:
     messenger-demo-deploy:
-        environment: testing
+        environment: ${{ github.ref == 'refs/heads/develop' && 'staging' || 'testing' }}
         runs-on: ubuntu-latest
+        env:
+            environment_name: ${{ github.ref == 'refs/heads/develop' && 'staging' || 'testing' }}
         steps:
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v3
@@ -15,6 +18,8 @@ jobs:
                   registry-url: 'https://npm.pkg.github.com'
                   node-version: 18.0.0
                   cache: 'yarn'
+            - name: Print environment name
+              run: echo $environment_name
             - name: Declare some variables
               shell: bash
               run: |
