@@ -12,19 +12,23 @@ import { Contact } from '../../interfaces/context';
 import { ContactPreview } from '../../interfaces/utils';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
 import { fetchMessageSizeLimit } from '../messages/sizeLimit/fetchSizeLimit';
+import { DeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery';
 
 export const hydrateContract = async (
     provider: ethers.providers.JsonRpcProvider,
     conversatoinManifest: Conversation,
     resolveAliasToTLD: (alias: string) => Promise<string>,
     addrEnsSubdomain: string,
+    deliveryServiceProperties: DeliveryServiceProperties[],
 ) => {
     const account = await fetchAccount(
         provider,
         conversatoinManifest.contactEnsName,
     );
     const contact = await fetchDsProfile(provider, account);
-    const messageSizeLimit = await fetchMessageSizeLimit(provider, account);
+    const messageSizeLimit = await fetchMessageSizeLimit(
+        deliveryServiceProperties,
+    );
     const contactPreview = await fetchPreview(
         provider,
         conversatoinManifest,
@@ -94,7 +98,7 @@ const fetchDsProfile = async (
     account: Account,
 ): Promise<Contact> => {
     const deliveryServiceUrl = account.profile?.deliveryServices[0];
-
+    // ERROR:TODO:FIX : deliveryServiceUrl always remains undefined
     if (!deliveryServiceUrl) {
         console.log(
             '[fetchDeliverServicePorfile] Cant resolve deliveryServiceUrl',

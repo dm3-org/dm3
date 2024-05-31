@@ -83,6 +83,7 @@ export class BackendConnector
             throw Error('Unable to edit message batch');
         }
     }
+    // ERROR:TODO:FIX : The API gives error
     public async editMessageBatch(
         ensName: string,
         encryptedContactName: string,
