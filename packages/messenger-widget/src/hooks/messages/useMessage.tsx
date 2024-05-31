@@ -293,6 +293,7 @@ export const useMessage = () => {
             };
         }
 
+        // ERROR:TODO:FIX : 400 (Bad Request)
         await axios.create({ baseURL: recipientDs.url }).post('/rpc', {
             jsonrpc: '2.0',
             method: 'dm3_submitMessage',

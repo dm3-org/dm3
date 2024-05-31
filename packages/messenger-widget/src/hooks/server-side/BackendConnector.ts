@@ -84,6 +84,8 @@ export class BackendConnector
         }
     }
     // ERROR:TODO:FIX : The API gives error
+    // On adding new contact and sending 1st message, the API gives error
+    // 400 (Bad Request)
     public async editMessageBatch(
         ensName: string,
         encryptedContactName: string,
