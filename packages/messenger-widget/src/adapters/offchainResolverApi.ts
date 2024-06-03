@@ -37,7 +37,7 @@ export async function removeAlias(
     offchainResolverUrl: string,
     privateKey: string,
 ): Promise<boolean> {
-    const url = `${offchainResolverUrl}/profile/name`;
+    const url = `${offchainResolverUrl}/profile/deleteName`;
     const data = {
         name: alias,
         signature: await sign(privateKey, 'remove: ' + alias),
