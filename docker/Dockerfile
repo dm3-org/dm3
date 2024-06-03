@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:18-alpine
+FROM --platform=linux/amd64 node:22-alpine
 WORKDIR /app
 COPY . .
 RUN apk add --update python3 make g++ curl bash\

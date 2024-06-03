@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:22-alpine
 WORKDIR /app
 COPY . .
 RUN apk add --update python3 make g++\

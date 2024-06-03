@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:18-alpine as build
+FROM --platform=linux/amd64 node:22-alpine as build
 WORKDIR /app
 
 # copy the whole repository to the container
@@ -24,7 +24,7 @@ RUN yarn build
 RUN yarn pack --filename delivery-service.tgz
 
 # start over with a new image
-FROM node:18-alpine
+FROM node:22-alpine
 WORKDIR /app
 
 # copy and extract the delivery service archive
@@ -60,7 +60,7 @@ RUN yarn
 # RUN yarn pack --filename delivery-service.tgz
 
 # # start over with a new image
-# FROM node:18-alpine
+# FROM node:22-alpine
 # WORKDIR /app
 
 # # copy and extract the delivery service archive
