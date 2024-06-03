@@ -192,14 +192,21 @@ export async function incomingMessage(
         });
         //If not we're notifing the user that there is a new message waiting for them
     } else {
-        const { sendNotification } = NotificationBroker(
-            dsNotificationChannels,
-            NotificationType.NEW_MESSAGE,
-        );
-        await sendNotification(
-            deliveryInformation,
-            getUsersNotificationChannels,
-        );
+        try {
+            const { sendNotification } = NotificationBroker(
+                dsNotificationChannels,
+                NotificationType.NEW_MESSAGE,
+            );
+            await sendNotification(
+                deliveryInformation,
+                getUsersNotificationChannels,
+            );
+        } catch (err) {
+            console.log(
+                'Unable to send Notification. There might be an error in the config.yml. Message has been received regardless',
+            );
+            console.error(err);
+        }
     }
 }
 
