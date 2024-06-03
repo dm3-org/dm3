@@ -98,8 +98,8 @@ const fetchDsProfile = async (
     account: Account,
 ): Promise<Contact> => {
     const deliveryServiceEnsName = account.profile?.deliveryServices[0];
-    // ERROR:TODO:FIX : deliveryServiceUrl always remains undefined
     if (!deliveryServiceEnsName) {
+        //If there is now DS profile the message will be storaged at the client side until they recipient has createed an account
         console.log(
             '[fetchDeliverServicePorfile] Cant resolve deliveryServiceEnsName',
         );
