@@ -1,9 +1,11 @@
-import { NAME_TYPE } from '../chain/common';
-import { AuthContext } from '../../../context/AuthContext';
 import React, { useContext, useEffect, useState } from 'react';
-import { ConfigureProfileContext } from './ConfigureProfileContext';
+import { useChainId } from 'wagmi';
+import { AuthContext } from '../../../context/AuthContext';
 import { DM3ConfigurationContext } from '../../../context/DM3ConfigurationContext';
+import { ModalContext } from '../../../context/ModalContext';
 import { useMainnetProvider } from '../../../hooks/mainnetprovider/useMainnetProvider';
+import { supportedChains } from '../../../utils/common-utils';
+import { closeLoader, startLoader } from '../../Loader/Loader';
 import {
     ACTION_TYPE,
     DM3_NAME_SERVICES,
@@ -11,12 +13,9 @@ import {
     removeAliasFromDm3Name,
     validateName,
 } from '../bl';
-import { ModalContext } from '../../../context/ModalContext';
-import { useChainId } from 'wagmi';
-import { supportedChains } from '../../../utils/common-utils';
-import { closeLoader, startLoader } from '../../Loader/Loader';
-import { ethersHelper, globalConfig } from '@dm3-org/dm3-lib-shared';
-import { getRemoveOpProfileOnchainTransaction } from '../dm3Names/optimismName/tx/removeOpName';
+import { NAME_TYPE } from '../chain/common';
+import { removeOpName } from '../dm3Names/optimismName/tx/removeOpName';
+import { ConfigureProfileContext } from './ConfigureProfileContext';
 
 export interface ConfigureDM3NameContextType {
     existingDm3Name: string | null;
@@ -154,7 +153,6 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
         }
     };
 
-    /** TODO : Check this method once smart contract is implemented */
     const deleteOptimismName = async (
         chainToConnect: number,
         setDisplayName: Function,
@@ -175,17 +173,11 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
             setLoaderContent('Removing OP name...');
             startLoader();
 
-            const tx = await getRemoveOpProfileOnchainTransaction(
-                mainnetProvider,
-                account!,
-                dm3Name!,
-            );
+            const success = await removeOpName(mainnetProvider);
 
-            if (tx) {
+            if (success) {
                 setExistingDm3Name(null);
                 setDisplayName('');
-                const response = await ethersHelper.executeTransaction(tx);
-                await response.wait();
                 /** TODO : Remove this line if not required*/
                 // setEnsNameFromResolver(ensName);
             } else {
