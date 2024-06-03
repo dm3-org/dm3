@@ -86,9 +86,9 @@ describe('Server Side Connector', () => {
             axiosMock.onGet(`http://ds1.api/auth/${aliceEnsName}`).reply(200, {
                 challenge: 'challenge',
             });
-            axiosMock.onPost(`http://ds1.api/auth/${aliceEnsName}`).reply(200, {
-                token: 'token2',
-            });
+            axiosMock
+                .onPost(`http://ds1.api/auth/${aliceEnsName}`)
+                .reply(200, 'token2');
 
             //We create another connector to test relogin
             const newConnector = new ServerSideConnectorStub(
@@ -218,9 +218,9 @@ describe('Server Side Connector', () => {
             axiosMock.onGet(`http://ds1.api/auth/${aliceEnsName}`).reply(200, {
                 challenge: 'challenge',
             });
-            axiosMock.onPost(`http://ds1.api/auth/${aliceEnsName}`).reply(200, {
-                token: 'reauth',
-            });
+            axiosMock
+                .onPost(`http://ds1.api/auth/${aliceEnsName}`)
+                .reply(200, 'reauth');
 
             const signMessage = async (message: string) =>
                 Promise.resolve(message + ' signed');
@@ -294,7 +294,6 @@ class ServerSideConnectorStub extends ServerSideConnector {
     public async testReAuth() {
         const axios = this.getAuthenticatedAxiosClient();
         return axios.get('/test1').then((res: any) => {
-            console.log(axios.defaults.headers.common['Authorization']);
             return (
                 axios.defaults.headers.common['Authorization'] ===
                 'Bearer reauth'

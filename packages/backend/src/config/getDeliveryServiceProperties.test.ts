@@ -137,4 +137,39 @@ describe('ReadDeliveryServiceProperties', () => {
             ],
         });
     });
+
+    it('Adds push notification channel from config.yml file & rest from default properties', () => {
+        writeFileSync(
+            path,
+            stringify({
+                notificationChannel: [
+                    {
+                        type: NotificationChannelType.PUSH,
+                        config: {
+                            vapidEmailId: 'test@gmail.com',
+                            publicVapidKey: 'dbiwqeqwewqosa',
+                            privateVapidKey: 'wqieyiwqeqwnsd',
+                        },
+                    },
+                ],
+            }),
+            { encoding: 'utf-8' },
+        );
+        const config = getDeliveryServiceProperties(path);
+
+        expect(config).toStrictEqual({
+            messageTTL: 0,
+            sizeLimit: 100000,
+            notificationChannel: [
+                {
+                    type: NotificationChannelType.PUSH,
+                    config: {
+                        vapidEmailId: 'test@gmail.com',
+                        publicVapidKey: 'dbiwqeqwewqosa',
+                        privateVapidKey: 'wqieyiwqeqwnsd',
+                    },
+                },
+            ],
+        });
+    });
 });

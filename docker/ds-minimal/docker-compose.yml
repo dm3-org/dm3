@@ -1,7 +1,7 @@
 version: '3.1'
 services:
     dm3-delivery-service:
-        image: dm3-delivery-service:latest
+        image: dm3org/dm3-delivery-service:latest
         restart: always
         depends_on:
             - db

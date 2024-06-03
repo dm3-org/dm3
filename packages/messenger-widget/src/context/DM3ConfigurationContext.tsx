@@ -32,6 +32,7 @@ export const DM3ConfigurationContext =
             genomeRegistryAddress: '',
             showAlways: true,
             showContacts: true,
+            publicVapidKey: '',
         },
         screenWidth: window.innerWidth,
         setScreenWidth: (width: number) => {},

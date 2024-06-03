@@ -1631,4 +1631,466 @@ describe('Notifications', () => {
             expect(removeNotificationChannelMock).toHaveBeenCalled();
         });
     });
+
+    describe('Add Push notification channel', () => {
+        const recipientValue = {
+            endpoint: 'https://test.com',
+            keys: {
+                auth: 'authkey',
+                p256dh: 'p256dh',
+            },
+        };
+
+        it('Returns 400 on setup push notifications as subscription data is invalid', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            const addUsersNotificationChannelMock = jest.fn();
+
+            const db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                addUsersNotificationChannel: addUsersNotificationChannelMock,
+            };
+
+            const web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                    serverSecret,
+                ),
+            );
+
+            const token = generateAuthJWT('bob.eth', serverSecret);
+
+            const { status } = await request(app)
+                .post(`/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    recipientValue: 'bob.eth',
+                    notificationChannelType: NotificationChannelType.PUSH,
+                });
+
+            expect(status).toBe(400);
+        });
+
+        it('Returns 400 on setup push notifications as notificationChannelType is invalid', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            const addUsersNotificationChannelMock = jest.fn();
+
+            const db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                addUsersNotificationChannel: addUsersNotificationChannelMock,
+            };
+
+            const web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                    serverSecret,
+                ),
+            );
+
+            const token = generateAuthJWT('bob.eth', serverSecret);
+
+            const { status } = await request(app)
+                .post(`/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    recipientValue: recipientValue,
+                    notificationChannelType: '',
+                });
+
+            expect(status).toBe(400);
+        });
+
+        it('Returns 400 on setup push notifications as globalNotifications is turned off', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            const addUsersNotificationChannelMock = jest.fn();
+
+            const db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                getGlobalNotification: async (ensName: string) =>
+                    Promise.resolve({ isEnabled: false }),
+                addUsersNotificationChannel: addUsersNotificationChannelMock,
+            };
+
+            const web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                    serverSecret,
+                ),
+            );
+
+            const token = generateAuthJWT('bob.eth', serverSecret);
+
+            const { status } = await request(app)
+                .post(`/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    recipientValue: recipientValue,
+                    notificationChannelType: NotificationChannelType.PUSH,
+                });
+
+            expect(status).toBe(400);
+        });
+
+        it('User can setup PUSH notifications', async () => {
+            const deliveryServiceProperties: DeliveryServiceProperties = {
+                messageTTL: 12345,
+                sizeLimit: 456,
+                notificationChannel: [
+                    {
+                        type: NotificationChannelType.PUSH,
+                        config: {
+                            vapidEmailId: 'test@gmail.com',
+                            publicVapidKey: 'dbiwqeqwewqosa',
+                            privateVapidKey: 'wqieyiwqeqwnsd',
+                        },
+                    },
+                ],
+            };
+
+            const app = express();
+            app.use(bodyParser.json());
+
+            const addNewNotificationChannelMock = jest.fn();
+            const addUsersNotificationChannelMock = jest.fn();
+            const setNotificationChannelAsVerifiedMock = jest.fn();
+
+            const db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                getGlobalNotification: async (ensName: string) =>
+                    Promise.resolve({ isEnabled: true }),
+                getUsersNotificationChannels: async (ensName: string) =>
+                    Promise.resolve([
+                        {
+                            type: NotificationChannelType.PUSH,
+                            config: {
+                                recipientValue: recipientValue,
+                                isEnabled: true,
+                                isVerified: true,
+                            },
+                        },
+                    ]),
+                setNotificationChannelAsVerified:
+                    setNotificationChannelAsVerifiedMock,
+                addNewNotificationChannel: addNewNotificationChannelMock,
+                addUsersNotificationChannel: addUsersNotificationChannelMock,
+            };
+            const web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                    serverSecret,
+                ),
+            );
+
+            const token = generateAuthJWT('bob.eth', serverSecret);
+
+            const { status, body } = await request(app)
+                .post(`/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    recipientValue: recipientValue,
+                    notificationChannelType: NotificationChannelType.PUSH,
+                });
+
+            expect(status).toBe(200);
+        });
+
+        it('Returns 400 as Push notification channel is not supported in delivery service', async () => {
+            const app = express();
+            app.use(bodyParser.json());
+
+            const addNewNotificationChannelMock = jest.fn();
+            const addUsersNotificationChannelMock = jest.fn();
+
+            const db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                getGlobalNotification: async (ensName: string) =>
+                    Promise.resolve({ isEnabled: true }),
+                getUsersNotificationChannels: async (ensName: string) =>
+                    Promise.resolve([
+                        {
+                            type: NotificationChannelType.PUSH,
+                            config: {
+                                recipientValue: recipientValue,
+                                isEnabled: true,
+                                isVerified: false,
+                            },
+                        },
+                    ]),
+                addNewNotificationChannel: addNewNotificationChannelMock,
+                addUsersNotificationChannel: addUsersNotificationChannelMock,
+            };
+            const web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                    serverSecret,
+                ),
+            );
+
+            const token = generateAuthJWT('bob.eth', serverSecret);
+
+            const { status, body } = await request(app)
+                .post(`/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    recipientValue: recipientValue,
+                    notificationChannelType: NotificationChannelType.PUSH,
+                });
+            expect(status).toBe(400);
+            expect(body).toEqual({
+                error: 'Notification channel PUSH is currently not supported by the DS',
+            });
+        });
+    });
+
+    describe('Remove Push notification channel', () => {
+        it('Returns 400 on as channel type is invalid in params', async () => {
+            const db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                getGlobalNotification: async (ensName: string) =>
+                    Promise.resolve({ isEnabled: true }),
+            };
+
+            const web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                    serverSecret,
+                ),
+            );
+
+            const token = generateAuthJWT('bob.eth', serverSecret);
+
+            const { status, body } = await request(app)
+                .delete(`/channel/test/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+
+            expect(status).toBe(400);
+            expect(body).toStrictEqual({
+                error: 'Invalid notification channel type',
+            });
+        });
+
+        it('Returns 400 as global notifications is turned off', async () => {
+            const db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                getGlobalNotification: async (ensName: string) =>
+                    Promise.resolve({ isEnabled: false }),
+            };
+
+            const web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                    serverSecret,
+                ),
+            );
+
+            const token = generateAuthJWT('bob.eth', serverSecret);
+
+            const { status, body } = await request(app)
+                .delete(`/channel/PUSH/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+
+            expect(status).toBe(400);
+            expect(body).toStrictEqual({
+                error: 'Global notifications is off',
+            });
+        });
+
+        it('Removes Push notification channel', async () => {
+            const recipientValue = {
+                endpoint: 'https://test.com',
+                keys: {
+                    auth: 'authkey',
+                    p256dh: 'p256dh',
+                },
+            };
+
+            const getUsersNotificationChannels = () =>
+                Promise.resolve([
+                    {
+                        type: NotificationChannelType.PUSH,
+                        config: {
+                            recipientValue: recipientValue,
+                            isVerified: false,
+                            isEnabled: true,
+                        },
+                    },
+                ]);
+
+            const removeNotificationChannelMock = jest.fn();
+
+            const db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                getGlobalNotification: async (ensName: string) =>
+                    Promise.resolve({ isEnabled: true }),
+                getUsersNotificationChannels: getUsersNotificationChannels,
+                removeNotificationChannel: removeNotificationChannelMock,
+            };
+
+            const web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+            const app = express();
+            app.use(bodyParser.json());
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                    serverSecret,
+                ),
+            );
+
+            const token = generateAuthJWT('bob.eth', serverSecret);
+
+            const { status, body } = await request(app)
+                .delete(`/channel/PUSH/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send();
+
+            expect(status).toBe(200);
+            expect(removeNotificationChannelMock).toHaveBeenCalled();
+        });
+    });
 });

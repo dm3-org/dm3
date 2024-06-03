@@ -29,6 +29,7 @@ export const useDm3Configuration = () => {
         genomeRegistryAddress: '',
         showAlways: true,
         showContacts: true,
+        publicVapidKey: '',
     });
 
     const validateSiweCredentials = async (data: Siwe) => {

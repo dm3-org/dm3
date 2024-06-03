@@ -19,6 +19,7 @@ const config: DM3Configuration = {
         .REACT_APP_WALLET_CONNECT_PROJECT_ID as string,
     genomeRegistryAddress: process.env
         .REACT_APP_GENOME_REGISTRY_ADDRESS as string,
+    publicVapidKey: process.env.REACT_APP_PUBLIC_VAPID_KEY as string,
     defaultContact: 'defaultcontact.eth',
     showAlways: true,
     showContacts: true,

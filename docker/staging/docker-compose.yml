@@ -61,7 +61,7 @@ services:
             PORT: 8083
             LOG_LEVEL: 'debug'
         volumes:
-            - /home/app/dm3/config.yml:/app/packages/delivery-service/dist/config.yml
+            - /home/app/dm3/config.yml:/app/dist/config.yml
 
     db-delivery-service:
         image: redis
@@ -90,7 +90,7 @@ services:
     web:
         image: dm3-backend
         command: yarn workspace @dm3-org/dm3-messenger-web start
-        
+
     ccip-resolver:
         image: dm3org/ccip-resolver:v0.2.7
         restart: always
