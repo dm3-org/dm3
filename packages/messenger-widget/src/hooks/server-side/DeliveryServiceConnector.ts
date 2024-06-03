@@ -35,7 +35,7 @@ export class DeliveryServiceConnector extends ServerSideConnector {
 
     public async addNotificationChannel(
         ensName: string,
-        recipientValue: string,
+        recipientValue: string | PushSubscription,
         notificationChannelType: NotificationChannelType,
     ) {
         const url = `/notifications/${normalizeEnsName(ensName)}`;

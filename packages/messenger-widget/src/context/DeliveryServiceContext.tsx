@@ -11,7 +11,7 @@ export type DeliveryServiceContextType = {
     isInitialized: boolean;
     addNotificationChannel?: (
         ensName: string,
-        recipientValue: string,
+        recipientValue: string | PushSubscription,
         notificationChannelType: NotificationChannelType,
     ) => any;
     sendOtp?: (
@@ -52,7 +52,7 @@ export const DeliveryServiceContext =
         isInitialized: false,
         addNotificationChannel: (
             ensName: string,
-            recipientValue: string,
+            recipientValue: string | PushSubscription,
             notificationChannelType: NotificationChannelType,
         ) => {},
         sendOtp: (

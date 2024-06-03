@@ -65,6 +65,7 @@ describe('Set Users NotificationChannel', () => {
             expect(e).toStrictEqual(Error('Invalid NotificationChannel'));
         }
     });
+
     it('Rejects Email Notification Channel with an invalid config', async () => {
         try {
             const notificationChannel: any = {
@@ -83,6 +84,7 @@ describe('Set Users NotificationChannel', () => {
             expect(e).toStrictEqual(Error('Invalid Email config'));
         }
     });
+
     it('Rejects Email Notification Channel with an invalid email address', async () => {
         try {
             const notificationChannel: any = {
@@ -99,6 +101,81 @@ describe('Set Users NotificationChannel', () => {
             throw new Error('Invalid Email config');
         } catch (e) {
             expect(e).toStrictEqual(Error('Invalid Email config'));
+        }
+    });
+
+    it('Add Push Notification Channel ', async () => {
+        const notificationChannel: NotificationChannel = {
+            type: NotificationChannelType.PUSH,
+            config: {
+                recipientValue: {
+                    endpoint: 'https://test.com',
+                    keys: {
+                        auth: 'authkey',
+                        p256dh: 'p256dh',
+                    },
+                },
+            },
+        };
+
+        const priorSetUsersNotificationChannel =
+            await db.getUsersNotificationChannels(USER_ADDRESS);
+
+        //User has no session yet
+        expect(priorSetUsersNotificationChannel).toEqual([]);
+        await db.addUsersNotificationChannel(USER_ADDRESS, notificationChannel);
+
+        const afterSetSession = await db.getUsersNotificationChannels(
+            USER_ADDRESS,
+        );
+        expect(afterSetSession).toEqual([notificationChannel]);
+    });
+
+    it('Rejects Push Notification Channel with an invalid schema', async () => {
+        try {
+            const notificationChannel: any = {
+                foo: NotificationChannelType.PUSH,
+                config: {
+                    recipientValue: {
+                        endpoint: 'https://test.com',
+                        keys: {
+                            auth: 'authkey',
+                            p256dh: 'p256dh',
+                        },
+                    },
+                },
+            };
+
+            await db.addUsersNotificationChannel(
+                USER_ADDRESS,
+                notificationChannel,
+            );
+
+            throw new Error('Invalid NotificationChannel');
+        } catch (e) {
+            expect(e).toStrictEqual(Error('Invalid NotificationChannel'));
+        }
+    });
+
+    it('Rejects Push Notification Channel with an invalid subscription data', async () => {
+        try {
+            const notificationChannel: any = {
+                type: NotificationChannelType.PUSH,
+                config: {
+                    recipientValue: '12345',
+                },
+            };
+
+            await db.addUsersNotificationChannel(
+                USER_ADDRESS,
+                notificationChannel,
+            );
+
+            throw new Error('Invalid Push notification configuration data');
+        } catch (e) {
+            expect(e).toStrictEqual(
+                Error('Invalid Push notification configuration data'),
+            );
         }
     });
 });

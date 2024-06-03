@@ -74,7 +74,7 @@ export async function addNotificationChannel(
     account: Account,
     provider: ethers.providers.JsonRpcProvider,
     token: string,
-    recipientValue: string,
+    recipientValue: string | PushSubscription,
     notificationChannelType: NotificationChannelType,
 ): Promise<any> {
     const { profile, ensName } = checkAccount(account);
