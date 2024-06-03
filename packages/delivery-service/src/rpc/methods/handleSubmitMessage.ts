@@ -84,7 +84,7 @@ export async function handleSubmitMessage(
             error,
         });
         console.log('handle submit message error');
-        console.log(error);
+        console.error(error);
 
         return res.status(400).send();
     }
