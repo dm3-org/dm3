@@ -34,7 +34,7 @@ export const useMessage = () => {
     const { contacts, selectedContact, addConversation } =
         useContext(ConversationContext);
     const { account, profileKeys } = useContext(AuthContext);
-    const { fetchNewMessages, syncAcknowledgment, emit } = useContext(
+    const { fetchNewMessages, syncAcknowledgment } = useContext(
         DeliveryServiceContext,
     );
 
