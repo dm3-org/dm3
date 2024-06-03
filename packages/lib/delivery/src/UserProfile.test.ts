@@ -44,8 +44,6 @@ describe('UserProfile', () => {
         it('rejects a userProfile with a wrong signature', async () => {
             const setSession = jest.fn();
             const getSession = () => Promise.resolve(null);
-            const getPendingConversations = () => Promise.resolve([]);
-            const send = () => {};
 
             const singedUserProfile = await signProfile(emptyProfile);
 
@@ -57,8 +55,6 @@ describe('UserProfile', () => {
                     RANDO_NAME,
                     singedUserProfile,
                     'my-secret',
-                    getPendingConversations,
-                    send,
                 );
             }).rejects.toEqual(Error('Signature invalid.'));
             expect(setSession).not.toBeCalled();
@@ -87,8 +83,6 @@ describe('UserProfile', () => {
 
                 return session(SENDER_NAME, '123', emptyProfile);
             };
-            const getPendingConversations = () => Promise.resolve([]);
-            const send = () => {};
 
             const singedUserProfile = await signProfile(emptyProfile);
 
@@ -100,69 +94,13 @@ describe('UserProfile', () => {
                     SENDER_NAME,
                     singedUserProfile,
                     'my-secret',
-                    getPendingConversations,
-                    send,
                 );
             }).rejects.toEqual(Error('Profile exists already'));
-        });
-
-        it('skips pending contact without a session', async () => {
-            const setSession = jest.fn();
-            const getSession = (address: string) => Promise.resolve(null);
-            const getPendingConversations = () => Promise.resolve([RANDO_NAME]);
-            const send = jest.fn();
-
-            const singedUserProfile = await signProfile(emptyProfile);
-
-            await submitUserProfile(
-                { resolveName: () => SENDER_ADDRESS } as any,
-                getSession,
-                setSession,
-                SENDER_NAME,
-                singedUserProfile,
-                'my-secret',
-                getPendingConversations,
-                send,
-            );
-
-            expect(setSession).toBeCalled();
-            expect(send).not.toBeCalled();
-        });
-
-        it('notifies pending contact with a socketId', async () => {
-            const setSession = jest.fn();
-            const getSession = (address: string) => {
-                if (address === RANDO_NAME) {
-                    return Promise.resolve({
-                        socketId: 'foo',
-                    } as Session);
-                }
-                return Promise.resolve(null);
-            };
-            const getPendingConversations = () => Promise.resolve([RANDO_NAME]);
-            const send = jest.fn();
-
-            const singedUserProfile = await signProfile(emptyProfile);
-
-            await submitUserProfile(
-                { resolveName: () => SENDER_ADDRESS } as any,
-                getSession,
-                setSession,
-                SENDER_NAME,
-                singedUserProfile,
-                'my-secret',
-                getPendingConversations,
-                send,
-            );
-
-            expect(setSession).toBeCalled();
-            expect(send).toBeCalled();
         });
 
         it('stores a newly created user profile', async () => {
             const setSession = jest.fn();
             const getSession = () => Promise.resolve(null);
-            const getPendingConversations = () => Promise.resolve([]);
             const send = () => {};
 
             const singedUserProfile = await signProfile(emptyProfile);
@@ -174,8 +112,6 @@ describe('UserProfile', () => {
                 SENDER_NAME,
                 singedUserProfile,
                 'my-secret',
-                getPendingConversations,
-                send,
             );
 
             expect(setSession).toBeCalled();
