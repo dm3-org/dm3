@@ -34,7 +34,7 @@ export const useMessage = () => {
     const { contacts, selectedContact, addConversation } =
         useContext(ConversationContext);
     const { account, profileKeys } = useContext(AuthContext);
-    const { fetchNewMessages, syncAcknowledgment } = useContext(
+    const { fetchNewMessages, syncAcknowledgment, emit } = useContext(
         DeliveryServiceContext,
     );
 
@@ -193,7 +193,7 @@ export const useMessage = () => {
 
         // For whatever reason we've to create a PendingEntry before we can send a message
         //We should probably refactor this to be more clear on the backend side
-        //Atm it dosent work at all
+
         // createPendingEntry(
         //     socket!,
         //     deliveryServiceToken!,
@@ -299,14 +299,6 @@ export const useMessage = () => {
             method: 'dm3_submitMessage',
             params: [JSON.stringify(encryptedEnvelop)],
         });
-        //get deliveryService profile
-
-        // await sendMessage(
-        //     deliveryServiceToken!,
-        //     encryptedEnvelop,
-        //     () => { },
-        //     () => console.log('submit message error'),
-        // );
 
         return { isSuccess: true };
     };

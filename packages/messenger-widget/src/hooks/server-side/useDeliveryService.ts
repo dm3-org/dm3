@@ -103,16 +103,16 @@ export const useDeliveryService = () => {
     const onNewMessage = useCallback(
         (cb: OnNewMessagCallback) => {
             const connectors = _getConnectors();
-            // connectors.forEach((c) =>
-            //     c.registerWebSocketListener('message', cb),
-            // );
+            connectors.forEach((c) =>
+                c.registerWebSocketListener('message', cb),
+            );
         },
         [connectors],
     );
 
     const removeOnNewMessageListener = useCallback(() => {
         const connectors = _getConnectors();
-        //connectors.forEach((c) => c.unregisterWebSocketListener('message'));
+        connectors.forEach((c) => c.unregisterWebSocketListener('message'));
     }, [connectors]);
 
     return {
