@@ -97,11 +97,11 @@ const fetchDsProfile = async (
     provider: ethers.providers.JsonRpcProvider,
     account: Account,
 ): Promise<Contact> => {
-    const deliveryServiceUrl = account.profile?.deliveryServices[0];
+    const deliveryServiceEnsName = account.profile?.deliveryServices[0];
     // ERROR:TODO:FIX : deliveryServiceUrl always remains undefined
-    if (!deliveryServiceUrl) {
+    if (!deliveryServiceEnsName) {
         console.log(
-            '[fetchDeliverServicePorfile] Cant resolve deliveryServiceUrl',
+            '[fetchDeliverServicePorfile] Cant resolve deliveryServiceEnsName',
         );
         return {
             account,
@@ -109,7 +109,7 @@ const fetchDsProfile = async (
     }
 
     const deliveryServiceProfile = await getDeliveryServiceProfile(
-        deliveryServiceUrl,
+        deliveryServiceEnsName,
         provider!,
         async (url: string) => (await axios.get(url)).data,
     );
