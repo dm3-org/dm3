@@ -82,11 +82,14 @@ export async function getNameForAddress(
     address: string,
     offchainResolverUrl: string,
 ): Promise<string | undefined> {
+    // ERROR:TODO:FIX : The API always gives error
+    // ERROR: 404 (Not Found)
     const url = `${offchainResolverUrl}/profile/name/${formatAddress(address)}`;
     try {
         const { data } = await axios.get(url);
         return data.name;
     } catch (e) {
+        console.log('Error in getName for address : ', e);
         return;
     }
 }

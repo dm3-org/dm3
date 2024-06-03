@@ -278,7 +278,7 @@ export const useNotification = () => {
     useEffect(() => {
         if (isPushNotifyActive) {
             enablePushNotificationChannel();
-        } else {
+        } else if (isInitialized) {
             removeSpecificNotificationChannel(
                 NotificationChannelType.PUSH,
                 () => {},

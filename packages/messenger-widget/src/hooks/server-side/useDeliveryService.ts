@@ -7,7 +7,7 @@ import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import axios from 'axios';
 import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
-import { EncryptionEnvelop, Envelop } from '@dm3-org/dm3-lib-messaging';
+import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import socketIOClient, { Socket } from 'socket.io-client';
 
 export const useDeliveryService = () => {
@@ -94,23 +94,25 @@ export const useDeliveryService = () => {
         return [ds];
     };
 
-    const getDeliveryServiceProperties = () => {
+    const getDeliveryServiceProperties = async (): Promise<any[]> => {
         const connectors = _getConnectors();
-        return connectors.map((c) => c.getDeliveryServiceProperties());
+        return await Promise.all(
+            connectors.map((c) => c.getDeliveryServiceProperties()),
+        );
     };
     const onNewMessage = useCallback(
         (cb: OnNewMessagCallback) => {
             const connectors = _getConnectors();
-            // connectors.forEach((c) =>
-            //     c.registerWebSocketListener('message', cb),
-            // );
+            connectors.forEach((c) =>
+                c.registerWebSocketListener('message', cb),
+            );
         },
         [connectors],
     );
 
     const removeOnNewMessageListener = useCallback(() => {
         const connectors = _getConnectors();
-        //connectors.forEach((c) => c.unregisterWebSocketListener('message'));
+        connectors.forEach((c) => c.unregisterWebSocketListener('message'));
     }, [connectors]);
 
     return {
