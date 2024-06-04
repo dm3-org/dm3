@@ -1,7 +1,7 @@
 import { Acknoledgment, getMessages, schema } from '@dm3-org/dm3-lib-delivery';
 import { auth } from '@dm3-org/dm3-lib-server-side';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
-import { getConversationId } from '@dm3-org/dm3-lib-storage';
+import { getConversationId } from '@dm3-org/dm3-lib-delivery';
 import cors from 'cors';
 import { ethers } from 'ethers';
 import express from 'express';
