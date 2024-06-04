@@ -17,6 +17,7 @@
             "packages/offchain-resolver",
             "packages/messenger-widget",
             "packages/messenger-demo",
+            "packages/next-messenger-demo",
             "packages/messenger-web",
             "packages/cli",
             "packages/toplevel-alias",

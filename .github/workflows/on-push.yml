@@ -9,7 +9,7 @@ jobs:
             - uses: actions/setup-node@v3
               with:
                   registry-url: 'https://npm.pkg.github.com'
-                  node-version: 18.0.0
+                  node-version: 22.0.0
                   cache: 'yarn'
             - name: Install
               run: yarn install
@@ -27,7 +27,7 @@ jobs:
             - uses: actions/setup-node@v3
               with:
                   registry-url: 'https://npm.pkg.github.com'
-                  node-version: 18.0.0
+                  node-version: 22.0.0
                   cache: 'yarn'
             - name: Install
               run: yarn install

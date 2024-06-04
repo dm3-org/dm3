@@ -7,7 +7,7 @@ import {
 import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 
 export type DeliveryServiceContextType = {
-    getDeliveryServiceProperties: () => Promise<DeliveryServiceProperties>[];
+    getDeliveryServiceProperties: () => Promise<any[]>;
     isInitialized: boolean;
     addNotificationChannel?: (
         ensName: string,
@@ -48,7 +48,7 @@ export type DeliveryServiceContextType = {
 
 export const DeliveryServiceContext =
     React.createContext<DeliveryServiceContextType>({
-        getDeliveryServiceProperties: () => [],
+        getDeliveryServiceProperties: () => Promise.resolve([]),
         isInitialized: false,
         addNotificationChannel: (
             ensName: string,
