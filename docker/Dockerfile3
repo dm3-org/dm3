@@ -44,5 +44,8 @@ RUN rm -rf  required_libraries
 RUN yarn install
 RUN yarn build
 
+# remove some tools we don't need anymore to reduce image size
+#RUN apk del gawk
+
 ENTRYPOINT [ "yarn" "start" ]
 
