@@ -3,6 +3,8 @@ import { ethers } from 'ethers';
 import { LRUCache } from '../cache/LRUCache';
 import { getWeb3Provider } from './getWeb3Provider';
 
+const DEFAULT_CACHE_SIZE = 500;
+
 export const getCachedWebProvider = async (
     env: NodeJS.ProcessEnv,
 ): Promise<ethers.providers.JsonRpcProvider> => {
@@ -13,8 +15,11 @@ export const getCachedWebProvider = async (
     return _withLRUCache(webProvider);
 };
 
-const _withLRUCache = (provider: ethers.providers.JsonRpcProvider) => {
-    const cache = new LRUCache<any>(500);
+const _withLRUCache = (
+    provider: ethers.providers.JsonRpcProvider,
+    size = DEFAULT_CACHE_SIZE,
+) => {
+    const cache = new LRUCache<any>(size);
 
     const cacheHandler: ProxyHandler<ethers.providers.JsonRpcProvider> = {
         get: (target, fnSig, receiver) => {
