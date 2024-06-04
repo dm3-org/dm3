@@ -15,7 +15,7 @@ RUN mkdir /library-archives
 RUN for lib in `ls -I billboard-api`; do cd $lib; yarn pack --filename /library-archives/$lib.tgz; cd ..;  done
 
 ## Create a base image that contains some common tools
-FROM --platform=linux/amd64 node:18-alpine as base
+FROM --platform=linux/amd64 node:22-alpine as base
 RUN apk add --update bash gawk \
    && rm -rf /var/cache/apk/*
 
