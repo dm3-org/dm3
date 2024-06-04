@@ -1,32 +1,34 @@
+import { Conversation } from '@dm3-org/dm3-lib-storage';
 import '@testing-library/jest-dom';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { AuthContext, AuthContextType } from '../../context/AuthContext';
+import {
+    DeliveryServiceContext,
+    DeliveryServiceContextType,
+} from '../../context/DeliveryServiceContext';
+import {
+    StorageContext,
+    StorageContextType,
+} from '../../context/StorageContext';
+import { getMockedAuthContext } from '../../context/testHelper/getMockedAuthContext';
+import { getMockedDeliveryServiceContext } from '../../context/testHelper/getMockedDeliveryServiceContext';
+import { getMockedStorageContext } from '../../context/testHelper/getMockedStorageContext';
 import { DM3Configuration } from '../../widget';
 import { useConversation } from './useConversation';
-import { act, renderHook, waitFor } from '@testing-library/react';
-
-const config: DM3Configuration = {
-    userEnsSubdomain: process.env.REACT_APP_USER_ENS_SUBDOMAIN as string,
-    addressEnsSubdomain: process.env.REACT_APP_ADDR_ENS_SUBDOMAIN as string,
-    resolverBackendUrl: process.env.REACT_APP_RESOLVER_BACKEND as string,
-    profileBaseUrl: process.env.REACT_APP_PROFILE_BASE_URL as string,
-    defaultDeliveryService: process.env
-        .REACT_APP_DEFAULT_DELIVERY_SERVICE as string,
-    backendUrl: process.env.REACT_APP_BACKEND as string,
-    chainId: process.env.REACT_APP_CHAIN_ID as string,
-    resolverAddress: process.env.REACT_APP_RESOLVER_ADDR as string,
-    defaultServiceUrl: process.env.REACT_APP_DEFAULT_SERVICE as string,
-    ethereumProvider: process.env.REACT_APP_MAINNET_PROVIDER_RPC as string,
-    walletConnectProjectId: process.env
-        .REACT_APP_WALLET_CONNECT_PROJECT_ID as string,
-    genomeRegistryAddress: process.env
-        .REACT_APP_GENOME_REGISTRY_ADDRESS as string,
-    publicVapidKey: process.env.REACT_APP_PUBLIC_VAPID_KEY as string,
-    defaultContact: 'defaultcontact.eth',
-    showAlways: true,
-    showContacts: true,
-};
+import {
+    DEFAULT_DM3_CONFIGURATION,
+    getMockedDm3Configuration,
+} from '../../context/testHelper/getMockedDm3Configuration';
 
 describe('useConversation hook test cases', () => {
     const CONTACT_NAME = 'user.dm3.eth';
+
+    const configurationContext = getMockedDm3Configuration({
+        dm3Configuration: {
+            ...DEFAULT_DM3_CONFIGURATION,
+        },
+    });
+    const config: DM3Configuration = configurationContext.dm3Configuration!;
 
     it('Should configure useConversation hook', async () => {
         const { result } = renderHook(() => useConversation(config));
@@ -112,5 +114,68 @@ describe('useConversation hook test cases', () => {
         await waitFor(() =>
             expect(result.current.contacts[0].isHidden).toBe(false),
         );
+    });
+
+    describe('initialize', () => {
+        it('reads conversations from storage', async () => {
+            const authContext: AuthContextType = getMockedAuthContext({
+                account: {
+                    ensName: 'alice.eth',
+                    profile: {
+                        deliveryServices: ['ds.eth'],
+                        publicEncryptionKey: '',
+                        publicSigningKey: '',
+                    },
+                },
+            });
+
+            const storageContext: StorageContextType = getMockedStorageContext({
+                getConversations: function (
+                    page: number,
+                ): Promise<Conversation[]> {
+                    return Promise.resolve([
+                        {
+                            contactEnsName: 'max.eth',
+                            isHidden: false,
+                            messageCounter: 1,
+                        },
+                    ]);
+                },
+                initialized: true,
+            });
+            const deliveryServiceContext: DeliveryServiceContextType =
+                getMockedDeliveryServiceContext({
+                    fetchIncommingMessages: function (ensName: string) {
+                        return Promise.resolve([]);
+                    },
+                    getDeliveryServiceProperties: function (): Promise<any[]> {
+                        return Promise.resolve([{ sizeLimit: 0 }]);
+                    },
+                    isInitialized: true,
+                });
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <StorageContext.Provider value={storageContext}>
+                            <DeliveryServiceContext.Provider
+                                value={deliveryServiceContext}
+                            >
+                                {children}
+                            </DeliveryServiceContext.Provider>
+                        </StorageContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useConversation(config), {
+                wrapper,
+            });
+            await waitFor(() => expect(result.current.initialized).toBe(true));
+
+            const conversations = result.current.contacts;
+
+            expect(conversations.length).toBe(1);
+        });
     });
 });
