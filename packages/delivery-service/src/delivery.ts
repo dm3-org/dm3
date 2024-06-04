@@ -88,7 +88,7 @@ export default (
                     req.params.ensName,
                     //Fetch the last 10 messages per conversation
                     //If we decide to add pagination for that endpoint we can pass this value as a param
-                    10,
+                    1000,
                 );
                 res.json(incomingMessages);
             } catch (e) {
