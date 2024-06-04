@@ -79,16 +79,15 @@ export class DeliveryServiceConnector extends ServerSideConnector {
         return { data, status };
     }
 
-    public async fetchPendingConversations(ensName: string) {
-        const url = `/delivery/messages/${normalizeEnsName(ensName)}/pending`;
-        const { data } = await this.getAuthenticatedAxiosClient().post(url, {});
-        return data;
-    }
-
     public async fetchNewMessages(ensName: string, contactAddress: string) {
         const url = `/delivery/messages/${normalizeEnsName(
             ensName,
         )}/contact/${contactAddress}`;
+        const { data } = await this.getAuthenticatedAxiosClient().get(url);
+        return data;
+    }
+    public async fetchIncommingMessages(ensName: string) {
+        const url = `/delivery/messages/incoming/${normalizeEnsName(ensName)}/`;
         const { data } = await this.getAuthenticatedAxiosClient().get(url);
         return data;
     }

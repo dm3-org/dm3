@@ -41,7 +41,7 @@ export default (
     router.param('ensName', async (req, res, next, ensName: string) => {
         auth(req, res, next, ensName, db, web3Provider, serverSecret);
     });
-
+    //Returns all incoming messages for a specific contact name
     router.get(
         '/messages/:ensName/contact/:contactEnsName',
         async (req: express.Request, res, next) => {
