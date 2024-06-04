@@ -1,14 +1,13 @@
+import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
+import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
+import { getDeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
+import axios from 'axios';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
-import { DeliveryServiceConnector } from './DeliveryServiceConnector';
-import { getDeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
-import axios from 'axios';
-import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
-import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
-import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
-import socketIOClient, { Socket } from 'socket.io-client';
+import { DeliveryServiceConnector } from './DeliveryServiceConnector';
 
 export const useDeliveryService = () => {
     //Get Dependencies from authHook
@@ -149,12 +148,12 @@ export const useDeliveryService = () => {
                 notificationChannelType,
             );
         },
-        fetchPendingConversations: (ensName: string) => {
-            const connectors = _getConnectors();
-            return connectors[0].fetchPendingConversations(ensName);
-        },
+
         fetchNewMessages: (ensName: string, contactAddress: string) => {
             return connectors[0].fetchNewMessages(ensName, contactAddress);
+        },
+        fetchIncommingMessages: (ensName: string) => {
+            return connectors[0].fetchIncommingMessages(ensName);
         },
         syncAcknowledgment: (
             ensName: string,

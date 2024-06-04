@@ -1,8 +1,13 @@
 import '@testing-library/jest-dom';
 import { act, renderHook } from '@testing-library/react';
 import { useMessage } from './useMessage';
+import {
+    ConversationContext,
+    ConversationContextType,
+} from '../../context/ConversationContext';
+import { ContactPreview } from '../../interfaces/utils';
 import { Message } from '@dm3-org/dm3-lib-messaging';
-import { MessageActionType } from '../../utils/enum-type-utils';
+import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
 
 describe('useMessage hook test cases', () => {
     const CONTACT_NAME = 'user.dm3.eth';
@@ -38,26 +43,51 @@ describe('useMessage hook test cases', () => {
         expect(unreadMsgCount).toBe(0);
     });
 
-    /**
-     * This test needs to be fixed. It throws a error
-     * TypeError: socket.emit is not a function
-     * Tried mocking socket, but it's not working
-     */
-    // it('Should add new message ', async () => {
+    // describe('add message', () => {
+    //     it.only('context text', async () => {
 
-    //     const newMessage: Message = {
-    //         message: "this is a new message",
-    //         signature: "signature",
-    //         metadata: {
-    //             to: CONTACT_NAME,
-    //             from: "abcd.dm3.eth",
-    //             timestamp: 82163821,
-    //             type: MessageActionType.NEW
-    //         },
-    //     }
+    //         const mockContact = {
+    //             name: getAccountDisplayName('bob.eth', 25),
+    //             message: null,
+    //             image: '',
+    //             unreadMsgCount: 0,
+    //             messageCount: 0,
+    //             contactDetails: {
+    //                 account: {
+    //                     ensName: 'bob.eth',
+    //                 },
+    //                 deliveryServiceProfile: undefined,
+    //             },
+    //             isHidden: false,
+    //             messageSizeLimit: 0,
+    //         }
 
-    //     const { result } = renderHook(() => useMessage());
-    //     const data = await act(async () => result.current.addMessage(CONTACT_NAME, newMessage));
-    //     expect(data.isSuccess).toBe(true);
-    // });
+    //         const converationContext: ConversationContextType = {
+    //             contacts: [mockContact],
+    //             conversationCount: 0,
+    //             setSelectedContactName: function (contactEnsName: string | undefined): void {
+    //                 throw new Error('Function not implemented.');
+    //             },
+    //             initialized: false,
+    //             addConversation: function (ensName: string): ContactPreview {
+    //                 throw new Error('Function not implemented.');
+    //             },
+    //             hideContact: function (ensName: string): void {
+    //                 throw new Error('Function not implemented.');
+    //             }
+    //         }
+
+    //         const wrapper = ({ children }: { children: any }) => (
+    //             <ConversationContext.Provider value={converationContext}>{children}</ConversationContext.Provider>
+    //         );
+
+    //         const msg = {} as Message
+
+    //         const { result } = renderHook(() => useMessage(), { wrapper });
+    //         await act(async () =>
+    //             result.current.addMessage('alice.eth', msg),
+    //         );
+
+    //     });
+    // })
 });
