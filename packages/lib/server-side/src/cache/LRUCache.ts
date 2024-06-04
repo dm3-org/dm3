@@ -1,3 +1,5 @@
+//Simple cache using LRU as a cache strategy to keep the most recent values
+//Thanks to Gashawk.io for the implementation
 export class LRUCache<T> {
     private capacity: number;
     private cache: Map<string, T>;
