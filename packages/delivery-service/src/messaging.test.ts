@@ -249,37 +249,4 @@ describe('Messaging', () => {
             )(getSocketMock());
         });
     });
-
-    describe('pendingMessage', () => {
-        it('returns error if schema is invalid', async () => {
-            const data = {
-                accountAddress: '',
-                contactAddress: '',
-            };
-            const callback = jest.fn((e: any) => {
-                if (e.error !== 'invalid schema') {
-                    throw Error(e);
-                }
-                expect(e.error).toBe('invalid schema');
-            });
-            const getSocketMock = jest.fn(() => {
-                return {
-                    on: async (name: string, onPendingMessage: any) => {
-                        //We just want to test the submitMessage callback fn
-                        if (name === 'pendingMessage') {
-                            await onPendingMessage(data, callback);
-                        }
-                    },
-                } as unknown as Socket;
-            });
-            onConnection(
-                io as any,
-                web3Provider as any,
-                db as any,
-                keysA,
-                serverSecret,
-                mockWsManager,
-            )(getSocketMock());
-        });
-    });
 });

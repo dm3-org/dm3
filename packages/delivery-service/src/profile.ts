@@ -56,8 +56,6 @@ export default (
                 ensName,
                 req.body,
                 serverSecret,
-                (ensName: string) => db.getPending(ensName),
-                (socketId: string) => io.sockets.to(socketId).emit('joined'),
             );
             global.logger.debug({
                 message: 'POST profile',

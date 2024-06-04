@@ -88,7 +88,7 @@ export default (
                     req.params.ensName,
                     //Fetch the last 10 messages per conversation
                     //If we decide to add pagination for that endpoint we can pass this value as a param
-                    10,
+                    1000,
                 );
                 res.json(incomingMessages);
             } catch (e) {
@@ -96,18 +96,6 @@ export default (
             }
         },
     );
-
-    router.post('/messages/:ensName/pending', async (req, res, next) => {
-        try {
-            const account = await db.getIdEnsName(req.params.ensName);
-            const pending = await db.getPending(account);
-            await db.deletePending(account);
-
-            res.json(pending);
-        } catch (e) {
-            next(e);
-        }
-    });
 
     //TODO remove after storage refactoring
     router.post(

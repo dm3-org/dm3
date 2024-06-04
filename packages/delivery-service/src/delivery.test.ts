@@ -69,49 +69,6 @@ describe('Delivery', () => {
         });
     });
 
-    describe('getPendingMessages', () => {
-        it('Returns 200 if schema is valid', async () => {
-            const web3Provider = {
-                resolveName: async () =>
-                    '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
-            };
-
-            const token = await createAuthToken(
-                '0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870',
-            );
-
-            const db = {
-                getSession: async (ensName: string) => ({
-                    challenge: 'deprecated challenge',
-                    token: 'deprecated token that is not used anymore',
-                }),
-                setSession: async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
-                },
-                getPending: (_: any) => [],
-                deletePending: (_: any) => [],
-                getIdEnsName: async (ensName: string) => ensName,
-            };
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(
-                delivery(web3Provider as any, db as any, keysA, serverSecret),
-            );
-
-            const { status } = await request(app)
-                .post(
-                    '/messages/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870/pending',
-                )
-                .set({
-                    authorization: `Bearer ${token}`,
-                })
-
-                .send();
-
-            expect(status).toBe(200);
-        });
-    });
-
     describe('syncAcknoledgment', () => {
         it('Returns 200 if schema is valid', async () => {
             const web3Provider = {
