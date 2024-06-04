@@ -12,6 +12,7 @@ import { Message } from '../Message/Message';
 import { MessageInputBox } from '../MessageInputBox/MessageInputBox';
 import { scrollToBottomOfChat } from './scrollToBottomOfChat';
 import { ModalContext } from '../../context/ModalContext';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 export function Chat() {
     const { account } = useContext(AuthContext);
@@ -83,6 +84,21 @@ export function Chat() {
     /* shimmer effect contacts css */
     const shimmerData: number[] = Array.from({ length: 50 }, (_, i) => i + 1);
 
+
+    const [itemList, setItemList] = useState(Array.from({ length: 30 }));
+    const [hasMoreMsgs, setHasMoreMsgs] = useState(true);
+
+    const fetchMoreData = () => {
+        setTimeout(() => {
+            const oldMsgs = [...itemList];
+            const newMsgs = [...oldMsgs].concat(Array.from({ length: 20 }));
+            setItemList(newMsgs);
+        }, 1500);
+        if (itemList.length > 100) {
+            setHasMoreMsgs(false);
+        }
+    }
+
     return (
         <div
             id="chat-msgs"
@@ -133,8 +149,48 @@ export function Chat() {
                     {/* To show information box that contact has not created profile */}
                     {!isProfileConfigured && <ConfigProfileAlertBox />}
 
-                    {/* Chat messages */}
                     <div
+                        id="chat-box"
+                        className={'chat-items mb-2'.concat(
+                            ' ',
+                            !isProfileConfigured
+                                ? 'chat-height-small'
+                                : 'chat-height-high',
+                        )}
+                        style={{
+                            overflow: 'auto',
+                            display: 'flex',
+                            flexDirection: 'column-reverse',
+                        }}
+
+                    >
+                        {/*Put the scroll bar always on the bottom*/}
+                        <InfiniteScroll
+                            dataLength={itemList.length}
+                            next={fetchMoreData}
+                            style={{ display: 'flex', flexDirection: 'column-reverse' }} //To put endMessage and loader to the top.
+                            inverse={true}
+                            hasMore={hasMoreMsgs}
+                            loader={
+                                <h4 style={{ fontSize: "14px", textAlign: "center", color: "white" }}>
+                                    Loading old messages...
+                                </h4>}
+                            scrollableTarget="chat-box"
+                        >
+                            {itemList.length > 0 && itemList.map((_, index) => (
+                                <div key={index} style={{ marginLeft: "1rem", fontSize: "14px", color: "white" }}>
+                                    Message no. {index}
+                                </div>
+                            ))}
+                            {!hasMoreMsgs &&
+                                <div style={{ textAlign: "center", fontSize: "14px", color: "white" }}>
+                                    No old messages
+                                </div>}
+                        </InfiniteScroll>
+                    </div>
+
+                    {/* Chat messages */}
+                    {/* <div
                         id="chat-box"
                         className={'chat-items mb-2'.concat(
                             ' ',
@@ -180,7 +236,7 @@ export function Chat() {
                                     </div>
                                 ),
                             )}
-                    </div>
+                    </div> */}
 
                     {/* Message, emoji and file attachments */}
                     <MessageInputBox />
