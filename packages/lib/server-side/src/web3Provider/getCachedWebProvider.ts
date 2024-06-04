@@ -19,7 +19,8 @@ const _withLRUCache = (
     provider: ethers.providers.JsonRpcProvider,
     size = DEFAULT_CACHE_SIZE,
 ) => {
-    const cache = new LRUCache<any>(size);
+    //sse unknown type for the cache since it can store any type
+    const cache = new LRUCache<unknown>(size);
 
     const cacheHandler: ProxyHandler<ethers.providers.JsonRpcProvider> = {
         get: (target, fnSig, receiver) => {
@@ -33,6 +34,8 @@ const _withLRUCache = (
                             return cache.get(key)!;
                         }
                         //Continue to fetch the value from the RPC
+                        //The compiler does not know that we are using a proxy method here
+                        //So we have to supress the compiler error of the unknown fnSig
                         //@ts-ignore
                         const result = await target[fnSig](method);
 
@@ -51,13 +54,16 @@ const _withLRUCache = (
                         }
 
                         //Continue to fetch the value
+                        //The compiler does not know that we are using a proxy method here
+                        //So we have to supress the compiler error of the unknown fnSig
                         //@ts-ignore
                         const result = await target[fnSig](method, ...args);
                         //Store the new item in the cache, replaces the oldest one if the cache is full
                         cache.set(key, result);
                         return result;
                     }
-
+                    //The compiler does not know that we are using a proxy method here
+                    //So we have to supress the compiler error of the unknown fnSig
                     //@ts-ignore
                     return target[fnSig](method, ...args);
                 };
