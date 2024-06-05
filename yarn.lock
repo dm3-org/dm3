@@ -2211,9 +2211,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@dm3-org/dm3-lib-offchain-resolver-api@workspace:packages/lib/offchainResolver-api":
+"@dm3-org/dm3-lib-offchain-resolver-api@workspace:packages/lib/offchain-resolver-api":
   version: 0.0.0-use.local
-  resolution: "@dm3-org/dm3-lib-offchain-resolver-api@workspace:packages/lib/offchainResolver-api"
+  resolution: "@dm3-org/dm3-lib-offchain-resolver-api@workspace:packages/lib/offchain-resolver-api"
   dependencies:
     "@dm3-org/dm3-lib-crypto": "workspace:^"
     "@dm3-org/dm3-lib-profile": "workspace:^"

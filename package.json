@@ -11,7 +11,7 @@
             "packages/lib/delivery",
             "packages/lib/storage",
             "packages/lib/delivery-api",
-            "packages/lib/offchainResolver-api",
+            "packages/lib/offchain-resolver-api",
             "packages/backend",
             "packages/integration-tests",
             "packages/offchain-resolver",
