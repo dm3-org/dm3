@@ -10,6 +10,7 @@
     "@dm3-org/dm3-lib-profile": "workspace:^",
     "@dm3-org/dm3-lib-shared": "workspace:^",
     "@dm3-org/dm3-lib-storage": "workspace:^",
+    "@dm3-org/dm3-lib-server-side": "workspace:^",
     "@prisma/client": "4.16.2",
     "axios": "^0.27.2",
     "body-parser": "^1.20.1",
