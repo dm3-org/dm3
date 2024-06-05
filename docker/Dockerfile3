@@ -29,23 +29,23 @@ WORKDIR /app
 # copy main package
 COPY --from=build /build/packages/delivery-service/ ./
 # copy archives of libraries
-COPY --from=build /library-archives/ ./library_archives/
+COPY --from=build /library_archives/ /library_archives/
 
 ## make project runnable without monorepo. Sadly, we need to copy this code block for every image we build
 # store necessary libraries in file
-RUN grep -o '@dm3-org/dm3-lib-[^"]*' package.json| awk -F'dm3-lib-' '{print $NF}' > required_libraries
-# remove references to local libraries from package.json
-RUN sed -i '/.*dm3-org\/dm3-lib.*/d' ./package.json
+# RUN grep -o '@dm3-org/dm3-lib-[^"]*.*workspace.*' package.json| awk -F'dm3-lib-' '{print $NF}' > required_libraries
+# # remove references to local libraries from package.json
+# RUN sed -i '/.*dm3-org\/dm3-lib.*/d' ./package.json
 # install required libraries from local archives
-RUN yarn add $(cat required_libraries | awk '{print "file:library_archives/"$1".tgz"}')
-# remove all library archives, we don't need them anymore
-RUN rm -rf  required_libraries
-# run yarn install and yarn build to make sure yarn is happy
+RUN yarn add $(cat required_libraries | awk '{print "file:/library_archives/"$1".tgz"}')
+# # remove all library archives, we don't need them anymore
+# RUN rm -rf  required_libraries
+# # run yarn install and yarn build to make sure yarn is happy
 RUN yarn install
 RUN yarn build
 
 # remove some tools we don't need anymore to reduce image size
-#RUN apk del gawk
+RUN apk del gawk
 
 ENTRYPOINT [ "yarn" "start" ]
 

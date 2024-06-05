@@ -1,0 +1,11 @@
+# Docker build process
+
+We are building multiple images in this project - some of them are used only in the build process, some of them are published.
+
+## Build process
+
+1. `DockerfileBase` - This builds the base image for all published images. It contains some convenience tools to make our life easier.
+2. `DockerfileBuild` - This builds the build image. It contains all the necessary tools to build the project. We copy the whole monorepo into this image, build and extract the libraries, and do some other tasks to prepare for extraction of our main packages in the next step.
+3. `DockerfilePackage` - This dockerfile makes use of the `build` and `base` images. It takes the `base` image, and copies one package and all libraries from the `build` image into it. Then, it does some magic and builds the package. This is done for each package we want to publish.
+
+Therefore, the `build` and `base` images are used only in the build process and are not published. Also, they need to be created before the `package` images. And changes to one of the Dockerfiles might affect the others.
