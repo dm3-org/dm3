@@ -84,11 +84,16 @@ export function Chat() {
     /* shimmer effect contacts css */
     const shimmerData: number[] = Array.from({ length: 50 }, (_, i) => i + 1);
 
-
+    // ================== States & functions related to pagination ================
+    // pageNo & hasMoreMsgs should be updated based on new contact selected
+    const [pageNo, setPageNo] = useState(1);
     const [itemList, setItemList] = useState(Array.from({ length: 30 }));
     const [hasMoreMsgs, setHasMoreMsgs] = useState(true);
 
+    // Update the function logic to fetch messages from specific page no.
     const fetchMoreData = () => {
+        // Page no. must be updated based on new messages loading
+        // Also set hasMoreMsgs based on pageNo
         setTimeout(() => {
             const oldMsgs = [...itemList];
             const newMsgs = [...oldMsgs].concat(Array.from({ length: 20 }));
@@ -97,7 +102,9 @@ export function Chat() {
         if (itemList.length > 100) {
             setHasMoreMsgs(false);
         }
-    }
+    };
+
+    // ================== States & functions related to pagination ================
 
     return (
         <div
@@ -162,81 +169,72 @@ export function Chat() {
                             display: 'flex',
                             flexDirection: 'column-reverse',
                         }}
-
                     >
-                        {/*Put the scroll bar always on the bottom*/}
                         <InfiniteScroll
                             dataLength={itemList.length}
                             next={fetchMoreData}
-                            style={{ display: 'flex', flexDirection: 'column-reverse' }} //To put endMessage and loader to the top.
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column-reverse',
+                            }} //To put endMessage and loader to the top.
                             inverse={true}
                             hasMore={hasMoreMsgs}
                             loader={
-                                <h4 style={{ fontSize: "14px", textAlign: "center", color: "white" }}>
+                                <h4
+                                    style={{
+                                        fontSize: '14px',
+                                        textAlign: 'center',
+                                        color: 'white',
+                                    }}
+                                >
                                     Loading old messages...
-                                </h4>}
+                                </h4>
+                            }
                             scrollableTarget="chat-box"
                         >
-                            {itemList.length > 0 && itemList.map((_, index) => (
-                                <div key={index} style={{ marginLeft: "1rem", fontSize: "14px", color: "white" }}>
-                                    Message no. {index}
-                                </div>
-                            ))}
-                            {!hasMoreMsgs &&
-                                <div style={{ textAlign: "center", fontSize: "14px", color: "white" }}>
-                                    No old messages
-                                </div>}
+                            {messages.length > 0 &&
+                                messages
+                                    .reverse()
+                                    .map(
+                                        (
+                                            storageEnvelopContainer: MessageModel,
+                                            index,
+                                        ) => (
+                                            <div key={index} className="mt-2">
+                                                <Message
+                                                    message={
+                                                        storageEnvelopContainer
+                                                            .envelop.message
+                                                            .message ?? ''
+                                                    }
+                                                    time={
+                                                        storageEnvelopContainer.envelop.message.metadata?.timestamp.toString() ??
+                                                        '0'
+                                                    }
+                                                    messageState={
+                                                        storageEnvelopContainer.messageState
+                                                    }
+                                                    ownMessage={
+                                                        storageEnvelopContainer
+                                                            .envelop.message
+                                                            .metadata?.from ===
+                                                        account!.ensName
+                                                    }
+                                                    envelop={
+                                                        storageEnvelopContainer.envelop
+                                                    }
+                                                    reactions={
+                                                        storageEnvelopContainer.reactions
+                                                    }
+                                                    replyToMessageEnvelop={
+                                                        storageEnvelopContainer.replyToMessageEnvelop
+                                                    }
+                                                />
+                                            </div>
+                                        ),
+                                    )}
                         </InfiniteScroll>
                     </div>
-
-                    {/* Chat messages */}
-                    {/* <div
-                        id="chat-box"
-                        className={'chat-items mb-2'.concat(
-                            ' ',
-                            !isProfileConfigured
-                                ? 'chat-height-small'
-                                : 'chat-height-high',
-                        )}
-                    >
-                        {messages.length > 0 &&
-                            messages.map(
-                                (
-                                    storageEnvelopContainer: MessageModel,
-                                    index,
-                                ) => (
-                                    <div key={index} className="mt-2">
-                                        <Message
-                                            message={
-                                                storageEnvelopContainer.envelop
-                                                    .message.message ?? ''
-                                            }
-                                            time={
-                                                storageEnvelopContainer.envelop.message.metadata?.timestamp.toString() ??
-                                                '0'
-                                            }
-                                            messageState={
-                                                storageEnvelopContainer.messageState
-                                            }
-                                            ownMessage={
-                                                storageEnvelopContainer.envelop
-                                                    .message.metadata?.from ===
-                                                account!.ensName
-                                            }
-                                            envelop={
-                                                storageEnvelopContainer.envelop
-                                            }
-                                            reactions={
-                                                storageEnvelopContainer.reactions
-                                            }
-                                            replyToMessageEnvelop={
-                                                storageEnvelopContainer.replyToMessageEnvelop
-                                            }
-                                        />
-                                    </div>
-                                ),
-                            )}
-                    </div> */}
 
                     {/* Message, emoji and file attachments */}
                     <MessageInputBox />
