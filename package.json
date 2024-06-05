@@ -57,7 +57,16 @@
     },
     "packageManager": "yarn@3.5.1",
     "resolutions": {
-        "autoprefixer": "10.4.5"
+        "autoprefixer": "10.4.5",
+        "@dm3-org/dm3-lib-crypto": "workspace:packages/lib/crypto",
+        "@dm3-org/dm3-lib-delivery": "workspace:packages/lib/delivery",
+        "@dm3-org/dm3-lib-delivery-api": "workspace:packages/lib/delivery-api",
+        "@dm3-org/dm3-lib-messaging": "workspace:packages/lib/messaging",
+        "@dm3-org/dm3-lib-offchain-resolver-api": "workspace:packages/lib/offchainResolver-api",
+        "@dm3-org/dm3-lib-profile": "workspace:packages/lib/profile",
+        "@dm3-org/dm3-lib-server-side": "workspace:packages/lib/server-side",
+        "@dm3-org/dm3-lib-shared": "workspace:packages/lib/shared",
+        "@dm3-org/dm3-lib-storage": "workspace:packages/lib/storage"
     },
     "dependencies": {
         "react-circular-progressbar": "^2.1.0",

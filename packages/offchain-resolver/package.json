@@ -4,9 +4,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@dm3-org/dm3-lib-crypto": "workspace:^",
-    "@dm3-org/dm3-lib-profile": "workspace:^",
-    "@dm3-org/dm3-lib-shared": "workspace:^",
+    "@dm3-org/dm3-lib-crypto": "^1.3.0",
+    "@dm3-org/dm3-lib-profile": "^1.3.0",
+    "@dm3-org/dm3-lib-shared": "^1.3.0",
     "@prisma/client": "^4.15.0",
     "body-parser": "^1.20.1",
     "dotenv": "^16.0.3",

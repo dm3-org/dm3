@@ -11,11 +11,11 @@
     }
   },
   "dependencies": {
-    "@dm3-org/dm3-lib-crypto": "workspace:^",
-    "@dm3-org/dm3-lib-delivery": "workspace:^",
-    "@dm3-org/dm3-lib-messaging": "workspace:^",
-    "@dm3-org/dm3-lib-profile": "workspace:^",
-    "@dm3-org/dm3-lib-shared": "workspace:^",
+    "@dm3-org/dm3-lib-crypto": "^1.3.0",
+    "@dm3-org/dm3-lib-delivery": "^1.3.0",
+    "@dm3-org/dm3-lib-messaging": "^1.3.0",
+    "@dm3-org/dm3-lib-profile": "^1.3.0",
+    "@dm3-org/dm3-lib-shared": "^1.3.0",
     "ethers": "5.7.2",
     "merkle-patricia-tree": "^4.2.4"
   },
