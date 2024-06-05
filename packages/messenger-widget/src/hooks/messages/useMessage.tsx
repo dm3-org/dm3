@@ -279,8 +279,6 @@ export const useMessage = () => {
                 error: 'Recipient has no delivery service profile',
             };
         }
-
-        // ERROR:TODO:FIX : 400 (Bad Request)
         await axios.create({ baseURL: recipientDs.url }).post('/rpc', {
             jsonrpc: '2.0',
             method: 'dm3_submitMessage',
