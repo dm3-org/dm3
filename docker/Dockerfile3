@@ -47,5 +47,5 @@ RUN yarn build
 # remove some tools we don't need anymore to reduce image size
 RUN apk del gawk
 
-ENTRYPOINT [ "yarn" "start" ]
+ENTRYPOINT [ "yarn", "start" ]
 
