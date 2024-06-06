@@ -190,19 +190,6 @@ export const useMessage = () => {
         const recipient = contacts.find(
             (c) => c.contactDetails.account.ensName === contact,
         );
-
-        // For whatever reason we've to create a PendingEntry before we can send a message
-        //We should probably refactor this to be more clear on the backend side
-        //Atm it dosent work at all
-        // createPendingEntry(
-        //     socket!,
-        //     deliveryServiceToken!,
-        //     message.metadata.from,
-        //     message.metadata.to,
-        //     () => { },
-        //     () => { },
-        // );
-
         /**
          * Check if the recipient has a PublicEncrptionKey
          * if not only keep the msg at the senders storage
@@ -293,25 +280,17 @@ export const useMessage = () => {
             };
         }
 
+        // ERROR:TODO:FIX : 400 (Bad Request)
         await axios.create({ baseURL: recipientDs.url }).post('/rpc', {
             jsonrpc: '2.0',
             method: 'dm3_submitMessage',
             params: [JSON.stringify(encryptedEnvelop)],
         });
-        //get deliveryService profile
-
-        // await sendMessage(
-        //     deliveryServiceToken!,
-        //     encryptedEnvelop,
-        //     () => { },
-        //     () => console.log('submit message error'),
-        // );
 
         return { isSuccess: true };
     };
 
     const loadInitialMessages = async (_contactName: string) => {
-        if (!fetchNewMessages || !syncAcknowledgment) return;
         const contactName = normalizeEnsName(_contactName);
         const initialMessages = await Promise.all([
             handleMessagesFromStorage(
@@ -323,6 +302,7 @@ export const useMessage = () => {
             handleMessagesFromDeliveryService(
                 account!,
                 profileKeys!,
+                addConversation,
                 storeMessageBatch,
                 contactName,
                 fetchNewMessages,

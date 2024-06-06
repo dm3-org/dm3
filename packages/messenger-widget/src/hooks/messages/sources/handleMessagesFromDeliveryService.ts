@@ -6,12 +6,13 @@ import {
 } from '@dm3-org/dm3-lib-messaging';
 import { MessageModel } from '../useMessage';
 import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
-import { StoreMessageBatch } from '../../storage/useStorage';
+import { AddConversation, StoreMessageBatch } from '../../storage/useStorage';
 import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
 
 export const handleMessagesFromDeliveryService = async (
     account: Account,
     profileKeys: ProfileKeys,
+    addConversation: AddConversation,
     storeMessageBatch: StoreMessageBatch,
     contact: string,
     fetchNewMessages: (ensName: string, contactAddress: string) => any,
@@ -22,7 +23,7 @@ export const handleMessagesFromDeliveryService = async (
     ) => void,
 ) => {
     const lastSyncTime = Date.now();
-    //Fetch the pending messages from the delivery service
+    //Fetch the messages from the delivery service
     const encryptedIncommingMessages = await fetchNewMessages(
         account.ensName,
         contact,
@@ -61,9 +62,13 @@ export const handleMessagesFromDeliveryService = async (
             b.envelop.postmark?.incommingTimestamp!
         );
     });
-
-    //In the background we sync and acknowledge the messages and store then in the storage
-    await storeMessageBatch(contact, messagesSortedASC);
+    //If the DS has received messages from that contact we store them, and add the contact to conversation list aswell
+    if (messagesSortedASC.length > 0) {
+        //If the contact is not already in the conversation list then add it
+        await addConversation(contact);
+        //In the background we sync and acknowledge the messages and store then in the storage
+        await storeMessageBatch(contact, messagesSortedASC);
+    }
 
     await syncAcknowledgment(
         account.ensName,

@@ -9,6 +9,7 @@ import {
     NAME_TYPE,
     PROFILE_INPUT_FIELD_CLASS,
 } from '../chain/common';
+import deleteIcon from '../../../assets/images/delete.svg';
 
 export const MobileView = ({
     nameExtension,
@@ -30,6 +31,7 @@ export const MobileView = ({
         handleNameChange,
         handleClaimOrRemoveDm3Name,
         updateDeleteConfirmation,
+        setShowDeleteConfirmation,
     } = useContext(ConfigureDM3NameContext);
 
     return (
@@ -97,6 +99,14 @@ export const MobileView = ({
                 grey-text d-flex align-items-center"
                             >
                                 {existingDm3Name}
+                                <img
+                                    className="ms-4 pointer-cursor"
+                                    src={deleteIcon}
+                                    alt="remove"
+                                    onClick={() =>
+                                        setShowDeleteConfirmation(true)
+                                    }
+                                />
                             </p>
                         </>
                     )}

@@ -1,14 +1,13 @@
+import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
+import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
+import { getDeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
+import axios from 'axios';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
-import { DeliveryServiceConnector } from './DeliveryServiceConnector';
-import { getDeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
-import axios from 'axios';
-import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
-import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
-import { EncryptionEnvelop, Envelop } from '@dm3-org/dm3-lib-messaging';
-import socketIOClient, { Socket } from 'socket.io-client';
+import { DeliveryServiceConnector } from './DeliveryServiceConnector';
 
 export const useDeliveryService = () => {
     //Get Dependencies from authHook
@@ -89,28 +88,33 @@ export const useDeliveryService = () => {
     }, [isProfileReady]);
 
     const _getConnectors = () => {
+        if (connectors.length === 0) {
+            return [];
+        }
         //TODO think about strategies to use the delivery services. For the start we just query the first one
-        const [ds] = connectors;
-        return [ds];
+        return [connectors[0]];
     };
 
-    const getDeliveryServiceProperties = () => {
+    const getDeliveryServiceProperties = async (): Promise<any[]> => {
         const connectors = _getConnectors();
-        return connectors.map((c) => c.getDeliveryServiceProperties());
+        return await Promise.all(
+            connectors.map((c) => c.getDeliveryServiceProperties()),
+        );
     };
     const onNewMessage = useCallback(
         (cb: OnNewMessagCallback) => {
             const connectors = _getConnectors();
-            // connectors.forEach((c) =>
-            //     c.registerWebSocketListener('message', cb),
-            // );
+            console.log('connectors', connectors);
+            connectors.forEach((c) =>
+                c.registerWebSocketListener('message', cb),
+            );
         },
         [connectors],
     );
 
     const removeOnNewMessageListener = useCallback(() => {
         const connectors = _getConnectors();
-        //connectors.forEach((c) => c.unregisterWebSocketListener('message'));
+        connectors.forEach((c) => c.unregisterWebSocketListener('message'));
     }, [connectors]);
 
     return {
@@ -144,12 +148,12 @@ export const useDeliveryService = () => {
                 notificationChannelType,
             );
         },
-        fetchPendingConversations: (ensName: string) => {
-            const connectors = _getConnectors();
-            return connectors[0].fetchPendingConversations(ensName);
-        },
+
         fetchNewMessages: (ensName: string, contactAddress: string) => {
             return connectors[0].fetchNewMessages(ensName, contactAddress);
+        },
+        fetchIncommingMessages: (ensName: string) => {
+            return connectors[0].fetchIncommingMessages(ensName);
         },
         syncAcknowledgment: (
             ensName: string,

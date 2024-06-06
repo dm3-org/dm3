@@ -12,19 +12,23 @@ import { Contact } from '../../interfaces/context';
 import { ContactPreview } from '../../interfaces/utils';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
 import { fetchMessageSizeLimit } from '../messages/sizeLimit/fetchSizeLimit';
+import { DeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery';
 
 export const hydrateContract = async (
     provider: ethers.providers.JsonRpcProvider,
     conversatoinManifest: Conversation,
     resolveAliasToTLD: (alias: string) => Promise<string>,
     addrEnsSubdomain: string,
+    deliveryServiceProperties: DeliveryServiceProperties[],
 ) => {
     const account = await fetchAccount(
         provider,
         conversatoinManifest.contactEnsName,
     );
     const contact = await fetchDsProfile(provider, account);
-    const messageSizeLimit = await fetchMessageSizeLimit(provider, account);
+    const messageSizeLimit = await fetchMessageSizeLimit(
+        deliveryServiceProperties,
+    );
     const contactPreview = await fetchPreview(
         provider,
         conversatoinManifest,
@@ -93,11 +97,11 @@ const fetchDsProfile = async (
     provider: ethers.providers.JsonRpcProvider,
     account: Account,
 ): Promise<Contact> => {
-    const deliveryServiceUrl = account.profile?.deliveryServices[0];
-
-    if (!deliveryServiceUrl) {
+    const deliveryServiceEnsName = account.profile?.deliveryServices[0];
+    if (!deliveryServiceEnsName) {
+        //If there is now DS profile the message will be storaged at the client side until they recipient has createed an account
         console.log(
-            '[fetchDeliverServicePorfile] Cant resolve deliveryServiceUrl',
+            '[fetchDeliverServicePorfile] Cant resolve deliveryServiceEnsName',
         );
         return {
             account,
@@ -105,7 +109,7 @@ const fetchDsProfile = async (
     }
 
     const deliveryServiceProfile = await getDeliveryServiceProfile(
-        deliveryServiceUrl,
+        deliveryServiceEnsName,
         provider!,
         async (url: string) => (await axios.get(url)).data,
     );

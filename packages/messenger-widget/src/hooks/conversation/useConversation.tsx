@@ -11,13 +11,18 @@ import { DM3Configuration } from '../../interfaces/config';
 import { TLDContext } from '../../context/TLDContext';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { DeliveryServiceContext } from '../../context/DeliveryServiceContext';
+import {
+    DeliveryInformation,
+    EncryptionEnvelop,
+} from '@dm3-org/dm3-lib-messaging';
 
 export const useConversation = (config: DM3Configuration) => {
     const mainnetProvider = useMainnetProvider();
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const { account } = useContext(AuthContext);
     const {
-        fetchPendingConversations,
+        getDeliveryServiceProperties,
+        fetchIncommingMessages,
         isInitialized: deliveryServiceInitialized,
     } = useContext(DeliveryServiceContext);
     const {
@@ -75,6 +80,8 @@ export const useConversation = (config: DM3Configuration) => {
                 return;
             }
             const currentConversationsPage = await getConversations(page);
+            const deliveryServiceProperties =
+                await getDeliveryServiceProperties();
 
             //Hydrate the contacts by fetching their profile and DS profile
             const storedContacts = await Promise.all(
@@ -93,6 +100,7 @@ export const useConversation = (config: DM3Configuration) => {
                         conversation,
                         resolveAliasToTLD,
                         dm3Configuration.addressEnsSubdomain,
+                        deliveryServiceProperties,
                     );
                 }),
             );
@@ -107,7 +115,8 @@ export const useConversation = (config: DM3Configuration) => {
             // if (currentConversationsPage.length > 0) {
             //     await init(page + 1);
             // }
-            await handlePendingConversations(dm3Configuration.backendUrl);
+            //Pending conversations are no longer manged by the deliveryService but
+            await handlePendingConversations();
             initDefaultContact();
             setConversationsInitialized(true);
         };
@@ -139,26 +148,35 @@ export const useConversation = (config: DM3Configuration) => {
                     messageCounter: 0,
                     isHidden: false,
                 };
+                const deliveryServiceProperties =
+                    await getDeliveryServiceProperties();
                 const hydratedDefaultContact = await hydrateContract(
                     mainnetProvider,
                     defaultConversation,
                     resolveAliasToTLD,
                     dm3Configuration.addressEnsSubdomain,
+                    deliveryServiceProperties,
                 );
                 _setContactsSafe([hydratedDefaultContact]);
             }
         }
     };
 
-    const handlePendingConversations = async (backendUrl: string) => {
-        //At first we've to check if there are pending conversations not yet added to the list
-
-        const pendingConversations: string[] = await fetchPendingConversations(
+    const handlePendingConversations = async () => {
+        //During the migration of pending messages on the DS side we need to still resolve the conversation ids of incomming messages first
+        //This is done by fetching the incomming messages and adding the contacts to the conversation list
+        //Te messgaes are later fetched again and sync in use Messages. This has do be removed as soon as staging is no longer broken
+        const incommingMessages = await fetchIncommingMessages(
             account?.ensName as string,
         );
+        console.log('incommingMessages', incommingMessages);
         //Every pending conversation is going to be added to the conversation list
-        pendingConversations.forEach((pendingConversation) => {
-            addConversation(pendingConversation);
+        incommingMessages.forEach((pendingMessage: EncryptionEnvelop) => {
+            const sender = (
+                pendingMessage.metadata
+                    .deliveryInformation as DeliveryInformation
+            ).from;
+            addConversation(sender);
         });
     };
 
@@ -199,11 +217,13 @@ export const useConversation = (config: DM3Configuration) => {
             messageCounter: contact?.messageCount || 0,
             isHidden: contact.isHidden,
         };
+        const deliveryServiceProperties = await getDeliveryServiceProperties();
         const hydratedContact = await hydrateContract(
             mainnetProvider,
             conversation,
             resolveAliasToTLD,
             dm3Configuration.addressEnsSubdomain,
+            deliveryServiceProperties,
         );
         setContacts((prev) => {
             return prev.map((existingContact) => {
