@@ -4,7 +4,7 @@ import {
     getCachedWebProvider,
     getServerSecret,
     logError,
-    logRequest
+    logRequest,
 } from '@dm3-org/dm3-lib-server-side';
 import { logInfo } from '@dm3-org/dm3-lib-shared';
 import bodyParser from 'body-parser';
