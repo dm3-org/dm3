@@ -2064,6 +2064,7 @@ __metadata:
     "@dm3-org/dm3-lib-delivery": "workspace:^"
     "@dm3-org/dm3-lib-messaging": "workspace:^"
     "@dm3-org/dm3-lib-profile": "workspace:^"
+    "@dm3-org/dm3-lib-server-side": "workspace:^"
     "@dm3-org/dm3-lib-shared": "workspace:^"
     "@dm3-org/dm3-lib-storage": "workspace:^"
     "@prisma/client": 4.16.2
