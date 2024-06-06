@@ -42,14 +42,10 @@ export async function addNewNotificationChannel(
     dsNotificationChannels: NotificationChannel[],
     db: any,
 ) {
-    console.log('dsNotificationChannels : ', dsNotificationChannels);
-
     // check if channel is supported or not
     const channelUsed = dsNotificationChannels.filter(
         (channel) => channel.type === notificationChannelType,
     );
-
-    console.log('channelUsed : ', channelUsed);
 
     if (!channelUsed.length) {
         throw new NotificationError(
@@ -65,19 +61,11 @@ export async function addNewNotificationChannel(
         },
     });
 
-    console.log(
-        'Add notification channel in DB',
-        notificationChannelType,
-        NotificationChannelType,
-    );
-
     // send OTP only when notification type is not PUSH
     if (notificationChannelType === NotificationChannelType.PUSH) {
-        console.log('Inside if condition notification channel');
         // set notification channel as verified
         db.setNotificationChannelAsVerified(ensName, notificationChannelType);
     } else {
-        console.log('Inside if condition notification channel');
         // generate and save OTP
         const otp = await saveOtp(notificationChannelType, ensName, db.setOtp);
 
@@ -101,7 +89,6 @@ const getOtpContentForNotificationChannel = (
     notificationChannel: NotificationChannel,
     otp: string,
 ) => {
-    console.log('otp content : ', notificationChannel);
     switch (notificationChannel.type) {
         case NotificationChannelType.EMAIL:
             return {
@@ -126,8 +113,6 @@ export const sendOtp = async (
     const channelUsed = dsNotificationChannels.filter(
         (channel) => channel.type === notificationChannelType,
     );
-
-    console.log('channelUsed for otp : ', channelUsed);
 
     if (!channelUsed.length) {
         throw new NotificationError(
@@ -171,10 +156,7 @@ export const sendOtp = async (
     const otp = await saveOtp(notificationChannelType, ensName, db.setOtp);
 
     // set up notification broker
-    const { sendOtp } = NotificationBroker(
-        dsNotificationChannels,
-        NotificationType.OTP,
-    );
+    const { sendOtp } = NotificationBroker(channelUsed, NotificationType.OTP);
 
     // send otp
     await sendOtp(

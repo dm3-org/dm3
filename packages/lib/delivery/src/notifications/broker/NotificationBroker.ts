@@ -37,11 +37,6 @@ export const _setupNotficationBroker = (
             usersNotificationChannels.map(async (channel) => {
                 const deliveryServiceNotificationChannel =
                     supportedChannels.find((c) => c.type === channel.type);
-                console.log(
-                    'deliveryServiceNotificationChannel : ',
-                    deliveryServiceNotificationChannel,
-                    usersNotificationChannels,
-                );
                 //User specified a channel that is not supported
                 if (!deliveryServiceNotificationChannel) {
                     throw new NotificationError(
@@ -81,12 +76,6 @@ export const _setupNotficationBroker = (
             (c) => c.type === filteredChannel[0].type,
         );
 
-        console.log(
-            'deliveryServiceNotificationChannel filtered : ',
-            deliveryServiceNotificationChannel,
-            supportedChannels,
-        );
-
         if (!deliveryServiceNotificationChannel) {
             throw new NotificationError(
                 `Notification channel ${filteredChannel[0].type} is currently not supported by the DS`,
@@ -113,10 +102,8 @@ export const NotificationBroker = (
     notificationChannel: NotificationChannel[],
     notificationType: NotificationType,
 ): INotificationBroker => {
-    console.log('DS channels : ', notificationChannel);
     const channels = notificationChannel.map((channel) => {
         channel.config.notificationType = notificationType;
-        console.log('channel data is : ', channel);
         switch (channel.type) {
             case NotificationChannelType.EMAIL:
                 return {
