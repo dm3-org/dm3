@@ -57,7 +57,7 @@ export const useNotification = () => {
         setIsNotificationsActive(action);
         setIsEmailActive(action);
         setIsMobileActive(action);
-        setIsPushNotifyActive(action);
+        await pushNotificationAction(action);
         toggleGlobalChannel(action);
     };
 
@@ -230,7 +230,7 @@ export const useNotification = () => {
         if ('serviceWorker' in navigator) {
             console.log('Registering service worker...');
             const registration = await navigator.serviceWorker.register(
-                './../../service-worker.js',
+                './../../worker.js',
                 { scope: '/' },
             );
             console.log('Registered service worker...');
@@ -266,6 +266,18 @@ export const useNotification = () => {
         }
     };
 
+    const pushNotificationAction = async (action: boolean) => {
+        setIsPushNotifyActive(action);
+        if (action) {
+            await enablePushNotificationChannel();
+        } else {
+            await removeSpecificNotificationChannel(
+                NotificationChannelType.PUSH,
+                () => {},
+            );
+        }
+    };
+
     useEffect(() => {
         if (!isInitialized) return;
         const fetchNotificationDetails = async () => {
@@ -273,18 +285,6 @@ export const useNotification = () => {
         };
         fetchNotificationDetails();
     }, [isInitialized]);
-
-    // add/remove the push notification based in checkbox tick
-    useEffect(() => {
-        if (isPushNotifyActive) {
-            enablePushNotificationChannel();
-        } else if (isInitialized) {
-            removeSpecificNotificationChannel(
-                NotificationChannelType.PUSH,
-                () => {},
-            );
-        }
-    }, [isPushNotifyActive]);
 
     return {
         isNotificationsActive,
@@ -305,6 +305,7 @@ export const useNotification = () => {
         setActiveVerificationContent,
         toggleSpecificNotificationChannel,
         removeSpecificNotificationChannel,
+        pushNotificationAction,
         isLoading,
         loaderData,
     };

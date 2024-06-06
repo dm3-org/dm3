@@ -40,7 +40,7 @@ const setUpApp = async (
     app.use(bodyParser.json());
     const server = http.createServer(app);
     const io = new Server(server, {});
-    app.use(profile(db, io, web3Provider, serverSecret));
+    app.use(profile(db, web3Provider, serverSecret));
 };
 
 const createDbMock = async () => {
