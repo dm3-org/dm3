@@ -49,6 +49,8 @@ export async function addNewNotificationChannel(
         (channel) => channel.type === notificationChannelType,
     );
 
+    console.log('channelUsed : ', channelUsed);
+
     if (!channelUsed.length) {
         throw new NotificationError(
             `Notification channel ${notificationChannelType} is currently not supported by the DS`,
@@ -91,6 +93,7 @@ const getOtpContentForNotificationChannel = (
     notificationChannel: NotificationChannel,
     otp: string,
 ) => {
+    console.log('otp content : ', notificationChannel);
     switch (notificationChannel.type) {
         case NotificationChannelType.EMAIL:
             return {
@@ -115,6 +118,8 @@ export const sendOtp = async (
     const channelUsed = dsNotificationChannels.filter(
         (channel) => channel.type === notificationChannelType,
     );
+
+    console.log('channelUsed for otp : ', channelUsed);
 
     if (!channelUsed.length) {
         throw new NotificationError(
