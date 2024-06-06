@@ -14,9 +14,12 @@ WORKDIR '/build/packages/lib'
 RUN mkdir /library_archives
 RUN for lib in `ls -I billboard-api`; do cd $lib; yarn pack --filename /library_archives/$lib.tgz; cd ..;  done
 
-## update package.json files in all packages
+## prepare dependency operations for all packages
 WORKDIR '/build/packages'
-# extract the information which libraries are needed for this package
+# several steps are performed here for each package individually (but not for the libraries):
+# 1. extract the information which libraries are needed for this package and store it in required_libraries
+# 2. remove all dependencied referencing "workspace" in the monorepo from package.json
+# 3. update the package.json with the resolutions from the docker/resolutions.json file
 RUN for package in `ls -I lib`;\
    do cd $package;\
    grep -o '@dm3-org/dm3-lib-[^"]*' package.json| awk -F'dm3-lib-' '{print $NF}' > required_libraries; \
@@ -25,18 +28,6 @@ RUN for package in `ls -I lib`;\
    mv updated_package.json package.json; \
    cd ..; \
    done
-# remove references to local libraries from package.json
-# RUN 
-# add resolutions to package.json in all base packages
-# these resolutions are needed to make sure that the libraries are properly linked in the packages
-# we will extract in the next build stage
-# RUN for package in `ls -I lib`;\
-#    do cd $package;\
-#    jq '. + input' package.json ../../docker/resolutions.json > updated_package.json;\
-#    mv updated_package.json package.json; \
-#    cd ..; \
-#    done
-# during a further build step, the list of required libraries will be used to add these
-# libraries to the project from the archives we generated above
+
 
 
