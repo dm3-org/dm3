@@ -2452,6 +2452,7 @@ __metadata:
     body-parser: ^1.20.1
     chai: ^4.3.7
     chai-as-promised: ^7.1.1
+    cors: ^2.8.5
     dotenv: ^16.0.3
     eslint: ^8.17.0
     ethers: 5.7.2
