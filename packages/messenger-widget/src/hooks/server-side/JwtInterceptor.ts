@@ -5,6 +5,8 @@ import axios, {
     Axios,
 } from 'axios';
 
+import jwt from 'jsonwebtoken';
+
 import socketIOClient, { Socket } from 'socket.io-client';
 
 //Make request to Server
@@ -12,12 +14,16 @@ import socketIOClient, { Socket } from 'socket.io-client';
 //and try again
 export abstract class JwtInterceptor {
     private readonly baseURL: string;
+    protected readonly ensName: string;
+    private readonly enableWebsocket: boolean;
 
     private axios: Axios;
     private socket: Socket;
 
-    constructor(baseURL: string) {
+    constructor(baseURL: string, ensName: string, enableWebsocket: boolean) {
         this.baseURL = baseURL;
+        this.ensName = ensName;
+        this.enableWebsocket = enableWebsocket;
         this.initializeAxios();
     }
 
@@ -67,17 +73,40 @@ export abstract class JwtInterceptor {
         this.axios = _axios;
     }
     protected initializeSocketIO(token: string) {
-        const socket = socketIOClient(this.baseURL.replace('/api', ''), {
-            autoConnect: false,
+        if (!this.enableWebsocket) {
+            //Websocket is disabled
+            return;
+        }
+        console.log('base url ', this.baseURL);
+        const socket = socketIOClient(this.baseURL.replace('/ds', ''), {
+            autoConnect: true,
             transports: ['websocket'],
         });
+        console.log(token);
+        console.log(jwt.decode(token));
 
         socket.auth = {
-            //I dont think acccount is needed any longer
-            //account
-            token,
+            account: {
+                ensName: this.ensName,
+            },
+            token: `${token}`,
         };
+
+        socket.on('message', (arg: any) => {
+            console.log('msg WS');
+        });
+        socket.on('connect_error', (err) => {
+            console.log('base url ', this.baseURL);
+            // the reason of the error, for example "xhr poll error"
+            console.log(err.message);
+            // some additional description, for example the status code of the initial HTTP response
+            console.log(err);
+        });
+        socket.onAny((x: any) => {
+            console.log('frfrf');
+        });
         socket.connect();
+        console.log('socket id ', socket);
         this.socket = socket;
     }
 }
