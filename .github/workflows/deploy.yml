@@ -67,19 +67,19 @@ jobs:
               run: |
                   cp ./.env.react packages/messenger-demo/.env
                   cp ./.env.react packages/messenger-web/.env
-                  docker build --progress=plain -f ./docker/Dockerfile --target build    --tag build .
-                  docker build --progress=plain -f ./docker/Dockerfile --target base     --tag base .
+                  docker build --progress=plain -t build -f ./docker/DockerfileBuild .
+                  docker build --progress=plain -t base -f ./docker/DockerfileBase .
                   echo "Building backend image"
-                  docker build --progress=plain -f ./docker/Dockerfile --target package  --tag dm3-backend:latest           --build-arg="PACKAGE=backend" .
+                  docker build --progress=plain -f ./docker/DockerfilePackages --target package  --tag dm3-backend:latest           --build-arg="PACKAGE=backend" .
                   docker save -o ./dm3-backend.tar dm3-backend:latest
                   echo "Building delivery-service image"
-                  docker build --progress=plain -f ./docker/Dockerfile --target package  --tag dm3-delivery-service:latest  --build-arg="PACKAGE=delivery-service" .
+                  docker build --progress=plain -f ./docker/DockerfilePackages --target package  --tag dm3-delivery-service:latest  --build-arg="PACKAGE=delivery-service" .
                   docker save -o ./dm3-delivery-service.tar dm3-delivery-service:latest
                   echo "Building messenger-web image"
-                  docker build --progress=plain -f ./docker/Dockerfile --target package  --tag dm3-messenger-web:latest     --build-arg="PACKAGE=messenger-web" .
+                  docker build --progress=plain -f ./docker/DockerfilePackages --target package  --tag dm3-messenger-web:latest     --build-arg="PACKAGE=messenger-web" .
                   docker save -o ./dm3-messenger-web.tar dm3-messenger-web:latest
                   echo "Building offchain-resolver image"
-                  docker build --progress=plain -f ./docker/Dockerfile --target package  --tag dm3-offchain-resolver:latest --build-arg="PACKAGE=offchain-resolver" .
+                  docker build --progress=plain -f ./docker/DockerfilePackages --target package  --tag dm3-offchain-resolver:latest --build-arg="PACKAGE=offchain-resolver" .
                   docker save -o ./dm3-offchain-resolver.tar dm3-offchain-resolver:latest
             - name: Prepare docker
               run: |

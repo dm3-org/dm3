@@ -1,0 +1,23 @@
+FROM base
+
+# override this with --build-arg="PACKAGE=delivery-service" to build another package
+# the argument must correspond to the directory name in packages/
+ARG PACKAGE=delivery-service
+
+WORKDIR /app
+
+RUN echo "Building package ${PACKAGE}"
+
+# copy main package
+COPY --from=build /build/packages/${PACKAGE} ./
+
+
+# install required libraries from local archives
+RUN yarn add $(cat required_libraries | awk '{print "file:/library_archives/"$1".tgz"}')
+
+RUN yarn install
+RUN yarn build
+
+# remove some tools we don't need anymore to reduce image size
+RUN apk del gawk
+
