@@ -67,11 +67,11 @@ jobs:
               run: |
                   cp ./.env.react packages/messenger-demo/.env
                   cp ./.env.react packages/messenger-web/.env
-                  docker build --progress=plain -t build -f ./docker/DockerfileBuild .
-                  docker build --progress=plain -t base -f ./docker/DockerfileBase .
-                  docker build --progress=plain -t dm3-backend:latest -f ./docker/DockerfilePackages --build-arg="PACKAGE=backend" .
+                  docker build --progress=plain -f ./docker/Dockerfile --target build    --tag build .
+                  docker build --progress=plain -f ./docker/Dockerfile --target base     --tag base .
+                  docker build --progress=plain -f ./docker/Dockerfile --target package  --tag dm3-backend:latest           --build-arg="PACKAGE=backend" .
+                  docker build --progress=plain -f ./docker/Dockerfile --target package  --tag dm3-delivery-service:latest  --build-arg="PACKAGE=delivery-service" .
                   docker save -o ./dm3-backend.tar dm3-backend:latest
-                  docker build --progress=plain -t dm3-delivery-service:latest -f ./docker/DockerfilePackages --build-arg="PACKAGE=delivery-service" .
                   docker save -o ./dm3-delivery-service.tar dm3-delivery-service:latest
             - name: Prepare docker
               run: |

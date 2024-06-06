@@ -4,13 +4,13 @@ COPY . .
 # we need coreutils for proper ls command
 RUN apk add --update coreutils python3 make g++ curl bash gawk jq\
    && rm -rf /var/cache/apk/*
-# RUN yarn install
-# RUN yarn build
 
-## Export libraries into archives
+## Build libraries
 WORKDIR '/build/packages/lib'
-# pack libraries into archives. they are copied to and used in the delivery service image.
-# we ignore the billboard-api library because it is not properly connected to our monorepo
+RUN yarn install
+RUN yarn build
+# Export libraries into archives. They are copied to and used in the images we are going to build.
+# We ignore the billboard-api library because it is not properly connected to our monorepo
 RUN mkdir /library_archives
 RUN for lib in `ls -I billboard-api`; do cd $lib; yarn pack --filename /library_archives/$lib.tgz; cd ..;  done
 
@@ -29,7 +29,8 @@ RUN for package in `ls -I lib`;\
    cd ..; \
    done
 
-   ## Create a base image that contains some common tools and all libraries
+
+## Create a base image that contains some common tools and all libraries
 FROM --platform=linux/amd64 node:22-alpine as base
 RUN apk add --update bash gawk \
    && rm -rf /var/cache/apk/*
@@ -40,7 +41,7 @@ COPY --from=build /library_archives/ /library_archives/
 # entrypoint is the same for all images that will be built from this image
 ENTRYPOINT [ "yarn", "start" ]
 
-FROM base
+FROM base as package
 
 # override this with --build-arg="PACKAGE=delivery-service" to build another package
 # the argument must correspond to the directory name in packages/
