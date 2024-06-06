@@ -19,5 +19,6 @@ RUN yarn install
 RUN yarn build
 
 # remove some tools we don't need anymore to reduce image size
+RUN yarn cache clean
 RUN apk del gawk
 
