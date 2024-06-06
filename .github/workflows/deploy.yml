@@ -67,8 +67,8 @@ jobs:
               run: |
                   cp ./.env.react packages/messenger-demo/.env
                   cp ./.env.react packages/messenger-web/.env
-                  docker build --progress=plain -f ./docker/Dockerfile --target build    --tag build .
-                  docker build --progress=plain -f ./docker/Dockerfile --target base     --tag base .
+                  docker build --progress=plain -t build -f ./docker/DockerfileBuild .
+                  docker build --progress=plain -t base -f ./docker/DockerfileBase .
                   echo "Building backend image"
                   docker build --progress=plain -f ./docker/Dockerfile --target package  --tag dm3-backend:latest           --build-arg="PACKAGE=backend" .
                   docker save -o ./dm3-backend.tar dm3-backend:latest
