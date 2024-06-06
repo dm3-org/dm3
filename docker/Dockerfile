@@ -61,8 +61,10 @@ RUN yarn add $(cat required_libraries | awk '{print "file:/library_archives/"$1"
 RUN yarn install
 RUN yarn build
 
-# remove some tools we don't need anymore to reduce image size
+
+# remove stuff we don't need anymore to reduce image size
 RUN apk del gawk
+RUN yarn cache clean
 
 
 
