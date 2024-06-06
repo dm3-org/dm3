@@ -40,8 +40,6 @@ global.logger = winston.createLogger({
 winston.loggers.add('default', global.logger);
 
 (async () => {
-    //TODO REPLACE WITH WS MANAGER
-
     const db = await getDatabase();
     const web3Provider = await getCachedWebProvider(process.env);
     const serverSecret = getServerSecret(process.env);
