@@ -2,10 +2,20 @@
 
 We are building multiple images in this project - some of them are used only in the build process, some of them are published.
 
-## Build process
+All images are generated from one Dockerfile. To specify which image to build, you need to pass the `--target` flag to the `docker build` command. The target is the name of the image you want to build.
+Example:
+```bash
+docker build --progress=plain -f ./docker/Dockerfile --target build    --tag build .
+docker build --progress=plain -f ./docker/Dockerfile --target base     --tag base .
+```
+These commands will build the `build` and `base` images, respectively. 
 
-1. `DockerfileBuild` - This builds the build image. It contains all the necessary tools to build the project. We copy the whole monorepo into this image, build and extract the libraries, and do some other tasks to prepare for extraction of our main packages in the next step.
-2. `DockerfileBase` - This builds the base image for all published images. It contains some convenience tools to make our life easier. We copy the libraries from the build image into this one, because our packages all need some of them.
-3. `DockerfilePackage` - This dockerfile makes use of the `build` and `base` images. It takes the `base` image, and copies one package and all libraries from the `build` image into it. Then, it does some magic and builds the package. This is done for each package we want to publish.
+The `package` image takes an argument - the name of the package you want to build. Example:
+```bash
+docker build --progress=plain -f ./docker/Dockerfile --target package --tag dm3org/dm3-backend:latest --build-arg="PACKAGE=backend" .
+```
+This command will build the an image containing the `backend` package (from packages/backend).
 
-Therefore, the `build` and `base` images are used only in the build process and are not published. Also, they need to be created before the `package` images. And changes to one of the Dockerfiles might affect the others.
+The build process is layered: the `build` image is needed to create the `base` image, and both are needed to create the `package` image. The `package` image is the only one that is published.
+
+It is possible to only execute the build command for the `package` image, and the `build` and `base` images will be built automatically. In subsequent package builds, the `build` and `base` images should automatically be reused from the cache. To make sure this happens, we manually build the `build` and `base` images before building the `package` image.
