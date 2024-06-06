@@ -65,17 +65,25 @@ export async function addNewNotificationChannel(
         },
     });
 
+    console.log(
+        'Add notification channel in DB',
+        notificationChannelType,
+        NotificationChannelType,
+    );
+
     // send OTP only when notification type is not PUSH
     if (notificationChannelType === NotificationChannelType.PUSH) {
+        console.log('Inside if condition notification channel');
         // set notification channel as verified
         db.setNotificationChannelAsVerified(ensName, notificationChannelType);
     } else {
+        console.log('Inside if condition notification channel');
         // generate and save OTP
         const otp = await saveOtp(notificationChannelType, ensName, db.setOtp);
 
         // set up notification broker
         const { sendOtp } = NotificationBroker(
-            dsNotificationChannels,
+            channelUsed,
             NotificationType.OTP,
         );
 

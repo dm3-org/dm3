@@ -113,6 +113,7 @@ export const NotificationBroker = (
     notificationChannel: NotificationChannel[],
     notificationType: NotificationType,
 ): INotificationBroker => {
+    console.log('DS channels : ', notificationChannel);
     const channels = notificationChannel.map((channel) => {
         channel.config.notificationType = notificationType;
         console.log('channel data is : ', channel);
