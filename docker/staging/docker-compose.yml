@@ -16,7 +16,6 @@ services:
     backend:
         image: dm3-backend
         restart: always
-        command: yarn workspace @dm3-org/dm3-backend start
         depends_on:
             - db
             - dm3-storage
@@ -76,8 +75,7 @@ services:
             POSTGRES_PASSWORD: example
 
     offchain-resolver:
-        image: dm3-backend
-        command: yarn workspace @dm3-org/dm3-offchain-resolver start
+        image: dm3-offchain-resolver
         depends_on:
             - offchain-resolver-db
         environment:
@@ -88,8 +86,7 @@ services:
             LOG_LEVEL: 'debug'
 
     web:
-        image: dm3-backend
-        command: yarn workspace @dm3-org/dm3-messenger-web start
+        image: dm3-messenger-web
 
     ccip-resolver:
         image: dm3org/ccip-resolver:v0.2.7
