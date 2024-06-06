@@ -38,7 +38,6 @@ export abstract class JwtInterceptor {
     protected setAuthToken(token: string) {
         this.axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         this.initializeSocketIO(token);
-        console.log('Token set');
     }
 
     protected async onSucces(res: AxiosResponse) {
@@ -78,18 +77,22 @@ export abstract class JwtInterceptor {
             return;
         }
         console.log('base url ', this.baseURL);
-        const socket = socketIOClient(this.baseURL.replace('/ds', ''), {
+        const url = this.baseURL.replace('/ds', '');
+        console.log('req url ', url);
+
+        const socket = socketIOClient(url, {
             autoConnect: true,
             transports: ['websocket'],
         });
-        console.log(token);
+        console.log('USE TOKEN to initililize WS', token);
         console.log(jwt.decode(token));
 
         socket.auth = {
             account: {
                 ensName: this.ensName,
             },
-            token: `${token}`,
+            // eslint-disable-next-line max-len
+            token: token,
         };
 
         socket.on('message', (arg: any) => {
