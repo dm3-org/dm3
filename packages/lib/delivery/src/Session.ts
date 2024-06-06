@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { ProfileExtension, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { logDebug } from '@dm3-org/dm3-lib-shared';
-import { verify } from 'jsonwebtoken';
+import { verify, decode } from 'jsonwebtoken';
 
 //1Year
 const TTL = 31536000000;
@@ -29,9 +29,8 @@ export async function checkToken(
     logDebug({
         text: 'checkToken',
     });
-    //WHY DO WE DO THAT ?
-    //TODO figure out why we do that
     const address = await provider.resolveName(ensName);
+    console.log('check token for ', address);
 
     if (!address) {
         // Couldn't resolve ENS name
@@ -42,6 +41,7 @@ export async function checkToken(
     }
 
     const session = await getSession(ensName.toLocaleLowerCase());
+    console.log('found session', session);
 
     //There is no account for the requesting account
     if (!session) {
@@ -57,6 +57,8 @@ export async function checkToken(
         const jwtPayload = verify(token, serverSecret, {
             algorithms: ['HS256'],
         });
+        console.log('jwt string', jwtPayload);
+        console.log(decode(token));
 
         // check if type is string -> invalid
         if (typeof jwtPayload == 'string') {
