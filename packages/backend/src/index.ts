@@ -1,7 +1,7 @@
 import {
     Auth,
     errorHandler,
-    getWeb3Provider,
+    getCachedWebProvider,
     getServerSecret,
     logError,
     logRequest,
@@ -53,7 +53,7 @@ winston.loggers.add('default', global.logger);
     });
 
     const db = await getDatabase();
-    const web3Provider = await getWeb3Provider(process.env);
+    const web3Provider = await getCachedWebProvider(process.env);
     const serverSecret = getServerSecret(process.env);
 
     app.use(logRequest);

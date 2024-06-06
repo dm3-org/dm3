@@ -1,20 +1,25 @@
-name: Develop deploy
+name: deploy
 on:
     push:
         branches:
             - testing
+            - develop
 
 jobs:
     messenger-demo-deploy:
-        environment: testing
+        environment: ${{ github.ref == 'refs/heads/develop' && 'staging' || 'testing' }}
         runs-on: ubuntu-latest
+        env:
+            environment_name: ${{ github.ref == 'refs/heads/develop' && 'staging' || 'testing' }}
         steps:
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v3
               with:
                   registry-url: 'https://npm.pkg.github.com'
-                  node-version: 18.0.0
+                  node-version: 22.0.0
                   cache: 'yarn'
+            - name: Print environment name
+              run: echo $environment_name
             - name: Declare some variables
               shell: bash
               run: |
@@ -94,7 +99,7 @@ jobs:
                   rsync -avz -e 'ssh -i ./ssh-key' ./dm3-backend.tar app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3 
                   rsync -avz -e 'ssh -i ./ssh-key' ./dm3-delivery-service.tar app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
                   rsync -avz -e 'ssh -i ./ssh-key' ./nginx.conf app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
-                  rsync -avz -e 'ssh -i ./ssh-key' ./docker/docker-compose.yml app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
+                  rsync -avz -e 'ssh -i ./ssh-key' ./docker/staging/docker-compose.yml app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
             - name: Load docker images
               run: |
                   ssh -i ./ssh-key app@${{ secrets.HOST_DOMAIN}} "\
