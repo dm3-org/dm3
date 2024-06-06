@@ -1,18 +1,18 @@
 import { ethers } from 'ethers';
 
 export interface InstallerArgs {
-    wallet: ethers.Wallet;
-    profileWallet: ethers.Wallet;
-    domain: string;
+    wallet: ethers.Wallet; // owner of ENS domain
+    profileWallet: ethers.Wallet; // account the delivery service will use.
+    domain: string; // ENS domain
 
-    deliveryService: string;
-    rpc: string;
-    ensRegistry?: string;
-    ensResolver?: string;
-    erc3668Resolver?: string;
+    deliveryService: string; // URL of the delivery service
+    rpc: string; // RPC URL to send the transactions to
+    ensRegistry?: string; // ENS registry address
+    ensResolver?: string; // ENS public resolver address
 }
 
 export type SetupOnchainArgs = InstallerArgs;
 export type SetupBillboardDsArgs = InstallerArgs & {
     gateway: string;
+    erc3668Resolver?: string; // ERC3668 resolver address -> not needed for onChainDs
 };

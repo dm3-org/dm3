@@ -1,11 +1,6 @@
 /* eslint-disable no-console */
 /* eslint-disable max-len */
 import { program } from 'commander';
-import {
-    createStorageKey,
-    getStorageKeyCreationMessage,
-} from '@dm3-org/dm3-lib-crypto';
-import { UserProfile, createProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { ethers } from 'ethers';
 import * as Installer from './installer';
 import * as Profile from './profile';
@@ -96,7 +91,7 @@ const cli = async () => {
             break;
         }
 
-        case 'onchainDs': {
+        case 'onChainDs': {
             const args = program.opts();
             const { pk, domain, gateway, rpc, profilePk, deliveryService } =
                 args;
@@ -145,3 +140,5 @@ const cli = async () => {
 };
 
 cli();
+
+export { Installer, Profile };
