@@ -1,5 +1,6 @@
 {
     "name": "dm3",
+    "license": "BSD-2-Clause",
     "private": true,
     "workspaces": {
         "packages": [
