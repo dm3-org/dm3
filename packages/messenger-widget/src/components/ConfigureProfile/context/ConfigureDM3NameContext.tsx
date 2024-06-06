@@ -131,7 +131,7 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
 
             if (result) {
                 setExistingDm3Name(null);
-                setDisplayName('');
+                setDisplayName(account?.ensName);
                 return {
                     error: '',
                     status: true,
@@ -177,7 +177,7 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
 
             if (success) {
                 setExistingDm3Name(null);
-                setDisplayName('');
+                setDisplayName(account?.ensName);
                 /** TODO : Remove this line if not required*/
                 // setEnsNameFromResolver(ensName);
             } else {

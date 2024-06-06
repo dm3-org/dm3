@@ -42,6 +42,8 @@ export async function addNewNotificationChannel(
     dsNotificationChannels: NotificationChannel[],
     db: any,
 ) {
+    console.log('dsNotificationChannels : ', dsNotificationChannels);
+
     // check if channel is supported or not
     const channelUsed = dsNotificationChannels.filter(
         (channel) => channel.type === notificationChannelType,
