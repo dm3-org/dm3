@@ -62,23 +62,31 @@ jobs:
                   echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> ./.env
                   envsubst '${SSL_CERTIFICATE_BASE_LOC} ${TLS_CERTIFICATE_LOCATION} ${TARGET_HOST}' < ./docker/nginx.conf > ./nginx.conf
                   cat ./.env
-            - name: Build docker images
+            - name: Prepare docker build environment
               shell: bash
               run: |
                   cp ./.env.react packages/messenger-demo/.env
                   cp ./.env.react packages/messenger-web/.env
                   docker build --progress=plain -t build -f ./docker/DockerfileBuild .
                   docker build --progress=plain -t base -f ./docker/DockerfileBase .
-                  echo "Building backend image"
-                  docker build --progress=plain -f ./docker/DockerfilePackages --tag dm3-backend:latest           --build-arg="PACKAGE=backend" .
-                  docker save -o ./dm3-backend.tar dm3-backend:latest
-                  echo "Building delivery-service image"
-                  docker build --progress=plain -f ./docker/DockerfilePackages --tag dm3-delivery-service:latest  --build-arg="PACKAGE=delivery-service" .
-                  docker save -o ./dm3-delivery-service.tar dm3-delivery-service:latest
-                  echo "Building messenger-web image"
+            - name: Build messenger-web docker image
+              shell: bash
+              run: |
                   docker build --progress=plain -f ./docker/DockerfilePackages --tag dm3-messenger-web:latest     --build-arg="PACKAGE=messenger-web" .
                   docker save -o ./dm3-messenger-web.tar dm3-messenger-web:latest
-                  echo "Building offchain-resolver image"
+            - name: Build backend docker image
+              shell: bash
+              run: |
+                  docker build --progress=plain -f ./docker/DockerfilePackages --tag dm3-backend:latest           --build-arg="PACKAGE=backend" .
+                  docker save -o ./dm3-backend.tar dm3-backend:latest
+            - name: Build delivery-service docker image
+              shell: bash
+              run: |
+                  docker build --progress=plain -f ./docker/DockerfilePackages --tag dm3-delivery-service:latest  --build-arg="PACKAGE=delivery-service" .
+                  docker save -o ./dm3-delivery-service.tar dm3-delivery-service:latest
+            - name: Build offchain-resolver docker image
+              shell: bash
+              run: |
                   docker build --progress=plain -f ./docker/DockerfilePackages --tag dm3-offchain-resolver:latest --build-arg="PACKAGE=offchain-resolver" .
                   docker save -o ./dm3-offchain-resolver.tar dm3-offchain-resolver:latest
             - name: Prepare docker
@@ -88,7 +96,7 @@ jobs:
                   ssh -i ./ssh-key root@${{ secrets.HOST_DOMAIN}} "\
                   systemctl restart docker.service \
                   rm /home/app/*.tar || true"
-            - name: Sync files
+            - name: Send files to server
               run: |
                   rsync -avz -e 'ssh -i ./ssh-key' ./.env app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
                   rsync -avz -e 'ssh -i ./ssh-key' ./dm3-*.tar app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3 
