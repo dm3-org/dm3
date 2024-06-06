@@ -2448,6 +2448,7 @@ __metadata:
     "@types/express": ^4.17.13
     "@types/mocha": ^10.0.1
     "@types/node": ^20.3.1
+    "@types/uuid": ^9.0.8
     body-parser: ^1.20.1
     chai: ^4.3.7
     chai-as-promised: ^7.1.1
