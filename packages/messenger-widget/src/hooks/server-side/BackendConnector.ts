@@ -83,17 +83,18 @@ export class BackendConnector
             throw Error('Unable to edit message batch');
         }
     }
+
     public async editMessageBatch(
         ensName: string,
         encryptedContactName: string,
-        messageBatch: any[],
+        editMessageBatchPayload: any[],
     ) {
         const url = `/storage/new/${normalizeEnsName(
             ensName,
         )}/editMessageBatch`;
         await this.getAuthenticatedAxiosClient().post(url, {
             encryptedContactName,
-            messageBatch,
+            editMessageBatchPayload,
         });
     }
     public async getNumberOfMessages(
