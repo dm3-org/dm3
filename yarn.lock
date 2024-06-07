@@ -2077,6 +2077,7 @@ __metadata:
     babel-jest: ^29.2.2
     babel-preset-env: ^1.7.0
     body-parser: ^1.20.1
+    cors: ^2.8.5
     dotenv: ^16.0.1
     ethers: 5.7.2
     express: ^4.18.1
