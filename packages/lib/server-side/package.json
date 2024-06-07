@@ -1,5 +1,6 @@
 {
   "name": "@dm3-org/dm3-lib-server-side",
+  "license": "BSD-2-Clause",
   "version": "0.0.1-alpha1",
   "main": "dist/index.js",
   "module": "dist-backend/index.js",

@@ -58,12 +58,12 @@ export function socketAuth(
             const ensName = normalizeEnsName(
                 socket.handshake.auth.account.ensName,
             );
+            console.log('Start WS auth for ', ensName, socket.id);
 
-            winston.loggers.get('default').info({
-                method: 'WS CONNECT',
-                ensName,
-                socketId: socket.id,
-            });
+            console.log('socket dump');
+            console.log('---');
+            console.log(socket);
+            console.log('---');
 
             if (
                 !(await checkToken(
@@ -74,7 +74,8 @@ export function socketAuth(
                     serverSecret,
                 ))
             ) {
-                return next(new Error('invalid username'));
+                console.log('check token has failed for WS ');
+                return next(new Error('check token has failed for WS'));
             }
             const session = await db.getSession(ensName);
             if (!session) {
@@ -86,6 +87,8 @@ export function socketAuth(
                 socketId: socket.id,
             });
         } catch (e) {
+            console.log('socket auth error');
+            console.log(e);
             next(e as Error);
         }
 
