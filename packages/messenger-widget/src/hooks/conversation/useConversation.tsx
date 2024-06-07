@@ -111,11 +111,7 @@ export const useConversation = (config: DM3Configuration) => {
              */
             _setContactsSafe(storedContacts);
 
-            //as long as there is no pagination we fetch the next page until we get an empty page
-            // if (currentConversationsPage.length > 0) {
-            //     await init(page + 1);
-            // }
-            //Pending conversations are no longer manged by the deliveryService but
+            //Conversation that have been added to the DS in absence of the user will be fetched and added to the conversation list using the handlePendingConversations method
             await handlePendingConversations();
             initDefaultContact();
             setConversationsInitialized(true);
