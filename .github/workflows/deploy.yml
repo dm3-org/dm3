@@ -6,7 +6,7 @@ on:
             - develop
 
 jobs:
-    messenger-demo-deploy:
+    messenger-web-deploy:
         environment: ${{ github.ref == 'refs/heads/develop' && 'staging' || 'testing' }}
         runs-on: ubuntu-latest
         env:
