@@ -37,7 +37,7 @@ export const saveOtp = async (
 // method to add new notification channel & send verification OTP
 export async function addNewNotificationChannel(
     notificationChannelType: NotificationChannelType,
-    recipientValue: string | PushSubscription,
+    recipientValue: string,
     ensName: string,
     dsNotificationChannels: NotificationChannel[],
     db: any,

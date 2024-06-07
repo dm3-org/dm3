@@ -3,7 +3,7 @@ import webpush from 'web-push';
 import { NotificationType } from '../types';
 
 type UserWebPushConfig = {
-    recipientValue: webpush.PushSubscription;
+    recipientValue: string;
     notificationType: NotificationType;
     notificationContent: any; // object that contains notification details
 };
@@ -15,9 +15,12 @@ export function Push() {
             const payload = JSON.stringify({
                 body: `You received a new message from ${config.notificationContent.from}.`,
                 title: 'New Message',
+                image: 'https://framerusercontent.com/images/6kPsfvAEqACFXgMOWU539mUqfB0.png',
             });
-
-            await webpush.sendNotification(config.recipientValue, payload);
+            await webpush.sendNotification(
+                JSON.parse(config.recipientValue),
+                payload,
+            );
         } catch (err) {
             logError('Send web push notification failed ' + err);
         }
