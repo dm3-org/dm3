@@ -2451,6 +2451,7 @@ __metadata:
     "@types/mocha": ^10.0.1
     "@types/node": ^20.3.1
     "@types/uuid": ^9.0.8
+    ajv: ^8.16.0
     body-parser: ^1.20.1
     chai: ^4.3.7
     chai-as-promised: ^7.1.1
@@ -9205,6 +9206,18 @@ __metadata:
     require-from-string: ^2.0.2
     uri-js: ^4.2.2
   checksum: 4dc13714e316e67537c8b31bc063f99a1d9d9a497eb4bbd55191ac0dcd5e4985bbb71570352ad6f1e76684fb6d790928f96ba3b2d4fd6e10024be9612fe3f001
+  languageName: node
+  linkType: hard
+
+"ajv@npm:^8.16.0":
+  version: 8.16.0
+  resolution: "ajv@npm:8.16.0"
+  dependencies:
+    fast-deep-equal: ^3.1.3
+    json-schema-traverse: ^1.0.0
+    require-from-string: ^2.0.2
+    uri-js: ^4.4.1
+  checksum: bdf3d4c9f1d11e220850051ef4cd89346e951cfb933d6d41be36d45053c1092af1523ee6c62525cce567355caf0a4f4c19a08a93851649c1fa32b4a39b7c4858
   languageName: node
   linkType: hard
 
