@@ -76,40 +76,22 @@ export abstract class JwtInterceptor {
             //Websocket is disabled
             return;
         }
-        console.log('base url ', this.baseURL);
         const url = this.baseURL.replace('/ds', '');
-        console.log('req url ', url);
 
         const socket = socketIOClient(url, {
             autoConnect: true,
             transports: ['websocket'],
         });
-        console.log('USE TOKEN to initililize WS', token);
-        console.log(jwt.decode(token));
+ 
 
         socket.auth = {
             account: {
                 ensName: this.ensName,
             },
-            // eslint-disable-next-line max-len
             token: token,
         };
 
-        socket.on('message', (arg: any) => {
-            console.log('msg WS');
-        });
-        socket.on('connect_error', (err) => {
-            console.log('base url ', this.baseURL);
-            // the reason of the error, for example "xhr poll error"
-            console.log(err.message);
-            // some additional description, for example the status code of the initial HTTP response
-            console.log(err);
-        });
-        socket.onAny((x: any) => {
-            console.log('frfrf');
-        });
         socket.connect();
-        console.log('socket id ', socket);
         this.socket = socket;
     }
 }
