@@ -1,11 +1,11 @@
 import { IGlobalNotification, IOtp } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
-import { UserStorage } from '@dm3-org/dm3-lib-storage';
 import {
     NotificationChannel,
     NotificationChannelType,
 } from '@dm3-org/dm3-lib-shared';
 // import { PrismaClient } from '@prisma/client';
+import { ISessionDatabase } from '@dm3-org/dm3-lib-server-side';
 import { createClient } from 'redis';
 import { getIdEnsName } from './getIdEnsName';
 import Messages from './messages';
@@ -14,7 +14,6 @@ import Notification from './notification';
 import Otp from './otp';
 import Pending from './pending';
 import Session from './session';
-import { ISessionDatabase } from '@dm3-org/dm3-lib-server-side';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',

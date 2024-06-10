@@ -1,0 +1,51 @@
+FROM --platform=linux/amd64 node:22-alpine as build
+WORKDIR /build
+COPY . .
+# we need coreutils for proper ls command
+RUN apk add --update coreutils python3 make g++ curl bash gawk jq\
+   && rm -rf /var/cache/apk/*
+
+## Build libraries
+WORKDIR '/build/packages/lib'
+RUN yarn install
+RUN yarn build
+# Export libraries into archives. They are copied to and used in the images we are going to build.
+# We ignore the billboard-api library because it is not properly connected to our monorepo
+RUN mkdir /library_archives
+RUN for lib in `ls -I billboard-api`;\
+   do cd $lib; \
+   yarn pack --filename /library_archives/lib-$lib.tgz; \
+   cd ..;  \
+   done
+
+## prepare dependency operations for all packages
+WORKDIR '/build/packages'
+# several steps are performed here for each package individually (but not for the libraries):
+# 1. extract the information which libraries are needed for this package and store it in required_libraries
+#     a) grep all workspace-dependencies
+#     b) sed to remove the trailing stuff
+#     c) awk to extract the library name
+# 2. remove all dependencied referencing "workspace" in the monorepo from package.json
+# 3. update the package.json with the resolutions from the docker/resolutions.json file
+RUN for package in `ls -I lib`;\
+   do cd $package;\
+   grep 'workspace' package.json | sed 's/": \"workspace.*//' | awk -F'dm3-org/dm3-' '{print $NF}' > required_libraries; \
+   sed -i '/.*workspace.*/d' ./package.json; \
+   jq '. + input' package.json ../../docker/resolutions.json > updated_package.json;\
+   mv updated_package.json package.json; \
+   cd ..; \
+   done
+
+## Our messenger widget needs extra attention, as it is not a library, but still a dependency
+# of messenger-web and messenger-demo
+WORKDIR '/build/packages/messenger-widget'
+# add required libraries
+RUN yarn add $(cat required_libraries | awk '{print "/library_archives/"$1".tgz"}')
+RUN yarn install
+# build the messenger widget
+RUN yarn build
+# pack the messenger widget as we do with libraries, so it is available to when building
+# the messenger-web and messenger-demo images
+RUN yarn pack --filename /library_archives/messenger-widget.tgz
+
+
