@@ -21,11 +21,14 @@ export const hydrateContract = async (
     addrEnsSubdomain: string,
     deliveryServiceProperties: DeliveryServiceProperties[],
 ) => {
+    //If the profile property of the account is defined the user has already used DM3 previously
     const account = await fetchAccount(
         provider,
         conversatoinManifest.contactEnsName,
     );
+    //Has to become fetchMultipleDsProfiles
     const contact = await fetchDsProfile(provider, account);
+    //Fetch the message size limit of the receivers delivery service must be fetched for every message
     const messageSizeLimit = await fetchMessageSizeLimit(
         deliveryServiceProperties,
     );
@@ -37,7 +40,6 @@ export const hydrateContract = async (
         messageSizeLimit,
         addrEnsSubdomain,
     );
-
     return contactPreview;
 };
 
@@ -50,6 +52,7 @@ const fetchPreview = async (
     addrEnsSubdomain: string,
 ): Promise<ContactPreview> => {
     return {
+        //display name, if alias is not defined the addr ens name will be used
         name: await resolveAliasToTLD(contact.account.ensName),
         message: '',
         image: await getAvatarProfilePic(
@@ -57,7 +60,9 @@ const fetchPreview = async (
             contact.account.ensName,
             addrEnsSubdomain,
         ),
+        //ToDo maybe can be removed aswell
         messageCount: conversatoinManifest.messageCounter,
+        //ToDo field is not used and can be removed
         unreadMsgCount: 21,
         contactDetails: contact,
         isHidden: conversatoinManifest.isHidden,

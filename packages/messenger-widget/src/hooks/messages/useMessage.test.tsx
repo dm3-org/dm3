@@ -1,13 +1,23 @@
 import '@testing-library/jest-dom';
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { useMessage } from './useMessage';
+import { getMockedStorageContext } from '../../context/testHelper/getMockedStorageContext';
+import { getMockedConversationContext } from '../../context/testHelper/getMockedConversationContext';
+import { getMockedAuthContext } from '../../context/testHelper/getMockedAuthContext';
+import { getMockedTldContext } from '../../context/testHelper/getMockedTldContext';
+import { AuthContext } from '../../context/AuthContext';
+import { TLDContext } from '../../context/TLDContext';
+import { DeliveryServiceContext } from '../../context/DeliveryServiceContext';
+import { StorageContext } from '../../context/StorageContext';
+import { useConversation } from '../conversation/useConversation';
+import { getMockedDeliveryServiceContext } from '../../context/testHelper/getMockedDeliveryServiceContext';
+import { ConversationContext } from '../../context/ConversationContext';
 import {
-    ConversationContext,
-    ConversationContextType,
-} from '../../context/ConversationContext';
-import { ContactPreview } from '../../interfaces/utils';
-import { Message } from '@dm3-org/dm3-lib-messaging';
-import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
+    DEFAULT_DM3_CONFIGURATION,
+    getMockedDm3Configuration,
+} from '../../context/testHelper/getMockedDm3Configuration';
+import { getDefaultContract } from '../../interfaces/utils';
+import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 
 describe('useMessage hook test cases', () => {
     const CONTACT_NAME = 'user.dm3.eth';
@@ -43,51 +53,57 @@ describe('useMessage hook test cases', () => {
         expect(unreadMsgCount).toBe(0);
     });
 
-    // describe('add message', () => {
-    //     it.only('context text', async () => {
+    describe('add Message', () => {
+        it('should add message from websocket', async () => {
+            const configurationContext = getMockedDm3Configuration({
+                dm3Configuration: {
+                    ...DEFAULT_DM3_CONFIGURATION,
+                    defaultContact: 'mydefaultcontract.eth',
+                },
+            });
 
-    //         const mockContact = {
-    //             name: getAccountDisplayName('bob.eth', 25),
-    //             message: null,
-    //             image: '',
-    //             unreadMsgCount: 0,
-    //             messageCount: 0,
-    //             contactDetails: {
-    //                 account: {
-    //                     ensName: 'bob.eth',
-    //                 },
-    //                 deliveryServiceProfile: undefined,
-    //             },
-    //             isHidden: false,
-    //             messageSizeLimit: 0,
-    //         }
+            const storageContext = getMockedStorageContext({
+                editMessageBatchAsync: jest.fn(),
+            });
+            const conversationContext = getMockedConversationContext({
+                selectedContact: getDefaultContract('max.eth'),
+            });
+            const deliveryServiceContext = getMockedDeliveryServiceContext({
+                //Add websocket mock
+                onNewMessage: (cb: Function) => {
+                    console.log('on new message');
+                },
+                removeOnNewMessageListener: jest.fn(),
+            });
+            const authContext = getMockedAuthContext({});
+            const tldContext = getMockedTldContext({});
 
-    //         const converationContext: ConversationContextType = {
-    //             contacts: [mockContact],
-    //             conversationCount: 0,
-    //             setSelectedContactName: function (contactEnsName: string | undefined): void {
-    //                 throw new Error('Function not implemented.');
-    //             },
-    //             initialized: false,
-    //             addConversation: function (ensName: string): ContactPreview {
-    //                 throw new Error('Function not implemented.');
-    //             },
-    //             hideContact: function (ensName: string): void {
-    //                 throw new Error('Function not implemented.');
-    //             }
-    //         }
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <ConversationContext.Provider
+                                    value={conversationContext}
+                                >
+                                    <DeliveryServiceContext.Provider
+                                        value={deliveryServiceContext}
+                                    >
+                                        {children}
+                                    </DeliveryServiceContext.Provider>
+                                </ConversationContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
 
-    //         const wrapper = ({ children }: { children: any }) => (
-    //             <ConversationContext.Provider value={converationContext}>{children}</ConversationContext.Provider>
-    //         );
-
-    //         const msg = {} as Message
-
-    //         const { result } = renderHook(() => useMessage(), { wrapper });
-    //         await act(async () =>
-    //             result.current.addMessage('alice.eth', msg),
-    //         );
-
-    //     });
-    // })
+            const { result } = renderHook(() => useMessage(), {
+                wrapper,
+            });
+            await waitFor(() =>
+                expect(result.current.contactIsLoading('max.eth')).toBe(false),
+            );
+        });
+    });
 });
