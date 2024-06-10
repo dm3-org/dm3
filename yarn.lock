@@ -2302,8 +2302,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@dm3-org/dm3-lib-test-helper@workspace:packages/lib/test-helper"
   dependencies:
+    "@dm3-org/dm3-lib-crypto": "workspace:^"
+    "@dm3-org/dm3-lib-delivery": "workspace:^"
+    "@dm3-org/dm3-lib-messaging": "workspace:^"
+    "@dm3-org/dm3-lib-profile": "workspace:^"
+    "@dm3-org/dm3-lib-shared": "workspace:^"
     ajv-formats: ^3.0.1
     ethers: 5.7.2
+    socket.io: ^4.5.1
     typescript: ^4.4.2
   languageName: unknown
   linkType: soft
