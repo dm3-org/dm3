@@ -23,7 +23,7 @@ export function Push(serverConfig: PushNotificationServerConfig) {
         try {
             const options = {
                 vapidDetails: {
-                    subject: serverConfig.vapidEmailId,
+                    subject: `mailto:${serverConfig.vapidEmailId}`,
                     publicKey: serverConfig.publicVapidKey,
                     privateKey: serverConfig.privateVapidKey,
                 },
