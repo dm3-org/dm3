@@ -456,4 +456,76 @@ describe('useConversation hook test cases', () => {
             expect(conversations[2].isHidden).toBe(false);
         });
     });
+    describe('add Conversation', () => {
+        it('dont add own address as conversation', async () => {
+            const authContext: AuthContextType = getMockedAuthContext({
+                account: {
+                    ensName: 'alice.eth',
+                    profile: {
+                        deliveryServices: ['ds.eth'],
+                        publicEncryptionKey: '',
+                        publicSigningKey: '',
+                    },
+                },
+            });
+
+            const storageContext: StorageContextType = getMockedStorageContext({
+                getConversations: function (
+                    page: number,
+                ): Promise<Conversation[]> {
+                    return Promise.resolve([
+                        {
+                            contactEnsName: 'max.eth',
+                            isHidden: false,
+                            messageCounter: 1,
+                        },
+                    ]);
+                },
+                addConversationAsync: jest.fn(),
+                initialized: true,
+            });
+            const deliveryServiceContext: DeliveryServiceContextType =
+                getMockedDeliveryServiceContext({
+                    fetchIncommingMessages: function (ensName: string) {
+                        return Promise.resolve([]);
+                    },
+                    getDeliveryServiceProperties: function (): Promise<any[]> {
+                        return Promise.resolve([{ sizeLimit: 0 }]);
+                    },
+                    isInitialized: true,
+                });
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <StorageContext.Provider value={storageContext}>
+                            <DeliveryServiceContext.Provider
+                                value={deliveryServiceContext}
+                            >
+                                {children}
+                            </DeliveryServiceContext.Provider>
+                        </StorageContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useConversation(config), {
+                wrapper,
+            });
+            await waitFor(() => expect(result.current.initialized).toBe(true));
+            //adding a different address to a conversation is possible
+            await waitFor(() => result.current.addConversation('bob.eth'));
+            //adding own address to a conversation is not possible
+            await waitFor(() => result.current.addConversation('alice.eth'));
+
+            const conversations = result.current.contacts;
+            expect(conversations.length).toBe(2);
+            expect(conversations[0].contactDetails.account.ensName).toBe(
+                'max.eth',
+            );
+            expect(conversations[1].contactDetails.account.ensName).toBe(
+                'bob.eth',
+            );
+        });
+    });
 });

@@ -178,6 +178,12 @@ export const useConversation = (config: DM3Configuration) => {
 
     const addConversation = (_ensName: string) => {
         const ensName = normalizeEnsName(_ensName);
+        //Check if the contact is the user itself
+        const isOwnContact = normalizeEnsName(account!.ensName) === ensName;
+        //We don't want to add ourselfs
+        if (isOwnContact) {
+            return;
+        }
         const alreadyAddedContact = contacts.find(
             (existingContact) =>
                 existingContact.contactDetails.account.ensName === ensName,
