@@ -113,7 +113,7 @@ export const NotificationBroker = (
             case NotificationChannelType.PUSH:
                 return {
                     type: NotificationChannelType.PUSH,
-                    send: Push().send,
+                    send: Push(channel.config).send,
                 };
             default:
                 throw new NotificationError(
