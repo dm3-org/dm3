@@ -74,6 +74,7 @@ export abstract class JwtInterceptor {
             //Websocket is disabled
             return;
         }
+        //webserver routes root path to socket.io
         const url = this.baseURL.replace('/ds', '');
 
         const socket = socketIOClient(url, {
