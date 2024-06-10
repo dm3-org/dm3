@@ -1634,10 +1634,13 @@ describe('Notifications', () => {
 
     describe('Add Push notification channel', () => {
         const recipientValue = {
-            endpoint: 'https://test.com',
+            endpoint:
+                'https://fcm.googleapis.com/fcm/send/fV_Q01aiMDA:APA91bGJx9DrtdrGmyM9QaFGOVMCr8i4qtDsb16yCA5smpBiRsdUwH7nro_CFSaRpoQJ7Gg' +
+                'A7qgkS5j27TRahfibryi7f4Fz9yDnGhCImmzk7mtPu9089080802iTrWJJVKzTGpgQqKqns0ifKEEietAGBO',
+            expirationTime: null,
             keys: {
-                auth: 'authkey',
-                p256dh: 'p256dh',
+                p256dh: 'BHgo7M85NfnSSf1UlWh78dkuh797878QMCGGxVrOOd0s8Tl041pTl6dR1mGmtRwoanw4PoaNjvEIjzGlF_EpBD4HEzrh9gnKO_A',
+                auth: 'W2O_Dnhiv7Xy29dn6Djbfd5t68tyu7989kgkgkgjvjg',
             },
         };
 
@@ -1903,6 +1906,7 @@ describe('Notifications', () => {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+
             app.use(
                 notifications(
                     deliveryServiceProperties,
