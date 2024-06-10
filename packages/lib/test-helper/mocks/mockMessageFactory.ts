@@ -9,6 +9,7 @@ import {
     ProfileKeys,
     DeliveryServiceProfile,
 } from '@dm3-org/dm3-lib-profile';
+import { MockedUserProfile } from './mockUserProfile';
 
 interface MockChatArgs {
     sender: {
@@ -23,17 +24,17 @@ interface MockChatArgs {
     };
     dsProfile: DeliveryServiceProfile;
 }
-export const MockMessageFactory = ({
-    sender,
-    receiver,
-    dsProfile,
-}: MockChatArgs) => {
-    const sendMessage = async (msg: string) => {
+export const MockMessageFactory = (
+    sender: MockedUserProfile,
+    receiver: MockedUserProfile,
+    dsProfile: DeliveryServiceProfile,
+) => {
+    const createEncryptedEnvelop = async (msg: string) => {
         const message: Message = {
             message: msg,
             metadata: {
-                to: receiver.ensName,
-                from: sender.ensName,
+                to: receiver.account.ensName,
+                from: sender.account.ensName,
                 timestamp: Date.now(),
                 type: 'NEW',
             },
@@ -41,12 +42,12 @@ export const MockMessageFactory = ({
         };
         const sendDependencies: SendDependencies = {
             from: {
-                ensName: sender.ensName,
+                ensName: sender.account.ensName,
                 profile: sender.signedUserProfile.profile,
                 profileSignature: sender.signedUserProfile.signature,
             },
             to: {
-                ensName: receiver.ensName,
+                ensName: receiver.account.ensName,
                 profile: receiver.signedUserProfile.profile,
                 profileSignature: receiver.signedUserProfile.signature,
             },
@@ -65,7 +66,24 @@ export const MockMessageFactory = ({
             throw err;
         }
     };
+
+    const createMessage = async (msg: string) => {
+        const message: Message = {
+            message: msg,
+            metadata: {
+                to: receiver.account.ensName,
+                from: sender.account.ensName,
+                timestamp: Date.now(),
+                type: 'NEW',
+            },
+            signature: '',
+        };
+
+        return message;
+    };
+
     return {
-        createMessage: sendMessage,
+        createEncryptedEnvelop,
+        createMessage,
     };
 };
