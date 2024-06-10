@@ -1826,7 +1826,7 @@ describe('Notifications', () => {
                         {
                             type: NotificationChannelType.PUSH,
                             config: {
-                                recipientValue: recipientValue,
+                                recipientValue: JSON.stringify(recipientValue),
                                 isEnabled: true,
                                 isVerified: true,
                             },
@@ -1858,7 +1858,7 @@ describe('Notifications', () => {
                     authorization: `Bearer ${token}`,
                 })
                 .send({
-                    recipientValue: recipientValue,
+                    recipientValue: JSON.stringify(recipientValue),
                     notificationChannelType: NotificationChannelType.PUSH,
                 });
 
@@ -1890,7 +1890,7 @@ describe('Notifications', () => {
                         {
                             type: NotificationChannelType.PUSH,
                             config: {
-                                recipientValue: recipientValue,
+                                recipientValue: JSON.stringify(recipientValue),
                                 isEnabled: true,
                                 isVerified: false,
                             },
@@ -1920,7 +1920,7 @@ describe('Notifications', () => {
                     authorization: `Bearer ${token}`,
                 })
                 .send({
-                    recipientValue: recipientValue,
+                    recipientValue: JSON.stringify(recipientValue),
                     notificationChannelType: NotificationChannelType.PUSH,
                 });
             expect(status).toBe(400);
