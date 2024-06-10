@@ -1,7 +1,7 @@
 import {
     Session,
-    spamFilter,
     generateAuthJWT,
+    spamFilter,
 } from '@dm3-org/dm3-lib-delivery';
 import {
     UserProfile,
@@ -12,13 +12,11 @@ import bodyParser from 'body-parser';
 import { ethers } from 'ethers';
 import express from 'express';
 import http from 'http';
-import { Server } from 'socket.io';
 import request from 'supertest';
 import winston from 'winston';
 import { IDatabase } from './persistence/getDatabase';
 import profile from './profile';
 import storage from './storage';
-import { sign } from 'jsonwebtoken';
 
 global.logger = winston.createLogger({
     transports: [new winston.transports.Console()],
@@ -39,7 +37,6 @@ const setUpApp = async (
 ) => {
     app.use(bodyParser.json());
     const server = http.createServer(app);
-    const io = new Server(server, {});
     app.use(profile(db, web3Provider, serverSecret));
 };
 

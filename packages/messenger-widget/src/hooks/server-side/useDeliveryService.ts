@@ -63,6 +63,7 @@ export const useDeliveryService = () => {
                         dm3Configuration.addressEnsSubdomain,
                         ethAddress!,
                         profileKeys!,
+                        true,
                     );
                 });
 
