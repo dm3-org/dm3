@@ -21,16 +21,19 @@ RUN for lib in `ls -I billboard-api`;\
 ## prepare dependency operations for all packages
 WORKDIR '/build/packages'
 # several steps are performed here for each package individually (but not for the libraries):
-# 1. extract the information which libraries are needed for this package and store it in required_libraries
-#     a) grep all workspace-dependencies
-#     b) sed to remove the trailing stuff
-#     c) awk to extract the library name
 # 2. remove all dependencied referencing "workspace" in the monorepo from package.json
 # 3. update the package.json with the resolutions from the docker/resolutions.json file
 RUN for package in `ls -I lib`;\
    do cd $package;\
+   # extract the information which libraries are needed for this package and store it in required_libraries
+   # a) grep all workspace-dependencies
+   # b) sed to remove the trailing stuff
+   # c) awk to extract the library name
+   # d) store the library names in required_libraries
    grep 'workspace' package.json | sed 's/": \"workspace.*//' | awk -F'dm3-org/dm3-' '{print $NF}' > required_libraries; \
+   # remove all dependencied referencing "workspace" in the monorepo from package.json
    sed -i '/.*workspace.*/d' ./package.json; \
+   # update the package.json with the resolutions from the docker/resolutions.json file
    jq '. + input' package.json ../../docker/resolutions.json > updated_package.json;\
    mv updated_package.json package.json; \
    cd ..; \
