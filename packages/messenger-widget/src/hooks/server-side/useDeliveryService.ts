@@ -123,7 +123,7 @@ export const useDeliveryService = () => {
         getDeliveryServiceProperties,
         addNotificationChannel: (
             ensName: string,
-            recipientValue: string | PushSubscription,
+            recipientValue: string,
             notificationChannelType: NotificationChannelType,
         ) => {
             return connectors[0]?.addNotificationChannel(
