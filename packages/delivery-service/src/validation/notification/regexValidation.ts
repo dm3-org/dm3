@@ -18,12 +18,9 @@ export const checkRegexPattern = (
             return patternCheck;
         case NotificationChannelType.PUSH:
             const data = JSON.parse(recipientValue);
-            return !data.endpoint ||
-                !data.keys ||
-                !data.keys.p256dh ||
-                !data.keys.auth
-                ? false
-                : true;
+            return (
+                data.endpoint && data.keys && data.keys.p256dh && data.keys.auth
+            );
         default:
             return null;
     }
