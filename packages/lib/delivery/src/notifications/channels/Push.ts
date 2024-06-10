@@ -2,6 +2,9 @@ import { logError } from '@dm3-org/dm3-lib-shared';
 import webpush from 'web-push';
 import { NotificationType } from '../types';
 
+const DM3_LOGO =
+    'https://framerusercontent.com/images/6kPsfvAEqACFXgMOWU539mUqfB0.png';
+
 type UserWebPushConfig = {
     recipientValue: string;
     notificationType: NotificationType;
@@ -29,7 +32,7 @@ export function Push(serverConfig: PushNotificationServerConfig) {
             const payload = JSON.stringify({
                 body: `You received a new message from ${config.notificationContent.from}.`,
                 title: 'New Message',
-                image: 'https://framerusercontent.com/images/6kPsfvAEqACFXgMOWU539mUqfB0.png',
+                image: DM3_LOGO,
             });
 
             await webpush.sendNotification(
