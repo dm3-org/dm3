@@ -1,8 +1,8 @@
 import {
     Auth,
     errorHandler,
+    getCachedWebProvider,
     getServerSecret,
-    getWeb3Provider,
     logError,
     logRequest,
     readKeysFromEnv,
@@ -51,7 +51,7 @@ global.logger = winston.createLogger({
     // load environment
     const deliveryServiceProperties = getDeliveryServiceProperties();
     const db = await getDatabase();
-    const web3Provider = await getWeb3Provider(process.env);
+    const web3Provider = await getCachedWebProvider(process.env);
     const keys = readKeysFromEnv(process.env);
     const serverSecret = getServerSecret(process.env);
 

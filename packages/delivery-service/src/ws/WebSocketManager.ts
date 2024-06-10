@@ -71,6 +71,7 @@ export class WebSocketManager implements IWebSocketManager {
                 console.log('connection refused for ', ensName);
                 connection.emit(UNAUTHORIZED);
                 connection.disconnect();
+                return;
             }
             //Get the old connections and add the new one
             const oldConnections = this.connections.get(ensName) || [];

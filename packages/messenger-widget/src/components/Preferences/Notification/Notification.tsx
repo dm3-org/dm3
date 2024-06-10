@@ -39,6 +39,7 @@ export function Notification() {
         activeVerificationContent,
         setActiveVerificationContent,
         toggleSpecificNotificationChannel,
+        pushNotificationAction,
         isLoading,
         loaderData,
     } = useContext(NotificationContext);
@@ -183,9 +184,9 @@ export function Notification() {
                     <Checkbox
                         checked={isPushNotifyActive}
                         disabled={!isNotificationsActive}
-                        action={() => {
-                            setIsPushNotifyActive(!isPushNotifyActive);
-                        }}
+                        action={() =>
+                            pushNotificationAction(!isPushNotifyActive)
+                        }
                         heading="Push Notifications"
                     />
                 </div>

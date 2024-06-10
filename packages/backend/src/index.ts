@@ -1,11 +1,10 @@
 import {
     Auth,
     errorHandler,
-    getWeb3Provider,
+    getCachedWebProvider,
     getServerSecret,
     logError,
     logRequest,
-    socketAuth,
 } from '@dm3-org/dm3-lib-server-side';
 import { logInfo } from '@dm3-org/dm3-lib-shared';
 import bodyParser from 'body-parser';
@@ -14,7 +13,6 @@ import 'dotenv/config';
 import express from 'express';
 import http from 'http';
 import path from 'path';
-import { Server } from 'socket.io';
 import winston from 'winston';
 import { getDatabase } from './persistence/getDatabase';
 import Profile from './profile';
@@ -42,18 +40,8 @@ global.logger = winston.createLogger({
 winston.loggers.add('default', global.logger);
 
 (async () => {
-    //TODO REPLACE WITH WS MANAGER
-    const io = new Server(server, {
-        cors: {
-            origin: '*',
-            methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-            preflightContinue: false,
-            optionsSuccessStatus: 204,
-        },
-    });
-
     const db = await getDatabase();
-    const web3Provider = await getWeb3Provider(process.env);
+    const web3Provider = await getCachedWebProvider(process.env);
     const serverSecret = getServerSecret(process.env);
 
     app.use(logRequest);
@@ -61,12 +49,11 @@ winston.loggers.add('default', global.logger);
     app.get('/hello', (req, res) => {
         return res.send('Hello DM3');
     });
-    app.use('/profile', Profile(db, io, web3Provider, serverSecret));
+    app.use('/profile', Profile(db, web3Provider, serverSecret));
     app.use('/storage', Storage(db, web3Provider, serverSecret));
     app.use('/auth', Auth(db.getSession as any, serverSecret));
     app.use(logError);
     app.use(errorHandler);
-    io.use(socketAuth(db, web3Provider, serverSecret));
 })();
 
 // TODO include standalone web app

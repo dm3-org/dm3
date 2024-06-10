@@ -1,5 +1,6 @@
 {
   "name": "@dm3-org/dm3-cli",
+  "license": "BSD-2-Clause",
   "version": "0.1.0",
   "scripts": {
     "dm3": "ts-node index.ts",
