@@ -3,12 +3,12 @@ import {
     normalizeEnsName,
     UserProfile,
 } from '@dm3-org/dm3-lib-profile';
-import { ethers } from 'ethers';
 import {
     IWebSocketManager,
     NotificationChannel,
     stringify,
 } from '@dm3-org/dm3-lib-shared';
+import { ethers } from 'ethers';
 
 import {
     decryptAsymmetric,
@@ -29,7 +29,7 @@ import {
     GetNotificationChannels,
     NotificationType,
 } from './notifications/types';
-import { checkToken, Session } from './Session';
+import { Session } from './Session';
 import { isSpam } from './spam-filter';
 import { SpamFilterRules } from './spam-filter/SpamFilterRules';
 

@@ -1,10 +1,9 @@
 import { getUserProfile, submitUserProfile } from '@dm3-org/dm3-lib-delivery';
 import { normalizeEnsName, schema } from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
-import express from 'express';
-import { Server } from 'socket.io';
-import { IDatabase } from './persistence/getDatabase';
 import { ethers } from 'ethers';
+import express from 'express';
+import { IDatabase } from './persistence/getDatabase';
 
 export default (
     db: IDatabase,

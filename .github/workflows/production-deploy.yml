@@ -5,7 +5,7 @@ on:
             - main
 
 jobs:
-    messenger-demo-deploy:
+    messenger-web-deploy:
         environment: prod
         runs-on: ubuntu-latest
         steps:
