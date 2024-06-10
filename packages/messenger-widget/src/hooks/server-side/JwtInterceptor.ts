@@ -1,11 +1,9 @@
 import axios, {
-    AxiosResponse,
+    Axios,
     AxiosError,
     AxiosRequestConfig,
-    Axios,
+    AxiosResponse,
 } from 'axios';
-
-import jwt from 'jsonwebtoken';
 
 import socketIOClient, { Socket } from 'socket.io-client';
 
@@ -82,7 +80,6 @@ export abstract class JwtInterceptor {
             autoConnect: true,
             transports: ['websocket'],
         });
- 
 
         socket.auth = {
             account: {
