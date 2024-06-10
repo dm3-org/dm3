@@ -17,7 +17,13 @@ export const checkRegexPattern = (
                 .match(EMAIL_REGEX);
             return patternCheck;
         case NotificationChannelType.PUSH:
-            return recipientValue.length > 300 ? true : false;
+            const data = JSON.parse(recipientValue);
+            return !data.endpoint ||
+                !data.keys ||
+                !data.keys.p256dh ||
+                !data.keys.auth
+                ? false
+                : true;
         default:
             return null;
     }
