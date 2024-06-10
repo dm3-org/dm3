@@ -71,8 +71,7 @@ describe('useMessage hook test cases', () => {
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 //Add websocket mock
                 onNewMessage: (cb: Function) => {
-                    console.log('on new messagemkmkmk');
-                    cb();
+                    console.log('on new message');
                 },
                 removeOnNewMessageListener: jest.fn(),
             });
