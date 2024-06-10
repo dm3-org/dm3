@@ -53,7 +53,7 @@ describe('useMessage hook test cases', () => {
         expect(unreadMsgCount).toBe(0);
     });
 
-    describe('', () => {
+    describe('add Message', () => {
         it('should add message from websocket', async () => {
             const configurationContext = getMockedDm3Configuration({
                 dm3Configuration: {
