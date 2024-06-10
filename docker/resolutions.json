@@ -9,6 +9,7 @@
     "@dm3-org/dm3-lib-server-side": "file:/library_archives/lib-server-side.tgz",
     "@dm3-org/dm3-lib-shared": "file:/library_archives/lib-shared.tgz",
     "@dm3-org/dm3-lib-storage": "file:/library_archives/lib-storage.tgz",
+    "@dm3-org/dm3-lib-test-helper": "file:/library_archives/lib-test-helper.tgz",
     "@dm3-org/dm3-messenger-widget": "file:/library_archives/messenger-widget.tgz"
   }
 }
