@@ -19,7 +19,6 @@ export type SignMessageFn = (message: string) => Promise<string>;
 export abstract class ServerSideConnector extends JwtInterceptor {
     private readonly baseUrl: string;
     private readonly resolverBackendUrl: string;
-    private readonly ensName: string;
     private readonly address: string;
     private readonly profileKeys: ProfileKeys;
 
@@ -29,15 +28,19 @@ export abstract class ServerSideConnector extends JwtInterceptor {
         addrEnsSubdomain: string,
         address: string,
         profileKeys: ProfileKeys,
+        //Websocket is disabled per default as not every connector needs a WS connection
+        enableWebsocket: boolean = false,
     ) {
-        super(baseUrl);
+        super(
+            baseUrl,
+            normalizeEnsName(address + addrEnsSubdomain),
+            enableWebsocket,
+        );
 
         this.baseUrl = baseUrl;
         this.resolverBackendUrl = resolverBackendUrl;
         this.address = address;
         this.profileKeys = profileKeys;
-
-        this.ensName = normalizeEnsName(this.address + addrEnsSubdomain);
     }
 
     public async login(signedUserProfile: SignedUserProfile) {
