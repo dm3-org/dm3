@@ -57,8 +57,8 @@ export const useNotification = () => {
         setIsNotificationsActive(action);
         setIsEmailActive(action);
         setIsMobileActive(action);
+        await toggleGlobalChannel(action);
         await pushNotificationAction(action);
-        toggleGlobalChannel(action);
     };
 
     // Fetches and sets global notification
