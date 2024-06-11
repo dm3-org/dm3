@@ -26,6 +26,7 @@ jobs:
                   echo "sha_short=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
                   echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> "$GITHUB_ENV"
                   echo "now=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
+                  echo "unix_now=$(date +%s)" >> "$GITHUB_ENV"
             - name: Prepare SSH
               run: |
                   mkdir ~/.ssh
@@ -85,7 +86,7 @@ jobs:
                     --tag dm3-delivery-service:latest \
                     --tag dm3org/dm3-delivery-service:latest.$environment_name \
                     --tag dm3org/dm3-delivery-service:$version.$environment_name.latest \
-                    --tag dm3org/dm3-delivery-service:$version.$environment_name.${{ env.now }}.${{ env.sha_short }}  .
+                    --tag dm3org/dm3-delivery-service:$version.$environment_name.${{ env.unix_now }}.${{ env.sha_short }}  .
                   docker save -o ./dm3-delivery-service.tar dm3-delivery-service:latest
                   docker push --all-tags dm3org/dm3-delivery-service
             - name: Build offchain-resolver docker image
