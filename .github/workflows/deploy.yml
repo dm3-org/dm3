@@ -72,23 +72,33 @@ jobs:
                   docker build --progress=plain -t build -f ./docker/DockerfileBuild .
                   docker build --progress=plain -t base -f ./docker/DockerfileBase .
                   docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_PAT }}
+                  if [ $environment_name != "prod" ]; then
+                      echo "docker_suffix=.$environment_name" >> "$GITHUB_ENV"
+                  fi
             - name: Build and publish backend docker image
               shell: bash
               run: |
-                  version=$(NODE_PATH=packages/delivery-service node -p "require('package.json').version")
-                  docker build --progress=plain -f ./docker/DockerfilePackages --tag dm3-backend:latest           --build-arg="PACKAGE=backend" .
-                  docker save -o ./dm3-backend.tar dm3-backend:latest
+                  version=$(NODE_PATH=packages/backend node -p "require('package.json').version")
+                  image_name=dm3-backend
+                  docker build --progress=plain -f ./docker/DockerfilePackages --build-arg="PACKAGE=backend" \
+                    --tag $image_name:latest \
+                    --tag dm3org/$image_name:latest${{ env.docker_suffix }} \
+                    --tag dm3org/$image_name:$version${{ env.docker_suffix }}.latest \
+                    --tag dm3org/$image_name:$version${{ env.docker_suffix }}.${{ env.unix_now }}.${{ env.sha_short }}  .
+                  docker save -o ./$image_name.tar $image_name:latest
+                  docker push --all-tags dm3org/$image_name
             - name: Build and publish delivery-service docker image
               shell: bash
               run: |
                   version=$(NODE_PATH=packages/delivery-service node -p "require('package.json').version")
+                  image_name=dm3-delivery-service
                   docker build --progress=plain -f ./docker/DockerfilePackages --build-arg="PACKAGE=delivery-service" \
-                    --tag dm3-delivery-service:latest \
-                    --tag dm3org/dm3-delivery-service:latest.$environment_name \
-                    --tag dm3org/dm3-delivery-service:$version.$environment_name.latest \
-                    --tag dm3org/dm3-delivery-service:$version.$environment_name.${{ env.unix_now }}.${{ env.sha_short }}  .
-                  docker save -o ./dm3-delivery-service.tar dm3-delivery-service:latest
-                  docker push --all-tags dm3org/dm3-delivery-service
+                    --tag $image_name:latest \
+                    --tag dm3org/$image_name:latest${{ env.docker_suffix }} \
+                    --tag dm3org/$image_name:$version${{ env.docker_suffix }}.latest \
+                    --tag dm3org/$image_name:$version${{ env.docker_suffix }}.${{ env.unix_now }}.${{ env.sha_short }}  .
+                  docker save -o ./$image_name.tar $image_name:latest
+                  docker push --all-tags dm3org/$image_name
             - name: Build offchain-resolver docker image
               shell: bash
               run: |
