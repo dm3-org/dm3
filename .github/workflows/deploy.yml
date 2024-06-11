@@ -48,6 +48,7 @@ jobs:
                   echo "REACT_APP_COMMIT_HASH=${{ env.sha_short }}" >> ./.env.react
                   echo "REACT_APP_BRANCH=${{ env.branch }}" >> ./.env.react
                   echo "REACT_APP_BUILD_TIME=${{ env.now }}" >> ./.env.react
+                  echo "REACT_APP_ENVIRONMENT_NAME=${{ env.environment_name }}" >> ./.env.react
                   echo "REACT_APP_MAINNET_PROVIDER_RPC=${{ secrets.MAINNET_PROVIDER_URL}}" >> ./.env.react
                   echo "REACT_APP_CHAIN_ID=${{ vars.CHAIN_ID }}" >> ./.env.react
                   cat ./.env.react >> ./.env
@@ -90,8 +91,9 @@ jobs:
               run: |
                   docker build --progress=plain -f ./docker/DockerfilePackages --tag dm3-delivery-service:latest  --build-arg="PACKAGE=delivery-service" .
                   docker save -o ./dm3-delivery-service.tar dm3-delivery-service:latest
-                  docker tag dm3-delivery-service:latest ${{ secrets.DOCKER_HUB_USERNAME }}/dm3-delivery-service:latest.alpha
-                  docker push ${{ secrets.DOCKER_HUB_USERNAME }}/dm3-delivery-service:latest.alpha
+                  docker tag dm3-delivery-service:latest ${{ secrets.DOCKER_HUB_USERNAME }}/dm3-delivery-service:latest.$environment_name
+                  docker tag dm3-delivery-service:latest ${{ secrets.DOCKER_HUB_USERNAME }}/dm3-delivery-service:$(node -p "require('packages/delivery-service/package.json').version").$environment_name
+                  docker push dm3-delivery-service:latest
             - name: Send files to server
               run: |
                   ssh -i ./ssh-key root@${{ secrets.HOST_DOMAIN}} "\
