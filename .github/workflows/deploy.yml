@@ -72,6 +72,7 @@ jobs:
                   docker build --progress=plain -t build -f ./docker/DockerfileBuild .
                   docker build --progress=plain -t base -f ./docker/DockerfileBase .
                   docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_PAT }}
+                  # production images will have no special suffix -> they are the real deal
                   if [ $environment_name != "prod" ]; then
                       echo "docker_suffix=.$environment_name" >> "$GITHUB_ENV"
                   fi
@@ -103,8 +104,14 @@ jobs:
               shell: bash
               run: |
                   version=$(NODE_PATH=packages/delivery-service node -p "require('package.json').version")
-                  docker build --progress=plain -f ./docker/DockerfilePackages --tag dm3-offchain-resolver:latest --build-arg="PACKAGE=offchain-resolver" .
-                  docker save -o ./dm3-offchain-resolver.tar dm3-offchain-resolver:latest
+                  image_name=dm3-offchain-resolver
+                  docker build --progress=plain -f ./docker/DockerfilePackages --build-arg="PACKAGE=offchain-resolver" \
+                    --tag $image_name:latest \
+                    --tag dm3org/$image_name:latest${{ env.docker_suffix }} \
+                    --tag dm3org/$image_name:$version${{ env.docker_suffix }}.latest \
+                    --tag dm3org/$image_name:$version${{ env.docker_suffix }}.${{ env.unix_now }}.${{ env.sha_short }}  .
+                  docker save -o ./$image_name.tar $image_name:latest
+                  docker push --all-tags dm3org/$image_name
             - name: Build messenger-web docker image
               shell: bash
               run: |
