@@ -5,6 +5,7 @@ export {
 } from './Keys';
 export { submitUserProfile, getUserProfile } from './UserProfile';
 export {
+    addPostmark,
     getMessages,
     incomingMessage,
     handleIncomingMessage,
