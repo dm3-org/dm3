@@ -101,7 +101,6 @@ services:
             - nginx
         command: certonly --webroot --webroot-path=/var/www/html --email ${CERT_MAIL} --agree-tos --no-eff-email -d ${URL}
 
-
     ccip-resolver:
         image: dm3org/ccip-resolver:v0.2.7
         restart: always
@@ -122,3 +121,9 @@ services:
 volumes:
     certbot-etc:
     certbot-var:
+    web-root:
+        driver: local
+        driver_opts:
+            type: none
+            device: /mnt/dm3_prod_volume/webroot
+            o: bind
