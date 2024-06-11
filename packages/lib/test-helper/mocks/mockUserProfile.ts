@@ -14,11 +14,7 @@ import {
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 
-export const mockUserProfile = async (
-    wallet: ethers.Wallet,
-    ensName: string,
-    deliveryServices: string[],
-): Promise<{
+export type MockedUserProfile = {
     address: string;
     privateKey: string;
     signedUserProfile: SignedUserProfile;
@@ -26,7 +22,13 @@ export const mockUserProfile = async (
     account: Account;
     wallet: ethers.Wallet;
     stringified: string;
-}> => {
+};
+
+export const mockUserProfile = async (
+    wallet: ethers.Wallet,
+    ensName: string,
+    deliveryServices: string[],
+): Promise<MockedUserProfile> => {
     const storageKeyCreationMessage = getStorageKeyCreationMessage(
         DEFAULT_NONCE,
         wallet.address,

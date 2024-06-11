@@ -92,8 +92,8 @@ export const useDeliveryService = () => {
         if (connectors.length === 0) {
             return [];
         }
-        //TODO think about strategies to use the delivery services. For the start we just query the first one
-        return [connectors[0]];
+
+        return connectors;
     };
 
     const getDeliveryServiceProperties = async (): Promise<any[]> => {
@@ -105,7 +105,6 @@ export const useDeliveryService = () => {
     const onNewMessage = useCallback(
         (cb: OnNewMessagCallback) => {
             const connectors = _getConnectors();
-            console.log('connectors', connectors);
             connectors.forEach((c) =>
                 c.registerWebSocketListener('message', cb),
             );

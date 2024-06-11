@@ -13,6 +13,7 @@
     "@dm3-org/dm3-lib-profile": "workspace:^",
     "@dm3-org/dm3-lib-shared": "workspace:^",
     "@dm3-org/dm3-lib-storage": "workspace:^",
+    "@dm3-org/dm3-lib-test-helper": "workspace:^",
     "@emoji-mart/data": "^1.1.2",
     "@emoji-mart/react": "^1.1.1",
     "@popperjs/core": "^2.11.8",

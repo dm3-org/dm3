@@ -10,7 +10,7 @@ export type ConversationContextType = {
     selectedContact?: ContactPreview;
     setSelectedContactName: (contactEnsName: string | undefined) => void;
     initialized: boolean;
-    addConversation: (ensName: string) => ContactPreview;
+    addConversation: (ensName: string) => ContactPreview | undefined;
     hideContact: (ensName: string) => void;
 };
 

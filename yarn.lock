@@ -2298,7 +2298,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@dm3-org/dm3-lib-test-helper@workspace:packages/lib/test-helper":
+"@dm3-org/dm3-lib-test-helper@workspace:^, @dm3-org/dm3-lib-test-helper@workspace:packages/lib/test-helper":
   version: 0.0.0-use.local
   resolution: "@dm3-org/dm3-lib-test-helper@workspace:packages/lib/test-helper"
   dependencies:
@@ -2404,6 +2404,7 @@ __metadata:
     "@dm3-org/dm3-lib-profile": "workspace:^"
     "@dm3-org/dm3-lib-shared": "workspace:^"
     "@dm3-org/dm3-lib-storage": "workspace:^"
+    "@dm3-org/dm3-lib-test-helper": "workspace:^"
     "@emoji-mart/data": ^1.1.2
     "@emoji-mart/react": ^1.1.1
     "@popperjs/core": ^2.11.8
