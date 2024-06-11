@@ -45,7 +45,7 @@ describe('useConversation hook test cases', () => {
         const newContact = await act(async () =>
             result.current.addConversation(CONTACT_NAME),
         );
-        expect(newContact.name).toBe(CONTACT_NAME);
+        expect(newContact!.name).toBe(CONTACT_NAME);
         await waitFor(() => expect(result.current.contacts.length).toBe(1));
     });
 

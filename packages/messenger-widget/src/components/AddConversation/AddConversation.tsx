@@ -74,6 +74,12 @@ export default function AddConversation() {
             setSelectedRightView(RightViewSelected.Chat);
 
             const newContact = await addConversation(aliasName);
+            if (!newContact) {
+                //Maybe show a message that its not possible to add the users address as a contact
+                setShowAddConversationModal(false);
+                closeLoader();
+                return;
+            }
             setSelectedContactName(newContact.contactDetails.account.ensName);
             closeLoader();
 
