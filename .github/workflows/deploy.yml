@@ -11,6 +11,8 @@ jobs:
         runs-on: ubuntu-latest
         env:
             environment_name: ${{ github.ref == 'refs/heads/develop' && 'staging' || 'testing' }}
+            now: $(date +'%Y-%m-%dT%H:%M:%S')
+            commit: $(git rev-parse --short "$GITHUB_SHA")
         steps:
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v3
@@ -84,9 +86,10 @@ jobs:
                   docker build --progress=plain -f ./docker/DockerfilePackages --build-arg="PACKAGE=delivery-service" \
                     --tag dm3-delivery-service:latest \
                     --tag dm3org/dm3-delivery-service:latest.$environment_name \
-                    --tag dm3org/dm3-delivery-service:$version.$environment_name   .
+                    --tag dm3org/dm3-delivery-service:$version.$environment_name.latest \
+                    --tag dm3org/dm3-delivery-service:$version.$environment_name.$now.$commit  .
                   docker save -o ./dm3-delivery-service.tar dm3-delivery-service:latest
-                  docker push dm3org/dm3-delivery-service
+                  docker push --all-tags dm3org/dm3-delivery-service
             - name: Build offchain-resolver docker image
               shell: bash
               run: |
