@@ -21,8 +21,7 @@
     "@dm3-org/dm3-lib-profile": "workspace:^",
     "@dm3-org/dm3-lib-shared": "workspace:^",
     "ajv-formats": "^3.0.1",
-    "ethers": "5.7.2",
-    "socket.io": "^4.5.1"
+    "ethers": "5.7.2"
   },
   "devDependencies": {
     "typescript": "^4.4.2"
