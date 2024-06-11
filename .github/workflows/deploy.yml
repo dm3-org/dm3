@@ -111,7 +111,7 @@ jobs:
             - name: Stop docker on server
               run: |
                   ssh -i ./ssh-key app@${{ secrets.HOST_DOMAIN}} "\
-                  cd dm3 && docker compose down && docker system prune -af"
+                  cd dm3 && docker compose down"
                   ssh -i ./ssh-key root@${{ secrets.HOST_DOMAIN}} "\
                   systemctl restart docker.service"
             - name: Load docker images
@@ -126,4 +126,4 @@ jobs:
             - name: Start docker on server
               run: |
                   ssh -i ./ssh-key app@${{ secrets.HOST_DOMAIN}} "\
-                  cd dm3 && docker compose --env-file .env up -d"
+                  cd dm3 && docker compose --env-file .env up -d && docker system prune -af"
