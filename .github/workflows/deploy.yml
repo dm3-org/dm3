@@ -71,18 +71,26 @@ jobs:
                   docker build --progress=plain -t build -f ./docker/DockerfileBuild .
                   docker build --progress=plain -t base -f ./docker/DockerfileBase .
                   docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_PAT }}
+            - name: Build and publish backend docker image
+              shell: bash
+              run: |
+                  version=$(NODE_PATH=packages/delivery-service node -p "require('package.json').version")
+                  docker build --progress=plain -f ./docker/DockerfilePackages --tag dm3-backend:latest           --build-arg="PACKAGE=backend" .
+                  docker save -o ./dm3-backend.tar dm3-backend:latest
             - name: Build and publish delivery-service docker image
               shell: bash
               run: |
-                  docker build --progress=plain -f ./docker/DockerfilePackages --tag dm3-delivery-service:latest  --build-arg="PACKAGE=delivery-service" .
-                  docker save -o ./dm3-delivery-service.tar dm3-delivery-service:latest
                   version=$(NODE_PATH=packages/delivery-service node -p "require('package.json').version")
-                  docker tag dm3-delivery-service:latest dm3org/dm3-delivery-service:latest.$environment_name
-                  docker tag dm3-delivery-service:latest dm3org/dm3-delivery-service:$version.$environment_name
-                  docker push dm3org/dm3-delivery-service:latest.$environment_name
+                  docker build --progress=plain -f ./docker/DockerfilePackages --build-arg="PACKAGE=delivery-service" \
+                    --tag dm3-delivery-service:latest \
+                    --tag dm3org/dm3-delivery-service:latest.$environment_name \
+                    --tag dm3org/dm3-delivery-service:$version.$environment_name   .
+                  docker save -o ./dm3-delivery-service.tar dm3-delivery-service:latest
+                  docker push dm3org/dm3-delivery-service
             - name: Build offchain-resolver docker image
               shell: bash
               run: |
+                  version=$(NODE_PATH=packages/delivery-service node -p "require('package.json').version")
                   docker build --progress=plain -f ./docker/DockerfilePackages --tag dm3-offchain-resolver:latest --build-arg="PACKAGE=offchain-resolver" .
                   docker save -o ./dm3-offchain-resolver.tar dm3-offchain-resolver:latest
             - name: Build messenger-web docker image
@@ -90,11 +98,6 @@ jobs:
               run: |
                   docker build --progress=plain -f ./docker/DockerfilePackages --tag dm3-messenger-web:latest     --build-arg="PACKAGE=messenger-web" .
                   docker save -o ./dm3-messenger-web.tar dm3-messenger-web:latest
-            - name: Build and publish backend docker image
-              shell: bash
-              run: |
-                  docker build --progress=plain -f ./docker/DockerfilePackages --tag dm3-backend:latest           --build-arg="PACKAGE=backend" .
-                  docker save -o ./dm3-backend.tar dm3-backend:latest
             - name: Send files to server
               run: |
                   ssh -i ./ssh-key root@${{ secrets.HOST_DOMAIN}} "\
