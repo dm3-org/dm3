@@ -206,9 +206,9 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     });
                 }
 
-                (await req.app.locals.db.removeUserProfile(dm3Name))
+                (await req.app.locals.db.removeAlias(dm3Name))
                     ? res.sendStatus(200)
-                    : res.status(500).send({
+                    : res.status(400).send({
                           error: `Couldn't remove profile`,
                       });
             } catch (e) {
