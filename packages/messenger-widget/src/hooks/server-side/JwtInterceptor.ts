@@ -12,11 +12,12 @@ import socketIOClient, { Socket } from 'socket.io-client';
 //and try again
 export abstract class JwtInterceptor {
     private readonly baseURL: string;
-    protected readonly ensName: string;
     private readonly enableWebsocket: boolean;
 
     private axios: Axios;
     private socket: Socket;
+
+    protected readonly ensName: string;
 
     constructor(baseURL: string, ensName: string, enableWebsocket: boolean) {
         this.baseURL = baseURL;
