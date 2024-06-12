@@ -177,7 +177,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
                 const { signature, dm3Name } = req.body;
-                logInfo({ text: `POST deleteName`, name });
+                console.log(`remove dm3 name ${dm3Name}`);
 
                 const profileContainer =
                     await req.app.locals.db.getProfileContainerForAlias(
