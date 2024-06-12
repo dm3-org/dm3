@@ -40,6 +40,8 @@ docker run --rm -i -v=certbot-etc:/tmp/certbot-etc busybox sh
 docker logs certbot
 ```
 
+Additional reading that might help: https://phoenixnap.com/kb/letsencrypt-docker
+
 ## Certificate renewal
 
 On every `docker-compose up`, the certbot will check if the certificates are still valid and renew them if necessary. So if a new version is deployed at least once every 89 days, the certificates will never expire (they are valid for 90 days). In an environment that is less frequently updated, it might be a good idea to set up a cronjob that runs `docker compose --env-file .env up` every 2 months.
