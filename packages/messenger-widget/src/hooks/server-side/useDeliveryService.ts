@@ -25,6 +25,13 @@ export const useDeliveryService = () => {
         [],
     );
 
+    //Reset the hook in case the account changes
+    useEffect(() => {
+        console.log('reset useDelivery');
+        setIsInitialized(false);
+        setConnectors([]);
+    }, [account, isProfileReady]);
+
     //Initializer for the delivery service connectors
     useEffect(() => {
         const initializeDs = async () => {
@@ -55,8 +62,6 @@ export const useDeliveryService = () => {
                         return undefined;
                     }
 
-                    console.log('ds ', await ds);
-
                     return new DeliveryServiceConnector(
                         baseUrl,
                         dm3Configuration.resolverBackendUrl,
@@ -67,8 +72,10 @@ export const useDeliveryService = () => {
                     );
                 });
 
-            const p = await Promise.all(connectors);
-            const onlyValidConnectors = p.filter(
+            //We wait until each connector has been initilaized
+            const resolvedConnectors = await Promise.all(connectors);
+
+            const onlyValidConnectors = resolvedConnectors.filter(
                 (p): p is DeliveryServiceConnector => p !== undefined,
             );
 
@@ -77,16 +84,16 @@ export const useDeliveryService = () => {
                 signature: account?.profileSignature!,
             };
             //Sign in connectors
-
             await Promise.all(
                 onlyValidConnectors.map((c) => c.login(signedUserProfile)),
-            ),
-                setConnectors(onlyValidConnectors);
+            );
+
+            setConnectors(onlyValidConnectors);
             console.log('connectors', onlyValidConnectors);
             setIsInitialized(true);
         };
         initializeDs();
-    }, [isProfileReady]);
+    }, [account, ethAddress, isProfileReady]);
 
     const _getConnectors = () => {
         if (connectors.length === 0) {
@@ -119,6 +126,7 @@ export const useDeliveryService = () => {
 
     return {
         isInitialized,
+        connectors: _getConnectors(),
         getDeliveryServiceProperties,
         addNotificationChannel: (
             ensName: string,
