@@ -52,6 +52,7 @@ jobs:
                   echo "REACT_APP_ENVIRONMENT_NAME=${{ env.environment_name }}" >> ./.env.react
                   echo "REACT_APP_MAINNET_PROVIDER_RPC=${{ secrets.MAINNET_PROVIDER_URL}}" >> ./.env.react
                   echo "REACT_APP_CHAIN_ID=${{ vars.CHAIN_ID }}" >> ./.env.react
+                  echo "REACT_APP_GENOME_REGISTRY_ADDRESS=${{ vars.GENOME_REGISTRY_ADDRESS }}" >> ./.env.react
                   cat ./.env.react >> ./.env
                   echo "RESOLVER_ADDR=0x88c8cC822095cdE6F92c8d20311C8e7dE6A98694" >> ./.env
                   echo "SIGNING_PUBLIC_KEY=${{ secrets.SIGNING_PUBLIC_KEY }}" >> ./.env
