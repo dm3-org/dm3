@@ -76,4 +76,20 @@ describe('Schema check', () => {
             expect(isValid).toBe(false);
         });
     });
+    describe('enforce type', () => {
+        it('Should return false if an additional key is present', async () => {
+            const schema = {
+                type: 'object',
+                properties: {
+                    key0: { type: 'string' },
+                },
+            };
+
+            // this is a string, not an object
+            const data = "key0: 'value0'";
+
+            const isValid = validateSchema(schema, data);
+            expect(isValid).toBe(false);
+        });
+    });
 });

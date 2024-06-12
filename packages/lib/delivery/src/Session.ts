@@ -1,10 +1,22 @@
 import { ethers } from 'ethers';
 import { ProfileExtension, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
-import { logDebug } from '@dm3-org/dm3-lib-shared';
+import { logDebug, validateSchema } from '@dm3-org/dm3-lib-shared';
 import { verify, decode } from 'jsonwebtoken';
 
 //1Year
 const TTL = 31536000000;
+
+const authJwtPayloadSchema = {
+    type: 'object',
+    properties: {
+        account: { type: 'string' },
+        iat: { type: 'number' },
+        exp: { type: 'number' },
+        nbf: { type: 'number' },
+    },
+    required: ['account', 'iat', 'exp', 'nbf'],
+    additionalProperties: false,
+};
 
 export interface Session {
     account: string;
@@ -57,29 +69,31 @@ export async function checkToken(
         const jwtPayload = verify(token, serverSecret, {
             algorithms: ['HS256'],
         });
-        console.log('jwt string', jwtPayload);
-        console.log(decode(token));
+        console.log('jwt payload', decode(token));
 
-        // check if type is string -> invalid
-        if (typeof jwtPayload == 'string') {
-            logDebug({
-                text: `jwt invalid: jwtPayload is a string`,
-            });
-            return false;
-        }
-
-        // check if expected fields are present
+        // check if payload is well formed
         if (
-            !('account' in jwtPayload) ||
-            !('iat' in jwtPayload) ||
-            !('exp' in jwtPayload) ||
-            !('nbf' in jwtPayload)
+            typeof jwtPayload == 'string' ||
+            !validateSchema(authJwtPayloadSchema, jwtPayload)
         ) {
             logDebug({
-                text: `jwt invalid: content missing`,
+                text: `jwt malformed`,
             });
             return false;
         }
+
+        // // check if expected fields are present
+        // if (
+        //     !('account' in jwtPayload) ||
+        //     !('iat' in jwtPayload) ||
+        //     !('exp' in jwtPayload) ||
+        //     !('nbf' in jwtPayload)
+        // ) {
+        //     logDebug({
+        //         text: `jwt invalid: content missing`,
+        //     });
+        //     return false;
+        // }
 
         if (!jwtPayload.iat || jwtPayload.iat > Date.now() / 1000) {
             logDebug({
