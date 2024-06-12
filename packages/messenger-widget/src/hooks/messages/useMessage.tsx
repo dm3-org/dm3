@@ -1,4 +1,4 @@
-import { encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
+import { encryptAsymmetric, sign } from '@dm3-org/dm3-lib-crypto';
 import {
     EncryptionEnvelop,
     Envelop,
@@ -20,6 +20,7 @@ import { checkIfEnvelopIsInSizeLimit } from './sizeLimit/checkIfEnvelopIsInSizeL
 import { handleMessagesFromDeliveryService } from './sources/handleMessagesFromDeliveryService';
 import { handleMessagesFromStorage } from './sources/handleMessagesFromStorage';
 import { handleMessagesFromWebSocket } from './sources/handleMessagesFromWebSocket';
+import { sha256, stringify } from '@dm3-org/dm3-lib-shared';
 
 export type MessageModel = StorageEnvelopContainerNew & {
     reactions: Envelop[];
@@ -203,11 +204,23 @@ export const useMessage = () => {
         const recipientIsDm3User =
             !!recipient?.contactDetails.account.profile?.publicEncryptionKey;
 
+        //If the recipient is not a dm3 user we can store the message in the storage.
+        //Ideally the message will be submitted once the receiver has created a profile.
+        //https://github.com/orgs/dm3-org/projects/5?pane=issue&itemId=64716043 will refine this
         if (!recipientIsDm3User) {
             //StorageEnvelopContainerNew to store the message in the storage
             const messageModel: MessageModel = {
                 envelop: {
                     message,
+                    metadata: {
+                        encryptionScheme: 'x25519-chacha20-poly1305',
+                        //since we don't have a recipient we can't encrypt the deliveryInformation
+                        deliveryInformation: '',
+                        //Because storing a message is always an internal process we dont need to sign it. The signature is only needed for the delivery service
+                        signature: '',
+                        encryptedMessageHash: sha256(stringify(message)),
+                        version: 'v1',
+                    },
                 },
                 messageState: MessageState.Created,
 
