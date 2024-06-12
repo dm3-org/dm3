@@ -39,7 +39,7 @@ export const validateNotificationChannelType = (
 // validates new notification channel data to be added
 export const validateNewNotificationChannelData = (
     notificationChannelType: string,
-    recipientValue: string | PushSubscription,
+    recipientValue: string,
 ): {
     isValid: boolean;
     errorMessage?: string;

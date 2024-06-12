@@ -186,6 +186,12 @@ export const useMessage = () => {
     ): Promise<{ isSuccess: boolean; error?: string }> => {
         const contact = normalizeEnsName(_contactName);
 
+        //If a message is empty it should not be added
+
+        if (!message.message || message.message.trim() === '') {
+            return { isSuccess: false, error: 'Message is empty' };
+        }
+
         //Find the recipient of the message in the contact list
         const recipient = contacts.find(
             (c) => c.contactDetails.account.ensName === contact,
@@ -279,8 +285,6 @@ export const useMessage = () => {
                 error: 'Recipient has no delivery service profile',
             };
         }
-
-        // ERROR:TODO:FIX : 400 (Bad Request)
         await axios.create({ baseURL: recipientDs.url }).post('/rpc', {
             jsonrpc: '2.0',
             method: 'dm3_submitMessage',

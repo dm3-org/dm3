@@ -242,7 +242,7 @@ export async function handleIncomingMessage(
     };
 }
 
-async function addPostmark(
+export async function addPostmark(
     { message }: EncryptionEnvelop,
     receiverEncryptionKey: string,
     deliveryServiceSigningKey: string,
