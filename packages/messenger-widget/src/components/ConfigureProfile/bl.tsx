@@ -2,7 +2,6 @@ import { ethers } from 'ethers';
 import { checkEnsDM3Text } from '../../utils/ens-utils';
 import { log } from '@dm3-org/dm3-lib-shared';
 import { closeLoader, startLoader } from '../Loader/Loader';
-import { removeAlias } from '../../adapters/offchain-resolver-api';
 import { ConfigureEnsProfile } from './chain/ens/ConfigureEnsProfile';
 import { Dm3Name } from '../../hooks/topLevelAlias/nameService/Dm3Name';
 import { ConfigureGenomeProfile } from './chain/genome/ConfigureGenomeProfile';
@@ -10,6 +9,7 @@ import { Account, ProfileKeys, hasUserProfile } from '@dm3-org/dm3-lib-profile';
 import { ConfigureCloudNameProfile } from './dm3Names/cloudName/ConfigureCloudNameProfile';
 import { ConfigureOptimismNameProfile } from './dm3Names/optimismName/ConfigureOptimismNameProfile';
 import { supportedChains } from '../../utils/common-utils';
+import { removeAlias } from '../../adapters/offchainResolverApi';
 
 export const PROFILE_INPUT_FIELD_CLASS =
     'profile-input font-weight-400 font-size-14 border-radius-6 w-100 line-height-24';
