@@ -12,7 +12,16 @@ export const useBackend = (): IBackendConnector & {
         useContext(AuthContext);
 
     const [isInitialized, setIsInitialized] = useState<boolean>(false);
-    const [beConnector, setbeConnector] = useState<BackendConnector>();
+    const [beConnector, setbeConnector] = useState<
+        BackendConnector | undefined
+    >();
+
+    //Reset the hook in case the account changes
+    useEffect(() => {
+        console.log('reset useBackend');
+        setIsInitialized(false);
+        setbeConnector(undefined);
+    }, [account, isProfileReady]);
 
     //Initializer for the delivery service connectors
     useEffect(() => {
