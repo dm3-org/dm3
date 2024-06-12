@@ -8,24 +8,20 @@ import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
  * @returns {Promise<boolean>} - A promise that resolves to true if the profile is removed, false otherwise
  */
 export function removeAlias(db: PrismaClient) {
-    return async (alias: string) => {
+    return async (dm3Name: string) => {
         try {
-            const normalizedAlias = normalizeEnsName(alias);
+            const normalizedDm3Name = normalizeEnsName(dm3Name);
 
             await db.alias.delete({
                 where: {
-                    alias: normalizedAlias,
+                    alias: normalizedDm3Name,
                 },
             });
-
-            global.logger.debug({
-                message: 'removeAlias',
-
-                alias: normalizedAlias,
-            });
-
+            console.debug('removed alias', normalizedDm3Name);
             return true;
         } catch (e) {
+            console.error(`unable to remove ${dm3Name}`);
+            console.error(e);
             return false;
         }
     };
