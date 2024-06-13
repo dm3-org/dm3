@@ -381,6 +381,106 @@ describe('useMessage hook test cases', () => {
             expect(axiosMock.history.post[0].baseURL).toBe('http://ds1.api');
             expect(axiosMock.history.post[1].baseURL).toBe('http://ds2.api');
         });
+        it('should fail if message is larger than the sizeLimit', async () => {
+            axiosMock = new MockAdapter(axios);
+
+            axiosMock.onPost('http://ds1.api/rpc').reply(200, {});
+
+            axiosMock.onPost('http://ds2.api/rpc').reply(200, {});
+
+            const storageContext = getMockedStorageContext({
+                editMessageBatchAsync: jest.fn(),
+                storeMessageBatch: jest.fn(),
+                storeMessage: jest.fn(),
+                getNumberOfMessages: jest.fn().mockResolvedValue(0),
+                getMessages: jest.fn().mockResolvedValue([]),
+            });
+
+            const conversationContext = getMockedConversationContext({
+                selectedContact: getDefaultContract('max.eth'),
+                contacts: [
+                    {
+                        name: '',
+                        message: '',
+                        image: 'human.svg',
+                        messageCount: 1,
+                        unreadMsgCount: 21,
+                        contactDetails: {
+                            account: {
+                                ensName: receiver.account.ensName,
+                                profileSignature:
+                                    receiver.signedUserProfile.signature,
+                                profile: receiver.signedUserProfile.profile,
+                            },
+                            deliveryServiceProfiles: [
+                                ds1.deliveryServiceProfile,
+                                ds2.deliveryServiceProfile,
+                            ],
+                        },
+                        isHidden: false,
+                        messageSizeLimit: 1000,
+                    },
+                ],
+            });
+            const deliveryServiceContext = getMockedDeliveryServiceContext({
+                //Add websocket mock
+                onNewMessage: (cb: Function) => {
+                    console.log('on new message');
+                },
+                fetchNewMessages: jest.fn().mockResolvedValue([]),
+                removeOnNewMessageListener: jest.fn(),
+                syncAcknowledgment: jest.fn(),
+            });
+
+            const authContext = getMockedAuthContext({
+                profileKeys: receiver.profileKeys,
+                account: {
+                    ensName: sender.account.ensName,
+                    profile: sender.signedUserProfile.profile,
+                },
+            });
+            const tldContext = getMockedTldContext({});
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <ConversationContext.Provider
+                                    value={conversationContext}
+                                >
+                                    <DeliveryServiceContext.Provider
+                                        value={deliveryServiceContext}
+                                    >
+                                        {children}
+                                    </DeliveryServiceContext.Provider>
+                                </ConversationContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useMessage(), {
+                wrapper,
+            });
+            await waitFor(() =>
+                expect(result.current.contactIsLoading('max.eth')).toBe(false),
+            );
+
+            const messageFactory = MockMessageFactory(sender, receiver, ds1);
+            const message = await messageFactory.createMessage('hello dm3');
+            const addMessageResult = await waitFor(() =>
+                result.current.addMessage('bob.eth', message),
+            );
+
+            expect(addMessageResult).toEqual({
+                isSuccess: false,
+                error: 'The size of the message is larger than limit 1000 bytes. Please reduce the message size.',
+            });
+            expect(result.current.messages['bob.eth'].length).toBe(0);
+            expect(axiosMock.history.post.length).toBe(0);
+        });
     });
 
     describe('initialize message', () => {
