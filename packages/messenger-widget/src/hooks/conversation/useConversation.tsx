@@ -80,8 +80,6 @@ export const useConversation = (config: DM3Configuration) => {
                 return;
             }
             const currentConversationsPage = await getConversations(page);
-            const deliveryServiceProperties =
-                await getDeliveryServiceProperties();
 
             //Hydrate the contacts by fetching their profile and DS profile
             const storedContacts = await Promise.all(
@@ -100,7 +98,6 @@ export const useConversation = (config: DM3Configuration) => {
                         conversation,
                         resolveAliasToTLD,
                         dm3Configuration.addressEnsSubdomain,
-                        deliveryServiceProperties,
                     );
                 }),
             );

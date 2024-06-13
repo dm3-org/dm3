@@ -33,12 +33,16 @@ import {
     getMockDeliveryServiceProfile,
     mockUserProfile,
 } from '@dm3-org/dm3-lib-test-helper';
+import MockAdapter from 'axios-mock-adapter';
+import axios from 'axios';
 
 describe('useConversation hook test cases', () => {
     let sender: MockedUserProfile;
     let receiver: MockedUserProfile;
     let ds1: MockDeliveryServiceProfile;
     let ds2: MockDeliveryServiceProfile;
+
+    let axiosMock: MockAdapter;
 
     beforeEach(async () => {
         sender = await mockUserProfile(
@@ -885,6 +889,99 @@ describe('useConversation hook test cases', () => {
                 result.current.contacts[0].contactDetails
                     .deliveryServiceProfiles[1],
             ).toStrictEqual(ds2.deliveryServiceProfile);
+        });
+        it('fetches the sizeLimit of every deliveryService', async () => {
+            axiosMock = new MockAdapter(axios);
+            axiosMock.onPost('http://ds1.api/rpc').reply(200, {
+                result: 1000,
+            });
+            axiosMock.onPost('http://ds2.api/rpc').reply(200, {
+                result: 2000,
+            });
+
+            const authContext: AuthContextType = getMockedAuthContext({
+                account: {
+                    ensName: receiver.account.ensName,
+                    profile: receiver.signedUserProfile.profile,
+                },
+            });
+
+            const storageContext: StorageContextType = getMockedStorageContext({
+                getConversations: function (
+                    page: number,
+                ): Promise<Conversation[]> {
+                    return Promise.resolve([
+                        {
+                            contactEnsName: sender.account.ensName,
+                            isHidden: false,
+                            messageCounter: 1,
+                        },
+                    ]);
+                },
+                initialized: true,
+            });
+            const deliveryServiceContext: DeliveryServiceContextType =
+                getMockedDeliveryServiceContext({
+                    fetchIncommingMessages: function (ensName: string) {
+                        return Promise.resolve([]);
+                    },
+                    isInitialized: true,
+                });
+            const mockProvider = {
+                resolveName: () => {
+                    return Promise.resolve(sender.address);
+                },
+                getResolver: (ensName: string) => {
+                    if (ensName === sender.account.ensName) {
+                        return {
+                            getText: () => sender.stringified,
+                        } as unknown as ethers.providers.Resolver;
+                    }
+                    if (ensName === 'ds1.eth') {
+                        return {
+                            getText: () => ds1.stringified,
+                        } as unknown as ethers.providers.Resolver;
+                    }
+                    if (ensName === 'ds2.eth') {
+                        return {
+                            getText: () => ds2.stringified,
+                        } as unknown as ethers.providers.Resolver;
+                    }
+
+                    throw new Error(`mock provider unknown ensName ${ensName}`);
+                },
+            } as any as ethers.providers.JsonRpcProvider;
+
+            const mainnetProvderContext: MainnetProviderContextType =
+                getMockedMainnetProviderContext({
+                    provider: mockProvider,
+                });
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <MainnetProviderContext.Provider
+                        value={mainnetProvderContext}
+                    >
+                        <AuthContext.Provider value={authContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <DeliveryServiceContext.Provider
+                                    value={deliveryServiceContext}
+                                >
+                                    {children}
+                                </DeliveryServiceContext.Provider>
+                            </StorageContext.Provider>
+                        </AuthContext.Provider>
+                    </MainnetProviderContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useConversation(config), {
+                wrapper,
+            });
+            await waitFor(() => expect(result.current.initialized).toBe(true));
+
+            //1000 is the sizelimit of the DS with the loweset tolerance. This should be set as the messageSizeLimit
+            expect(result.current.contacts[0].messageSizeLimit).toEqual(1000);
         });
     });
 });

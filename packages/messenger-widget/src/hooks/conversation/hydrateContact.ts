@@ -12,14 +12,12 @@ import { Contact } from '../../interfaces/context';
 import { ContactPreview } from '../../interfaces/utils';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
 import { fetchMessageSizeLimit } from '../messages/sizeLimit/fetchSizeLimit';
-import { DeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery';
 
 export const hydrateContract = async (
     provider: ethers.providers.JsonRpcProvider,
     conversatoinManifest: Conversation,
     resolveAliasToTLD: (alias: string) => Promise<string>,
     addrEnsSubdomain: string,
-    deliveryServiceProperties: DeliveryServiceProperties[],
 ) => {
     //If the profile property of the account is defined the user has already used DM3 previously
     const account = await fetchAccount(
@@ -29,16 +27,16 @@ export const hydrateContract = async (
     //Has to become fetchMultipleDsProfiles
     const contact = await fetchDsProfiles(provider, account);
 
-    //Fetch the message size limit of the receivers delivery service must be fetched for every message
-    const messageSizeLimit = await fetchMessageSizeLimit(
-        deliveryServiceProperties,
+    //get the maximum size limit by looking for the smallest size limit of every ds
+    const maximumSizeLimit = await fetchMessageSizeLimit(
+        contact.deliveryServiceProfiles,
     );
     const contactPreview = await fetchPreview(
         provider,
         conversatoinManifest,
         contact,
         resolveAliasToTLD,
-        messageSizeLimit,
+        maximumSizeLimit,
         addrEnsSubdomain,
     );
     return contactPreview;
