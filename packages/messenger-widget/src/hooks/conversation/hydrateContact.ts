@@ -1,6 +1,6 @@
-/* eslint-disable no-console */
 import {
     Account,
+    DeliveryServiceProfile,
     getDeliveryServiceProfile,
     getUserProfile,
     normalizeEnsName,
@@ -27,7 +27,8 @@ export const hydrateContract = async (
         conversatoinManifest.contactEnsName,
     );
     //Has to become fetchMultipleDsProfiles
-    const contact = await fetchDsProfile(provider, account);
+    const contact = await fetchDsProfiles(provider, account);
+
     //Fetch the message size limit of the receivers delivery service must be fetched for every message
     const messageSizeLimit = await fetchMessageSizeLimit(
         deliveryServiceProperties,
@@ -98,29 +99,40 @@ const fetchAccount = async (
     }
 };
 
-const fetchDsProfile = async (
+const fetchDsProfiles = async (
     provider: ethers.providers.JsonRpcProvider,
     account: Account,
 ): Promise<Contact> => {
-    const deliveryServiceEnsName = account.profile?.deliveryServices[0];
-    if (!deliveryServiceEnsName) {
+    const deliveryServiceEnsNames = account.profile?.deliveryServices ?? [];
+    if (deliveryServiceEnsNames.length === 0) {
         //If there is now DS profile the message will be storaged at the client side until they recipient has createed an account
         console.log(
             '[fetchDeliverServicePorfile] Cant resolve deliveryServiceEnsName',
         );
         return {
             account,
+            deliveryServiceProfiles: [],
         };
     }
 
-    const deliveryServiceProfile = await getDeliveryServiceProfile(
-        deliveryServiceEnsName,
-        provider!,
-        async (url: string) => (await axios.get(url)).data,
+    //Resolve every ds profile in the contacts profile
+    const dsProfilesWithUnknowns = await Promise.all(
+        deliveryServiceEnsNames.map((deliveryServiceEnsName: string) => {
+            console.log('fetch ds profile of', deliveryServiceEnsName);
+            return getDeliveryServiceProfile(
+                deliveryServiceEnsName,
+                provider!,
+                async (url: string) => (await axios.get(url)).data,
+            );
+        }),
+    );
+    //filter unknown profiles. A profile if unknown if the profile could not be fetched. We don't want to deal with them in the UI
+    const deliveryServiceProfiles = dsProfilesWithUnknowns.filter(
+        (profile): profile is DeliveryServiceProfile => profile !== undefined,
     );
 
     return {
         account,
-        deliveryServiceProfile,
+        deliveryServiceProfiles,
     };
 };
