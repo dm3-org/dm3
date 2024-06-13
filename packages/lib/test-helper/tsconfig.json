@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "lib": ["dom", "dom.iterable", "esnext"],
+        "allowJs": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "noFallthroughCasesInSwitch": true,
+        "module": "CommonJS",
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "outDir": "dist",
+        "sourceMap": true
+    },
+    "include": ["src", "../test-helper/mocks/test", "../test-helper/mocks/mockWsServer.ts", "../test-helper/mocks/mockUserProfile.ts", "../test-helper/mocks/mockMessageFactory.ts", "../test-helper/mocks/mockHttpServer.ts", "../test-helper/mocks/mockDeliveryServiceProfile.ts", "../test-helper/mocks/index.ts"],
+    "exclude": ["src/**/*.test.ts"]
+}

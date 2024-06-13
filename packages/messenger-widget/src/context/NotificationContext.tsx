@@ -31,6 +31,7 @@ export type NotificationContextType = {
         channelType: NotificationChannelType,
         resetChannel: (action: null) => void,
     ) => void;
+    pushNotificationAction: (action: boolean) => void;
     isLoading: boolean;
     loaderData: string;
 };
@@ -72,6 +73,7 @@ export const NotificationContext = React.createContext<NotificationContextType>(
             channelType: NotificationChannelType,
             resetChannel: (action: null) => void,
         ) => {},
+        pushNotificationAction: (action: boolean) => {},
         isLoading: false,
         loaderData: '',
     },
@@ -101,6 +103,7 @@ export const NotificationContextProvider = ({
         setActiveVerificationContent,
         toggleSpecificNotificationChannel,
         removeSpecificNotificationChannel,
+        pushNotificationAction,
         isLoading,
         loaderData,
     } = useNotification();
@@ -126,6 +129,7 @@ export const NotificationContextProvider = ({
                 setActiveVerificationContent,
                 toggleSpecificNotificationChannel,
                 removeSpecificNotificationChannel,
+                pushNotificationAction,
                 isLoading,
                 loaderData,
             }}

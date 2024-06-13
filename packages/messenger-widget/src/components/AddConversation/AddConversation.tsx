@@ -1,18 +1,18 @@
-import './AddConversation.css';
-import '../../styles/modal.css';
 import { ethers } from 'ethers';
 import { FormEvent, useContext, useState } from 'react';
 import closeIcon from '../../assets/images/cross.svg';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
+import { ModalContext } from '../../context/ModalContext';
 import { TLDContext } from '../../context/TLDContext';
+import { UiViewContext } from '../../context/UiViewContext';
+import '../../styles/modal.css';
 import {
     LeftViewSelected,
     RightViewSelected,
 } from '../../utils/enum-type-utils';
 import { closeLoader, startLoader } from '../Loader/Loader';
-import { UiViewContext } from '../../context/UiViewContext';
-import { ModalContext } from '../../context/ModalContext';
+import './AddConversation.css';
 
 // class for input field
 export const INPUT_FIELD_CLASS =
@@ -74,6 +74,12 @@ export default function AddConversation() {
             setSelectedRightView(RightViewSelected.Chat);
 
             const newContact = await addConversation(aliasName);
+            if (!newContact) {
+                //Maybe show a message that its not possible to add the users address as a contact
+                setShowAddConversationModal(false);
+                closeLoader();
+                return;
+            }
             setSelectedContactName(newContact.contactDetails.account.ensName);
             closeLoader();
 
@@ -127,6 +133,7 @@ export default function AddConversation() {
                     <hr className="line-separator separator text-secondary-color" />
 
                     <form
+                        aria-label="add-conv-form"
                         onSubmit={(e: React.FormEvent) => submit(e)}
                         className="mt-4 mb-2 d-flex"
                     >
@@ -149,12 +156,14 @@ export default function AddConversation() {
                             </div>
                             <div className="d-flex add-name-container">
                                 <label
+                                    title="add-conv-label"
                                     htmlFor="name"
                                     className="font-size-14 font-weight-500"
                                 >
                                     Name
                                 </label>
                                 <input
+                                    data-testid="add-conv-input"
                                     id="add-conv-input"
                                     className={inputClass.concat(
                                         ' ',

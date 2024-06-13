@@ -111,11 +111,13 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
         //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const { signature, name, alias } = req.body;
-                logInfo({ text: `POST name`, alias });
+                const { signature, addressName, dm3Name } = req.body;
+                console.log(
+                    `register new dm3 name ${dm3Name} for ${addressName}`,
+                );
 
                 const profileContainer =
-                    await req.app.locals.db.getProfileContainer(name);
+                    await req.app.locals.db.getProfileContainer(addressName);
 
                 // check if there is a profile
                 if (!profileContainer) {
@@ -128,7 +130,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 //Check if the request comes from the owner of the name
                 const sigCheck = await checkSignature(
                     profileContainer.profile.profile.publicSigningKey,
-                    'alias: ' + alias,
+                    'alias: ' + dm3Name,
                     signature,
                 );
 
@@ -157,7 +159,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                         .send({ error: 'Insuficient ETH balance' });
                 }
 
-                if (!(await req.app.locals.db.setAlias(name, alias))) {
+                if (!(await req.app.locals.db.setAlias(addressName, dm3Name))) {
                     return res
                         .status(400)
                         .send({ error: 'Could not create alias' });
@@ -174,11 +176,13 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
         //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const { signature, name } = req.body;
-                logInfo({ text: `POST deleteName`, name });
+                const { signature, dm3Name } = req.body;
+                console.log(`remove dm3 name ${dm3Name}`);
 
                 const profileContainer =
-                    await req.app.locals.db.getProfileContainerForAlias(name);
+                    await req.app.locals.db.getProfileContainerForAlias(
+                        dm3Name,
+                    );
 
                 // Check if name has a connected address
                 if (!profileContainer || !profileContainer.address) {
@@ -191,7 +195,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 //Check if the request comes from the owner of the name
                 const sigCheck = await checkSignature(
                     profileContainer.profile.profile.publicSigningKey,
-                    'remove: ' + name,
+                    'remove: ' + dm3Name,
                     signature,
                 );
                 if (!sigCheck) {
@@ -202,9 +206,9 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     });
                 }
 
-                (await req.app.locals.db.removeUserProfile(name))
+                (await req.app.locals.db.removeAlias(dm3Name))
                     ? res.sendStatus(200)
-                    : res.status(500).send({
+                    : res.status(400).send({
                           error: `Couldn't remove profile`,
                       });
             } catch (e) {

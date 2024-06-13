@@ -1,84 +1,118 @@
-import bodyParser from 'body-parser';
-
+import {
+    Session,
+    generateAuthJWT,
+    spamFilter,
+} from '@dm3-org/dm3-lib-delivery';
 import {
     UserProfile,
     getProfileCreationMessage,
 } from '@dm3-org/dm3-lib-profile';
 import { stringify } from '@dm3-org/dm3-lib-shared';
+import bodyParser from 'body-parser';
 import { ethers } from 'ethers';
 import express from 'express';
+import http from 'http';
 import request from 'supertest';
-import profile from './profile';
 import winston from 'winston';
+import { IDatabase } from './persistence/getDatabase';
+import profile from './profile';
+import storage from './storage';
 
-async function getEnsTextRecord(
-    provider: ethers.providers.JsonRpcProvider,
-    ensName: string,
-    recordKey: string,
-) {
-    try {
-        const resolver = await provider.getResolver(ensName);
-        if (resolver === null) {
-            return;
-        }
-
-        return await resolver.getText(recordKey);
-    } catch (e) {
-        return undefined;
-    }
-}
 global.logger = winston.createLogger({
     transports: [new winston.transports.Console()],
 });
 
+const web3ProviderMock: ethers.providers.JsonRpcProvider =
+    new ethers.providers.JsonRpcProvider();
+
+const serverSecret = 'veryImportantSecretToGenerateAndValidateJSONWebTokens';
+
+let token = generateAuthJWT('alice.eth', serverSecret);
+
+const setUpApp = async (
+    app: express.Express,
+    db: IDatabase,
+    web3Provider: ethers.providers.JsonRpcProvider,
+    serverSecret: string = 'my-secret',
+) => {
+    app.use(bodyParser.json());
+    const server = http.createServer(app);
+    app.use(profile(db, web3Provider, serverSecret));
+};
+
+const createDbMock = async () => {
+    const sessionMocked = {
+        challenge: '123',
+        token: 'deprecated token that is not used anymore',
+        signedUserProfile: {},
+    } as Session & { spamFilterRules: spamFilter.SpamFilterRules };
+
+    const dbMock = {
+        getSession: async (ensName: string) =>
+            Promise.resolve<
+                Session & {
+                    spamFilterRules: spamFilter.SpamFilterRules;
+                }
+            >(sessionMocked), // returns some valid session
+        setSession: async (_: string, __: Session) => {},
+        getIdEnsName: async (ensName: string) => ensName,
+    };
+
+    return dbMock as any;
+};
+
 describe('Profile', () => {
     describe('getProfile', () => {
-        it('Returns 200 if schema is valid', async () => {
+        it('Returns 200 if user profile exists', async () => {
             const app = express();
-            app.use(bodyParser.json());
-            app.use(profile());
 
-            app.locals.db = {
-                getSession: async (ensName: string) => ({
-                    signedUserProfile: {},
-                }),
-                setSession: async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
-                },
-                getIdEnsName: async (ensName: string) => ensName,
+            const db = await createDbMock();
+
+            const _web3Provider = {
+                resolveName: async () =>
+                    '0x95222290DD7278Aa3Ddd389Cc1E1d165CC4BAfe5',
             };
+            // I don't know why this function is needed in this test.
+            // Remove it after storage migration.
+            db.getUserStorage = () => {};
+            app.use(storage(db, _web3Provider as any, serverSecret));
+            setUpApp(app, db, web3ProviderMock);
 
-            const { status } = await request(app)
-                .get('/0x99C19AB10b9EC8aC6fcda9586E81f6B73a298870')
+            const response = await request(app)
+                .get('/alice.eth')
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
                 .send();
+            const status = response.status;
 
             expect(status).toBe(200);
         });
     });
 
     describe('submitUserProfile', () => {
-        it('Returns 200 if schema is valid', async () => {
-            const app = express();
-            app.use(bodyParser.json());
-            app.use(profile());
-
+        it('Returns 200 if user profile creation was successful', async () => {
             const mnemonic =
                 'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
 
             const wallet = ethers.Wallet.fromMnemonic(mnemonic);
 
-            app.locals = {
-                web3Provider: { resolveName: async () => wallet.address },
-                db: {
-                    getSession: async (ensName: string) =>
-                        Promise.resolve(null),
-                    setSession: async (_: string, __: any) => {
-                        return (_: any, __: any, ___: any) => {};
-                    },
-                    getPending: (_: any) => [],
-                    getIdEnsName: async (ensName: string) => ensName,
-                },
+            // this provider must return the address of the wallet when resolveName is called
+            const _web3ProviderMock = {
+                resolveName: async () => wallet.address,
             };
+            // the db must return null when getSession is called
+            const _dbMock = {
+                getSession: async (ensName: string) => Promise.resolve(null),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                getPending: (_: any) => [],
+                getIdEnsName: async (ensName: string) => ensName,
+            };
+
+            const app = express();
+            setUpApp(app, _dbMock as any, _web3ProviderMock as any);
 
             const userProfile: UserProfile = {
                 publicSigningKey: '2',
@@ -99,26 +133,18 @@ describe('Profile', () => {
                 signature,
             };
 
-            const { status } = await request(app)
+            const response = await request(app)
                 .post(`/${wallet.address}`)
                 .send(signedUserProfile);
 
+            const status = response.status;
+
             expect(status).toBe(200);
         });
+
         it('Returns 400 if schema is invalid', async () => {
             const app = express();
-            app.use(bodyParser.json());
-            app.use(profile());
-
-            app.locals.db = {
-                getSession: async (accountAddress: string) =>
-                    Promise.resolve(null),
-                setSession: async (_: string, __: any) => {
-                    return (_: any, __: any, ___: any) => {};
-                },
-                getPending: (_: any) => [],
-                getIdEnsName: async (ensName: string) => ensName,
-            };
+            setUpApp(app, await createDbMock(), web3ProviderMock);
 
             const userProfile: UserProfile = {
                 publicSigningKey: '2',

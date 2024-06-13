@@ -1,33 +1,22 @@
-import { Axios } from 'axios';
+import {
+    Auth,
+    errorHandler,
+    getCachedWebProvider,
+    getServerSecret,
+    logError,
+    logRequest,
+} from '@dm3-org/dm3-lib-server-side';
+import { logInfo } from '@dm3-org/dm3-lib-shared';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import 'dotenv/config';
 import express from 'express';
 import http from 'http';
 import path from 'path';
-import { Server } from 'socket.io';
 import winston from 'winston';
-import Auth from './auth';
-import { startCleanUpPendingMessagesJob } from './cleanup/cleanUpPendingMessages';
-import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
-import Delivery from './delivery';
-import { onConnection } from './messaging';
 import { getDatabase } from './persistence/getDatabase';
 import Profile from './profile';
-import RpcProxy from './rpc/rpc-proxy';
 import Storage from './storage';
-import { logInfo } from '@dm3-org/dm3-lib-shared';
-import 'dotenv/config';
-
-import {
-    errorHandler,
-    getWeb3Provider,
-    logError,
-    logRequest,
-    readKeysFromEnv,
-    socketAuth,
-} from './utils';
-import Notifications from './notifications';
-import { WebSocketManager } from './ws/WebSocketManager';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -48,55 +37,23 @@ global.logger = winston.createLogger({
     transports: [new winston.transports.Console()],
 });
 
+winston.loggers.add('default', global.logger);
+
 (async () => {
-    //TODO REPLACE WITH WS MANAGER
-    const io = new Server(server, {
-        cors: {
-            origin: '*',
-            methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-            preflightContinue: false,
-            optionsSuccessStatus: 204,
-        },
-    });
-
-    app.locals.io = io;
-
-    app.locals.keys = readKeysFromEnv(process.env);
-    app.locals.deliveryServiceProperties = getDeliveryServiceProperties();
-
-    app.locals.db = await getDatabase();
-    app.locals.web3Provider = await getWeb3Provider(process.env);
+    const db = await getDatabase();
+    const web3Provider = await getCachedWebProvider(process.env);
+    const serverSecret = getServerSecret(process.env);
 
     app.use(logRequest);
-    app.locals.webSocketManager = new WebSocketManager(
-        io,
-        app.locals.web3Provider,
-        app.locals.db,
-    );
 
     app.get('/hello', (req, res) => {
         return res.send('Hello DM3');
     });
-    app.use('/profile', Profile());
-    app.use('/storage', Storage(app.locals.db));
-    app.use('/auth', Auth());
-    app.use('/delivery', Delivery());
-    app.use(
-        '/notifications',
-        Notifications(app.locals.deliveryServiceProperties),
-    );
-    app.use('/rpc', RpcProxy(new Axios({ url: process.env.RPC })));
+    app.use('/profile', Profile(db, web3Provider, serverSecret));
+    app.use('/storage', Storage(db, web3Provider, serverSecret));
+    app.use('/auth', Auth(db.getSession as any, serverSecret));
     app.use(logError);
     app.use(errorHandler);
-    //@ts-ignore
-    io.use(socketAuth(app));
-    //@ts-ignore
-    io.on('connection', onConnection(app));
-
-    startCleanUpPendingMessagesJob(
-        app.locals.db,
-        app.locals.deliveryServiceProperties.messageTTL,
-    );
 })();
 
 // TODO include standalone web app

@@ -44,11 +44,12 @@ yarn-error.log*
 **/*/dist
 **/*/*.rdb
 
-#
 .vscode/**
 
 packages/lib/**/dist.backend
 packages/lib/**/dist
+packages/lib/*.tgz
+packages/messenger-widget/**/lib
 
 **/*/.env
 **/*/.nyc_output

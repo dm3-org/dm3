@@ -1,16 +1,21 @@
-import { NAME_TYPE } from '../chain/common';
-import { AuthContext } from '../../../context/AuthContext';
 import React, { useContext, useEffect, useState } from 'react';
-import { ConfigureProfileContext } from './ConfigureProfileContext';
+import { useChainId } from 'wagmi';
+import { AuthContext } from '../../../context/AuthContext';
 import { DM3ConfigurationContext } from '../../../context/DM3ConfigurationContext';
+import { ModalContext } from '../../../context/ModalContext';
 import { useMainnetProvider } from '../../../hooks/mainnetprovider/useMainnetProvider';
+import { supportedChains } from '../../../utils/common-utils';
+import { closeLoader, startLoader } from '../../Loader/Loader';
 import {
     ACTION_TYPE,
+    DM3_NAME_SERVICES,
     fetchExistingDM3Name,
     removeAliasFromDm3Name,
     validateName,
 } from '../bl';
-import { ModalContext } from '../../../context/ModalContext';
+import { NAME_TYPE } from '../chain/common';
+import { removeOpName } from '../dm3Names/optimismName/tx/removeOpName';
+import { ConfigureProfileContext } from './ConfigureProfileContext';
 
 export interface ConfigureDM3NameContextType {
     existingDm3Name: string | null;
@@ -30,6 +35,7 @@ export interface ConfigureDM3NameContextType {
         submitDm3UsernameClaim: (dm3UserEnsName: string) => void,
     ) => void;
     updateDeleteConfirmation: (action: boolean) => void;
+    getChainOfDm3Name: () => number;
 }
 
 export const ConfigureDM3NameContext =
@@ -51,6 +57,7 @@ export const ConfigureDM3NameContext =
             submitDm3UsernameClaim: (dm3UserEnsName: string) => void,
         ) => {},
         updateDeleteConfirmation: (action: boolean) => {},
+        getChainOfDm3Name: () => 0,
     });
 
 export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
@@ -63,6 +70,8 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
 
     const mainnetProvider = useMainnetProvider();
 
+    const chainId = useChainId();
+
     const { setLoaderContent } = useContext(ModalContext);
 
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
@@ -71,8 +80,7 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
         ConfigureProfileContext,
     );
 
-    const { account, ethAddress, deliveryServiceToken, profileKeys } =
-        useContext(AuthContext);
+    const { account, profileKeys } = useContext(AuthContext);
 
     const setError = (error: string, type: NAME_TYPE | undefined) => {
         onShowError(type, error);
@@ -107,6 +115,12 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
             }
             await submitDm3UsernameClaim(name);
         } else {
+            return await deleteDm3Name(setDisplayName);
+        }
+    };
+
+    const deleteDm3Name = async (setDisplayName: Function) => {
+        if (dm3NameServiceSelected === DM3_NAME_SERVICES.CLOUD) {
             const result = await removeAliasFromDm3Name(
                 dm3Configuration.resolverBackendUrl,
                 profileKeys!,
@@ -114,12 +128,94 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
                 setLoaderContent,
                 setError,
             );
-            result && setExistingDm3Name(null);
+
+            if (result) {
+                setExistingDm3Name(null);
+                setDisplayName(account?.ensName);
+                return {
+                    error: '',
+                    status: true,
+                };
+            } else {
+                return {
+                    error: 'Failed to remove DM3 name',
+                    status: false,
+                };
+            }
         }
+        if (dm3NameServiceSelected === DM3_NAME_SERVICES.OPTIMISM) {
+            const chainToConnect =
+                Number(dm3Configuration.chainId) ===
+                supportedChains.ethereumTestnet
+                    ? supportedChains.optimismTestnet
+                    : supportedChains.optimismMainnet;
+            return await deleteOptimismName(chainToConnect, setDisplayName);
+        }
+    };
+
+    const deleteOptimismName = async (
+        chainToConnect: number,
+        setDisplayName: Function,
+    ) => {
+        if (chainToConnect !== chainId) {
+            setError(
+                'Invalid chain connected. Please switch to Optimism network.',
+                NAME_TYPE.ENS_NAME,
+            );
+            return {
+                error: 'Invalid chain connected. Please switch to Optimism network.',
+                status: false,
+            };
+        }
+
+        try {
+            // start loader
+            setLoaderContent('Removing OP name...');
+            startLoader();
+
+            const success = await removeOpName(mainnetProvider);
+
+            if (success) {
+                setExistingDm3Name(null);
+                setDisplayName(account?.ensName);
+                /** TODO : Remove this line if not required*/
+                // setEnsNameFromResolver(ensName);
+            } else {
+                throw Error('Error removing OP name transaction');
+            }
+        } catch (e: any) {
+            const check = e.toString().includes('user rejected transaction');
+            const errorMsg = check
+                ? 'User rejected transaction'
+                : 'Failed to remove OP name';
+            setError(errorMsg, NAME_TYPE.DM3_NAME);
+            closeLoader();
+            return {
+                error: errorMsg,
+                status: false,
+            };
+        }
+
+        // stop loader
+        closeLoader();
     };
 
     const updateDeleteConfirmation = (action: boolean) => {
         setShowDeleteConfirmation(action);
+    };
+
+    const getChainOfDm3Name = (): number => {
+        if (existingDm3Name) {
+            return existingDm3Name.endsWith(
+                dm3Configuration.addressEnsSubdomain,
+            ) || existingDm3Name.endsWith(dm3Configuration.userEnsSubdomain)
+                ? 0
+                : Number(dm3Configuration.chainId) ===
+                  supportedChains.ethereumTestnet
+                ? supportedChains.optimismTestnet
+                : supportedChains.optimismMainnet;
+        }
+        return 0;
     };
 
     // handles existing DM3 name
@@ -156,6 +252,7 @@ export const ConfigureDM3NameContextProvider = (props: { children?: any }) => {
                 handleClaimOrRemoveDm3Name,
                 updateDeleteConfirmation,
                 setError,
+                getChainOfDm3Name,
             }}
         >
             {props.children}

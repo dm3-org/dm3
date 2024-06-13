@@ -1,0 +1,6 @@
+.dm3Container {
+  border-radius: 25px;  /* Optional property */
+  overflow: hidden;  /* Optional property only if wanted set border radius */
+  height: 100vh; /* If the container has no height, then it is mandatory to set some height*/
+  width: 100vw; /* If the container has no width, then it is mandatory to set some width */
+ } 

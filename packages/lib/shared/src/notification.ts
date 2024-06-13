@@ -4,6 +4,7 @@
  */
 export enum NotificationChannelType {
     EMAIL = 'EMAIL',
+    PUSH = 'PUSH',
 }
 
 // The properties of a notification channel.

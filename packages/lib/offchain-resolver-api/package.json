@@ -1,0 +1,38 @@
+{
+  "name": "@dm3-org/dm3-lib-offchain-resolver-api",
+  "version": "1.4.0",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@dm3-org/dm3-lib-crypto": "workspace:^",
+    "@dm3-org/dm3-lib-profile": "workspace:^",
+    "axios": "^1.3.4"
+  },
+  "devDependencies": {
+    "@types/data-urls": "^3.0.1",
+    "@types/jest": "^28.1.1",
+    "@types/node": "^16.7.13",
+    "@types/uuid": "^8.3.4",
+    "@types/whatwg-encoding": "^2.0.0",
+    "axios-mock-adapter": "^1.21.2",
+    "jest": "^28.1.1",
+    "ts-jest": "^28.0.4",
+    "ts-json-schema-generator": "^0.98.0",
+    "typescript": "^4.7.0"
+  },
+  "scripts": {
+    "build": "yarn tsc --declaration  --declarationMap",
+    "test": "echo 'no tests'"
+  },
+  "files": [
+    "dist"
+  ],
+  "publish": true
+}

@@ -12,19 +12,26 @@ import { Contact } from '../../interfaces/context';
 import { ContactPreview } from '../../interfaces/utils';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
 import { fetchMessageSizeLimit } from '../messages/sizeLimit/fetchSizeLimit';
+import { DeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery';
 
 export const hydrateContract = async (
     provider: ethers.providers.JsonRpcProvider,
     conversatoinManifest: Conversation,
     resolveAliasToTLD: (alias: string) => Promise<string>,
     addrEnsSubdomain: string,
+    deliveryServiceProperties: DeliveryServiceProperties[],
 ) => {
+    //If the profile property of the account is defined the user has already used DM3 previously
     const account = await fetchAccount(
         provider,
         conversatoinManifest.contactEnsName,
     );
+    //Has to become fetchMultipleDsProfiles
     const contact = await fetchDsProfile(provider, account);
-    const messageSizeLimit = await fetchMessageSizeLimit(provider, account);
+    //Fetch the message size limit of the receivers delivery service must be fetched for every message
+    const messageSizeLimit = await fetchMessageSizeLimit(
+        deliveryServiceProperties,
+    );
     const contactPreview = await fetchPreview(
         provider,
         conversatoinManifest,
@@ -33,7 +40,6 @@ export const hydrateContract = async (
         messageSizeLimit,
         addrEnsSubdomain,
     );
-
     return contactPreview;
 };
 
@@ -46,6 +52,7 @@ const fetchPreview = async (
     addrEnsSubdomain: string,
 ): Promise<ContactPreview> => {
     return {
+        //display name, if alias is not defined the addr ens name will be used
         name: await resolveAliasToTLD(contact.account.ensName),
         message: '',
         image: await getAvatarProfilePic(
@@ -53,7 +60,9 @@ const fetchPreview = async (
             contact.account.ensName,
             addrEnsSubdomain,
         ),
+        //ToDo maybe can be removed aswell
         messageCount: conversatoinManifest.messageCounter,
+        //ToDo field is not used and can be removed
         unreadMsgCount: 21,
         contactDetails: contact,
         isHidden: conversatoinManifest.isHidden,
@@ -93,11 +102,11 @@ const fetchDsProfile = async (
     provider: ethers.providers.JsonRpcProvider,
     account: Account,
 ): Promise<Contact> => {
-    const deliveryServiceUrl = account.profile?.deliveryServices[0];
-
-    if (!deliveryServiceUrl) {
+    const deliveryServiceEnsName = account.profile?.deliveryServices[0];
+    if (!deliveryServiceEnsName) {
+        //If there is now DS profile the message will be storaged at the client side until they recipient has createed an account
         console.log(
-            '[fetchDeliverServicePorfile] Cant resolve deliveryServiceUrl',
+            '[fetchDeliverServicePorfile] Cant resolve deliveryServiceEnsName',
         );
         return {
             account,
@@ -105,7 +114,7 @@ const fetchDsProfile = async (
     }
 
     const deliveryServiceProfile = await getDeliveryServiceProfile(
-        deliveryServiceUrl,
+        deliveryServiceEnsName,
         provider!,
         async (url: string) => (await axios.get(url)).data,
     );

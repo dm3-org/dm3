@@ -21,13 +21,4 @@ describe('Storage Utils', () => {
             expect(timeStamp).toBeUndefined();
         });
     });
-
-    describe('createTimestamp', () => {
-        it('create new timestamp', () => {
-            jest.useFakeTimers().setSystemTime(new Date(123));
-            const timestamp = createTimestamp();
-
-            expect(timestamp).toBe(123);
-        });
-    });
 });

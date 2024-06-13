@@ -1,9 +1,22 @@
-import { ethers } from 'ethers';
 import { ProfileExtension, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
-import { logDebug } from '@dm3-org/dm3-lib-shared';
+import { validateSchema } from '@dm3-org/dm3-lib-shared';
+import { ethers } from 'ethers';
+import { decode, verify } from 'jsonwebtoken';
 
 //1Year
 const TTL = 31536000000;
+
+const authJwtPayloadSchema = {
+    type: 'object',
+    properties: {
+        account: { type: 'string' },
+        iat: { type: 'number' },
+        exp: { type: 'number' },
+        nbf: { type: 'number' },
+    },
+    required: ['account', 'iat', 'exp', 'nbf'],
+    additionalProperties: false,
+};
 
 export interface Session {
     account: string;
@@ -23,50 +36,48 @@ export async function checkToken(
     getSession: (ensName: string) => Promise<Session | null>,
     ensName: string,
     token: string,
+    serverSecret: string,
 ): Promise<boolean> {
-    logDebug({
-        text: 'checkToken',
-    });
-    //WHY DO WE DO THAT ?
-    //TODO figure out why we do that
-    const address = await provider.resolveName(ensName);
-
-    if (!address) {
-        // Couln't resolve ENS name
-        logDebug({
-            text: `checkToken - Couln't resolve ENS name`,
-        });
-        return false;
-    }
+    console.debug('checking auth token', decode(token));
 
     const session = await getSession(ensName.toLocaleLowerCase());
-
-    //There is no account for the requesting accoung
+    console.log('found session', session);
     if (!session) {
-        logDebug({
-            text: `checkToken - There is no account for the requesting accoung`,
-        });
+        console.debug('there is no account for this ens name: ', ensName);
         return false;
     }
 
-    const tokenIsValid = token === session.token;
-
-    //The account has a session but the token is wrong
-    if (!tokenIsValid) {
-        logDebug({
-            text: `checkToken - The account has a session but the token is wrong`,
+    // check jwt for validity
+    try {
+        // will throw if signature is invalid or exp is in the past
+        const jwtPayload = verify(token, serverSecret, {
+            algorithms: ['HS256'],
         });
+        console.log('jwt payload', decode(token));
+
+        // check if payload is well formed
+        if (
+            typeof jwtPayload === 'string' ||
+            !validateSchema(authJwtPayloadSchema, jwtPayload)
+        ) {
+            console.debug('jwt malformed');
+            return false;
+        }
+
+        if (!jwtPayload.iat || jwtPayload.iat > Date.now() / 1000) {
+            console.debug('jwt invalid: iat missing or in the future');
+            return false;
+        }
+
+        if (jwtPayload.account !== ensName) {
+            console.debug('jwt invalid: account mismatch');
+            return false;
+        }
+    } catch (error) {
+        console.debug(`jwt invalid: ${error}`);
         return false;
     }
 
-    const isTokenExpired = session.createdAt + TTL < new Date().getTime();
-    //The token is exceeded
-    if (isTokenExpired) {
-        logDebug({
-            text: `checkToken - The token is exceeded`,
-        });
-        return false;
-    }
-
+    // the token is valid only if all checks passed
     return true;
 }

@@ -72,6 +72,7 @@ export function MessageInputBox() {
     return (
         <div
             id="msg-input-box-container"
+            data-testid="msg-input-box-container"
             className="mb-1 p-1 msg-input-box-container width-fill"
         >
             {/* Reply message preview */}

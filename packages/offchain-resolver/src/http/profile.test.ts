@@ -82,8 +82,9 @@ describe('Profile', () => {
             const { status, body } = await request(app)
                 .post(`/name`)
                 .send({
-                    alias: 'foo.dm3.eth',
-                    name: SENDER_ADDRESS + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    dm3Name: 'foo.dm3.eth',
+                    addressName:
+                        SENDER_ADDRESS + globalConfig.ADDR_ENS_SUBDOMAIN(),
                     signature: await app.locals.forTests.wallet.signMessage(
                         'alias: foo.dm3.eth',
                     ),
@@ -113,8 +114,8 @@ describe('Profile', () => {
             const res1 = await request(app)
                 .post(`/name`)
                 .send({
-                    alias: 'foo.dm3.eth',
-                    name:
+                    dm3Name: 'foo.dm3.eth',
+                    addressName:
                         offChainProfile1.signer +
                         globalConfig.ADDR_ENS_SUBDOMAIN(),
                     signature: await sign(
@@ -148,8 +149,8 @@ describe('Profile', () => {
             const { status, body } = await request(app)
                 .post(`/name`)
                 .send({
-                    alias: 'foo.dm3.eth',
-                    name:
+                    dm3Name: 'foo.dm3.eth',
+                    addressName:
                         offChainProfile.signer +
                         globalConfig.ADDR_ENS_SUBDOMAIN(),
                     signature: await sign(
@@ -187,8 +188,8 @@ describe('Profile', () => {
             const res1 = await request(app)
                 .post(`/name`)
                 .send({
-                    alias: 'foo.dm3.eth',
-                    name:
+                    dm3Name: 'foo.dm3.eth',
+                    addressName:
                         offChainProfile1.signer +
                         globalConfig.ADDR_ENS_SUBDOMAIN(),
                     signature: await sign(
@@ -223,8 +224,8 @@ describe('Profile', () => {
             const res2 = await request(app2)
                 .post(`/name`)
                 .send({
-                    alias: 'foo.dm3.eth',
-                    name:
+                    dm3Name: 'foo.dm3.eth',
+                    addressName:
                         offChainProfile1.signer +
                         globalConfig.ADDR_ENS_SUBDOMAIN(),
                     signature: await sign(
@@ -364,8 +365,8 @@ describe('Profile', () => {
             const writeRes2 = await request(app)
                 .post(`/name`)
                 .send({
-                    alias: 'foo.dm3.eth',
-                    name: signer + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    dm3Name: 'foo.dm3.eth',
+                    addressName: signer + globalConfig.ADDR_ENS_SUBDOMAIN(),
                     signature: await sign(
                         privateSigningKey,
                         'alias: foo.dm3.eth',
@@ -376,7 +377,7 @@ describe('Profile', () => {
             const writeRes3 = await request(app)
                 .post(`/deleteName`)
                 .send({
-                    name: 'foo.dm3.eth',
+                    dm3Name: 'foo.dm3.eth',
                     signature: await sign(
                         privateSigningKey,
                         'remove: foo.dm3.eth',
@@ -423,8 +424,8 @@ describe('Profile', () => {
             const writeRes2 = await request(app)
                 .post(`/name`)
                 .send({
-                    alias: 'foo.dm3.eth',
-                    name: signer + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    dm3Name: 'foo.dm3.eth',
+                    addressName: signer + globalConfig.ADDR_ENS_SUBDOMAIN(),
                     signature: await sign(
                         privateSigningKey,
                         'alias: foo.dm3.eth',

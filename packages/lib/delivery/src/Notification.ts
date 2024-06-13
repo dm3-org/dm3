@@ -61,21 +61,27 @@ export async function addNewNotificationChannel(
         },
     });
 
-    // generate and save OTP
-    const otp = await saveOtp(notificationChannelType, ensName, db.setOtp);
+    // send OTP only when notification type is not PUSH
+    if (notificationChannelType === NotificationChannelType.PUSH) {
+        // set notification channel as verified
+        db.setNotificationChannelAsVerified(ensName, notificationChannelType);
+    } else {
+        // generate and save OTP
+        const otp = await saveOtp(notificationChannelType, ensName, db.setOtp);
 
-    // set up notification broker
-    const { sendOtp } = NotificationBroker(
-        dsNotificationChannels,
-        NotificationType.OTP,
-    );
+        // set up notification broker
+        const { sendOtp } = NotificationBroker(
+            channelUsed,
+            NotificationType.OTP,
+        );
 
-    // send otp
-    await sendOtp(
-        ensName,
-        db.getUsersNotificationChannels,
-        getOtpContentForNotificationChannel(channelUsed[0], otp),
-    );
+        // send otp
+        await sendOtp(
+            ensName,
+            db.getUsersNotificationChannels,
+            getOtpContentForNotificationChannel(channelUsed[0], otp),
+        );
+    }
 }
 
 // method to fetch otp content to send to specific channel which can vary for each type
@@ -150,10 +156,7 @@ export const sendOtp = async (
     const otp = await saveOtp(notificationChannelType, ensName, db.setOtp);
 
     // set up notification broker
-    const { sendOtp } = NotificationBroker(
-        dsNotificationChannels,
-        NotificationType.OTP,
-    );
+    const { sendOtp } = NotificationBroker(channelUsed, NotificationType.OTP);
 
     // send otp
     await sendOtp(

@@ -22,7 +22,7 @@ function DM3(props: Dm3Props) {
 
     const { setLoaderContent } = useContext(ModalContext);
 
-    const { isLoggedIn } = useContext(AuthContext);
+    const { isProfileReady } = useContext(AuthContext);
 
     // updates rainbow kit provider height to 100% when rendered
     useEffect(() => {
@@ -64,7 +64,7 @@ function DM3(props: Dm3Props) {
             <ConversationContextProvider config={props.config}>
                 <MessageContextProvider>
                     <Loader />
-                    {!isLoggedIn ? (
+                    {!isProfileReady ? (
                         props.config.siwe ? (
                             <Siwe backgroundImage={props.config.signInImage} />
                         ) : (
