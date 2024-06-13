@@ -147,6 +147,19 @@ jobs:
               with:
                   workspace-name: '@dm3-org/dm3-lib-shared'
                   package-pat: ${{ secrets.PACKAGE_PAT }}
+    lib-shared-side-test:
+        runs-on: ubuntu-latest
+        needs: build
+        defaults:
+            run:
+                working-directory: 'packages/lib'
+        steps:
+            - uses: actions/checkout@v1
+            - id: workspace-test
+              uses: ./test-action
+              with:
+                  workspace-name: '@dm3-org/dm3-lib-shared'
+                  package-pat: ${{ secrets.PACKAGE_PAT }}
     lib-storage-test:
         runs-on: ubuntu-latest
         needs: build
