@@ -13,12 +13,27 @@ import { getMockedTldContext } from '../../context/testHelper/getMockedTldContex
 import { getDefaultContract } from '../../interfaces/utils';
 import { useMessage } from './useMessage';
 import {
+    MockDeliveryServiceProfile,
     MockMessageFactory,
     MockedUserProfile,
     getMockDeliveryServiceProfile,
     mockUserProfile,
 } from '@dm3-org/dm3-lib-test-helper';
 import { ethers } from 'ethers';
+import { useConversation } from '../conversation/useConversation';
+import {
+    MainnetProviderContext,
+    MainnetProviderContextType,
+} from '../../context/ProviderContext';
+import { getMockedMainnetProviderContext } from '../../context/testHelper/getMockedMainnetProviderContext';
+import {
+    DEFAULT_DM3_CONFIGURATION,
+    getMockedDm3Configuration,
+} from '../../context/testHelper/getMockedDm3Configuration';
+import { DM3Configuration } from '../../widget';
+import { Conversation } from '@dm3-org/dm3-lib-storage';
+import MockAdapter from 'axios-mock-adapter';
+import axios from 'axios';
 
 describe('useMessage hook test cases', () => {
     const CONTACT_NAME = 'user.dm3.eth';
@@ -57,24 +72,39 @@ describe('useMessage hook test cases', () => {
     describe('add Message', () => {
         let sender: MockedUserProfile;
         let receiver: MockedUserProfile;
-        let ds: any;
+        let ds1: MockDeliveryServiceProfile;
+        let ds2: MockDeliveryServiceProfile;
+
+        let axiosMock: MockAdapter;
 
         beforeEach(async () => {
             sender = await mockUserProfile(
                 ethers.Wallet.createRandom(),
                 'alice.eth',
-                ['https://example.com'],
+                ['ds1.eth'],
             );
             receiver = await mockUserProfile(
                 ethers.Wallet.createRandom(),
                 'bob.eth',
-                ['https://example.com'],
+                ['ds1.eth', 'ds2.eth'],
             );
-            ds = await getMockDeliveryServiceProfile(
+            ds1 = await getMockDeliveryServiceProfile(
                 ethers.Wallet.createRandom(),
-                'https://example.com',
+                'http://ds1.api',
+            );
+            ds2 = await getMockDeliveryServiceProfile(
+                ethers.Wallet.createRandom(),
+                'http://ds2.api',
             );
         });
+        const CONTACT_NAME = 'user.dm3.eth';
+
+        const configurationContext = getMockedDm3Configuration({
+            dm3Configuration: {
+                ...DEFAULT_DM3_CONFIGURATION,
+            },
+        });
+        const config: DM3Configuration = configurationContext.dm3Configuration!;
 
         it('should not add empty message', async () => {
             const storageContext = getMockedStorageContext({
@@ -122,11 +152,7 @@ describe('useMessage hook test cases', () => {
                 expect(result.current.contactIsLoading('max.eth')).toBe(false),
             );
 
-            const messageFactory = MockMessageFactory(
-                sender,
-                receiver,
-                ds.profile,
-            );
+            const messageFactory = MockMessageFactory(sender, receiver, ds1);
             const message = await messageFactory.createMessage('');
             const addMessageResult = await waitFor(() =>
                 result.current.addMessage('max.eth', message),
@@ -183,11 +209,7 @@ describe('useMessage hook test cases', () => {
                 expect(result.current.contactIsLoading('max.eth')).toBe(false),
             );
 
-            const messageFactory = MockMessageFactory(
-                sender,
-                receiver,
-                ds.profile,
-            );
+            const messageFactory = MockMessageFactory(sender, receiver, ds1);
             const message = await messageFactory.createMessage('         ');
             const addMessageResult = await waitFor(() =>
                 result.current.addMessage('max.eth', message),
@@ -244,11 +266,7 @@ describe('useMessage hook test cases', () => {
                 expect(result.current.contactIsLoading('max.eth')).toBe(false),
             );
 
-            const messageFactory = MockMessageFactory(
-                sender,
-                receiver,
-                ds.profile,
-            );
+            const messageFactory = MockMessageFactory(sender, receiver, ds1);
             const message = await messageFactory.createMessage('hello dm3');
             const addMessageResult = await waitFor(() =>
                 result.current.addMessage('alice.eth', message),
@@ -259,6 +277,109 @@ describe('useMessage hook test cases', () => {
                 error: undefined,
             });
             expect(result.current.messages['alice.eth'].length).toBe(1);
+        });
+        it('should send message to ds', async () => {
+            axiosMock = new MockAdapter(axios);
+
+            axiosMock.onPost('http://ds1.api/rpc').reply(200, {});
+
+            axiosMock.onPost('http://ds2.api/rpc').reply(200, {});
+
+            const storageContext = getMockedStorageContext({
+                editMessageBatchAsync: jest.fn(),
+                storeMessageBatch: jest.fn(),
+                storeMessage: jest.fn(),
+                getNumberOfMessages: jest.fn().mockResolvedValue(0),
+                getMessages: jest.fn().mockResolvedValue([]),
+            });
+
+            const conversationContext = getMockedConversationContext({
+                selectedContact: getDefaultContract('max.eth'),
+                contacts: [
+                    {
+                        name: '',
+                        message: '',
+                        image: 'human.svg',
+                        messageCount: 1,
+                        unreadMsgCount: 21,
+                        contactDetails: {
+                            account: {
+                                ensName: receiver.account.ensName,
+                                profileSignature:
+                                    receiver.signedUserProfile.signature,
+                                profile: receiver.signedUserProfile.profile,
+                            },
+                            deliveryServiceProfiles: [
+                                ds1.deliveryServiceProfile,
+                                ds2.deliveryServiceProfile,
+                            ],
+                        },
+                        isHidden: false,
+                        messageSizeLimit: 10000000,
+                    },
+                ],
+            });
+            const deliveryServiceContext = getMockedDeliveryServiceContext({
+                //Add websocket mock
+                onNewMessage: (cb: Function) => {
+                    console.log('on new message');
+                },
+                fetchNewMessages: jest.fn().mockResolvedValue([]),
+                removeOnNewMessageListener: jest.fn(),
+                syncAcknowledgment: jest.fn(),
+            });
+
+            const authContext = getMockedAuthContext({
+                profileKeys: receiver.profileKeys,
+                account: {
+                    ensName: sender.account.ensName,
+                    profile: sender.signedUserProfile.profile,
+                },
+            });
+            const tldContext = getMockedTldContext({});
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <ConversationContext.Provider
+                                    value={conversationContext}
+                                >
+                                    <DeliveryServiceContext.Provider
+                                        value={deliveryServiceContext}
+                                    >
+                                        {children}
+                                    </DeliveryServiceContext.Provider>
+                                </ConversationContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useMessage(), {
+                wrapper,
+            });
+            await waitFor(() =>
+                expect(result.current.contactIsLoading('max.eth')).toBe(false),
+            );
+
+            const messageFactory = MockMessageFactory(sender, receiver, ds1);
+            const message = await messageFactory.createMessage('hello dm3');
+            const addMessageResult = await waitFor(() =>
+                result.current.addMessage('bob.eth', message),
+            );
+
+            expect(addMessageResult).toEqual({
+                isSuccess: true,
+                error: undefined,
+            });
+            expect(result.current.messages['bob.eth'].length).toBe(1);
+
+            expect(axiosMock.history.post.length).toBe(2);
+            expect(axiosMock.history.post[0].baseURL).toBe('http://ds1.api');
+            expect(axiosMock.history.post[1].baseURL).toBe('http://ds2.api');
         });
     });
 

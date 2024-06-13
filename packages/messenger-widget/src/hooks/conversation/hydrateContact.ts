@@ -106,7 +106,7 @@ const fetchDsProfiles = async (
     const deliveryServiceEnsNames = account.profile?.deliveryServices ?? [];
     if (deliveryServiceEnsNames.length === 0) {
         //If there is now DS profile the message will be storaged at the client side until they recipient has createed an account
-        console.log(
+        console.debug(
             '[fetchDeliverServicePorfile] Cant resolve deliveryServiceEnsName',
         );
         return {
@@ -118,7 +118,7 @@ const fetchDsProfiles = async (
     //Resolve every ds profile in the contacts profile
     const dsProfilesWithUnknowns = await Promise.all(
         deliveryServiceEnsNames.map((deliveryServiceEnsName: string) => {
-            console.log('fetch ds profile of', deliveryServiceEnsName);
+            console.debug('fetch ds profile of', deliveryServiceEnsName);
             return getDeliveryServiceProfile(
                 deliveryServiceEnsName,
                 provider!,
