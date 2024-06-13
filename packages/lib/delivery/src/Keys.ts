@@ -15,6 +15,7 @@ const challengeJwtPayloadSchema = {
         challenge: { type: 'string' },
     },
     required: ['account', 'iat', 'exp', 'nbf', 'challenge'],
+    additionalProperties: false,
 };
 
 export async function createChallenge(
@@ -104,7 +105,6 @@ export async function createNewSessionToken(
         throw Error('Signature invalid');
     }
 
-    // todo: create jwt instead, which does not have to be stored in the session
     const jwt = generateAuthJWT(ensName, serverSecret);
     return jwt;
 }

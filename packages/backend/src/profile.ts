@@ -27,6 +27,11 @@ export default (
         }
     });
 
+    /**
+     * Creates a new profile for the given ensName
+     * @param ensName ens id of the account
+     * @param signedUserProfile signed user profile
+     */
     router.post('/:ensName', async (req: express.Request, res, next) => {
         try {
             const schemaIsValid = validateSchema(
