@@ -57,7 +57,7 @@ export async function checkToken(
 
         // check if payload is well formed
         if (
-            typeof jwtPayload == 'string' ||
+            typeof jwtPayload === 'string' ||
             !validateSchema(authJwtPayloadSchema, jwtPayload)
         ) {
             console.debug('jwt malformed');
