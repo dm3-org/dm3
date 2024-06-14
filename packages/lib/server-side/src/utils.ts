@@ -60,11 +60,6 @@ export function socketAuth(
             );
             console.log('Start WS auth for ', ensName, socket.id);
 
-            console.log('socket dump');
-            console.log('---');
-            console.log(socket);
-            console.log('---');
-
             if (
                 !(await checkToken(
                     web3Provider,
