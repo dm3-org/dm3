@@ -28,7 +28,7 @@ function DM3(props: DM3Configuration) {
                         fontFamily: 'monospace',
                     }}
                     className="w-100 text-center"
-                >   {process.env.REACT_APP_ENVIRONMENT_NAME}{''}
+                >   {process.env.REACT_APP_ENVIRONMENT_NAME}{' '}
                     {process.env.REACT_APP_BUILD_TIME}{' '}
                     {process.env.BRANCH} {process.env.REACT_APP_COMMIT_HASH}
                 </div>
