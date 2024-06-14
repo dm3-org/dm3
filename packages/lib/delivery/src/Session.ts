@@ -1,10 +1,22 @@
-import { ethers } from 'ethers';
 import { ProfileExtension, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
-import { logDebug } from '@dm3-org/dm3-lib-shared';
-import { verify, decode } from 'jsonwebtoken';
+import { validateSchema } from '@dm3-org/dm3-lib-shared';
+import { ethers } from 'ethers';
+import { decode, verify } from 'jsonwebtoken';
 
 //1Year
 const TTL = 31536000000;
+
+const authJwtPayloadSchema = {
+    type: 'object',
+    properties: {
+        account: { type: 'string' },
+        iat: { type: 'number' },
+        exp: { type: 'number' },
+        nbf: { type: 'number' },
+    },
+    required: ['account', 'iat', 'exp', 'nbf'],
+    additionalProperties: false,
+};
 
 export interface Session {
     account: string;
@@ -26,28 +38,12 @@ export async function checkToken(
     token: string,
     serverSecret: string,
 ): Promise<boolean> {
-    logDebug({
-        text: 'checkToken',
-    });
-    const address = await provider.resolveName(ensName);
-    console.log('check token for ', address);
-
-    if (!address) {
-        // Couldn't resolve ENS name
-        logDebug({
-            text: `checkToken - Couldn't resolve ENS name`,
-        });
-        return false;
-    }
+    console.debug('checking auth token', decode(token));
 
     const session = await getSession(ensName.toLocaleLowerCase());
     console.log('found session', session);
-
-    //There is no account for the requesting account
     if (!session) {
-        logDebug({
-            text: `checkToken - There is no account for the requesting account`,
-        });
+        console.debug('there is no account for this ens name: ', ensName);
         return false;
     }
 
@@ -57,48 +53,28 @@ export async function checkToken(
         const jwtPayload = verify(token, serverSecret, {
             algorithms: ['HS256'],
         });
-        console.log('jwt string', jwtPayload);
-        console.log(decode(token));
+        console.log('jwt payload', decode(token));
 
-        // check if type is string -> invalid
-        if (typeof jwtPayload == 'string') {
-            logDebug({
-                text: `jwt invalid: jwtPayload is a string`,
-            });
-            return false;
-        }
-
-        // check if expected fields are present
+        // check if payload is well formed
         if (
-            !('account' in jwtPayload) ||
-            !('iat' in jwtPayload) ||
-            !('exp' in jwtPayload) ||
-            !('nbf' in jwtPayload)
+            typeof jwtPayload === 'string' ||
+            !validateSchema(authJwtPayloadSchema, jwtPayload)
         ) {
-            logDebug({
-                text: `jwt invalid: content missing`,
-            });
+            console.debug('jwt malformed');
             return false;
         }
 
         if (!jwtPayload.iat || jwtPayload.iat > Date.now() / 1000) {
-            logDebug({
-                text: `jwt invalid: iat missing or in the future`,
-            });
+            console.debug('jwt invalid: iat missing or in the future');
             return false;
         }
 
         if (jwtPayload.account !== ensName) {
-            logDebug({
-                text: `jwt invalid: account mismatch`,
-            });
+            console.debug('jwt invalid: account mismatch');
             return false;
         }
     } catch (error) {
-        logDebug({
-            text: `jwt invalid: ${error}`,
-            error,
-        });
+        console.debug(`jwt invalid: ${error}`);
         return false;
     }
 

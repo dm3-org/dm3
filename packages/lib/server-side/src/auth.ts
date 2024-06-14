@@ -1,12 +1,11 @@
-import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import {
     createChallenge,
     createNewSessionToken,
 } from '@dm3-org/dm3-lib-delivery';
-import express from 'express';
-import cors from 'cors';
-//import { WithLocals } from './types';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { validateSchema } from '@dm3-org/dm3-lib-shared';
+import cors from 'cors';
+import express from 'express';
 
 const getChallengeSchema = {
     type: 'object',

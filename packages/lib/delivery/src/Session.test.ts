@@ -7,7 +7,7 @@ const serverSecret = 'veryImportantSecretToGenerateAndValidateJSONWebTokens';
 const token = generateAuthJWT('alice.eth', serverSecret);
 
 describe('Session', () => {
-    describe('checkToken', () => {
+    describe('checkToken with state', () => {
         it('Should return true if the jwt is valid', async () => {
             const getSession = (_: string) =>
                 Promise.resolve({
@@ -110,13 +110,29 @@ describe('Session', () => {
             ) {
                 throw Error('Invalid token');
             }
+
+            // ensure token is accepted as valid before changes
+            if (
+                !(await checkToken(
+                    {
+                        resolveName: async () =>
+                            '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                    } as any,
+                    getSession,
+                    'alice.eth',
+                    token,
+                    serverSecret,
+                ))
+            ) {
+                throw Error('Token should be valid');
+            }
             // create invalid token
             const _token = sign(
                 {
                     account: tokenBody.account,
                     exp: tokenBody.exp,
-                    nbf: tokenBody.nbf + 1,
-                    iat: tokenBody.iat + 1, // issued in the future
+                    nbf: tokenBody.nbf + 2, // 2 to avoid race conditions
+                    iat: tokenBody.iat + 2, // issued in the future
                 },
                 serverSecret,
             );
@@ -129,6 +145,350 @@ describe('Session', () => {
                 getSession,
                 'alice.eth',
                 _token,
+                serverSecret,
+            );
+
+            expect(isValid).toBe(false);
+        });
+    });
+    describe('checkToken is not missing information', () => {
+        it('Should return false if iat is missing', async () => {
+            const getSession = (_: string) =>
+                Promise.resolve({ token: 'foo', createdAt: 1 } as Session);
+
+            const tokenBody = verify(token, serverSecret);
+            if (
+                !tokenBody ||
+                typeof tokenBody === 'string' ||
+                !tokenBody.exp ||
+                !tokenBody.account ||
+                !tokenBody.iat ||
+                !tokenBody.nbf
+            ) {
+                throw Error('Invalid token to begin with');
+            }
+
+            // ensure token is accepted as valid before changes
+            if (
+                !(await checkToken(
+                    {
+                        resolveName: async () =>
+                            '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                    } as any,
+                    getSession,
+                    'alice.eth',
+                    token,
+                    serverSecret,
+                ))
+            ) {
+                throw Error('Token should be valid');
+            }
+
+            // create invalid token
+            let _invalidToken = sign(
+                {
+                    account: tokenBody.account,
+                    exp: tokenBody.exp,
+                    // nbf, iat missing. If we remove only iat, the sign command will add it again
+                },
+                serverSecret,
+            );
+
+            let isValid = await checkToken(
+                {
+                    resolveName: async () =>
+                        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                } as any,
+                getSession,
+                'alice.eth',
+                _invalidToken,
+                serverSecret,
+            );
+
+            expect(isValid).toBe(false);
+        });
+
+        it('Should return false if nbf is missing', async () => {
+            const getSession = (_: string) =>
+                Promise.resolve({ token: 'foo', createdAt: 1 } as Session);
+
+            const tokenBody = verify(token, serverSecret);
+            if (
+                !tokenBody ||
+                typeof tokenBody === 'string' ||
+                !tokenBody.exp ||
+                !tokenBody.account ||
+                !tokenBody.iat ||
+                !tokenBody.nbf
+            ) {
+                throw Error('Invalid token to begin with');
+            }
+
+            // ensure token is accepted as valid before changes
+            if (
+                !(await checkToken(
+                    {
+                        resolveName: async () =>
+                            '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                    } as any,
+                    getSession,
+                    'alice.eth',
+                    token,
+                    serverSecret,
+                ))
+            ) {
+                throw Error('Token should be valid');
+            }
+
+            // create invalid token
+            let _invalidToken = sign(
+                {
+                    account: tokenBody.account,
+                    exp: tokenBody.exp,
+                    // nbf missing.
+                    iat: tokenBody.iat,
+                },
+                serverSecret,
+            );
+
+            let isValid = await checkToken(
+                {
+                    resolveName: async () =>
+                        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                } as any,
+                getSession,
+                'alice.eth',
+                _invalidToken,
+                serverSecret,
+            );
+
+            expect(isValid).toBe(false);
+        });
+
+        it('Should return false if account is missing', async () => {
+            const getSession = (_: string) =>
+                Promise.resolve({ token: 'foo', createdAt: 1 } as Session);
+
+            const tokenBody = verify(token, serverSecret);
+            if (
+                !tokenBody ||
+                typeof tokenBody === 'string' ||
+                !tokenBody.exp ||
+                !tokenBody.account ||
+                !tokenBody.iat ||
+                !tokenBody.nbf
+            ) {
+                throw Error('Invalid token to begin with');
+            }
+
+            // ensure token is accepted as valid before changes
+            if (
+                !(await checkToken(
+                    {
+                        resolveName: async () =>
+                            '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                    } as any,
+                    getSession,
+                    'alice.eth',
+                    token,
+                    serverSecret,
+                ))
+            ) {
+                throw Error('Token should be valid');
+            }
+
+            // create invalid token
+            let _invalidToken = sign(
+                {
+                    // account missing
+                    exp: tokenBody.exp,
+                    nbf: tokenBody.nbf,
+                    iat: tokenBody.iat,
+                },
+                serverSecret,
+            );
+
+            let isValid = await checkToken(
+                {
+                    resolveName: async () =>
+                        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                } as any,
+                getSession,
+                'alice.eth',
+                _invalidToken,
+                serverSecret,
+            );
+
+            expect(isValid).toBe(false);
+        });
+
+        it('Should return false if exp is missing', async () => {
+            const getSession = (_: string) =>
+                Promise.resolve({ token: 'foo', createdAt: 1 } as Session);
+
+            const tokenBody = verify(token, serverSecret);
+            if (
+                !tokenBody ||
+                typeof tokenBody === 'string' ||
+                !tokenBody.exp ||
+                !tokenBody.account ||
+                !tokenBody.iat ||
+                !tokenBody.nbf
+            ) {
+                throw Error('Invalid token to begin with');
+            }
+
+            // ensure token is accepted as valid before changes
+            if (
+                !(await checkToken(
+                    {
+                        resolveName: async () =>
+                            '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                    } as any,
+                    getSession,
+                    'alice.eth',
+                    token,
+                    serverSecret,
+                ))
+            ) {
+                throw Error('Token should be valid');
+            }
+
+            // create invalid token
+            let _invalidToken = sign(
+                {
+                    account: tokenBody.account,
+                    // exp missing
+                    nbf: tokenBody.nbf,
+                    iat: tokenBody.iat,
+                },
+                serverSecret,
+            );
+
+            let isValid = await checkToken(
+                {
+                    resolveName: async () =>
+                        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                } as any,
+                getSession,
+                'alice.eth',
+                _invalidToken,
+                serverSecret,
+            );
+
+            expect(isValid).toBe(false);
+        });
+    });
+    describe('checkToken does not contain unexpeted keys', () => {
+        it('Should return false if challenge is present', async () => {
+            const getSession = (_: string) =>
+                Promise.resolve({ token: 'foo', createdAt: 1 } as Session);
+
+            const tokenBody = verify(token, serverSecret);
+            if (
+                !tokenBody ||
+                typeof tokenBody === 'string' ||
+                !tokenBody.exp ||
+                !tokenBody.account ||
+                !tokenBody.iat ||
+                !tokenBody.nbf
+            ) {
+                throw Error('Invalid token to begin with');
+            }
+
+            // ensure token is accepted as valid before changes
+            if (
+                !(await checkToken(
+                    {
+                        resolveName: async () =>
+                            '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                    } as any,
+                    getSession,
+                    'alice.eth',
+                    token,
+                    serverSecret,
+                ))
+            ) {
+                throw Error('Token should be valid');
+            }
+
+            // create invalid token
+            let _invalidToken = sign(
+                {
+                    account: tokenBody.account,
+                    exp: tokenBody.exp,
+                    nbf: tokenBody.nbf,
+                    iat: tokenBody.iat,
+                    challenge: 'foo',
+                },
+                serverSecret,
+            );
+
+            let isValid = await checkToken(
+                {
+                    resolveName: async () =>
+                        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                } as any,
+                getSession,
+                'alice.eth',
+                _invalidToken,
+                serverSecret,
+            );
+
+            expect(isValid).toBe(false);
+        });
+        it('Should return false if some additional key is present', async () => {
+            const getSession = (_: string) =>
+                Promise.resolve({ token: 'foo', createdAt: 1 } as Session);
+
+            const tokenBody = verify(token, serverSecret);
+            if (
+                !tokenBody ||
+                typeof tokenBody === 'string' ||
+                !tokenBody.exp ||
+                !tokenBody.account ||
+                !tokenBody.iat ||
+                !tokenBody.nbf
+            ) {
+                throw Error('Invalid token to begin with');
+            }
+
+            // ensure token is accepted as valid before changes
+            if (
+                !(await checkToken(
+                    {
+                        resolveName: async () =>
+                            '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                    } as any,
+                    getSession,
+                    'alice.eth',
+                    token,
+                    serverSecret,
+                ))
+            ) {
+                throw Error('Token should be valid');
+            }
+
+            // create invalid token
+            let _invalidToken = sign(
+                {
+                    account: tokenBody.account,
+                    exp: tokenBody.exp,
+                    nbf: tokenBody.nbf,
+                    iat: tokenBody.iat,
+                    anyKey: 'foo',
+                },
+                serverSecret,
+            );
+
+            let isValid = await checkToken(
+                {
+                    resolveName: async () =>
+                        '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
+                } as any,
+                getSession,
+                'alice.eth',
+                _invalidToken,
                 serverSecret,
             );
 

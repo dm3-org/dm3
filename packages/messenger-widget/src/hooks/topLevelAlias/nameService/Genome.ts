@@ -4,7 +4,7 @@ import { createWeb3Name } from '@web3-name-sdk/core';
 
 const TOP_LEVEL_DOMAIN = '.gno';
 //Change to .gnosis as soon as they changed the resolver in their governance
-const TOP_LEVEL_ALIAS = '.alex1234.eth';
+const TOP_LEVEL_ALIAS = '.gnosis.eth';
 
 function getIdForAddress(address: string, addrEnsSubdomain: string) {
     return address + addrEnsSubdomain;
