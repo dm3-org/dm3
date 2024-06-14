@@ -143,8 +143,8 @@ services:
         image: dm3org/ccip-resolver:v0.2.7
         restart: always
         depends_on:
-            - offchain-resolver:
-                  condition: service_healthy
+            offchain-resolver:
+                condition: service_healthy
         environment:
             SIGNER_PRIVATE_KEY: ${SIGNER_PRIVATE_KEY}
             LOG_LEVEL: debug
