@@ -41,7 +41,6 @@ export async function checkToken(
     console.debug('checking auth token', decode(token));
 
     const session = await getSession(ensName.toLocaleLowerCase());
-    console.log('found session', session);
     if (!session) {
         console.debug('there is no account for this ens name: ', ensName);
         return false;
