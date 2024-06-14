@@ -69,7 +69,6 @@ export const ConfigureGenomeProfile = (props: IChain) => {
             setLoaderContent,
             name,
             ethAddress!,
-            dm3Configuration.genomeRegistryAddress,
             (str: string) => setExistingEnsName(str),
             onShowError,
         );
