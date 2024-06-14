@@ -44,6 +44,7 @@ jobs:
                   echo "REACT_APP_PROFILE_BASE_URL=https://${{ secrets.HOST_DOMAIN}}/api" >> ./.env.react
                   echo "REACT_APP_RESOLVER_BACKEND=https://${{ secrets.HOST_DOMAIN}}/resolver-handler" >> ./.env.react
                   echo "REACT_APP_USER_ENS_SUBDOMAIN=.user.dm3.eth" >> ./.env.react
+                  echo "REACT_APP_PUBLIC_VAPID_KEY=${{ secrets.REACT_APP_PUBLIC_VAPID_KEY}}" >> ./.env.react
                   echo "REACT_APP_WALLET_CONNECT_PROJECT_ID=${{ secrets.REACT_APP_WALLET_CONNECT_PROJECT_ID }}" >> ./.env.react
                   echo "REACT_APP_MAINNET_PROVIDER_RPC=${{ secrets.MAINNET_PROVIDER_URL}}" >> ./.env.react
                   echo "REACT_APP_CHAIN_ID=${{ vars.CHAIN_ID }}" >> ./.env.react
