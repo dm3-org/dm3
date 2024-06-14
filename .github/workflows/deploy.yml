@@ -44,6 +44,7 @@ jobs:
                   echo "REACT_APP_PROFILE_BASE_URL=http://${{ secrets.HOST_DOMAIN}}/api" >> ./.env.react
                   echo "REACT_APP_RESOLVER_BACKEND=http://${{ secrets.HOST_DOMAIN}}/resolver-handler" >> ./.env.react
                   echo "REACT_APP_USER_ENS_SUBDOMAIN=${{ secrets.USER_ENS_SUBDOMAIN}}" >> ./.env.react
+                  echo "REACT_APP_PUBLIC_VAPID_KEY=${{ secrets.REACT_APP_PUBLIC_VAPID_KEY}}" >> ./.env.react
                   echo "REACT_APP_WALLET_CONNECT_PROJECT_ID=${{ secrets.REACT_APP_WALLET_CONNECT_PROJECT_ID }}" >> ./.env.react
                   echo "REACT_APP_COMMIT_HASH=${{ env.sha_short }}" >> ./.env.react
                   echo "REACT_APP_BRANCH=${{ env.branch }}" >> ./.env.react
@@ -96,7 +97,7 @@ jobs:
                   rsync -avz -e 'ssh -i ./ssh-key' ./.env app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
                   rsync -avz -e 'ssh -i ./ssh-key' ./dm3-*.tar app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3 
                   rsync -avz -e 'ssh -i ./ssh-key' ./nginx.conf app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
-                  rsync -avz -e 'ssh -i ./ssh-key' ./docker/staging/docker-compose.yml app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3
+                  rsync -avz -e 'ssh -i ./ssh-key' ./docker/staging/docker-compose.yml app@${{ secrets.HOST_DOMAIN}}:/home/app/dm3p
             - name: Stop docker on server
               run: |
                   ssh -i ./ssh-key app@${{ secrets.HOST_DOMAIN}} "\
