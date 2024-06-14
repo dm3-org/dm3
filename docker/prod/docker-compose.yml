@@ -98,7 +98,6 @@ services:
             RPC: ${RPC}
             REACT_APP_ADDR_ENS_SUBDOMAIN: ${REACT_APP_ADDR_ENS_SUBDOMAIN}
             LOG_LEVEL: 'debug'
-        healthcheck:
             test:
                 [
                     'CMD',
@@ -143,8 +142,8 @@ services:
         image: dm3org/ccip-resolver:v0.2.7
         restart: always
         depends_on:
-            offchain-resolver:
-                condition: service_healthy
+            - offchain-resolver:
+                  condition: service_healthy
         environment:
             SIGNER_PRIVATE_KEY: ${SIGNER_PRIVATE_KEY}
             LOG_LEVEL: debug
