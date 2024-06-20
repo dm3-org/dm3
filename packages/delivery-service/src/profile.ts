@@ -65,8 +65,10 @@ export default (
 
             res.json(data);
         } catch (e) {
-            console.error('POST PROFILE ERROR', e);
-
+            global.logger.warn({
+                message: 'POST profile',
+                error: JSON.stringify(e),
+            });
             // eslint-disable-next-line no-console
             console.log('POST PROFILE ERROR', e);
             res.status(400).send({

@@ -111,9 +111,8 @@ export async function checkUserProfile(
     { profile, signature }: SignedUserProfile,
     ensName: string,
 ): Promise<boolean> {
-    console.log('checkUserProfile for ', ensName);
     const accountAddress = await provider.resolveName(ensName);
-    console.log('got address ', accountAddress);
+
     if (!accountAddress) {
         throw Error(`Couldn't resolve name`);
     }
