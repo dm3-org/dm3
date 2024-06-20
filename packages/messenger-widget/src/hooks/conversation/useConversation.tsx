@@ -141,14 +141,12 @@ export const useConversation = (config: DM3Configuration) => {
                     messageCounter: 0,
                     isHidden: false,
                 };
-                const deliveryServiceProperties =
-                    await getDeliveryServiceProperties();
+
                 const hydratedDefaultContact = await hydrateContract(
                     mainnetProvider,
                     defaultConversation,
                     resolveAliasToTLD,
                     dm3Configuration.addressEnsSubdomain,
-                    deliveryServiceProperties,
                 );
                 _setContactsSafe([hydratedDefaultContact]);
             }
@@ -216,13 +214,11 @@ export const useConversation = (config: DM3Configuration) => {
             messageCounter: contact?.messageCount || 0,
             isHidden: contact.isHidden,
         };
-        const deliveryServiceProperties = await getDeliveryServiceProperties();
         const hydratedContact = await hydrateContract(
             mainnetProvider,
             conversation,
             resolveAliasToTLD,
             dm3Configuration.addressEnsSubdomain,
-            deliveryServiceProperties,
         );
         setContacts((prev) => {
             return prev.map((existingContact) => {
