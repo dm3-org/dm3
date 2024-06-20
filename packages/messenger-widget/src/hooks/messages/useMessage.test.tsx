@@ -1,5 +1,15 @@
+import {
+    MockDeliveryServiceProfile,
+    MockMessageFactory,
+    MockedUserProfile,
+    getMockDeliveryServiceProfile,
+    mockUserProfile,
+} from '@dm3-org/dm3-lib-test-helper';
 import '@testing-library/jest-dom';
 import { act, renderHook, waitFor } from '@testing-library/react';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+import { ethers } from 'ethers';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
 import { DeliveryServiceContext } from '../../context/DeliveryServiceContext';
@@ -8,32 +18,15 @@ import { TLDContext } from '../../context/TLDContext';
 import { getMockedAuthContext } from '../../context/testHelper/getMockedAuthContext';
 import { getMockedConversationContext } from '../../context/testHelper/getMockedConversationContext';
 import { getMockedDeliveryServiceContext } from '../../context/testHelper/getMockedDeliveryServiceContext';
-import { getMockedStorageContext } from '../../context/testHelper/getMockedStorageContext';
-import { getMockedTldContext } from '../../context/testHelper/getMockedTldContext';
-import { getDefaultContract } from '../../interfaces/utils';
-import { useMessage } from './useMessage';
-import {
-    MockDeliveryServiceProfile,
-    MockMessageFactory,
-    MockedUserProfile,
-    getMockDeliveryServiceProfile,
-    mockUserProfile,
-} from '@dm3-org/dm3-lib-test-helper';
-import { ethers } from 'ethers';
-import { useConversation } from '../conversation/useConversation';
-import {
-    MainnetProviderContext,
-    MainnetProviderContextType,
-} from '../../context/ProviderContext';
-import { getMockedMainnetProviderContext } from '../../context/testHelper/getMockedMainnetProviderContext';
 import {
     DEFAULT_DM3_CONFIGURATION,
     getMockedDm3Configuration,
 } from '../../context/testHelper/getMockedDm3Configuration';
+import { getMockedStorageContext } from '../../context/testHelper/getMockedStorageContext';
+import { getMockedTldContext } from '../../context/testHelper/getMockedTldContext';
+import { getDefaultContract } from '../../interfaces/utils';
 import { DM3Configuration } from '../../widget';
-import { Conversation } from '@dm3-org/dm3-lib-storage';
-import MockAdapter from 'axios-mock-adapter';
-import axios from 'axios';
+import { useMessage } from './useMessage';
 
 describe('useMessage hook test cases', () => {
     const CONTACT_NAME = 'user.dm3.eth';
