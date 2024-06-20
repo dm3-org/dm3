@@ -145,7 +145,7 @@ jobs:
                   ssh -i ./ssh-key root@${{ vars.HOST_DOMAIN}} "\
                   ufw allow from 172.18.0.1/16 proto tcp to ${{ vars.HOST_IP}} port 80; 
                   ufw allow from 172.18.0.1/16 proto tcp to ${{ secrets.IP_ADDRESS }} port 443;
-                  ufw enable\"
+                  ufw enable"
             - name: Start docker on server
               run: |
                   ssh -i ./ssh-key app@${{ vars.HOST_DOMAIN}} "\
