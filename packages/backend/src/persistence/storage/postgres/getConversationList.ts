@@ -22,7 +22,7 @@ export const getConversationList =
                 isHidden: false,
             },
             orderBy: {
-                createdAt: 'asc',
+                updatedAt: 'desc',
             },
         });
 
@@ -44,5 +44,6 @@ export const getConversationList =
         return conversations.map((c: any) => ({
             contact: c.encryptedContactName,
             previewMessage: previewMessage[0],
+            updatedAt: c.updatedAt,
         }));
     };

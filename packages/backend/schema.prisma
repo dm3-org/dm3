@@ -20,7 +20,7 @@ model EncryptedMessage {
 
 model Conversation {
     id                   String             @id @default(uuid())
-    createdAt            Int                @default(0)
+    updatedAt            DateTime           @default(now())
     encryptedContactName String
     Message              EncryptedMessage[]
     Account              Account            @relation(fields: [accountId], references: [id])
