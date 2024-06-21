@@ -39,6 +39,8 @@ services:
     db:
         image: redis
         restart: always
+        volumes:
+            - /mnt/dm3_prod_volume/db/redis:/data
 
     dm3-storage:
         image: postgres:13
@@ -48,6 +50,8 @@ services:
             POSTGRES_USER: prisma
             POSTGRES_PASSWORD: prisma
             POSTGRES_DB: dm3
+        volumes:
+            - /mnt/dm3_prod_volume/storage/postgres:/var/lib/postgresql/data
 
     delivery-service:
         image: dm3-delivery-service
@@ -70,6 +74,8 @@ services:
         image: redis
         restart: always
         container_name: redis-delivery-service
+        volumes:
+            - /mnt/dm3_prod_volume/db/redis-delivery-service:/data
 
     offchain-resolver-db:
         image: postgres
@@ -77,6 +83,8 @@ services:
         container_name: offchain_resolver_db
         environment:
             POSTGRES_PASSWORD: example
+        volumes:
+            - /mnt/dm3_prod_volume/db/postgres:/var/lib/postgresql/data
 
     offchain-resolver:
         image: dm3-offchain-resolver
@@ -127,7 +135,7 @@ services:
             LOG_LEVEL: debug
             CONFIG: |
                 {
-                  "0x88c8cc822095cde6f92c8d20311c8e7de6a98694": {
+                  "${ERC3668_RESOLVER_ADDRESS}": {
                     "type": "signing",
                     "handlerUrl": "http://offchain-resolver:8082"
                   }
