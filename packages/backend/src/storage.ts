@@ -51,6 +51,7 @@ export default (
                 encryptedContactName,
                 editMessageBatchPayload.map((message) => ({
                     messageId: getUniqueMessageId(message.messageId),
+                    createdAt: message.createdAt,
                     encryptedEnvelopContainer:
                         message.encryptedEnvelopContainer,
                 })),
@@ -62,8 +63,12 @@ export default (
     });
 
     router.post('/new/:ensName/addMessage', async (req, res, next) => {
-        const { encryptedEnvelopContainer, encryptedContactName, messageId } =
-            req.body;
+        const {
+            encryptedEnvelopContainer,
+            encryptedContactName,
+            messageId,
+            createdAt,
+        } = req.body;
 
         if (!encryptedEnvelopContainer || !encryptedContactName || !messageId) {
             res.status(400).send('invalid schema');
@@ -76,7 +81,13 @@ export default (
             const success = await db.addMessageBatch(
                 ensName,
                 encryptedContactName,
-                [{ messageId: uniqueMessageId, encryptedEnvelopContainer }],
+                [
+                    {
+                        messageId: uniqueMessageId,
+                        encryptedEnvelopContainer,
+                        createdAt,
+                    },
+                ],
             );
             if (success) {
                 return res.send();
@@ -108,6 +119,7 @@ export default (
                 encryptedContactName,
                 messageBatch.map((message) => ({
                     messageId: getUniqueMessageId(message.messageId),
+                    createdAt: message.createdAt,
                     encryptedEnvelopContainer:
                         message.encryptedEnvelopContainer,
                 })),

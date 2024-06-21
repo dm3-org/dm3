@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-import { getOrCreateAccount } from './utils/getOrCreateAccount';
 
 const PAGE_SIZE = 100;
 

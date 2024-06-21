@@ -20,11 +20,12 @@ export const addMessageBatch =
             );
 
             const createMessagePromises = messageBatch.map(
-                ({ messageId, encryptedEnvelopContainer }) => {
+                ({ messageId, createdAt, encryptedEnvelopContainer }) => {
                     return db.encryptedMessage.create({
                         data: {
                             ownerId: account.id,
                             id: messageId,
+                            createdAt,
                             conversationId: conversation.id,
                             encryptedContactName,
                             encryptedEnvelopContainer,

@@ -15,5 +15,24 @@ export const getConversationList =
                 isHidden: false,
             },
         });
-        return conversations.map((c: any) => c.encryptedContactName);
+
+        //The client previews a message for each conversation. Hence we need to get the latest message for each conversation
+        const previewMessage = await Promise.all(
+            conversations.map(async (c) => {
+                const message = await db.encryptedMessage.findFirst({
+                    where: {
+                        conversationId: c.id,
+                    },
+                    orderBy: {
+                        createdAt: 'desc',
+                    },
+                });
+                return message;
+            }),
+        );
+
+        return conversations.map((c: any) => ({
+            contact: c.encryptedContactName,
+            previewMessage: previewMessage[0],
+        }));
     };
