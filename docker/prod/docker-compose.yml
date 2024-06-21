@@ -45,8 +45,6 @@ services:
         image: postgres:13
         restart: always
         container_name: dm3-storage
-        ports:
-            - '5433:5432'
         environment:
             POSTGRES_USER: prisma
             POSTGRES_PASSWORD: prisma
@@ -69,7 +67,7 @@ services:
             PORT: 8083
             LOG_LEVEL: 'debug'
         volumes:
-            - /home/app/dm3/config.yml:/app/packages/delivery-service/dist/config.yml
+            - /home/app/dm3/config.yml:/app/dist/config.yml
 
     db-delivery-service:
         image: redis
@@ -132,7 +130,7 @@ services:
         image: dm3org/ccip-resolver:v0.2.7
         restart: always
         depends_on:
-          - offchain-resolver
+            - offchain-resolver
         environment:
             SIGNER_PRIVATE_KEY: ${SIGNER_PRIVATE_KEY}
             LOG_LEVEL: debug
