@@ -201,6 +201,171 @@ describe('Storage', () => {
             expect(body.length).toBe(2);
         });
     });
+    describe('getConversationList', () => {
+        it('returns first 10 conversations if no query params are provided', async () => {
+            //create 15 conversations
+            //async for loop
+            for await (let i of Array(15).keys()) {
+                await request(app)
+                    .post(`/new/bob.eth/addConversation`)
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send({
+                        encryptedContactName: 'conversation ' + i,
+                    });
+            }
+
+            const { body } = await request(app)
+                .get(`/new/bob.eth/getConversations`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send();
+
+            //With no query param, the default size is 10
+            expect(body.length).toBe(10);
+        });
+        it('uses default value 0 for offset', async () => {
+            //create 15 conversations
+            for (let i = 0; i < 10; i++) {
+                await request(app)
+                    .post(`/new/bob.eth/addConversation`)
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send({
+                        encryptedContactName: 'conversation ' + i,
+                    });
+                await wait(250);
+            }
+
+            const { body } = await request(app)
+                .get(`/new/bob.eth/getConversations?size=6`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send();
+
+            console.log(body);
+
+            expect(body.length).toBe(6);
+
+            expect(body[0].contact).toBe('conversation 0');
+            expect(body[1].contact).toBe('conversation 1');
+            expect(body[2].contact).toBe('conversation 2');
+            expect(body[3].contact).toBe('conversation 3');
+            expect(body[4].contact).toBe('conversation 4');
+            expect(body[5].contact).toBe('conversation 5');
+        });
+        it('uses default value 10 for size', async () => {
+            //create 15 conversations
+            for (let i = 0; i < 15; i++) {
+                await request(app)
+                    .post(`/new/bob.eth/addConversation`)
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send({
+                        encryptedContactName: 'conversation ' + i,
+                    });
+            }
+
+            const { body } = await request(app)
+                .get(`/new/bob.eth/getConversations?offset=1`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send();
+
+            expect(body.length).toBe(5);
+
+            expect(body[0].contact).toBe('conversation 10');
+            expect(body[1].contact).toBe('conversation 11');
+            expect(body[2].contact).toBe('conversation 12');
+            expect(body[3].contact).toBe('conversation 13');
+            expect(body[4].contact).toBe('conversation 14');
+        });
+        it('returns requested conversation partition', async () => {
+            //create 15 conversations
+            for (let i = 0; i < 15; i++) {
+                await request(app)
+                    .post(`/new/bob.eth/addConversation`)
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send({
+                        encryptedContactName: 'conversation ' + i,
+                    });
+            }
+
+            const { body } = await request(app)
+                .get(`/new/bob.eth/getConversations?size=3&offset=2`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send();
+
+            //With no query param, the default size is 10
+            expect(body.length).toBe(3);
+
+            expect(body[0].contact).toBe('conversation 6');
+            expect(body[1].contact).toBe('conversation 7');
+            expect(body[2].contact).toBe('conversation 8');
+        });
+        it('returns less items than request if last page is requested', async () => {
+            //create 15 conversations
+            for (let i = 0; i < 15; i++) {
+                await request(app)
+                    .post(`/new/bob.eth/addConversation`)
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send({
+                        encryptedContactName: 'conversation ' + i,
+                    });
+            }
+
+            const { body } = await request(app)
+                .get(`/new/bob.eth/getConversations?size=10&offset=1`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send();
+
+            //With no query param, the default size is 10
+            expect(body.length).toBe(5);
+
+            expect(body[0].contact).toBe('conversation 10');
+            expect(body[1].contact).toBe('conversation 11');
+            expect(body[2].contact).toBe('conversation 12');
+            expect(body[3].contact).toBe('conversation 13');
+            expect(body[4].contact).toBe('conversation 14');
+        });
+        it('returns empty list if index are out of bounds', async () => {
+            //create 15 conversations
+            for (let i = 0; i < 15; i++) {
+                await request(app)
+                    .post(`/new/bob.eth/addConversation`)
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send({
+                        encryptedContactName: 'conversation ' + i,
+                    });
+            }
+
+            const { body } = await request(app)
+                .get(`/new/bob.eth/getConversations?size=10&offset=2`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send();
+
+            //With no query param, the default size is 10
+            expect(body.length).toBe(0);
+        });
+    });
 
     describe('toggleHideConversation', () => {
         it('can hide conversation', async () => {
@@ -878,3 +1043,10 @@ describe('Storage', () => {
         });
     });
 });
+const wait = (time: number) => {
+    return new Promise<void>((res, rej) => {
+        setTimeout(() => {
+            res();
+        }, time);
+    });
+};

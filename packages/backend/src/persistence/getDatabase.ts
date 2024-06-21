@@ -113,7 +113,11 @@ export interface IDatabase extends ISessionDatabase {
         ensName: string,
         encryptedContactName: string,
     ) => Promise<boolean>;
-    getConversationList: (ensName: string) => Promise<string[]>;
+    getConversationList: (
+        ensName: string,
+        size: number,
+        offset: number,
+    ) => Promise<string[]>;
     addMessageBatch: (
         ensName: string,
         encryptedContactName: string,

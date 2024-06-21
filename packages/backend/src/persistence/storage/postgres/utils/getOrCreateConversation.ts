@@ -21,6 +21,8 @@ export const getOrCreateConversation = async (
         data: {
             accountId,
             encryptedContactName,
+            //Use timestamp to preserve conversation order
+            createdAt: Math.floor(Date.now() / 1000),
         },
     });
 };

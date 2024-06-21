@@ -8,6 +8,9 @@ import { sha256 } from '@dm3-org/dm3-lib-shared';
 import { IDatabase } from './persistence/getDatabase';
 import { ethers } from 'ethers';
 
+const DEFAULT_CONVERSATION_PAGE_SIZE = 10;
+const DEFAULT_MESSAGE_PAGE_SIZE = 100;
+
 export default (
     db: IDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
@@ -199,7 +202,16 @@ export default (
     router.get('/new/:ensName/getConversations', async (req, res, next) => {
         try {
             const ensName = normalizeEnsName(req.params.ensName);
-            const conversations = await db.getConversationList(ensName);
+            const size =
+                parseInt(req.query.size as string) ||
+                DEFAULT_CONVERSATION_PAGE_SIZE;
+            const offset = parseInt(req.query.offset as string) || 0;
+
+            const conversations = await db.getConversationList(
+                ensName,
+                size,
+                offset,
+            );
             return res.json(conversations);
         } catch (e) {
             next(e);

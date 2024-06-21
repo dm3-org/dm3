@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client';
+import { create } from 'domain';
 export const getConversationList =
-    (db: PrismaClient) => async (ensName: string) => {
+    (db: PrismaClient) =>
+    async (ensName: string, size: number, offset: number) => {
         const account = await db.account.findFirst({
             where: {
                 id: ensName,
@@ -9,10 +11,18 @@ export const getConversationList =
         if (!account) {
             return [];
         }
+
         const conversations = await db.conversation.findMany({
+            //The pages that have to be skipped
+            skip: offset * size,
+            //The requested page size
+            take: size,
             where: {
                 accountId: account.id,
                 isHidden: false,
+            },
+            orderBy: {
+                createdAt: 'asc',
             },
         });
 
@@ -34,5 +44,6 @@ export const getConversationList =
         return conversations.map((c: any) => ({
             contact: c.encryptedContactName,
             previewMessage: previewMessage[0],
+            createAt: c.createdAt,
         }));
     };
