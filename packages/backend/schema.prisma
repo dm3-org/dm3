@@ -9,6 +9,7 @@ generator client {
 
 model EncryptedMessage {
     id                        String       @id
+    createdAt                 Int          @default(0)
     encryptedEnvelopContainer String
     encryptedContactName      String
     conversationId            String
