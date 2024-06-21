@@ -1,10 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 
-const PAGE_SIZE = 100;
-
 export const getMessages =
     (db: PrismaClient) =>
-    async (ensName: string, encryptedContactName: string, page: number) => {
+    async (
+        ensName: string,
+        encryptedContactName: string,
+        size: number,
+        offset: number,
+    ) => {
         const account = await db.account.findFirst({
             where: {
                 id: ensName,
@@ -28,8 +31,8 @@ export const getMessages =
 
         try {
             const messageRecord = await db.encryptedMessage.findMany({
-                skip: page * PAGE_SIZE,
-                take: PAGE_SIZE,
+                skip: offset * size,
+                take: size,
                 where: {
                     ownerId: account.id,
                     encryptedContactName,

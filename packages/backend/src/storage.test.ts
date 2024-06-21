@@ -475,7 +475,7 @@ describe('Storage', () => {
 
             expect(body.length).toBe(1);
             expect(body[0].contact).toEqual(sha256(receiver.account.ensName));
-            expect(body[0].previewMessage.id).toEqual(sha256('bob.eth' + 789));
+            expect(JSON.parse(body[0].previewMessage)).toEqual(envelop3);
         });
     });
     describe('addMessage', () => {

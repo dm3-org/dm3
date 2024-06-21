@@ -127,7 +127,8 @@ export interface IDatabase extends ISessionDatabase {
     getMessagesFromStorage: (
         ensName: string,
         encryptedContactName: string,
-        page: number,
+        size: number,
+        offset: number,
     ) => Promise<string[]>;
     editMessageBatch: (
         ensName: string,

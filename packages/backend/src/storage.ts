@@ -136,10 +136,13 @@ export default (
     router.get(
         '/new/:ensName/getMessages/:encryptedContactName/:page',
         async (req, res, next) => {
-            const pageNumber = parseInt(req.params.page);
             const encryptedContactName = req.params.encryptedContactName;
+            const size =
+                parseInt(req.query.size as string) || DEFAULT_MESSAGE_PAGE_SIZE;
 
-            if (isNaN(pageNumber) || !encryptedContactName) {
+            const offset = parseInt(req.query.offset as string) || 0;
+
+            if (isNaN(size) || isNaN(offset)) {
                 res.status(400).send('invalid schema');
                 return;
             }
@@ -148,7 +151,8 @@ export default (
                 const messages = await db.getMessagesFromStorage(
                     ensName,
                     encryptedContactName,
-                    pageNumber,
+                    size,
+                    offset,
                 );
                 return res.json(messages);
             } catch (e) {
@@ -206,6 +210,11 @@ export default (
                 parseInt(req.query.size as string) ||
                 DEFAULT_CONVERSATION_PAGE_SIZE;
             const offset = parseInt(req.query.offset as string) || 0;
+
+            if (isNaN(size) || isNaN(offset)) {
+                res.status(400).send('invalid schema');
+                return;
+            }
 
             const conversations = await db.getConversationList(
                 ensName,

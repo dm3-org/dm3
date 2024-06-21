@@ -1,8 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 import { create } from 'domain';
+import { ConversationRecord } from './dto/ConversationRecord';
 export const getConversationList =
     (db: PrismaClient) =>
-    async (ensName: string, size: number, offset: number) => {
+    async (
+        ensName: string,
+        size: number,
+        offset: number,
+    ): Promise<ConversationRecord[]> => {
         const account = await db.account.findFirst({
             where: {
                 id: ensName,
@@ -27,7 +32,7 @@ export const getConversationList =
         });
 
         //The client previews a message for each conversation. Hence we need to get the latest message for each conversation
-        const previewMessage = await Promise.all(
+        const previewMessages = await Promise.all(
             conversations.map(async (c) => {
                 const message = await db.encryptedMessage.findFirst({
                     where: {
@@ -41,9 +46,9 @@ export const getConversationList =
             }),
         );
 
-        return conversations.map((c: any) => ({
+        return conversations.map((c, idx) => ({
             contact: c.encryptedContactName,
-            previewMessage: previewMessage[0],
-            updatedAt: c.updatedAt,
+            previewMessage:
+                previewMessages[idx]?.encryptedEnvelopContainer ?? null,
         }));
     };
