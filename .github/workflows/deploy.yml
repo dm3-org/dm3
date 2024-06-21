@@ -37,6 +37,7 @@ jobs:
             - name: Create .env file
               env:
                   TARGET_HOST: ${{ vars.HOST_DOMAIN }}
+                  TARGET_IP: ${{ vars.HOST_IP }}
               run: |
                   echo "REACT_APP_ADDR_ENS_SUBDOMAIN=${{ vars.ADDR_ENS_SUBDOMAIN }}" >> ./.env.react
                   echo "REACT_APP_BACKEND=https://${{ vars.HOST_DOMAIN }}/api" >> ./.env.react
@@ -56,7 +57,7 @@ jobs:
                   echo "REACT_APP_CHAIN_ID=${{ vars.CHAIN_ID }}" >> ./.env.react
                   echo "REACT_APP_GENOME_REGISTRY_ADDRESS=${{ vars.GENOME_REGISTRY_ADDRESS }}" >> ./.env.react
                   cat ./.env.react >> ./.env
-                  echo "RESOLVER_ADDR=0x88c8cC822095cdE6F92c8d20311C8e7dE6A98694" >> ./.env
+                  echo "RESOLVER_ADDR=${{ vars.ERC3668_RESOLVER_ADDRESS }}" >> ./.env
                   echo "SIGNING_PUBLIC_KEY=${{ secrets.SIGNING_PUBLIC_KEY }}" >> ./.env
                   echo "SIGNING_PRIVATE_KEY=${{ secrets.SIGNING_PRIVATE_KEY }}" >> ./.env
                   echo "SIGNER_PRIVATE_KEY=${{ secrets.SIGNER_PRIVATE_KEY }}" >> ./.env
@@ -67,7 +68,7 @@ jobs:
                   echo "URL=${{ vars.HOST_DOMAIN }}" >> ./.env
                   echo "CERT_MAIL=${{ vars.CERT_MAIL }}" >> ./.env
                   echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> ./.env
-                  envsubst '${SSL_CERTIFICATE_BASE_LOC} ${TLS_CERTIFICATE_LOCATION} ${TARGET_HOST}' < ./docker/nginx.conf > ./nginx.conf
+                  envsubst '${TARGET_HOST} ${TARGET_IP}' < ./docker/nginx.conf > ./nginx.conf
                   cat ./.env
             - name: Prepare docker build environment
               shell: bash
@@ -129,7 +130,7 @@ jobs:
                   rsync -avz -e 'ssh -i ./ssh-key' ./.env app@${{ vars.HOST_DOMAIN }}:/home/app/dm3
                   rsync -avz -e 'ssh -i ./ssh-key' ./dm3-*.tar app@${{ vars.HOST_DOMAIN }}:/home/app/dm3 
                   rsync -avz -e 'ssh -i ./ssh-key' ./nginx.conf app@${{ vars.HOST_DOMAIN }}:/home/app/dm3
-                  rsync -avz -e 'ssh -i ./ssh-key' ./docker/staging/docker-compose.yml app@${{ vars.HOST_DOMAIN }}:/home/app/dm3
+                  rsync -avz -e 'ssh -i ./ssh-key' ./docker/docker-compose.yml app@${{ vars.HOST_DOMAIN }}:/home/app/dm3
             - name: Stop docker on server
               run: |
                   ssh -i ./ssh-key app@${{ vars.HOST_DOMAIN }} "\
