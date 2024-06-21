@@ -44,6 +44,5 @@ export const getConversationList =
         return conversations.map((c: any) => ({
             contact: c.encryptedContactName,
             previewMessage: previewMessage[0],
-            createAt: c.createdAt,
         }));
     };

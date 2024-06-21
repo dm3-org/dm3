@@ -6,7 +6,8 @@ import { createClient } from 'redis';
 import Pending from './pending';
 import Session from './session';
 import Storage from './storage';
-import { MessageRecord } from './storage/postgres/utils/MessageRecord';
+import { MessageRecord } from './storage/postgres/dto/MessageRecord';
+import { ConversationRecord } from './storage/postgres/dto/ConversationRecord';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -117,7 +118,7 @@ export interface IDatabase extends ISessionDatabase {
         ensName: string,
         size: number,
         offset: number,
-    ) => Promise<string[]>;
+    ) => Promise<ConversationRecord[]>;
     addMessageBatch: (
         ensName: string,
         encryptedContactName: string,

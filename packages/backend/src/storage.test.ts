@@ -31,7 +31,7 @@ import {
     getDatabase,
     getRedisClient,
 } from './persistence/getDatabase';
-import { MessageRecord } from './persistence/storage/postgres/utils/MessageRecord';
+import { MessageRecord } from './persistence/storage/postgres/dto/MessageRecord';
 import storage from './storage';
 
 const keysA = {
