@@ -51,7 +51,7 @@ export function SignIn() {
         openConnectModal && openConnectModal();
     };
 
-    // useEffect is needed to give sometime to the components to be fully rendered first to avoid exceptions inside `changeSignInButtonStyle` function.
+    // useEffect is needed to give some time to the components to be fully rendered first to avoid exceptions inside `changeSignInButtonStyle` function.
     useEffect(() => {
         if (shouldSignInDirectly) {
             handleConnectWithWallet();
