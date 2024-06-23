@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable no-console */
 import { useConnectModal } from '@rainbow-me/rainbowkit';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { signInImage } from '../../assets/base64/home-image';
 import { AuthContext } from '../../context/AuthContext';
@@ -13,6 +13,16 @@ import './SignIn.css';
 import { changeSignInButtonStyle } from './bl';
 
 export function SignIn() {
+
+    // if `?sign-in-directly=true`, or for short `?sid=1`, is present in the URL, 
+    // the user will be redirected to the wallet connection modal to connect the wallet and sign in directly
+    // especially useful when redirecting from the landing page
+    const signInDirectly = new URLSearchParams(location.search).get("sign-in-directly")?.toLowerCase() === "true"
+        || new URLSearchParams(location.search).get("sid") === "1";
+
+    const [shouldSignInDirectly] =
+        useState<boolean>(signInDirectly);
+
     const { isConnected } = useAccount();
 
     const { cleanSignIn, isLoading } = useContext(AuthContext);
@@ -40,6 +50,13 @@ export function SignIn() {
         );
         openConnectModal && openConnectModal();
     };
+
+    // useEffect is needed to give sometime to the components to be fully rendered first to avoid exceptions inside `changeSignInButtonStyle` function.
+    useEffect(() => {
+        if (shouldSignInDirectly) {
+            handleConnectWithWallet();
+        }
+    }, [shouldSignInDirectly]);
 
     return (
         <div className="signin-container-type h-100">
