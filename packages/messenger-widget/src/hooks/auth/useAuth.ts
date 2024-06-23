@@ -92,6 +92,8 @@ export const useAuth = () => {
         setCleanSignInRequested(true);
     };
 
+    // useEffect is needed to give sometime to the wallet connect variables to be initialized.
+    // without utilizing it the variable `walletClient` would be undefined.
     useEffect(() => {
         (async () => {
             if (cleanSignInRequested && walletClient) {
