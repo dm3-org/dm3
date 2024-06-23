@@ -24,6 +24,7 @@ export function SignIn() {
 
     const handleConnectWithWallet = () => {
         openConnectionModal();
+        cleanSignIn();
     };
 
     const handleSignIn = async () => {
@@ -80,14 +81,14 @@ export function SignIn() {
 
                         {!isConnected ? (
                             <LoginButton
-                                text="Connect with Wallet"
+                                text="Connect Wallet & Sign"
                                 onClick={handleConnectWithWallet}
                                 buttonState={ButtonState.Ideal}
                             />
                         ) : (
                             <LoginButton
                                 disabled={isLoading}
-                                text={isLoading ? 'Loading' : 'Sign In'}
+                                    text={isLoading ? 'Please sign message and wait' : 'Sign In'}
                                 onClick={handleSignIn}
                                 buttonState={
                                     isLoading
