@@ -507,6 +507,7 @@ describe('Storage', () => {
                     encryptedEnvelopContainer: JSON.stringify(envelop1),
                     encryptedContactName: sha256(receiver.account.ensName),
                     messageId: '123',
+                    createdAt: 1,
                 });
             expect(status).toBe(200);
 
@@ -559,6 +560,7 @@ describe('Storage', () => {
                     encryptedEnvelopContainer: JSON.stringify(envelop),
                     encryptedContactName: sha256(receiver.account.ensName),
                     messageId: sha256('bob.eth' + '123'),
+                    createdAt: 2,
                 });
 
             const tokenAlice = generateAuthJWT('alice.eth', serverSecret);
@@ -572,6 +574,7 @@ describe('Storage', () => {
                     encryptedEnvelopContainer: JSON.stringify(envelop),
                     encryptedContactName: sha256(sender.account.ensName),
                     messageId: sha256('alice.eth' + '123'),
+                    createdAt: 2,
                 });
 
             const { body: bobConversations } = await request(app)
@@ -719,6 +722,7 @@ describe('Storage', () => {
                     encryptedEnvelopContainer: JSON.stringify(envelop),
                     encryptedContactName: sha256(receiver.account.ensName),
                     messageId: '123',
+                    createdAt: 2,
                 });
             expect(status).toBe(200);
 
@@ -771,6 +775,7 @@ describe('Storage', () => {
                     encryptedEnvelopContainer: JSON.stringify(envelop),
                     encryptedContactName: sha256(receiver.account.ensName),
                     messageId: '123',
+                    createdAt: 1,
                 });
             await request(app)
                 .post(`/new/bob.eth/addMessage`)
@@ -781,6 +786,7 @@ describe('Storage', () => {
                     encryptedEnvelopContainer: JSON.stringify(envelop),
                     encryptedContactName: sha256(receiver.account.ensName),
                     messageId: '456',
+                    createdAt: 2,
                 });
 
             const { status } = await request(app)
@@ -792,6 +798,7 @@ describe('Storage', () => {
                     encryptedEnvelopContainer: JSON.stringify(envelop),
                     encryptedContactName: sha256(receiver.account.ensName),
                     messageId: '123',
+                    createdAt: 3,
                 });
 
             expect(status).toBe(400);
@@ -910,6 +917,7 @@ describe('Storage', () => {
                     encryptedEnvelopContainer: JSON.stringify(envelop),
                     encryptedContactName: sha256(receiver.account.ensName),
                     messageId: '123',
+                    createdAt: 1,
                 });
 
             await request(app)
@@ -921,6 +929,7 @@ describe('Storage', () => {
                     encryptedEnvelopContainer: JSON.stringify(envelop),
                     encryptedContactName: sha256(receiver.account.ensName),
                     messageId: '456',
+                    createdAt: 2,
                 });
 
             const { status: addDuplicateStatus } = await request(app)
@@ -932,6 +941,7 @@ describe('Storage', () => {
                     encryptedEnvelopContainer: JSON.stringify(envelop),
                     encryptedContactName: sha256(receiver.account.ensName),
                     messageId: '123',
+                    createdAt: 3,
                 });
 
             const { status, body } = await request(app)
@@ -1048,6 +1058,7 @@ describe('Storage', () => {
                     encryptedEnvelopContainer: JSON.stringify(originalPayload),
                     encryptedContactName: sha256(receiver.account.ensName),
                     messageId: '123',
+                    createdAt: 123456,
                 });
             expect(status).toBe(200);
 
