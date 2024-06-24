@@ -35,7 +35,7 @@ export const getConversationList =
 
         //The client previews a message for each conversation. Hence we need to get the latest message for each conversation
         const previewMessages = await Promise.all(
-            conversations.map(async (c) => {
+            conversations.map(async (c: any) => {
                 const message = await db.encryptedMessage.findFirst({
                     where: {
                         conversationId: c.id,
