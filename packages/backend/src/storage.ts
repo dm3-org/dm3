@@ -8,6 +8,9 @@ import { sha256 } from '@dm3-org/dm3-lib-shared';
 import { IDatabase } from './persistence/getDatabase';
 import { ethers } from 'ethers';
 
+const DEFAULT_CONVERSATION_PAGE_SIZE = 10;
+const DEFAULT_MESSAGE_PAGE_SIZE = 100;
+
 export default (
     db: IDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
@@ -51,6 +54,7 @@ export default (
                 encryptedContactName,
                 editMessageBatchPayload.map((message) => ({
                     messageId: getUniqueMessageId(message.messageId),
+                    createdAt: message.createdAt,
                     encryptedEnvelopContainer:
                         message.encryptedEnvelopContainer,
                 })),
@@ -62,21 +66,38 @@ export default (
     });
 
     router.post('/new/:ensName/addMessage', async (req, res, next) => {
-        const { encryptedEnvelopContainer, encryptedContactName, messageId } =
-            req.body;
+        const {
+            encryptedEnvelopContainer,
+            encryptedContactName,
+            messageId,
+            createdAt,
+        } = req.body;
 
-        if (!encryptedEnvelopContainer || !encryptedContactName || !messageId) {
+        if (
+            !encryptedEnvelopContainer ||
+            !encryptedContactName ||
+            !messageId ||
+            !createdAt
+        ) {
             res.status(400).send('invalid schema');
             return;
         }
 
         try {
             const ensName = normalizeEnsName(req.params.ensName);
+            //Since the message is fully encrypted, we cannot use the messageHash as an identifier.
+            //Instead we use the hash of the ensName and the messageId to havea unique identifier
             const uniqueMessageId = sha256(ensName + messageId);
             const success = await db.addMessageBatch(
                 ensName,
                 encryptedContactName,
-                [{ messageId: uniqueMessageId, encryptedEnvelopContainer }],
+                [
+                    {
+                        messageId: uniqueMessageId,
+                        encryptedEnvelopContainer,
+                        createdAt,
+                    },
+                ],
             );
             if (success) {
                 return res.send();
@@ -108,6 +129,7 @@ export default (
                 encryptedContactName,
                 messageBatch.map((message) => ({
                     messageId: getUniqueMessageId(message.messageId),
+                    createdAt: message.createdAt,
                     encryptedEnvelopContainer:
                         message.encryptedEnvelopContainer,
                 })),
@@ -121,10 +143,13 @@ export default (
     router.get(
         '/new/:ensName/getMessages/:encryptedContactName/:page',
         async (req, res, next) => {
-            const pageNumber = parseInt(req.params.page);
             const encryptedContactName = req.params.encryptedContactName;
+            const size =
+                parseInt(req.query.size as string) || DEFAULT_MESSAGE_PAGE_SIZE;
 
-            if (isNaN(pageNumber) || !encryptedContactName) {
+            const offset = parseInt(req.query.offset as string) || 0;
+
+            if (isNaN(size) || isNaN(offset)) {
                 res.status(400).send('invalid schema');
                 return;
             }
@@ -133,7 +158,8 @@ export default (
                 const messages = await db.getMessagesFromStorage(
                     ensName,
                     encryptedContactName,
-                    pageNumber,
+                    size,
+                    offset,
                 );
                 return res.json(messages);
             } catch (e) {
@@ -187,7 +213,21 @@ export default (
     router.get('/new/:ensName/getConversations', async (req, res, next) => {
         try {
             const ensName = normalizeEnsName(req.params.ensName);
-            const conversations = await db.getConversationList(ensName);
+            const size =
+                parseInt(req.query.size as string) ||
+                DEFAULT_CONVERSATION_PAGE_SIZE;
+            const offset = parseInt(req.query.offset as string) || 0;
+
+            if (isNaN(size) || isNaN(offset)) {
+                res.status(400).send('invalid schema');
+                return;
+            }
+
+            const conversations = await db.getConversationList(
+                ensName,
+                size,
+                offset,
+            );
             return res.json(conversations);
         } catch (e) {
             next(e);
