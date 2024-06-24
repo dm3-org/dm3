@@ -1059,6 +1059,56 @@ describe('Storage', () => {
         });
     });
     describe('editMessageBatch', () => {
+        describe('schema', () => {
+            it('should return 400 if encryptedContactName is missing', async () => {
+                const body = {
+                    editMessageBatchPayload: [
+                        {
+                            createdAt: 123,
+                            messageId: 'testMessageId',
+                            encryptedEnvelopContainer:
+                                'testEncryptedEnvelopContainer',
+                        },
+                    ],
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/editMessageBatch')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+            it('should return 400 if editMessageBatchPayload is invalid', async () => {
+                const body = {
+                    editMessageBatchPayload: [
+                        {
+                            foo: 'bar',
+                        },
+                    ],
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/editMessageBatch')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+
+            it('should return 400 if editMessageBatchPayload is missing', async () => {
+                const body = {
+                    encryptedContactName: 'encryptedContactName',
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/editMessageBatch')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+        });
         it('should create a message if they has not been created before', async () => {
             const encryptedContactName = 'testContactName';
             const payload: MessageRecord[] = [
