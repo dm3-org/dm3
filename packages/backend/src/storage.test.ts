@@ -204,6 +204,17 @@ describe('Storage', () => {
         });
     });
     describe('getConversationList', () => {
+        it('returns empty array if users has no conversations', async () => {
+            const { body } = await request(app)
+                .get(`/new/bob.eth/getConversations`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send();
+
+            //With no query param, the default size is 10
+            expect(body.length).toBe(0);
+        });
         it('returns first 10 conversations if no query params are provided', async () => {
             //create 15 conversations
             //async for loop
@@ -247,8 +258,6 @@ describe('Storage', () => {
                     authorization: 'Bearer ' + token,
                 })
                 .send();
-
-            console.log(body);
 
             expect(body.length).toBe(6);
 
