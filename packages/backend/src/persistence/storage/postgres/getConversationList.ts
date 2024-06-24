@@ -1,11 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import { ConversationRecord } from './dto/ConversationRecord';
-import { GetResult } from '@prisma/client/runtime';
 export const getConversationList =
     (db: PrismaClient) =>
     async (
         ensName: string,
-        size: number,
+        pagesize: number,
         offset: number,
     ): Promise<ConversationRecord[]> => {
         //Find the account first we want to get the conversations for
@@ -21,9 +20,9 @@ export const getConversationList =
 
         const conversations = await db.conversation.findMany({
             //The pages that have to be skipped
-            skip: offset * size,
+            skip: offset * pagesize,
             //The requested page size
-            take: size,
+            take: pagesize,
             where: {
                 accountId: account.id,
                 isHidden: false,
