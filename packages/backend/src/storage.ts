@@ -73,13 +73,20 @@ export default (
             createdAt,
         } = req.body;
 
-        if (!encryptedEnvelopContainer || !encryptedContactName || !messageId) {
+        if (
+            !encryptedEnvelopContainer ||
+            !encryptedContactName ||
+            !messageId ||
+            !createdAt
+        ) {
             res.status(400).send('invalid schema');
             return;
         }
 
         try {
             const ensName = normalizeEnsName(req.params.ensName);
+            //Since the message is fully encrypted, we cannot use the messageHash as an identifier.
+            //Instead we use the hash of the ensName and the messageId to havea unique identifier
             const uniqueMessageId = sha256(ensName + messageId);
             const success = await db.addMessageBatch(
                 ensName,

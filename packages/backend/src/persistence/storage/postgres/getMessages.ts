@@ -8,12 +8,14 @@ export const getMessages =
         size: number,
         offset: number,
     ) => {
+        //Find the account first we want to get the messages for
         const account = await db.account.findFirst({
             where: {
                 id: ensName,
             },
         });
 
+        //If the contact does not exist, return an empty array
         if (!account) {
             return [];
         }

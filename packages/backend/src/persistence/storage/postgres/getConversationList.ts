@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-import { create } from 'domain';
 import { ConversationRecord } from './dto/ConversationRecord';
 export const getConversationList =
     (db: PrismaClient) =>
@@ -8,11 +7,13 @@ export const getConversationList =
         size: number,
         offset: number,
     ): Promise<ConversationRecord[]> => {
+        //Find the account first we want to get the conversations for
         const account = await db.account.findFirst({
             where: {
                 id: ensName,
             },
         });
+        //If the contact does not exist, return an empty array
         if (!account) {
             return [];
         }
@@ -48,6 +49,7 @@ export const getConversationList =
 
         return conversations.map((c, idx) => ({
             contact: c.encryptedContactName,
+            //Return the encrypted message container of the latest message, or null if there are no messages
             previewMessage:
                 previewMessages[idx]?.encryptedEnvelopContainer ?? null,
         }));
