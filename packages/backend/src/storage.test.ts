@@ -195,7 +195,7 @@ describe('Storage', () => {
             expect(body.length).toBe(2);
         });
     });
-    describe('getConversationList', () => {
+    describe('getConversations', () => {
         it('returns empty array if users has no conversations', async () => {
             const { body } = await request(app)
                 .get(`/new/bob.eth/getConversations`)
@@ -480,6 +480,67 @@ describe('Storage', () => {
         });
     });
     describe('addMessage', () => {
+        describe('schema', () => {
+            it('should return 400 if encryptedEnvelopContainer is missing', async () => {
+                const body = {
+                    encryptedContactName: 'encryptedContactName',
+                    messageId: 'messageId',
+                    createdAt: 123,
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/addMessage')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+
+            it('should return 400 if encryptedContactName is missing', async () => {
+                const body = {
+                    encryptedEnvelopContainer: 'encryptedEnvelopContainer',
+                    messageId: 'messageId',
+                    createdAt: 123,
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/addMessage')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+
+            it('should return 400 if messageId is missing', async () => {
+                const body = {
+                    encryptedEnvelopContainer: 'encryptedEnvelopContainer',
+                    encryptedContactName: 'encryptedContactName',
+                    createdAt: 123,
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/addMessage')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+
+            it('should return 400 if createdAt is missing', async () => {
+                const body = {
+                    encryptedEnvelopContainer: 'encryptedEnvelopContainer',
+                    encryptedContactName: 'encryptedContactName',
+                    messageId: 'messageId',
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/addMessage')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+        });
         it('can add message', async () => {
             const messageFactory = MockMessageFactory(
                 sender,

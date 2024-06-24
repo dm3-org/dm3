@@ -1,12 +1,14 @@
-import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import { normalizeEnsName, schema } from '@dm3-org/dm3-lib-profile';
 import cors from 'cors';
 import express from 'express';
 import { NextFunction, Request, Response } from 'express';
 import stringify from 'safe-stable-stringify';
 import { auth } from '@dm3-org/dm3-lib-server-side';
-import { sha256 } from '@dm3-org/dm3-lib-shared';
+import { sha256, validateSchema } from '@dm3-org/dm3-lib-shared';
 import { IDatabase } from './persistence/getDatabase';
 import { ethers } from 'ethers';
+import { AddMessageRequest } from './schema/storage/AddMesssageRequest';
+import { EditMessageBatchRequest } from './schema/storage/EditMessageBatchRequest';
 
 const DEFAULT_CONVERSATION_PAGE_SIZE = 10;
 const DEFAULT_MESSAGE_PAGE_SIZE = 100;
@@ -36,11 +38,9 @@ export default (
     router.post('/new/:ensName/editMessageBatch', async (req, res, next) => {
         const { encryptedContactName, editMessageBatchPayload } = req.body;
 
-        if (
-            !encryptedContactName ||
-            !editMessageBatchPayload ||
-            !Array.isArray(editMessageBatchPayload)
-        ) {
+        const schemaIsValid = validateSchema(EditMessageBatchRequest, req.body);
+
+        if (!schemaIsValid) {
             res.status(400).send('invalid schema');
             return;
         }
@@ -73,12 +73,9 @@ export default (
             createdAt,
         } = req.body;
 
-        if (
-            !encryptedEnvelopContainer ||
-            !encryptedContactName ||
-            !messageId ||
-            !createdAt
-        ) {
+        const schemaIsValid = validateSchema(AddMessageRequest, req.body);
+
+        if (!schemaIsValid) {
             res.status(400).send('invalid schema');
             return;
         }
