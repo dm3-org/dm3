@@ -34,6 +34,7 @@ import {
 import { MessageRecord } from './persistence/storage/postgres/dto/MessageRecord';
 import storage from './storage';
 import exp from 'constants';
+import { create } from 'domain';
 
 const keysA = {
     encryptionKeyPair: {
@@ -858,10 +859,12 @@ describe('Storage', () => {
                         {
                             encryptedEnvelopContainer: JSON.stringify(envelop),
                             messageId: '123',
+                            createdAt: 1,
                         },
                         {
                             encryptedEnvelopContainer: JSON.stringify(envelop),
                             messageId: '456',
+                            createdAt: 2,
                         },
                     ],
                 });
