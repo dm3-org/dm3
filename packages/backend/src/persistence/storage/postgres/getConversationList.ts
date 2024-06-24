@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { ConversationRecord } from './dto/ConversationRecord';
+import { GetResult } from '@prisma/client/runtime';
 export const getConversationList =
     (db: PrismaClient) =>
     async (
@@ -47,7 +48,7 @@ export const getConversationList =
             }),
         );
 
-        return conversations.map((c, idx) => ({
+        return conversations.map((c: any, idx: number) => ({
             contact: c.encryptedContactName,
             //Return the encrypted message container of the latest message, or null if there are no messages
             previewMessage:
