@@ -3,7 +3,7 @@ import { ContactPreview } from './utils';
 
 export interface Contact {
     account: Account;
-    deliveryServiceProfile?: DeliveryServiceProfile;
+    deliveryServiceProfiles: DeliveryServiceProfile[];
 }
 
 export interface AuthState {

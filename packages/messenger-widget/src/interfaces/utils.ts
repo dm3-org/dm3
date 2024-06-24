@@ -61,7 +61,7 @@ export const getDefaultContract = (ensName: string) => {
             account: {
                 ensName,
             },
-            deliveryServiceProfile: undefined,
+            deliveryServiceProfiles: [],
         },
         isHidden: false,
         messageSizeLimit: 0,

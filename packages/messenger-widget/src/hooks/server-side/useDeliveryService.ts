@@ -157,21 +157,38 @@ export const useDeliveryService = () => {
             );
         },
 
-        fetchNewMessages: (ensName: string, contactAddress: string) => {
-            return connectors[0].fetchNewMessages(ensName, contactAddress);
+        fetchNewMessages: async (ensName: string, contactAddress: string) => {
+            const connectors = _getConnectors();
+            const messages = await Promise.all(
+                connectors.map((c) =>
+                    c.fetchNewMessages(ensName, contactAddress),
+                ),
+            );
+            //flatten all messages to one array
+            return messages.reduce((acc, val) => acc.concat(val), []);
         },
-        fetchIncommingMessages: (ensName: string) => {
-            return connectors[0].fetchIncommingMessages(ensName);
+        fetchIncommingMessages: async (ensName: string) => {
+            const connectors = _getConnectors();
+            const messages = await Promise.all(
+                connectors.map((c) => c.fetchIncommingMessages(ensName)),
+            );
+            //flatten all messages to one array
+            return messages.reduce((acc, val) => acc.concat(val), []);
         },
         syncAcknowledgment: (
             ensName: string,
             acknoledgments: Acknoledgment[],
             lastSyncTime: number,
         ) => {
-            return connectors[0].syncAcknowledgement(
-                ensName,
-                acknoledgments,
-                lastSyncTime,
+            const connectors = _getConnectors();
+            return Promise.all(
+                connectors.map((c) =>
+                    c.syncAcknowledgement(
+                        ensName,
+                        acknoledgments,
+                        lastSyncTime,
+                    ),
+                ),
             );
         },
         getGlobalNotification: (ensName: string) => {
