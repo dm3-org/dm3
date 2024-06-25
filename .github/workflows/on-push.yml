@@ -46,7 +46,7 @@ jobs:
             - uses: actions/upload-artifact@master
               with:
                   name: backend-schema
-                  path: packages/backend/**/schema/
+                  path: packages/backend/**/schema/**/
     backend-test:
         runs-on: ubuntu-latest
         needs: build
