@@ -3,7 +3,7 @@ import {
     generateAuthJWT,
     spamFilter,
 } from '@dm3-org/dm3-lib-delivery';
-import { SignedUserProfile } from '@dm3-org/dm3-lib-profile';
+import { SignedUserProfile, schema } from '@dm3-org/dm3-lib-profile';
 import { sha256 } from '@dm3-org/dm3-lib-shared';
 import {
     MockDeliveryServiceProfile,
@@ -479,6 +479,51 @@ describe('Storage', () => {
             expect(JSON.parse(body[0].previewMessage)).toEqual(envelop3);
         });
     });
+    describe('getMessages', () => {
+        describe('schema', () => {
+            it('should return 400 if offset is negative', async () => {
+                const { status, body } = await request(app)
+                    .get(`/new/bob.eth/getMessages/alice.eth`)
+                    .query({ offset: -12 })
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send();
+
+                console.log(body);
+
+                expect(status).toBe(400);
+            });
+
+            it('should return 400 if pageSize is negative', async () => {
+                const { status, body } = await request(app)
+                    .get(`/new/bob.eth/getMessages/alice.eth`)
+                    .query({ pageSize: -12 })
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send();
+
+                console.log(body);
+
+                expect(status).toBe(400);
+            });
+        });
+        it('returns empty array if users has no messages', async () => {
+            const { body } = await request(app)
+                .get(
+                    `/new/bob.eth/getMessages/${sha256(
+                        receiver.account.ensName,
+                    )}`,
+                )
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send();
+
+            expect(body.length).toBe(0);
+        });
+    });
     describe('addMessage', () => {
         describe('schema', () => {
             it('should return 400 if encryptedEnvelopContainer is missing', async () => {
@@ -581,7 +626,7 @@ describe('Storage', () => {
                 .get(
                     `/new/bob.eth/getMessages/${sha256(
                         receiver.account.ensName,
-                    )}/0`,
+                    )}`,
                 )
                 .set({
                     authorization: 'Bearer ' + token,
@@ -657,7 +702,7 @@ describe('Storage', () => {
                 .get(
                     `/new/bob.eth/getMessages/${sha256(
                         receiver.account.ensName,
-                    )}/0`,
+                    )}`,
                 )
                 .set({
                     authorization: 'Bearer ' + token,
@@ -675,7 +720,7 @@ describe('Storage', () => {
                 .get(
                     `/new/alice.eth/getMessages/${sha256(
                         sender.account.ensName,
-                    )}/0`,
+                    )}`,
                 )
                 .set({
                     authorization: 'Bearer ' + tokenAlice,
@@ -796,7 +841,7 @@ describe('Storage', () => {
                 .get(
                     `/new/bob.eth/getMessages/${sha256(
                         receiver.account.ensName,
-                    )}/0`,
+                    )}`,
                 )
                 .set({
                     authorization: 'Bearer ' + token,
@@ -872,7 +917,7 @@ describe('Storage', () => {
                 .get(
                     `/new/bob.eth/getMessages/${sha256(
                         receiver.account.ensName,
-                    )}/0`,
+                    )}`,
                 )
                 .set({
                     authorization: 'Bearer ' + token,
@@ -987,7 +1032,7 @@ describe('Storage', () => {
                 .get(
                     `/new/bob.eth/getMessages/${sha256(
                         receiver.account.ensName,
-                    )}/0`,
+                    )}`,
                 )
                 .set({
                     authorization: 'Bearer ' + token,
@@ -1181,7 +1226,7 @@ describe('Storage', () => {
 
             //get messages
             const { body } = await request(app)
-                .get(`/new/bob.eth/getMessages/${encryptedContactName}/0`)
+                .get(`/new/bob.eth/getMessages/${encryptedContactName}`)
                 .set({
                     authorization: 'Bearer ' + token,
                 })
@@ -1237,7 +1282,7 @@ describe('Storage', () => {
 
             //get messages
             const { body } = await request(app)
-                .get(`/new/bob.eth/getMessages/${contactName}/0`)
+                .get(`/new/bob.eth/getMessages/${contactName}`)
                 .set({
                     authorization: 'Bearer ' + token,
                 })

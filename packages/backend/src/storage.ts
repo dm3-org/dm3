@@ -10,6 +10,7 @@ import { ethers } from 'ethers';
 import { AddMessageRequest } from './schema/storage/AddMesssageRequest';
 import { EditMessageBatchRequest } from './schema/storage/EditMessageBatchRequest';
 import { AddMessageBatchRequest } from './schema/storage/AddMessageBatchRequest';
+import { GetMessagesRequest } from './schema/storage/GetMessagesRequest';
 
 const DEFAULT_CONVERSATION_PAGE_SIZE = 10;
 const DEFAULT_MESSAGE_PAGE_SIZE = 100;
@@ -137,15 +138,21 @@ export default (
     });
 
     router.get(
-        '/new/:ensName/getMessages/:encryptedContactName/:page',
+        '/new/:ensName/getMessages/:encryptedContactName/',
         async (req, res, next) => {
             const encryptedContactName = req.params.encryptedContactName;
-            const size =
-                parseInt(req.query.size as string) || DEFAULT_MESSAGE_PAGE_SIZE;
 
+            const pageSize =
+                parseInt(req.query.pageSize as string) ||
+                DEFAULT_MESSAGE_PAGE_SIZE;
             const offset = parseInt(req.query.offset as string) || 0;
 
-            if (isNaN(size) || isNaN(offset)) {
+            const schemaIsValid = validateSchema(GetMessagesRequest, {
+                pageSize,
+                offset,
+            });
+
+            if (!schemaIsValid) {
                 res.status(400).send('invalid schema');
                 return;
             }
@@ -154,7 +161,7 @@ export default (
                 const messages = await db.getMessagesFromStorage(
                     ensName,
                     encryptedContactName,
-                    size,
+                    pageSize,
                     offset,
                 );
                 return res.json(messages);
