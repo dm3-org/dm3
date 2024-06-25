@@ -1,12 +1,18 @@
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
-import cors from 'cors';
-import express from 'express';
-import { NextFunction, Request, Response } from 'express';
-import stringify from 'safe-stable-stringify';
 import { auth } from '@dm3-org/dm3-lib-server-side';
-import { sha256 } from '@dm3-org/dm3-lib-shared';
-import { IDatabase } from './persistence/getDatabase';
+import { sha256, validateSchema } from '@dm3-org/dm3-lib-shared';
+import cors from 'cors';
 import { ethers } from 'ethers';
+import express, { NextFunction, Request, Response } from 'express';
+import stringify from 'safe-stable-stringify';
+import { IDatabase } from './persistence/getDatabase';
+import { AddMessageBatchRequest } from './schema/storage/AddMessageBatchRequest';
+import { AddMessageRequest } from './schema/storage/AddMesssageRequest';
+import { EditMessageBatchRequest } from './schema/storage/EditMessageBatchRequest';
+import { PaginatedRequest } from './schema/storage/PaginatedRequest';
+
+const DEFAULT_CONVERSATION_PAGE_SIZE = 10;
+const DEFAULT_MESSAGE_PAGE_SIZE = 100;
 
 export default (
     db: IDatabase,
@@ -33,11 +39,9 @@ export default (
     router.post('/new/:ensName/editMessageBatch', async (req, res, next) => {
         const { encryptedContactName, editMessageBatchPayload } = req.body;
 
-        if (
-            !encryptedContactName ||
-            !editMessageBatchPayload ||
-            !Array.isArray(editMessageBatchPayload)
-        ) {
+        const schemaIsValid = validateSchema(EditMessageBatchRequest, req.body);
+
+        if (!schemaIsValid) {
             res.status(400).send('invalid schema');
             return;
         }
@@ -49,8 +53,9 @@ export default (
             await db.editMessageBatch(
                 ensName,
                 encryptedContactName,
-                editMessageBatchPayload.map((message) => ({
+                editMessageBatchPayload.map((message: any) => ({
                     messageId: getUniqueMessageId(message.messageId),
+                    createdAt: message.createdAt,
                     encryptedEnvelopContainer:
                         message.encryptedEnvelopContainer,
                 })),
@@ -62,21 +67,35 @@ export default (
     });
 
     router.post('/new/:ensName/addMessage', async (req, res, next) => {
-        const { encryptedEnvelopContainer, encryptedContactName, messageId } =
-            req.body;
+        const {
+            encryptedEnvelopContainer,
+            encryptedContactName,
+            messageId,
+            createdAt,
+        } = req.body;
 
-        if (!encryptedEnvelopContainer || !encryptedContactName || !messageId) {
+        const schemaIsValid = validateSchema(AddMessageRequest, req.body);
+
+        if (!schemaIsValid) {
             res.status(400).send('invalid schema');
             return;
         }
 
         try {
             const ensName = normalizeEnsName(req.params.ensName);
+            //Since the message is fully encrypted, we cannot use the messageHash as an identifier.
+            //Instead we use the hash of the ensName and the messageId to have a unique identifier
             const uniqueMessageId = sha256(ensName + messageId);
             const success = await db.addMessageBatch(
                 ensName,
                 encryptedContactName,
-                [{ messageId: uniqueMessageId, encryptedEnvelopContainer }],
+                [
+                    {
+                        messageId: uniqueMessageId,
+                        encryptedEnvelopContainer,
+                        createdAt,
+                    },
+                ],
             );
             if (success) {
                 return res.send();
@@ -89,11 +108,9 @@ export default (
     router.post('/new/:ensName/addMessageBatch', async (req, res, next) => {
         const { messageBatch, encryptedContactName } = req.body;
 
-        if (
-            !messageBatch ||
-            !Array.isArray(messageBatch) ||
-            !encryptedContactName
-        ) {
+        const schemaIsValid = validateSchema(AddMessageBatchRequest, req.body);
+
+        if (!schemaIsValid) {
             res.status(400).send('invalid schema');
             return;
         }
@@ -106,8 +123,9 @@ export default (
             await db.addMessageBatch(
                 ensName,
                 encryptedContactName,
-                messageBatch.map((message) => ({
+                messageBatch.map((message: any) => ({
                     messageId: getUniqueMessageId(message.messageId),
+                    createdAt: message.createdAt,
                     encryptedEnvelopContainer:
                         message.encryptedEnvelopContainer,
                 })),
@@ -119,12 +137,21 @@ export default (
     });
 
     router.get(
-        '/new/:ensName/getMessages/:encryptedContactName/:page',
+        '/new/:ensName/getMessages/:encryptedContactName/',
         async (req, res, next) => {
-            const pageNumber = parseInt(req.params.page);
             const encryptedContactName = req.params.encryptedContactName;
 
-            if (isNaN(pageNumber) || !encryptedContactName) {
+            const pageSize =
+                parseInt(req.query.pageSize as string) ||
+                DEFAULT_MESSAGE_PAGE_SIZE;
+            const offset = parseInt(req.query.offset as string) || 0;
+
+            const schemaIsValid = validateSchema(PaginatedRequest, {
+                pageSize,
+                offset,
+            });
+
+            if (!schemaIsValid) {
                 res.status(400).send('invalid schema');
                 return;
             }
@@ -133,7 +160,8 @@ export default (
                 const messages = await db.getMessagesFromStorage(
                     ensName,
                     encryptedContactName,
-                    pageNumber,
+                    pageSize,
+                    offset,
                 );
                 return res.json(messages);
             } catch (e) {
@@ -187,7 +215,27 @@ export default (
     router.get('/new/:ensName/getConversations', async (req, res, next) => {
         try {
             const ensName = normalizeEnsName(req.params.ensName);
-            const conversations = await db.getConversationList(ensName);
+
+            const pageSize =
+                parseInt(req.query.pageSize as string) ||
+                DEFAULT_CONVERSATION_PAGE_SIZE;
+            const offset = parseInt(req.query.offset as string) || 0;
+
+            const schemaIsValid = validateSchema(PaginatedRequest, {
+                pageSize,
+                offset,
+            });
+
+            if (!schemaIsValid) {
+                res.status(400).send('invalid schema');
+                return;
+            }
+
+            const conversations = await db.getConversationList(
+                ensName,
+                pageSize,
+                offset,
+            );
             return res.json(conversations);
         } catch (e) {
             next(e);
