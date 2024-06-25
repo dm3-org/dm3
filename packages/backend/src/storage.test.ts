@@ -27,6 +27,8 @@ import {
 import { MessageRecord } from './persistence/storage/postgres/dto/MessageRecord';
 import storage from './storage';
 
+import fs from 'fs';
+
 const keysA = {
     encryptionKeyPair: {
         publicKey: 'eHmMq29FeiPKfNPkSctPuZGXvV0sKeO/KZkX2nXvMgw=',
@@ -55,6 +57,18 @@ describe('Storage', () => {
     let receiver: MockedUserProfile;
     let deliveryService: MockDeliveryServiceProfile;
     let redisClient: Redis;
+
+    it('PWD LOG', () => {
+        //Log the path of the current directory
+        console.log('Current directory: ' + process.cwd());
+
+        //Log every file in /schema
+
+        console.log(
+            'Files in /schema: ',
+            fs.readdirSync(process.cwd() + '/src/schema/storage'),
+        );
+    });
 
     beforeEach(async () => {
         prisma = new PrismaClient();
