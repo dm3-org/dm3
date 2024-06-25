@@ -216,19 +216,25 @@ export default (
     router.get('/new/:ensName/getConversations', async (req, res, next) => {
         try {
             const ensName = normalizeEnsName(req.params.ensName);
-            const size =
-                parseInt(req.query.size as string) ||
+
+            const pageSize =
+                parseInt(req.query.pageSize as string) ||
                 DEFAULT_CONVERSATION_PAGE_SIZE;
             const offset = parseInt(req.query.offset as string) || 0;
 
-            if (isNaN(size) || isNaN(offset)) {
+            const schemaIsValid = validateSchema(PaginatedRequest, {
+                pageSize,
+                offset,
+            });
+
+            if (!schemaIsValid) {
                 res.status(400).send('invalid schema');
                 return;
             }
 
             const conversations = await db.getConversationList(
                 ensName,
-                size,
+                pageSize,
                 offset,
             );
             return res.json(conversations);

@@ -245,7 +245,8 @@ describe('Storage', () => {
             }
 
             const { body } = await request(app)
-                .get(`/new/bob.eth/getConversations?size=6`)
+                .get(`/new/bob.eth/getConversations`)
+                .query({ pageSize: 6 })
                 .set({
                     authorization: 'Bearer ' + token,
                 })
@@ -302,7 +303,11 @@ describe('Storage', () => {
             }
 
             const { body } = await request(app)
-                .get(`/new/bob.eth/getConversations?size=3&offset=2`)
+                .get(`/new/bob.eth/getConversations`)
+                .query({
+                    pageSize: 3,
+                    offset: 2,
+                })
                 .set({
                     authorization: 'Bearer ' + token,
                 })
@@ -329,7 +334,11 @@ describe('Storage', () => {
             }
 
             const { body } = await request(app)
-                .get(`/new/bob.eth/getConversations?size=10&offset=1`)
+                .get(`/new/bob.eth/getConversations`)
+                .query({
+                    pageSize: 10,
+                    offset: 1,
+                })
                 .set({
                     authorization: 'Bearer ' + token,
                 })
@@ -358,7 +367,11 @@ describe('Storage', () => {
             }
 
             const { body } = await request(app)
-                .get(`/new/bob.eth/getConversations?size=10&offset=2`)
+                .get(`/new/bob.eth/getConversations`)
+                .query({
+                    pageSize: 10,
+                    offset: 2,
+                })
                 .set({
                     authorization: 'Bearer ' + token,
                 })
