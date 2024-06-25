@@ -891,6 +891,54 @@ describe('Storage', () => {
         });
     });
     describe('addMessageBatch', () => {
+        describe('schema', () => {
+            it('should return 400 if encryptedContactName is missing', async () => {
+                const body = {
+                    messageBatch: [
+                        {
+                            createdAt: 123,
+                            messageId: 'testMessageId',
+                            encryptedEnvelopContainer:
+                                'testEncryptedEnvelopContainer',
+                        },
+                    ],
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/addMessageBatch')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+
+            it('should return 400 if messageBatch is missing', async () => {
+                const body = {
+                    encryptedContactName: 'encryptedContactName',
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/addMessageBatch')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+
+            it('should return 400 if messageBatch is invalid', async () => {
+                const body = {
+                    encryptedContactName: 'encryptedContactName',
+                    messageBatch: [{ foo: 'bar' }],
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/addMessageBatch')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+        });
         it('can add a messageBatch', async () => {
             const messageFactory = MockMessageFactory(
                 sender,

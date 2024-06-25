@@ -9,6 +9,7 @@ import { IDatabase } from './persistence/getDatabase';
 import { ethers } from 'ethers';
 import { AddMessageRequest } from './schema/storage/AddMesssageRequest';
 import { EditMessageBatchRequest } from './schema/storage/EditMessageBatchRequest';
+import { AddMessageBatchRequest } from './schema/storage/AddMessageBatchRequest';
 
 const DEFAULT_CONVERSATION_PAGE_SIZE = 10;
 const DEFAULT_MESSAGE_PAGE_SIZE = 100;
@@ -107,11 +108,9 @@ export default (
     router.post('/new/:ensName/addMessageBatch', async (req, res, next) => {
         const { messageBatch, encryptedContactName } = req.body;
 
-        if (
-            !messageBatch ||
-            !Array.isArray(messageBatch) ||
-            !encryptedContactName
-        ) {
+        const schemaIsValid = validateSchema(AddMessageBatchRequest, req.body);
+
+        if (!schemaIsValid) {
             res.status(400).send('invalid schema');
             return;
         }
