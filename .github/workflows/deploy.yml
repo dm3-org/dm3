@@ -36,7 +36,7 @@ jobs:
                   chmod 600 ./ssh-key
             - name: Create .env file
               env:
-                  TARGET_HOST: ${{ vars.HOST_DOMAIN }}
+                  TARGET_HOST: ${{ vars.HOST_DOMAIN}}
                   TARGET_IP: ${{ vars.HOST_IP }}
               run: |
                   echo "REACT_APP_ADDR_ENS_SUBDOMAIN=${{ vars.ADDR_ENS_SUBDOMAIN }}" >> ./.env.react

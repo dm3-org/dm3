@@ -2067,6 +2067,7 @@ __metadata:
     "@dm3-org/dm3-lib-server-side": "workspace:^"
     "@dm3-org/dm3-lib-shared": "workspace:^"
     "@dm3-org/dm3-lib-storage": "workspace:^"
+    "@dm3-org/dm3-lib-test-helper": "workspace:^"
     "@prisma/client": 4.16.2
     "@types/cors": ^2.8.17
     "@types/express": ^4.17.13

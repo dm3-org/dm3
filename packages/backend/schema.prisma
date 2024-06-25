@@ -9,6 +9,7 @@ generator client {
 
 model EncryptedMessage {
     id                        String       @id
+    createdAt                 Int          @default(0)
     encryptedEnvelopContainer String
     encryptedContactName      String
     conversationId            String
@@ -19,6 +20,7 @@ model EncryptedMessage {
 
 model Conversation {
     id                   String             @id @default(uuid())
+    updatedAt            DateTime           @default(now())
     encryptedContactName String
     Message              EncryptedMessage[]
     Account              Account            @relation(fields: [accountId], references: [id])
