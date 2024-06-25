@@ -84,7 +84,7 @@ export default (
         try {
             const ensName = normalizeEnsName(req.params.ensName);
             //Since the message is fully encrypted, we cannot use the messageHash as an identifier.
-            //Instead we use the hash of the ensName and the messageId to havea unique identifier
+            //Instead we use the hash of the ensName and the messageId to have a unique identifier
             const uniqueMessageId = sha256(ensName + messageId);
             const success = await db.addMessageBatch(
                 ensName,
