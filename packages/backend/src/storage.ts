@@ -1,15 +1,14 @@
-import { normalizeEnsName, schema } from '@dm3-org/dm3-lib-profile';
-import cors from 'cors';
-import express from 'express';
-import { NextFunction, Request, Response } from 'express';
-import stringify from 'safe-stable-stringify';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { auth } from '@dm3-org/dm3-lib-server-side';
 import { sha256, validateSchema } from '@dm3-org/dm3-lib-shared';
-import { IDatabase } from './persistence/getDatabase';
+import cors from 'cors';
 import { ethers } from 'ethers';
+import express, { NextFunction, Request, Response } from 'express';
+import stringify from 'safe-stable-stringify';
+import { IDatabase } from './persistence/getDatabase';
+import { AddMessageBatchRequest } from './schema/storage/AddMessageBatchRequest';
 import { AddMessageRequest } from './schema/storage/AddMesssageRequest';
 import { EditMessageBatchRequest } from './schema/storage/EditMessageBatchRequest';
-import { AddMessageBatchRequest } from './schema/storage/AddMessageBatchRequest';
 import { PaginatedRequest } from './schema/storage/PaginatedRequest';
 
 const DEFAULT_CONVERSATION_PAGE_SIZE = 10;
@@ -124,7 +123,7 @@ export default (
             await db.addMessageBatch(
                 ensName,
                 encryptedContactName,
-                messageBatch.map((message) => ({
+                messageBatch.map((message: any) => ({
                     messageId: getUniqueMessageId(message.messageId),
                     createdAt: message.createdAt,
                     encryptedEnvelopContainer:
