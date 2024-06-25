@@ -57,7 +57,7 @@ jobs:
                   echo "REACT_APP_CHAIN_ID=${{ vars.CHAIN_ID }}" >> ./.env.react
                   echo "REACT_APP_GENOME_REGISTRY_ADDRESS=${{ vars.GENOME_REGISTRY_ADDRESS }}" >> ./.env.react
                   cat ./.env.react >> ./.env
-                  echo "RESOLVER_ADDR=0x88c8cC822095cdE6F92c8d20311C8e7dE6A98694" >> ./.env
+                  echo "RESOLVER_ADDR=${{ vars.ERC3668_RESOLVER_ADDRESS }}" >> ./.env
                   echo "SIGNING_PUBLIC_KEY=${{ secrets.SIGNING_PUBLIC_KEY }}" >> ./.env
                   echo "SIGNING_PRIVATE_KEY=${{ secrets.SIGNING_PRIVATE_KEY }}" >> ./.env
                   echo "SIGNER_PRIVATE_KEY=${{ secrets.SIGNER_PRIVATE_KEY }}" >> ./.env
@@ -68,7 +68,7 @@ jobs:
                   echo "URL=${{ vars.HOST_DOMAIN }}" >> ./.env
                   echo "CERT_MAIL=${{ vars.CERT_MAIL }}" >> ./.env
                   echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> ./.env
-                  envsubst '${TARGET_IP} ${TARGET_HOST}' < ./docker/nginx.conf > ./nginx.conf
+                  envsubst '${TARGET_HOST} ${TARGET_IP}' < ./docker/nginx.conf > ./nginx.conf
                   cat ./.env
             - name: Prepare docker build environment
               shell: bash

@@ -135,7 +135,7 @@ services:
             LOG_LEVEL: debug
             CONFIG: |
                 {
-                  "${ERC3668_RESOLVER_ADDRESS}": {
+                  "${RESOLVER_ADDRESS}": {
                     "type": "signing",
                     "handlerUrl": "http://offchain-resolver:8082"
                   }
