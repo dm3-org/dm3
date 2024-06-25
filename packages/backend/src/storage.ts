@@ -10,7 +10,7 @@ import { ethers } from 'ethers';
 import { AddMessageRequest } from './schema/storage/AddMesssageRequest';
 import { EditMessageBatchRequest } from './schema/storage/EditMessageBatchRequest';
 import { AddMessageBatchRequest } from './schema/storage/AddMessageBatchRequest';
-import { GetMessagesRequest } from './schema/storage/GetMessagesRequest';
+import { PaginatedRequest } from './schema/storage/PaginatedRequest';
 
 const DEFAULT_CONVERSATION_PAGE_SIZE = 10;
 const DEFAULT_MESSAGE_PAGE_SIZE = 100;
@@ -147,7 +147,7 @@ export default (
                 DEFAULT_MESSAGE_PAGE_SIZE;
             const offset = parseInt(req.query.offset as string) || 0;
 
-            const schemaIsValid = validateSchema(GetMessagesRequest, {
+            const schemaIsValid = validateSchema(PaginatedRequest, {
                 pageSize,
                 offset,
             });
