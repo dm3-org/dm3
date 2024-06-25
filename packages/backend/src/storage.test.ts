@@ -58,18 +58,6 @@ describe('Storage', () => {
     let deliveryService: MockDeliveryServiceProfile;
     let redisClient: Redis;
 
-    it('PWD LOG', () => {
-        //Log the path of the current directory
-        console.log('Current directory: ' + process.cwd());
-
-        //Log every file in /schema
-
-        console.log(
-            'Files in /schema: ',
-            fs.readdirSync(process.cwd() + '/src/schema/storage'),
-        );
-    });
-
     beforeEach(async () => {
         prisma = new PrismaClient();
         redisClient = await getRedisClient();
