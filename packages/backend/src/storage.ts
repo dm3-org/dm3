@@ -53,7 +53,7 @@ export default (
             await db.editMessageBatch(
                 ensName,
                 encryptedContactName,
-                editMessageBatchPayload.map((message) => ({
+                editMessageBatchPayload.map((message: any) => ({
                     messageId: getUniqueMessageId(message.messageId),
                     createdAt: message.createdAt,
                     encryptedEnvelopContainer:
