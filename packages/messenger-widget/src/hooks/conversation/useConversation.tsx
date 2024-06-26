@@ -1,23 +1,28 @@
 /* eslint-disable max-len */
+import {
+    DeliveryInformation,
+    EncryptionEnvelop,
+} from '@dm3-org/dm3-lib-messaging';
+import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { Conversation } from '@dm3-org/dm3-lib-storage/dist/new/types';
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
+import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
+import { DeliveryServiceContext } from '../../context/DeliveryServiceContext';
 import { StorageContext } from '../../context/StorageContext';
+import { TLDContext } from '../../context/TLDContext';
+import { DM3Configuration } from '../../interfaces/config';
 import { ContactPreview, getDefaultContract } from '../../interfaces/utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
-import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
-import { DM3Configuration } from '../../interfaces/config';
-import { TLDContext } from '../../context/TLDContext';
-import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
-import { DeliveryServiceContext } from '../../context/DeliveryServiceContext';
 
 export const useConversation = (config: DM3Configuration) => {
     const mainnetProvider = useMainnetProvider();
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const { account } = useContext(AuthContext);
     const {
-        fetchPendingConversations,
+        getDeliveryServiceProperties,
+        fetchIncommingMessages,
         isInitialized: deliveryServiceInitialized,
     } = useContext(DeliveryServiceContext);
     const {
@@ -103,11 +108,8 @@ export const useConversation = (config: DM3Configuration) => {
              */
             _setContactsSafe(storedContacts);
 
-            //as long as there is no pagination we fetch the next page until we get an empty page
-            // if (currentConversationsPage.length > 0) {
-            //     await init(page + 1);
-            // }
-            await handlePendingConversations(dm3Configuration.backendUrl);
+            //Conversation that have been added to the DS in absence of the user will be fetched and added to the conversation list using the handlePendingConversations method
+            await handlePendingConversations();
             initDefaultContact();
             setConversationsInitialized(true);
         };
@@ -139,6 +141,7 @@ export const useConversation = (config: DM3Configuration) => {
                     messageCounter: 0,
                     isHidden: false,
                 };
+
                 const hydratedDefaultContact = await hydrateContract(
                     mainnetProvider,
                     defaultConversation,
@@ -150,20 +153,32 @@ export const useConversation = (config: DM3Configuration) => {
         }
     };
 
-    const handlePendingConversations = async (backendUrl: string) => {
-        //At first we've to check if there are pending conversations not yet added to the list
-
-        const pendingConversations: string[] = await fetchPendingConversations(
+    const handlePendingConversations = async () => {
+        //The DS does not exposes an endpoint to fetch pending conversations. Hence we're using the fetchIncommingMessages method.
+        //We can make some optimizations here if we use the messages fetched from incommingMessages in useMessages aswell.
+        //This would require a refactor of the useMessages away from a contact based model.
+        //Maybe we decide to to this in the future, for now we're going to keep it simple
+        const incommingMessages = await fetchIncommingMessages(
             account?.ensName as string,
         );
         //Every pending conversation is going to be added to the conversation list
-        pendingConversations.forEach((pendingConversation) => {
-            addConversation(pendingConversation);
+        incommingMessages.forEach((pendingMessage: EncryptionEnvelop) => {
+            const sender = (
+                pendingMessage.metadata
+                    .deliveryInformation as DeliveryInformation
+            ).from;
+            addConversation(sender);
         });
     };
 
     const addConversation = (_ensName: string) => {
         const ensName = normalizeEnsName(_ensName);
+        //Check if the contact is the user itself
+        const isOwnContact = normalizeEnsName(account!.ensName) === ensName;
+        //We don't want to add ourselfs
+        if (isOwnContact) {
+            return;
+        }
         const alreadyAddedContact = contacts.find(
             (existingContact) =>
                 existingContact.contactDetails.account.ensName === ensName,

@@ -60,9 +60,6 @@ export const ConfigureOptimismNameProfile = (props: IChain) => {
             startLoader();
 
             if (props.chainToConnect !== connectedChainId) {
-                console.log(
-                    'Invalid chain connected. Please switch to optimism network.',
-                );
                 setError(
                     'Invalid chain connected. Please switch to optimism network.',
                     NAME_TYPE.DM3_NAME,

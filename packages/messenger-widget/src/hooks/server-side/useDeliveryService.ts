@@ -1,14 +1,13 @@
+import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
+import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
+import { getDeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
+import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
+import axios from 'axios';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
-import { DeliveryServiceConnector } from './DeliveryServiceConnector';
-import { getDeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
-import axios from 'axios';
-import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
-import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
-import { EncryptionEnvelop, Envelop } from '@dm3-org/dm3-lib-messaging';
-import socketIOClient, { Socket } from 'socket.io-client';
+import { DeliveryServiceConnector } from './DeliveryServiceConnector';
 
 export const useDeliveryService = () => {
     //Get Dependencies from authHook
@@ -25,6 +24,13 @@ export const useDeliveryService = () => {
     const [connectors, setConnectors] = useState<DeliveryServiceConnector[]>(
         [],
     );
+
+    //Reset the hook in case the account changes
+    useEffect(() => {
+        console.log('reset useDelivery');
+        setIsInitialized(false);
+        setConnectors([]);
+    }, [account, isProfileReady]);
 
     //Initializer for the delivery service connectors
     useEffect(() => {
@@ -56,19 +62,20 @@ export const useDeliveryService = () => {
                         return undefined;
                     }
 
-                    console.log('ds ', await ds);
-
                     return new DeliveryServiceConnector(
                         baseUrl,
                         dm3Configuration.resolverBackendUrl,
                         dm3Configuration.addressEnsSubdomain,
                         ethAddress!,
                         profileKeys!,
+                        true,
                     );
                 });
 
-            const p = await Promise.all(connectors);
-            const onlyValidConnectors = p.filter(
+            //We wait until each connector has been initilaized
+            const resolvedConnectors = await Promise.all(connectors);
+
+            const onlyValidConnectors = resolvedConnectors.filter(
                 (p): p is DeliveryServiceConnector => p !== undefined,
             );
 
@@ -77,48 +84,53 @@ export const useDeliveryService = () => {
                 signature: account?.profileSignature!,
             };
             //Sign in connectors
-
             await Promise.all(
                 onlyValidConnectors.map((c) => c.login(signedUserProfile)),
-            ),
-                setConnectors(onlyValidConnectors);
+            );
+
+            setConnectors(onlyValidConnectors);
             console.log('connectors', onlyValidConnectors);
             setIsInitialized(true);
         };
         initializeDs();
-    }, [isProfileReady]);
+    }, [account, ethAddress, isProfileReady]);
 
     const _getConnectors = () => {
-        //TODO think about strategies to use the delivery services. For the start we just query the first one
-        const [ds] = connectors;
-        return [ds];
+        if (connectors.length === 0) {
+            return [];
+        }
+
+        return connectors;
     };
 
-    const getDeliveryServiceProperties = () => {
+    const getDeliveryServiceProperties = async (): Promise<any[]> => {
         const connectors = _getConnectors();
-        return connectors.map((c) => c.getDeliveryServiceProperties());
+        return await Promise.all(
+            connectors.map((c) => c.getDeliveryServiceProperties()),
+        );
     };
     const onNewMessage = useCallback(
         (cb: OnNewMessagCallback) => {
             const connectors = _getConnectors();
-            // connectors.forEach((c) =>
-            //     c.registerWebSocketListener('message', cb),
-            // );
+            connectors.forEach((c) =>
+                c.registerWebSocketListener('message', cb),
+            );
         },
         [connectors],
     );
 
     const removeOnNewMessageListener = useCallback(() => {
         const connectors = _getConnectors();
-        //connectors.forEach((c) => c.unregisterWebSocketListener('message'));
+        connectors.forEach((c) => c.unregisterWebSocketListener('message'));
     }, [connectors]);
 
     return {
         isInitialized,
+        connectors: _getConnectors(),
         getDeliveryServiceProperties,
         addNotificationChannel: (
             ensName: string,
-            recipientValue: string | PushSubscription,
+            recipientValue: string,
             notificationChannelType: NotificationChannelType,
         ) => {
             return connectors[0]?.addNotificationChannel(
@@ -144,22 +156,39 @@ export const useDeliveryService = () => {
                 notificationChannelType,
             );
         },
-        fetchPendingConversations: (ensName: string) => {
+
+        fetchNewMessages: async (ensName: string, contactAddress: string) => {
             const connectors = _getConnectors();
-            return connectors[0].fetchPendingConversations(ensName);
+            const messages = await Promise.all(
+                connectors.map((c) =>
+                    c.fetchNewMessages(ensName, contactAddress),
+                ),
+            );
+            //flatten all messages to one array
+            return messages.reduce((acc, val) => acc.concat(val), []);
         },
-        fetchNewMessages: (ensName: string, contactAddress: string) => {
-            return connectors[0].fetchNewMessages(ensName, contactAddress);
+        fetchIncommingMessages: async (ensName: string) => {
+            const connectors = _getConnectors();
+            const messages = await Promise.all(
+                connectors.map((c) => c.fetchIncommingMessages(ensName)),
+            );
+            //flatten all messages to one array
+            return messages.reduce((acc, val) => acc.concat(val), []);
         },
         syncAcknowledgment: (
             ensName: string,
             acknoledgments: Acknoledgment[],
             lastSyncTime: number,
         ) => {
-            return connectors[0].syncAcknowledgement(
-                ensName,
-                acknoledgments,
-                lastSyncTime,
+            const connectors = _getConnectors();
+            return Promise.all(
+                connectors.map((c) =>
+                    c.syncAcknowledgement(
+                        ensName,
+                        acknoledgments,
+                        lastSyncTime,
+                    ),
+                ),
             );
         },
         getGlobalNotification: (ensName: string) => {

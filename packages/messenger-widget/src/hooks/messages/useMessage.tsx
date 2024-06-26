@@ -1,12 +1,16 @@
-import { encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
+import { encryptAsymmetric, sign } from '@dm3-org/dm3-lib-crypto';
 import {
     EncryptionEnvelop,
+    DispatchableEnvelop,
     Envelop,
     Message,
     MessageState,
     buildEnvelop,
 } from '@dm3-org/dm3-lib-messaging';
-import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
+import {
+    DeliveryServiceProfile,
+    normalizeEnsName,
+} from '@dm3-org/dm3-lib-profile';
 import { StorageEnvelopContainer as StorageEnvelopContainerNew } from '@dm3-org/dm3-lib-storage';
 import axios from 'axios';
 import { useCallback, useContext, useEffect, useState } from 'react';
@@ -16,10 +20,12 @@ import { DeliveryServiceContext } from '../../context/DeliveryServiceContext';
 import { StorageContext } from '../../context/StorageContext';
 import { TLDContext } from '../../context/TLDContext';
 import { renderMessage } from './renderer/renderMessage';
-import { checkIfEnvelopIsInSizeLimit } from './sizeLimit/checkIfEnvelopIsInSizeLimit';
+import { checkIfEnvelopAreInSizeLimit } from './sizeLimit/checkIfEnvelopIsInSizeLimit';
 import { handleMessagesFromDeliveryService } from './sources/handleMessagesFromDeliveryService';
 import { handleMessagesFromStorage } from './sources/handleMessagesFromStorage';
 import { handleMessagesFromWebSocket } from './sources/handleMessagesFromWebSocket';
+import { sha256, stringify } from '@dm3-org/dm3-lib-shared';
+import { ContactPreview } from '../../interfaces/utils';
 
 export type MessageModel = StorageEnvelopContainerNew & {
     reactions: Envelop[];
@@ -185,24 +191,18 @@ export const useMessage = () => {
         message: Message,
     ): Promise<{ isSuccess: boolean; error?: string }> => {
         const contact = normalizeEnsName(_contactName);
+        console.log(contacts);
+
+        //If a message is empty it should not be added
+
+        if (!message.message || message.message.trim() === '') {
+            return { isSuccess: false, error: 'Message is empty' };
+        }
 
         //Find the recipient of the message in the contact list
         const recipient = contacts.find(
             (c) => c.contactDetails.account.ensName === contact,
         );
-
-        // For whatever reason we've to create a PendingEntry before we can send a message
-        //We should probably refactor this to be more clear on the backend side
-        //Atm it dosent work at all
-        // createPendingEntry(
-        //     socket!,
-        //     deliveryServiceToken!,
-        //     message.metadata.from,
-        //     message.metadata.to,
-        //     () => { },
-        //     () => { },
-        // );
-
         /**
          * Check if the recipient has a PublicEncrptionKey
          * if not only keep the msg at the senders storage
@@ -210,11 +210,23 @@ export const useMessage = () => {
         const recipientIsDm3User =
             !!recipient?.contactDetails.account.profile?.publicEncryptionKey;
 
+        //If the recipient is not a dm3 user we can store the message in the storage.
+        //Ideally the message will be submitted once the receiver has created a profile.
+        //https://github.com/orgs/dm3-org/projects/5?pane=issue&itemId=64716043 will refine this
         if (!recipientIsDm3User) {
             //StorageEnvelopContainerNew to store the message in the storage
             const messageModel: MessageModel = {
                 envelop: {
                     message,
+                    metadata: {
+                        encryptionScheme: 'x25519-chacha20-poly1305',
+                        //since we don't have a recipient we can't encrypt the deliveryInformation
+                        deliveryInformation: '',
+                        //Because storing a message is always an internal process we dont need to sign it. The signature is only needed for the delivery service
+                        signature: '',
+                        encryptedMessageHash: sha256(stringify(message)),
+                        version: 'v1',
+                    },
                 },
                 messageState: MessageState.Created,
 
@@ -231,23 +243,30 @@ export const useMessage = () => {
             return { isSuccess: true };
         }
 
-        //Build the envelop based on the message and the users profileKeys
-        const { envelop, encryptedEnvelop } = await buildEnvelop(
-            message,
-            (publicKey: string, msg: string) =>
-                encryptAsymmetric(publicKey, msg),
-            {
-                from: account!,
-                to: recipient!.contactDetails.account,
-                deliverServiceProfile:
-                    recipient?.contactDetails.deliveryServiceProfile!,
-                keys: profileKeys!,
-            },
+        //Build the envelops based on the message and the users profileKeys.
+        //For each deliveryServiceProfile a envelop is created that will be sent to the delivery service
+        const envelops = await Promise.all(
+            recipient.contactDetails.deliveryServiceProfiles.map(
+                async (deliverServiceProfile) => {
+                    return await buildEnvelop(
+                        message,
+                        (publicKey: string, msg: string) =>
+                            encryptAsymmetric(publicKey, msg),
+                        {
+                            from: account!,
+                            to: recipient!.contactDetails.account,
+                            deliverServiceProfile,
+                            keys: profileKeys!,
+                        },
+                    );
+                },
+            ),
         );
 
         // check if message size in within delivery service message size limit
-        const isMsgInSizeLimit = await checkIfEnvelopIsInSizeLimit(
-            encryptedEnvelop,
+        const isMsgInSizeLimit = await checkIfEnvelopAreInSizeLimit(
+            //Find the biggest envelop
+            envelops.map((e) => e.encryptedEnvelop),
             recipient.messageSizeLimit,
         );
 
@@ -262,8 +281,9 @@ export const useMessage = () => {
         }
 
         //StorageEnvelopContainerNew to store the message in the storage
-        const messageModel = {
-            envelop,
+        const messageStorageContainer = {
+            //On the senders end we store only the first envelop
+            envelop: envelops[0].envelop,
             messageState: MessageState.Created,
             reactions: [],
         };
@@ -272,18 +292,18 @@ export const useMessage = () => {
         setMessages((prev) => {
             return {
                 ...prev,
-                [contact]: [...(prev[contact] ?? []), messageModel],
+                [contact]: [...(prev[contact] ?? []), messageStorageContainer],
             };
         });
 
         //Storage the message in the storage
-        storeMessage(contact, messageModel);
+        storeMessage(contact, messageStorageContainer);
 
         // TODO send to receivers DS
         // When we have a recipient we can send the message using the socket connection
 
         //TODO either store msg in cache when sending or wait for the response from the delivery service¿
-        const recipientDs = recipient.contactDetails.deliveryServiceProfile;
+        const recipientDs = recipient.contactDetails.deliveryServiceProfiles;
 
         if (!recipientDs) {
             //TODO storage msg in storage
@@ -292,26 +312,29 @@ export const useMessage = () => {
                 error: 'Recipient has no delivery service profile',
             };
         }
-
-        await axios.create({ baseURL: recipientDs.url }).post('/rpc', {
-            jsonrpc: '2.0',
-            method: 'dm3_submitMessage',
-            params: [JSON.stringify(encryptedEnvelop)],
-        });
-        //get deliveryService profile
-
-        // await sendMessage(
-        //     deliveryServiceToken!,
-        //     encryptedEnvelop,
-        //     () => { },
-        //     () => console.log('submit message error'),
-        // );
-
+        //Send the envelops to the delivery service
+        await submitEnveloptsToReceiversDs(envelops);
         return { isSuccess: true };
     };
 
+    const submitEnveloptsToReceiversDs = async (
+        envelops: DispatchableEnvelop[],
+    ) => {
+        //Every DispatchableEnvelop is sent to the delivery service
+        await Promise.all(
+            envelops.map(async (envelop) => {
+                return await axios
+                    .create({ baseURL: envelop.deliveryServiceUrl })
+                    .post('/rpc', {
+                        jsonrpc: '2.0',
+                        method: 'dm3_submitMessage',
+                        params: [JSON.stringify(envelop.encryptedEnvelop)],
+                    });
+            }),
+        );
+    };
+
     const loadInitialMessages = async (_contactName: string) => {
-        if (!fetchNewMessages || !syncAcknowledgment) return;
         const contactName = normalizeEnsName(_contactName);
         const initialMessages = await Promise.all([
             handleMessagesFromStorage(
@@ -323,6 +346,7 @@ export const useMessage = () => {
             handleMessagesFromDeliveryService(
                 account!,
                 profileKeys!,
+                addConversation,
                 storeMessageBatch,
                 contactName,
                 fetchNewMessages,

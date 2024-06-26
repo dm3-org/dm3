@@ -1,6 +1,6 @@
-/* eslint-disable no-console */
 import {
     Account,
+    DeliveryServiceProfile,
     getDeliveryServiceProfile,
     getUserProfile,
     normalizeEnsName,
@@ -19,21 +19,26 @@ export const hydrateContract = async (
     resolveAliasToTLD: (alias: string) => Promise<string>,
     addrEnsSubdomain: string,
 ) => {
+    //If the profile property of the account is defined the user has already used DM3 previously
     const account = await fetchAccount(
         provider,
         conversatoinManifest.contactEnsName,
     );
-    const contact = await fetchDsProfile(provider, account);
-    const messageSizeLimit = await fetchMessageSizeLimit(provider, account);
+    //Has to become fetchMultipleDsProfiles
+    const contact = await fetchDsProfiles(provider, account);
+
+    //get the maximum size limit by looking for the smallest size limit of every ds
+    const maximumSizeLimit = await fetchMessageSizeLimit(
+        contact.deliveryServiceProfiles,
+    );
     const contactPreview = await fetchPreview(
         provider,
         conversatoinManifest,
         contact,
         resolveAliasToTLD,
-        messageSizeLimit,
+        maximumSizeLimit,
         addrEnsSubdomain,
     );
-
     return contactPreview;
 };
 
@@ -46,6 +51,7 @@ const fetchPreview = async (
     addrEnsSubdomain: string,
 ): Promise<ContactPreview> => {
     return {
+        //display name, if alias is not defined the addr ens name will be used
         name: await resolveAliasToTLD(contact.account.ensName),
         message: '',
         image: await getAvatarProfilePic(
@@ -53,7 +59,9 @@ const fetchPreview = async (
             contact.account.ensName,
             addrEnsSubdomain,
         ),
+        //ToDo maybe can be removed aswell
         messageCount: conversatoinManifest.messageCounter,
+        //ToDo field is not used and can be removed
         unreadMsgCount: 21,
         contactDetails: contact,
         isHidden: conversatoinManifest.isHidden,
@@ -89,29 +97,40 @@ const fetchAccount = async (
     }
 };
 
-const fetchDsProfile = async (
+const fetchDsProfiles = async (
     provider: ethers.providers.JsonRpcProvider,
     account: Account,
 ): Promise<Contact> => {
-    const deliveryServiceUrl = account.profile?.deliveryServices[0];
-
-    if (!deliveryServiceUrl) {
-        console.log(
-            '[fetchDeliverServicePorfile] Cant resolve deliveryServiceUrl',
+    const deliveryServiceEnsNames = account.profile?.deliveryServices ?? [];
+    if (deliveryServiceEnsNames.length === 0) {
+        //If there is now DS profile the message will be storaged at the client side until they recipient has createed an account
+        console.debug(
+            '[fetchDeliverServicePorfile] Cant resolve deliveryServiceEnsName',
         );
         return {
             account,
+            deliveryServiceProfiles: [],
         };
     }
 
-    const deliveryServiceProfile = await getDeliveryServiceProfile(
-        deliveryServiceUrl,
-        provider!,
-        async (url: string) => (await axios.get(url)).data,
+    //Resolve every ds profile in the contacts profile
+    const dsProfilesWithUnknowns = await Promise.all(
+        deliveryServiceEnsNames.map((deliveryServiceEnsName: string) => {
+            console.debug('fetch ds profile of', deliveryServiceEnsName);
+            return getDeliveryServiceProfile(
+                deliveryServiceEnsName,
+                provider!,
+                async (url: string) => (await axios.get(url)).data,
+            );
+        }),
+    );
+    //filter unknown profiles. A profile if unknown if the profile could not be fetched. We don't want to deal with them in the UI
+    const deliveryServiceProfiles = dsProfilesWithUnknowns.filter(
+        (profile): profile is DeliveryServiceProfile => profile !== undefined,
     );
 
     return {
         account,
-        deliveryServiceProfile,
+        deliveryServiceProfiles,
     };
 };

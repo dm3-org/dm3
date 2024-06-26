@@ -1,12 +1,11 @@
 /* eslint-disable max-len */
-import { ethers } from 'ethers';
-import { PrismaClient, Prisma } from '@prisma/client';
 import { UserProfile } from '@dm3-org/dm3-lib-profile';
+import { PrismaClient } from '@prisma/client';
+import { ethers } from 'ethers';
 
 /**
  *
  * @param {db} db - Prisma client
- * @param {string} name - Ethereum name
  * @returns {Promise<Lib.profile.UserProfile>} A promise that resolves to the user profile object or null if the user is not found
  */
 

@@ -1,5 +1,6 @@
 {
   "name": "@dm3-org/dm3-toplevel-alias",
+  "license": "BSD-2-Clause",
   "version": "0.1.0",
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.0",

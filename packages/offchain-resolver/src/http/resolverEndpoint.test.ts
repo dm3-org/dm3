@@ -168,8 +168,8 @@ describe('Resolver Endpoint', () => {
                 const writeRes2 = await request(profileApp)
                     .post(`/name`)
                     .send({
-                        alias: 'foo.dm3.eth',
-                        name: signer + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                        dm3Name: 'foo.dm3.eth',
+                        addressName: signer + globalConfig.ADDR_ENS_SUBDOMAIN(),
                         signature: await sign(
                             privateSigningKey,
                             'alias: foo.dm3.eth',

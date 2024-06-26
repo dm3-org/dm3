@@ -1,11 +1,7 @@
-import {
-    Account,
-    normalizeEnsName,
-    ProfileKeys,
-} from '@dm3-org/dm3-lib-profile';
 import { decrypt, encrypt, EncryptedPayload } from '@dm3-org/dm3-lib-crypto';
 import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
 import { Envelop, MessageState } from '@dm3-org/dm3-lib-messaging';
+import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { logInfo, stringify } from '@dm3-org/dm3-lib-shared';
 import { createTimestamp } from './Utils';
 
@@ -262,11 +258,6 @@ export async function load(
     };
 }
 
-export function getConversationId(ensNameA: string, ensNameB: string): string {
-    return [normalizeEnsName(ensNameA), normalizeEnsName(ensNameB)]
-        .sort()
-        .join();
-}
 /**
  * Creates a new conversation entry if the conversationId not yet known.
  * If the conversationId was used previously the function returns false

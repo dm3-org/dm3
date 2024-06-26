@@ -1634,12 +1634,236 @@ describe('Notifications', () => {
 
     describe('Add Push notification channel', () => {
         const recipientValue = {
-            endpoint: 'https://test.com',
+            endpoint: 'https://fcm.googleapis.com/fcm/send/fV_Q01aiMDA',
+            expirationTime: null,
             keys: {
-                auth: 'authkey',
-                p256dh: 'p256dh',
+                p256dh: 'BHgo7M85NfnSSf1UlWh78dkuh79vEIjzGlF_EpBD4HEzrh9gnKO_A',
+                auth: 'W2O_Dnhiv7Xy29dn6Djbfd57989kgkgkgjvjg',
             },
         };
+
+        it("Returns 400 on setup push notifications as subscription data doesn't contain endpoint", async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            const addUsersNotificationChannelMock = jest.fn();
+
+            const db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                addUsersNotificationChannel: addUsersNotificationChannelMock,
+            };
+
+            const web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                    serverSecret,
+                ),
+            );
+
+            const token = generateAuthJWT('bob.eth', serverSecret);
+
+            const recipientValue = {
+                expirationTime: null,
+                keys: {
+                    p256dh: 'BHgo7M85NfnSSf1UlWh78dkuh797878QMCGGxVrOOd0s8Tl041pTl6dR1mGmtRwoanw4PoaNjvEIjzGlF_EpBD4HEzrh9gnKO_A',
+                    auth: 'W2O_Dnhiv7Xy29dn6Djbfd5t68tyu7989kgkgkgjvjg',
+                },
+            };
+
+            const { status } = await request(app)
+                .post(`/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    recipientValue: recipientValue,
+                    notificationChannelType: NotificationChannelType.PUSH,
+                });
+
+            expect(status).toBe(400);
+        });
+
+        it("Returns 400 on setup push notifications as subscription data doesn't contain keys", async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            const addUsersNotificationChannelMock = jest.fn();
+
+            const db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                addUsersNotificationChannel: addUsersNotificationChannelMock,
+            };
+
+            const web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                    serverSecret,
+                ),
+            );
+
+            const token = generateAuthJWT('bob.eth', serverSecret);
+
+            const recipientValue = {
+                endpoint:
+                    'https://fcm.googleapis.com/fcm/send/fV_Q01aiMDA:APA91bGJx9DrtdrGmyM9QaFGOVMCr8i4qtDsb16yCA5smpBiRsdUwH7nro_CFSaRpoQJ7Gg' +
+                    'A7qgkS5j27TRahfibryi7f4Fz9yDnGhCImmzk7mtPu9089080802iTrWJJVKzTGpgQqKqns0ifKEEietAGBO',
+                expirationTime: null,
+            };
+
+            const { status } = await request(app)
+                .post(`/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    recipientValue: recipientValue,
+                    notificationChannelType: NotificationChannelType.PUSH,
+                });
+
+            expect(status).toBe(400);
+        });
+
+        it("Returns 400 on setup push notifications as subscription data doesn't contain p256dh", async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            const addUsersNotificationChannelMock = jest.fn();
+
+            const db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                addUsersNotificationChannel: addUsersNotificationChannelMock,
+            };
+
+            const web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                    serverSecret,
+                ),
+            );
+
+            const token = generateAuthJWT('bob.eth', serverSecret);
+
+            const recipientValue = {
+                endpoint:
+                    'https://fcm.googleapis.com/fcm/send/fV_Q01aiMDA:APA91bGJx9DrtdrGmyM9QaFGOVMCr8i4qtDsb16yCA5smpBiRsdUwH7nro_CFSaRpoQJ7Gg' +
+                    'A7qgkS5j27TRahfibryi7f4Fz9yDnGhCImmzk7mtPu9089080802iTrWJJVKzTGpgQqKqns0ifKEEietAGBO',
+                expirationTime: null,
+                keys: {
+                    auth: 'W2O_Dnhiv7Xy29dn6Djbfd5t68tyu7989kgkgkgjvjg',
+                },
+            };
+
+            const { status } = await request(app)
+                .post(`/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    recipientValue: recipientValue,
+                    notificationChannelType: NotificationChannelType.PUSH,
+                });
+
+            expect(status).toBe(400);
+        });
+
+        it("Returns 400 on setup push notifications as subscription data doesn't contain auth", async () => {
+            const app = express();
+            app.use(bodyParser.json());
+            const addUsersNotificationChannelMock = jest.fn();
+
+            const db = {
+                getSession: async (ensName: string) =>
+                    Promise.resolve({
+                        challenge: '123',
+                        token,
+                    }),
+                setSession: async (_: string, __: any) => {
+                    return (_: any, __: any, ___: any) => {};
+                },
+                setUserStorage: (_: string, __: string) => {},
+                getIdEnsName: async (ensName: string) => ensName,
+                addUsersNotificationChannel: addUsersNotificationChannelMock,
+            };
+
+            const web3Provider = {
+                resolveName: async () =>
+                    '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
+            };
+            app.use(
+                notifications(
+                    deliveryServiceProperties,
+                    db as any,
+                    web3Provider as any,
+                    serverSecret,
+                ),
+            );
+
+            const token = generateAuthJWT('bob.eth', serverSecret);
+
+            const recipientValue = {
+                endpoint:
+                    'https://fcm.googleapis.com/fcm/send/fV_Q01aiMDA:APA91bGJx9DrtdrGmyM9QaFGOVMCr8i4qtDsb16yCA5smpBiRsdUwH7nro_CFSaRpoQJ7Gg' +
+                    'A7qgkS5j27TRahfibryi7f4Fz9yDnGhCImmzk7mtPu9089080802iTrWJJVKzTGpgQqKqns0ifKEEietAGBO',
+                expirationTime: null,
+                keys: {
+                    p256dh: 'BHgo7M85NfnSSf1UlWh78dkuh797878QMCGGxVrOOd0s8Tl041pTl6dR1mGmtRwoanw4PoaNjvEIjzGlF_EpBD4HEzrh9gnKO_A',
+                },
+            };
+
+            const { status } = await request(app)
+                .post(`/bob.eth`)
+                .set({
+                    authorization: `Bearer ${token}`,
+                })
+                .send({
+                    recipientValue: recipientValue,
+                    notificationChannelType: NotificationChannelType.PUSH,
+                });
+
+            expect(status).toBe(400);
+        });
 
         it('Returns 400 on setup push notifications as subscription data is invalid', async () => {
             const app = express();
@@ -1826,7 +2050,7 @@ describe('Notifications', () => {
                         {
                             type: NotificationChannelType.PUSH,
                             config: {
-                                recipientValue: recipientValue,
+                                recipientValue: JSON.stringify(recipientValue),
                                 isEnabled: true,
                                 isVerified: true,
                             },
@@ -1858,7 +2082,7 @@ describe('Notifications', () => {
                     authorization: `Bearer ${token}`,
                 })
                 .send({
-                    recipientValue: recipientValue,
+                    recipientValue: JSON.stringify(recipientValue),
                     notificationChannelType: NotificationChannelType.PUSH,
                 });
 
@@ -1890,7 +2114,7 @@ describe('Notifications', () => {
                         {
                             type: NotificationChannelType.PUSH,
                             config: {
-                                recipientValue: recipientValue,
+                                recipientValue: JSON.stringify(recipientValue),
                                 isEnabled: true,
                                 isVerified: false,
                             },
@@ -1903,6 +2127,7 @@ describe('Notifications', () => {
                 resolveName: async () =>
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
             };
+
             app.use(
                 notifications(
                     deliveryServiceProperties,
@@ -1920,7 +2145,7 @@ describe('Notifications', () => {
                     authorization: `Bearer ${token}`,
                 })
                 .send({
-                    recipientValue: recipientValue,
+                    recipientValue: JSON.stringify(recipientValue),
                     notificationChannelType: NotificationChannelType.PUSH,
                 });
             expect(status).toBe(400);

@@ -1,6 +1,7 @@
 {
   "name": "@dm3-org/dm3-billboard-widget",
-  "version": "1.0.6",
+  "license": "BSD-2-Clause",
+  "version": "1.4.1",
   "files": [
     "dist"
   ],

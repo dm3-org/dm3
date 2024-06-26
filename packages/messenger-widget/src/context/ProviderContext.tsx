@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React from 'react';
 import { _useMainnetProvider } from '../hooks/mainnetprovider/_useMainnetProvider';
 import { ethers } from 'ethers';

@@ -8,7 +8,7 @@ import { getMessages } from './postgres/getMessages';
 import { getNumberOfConversations } from './postgres/getNumberOfConversations';
 import { getNumberOfMessages } from './postgres/getNumberOfMessages';
 import { toggleHideConversation } from './postgres/toggleHideConversation';
-import { MessageRecord } from './postgres/utils/MessageRecord';
+import { MessageRecord } from './postgres/dto/MessageRecord';
 import { getUserDbMigrationStatus } from './getUserDbMigrationStatus';
 import { setUserDbMigrated } from './setUserDbMigrated';
 

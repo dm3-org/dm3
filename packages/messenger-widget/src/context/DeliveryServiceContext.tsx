@@ -7,11 +7,11 @@ import {
 import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 
 export type DeliveryServiceContextType = {
-    getDeliveryServiceProperties: () => Promise<DeliveryServiceProperties>[];
+    getDeliveryServiceProperties: () => Promise<any[]>;
     isInitialized: boolean;
     addNotificationChannel?: (
         ensName: string,
-        recipientValue: string | PushSubscription,
+        recipientValue: string,
         notificationChannelType: NotificationChannelType,
     ) => any;
     sendOtp?: (
@@ -23,8 +23,8 @@ export type DeliveryServiceContextType = {
         otp: string,
         notificationChannelType: NotificationChannelType,
     ) => any;
-    fetchPendingConversations: (ensName: string) => any;
     fetchNewMessages: (ensName: string, contactAddress: string) => any;
+    fetchIncommingMessages: (ensName: string) => any;
     syncAcknowledgment: (
         ensName: string,
         acknoledgments: Acknoledgment[],
@@ -48,11 +48,11 @@ export type DeliveryServiceContextType = {
 
 export const DeliveryServiceContext =
     React.createContext<DeliveryServiceContextType>({
-        getDeliveryServiceProperties: () => [],
+        getDeliveryServiceProperties: () => Promise.resolve([]),
         isInitialized: false,
         addNotificationChannel: (
             ensName: string,
-            recipientValue: string | PushSubscription,
+            recipientValue: string,
             notificationChannelType: NotificationChannelType,
         ) => {},
         sendOtp: (
@@ -64,8 +64,8 @@ export const DeliveryServiceContext =
             otp: string,
             notificationChannelType: NotificationChannelType,
         ) => {},
-        fetchPendingConversations: (ensName: string) => {},
         fetchNewMessages: (ensName: string, contactAddress: string) => {},
+        fetchIncommingMessages: (ensName: string) => {},
         syncAcknowledgment: (
             ensName: string,
             acknoledgments: Acknoledgment[],
@@ -98,8 +98,8 @@ export const DeliveryServiceContextProvider = ({
         addNotificationChannel,
         sendOtp,
         verifyOtp,
-        fetchPendingConversations,
         fetchNewMessages,
+        fetchIncommingMessages,
         syncAcknowledgment,
         getGlobalNotification,
         getAllNotificationChannels,
@@ -118,8 +118,8 @@ export const DeliveryServiceContextProvider = ({
                 addNotificationChannel,
                 sendOtp,
                 verifyOtp,
-                fetchPendingConversations,
                 fetchNewMessages,
+                fetchIncommingMessages,
                 syncAcknowledgment,
                 getGlobalNotification,
                 getAllNotificationChannels,

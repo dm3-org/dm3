@@ -291,6 +291,7 @@ export default (
                     error: e.message,
                 });
             }
+            console.log('Error while adding notification channel : ', e);
             // Passing the error to the next middleware
             next(e);
         }

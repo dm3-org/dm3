@@ -1,14 +1,12 @@
 import { getUserProfile, submitUserProfile } from '@dm3-org/dm3-lib-delivery';
 import { normalizeEnsName, schema } from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
-import express from 'express';
-import { Server } from 'socket.io';
-import { IDatabase } from './persistence/getDatabase';
 import { ethers } from 'ethers';
+import express from 'express';
+import { IDatabase } from './persistence/getDatabase';
 
 export default (
     db: IDatabase,
-    io: Server,
     web3Provider: ethers.providers.JsonRpcProvider,
     serverSecret: string,
 ) => {
@@ -29,6 +27,11 @@ export default (
         }
     });
 
+    /**
+     * Creates a new profile for the given ensName
+     * @param ensName ens id of the account
+     * @param signedUserProfile signed user profile
+     */
     router.post('/:ensName', async (req: express.Request, res, next) => {
         try {
             const schemaIsValid = validateSchema(
@@ -56,9 +59,6 @@ export default (
                 ensName,
                 req.body,
                 serverSecret,
-                // disabled get pending to remove it later
-                async (ensName: string) => [], //(ensName: string) => db.getPending(ensName),
-                (socketId: string) => io.sockets.to(socketId).emit('joined'),
             );
             global.logger.debug({
                 message: 'POST profile',

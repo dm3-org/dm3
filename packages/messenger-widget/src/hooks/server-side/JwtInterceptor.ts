@@ -1,8 +1,8 @@
 import axios, {
-    AxiosResponse,
+    Axios,
     AxiosError,
     AxiosRequestConfig,
-    Axios,
+    AxiosResponse,
 } from 'axios';
 
 import socketIOClient, { Socket } from 'socket.io-client';
@@ -12,12 +12,17 @@ import socketIOClient, { Socket } from 'socket.io-client';
 //and try again
 export abstract class JwtInterceptor {
     private readonly baseURL: string;
+    private readonly enableWebsocket: boolean;
 
     private axios: Axios;
     private socket: Socket;
 
-    constructor(baseURL: string) {
+    protected readonly ensName: string;
+
+    constructor(baseURL: string, ensName: string, enableWebsocket: boolean) {
         this.baseURL = baseURL;
+        this.ensName = ensName;
+        this.enableWebsocket = enableWebsocket;
         this.initializeAxios();
     }
 
@@ -32,7 +37,6 @@ export abstract class JwtInterceptor {
     protected setAuthToken(token: string) {
         this.axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         this.initializeSocketIO(token);
-        console.log('Token set');
     }
 
     protected async onSucces(res: AxiosResponse) {
@@ -67,16 +71,25 @@ export abstract class JwtInterceptor {
         this.axios = _axios;
     }
     protected initializeSocketIO(token: string) {
-        const socket = socketIOClient(this.baseURL.replace('/api', ''), {
-            autoConnect: false,
+        if (!this.enableWebsocket) {
+            //Websocket is disabled
+            return;
+        }
+        //webserver routes root path to socket.io
+        const url = this.baseURL.replace('/ds', '');
+
+        const socket = socketIOClient(url, {
+            autoConnect: true,
             transports: ['websocket'],
         });
 
         socket.auth = {
-            //I dont think acccount is needed any longer
-            //account
-            token,
+            account: {
+                ensName: this.ensName,
+            },
+            token: token,
         };
+
         socket.connect();
         this.socket = socket;
     }
