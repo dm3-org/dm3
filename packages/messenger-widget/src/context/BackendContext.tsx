@@ -1,5 +1,4 @@
 import React from 'react';
-import { useDeliveryService } from '../hooks/server-side/useDeliveryService';
 import { useBackend } from '../hooks/server-side/useBackend';
 
 export type BackendContextType = {
@@ -9,7 +8,12 @@ export type BackendContextType = {
         ensName: string,
         size: number,
         offset: number,
-    ) => Promise<string[]>;
+    ) => Promise<
+        {
+            contact: string;
+            previewMessage: string;
+        }[]
+    >;
     toggleHideConversation: (
         ensName: string,
         encryptedContactName: string,

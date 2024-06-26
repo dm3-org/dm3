@@ -16,7 +16,7 @@ import { ContactPreview, getEmptyContact } from '../../interfaces/utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
 
-const DEFAULT_CONVERSATION_PAGE_SIZE = 1;
+const DEFAULT_CONVERSATION_PAGE_SIZE = 2;
 
 export const useConversation = (config: DM3Configuration) => {
     const mainnetProvider = useMainnetProvider();
@@ -196,37 +196,6 @@ export const useConversation = (config: DM3Configuration) => {
         return conversationPreview;
     };
 
-    const _addConversation = (_ensName: string, isHidden: boolean) => {
-        const ensName = normalizeEnsName(_ensName);
-        //Check if the contact is the user itself
-        const isOwnContact = normalizeEnsName(account!.ensName) === ensName;
-        //We don't want to add ourselfs
-        if (isOwnContact) {
-            return;
-        }
-        const alreadyAddedContact = contacts.find(
-            (existingContact) =>
-                existingContact.contactDetails.account.ensName === ensName,
-        );
-        //If the contact is already in the list return it
-        if (alreadyAddedContact) {
-            //Unhide the contact if it was hidden
-            if (alreadyAddedContact.isHidden) {
-                unhideContact(alreadyAddedContact);
-            }
-            return alreadyAddedContact;
-        }
-
-        const newContact: ContactPreview = getEmptyContact(ensName, isHidden);
-        //Set the new contact to the list
-        _setContactsSafe([newContact]);
-        //Hydrate the contact in the background
-        hydrateExistingContactAsync(newContact);
-
-        //Return the new onhydrated contact
-        return newContact;
-    };
-
     /**
      * When a conversation is added via the AddContacts dialog it should appeat in the conversation list immediately.
      * Hence we're doing a hydrate here asynchroniously in the background
@@ -257,7 +226,22 @@ export const useConversation = (config: DM3Configuration) => {
         });
     };
 
-    const toggleHideContact = (_ensName: string, isHidden: boolean) => {
+    const hideContact = (_ensName: string) => {
+        const ensName = normalizeEnsName(_ensName);
+        _toggleHideContact(ensName, true);
+        setSelectedContactName(undefined);
+    };
+
+    const unhideContact = (contact: ContactPreview) => {
+        _toggleHideContact(contact.contactDetails.account.ensName, false);
+        const unhiddenContact = {
+            ...contact,
+            isHidden: false,
+        };
+        setSelectedContactName(unhiddenContact.contactDetails.account.ensName);
+        hydrateExistingContactAsync(unhiddenContact);
+    };
+    const _toggleHideContact = (_ensName: string, isHidden: boolean) => {
         const ensName = normalizeEnsName(_ensName);
         setContacts((prev) => {
             return prev.map((existingContact) => {
@@ -276,23 +260,36 @@ export const useConversation = (config: DM3Configuration) => {
         //update the storage
         toggleHideContactAsync(ensName, isHidden);
     };
-
-    const hideContact = (_ensName: string) => {
+    const _addConversation = (_ensName: string, isHidden: boolean) => {
         const ensName = normalizeEnsName(_ensName);
-        toggleHideContact(ensName, true);
-        setSelectedContactName(undefined);
-    };
+        //Check if the contact is the user itself
+        const isOwnContact = normalizeEnsName(account!.ensName) === ensName;
+        //We don't want to add ourselfs
+        if (isOwnContact) {
+            return;
+        }
+        const alreadyAddedContact = contacts.find(
+            (existingContact) =>
+                existingContact.contactDetails.account.ensName === ensName,
+        );
+        //If the contact is already in the list return it
+        if (alreadyAddedContact) {
+            //Unhide the contact if it was hidden
+            if (alreadyAddedContact.isHidden) {
+                unhideContact(alreadyAddedContact);
+            }
+            return alreadyAddedContact;
+        }
 
-    const unhideContact = (contact: ContactPreview) => {
-        toggleHideContact(contact.contactDetails.account.ensName, false);
-        const unhiddenContact = {
-            ...contact,
-            isHidden: false,
-        };
-        setSelectedContactName(unhiddenContact.contactDetails.account.ensName);
-        hydrateExistingContactAsync(unhiddenContact);
-    };
+        const newContact: ContactPreview = getEmptyContact(ensName, isHidden);
+        //Set the new contact to the list
+        _setContactsSafe([newContact]);
+        //Hydrate the contact in the background
+        hydrateExistingContactAsync(newContact);
 
+        //Return the new onhydrated contact
+        return newContact;
+    };
     return {
         contacts,
         conversationCount,

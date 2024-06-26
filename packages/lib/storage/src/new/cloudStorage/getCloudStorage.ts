@@ -18,22 +18,18 @@ export const getCloudStorage = (
     };
 
     const getConversations = async (size: number, offset: number) => {
-        const encryptedConversations = await backendConnector.getConversations(
+        const conversations = await backendConnector.getConversations(
             ensName,
             size,
             offset,
         );
 
         return await Promise.all(
-            encryptedConversations.map(
-                async (encryptedContactName: string) => ({
-                    contactEnsName: await encryption.decryptSync(
-                        encryptedContactName,
-                    ),
-                    isHidden: false,
-                    messageCounter: 0,
-                }),
-            ),
+            conversations.map(async ({ contact }: { contact: string }) => ({
+                contactEnsName: await encryption.decryptSync(contact),
+                isHidden: false,
+                messageCounter: 0,
+            })),
         );
     };
     const getMessages = async (contactEnsName: string, page: number) => {

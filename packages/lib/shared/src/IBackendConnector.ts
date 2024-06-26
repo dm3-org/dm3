@@ -4,7 +4,12 @@ export interface IBackendConnector {
         ensName: string,
         size: number,
         offset: number,
-    ): Promise<string[]>;
+    ): Promise<
+        {
+            contact: string;
+            previewMessage: string;
+        }[]
+    >;
     toggleHideConversation(
         ensName: string,
         encryptedContactName: string,
