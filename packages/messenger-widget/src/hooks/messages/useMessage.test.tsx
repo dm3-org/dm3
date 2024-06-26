@@ -24,7 +24,7 @@ import {
 } from '../../context/testHelper/getMockedDm3Configuration';
 import { getMockedStorageContext } from '../../context/testHelper/getMockedStorageContext';
 import { getMockedTldContext } from '../../context/testHelper/getMockedTldContext';
-import { getDefaultContract } from '../../interfaces/utils';
+import { getEmptyContact } from '../../interfaces/utils';
 import { DM3Configuration } from '../../widget';
 import { useMessage } from './useMessage';
 
@@ -106,7 +106,7 @@ describe('useMessage hook test cases', () => {
                 storeMessage: jest.fn(),
             });
             const conversationContext = getMockedConversationContext({
-                selectedContact: getDefaultContract('max.eth'),
+                selectedContact: getEmptyContact('max.eth'),
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 //Add websocket mock
@@ -163,7 +163,7 @@ describe('useMessage hook test cases', () => {
                 storeMessage: jest.fn(),
             });
             const conversationContext = getMockedConversationContext({
-                selectedContact: getDefaultContract('max.eth'),
+                selectedContact: getEmptyContact('max.eth'),
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 //Add websocket mock
@@ -220,7 +220,7 @@ describe('useMessage hook test cases', () => {
                 storeMessage: jest.fn(),
             });
             const conversationContext = getMockedConversationContext({
-                selectedContact: getDefaultContract('max.eth'),
+                selectedContact: getEmptyContact('max.eth'),
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 //Add websocket mock
@@ -287,7 +287,7 @@ describe('useMessage hook test cases', () => {
             });
 
             const conversationContext = getMockedConversationContext({
-                selectedContact: getDefaultContract('max.eth'),
+                selectedContact: getEmptyContact('max.eth'),
                 contacts: [
                     {
                         name: '',
@@ -390,7 +390,7 @@ describe('useMessage hook test cases', () => {
             });
 
             const conversationContext = getMockedConversationContext({
-                selectedContact: getDefaultContract('max.eth'),
+                selectedContact: getEmptyContact('max.eth'),
                 contacts: [
                     {
                         name: '',
@@ -520,8 +520,8 @@ describe('useMessage hook test cases', () => {
                 getNumberOfMessages: jest.fn().mockResolvedValue(3),
             });
             const conversationContext = getMockedConversationContext({
-                selectedContact: getDefaultContract('max.eth'),
-                contacts: [getDefaultContract('alice.eth')],
+                selectedContact: getEmptyContact('max.eth'),
+                contacts: [getEmptyContact('alice.eth')],
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 onNewMessage: (cb: Function) => {
@@ -597,8 +597,8 @@ describe('useMessage hook test cases', () => {
                 getNumberOfMessages: jest.fn().mockResolvedValue(0),
             });
             const conversationContext = getMockedConversationContext({
-                selectedContact: getDefaultContract('max.eth'),
-                contacts: [getDefaultContract('alice.eth')],
+                selectedContact: getEmptyContact('max.eth'),
+                contacts: [getEmptyContact('alice.eth')],
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 onNewMessage: (cb: Function) => {

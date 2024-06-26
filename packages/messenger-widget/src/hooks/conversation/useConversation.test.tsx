@@ -400,6 +400,7 @@ describe('useConversation hook test cases', () => {
             const storageContext: StorageContextType = getMockedStorageContext({
                 getConversations: function (
                     page: number,
+                    offset: number,
                 ): Promise<Conversation[]> {
                     return Promise.resolve([
                         {
@@ -409,6 +410,7 @@ describe('useConversation hook test cases', () => {
                         },
                     ]);
                 },
+                addConversationAsync: jest.fn(),
                 initialized: true,
             });
             const deliveryServiceContext: DeliveryServiceContextType =
@@ -480,6 +482,7 @@ describe('useConversation hook test cases', () => {
                         },
                     ]);
                 },
+                addConversationAsync: jest.fn(),
                 initialized: true,
             });
             const deliveryServiceContext: DeliveryServiceContextType =
@@ -568,6 +571,7 @@ describe('useConversation hook test cases', () => {
                         },
                     ]);
                 },
+                addConversationAsync: jest.fn(),
                 initialized: true,
             });
             const deliveryServiceContext: DeliveryServiceContextType =
@@ -619,7 +623,7 @@ describe('useConversation hook test cases', () => {
                 'mydefaultcontract.eth',
             );
         });
-        it('hidden contact should not appears as hidden in the conversation list', async () => {
+        it('hidden contact should appear as hidden in the conversation list', async () => {
             const configurationContext = getMockedDm3Configuration({
                 dm3Configuration: {
                     ...DEFAULT_DM3_CONFIGURATION,
@@ -661,6 +665,7 @@ describe('useConversation hook test cases', () => {
                         },
                     ]);
                 },
+                addConversationAsync: jest.fn(),
                 initialized: true,
             });
             const deliveryServiceContext: DeliveryServiceContextType =

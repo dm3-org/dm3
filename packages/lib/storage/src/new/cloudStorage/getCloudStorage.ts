@@ -17,9 +17,11 @@ export const getCloudStorage = (
         );
     };
 
-    const getConversationList = async (page: number) => {
+    const getConversations = async (size: number, offset: number) => {
         const encryptedConversations = await backendConnector.getConversations(
             ensName,
+            size,
+            offset,
         );
 
         return await Promise.all(
@@ -174,7 +176,7 @@ export const getCloudStorage = (
 
     return {
         addConversation: _addConversation,
-        getConversationList,
+        getConversations,
         getMessages,
         addMessage: _addMessage,
         addMessageBatch: _addMessageBatch,

@@ -5,7 +5,11 @@ import { useBackend } from '../hooks/server-side/useBackend';
 export type BackendContextType = {
     isInitialized: boolean;
     addConversation: (ensName: string, encryptedContactName: string) => void;
-    getConversations: (ensName: string) => Promise<string[]>;
+    getConversations: (
+        ensName: string,
+        size: number,
+        offset: number,
+    ) => Promise<string[]>;
     toggleHideConversation: (
         ensName: string,
         encryptedContactName: string,

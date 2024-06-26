@@ -15,13 +15,22 @@ export class BackendConnector
             encryptedContactName,
         });
     }
-    public async getConversations(ensName: string) {
+    public async getConversations(
+        ensName: string,
+        size: number,
+        offset: number,
+    ) {
         const url = `/storage/new/${normalizeEnsName(
             ensName,
         )}/getConversations`;
         const axios = this.getAuthenticatedAxiosClient();
 
-        const { data } = await axios.get(url);
+        const { data } = await axios.get(url, {
+            params: {
+                size,
+                offset,
+            },
+        });
         return data ?? [];
     }
     public async toggleHideConversation(
