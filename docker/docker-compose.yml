@@ -40,7 +40,7 @@ services:
         image: redis
         restart: always
         volumes:
-            - /mnt/dm3_prod_volume/db/redis:/data
+            - ${PERSISTENCE_DIRECTORY}/db/redis:/data
 
     dm3-storage:
         image: postgres:13
@@ -51,7 +51,7 @@ services:
             POSTGRES_PASSWORD: prisma
             POSTGRES_DB: dm3
         volumes:
-            - /mnt/dm3_prod_volume/storage/postgres:/var/lib/postgresql/data
+            - ${PERSISTENCE_DIRECTORY}/storage/postgres:/var/lib/postgresql/data
 
     delivery-service:
         image: dm3-delivery-service
@@ -75,7 +75,7 @@ services:
         restart: always
         container_name: redis-delivery-service
         volumes:
-            - /mnt/dm3_prod_volume/db/redis-delivery-service:/data
+            - ${PERSISTENCE_DIRECTORY}/db/redis-delivery-service:/data
 
     offchain-resolver-db:
         image: postgres
@@ -84,7 +84,7 @@ services:
         environment:
             POSTGRES_PASSWORD: example
         volumes:
-            - /mnt/dm3_prod_volume/db/postgres:/var/lib/postgresql/data
+            - ${PERSISTENCE_DIRECTORY}/db/postgres:/var/lib/postgresql/data
 
     offchain-resolver:
         image: dm3-offchain-resolver
@@ -149,5 +149,5 @@ volumes:
         driver: local
         driver_opts:
             type: none
-            device: /mnt/dm3_prod_volume/webroot
+            device: ${PERSISTENCE_DIRECTORY}/webroot
             o: bind
