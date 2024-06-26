@@ -22,11 +22,13 @@ export const addMessageBatch =
             //store each message in the db
             const createMessagePromises = messageBatch.map(
                 ({ messageId, createdAt, encryptedEnvelopContainer }) => {
+                    //The database stores the date as an ISO 8601 string. Hence we need to convert it to a Date object
+                    const createAtDate = new Date(createdAt);
                     return db.encryptedMessage.create({
                         data: {
                             ownerId: account.id,
                             id: messageId,
-                            createdAt,
+                            createdAt: createAtDate,
                             conversationId: conversation.id,
                             encryptedContactName,
                             encryptedEnvelopContainer,

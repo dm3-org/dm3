@@ -1,16 +1,9 @@
-import { encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
 import {
     Session,
     generateAuthJWT,
     spamFilter,
 } from '@dm3-org/dm3-lib-delivery';
-import {
-    Envelop,
-    Message,
-    buildEnvelop,
-    createMessage,
-} from '@dm3-org/dm3-lib-messaging';
-import { SignedUserProfile } from '@dm3-org/dm3-lib-profile';
+import { SignedUserProfile, schema } from '@dm3-org/dm3-lib-profile';
 import { sha256 } from '@dm3-org/dm3-lib-shared';
 import {
     MockDeliveryServiceProfile,
@@ -33,7 +26,8 @@ import {
 } from './persistence/getDatabase';
 import { MessageRecord } from './persistence/storage/postgres/dto/MessageRecord';
 import storage from './storage';
-import exp from 'constants';
+
+import fs from 'fs';
 
 const keysA = {
     encryptionKeyPair: {
@@ -203,7 +197,7 @@ describe('Storage', () => {
             expect(body.length).toBe(2);
         });
     });
-    describe('getConversationList', () => {
+    describe('getConversations', () => {
         it('returns empty array if users has no conversations', async () => {
             const { body } = await request(app)
                 .get(`/new/bob.eth/getConversations`)
@@ -253,7 +247,8 @@ describe('Storage', () => {
             }
 
             const { body } = await request(app)
-                .get(`/new/bob.eth/getConversations?size=6`)
+                .get(`/new/bob.eth/getConversations`)
+                .query({ pageSize: 6 })
                 .set({
                     authorization: 'Bearer ' + token,
                 })
@@ -310,7 +305,11 @@ describe('Storage', () => {
             }
 
             const { body } = await request(app)
-                .get(`/new/bob.eth/getConversations?size=3&offset=2`)
+                .get(`/new/bob.eth/getConversations`)
+                .query({
+                    pageSize: 3,
+                    offset: 2,
+                })
                 .set({
                     authorization: 'Bearer ' + token,
                 })
@@ -337,7 +336,11 @@ describe('Storage', () => {
             }
 
             const { body } = await request(app)
-                .get(`/new/bob.eth/getConversations?size=10&offset=1`)
+                .get(`/new/bob.eth/getConversations`)
+                .query({
+                    pageSize: 10,
+                    offset: 1,
+                })
                 .set({
                     authorization: 'Bearer ' + token,
                 })
@@ -366,7 +369,11 @@ describe('Storage', () => {
             }
 
             const { body } = await request(app)
-                .get(`/new/bob.eth/getConversations?size=10&offset=2`)
+                .get(`/new/bob.eth/getConversations`)
+                .query({
+                    pageSize: 10,
+                    offset: 2,
+                })
                 .set({
                     authorization: 'Bearer ' + token,
                 })
@@ -487,7 +494,113 @@ describe('Storage', () => {
             expect(JSON.parse(body[0].previewMessage)).toEqual(envelop3);
         });
     });
+    describe('getMessages', () => {
+        describe('schema', () => {
+            it('should return 400 if offset is negative', async () => {
+                const { status, body } = await request(app)
+                    .get(`/new/bob.eth/getMessages/alice.eth`)
+                    .query({ offset: -12 })
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send();
+
+                console.log(body);
+
+                expect(status).toBe(400);
+            });
+
+            it('should return 400 if pageSize is negative', async () => {
+                const { status, body } = await request(app)
+                    .get(`/new/bob.eth/getMessages/alice.eth`)
+                    .query({ pageSize: -12 })
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send();
+
+                console.log(body);
+
+                expect(status).toBe(400);
+            });
+        });
+        it('returns empty array if users has no messages', async () => {
+            const { body } = await request(app)
+                .get(
+                    `/new/bob.eth/getMessages/${sha256(
+                        receiver.account.ensName,
+                    )}`,
+                )
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send();
+
+            expect(body.length).toBe(0);
+        });
+    });
     describe('addMessage', () => {
+        describe('schema', () => {
+            it('should return 400 if encryptedEnvelopContainer is missing', async () => {
+                const body = {
+                    encryptedContactName: 'encryptedContactName',
+                    messageId: 'messageId',
+                    createdAt: 123,
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/addMessage')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+
+            it('should return 400 if encryptedContactName is missing', async () => {
+                const body = {
+                    encryptedEnvelopContainer: 'encryptedEnvelopContainer',
+                    messageId: 'messageId',
+                    createdAt: 123,
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/addMessage')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+
+            it('should return 400 if messageId is missing', async () => {
+                const body = {
+                    encryptedEnvelopContainer: 'encryptedEnvelopContainer',
+                    encryptedContactName: 'encryptedContactName',
+                    createdAt: 123,
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/addMessage')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+
+            it('should return 400 if createdAt is missing', async () => {
+                const body = {
+                    encryptedEnvelopContainer: 'encryptedEnvelopContainer',
+                    encryptedContactName: 'encryptedContactName',
+                    messageId: 'messageId',
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/addMessage')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+        });
         it('can add message', async () => {
             const messageFactory = MockMessageFactory(
                 sender,
@@ -528,7 +641,7 @@ describe('Storage', () => {
                 .get(
                     `/new/bob.eth/getMessages/${sha256(
                         receiver.account.ensName,
-                    )}/0`,
+                    )}`,
                 )
                 .set({
                     authorization: 'Bearer ' + token,
@@ -604,7 +717,7 @@ describe('Storage', () => {
                 .get(
                     `/new/bob.eth/getMessages/${sha256(
                         receiver.account.ensName,
-                    )}/0`,
+                    )}`,
                 )
                 .set({
                     authorization: 'Bearer ' + token,
@@ -622,7 +735,7 @@ describe('Storage', () => {
                 .get(
                     `/new/alice.eth/getMessages/${sha256(
                         sender.account.ensName,
-                    )}/0`,
+                    )}`,
                 )
                 .set({
                     authorization: 'Bearer ' + tokenAlice,
@@ -743,7 +856,7 @@ describe('Storage', () => {
                 .get(
                     `/new/bob.eth/getMessages/${sha256(
                         receiver.account.ensName,
-                    )}/0`,
+                    )}`,
                 )
                 .set({
                     authorization: 'Bearer ' + token,
@@ -819,7 +932,7 @@ describe('Storage', () => {
                 .get(
                     `/new/bob.eth/getMessages/${sha256(
                         receiver.account.ensName,
-                    )}/0`,
+                    )}`,
                 )
                 .set({
                     authorization: 'Bearer ' + token,
@@ -838,6 +951,54 @@ describe('Storage', () => {
         });
     });
     describe('addMessageBatch', () => {
+        describe('schema', () => {
+            it('should return 400 if encryptedContactName is missing', async () => {
+                const body = {
+                    messageBatch: [
+                        {
+                            createdAt: 123,
+                            messageId: 'testMessageId',
+                            encryptedEnvelopContainer:
+                                'testEncryptedEnvelopContainer',
+                        },
+                    ],
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/addMessageBatch')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+
+            it('should return 400 if messageBatch is missing', async () => {
+                const body = {
+                    encryptedContactName: 'encryptedContactName',
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/addMessageBatch')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+
+            it('should return 400 if messageBatch is invalid', async () => {
+                const body = {
+                    encryptedContactName: 'encryptedContactName',
+                    messageBatch: [{ foo: 'bar' }],
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/addMessageBatch')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+        });
         it('can add a messageBatch', async () => {
             const messageFactory = MockMessageFactory(
                 sender,
@@ -858,10 +1019,12 @@ describe('Storage', () => {
                         {
                             encryptedEnvelopContainer: JSON.stringify(envelop),
                             messageId: '123',
+                            createdAt: 1,
                         },
                         {
                             encryptedEnvelopContainer: JSON.stringify(envelop),
                             messageId: '456',
+                            createdAt: 2,
                         },
                     ],
                 });
@@ -884,7 +1047,7 @@ describe('Storage', () => {
                 .get(
                     `/new/bob.eth/getMessages/${sha256(
                         receiver.account.ensName,
-                    )}/0`,
+                    )}`,
                 )
                 .set({
                     authorization: 'Bearer ' + token,
@@ -1004,6 +1167,56 @@ describe('Storage', () => {
         });
     });
     describe('editMessageBatch', () => {
+        describe('schema', () => {
+            it('should return 400 if encryptedContactName is missing', async () => {
+                const body = {
+                    editMessageBatchPayload: [
+                        {
+                            createdAt: 123,
+                            messageId: 'testMessageId',
+                            encryptedEnvelopContainer:
+                                'testEncryptedEnvelopContainer',
+                        },
+                    ],
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/editMessageBatch')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+            it('should return 400 if editMessageBatchPayload is invalid', async () => {
+                const body = {
+                    editMessageBatchPayload: [
+                        {
+                            foo: 'bar',
+                        },
+                    ],
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/editMessageBatch')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+
+            it('should return 400 if editMessageBatchPayload is missing', async () => {
+                const body = {
+                    encryptedContactName: 'encryptedContactName',
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/editMessageBatch')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+        });
         it('should create a message if they has not been created before', async () => {
             const encryptedContactName = 'testContactName';
             const payload: MessageRecord[] = [
@@ -1028,7 +1241,7 @@ describe('Storage', () => {
 
             //get messages
             const { body } = await request(app)
-                .get(`/new/bob.eth/getMessages/${encryptedContactName}/0`)
+                .get(`/new/bob.eth/getMessages/${encryptedContactName}`)
                 .set({
                     authorization: 'Bearer ' + token,
                 })
@@ -1084,7 +1297,7 @@ describe('Storage', () => {
 
             //get messages
             const { body } = await request(app)
-                .get(`/new/bob.eth/getMessages/${contactName}/0`)
+                .get(`/new/bob.eth/getMessages/${contactName}`)
                 .set({
                     authorization: 'Bearer ' + token,
                 })
