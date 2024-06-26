@@ -76,12 +76,14 @@ export const useBackend = (): IBackendConnector & {
         getMessagesFromStorage: async (
             ensName: string,
             encryptedContactName: string,
-            pageNumber: number,
+            pageSize: number,
+            offset: number,
         ) => {
             return beConnector?.getMessagesFromStorage(
                 ensName,
                 encryptedContactName,
-                pageNumber,
+                pageSize,
+                offset,
             );
         },
         addMessage: async (

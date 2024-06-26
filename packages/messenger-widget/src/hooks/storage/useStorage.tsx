@@ -134,11 +134,15 @@ export const useStorage = (
         }
         storageApi.addConversation(contact);
     };
-    const getMessages = async (contact: string, page: number) => {
+    const getMessages = async (
+        contact: string,
+        pageSize: number,
+        offset: number,
+    ) => {
         if (!storageApi) {
             return Promise.resolve([]);
         }
-        return storageApi.getMessages(contact, page);
+        return storageApi.getMessages(contact, pageSize, offset);
     };
 
     const getNumberOfMessages = async (contact: string) => {
@@ -187,7 +191,8 @@ export type GetConversations = (
 export type AddConversation = (contact: string) => void;
 export type GetMessages = (
     contact: string,
-    page: number,
+    pageSize: number,
+    offset: number,
 ) => Promise<StorageEnvelopContainerNew[]>;
 export type GetNumberOfMessages = (contact: string) => Promise<number>;
 export type ToggleHideContactAsync = (contact: string, value: boolean) => void;

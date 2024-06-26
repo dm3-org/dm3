@@ -16,6 +16,7 @@ export const getMockedConversationContext = (
         addConversation: (ensName: string) => {
             return {} as ContactPreview;
         },
+        loadMoreConversations: () => {},
         hideContact: (ensName: string) => {},
     };
 

@@ -18,7 +18,8 @@ export interface IBackendConnector {
     getMessagesFromStorage(
         ensName: string,
         encryptedContactName: string,
-        pageNumber: number,
+        pageSize: number,
+        offset: number,
     ): Promise<any>;
     addMessage(
         ensName: string,

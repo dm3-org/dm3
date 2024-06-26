@@ -4,7 +4,8 @@ export interface StorageAPI {
     getConversations: (size: number, offset: number) => Promise<Conversation[]>;
     getMessages: (
         contactEnsName: string,
-        page: number,
+        pageSize: number,
+        offset: number,
     ) => Promise<StorageEnvelopContainer[]>;
     addMessageBatch: (
         contactEnsName: string,

@@ -22,7 +22,8 @@ export type BackendContextType = {
     getMessagesFromStorage: (
         ensName: string,
         encryptedContactName: string,
-        pageNumber: number,
+        pageSize: number,
+        offset: number,
     ) => Promise<string[]>;
     addMessage: (
         ensName: string,

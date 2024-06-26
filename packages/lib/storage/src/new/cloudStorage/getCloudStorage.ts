@@ -32,7 +32,11 @@ export const getCloudStorage = (
             })),
         );
     };
-    const getMessages = async (contactEnsName: string, page: number) => {
+    const getMessages = async (
+        contactEnsName: string,
+        pageSize: number,
+        offset: number,
+    ) => {
         const encryptedContactName = await encryption.encryptSync(
             contactEnsName,
         );
@@ -40,7 +44,8 @@ export const getCloudStorage = (
         const messageRecords = await backendConnector.getMessagesFromStorage(
             ensName,
             encryptedContactName,
-            page,
+            pageSize,
+            offset,
         );
         const decryptedMessageRecords = await Promise.all(
             messageRecords.map(async (messageRecord: MessageRecord) => {
