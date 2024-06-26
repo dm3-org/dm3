@@ -142,6 +142,12 @@ jobs:
                   ssh -i ./ssh-key app@${{ vars.HOST_DOMAIN }} "\
                   cd dm3 && ls |grep -E 'dm3-.*tar' | xargs --no-run-if-empty -L 1 docker load -i; \
                   rm dm3-*.tar || true"
+            - name: Reset state of testing environment
+              run: |
+                  if [ $environment_name == "testing" ]; then
+                      ssh -i ./ssh-key root@${{ vars.HOST_DOMAIN }} "\
+                      cd /mnt/dm3_prod_volume/db && rm -r * || true; \"
+                  fi
             - name: Configure Firewall
               run: |
                   ssh -i ./ssh-key root@${{ vars.HOST_DOMAIN }} "\
