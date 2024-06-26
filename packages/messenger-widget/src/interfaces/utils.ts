@@ -50,7 +50,7 @@ export interface IAttachmentPreview {
     isImage: boolean;
 }
 
-export const getDefaultContract = (ensName: string) => {
+export const getEmptyContact = (ensName: string, isHidden: boolean = false) => {
     const newContact: ContactPreview = {
         name: getAccountDisplayName(ensName, 25),
         message: null,
@@ -63,7 +63,7 @@ export const getDefaultContract = (ensName: string) => {
             },
             deliveryServiceProfiles: [],
         },
-        isHidden: false,
+        isHidden,
         messageSizeLimit: 0,
     };
 

@@ -55,8 +55,12 @@ export const useBackend = (): IBackendConnector & {
         addConversation: (ensName: string, encryptedContactName: string) => {
             beConnector?.addConversation(ensName, encryptedContactName);
         },
-        getConversations: async (ensName: string) => {
-            return beConnector?.getConversations(ensName);
+        getConversations: async (
+            ensName: string,
+            size: number,
+            offset: number,
+        ) => {
+            return beConnector?.getConversations(ensName, size, offset);
         },
         toggleHideConversation: (
             ensName: string,
