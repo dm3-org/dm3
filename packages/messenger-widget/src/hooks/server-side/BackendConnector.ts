@@ -17,7 +17,7 @@ export class BackendConnector
     }
     public async getConversations(
         ensName: string,
-        size: number,
+        pageSize: number,
         offset: number,
     ) {
         const url = `/storage/new/${normalizeEnsName(
@@ -27,7 +27,7 @@ export class BackendConnector
 
         const { data } = await axios.get(url, {
             params: {
-                size,
+                pageSize,
                 offset,
             },
         });
