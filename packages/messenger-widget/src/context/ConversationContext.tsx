@@ -11,6 +11,7 @@ export type ConversationContextType = {
     setSelectedContactName: (contactEnsName: string | undefined) => void;
     initialized: boolean;
     addConversation: (ensName: string) => ContactPreview | undefined;
+    loadMoreConversations: () => void;
     hideContact: (ensName: string) => void;
 };
 
@@ -24,6 +25,7 @@ export const ConversationContext = React.createContext<ConversationContextType>(
         addConversation: (ensName: string) => {
             return {} as ContactPreview;
         },
+        loadMoreConversations: () => {},
         hideContact: (ensName: string) => {},
     },
 );
@@ -43,13 +45,14 @@ export const ConversationContextProvider = ({
         setSelectedContactName,
         selectedContact,
         hideContact,
-        unhideContact,
+        loadMoreConversations,
     } = useConversation(config);
 
     return (
         <ConversationContext.Provider
             value={{
                 addConversation,
+                loadMoreConversations,
                 contacts,
                 conversationCount,
                 initialized,

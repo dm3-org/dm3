@@ -16,7 +16,7 @@ import { ContactPreview, getEmptyContact } from '../../interfaces/utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
 
-const DEFAULT_CONVERSATION_PAGE_SIZE = 2;
+const DEFAULT_CONVERSATION_PAGE_SIZE = 1;
 
 export const useConversation = (config: DM3Configuration) => {
     const mainnetProvider = useMainnetProvider();
@@ -196,6 +196,27 @@ export const useConversation = (config: DM3Configuration) => {
         return conversationPreview;
     };
 
+    const loadMoreConversations = async () => {
+        const hasDefaultContact = config.defaultContact !== undefined;
+        //If a default contact is set we have to subtract one from the conversation count since its not part of the conversation list
+        const conversationCount = hasDefaultContact
+            ? contacts.length - 1
+            : contacts.length;
+        //We calculate the offset based on the conversation count divided by the default page size
+        //offset * pagesize equals the amount of conversations that will be skipped
+        const offset = conversationCount / DEFAULT_CONVERSATION_PAGE_SIZE;
+        const conversations = await getConversationsFromStorage(
+            DEFAULT_CONVERSATION_PAGE_SIZE,
+            Math.floor(offset),
+        );
+        conversations.forEach((conversation) => {
+            _addConversation(
+                conversation.contactEnsName,
+                conversation.isHidden,
+            );
+        });
+    };
+
     /**
      * When a conversation is added via the AddContacts dialog it should appeat in the conversation list immediately.
      * Hence we're doing a hydrate here asynchroniously in the background
@@ -294,6 +315,7 @@ export const useConversation = (config: DM3Configuration) => {
         contacts,
         conversationCount,
         addConversation,
+        loadMoreConversations,
         initialized: conversationsInitialized,
         setSelectedContactName,
         selectedContact,
