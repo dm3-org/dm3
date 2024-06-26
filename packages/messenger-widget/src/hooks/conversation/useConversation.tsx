@@ -16,6 +16,8 @@ import { ContactPreview, getEmptyContact } from '../../interfaces/utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
 
+const DEFAULT_CONVERSATION_PAGE_SIZE = 1;
+
 export const useConversation = (config: DM3Configuration) => {
     const mainnetProvider = useMainnetProvider();
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
@@ -81,7 +83,7 @@ export const useConversation = (config: DM3Configuration) => {
 
             const conversations = await Promise.all([
                 //Get the last 5 conversations from the storage
-                getConversationsFromStorage(5, 0),
+                getConversationsFromStorage(DEFAULT_CONVERSATION_PAGE_SIZE, 0),
                 //Get the conversations that have been added to the DS in absence of the user
                 getConversationsFromDeliveryService(),
             ]);
@@ -187,9 +189,11 @@ export const useConversation = (config: DM3Configuration) => {
 
     const addConversation = (_ensName: string) => {
         //Adds the conversation to the conversation state
-        _addConversation(_ensName, false);
+        const conversationPreview = _addConversation(_ensName, false);
         //Add the contact to the storage in the background
         storeConversationAsync(_ensName);
+
+        return conversationPreview;
     };
 
     const _addConversation = (_ensName: string, isHidden: boolean) => {
