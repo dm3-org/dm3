@@ -5,10 +5,15 @@ services:
         image: nginx:latest
         restart: always
         depends_on:
-            - offchain-resolver
             - web
+            - backend
+            - ccip-resolver
+            - delivery-service
         volumes:
             - ./nginx.conf:/etc/nginx/nginx.conf
+            - web-root:/var/www/html
+            - certbot-etc:/etc/letsencrypt
+            - certbot-var:/var/lib/letsencrypt
         ports:
             - '80:80'
             - '443:443'
@@ -25,6 +30,7 @@ services:
             SIGNING_PRIVATE_KEY: ${SIGNING_PRIVATE_KEY}
             ENCRYPTION_PUBLIC_KEY: ${ENCRYPTION_PUBLIC_KEY}
             ENCRYPTION_PRIVATE_KEY: ${ENCRYPTION_PRIVATE_KEY}
+            DISABLE_SESSION_CHECK: ${DISABLE_SESSION_CHECK}
             RPC: ${RPC}
             PORT: 8081
             LOG_LEVEL: 'debug'
@@ -33,17 +39,19 @@ services:
     db:
         image: redis
         restart: always
+        volumes:
+            - /mnt/dm3_prod_volume/db/redis:/data
 
     dm3-storage:
         image: postgres:13
         restart: always
         container_name: dm3-storage
-        ports:
-            - '5433:5432'
         environment:
             POSTGRES_USER: prisma
             POSTGRES_PASSWORD: prisma
             POSTGRES_DB: dm3
+        volumes:
+            - /mnt/dm3_prod_volume/storage/postgres:/var/lib/postgresql/data
 
     delivery-service:
         image: dm3-delivery-service
@@ -66,6 +74,8 @@ services:
         image: redis
         restart: always
         container_name: redis-delivery-service
+        volumes:
+            - /mnt/dm3_prod_volume/db/redis-delivery-service:/data
 
     offchain-resolver-db:
         image: postgres
@@ -73,9 +83,12 @@ services:
         container_name: offchain_resolver_db
         environment:
             POSTGRES_PASSWORD: example
+        volumes:
+            - /mnt/dm3_prod_volume/db/postgres:/var/lib/postgresql/data
 
     offchain-resolver:
         image: dm3-offchain-resolver
+        restart: always
         depends_on:
             - offchain-resolver-db
         environment:
@@ -87,6 +100,30 @@ services:
 
     web:
         image: dm3-messenger-web
+        restart: always
+        environment:
+            REACT_APP_ADDR_ENS_SUBDOMAIN: ${REACT_APP_ADDR_ENS_SUBDOMAIN}
+            REACT_APP_BACKEND: ${REACT_APP_BACKEND}
+            REACT_APP_DEFAULT_DELIVERY_SERVICE: ${REACT_APP_DEFAULT_DELIVERY_SERVICE}
+            REACT_APP_DEFAULT_SERVICE: ${REACT_APP_DEFAULT_SERVICE}
+            REACT_APP_MAINNET_PROVIDER_RPC: ${REACT_APP_MAINNET_PROVIDER_RPC}
+            REACT_APP_PROFILE_BASE_URL: ${REACT_APP_PROFILE_BASE_URL}
+            REACT_APP_RESOLVER_BACKEND: ${REACT_APP_RESOLVER_BACKEND}
+            REACT_APP_USER_ENS_SUBDOMAIN: ${REACT_APP_USER_ENS_SUBDOMAIN}
+            REACT_APP_WALLET_CONNECT_PROJECT_ID: ${REACT_APP_WALLET_CONNECT_PROJECT_ID}
+            REACT_APP_GENOME_REGISTRY_ADDRESS: ${REACT_APP_GENOME_REGISTRY_ADDRESS}
+            RESOLVER_ADDR: ${RESOLVER_ADDR}
+
+    certbot:
+        image: certbot/certbot
+        container_name: certbot
+        volumes:
+            - certbot-etc:/etc/letsencrypt
+            - certbot-var:/var/lib/letsencrypt
+            - web-root:/var/www/html
+        depends_on:
+            - nginx
+        command: certonly --webroot --webroot-path=/var/www/html --email ${CERT_MAIL} --agree-tos --no-eff-email -d ${URL}
 
     ccip-resolver:
         image: dm3org/ccip-resolver:v0.2.7
@@ -98,9 +135,19 @@ services:
             LOG_LEVEL: debug
             CONFIG: |
                 {
-                  "0x88c8cc822095cde6f92c8d20311c8e7de6a98694": {
+                  "${RESOLVER_ADDRESS}": {
                     "type": "signing",
                     "handlerUrl": "http://offchain-resolver:8082"
                   }
                 }
             PORT: 8181
+
+volumes:
+    certbot-etc:
+    certbot-var:
+    web-root:
+        driver: local
+        driver_opts:
+            type: none
+            device: /mnt/dm3_prod_volume/webroot
+            o: bind

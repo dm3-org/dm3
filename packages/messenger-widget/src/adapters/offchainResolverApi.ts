@@ -68,7 +68,7 @@ export async function claimAddress(
         const { status } = await axios.post(url, data);
         return status === 200;
     } catch (err) {
-        console.log('subdomain alreday claimed');
+        console.log('subdomain already claimed');
         return false;
     }
 }

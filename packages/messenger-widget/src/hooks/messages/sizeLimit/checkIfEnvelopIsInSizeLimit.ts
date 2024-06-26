@@ -1,20 +1,22 @@
 import { EncryptionEnvelop, getEnvelopSize } from '@dm3-org/dm3-lib-messaging';
-import { log } from '@dm3-org/dm3-lib-shared';
 
-export const checkIfEnvelopIsInSizeLimit = async (
-    encryptedEnvelop: EncryptionEnvelop,
+export const checkIfEnvelopAreInSizeLimit = async (
+    encryptedEnvelops: EncryptionEnvelop[],
     receiversMessageSizeLimit: number,
 ): Promise<boolean> => {
     try {
-        const envelopSize = getEnvelopSize(encryptedEnvelop);
+        const atLeastOneEnvelopIsToLarge = !!encryptedEnvelops
+            //get the size of each envelop
+            .map((encryptedEnvelop) => getEnvelopSize(encryptedEnvelop))
+            //If any of the envelops is bigger than the receivers message size limit, return false
+            .find((envelopSize) => {
+                return envelopSize > receiversMessageSizeLimit;
+            });
 
-        if (envelopSize > receiversMessageSizeLimit) {
-            return false;
-        }
-
-        return true;
+        //If no envelop is to large, return true
+        return !atLeastOneEnvelopIsToLarge;
     } catch (error) {
-        log(error, 'message size limit');
-        return true;
+        console.error('Error in checkIfEnvelopAreInSizeLimit', error);
+        return false;
     }
 };
