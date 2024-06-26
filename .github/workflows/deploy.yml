@@ -57,7 +57,7 @@ jobs:
                   echo "REACT_APP_CHAIN_ID=${{ vars.CHAIN_ID }}" >> ./.env.react
                   echo "REACT_APP_GENOME_REGISTRY_ADDRESS=${{ vars.GENOME_REGISTRY_ADDRESS }}" >> ./.env.react
                   cat ./.env.react >> ./.env
-                  echo "RESOLVER_ADDR=${{ vars.ERC3668_RESOLVER_ADDRESS }}" >> ./.env
+                  echo "RESOLVER_ADDRESS=${{ vars.ERC3668_RESOLVER_ADDRESS }}" >> ./.env
                   echo "SIGNING_PUBLIC_KEY=${{ secrets.SIGNING_PUBLIC_KEY }}" >> ./.env
                   echo "SIGNING_PRIVATE_KEY=${{ secrets.SIGNING_PRIVATE_KEY }}" >> ./.env
                   echo "SIGNER_PRIVATE_KEY=${{ secrets.SIGNER_PRIVATE_KEY }}" >> ./.env
@@ -142,6 +142,12 @@ jobs:
                   ssh -i ./ssh-key app@${{ vars.HOST_DOMAIN }} "\
                   cd dm3 && ls |grep -E 'dm3-.*tar' | xargs --no-run-if-empty -L 1 docker load -i; \
                   rm dm3-*.tar || true"
+            - name: Reset state of testing environment
+              run: |
+                  if [ $environment_name == "testing" ]; then
+                      ssh -i ./ssh-key root@${{ vars.HOST_DOMAIN }} "\
+                      cd /mnt/dm3_prod_volume/db && rm -r * || true; \"
+                  fi
             - name: Configure Firewall
               run: |
                   ssh -i ./ssh-key root@${{ vars.HOST_DOMAIN }} "\
