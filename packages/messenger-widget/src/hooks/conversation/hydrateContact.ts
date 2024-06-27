@@ -59,10 +59,6 @@ const fetchPreview = async (
             contact.account.ensName,
             addrEnsSubdomain,
         ),
-        //ToDo maybe can be removed aswell
-        messageCount: conversatoinManifest.messageCounter,
-        //ToDo field is not used and can be removed
-        unreadMsgCount: 21,
         contactDetails: contact,
         isHidden: conversatoinManifest.isHidden,
         messageSizeLimit: messageSizeLimit,

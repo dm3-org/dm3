@@ -136,7 +136,6 @@ export const useConversation = (config: DM3Configuration) => {
                 //I there are no conversations yet we add the default contact
                 const defaultConversation: Conversation = {
                     contactEnsName: normalizeEnsName(aliasName!),
-                    messageCounter: 0,
                     isHidden: false,
                 };
 
@@ -172,7 +171,6 @@ export const useConversation = (config: DM3Configuration) => {
 
                     return {
                         contactEnsName,
-                        messageCounter: 0,
                         isHidden: false,
                     };
                 })
@@ -225,7 +223,6 @@ export const useConversation = (config: DM3Configuration) => {
     const hydrateExistingContactAsync = async (contact: ContactPreview) => {
         const conversation: Conversation = {
             contactEnsName: contact.contactDetails.account.ensName,
-            messageCounter: contact?.messageCount || 0,
             isHidden: contact.isHidden,
         };
         const hydratedContact = await hydrateContract(

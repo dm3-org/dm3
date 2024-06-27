@@ -54,14 +54,6 @@ describe('useMessage hook test cases', () => {
         expect(loading).toBe(false);
     });
 
-    it('Should check contact is loading or not ', async () => {
-        const { result } = renderHook(() => useMessage());
-        const unreadMsgCount = await act(async () =>
-            result.current.getUnreadMessageCount(CONTACT_NAME),
-        );
-        expect(unreadMsgCount).toBe(0);
-    });
-
     describe('add Message', () => {
         let sender: MockedUserProfile;
         let receiver: MockedUserProfile;
@@ -293,8 +285,6 @@ describe('useMessage hook test cases', () => {
                         name: '',
                         message: '',
                         image: 'human.svg',
-                        messageCount: 1,
-                        unreadMsgCount: 21,
                         contactDetails: {
                             account: {
                                 ensName: receiver.account.ensName,
@@ -396,8 +386,6 @@ describe('useMessage hook test cases', () => {
                         name: '',
                         message: '',
                         image: 'human.svg',
-                        messageCount: 1,
-                        unreadMsgCount: 21,
                         contactDetails: {
                             account: {
                                 ensName: receiver.account.ensName,

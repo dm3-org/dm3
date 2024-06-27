@@ -10,7 +10,6 @@ export const getCloudStorage = (
         const encryptedContactName = await encryption.encryptSync(
             contactEnsName,
         );
-        console.log('store new contact ', encryptedContactName);
         return await backendConnector.addConversation(
             ensName,
             encryptedContactName,

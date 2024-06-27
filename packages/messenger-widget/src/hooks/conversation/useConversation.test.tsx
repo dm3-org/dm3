@@ -350,7 +350,6 @@ describe('useConversation hook test cases', () => {
                                 //Use offset here to create a distinct contactEnsName
                                 contactEnsName: 'contact ' + i + offset,
                                 isHidden: false,
-                                messageCounter: 0,
                             };
                         }),
                     );
@@ -477,7 +476,6 @@ describe('useConversation hook test cases', () => {
                         {
                             contactEnsName: 'max.eth',
                             isHidden: false,
-                            messageCounter: 1,
                         },
                     ]);
                 },
@@ -549,7 +547,6 @@ describe('useConversation hook test cases', () => {
                         {
                             contactEnsName: 'max.eth',
                             isHidden: false,
-                            messageCounter: 1,
                         },
                     ]);
                 },
@@ -633,12 +630,10 @@ describe('useConversation hook test cases', () => {
                         {
                             contactEnsName: 'max.eth',
                             isHidden: false,
-                            messageCounter: 1,
                         },
                         {
                             contactEnsName: 'mydefaultcontract.eth',
                             isHidden: false,
-                            messageCounter: 1,
                         },
                     ]);
                 },
@@ -722,17 +717,14 @@ describe('useConversation hook test cases', () => {
                         {
                             contactEnsName: 'ron.eth',
                             isHidden: true,
-                            messageCounter: 1,
                         },
                         {
                             contactEnsName: 'max.eth',
                             isHidden: false,
-                            messageCounter: 1,
                         },
                         {
                             contactEnsName: 'mydefaultcontract.eth',
                             isHidden: false,
-                            messageCounter: 1,
                         },
                     ]);
                 },
@@ -818,7 +810,6 @@ describe('useConversation hook test cases', () => {
                         {
                             contactEnsName: 'max.eth',
                             isHidden: false,
-                            messageCounter: 1,
                         },
                     ]);
                 },
@@ -887,7 +878,6 @@ describe('useConversation hook test cases', () => {
                         {
                             contactEnsName: sender.account.ensName,
                             isHidden: false,
-                            messageCounter: 1,
                         },
                     ]);
                 },
@@ -996,7 +986,6 @@ describe('useConversation hook test cases', () => {
                         {
                             contactEnsName: sender.account.ensName,
                             isHidden: false,
-                            messageCounter: 1,
                         },
                     ]);
                 },

@@ -36,7 +36,6 @@ export interface StorageEnvelopContainer {
 export interface Conversation {
     contactEnsName: string;
     isHidden: boolean;
-    messageCounter: number;
 }
 
 export type Encryption = {
