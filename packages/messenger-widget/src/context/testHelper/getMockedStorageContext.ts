@@ -38,7 +38,7 @@ export const getMockedStorageContext = (
                     contactEnsName: 'max.eth',
                     isHidden: false,
                     messageCounter: 1,
-                    previewMessage: null,
+                    previewMessage: undefined,
                 },
             ]);
         },

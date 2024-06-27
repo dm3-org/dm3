@@ -22,7 +22,7 @@ export interface IButton {
 
 export interface ContactPreview {
     name: string;
-    message: string | null;
+    message: string | undefined;
     image: string;
     contactDetails: Contact;
     isHidden: boolean;
@@ -50,7 +50,7 @@ export interface IAttachmentPreview {
 
 export const getEmptyContact = (
     ensName: string,
-    message: string | null,
+    message: string | undefined,
     isHidden: boolean = false,
 ) => {
     const newContact: ContactPreview = {

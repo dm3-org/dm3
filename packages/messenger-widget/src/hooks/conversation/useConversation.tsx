@@ -133,7 +133,7 @@ export const useConversation = (config: DM3Configuration) => {
                 //I there are no conversations yet we add the default contact
                 const defaultConversation: Conversation = {
                     contactEnsName: normalizeEnsName(aliasName!),
-                    previewMessage: null,
+                    previewMessage: undefined,
                     isHidden: false,
                 };
 
@@ -188,7 +188,7 @@ export const useConversation = (config: DM3Configuration) => {
         const newConversation: Conversation = {
             contactEnsName,
             isHidden: false,
-            previewMessage: null,
+            previewMessage: undefined,
         };
         //Adds the conversation to the conversation state
         const conversationPreview = _addConversation(newConversation);
@@ -224,7 +224,7 @@ export const useConversation = (config: DM3Configuration) => {
     const hydrateExistingContactAsync = async (contact: ContactPreview) => {
         const conversation: Conversation = {
             contactEnsName: contact.contactDetails.account.ensName,
-            previewMessage: contact.message,
+            previewMessage: undefined,
             isHidden: contact.isHidden,
         };
         const hydratedContact = await hydrateContract(
@@ -303,11 +303,7 @@ export const useConversation = (config: DM3Configuration) => {
         }
 
         //If the conversation already contains messages the preview message is the last message. The backend attaches that message to the conversation so we can use it here and safe a request to fetch the messages
-        const previewMessage = conversation.previewMessage
-            ? (
-                  conversation.previewMessage as unknown as StorageEnvelopContainer
-              ).envelop.message.message ?? ''
-            : null;
+        const previewMessage = conversation.previewMessage?.message?.message;
 
         const newContact: ContactPreview = getEmptyContact(
             ensName,
