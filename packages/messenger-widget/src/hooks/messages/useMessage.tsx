@@ -112,10 +112,12 @@ export const useMessage = () => {
 
     //Mark messages as read when the selected contact changes
     useEffect(() => {
-        const contact = selectedContact?.contactDetails.account.ensName;
-        if (!contact) {
+        const _contact = selectedContact?.contactDetails.account.ensName;
+        if (!_contact) {
             return;
         }
+
+        const contact = normalizeEnsName(_contact);
 
         const unreadMessages = (messages[contact] ?? []).filter(
             (message) =>

@@ -68,7 +68,6 @@ export const getCloudStorage = (
             }),
         );
 
-        //TODO make type right
         return decryptedMessageRecords as StorageEnvelopContainer[];
     };
 

@@ -88,6 +88,8 @@ export const useConversation = (config: DM3Configuration) => {
                 getConversationsFromDeliveryService(),
             ]);
 
+            console.log('conversations', conversations);
+
             //Flatten the conversations and remove duplicates
             conversations
                 .flat()
@@ -187,10 +189,11 @@ export const useConversation = (config: DM3Configuration) => {
     };
 
     const addConversation = (_ensName: string) => {
+        const contact = normalizeEnsName(_ensName);
         //Adds the conversation to the conversation state
-        const conversationPreview = _addConversation(_ensName, false);
+        const conversationPreview = _addConversation(contact, false);
         //Add the contact to the storage in the background
-        storeConversationAsync(_ensName);
+        storeConversationAsync(contact);
 
         return conversationPreview;
     };

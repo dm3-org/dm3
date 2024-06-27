@@ -94,13 +94,8 @@ export const useStorage = (
         if (!storageApi) {
             throw Error('Storage not initialized');
         }
-        /**
-         * Because the storage cannot handle concurrency properly
-         * we need to catch the error and retry if the message is not yet synced
-         */
-        storageApi.editMessageBatch(contact, batch).catch((e) => {
-            console.log('message not sync yet');
-        });
+
+        storageApi.editMessageBatch(contact, batch);
     };
 
     const storeMessageAsync = (
