@@ -72,7 +72,7 @@ export default function LeftView() {
     return (
         <div className="position-relative h-100 d-flex flex-column align-items-start">
             <div
-                className={'w-100 height-inherit'.concat(
+                className={'w-100 h-100 d-flex justify-content-between flex-column'.concat(
                     ' ',
                     selectedLeftView === LeftViewSelected.Menu
                         ? 'blur-background'
@@ -103,19 +103,14 @@ export default function LeftView() {
                     </div>
                 </div>
                 <Contacts />
-                {/* <ConfigureProfileBox /> */}
+                <ConfigureProfileBox />
             </div>
 
-            <div
-                className={'h-100'.concat(
-                    ' ',
-                    selectedLeftView === LeftViewSelected.Menu
-                        ? 'menu-container'
-                        : '',
-                )}
-            >
-                <Menu />
-            </div>
+            {selectedLeftView === LeftViewSelected.Menu && (
+                <div className={'h-100 menu-container'}>
+                    <Menu />
+                </div>
+            )}
         </div>
     );
 }

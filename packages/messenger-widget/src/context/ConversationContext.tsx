@@ -18,15 +18,17 @@ export type ConversationContextType = {
 export const ConversationContext = React.createContext<ConversationContextType>(
     {
         contacts: [],
-        setSelectedContactName: (contactEnsName: string | undefined) => { },
+        setSelectedContactName: (contactEnsName: string | undefined) => {},
         conversationCount: 0,
         initialized: false,
         selectedContact: undefined,
         addConversation: (ensName: string) => {
             return {} as ContactPreview;
         },
-        loadMoreConversations: () => { return new Promise((resolve, reject) => resolve(0)) },
-        hideContact: (ensName: string) => { },
+        loadMoreConversations: () => {
+            return new Promise((resolve, reject) => resolve(0));
+        },
+        hideContact: (ensName: string) => {},
     },
 );
 

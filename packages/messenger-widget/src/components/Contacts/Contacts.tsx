@@ -16,12 +16,11 @@ import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { UiViewContext } from '../../context/UiViewContext';
 import { ModalContext } from '../../context/ModalContext';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import ConfigureProfileBox from '../ConfigureProfileBox/ConfigureProfileBox';
 
 export function Contacts() {
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const { getMessages, getUnreadMessageCount } = useContext(MessageContext);
-    const { selectedRightView, setSelectedRightView } =
+    const { selectedRightView, setSelectedRightView, setSelectedLeftView } =
         useContext(UiViewContext);
     const {
         contacts,
@@ -31,7 +30,9 @@ export function Contacts() {
     } = useContext(ConversationContext);
     const { setLastMessageAction } = useContext(ModalContext);
 
-    const [isMenuAlignedAtBottom, setIsMenuAlignedAtBottom] = useState<boolean | null>(null);
+    const [isMenuAlignedAtBottom, setIsMenuAlignedAtBottom] = useState<
+        boolean | null
+    >(null);
 
     const [hasMoreContact, setHasMoreContact] = useState<boolean>(true);
 
@@ -40,7 +41,7 @@ export function Contacts() {
         if (!newContactsCount) {
             setHasMoreContact(false);
         }
-    }
+    };
 
     useEffect(() => {
         if (
@@ -116,7 +117,7 @@ export function Contacts() {
                 style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    overflow: "hidden"
+                    overflow: 'hidden',
                 }}
                 inverse={false}
                 hasMore={hasMoreContact}
@@ -148,7 +149,7 @@ export function Contacts() {
                                         ' ',
                                         selectedContact
                                             ? selectedContact.contactDetails
-                                                .account.ensName !== id
+                                                  .account.ensName !== id
                                                 ? 'highlight-right-border'
                                                 : 'contact-details-container-active'
                                             : '',
@@ -200,9 +201,9 @@ export function Contacts() {
                                                     title={
                                                         data.contactDetails
                                                             ? data
-                                                                .contactDetails
-                                                                .account
-                                                                .ensName
+                                                                  .contactDetails
+                                                                  .account
+                                                                  .ensName
                                                             : ''
                                                     }
                                                 >
@@ -231,7 +232,7 @@ export function Contacts() {
                                                 {selectedContact?.contactDetails
                                                     .account.ensName === id ? (
                                                     selectedContact.message !==
-                                                        null ? (
+                                                    null ? (
                                                         <div>
                                                             <div className="action-container">
                                                                 <img
@@ -248,13 +249,13 @@ export function Contacts() {
                                                                         }
                                                                         isMenuAlignedAtBottom={
                                                                             isMenuAlignedAtBottom ===
-                                                                                null
+                                                                            null
                                                                                 ? showMenuInBottom(
-                                                                                    selectedContact
-                                                                                        .contactDetails
-                                                                                        .account
-                                                                                        .ensName,
-                                                                                )
+                                                                                      selectedContact
+                                                                                          .contactDetails
+                                                                                          .account
+                                                                                          .ensName,
+                                                                                  )
                                                                                 : isMenuAlignedAtBottom
                                                                         }
                                                                     />
@@ -301,8 +302,6 @@ export function Contacts() {
                     <div className="hidden-data"></div>
                 </div>
             ))} */}
-
-            <ConfigureProfileBox />
         </div>
     );
 }
