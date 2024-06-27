@@ -103,7 +103,7 @@ export default function LeftView() {
                     </div>
                 </div>
                 <Contacts />
-                <ConfigureProfileBox />
+                {/* <ConfigureProfileBox /> */}
             </div>
 
             <div

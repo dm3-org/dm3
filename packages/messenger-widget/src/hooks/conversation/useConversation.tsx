@@ -196,7 +196,7 @@ export const useConversation = (config: DM3Configuration) => {
         return conversationPreview;
     };
 
-    const loadMoreConversations = async () => {
+    const loadMoreConversations = async (): Promise<number> => {
         const hasDefaultContact = config.defaultContact !== undefined;
         //If a default contact is set we have to subtract one from the conversation count since its not part of the conversation list
         const conversationCount = hasDefaultContact
@@ -215,6 +215,7 @@ export const useConversation = (config: DM3Configuration) => {
                 conversation.isHidden,
             );
         });
+        return conversations.length;
     };
 
     /**

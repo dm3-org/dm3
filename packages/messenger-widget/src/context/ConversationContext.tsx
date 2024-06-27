@@ -11,22 +11,22 @@ export type ConversationContextType = {
     setSelectedContactName: (contactEnsName: string | undefined) => void;
     initialized: boolean;
     addConversation: (ensName: string) => ContactPreview | undefined;
-    loadMoreConversations: () => void;
+    loadMoreConversations: () => Promise<number>;
     hideContact: (ensName: string) => void;
 };
 
 export const ConversationContext = React.createContext<ConversationContextType>(
     {
         contacts: [],
-        setSelectedContactName: (contactEnsName: string | undefined) => {},
+        setSelectedContactName: (contactEnsName: string | undefined) => { },
         conversationCount: 0,
         initialized: false,
         selectedContact: undefined,
         addConversation: (ensName: string) => {
             return {} as ContactPreview;
         },
-        loadMoreConversations: () => {},
-        hideContact: (ensName: string) => {},
+        loadMoreConversations: () => { return new Promise((resolve, reject) => resolve(0)) },
+        hideContact: (ensName: string) => { },
     },
 );
 
