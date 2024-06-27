@@ -210,21 +210,14 @@ export const useConversation = (config: DM3Configuration) => {
             Math.floor(offset),
         );
 
-        let newContactAddedCount = 0;
-
         conversations.forEach((conversation) => {
-            // check if the contact is really added in the list or not
-            // if its added it will return contact object else nothing
-            if (
-                _addConversation(
-                    conversation.contactEnsName,
-                    conversation.isHidden,
-                )
-            ) {
-                newContactAddedCount++;
-            }
+            _addConversation(
+                conversation.contactEnsName,
+                conversation.isHidden,
+            );
         });
-        return newContactAddedCount;
+
+        return conversations.length;
     };
 
     /**
