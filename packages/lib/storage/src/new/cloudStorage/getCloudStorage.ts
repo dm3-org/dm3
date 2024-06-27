@@ -1,6 +1,8 @@
 import { IBackendConnector } from '@dm3-org/dm3-lib-shared';
 import { MessageRecord } from '../chunkStorage/ChunkStorageTypes';
 import { Encryption, StorageAPI, StorageEnvelopContainer } from '../types';
+//getCloudStorages is the interface to the cloud storage.
+//It encrypts and decrypts the data before sending/reciving it to/from the cloud storage of the DM3 backend
 export const getCloudStorage = (
     backendConnector: IBackendConnector,
     ensName: string,
@@ -24,11 +26,22 @@ export const getCloudStorage = (
         );
 
         return await Promise.all(
-            conversations.map(async ({ contact }: { contact: string }) => ({
-                contactEnsName: await encryption.decryptSync(contact),
-                isHidden: false,
-                messageCounter: 0,
-            })),
+            conversations.map(
+                async ({
+                    contact,
+                    previewMessage,
+                }: {
+                    contact: string;
+                    previewMessage: string | null;
+                }) => ({
+                    contactEnsName: await encryption.decryptSync(contact),
+                    isHidden: false,
+                    messageCounter: 0,
+                    previewMessage: previewMessage
+                        ? await encryption.decryptSync(previewMessage)
+                        : null,
+                }),
+            ),
         );
     };
     const getMessages = async (

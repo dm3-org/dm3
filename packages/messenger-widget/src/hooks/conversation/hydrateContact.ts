@@ -15,25 +15,22 @@ import { fetchMessageSizeLimit } from '../messages/sizeLimit/fetchSizeLimit';
 
 export const hydrateContract = async (
     provider: ethers.providers.JsonRpcProvider,
-    conversatoinManifest: Conversation,
+    conversation: Conversation,
     resolveAliasToTLD: (alias: string) => Promise<string>,
     addrEnsSubdomain: string,
 ) => {
     //If the profile property of the account is defined the user has already used DM3 previously
-    const account = await fetchAccount(
-        provider,
-        conversatoinManifest.contactEnsName,
-    );
+    const account = await _fetchAccount(provider, conversation.contactEnsName);
     //Has to become fetchMultipleDsProfiles
-    const contact = await fetchDsProfiles(provider, account);
+    const contact = await _fetchDsProfiles(provider, account);
 
     //get the maximum size limit by looking for the smallest size limit of every ds
     const maximumSizeLimit = await fetchMessageSizeLimit(
         contact.deliveryServiceProfiles,
     );
-    const contactPreview = await fetchPreview(
+    const contactPreview = await _fetchContactPreview(
         provider,
-        conversatoinManifest,
+        conversation,
         contact,
         resolveAliasToTLD,
         maximumSizeLimit,
@@ -42,9 +39,9 @@ export const hydrateContract = async (
     return contactPreview;
 };
 
-const fetchPreview = async (
+const _fetchContactPreview = async (
     provider: ethers.providers.JsonRpcProvider,
-    conversatoinManifest: Conversation,
+    conversation: Conversation,
     contact: Contact,
     resolveAliasToTLD: (alias: string) => Promise<string>,
     messageSizeLimit: number,
@@ -53,19 +50,19 @@ const fetchPreview = async (
     return {
         //display name, if alias is not defined the addr ens name will be used
         name: await resolveAliasToTLD(contact.account.ensName),
-        message: '',
+        message: conversation.previewMessage,
         image: await getAvatarProfilePic(
             provider,
             contact.account.ensName,
             addrEnsSubdomain,
         ),
         contactDetails: contact,
-        isHidden: conversatoinManifest.isHidden,
+        isHidden: conversation.isHidden,
         messageSizeLimit: messageSizeLimit,
     };
 };
 
-const fetchAccount = async (
+const _fetchAccount = async (
     provider: ethers.providers.JsonRpcProvider,
     contact: string,
 ): Promise<Account> => {
@@ -93,13 +90,13 @@ const fetchAccount = async (
     }
 };
 
-const fetchDsProfiles = async (
+const _fetchDsProfiles = async (
     provider: ethers.providers.JsonRpcProvider,
     account: Account,
 ): Promise<Contact> => {
     const deliveryServiceEnsNames = account.profile?.deliveryServices ?? [];
     if (deliveryServiceEnsNames.length === 0) {
-        //If there is now DS profile the message will be storaged at the client side until they recipient has createed an account
+        //If there is nop DS profile the message will be storaged at the client side until they recipient has createed an account
         console.debug(
             '[fetchDeliverServicePorfile] Cant resolve deliveryServiceEnsName',
         );
