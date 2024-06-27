@@ -12,6 +12,7 @@ import { Message } from '../Message/Message';
 import { MessageInputBox } from '../MessageInputBox/MessageInputBox';
 import { scrollToBottomOfChat } from './scrollToBottomOfChat';
 import { ModalContext } from '../../context/ModalContext';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 export function Chat() {
     const { account } = useContext(AuthContext);
@@ -20,7 +21,8 @@ export function Chat() {
     const { screenWidth, dm3Configuration } = useContext(
         DM3ConfigurationContext,
     );
-    const { getMessages, contactIsLoading } = useContext(MessageContext);
+    const { getMessages, contactIsLoading, loadMoreMessages } =
+        useContext(MessageContext);
     const { lastMessageAction } = useContext(ModalContext);
 
     const [isProfileConfigured, setIsProfileConfigured] =
@@ -142,44 +144,79 @@ export function Chat() {
                                 ? 'chat-height-small'
                                 : 'chat-height-high',
                         )}
+                        style={{
+                            overflow: 'auto',
+                            display: 'flex',
+                            flexDirection: 'column-reverse',
+                        }}
                     >
-                        {messages.length > 0 &&
-                            messages.map(
-                                (
-                                    storageEnvelopContainer: MessageModel,
-                                    index,
-                                ) => (
-                                    <div key={index} className="mt-2">
-                                        <Message
-                                            message={
-                                                storageEnvelopContainer.envelop
-                                                    .message.message ?? ''
-                                            }
-                                            time={
-                                                storageEnvelopContainer.envelop.message.metadata?.timestamp.toString() ??
-                                                '0'
-                                            }
-                                            messageState={
-                                                storageEnvelopContainer.messageState
-                                            }
-                                            ownMessage={
-                                                storageEnvelopContainer.envelop
-                                                    .message.metadata?.from ===
-                                                account!.ensName
-                                            }
-                                            envelop={
-                                                storageEnvelopContainer.envelop
-                                            }
-                                            reactions={
-                                                storageEnvelopContainer.reactions
-                                            }
-                                            replyToMessageEnvelop={
-                                                storageEnvelopContainer.replyToMessageEnvelop
-                                            }
-                                        />
-                                    </div>
-                                ),
-                            )}
+                        <InfiniteScroll
+                            dataLength={messages.length}
+                            next={() =>
+                                loadMoreMessages(
+                                    selectedContact?.contactDetails.account
+                                        .ensName!,
+                                )
+                            }
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column-reverse',
+                            }} //To put endMessage and loader to the top.
+                            inverse={true}
+                            hasMore={true}
+                            loader={
+                                <h4
+                                    style={{
+                                        fontSize: '14px',
+                                        textAlign: 'center',
+                                        color: 'white',
+                                    }}
+                                >
+                                    Loading old messages...
+                                </h4>
+                            }
+                            scrollableTarget="chat-box"
+                        >
+                            {messages.length > 0 &&
+                                messages.map(
+                                    (
+                                        storageEnvelopContainer: MessageModel,
+                                        index,
+                                    ) => (
+                                        <div key={index} className="mt-2">
+                                            <Message
+                                                message={
+                                                    storageEnvelopContainer
+                                                        .envelop.message
+                                                        .message ?? ''
+                                                }
+                                                time={
+                                                    storageEnvelopContainer.envelop.message.metadata?.timestamp.toString() ??
+                                                    '0'
+                                                }
+                                                messageState={
+                                                    storageEnvelopContainer.messageState
+                                                }
+                                                ownMessage={
+                                                    storageEnvelopContainer
+                                                        .envelop.message
+                                                        .metadata?.from ===
+                                                    account!.ensName
+                                                }
+                                                envelop={
+                                                    storageEnvelopContainer.envelop
+                                                }
+                                                reactions={
+                                                    storageEnvelopContainer.reactions
+                                                }
+                                                replyToMessageEnvelop={
+                                                    storageEnvelopContainer.replyToMessageEnvelop
+                                                }
+                                            />
+                                        </div>
+                                    ),
+                                )}
+                        </InfiniteScroll>
                     </div>
 
                     {/* Message, emoji and file attachments */}

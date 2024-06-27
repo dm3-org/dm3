@@ -90,12 +90,14 @@ export const useBackend = (): IBackendConnector & {
             ensName: string,
             encryptedContactName: string,
             messageId: string,
+            createdAt: number,
             encryptedEnvelopContainer: string,
         ) => {
             return beConnector?.addMessage(
                 ensName,
                 encryptedContactName,
                 messageId,
+                createdAt,
                 encryptedEnvelopContainer,
             );
         },

@@ -225,10 +225,10 @@ export function Contacts() {
                                                             </div>
                                                         </div>
                                                     )}
-
+                                                {/* //TODO add loading state for message */}
                                                 {selectedContact?.contactDetails
                                                     .account.ensName === id ? (
-                                                    selectedContact.message !==
+                                                    selectedContact.message ===
                                                     null ? (
                                                         <div>
                                                             <div className="action-container">

@@ -29,6 +29,7 @@ export type BackendContextType = {
         ensName: string,
         encryptedContactName: string,
         messageId: string,
+        createdAt: number,
         encryptedEnvelopContainer: string,
     ) => Promise<void>;
     addMessageBatch: (

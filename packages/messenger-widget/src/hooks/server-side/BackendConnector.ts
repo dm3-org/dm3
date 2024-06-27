@@ -74,12 +74,14 @@ export class BackendConnector
         ensName: string,
         encryptedContactName: string,
         messageId: string,
+        createdAt: number,
         encryptedEnvelopContainer: string,
     ) {
         const url = `/storage/new/${normalizeEnsName(ensName)}/addMessage`;
         await this.getAuthenticatedAxiosClient().post(url, {
             encryptedContactName,
             messageId,
+            createdAt,
             encryptedEnvelopContainer,
         });
     }

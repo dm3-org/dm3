@@ -83,11 +83,15 @@ export const getCloudStorage = (
             JSON.stringify(envelop),
         );
 
+        //The client defines the createdAt timestamp for the message so it can be used to sort the messages
+        const createdAt = Date.now();
+
         await backendConnector.addMessage(
             ensName,
             encryptedContactName,
             envelop.envelop.metadata?.encryptedMessageHash! ??
                 envelop.envelop.id,
+            createdAt,
             encryptedEnvelopContainer,
         );
 

@@ -25,6 +25,7 @@ export interface IBackendConnector {
         ensName: string,
         encryptedContactName: string,
         messageId: string,
+        createdAt: number,
         encryptedEnvelopContainer: string,
     ): Promise<void>;
     addMessageBatch(
