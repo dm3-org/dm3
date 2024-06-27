@@ -17,24 +17,26 @@ export const getCloudStorage = (
         );
     };
 
-    const getConversationList = async (page: number) => {
-        const encryptedConversations = await backendConnector.getConversations(
+    const getConversations = async (size: number, offset: number) => {
+        const conversations = await backendConnector.getConversations(
             ensName,
+            size,
+            offset,
         );
 
         return await Promise.all(
-            encryptedConversations.map(
-                async (encryptedContactName: string) => ({
-                    contactEnsName: await encryption.decryptSync(
-                        encryptedContactName,
-                    ),
-                    isHidden: false,
-                    messageCounter: 0,
-                }),
-            ),
+            conversations.map(async ({ contact }: { contact: string }) => ({
+                contactEnsName: await encryption.decryptSync(contact),
+                isHidden: false,
+                messageCounter: 0,
+            })),
         );
     };
-    const getMessages = async (contactEnsName: string, page: number) => {
+    const getMessages = async (
+        contactEnsName: string,
+        pageSize: number,
+        offset: number,
+    ) => {
         const encryptedContactName = await encryption.encryptSync(
             contactEnsName,
         );
@@ -42,7 +44,8 @@ export const getCloudStorage = (
         const messageRecords = await backendConnector.getMessagesFromStorage(
             ensName,
             encryptedContactName,
-            page,
+            pageSize,
+            offset,
         );
         const decryptedMessageRecords = await Promise.all(
             messageRecords.map(async (messageRecord: MessageRecord) => {
@@ -174,7 +177,7 @@ export const getCloudStorage = (
 
     return {
         addConversation: _addConversation,
-        getConversationList,
+        getConversations,
         getMessages,
         addMessage: _addMessage,
         addMessageBatch: _addMessageBatch,

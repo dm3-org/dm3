@@ -1,8 +1,6 @@
 import {
     StorageEnvelopContainer as StorageEnvelopContainerNew,
     getCloudStorage,
-    load,
-    migrageStorage,
 } from '@dm3-org/dm3-lib-storage';
 
 import {
@@ -13,14 +11,9 @@ import {
     encryptAsymmetric,
 } from '@dm3-org/dm3-lib-crypto';
 import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
-import { IBackendConnector, sha256, stringify } from '@dm3-org/dm3-lib-shared';
-import {
-    Conversation,
-    StorageAPI,
-} from '@dm3-org/dm3-lib-storage/dist/new/types';
-import { useContext, useEffect, useState } from 'react';
-import axios from 'axios';
-import { TLDContext } from '../../context/TLDContext';
+import { sha256, stringify } from '@dm3-org/dm3-lib-shared';
+import { Conversation, StorageAPI } from '@dm3-org/dm3-lib-storage';
+import { useEffect, useState } from 'react';
 import { BackendContextType } from '../../context/BackendContext';
 
 //Handels storage sync and offers an interface for other hooks to interact with the storage
@@ -29,7 +22,6 @@ export const useStorage = (
     backendContext: BackendContextType,
     profileKeys: ProfileKeys | undefined,
 ) => {
-    const { resolveTLDtoAlias } = useContext(TLDContext);
     const [storageApi, setStorageApi] = useState<StorageAPI | undefined>(
         undefined,
     );
@@ -129,11 +121,11 @@ export const useStorage = (
         }
         await storageApi.addMessageBatch(contact, batch);
     };
-    const getConversations = async (page: number) => {
+    const getConversations = async (size: number, offset: number) => {
         if (!storageApi) {
             return Promise.resolve([]);
         }
-        return storageApi.getConversationList(page);
+        return storageApi.getConversations(size, offset);
     };
 
     const addConversationAsync = (contact: string) => {
@@ -142,11 +134,15 @@ export const useStorage = (
         }
         storageApi.addConversation(contact);
     };
-    const getMessages = async (contact: string, page: number) => {
+    const getMessages = async (
+        contact: string,
+        pageSize: number,
+        offset: number,
+    ) => {
         if (!storageApi) {
             return Promise.resolve([]);
         }
-        return storageApi.getMessages(contact, page);
+        return storageApi.getMessages(contact, pageSize, offset);
     };
 
     const getNumberOfMessages = async (contact: string) => {
@@ -188,11 +184,15 @@ export type StoreMessageBatch = (
     contact: string,
     batch: StorageEnvelopContainerNew[],
 ) => Promise<void>;
-export type GetConversations = (page: number) => Promise<Conversation[]>;
+export type GetConversations = (
+    size: number,
+    offset: number,
+) => Promise<Conversation[]>;
 export type AddConversation = (contact: string) => void;
 export type GetMessages = (
     contact: string,
-    page: number,
+    pageSize: number,
+    offset: number,
 ) => Promise<StorageEnvelopContainerNew[]>;
 export type GetNumberOfMessages = (contact: string) => Promise<number>;
 export type ToggleHideContactAsync = (contact: string, value: boolean) => void;

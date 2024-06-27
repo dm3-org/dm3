@@ -12,22 +12,23 @@ import { DeliveryServiceContext } from '../../context/DeliveryServiceContext';
 import { StorageContext } from '../../context/StorageContext';
 import { TLDContext } from '../../context/TLDContext';
 import { DM3Configuration } from '../../interfaces/config';
-import { ContactPreview, getDefaultContract } from '../../interfaces/utils';
+import { ContactPreview, getEmptyContact } from '../../interfaces/utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
+
+const DEFAULT_CONVERSATION_PAGE_SIZE = 1;
 
 export const useConversation = (config: DM3Configuration) => {
     const mainnetProvider = useMainnetProvider();
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const { account } = useContext(AuthContext);
     const {
-        getDeliveryServiceProperties,
         fetchIncommingMessages,
         isInitialized: deliveryServiceInitialized,
     } = useContext(DeliveryServiceContext);
     const {
-        getConversations,
-        addConversationAsync,
+        getConversations: getConversationsFromStorage,
+        addConversationAsync: storeConversationAsync,
         initialized: storageInitialized,
         toggleHideContactAsync,
     } = useContext(StorageContext);
@@ -71,7 +72,7 @@ export const useConversation = (config: DM3Configuration) => {
         setConversationsInitialized(false);
         setSelectedContactName(undefined);
         setContacts([]);
-        const init = async (page: number = 0) => {
+        const init = async () => {
             if (
                 !account ||
                 !storageInitialized ||
@@ -79,37 +80,34 @@ export const useConversation = (config: DM3Configuration) => {
             ) {
                 return;
             }
-            const currentConversationsPage = await getConversations(page);
 
-            //Hydrate the contacts by fetching their profile and DS profile
-            const storedContacts = await Promise.all(
-                currentConversationsPage.map((conversation) => {
-                    const isHidden = conversation.isHidden;
-                    //Hydrating is the most expensive operation. Hence we only hydrate if the contact is not hidden
-                    if (isHidden) {
-                        //If the contact is hidden we only return the contact with the default values. Once its unhidden it will be hydrated
-                        return {
-                            ...getDefaultContract(conversation.contactEnsName),
-                            isHidden: true,
-                        };
-                    }
-                    return hydrateContract(
-                        mainnetProvider,
-                        conversation,
-                        resolveAliasToTLD,
-                        dm3Configuration.addressEnsSubdomain,
+            const conversations = await Promise.all([
+                //Get the last 5 conversations from the storage
+                getConversationsFromStorage(DEFAULT_CONVERSATION_PAGE_SIZE, 0),
+                //Get the conversations that have been added to the DS in absence of the user
+                getConversationsFromDeliveryService(),
+            ]);
+
+            //Flatten the conversations and remove duplicates
+            conversations
+                .flat()
+                .filter(
+                    (conversation, index, self) =>
+                        index ===
+                        self.findIndex(
+                            (t) =>
+                                t.contactEnsName ===
+                                conversation.contactEnsName,
+                        ),
+                )
+                //Add the conversations to the list
+                .forEach((conversation) => {
+                    _addConversation(
+                        conversation.contactEnsName,
+                        conversation.isHidden,
                     );
-                }),
-            );
+                });
 
-            /**
-             * It might be the case that contacts are added via websocket.
-             * In this case we do not want to add them again
-             */
-            _setContactsSafe(storedContacts);
-
-            //Conversation that have been added to the DS in absence of the user will be fetched and added to the conversation list using the handlePendingConversations method
-            await handlePendingConversations();
             initDefaultContact();
             setConversationsInitialized(true);
         };
@@ -153,7 +151,9 @@ export const useConversation = (config: DM3Configuration) => {
         }
     };
 
-    const handlePendingConversations = async () => {
+    const getConversationsFromDeliveryService = async (): Promise<
+        Conversation[]
+    > => {
         //The DS does not exposes an endpoint to fetch pending conversations. Hence we're using the fetchIncommingMessages method.
         //We can make some optimizations here if we use the messages fetched from incommingMessages in useMessages aswell.
         //This would require a refactor of the useMessages away from a contact based model.
@@ -162,46 +162,59 @@ export const useConversation = (config: DM3Configuration) => {
             account?.ensName as string,
         );
         //Every pending conversation is going to be added to the conversation list
-        incommingMessages.forEach((pendingMessage: EncryptionEnvelop) => {
-            const sender = (
-                pendingMessage.metadata
-                    .deliveryInformation as DeliveryInformation
-            ).from;
-            addConversation(sender);
-        });
+        return (
+            incommingMessages
+                .map((pendingMessage: EncryptionEnvelop) => {
+                    const contactEnsName = (
+                        pendingMessage.metadata
+                            .deliveryInformation as DeliveryInformation
+                    ).from;
+
+                    return {
+                        contactEnsName,
+                        messageCounter: 0,
+                        isHidden: false,
+                    };
+                })
+                //filter duplicates
+                .filter((conversation: Conversation) => {
+                    return !contacts.some(
+                        (current) =>
+                            current.contactDetails.account.ensName ===
+                            conversation.contactEnsName,
+                    );
+                })
+        );
     };
 
     const addConversation = (_ensName: string) => {
-        const ensName = normalizeEnsName(_ensName);
-        //Check if the contact is the user itself
-        const isOwnContact = normalizeEnsName(account!.ensName) === ensName;
-        //We don't want to add ourselfs
-        if (isOwnContact) {
-            return;
-        }
-        const alreadyAddedContact = contacts.find(
-            (existingContact) =>
-                existingContact.contactDetails.account.ensName === ensName,
-        );
-        //If the contact is already in the list return it
-        if (alreadyAddedContact) {
-            //Unhide the contact if it was hidden
-            if (alreadyAddedContact.isHidden) {
-                unhideContact(alreadyAddedContact);
-            }
-            return alreadyAddedContact;
-        }
-
-        const newContact: ContactPreview = getDefaultContract(ensName);
-        //Set the new contact to the list
-        _setContactsSafe([newContact]);
+        //Adds the conversation to the conversation state
+        const conversationPreview = _addConversation(_ensName, false);
         //Add the contact to the storage in the background
-        addConversationAsync(ensName);
-        //Hydrate the contact in the background
-        hydrateExistingContactAsync(newContact);
+        storeConversationAsync(_ensName);
 
-        //Return the new onhydrated contact
-        return newContact;
+        return conversationPreview;
+    };
+
+    const loadMoreConversations = async () => {
+        const hasDefaultContact = config.defaultContact !== undefined;
+        //If a default contact is set we have to subtract one from the conversation count since its not part of the conversation list
+        const conversationCount = hasDefaultContact
+            ? contacts.length - 1
+            : contacts.length;
+        //We calculate the offset based on the conversation count divided by the default page size
+        //offset * pagesize equals the amount of conversations that will be skipped
+        const offset = conversationCount / DEFAULT_CONVERSATION_PAGE_SIZE;
+        const conversations = await getConversationsFromStorage(
+            DEFAULT_CONVERSATION_PAGE_SIZE,
+            Math.floor(offset),
+        );
+        conversations.forEach((conversation) => {
+            _addConversation(
+                conversation.contactEnsName,
+                conversation.isHidden,
+            );
+        });
     };
 
     /**
@@ -234,7 +247,22 @@ export const useConversation = (config: DM3Configuration) => {
         });
     };
 
-    const toggleHideContact = (_ensName: string, isHidden: boolean) => {
+    const hideContact = (_ensName: string) => {
+        const ensName = normalizeEnsName(_ensName);
+        _toggleHideContact(ensName, true);
+        setSelectedContactName(undefined);
+    };
+
+    const unhideContact = (contact: ContactPreview) => {
+        _toggleHideContact(contact.contactDetails.account.ensName, false);
+        const unhiddenContact = {
+            ...contact,
+            isHidden: false,
+        };
+        setSelectedContactName(unhiddenContact.contactDetails.account.ensName);
+        hydrateExistingContactAsync(unhiddenContact);
+    };
+    const _toggleHideContact = (_ensName: string, isHidden: boolean) => {
         const ensName = normalizeEnsName(_ensName);
         setContacts((prev) => {
             return prev.map((existingContact) => {
@@ -253,27 +281,41 @@ export const useConversation = (config: DM3Configuration) => {
         //update the storage
         toggleHideContactAsync(ensName, isHidden);
     };
-
-    const hideContact = (_ensName: string) => {
+    const _addConversation = (_ensName: string, isHidden: boolean) => {
         const ensName = normalizeEnsName(_ensName);
-        toggleHideContact(ensName, true);
-        setSelectedContactName(undefined);
-    };
+        //Check if the contact is the user itself
+        const isOwnContact = normalizeEnsName(account!.ensName) === ensName;
+        //We don't want to add ourselfs
+        if (isOwnContact) {
+            return;
+        }
+        const alreadyAddedContact = contacts.find(
+            (existingContact) =>
+                existingContact.contactDetails.account.ensName === ensName,
+        );
+        //If the contact is already in the list return it
+        if (alreadyAddedContact) {
+            //Unhide the contact if it was hidden
+            if (alreadyAddedContact.isHidden) {
+                unhideContact(alreadyAddedContact);
+            }
+            return alreadyAddedContact;
+        }
 
-    const unhideContact = (contact: ContactPreview) => {
-        toggleHideContact(contact.contactDetails.account.ensName, false);
-        const unhiddenContact = {
-            ...contact,
-            isHidden: false,
-        };
-        setSelectedContactName(unhiddenContact.contactDetails.account.ensName);
-        hydrateExistingContactAsync(unhiddenContact);
-    };
+        const newContact: ContactPreview = getEmptyContact(ensName, isHidden);
+        //Set the new contact to the list
+        _setContactsSafe([newContact]);
+        //Hydrate the contact in the background
+        hydrateExistingContactAsync(newContact);
 
+        //Return the new onhydrated contact
+        return newContact;
+    };
     return {
         contacts,
         conversationCount,
         addConversation,
+        loadMoreConversations,
         initialized: conversationsInitialized,
         setSelectedContactName,
         selectedContact,

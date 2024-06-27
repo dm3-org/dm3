@@ -1,10 +1,11 @@
 import { Envelop, MessageState } from '@dm3-org/dm3-lib-messaging';
 
 export interface StorageAPI {
-    getConversationList: (page: number) => Promise<Conversation[]>;
+    getConversations: (size: number, offset: number) => Promise<Conversation[]>;
     getMessages: (
         contactEnsName: string,
-        page: number,
+        pageSize: number,
+        offset: number,
     ) => Promise<StorageEnvelopContainer[]>;
     addMessageBatch: (
         contactEnsName: string,

@@ -12,10 +12,8 @@ export const handleMessagesFromStorage = async (
     });
     const MAX_MESSAGES_PER_CHUNK = 100;
     const numberOfmessages = await getNumberOfMessages(contactName);
-    const storedMessages = await getMessagesFromStorage(
-        contactName,
-        Math.floor(numberOfmessages / MAX_MESSAGES_PER_CHUNK),
-    );
+    const storedMessages = await getMessagesFromStorage(contactName, 100, 0);
+
     return storedMessages.map(
         (message) =>
             ({

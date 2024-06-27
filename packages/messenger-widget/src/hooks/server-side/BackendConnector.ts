@@ -15,13 +15,22 @@ export class BackendConnector
             encryptedContactName,
         });
     }
-    public async getConversations(ensName: string) {
+    public async getConversations(
+        ensName: string,
+        pageSize: number,
+        offset: number,
+    ) {
         const url = `/storage/new/${normalizeEnsName(
             ensName,
         )}/getConversations`;
         const axios = this.getAuthenticatedAxiosClient();
 
-        const { data } = await axios.get(url);
+        const { data } = await axios.get(url, {
+            params: {
+                pageSize,
+                offset,
+            },
+        });
         return data ?? [];
     }
     public async toggleHideConversation(
@@ -40,13 +49,19 @@ export class BackendConnector
     public async getMessagesFromStorage(
         ensName: string,
         encryptedContactName: string,
-        pageNumber: number,
+        pageSize: number,
+        offset: number,
     ) {
         const url = `/storage/new/${normalizeEnsName(
             ensName,
-        )}/getMessages/${encryptedContactName}/${pageNumber}`;
+        )}/getMessages/${encryptedContactName}`;
 
-        const { data } = await this.getAuthenticatedAxiosClient().get(url);
+        const { data } = await this.getAuthenticatedAxiosClient().get(url, {
+            params: {
+                pageSize,
+                offset,
+            },
+        });
 
         return (
             data.map((message: any) => {
