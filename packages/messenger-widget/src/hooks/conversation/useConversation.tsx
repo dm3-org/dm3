@@ -195,7 +195,7 @@ export const useConversation = (config: DM3Configuration) => {
         return conversationPreview;
     };
 
-    const loadMoreConversations = async () => {
+    const loadMoreConversations = async (): Promise<number> => {
         const hasDefaultContact = config.defaultContact;
         //If a default contact is set we have to subtract one from the conversation count since its not part of the conversation list
         const conversationCount = hasDefaultContact
@@ -209,12 +209,15 @@ export const useConversation = (config: DM3Configuration) => {
             DEFAULT_CONVERSATION_PAGE_SIZE,
             Math.floor(offset),
         );
+
         conversations.forEach((conversation) => {
             _addConversation(
                 conversation.contactEnsName,
                 conversation.isHidden,
             );
         });
+
+        return conversations.length;
     };
 
     /**
