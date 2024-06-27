@@ -24,8 +24,6 @@ export interface ContactPreview {
     name: string;
     message: string | null;
     image: string;
-    unreadMsgCount: number;
-    messageCount: number;
     contactDetails: Contact;
     isHidden: boolean;
     messageSizeLimit: number;
@@ -55,8 +53,6 @@ export const getEmptyContact = (ensName: string, isHidden: boolean = false) => {
         name: getAccountDisplayName(ensName, 25),
         message: null,
         image: humanIcon,
-        unreadMsgCount: 0,
-        messageCount: 0,
         contactDetails: {
             account: {
                 ensName,

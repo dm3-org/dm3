@@ -38,6 +38,7 @@ export const getMockedStorageContext = (
                     contactEnsName: 'max.eth',
                     isHidden: false,
                     messageCounter: 1,
+                    previewMessage: null,
                 },
             ]);
         },
@@ -49,7 +50,8 @@ export const getMockedStorageContext = (
         },
         getMessages: function (
             contact: string,
-            page: number,
+            pageSize: number,
+            offset: number,
         ): Promise<StorageEnvelopContainer[]> {
             throw new Error('Function not implemented.');
         },
