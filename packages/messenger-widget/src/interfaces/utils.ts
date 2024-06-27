@@ -48,10 +48,14 @@ export interface IAttachmentPreview {
     isImage: boolean;
 }
 
-export const getEmptyContact = (ensName: string, isHidden: boolean = false) => {
+export const getEmptyContact = (
+    ensName: string,
+    message: string | null,
+    isHidden: boolean = false,
+) => {
     const newContact: ContactPreview = {
         name: getAccountDisplayName(ensName, 25),
-        message: null,
+        message,
         image: humanIcon,
         contactDetails: {
             account: {

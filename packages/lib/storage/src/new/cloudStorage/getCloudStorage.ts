@@ -38,7 +38,9 @@ export const getCloudStorage = (
                     isHidden: false,
                     messageCounter: 0,
                     previewMessage: previewMessage
-                        ? await encryption.decryptSync(previewMessage)
+                        ? JSON.parse(
+                              await encryption.decryptAsync(previewMessage),
+                          )
                         : null,
                 }),
             ),

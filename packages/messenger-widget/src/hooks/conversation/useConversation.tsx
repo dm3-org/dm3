@@ -2,6 +2,7 @@
 import {
     DeliveryInformation,
     EncryptionEnvelop,
+    Envelop,
 } from '@dm3-org/dm3-lib-messaging';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { Conversation } from '@dm3-org/dm3-lib-storage/dist/new/types';
@@ -15,6 +16,7 @@ import { DM3Configuration } from '../../interfaces/config';
 import { ContactPreview, getEmptyContact } from '../../interfaces/utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
+import { StorageEnvelopContainer } from '@dm3-org/dm3-lib-storage/dist/Storage';
 
 const DEFAULT_CONVERSATION_PAGE_SIZE = 10;
 
@@ -88,8 +90,6 @@ export const useConversation = (config: DM3Configuration) => {
                 getConversationsFromDeliveryService(),
             ]);
 
-            console.log('conversations', conversations);
-
             //Flatten the conversations and remove duplicates
             conversations
                 .flat()
@@ -103,12 +103,7 @@ export const useConversation = (config: DM3Configuration) => {
                         ),
                 )
                 //Add the conversations to the list
-                .forEach((conversation) => {
-                    _addConversation(
-                        conversation.contactEnsName,
-                        conversation.isHidden,
-                    );
-                });
+                .forEach((conversation) => _addConversation(conversation));
 
             initDefaultContact();
             setConversationsInitialized(true);
@@ -189,12 +184,16 @@ export const useConversation = (config: DM3Configuration) => {
     };
 
     const addConversation = (_ensName: string) => {
-        const contact = normalizeEnsName(_ensName);
+        const contactEnsName = normalizeEnsName(_ensName);
+        const newConversation: Conversation = {
+            contactEnsName,
+            isHidden: false,
+            previewMessage: null,
+        };
         //Adds the conversation to the conversation state
-        const conversationPreview = _addConversation(contact, false);
+        const conversationPreview = _addConversation(newConversation);
         //Add the contact to the storage in the background
-        storeConversationAsync(contact);
-
+        storeConversationAsync(contactEnsName);
         return conversationPreview;
     };
 
@@ -213,13 +212,8 @@ export const useConversation = (config: DM3Configuration) => {
             Math.floor(offset),
         );
 
-        conversations.forEach((conversation) => {
-            _addConversation(
-                conversation.contactEnsName,
-                conversation.isHidden,
-            );
-        });
-
+        //add every conversation
+        conversations.forEach((conversation) => _addConversation(conversation));
         return conversations.length;
     };
 
@@ -287,8 +281,8 @@ export const useConversation = (config: DM3Configuration) => {
         //update the storage
         toggleHideContactAsync(ensName, isHidden);
     };
-    const _addConversation = (_ensName: string, isHidden: boolean) => {
-        const ensName = normalizeEnsName(_ensName);
+    const _addConversation = (conversation: Conversation) => {
+        const ensName = normalizeEnsName(conversation.contactEnsName);
         //Check if the contact is the user itself
         const isOwnContact = normalizeEnsName(account!.ensName) === ensName;
         //We don't want to add ourselfs
@@ -308,7 +302,18 @@ export const useConversation = (config: DM3Configuration) => {
             return alreadyAddedContact;
         }
 
-        const newContact: ContactPreview = getEmptyContact(ensName, isHidden);
+        //If the conversation already contains messages the preview message is the last message. The backend attaches that message to the conversation so we can use it here and safe a request to fetch the messages
+        const previewMessage = conversation.previewMessage
+            ? (
+                  conversation.previewMessage as unknown as StorageEnvelopContainer
+              ).envelop.message.message ?? ''
+            : null;
+
+        const newContact: ContactPreview = getEmptyContact(
+            ensName,
+            previewMessage,
+            conversation.isHidden,
+        );
         //Set the new contact to the list
         _setContactsSafe([newContact]);
         //Hydrate the contact in the background

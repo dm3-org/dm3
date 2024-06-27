@@ -347,32 +347,31 @@ export const useMessage = () => {
     };
 
     const loadInitialMessages = async (_contactName: string) => {
-        const contactName = normalizeEnsName(_contactName);
-        const initialMessages = await Promise.all([
-            handleMessagesFromStorage(
-                setContactsLoading,
-                getMessagesFromStorage,
-                contactName,
-                DEFAULT_MESSAGE_PAGESIZE,
-                //For the first page we use 0 as offset
-                0,
-            ),
-            handleMessagesFromDeliveryService(
-                account!,
-                profileKeys!,
-                addConversation,
-                storeMessageBatch,
-                contactName,
-                fetchNewMessages,
-                syncAcknowledgment,
-            ),
-        ]);
-        const flatten = initialMessages.reduce(
-            (acc, val) => acc.concat(val),
-            [],
-        );
-
-        await _addMessages(contactName, flatten);
+        // const contactName = normalizeEnsName(_contactName);
+        // const initialMessages = await Promise.all([
+        //     handleMessagesFromStorage(
+        //         setContactsLoading,
+        //         getMessagesFromStorage,
+        //         contactName,
+        //         DEFAULT_MESSAGE_PAGESIZE,
+        //         //For the first page we use 0 as offset
+        //         0,
+        //     ),
+        //     handleMessagesFromDeliveryService(
+        //         account!,
+        //         profileKeys!,
+        //         addConversation,
+        //         storeMessageBatch,
+        //         contactName,
+        //         fetchNewMessages,
+        //         syncAcknowledgment,
+        //     ),
+        // ]);
+        // const flatten = initialMessages.reduce(
+        //     (acc, val) => acc.concat(val),
+        //     [],
+        // );
+        // await _addMessages(contactName, flatten);
     };
 
     const loadMoreMessages = async (_contactName: string) => {

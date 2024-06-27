@@ -10,7 +10,10 @@ import {
 } from '../../utils/enum-type-utils';
 import { ContactMenu } from '../ContactMenu/ContactMenu';
 import { showMenuInBottom } from './bl';
-import { getAccountDisplayName } from '@dm3-org/dm3-lib-profile';
+import {
+    getAccountDisplayName,
+    normalizeEnsName,
+} from '@dm3-org/dm3-lib-profile';
 import { ContactPreview } from '../../interfaces/utils';
 import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { UiViewContext } from '../../context/UiViewContext';
@@ -98,12 +101,19 @@ export function Contacts() {
         });
     }
 
-    const getPreviewMessage = (contact: string) => {
-        const messages = getMessages(contact);
+    const getPreviewMessage = (contactEnsName: string) => {
+        const _contact = normalizeEnsName(contactEnsName);
+        const messages = getMessages(_contact);
+
         if (messages?.length > 0) {
             return messages[messages.length - 1].envelop.message.message ?? '';
         }
-        return '';
+        const contact = contacts.find(
+            (c) => c.contactDetails.account.ensName === _contact,
+        );
+        const previewMessage = contact?.message;
+        console.log('previewMessage', previewMessage);
+        return previewMessage ?? '';
     };
 
     return (
