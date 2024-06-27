@@ -20,7 +20,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 export function Contacts() {
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
     const { getMessages, getUnreadMessageCount } = useContext(MessageContext);
-    const { selectedRightView, setSelectedRightView } =
+    const { selectedRightView, setSelectedRightView, setSelectedLeftView } =
         useContext(UiViewContext);
     const {
         contacts,
@@ -33,6 +33,15 @@ export function Contacts() {
     const [isMenuAlignedAtBottom, setIsMenuAlignedAtBottom] = useState<
         boolean | null
     >(null);
+
+    const [hasMoreContact, setHasMoreContact] = useState<boolean>(true);
+
+    const getMoreContacts = async () => {
+        const newContactsCount = await loadMoreConversations();
+        if (!newContactsCount) {
+            setHasMoreContact(false);
+        }
+    };
 
     useEffect(() => {
         if (
@@ -100,28 +109,22 @@ export function Contacts() {
     return (
         <div
             id="chat-scroller"
-            className={'contacts-scroller width-fill'.concat(
-                ' ',
-                contacts.length > 6 ? 'scroller-active' : 'scroller-hidden',
-            )}
-            style={{
-                overflow: 'auto',
-                display: 'flex',
-                flexDirection: 'column-reverse',
-            }}
+            className={'contacts-scroller width-fill scroller-active'}
         >
             <InfiniteScroll
                 dataLength={contacts.length}
-                next={loadMoreConversations}
+                next={getMoreContacts}
                 style={{
                     display: 'flex',
-                    flexDirection: 'column-reverse',
+                    flexDirection: 'column',
+                    overflow: 'hidden',
                 }}
-                inverse={true}
-                hasMore={true}
+                inverse={false}
+                hasMore={hasMoreContact}
                 loader={
                     <h4
                         style={{
+                            marginTop: '1rem',
                             fontSize: '14px',
                             textAlign: 'center',
                             color: 'white',
@@ -287,7 +290,7 @@ export function Contacts() {
             </InfiniteScroll>
 
             {/* Hidden content for highlighting css */}
-            {hiddenData.map((data) => (
+            {/* {hiddenData.map((data) => (
                 <div
                     key={data}
                     className={
@@ -298,7 +301,7 @@ export function Contacts() {
                 >
                     <div className="hidden-data"></div>
                 </div>
-            ))}
+            ))} */}
         </div>
     );
 }
