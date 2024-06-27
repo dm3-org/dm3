@@ -16,7 +16,7 @@ import { ContactPreview, getEmptyContact } from '../../interfaces/utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
 
-const DEFAULT_CONVERSATION_PAGE_SIZE = 1;
+const DEFAULT_CONVERSATION_PAGE_SIZE = 10;
 
 export const useConversation = (config: DM3Configuration) => {
     const mainnetProvider = useMainnetProvider();
@@ -197,7 +197,7 @@ export const useConversation = (config: DM3Configuration) => {
     };
 
     const loadMoreConversations = async () => {
-        const hasDefaultContact = config.defaultContact !== undefined;
+        const hasDefaultContact = config.defaultContact;
         //If a default contact is set we have to subtract one from the conversation count since its not part of the conversation list
         const conversationCount = hasDefaultContact
             ? contacts.length - 1
@@ -205,6 +205,7 @@ export const useConversation = (config: DM3Configuration) => {
         //We calculate the offset based on the conversation count divided by the default page size
         //offset * pagesize equals the amount of conversations that will be skipped
         const offset = conversationCount / DEFAULT_CONVERSATION_PAGE_SIZE;
+        console.log('load more conversations', conversationCount, offset);
         const conversations = await getConversationsFromStorage(
             DEFAULT_CONVERSATION_PAGE_SIZE,
             Math.floor(offset),

@@ -326,6 +326,77 @@ describe('useConversation hook test cases', () => {
         });
     });
 
+    describe('load more conversations', () => {
+        it('Should load more conversations', async () => {
+            const authContext: AuthContextType = getMockedAuthContext({
+                account: {
+                    ensName: 'alice.eth',
+                    profile: {
+                        deliveryServices: ['ds.eth'],
+                        publicEncryptionKey: '',
+                        publicSigningKey: '',
+                    },
+                },
+            });
+
+            const storageContext: StorageContextType = getMockedStorageContext({
+                getConversations: function (
+                    pageSize: number,
+                    offset: number,
+                ): Promise<Conversation[]> {
+                    return Promise.resolve(
+                        Array.from({ length: pageSize }, (_, i) => {
+                            return {
+                                //Use offset here to create a distinct contactEnsName
+                                contactEnsName: 'contact ' + i + offset,
+                                isHidden: false,
+                                messageCounter: 0,
+                            };
+                        }),
+                    );
+                },
+                addConversationAsync: jest.fn(),
+                initialized: true,
+            });
+            const deliveryServiceContext: DeliveryServiceContextType =
+                getMockedDeliveryServiceContext({
+                    fetchIncommingMessages: function (ensName: string) {
+                        return Promise.resolve([]);
+                    },
+                    getDeliveryServiceProperties: function (): Promise<any[]> {
+                        return Promise.resolve([{ sizeLimit: 0 }]);
+                    },
+                    isInitialized: true,
+                });
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <StorageContext.Provider value={storageContext}>
+                            <DeliveryServiceContext.Provider
+                                value={deliveryServiceContext}
+                            >
+                                {children}
+                            </DeliveryServiceContext.Provider>
+                        </StorageContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useConversation(config), {
+                wrapper,
+            });
+
+            await waitFor(() => result.current.initialized);
+            await waitFor(() => result.current.contacts.length > 1);
+            expect(result.current.contacts.length).toBe(10);
+
+            await act(async () => result.current.loadMoreConversations());
+            await waitFor(() => result.current.contacts.length > 10);
+            expect(result.current.contacts.length).toBe(20);
+        });
+    });
+
     describe('add conversation', () => {
         it('Should add multiple contacts', async () => {
             const authContext: AuthContextType = getMockedAuthContext({
@@ -837,6 +908,7 @@ describe('useConversation hook test cases', () => {
                     return Promise.resolve(sender.address);
                 },
                 getResolver: (ensName: string) => {
+                    console.log('mock resolver for ', ensName);
                     if (ensName === sender.account.ensName) {
                         return {
                             getText: () => sender.stringified,
@@ -884,7 +956,12 @@ describe('useConversation hook test cases', () => {
                 wrapper,
             });
             await waitFor(() => expect(result.current.initialized).toBe(true));
-
+            await waitFor(() =>
+                expect(
+                    result.current.contacts[0].contactDetails
+                        .deliveryServiceProfiles.length,
+                ).toBe(2),
+            );
             expect(
                 result.current.contacts[0].contactDetails
                     .deliveryServiceProfiles[0],
