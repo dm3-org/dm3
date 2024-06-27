@@ -4,7 +4,7 @@ import {
     Envelop,
     MessageState,
 } from '@dm3-org/dm3-lib-messaging';
-import { MessageModel } from '../useMessage';
+import { MessageModel, MessageSource } from '../useMessage';
 import { Account, ProfileKeys } from '@dm3-org/dm3-lib-profile';
 import { AddConversation, StoreMessageBatch } from '../../storage/useStorage';
 import { Acknoledgment } from '@dm3-org/dm3-lib-delivery';
@@ -30,30 +30,33 @@ export const handleMessagesFromDeliveryService = async (
     );
 
     const incommingMessages: MessageModel[] = await Promise.all(
-        encryptedIncommingMessages.map(async (envelop: EncryptionEnvelop) => {
-            const decryptedEnvelop: Envelop = {
-                message: JSON.parse(
-                    await decryptAsymmetric(
-                        profileKeys?.encryptionKeyPair!,
-                        JSON.parse(envelop.message),
+        encryptedIncommingMessages.map(
+            async (envelop: EncryptionEnvelop): Promise<MessageModel> => {
+                const decryptedEnvelop: Envelop = {
+                    message: JSON.parse(
+                        await decryptAsymmetric(
+                            profileKeys?.encryptionKeyPair!,
+                            JSON.parse(envelop.message),
+                        ),
                     ),
-                ),
-                postmark: JSON.parse(
-                    await decryptAsymmetric(
-                        profileKeys?.encryptionKeyPair!,
-                        JSON.parse(envelop.postmark!),
+                    postmark: JSON.parse(
+                        await decryptAsymmetric(
+                            profileKeys?.encryptionKeyPair!,
+                            JSON.parse(envelop.postmark!),
+                        ),
                     ),
-                ),
-                metadata: envelop.metadata,
-            };
-            return {
-                envelop: decryptedEnvelop,
-                //Messages from the delivery service are already send by the sender
-                messageState: MessageState.Send,
-                messageChunkKey: '',
-                reactions: [],
-            };
-        }),
+                    metadata: envelop.metadata,
+                };
+                return {
+                    envelop: decryptedEnvelop,
+                    //Messages from the delivery service are already send by the sender
+                    messageState: MessageState.Send,
+                    reactions: [],
+                    //The source of the message is the delivery service
+                    source: MessageSource.DeliveryService,
+                };
+            },
+        ),
     );
 
     const messagesSortedASC = incommingMessages.sort((a, b) => {

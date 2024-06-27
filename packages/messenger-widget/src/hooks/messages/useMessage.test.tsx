@@ -645,4 +645,219 @@ describe('useMessage hook test cases', () => {
             expect(result.current.messages['alice.eth'].length).toBe(3);
         });
     });
+    describe('message pagination', () => {
+        let sender: MockedUserProfile;
+        let receiver: MockedUserProfile;
+        let ds: any;
+
+        beforeEach(async () => {
+            sender = await mockUserProfile(
+                ethers.Wallet.createRandom(),
+                'alice.eth',
+                ['https://example.com'],
+            );
+            receiver = await mockUserProfile(
+                ethers.Wallet.createRandom(),
+                'bob.eth',
+                ['https://example.com'],
+            );
+            ds = await getMockDeliveryServiceProfile(
+                ethers.Wallet.createRandom(),
+                'https://example.com',
+            );
+        });
+        it('should load more messages from Storage', async () => {
+            const messageFactory = MockMessageFactory(sender, receiver, ds);
+            //const messages
+            const storageContext = getMockedStorageContext({
+                editMessageBatchAsync: jest.fn(),
+                storeMessageBatch: jest.fn(),
+                storeMessage: jest.fn(),
+                getMessages: async (
+                    contactName: string,
+                    pageSize: number,
+                    offset: number,
+                ) =>
+                    Promise.all(
+                        Array.from({ length: pageSize }, (_, i) =>
+                            messageFactory.createStorageEnvelopContainer(
+                                'hello dm3 ' + i + offset,
+                            ),
+                        ),
+                    ),
+            });
+            const conversationContext = getMockedConversationContext({
+                selectedContact: getEmptyContact('max.eth'),
+                contacts: [getEmptyContact('alice.eth')],
+            });
+            const deliveryServiceContext = getMockedDeliveryServiceContext({
+                onNewMessage: (cb: Function) => {
+                    console.log('on new message');
+                },
+                fetchNewMessages: jest.fn().mockResolvedValue([]),
+                syncAcknowledgment: jest.fn(),
+                removeOnNewMessageListener: jest.fn(),
+            });
+            const authContext = getMockedAuthContext({
+                profileKeys: receiver.profileKeys,
+                account: {
+                    ensName: 'bob.eth',
+                    profile: {
+                        deliveryServices: ['ds.eth'],
+                        publicEncryptionKey: '',
+                        publicSigningKey: '',
+                    },
+                },
+            });
+            const tldContext = getMockedTldContext({});
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <ConversationContext.Provider
+                                    value={conversationContext}
+                                >
+                                    <DeliveryServiceContext.Provider
+                                        value={deliveryServiceContext}
+                                    >
+                                        {children}
+                                    </DeliveryServiceContext.Provider>
+                                </ConversationContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useMessage(), {
+                wrapper,
+            });
+            //Wait until bobs messages have been initialized
+            await waitFor(
+                () =>
+                    result.current.contactIsLoading('alice.eth') === false &&
+                    result.current.messages['alice.eth'].length > 0,
+            );
+
+            expect(result.current.contactIsLoading('alice.eth')).toBe(false);
+            expect(result.current.messages['alice.eth'].length).toBe(100);
+
+            await act(async () => result.current.loadMoreMessages('alice.eth'));
+
+            //Wait until new messages have been loaded
+            await waitFor(
+                () =>
+                    result.current.contactIsLoading('alice.eth') === false &&
+                    result.current.messages['alice.eth'].length > 100,
+            );
+
+            expect(result.current.contactIsLoading('alice.eth')).toBe(false);
+            expect(result.current.messages['alice.eth'].length).toBe(200);
+        });
+        it('messages from sources different as storage should not be considered in pagination calculation', async () => {
+            const messageFactory = MockMessageFactory(sender, receiver, ds);
+            //const messages
+            const storageContext = getMockedStorageContext({
+                editMessageBatchAsync: jest.fn(),
+                storeMessageBatch: jest.fn(),
+                storeMessage: jest.fn(),
+                getMessages: async (
+                    contactName: string,
+                    pageSize: number,
+                    offset: number,
+                ) =>
+                    Promise.all(
+                        Array.from({ length: pageSize }, (_, i) =>
+                            messageFactory.createStorageEnvelopContainer(
+                                'hello dm3 ' + i + offset,
+                            ),
+                        ),
+                    ),
+            });
+            const conversationContext = getMockedConversationContext({
+                selectedContact: getEmptyContact('max.eth'),
+                contacts: [getEmptyContact('alice.eth')],
+            });
+            const deliveryServiceContext = getMockedDeliveryServiceContext({
+                onNewMessage: (cb: Function) => {
+                    console.log('on new message');
+                },
+                fetchNewMessages: async (_: string) =>
+                    Promise.all(
+                        Array.from({ length: 13 }, (_, i) =>
+                            messageFactory.createEncryptedEnvelop(
+                                'hello dm3 from ds' + i,
+                            ),
+                        ),
+                    ),
+                syncAcknowledgment: jest.fn(),
+                removeOnNewMessageListener: jest.fn(),
+            });
+            const authContext = getMockedAuthContext({
+                profileKeys: receiver.profileKeys,
+                account: {
+                    ensName: 'bob.eth',
+                    profile: {
+                        deliveryServices: ['ds.eth'],
+                        publicEncryptionKey: '',
+                        publicSigningKey: '',
+                    },
+                },
+            });
+            const tldContext = getMockedTldContext({});
+
+            const wrapper = ({ children }: { children: any }) => (
+                <>
+                    <AuthContext.Provider value={authContext}>
+                        <TLDContext.Provider value={tldContext}>
+                            <StorageContext.Provider value={storageContext}>
+                                <ConversationContext.Provider
+                                    value={conversationContext}
+                                >
+                                    <DeliveryServiceContext.Provider
+                                        value={deliveryServiceContext}
+                                    >
+                                        {children}
+                                    </DeliveryServiceContext.Provider>
+                                </ConversationContext.Provider>
+                            </StorageContext.Provider>
+                        </TLDContext.Provider>
+                    </AuthContext.Provider>
+                </>
+            );
+
+            const { result } = renderHook(() => useMessage(), {
+                wrapper,
+            });
+            //Wait until bobs messages have been initialized
+            await waitFor(
+                () =>
+                    result.current.contactIsLoading('alice.eth') === false &&
+                    result.current.messages['alice.eth'].length > 0,
+            );
+
+            expect(result.current.contactIsLoading('alice.eth')).toBe(false);
+            //Initial message number would be storage(100) = Ds (13) == 113
+            expect(result.current.messages['alice.eth'].length).toBe(113);
+
+            await act(async () => result.current.loadMoreMessages('alice.eth'));
+
+            //Wait until new messages have been loaded
+            await waitFor(
+                () =>
+                    result.current.contactIsLoading('alice.eth') === false &&
+                    result.current.messages['alice.eth'].length > 133,
+            );
+
+            expect(result.current.contactIsLoading('alice.eth')).toBe(false);
+            expect(result.current.messages['alice.eth'].length).toBe(213);
+            //991 = 99 message 100(since pageSize starts from 0) = 1 offset
+            expect(
+                result.current.messages['alice.eth'][212].envelop.message
+                    .message,
+            ).toBe('hello dm3 991');
+        });
+    });
 });
