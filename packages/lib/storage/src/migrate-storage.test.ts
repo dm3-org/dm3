@@ -74,7 +74,7 @@ describe('MigrateStorage', () => {
                     Array.from(conversations.keys()).map((contactEnsName) => ({
                         contactEnsName,
                         isHidden: false,
-                        previewMessage: null,
+                        previewMessage: undefined,
                     })),
                 getMessages: async (contactEnsName: string, page: number) => [],
                 addMessageBatch: async (
