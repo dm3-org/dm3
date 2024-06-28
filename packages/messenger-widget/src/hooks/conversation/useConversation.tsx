@@ -2,7 +2,6 @@
 import {
     DeliveryInformation,
     EncryptionEnvelop,
-    Envelop,
 } from '@dm3-org/dm3-lib-messaging';
 import { normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { Conversation } from '@dm3-org/dm3-lib-storage/dist/new/types';
@@ -16,7 +15,6 @@ import { DM3Configuration } from '../../interfaces/config';
 import { ContactPreview, getEmptyContact } from '../../interfaces/utils';
 import { useMainnetProvider } from '../mainnetprovider/useMainnetProvider';
 import { hydrateContract } from './hydrateContact';
-import { StorageEnvelopContainer } from '@dm3-org/dm3-lib-storage/dist/Storage';
 
 const DEFAULT_CONVERSATION_PAGE_SIZE = 10;
 
