@@ -1,5 +1,5 @@
 import './Contacts.css';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import loader from '../../assets/images/loader.svg';
 import threeDotsIcon from '../../assets/images/three-dots.svg';
 import { ConversationContext } from '../../context/ConversationContext';
@@ -22,7 +22,8 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 
 export function Contacts() {
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
-    const { getMessages, getUnreadMessageCount } = useContext(MessageContext);
+    const { getMessages, getUnreadMessageCount, contactIsLoading } =
+        useContext(MessageContext);
     const { selectedRightView, setSelectedRightView, setSelectedLeftView } =
         useContext(UiViewContext);
     const {
@@ -85,9 +86,6 @@ export function Contacts() {
         return uniqueContacts;
     };
 
-    /* Hidden content for highlighting css */
-    const hiddenData: number[] = Array.from({ length: 44 }, (_, i) => i + 1);
-
     const scroller = document.getElementById('chat-scroller');
 
     //If a selected contact is selected and the menu is open, we want to align the menu at the bottom
@@ -112,8 +110,24 @@ export function Contacts() {
             (c) => c.contactDetails.account.ensName === _contact,
         );
         const previewMessage = contact?.message;
-        console.log('previewMessage', previewMessage);
         return previewMessage ?? '';
+    };
+
+    const isContactSelected = (id: string) => {
+        return selectedContact?.contactDetails.account.ensName === id;
+    };
+
+    const isContactLoading = (id: string) => {
+        const contactName = selectedContact?.contactDetails?.account?.ensName;
+        //If there is no selectedContact return false
+        if (!contactName) {
+            return false;
+        }
+        //selectedContact in the state matches the list entry
+        const contactIsSelected =
+            selectedContact?.contactDetails.account.ensName === id;
+
+        return contactIsSelected && contactIsLoading(contactName);
     };
 
     return (
@@ -239,10 +253,8 @@ export function Contacts() {
                                                         </div>
                                                     )}
                                                 {/* //TODO add loading state for message */}
-                                                {selectedContact?.contactDetails
-                                                    .account.ensName === id ? (
-                                                    selectedContact.message ===
-                                                    null ? (
+                                                {isContactSelected(id) ? (
+                                                    !isContactLoading(id) ? (
                                                         <div>
                                                             <div className="action-container">
                                                                 <img
@@ -261,7 +273,7 @@ export function Contacts() {
                                                                             isMenuAlignedAtBottom ===
                                                                             null
                                                                                 ? showMenuInBottom(
-                                                                                      selectedContact
+                                                                                      selectedContact!
                                                                                           .contactDetails
                                                                                           .account
                                                                                           .ensName,
