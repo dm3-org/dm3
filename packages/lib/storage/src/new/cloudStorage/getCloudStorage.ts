@@ -140,6 +140,8 @@ export const getCloudStorage = (
         const encryptedContactName = await encryption.encryptSync(
             contactEnsName,
         );
+        //The client defines the createdAt timestamp for the message so it can be used to sort the messages
+        const createdAt = Date.now();
         const encryptedMessages: MessageRecord[] = await Promise.all(
             batch.map(
                 async (storageEnvelopContainer: StorageEnvelopContainer) => {
@@ -152,6 +154,7 @@ export const getCloudStorage = (
                         messageId:
                             storageEnvelopContainer.envelop.metadata
                                 ?.encryptedMessageHash!,
+                        createdAt,
                     };
                 },
             ),

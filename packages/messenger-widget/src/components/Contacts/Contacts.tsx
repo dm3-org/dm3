@@ -22,7 +22,8 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 
 export function Contacts() {
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
-    const { getMessages, getUnreadMessageCount } = useContext(MessageContext);
+    const { getMessages, getUnreadMessageCount, contactIsLoading } =
+        useContext(MessageContext);
     const { selectedRightView, setSelectedRightView, setSelectedLeftView } =
         useContext(UiViewContext);
     const {
@@ -106,14 +107,30 @@ export function Contacts() {
         const messages = getMessages(_contact);
 
         if (messages?.length > 0) {
-            return messages[messages.length - 1].envelop.message.message ?? '';
+            return messages[0].envelop.message.message ?? '';
         }
         const contact = contacts.find(
             (c) => c.contactDetails.account.ensName === _contact,
         );
         const previewMessage = contact?.message;
-        console.log('previewMessage', previewMessage);
         return previewMessage ?? '';
+    };
+
+    const isContactSelected = (id: string) => {
+        return selectedContact?.contactDetails.account.ensName === id;
+    };
+
+    const isContactLoading = (id: string) => {
+        const contactName = selectedContact?.contactDetails?.account?.ensName;
+        //If there is no selectedContact return false
+        if (!contactName) {
+            return false;
+        }
+        //selectedContact in the state matches the list entry
+        const contactIsSelected =
+            selectedContact?.contactDetails.account.ensName === id;
+
+        return contactIsSelected && contactIsLoading(contactName);
     };
 
     // updates hidden contacts data for highlighted border
@@ -256,10 +273,8 @@ export function Contacts() {
                                                         </div>
                                                     )}
                                                 {/* //TODO add loading state for message */}
-                                                {selectedContact?.contactDetails
-                                                    .account.ensName === id ? (
-                                                    selectedContact.message ===
-                                                    null ? (
+                                                {isContactSelected(id) ? (
+                                                    !isContactLoading(id) ? (
                                                         <div>
                                                             <div className="action-container">
                                                                 <img
@@ -278,7 +293,7 @@ export function Contacts() {
                                                                             isMenuAlignedAtBottom ===
                                                                             null
                                                                                 ? showMenuInBottom(
-                                                                                      selectedContact
+                                                                                      selectedContact!
                                                                                           .contactDetails
                                                                                           .account
                                                                                           .ensName,
