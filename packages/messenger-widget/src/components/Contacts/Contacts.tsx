@@ -37,6 +37,9 @@ export function Contacts() {
         boolean | null
     >(null);
 
+    /* Hidden content for highlighting css */
+    const [hiddenData, setHiddenData] = useState<number[]>([]);
+
     const [hasMoreContact, setHasMoreContact] = useState<boolean>(true);
 
     const getMoreContacts = async () => {
@@ -85,9 +88,6 @@ export function Contacts() {
         return uniqueContacts;
     };
 
-    /* Hidden content for highlighting css */
-    const hiddenData: number[] = Array.from({ length: 44 }, (_, i) => i + 1);
-
     const scroller = document.getElementById('chat-scroller');
 
     //If a selected contact is selected and the menu is open, we want to align the menu at the bottom
@@ -116,13 +116,41 @@ export function Contacts() {
         return previewMessage ?? '';
     };
 
+    // updates hidden contacts data for highlighted border
+    const setHiddenContentForHighlightedBorder = () => {
+        const element: HTMLElement = document.getElementById(
+            'chat-scroller',
+        ) as HTMLElement;
+        if (element) {
+            // fetch height of chat window
+            const height = element.clientHeight;
+            // divide it by each contact height to show in UI
+            const minimumContactCount = height / 64;
+            // get count of hidden contacts to add
+            const hiddenContacts = minimumContactCount - contacts.length + 10;
+            if (hiddenData.length !== hiddenContacts) {
+                setHiddenData(
+                    Array.from({ length: hiddenContacts }, (_, i) => i + 1),
+                );
+            }
+        }
+    };
+
+    // handles change in screen size
+    window.addEventListener('resize', setHiddenContentForHighlightedBorder);
+
+    // sets hidden content styles for higlighted border
+    useEffect(() => {
+        setHiddenContentForHighlightedBorder();
+    }, [contacts]);
+
     return (
         <div
             id="chat-scroller"
             className={'contacts-scroller width-fill scroller-active'}
         >
             <InfiniteScroll
-                dataLength={contacts.length}
+                dataLength={contacts.length + hiddenData.length}
                 next={getMoreContacts}
                 style={{
                     display: 'flex',
@@ -131,18 +159,7 @@ export function Contacts() {
                 }}
                 inverse={false}
                 hasMore={hasMoreContact}
-                loader={
-                    <h4
-                        style={{
-                            marginTop: '1rem',
-                            fontSize: '14px',
-                            textAlign: 'center',
-                            color: 'white',
-                        }}
-                    >
-                        Loading ...
-                    </h4>
-                }
+                loader={<></>}
                 scrollableTarget="chat-scroller"
             >
                 {contacts.length > 0 &&
@@ -297,21 +314,21 @@ export function Contacts() {
                             )
                         );
                     })}
-            </InfiniteScroll>
 
-            {/* Hidden content for highlighting css */}
-            {/* {hiddenData.map((data) => (
-                <div
-                    key={data}
-                    className={
-                        selectedContact
-                            ? 'highlight-right-border'
-                            : 'highlight-right-border-none'
-                    }
-                >
-                    <div className="hidden-data"></div>
-                </div>
-            ))} */}
+                {/* Hidden content for highlighting css */}
+                {hiddenData.map((data) => (
+                    <div
+                        key={data}
+                        className={
+                            selectedContact
+                                ? 'highlight-right-border'
+                                : 'highlight-right-border-none'
+                        }
+                    >
+                        <div className="hidden-data"></div>
+                    </div>
+                ))}
+            </InfiniteScroll>
         </div>
     );
 }
