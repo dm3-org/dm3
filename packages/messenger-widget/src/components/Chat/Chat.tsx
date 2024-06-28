@@ -58,6 +58,7 @@ export function Chat() {
         if (messages.length && lastMessageAction === MessageActionType.NONE) {
             scrollToBottomOfChat();
         }
+        console.log(messages);
     }, [messages]);
 
     /**

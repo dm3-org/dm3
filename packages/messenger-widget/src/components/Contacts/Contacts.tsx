@@ -104,7 +104,7 @@ export function Contacts() {
         const messages = getMessages(_contact);
 
         if (messages?.length > 0) {
-            return messages[messages.length - 1].envelop.message.message ?? '';
+            return messages[0].envelop.message.message ?? '';
         }
         const contact = contacts.find(
             (c) => c.contactDetails.account.ensName === _contact,
