@@ -1,11 +1,19 @@
 import React from 'react';
-import { useDeliveryService } from '../hooks/server-side/useDeliveryService';
 import { useBackend } from '../hooks/server-side/useBackend';
 
 export type BackendContextType = {
     isInitialized: boolean;
     addConversation: (ensName: string, encryptedContactName: string) => void;
-    getConversations: (ensName: string) => Promise<string[]>;
+    getConversations: (
+        ensName: string,
+        size: number,
+        offset: number,
+    ) => Promise<
+        {
+            contact: string;
+            previewMessage: string;
+        }[]
+    >;
     toggleHideConversation: (
         ensName: string,
         encryptedContactName: string,
@@ -14,12 +22,14 @@ export type BackendContextType = {
     getMessagesFromStorage: (
         ensName: string,
         encryptedContactName: string,
-        pageNumber: number,
+        pageSize: number,
+        offset: number,
     ) => Promise<string[]>;
     addMessage: (
         ensName: string,
         encryptedContactName: string,
         messageId: string,
+        createdAt: number,
         encryptedEnvelopContainer: string,
     ) => Promise<void>;
     addMessageBatch: (

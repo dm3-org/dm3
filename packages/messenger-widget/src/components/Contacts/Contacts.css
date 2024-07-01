@@ -1,6 +1,5 @@
 .contacts-scroller {
     height: calc(100% - 50px) !important;
-    padding-left: 1rem;
     margin-top: 2px;
 }
 
@@ -17,7 +16,7 @@
 }
 
 .contact-details-container {
-    padding: 0.5rem 0.5rem 0.5rem 1rem;
+    padding: 0.5rem 0.5rem 0.5rem 1.5rem;
 }
 
 .contact-details-container:hover .action-container {
@@ -79,8 +78,6 @@
 
 .contact-details-container:hover {
     border-radius: 0px;
-    padding-left: 2.5rem;
-    margin-left: -1.5rem;
     background-color: var(--normal-btn);
 }
 
@@ -95,8 +92,7 @@
     border-top-left-radius: 10px !important;
     border-bottom-left-radius: 10px !important;
     padding-left: 0.5rem !important;
-    margin-left: 0.5rem !important;
-    margin-right: -1px !important;
+    margin-left: 1rem !important;
 }
 
 .msg-count {
@@ -108,6 +104,11 @@
 
 .display-name {
     font-weight: bolder;
+}
+
+
+.infinite-scroll-component__outerdiv{
+    height: 100vh;
 }
 
 /* =================== Mobile Responsive CSS =================== */
