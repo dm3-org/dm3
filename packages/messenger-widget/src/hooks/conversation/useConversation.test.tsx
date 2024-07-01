@@ -1,4 +1,7 @@
-import { Conversation } from '@dm3-org/dm3-lib-storage';
+import {
+    Conversation,
+    StorageEnvelopContainer,
+} from '@dm3-org/dm3-lib-storage';
 import '@testing-library/jest-dom';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { AuthContext, AuthContextType } from '../../context/AuthContext';
@@ -495,7 +498,8 @@ describe('useConversation hook test cases', () => {
                                         message: 'Hello from Bob',
                                     },
                                 },
-                            } as unknown as Envelop,
+                                messageState: 0,
+                            } as StorageEnvelopContainer,
                             isHidden: false,
                         },
                     ]);

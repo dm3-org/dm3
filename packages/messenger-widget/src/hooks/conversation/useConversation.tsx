@@ -301,7 +301,8 @@ export const useConversation = (config: DM3Configuration) => {
         }
 
         //If the conversation already contains messages the preview message is the last message. The backend attaches that message to the conversation so we can use it here and safe a request to fetch the messages
-        const previewMessage = conversation.previewMessage?.message?.message;
+        const previewMessage =
+            conversation.previewMessage?.envelop?.message?.message;
 
         const newContact: ContactPreview = getEmptyContact(
             ensName,

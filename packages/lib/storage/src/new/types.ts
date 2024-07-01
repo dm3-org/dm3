@@ -37,7 +37,7 @@ export interface Conversation {
     //the contactEnsName is the ensName of the contact
     contactEnsName: string;
     //the previewMessage is the last message of the conversation
-    previewMessage?: Envelop;
+    previewMessage?: StorageEnvelopContainer;
     //isHidden is a flag to hide the conversation from the conversation list
     isHidden: boolean;
 }
