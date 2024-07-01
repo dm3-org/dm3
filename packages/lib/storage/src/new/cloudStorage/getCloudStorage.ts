@@ -113,8 +113,11 @@ export const getCloudStorage = (
                         await encryption.encryptAsync(
                             JSON.stringify(storageEnvelopContainer),
                         );
+                    //The client defines the createdAt timestamp for the message so it can be used to sort the messages
+                    const createdAt = Date.now();
                     return {
                         encryptedEnvelopContainer,
+                        createdAt,
                         messageId:
                             storageEnvelopContainer.envelop.metadata
                                 ?.encryptedMessageHash! ??
