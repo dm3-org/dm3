@@ -23,7 +23,7 @@ import { handleMessagesFromDeliveryService } from './sources/handleMessagesFromD
 import { handleMessagesFromStorage } from './sources/handleMessagesFromStorage';
 import { handleMessagesFromWebSocket } from './sources/handleMessagesFromWebSocket';
 
-const DEFAULT_MESSAGE_PAGESIZE = 10;
+const DEFAULT_MESSAGE_PAGESIZE = 100;
 
 //Message source to identify where a message comes from. This is important to handle pagination of storage messages properly
 export enum MessageSource {
