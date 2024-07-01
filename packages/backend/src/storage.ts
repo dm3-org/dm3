@@ -216,8 +216,6 @@ export default (
         try {
             const ensName = normalizeEnsName(req.params.ensName);
 
-            console.log('getConversations query', req.query);
-
             const pageSize =
                 parseInt(req.query.pageSize as string) ||
                 DEFAULT_CONVERSATION_PAGE_SIZE;
@@ -232,8 +230,6 @@ export default (
                 res.status(400).send('invalid schema');
                 return;
             }
-
-            console.log('fetch conversations', pageSize, offset);
 
             const conversations = await db.getConversationList(
                 ensName,
