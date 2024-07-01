@@ -29,6 +29,23 @@ export function Chat() {
         useState<boolean>(false);
     const [showShimEffect, setShowShimEffect] = useState(false);
 
+    // state which tracks old msgs loading is active or not
+    const [loadingOldMsgs, setLoadingOldMsgs] = useState(false);
+
+    // state to track more old msgs exists or not
+    const [hasMoreOldMsgs, setHasMoreOldMsgs] = useState(true);
+
+    const fetchOldMessages = async () => {
+        setLoadingOldMsgs(true);
+        const newMsgCount = await loadMoreMessages(
+            selectedContact?.contactDetails.account.ensName!,
+        );
+        // if no old msgs are found, sets state to no more old msgs exists
+        if (!newMsgCount) {
+            setHasMoreOldMsgs(false);
+        }
+    };
+
     useEffect(() => {
         if (!selectedContact) {
             return;
@@ -50,15 +67,23 @@ export function Chat() {
         const isLoading = contactIsLoading(
             selectedContact?.contactDetails.account.ensName!,
         );
-        setShowShimEffect(isLoading);
+        // shim effect must be visible only if the messages are loaded first time
+        if (!messages.length) {
+            setShowShimEffect(isLoading);
+        }
     }, [contactIsLoading]);
 
     // scrolls to bottom of chat when messages are loaded
     useEffect(() => {
-        if (messages.length && lastMessageAction === MessageActionType.NONE) {
+        // scrolls to bottom only when old msgs are not fetched
+        if (
+            messages.length &&
+            lastMessageAction === MessageActionType.NONE &&
+            !loadingOldMsgs
+        ) {
             scrollToBottomOfChat();
         }
-        console.log(messages);
+        setLoadingOldMsgs(false);
     }, [messages]);
 
     /**
@@ -153,18 +178,13 @@ export function Chat() {
                     >
                         <InfiniteScroll
                             dataLength={messages.length}
-                            next={() =>
-                                loadMoreMessages(
-                                    selectedContact?.contactDetails.account
-                                        .ensName!,
-                                )
-                            }
+                            next={fetchOldMessages}
                             style={{
                                 display: 'flex',
                                 flexDirection: 'column-reverse',
                             }} //To put endMessage and loader to the top.
                             inverse={true}
-                            hasMore={true}
+                            hasMore={hasMoreOldMsgs}
                             loader={
                                 <h4
                                     style={{

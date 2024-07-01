@@ -11,7 +11,7 @@ export type MessageContextType = {
     getMessages: GetMessages;
     getUnreadMessageCount: (contact: string) => number;
     addMessage: AddMessage;
-    loadMoreMessages: (contact: string) => void;
+    loadMoreMessages: (contact: string) => Promise<number>;
     contactIsLoading: (contact: string) => boolean;
     messages: MessageStorage;
 };
@@ -23,7 +23,10 @@ export const MessageContext = React.createContext<MessageContextType>({
         new Promise(() => {
             isSuccess: true;
         }),
-    loadMoreMessages: (contact: string) => {},
+    loadMoreMessages: (contact: string) =>
+        new Promise(() => {
+            return 0;
+        }),
     contactIsLoading: (contact: string) => false,
     messages: {},
 });

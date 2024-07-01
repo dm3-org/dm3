@@ -374,17 +374,26 @@ export const useMessage = () => {
         await _addMessages(contactName, flatten);
     };
 
-    const loadMoreMessages = async (_contactName: string) => {
+    const loadMoreMessages = async (_contactName: string): Promise<number> => {
         const contactName = normalizeEnsName(_contactName);
 
         const messagesFromContact = messages[contactName] ?? [];
-        //For the messageCount we only consider emssages from the MessageSource storage
+        //For the messageCount we only consider messages from the MessageSource storage
         const messageCount = messagesFromContact.filter(
             (message) => message.source === MessageSource.Storage,
         ).length;
 
+        //We dont need to fetch more messages if the previously fetched page is smaller than the default pagesize
+        const isLastPage = messageCount % DEFAULT_MESSAGE_PAGESIZE !== 0;
+        if (isLastPage) {
+            console.log('all messages loaded for ', messagesFromContact);
+            //No more messages have been added
+            return 0;
+        }
+
         //We calculate the offset based on the messageCount
         const offset = Math.floor(messageCount / DEFAULT_MESSAGE_PAGESIZE);
+        console.log('load more ', messageCount, offset);
 
         const messagesFromStorage = await handleMessagesFromStorage(
             setContactsLoading,
@@ -393,7 +402,7 @@ export const useMessage = () => {
             DEFAULT_MESSAGE_PAGESIZE,
             offset,
         );
-        await _addMessages(contactName, messagesFromStorage);
+        return await _addMessages(contactName, messagesFromStorage);
     };
 
     const _addMessages = async (
@@ -433,6 +442,9 @@ export const useMessage = () => {
         setContactsLoading((prev) => {
             return prev.filter((contact) => contact !== contactName);
         });
+
+        // the count of new messages added
+        return withResolvedAliasNames.length;
     };
 
     /**

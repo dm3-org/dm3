@@ -39,6 +39,9 @@ export const getMessages =
                     ownerId: account.id,
                     encryptedContactName,
                 },
+                orderBy: {
+                    createdAt: 'desc',
+                },
             });
             if (messageRecord.length === 0) {
                 return [];
