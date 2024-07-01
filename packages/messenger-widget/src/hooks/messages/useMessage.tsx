@@ -374,7 +374,7 @@ export const useMessage = () => {
         await _addMessages(contactName, flatten);
     };
 
-    const loadMoreMessages = async (_contactName: string) => {
+    const loadMoreMessages = async (_contactName: string): Promise<number> => {
         const contactName = normalizeEnsName(_contactName);
 
         const messagesFromContact = messages[contactName] ?? [];
@@ -393,7 +393,7 @@ export const useMessage = () => {
             DEFAULT_MESSAGE_PAGESIZE,
             offset,
         );
-        await _addMessages(contactName, messagesFromStorage);
+        return await _addMessages(contactName, messagesFromStorage);
     };
 
     const _addMessages = async (
@@ -433,6 +433,9 @@ export const useMessage = () => {
         setContactsLoading((prev) => {
             return prev.filter((contact) => contact !== contactName);
         });
+
+        // the count of new messages added
+        return withResolvedAliasNames.length;
     };
 
     /**

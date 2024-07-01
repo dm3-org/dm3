@@ -53,6 +53,9 @@
     flex-direction: column;
 }
 
+.infinite-scroll-component__outerdiv{
+    height: auto;
+}
 
 /* =================== Mobile Responsive CSS =================== */
 

@@ -22,7 +22,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 
 export function Contacts() {
     const { dm3Configuration } = useContext(DM3ConfigurationContext);
-    const { getMessages, getUnreadMessageCount, contactIsLoading } =
+    const { messages, getMessages, getUnreadMessageCount, contactIsLoading } =
         useContext(MessageContext);
     const { selectedRightView, setSelectedRightView, setSelectedLeftView } =
         useContext(UiViewContext);
@@ -274,7 +274,16 @@ export function Contacts() {
                                                     )}
                                                 {/* //TODO add loading state for message */}
                                                 {isContactSelected(id) ? (
-                                                    !isContactLoading(id) ? (
+                                                    isContactLoading(id) &&
+                                                    !messages[id].length ? (
+                                                        <div className="pe-2">
+                                                            <img
+                                                                className="rotating"
+                                                                src={loader}
+                                                                alt="loader"
+                                                            />
+                                                        </div>
+                                                    ) : (
                                                         <div>
                                                             <div className="action-container">
                                                                 <img
@@ -303,14 +312,6 @@ export function Contacts() {
                                                                     />
                                                                 }
                                                             </div>
-                                                        </div>
-                                                    ) : (
-                                                        <div className="pe-2">
-                                                            <img
-                                                                className="rotating"
-                                                                src={loader}
-                                                                alt="loader"
-                                                            />
                                                         </div>
                                                     )
                                                 ) : (
