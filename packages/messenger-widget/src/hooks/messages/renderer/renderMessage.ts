@@ -1,5 +1,6 @@
 import { MessageModel } from '../useMessage';
 import { renderDelete } from './messageTypes/renderDelete';
+import { renderDuplicates } from './messageTypes/renderDuplicates';
 import { renderEdit } from './messageTypes/renderEdit';
 import { renderReactions } from './messageTypes/renderReactions';
 import { renderReply } from './messageTypes/renderReply';
@@ -26,5 +27,8 @@ export const renderMessage = (messages: MessageModel[]) => {
     );
     const withoutEdited = renderEdit(withReply);
 
-    return withoutEdited;
+    //There a several ways a message can added to the client. I.e via Websocket, multiple DS or from the storage.
+    //This leads occasionally to duplicates we don't want to display.
+    const withoutDuplicates = renderDuplicates(withoutEdited);
+    return withoutDuplicates;
 };

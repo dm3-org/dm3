@@ -386,7 +386,6 @@ export const useMessage = () => {
         //We dont need to fetch more messages if the previously fetched page is smaller than the default pagesize
         const isLastPage = messageCount % DEFAULT_MESSAGE_PAGESIZE !== 0;
         if (isLastPage) {
-            console.log('all messages loaded for ', messagesFromContact);
             //No more messages have been added
             return 0;
         }
