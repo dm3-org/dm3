@@ -23,7 +23,7 @@ import { handleMessagesFromDeliveryService } from './sources/handleMessagesFromD
 import { handleMessagesFromStorage } from './sources/handleMessagesFromStorage';
 import { handleMessagesFromWebSocket } from './sources/handleMessagesFromWebSocket';
 
-const DEFAULT_MESSAGE_PAGESIZE = 100;
+const DEFAULT_MESSAGE_PAGESIZE = 10;
 
 //Message source to identify where a message comes from. This is important to handle pagination of storage messages properly
 export enum MessageSource {
@@ -378,13 +378,21 @@ export const useMessage = () => {
         const contactName = normalizeEnsName(_contactName);
 
         const messagesFromContact = messages[contactName] ?? [];
-        //For the messageCount we only consider emssages from the MessageSource storage
+        //For the messageCount we only consider messages from the MessageSource storage
         const messageCount = messagesFromContact.filter(
             (message) => message.source === MessageSource.Storage,
         ).length;
 
+        //The conversations has less messages than the DEFAULT_MESSAGE_PAGESIZE. Hence we dont need to load more messages
+        const isLastPage = messageCount % DEFAULT_MESSAGE_PAGESIZE !== 0;
+        if (isLastPage) {
+            console.log('full');
+            return;
+        }
+
         //We calculate the offset based on the messageCount
         const offset = Math.floor(messageCount / DEFAULT_MESSAGE_PAGESIZE);
+        console.log('load more ', messageCount, offset);
 
         const messagesFromStorage = await handleMessagesFromStorage(
             setContactsLoading,
