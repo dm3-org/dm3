@@ -22,10 +22,8 @@ export interface IButton {
 
 export interface ContactPreview {
     name: string;
-    message: string | null;
+    message: string | undefined;
     image: string;
-    unreadMsgCount: number;
-    messageCount: number;
     contactDetails: Contact;
     isHidden: boolean;
     messageSizeLimit: number;
@@ -50,13 +48,15 @@ export interface IAttachmentPreview {
     isImage: boolean;
 }
 
-export const getEmptyContact = (ensName: string, isHidden: boolean = false) => {
+export const getEmptyContact = (
+    ensName: string,
+    message: string | undefined,
+    isHidden: boolean = false,
+) => {
     const newContact: ContactPreview = {
         name: getAccountDisplayName(ensName, 25),
-        message: null,
+        message,
         image: humanIcon,
-        unreadMsgCount: 0,
-        messageCount: 0,
         contactDetails: {
             account: {
                 ensName,

@@ -1,6 +1,8 @@
 import { IBackendConnector } from '@dm3-org/dm3-lib-shared';
 import { MessageRecord } from '../chunkStorage/ChunkStorageTypes';
 import { Encryption, StorageAPI, StorageEnvelopContainer } from '../types';
+//getCloudStorages is the interface to the cloud storage.
+//It encrypts and decrypts the data before sending/reciving it to/from the cloud storage of the DM3 backend
 export const getCloudStorage = (
     backendConnector: IBackendConnector,
     ensName: string,
@@ -10,7 +12,6 @@ export const getCloudStorage = (
         const encryptedContactName = await encryption.encryptSync(
             contactEnsName,
         );
-        console.log('store new contact ', encryptedContactName);
         return await backendConnector.addConversation(
             ensName,
             encryptedContactName,
@@ -18,25 +19,38 @@ export const getCloudStorage = (
     };
 
     const getConversations = async (size: number, offset: number) => {
-        const encryptedConversations = await backendConnector.getConversations(
+        const conversations = await backendConnector.getConversations(
             ensName,
             size,
             offset,
         );
 
         return await Promise.all(
-            encryptedConversations.map(
-                async (encryptedContactName: string) => ({
-                    contactEnsName: await encryption.decryptSync(
-                        encryptedContactName,
-                    ),
+            conversations.map(
+                async ({
+                    contact,
+                    previewMessage,
+                }: {
+                    contact: string;
+                    previewMessage: string | null;
+                }) => ({
+                    contactEnsName: await encryption.decryptSync(contact),
                     isHidden: false,
                     messageCounter: 0,
+                    previewMessage: previewMessage
+                        ? JSON.parse(
+                              await encryption.decryptAsync(previewMessage),
+                          )
+                        : null,
                 }),
             ),
         );
     };
-    const getMessages = async (contactEnsName: string, page: number) => {
+    const getMessages = async (
+        contactEnsName: string,
+        pageSize: number,
+        offset: number,
+    ) => {
         const encryptedContactName = await encryption.encryptSync(
             contactEnsName,
         );
@@ -44,7 +58,8 @@ export const getCloudStorage = (
         const messageRecords = await backendConnector.getMessagesFromStorage(
             ensName,
             encryptedContactName,
-            page,
+            pageSize,
+            offset,
         );
         const decryptedMessageRecords = await Promise.all(
             messageRecords.map(async (messageRecord: MessageRecord) => {
@@ -55,7 +70,6 @@ export const getCloudStorage = (
             }),
         );
 
-        //TODO make type right
         return decryptedMessageRecords as StorageEnvelopContainer[];
     };
 
@@ -70,11 +84,15 @@ export const getCloudStorage = (
             JSON.stringify(envelop),
         );
 
+        //The client defines the createdAt timestamp for the message so it can be used to sort the messages
+        const createdAt = Date.now();
+
         await backendConnector.addMessage(
             ensName,
             encryptedContactName,
             envelop.envelop.metadata?.encryptedMessageHash! ??
                 envelop.envelop.id,
+            createdAt,
             encryptedEnvelopContainer,
         );
 
@@ -95,8 +113,11 @@ export const getCloudStorage = (
                         await encryption.encryptAsync(
                             JSON.stringify(storageEnvelopContainer),
                         );
+                    //The client defines the createdAt timestamp for the message so it can be used to sort the messages
+                    const createdAt = Date.now();
                     return {
                         encryptedEnvelopContainer,
+                        createdAt,
                         messageId:
                             storageEnvelopContainer.envelop.metadata
                                 ?.encryptedMessageHash! ??
@@ -122,6 +143,8 @@ export const getCloudStorage = (
         const encryptedContactName = await encryption.encryptSync(
             contactEnsName,
         );
+        //The client defines the createdAt timestamp for the message so it can be used to sort the messages
+        const createdAt = Date.now();
         const encryptedMessages: MessageRecord[] = await Promise.all(
             batch.map(
                 async (storageEnvelopContainer: StorageEnvelopContainer) => {
@@ -134,6 +157,7 @@ export const getCloudStorage = (
                         messageId:
                             storageEnvelopContainer.envelop.metadata
                                 ?.encryptedMessageHash!,
+                        createdAt,
                     };
                 },
             ),

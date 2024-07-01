@@ -18,10 +18,11 @@ export const renderMessage = (messages: MessageModel[]) => {
     //Its desirable to have all messages in a conversation sorted by their timestamp. However edited messages are an
     //exception to this rule, since they should be displayed in the order they were edited.
     // Therefore we sort the messages by their timestamp and then we eventually replace messages that have been edited
+    //Messages are sorted DESC, so the pagination adds old messages at the end of the array
     withReply.sort(
         (a, b) =>
-            a.envelop.message.metadata.timestamp -
-            b.envelop.message.metadata.timestamp,
+            b.envelop.message.metadata.timestamp -
+            a.envelop.message.metadata.timestamp,
     );
     const withoutEdited = renderEdit(withReply);
 
