@@ -36,7 +36,7 @@ jobs:
                   chmod 600 ./ssh-key
             - name: Create .env file
               env:
-                  TARGET_HOST: ${{ vars.HOST_DOMAIN }}
+                  TARGET_HOST: ${{ vars.HOST_DOMAIN}}
                   TARGET_IP: ${{ vars.HOST_IP }}
               run: |
                   echo "REACT_APP_ADDR_ENS_SUBDOMAIN=${{ vars.ADDR_ENS_SUBDOMAIN }}" >> ./.env.react
@@ -106,10 +106,10 @@ jobs:
                     --tag dm3org/$image_name:$version${{ env.docker_suffix }}.${{ env.unix_now }}.${{ env.sha_short }}  .
                   docker save -o ./$image_name.tar $image_name:latest
                   docker push --all-tags dm3org/$image_name
-            - name: Build offchain-resolver docker image
+            - name: Build and publish offchain-resolver docker image
               shell: bash
               run: |
-                  version=$(NODE_PATH=packages/delivery-service node -p "require('package.json').version")
+                  version=$(NODE_PATH=packages/offchain-resolver node -p "require('package.json').version")
                   image_name=dm3-offchain-resolver
                   docker build --progress=plain -f ./docker/DockerfilePackages --build-arg="PACKAGE=offchain-resolver" \
                     --tag $image_name:latest \
@@ -142,11 +142,17 @@ jobs:
                   ssh -i ./ssh-key app@${{ vars.HOST_DOMAIN }} "\
                   cd dm3 && ls |grep -E 'dm3-.*tar' | xargs --no-run-if-empty -L 1 docker load -i; \
                   rm dm3-*.tar || true"
+            - name: Reset state of testing environment
+              run: |
+                  if [ $environment_name == "testing" ]; then
+                      ssh -i ./ssh-key root@${{ vars.HOST_DOMAIN }} "\
+                      cd /mnt/dm3_prod_volume/db && rm -r * || true"
+                  fi
             - name: Configure Firewall
               run: |
                   ssh -i ./ssh-key root@${{ vars.HOST_DOMAIN }} "\
-                  ufw allow from 172.18.0.1/16 proto tcp to ${{ vars.HOST_IP}} port 80; 
-                  ufw allow from 172.18.0.1/16 proto tcp to ${{ secrets.IP_ADDRESS }} port 443;
+                  ufw allow from 172.18.0.1/16 proto tcp to ${{ vars.HOST_IP }} port 80; 
+                  ufw allow from 172.18.0.1/16 proto tcp to ${{ vars.HOST_IP }} port 443;
                   ufw enable"
             - name: Start docker on server
               run: |
