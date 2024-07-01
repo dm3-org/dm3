@@ -23,7 +23,7 @@ import { handleMessagesFromDeliveryService } from './sources/handleMessagesFromD
 import { handleMessagesFromStorage } from './sources/handleMessagesFromStorage';
 import { handleMessagesFromWebSocket } from './sources/handleMessagesFromWebSocket';
 
-const DEFAULT_MESSAGE_PAGESIZE = 100;
+const DEFAULT_MESSAGE_PAGESIZE = 27;
 
 //Message source to identify where a message comes from. This is important to handle pagination of storage messages properly
 export enum MessageSource {
@@ -386,7 +386,6 @@ export const useMessage = () => {
         //We dont need to fetch more messages if the previously fetched page is smaller than the default pagesize
         const isLastPage = messageCount % DEFAULT_MESSAGE_PAGESIZE !== 0;
         if (isLastPage) {
-            console.log('all messages loaded for ', messagesFromContact);
             //No more messages have been added
             return 0;
         }

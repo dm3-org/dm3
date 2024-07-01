@@ -185,17 +185,8 @@ export function Chat() {
                             }} //To put endMessage and loader to the top.
                             inverse={true}
                             hasMore={hasMoreOldMsgs}
-                            loader={
-                                <h4
-                                    style={{
-                                        fontSize: '14px',
-                                        textAlign: 'center',
-                                        color: 'white',
-                                    }}
-                                >
-                                    Loading old messages...
-                                </h4>
-                            }
+                            //Maybe we add a cusotm loader later
+                            loader={<></>}
                             scrollableTarget="chat-box"
                         >
                             {messages.length > 0 &&
