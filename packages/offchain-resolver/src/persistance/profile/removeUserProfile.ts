@@ -28,7 +28,7 @@ export function removeUserProfile(db: PrismaClient) {
                 },
             });
 
-            global.logger.debug({
+            console.debug({
                 message: 'removeUserProfile',
                 profileContainerId: profileContainer.id,
                 nameHash: profileContainer.nameHash,

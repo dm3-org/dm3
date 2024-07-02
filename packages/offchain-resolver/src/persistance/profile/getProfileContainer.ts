@@ -14,7 +14,7 @@ export type ProfileContainer = {
 
 export function getProfileContainer(db: PrismaClient) {
     return async (name: string) => {
-        global.logger.debug({
+        console.debug({
             message: 'getProfileContainer call',
             nameHash: ethers.utils.namehash(name),
             name,
@@ -35,7 +35,7 @@ export function getProfileContainer(db: PrismaClient) {
                           ) as SignedUserProfile,
                       }
                     : null;
-            global.logger.debug({
+            console.debug({
                 message: 'getProfileContainer found',
                 nameHash: ethers.utils.namehash(name),
                 profileContainerResult,
@@ -43,7 +43,7 @@ export function getProfileContainer(db: PrismaClient) {
 
             return profileContainerResult;
         } else {
-            global.logger.debug({
+            console.debug({
                 message: 'getProfileContainer not found',
                 nameHash: ethers.utils.namehash(name),
             });

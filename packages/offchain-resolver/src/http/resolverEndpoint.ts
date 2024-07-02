@@ -1,4 +1,3 @@
-import { logError, logWarning } from '@dm3-org/dm3-lib-shared';
 import express from 'express';
 import { handleCcipRequest } from './handleCcipRequest/handleCcipRequest';
 import { WithLocals } from './types';
@@ -18,7 +17,7 @@ export function resolverEndpoint() {
 
             const calldata = req.params.calldata.replace('.json', '');
 
-            global.logger.info(`GET ${resolverAddr}`);
+            console.info(`GET ${resolverAddr}`);
 
             try {
                 const { request, signature } = decodeRequest(calldata);
@@ -30,13 +29,13 @@ export function resolverEndpoint() {
                 );
 
                 if (!response) {
-                    logWarning('Record not found');
+                    console.warn('Record not found');
                     res.status(200).send('0x');
                 } else {
                     res.status(200).send(response);
                 }
             } catch (e) {
-                global.logger.warn((e as Error).message);
+                console.warn((e as Error).message);
 
                 res.status(400).send({ message: 'Unknown error' });
             }

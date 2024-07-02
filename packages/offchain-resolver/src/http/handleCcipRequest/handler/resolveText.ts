@@ -1,4 +1,4 @@
-import { IDatabase } from '../../../persistence/IDatabase';
+import { IDatabase } from '../../../persistance/IDatabase';
 import { PROFILE_RECORD_NAME } from '@dm3-org/dm3-lib-profile';
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import { interceptTextRecord } from './intercept';

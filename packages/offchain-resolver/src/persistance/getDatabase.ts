@@ -1,13 +1,10 @@
 import { IDatabase } from './IDatabase';
 import * as Profile from './profile';
-import winston from 'winston';
+
 import { PrismaClient } from '@prisma/client';
 
-export async function getDatabase(
-    logger: winston.Logger,
-    db?: PrismaClient,
-): Promise<IDatabase> {
-    const prismaClient = db ?? (await getDbClient(logger));
+export async function getDatabase(db?: PrismaClient): Promise<IDatabase> {
+    const prismaClient = db ?? (await getDbClient());
 
     return {
         setUserProfile: Profile.setUserProfile(prismaClient),
@@ -24,8 +21,7 @@ export async function getDatabase(
     };
 }
 
-export async function getDbClient(logger: winston.Logger) {
-    logger.info('create db connection');
-
+export async function getDbClient() {
+    console.info('create db connection');
     return new PrismaClient();
 }

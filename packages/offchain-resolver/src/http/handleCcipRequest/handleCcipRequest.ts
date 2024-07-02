@@ -14,7 +14,7 @@ export async function handleCcipRequest(
 ) {
     switch (signature) {
         case 'text(bytes32,string)':
-            global.logger.info('Reading text(bytes32,string)');
+            console.info('Reading text(bytes32,string)');
             const profile = await handleText(req.app.locals.db, request);
             //If the profile is null, return without encoding.
             // The gateway returns 404 if the response is null
@@ -23,13 +23,13 @@ export async function handleCcipRequest(
             }
             return ethers.utils.defaultAbiCoder.encode(['string'], [profile]);
         case 'addr(bytes32)':
-            global.logger.info('Reading addr(bytes32))');
+            console.info('Reading addr(bytes32))');
             const address = await handleAddr(req.app.locals.db, request);
             if (!address) {
                 return null;
             }
             const addressResult = getEthersFormat(address);
-            global.logger.debug({
+            console.debug({
                 message: 'addr(bytes32,uint256)',
                 addressResult,
                 address,
@@ -37,7 +37,7 @@ export async function handleCcipRequest(
 
             return addressResult;
         case 'addr(bytes32,uint256)':
-            global.logger.info('Reading addr(bytes32,uint256))');
+            console.info('Reading addr(bytes32,uint256))');
             const addressWithCoinType = await handleAddr(
                 req.app.locals.db,
                 request,
@@ -48,7 +48,7 @@ export async function handleCcipRequest(
 
             const addressWithCoinTypeResult =
                 getEthersFormat(addressWithCoinType);
-            global.logger.debug({
+            console.debug({
                 message: 'addr(bytes32,uint256)',
                 addressWithCoinTypeResult,
                 addressWithCoinType,

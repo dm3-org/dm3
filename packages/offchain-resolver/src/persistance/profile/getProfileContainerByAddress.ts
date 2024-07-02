@@ -20,7 +20,7 @@ export function getProfileContainerByAddress(db: PrismaClient) {
                   }
                 : null;
 
-        global.logger.debug({
+        console.debug({
             message: 'getProfileContainerByAddress',
             address,
             profileContainerResult,

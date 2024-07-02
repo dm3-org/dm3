@@ -36,7 +36,7 @@ export function setUserProfile(db: PrismaClient) {
 
         try {
             const id = uuidv4();
-            global.logger.debug({
+            console.debug({
                 message: 'pre setUserProfile',
                 id,
                 nameHash,
@@ -56,7 +56,7 @@ export function setUserProfile(db: PrismaClient) {
 
             return true;
         } catch (e) {
-            global.logger.warn({
+            console.warn({
                 message: `setUserProfile error`,
                 error: JSON.stringify(e),
             });

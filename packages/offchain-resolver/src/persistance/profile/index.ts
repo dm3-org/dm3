@@ -1,7 +1,4 @@
 import winston from 'winston';
-declare global {
-    var logger: winston.Logger;
-}
 
 export { getProfileContainer } from './getProfileContainer';
 export { getProfileContainerByAddress } from './getProfileContainerByAddress';
