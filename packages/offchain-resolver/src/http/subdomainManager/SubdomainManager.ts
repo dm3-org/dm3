@@ -33,11 +33,9 @@ export class SubdomainManager {
         //i.e domain = foo.dm3.eth
         //name = foo
         //subdomain = [dm3, eth]
-
         const [name, ...subdomainSegments] = domain.split('.');
 
         const subdomain = subdomainSegments.join('.');
-
         return this.supportedSubdomains.has(subdomain);
     }
 }

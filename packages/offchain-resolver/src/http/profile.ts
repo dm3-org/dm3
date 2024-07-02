@@ -1,13 +1,16 @@
-import { globalConfig, logInfo, validateSchema } from '@dm3-org/dm3-lib-shared';
-import { schema, checkUserProfileWithAddress } from '@dm3-org/dm3-lib-profile';
+import { checkSignature } from '@dm3-org/dm3-lib-crypto';
+import { checkUserProfileWithAddress, schema } from '@dm3-org/dm3-lib-profile';
+import { globalConfig, validateSchema } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import express from 'express';
-import { WithLocals } from './types';
 import { SiweMessage } from 'siwe';
-import { checkSignature } from '@dm3-org/dm3-lib-crypto';
+import { SubdomainManager } from './subdomainManager/SubdomainManager';
+import { WithLocals } from './types';
 
 export function profile(web3Provider: ethers.providers.BaseProvider) {
     const router = express.Router();
+    //subdomain manager for address domains
+    const addressSubdomainManager = new SubdomainManager('ADDR_ENS_SUBDOMAINS');
 
     //Special route for eth prague
     router.post(
@@ -222,7 +225,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
         //@ts-ignore
         async (req: express.Request & { app: WithLocals }, res, next) => {
             try {
-                const { signedUserProfile, address } = req.body;
+                const { signedUserProfile, address, subdomain } = req.body;
 
                 const isSchemaValid = validateSchema(
                     schema.SignedUserProfile,
@@ -230,7 +233,12 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                 );
 
                 //Check if schema is valid
-                if (!isSchemaValid) {
+                if (
+                    !isSchemaValid ||
+                    !ethers.utils.isAddress(address) ||
+                    !subdomain
+                ) {
+                    console.log(req.body);
                     return res.status(400).send({ error: 'invalid schema' });
                 }
 
@@ -254,8 +262,14 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     });
                 }
 
-                //REQ PARAM. HAS to be part of the list
-                const name = `${address}${globalConfig.ADDR_ENS_SUBDOMAIN()}`;
+                const name = `${address}.${subdomain}`;
+
+                //ask the subdomain manager if the names subdomain is supported
+                if (!addressSubdomainManager.isSubdomainSupported(name)) {
+                    return res.status(400).send({
+                        error: `subdomain ${subdomain} is not supported`,
+                    });
+                }
 
                 const profileExists =
                     !!(await req.app.locals.db.getProfileContainer(name));

@@ -46,8 +46,6 @@ describe('Resolver Endpoint', () => {
         profileApp.use(profile(provider));
         profileApp.locals.db = db;
         profileApp.locals.config = { spamProtection: true };
-
-        process.env.REACT_APP_ADDR_ENS_SUBDOMAIN = '.beta-addr.dm3.eth';
     });
 
     afterEach(async () => {
@@ -130,6 +128,7 @@ describe('Resolver Endpoint', () => {
     });
 
     describe('Get UserProfile Offchain', () => {
+        process.env.ADDR_ENS_SUBDOMAINS = JSON.stringify(['beta-addr.dm3.eth']);
         describe('ResolveText', () => {
             it('Returns valid Offchain profile', async () => {
                 const { signature, profile, signer, privateSigningKey } =
@@ -146,6 +145,7 @@ describe('Resolver Endpoint', () => {
                             signature,
                             profile,
                         },
+                        subdomain: 'beta-addr.dm3.eth',
                     });
                 expect(writeRes.status).to.equal(200);
 
@@ -153,7 +153,7 @@ describe('Resolver Endpoint', () => {
                     .post(`/name`)
                     .send({
                         dm3Name: 'foo.dm3.eth',
-                        addressName: signer + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                        addressName: signer + '.beta-addr.dm3.eth',
                         signature: await sign(
                             privateSigningKey,
                             'alias: foo.dm3.eth',

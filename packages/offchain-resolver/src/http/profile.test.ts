@@ -57,7 +57,7 @@ describe('Profile', () => {
 
         app.locals.config.spamProtection = true;
 
-        process.env.REACT_APP_ADDR_ENS_SUBDOMAIN = '.beta-addr.dm3.eth';
+        process.env.ADDR_ENS_SUBDOMAINS = JSON.stringify(['beta-addr.dm3.eth']);
     });
 
     afterEach(async () => {
@@ -72,8 +72,7 @@ describe('Profile', () => {
                 .post(`/name`)
                 .send({
                     dm3Name: 'foo.dm3.eth',
-                    addressName:
-                        SENDER_ADDRESS + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    addressName: SENDER_ADDRESS + 'beta-addr.dm3.eth',
                     signature: await app.locals.forTests.wallet.signMessage(
                         'alias: foo.dm3.eth',
                     ),
@@ -96,6 +95,7 @@ describe('Profile', () => {
                         signature: offChainProfile1.signature,
                         profile: offChainProfile1.profile,
                     },
+                    subdomain: 'beta-addr.dm3.eth',
                 });
 
             expect(status).to.equal(200);
@@ -104,9 +104,7 @@ describe('Profile', () => {
                 .post(`/name`)
                 .send({
                     dm3Name: 'foo.dm3.eth',
-                    addressName:
-                        offChainProfile1.signer +
-                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    addressName: offChainProfile1.signer + '.beta-addr.dm3.eth',
                     signature: await sign(
                         offChainProfile1.privateSigningKey,
                         'alias: bar.dm3.eth',
@@ -133,15 +131,14 @@ describe('Profile', () => {
                         signature: offChainProfile.signature,
                         profile: offChainProfile.profile,
                     },
+                    subdomain: 'beta-addr.dm3.eth',
                 });
 
             const { status, body } = await request(app)
                 .post(`/name`)
                 .send({
                     dm3Name: 'foo.dm3.eth',
-                    addressName:
-                        offChainProfile.signer +
-                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    addressName: offChainProfile.signer + '.beta-addr.dm3.eth',
                     signature: await sign(
                         offChainProfile.privateSigningKey,
                         'alias: foo.dm3.eth',
@@ -170,6 +167,7 @@ describe('Profile', () => {
                         signature: offChainProfile1.signature,
                         profile: offChainProfile1.profile,
                     },
+                    subdomain: 'beta-addr.dm3.eth',
                 });
 
             expect(status).to.equal(200);
@@ -178,9 +176,7 @@ describe('Profile', () => {
                 .post(`/name`)
                 .send({
                     dm3Name: 'foo.dm3.eth',
-                    addressName:
-                        offChainProfile1.signer +
-                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    addressName: offChainProfile1.signer + '.beta-addr.dm3.eth',
                     signature: await sign(
                         offChainProfile1.privateSigningKey,
                         'alias: foo.dm3.eth',
@@ -207,9 +203,7 @@ describe('Profile', () => {
                 .post(`/name`)
                 .send({
                     dm3Name: 'foo.dm3.eth',
-                    addressName:
-                        offChainProfile1.signer +
-                        globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    addressName: offChainProfile1.signer + '.beta-addr.dm3.eth',
                     signature: await sign(
                         offChainProfile1.privateSigningKey,
                         'alias: foo.dm3.eth',
@@ -254,6 +248,7 @@ describe('Profile', () => {
                         profile: userProfile,
                         signature,
                     },
+                    subdomain: 'beta-addr.dm3.eth',
                 });
 
             expect(status).to.equal(400);
@@ -275,6 +270,7 @@ describe('Profile', () => {
                         signature: offChainProfile1.signature,
                         profile: offChainProfile1.profile,
                     },
+                    subdomain: 'beta-addr.dm3.eth',
                 });
 
             expect(res1.status).to.equal(200);
@@ -287,10 +283,47 @@ describe('Profile', () => {
                         signature: offChainProfile1.signature,
                         profile: offChainProfile1.profile,
                     },
+                    subdomain: 'beta-addr.dm3.eth',
                 });
 
             expect(res2.status).to.equal(400);
             expect(res2.body.error).to.eql('subdomain already claimed');
+        });
+        it('Rejects if subdomain is not supported', async () => {
+            app.use(profile(provider));
+
+            const offChainProfile1 = await getSignedUserProfile();
+
+            //Fund wallets so their balance is not zero
+
+            const res1 = await request(app)
+                .post(`/address`)
+                .send({
+                    address: offChainProfile1.signer,
+                    signedUserProfile: {
+                        signature: offChainProfile1.signature,
+                        profile: offChainProfile1.profile,
+                    },
+                    subdomain: 'beta-addr.dm3.eth',
+                });
+
+            expect(res1.status).to.equal(200);
+
+            const res2 = await request(app)
+                .post(`/address`)
+                .send({
+                    address: offChainProfile1.signer,
+                    signedUserProfile: {
+                        signature: offChainProfile1.signature,
+                        profile: offChainProfile1.profile,
+                    },
+                    subdomain: 'rando.eth',
+                });
+
+            expect(res2.status).to.equal(400);
+            expect(res2.body.error).to.eql(
+                'subdomain rando.eth is not supported',
+            );
         });
 
         it('Stores a valid profile', async () => {
@@ -309,6 +342,7 @@ describe('Profile', () => {
                         signature,
                         profile: userProfile,
                     },
+                    subdomain: 'beta-addr.dm3.eth',
                 });
 
             expect(status).to.equal(200);
@@ -341,6 +375,7 @@ describe('Profile', () => {
                         signature,
                         profile: userProfile,
                     },
+                    subdomain: 'beta-addr.dm3.eth',
                 });
             expect(writeRes.status).to.equal(200);
 
@@ -348,7 +383,7 @@ describe('Profile', () => {
                 .post(`/name`)
                 .send({
                     dm3Name: 'foo.dm3.eth',
-                    addressName: signer + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    addressName: signer + '.beta-addr.dm3.eth',
                     signature: await sign(
                         privateSigningKey,
                         'alias: foo.dm3.eth',
@@ -400,6 +435,7 @@ describe('Profile', () => {
                         signature,
                         profile: userProfile,
                     },
+                    subdomain: 'beta-addr.dm3.eth',
                 });
             expect(writeRes.status).to.equal(200);
 
@@ -407,7 +443,7 @@ describe('Profile', () => {
                 .post(`/name`)
                 .send({
                     dm3Name: 'foo.dm3.eth',
-                    addressName: signer + globalConfig.ADDR_ENS_SUBDOMAIN(),
+                    addressName: signer + '.beta-addr.dm3.eth',
                     signature: await sign(
                         privateSigningKey,
                         'alias: foo.dm3.eth',
