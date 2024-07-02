@@ -9,13 +9,13 @@ import express from 'express';
 
 import request from 'supertest';
 import winston from 'winston';
-import { getDatabase, getDbClient } from '../persistence/getDatabase';
-import { IDatabase } from '../persistence/IDatabase';
+import { getDatabase, getDbClient } from '../persistance/getDatabase';
+import { IDatabase } from '../persistance/IDatabase';
 import { profile } from './profile';
 
 import { PrismaClient } from '@prisma/client';
 import * as dotenv from 'dotenv';
-import { clearDb } from '../persistence/clearDb';
+import { clearDb } from '../persistance/clearDb';
 
 import { expect } from 'chai';
 import { sign } from '@dm3-org/dm3-lib-crypto';

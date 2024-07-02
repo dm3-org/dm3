@@ -1,0 +1,25 @@
+datasource db {
+  //url      = env("DATABASE_URL")
+  url      = "postgresql://prisma:prisma@localhost:5433/tests"
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model ProfileContainer {
+  id       String  @id @db.Uuid
+  nameHash String  @unique
+  profile  Json
+  ensName  String  @unique
+  address  String  @unique
+  aliases  Alias[]
+}
+
+model Alias {
+  id                 String           @id @db.Uuid
+  profile            ProfileContainer @relation(fields: [profileContainerId], references: [id])
+  profileContainerId String           @unique @db.Uuid
+  alias              String           @unique
+}
