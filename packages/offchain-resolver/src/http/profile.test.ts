@@ -30,10 +30,6 @@ describe('Profile', () => {
     let db: IDatabase;
     let app: express.Express;
 
-    const logger = winston.createLogger({
-        transports: [new winston.transports.Console()],
-    });
-
     const provider: ethers.providers.JsonRpcProvider = new Proxy(
         {
             getBalance: async () => ethers.BigNumber.from(1),
@@ -47,8 +43,8 @@ describe('Profile', () => {
     );
 
     beforeEach(async () => {
-        prismaClient = await getDbClient(logger);
-        db = await getDatabase(logger, prismaClient);
+        prismaClient = await getDbClient();
+        db = await getDatabase(prismaClient);
         await clearDb(prismaClient);
 
         app = express();
@@ -58,13 +54,6 @@ describe('Profile', () => {
 
         app.locals.config = { spamProtection: true };
         app.locals.db = db;
-
-        app.locals.logger = {
-            // eslint-disable-next-line no-console
-            info: (msg: string) => console.log(msg),
-            // eslint-disable-next-line no-console
-            warn: (msg: string) => console.log(msg),
-        };
 
         app.locals.config.spamProtection = true;
 
@@ -213,13 +202,6 @@ describe('Profile', () => {
             );
             app2.locals.config = { spamProtection: true };
             app2.locals.db = db;
-
-            app2.locals.logger = {
-                // eslint-disable-next-line no-console
-                info: (msg: string) => console.log(msg),
-                // eslint-disable-next-line no-console
-                warn: (msg: string) => console.log(msg),
-            };
 
             const res2 = await request(app2)
                 .post(`/name`)

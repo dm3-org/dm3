@@ -26,23 +26,13 @@ describe('Resolver Endpoint', () => {
     let ccipApp: express.Express;
     let profileApp: express.Express;
 
-    const logger = winston.createLogger({
-        transports: [new winston.transports.Console()],
-    });
-
     beforeEach(async () => {
-        prismaClient = await getDbClient(logger);
-        db = await getDatabase(logger, prismaClient);
+        prismaClient = await getDbClient();
+        db = await getDatabase(prismaClient);
         await clearDb(prismaClient);
         ccipApp = express();
         ccipApp.use(bodyParser.json());
         ccipApp.locals.db = db;
-        ccipApp.locals.logger = {
-            // eslint-disable-next-line no-console
-            info: (msg: string) => console.log(msg),
-            // eslint-disable-next-line no-console
-            warn: (msg: string) => console.log(msg),
-        };
 
         ccipApp.use(resolverEndpoint());
         profileApp = express();
@@ -56,12 +46,6 @@ describe('Resolver Endpoint', () => {
         profileApp.use(profile(provider));
         profileApp.locals.db = db;
         profileApp.locals.config = { spamProtection: true };
-        profileApp.locals.logger = {
-            // eslint-disable-next-line no-console
-            info: (msg: string) => console.log(msg),
-            // eslint-disable-next-line no-console
-            warn: (msg: string) => console.log(msg),
-        };
 
         process.env.REACT_APP_ADDR_ENS_SUBDOMAIN = '.beta-addr.dm3.eth';
     });
