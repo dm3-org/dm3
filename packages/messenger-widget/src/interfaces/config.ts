@@ -14,6 +14,7 @@ export interface DM3Configuration {
     genomeRegistryAddress: string;
     showAlways: boolean;
     showContacts: boolean;
+    nonce: string;
     publicVapidKey: string;
     hideFunction?: string;
     theme?: any;

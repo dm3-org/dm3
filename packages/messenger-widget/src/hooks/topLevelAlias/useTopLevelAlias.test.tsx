@@ -28,6 +28,7 @@ const config: DM3Configuration = {
         .REACT_APP_GENOME_REGISTRY_ADDRESS as string,
     publicVapidKey: process.env.REACT_APP_PUBLIC_VAPID_KEY as string,
     defaultContact: 'defaultcontact.eth',
+    nonce: process.env.REACT_APP_NONCE as string,
     showAlways: true,
     showContacts: true,
 };
