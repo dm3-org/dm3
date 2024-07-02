@@ -1,6 +1,7 @@
 datasource db {
-  //url      = env("DATABASE_URL")
-  url      = "postgresql://prisma:prisma@localhost:5433/tests"
+  //Use this URL for local development
+  //url      = "postgresql://prisma:prisma@localhost:5433/tests"
+  url      = env("DATABASE_URL")
   provider = "postgresql"
 }
 
