@@ -1,0 +1,45 @@
+{
+  "$ref": "#/definitions/_AddMessageBatchRequest",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "MessageRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "createdAt": {
+          "type": "number"
+        },
+        "encryptedEnvelopContainer": {
+          "type": "string"
+        },
+        "messageId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "createdAt",
+        "messageId",
+        "encryptedEnvelopContainer"
+      ],
+      "type": "object"
+    },
+    "_AddMessageBatchRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "encryptedContactName": {
+          "type": "string"
+        },
+        "messageBatch": {
+          "items": {
+            "$ref": "#/definitions/MessageRecord"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "messageBatch",
+        "encryptedContactName"
+      ],
+      "type": "object"
+    }
+  }
+}

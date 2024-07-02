@@ -11,6 +11,7 @@ export type MessageContextType = {
     getMessages: GetMessages;
     getUnreadMessageCount: (contact: string) => number;
     addMessage: AddMessage;
+    loadMoreMessages: (contact: string) => Promise<number>;
     contactIsLoading: (contact: string) => boolean;
     messages: MessageStorage;
 };
@@ -22,6 +23,10 @@ export const MessageContext = React.createContext<MessageContextType>({
         new Promise(() => {
             isSuccess: true;
         }),
+    loadMoreMessages: (contact: string) =>
+        new Promise(() => {
+            return 0;
+        }),
     contactIsLoading: (contact: string) => false,
     messages: {},
 });
@@ -30,6 +35,7 @@ export const MessageContextProvider = ({ children }: { children?: any }) => {
     const {
         addMessage,
         getMessages,
+        loadMoreMessages,
         getUnreadMessageCount,
         contactIsLoading,
         messages,
@@ -40,6 +46,7 @@ export const MessageContextProvider = ({ children }: { children?: any }) => {
             value={{
                 addMessage,
                 getMessages,
+                loadMoreMessages,
                 getUnreadMessageCount,
                 contactIsLoading,
                 messages,

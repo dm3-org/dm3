@@ -43,12 +43,16 @@ jobs:
               with:
                   name: lib-schema
                   path: packages/lib/**/schema/
+            - uses: actions/upload-artifact@master
+              with:
+                  name: backend-schema
+                  path: packages/backend/src/schema/storage
     backend-test:
         runs-on: ubuntu-latest
         needs: build
         defaults:
             run:
-                working-directory: 'packages/lib'
+                working-directory: 'packages/backend'
         steps:
             - uses: actions/checkout@v1
             - id: workspace-test
@@ -61,7 +65,7 @@ jobs:
         needs: build
         defaults:
             run:
-                working-directory: 'packages/lib'
+                working-directory: 'packages/delivery-service'
         steps:
             - uses: actions/checkout@v1
             - id: workspace-test

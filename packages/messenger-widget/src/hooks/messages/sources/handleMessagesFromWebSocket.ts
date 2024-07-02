@@ -7,7 +7,7 @@ import {
 import { ProfileKeys, normalizeEnsName } from '@dm3-org/dm3-lib-profile';
 import { ContactPreview } from '../../../interfaces/utils';
 import { AddConversation, StoreMessageAsync } from '../../storage/useStorage';
-import { MessageStorage } from '../useMessage';
+import { MessageModel, MessageSource, MessageStorage } from '../useMessage';
 
 export const handleMessagesFromWebSocket = async (
     addConversation: AddConversation,
@@ -46,11 +46,11 @@ export const handleMessagesFromWebSocket = async (
             ? MessageState.Read
             : MessageState.Send;
 
-    const messageModel = {
+    const messageModel: MessageModel = {
         envelop: decryptedEnvelop,
         messageState,
-        messageChunkKey: '',
         reactions: [],
+        source: MessageSource.WebSocket,
     };
     setMessages((prev: MessageStorage) => {
         //Check if message already exists

@@ -12,10 +12,7 @@ import {
     useStorage,
 } from '../hooks/storage/useStorage';
 import { AuthContext } from './AuthContext';
-import { DeliveryServiceContext } from './DeliveryServiceContext';
-import { BackendConnector } from '../hooks/server-side/BackendConnector';
-import { BackendContext, BackendContextProvider } from './BackendContext';
-import { IBackendConnector } from '@dm3-org/dm3-lib-shared';
+import { BackendContext } from './BackendContext';
 
 export type StorageContextType = {
     storeMessage: StoreMessageAsync;
@@ -42,9 +39,11 @@ export const StorageContext = React.createContext<StorageContextType>({
         contact: string,
         batch: StorageEnvelopContainer[],
     ) => {},
-    getConversations: async (page: number) => Promise.resolve([]),
+    getConversations: async (size: number, offset: number) =>
+        Promise.resolve([]),
     addConversationAsync: (contact: string) => {},
-    getMessages: async (contact: string, page: number) => Promise.resolve([]),
+    getMessages: async (contact: string, pageSize: number, offset: number) =>
+        Promise.resolve([]),
     getNumberOfMessages: async (contact: string) => Promise.resolve(0),
     toggleHideContactAsync: async (contact: string, value: boolean) => {},
     initialized: false,

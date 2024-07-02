@@ -1,10 +1,11 @@
 import { Envelop, MessageState } from '@dm3-org/dm3-lib-messaging';
 
 export interface StorageAPI {
-    getConversationList: (page: number) => Promise<Conversation[]>;
+    getConversations: (size: number, offset: number) => Promise<Conversation[]>;
     getMessages: (
         contactEnsName: string,
-        page: number,
+        pageSize: number,
+        offset: number,
     ) => Promise<StorageEnvelopContainer[]>;
     addMessageBatch: (
         contactEnsName: string,
@@ -33,9 +34,12 @@ export interface StorageEnvelopContainer {
 }
 
 export interface Conversation {
+    //the contactEnsName is the ensName of the contact
     contactEnsName: string;
+    //the previewMessage is the last message of the conversation
+    previewMessage?: StorageEnvelopContainer;
+    //isHidden is a flag to hide the conversation from the conversation list
     isHidden: boolean;
-    messageCounter: number;
 }
 
 export type Encryption = {

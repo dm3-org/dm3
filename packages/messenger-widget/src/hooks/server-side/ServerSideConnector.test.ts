@@ -5,7 +5,6 @@ import {
     getStorageKeyCreationMessage,
 } from '@dm3-org/dm3-lib-crypto';
 import {
-    DEFAULT_NONCE,
     ProfileKeys,
     SignedUserProfile,
     UserProfile,
@@ -24,6 +23,7 @@ describe('Server Side Connector', () => {
     let axiosMock: MockAdapter;
     //Prepare a user profile that is used to test the server side connector
     beforeEach(async () => {
+        const DEFAULT_NONCE = 'u0h3o4a8c4n7m2j231dssa7';
         const userWallet = ethers.Wallet.createRandom();
         const storageKeyCreationMessage = getStorageKeyCreationMessage(
             DEFAULT_NONCE,

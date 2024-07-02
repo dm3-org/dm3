@@ -1,17 +1,21 @@
 import { PrismaClient } from '@prisma/client';
-import { getOrCreateAccount } from './utils/getOrCreateAccount';
-
-const PAGE_SIZE = 100;
 
 export const getMessages =
     (db: PrismaClient) =>
-    async (ensName: string, encryptedContactName: string, page: number) => {
+    async (
+        ensName: string,
+        encryptedContactName: string,
+        pageSize: number,
+        offset: number,
+    ) => {
+        //Find the account first we want to get the messages for
         const account = await db.account.findFirst({
             where: {
                 id: ensName,
             },
         });
 
+        //If the contact does not exist, return an empty array
         if (!account) {
             return [];
         }
@@ -29,11 +33,14 @@ export const getMessages =
 
         try {
             const messageRecord = await db.encryptedMessage.findMany({
-                skip: page * PAGE_SIZE,
-                take: PAGE_SIZE,
+                skip: offset * pageSize,
+                take: pageSize,
                 where: {
                     ownerId: account.id,
                     encryptedContactName,
+                },
+                orderBy: {
+                    createdAt: 'desc',
                 },
             });
             if (messageRecord.length === 0) {

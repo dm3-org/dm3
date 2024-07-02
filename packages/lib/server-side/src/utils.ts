@@ -36,11 +36,7 @@ export async function auth(
     ) {
         next();
     } else {
-        winston.loggers.get('default').warn({
-            method: 'AUTH',
-            error: 'Token check failed',
-            normalizedEnsName,
-        });
+        console.warn('AUTH Token check failed for ', normalizedEnsName);
         res.sendStatus(401);
     }
 }

@@ -4,7 +4,6 @@ import {
 } from '@dm3-org/dm3-lib-crypto';
 import {
     Account,
-    DEFAULT_NONCE,
     ProfileKeys,
     SignedUserProfile,
     UserProfile,
@@ -141,7 +140,7 @@ export const useAuth = () => {
         signMessage: SignMessageFn,
     ) => {
         async function createProfileKeys(
-            nonce: string = DEFAULT_NONCE,
+            nonce: string = dm3Configuration.nonce,
         ): Promise<ProfileKeys> {
             if (!address) {
                 throw Error('No eth address');

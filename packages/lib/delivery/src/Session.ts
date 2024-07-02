@@ -38,8 +38,6 @@ export async function checkToken(
     token: string,
     serverSecret: string,
 ): Promise<boolean> {
-    console.debug('checking auth token', decode(token));
-
     const session = await getSession(ensName.toLocaleLowerCase());
     if (!session) {
         console.debug('there is no account for this ens name: ', ensName);
@@ -52,7 +50,6 @@ export async function checkToken(
         const jwtPayload = verify(token, serverSecret, {
             algorithms: ['HS256'],
         });
-        console.log('jwt payload', decode(token));
 
         // check if payload is well formed
         if (
