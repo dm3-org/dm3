@@ -95,7 +95,8 @@ services:
             DATABASE_URL: postgresql://postgres:example@offchain-resolver-db:5432
             PORT: 8082
             RPC: ${RPC}
-            REACT_APP_ADDR_ENS_SUBDOMAIN: ${REACT_APP_ADDR_ENS_SUBDOMAIN}
+            RESOLVER_SUPPORTED_ADDR_ENS_SUBDOMAINS: ${REACT_APP_ADDR_ENS_SUBDOMAIN}
+            RESOLVER_SUPPORTED_NAME_ENS_SUBDOMAINS: ${REACT_APP_NAME_ENS_SUBDOMAIN}
             LOG_LEVEL: 'debug'
 
     web:
