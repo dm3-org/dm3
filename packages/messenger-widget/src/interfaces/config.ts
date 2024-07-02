@@ -10,8 +10,6 @@ export interface DM3Configuration {
     defaultDeliveryService: string;
     backendUrl: string;
     chainId: string;
-    resolverAddress: string;
-    genomeRegistryAddress: string;
     showAlways: boolean;
     showContacts: boolean;
     nonce: string;

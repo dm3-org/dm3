@@ -43,8 +43,6 @@ Follow the below given steps :-
     REACT_APP_USER_ENS_SUBDOMAIN=.beta-user.dm3.eth
     REACT_APP_WALLET_CONNECT_PROJECT_ID=27b3e102adae76b4d4902a035da435e7
     REACT_APP_CHAIN_ID=11155111
-    REACT_APP_RESOLVER_ADDR=0xae6646c22D8eE6479eE0a39Bf63B9bD9e57bAD9d
-    REACT_APP_GENOME_REGISTRY_ADDRESS=0x5dC881dDA4e4a8d312be3544AD13118D1a04Cb17
     REACT_APP_PUBLIC_VAPID_KEY=BFCJLre0GeM6S-n4mkMX4SLZWlDR9qc8RsHyctsOPh_QDQkBuvCrMe9Rmq24736F-CJFp-3DkDWhp19X7mOJrEc
     REACT_APP_NONCE=0x123
    ```
@@ -61,8 +59,6 @@ Follow the below given steps :-
     REACT_APP_WALLET_CONNECT_PROJECT_ID=27b3e102adae76b4d4902a035da435e7
     REACT_APP_MAINNET_PROVIDER_RPC=https://eth-mainnet.g.alchemy.com/v2/<alchemy-key>
     REACT_APP_CHAIN_ID=1
-    REACT_APP_RESOLVER_ADDR=0xae6646c22D8eE6479eE0a39Bf63B9bD9e57bAD9d
-    REACT_APP_GENOME_REGISTRY_ADDRESS=0x5dC881dDA4e4a8d312be3544AD13118D1a04Cb17
     REACT_APP_PUBLIC_VAPID_KEY=BFCJLre0GeM6S-n4mkMX4SLZWlDR9qc8RsHyctsOPh_QDQkBuvCrMe9Rmq24736F-CJFp-3DkDWhp19X7mOJrEc
     REACT_APP_NONCE=0x123
    ```
@@ -82,12 +78,9 @@ Follow the below given steps :-
             defaultDeliveryService: process.env.REACT_APP_DEFAULT_DELIVERY_SERVICE as string,
             backendUrl: process.env.REACT_APP_BACKEND as string,
             chainId: process.env.REACT_APP_CHAIN_ID as string,
-            resolverAddress: process.env.REACT_APP_RESOLVER_ADDR as string,
             defaultServiceUrl: process.env.REACT_APP_DEFAULT_SERVICE as string,
             ethereumProvider: process.env.REACT_APP_MAINNET_PROVIDER_RPC as string,
             walletConnectProjectId: process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID as string,
-            genomeRegistryAddress: process.env
-            .REACT_APP_GENOME_REGISTRY_ADDRESS as string,
             publicVapidKey: process.env.REACT_APP_PUBLIC_VAPID_KEY as string,
             nonce: process.env.REACT_APP_NONCE as string,
             defaultContact: 'help.dm3.eth',
@@ -167,8 +160,6 @@ Follow the below given steps :-
     NEXT_PUBLIC_USER_ENS_SUBDOMAIN=.beta-user.dm3.eth
     NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=27b3e102adae76b4d4902a035da435e7
     NEXT_PUBLIC_CHAIN_ID=11155111
-    NEXT_PUBLIC_RESOLVER_ADDR=0xae6646c22D8eE6479eE0a39Bf63B9bD9e57bAD9d
-    NEXT_PUBLIC_GENOME_REGISTRY_ADDRESS=0x5dC881dDA4e4a8d312be3544AD13118D1a04Cb17
     NEXT_PUBLIC_PUBLIC_VAPID_KEY=BFCJLre0GeM6S-n4mkMX4SLZWlDR9qc8RsHyctsOPh_QDQkBuvCrMe9Rmq24736F-CJFp-3DkDWhp19X7mOJrEc
     NEXT_PUBLIC_NONCE=0x123
    ```
@@ -185,8 +176,6 @@ Follow the below given steps :-
     NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=27b3e102adae76b4d4902a035da435e7
     NEXT_PUBLIC_MAINNET_PROVIDER_RPC=https://eth-mainnet.g.alchemy.com/v2/<alchemy-key>
     NEXT_PUBLIC_CHAIN_ID=1
-    NEXT_PUBLIC_RESOLVER_ADDR=0xae6646c22D8eE6479eE0a39Bf63B9bD9e57bAD9d
-    NEXT_PUBLIC_GENOME_REGISTRY_ADDRESS=0x5dC881dDA4e4a8d312be3544AD13118D1a04Cb17
     NEXT_PUBLIC_PUBLIC_VAPID_KEY=BFCJLre0GeM6S-n4mkMX4SLZWlDR9qc8RsHyctsOPh_QDQkBuvCrMe9Rmq24736F-CJFp-3DkDWhp19X7mOJrEc
     NEXT_PUBLIC_NONCE=0x123
    ```
@@ -222,9 +211,7 @@ Follow the below given steps :-
          REACT_APP_WALLET_CONNECT_PROJECT_ID: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID,
          REACT_APP_CHAIN_ID: process.env.NEXT_PUBLIC_CHAIN_ID,
          REACT_APP_MAINNET_PROVIDER_RPC: process.env.NEXT_PUBLIC_MAINNET_PROVIDER_RPC,
-         RESOLVER_ADDR: process.env.NEXT_PUBLIC_RESOLVER_ADDR,
-         REACT_APP_GENOME_REGISTRY_ADDRESS: process.env.NEXT_PUBLIC_GENOME_REGISTRY_ADDRESS,
-         REACT_APP_PUBLIC_VAPID_KEY: process.env.NEXT_PUBLIC_PUBLIC_VAPID_KEY,
+         REACT_APP_PUBLIC_VAPID_KEY: process.env.NEXT_PUBLIC_PUBLIC_VAPID_KEY
          REACT_APP_NONCE: process.env.NEXT_PUBLIC_NONCE,
       },
    };
@@ -247,12 +234,9 @@ Follow the below given steps :-
             defaultDeliveryService: process.env.REACT_APP_DEFAULT_DELIVERY_SERVICE as string,
             backendUrl: process.env.REACT_APP_BACKEND as string,
             chainId: process.env.REACT_APP_CHAIN_ID as string,
-            resolverAddress: process.env.REACT_APP_RESOLVER_ADDR as string,
             defaultServiceUrl: process.env.REACT_APP_DEFAULT_SERVICE as string,
             ethereumProvider: process.env.REACT_APP_MAINNET_PROVIDER_RPC as string,
             walletConnectProjectId: process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID as string,
-            genomeRegistryAddress: process.env
-            .REACT_APP_GENOME_REGISTRY_ADDRESS as string,
             publicVapidKey: process.env.REACT_APP_PUBLIC_VAPID_KEY as string,
             nonce: process.env.REACT_APP_NONCE as string,
             defaultContact: 'help.dm3.eth',
@@ -319,9 +303,7 @@ yarn run dev
             REACT_APP_RESOLVER_BACKEND: "http://134.122.95.165/resolver-handler",
             REACT_APP_USER_ENS_SUBDOMAIN: ".beta-user.dm3.eth",
             REACT_APP_WALLET_CONNECT_PROJECT_ID: "27b3e102adae76b4d4902a035da435e7",
-            REACT_APP_RESOLVER_ADDR: "0xae6646c22D8eE6479eE0a39Bf63B9bD9e57bAD9d",
             REACT_APP_CHAIN_ID: "11155111",
-            REACT_APP_GENOME_REGISTRY_ADDRESS: "0x5dC881dDA4e4a8d312be3544AD13118D1a04Cb17",
             REACT_APP_PUBLIC_VAPID_KEY: "BFCJLre0GeM6S-n4mkMX4SLZWlDR9qc8RsHyctsOPh_QDQkBuvCrMe9Rmq24736F-CJFp-3DkDWhp19X7mOJrEc",
             REACT_APP_NONCE: "0x123"
          }
@@ -349,9 +331,7 @@ yarn run dev
             REACT_APP_RESOLVER_BACKEND: "https://app.dm3.network/resolver-handler",
             REACT_APP_USER_ENS_SUBDOMAIN: ".user.dm3.eth",
             REACT_APP_WALLET_CONNECT_PROJECT_ID: "27b3e102adae76b4d4902a035da435e7",
-            REACT_APP_RESOLVER_ADDR: "0xae6646c22D8eE6479eE0a39Bf63B9bD9e57bAD9d",
             REACT_APP_CHAIN_ID: "1",
-            REACT_APP_GENOME_REGISTRY_ADDRESS: "0x5dC881dDA4e4a8d312be3544AD13118D1a04Cb17",
             REACT_APP_PUBLIC_VAPID_KEY: "BFCJLre0GeM6S-n4mkMX4SLZWlDR9qc8RsHyctsOPh_QDQkBuvCrMe9Rmq24736F-CJFp-3DkDWhp19X7mOJrEc",
             REACT_APP_NONCE: "0x123"
          }

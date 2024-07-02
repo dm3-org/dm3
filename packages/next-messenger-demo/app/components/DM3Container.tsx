@@ -13,14 +13,11 @@ export default function DM3Container() {
             .NEXT_PUBLIC_DEFAULT_DELIVERY_SERVICE as string,
         backendUrl: process.env.NEXT_PUBLIC_BACKEND as string,
         chainId: process.env.NEXT_PUBLIC_CHAIN_ID as string,
-        resolverAddress: process.env.NEXT_PUBLIC_RESOLVER_ADDR as string,
         defaultServiceUrl: process.env.NEXT_PUBLIC_DEFAULT_SERVICE as string,
         ethereumProvider: process.env
             .NEXT_PUBLIC_MAINNET_PROVIDER_RPC as string,
         walletConnectProjectId: process.env
             .NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID as string,
-        genomeRegistryAddress: process.env
-            .NEXT_PUBLIC_GENOME_REGISTRY_ADDRESS as string,
         publicVapidKey: process.env.NEXT_PUBLIC_PUBLIC_VAPID_KEY as string,
         nonce: process.env.NEXT_APP_NONCE as string,
         defaultContact: 'contact.dm3.eth',
