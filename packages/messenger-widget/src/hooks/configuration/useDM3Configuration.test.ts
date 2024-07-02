@@ -16,8 +16,6 @@ const config: DM3Configuration = {
     defaultDeliveryService: '',
     backendUrl: '',
     chainId: '',
-    resolverAddress: '',
-    genomeRegistryAddress: '',
     showAlways: true,
     showContacts: true,
     publicVapidKey: '',

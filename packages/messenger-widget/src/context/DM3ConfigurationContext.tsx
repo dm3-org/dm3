@@ -28,8 +28,6 @@ export const DM3ConfigurationContext =
             defaultDeliveryService: '',
             backendUrl: '',
             chainId: '',
-            resolverAddress: '',
-            genomeRegistryAddress: '',
             showAlways: true,
             showContacts: true,
             publicVapidKey: '',

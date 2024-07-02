@@ -38,13 +38,10 @@ function App() {
             .REACT_APP_DEFAULT_DELIVERY_SERVICE as string,
         backendUrl: process.env.REACT_APP_BACKEND as string,
         chainId: process.env.REACT_APP_CHAIN_ID as string,
-        resolverAddress: process.env.REACT_APP_RESOLVER_ADDR as string,
         defaultServiceUrl: process.env.REACT_APP_DEFAULT_SERVICE as string,
         ethereumProvider: process.env.REACT_APP_MAINNET_PROVIDER_RPC as string,
         walletConnectProjectId: process.env
             .REACT_APP_WALLET_CONNECT_PROJECT_ID as string,
-        genomeRegistryAddress: process.env
-            .REACT_APP_GENOME_REGISTRY_ADDRESS as string,
         publicVapidKey: process.env.REACT_APP_PUBLIC_VAPID_KEY as string,
         showAlways: true,
         hideFunction: undefined, // OPTIONAL PARAMETER : 'attachments,edit,delete' or undefined

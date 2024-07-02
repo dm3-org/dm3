@@ -24,7 +24,6 @@ export const DEFAULT_DM3_CONFIGURATION = {
     backendUrl: '',
     chainId: '',
     resolverAddress: '',
-    genomeRegistryAddress: '',
     showAlways: false,
     showContacts: false,
     publicVapidKey: '',
