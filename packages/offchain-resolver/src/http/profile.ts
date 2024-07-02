@@ -11,6 +11,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
     const router = express.Router();
     //subdomain manager for address domains
     const addressSubdomainManager = new SubdomainManager('ADDR_ENS_SUBDOMAINS');
+    //subdomain manager for name domains
     const nameSubdomainManager = new SubdomainManager('NAME_ENS_SUBDOMAINS');
 
     //Special route for eth prague
