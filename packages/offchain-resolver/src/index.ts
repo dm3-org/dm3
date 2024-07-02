@@ -21,7 +21,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 (async () => {
-    console.log('OffchainResolver env', process.env);
+    console.log('offchainResolver handler env', process.env);
 
     app.locals.db = await getDatabase();
     app.locals.config = {
