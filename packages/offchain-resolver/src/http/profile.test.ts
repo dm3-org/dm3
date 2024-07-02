@@ -57,8 +57,12 @@ describe('Profile', () => {
 
         app.locals.config.spamProtection = true;
 
-        process.env.ADDR_ENS_SUBDOMAINS = JSON.stringify(['beta-addr.dm3.eth']);
-        process.env.NAME_ENS_SUBDOMAINS = JSON.stringify(['beta-name.dm3.eth']);
+        process.env.RESOLVER_SUPPORTED_ADDR_ENS_SUBDOMAINS = JSON.stringify([
+            'beta-addr.dm3.eth',
+        ]);
+        process.env.RESOLVER_SUPPORTED_NAME_ENS_SUBDOMAINS = JSON.stringify([
+            'beta-name.dm3.eth',
+        ]);
     });
 
     afterEach(async () => {

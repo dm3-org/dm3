@@ -127,8 +127,12 @@ describe('Resolver Endpoint', () => {
     });
 
     describe('Get UserProfile Offchain', () => {
-        process.env.ADDR_ENS_SUBDOMAINS = JSON.stringify(['beta-addr.dm3.eth']);
-        process.env.NAME_ENS_SUBDOMAINS = JSON.stringify(['beta-name.dm3.eth']);
+        process.env.RESOLVER_SUPPORTED_ADDR_ENS_SUBDOMAINS = JSON.stringify([
+            'beta-addr.dm3.eth',
+        ]);
+        process.env.RESOLVER_SUPPORTED_NAME_ENS_SUBDOMAINS = JSON.stringify([
+            'beta-name.dm3.eth',
+        ]);
         describe('ResolveText', () => {
             it('Returns valid Offchain profile', async () => {
                 const { signature, profile, signer, privateSigningKey } =
