@@ -245,6 +245,8 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     signedUserProfile,
                 );
 
+                console.log('register new address', address, subdomain);
+
                 //Check if schema is valid
                 if (
                     !isSchemaValid ||
