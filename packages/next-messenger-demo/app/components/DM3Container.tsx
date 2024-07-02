@@ -22,6 +22,7 @@ export default function DM3Container() {
         genomeRegistryAddress: process.env
             .NEXT_PUBLIC_GENOME_REGISTRY_ADDRESS as string,
         publicVapidKey: process.env.NEXT_PUBLIC_PUBLIC_VAPID_KEY as string,
+        nonce: process.env.NEXT_APP_NONCE as string,
         defaultContact: 'contact.dm3.eth',
         showAlways: true,
         hideFunction: undefined, // OPTIONAL PARAMETER : 'attachments,edit,delete' or undefined
