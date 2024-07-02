@@ -43,6 +43,7 @@ function App() {
         walletConnectProjectId: process.env
             .REACT_APP_WALLET_CONNECT_PROJECT_ID as string,
         publicVapidKey: process.env.REACT_APP_PUBLIC_VAPID_KEY as string,
+        nonce: process.env.REACT_APP_NONCE as string,
         showAlways: true,
         hideFunction: undefined, // OPTIONAL PARAMETER : 'attachments,edit,delete' or undefined
         showContacts: true, // true for all contacts / false for default contact

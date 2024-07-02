@@ -35,6 +35,7 @@ const Dm3Widget: React.FC = () => {
         walletConnectProjectId: process.env
             .REACT_APP_WALLET_CONNECT_PROJECT_ID as string,
         publicVapidKey: process.env.REACT_APP_PUBLIC_VAPID_KEY as string,
+        nonce: process.env.REACT_APP_NONCE as string,
         showAlways: true,
         showContacts: !isMessageToSet, // Show all contacts or only the default based on the message destination
         signInImage: signInImagePath, // Dynamic image path based on the current week

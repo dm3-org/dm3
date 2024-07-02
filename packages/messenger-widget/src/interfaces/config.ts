@@ -12,6 +12,7 @@ export interface DM3Configuration {
     chainId: string;
     showAlways: boolean;
     showContacts: boolean;
+    nonce: string;
     publicVapidKey: string;
     hideFunction?: string;
     theme?: any;
