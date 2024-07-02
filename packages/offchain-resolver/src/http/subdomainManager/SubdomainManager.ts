@@ -21,7 +21,7 @@ export class SubdomainManager {
             console.error(
                 'Error parsing supported subdomains. Please provide a valid JSON array',
                 'received: ',
-                key,
+                supportedSubdomainsEnvVar,
             );
         }
 
