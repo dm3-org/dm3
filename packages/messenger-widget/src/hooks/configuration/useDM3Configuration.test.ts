@@ -21,6 +21,7 @@ const config: DM3Configuration = {
     showAlways: true,
     showContacts: true,
     publicVapidKey: '',
+    nonce: '',
 };
 
 describe('useDM3Configuration hook test cases', () => {

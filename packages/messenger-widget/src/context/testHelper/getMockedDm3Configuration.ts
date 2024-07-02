@@ -28,4 +28,5 @@ export const DEFAULT_DM3_CONFIGURATION = {
     showAlways: false,
     showContacts: false,
     publicVapidKey: '',
+    nonce: '',
 };
