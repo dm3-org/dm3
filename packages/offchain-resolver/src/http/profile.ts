@@ -11,6 +11,7 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
     const router = express.Router();
     //subdomain manager for address domains
     const addressSubdomainManager = new SubdomainManager('ADDR_ENS_SUBDOMAINS');
+    const nameSubdomainManager = new SubdomainManager('NAME_ENS_SUBDOMAINS');
 
     //Special route for eth prague
     router.post(
@@ -160,6 +161,13 @@ export function profile(web3Provider: ethers.providers.BaseProvider) {
                     return res
                         .status(400)
                         .send({ error: 'Insuficient ETH balance' });
+                }
+
+                //ask the subdomain manager if the names subdomain is supported
+                if (!nameSubdomainManager.isSubdomainSupported(dm3Name)) {
+                    return res.status(400).send({
+                        error: `dm3 name ${dm3Name} is not supported. Invalid subdomain`,
+                    });
                 }
 
                 if (!(await req.app.locals.db.setAlias(addressName, dm3Name))) {

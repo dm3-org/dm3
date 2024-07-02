@@ -58,6 +58,7 @@ describe('Profile', () => {
         app.locals.config.spamProtection = true;
 
         process.env.ADDR_ENS_SUBDOMAINS = JSON.stringify(['beta-addr.dm3.eth']);
+        process.env.NAME_ENS_SUBDOMAINS = JSON.stringify(['beta-name.dm3.eth']);
     });
 
     afterEach(async () => {
@@ -175,11 +176,11 @@ describe('Profile', () => {
             const res1 = await request(app)
                 .post(`/name`)
                 .send({
-                    dm3Name: 'foo.dm3.eth',
+                    dm3Name: 'foo.beta-name.dm3.eth',
                     addressName: offChainProfile1.signer + '.beta-addr.dm3.eth',
                     signature: await sign(
                         offChainProfile1.privateSigningKey,
-                        'alias: foo.dm3.eth',
+                        'alias: foo.beta-name.dm3.eth',
                     ),
                 });
 
@@ -202,11 +203,11 @@ describe('Profile', () => {
             const res2 = await request(app2)
                 .post(`/name`)
                 .send({
-                    dm3Name: 'foo.dm3.eth',
+                    dm3Name: 'foo.beta-name.dm3.eth',
                     addressName: offChainProfile1.signer + '.beta-addr.dm3.eth',
                     signature: await sign(
                         offChainProfile1.privateSigningKey,
-                        'alias: foo.dm3.eth',
+                        'alias: foo.beta-name.dm3.eth',
                     ),
                 });
 
@@ -382,11 +383,11 @@ describe('Profile', () => {
             const writeRes2 = await request(app)
                 .post(`/name`)
                 .send({
-                    dm3Name: 'foo.dm3.eth',
+                    dm3Name: 'foo.beta-name.dm3.eth',
                     addressName: signer + '.beta-addr.dm3.eth',
                     signature: await sign(
                         privateSigningKey,
-                        'alias: foo.dm3.eth',
+                        'alias: foo.beta-name.dm3.eth',
                     ),
                 });
             expect(writeRes2.status).to.equal(200);
@@ -394,10 +395,10 @@ describe('Profile', () => {
             const writeRes3 = await request(app)
                 .post(`/deleteName`)
                 .send({
-                    dm3Name: 'foo.dm3.eth',
+                    dm3Name: 'foo.beta-name.dm3.eth',
                     signature: await sign(
                         privateSigningKey,
-                        'remove: foo.dm3.eth',
+                        'remove: foo.beta-name.dm3.eth',
                     ),
                 });
             expect(writeRes3.status).to.equal(200);
@@ -416,6 +417,43 @@ describe('Profile', () => {
                 .get(`/${SENDER_ADDRESS}`)
                 .send();
             expect(status).to.equal(404);
+        });
+
+        it('Rejcts invalid name subdomain', async () => {
+            app.use(profile(provider));
+            const {
+                signer,
+                profile: userProfile,
+                signature,
+                privateSigningKey,
+            } = app.locals.forTests;
+
+            const writeRes = await request(app)
+                .post(`/address`)
+                .send({
+                    address: signer,
+                    signedUserProfile: {
+                        signature,
+                        profile: userProfile,
+                    },
+                    subdomain: 'beta-addr.dm3.eth',
+                });
+            expect(writeRes.status).to.equal(200);
+
+            const createNAmeResponse = await request(app)
+                .post(`/name`)
+                .send({
+                    dm3Name: 'foo.rando.eth',
+                    addressName: signer + '.beta-addr.dm3.eth',
+                    signature: await sign(
+                        privateSigningKey,
+                        'alias: foo.rando.eth',
+                    ),
+                });
+            expect(createNAmeResponse.status).to.equal(400);
+            expect(createNAmeResponse.body.error).to.equal(
+                'dm3 name foo.rando.eth is not supported. Invalid subdomain',
+            );
         });
 
         it('Returns the profile linked to ', async () => {
@@ -442,13 +480,14 @@ describe('Profile', () => {
             const writeRes2 = await request(app)
                 .post(`/name`)
                 .send({
-                    dm3Name: 'foo.dm3.eth',
+                    dm3Name: 'foo.beta-name.dm3.eth',
                     addressName: signer + '.beta-addr.dm3.eth',
                     signature: await sign(
                         privateSigningKey,
-                        'alias: foo.dm3.eth',
+                        'alias: foo.beta-name.dm3.eth',
                     ),
                 });
+            console.log('writeRes2', writeRes2.body);
             expect(writeRes2.status).to.equal(200);
 
             const { status, body } = await request(app)
