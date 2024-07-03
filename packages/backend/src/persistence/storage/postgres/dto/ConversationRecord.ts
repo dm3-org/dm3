@@ -3,4 +3,6 @@ export type ConversationRecord = {
     contact: string;
     //The last message of that user
     previewMessage: string | null;
+    //The time the conversation was last updated
+    updatedAt: Date;
 };
