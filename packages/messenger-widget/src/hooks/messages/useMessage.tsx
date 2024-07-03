@@ -445,6 +445,7 @@ export const useMessage = () => {
         });
 
         setContactsLoading((prev) => {
+            console.log("prev : ", prev);
             return prev.filter((contact) => contact !== contactName);
         });
 

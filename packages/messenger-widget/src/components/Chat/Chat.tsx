@@ -67,6 +67,7 @@ export function Chat() {
         const isLoading = contactIsLoading(
             selectedContact?.contactDetails.account.ensName!,
         );
+        console.log("contactIsLoading ::: ", isLoading);
         // shim effect must be visible only if the messages are loaded first time
         if (!messages.length) {
             setShowShimEffect(isLoading);

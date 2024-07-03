@@ -30,9 +30,11 @@ export const getCloudStorage = (
                 async ({
                     contact,
                     previewMessage,
+                    updatedAt,
                 }: {
                     contact: string;
                     previewMessage: string | null;
+                    updatedAt: Date;
                 }) => ({
                     contactEnsName: await encryption.decryptSync(contact),
                     isHidden: false,
@@ -42,6 +44,7 @@ export const getCloudStorage = (
                               await encryption.decryptAsync(previewMessage),
                           )
                         : null,
+                    updatedAt: updatedAt.getTime() /// what should be set here?
                 }),
             ),
         );
