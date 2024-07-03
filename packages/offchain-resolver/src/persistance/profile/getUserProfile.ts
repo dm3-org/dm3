@@ -24,7 +24,7 @@ export function getUserProfile(db: PrismaClient) {
                   ) as UserProfile)
                 : null;
 
-        global.logger.debug({
+        console.debug({
             message: 'getUserProfile',
             nameHash: ethers.utils.namehash(name),
             userProfile,

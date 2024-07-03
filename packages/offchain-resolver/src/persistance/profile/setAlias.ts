@@ -26,7 +26,7 @@ export function setAlias(db: PrismaClient) {
                 },
             });
 
-            global.logger.debug({
+            console.debug({
                 message: 'setAlias',
                 id: uuidv4(),
                 alias: normalizeEnsName(alias),

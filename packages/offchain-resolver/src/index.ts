@@ -1,11 +1,10 @@
-import * as dotenv from 'dotenv';
 import bodyParser from 'body-parser';
+import cors from 'cors';
+import * as dotenv from 'dotenv';
 import express from 'express';
 import http from 'http';
-import cors from 'cors';
-import winston from 'winston';
-import { getDatabase } from './persistence/getDatabase';
 import { resolverEndpoint } from './http/resolverEndpoint';
+import { getDatabase } from './persistance/getDatabase';
 import { getWeb3Provider } from './utils/getWeb3Provider';
 
 import { profile } from './http/profile';
@@ -21,23 +20,10 @@ const server = http.createServer(app);
 app.use(cors());
 app.use(bodyParser.json());
 
-declare global {
-    var logger: winston.Logger;
-}
-
-global.logger = winston.createLogger({
-    level: process.env.LOG_LEVEL ?? 'info',
-    transports: [new winston.transports.Console()],
-});
-
 (async () => {
-    app.locals.logger = winston.createLogger({
-        transports: [new winston.transports.Console()],
-    });
+    console.log('offchainResolver handler env', process.env);
 
-    console.log('OffchainResolver env', process.env);
-
-    app.locals.db = await getDatabase(app.locals.logger);
+    app.locals.db = await getDatabase();
     app.locals.config = {
         spamProtection: process.env.SPAM_PROTECTION === 'true',
     };
@@ -47,7 +33,7 @@ global.logger = winston.createLogger({
 })();
 const port = process.env.PORT || '8081';
 server.listen(port, () => {
-    app.locals.logger.info(
+    console.info(
         '[Server] listening at port ' + port + ' and dir ' + __dirname,
     );
 });

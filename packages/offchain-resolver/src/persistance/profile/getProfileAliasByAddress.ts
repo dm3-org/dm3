@@ -18,7 +18,7 @@ export function getProfileAliasByAddress(db: PrismaClient) {
             },
         });
 
-        global.logger.debug({
+        console.debug({
             message: 'getProfileContainerByAddress',
             address,
             alias,
