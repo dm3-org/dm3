@@ -1,6 +1,7 @@
 //Simple cache using LRU as a cache strategy to keep the most recent values
 
 import { IPersistance } from '../persistance/IPersistance';
+import { InMemory } from '../persistance/InMemory';
 import { ICache } from './ICache';
 
 //Thanks to Gashawk.io for the implementation
@@ -8,7 +9,10 @@ export class LRUCache<T> implements ICache<T> {
     private capacity: number;
     private persistance: IPersistance<T>;
 
-    constructor(capacity: number, persistance: IPersistance<T>) {
+    constructor(
+        capacity: number,
+        persistance: IPersistance<T> = new InMemory(),
+    ) {
         this.capacity = capacity;
         this.persistance = persistance;
     }
