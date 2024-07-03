@@ -48,8 +48,12 @@ export type MessageStorage = {
 };
 
 export const useMessage = () => {
-    const { contacts, selectedContact, addConversation } =
-        useContext(ConversationContext);
+    const {
+        contacts,
+        selectedContact,
+        addConversation,
+        updateConversationList,
+    } = useContext(ConversationContext);
     const { account, profileKeys } = useContext(AuthContext);
     const { fetchNewMessages, syncAcknowledgment } = useContext(
         DeliveryServiceContext,
@@ -102,6 +106,7 @@ export const useMessage = () => {
                 selectedContact!,
                 encryptedEnvelop,
                 resolveTLDtoAlias,
+                updateConversationList,
             );
         });
 
@@ -365,6 +370,7 @@ export const useMessage = () => {
                 contactName,
                 fetchNewMessages,
                 syncAcknowledgment,
+                updateConversationList,
             ),
         ]);
         const flatten = initialMessages.reduce(
