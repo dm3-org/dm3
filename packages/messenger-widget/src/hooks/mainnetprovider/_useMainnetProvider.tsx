@@ -2,6 +2,7 @@
 import { ethers } from 'ethers';
 import { getCachedProvider } from './cache/providerCache';
 import { DM3Configuration } from '../../interfaces/config';
+import { Web3ProviderCacheFactory } from '@dm3-org/dm3-lib-shared';
 
 export const _useMainnetProvider = (
     dm3Configuration: DM3Configuration,
@@ -31,5 +32,10 @@ export const _useMainnetProvider = (
     // Mainnet provider provides access to a mainnet provider. On testnet that would be sepolia
     const provider = chainID === '1' ? mainnetProvider : sepoliaProvider;
 
-    return getCachedProvider(provider);
+    //Use the provider cache to cache the provider
+    const providerWithCache = new Web3ProviderCacheFactory(
+        provider,
+    ).TTLLocalStorage();
+
+    return providerWithCache;
 };

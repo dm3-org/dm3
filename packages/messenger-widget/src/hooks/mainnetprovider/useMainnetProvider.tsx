@@ -8,6 +8,7 @@ export const useMainnetProvider = () => {
             console.log('dc');
         },
     });
+
     const { provider } = React.useContext(MainnetProviderContext);
     return provider;
 };
