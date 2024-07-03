@@ -1,10 +1,10 @@
 import { IPersistance } from './IPersistance';
 //Simply store items in Memory
 export class InMemory<T> implements IPersistance<T> {
-    private persistance: Map<string, T>;
+    private readonly persistance: Map<string, T>;
 
-    constructor() {
-        this.persistance = new Map();
+    constructor(persistance: Map<string, T> = new Map()) {
+        this.persistance = persistance;
     }
     has(key: string): boolean {
         return this.persistance.has(key);
@@ -31,5 +31,13 @@ export class InMemory<T> implements IPersistance<T> {
 
     clear(): void {
         this.persistance.clear();
+    }
+    serialize(): string {
+        return JSON.stringify(Array.from(this.persistance.entries()));
+    }
+
+    static fromJson<T>(json: string): InMemory<T> {
+        const entries = JSON.parse(json) as [string, T][];
+        return new InMemory<T>(new Map(entries));
     }
 }
