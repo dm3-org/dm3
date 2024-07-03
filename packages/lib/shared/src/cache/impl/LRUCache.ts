@@ -1,49 +1,50 @@
 //Simple cache using LRU as a cache strategy to keep the most recent values
 
+import { IPersistance } from '../persistance/IPersistance';
 import { ICache } from './ICache';
 
 //Thanks to Gashawk.io for the implementation
 export class LRUCache<T> implements ICache<T> {
     private capacity: number;
-    private cache: Map<string, T>;
+    private persistance: IPersistance<T>;
 
-    constructor(capacity: number) {
+    constructor(capacity: number, persistance: IPersistance<T>) {
         this.capacity = capacity;
-        this.cache = new Map();
+        this.persistance = persistance;
     }
 
     get(key: string): T | undefined {
-        if (!this.cache.has(key)) {
+        if (!this.persistance.has(key)) {
             return undefined;
         }
-        const value = this.cache.get(key)!;
+        const value = this.persistance.get(key)!;
         // Remove the key and re-insert it to update its position (most recently used)
-        this.cache.delete(key);
-        this.cache.set(key, value);
+        this.persistance.delete(key);
+        this.persistance.set(key, value);
         return value;
     }
 
     set(key: string, value: T): void {
-        if (this.cache.has(key)) {
+        if (this.persistance.has(key)) {
             // Remove the key to update its position (most recently used)
-            this.cache.delete(key);
-        } else if (this.cache.size === this.capacity) {
+            this.persistance.delete(key);
+        } else if (this.persistance.size() === this.capacity) {
             // Remove the least recently used (first) entry
-            const firstKey = this.cache.keys().next().value;
-            this.cache.delete(firstKey);
+            const firstKey = this.persistance.keys().next().value;
+            this.persistance.delete(firstKey);
         }
-        this.cache.set(key, value);
+        this.persistance.set(key, value);
     }
 
     has(key: string): boolean {
-        return this.cache.has(key);
+        return this.persistance.has(key);
     }
 
     length(): number {
-        return this.cache.size;
+        return this.persistance.size();
     }
 
     clear(): void {
-        this.cache.clear();
+        this.persistance.clear();
     }
 }

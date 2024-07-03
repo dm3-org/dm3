@@ -2,35 +2,39 @@ import { sha256 } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import { ICache } from './impl/ICache';
 import { LRUCache } from './impl/LRUCache';
-import { TTLCache } from './impl/TTLCache';
+import { TTLCache, TTLCacheItem } from './impl/TTLCache';
+import { IPersistance } from './persistance/IPersistance';
+import { InMemory } from './persistance/InMemory';
 
 const DEFAULT_CAPACITY = 500;
 //1 hour
 const DEFAULT_TTL = 3600000;
 
+//Factory to create different types of caches for the web3 provider
 export class Web3ProviderCacheFactory {
     private readonly provider: ethers.providers.JsonRpcProvider;
 
     constructor(provider: ethers.providers.JsonRpcProvider) {
         this.provider = provider;
     }
-
+    //Returns an instance of the web3 provder. Requests are cached for a given time to live
     public TTL<T>(
         ttl: number = DEFAULT_TTL,
-        per: number,
+        persistance: IPersistance<TTLCacheItem<T>> = new InMemory(),
     ): ethers.providers.JsonRpcProvider {
-        const cache = new TTLCache<T>(DEFAULT_CAPACITY, ttl);
+        const cache = new TTLCache<T>(DEFAULT_CAPACITY, ttl, persistance);
         const instance = Web3ProviderCacheFactory._createInstance(
             this.provider,
             cache,
         );
         return instance;
     }
-
+    //Returns an instance of the web3 provider. Requests are cached using LRU strategy
     public LRU<T>(
         capacity: number = DEFAULT_CAPACITY,
+        persistance: IPersistance<T> = new InMemory(),
     ): ethers.providers.JsonRpcProvider {
-        const cache = new LRUCache<T>(capacity);
+        const cache = new LRUCache<T>(capacity, persistance);
         const instance = Web3ProviderCacheFactory._createInstance(
             this.provider,
             cache,
