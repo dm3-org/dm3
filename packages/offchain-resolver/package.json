@@ -1,7 +1,7 @@
 {
   "name": "@dm3-org/dm3-offchain-resolver",
   "license": "BSD-2-Clause",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
