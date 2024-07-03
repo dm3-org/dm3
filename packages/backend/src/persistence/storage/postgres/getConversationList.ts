@@ -52,5 +52,6 @@ export const getConversationList =
             //Return the encrypted message container of the latest message, or null if there are no messages
             previewMessage:
                 previewMessages[idx]?.encryptedEnvelopContainer ?? null,
+            updatedAt: c.updatedAt,
         }));
     };
