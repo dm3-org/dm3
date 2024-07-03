@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { IDatabase } from '../persistence/IDatabase';
+import { IDatabase } from '../persistance/IDatabase';
 
 export interface WithLocals {
     locals: Record<string, any> &

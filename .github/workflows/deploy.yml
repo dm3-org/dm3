@@ -68,6 +68,8 @@ jobs:
                   echo "URL=${{ vars.HOST_DOMAIN }}" >> ./.env
                   echo "CERT_MAIL=${{ vars.CERT_MAIL }}" >> ./.env
                   echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> ./.env
+                  echo "RESOLVER_SUPPORTED_ADDR_ENS_SUBDOMAINS=${{ vars.RESOLVER_SUPPORTED_ADDR_ENS_SUBDOMAINS }}" >> ./.env
+                  echo "RESOLVER_SUPPORTED_NAME_ENS_SUBDOMAINS=${{ vars.RESOLVER_SUPPORTED_NAME_ENS_SUBDOMAINS }}" >> ./.env
                   envsubst '${TARGET_HOST} ${TARGET_IP}' < ./docker/nginx.conf > ./nginx.conf
                   cat ./.env
             - name: Prepare docker build environment

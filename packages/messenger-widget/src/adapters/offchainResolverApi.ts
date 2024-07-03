@@ -51,11 +51,13 @@ export async function removeAlias(
  * claims an address based ENS subdomain name
  * @param address The ethereum address
  * @param offchainResolverUrl The offchain resolver endpoint url
+ * @param subdomain The addr subdomain of the client .iE addr.dm3.eth
  * @param signedUserProfile The signed dm3 user profile
  */
 export async function claimAddress(
     address: string,
     offchainResolverUrl: string,
+    addrSubdomainDomain: string,
     signedUserProfile: SignedUserProfile,
 ) {
     try {
@@ -63,6 +65,7 @@ export async function claimAddress(
         const data = {
             signedUserProfile,
             address,
+            subdomain: addrSubdomainDomain,
         };
 
         const { status } = await axios.post(url, data);
@@ -82,8 +85,6 @@ export async function getNameForAddress(
     address: string,
     offchainResolverUrl: string,
 ): Promise<string | undefined> {
-    // ERROR:TODO:FIX : The API always gives error
-    // ERROR: 404 (Not Found)
     const url = `${offchainResolverUrl}/profile/name/${formatAddress(address)}`;
     try {
         const { data } = await axios.get(url);

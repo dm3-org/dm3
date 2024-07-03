@@ -2,16 +2,11 @@ import { sign } from '@dm3-org/dm3-lib-crypto';
 import {
     ProfileKeys,
     SignedUserProfile,
-    UserProfile,
-    getProfileCreationMessage,
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
-import { stringify } from '@dm3-org/dm3-lib-shared';
 import axios from 'axios';
-import { ethers } from 'ethers';
 import { claimAddress } from '../../adapters/offchainResolverApi';
 import { JwtInterceptor } from './JwtInterceptor';
-import { JwtPayload, decode } from 'jsonwebtoken';
 
 //Interface to support different kinds of signers
 export type SignMessageFn = (message: string) => Promise<string>;
@@ -19,6 +14,7 @@ export type SignMessageFn = (message: string) => Promise<string>;
 export abstract class ServerSideConnector extends JwtInterceptor {
     private readonly baseUrl: string;
     private readonly resolverBackendUrl: string;
+    private readonly addressSubdomain: string;
     private readonly address: string;
     private readonly profileKeys: ProfileKeys;
 
@@ -39,6 +35,7 @@ export abstract class ServerSideConnector extends JwtInterceptor {
 
         this.baseUrl = baseUrl;
         this.resolverBackendUrl = resolverBackendUrl;
+        this.addressSubdomain = addrEnsSubdomain;
         this.address = address;
         this.profileKeys = profileKeys;
     }
@@ -57,10 +54,14 @@ export abstract class ServerSideConnector extends JwtInterceptor {
     }
 
     private async _signUp(signedUserProfile: SignedUserProfile) {
-        //TODO move claimAddress to useAuth
         await claimAddress(
             this.address,
             this.resolverBackendUrl as string,
+            //removes the leading . from the subdomain.
+            //This is necessary as the resolver does not support subdomains with leading dots
+            //We can consider to remove the leading dot from the subdomain in the constructor,
+            //however that would be a bigger breaking change
+            this.addressSubdomain.substring(1),
             signedUserProfile,
         );
 

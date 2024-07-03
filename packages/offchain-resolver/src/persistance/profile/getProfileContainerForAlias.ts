@@ -20,7 +20,7 @@ export function getProfileContainerForAlias(db: PrismaClient) {
             where: { alias: normalizeEnsName(alias) },
         });
         if (!aliasContainer) {
-            global.logger.debug({
+            console.debug({
                 message: 'getProfileContainerForAlias',
                 alias: normalizeEnsName(alias),
             });
@@ -40,7 +40,7 @@ export function getProfileContainerForAlias(db: PrismaClient) {
                       }
                     : null;
 
-            global.logger.debug({
+            console.debug({
                 message: 'getProfileContainerForAlias',
                 id: aliasContainer.profileContainerId,
                 profileContainerResult,

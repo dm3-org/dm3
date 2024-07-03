@@ -15,13 +15,9 @@ describe('setUserProfile', () => {
     let prismaClient: PrismaClient;
     let db: IDatabase;
 
-    const logger = winston.createLogger({
-        transports: [new winston.transports.Console()],
-    });
-
     beforeEach(async () => {
-        prismaClient = await getDbClient(logger);
-        db = await getDatabase(logger, prismaClient);
+        prismaClient = await getDbClient();
+        db = await getDatabase(prismaClient);
         await clearDb(prismaClient);
     });
 
