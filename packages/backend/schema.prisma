@@ -18,14 +18,7 @@ model EncryptedMessage {
     conversation              Conversation @relation(fields: [conversationId], references: [id])
     ownerId                   String
     owner                     Account      @relation(fields: [ownerId], references: [id])
-}
-
-model HaltedMessage {
-    id                        String   @id
-    createdAt                 DateTime @default(now())
-    encryptedEnvelopContainer String
-    ownerId                   String
-    owner                     Account  @relation(fields: [ownerId], references: [id])
+    isHalted                  Boolean      @default(false)
 }
 
 model Conversation {
@@ -42,5 +35,4 @@ model Account {
     id               String             @id
     conversations    Conversation[]
     EncryptedMessage EncryptedMessage[]
-    HaltedMessage    HaltedMessage[]
 }

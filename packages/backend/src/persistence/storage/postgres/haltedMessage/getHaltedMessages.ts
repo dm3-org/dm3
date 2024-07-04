@@ -14,9 +14,10 @@ export const getHaltedMessages =
             return [];
         }
 
-        const messageRecord = await db.haltedMessage.findMany({
+        const messageRecord = await db.encryptedMessage.findMany({
             where: {
                 ownerId: account.id,
+                isHalted: true,
             },
         });
 
@@ -28,5 +29,6 @@ export const getHaltedMessages =
             messageId: message.id,
             encryptedEnvelopContainer: message.encryptedEnvelopContainer,
             createdAt: message.createdAt,
+            isHalted: message.isHalted,
         }));
     };

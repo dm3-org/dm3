@@ -6,9 +6,8 @@ import { createClient } from 'redis';
 import Pending from './pending';
 import Session from './session';
 import Storage from './storage';
-import { MessageRecord } from './storage/postgres/dto/MessageRecord';
 import { ConversationRecord } from './storage/postgres/dto/ConversationRecord';
-import { deleteHaltedMessage } from './storage/postgres/haltedMessage/deleteHaltedMessage';
+import { MessageRecord } from './storage/postgres/dto/MessageRecord';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -91,10 +90,8 @@ export async function getDatabase(
         toggleHideConversation: Storage.toggleHideConversation(prisma),
         //Storage Get Halted Messages
         getHaltedMessages: Storage.getHaltedMessages(prisma),
-        //Storage Add Halted Message
-        addHaltedMessage: Storage.addHaltedMessage(prisma),
         //Storage Delete Halted Message
-        deleteHaltedMessage: Storage.deleteHaltedMessage(prisma),
+        clearHaltedMessage: Storage.clearHaltedMessage(prisma),
         //Get the user db migration status
         getUserDbMigrationStatus: Storage.getUserDbMigrationStatus(redis),
         //Set the user db migration status to true
@@ -153,11 +150,7 @@ export interface IDatabase extends ISessionDatabase {
         isHidden: boolean,
     ) => Promise<boolean>;
     getHaltedMessages: (ensName: string) => Promise<MessageRecord[]>;
-    addHaltedMessage: (
-        ensName: string,
-        messagesRecord: MessageRecord,
-    ) => Promise<boolean>;
-    deleteHaltedMessage: (
+    clearHaltedMessage: (
         ensName: string,
         messageId: string,
     ) => Promise<boolean>;

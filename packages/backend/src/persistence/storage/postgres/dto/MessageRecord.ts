@@ -7,4 +7,6 @@ export type MessageRecord = {
     messageId: string;
     //The actual encrypted message
     encryptedEnvelopContainer: string;
+    //The message is halted if the message hasnot been delivered yet
+    isHalted: boolean;
 };

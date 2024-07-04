@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
-export const deleteHaltedMessage =
+export const clearHaltedMessage =
     (db: PrismaClient) => async (ensName: string, messageId: string) => {
         //Find the account first we want to get the messages for
         const account = await db.account.findFirst({
@@ -13,15 +13,29 @@ export const deleteHaltedMessage =
             return false;
         }
 
+        const message = await db.encryptedMessage.findFirst({
+            where: {
+                id: messageId,
+            },
+        });
+
+        if (!message) {
+            return false;
+        }
+
         try {
-            await db.haltedMessage.delete({
+            await db.encryptedMessage.update({
                 where: {
                     id: messageId,
+                },
+                data: {
+                    //Message is no longer halted
+                    isHalted: false,
                 },
             });
             return true;
         } catch (e) {
-            console.error('deleteHaltedMessage error', e);
+            console.error('clear halted error', e);
             return false;
         }
     };

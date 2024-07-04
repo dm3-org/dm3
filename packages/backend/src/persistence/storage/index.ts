@@ -12,8 +12,7 @@ import { MessageRecord } from './postgres/dto/MessageRecord';
 import { getUserDbMigrationStatus } from './getUserDbMigrationStatus';
 import { setUserDbMigrated } from './setUserDbMigrated';
 import { getHaltedMessages } from './postgres/haltedMessage/getHaltedMessages';
-import { deleteHaltedMessage } from './postgres/haltedMessage/deleteHaltedMessage';
-import { addHaltedMessage } from './postgres/haltedMessage/addHaltedMessage';
+import { clearHaltedMessage } from './postgres/haltedMessage/clearHaltedMessage';
 
 export default {
     getUserStorageOld,
@@ -27,8 +26,7 @@ export default {
     getNumberOfMessages,
     toggleHideConversation,
     getHaltedMessages,
-    deleteHaltedMessage,
-    addHaltedMessage,
+    clearHaltedMessage,
     getUserDbMigrationStatus,
     setUserDbMigrated,
 };

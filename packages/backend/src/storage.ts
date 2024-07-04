@@ -73,6 +73,7 @@ export default (
             encryptedContactName,
             messageId,
             createdAt,
+            isHalted,
         } = req.body;
 
         const schemaIsValid = validateSchema(AddMessageRequest, req.body);
@@ -95,6 +96,7 @@ export default (
                         messageId: uniqueMessageId,
                         encryptedEnvelopContainer,
                         createdAt,
+                        isHalted,
                     },
                 ],
             );
@@ -264,39 +266,8 @@ export default (
             next(err);
         }
     });
-    router.post('/new/:ensName/addHaltedMessage', async (req, res, next) => {
-        try {
-            const schemaIsValid = validateSchema(
-                AddHaltedMessageRequest,
-                req.body,
-            );
 
-            if (!schemaIsValid) {
-                res.status(400).send('invalid schema');
-                return;
-            }
-            const { encryptedEnvelopContainer, messageId, createdAt } =
-                req.body;
-
-            const ensName = normalizeEnsName(req.params.ensName);
-            //Since the message is fully encrypted, we cannot use the messageHash as an identifier.
-            //Instead we use the hash of the ensName and the messageId to have a unique identifier
-            const uniqueMessageId = sha256(ensName + messageId);
-            const success = await db.addHaltedMessage(ensName, {
-                messageId: uniqueMessageId,
-                createdAt,
-                encryptedEnvelopContainer,
-            });
-
-            if (success) {
-                return res.send();
-            }
-            res.status(400).send('unable to add halted message');
-        } catch (err) {
-            next(err);
-        }
-    });
-    router.post('/new/:ensName/deleteHaltedMessage', async (req, res, next) => {
+    router.post('/new/:ensName/clearHaltedMessage', async (req, res, next) => {
         try {
             const { messageId } = req.body;
 
@@ -309,7 +280,7 @@ export default (
             //Since the message is fully encrypted, we cannot use the messageHash as an identifier.
             //Instead we use the hash of the ensName and the messageId to have a unique identifier
             const uniqueMessageId = sha256(ensName + messageId);
-            const success = await db.deleteHaltedMessage(
+            const success = await db.clearHaltedMessage(
                 ensName,
                 uniqueMessageId,
             );
