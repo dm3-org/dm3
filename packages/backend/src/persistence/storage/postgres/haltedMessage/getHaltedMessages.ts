@@ -1,3 +1,5 @@
+import { PrismaClient } from '@prisma/client';
+
 export const getHaltedMessages =
     (db: PrismaClient) => async (ensName: string) => {
         //Find the account first we want to get the messages for
