@@ -355,7 +355,7 @@ describe('useConversation hook test cases', () => {
                                 contactEnsName: 'contact ' + i + offset,
                                 isHidden: false,
                                 previewMessage: undefined,
-                                updatedAt: 0
+                                updatedAt: 0,
                             };
                         }),
                     );
@@ -425,7 +425,7 @@ describe('useConversation hook test cases', () => {
                             contactEnsName: 'max.eth',
                             previewMessage: undefined,
                             isHidden: false,
-                            updatedAt: 0
+                            updatedAt: 0,
                         },
                     ]);
                 },
@@ -491,7 +491,7 @@ describe('useConversation hook test cases', () => {
                             contactEnsName: 'max.eth',
                             isHidden: false,
                             previewMessage: undefined,
-                            updatedAt: 0
+                            updatedAt: 0,
                         },
                         {
                             contactEnsName: 'bob.eth',
@@ -504,7 +504,7 @@ describe('useConversation hook test cases', () => {
                                 messageState: 0,
                             } as StorageEnvelopContainer,
                             isHidden: false,
-                            updatedAt: 0
+                            updatedAt: 0,
                         },
                     ]);
                 },
@@ -583,7 +583,7 @@ describe('useConversation hook test cases', () => {
                             contactEnsName: 'max.eth',
                             isHidden: false,
                             previewMessage: undefined,
-                            updatedAt: 0
+                            updatedAt: 0,
                         },
                     ]);
                 },
@@ -668,13 +668,13 @@ describe('useConversation hook test cases', () => {
                             contactEnsName: 'max.eth',
                             isHidden: false,
                             previewMessage: undefined,
-                            updatedAt: 0
+                            updatedAt: 0,
                         },
                         {
                             contactEnsName: 'mydefaultcontract.eth',
                             isHidden: false,
                             previewMessage: undefined,
-                            updatedAt: 0
+                            updatedAt: 0,
                         },
                     ]);
                 },
@@ -759,19 +759,19 @@ describe('useConversation hook test cases', () => {
                             contactEnsName: 'ron.eth',
                             isHidden: true,
                             previewMessage: undefined,
-                            updatedAt: 0
+                            updatedAt: 0,
                         },
                         {
                             contactEnsName: 'max.eth',
                             isHidden: false,
                             previewMessage: undefined,
-                            updatedAt: 0
+                            updatedAt: 0,
                         },
                         {
                             contactEnsName: 'mydefaultcontract.eth',
                             isHidden: false,
                             previewMessage: undefined,
-                            updatedAt: 0
+                            updatedAt: 0,
                         },
                     ]);
                 },
@@ -858,7 +858,7 @@ describe('useConversation hook test cases', () => {
                             contactEnsName: 'max.eth',
                             isHidden: false,
                             previewMessage: undefined,
-                            updatedAt: 0
+                            updatedAt: 0,
                         },
                     ]);
                 },
@@ -983,7 +983,7 @@ describe('useConversation hook test cases', () => {
                             contactEnsName: sender.account.ensName,
                             isHidden: false,
                             previewMessage: undefined,
-                            updatedAt: 0
+                            updatedAt: 0,
                         },
                     ]);
                 },
@@ -1093,7 +1093,7 @@ describe('useConversation hook test cases', () => {
                             contactEnsName: sender.account.ensName,
                             isHidden: false,
                             previewMessage: undefined,
-                            updatedAt: 0
+                            updatedAt: 0,
                         },
                     ]);
                 },

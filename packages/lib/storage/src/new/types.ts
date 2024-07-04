@@ -41,7 +41,7 @@ export interface Conversation {
     //isHidden is a flag to hide the conversation from the conversation list
     isHidden: boolean;
     // the latest timestamp at which conversation was updated
-    updatedAt: number 
+    updatedAt: number;
 }
 
 export type Encryption = {

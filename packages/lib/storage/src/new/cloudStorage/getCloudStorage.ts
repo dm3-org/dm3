@@ -44,7 +44,7 @@ export const getCloudStorage = (
                               await encryption.decryptAsync(previewMessage),
                           )
                         : null,
-                    updatedAt: updatedAt.getTime() /// what should be set here?
+                    updatedAt: new Date(updatedAt).getTime(),
                 }),
             ),
         );

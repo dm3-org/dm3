@@ -52,13 +52,13 @@ export type BackendContextType = {
 
 export const BackendContext = React.createContext<BackendContextType>({
     isInitialized: false,
-    addConversation: () => { },
+    addConversation: () => {},
     getConversations: async () => [],
-    toggleHideConversation: () => { },
+    toggleHideConversation: () => {},
     getMessagesFromStorage: async () => [],
-    addMessage: async () => { },
-    addMessageBatch: () => { },
-    editMessageBatch: () => { },
+    addMessage: async () => {},
+    addMessageBatch: () => {},
+    editMessageBatch: () => {},
     getNumberOfMessages: async () => 0,
     getNumberOfConversations: async () => 0,
 });

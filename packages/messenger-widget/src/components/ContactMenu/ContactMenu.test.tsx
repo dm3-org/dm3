@@ -16,7 +16,7 @@ describe('ContactMenu test cases', () => {
             } as any,
             isHidden: false,
             messageSizeLimit: 100000,
-            updatedAt: 0
+            updatedAt: 0,
         },
         isMenuAlignedAtBottom: true,
     };

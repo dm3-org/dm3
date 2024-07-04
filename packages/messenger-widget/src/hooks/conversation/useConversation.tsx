@@ -135,7 +135,7 @@ export const useConversation = (config: DM3Configuration) => {
                     contactEnsName: normalizeEnsName(aliasName!),
                     previewMessage: undefined,
                     isHidden: false,
-                    updatedAt: new Date().getTime()
+                    updatedAt: new Date().getTime(),
                 };
 
                 const hydratedDefaultContact = await hydrateContract(
@@ -228,7 +228,7 @@ export const useConversation = (config: DM3Configuration) => {
             contactEnsName: contact.contactDetails.account.ensName,
             previewMessage: undefined,
             isHidden: contact.isHidden,
-            updatedAt: contact.updatedAt
+            updatedAt: contact.updatedAt,
         };
         const hydratedContact = await hydrateContract(
             mainnetProvider,

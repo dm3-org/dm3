@@ -39,7 +39,7 @@ export const getMockedStorageContext = (
                     isHidden: false,
                     messageCounter: 1,
                     previewMessage: undefined,
-                    updatedAt: 0
+                    updatedAt: 0,
                 },
             ]);
         },

@@ -19,7 +19,7 @@ export const getMockedConversationContext = (
             return new Promise((resolve, reject) => resolve(0));
         },
         hideContact: (ensName: string) => {},
-        updateConversationList: (contact: string, updatedAt: number) => {}
+        updateConversationList: (contact: string, updatedAt: number) => {},
     };
 
     return { ...defaultValues, ...override };
