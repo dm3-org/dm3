@@ -31,10 +31,9 @@ describe('getHaltedMessages', () => {
 
         expect(haltedMessages).toHaveLength(1);
         expect(haltedMessages[0]).toEqual({
-            id: messageRecord.messageId,
-            createdAt: new Date(messageRecord.createdAt),
+            messageId: messageRecord.messageId,
+            createdAt: new Date(123),
             encryptedEnvelopContainer: messageRecord.encryptedEnvelopContainer,
-            ownerId: ensName,
         });
     });
 });

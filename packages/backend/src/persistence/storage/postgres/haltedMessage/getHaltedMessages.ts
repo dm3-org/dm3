@@ -14,9 +14,19 @@ export const getHaltedMessages =
             return [];
         }
 
-        return await db.haltedMessage.findMany({
+        const messageRecord = await db.haltedMessage.findMany({
             where: {
                 ownerId: account.id,
             },
         });
+
+        if (messageRecord.length === 0) {
+            return [];
+        }
+
+        return messageRecord.map((message: any) => ({
+            messageId: message.id,
+            encryptedEnvelopContainer: message.encryptedEnvelopContainer,
+            createdAt: message.createdAt,
+        }));
     };

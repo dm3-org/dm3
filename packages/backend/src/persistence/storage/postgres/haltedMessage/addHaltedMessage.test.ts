@@ -21,7 +21,7 @@ describe('addHaltedMessage', () => {
         const ensName = 'test';
         const messageRecord = {
             messageId: '1',
-            createdAt: new Date().toISOString(),
+            createdAt: 123,
             encryptedEnvelopContainer: 'encrypted',
         };
 

@@ -9,14 +9,19 @@ export const addHaltedMessage =
         { messageId, createdAt, encryptedEnvelopContainer }: MessageRecord,
     ) => {
         const account = await getOrCreateAccount(db, ensName);
-
-        //Create a new halted message
-        return await db.haltedMessage.create({
-            data: {
-                id: messageId,
-                createdAt: new Date(createdAt),
-                encryptedEnvelopContainer,
-                ownerId: account.id,
-            },
-        });
+        try {
+            //Create a new halted message
+            await db.haltedMessage.create({
+                data: {
+                    id: messageId,
+                    createdAt: new Date(createdAt),
+                    encryptedEnvelopContainer,
+                    ownerId: account.id,
+                },
+            });
+            return true;
+        } catch (err) {
+            console.error('addHaltedMessage error ', err);
+            return false;
+        }
     };

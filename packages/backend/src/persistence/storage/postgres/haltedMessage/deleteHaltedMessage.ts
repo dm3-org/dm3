@@ -21,7 +21,7 @@ export const deleteHaltedMessage =
             });
             return true;
         } catch (e) {
-            console.log('deleteHaltedMessage error', e);
+            console.error('deleteHaltedMessage error', e);
             return false;
         }
     };
