@@ -1,0 +1,26 @@
+{
+  "$ref": "#/definitions/_AddHaltedMessageRequest",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "_AddHaltedMessageRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "createdAt": {
+          "type": "number"
+        },
+        "encryptedEnvelopContainer": {
+          "type": "string"
+        },
+        "messageId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "messageId",
+        "createdAt",
+        "encryptedEnvelopContainer"
+      ],
+      "type": "object"
+    }
+  }
+}
