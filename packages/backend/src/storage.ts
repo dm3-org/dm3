@@ -10,6 +10,7 @@ import { AddMessageBatchRequest } from './schema/storage/AddMessageBatchRequest'
 import { AddMessageRequest } from './schema/storage/AddMesssageRequest';
 import { EditMessageBatchRequest } from './schema/storage/EditMessageBatchRequest';
 import { PaginatedRequest } from './schema/storage/PaginatedRequest';
+import { AddHaltedMessageRequest } from './schema/storage/AddHaltedMessageSchema';
 
 const DEFAULT_CONVERSATION_PAGE_SIZE = 10;
 const DEFAULT_MESSAGE_PAGE_SIZE = 100;
@@ -253,6 +254,74 @@ export default (
             }
         },
     );
+
+    router.get('/new/:ensName/getHaltedMessages', async (req, res, next) => {
+        try {
+            const ensName = normalizeEnsName(req.params.ensName);
+            const messages = await db.getHaltedMessages(ensName);
+            return res.json(messages);
+        } catch (err) {
+            next(err);
+        }
+    });
+    router.post('/new/:ensName/addHaltedMessage', async (req, res, next) => {
+        try {
+            const schemaIsValid = validateSchema(
+                AddHaltedMessageRequest,
+                req.body,
+            );
+
+            if (!schemaIsValid) {
+                res.status(400).send('invalid schema');
+                return;
+            }
+            const { encryptedEnvelopContainer, messageId, createdAt } =
+                req.body;
+
+            const ensName = normalizeEnsName(req.params.ensName);
+            //Since the message is fully encrypted, we cannot use the messageHash as an identifier.
+            //Instead we use the hash of the ensName and the messageId to have a unique identifier
+            const uniqueMessageId = sha256(ensName + messageId);
+            const success = await db.addHaltedMessage(ensName, {
+                messageId: uniqueMessageId,
+                createdAt,
+                encryptedEnvelopContainer,
+            });
+
+            if (success) {
+                return res.send();
+            }
+            res.status(400).send('unable to add halted message');
+        } catch (err) {
+            next(err);
+        }
+    });
+    router.post('/new/:ensName/deleteHaltedMessage', async (req, res, next) => {
+        try {
+            const { messageId } = req.body;
+
+            if (!messageId) {
+                res.status(400).send('invalid schema');
+                return;
+            }
+
+            const ensName = normalizeEnsName(req.params.ensName);
+            //Since the message is fully encrypted, we cannot use the messageHash as an identifier.
+            //Instead we use the hash of the ensName and the messageId to have a unique identifier
+            const uniqueMessageId = sha256(ensName + messageId);
+            const success = await db.deleteHaltedMessage(
+                ensName,
+                uniqueMessageId,
+            );
+
+            if (success) {
+                return res.send();
+            }
+            res.status(400).send('unable to add halted message');
+        } catch (err) {
+            next(err);
+        }
+    });
 
     router.post(
         '/new/:ensName/toggleHideConversation',

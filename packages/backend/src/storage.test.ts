@@ -123,6 +123,7 @@ describe('Storage', () => {
     });
 
     afterEach(async () => {
+        await prisma.haltedMessage.deleteMany();
         await prisma.encryptedMessage.deleteMany();
         await prisma.conversation.deleteMany();
         await prisma.account.deleteMany();
@@ -948,6 +949,151 @@ describe('Storage', () => {
             expect(
                 JSON.parse(JSON.parse(messages[1]).encryptedEnvelopContainer),
             ).toStrictEqual(envelop);
+        });
+    });
+    describe('halted Messages', () => {
+        describe('schema', () => {
+            it('should return 400 if encryptedEnvelopContainer is missing', async () => {
+                const body = {
+                    encryptedContactName: 'encryptedContactName',
+                    messageId: 'messageId',
+                    createdAt: 123,
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/addHaltedMessage')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+
+            it('should return 400 if messageId is missing', async () => {
+                const body = {
+                    encryptedEnvelopContainer: 'encryptedEnvelopContainer',
+                    createdAt: 123,
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/addHaltedMessage')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+
+            it('should return 400 if createdAt is missing', async () => {
+                const body = {
+                    encryptedEnvelopContainer: 'encryptedEnvelopContainer',
+                    encryptedContactName: 'encryptedContactName',
+                    messageId: 'messageId',
+                };
+                const response = await request(app)
+                    .post('/new/bob.eth/addHaltedMessage')
+                    .set({
+                        authorization: 'Bearer ' + token,
+                    })
+                    .send(body);
+                expect(response.status).toBe(400);
+            });
+        });
+        it('can add halted message', async () => {
+            const messageFactory = MockMessageFactory(
+                sender,
+                receiver,
+                deliveryService,
+            );
+            const envelop1 = await messageFactory.createEncryptedEnvelop(
+                'Hello1',
+            );
+
+            const { status } = await request(app)
+                .post(`/new/bob.eth/addHaltedMessage`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send({
+                    encryptedEnvelopContainer: JSON.stringify(envelop1),
+                    messageId: '123',
+                    createdAt: 1,
+                });
+            expect(status).toBe(200);
+
+            const { status: getMessagesStatus, body: messages } = await request(
+                app,
+            )
+                .get(`/new/bob.eth/getHaltedMessages/`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send();
+
+            expect(getMessagesStatus).toBe(200);
+            expect(messages.length).toBe(1);
+            expect(
+                JSON.parse(messages[0].encryptedEnvelopContainer),
+            ).toStrictEqual(envelop1);
+        });
+        it('can delete halted message', async () => {
+            const messageFactory = MockMessageFactory(
+                sender,
+                receiver,
+                deliveryService,
+            );
+            const envelop1 = await messageFactory.createEncryptedEnvelop(
+                'Hello1',
+            );
+
+            const { status } = await request(app)
+                .post(`/new/bob.eth/addHaltedMessage`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send({
+                    encryptedEnvelopContainer: JSON.stringify(envelop1),
+                    messageId: '123',
+                    createdAt: 1,
+                });
+            expect(status).toBe(200);
+
+            const { status: getMessagesStatus, body: messages } = await request(
+                app,
+            )
+                .get(`/new/bob.eth/getHaltedMessages/`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send();
+
+            expect(getMessagesStatus).toBe(200);
+            expect(messages.length).toBe(1);
+            expect(
+                JSON.parse(messages[0].encryptedEnvelopContainer),
+            ).toStrictEqual(envelop1);
+
+            const { status: deleteStatus } = await request(app)
+                .post(`/new/bob.eth/deleteHaltedMessage/`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send({
+                    messageId: 123,
+                });
+
+            expect(deleteStatus).toBe(200);
+
+            const {
+                status: getMessagesStatusAfterDelete,
+                body: messagesAfterDelete,
+            } = await request(app)
+                .get(`/new/bob.eth/getHaltedMessages/`)
+                .set({
+                    authorization: 'Bearer ' + token,
+                })
+                .send();
+
+            expect(getMessagesStatusAfterDelete).toBe(200);
+            expect(messagesAfterDelete.length).toBe(0);
         });
     });
     describe('addMessageBatch', () => {
