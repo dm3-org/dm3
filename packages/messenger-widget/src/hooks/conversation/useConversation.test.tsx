@@ -39,6 +39,7 @@ import {
 import MockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import { Envelop } from '@dm3-org/dm3-lib-messaging';
+import { getDeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
 
 describe('useConversation hook test cases', () => {
     let sender: MockedUserProfile;
@@ -633,10 +634,10 @@ describe('useConversation hook test cases', () => {
             const conversations = result.current.contacts;
             expect(conversations.length).toBe(2);
             expect(conversations[0].contactDetails.account.ensName).toBe(
-                'max.eth',
+                'mydefaultcontract.eth',
             );
             expect(conversations[1].contactDetails.account.ensName).toBe(
-                'mydefaultcontract.eth',
+                'max.eth',
             );
         });
         it('default contact should only appear once when loaded from config and storage', async () => {
@@ -724,10 +725,10 @@ describe('useConversation hook test cases', () => {
             const conversations = result.current.contacts;
             expect(conversations.length).toBe(2);
             expect(conversations[0].contactDetails.account.ensName).toBe(
-                'max.eth',
+                'mydefaultcontract.eth',
             );
             expect(conversations[1].contactDetails.account.ensName).toBe(
-                'mydefaultcontract.eth',
+                'max.eth',
             );
         });
         it('hidden contact should appear as hidden in the conversation list', async () => {
@@ -821,18 +822,19 @@ describe('useConversation hook test cases', () => {
             const conversations = result.current.contacts;
 
             expect(conversations.length).toBe(3);
+
             expect(conversations[0].contactDetails.account.ensName).toBe(
-                'ron.eth',
-            );
-            expect(conversations[1].contactDetails.account.ensName).toBe(
-                'max.eth',
-            );
-            expect(conversations[2].contactDetails.account.ensName).toBe(
                 'mydefaultcontract.eth',
             );
+            expect(conversations[1].contactDetails.account.ensName).toBe(
+                'ron.eth',
+            );
+            expect(conversations[2].contactDetails.account.ensName).toBe(
+                'max.eth',
+            );
 
-            expect(conversations[0].isHidden).toBe(true);
-            expect(conversations[1].isHidden).toBe(false);
+            expect(conversations[0].isHidden).toBe(false);
+            expect(conversations[1].isHidden).toBe(true);
             expect(conversations[2].isHidden).toBe(false);
         });
     });
@@ -902,10 +904,10 @@ describe('useConversation hook test cases', () => {
             const conversations = result.current.contacts;
             expect(conversations.length).toBe(2);
             expect(conversations[0].contactDetails.account.ensName).toBe(
-                'max.eth',
+                'bob.eth',
             );
             expect(conversations[1].contactDetails.account.ensName).toBe(
-                'bob.eth',
+                'max.eth',
             );
         });
         it('Should add multiple contacts', async () => {
@@ -1025,7 +1027,7 @@ describe('useConversation hook test cases', () => {
                 },
             } as any as ethers.providers.JsonRpcProvider;
 
-            const mainnetProvderContext: MainnetProviderContextType =
+            const mainnetProviderContext: MainnetProviderContextType =
                 getMockedMainnetProviderContext({
                     provider: mockProvider,
                 });
@@ -1033,7 +1035,7 @@ describe('useConversation hook test cases', () => {
             const wrapper = ({ children }: { children: any }) => (
                 <>
                     <MainnetProviderContext.Provider
-                        value={mainnetProvderContext}
+                        value={mainnetProviderContext}
                     >
                         <AuthContext.Provider value={authContext}>
                             <StorageContext.Provider value={storageContext}>
@@ -1051,7 +1053,9 @@ describe('useConversation hook test cases', () => {
             const { result } = renderHook(() => useConversation(config), {
                 wrapper,
             });
+
             await waitFor(() => expect(result.current.initialized).toBe(true));
+
             await waitFor(() =>
                 expect(
                     result.current.contacts[0].contactDetails
