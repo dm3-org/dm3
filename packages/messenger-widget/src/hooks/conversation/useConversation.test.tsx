@@ -38,22 +38,6 @@ import { getMockedStorageContext } from '../../context/testHelper/getMockedStora
 import { getMockedTldContext } from '../../context/testHelper/getMockedTldContext';
 import { DM3Configuration } from '../../widget';
 import { useConversation } from './useConversation';
-import {
-    MainnetProviderContext,
-    MainnetProviderContextType,
-} from '../../context/ProviderContext';
-import { getMockedMainnetProviderContext } from '../../context/testHelper/getMockedMainnetProviderContext';
-import { ethers } from 'ethers';
-import {
-    MockDeliveryServiceProfile,
-    MockedUserProfile,
-    getMockDeliveryServiceProfile,
-    mockUserProfile,
-} from '@dm3-org/dm3-lib-test-helper';
-import MockAdapter from 'axios-mock-adapter';
-import axios from 'axios';
-import { Envelop } from '@dm3-org/dm3-lib-messaging';
-import { getDeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
 
 describe('useConversation hook test cases', () => {
     let sender: MockedUserProfile;
