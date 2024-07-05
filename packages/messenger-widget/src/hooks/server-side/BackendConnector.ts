@@ -71,7 +71,9 @@ export class BackendConnector
     }
 
     public async getHaltedMessages(ensName: string) {
-        const url = `/storage/new/${normalizeEnsName(ensName)}/getMessages/`;
+        const url = `/storage/new/${normalizeEnsName(
+            ensName,
+        )}/getHaltedMessages/`;
         const { data } = await this.getAuthenticatedAxiosClient().get(url, {});
         return data ?? [];
     }
