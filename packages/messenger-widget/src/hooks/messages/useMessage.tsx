@@ -249,7 +249,8 @@ export const useMessage = () => {
                     [contact]: [...(prev[contact] ?? []), messageModel],
                 };
             });
-            storeMessage(contact, messageModel);
+            //Store the message and mark it as halted
+            storeMessage(contact, messageModel, true);
             return { isSuccess: true };
         }
 

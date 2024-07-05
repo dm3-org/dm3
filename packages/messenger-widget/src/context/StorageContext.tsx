@@ -3,6 +3,7 @@ import React, { useContext } from 'react';
 import {
     AddConversation,
     GetConversations,
+    GetHaltedMessages,
     GetMessages,
     GetNumberOfMessages,
     StoreMessageAsync,
@@ -22,6 +23,7 @@ export type StorageContextType = {
     addConversationAsync: AddConversation;
     getNumberOfMessages: GetNumberOfMessages;
     getMessages: GetMessages;
+    getHaltedMessages: GetHaltedMessages;
     toggleHideContactAsync: ToggleHideContactAsync;
     initialized: boolean;
 };
@@ -30,6 +32,7 @@ export const StorageContext = React.createContext<StorageContextType>({
     storeMessage: async (
         contact: string,
         envelop: StorageEnvelopContainer,
+        isHalted?: boolean,
     ) => {},
     storeMessageBatch: async (
         contact: string,
@@ -44,6 +47,7 @@ export const StorageContext = React.createContext<StorageContextType>({
     addConversationAsync: (contact: string) => {},
     getMessages: async (contact: string, pageSize: number, offset: number) =>
         Promise.resolve([]),
+    getHaltedMessages: async () => Promise.resolve([]),
     getNumberOfMessages: async (contact: string) => Promise.resolve(0),
     toggleHideContactAsync: async (contact: string, value: boolean) => {},
     initialized: false,
@@ -61,6 +65,7 @@ export const StorageContextProvider = ({ children }: { children?: any }) => {
         addConversationAsync,
         getNumberOfMessages,
         getMessages,
+        getHaltedMessages,
         toggleHideContactAsync,
         initialized,
     } = useStorage(account, backendContext, profileKeys);
@@ -74,6 +79,7 @@ export const StorageContextProvider = ({ children }: { children?: any }) => {
                 addConversationAsync,
                 getNumberOfMessages,
                 getMessages,
+                getHaltedMessages,
                 toggleHideContactAsync,
                 initialized,
             }}

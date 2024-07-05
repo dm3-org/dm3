@@ -72,10 +72,29 @@ export const getCloudStorage = (
 
         return decryptedMessageRecords as StorageEnvelopContainer[];
     };
+    const getHaltedMessages = async () => {
+        const messages = await backendConnector.getHaltedMessages(ensName);
+        const decryptedMessages = await Promise.all(
+            messages.map(async (message: MessageRecord) => {
+                const decryptedEnvelopContainer = await encryption.decryptAsync(
+                    message.encryptedEnvelopContainer,
+                );
+                console.log(
+                    'decryptedEnvelopContainer haltedMessages',
+                    decryptedEnvelopContainer,
+                );
+
+                return JSON.parse(decryptedEnvelopContainer);
+            }),
+        );
+
+        return decryptedMessages as StorageEnvelopContainer[];
+    };
 
     const _addMessage = async (
         contactEnsName: string,
         envelop: StorageEnvelopContainer,
+        isHalted: boolean,
     ) => {
         const encryptedContactName = await encryption.encryptSync(
             contactEnsName,
@@ -94,6 +113,7 @@ export const getCloudStorage = (
                 envelop.envelop.id,
             createdAt,
             encryptedEnvelopContainer,
+            isHalted,
         );
 
         return '';
@@ -205,6 +225,7 @@ export const getCloudStorage = (
         addMessage: _addMessage,
         addMessageBatch: _addMessageBatch,
         editMessageBatch: _editMessageBatch,
+        getHaltedMessages,
         getNumberOfMessages: _getNumberOfMessages,
         getNumberOfConverations: _getNumberOfConversations,
         toggleHideConversation: _toggleHideConversation,

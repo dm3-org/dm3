@@ -21,12 +21,14 @@ export interface IBackendConnector {
         pageSize: number,
         offset: number,
     ): Promise<any>;
+    getHaltedMessages: (ensName: string) => Promise<any[]>;
     addMessage(
         ensName: string,
         encryptedContactName: string,
         messageId: string,
         createdAt: number,
         encryptedEnvelopContainer: string,
+        isHalted: boolean,
     ): Promise<void>;
     addMessageBatch(
         ensName: string,

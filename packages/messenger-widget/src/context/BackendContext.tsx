@@ -1,5 +1,6 @@
 import React from 'react';
 import { useBackend } from '../hooks/server-side/useBackend';
+import { MessageRecord } from '@dm3-org/dm3-lib-storage';
 
 export type BackendContextType = {
     isInitialized: boolean;
@@ -25,12 +26,14 @@ export type BackendContextType = {
         pageSize: number,
         offset: number,
     ) => Promise<string[]>;
+    getHaltedMessages: (ensName: string) => Promise<MessageRecord[]>;
     addMessage: (
         ensName: string,
         encryptedContactName: string,
         messageId: string,
         createdAt: number,
         encryptedEnvelopContainer: string,
+        isHalted: boolean,
     ) => Promise<void>;
     addMessageBatch: (
         ensName: string,
@@ -55,6 +58,7 @@ export const BackendContext = React.createContext<BackendContextType>({
     getConversations: async () => [],
     toggleHideConversation: () => {},
     getMessagesFromStorage: async () => [],
+    getHaltedMessages: async (ensName: string) => [],
     addMessage: async () => {},
     addMessageBatch: () => {},
     editMessageBatch: () => {},
@@ -69,6 +73,7 @@ export const BackendContextProvider = ({ children }: { children?: any }) => {
         getConversations,
         toggleHideConversation,
         getMessagesFromStorage,
+        getHaltedMessages,
         addMessage,
         addMessageBatch,
         editMessageBatch,
@@ -84,6 +89,7 @@ export const BackendContextProvider = ({ children }: { children?: any }) => {
                 getConversations,
                 toggleHideConversation,
                 getMessagesFromStorage,
+                getHaltedMessages,
                 addMessage,
                 addMessageBatch,
                 editMessageBatch,
