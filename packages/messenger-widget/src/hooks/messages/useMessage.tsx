@@ -23,6 +23,7 @@ import { handleMessagesFromDeliveryService } from './sources/handleMessagesFromD
 import { handleMessagesFromStorage } from './sources/handleMessagesFromStorage';
 import { handleMessagesFromWebSocket } from './sources/handleMessagesFromWebSocket';
 import { useHaltDelivery } from '../haltDelivery/useHaltDelivery';
+import { submitEnvelopsToReceiversDs } from '../../utils/deliveryService/submitEnvelopsToReceiversDs';
 
 const DEFAULT_MESSAGE_PAGESIZE = 100;
 
@@ -330,25 +331,8 @@ export const useMessage = () => {
             };
         }
         //Send the envelops to the delivery service
-        await submitEnveloptsToReceiversDs(envelops);
+        await submitEnvelopsToReceiversDs(envelops);
         return { isSuccess: true };
-    };
-
-    const submitEnveloptsToReceiversDs = async (
-        envelops: DispatchableEnvelop[],
-    ) => {
-        //Every DispatchableEnvelop is sent to the delivery service
-        await Promise.all(
-            envelops.map(async (envelop) => {
-                return await axios
-                    .create({ baseURL: envelop.deliveryServiceUrl })
-                    .post('/rpc', {
-                        jsonrpc: '2.0',
-                        method: 'dm3_submitMessage',
-                        params: [JSON.stringify(envelop.encryptedEnvelop)],
-                    });
-            }),
-        );
     };
 
     const loadInitialMessages = async (_contactName: string) => {
