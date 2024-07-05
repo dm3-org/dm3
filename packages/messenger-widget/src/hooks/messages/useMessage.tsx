@@ -22,6 +22,7 @@ import { checkIfEnvelopAreInSizeLimit } from './sizeLimit/checkIfEnvelopIsInSize
 import { handleMessagesFromDeliveryService } from './sources/handleMessagesFromDeliveryService';
 import { handleMessagesFromStorage } from './sources/handleMessagesFromStorage';
 import { handleMessagesFromWebSocket } from './sources/handleMessagesFromWebSocket';
+import { useHaltDelivery } from '../haltDelivery/useHaltDelivery';
 
 const DEFAULT_MESSAGE_PAGESIZE = 100;
 
@@ -68,6 +69,9 @@ export const useMessage = () => {
         editMessageBatchAsync,
         initialized: storageInitialized,
     } = useContext(StorageContext);
+
+    //load halt delivery here to be able to store messages as halted
+    useHaltDelivery();
 
     const [messages, setMessages] = useState<MessageStorage>({});
 
