@@ -11,6 +11,7 @@ import { AddMessageRequest } from './schema/storage/AddMesssageRequest';
 import { EditMessageBatchRequest } from './schema/storage/EditMessageBatchRequest';
 import { PaginatedRequest } from './schema/storage/PaginatedRequest';
 import { AddHaltedMessageRequest } from './schema/storage/AddHaltedMessageSchema';
+import { MessageRecord } from './persistence/storage';
 
 const DEFAULT_CONVERSATION_PAGE_SIZE = 10;
 const DEFAULT_MESSAGE_PAGE_SIZE = 100;
@@ -126,11 +127,12 @@ export default (
             await db.addMessageBatch(
                 ensName,
                 encryptedContactName,
-                messageBatch.map((message: any) => ({
+                messageBatch.map((message: MessageRecord) => ({
                     messageId: getUniqueMessageId(message.messageId),
                     createdAt: message.createdAt,
                     encryptedEnvelopContainer:
                         message.encryptedEnvelopContainer,
+                    isHalted: message.isHalted,
                 })),
             );
             return res.send();
