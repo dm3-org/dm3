@@ -13,6 +13,7 @@ export type ConversationContextType = {
     addConversation: (ensName: string) => ContactPreview | undefined;
     loadMoreConversations: () => Promise<number>;
     hideContact: (ensName: string) => void;
+    updateConversationList: (conversation: string, updatedAt: number) => void;
 };
 
 export const ConversationContext = React.createContext<ConversationContextType>(
@@ -29,6 +30,7 @@ export const ConversationContext = React.createContext<ConversationContextType>(
             return new Promise((resolve, reject) => resolve(0));
         },
         hideContact: (ensName: string) => {},
+        updateConversationList: (conversation: string, updatedAt: number) => {},
     },
 );
 
@@ -48,6 +50,7 @@ export const ConversationContextProvider = ({
         selectedContact,
         hideContact,
         loadMoreConversations,
+        updateConversationList,
     } = useConversation(config);
 
     return (
@@ -61,6 +64,7 @@ export const ConversationContextProvider = ({
                 setSelectedContactName,
                 selectedContact,
                 hideContact,
+                updateConversationList,
             }}
         >
             {children}

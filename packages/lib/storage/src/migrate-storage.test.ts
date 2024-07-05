@@ -75,6 +75,7 @@ describe('MigrateStorage', () => {
                         contactEnsName,
                         isHidden: false,
                         previewMessage: undefined,
+                        updatedAt: 0,
                     })),
                 getMessages: async (contactEnsName: string, page: number) => [],
                 addMessageBatch: async (

@@ -21,6 +21,7 @@ export const handleMessagesFromDeliveryService = async (
         acknoledgments: Acknoledgment[],
         lastSyncTime: number,
     ) => void,
+    updateConversationList: (conversation: string, updatedAt: number) => void,
 ) => {
     const lastSyncTime = Date.now();
     //Fetch the messages from the delivery service
@@ -69,6 +70,12 @@ export const handleMessagesFromDeliveryService = async (
     if (messagesSortedASC.length > 0) {
         //If the contact is not already in the conversation list then add it
         await addConversation(contact);
+        // Update the conversation with the latest message timestamp
+        updateConversationList(
+            contact,
+            messagesSortedASC[messagesSortedASC.length - 1].envelop.message
+                .metadata.timestamp,
+        );
         //In the background we sync and acknowledge the messages and store then in the storage
         await storeMessageBatch(contact, messagesSortedASC);
     }
