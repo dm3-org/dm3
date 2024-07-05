@@ -63,7 +63,9 @@ export const useConversation = (config: DM3Configuration) => {
                     ),
             );
 
-            return [...withoutDuplicates, ...newContacts];
+            return [...withoutDuplicates, ...newContacts].sort(
+                (a, b) => b.updatedAt - a.updatedAt,
+            );
         });
     };
 
@@ -133,6 +135,7 @@ export const useConversation = (config: DM3Configuration) => {
                     contactEnsName: normalizeEnsName(aliasName!),
                     previewMessage: undefined,
                     isHidden: false,
+                    updatedAt: new Date().getTime(),
                 };
 
                 const hydratedDefaultContact = await hydrateContract(
@@ -187,6 +190,7 @@ export const useConversation = (config: DM3Configuration) => {
             contactEnsName,
             isHidden: false,
             previewMessage: undefined,
+            updatedAt: new Date().getTime(),
         };
         //Adds the conversation to the conversation state
         const conversationPreview = _addConversation(newConversation);
@@ -224,6 +228,7 @@ export const useConversation = (config: DM3Configuration) => {
             contactEnsName: contact.contactDetails.account.ensName,
             previewMessage: undefined,
             isHidden: contact.isHidden,
+            updatedAt: contact.updatedAt,
         };
         const hydratedContact = await hydrateContract(
             mainnetProvider,
@@ -260,6 +265,24 @@ export const useConversation = (config: DM3Configuration) => {
         setSelectedContactName(unhiddenContact.contactDetails.account.ensName);
         hydrateExistingContactAsync(unhiddenContact);
     };
+
+    const updateConversationList = (
+        conversation: string,
+        updatedAt: number,
+    ) => {
+        const newContactList = contacts.map((contact) => {
+            if (contact.contactDetails.account.ensName === conversation) {
+                return {
+                    ...contact,
+                    updatedAt: updatedAt,
+                };
+            }
+            return contact;
+        });
+        // Sort's the contact list in DESC order based on updatedAt property
+        setContacts(newContactList.sort((a, b) => b.updatedAt - a.updatedAt));
+    };
+
     const _toggleHideContact = (_ensName: string, isHidden: boolean) => {
         const ensName = normalizeEnsName(_ensName);
         setContacts((prev) => {
@@ -294,6 +317,7 @@ export const useConversation = (config: DM3Configuration) => {
         //If the contact is already in the list return it
         if (alreadyAddedContact) {
             //Unhide the contact if it was hidden
+            alreadyAddedContact.updatedAt = conversation.updatedAt;
             if (alreadyAddedContact.isHidden) {
                 unhideContact(alreadyAddedContact);
             }
@@ -308,6 +332,7 @@ export const useConversation = (config: DM3Configuration) => {
             ensName,
             previewMessage,
             conversation.isHidden,
+            conversation.updatedAt,
         );
         //Set the new contact to the list
         _setContactsSafe([newContact]);
@@ -327,5 +352,6 @@ export const useConversation = (config: DM3Configuration) => {
         selectedContact,
         hideContact,
         unhideContact,
+        updateConversationList,
     };
 };

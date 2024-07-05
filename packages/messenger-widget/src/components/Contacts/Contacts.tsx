@@ -112,7 +112,6 @@ export function Contacts() {
         const contact = contacts.find(
             (c) => c.contactDetails.account.ensName === _contact,
         );
-        console.log('display preview msg', contact?.name, contact?.message);
         const previewMessage = contact?.message;
         return previewMessage ?? '';
     };

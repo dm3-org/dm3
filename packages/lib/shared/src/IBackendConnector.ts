@@ -8,6 +8,7 @@ export interface IBackendConnector {
         {
             contact: string;
             previewMessage: string;
+            updatedAt: Date;
         }[]
     >;
     toggleHideConversation(
