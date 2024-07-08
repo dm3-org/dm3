@@ -3,7 +3,6 @@ import { ISessionDatabase } from '@dm3-org/dm3-lib-server-side';
 import { UserStorage } from '@dm3-org/dm3-lib-storage';
 import { PrismaClient } from '@prisma/client';
 import { createClient } from 'redis';
-import Pending from './pending';
 import Session from './session';
 import Storage from './storage';
 import { MessageRecord } from './storage/postgres/dto/MessageRecord';
@@ -15,7 +14,6 @@ export enum RedisPrefix {
     Sync = 'sync:',
     Session = 'session:',
     UserStorage = 'user.storage:',
-    Pending = 'pending:',
     NotificationChannel = 'notificationChannel:',
     GlobalNotification = 'globalNotification:',
     Otp = 'otp:',
@@ -69,10 +67,6 @@ export async function getDatabase(
         //Legacy remove after storage has been merged
         getUserStorage: Storage.getUserStorageOld(redis),
         setUserStorage: Storage.setUserStorageOld(redis),
-        //Pending
-        addPending: Pending.addPending(redis),
-        getPending: Pending.getPending(redis),
-        deletePending: Pending.deletePending(redis),
         //Storage AddConversation
         addConversation: Storage.addConversation(prisma),
         getConversationList: Storage.getConversationList(prisma),
@@ -106,9 +100,6 @@ export interface IDatabase extends ISessionDatabase {
     //Legacy remove after storage has been merged
     getUserStorage: (ensName: string) => Promise<UserStorage | null>;
     setUserStorage: (ensName: string, data: string) => Promise<void>;
-    addPending: (ensName: string, contactEnsName: string) => Promise<void>;
-    getPending: (ensName: string) => Promise<string[]>;
-    deletePending: (ensName: string) => Promise<void>;
 
     addConversation: (
         ensName: string,
