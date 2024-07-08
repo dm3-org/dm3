@@ -1,7 +1,7 @@
 import { ProfileExtension, SignedUserProfile } from '@dm3-org/dm3-lib-profile';
 import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
-import { decode, verify } from 'jsonwebtoken';
+import { verify } from 'jsonwebtoken';
 
 //1Year
 const TTL = 31536000000;

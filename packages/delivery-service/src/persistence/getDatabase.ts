@@ -4,7 +4,6 @@ import {
     NotificationChannel,
     NotificationChannelType,
 } from '@dm3-org/dm3-lib-shared';
-// import { PrismaClient } from '@prisma/client';
 import { ISessionDatabase } from '@dm3-org/dm3-lib-server-side';
 import { createClient } from 'redis';
 import { getIdEnsName } from './getIdEnsName';
@@ -19,7 +18,6 @@ export enum RedisPrefix {
     Conversation = 'conversation:',
     IncomingConversations = 'incoming.conversations:',
     Sync = 'sync:',
-    Session = 'session:',
     UserStorage = 'user.storage:',
     Pending = 'pending:',
     NotificationChannel = 'notificationChannel:',
