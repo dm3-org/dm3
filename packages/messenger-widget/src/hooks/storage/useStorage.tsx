@@ -101,11 +101,12 @@ export const useStorage = (
     const storeMessageAsync = (
         contact: string,
         envelop: StorageEnvelopContainerNew,
+        isHalted: boolean = false,
     ) => {
         if (!storageApi) {
             throw Error('Storage not initialized');
         }
-        storageApi.addMessage(contact, envelop);
+        storageApi.addMessage(contact, envelop, isHalted);
     };
     const storeMessageBatch = async (
         contact: string,
@@ -140,6 +141,13 @@ export const useStorage = (
         return storageApi.getMessages(contact, pageSize, offset);
     };
 
+    const getHaltedMessages = async () => {
+        if (!storageApi) {
+            return Promise.resolve([]);
+        }
+        return storageApi.getHaltedMessages();
+    };
+
     const getNumberOfMessages = async (contact: string) => {
         if (!storageApi) {
             return Promise.resolve(0);
@@ -161,6 +169,7 @@ export const useStorage = (
         getConversations,
         addConversationAsync,
         getMessages,
+        getHaltedMessages,
         getNumberOfMessages,
         toggleHideContactAsync,
         initialized,
@@ -170,6 +179,7 @@ export const useStorage = (
 export type StoreMessageAsync = (
     contact: string,
     envelop: StorageEnvelopContainerNew,
+    isHalted?: boolean,
 ) => void;
 export type editMessageBatchAsync = (
     contact: string,
@@ -189,5 +199,6 @@ export type GetMessages = (
     pageSize: number,
     offset: number,
 ) => Promise<StorageEnvelopContainerNew[]>;
+export type GetHaltedMessages = () => Promise<StorageEnvelopContainerNew[]>;
 export type GetNumberOfMessages = (contact: string) => Promise<number>;
 export type ToggleHideContactAsync = (contact: string, value: boolean) => void;

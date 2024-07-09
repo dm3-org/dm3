@@ -11,6 +11,9 @@
         "encryptedEnvelopContainer": {
           "type": "string"
         },
+        "isHalted": {
+          "type": "boolean"
+        },
         "messageId": {
           "type": "string"
         }
@@ -18,7 +21,8 @@
       "required": [
         "createdAt",
         "messageId",
-        "encryptedEnvelopContainer"
+        "encryptedEnvelopContainer",
+        "isHalted"
       ],
       "type": "object"
     },
