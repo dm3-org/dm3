@@ -1,5 +1,7 @@
+import { getRedisClient } from '@dm3-org/dm3-lib-server-side';
 import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
-import { IDatabase, Redis, getDatabase, getRedisClient } from '../getDatabase';
+import { IDatabase, Redis, getDatabase } from '../getDatabase';
+
 import winston from 'winston';
 
 const USER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
