@@ -1,5 +1,5 @@
-import { Redis, RedisPrefix } from '../getDatabase';
-import { getIdEnsName } from '../getIdEnsName';
+import { getIdEnsName, Redis } from '@dm3-org/dm3-lib-server-side';
+import { RedisPrefix } from '../getDatabase';
 
 //flag to indicate that the user storage has been migrated to the new postgres based storage
 export const setUserDbMigrated = (redis: Redis) => async (ensName: string) => {

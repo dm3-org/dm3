@@ -1,6 +1,6 @@
-import { Redis, RedisPrefix } from '../getDatabase';
+import { getIdEnsName, Redis } from '@dm3-org/dm3-lib-server-side';
 import { UserStorage } from '@dm3-org/dm3-lib-storage';
-import { getIdEnsName } from '../getIdEnsName';
+import { RedisPrefix } from '../getDatabase';
 
 //Bring the old storage api temporarily back to allow testing without breaking changes
 //Remove as soon a storage is fully migrated

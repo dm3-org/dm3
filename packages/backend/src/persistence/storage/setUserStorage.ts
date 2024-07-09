@@ -1,6 +1,6 @@
+import { getIdEnsName, Redis } from '@dm3-org/dm3-lib-server-side';
 import { stringify } from '@dm3-org/dm3-lib-shared';
-import { Redis, RedisPrefix } from '../getDatabase';
-import { getIdEnsName } from '../getIdEnsName';
+import { RedisPrefix } from '../getDatabase';
 
 export function setUserStorageChunk(redis: Redis) {
     return async (

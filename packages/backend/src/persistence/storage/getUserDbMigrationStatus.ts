@@ -1,5 +1,5 @@
-import { Redis, RedisPrefix } from '../getDatabase';
-import { getIdEnsName } from '../getIdEnsName';
+import { Redis, getIdEnsName } from '@dm3-org/dm3-lib-server-side';
+import { RedisPrefix } from '../getDatabase';
 
 export const getUserDbMigrationStatus =
     (redis: Redis) => async (ensName: string) => {

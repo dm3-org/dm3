@@ -1,6 +1,6 @@
 import { stringify } from '@dm3-org/dm3-lib-shared';
-import { Redis, RedisPrefix } from '../getDatabase';
-import { getIdEnsName } from '../getIdEnsName';
+import { RedisPrefix } from '../getDatabase';
+import { getIdEnsName, Redis } from '@dm3-org/dm3-lib-server-side';
 
 export function setUserStorageOld(redis: Redis) {
     return async (ensName: string, data: string): Promise<void> => {

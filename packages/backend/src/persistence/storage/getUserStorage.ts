@@ -1,6 +1,6 @@
-import { Redis, RedisPrefix } from '../getDatabase';
+import { Redis, getIdEnsName } from '@dm3-org/dm3-lib-server-side';
 import { UserStorage } from '@dm3-org/dm3-lib-storage';
-import { getIdEnsName } from '../getIdEnsName';
+import { RedisPrefix } from '../getDatabase';
 
 export function getUserStorageChunk(redis: Redis) {
     return async (

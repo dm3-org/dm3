@@ -23,7 +23,7 @@ enum RedisPrefixBackend {
     UserStorageMigrated = 'user.storage.migrated:',
 }
 
-const RedisPrefix = {
+export const RedisPrefix = {
     ...RedisPrefixBackend,
     ...RedisPrefixShared,
 } as const;
