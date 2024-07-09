@@ -1,59 +1,34 @@
 import { IGlobalNotification, IOtp } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
 import {
+    ISessionDatabase,
+    RedisPrefixShared,
+    getIdEnsName,
+    getRedisClient,
+    getSession,
+    setSession,
+} from '@dm3-org/dm3-lib-server-side';
+import {
     NotificationChannel,
     NotificationChannelType,
 } from '@dm3-org/dm3-lib-shared';
-import { ISessionDatabase } from '@dm3-org/dm3-lib-server-side';
-import { createClient } from 'redis';
-import { getIdEnsName } from './getIdEnsName';
 import Messages from './messages';
 import { syncAcknowledge } from './messages/syncAcknowledge';
 import Notification from './notification';
 import Otp from './otp';
 import Pending from './pending';
-import Session from './session';
 
-export enum RedisPrefix {
-    Conversation = 'conversation:',
-    IncomingConversations = 'incoming.conversations:',
-    Sync = 'sync:',
-    UserStorage = 'user.storage:',
-    Pending = 'pending:',
+export enum RedisPrefixDeliveryService {
     NotificationChannel = 'notificationChannel:',
     GlobalNotification = 'globalNotification:',
-    Otp = 'otp:',
-    UserStorageMigrated = 'user.storage.migrated:',
 }
 
-export async function getRedisClient() {
-    const url = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
-    const socketConf = {
-        socket: {
-            tls: true,
-            rejectUnauthorized: false,
-        },
-    };
-    const client = createClient(
-        process.env.NODE_ENV === 'production'
-            ? {
-                  url,
-                  ...socketConf,
-              }
-            : { url },
-    );
+export const RedisPrefix = {
+    ...RedisPrefixDeliveryService,
+    ...RedisPrefixShared,
+} as const;
 
-    client.on('error', (err) => {
-        global.logger.error('Redis error: ' + (err as Error).message);
-    });
-
-    client.on('reconnecting', () => global.logger.info('Redis reconnection'));
-    client.on('ready', () => global.logger.info('Redis ready'));
-
-    await client.connect();
-
-    return client;
-}
+export type RedisPrefix = typeof RedisPrefix;
 
 export async function getDatabase(
     _redis?: Redis,
@@ -69,8 +44,8 @@ export async function getDatabase(
         createMessage: Messages.createMessage(redis),
         deleteExpiredMessages: Messages.deleteExpiredMessages(redis),
         //Session
-        setSession: Session.setSession(redis),
-        getSession: Session.getSession(redis),
+        setSession: setSession(redis),
+        getSession: getSession(redis),
         //Pending
         addPending: Pending.addPending(redis),
         getPending: Pending.getPending(redis),

@@ -1,5 +1,5 @@
 import { Redis, RedisPrefix } from '../getDatabase';
-import { getIdEnsName } from '../getIdEnsName';
+import { getIdEnsName } from '@dm3-org/dm3-lib-server-side';
 import { IOtp } from '@dm3-org/dm3-lib-delivery';
 import { SEPARATION_OPERATOR } from './setOtp';
 import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';

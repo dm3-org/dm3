@@ -15,11 +15,7 @@ import { MessageRecord } from './storage/postgres/dto/MessageRecord';
 import { ConversationRecord } from './storage/postgres/dto/ConversationRecord';
 
 enum RedisPrefixBackend {
-    Conversation = 'conversation:',
-    IncomingConversations = 'incoming.conversations:',
-    Sync = 'sync:',
     UserStorage = 'user.storage:',
-    Otp = 'otp:',
     UserStorageMigrated = 'user.storage.migrated:',
 }
 

@@ -1,6 +1,6 @@
 import { IGlobalNotification } from '@dm3-org/dm3-lib-delivery';
 import { Redis, RedisPrefix } from '../getDatabase';
-import { getIdEnsName } from '../getIdEnsName';
+import { getIdEnsName } from '@dm3-org/dm3-lib-server-side';
 
 // Returns the global notification setting
 export function getGlobalNotification(redis: Redis) {

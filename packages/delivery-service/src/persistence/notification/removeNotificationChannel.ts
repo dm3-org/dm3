@@ -3,7 +3,7 @@ import {
     NotificationChannel,
 } from '@dm3-org/dm3-lib-shared';
 import { Redis, RedisPrefix } from '../getDatabase';
-import { getIdEnsName } from '../getIdEnsName';
+import { getIdEnsName } from '@dm3-org/dm3-lib-server-side';
 import { stringify } from '@dm3-org/dm3-lib-shared';
 
 // removes notification channel from the DB for speicifc ens name

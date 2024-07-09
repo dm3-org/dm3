@@ -1,6 +1,6 @@
 import { stringify } from '@dm3-org/dm3-lib-shared';
 import { Redis, RedisPrefix } from '../getDatabase';
-import { getIdEnsName } from '../getIdEnsName';
+import { getIdEnsName } from '@dm3-org/dm3-lib-server-side';
 import { NotificationChannelType } from '@dm3-org/dm3-lib-shared';
 
 export const SEPARATION_OPERATOR = '=';
