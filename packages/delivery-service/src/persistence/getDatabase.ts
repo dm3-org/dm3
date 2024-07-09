@@ -16,7 +16,6 @@ import Messages from './messages';
 import { syncAcknowledge } from './messages/syncAcknowledge';
 import Notification from './notification';
 import Otp from './otp';
-import Pending from './pending';
 
 export enum RedisPrefixDeliveryService {
     NotificationChannel = 'notificationChannel:',
@@ -46,10 +45,6 @@ export async function getDatabase(
         //Session
         setSession: setSession(redis),
         getSession: getSession(redis),
-        //Pending
-        addPending: Pending.addPending(redis),
-        getPending: Pending.getPending(redis),
-        deletePending: Pending.deletePending(redis),
         getIdEnsName: getIdEnsName(redis),
         syncAcknowledge: syncAcknowledge(redis),
         //Notification
@@ -89,9 +84,6 @@ export interface IDatabase extends ISessionDatabase {
         createdAt?: number,
     ) => Promise<void>;
     deleteExpiredMessages: (time: number) => Promise<void>;
-    addPending: (ensName: string, contactEnsName: string) => Promise<void>;
-    getPending: (ensName: string) => Promise<string[]>;
-    deletePending: (ensName: string) => Promise<void>;
     getIdEnsName: (ensName: string) => Promise<string>;
     syncAcknowledge: (
         conversationId: string,
