@@ -11,6 +11,20 @@ import {
 } from './common-utils';
 import { RightViewSelected } from './enum-type-utils';
 
+const isImageLoadable = (url: string) => {
+    try {
+        const request = new XMLHttpRequest();
+        request.open('GET', url, true);
+        request.send();
+        request.onload = function () {
+            return request.status == 200 ? true : false;
+        };
+    } catch (error) {
+        console.log('error in loading image : ', error);
+        return false;
+    }
+};
+
 // method to get avatar/image url
 export const getAvatar = async (
     provider: ethers.providers.JsonRpcProvider,
@@ -36,9 +50,15 @@ export const getAvatarProfilePic = async (
                         .catch(() => null);
                     if (avatar) {
                         const splittedIpfsUrl = avatar.split('ipfs://');
-                        return splittedIpfsUrl.length === 2
-                            ? AVATAR_IPFS_URL_PREFIX.concat(splittedIpfsUrl[1])
-                            : avatar;
+                        const imageUrl =
+                            splittedIpfsUrl.length === 2
+                                ? AVATAR_IPFS_URL_PREFIX.concat(
+                                      splittedIpfsUrl[1],
+                                  )
+                                : avatar;
+                        if (isImageLoadable(imageUrl)) {
+                            return imageUrl;
+                        }
                     }
                 }
                 const address = await provider.resolveName(ensName);
