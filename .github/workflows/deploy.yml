@@ -1,5 +1,6 @@
 name: deploy
 on:
+    workflow_dispatch:
     push:
         branches:
             - testing
@@ -8,10 +9,10 @@ on:
 
 jobs:
     messenger-web-deploy:
-        environment: ${{ github.ref_name == 'main' && 'prod' || (github.ref == 'develop' && 'staging' || 'testing') }}
+        environment: ${{ github.ref_name == 'main' && 'prod' || (github.ref_name == 'develop' && 'staging' || 'testing') }}
         runs-on: ubuntu-latest
         env:
-            environment_name: ${{ github.ref_name == 'main' && 'prod' || (github.ref == 'develop' && 'staging' || 'testing') }}
+            environment_name: ${{ github.ref_name == 'main' && 'prod' || (github.ref_name == 'develop' && 'staging' || 'testing') }}
         steps:
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v3
