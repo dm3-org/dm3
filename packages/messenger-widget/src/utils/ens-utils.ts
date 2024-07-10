@@ -4,6 +4,7 @@ import { ethers } from 'ethers';
 import humanIcon from '../assets/images/human.svg';
 import { EnsProfileDetails } from '../interfaces/utils';
 import {
+    AVATAR_IPFS_URL_PREFIX,
     ENS_PROFILE_BASE_URL,
     MOBILE_SCREEN_WIDTH,
     getEtherscanUrl,
@@ -33,7 +34,12 @@ export const getAvatarProfilePic = async (
                     const avatar = await resolver
                         .getText('avatar')
                         .catch(() => null);
-                    if (avatar) return avatar;
+                    if (avatar) {
+                        const splittedIpfsUrl = avatar.split('ipfs://');
+                        return splittedIpfsUrl.length === 2
+                            ? AVATAR_IPFS_URL_PREFIX.concat(splittedIpfsUrl[1])
+                            : avatar;
+                    }
                 }
                 const address = await provider.resolveName(ensName);
                 if (address) {
