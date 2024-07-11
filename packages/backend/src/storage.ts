@@ -271,7 +271,7 @@ export default (
 
     router.post('/new/:ensName/clearHaltedMessage', async (req, res, next) => {
         try {
-            const { messageId } = req.body;
+            const { messageId, aliasName } = req.body;
 
             if (!messageId) {
                 res.status(400).send('invalid schema');
@@ -284,6 +284,8 @@ export default (
             const uniqueMessageId = sha256(ensName + messageId);
             const success = await db.clearHaltedMessage(
                 ensName,
+                //If the aliasName is not provided, we use the ensName as the client has no intention to use an alias
+                aliasName ?? ensName,
                 uniqueMessageId,
             );
 

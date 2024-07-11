@@ -85,6 +85,7 @@ describe('getHaltedMessages', () => {
 
         await clearHaltedMessage(prismaClient)(
             ensName,
+            ensName,
             messageRecord1.messageId,
         );
 
