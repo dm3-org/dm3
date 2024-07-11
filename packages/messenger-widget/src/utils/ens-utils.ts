@@ -10,15 +10,12 @@ import {
     getEtherscanUrl,
 } from './common-utils';
 import { RightViewSelected } from './enum-type-utils';
+import axios from 'axios';
 
-const isImageLoadable = (url: string) => {
+const isImageLoadable = async (url: string): Promise<boolean> => {
     try {
-        const request = new XMLHttpRequest();
-        request.open('GET', url, true);
-        request.send();
-        request.onload = function () {
-            return request.status == 200 ? true : false;
-        };
+        const { status } = await axios.get(url);
+        return status === 200;
     } catch (error) {
         console.log('error in loading image : ', error);
         return false;
@@ -49,6 +46,13 @@ export const getAvatarProfilePic = async (
                         .getText('avatar')
                         .catch(() => null);
                     if (avatar) {
+                        /**
+                         * If the image URL is of IPFS, then it can't be directly loaded by
+                         * the browser, so trim the URL and create a proper IPFS url so that
+                         * image can be rendered. Example :-
+                         * Original URL fetched : ipfs://QmQqzMTavQgT4f4T5v6PWBp7XNKtoPmC9jvn12WPT3gkSE (not loadable in browser)
+                         * Modified URL : https://ipfs.euc.li/ipfs/QmQqzMTavQgT4f4T5v6PWBp7XNKtoPmC9jvn12WPT3gkSE  (loadable in browser)
+                         */
                         const splittedIpfsUrl = avatar.split('ipfs://');
                         const imageUrl =
                             splittedIpfsUrl.length === 2
@@ -56,7 +60,7 @@ export const getAvatarProfilePic = async (
                                       splittedIpfsUrl[1],
                                   )
                                 : avatar;
-                        if (isImageLoadable(imageUrl)) {
+                        if (await isImageLoadable(imageUrl)) {
                             return imageUrl;
                         }
                     }
