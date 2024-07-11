@@ -152,6 +152,7 @@ export interface IDatabase extends ISessionDatabase {
     getHaltedMessages: (ensName: string) => Promise<MessageRecord[]>;
     clearHaltedMessage: (
         ensName: string,
+        aliasName: string,
         messageId: string,
     ) => Promise<boolean>;
     getUserDbMigrationStatus: (ensName: string) => Promise<boolean>;
