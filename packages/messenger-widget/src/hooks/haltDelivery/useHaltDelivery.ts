@@ -21,6 +21,9 @@ export const useHaltDelivery = () => {
     const { provider } = useContext(MainnetProviderContext);
 
     useEffect(() => {
+        if (!storageInitialized) {
+            return;
+        }
         // Fetch all messages the user has halted. Then check if they can be delivered now.
         const handleHaltedMessages = async () => {
             const haltedMessages = await getHaltedMessages();
@@ -108,9 +111,6 @@ export const useHaltDelivery = () => {
             console.log('flat dispatchableenvelops', dispatchableEnvelops);
 
             await submitEnvelopsToReceiversDs(dispatchableEnvelops);
-
-            //Check if
-            //  console.log('haltedMessages', resolvedAlias);
         };
 
         handleHaltedMessages();
