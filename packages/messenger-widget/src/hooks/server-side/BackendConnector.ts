@@ -77,6 +77,20 @@ export class BackendConnector
         const { data } = await this.getAuthenticatedAxiosClient().get(url, {});
         return data ?? [];
     }
+    public async clearHaltedMessages(
+        ensName: string,
+        messageId: string,
+        aliasName: string,
+    ) {
+        const url = `/storage/new/${normalizeEnsName(
+            ensName,
+        )}/clearHaltedMessage/`;
+        const { data } = await this.getAuthenticatedAxiosClient().post(url, {
+            aliasName,
+            messageId,
+        });
+        return data ?? [];
+    }
 
     public async addMessage(
         ensName: string,

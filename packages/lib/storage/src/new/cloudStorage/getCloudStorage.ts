@@ -94,6 +94,18 @@ export const getCloudStorage = (
         return decryptedMessages as StorageEnvelopContainer[];
     };
 
+    const clearHaltedMessages = async (
+        messageId: string,
+        aliasName: string,
+    ) => {
+        const encryptedAliasName = await encryption.encryptSync(aliasName);
+        await backendConnector.clearHaltedMessages(
+            ensName,
+            messageId,
+            encryptedAliasName,
+        );
+    };
+
     const _addMessage = async (
         contactEnsName: string,
         envelop: StorageEnvelopContainer,
@@ -181,6 +193,7 @@ export const getCloudStorage = (
                             storageEnvelopContainer.envelop.metadata
                                 ?.encryptedMessageHash!,
                         createdAt,
+                        isHalted: false,
                     };
                 },
             ),
@@ -229,6 +242,7 @@ export const getCloudStorage = (
         addMessageBatch: _addMessageBatch,
         editMessageBatch: _editMessageBatch,
         getHaltedMessages,
+        clearHaltedMessages,
         getNumberOfMessages: _getNumberOfMessages,
         getNumberOfConverations: _getNumberOfConversations,
         toggleHideConversation: _toggleHideConversation,
