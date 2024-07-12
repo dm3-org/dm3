@@ -9,11 +9,11 @@ import { createClient } from 'redis';
 // import { ConversationRecord } from './storage/postgres/dto/ConversationRecord';
 
 export enum RedisPrefixShared {
-    Conversation = 'conversation:',
-    IncomingConversations = 'incoming.conversations:',
-    Sync = 'sync:',
-    Session = 'session:',
-    Otp = 'otp:',
+    Conversation = 'conversation:', // remove
+    IncomingConversations = 'incoming.conversations:', // remove
+    Sync = 'sync:', // remove
+    Session = 'session:', // keep here
+    Otp = 'otp:', // move to ds
 }
 
 export async function getRedisClient() {

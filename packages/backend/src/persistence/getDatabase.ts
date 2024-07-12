@@ -15,8 +15,8 @@ import { ConversationRecord } from './storage/postgres/dto/ConversationRecord';
 import { MessageRecord } from './storage/postgres/dto/MessageRecord';
 
 enum RedisPrefixBackend {
-    UserStorage = 'user.storage:',
-    UserStorageMigrated = 'user.storage.migrated:',
+    UserStorage = 'user.storage:', // remove
+    UserStorageMigrated = 'user.storage.migrated:', // remove
 }
 
 export const RedisPrefix = {
