@@ -3,7 +3,6 @@ import { DM3ConfigurationContext } from '../../context/DM3ConfigurationContext';
 import { AuthContext } from '../../context/AuthContext';
 import { BackendConnector } from './BackendConnector';
 import { IBackendConnector } from '@dm3-org/dm3-lib-shared';
-import { clearHaltedMessage } from '../../../../backend/src/persistence/storage/postgres/haltedMessage/clearHaltedMessage';
 
 export const useBackend = (): IBackendConnector & {
     isInitialized: boolean;
