@@ -25,7 +25,7 @@ import { DM3, DM3Configuration } from '@dm3-org/dm3-messenger-widget';
 //             {children}
 //         </div>
 //     );
-// };p
+// };
 
 function App() {
     const props: DM3Configuration = {
