@@ -4,7 +4,6 @@ import {
     NotificationChannel,
     NotificationChannelType,
 } from '@dm3-org/dm3-lib-shared';
-// import { PrismaClient } from '@prisma/client';
 import { ISessionDatabase } from '@dm3-org/dm3-lib-server-side';
 import { createClient } from 'redis';
 import { getIdEnsName } from './getIdEnsName';
