@@ -281,11 +281,10 @@ export default (
             const ensName = normalizeEnsName(req.params.ensName);
             //Since the message is fully encrypted, we cannot use the messageHash as an identifier.
             //Instead we use the hash of the ensName and the messageId to have a unique identifier
-            const uniqueMessageId = sha256(ensName + messageId);
 
             console.log(
                 'clearHaltedMessage uniqueMessageId ',
-                uniqueMessageId,
+                messageId,
                 ensName,
                 messageId,
             );
@@ -294,7 +293,7 @@ export default (
                 ensName,
                 //If the aliasName is not provided, we use the ensName as the client has no intention to use an alias
                 aliasName,
-                uniqueMessageId,
+                messageId,
             );
 
             if (success) {
