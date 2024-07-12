@@ -9,7 +9,6 @@ import { ISessionDatabase } from '@dm3-org/dm3-lib-server-side';
 import { createClient } from 'redis';
 import { getIdEnsName } from './getIdEnsName';
 import Messages from './messages';
-import { syncAcknowledge } from './messages/syncAcknowledge';
 import Notification from './notification';
 import Otp from './otp';
 import Session from './session';
@@ -67,7 +66,6 @@ export async function getDatabase(
         setSession: Session.setSession(redis),
         getSession: Session.getSession(redis),
         getIdEnsName: getIdEnsName(redis),
-        syncAcknowledge: syncAcknowledge(redis),
         //Notification
         getUsersNotificationChannels:
             Notification.getUsersNotificationChannels(redis),
@@ -106,10 +104,6 @@ export interface IDatabase extends ISessionDatabase {
     ) => Promise<void>;
     deleteExpiredMessages: (time: number) => Promise<void>;
     getIdEnsName: (ensName: string) => Promise<string>;
-    syncAcknowledge: (
-        conversationId: string,
-        syncTime: number,
-    ) => Promise<void>;
     getUsersNotificationChannels: (
         ensName: string,
     ) => Promise<NotificationChannel[]>;
