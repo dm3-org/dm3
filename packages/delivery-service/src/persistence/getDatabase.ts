@@ -14,6 +14,8 @@ import Otp from './otp';
 import Session from './session';
 
 export enum RedisPrefix {
+    Conversation = 'conversation:',
+    IncomingConversations = 'incoming.conversations:',
     Session = 'session:',
     NotificationChannel = 'notificationChannel:',
     GlobalNotification = 'globalNotification:',
