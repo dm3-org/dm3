@@ -980,7 +980,7 @@ describe('Storage', () => {
                 .send({
                     encryptedEnvelopContainer: JSON.stringify(envelop1),
                     encryptedContactName: sha256(receiver.account.ensName),
-                    messageId: '123',
+                    messageId: envelop1.metadata.encryptedMessageHash,
                     createdAt: 1,
                     isHalted: true,
                 });
@@ -1007,7 +1007,7 @@ describe('Storage', () => {
                     authorization: 'Bearer ' + token,
                 })
                 .send({
-                    messageId: 123,
+                    messageId: messages[0].messageId,
                 });
 
             expect(deleteStatus).toBe(200);
