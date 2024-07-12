@@ -282,10 +282,18 @@ export default (
             //Since the message is fully encrypted, we cannot use the messageHash as an identifier.
             //Instead we use the hash of the ensName and the messageId to have a unique identifier
             const uniqueMessageId = sha256(ensName + messageId);
+
+            console.log(
+                'clearHaltedMessage uniqueMessageId ',
+                uniqueMessageId,
+                ensName,
+                messageId,
+            );
+
             const success = await db.clearHaltedMessage(
                 ensName,
                 //If the aliasName is not provided, we use the ensName as the client has no intention to use an alias
-                aliasName ?? ensName,
+                aliasName,
                 uniqueMessageId,
             );
 

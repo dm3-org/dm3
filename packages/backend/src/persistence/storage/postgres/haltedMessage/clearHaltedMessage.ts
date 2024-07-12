@@ -18,6 +18,7 @@ export const clearHaltedMessage =
         });
         //If the contact does not exist, there is no message that can be deleted
         if (!account) {
+            console.log('cleatHaltedMessages: account not found');
             return false;
         }
 
@@ -28,6 +29,7 @@ export const clearHaltedMessage =
         });
 
         if (!message) {
+            console.log(`cleatHaltedMessages: message ${messageId} not found`);
             return false;
         }
 
