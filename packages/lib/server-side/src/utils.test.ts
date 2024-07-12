@@ -18,7 +18,7 @@ describe('Utils', () => {
                 notBefore: 0,
             });
 
-            const getSession = async (accountAddress: string) =>
+            const getAccount = async (accountAddress: string) =>
                 Promise.resolve({
                     signedUserProfile: {},
                     token: 'testToken',
@@ -29,7 +29,7 @@ describe('Utils', () => {
             };
 
             const db = {
-                getSession,
+                getAccount,
                 setSession,
             };
 
@@ -80,7 +80,7 @@ describe('Utils', () => {
                 notBefore: 0,
             });
 
-            const getSession = async (accountAddress: string) =>
+            const getAccount = async (accountAddress: string) =>
                 Promise.resolve({
                     signedUserProfile: {},
                     token: 'testToken',
@@ -91,7 +91,7 @@ describe('Utils', () => {
             };
 
             const db = {
-                getSession,
+                getAccount,
                 setSession,
             };
 
@@ -141,7 +141,7 @@ describe('Utils', () => {
                 expiresIn: '1h',
             });
             const db = {
-                getSession: async (accountAddress: string) =>
+                getAccount: async (accountAddress: string) =>
                     Promise.resolve(null),
                 setSession: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
@@ -204,7 +204,7 @@ describe('Utils', () => {
                 expiresIn: '1h',
             });
             const db = {
-                getSession: async (accountAddress: string) =>
+                getAccount: async (accountAddress: string) =>
                     Promise.resolve({
                         signedUserProfile: {},
                         token: 'foo',
@@ -282,7 +282,7 @@ describe('Utils', () => {
             );
 
             const db = {
-                getSession: async (accountAddress: string) =>
+                getAccount: async (accountAddress: string) =>
                     Promise.resolve({
                         signedUserProfile: {},
                         token: 'foo',
@@ -381,7 +381,7 @@ describe('Utils', () => {
                 serverSecret,
             );
             const db = {
-                getSession: async (accountAddress: string) =>
+                getAccount: async (accountAddress: string) =>
                     Promise.resolve({
                         signedUserProfile: {},
                         token: 'foo',
