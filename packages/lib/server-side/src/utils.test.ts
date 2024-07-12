@@ -24,13 +24,13 @@ describe('Utils', () => {
                     token: 'testToken',
                     createdAt: new Date().getTime(),
                 });
-            const setSession = async (_: string, __: any) => {
+            const setAccount = async (_: string, __: any) => {
                 return (_: any, __: any, ___: any) => {};
             };
 
             const db = {
                 getAccount,
-                setSession,
+                setAccount,
             };
 
             const web3Provider = {
@@ -86,13 +86,13 @@ describe('Utils', () => {
                     token: 'testToken',
                     createdAt: new Date().getTime(),
                 });
-            const setSession = async (_: string, __: any) => {
+            const setAccount = async (_: string, __: any) => {
                 return (_: any, __: any, ___: any) => {};
             };
 
             const db = {
                 getAccount,
-                setSession,
+                setAccount,
             };
 
             const web3Provider = {
@@ -143,7 +143,7 @@ describe('Utils', () => {
             const db = {
                 getAccount: async (accountAddress: string) =>
                     Promise.resolve(null),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
             };
@@ -209,7 +209,7 @@ describe('Utils', () => {
                         signedUserProfile: {},
                         token: 'foo',
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
             };
@@ -288,7 +288,7 @@ describe('Utils', () => {
                         token: 'foo',
                         createdAt: 1,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
             };
@@ -387,7 +387,7 @@ describe('Utils', () => {
                         token: 'foo',
                         createdAt: 1,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
             };

@@ -34,7 +34,7 @@ describe('Delivery', () => {
             const token = await createAuthToken('alice.eth');
 
             const db = {
-                getSession: async (ensName: string) =>
+                getAccount: async (ensName: string) =>
                     Promise.resolve({
                         challenge: 'my-Challenge',
                         signedUserProfile: {
@@ -45,7 +45,7 @@ describe('Delivery', () => {
                         },
                         token,
                     }),
-                setSession: async (_: string, __: any) => {
+                setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
                 getMessages: () => Promise.resolve([]),
