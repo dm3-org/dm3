@@ -15,16 +15,10 @@ import Otp from './otp';
 import Session from './session';
 
 export enum RedisPrefix {
-    Conversation = 'conversation:',
-    IncomingConversations = 'incoming.conversations:',
-    Sync = 'sync:',
     Session = 'session:',
-    UserStorage = 'user.storage:',
-    Pending = 'pending:',
     NotificationChannel = 'notificationChannel:',
     GlobalNotification = 'globalNotification:',
     Otp = 'otp:',
-    UserStorageMigrated = 'user.storage.migrated:',
 }
 
 export async function getRedisClient() {
