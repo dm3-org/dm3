@@ -7,18 +7,22 @@ import {
     getUserProfile,
 } from '@dm3-org/dm3-lib-profile';
 import { MainnetProviderContext } from '../../context/ProviderContext';
-import { buildEnvelop } from '@dm3-org/dm3-lib-messaging';
+import { DispatchableEnvelop, buildEnvelop } from '@dm3-org/dm3-lib-messaging';
 import { encryptAsymmetric } from '@dm3-org/dm3-lib-crypto';
 import { AuthContext } from '../../context/AuthContext';
 import { fetchDsProfiles } from '../../utils/deliveryService/fetchDsProfiles';
 import { submitEnvelopsToReceiversDs } from '../../utils/deliveryService/submitEnvelopsToReceiversDs';
 
 export const useHaltDelivery = () => {
-    const { getHaltedMessages, initialized: storageInitialized } =
-        useContext(StorageContext);
+    const {
+        getHaltedMessages,
+        clearHaltedMessages,
+        initialized: storageInitialized,
+    } = useContext(StorageContext);
 
     const { account: sendersAccount, profileKeys } = useContext(AuthContext);
     const { provider } = useContext(MainnetProviderContext);
+    const { resolveTLDtoAlias } = useContext(TLDContext);
 
     useEffect(() => {
         if (!storageInitialized) {
@@ -35,13 +39,33 @@ export const useHaltDelivery = () => {
                     ),
                 ),
             );
+            //Resolve the  tldNames to their aliases
+            const resolvedAliases = await Promise.all(
+                recipients.map(async (ensName) => ({
+                    ensName,
+                    aliasName: await resolveTLDtoAlias(ensName),
+                })),
+            );
+
+            console.log('resolvedAliases', resolvedAliases);
 
             //For each recipient, get the users account
             const withAccounts = await Promise.all(
-                recipients.map(async (ensName) => ({
-                    ensName,
-                    profile: (await getUserProfile(provider, ensName))?.profile,
-                })),
+                resolvedAliases.map(
+                    async ({
+                        ensName,
+                        aliasName,
+                    }: {
+                        ensName: string;
+                        aliasName: string;
+                    }) => ({
+                        ensName,
+                        aliasName,
+                        profile: (
+                            await getUserProfile(provider, aliasName)
+                        )?.profile,
+                    }),
+                ),
             );
             //Filter out users that have no profile
             const dm3Users = withAccounts.filter(
@@ -82,22 +106,36 @@ export const useHaltDelivery = () => {
                                 //Inner loop gets through every ds profile
                                 //messsage x dsProfile = envelops
                                 receiverAccount.deliveryServiceProfiles.map(
-                                    (dsProfile: DeliveryServiceProfile) =>
-                                        buildEnvelop(
-                                            message.envelop.message,
-                                            (publicKey: string, msg: string) =>
-                                                encryptAsymmetric(
-                                                    publicKey,
-                                                    msg,
-                                                ),
-                                            {
-                                                from: sendersAccount!,
-                                                to: receiverAccount!,
-                                                deliverServiceProfile:
-                                                    dsProfile,
-                                                keys: profileKeys!,
-                                            },
-                                        ),
+                                    async (
+                                        dsProfile: DeliveryServiceProfile,
+                                    ) => {
+                                        //build the dispatchable envelop
+                                        const dispatchableEnvelop =
+                                            await buildEnvelop(
+                                                message.envelop.message,
+                                                (
+                                                    publicKey: string,
+                                                    msg: string,
+                                                ) =>
+                                                    encryptAsymmetric(
+                                                        publicKey,
+                                                        msg,
+                                                    ),
+                                                {
+                                                    from: sendersAccount!,
+                                                    to: receiverAccount!,
+                                                    deliverServiceProfile:
+                                                        dsProfile,
+                                                    keys: profileKeys!,
+                                                },
+                                            );
+                                        return {
+                                            ...dispatchableEnvelop,
+                                            //we keep the alias name for the receiver. In case it differes from the ensName
+                                            aliasName:
+                                                receiverAccount.aliasName,
+                                        };
+                                    },
                                 ),
                             );
                         }),
@@ -111,6 +149,15 @@ export const useHaltDelivery = () => {
             console.log('flat dispatchableenvelops', dispatchableEnvelops);
 
             await submitEnvelopsToReceiversDs(dispatchableEnvelops);
+
+            dispatchableEnvelops.map((envelop) => {
+                clearHaltedMessages(
+                    envelop.envelop.metadata?.encryptedMessageHash!,
+                    envelop.aliasName,
+                );
+            });
+
+            //Clear messages after they have been dispatched
         };
 
         handleHaltedMessages();

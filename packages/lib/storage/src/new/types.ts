@@ -8,6 +8,10 @@ export interface StorageAPI {
         offset: number,
     ) => Promise<StorageEnvelopContainer[]>;
     getHaltedMessages: () => Promise<StorageEnvelopContainer[]>;
+    clearHaltedMessages: (
+        messageId: string,
+        aliasName: string,
+    ) => Promise<void>;
     addMessageBatch: (
         contactEnsName: string,
         batch: StorageEnvelopContainer[],

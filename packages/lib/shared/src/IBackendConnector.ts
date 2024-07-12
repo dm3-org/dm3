@@ -22,6 +22,11 @@ export interface IBackendConnector {
         offset: number,
     ): Promise<any>;
     getHaltedMessages: (ensName: string) => Promise<any[]>;
+    clearHaltedMessages: (
+        ensName: string,
+        messageId: string,
+        aliasName: string,
+    ) => Promise<void>;
     addMessage(
         ensName: string,
         encryptedContactName: string,

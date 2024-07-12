@@ -2,6 +2,7 @@ import { StorageEnvelopContainer } from '@dm3-org/dm3-lib-storage';
 import React, { useContext } from 'react';
 import {
     AddConversation,
+    ClearHaltedMessages,
     GetConversations,
     GetHaltedMessages,
     GetMessages,
@@ -24,6 +25,7 @@ export type StorageContextType = {
     getNumberOfMessages: GetNumberOfMessages;
     getMessages: GetMessages;
     getHaltedMessages: GetHaltedMessages;
+    clearHaltedMessages: ClearHaltedMessages;
     toggleHideContactAsync: ToggleHideContactAsync;
     initialized: boolean;
 };
@@ -48,6 +50,8 @@ export const StorageContext = React.createContext<StorageContextType>({
     getMessages: async (contact: string, pageSize: number, offset: number) =>
         Promise.resolve([]),
     getHaltedMessages: async () => Promise.resolve([]),
+    clearHaltedMessages: async (messageId: string, aliasName: string) =>
+        Promise.resolve(),
     getNumberOfMessages: async (contact: string) => Promise.resolve(0),
     toggleHideContactAsync: async (contact: string, value: boolean) => {},
     initialized: false,
@@ -66,6 +70,7 @@ export const StorageContextProvider = ({ children }: { children?: any }) => {
         getNumberOfMessages,
         getMessages,
         getHaltedMessages,
+        clearHaltedMessages,
         toggleHideContactAsync,
         initialized,
     } = useStorage(account, backendContext, profileKeys);
@@ -80,6 +85,7 @@ export const StorageContextProvider = ({ children }: { children?: any }) => {
                 getNumberOfMessages,
                 getMessages,
                 getHaltedMessages,
+                clearHaltedMessages,
                 toggleHideContactAsync,
                 initialized,
             }}

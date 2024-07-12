@@ -27,6 +27,11 @@ export type BackendContextType = {
         offset: number,
     ) => Promise<string[]>;
     getHaltedMessages: (ensName: string) => Promise<MessageRecord[]>;
+    clearHaltedMessages: (
+        ensName: string,
+        aliasName: string,
+        messageId: string,
+    ) => Promise<void>;
     addMessage: (
         ensName: string,
         encryptedContactName: string,
@@ -59,6 +64,7 @@ export const BackendContext = React.createContext<BackendContextType>({
     toggleHideConversation: () => {},
     getMessagesFromStorage: async () => [],
     getHaltedMessages: async (ensName: string) => [],
+    clearHaltedMessages: async () => {},
     addMessage: async () => {},
     addMessageBatch: () => {},
     editMessageBatch: () => {},
@@ -74,6 +80,7 @@ export const BackendContextProvider = ({ children }: { children?: any }) => {
         toggleHideConversation,
         getMessagesFromStorage,
         getHaltedMessages,
+        clearHaltedMessages,
         addMessage,
         addMessageBatch,
         editMessageBatch,
@@ -90,6 +97,7 @@ export const BackendContextProvider = ({ children }: { children?: any }) => {
                 toggleHideConversation,
                 getMessagesFromStorage,
                 getHaltedMessages,
+                clearHaltedMessages,
                 addMessage,
                 addMessageBatch,
                 editMessageBatch,

@@ -140,6 +140,15 @@ export const useStorage = (
         }
         return storageApi.getMessages(contact, pageSize, offset);
     };
+    const clearHaltedMessages = async (
+        messageId: string,
+        aliasName: string,
+    ) => {
+        if (!storageApi) {
+            return Promise.resolve();
+        }
+        return storageApi.clearHaltedMessages(messageId, aliasName);
+    };
 
     const getHaltedMessages = async () => {
         if (!storageApi) {
@@ -170,6 +179,7 @@ export const useStorage = (
         addConversationAsync,
         getMessages,
         getHaltedMessages,
+        clearHaltedMessages,
         getNumberOfMessages,
         toggleHideContactAsync,
         initialized,
@@ -200,5 +210,9 @@ export type GetMessages = (
     offset: number,
 ) => Promise<StorageEnvelopContainerNew[]>;
 export type GetHaltedMessages = () => Promise<StorageEnvelopContainerNew[]>;
+export type ClearHaltedMessages = (
+    messageId: string,
+    aliasName: string,
+) => Promise<void>;
 export type GetNumberOfMessages = (contact: string) => Promise<number>;
 export type ToggleHideContactAsync = (contact: string, value: boolean) => void;

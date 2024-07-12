@@ -292,8 +292,10 @@ export default (
             if (success) {
                 return res.send();
             }
-            res.status(400).send('unable to add halted message');
+            res.status(400).send('unable to clear halted message');
         } catch (err) {
+            console.error('clearHaltedMessage error');
+            console.error(err);
             next(err);
         }
     });
