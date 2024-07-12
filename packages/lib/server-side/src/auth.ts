@@ -36,7 +36,7 @@ const createNewSessionTokenBodySchema = {
 };
 
 //@ts-ignore
-export const Auth = (getSession, serverSecret: string) => {
+export const Auth = (getAccount, serverSecret: string) => {
     const router = express.Router();
 
     //TODO remove
@@ -56,7 +56,7 @@ export const Auth = (getSession, serverSecret: string) => {
             }
 
             const challenge = await createChallenge(
-                getSession,
+                getAccount,
                 idEnsName,
                 serverSecret,
             );
@@ -87,7 +87,7 @@ export const Auth = (getSession, serverSecret: string) => {
             }
 
             const jwt = await createNewSessionToken(
-                getSession,
+                getAccount,
                 req.body.signature,
                 req.body.challenge,
                 idEnsName,

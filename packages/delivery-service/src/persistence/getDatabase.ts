@@ -1,21 +1,27 @@
-import { IGlobalNotification, IOtp } from '@dm3-org/dm3-lib-delivery';
+import {
+    IGlobalNotification,
+    IOtp,
+    Session,
+    spamFilter,
+} from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
+import { IAccountDatabase } from '@dm3-org/dm3-lib-server-side';
 import {
     NotificationChannel,
     NotificationChannelType,
 } from '@dm3-org/dm3-lib-shared';
-import { ISessionDatabase } from '@dm3-org/dm3-lib-server-side';
 import { createClient } from 'redis';
+import Account from './account';
 import { getIdEnsName } from './getIdEnsName';
 import Messages from './messages';
 import Notification from './notification';
 import Otp from './otp';
-import Session from './session';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
     IncomingConversations = 'incoming.conversations:',
-    Session = 'session:',
+    // Account used to be called Session. The prefix still resolves to "session:" for now.
+    Account = 'session:',
     NotificationChannel = 'notificationChannel:',
     GlobalNotification = 'globalNotification:',
     Otp = 'otp:',
@@ -63,9 +69,9 @@ export async function getDatabase(
         getMessages: Messages.getMessages(redis),
         createMessage: Messages.createMessage(redis),
         deleteExpiredMessages: Messages.deleteExpiredMessages(redis),
-        //Session
-        setSession: Session.setSession(redis),
-        getSession: Session.getSession(redis),
+        // Account
+        setAccount: Account.setAccount(redis),
+        getAccount: Account.getAccount(redis),
         getIdEnsName: getIdEnsName(redis),
         //Notification
         getUsersNotificationChannels:
@@ -88,7 +94,14 @@ export async function getDatabase(
     };
 }
 
-export interface IDatabase extends ISessionDatabase {
+export interface IDatabase extends IAccountDatabase {
+    setAccount: (ensName: string, session: Session) => Promise<void>;
+    getAccount: (ensName: string) => Promise<
+        | (Session & {
+              spamFilterRules: spamFilter.SpamFilterRules;
+          })
+        | null
+    >;
     getIncomingMessages: (
         ensName: string,
         limit: number,
