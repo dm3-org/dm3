@@ -4,7 +4,13 @@ export interface IBackendConnector {
         ensName: string,
         size: number,
         offset: number,
-    ): Promise<string[]>;
+    ): Promise<
+        {
+            contact: string;
+            previewMessage: string;
+            updatedAt: Date;
+        }[]
+    >;
     toggleHideConversation(
         ensName: string,
         encryptedContactName: string,
@@ -13,13 +19,22 @@ export interface IBackendConnector {
     getMessagesFromStorage(
         ensName: string,
         encryptedContactName: string,
-        pageNumber: number,
+        pageSize: number,
+        offset: number,
     ): Promise<any>;
+    getHaltedMessages: (ensName: string) => Promise<any[]>;
+    clearHaltedMessages: (
+        ensName: string,
+        messageId: string,
+        aliasName: string,
+    ) => Promise<void>;
     addMessage(
         ensName: string,
         encryptedContactName: string,
         messageId: string,
+        createdAt: number,
         encryptedEnvelopContainer: string,
+        isHalted: boolean,
     ): Promise<void>;
     addMessageBatch(
         ensName: string,

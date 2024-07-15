@@ -1,5 +1,4 @@
 import { ContactPreview } from '../../interfaces/utils';
-import { AuthContextType } from '../AuthContext';
 import { ConversationContextType } from '../ConversationContext';
 
 //Provide a mocked Auth context
@@ -16,7 +15,11 @@ export const getMockedConversationContext = (
         addConversation: (ensName: string) => {
             return {} as ContactPreview;
         },
+        loadMoreConversations: () => {
+            return new Promise((resolve, reject) => resolve(0));
+        },
         hideContact: (ensName: string) => {},
+        updateConversationList: (contact: string, updatedAt: number) => {},
     };
 
     return { ...defaultValues, ...override };

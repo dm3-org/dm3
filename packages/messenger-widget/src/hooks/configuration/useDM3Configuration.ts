@@ -25,11 +25,10 @@ export const useDm3Configuration = () => {
         defaultDeliveryService: '',
         backendUrl: '',
         chainId: '',
-        resolverAddress: '',
-        genomeRegistryAddress: '',
         showAlways: true,
         showContacts: true,
         publicVapidKey: '',
+        nonce: '',
     });
 
     const validateSiweCredentials = async (data: Siwe) => {

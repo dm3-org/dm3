@@ -70,11 +70,12 @@ describe('MigrateStorage', () => {
             const conversations = new Map<string, any[]>();
 
             return {
-                getConversationList: async (page: number) =>
+                getConversations: async (page: number) =>
                     Array.from(conversations.keys()).map((contactEnsName) => ({
                         contactEnsName,
                         isHidden: false,
-                        messageCounter: 0,
+                        previewMessage: undefined,
+                        updatedAt: 0,
                     })),
                 getMessages: async (contactEnsName: string, page: number) => [],
                 addMessageBatch: async (
@@ -125,7 +126,7 @@ describe('MigrateStorage', () => {
 
         await migrageStorage(db, newStorage, tldResolver);
 
-        const newConversations = await newStorage.getConversationList(0);
+        const newConversations = await newStorage.getConversations(100, 0);
         0.45;
         expect(newConversations.length).toBe(2);
         expect(newConversations[0].contactEnsName).toBe(
@@ -153,7 +154,7 @@ describe('MigrateStorage', () => {
 
         await migrageStorage(db, newStorage, tldResolver);
 
-        const newConversations = await newStorage.getConversationList(0);
+        const newConversations = await newStorage.getConversations(100, 0);
         0.45;
         expect(newConversations.length).toBe(2);
         expect(newConversations[0].contactEnsName).toBe(

@@ -14,10 +14,9 @@ describe('ContactMenu test cases', () => {
                     ensName: '',
                 },
             } as any,
-            unreadMsgCount: 0,
-            messageCount: 1,
             isHidden: false,
             messageSizeLimit: 100000,
+            updatedAt: 0,
         },
         isMenuAlignedAtBottom: true,
     };

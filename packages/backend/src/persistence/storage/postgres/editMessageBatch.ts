@@ -10,7 +10,6 @@ export const editMessageBatch =
         encryptedContactName: string,
         editMessageBatchPayload: MessageRecord[],
     ) => {
-        console.log('editMessageBatchPayload', editMessageBatchPayload);
         const account = await getOrCreateAccount(db, ensName);
 
         await Promise.all(

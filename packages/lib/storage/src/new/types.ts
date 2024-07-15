@@ -4,8 +4,14 @@ export interface StorageAPI {
     getConversations: (size: number, offset: number) => Promise<Conversation[]>;
     getMessages: (
         contactEnsName: string,
-        page: number,
+        pageSize: number,
+        offset: number,
     ) => Promise<StorageEnvelopContainer[]>;
+    getHaltedMessages: () => Promise<StorageEnvelopContainer[]>;
+    clearHaltedMessages: (
+        messageId: string,
+        aliasName: string,
+    ) => Promise<void>;
     addMessageBatch: (
         contactEnsName: string,
         batch: StorageEnvelopContainer[],
@@ -20,6 +26,7 @@ export interface StorageAPI {
     addMessage: (
         contactEnsName: string,
         envelop: StorageEnvelopContainer,
+        ishalted: boolean,
     ) => Promise<string>;
     toggleHideConversation: (
         contactEnsName: string,
@@ -33,9 +40,14 @@ export interface StorageEnvelopContainer {
 }
 
 export interface Conversation {
+    //the contactEnsName is the ensName of the contact
     contactEnsName: string;
+    //the previewMessage is the last message of the conversation
+    previewMessage?: StorageEnvelopContainer;
+    //isHidden is a flag to hide the conversation from the conversation list
     isHidden: boolean;
-    messageCounter: number;
+    // the latest timestamp at which conversation was updated
+    updatedAt: number;
 }
 
 export type Encryption = {

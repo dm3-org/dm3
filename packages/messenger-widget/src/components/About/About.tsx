@@ -10,7 +10,7 @@ import {
     SPECIFICATION,
     openUrlInNewTab,
 } from '../../utils/common-utils';
-import { dm3Config } from '../../config';
+import { version } from '../../version';
 
 export default function About() {
     const { setShowAboutModal } = useContext(ModalContext);
@@ -29,7 +29,7 @@ export default function About() {
                         <div className="width-fill">
                             <h4 className="font-weight-800 mb-1">About: dm3</h4>
                             <div className="font-weight-500 font-size-12">
-                                Version: {dm3Config.version}
+                                Version: {version}
                             </div>
                         </div>
                         <img

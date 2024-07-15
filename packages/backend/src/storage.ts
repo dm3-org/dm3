@@ -10,6 +10,8 @@ import { AddMessageBatchRequest } from './schema/storage/AddMessageBatchRequest'
 import { AddMessageRequest } from './schema/storage/AddMesssageRequest';
 import { EditMessageBatchRequest } from './schema/storage/EditMessageBatchRequest';
 import { PaginatedRequest } from './schema/storage/PaginatedRequest';
+import { AddHaltedMessageRequest } from './schema/storage/AddHaltedMessageSchema';
+import { MessageRecord } from './persistence/storage';
 
 const DEFAULT_CONVERSATION_PAGE_SIZE = 10;
 const DEFAULT_MESSAGE_PAGE_SIZE = 100;
@@ -72,6 +74,7 @@ export default (
             encryptedContactName,
             messageId,
             createdAt,
+            isHalted,
         } = req.body;
 
         const schemaIsValid = validateSchema(AddMessageRequest, req.body);
@@ -94,6 +97,7 @@ export default (
                         messageId: uniqueMessageId,
                         encryptedEnvelopContainer,
                         createdAt,
+                        isHalted,
                     },
                 ],
             );
@@ -123,11 +127,12 @@ export default (
             await db.addMessageBatch(
                 ensName,
                 encryptedContactName,
-                messageBatch.map((message: any) => ({
+                messageBatch.map((message: MessageRecord) => ({
                     messageId: getUniqueMessageId(message.messageId),
                     createdAt: message.createdAt,
                     encryptedEnvelopContainer:
                         message.encryptedEnvelopContainer,
+                    isHalted: message.isHalted,
                 })),
             );
             return res.send();
@@ -216,8 +221,6 @@ export default (
         try {
             const ensName = normalizeEnsName(req.params.ensName);
 
-            console.log('getConversations query', req.query);
-
             const pageSize =
                 parseInt(req.query.pageSize as string) ||
                 DEFAULT_CONVERSATION_PAGE_SIZE;
@@ -232,8 +235,6 @@ export default (
                 res.status(400).send('invalid schema');
                 return;
             }
-
-            console.log('fetch conversations', pageSize, offset);
 
             const conversations = await db.getConversationList(
                 ensName,
@@ -257,6 +258,55 @@ export default (
             }
         },
     );
+
+    router.get('/new/:ensName/getHaltedMessages', async (req, res, next) => {
+        try {
+            const ensName = normalizeEnsName(req.params.ensName);
+            const messages = await db.getHaltedMessages(ensName);
+            return res.json(messages);
+        } catch (err) {
+            next(err);
+        }
+    });
+
+    router.post('/new/:ensName/clearHaltedMessage', async (req, res, next) => {
+        try {
+            const { messageId, aliasName } = req.body;
+
+            if (!messageId) {
+                res.status(400).send('invalid schema');
+                return;
+            }
+
+            const ensName = normalizeEnsName(req.params.ensName);
+            //Since the message is fully encrypted, we cannot use the messageHash as an identifier.
+            //Instead we use the hash of the ensName and the messageId to have a unique identifier
+            const uniqueMessageId = sha256(ensName + messageId);
+
+            console.log(
+                'clearHaltedMessage uniqueMessageId ',
+                uniqueMessageId,
+                ensName,
+                messageId,
+            );
+
+            const success = await db.clearHaltedMessage(
+                ensName,
+                //If the aliasName is not provided, we use the ensName as the client has no intention to use an alias
+                aliasName,
+                uniqueMessageId,
+            );
+
+            if (success) {
+                return res.send();
+            }
+            res.status(400).send('unable to clear halted message');
+        } catch (err) {
+            console.error('clearHaltedMessage error');
+            console.error(err);
+            next(err);
+        }
+    });
 
     router.post(
         '/new/:ensName/toggleHideConversation',
