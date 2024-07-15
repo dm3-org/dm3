@@ -56,6 +56,15 @@ export const getMockedStorageContext = (
         ): Promise<StorageEnvelopContainer[]> {
             throw new Error('Function not implemented.');
         },
+        getHaltedMessages: function (): Promise<StorageEnvelopContainer[]> {
+            throw new Error('Function not implemented.');
+        },
+        clearHaltedMessages: function (
+            messageId: string,
+            aliasName: string,
+        ): Promise<void> {
+            throw new Error('Function not implemented.');
+        },
         toggleHideContactAsync: function (
             contact: string,
             value: boolean,

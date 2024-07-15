@@ -7,6 +7,11 @@ export interface StorageAPI {
         pageSize: number,
         offset: number,
     ) => Promise<StorageEnvelopContainer[]>;
+    getHaltedMessages: () => Promise<StorageEnvelopContainer[]>;
+    clearHaltedMessages: (
+        messageId: string,
+        aliasName: string,
+    ) => Promise<void>;
     addMessageBatch: (
         contactEnsName: string,
         batch: StorageEnvelopContainer[],
@@ -21,6 +26,7 @@ export interface StorageAPI {
     addMessage: (
         contactEnsName: string,
         envelop: StorageEnvelopContainer,
+        ishalted: boolean,
     ) => Promise<string>;
     toggleHideConversation: (
         contactEnsName: string,

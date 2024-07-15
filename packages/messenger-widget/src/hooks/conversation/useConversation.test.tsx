@@ -2,13 +2,26 @@ import {
     Conversation,
     StorageEnvelopContainer,
 } from '@dm3-org/dm3-lib-storage';
+import {
+    MockDeliveryServiceProfile,
+    MockedUserProfile,
+    getMockDeliveryServiceProfile,
+    mockUserProfile,
+} from '@dm3-org/dm3-lib-test-helper';
 import '@testing-library/jest-dom';
 import { act, renderHook, waitFor } from '@testing-library/react';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+import { ethers } from 'ethers';
 import { AuthContext, AuthContextType } from '../../context/AuthContext';
 import {
     DeliveryServiceContext,
     DeliveryServiceContextType,
 } from '../../context/DeliveryServiceContext';
+import {
+    MainnetProviderContext,
+    MainnetProviderContextType,
+} from '../../context/ProviderContext';
 import {
     StorageContext,
     StorageContextType,
@@ -20,26 +33,11 @@ import {
     DEFAULT_DM3_CONFIGURATION,
     getMockedDm3Configuration,
 } from '../../context/testHelper/getMockedDm3Configuration';
+import { getMockedMainnetProviderContext } from '../../context/testHelper/getMockedMainnetProviderContext';
 import { getMockedStorageContext } from '../../context/testHelper/getMockedStorageContext';
 import { getMockedTldContext } from '../../context/testHelper/getMockedTldContext';
 import { DM3Configuration } from '../../widget';
 import { useConversation } from './useConversation';
-import {
-    MainnetProviderContext,
-    MainnetProviderContextType,
-} from '../../context/ProviderContext';
-import { getMockedMainnetProviderContext } from '../../context/testHelper/getMockedMainnetProviderContext';
-import { ethers } from 'ethers';
-import {
-    MockDeliveryServiceProfile,
-    MockedUserProfile,
-    getMockDeliveryServiceProfile,
-    mockUserProfile,
-} from '@dm3-org/dm3-lib-test-helper';
-import MockAdapter from 'axios-mock-adapter';
-import axios from 'axios';
-import { Envelop } from '@dm3-org/dm3-lib-messaging';
-import { getDeliveryServiceProfile } from '@dm3-org/dm3-lib-profile';
 
 describe('useConversation hook test cases', () => {
     let sender: MockedUserProfile;

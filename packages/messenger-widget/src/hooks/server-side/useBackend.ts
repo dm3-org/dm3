@@ -86,12 +86,27 @@ export const useBackend = (): IBackendConnector & {
                 offset,
             );
         },
+        getHaltedMessages: async (ensName: string) => {
+            return beConnector?.getHaltedMessages(ensName);
+        },
+        clearHaltedMessages: async (
+            ensName: string,
+            aliasName: string,
+            messageId: string,
+        ) => {
+            return beConnector?.clearHaltedMessages(
+                ensName,
+                aliasName,
+                messageId,
+            );
+        },
         addMessage: async (
             ensName: string,
             encryptedContactName: string,
             messageId: string,
             createdAt: number,
             encryptedEnvelopContainer: string,
+            isHalted: boolean,
         ) => {
             return beConnector?.addMessage(
                 ensName,
@@ -99,6 +114,7 @@ export const useBackend = (): IBackendConnector & {
                 messageId,
                 createdAt,
                 encryptedEnvelopContainer,
+                isHalted,
             );
         },
         addMessageBatch: (
