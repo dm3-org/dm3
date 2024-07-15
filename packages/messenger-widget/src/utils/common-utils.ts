@@ -128,6 +128,8 @@ export const ACCOUNT_CHANGE_POPUP_MESSAGE =
 
 export const ENS_PROFILE_BASE_URL = 'https://app.ens.domains/';
 
+export const AVATAR_IPFS_URL_PREFIX = 'https://ipfs.euc.li/ipfs/';
+
 export const MOBILE_SCREEN_WIDTH = 800;
 
 export const TERMS_AND_CONDITIONS = 'https://dm3.network/terms-and-conditions';
