@@ -25,6 +25,7 @@ export const clearHaltedMessage =
         const message = await db.encryptedMessage.findFirst({
             where: {
                 id: messageId,
+                ownerId: account.id,
             },
         });
 

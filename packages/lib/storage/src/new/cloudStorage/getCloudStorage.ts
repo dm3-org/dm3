@@ -82,10 +82,6 @@ export const getCloudStorage = (
                 const decryptedEnvelopContainer = await encryption.decryptAsync(
                     message.encryptedEnvelopContainer,
                 );
-                console.log(
-                    'decryptedEnvelopContainer haltedMessages',
-                    decryptedEnvelopContainer,
-                );
 
                 return JSON.parse(decryptedEnvelopContainer);
             }),
