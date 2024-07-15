@@ -17,6 +17,7 @@ export const handleMessagesFromWebSocket = async (
     selectedContact: ContactPreview,
     encryptedEnvelop: EncryptionEnvelop,
     resolveTLDtoAlias: Function,
+    updateConversationList: (conversation: string, updatedAt: number) => void,
 ) => {
     const decryptedEnvelop: Envelop = {
         message: JSON.parse(
@@ -52,6 +53,7 @@ export const handleMessagesFromWebSocket = async (
         reactions: [],
         source: MessageSource.WebSocket,
     };
+
     setMessages((prev: MessageStorage) => {
         //Check if message already exists
         if (
@@ -68,5 +70,11 @@ export const handleMessagesFromWebSocket = async (
             [contact]: [...(prev[contact] ?? []), messageModel],
         };
     });
+
+    // Update the conversation with the latest message timestamp
+    updateConversationList(
+        contact,
+        messageModel.envelop.message.metadata.timestamp,
+    );
     storeMessage(contact, messageModel);
 };

@@ -98,7 +98,12 @@ describe('useMessage hook test cases', () => {
                 storeMessage: jest.fn(),
             });
             const conversationContext = getMockedConversationContext({
-                selectedContact: getEmptyContact('max.eth', undefined),
+                selectedContact: getEmptyContact(
+                    'max.eth',
+                    undefined,
+                    false,
+                    0,
+                ),
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 //Add websocket mock
@@ -155,7 +160,12 @@ describe('useMessage hook test cases', () => {
                 storeMessage: jest.fn(),
             });
             const conversationContext = getMockedConversationContext({
-                selectedContact: getEmptyContact('max.eth', undefined),
+                selectedContact: getEmptyContact(
+                    'max.eth',
+                    undefined,
+                    false,
+                    0,
+                ),
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 //Add websocket mock
@@ -212,7 +222,12 @@ describe('useMessage hook test cases', () => {
                 storeMessage: jest.fn(),
             });
             const conversationContext = getMockedConversationContext({
-                selectedContact: getEmptyContact('max.eth', undefined),
+                selectedContact: getEmptyContact(
+                    'max.eth',
+                    undefined,
+                    false,
+                    0,
+                ),
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 //Add websocket mock
@@ -279,7 +294,12 @@ describe('useMessage hook test cases', () => {
             });
 
             const conversationContext = getMockedConversationContext({
-                selectedContact: getEmptyContact('max.eth', undefined),
+                selectedContact: getEmptyContact(
+                    'max.eth',
+                    undefined,
+                    false,
+                    0,
+                ),
                 contacts: [
                     {
                         name: '',
@@ -299,6 +319,7 @@ describe('useMessage hook test cases', () => {
                         },
                         isHidden: false,
                         messageSizeLimit: 10000000,
+                        updatedAt: 0,
                     },
                 ],
             });
@@ -380,7 +401,12 @@ describe('useMessage hook test cases', () => {
             });
 
             const conversationContext = getMockedConversationContext({
-                selectedContact: getEmptyContact('max.eth', undefined),
+                selectedContact: getEmptyContact(
+                    'max.eth',
+                    undefined,
+                    false,
+                    0,
+                ),
                 contacts: [
                     {
                         name: '',
@@ -400,6 +426,7 @@ describe('useMessage hook test cases', () => {
                         },
                         isHidden: false,
                         messageSizeLimit: 1000,
+                        updatedAt: 0,
                     },
                 ],
             });
@@ -508,8 +535,13 @@ describe('useMessage hook test cases', () => {
                 getNumberOfMessages: jest.fn().mockResolvedValue(3),
             });
             const conversationContext = getMockedConversationContext({
-                selectedContact: getEmptyContact('max.eth', undefined),
-                contacts: [getEmptyContact('alice.eth', undefined)],
+                selectedContact: getEmptyContact(
+                    'max.eth',
+                    undefined,
+                    false,
+                    0,
+                ),
+                contacts: [getEmptyContact('alice.eth', undefined, false, 0)],
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 onNewMessage: (cb: Function) => {
@@ -585,8 +617,13 @@ describe('useMessage hook test cases', () => {
                 getNumberOfMessages: jest.fn().mockResolvedValue(0),
             });
             const conversationContext = getMockedConversationContext({
-                selectedContact: getEmptyContact('max.eth', undefined),
-                contacts: [getEmptyContact('alice.eth', undefined)],
+                selectedContact: getEmptyContact(
+                    'max.eth',
+                    undefined,
+                    false,
+                    0,
+                ),
+                contacts: [getEmptyContact('alice.eth', undefined, false, 0)],
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 onNewMessage: (cb: Function) => {
@@ -687,8 +724,13 @@ describe('useMessage hook test cases', () => {
                     ),
             });
             const conversationContext = getMockedConversationContext({
-                selectedContact: getEmptyContact('max.eth', undefined),
-                contacts: [getEmptyContact('alice.eth', undefined)],
+                selectedContact: getEmptyContact(
+                    'max.eth',
+                    undefined,
+                    false,
+                    0,
+                ),
+                contacts: [getEmptyContact('alice.eth', undefined, false, 0)],
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 onNewMessage: (cb: Function) => {
@@ -777,8 +819,13 @@ describe('useMessage hook test cases', () => {
                     ),
             });
             const conversationContext = getMockedConversationContext({
-                selectedContact: getEmptyContact('max.eth', undefined),
-                contacts: [getEmptyContact('alice.eth', undefined)],
+                selectedContact: getEmptyContact(
+                    'max.eth',
+                    undefined,
+                    false,
+                    0,
+                ),
+                contacts: [getEmptyContact('alice.eth', undefined, false, 0)],
             });
             const deliveryServiceContext = getMockedDeliveryServiceContext({
                 onNewMessage: (cb: Function) => {

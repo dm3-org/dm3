@@ -13,6 +13,7 @@ export type BackendContextType = {
         {
             contact: string;
             previewMessage: string;
+            updatedAt: Date;
         }[]
     >;
     toggleHideConversation: (

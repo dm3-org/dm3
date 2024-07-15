@@ -27,6 +27,7 @@ export interface ContactPreview {
     contactDetails: Contact;
     isHidden: boolean;
     messageSizeLimit: number;
+    updatedAt: number;
 }
 
 export interface IContactInfo {
@@ -52,6 +53,7 @@ export const getEmptyContact = (
     ensName: string,
     message: string | undefined,
     isHidden: boolean = false,
+    updatedAt: number,
 ) => {
     const newContact: ContactPreview = {
         name: getAccountDisplayName(ensName, 25),
@@ -65,6 +67,7 @@ export const getEmptyContact = (
         },
         isHidden,
         messageSizeLimit: 0,
+        updatedAt: updatedAt,
     };
 
     return newContact;

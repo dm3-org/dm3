@@ -57,6 +57,7 @@ const _fetchContactPreview = async (
         contactDetails: contact,
         isHidden: conversation.isHidden,
         messageSizeLimit: messageSizeLimit,
+        updatedAt: conversation.updatedAt,
     };
 };
 
