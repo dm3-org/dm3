@@ -101,7 +101,7 @@ describe('rpc-Proxy', () => {
             };
             const db = {
                 createMessage: () => {},
-                getAccount,
+                getSession,
                 getIdEnsName: async (ensName: string) => ensName,
                 getUsersNotificationChannels: () => Promise.resolve([]),
             };
@@ -179,7 +179,7 @@ describe('rpc-Proxy', () => {
             };
             const db = {
                 createMessage: () => {},
-                getAccount,
+                getSession,
                 getIdEnsName: async (ensName: string) => ensName,
                 getUsersNotificationChannels: () => Promise.resolve([]),
             };
@@ -321,7 +321,7 @@ describe('rpc-Proxy', () => {
             };
             const db = {
                 getIdEnsName: async (ensName: string) => ensName,
-                getAccount: (_: string) => Promise.resolve(null),
+                getSession: (_: string) => Promise.resolve(null),
                 getUsersNotificationChannels: () => Promise.resolve([]),
             };
 
@@ -367,7 +367,7 @@ describe('rpc-Proxy', () => {
             };
             const db = {
                 getIdEnsName: async (ensName: string) => ensName,
-                getAccount: (_: string) =>
+                getSession: (_: string) =>
                     Promise.resolve({
                         account: '',
                         signedUserProfile: {
@@ -424,7 +424,7 @@ describe('rpc-Proxy', () => {
     });
 });
 
-const getAccount = async (ensName: string) => {
+const getSession = async (ensName: string) => {
     const emptyProfile: UserProfile = {
         publicSigningKey: '',
         publicEncryptionKey: '',

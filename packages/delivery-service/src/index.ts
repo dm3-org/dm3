@@ -91,7 +91,7 @@ global.logger = winston.createLogger({
         return res.send('Hello DM3');
     });
 
-    app.use('/auth', Auth(db.getAccount as any, serverSecret));
+    app.use('/auth', Auth(db.getSession as any, serverSecret));
     app.use('/profile', Profile(db, web3Provider, io, serverSecret));
     app.use('/delivery', Delivery(web3Provider, db, keys, serverSecret));
     app.use(

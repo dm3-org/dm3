@@ -25,20 +25,20 @@ const keysA = {
 describe('Keys', () => {
     describe('CreateChallenge', () => {
         it('Throws Exception if Session was not found', async () => {
-            const getAccount = () => Promise.resolve(null);
-            const setAccount = () => Promise.resolve();
+            const getSession = () => Promise.resolve(null);
+            const setSession = () => Promise.resolve();
 
             await expect(async () => {
-                await createChallenge(getAccount, RANDO_ADDRESS, SERVER_SECRET);
+                await createChallenge(getSession, RANDO_ADDRESS, SERVER_SECRET);
             }).rejects.toEqual(Error('Session not found'));
         });
 
         it('Ignores challenge field in database', async () => {
-            const getAccount = () =>
+            const getSession = () =>
                 Promise.resolve({ challenge: 'foo' } as Session);
 
             const challenge = await createChallenge(
-                getAccount,
+                getSession,
                 RANDO_ADDRESS,
                 SERVER_SECRET,
             );
@@ -46,16 +46,16 @@ describe('Keys', () => {
             expect(challenge).not.toBe('foo');
         });
         it('Creates a new challenge even if called multiple times', async () => {
-            const getAccount = () => Promise.resolve({} as Session);
+            const getSession = () => Promise.resolve({} as Session);
 
             const challenge1 = await createChallenge(
-                getAccount,
+                getSession,
                 RANDO_ADDRESS,
                 SERVER_SECRET,
             );
 
             const challenge2 = await createChallenge(
-                getAccount,
+                getSession,
                 RANDO_ADDRESS,
                 SERVER_SECRET,
             );
@@ -67,11 +67,11 @@ describe('Keys', () => {
     });
     describe('CreateNewSessionToken', () => {
         it('Throws Exception if Session was not found', async () => {
-            const getAccount = () => Promise.resolve(null);
+            const getSession = () => Promise.resolve(null);
 
             await expect(async () => {
                 await createNewSessionToken(
-                    getAccount,
+                    getSession,
                     'signature',
                     'challenge',
                     RANDO_ADDRESS,
@@ -80,11 +80,11 @@ describe('Keys', () => {
             }).rejects.toEqual(Error('Session not found'));
         });
         it('Throws Exception if the challenge is not valid', async () => {
-            const getAccount = () => Promise.resolve({} as Session);
+            const getSession = () => Promise.resolve({} as Session);
 
             await expect(async () => {
                 await createNewSessionToken(
-                    getAccount,
+                    getSession,
                     'signature',
                     'challenge',
                     RANDO_ADDRESS,
@@ -106,7 +106,7 @@ describe('Keys', () => {
                 spamFilterRules: spamFilter.SpamFilterRules;
             };
 
-            const getAccount = async (ensName: string) =>
+            const getSession = async (ensName: string) =>
                 Promise.resolve<
                     Session & {
                         spamFilterRules: spamFilter.SpamFilterRules;
@@ -115,7 +115,7 @@ describe('Keys', () => {
 
             // create valid challenge jwt
             const challenge = await createChallenge(
-                getAccount,
+                getSession,
                 SENDER_ADDRESS,
                 SERVER_SECRET,
             );
@@ -126,7 +126,7 @@ describe('Keys', () => {
             );
 
             const token = await createNewSessionToken(
-                getAccount,
+                getSession,
                 signature,
                 challenge,
                 SENDER_ADDRESS,
@@ -149,7 +149,7 @@ describe('Keys', () => {
                 spamFilterRules: spamFilter.SpamFilterRules;
             };
 
-            const getAccount = async (ensName: string) =>
+            const getSession = async (ensName: string) =>
                 Promise.resolve<
                     Session & {
                         spamFilterRules: spamFilter.SpamFilterRules;
@@ -158,7 +158,7 @@ describe('Keys', () => {
 
             // create valid challenge jwt
             const challenge = await createChallenge(
-                getAccount,
+                getSession,
                 SENDER_ADDRESS,
                 SERVER_SECRET,
             );
@@ -167,7 +167,7 @@ describe('Keys', () => {
 
             await expect(async () => {
                 await createNewSessionToken(
-                    getAccount,
+                    getSession,
                     signature,
                     challenge,
                     SENDER_ADDRESS,

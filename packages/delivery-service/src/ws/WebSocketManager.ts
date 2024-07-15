@@ -59,13 +59,13 @@ export class WebSocketManager implements IWebSocketManager {
             //Use the already existing function checkToken to check whether the token matches the provided ensName
             const hasSession = await checkToken(
                 this.web3Provider,
-                this.db.getAccount,
+                this.db.getSession,
                 ensName,
                 token,
                 this.serverSecret,
             );
             //retrieve the session from the db
-            const session = await this.db.getAccount(ensName);
+            const session = await this.db.getSession(ensName);
             //If the ensName has not a valid session we disconnect the socket
             if (!hasSession || !session) {
                 console.log('connection refused for ', ensName);

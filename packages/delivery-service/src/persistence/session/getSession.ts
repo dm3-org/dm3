@@ -2,10 +2,10 @@ import { Redis, RedisPrefix } from '../getDatabase';
 import { Session, spamFilter } from '@dm3-org/dm3-lib-delivery';
 import { getIdEnsName } from '../getIdEnsName';
 
-export function getAccount(redis: Redis) {
+export function getSession(redis: Redis) {
     return async (ensName: string) => {
         let session = await redis.get(
-            RedisPrefix.Account + (await getIdEnsName(redis)(ensName)),
+            RedisPrefix.Session + (await getIdEnsName(redis)(ensName)),
         );
 
         return session

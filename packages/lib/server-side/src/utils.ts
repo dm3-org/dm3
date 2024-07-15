@@ -9,14 +9,14 @@ import { NextFunction, Request, Response } from 'express';
 import { Socket } from 'socket.io';
 import { ExtendedError } from 'socket.io/dist/namespace';
 import winston from 'winston';
-import type { IAccountDatabase } from './iSessionDatabase';
+import type { ISessionDatabase } from './iSessionDatabase';
 
 export async function auth(
     req: Request,
     res: Response,
     next: NextFunction,
     ensName: string,
-    db: IAccountDatabase,
+    db: ISessionDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
     serverSecret: string,
 ) {
@@ -28,7 +28,7 @@ export async function auth(
         token &&
         (await checkToken(
             web3Provider,
-            db.getAccount,
+            db.getSession,
             normalizedEnsName,
             token,
             serverSecret,
@@ -42,7 +42,7 @@ export async function auth(
 }
 
 export function socketAuth(
-    db: IAccountDatabase,
+    db: ISessionDatabase,
     web3Provider: ethers.providers.JsonRpcProvider,
     serverSecret: string,
 ) {
@@ -59,7 +59,7 @@ export function socketAuth(
             if (
                 !(await checkToken(
                     web3Provider,
-                    db.getAccount,
+                    db.getSession,
                     ensName,
                     socket.handshake.auth.token as string,
                     serverSecret,
@@ -68,12 +68,12 @@ export function socketAuth(
                 console.log('check token has failed for WS ');
                 return next(new Error('check token has failed for WS'));
             }
-            const session = await db.getAccount(ensName);
+            const session = await db.getSession(ensName);
             if (!session) {
                 throw Error('Could not get session');
             }
 
-            await db.setAccount(ensName, {
+            await db.setSession(ensName, {
                 ...session,
                 socketId: socket.id,
             });
