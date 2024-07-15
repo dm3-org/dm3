@@ -64,7 +64,6 @@ describe('Profile', () => {
                 setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
-                getPending: (_: any) => [],
                 getIdEnsName: async (ensName: string) => ensName,
             };
             const app = express();
@@ -110,7 +109,6 @@ describe('Profile', () => {
                 setAccount: async (_: string, __: any) => {
                     return (_: any, __: any, ___: any) => {};
                 },
-                getPending: (_: any) => [],
                 getIdEnsName: async (ensName: string) => ensName,
             };
 
