@@ -490,8 +490,6 @@ describe('Storage', () => {
                 })
                 .send();
 
-            console.log(body);
-
             expect(body.length).toBe(1);
             expect(body[0].contact).toEqual(sha256(receiver.account.ensName));
             expect(JSON.parse(body[0].previewMessage)).toEqual(envelop3);
@@ -508,8 +506,6 @@ describe('Storage', () => {
                     })
                     .send();
 
-                console.log(body);
-
                 expect(status).toBe(400);
             });
 
@@ -521,8 +517,6 @@ describe('Storage', () => {
                         authorization: 'Bearer ' + token,
                     })
                     .send();
-
-                console.log(body);
 
                 expect(status).toBe(400);
             });
@@ -1161,9 +1155,6 @@ describe('Storage', () => {
                     createdAt: 1,
                     isHalted: false,
                 });
-
-            console.log('xxxx', x.status);
-            console.log('xxxx', x.body);
 
             await request(app)
                 .post(`/new/bob.eth/addMessage`)
