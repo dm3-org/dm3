@@ -279,15 +279,6 @@ export default (
             }
 
             const ensName = normalizeEnsName(req.params.ensName);
-            //Since the message is fully encrypted, we cannot use the messageHash as an identifier.
-            //Instead we use the hash of the ensName and the messageId to have a unique identifier
-
-            console.log(
-                'clearHaltedMessage uniqueMessageId ',
-                messageId,
-                ensName,
-                messageId,
-            );
 
             const success = await db.clearHaltedMessage(
                 ensName,
