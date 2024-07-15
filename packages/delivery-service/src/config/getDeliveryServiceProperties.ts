@@ -16,6 +16,8 @@ export function getDeliveryServiceProperties(
     path: string = DEFAULT_CONFIG_FILE_PATH,
     defaultDeliveryServiceProperties: DeliveryServiceProperties = DEFAULT_DELIVERY_SERVICE_PROPERTIES,
 ): DeliveryServiceProperties {
+    console.log('path', DEFAULT_CONFIG_FILE_PATH);
+    console.log('dirname', __dirname);
     if (!existsSync(path)) {
         logInfo('Config file not found. Default Config is used');
         return defaultDeliveryServiceProperties;

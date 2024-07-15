@@ -1,7 +1,7 @@
 {
   "name": "@dm3-org/dm3-lib-billboard-client-api",
-  "version": "1.0.6",
-  "license": "MIT",
+  "license": "BSD-2-Clause",
+  "version": "1.4.3",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {

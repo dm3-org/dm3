@@ -1,6 +1,7 @@
 {
   "name": "@dm3-org/dm3-lib-shared",
-  "version": "1.3.0",
+  "license": "BSD-2-Clause",
+  "version": "1.4.3",
   "main": "dist/index.js",
   "module": "dist-backend/index.js",
   "types": "dist/index.d.ts",
@@ -19,11 +20,13 @@
     "ethers": "5.7.2"
   },
   "devDependencies": {
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.4",
     "typescript": "^4.4.2"
   },
   "scripts": {
     "build": "yarn tsc --declaration  --declarationMap",
-    "test": "echo 'no tests'"
+    "test": "jest --coverage --transformIgnorePatterns 'node_modules/(?!(dm3-lib-\\w*)/)'"
   },
   "files": [
     "dist"

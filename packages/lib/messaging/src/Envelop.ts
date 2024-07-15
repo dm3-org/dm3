@@ -37,6 +37,13 @@ export interface Envelop {
     id?: string;
 }
 
+// And envelop that has been encrypted and is ready to be sent
+export type DispatchableEnvelop = {
+    encryptedEnvelop: EncryptionEnvelop;
+    envelop: Envelop;
+    deliveryServiceUrl: string;
+};
+
 export interface DeliveryInformation {
     to: string;
     from: string;
@@ -111,7 +118,7 @@ export async function buildEnvelop(
     encryptAsymmetric: EncryptAsymmetric,
     { to, from, deliverServiceProfile, keys }: SendDependencies,
     preEncryptedMessage?: string,
-): Promise<{ encryptedEnvelop: EncryptionEnvelop; envelop: Envelop }> {
+): Promise<DispatchableEnvelop> {
     if (!to.profile) {
         throw Error('Contact has no profile');
     }
@@ -168,6 +175,9 @@ export async function buildEnvelop(
             message,
             metadata: { ...metadata, deliveryInformation },
         },
+        //Add the deliveryServiceUrl to the envelop, so it becomes clear where the encrypted message should be sent.
+        //Important when having different deliveryServices because and enevlop sent to the wrong url will be rejected
+        deliveryServiceUrl: deliverServiceProfile.url,
     };
 }
 

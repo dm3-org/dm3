@@ -4,22 +4,22 @@ import { sign } from '@dm3-org/dm3-lib-crypto';
 
 /**
  * claims a dm3.eth subdomain
- * @param alias the ENS alias
+ * @param dm3Name the ENS alias
  * @param offchainResolverUrl The offchain resolver endpoint url
- * @param name The orignial ENS name
+ * @param addressNAme The orignial ENS name
  * @param privateKey The owner private key
  */
 export async function claimSubdomain(
-    alias: string,
+    dm3Name: string,
     offchainResolverUrl: string,
-    name: string,
+    addressName: string,
     privateKey: string,
 ): Promise<boolean> {
     const url = `${offchainResolverUrl}/profile/name`;
     const data = {
-        alias,
-        name,
-        signature: await sign(privateKey, 'alias: ' + alias),
+        dm3Name,
+        addressName,
+        signature: await sign(privateKey, 'alias: ' + dm3Name),
     };
 
     const { status } = await axios.post(url, data);
@@ -33,14 +33,14 @@ export async function claimSubdomain(
  * @param privateKey The owner private key
  */
 export async function removeAlias(
-    alias: string,
+    dm3Name: string,
     offchainResolverUrl: string,
     privateKey: string,
 ): Promise<boolean> {
     const url = `${offchainResolverUrl}/profile/deleteName`;
     const data = {
-        name: alias,
-        signature: await sign(privateKey, 'remove: ' + alias),
+        dm3Name,
+        signature: await sign(privateKey, 'remove: ' + dm3Name),
     };
 
     const { status } = await axios.post(url, data);
@@ -51,11 +51,13 @@ export async function removeAlias(
  * claims an address based ENS subdomain name
  * @param address The ethereum address
  * @param offchainResolverUrl The offchain resolver endpoint url
+ * @param subdomain The addr subdomain of the client .iE addr.dm3.eth
  * @param signedUserProfile The signed dm3 user profile
  */
 export async function claimAddress(
     address: string,
     offchainResolverUrl: string,
+    addrSubdomainDomain: string,
     signedUserProfile: SignedUserProfile,
 ) {
     try {
@@ -63,12 +65,13 @@ export async function claimAddress(
         const data = {
             signedUserProfile,
             address,
+            subdomain: addrSubdomainDomain,
         };
 
         const { status } = await axios.post(url, data);
         return status === 200;
     } catch (err) {
-        console.log('subdomain alreday claimed');
+        console.log('subdomain already claimed');
         return false;
     }
 }
@@ -82,8 +85,6 @@ export async function getNameForAddress(
     address: string,
     offchainResolverUrl: string,
 ): Promise<string | undefined> {
-    // ERROR:TODO:FIX : The API always gives error
-    // ERROR: 404 (Not Found)
     const url = `${offchainResolverUrl}/profile/name/${formatAddress(address)}`;
     try {
         const { data } = await axios.get(url);

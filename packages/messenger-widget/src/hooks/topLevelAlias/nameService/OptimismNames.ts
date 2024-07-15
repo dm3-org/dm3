@@ -84,7 +84,7 @@ export class OptimismNames implements ITLDResolver {
 
             return !!ensNameHasAddress;
         } catch (err) {
-            console.log(
+            console.debug(
                 `Cant resolve OP name ${opName} to address error: ${err}`,
             );
             return false;
@@ -128,7 +128,7 @@ export class OptimismNames implements ITLDResolver {
             }
             return address;
         } catch (err) {
-            console.log('Error resolving name op name ', err);
+            console.debug('Error resolving name op name ', err);
             return null;
         }
     }
@@ -156,7 +156,7 @@ export class OptimismNames implements ITLDResolver {
             );
             return decodedInner[0];
         } catch (err) {
-            console.log('Error resolving name op name ', err);
+            console.debug('Error resolving name op name ', err);
             return null;
         }
     }
@@ -186,7 +186,7 @@ export class OptimismNames implements ITLDResolver {
 
             return decodedInner[0];
         } catch (err) {
-            console.log('Error resolving text for op name', err);
+            console.debug('Error resolving text for op name', err);
             return null;
         }
     }

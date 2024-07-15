@@ -1,19 +1,18 @@
-import './AddConversation.css';
-import '../../styles/modal.css';
 import { ethers } from 'ethers';
 import { FormEvent, useContext, useState } from 'react';
 import closeIcon from '../../assets/images/cross.svg';
 import { AuthContext } from '../../context/AuthContext';
 import { ConversationContext } from '../../context/ConversationContext';
+import { ModalContext } from '../../context/ModalContext';
 import { TLDContext } from '../../context/TLDContext';
+import { UiViewContext } from '../../context/UiViewContext';
+import '../../styles/modal.css';
 import {
     LeftViewSelected,
     RightViewSelected,
 } from '../../utils/enum-type-utils';
 import { closeLoader, startLoader } from '../Loader/Loader';
-import { UiViewContext } from '../../context/UiViewContext';
-import { ModalContext } from '../../context/ModalContext';
-import { labelToName } from 'whatwg-encoding';
+import './AddConversation.css';
 
 // class for input field
 export const INPUT_FIELD_CLASS =
@@ -75,6 +74,12 @@ export default function AddConversation() {
             setSelectedRightView(RightViewSelected.Chat);
 
             const newContact = await addConversation(aliasName);
+            if (!newContact) {
+                //Maybe show a message that its not possible to add the users address as a contact
+                setShowAddConversationModal(false);
+                closeLoader();
+                return;
+            }
             setSelectedContactName(newContact.contactDetails.account.ensName);
             closeLoader();
 

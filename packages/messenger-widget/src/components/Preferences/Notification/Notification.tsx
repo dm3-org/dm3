@@ -39,6 +39,7 @@ export function Notification() {
         activeVerificationContent,
         setActiveVerificationContent,
         toggleSpecificNotificationChannel,
+        pushNotificationAction,
         isLoading,
         loaderData,
     } = useContext(NotificationContext);
@@ -73,9 +74,6 @@ export function Notification() {
                         action={(d: boolean) => updateNotificationActive(d)}
                         heading="Activate Notifications"
                     />
-                    <span className="experimental-fun">
-                        Experimental function. Do not use in production!
-                    </span>
                 </div>
                 <Text
                     disabled={false}
@@ -132,6 +130,9 @@ export function Notification() {
                         'An email is sent to inform you that a message is waiting for you at a delivery service.'
                     }
                 />
+                <span className="experimental-fun">
+                    Experimental function. Do not use in production!
+                </span>
             </div>
 
             {/* Mobile notifications enabled/disabled */}
@@ -183,9 +184,9 @@ export function Notification() {
                     <Checkbox
                         checked={isPushNotifyActive}
                         disabled={!isNotificationsActive}
-                        action={() => {
-                            setIsPushNotifyActive(!isPushNotifyActive);
-                        }}
+                        action={() =>
+                            pushNotificationAction(!isPushNotifyActive)
+                        }
                         heading="Push Notifications"
                     />
                 </div>

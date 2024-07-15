@@ -23,12 +23,7 @@ export async function submitUserProfile(
         logDebug('submitUserProfile - Signature invalid');
         throw Error('Signature invalid.');
     }
-    //TODO:  remove DISABLE_SESSION_CHECK
-    // DISABLE_SESSION_CHECK is a special solution for ETH Prague
-    if (
-        process.env.DISABLE_SESSION_CHECK !== 'true' &&
-        (await getSession(account))
-    ) {
+    if (await getSession(account)) {
         logDebug('submitUserProfile - Profile exists already');
         throw Error('Profile exists already');
     }

@@ -1,0 +1,34 @@
+{
+  "$ref": "#/definitions/_AddMessageRequest",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "_AddMessageRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "createdAt": {
+          "type": "number"
+        },
+        "encryptedContactName": {
+          "type": "string"
+        },
+        "encryptedEnvelopContainer": {
+          "type": "string"
+        },
+        "isHalted": {
+          "type": "boolean"
+        },
+        "messageId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "encryptedEnvelopContainer",
+        "encryptedContactName",
+        "messageId",
+        "createdAt",
+        "isHalted"
+      ],
+      "type": "object"
+    }
+  }
+}

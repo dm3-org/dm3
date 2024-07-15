@@ -1,0 +1,40 @@
+{
+  "name": "@dm3-org/dm3-lib-test-helper",
+  "version": "1.4.3",
+  "main": "dist/index.js",
+  "module": "dist-backend/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./dist/ethersHelper": {
+      "import": "./dist/ethersHelper.js",
+      "require": "./dist/ethersHelper.js"
+    }
+  },
+  "dependencies": {
+    "@dm3-org/dm3-lib-crypto": "workspace:^",
+    "@dm3-org/dm3-lib-delivery": "workspace:^",
+    "@dm3-org/dm3-lib-messaging": "workspace:^",
+    "@dm3-org/dm3-lib-profile": "workspace:^",
+    "@dm3-org/dm3-lib-shared": "workspace:^",
+    "ajv-formats": "^3.0.1",
+    "ethers": "5.7.2"
+  },
+  "devDependencies": {
+    "typescript": "^4.4.2"
+  },
+  "scripts": {
+    "build": "yarn tsc --declaration  --declarationMap",
+    "test": "echo 'no tests'"
+  },
+  "files": [
+    "dist"
+  ],
+  "publish": true,
+  "include": [
+    "src"
+  ]
+}

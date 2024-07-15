@@ -37,7 +37,7 @@ export const saveOtp = async (
 // method to add new notification channel & send verification OTP
 export async function addNewNotificationChannel(
     notificationChannelType: NotificationChannelType,
-    recipientValue: string | PushSubscription,
+    recipientValue: string,
     ensName: string,
     dsNotificationChannels: NotificationChannel[],
     db: any,
@@ -71,7 +71,7 @@ export async function addNewNotificationChannel(
 
         // set up notification broker
         const { sendOtp } = NotificationBroker(
-            dsNotificationChannels,
+            channelUsed,
             NotificationType.OTP,
         );
 
@@ -156,10 +156,7 @@ export const sendOtp = async (
     const otp = await saveOtp(notificationChannelType, ensName, db.setOtp);
 
     // set up notification broker
-    const { sendOtp } = NotificationBroker(
-        dsNotificationChannels,
-        NotificationType.OTP,
-    );
+    const { sendOtp } = NotificationBroker(channelUsed, NotificationType.OTP);
 
     // send otp
     await sendOtp(

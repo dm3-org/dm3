@@ -1,71 +1,67 @@
-/* eslint-disable no-console */
 import {
     Account,
-    getDeliveryServiceProfile,
     getUserProfile,
     normalizeEnsName,
 } from '@dm3-org/dm3-lib-profile';
 import { Conversation } from '@dm3-org/dm3-lib-storage/dist/new/types';
-import axios from 'axios';
 import { ethers } from 'ethers';
 import { Contact } from '../../interfaces/context';
 import { ContactPreview } from '../../interfaces/utils';
+import { fetchDsProfiles } from '../../utils/deliveryService/fetchDsProfiles';
 import { getAvatarProfilePic } from '../../utils/ens-utils';
 import { fetchMessageSizeLimit } from '../messages/sizeLimit/fetchSizeLimit';
-import { DeliveryServiceProperties } from '@dm3-org/dm3-lib-delivery';
 
 export const hydrateContract = async (
     provider: ethers.providers.JsonRpcProvider,
-    conversatoinManifest: Conversation,
+    conversation: Conversation,
     resolveAliasToTLD: (alias: string) => Promise<string>,
     addrEnsSubdomain: string,
-    deliveryServiceProperties: DeliveryServiceProperties[],
 ) => {
-    const account = await fetchAccount(
-        provider,
-        conversatoinManifest.contactEnsName,
+    //If the profile property of the account is defined the user has already used DM3 previously
+    const account = await _fetchAccount(provider, conversation.contactEnsName);
+    //Has to become fetchMultipleDsProfiles
+    const contact = await fetchDsProfiles(provider, account);
+
+    //get the maximum size limit by looking for the smallest size limit of every ds
+    const maximumSizeLimit = await fetchMessageSizeLimit(
+        contact.deliveryServiceProfiles,
     );
-    const contact = await fetchDsProfile(provider, account);
-    const messageSizeLimit = await fetchMessageSizeLimit(
-        deliveryServiceProperties,
-    );
-    const contactPreview = await fetchPreview(
+    const contactPreview = await _fetchContactPreview(
         provider,
-        conversatoinManifest,
+        conversation,
         contact,
         resolveAliasToTLD,
-        messageSizeLimit,
+        maximumSizeLimit,
         addrEnsSubdomain,
     );
-
     return contactPreview;
 };
 
-const fetchPreview = async (
+const _fetchContactPreview = async (
     provider: ethers.providers.JsonRpcProvider,
-    conversatoinManifest: Conversation,
+    conversation: Conversation,
     contact: Contact,
     resolveAliasToTLD: (alias: string) => Promise<string>,
     messageSizeLimit: number,
     addrEnsSubdomain: string,
 ): Promise<ContactPreview> => {
     return {
+        //display name, if alias is not defined the addr ens name will be used
         name: await resolveAliasToTLD(contact.account.ensName),
-        message: '',
+        message: conversation.previewMessage?.envelop.message.message,
         image: await getAvatarProfilePic(
             provider,
             contact.account.ensName,
             addrEnsSubdomain,
         ),
-        messageCount: conversatoinManifest.messageCounter,
-        unreadMsgCount: 21,
         contactDetails: contact,
-        isHidden: conversatoinManifest.isHidden,
+        isHidden: conversation.isHidden,
         messageSizeLimit: messageSizeLimit,
+        updatedAt: conversation.updatedAt,
     };
 };
 
-const fetchAccount = async (
+const _fetchAccount = async (
     provider: ethers.providers.JsonRpcProvider,
     contact: string,
 ): Promise<Account> => {
@@ -91,31 +87,4 @@ const fetchAccount = async (
             profile: undefined,
         };
     }
-};
-
-const fetchDsProfile = async (
-    provider: ethers.providers.JsonRpcProvider,
-    account: Account,
-): Promise<Contact> => {
-    const deliveryServiceEnsName = account.profile?.deliveryServices[0];
-    if (!deliveryServiceEnsName) {
-        //If there is now DS profile the message will be storaged at the client side until they recipient has createed an account
-        console.log(
-            '[fetchDeliverServicePorfile] Cant resolve deliveryServiceEnsName',
-        );
-        return {
-            account,
-        };
-    }
-
-    const deliveryServiceProfile = await getDeliveryServiceProfile(
-        deliveryServiceEnsName,
-        provider!,
-        async (url: string) => (await axios.get(url)).data,
-    );
-
-    return {
-        account,
-        deliveryServiceProfile,
-    };
 };

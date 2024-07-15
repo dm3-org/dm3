@@ -1,0 +1,15 @@
+{
+  "resolutions": {
+    "@dm3-org/dm3-lib-crypto": "file:/library_archives/lib-crypto.tgz",
+    "@dm3-org/dm3-lib-delivery": "file:/library_archives/lib-delivery.tgz",
+    "@dm3-org/dm3-lib-delivery-api": "file:/library_archives/lib-delivery-api.tgz",
+    "@dm3-org/dm3-lib-messaging": "file:/library_archives/lib-messaging.tgz",
+    "@dm3-org/dm3-lib-offchain-resolver-api": "file:/library_archives/lib-offchain-resolver-api.tgz",
+    "@dm3-org/dm3-lib-profile": "file:/library_archives/lib-profile.tgz",
+    "@dm3-org/dm3-lib-server-side": "file:/library_archives/lib-server-side.tgz",
+    "@dm3-org/dm3-lib-shared": "file:/library_archives/lib-shared.tgz",
+    "@dm3-org/dm3-lib-storage": "file:/library_archives/lib-storage.tgz",
+    "@dm3-org/dm3-lib-test-helper": "file:/library_archives/lib-test-helper.tgz",
+    "@dm3-org/dm3-messenger-widget": "file:/library_archives/messenger-widget.tgz"
+  }
+}

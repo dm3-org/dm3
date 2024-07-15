@@ -101,7 +101,6 @@ describe('UserProfile', () => {
         it('stores a newly created user profile', async () => {
             const setSession = jest.fn();
             const getSession = () => Promise.resolve(null);
-            const send = () => {};
 
             const singedUserProfile = await signProfile(emptyProfile);
 
