@@ -12,7 +12,6 @@ import Messages from './messages';
 import { syncAcknowledge } from './messages/syncAcknowledge';
 import Notification from './notification';
 import Otp from './otp';
-import Pending from './pending';
 import Session from './session';
 
 export enum RedisPrefix {
@@ -21,7 +20,6 @@ export enum RedisPrefix {
     Sync = 'sync:',
     Session = 'session:',
     UserStorage = 'user.storage:',
-    Pending = 'pending:',
     NotificationChannel = 'notificationChannel:',
     GlobalNotification = 'globalNotification:',
     Otp = 'otp:',
@@ -73,11 +71,8 @@ export async function getDatabase(
         //Session
         setSession: Session.setSession(redis),
         getSession: Session.getSession(redis),
-        //Pending
-        addPending: Pending.addPending(redis),
-        getPending: Pending.getPending(redis),
-        deletePending: Pending.deletePending(redis),
         getIdEnsName: getIdEnsName(redis),
+        //Sync
         syncAcknowledge: syncAcknowledge(redis),
         //Notification
         getUsersNotificationChannels:
@@ -116,9 +111,6 @@ export interface IDatabase extends ISessionDatabase {
         createdAt?: number,
     ) => Promise<void>;
     deleteExpiredMessages: (time: number) => Promise<void>;
-    addPending: (ensName: string, contactEnsName: string) => Promise<void>;
-    getPending: (ensName: string) => Promise<string[]>;
-    deletePending: (ensName: string) => Promise<void>;
     getIdEnsName: (ensName: string) => Promise<string>;
     syncAcknowledge: (
         conversationId: string,
