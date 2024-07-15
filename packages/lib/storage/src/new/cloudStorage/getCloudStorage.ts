@@ -75,10 +75,37 @@ export const getCloudStorage = (
 
         return decryptedMessageRecords as StorageEnvelopContainer[];
     };
+    const getHaltedMessages = async () => {
+        const messages = await backendConnector.getHaltedMessages(ensName);
+        const decryptedMessages = await Promise.all(
+            messages.map(async (message: MessageRecord) => {
+                const decryptedEnvelopContainer = await encryption.decryptAsync(
+                    message.encryptedEnvelopContainer,
+                );
+
+                return JSON.parse(decryptedEnvelopContainer);
+            }),
+        );
+
+        return decryptedMessages as StorageEnvelopContainer[];
+    };
+
+    const clearHaltedMessages = async (
+        messageId: string,
+        aliasName: string,
+    ) => {
+        const encryptedAliasName = await encryption.encryptSync(aliasName);
+        await backendConnector.clearHaltedMessages(
+            ensName,
+            messageId,
+            encryptedAliasName,
+        );
+    };
 
     const _addMessage = async (
         contactEnsName: string,
         envelop: StorageEnvelopContainer,
+        isHalted: boolean,
     ) => {
         const encryptedContactName = await encryption.encryptSync(
             contactEnsName,
@@ -97,6 +124,7 @@ export const getCloudStorage = (
                 envelop.envelop.id,
             createdAt,
             encryptedEnvelopContainer,
+            isHalted,
         );
 
         return '';
@@ -161,6 +189,7 @@ export const getCloudStorage = (
                             storageEnvelopContainer.envelop.metadata
                                 ?.encryptedMessageHash!,
                         createdAt,
+                        isHalted: false,
                     };
                 },
             ),
@@ -208,6 +237,8 @@ export const getCloudStorage = (
         addMessage: _addMessage,
         addMessageBatch: _addMessageBatch,
         editMessageBatch: _editMessageBatch,
+        getHaltedMessages,
+        clearHaltedMessages,
         getNumberOfMessages: _getNumberOfMessages,
         getNumberOfConverations: _getNumberOfConversations,
         toggleHideConversation: _toggleHideConversation,

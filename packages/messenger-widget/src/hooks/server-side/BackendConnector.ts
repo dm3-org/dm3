@@ -70,12 +70,35 @@ export class BackendConnector
         );
     }
 
+    public async getHaltedMessages(ensName: string) {
+        const url = `/storage/new/${normalizeEnsName(
+            ensName,
+        )}/getHaltedMessages/`;
+        const { data } = await this.getAuthenticatedAxiosClient().get(url, {});
+        return data ?? [];
+    }
+    public async clearHaltedMessages(
+        ensName: string,
+        messageId: string,
+        aliasName: string,
+    ) {
+        const url = `/storage/new/${normalizeEnsName(
+            ensName,
+        )}/clearHaltedMessage/`;
+        const { data } = await this.getAuthenticatedAxiosClient().post(url, {
+            aliasName,
+            messageId,
+        });
+        return data ?? [];
+    }
+
     public async addMessage(
         ensName: string,
         encryptedContactName: string,
         messageId: string,
         createdAt: number,
         encryptedEnvelopContainer: string,
+        isHalted: boolean,
     ) {
         const url = `/storage/new/${normalizeEnsName(ensName)}/addMessage`;
         await this.getAuthenticatedAxiosClient().post(url, {
@@ -83,6 +106,7 @@ export class BackendConnector
             messageId,
             createdAt,
             encryptedEnvelopContainer,
+            isHalted,
         });
     }
 

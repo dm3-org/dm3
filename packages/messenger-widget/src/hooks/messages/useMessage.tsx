@@ -22,6 +22,8 @@ import { checkIfEnvelopAreInSizeLimit } from './sizeLimit/checkIfEnvelopIsInSize
 import { handleMessagesFromDeliveryService } from './sources/handleMessagesFromDeliveryService';
 import { handleMessagesFromStorage } from './sources/handleMessagesFromStorage';
 import { handleMessagesFromWebSocket } from './sources/handleMessagesFromWebSocket';
+import { useHaltDelivery } from '../haltDelivery/useHaltDelivery';
+import { submitEnvelopsToReceiversDs } from '../../utils/deliveryService/submitEnvelopsToReceiversDs';
 
 const DEFAULT_MESSAGE_PAGESIZE = 100;
 
@@ -72,6 +74,9 @@ export const useMessage = () => {
         editMessageBatchAsync,
         initialized: storageInitialized,
     } = useContext(StorageContext);
+
+    //load halt delivery here to be able to store messages as halted
+    useHaltDelivery();
 
     const [messages, setMessages] = useState<MessageStorage>({});
 
@@ -254,7 +259,8 @@ export const useMessage = () => {
                     [contact]: [...(prev[contact] ?? []), messageModel],
                 };
             });
-            storeMessage(contact, messageModel);
+            //Store the message and mark it as halted
+            storeMessage(contact, messageModel, true);
             return { isSuccess: true };
         }
 
@@ -330,25 +336,8 @@ export const useMessage = () => {
             };
         }
         //Send the envelops to the delivery service
-        await submitEnveloptsToReceiversDs(envelops);
+        await submitEnvelopsToReceiversDs(envelops);
         return { isSuccess: true };
-    };
-
-    const submitEnveloptsToReceiversDs = async (
-        envelops: DispatchableEnvelop[],
-    ) => {
-        //Every DispatchableEnvelop is sent to the delivery service
-        await Promise.all(
-            envelops.map(async (envelop) => {
-                return await axios
-                    .create({ baseURL: envelop.deliveryServiceUrl })
-                    .post('/rpc', {
-                        jsonrpc: '2.0',
-                        method: 'dm3_submitMessage',
-                        params: [JSON.stringify(envelop.encryptedEnvelop)],
-                    });
-            }),
-        );
     };
 
     const loadInitialMessages = async (_contactName: string) => {
