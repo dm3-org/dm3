@@ -2385,6 +2385,7 @@ __metadata:
     path-browserify: ^1.0.1
     postcss: ^8.4.24
     process: ^0.11.10
+    react: ^18.3.1
     react-app-rewired: ^2.2.1
     react-dom: ^18.2.0
     stream-browserify: ^3.0.0
@@ -2393,8 +2394,6 @@ __metadata:
     url: ^0.11.0
     web-vitals: ^2.1.4
     yarn: ^1.22.19
-  peerDependencies:
-    react: ^18.3.1
   languageName: unknown
   linkType: soft
 
