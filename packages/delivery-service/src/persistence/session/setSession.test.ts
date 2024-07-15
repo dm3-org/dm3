@@ -40,12 +40,12 @@ describe('Set Session', () => {
             },
         };
 
-        const priorSetSession = await db.getAccount(USER_ADDRESS);
+        const priorSetSession = await db.getSession(USER_ADDRESS);
         //User has no session yet
         expect(priorSetSession).toBe(null);
-        await db.setAccount(USER_ADDRESS, session);
+        await db.setSession(USER_ADDRESS, session);
 
-        const afterSetSession = await db.getAccount(USER_ADDRESS);
+        const afterSetSession = await db.getSession(USER_ADDRESS);
         //User has no session yet
         expect(afterSetSession?.signedUserProfile).toEqual({
             profile,
@@ -53,10 +53,10 @@ describe('Set Session', () => {
         });
     });
 
-    it('Rejcts session with an invalid schema', async () => {
+    it('Rejects session with an invalid schema', async () => {
         const invalidSession = {} as Session;
         try {
-            await db.setAccount('foo', invalidSession);
+            await db.setSession('foo', invalidSession);
             fail();
         } catch (e) {
             expect(e).toStrictEqual(Error('Invalid session'));

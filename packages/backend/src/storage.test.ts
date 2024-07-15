@@ -96,13 +96,13 @@ describe('Storage', () => {
         } as Session & { spamFilterRules: spamFilter.SpamFilterRules };
 
         const dbMocked = {
-            getAccount: async (ensName: string) =>
+            getSession: async (ensName: string) =>
                 Promise.resolve<
                     Session & {
                         spamFilterRules: spamFilter.SpamFilterRules;
                     }
                 >(sessionMocked),
-            setAccount: async (_: string, __: Session) => {},
+            setSession: async (_: string, __: Session) => {},
             getIdEnsName: async (ensName: string) => ensName,
         };
         const dbFinal: IDatabase = { ...db, ...dbMocked };

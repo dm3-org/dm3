@@ -19,12 +19,12 @@ const challengeJwtPayloadSchema = {
 };
 
 export async function createChallenge(
-    getAccount: (accountAddress: string) => Promise<Session | null>,
+    getSession: (accountAddress: string) => Promise<Session | null>,
     ensName: string,
     serverSecret: string,
 ) {
     const account = normalizeEnsName(ensName);
-    const session = await getAccount(account);
+    const session = await getSession(account);
 
     if (!session) {
         throw Error('Session not found');
@@ -66,13 +66,13 @@ export function generateAuthJWT(
 }
 
 export async function createNewSessionToken(
-    getAccount: (ensName: string) => Promise<Session | null>,
+    getSession: (ensName: string) => Promise<Session | null>,
     signature: string,
     challenge: string,
     ensName: string,
     serverSecret: string,
 ): Promise<string> {
-    const session = await getAccount(ensName);
+    const session = await getSession(ensName);
 
     if (!session) {
         throw Error('Session not found');

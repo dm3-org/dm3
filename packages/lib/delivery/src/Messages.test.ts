@@ -47,7 +47,7 @@ const keysB = {
     storageEncryptionNonce: 0,
 };
 
-const getAccount = async (
+const getSession = async (
     ensName: string,
     socketId?: string,
 ): Promise<(Session & { spamFilterRules: SpamFilterRules }) | null> => {
@@ -146,7 +146,7 @@ describe('Messages', () => {
                     keysA.encryptionKeyPair,
                     2 ** 14,
                     [],
-                    getAccount,
+                    getSession,
                     storeNewMessage,
                     () => {},
                     {
@@ -190,7 +190,7 @@ describe('Messages', () => {
                     keysA.encryptionKeyPair,
                     1,
                     [],
-                    getAccount,
+                    getSession,
                     storeNewMessage,
                     () => {},
                     {} as ethers.providers.JsonRpcProvider,
@@ -232,7 +232,7 @@ describe('Messages', () => {
                     keysA.encryptionKeyPair,
                     2 ** 14,
                     [],
-                    getAccount,
+                    getSession,
                     storeNewMessage,
                     () => {},
                     {
@@ -254,7 +254,7 @@ describe('Messages', () => {
 
             const session = async (address: string) =>
                 ({
-                    ...(await getAccount(address)),
+                    ...(await getSession(address)),
                     spamFilterRules: { minNonce: 2 },
                 } as Session & { spamFilterRules: SpamFilterRules });
 
@@ -318,7 +318,7 @@ describe('Messages', () => {
 
             const session = async (address: string) =>
                 ({
-                    ...(await getAccount(address)),
+                    ...(await getSession(address)),
                     spamFilterRules: { minBalance: '0xa' },
                 } as Session & { spamFilterRules: SpamFilterRules });
 
@@ -384,7 +384,7 @@ describe('Messages', () => {
 
             const session = async (address: string) =>
                 ({
-                    ...(await getAccount(address)),
+                    ...(await getSession(address)),
                     spamFilterRules: {
                         minTokenBalance: {
                             address:
@@ -514,7 +514,7 @@ describe('Messages', () => {
                 keysA.encryptionKeyPair,
                 2 ** 14,
                 dsNotificationChannels,
-                getAccount,
+                getSession,
                 storeNewMessage,
                 sendMessageViaSocketMock,
                 {
@@ -571,7 +571,7 @@ describe('Messages', () => {
                 keysA.encryptionKeyPair,
                 2 ** 14,
                 [],
-                getAccount,
+                getSession,
                 storeNewMessage,
                 sendMock,
                 {
@@ -647,7 +647,7 @@ describe('Messages', () => {
 
             const sendMock = jest.fn();
 
-            const _getAccount = (address: string) => getAccount(address, 'foo');
+            const _getSession = (address: string) => getSession(address, 'foo');
             const now = Date.now();
 
             const mockWsManager: IWebSocketManager = {
@@ -673,7 +673,7 @@ describe('Messages', () => {
                 keysA.encryptionKeyPair,
                 2 ** 14,
                 [],
-                _getAccount,
+                _getSession,
                 storeNewMessage,
                 sendMock,
                 {

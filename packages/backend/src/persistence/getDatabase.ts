@@ -1,5 +1,5 @@
 import { Session as DSSession, spamFilter } from '@dm3-org/dm3-lib-delivery';
-import { IAccountDatabase } from '@dm3-org/dm3-lib-server-side';
+import { ISessionDatabase } from '@dm3-org/dm3-lib-server-side';
 import { UserStorage } from '@dm3-org/dm3-lib-storage';
 import { PrismaClient } from '@prisma/client';
 import { createClient } from 'redis';
@@ -12,8 +12,7 @@ export enum RedisPrefix {
     Conversation = 'conversation:',
     IncomingConversations = 'incoming.conversations:',
     Sync = 'sync:',
-    // Account used to be called Session. The prefix still resolves to "session:" for now.
-    Account = 'session:',
+    Session = 'session:',
     UserStorage = 'user.storage:',
     NotificationChannel = 'notificationChannel:',
     GlobalNotification = 'globalNotification:',
@@ -63,8 +62,8 @@ export async function getDatabase(
 
     return {
         //Session
-        setAccount: Session.setAccount(redis),
-        getAccount: Session.getAccount(redis),
+        setSession: Session.setSession(redis),
+        getSession: Session.getSession(redis),
         //Legacy remove after storage has been merged
         getUserStorage: Storage.getUserStorageOld(redis),
         setUserStorage: Storage.setUserStorageOld(redis),
@@ -94,9 +93,9 @@ export async function getDatabase(
     };
 }
 
-export interface IDatabase extends IAccountDatabase {
-    setAccount: (ensName: string, session: DSSession) => Promise<void>;
-    getAccount: (ensName: string) => Promise<
+export interface IDatabase extends ISessionDatabase {
+    setSession: (ensName: string, session: DSSession) => Promise<void>;
+    getSession: (ensName: string) => Promise<
         | (DSSession & {
               spamFilterRules: spamFilter.SpamFilterRules;
           })

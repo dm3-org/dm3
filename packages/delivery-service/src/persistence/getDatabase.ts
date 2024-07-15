@@ -1,30 +1,29 @@
-import {
-    IGlobalNotification,
-    IOtp,
-    Session,
-    spamFilter,
-} from '@dm3-org/dm3-lib-delivery';
+import { IGlobalNotification, IOtp } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop } from '@dm3-org/dm3-lib-messaging';
-import { IAccountDatabase } from '@dm3-org/dm3-lib-server-side';
 import {
     NotificationChannel,
     NotificationChannelType,
 } from '@dm3-org/dm3-lib-shared';
+// import { PrismaClient } from '@prisma/client';
+import { ISessionDatabase } from '@dm3-org/dm3-lib-server-side';
 import { createClient } from 'redis';
-import Account from './account';
 import { getIdEnsName } from './getIdEnsName';
 import Messages from './messages';
+import { syncAcknowledge } from './messages/syncAcknowledge';
 import Notification from './notification';
 import Otp from './otp';
+import Session from './session';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
     IncomingConversations = 'incoming.conversations:',
-    // Account used to be called Session. The prefix still resolves to "session:" for now.
-    Account = 'session:',
+    Sync = 'sync:',
+    Session = 'session:',
+    UserStorage = 'user.storage:',
     NotificationChannel = 'notificationChannel:',
     GlobalNotification = 'globalNotification:',
     Otp = 'otp:',
+    UserStorageMigrated = 'user.storage.migrated:',
 }
 
 export async function getRedisClient() {
@@ -69,10 +68,12 @@ export async function getDatabase(
         getMessages: Messages.getMessages(redis),
         createMessage: Messages.createMessage(redis),
         deleteExpiredMessages: Messages.deleteExpiredMessages(redis),
-        // Account
-        setAccount: Account.setAccount(redis),
-        getAccount: Account.getAccount(redis),
+        //Session
+        setSession: Session.setSession(redis),
+        getSession: Session.getSession(redis),
         getIdEnsName: getIdEnsName(redis),
+        //Sync
+        syncAcknowledge: syncAcknowledge(redis),
         //Notification
         getUsersNotificationChannels:
             Notification.getUsersNotificationChannels(redis),
@@ -94,14 +95,7 @@ export async function getDatabase(
     };
 }
 
-export interface IDatabase extends IAccountDatabase {
-    setAccount: (ensName: string, session: Session) => Promise<void>;
-    getAccount: (ensName: string) => Promise<
-        | (Session & {
-              spamFilterRules: spamFilter.SpamFilterRules;
-          })
-        | null
-    >;
+export interface IDatabase extends ISessionDatabase {
     getIncomingMessages: (
         ensName: string,
         limit: number,
@@ -118,6 +112,10 @@ export interface IDatabase extends IAccountDatabase {
     ) => Promise<void>;
     deleteExpiredMessages: (time: number) => Promise<void>;
     getIdEnsName: (ensName: string) => Promise<string>;
+    syncAcknowledge: (
+        conversationId: string,
+        syncTime: number,
+    ) => Promise<void>;
     getUsersNotificationChannels: (
         ensName: string,
     ) => Promise<NotificationChannel[]>;

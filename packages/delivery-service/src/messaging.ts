@@ -1,11 +1,15 @@
-import { incomingMessage } from '@dm3-org/dm3-lib-delivery';
+import { checkToken, incomingMessage } from '@dm3-org/dm3-lib-delivery';
 import { EncryptionEnvelop, schema } from '@dm3-org/dm3-lib-messaging';
-import { DeliveryServiceProfileKeys } from '@dm3-org/dm3-lib-profile';
-import { IWebSocketManager, validateSchema } from '@dm3-org/dm3-lib-shared';
+import {
+    DeliveryServiceProfileKeys,
+    normalizeEnsName,
+} from '@dm3-org/dm3-lib-profile';
+import { validateSchema } from '@dm3-org/dm3-lib-shared';
 import { ethers } from 'ethers';
 import { Server, Socket } from 'socket.io';
 import { getDeliveryServiceProperties } from './config/getDeliveryServiceProperties';
 import { IDatabase } from './persistence/getDatabase';
+import { IWebSocketManager } from '@dm3-org/dm3-lib-shared';
 
 export function onConnection(
     io: Server,
@@ -81,7 +85,7 @@ export function onConnection(
                         keys.encryptionKeyPair,
                         deliveryServiceProperties.sizeLimit,
                         deliveryServiceProperties.notificationChannel,
-                        db.getAccount,
+                        db.getSession,
                         db.createMessage,
                         (socketId: string, envelop: EncryptionEnvelop) => {
                             io.sockets.to(socketId).emit('message', envelop);

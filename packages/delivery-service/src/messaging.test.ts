@@ -36,7 +36,7 @@ const keysA = {
 
 const keyPair = createKeyPair();
 
-const getAccount = async (address: string) => {
+const getSession = async (address: string) => {
     const emptyProfile: UserProfile = {
         publicSigningKey: '',
         publicEncryptionKey: '',
@@ -74,7 +74,7 @@ describe('Messaging', () => {
         resolveName: async () => '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292',
     };
     const db = {
-        getAccount,
+        getSession,
         createMessage: () => {},
         getIdEnsName: async (ensName: string) => ensName,
         getUsersNotificationChannels: () => Promise.resolve([]),
@@ -180,12 +180,12 @@ describe('Messaging', () => {
 
             const session = async (addr: string) => {
                 return {
-                    ...(await getAccount(addr)),
+                    ...(await getSession(addr)),
                     spamFilterRules: { minNonce: 2 },
                 } as Session;
             };
             const db = {
-                getAccount: session,
+                getSession: session,
                 createMessage: () => {},
                 getIdEnsName: async (ensName: string) => ensName,
                 getUsersNotificationChannels: () => Promise.resolve([]),
