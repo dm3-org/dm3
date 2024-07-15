@@ -51,7 +51,7 @@ winston.loggers.add('default', global.logger);
     });
     app.use('/profile', Profile(db, web3Provider, serverSecret));
     app.use('/storage', Storage(db, web3Provider, serverSecret));
-    app.use('/auth', Auth(db.getSession as any, serverSecret));
+    app.use('/auth', Auth(db.getAccount as any, serverSecret));
     app.use(logError);
     app.use(errorHandler);
 })();

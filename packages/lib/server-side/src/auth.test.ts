@@ -15,9 +15,9 @@ import { Auth } from './auth';
 const serverSecret = 'testSecret';
 
 describe('Auth', () => {
-    const getSessionMock = async (ensName: string) =>
+    const getAccountMock = async (ensName: string) =>
         Promise.resolve({ challenge: '123' });
-    const setSessionMock = async (_: string, __: any) => {
+    const setAccountMock = async (_: string, __: any) => {
         return (_: any, __: any, ___: any) => {};
     };
 
@@ -40,7 +40,7 @@ describe('Auth', () => {
             it('Returns 200 and a jwt if schema is valid', async () => {
                 const app = express();
                 app.use(bodyParser.json());
-                app.use(Auth(getSessionMock, serverSecret));
+                app.use(Auth(getAccountMock, serverSecret));
 
                 const response = await request(app)
                     .get(
@@ -110,7 +110,7 @@ describe('Auth', () => {
             it('Returns 400 if params is invalid', async () => {
                 const app = express();
                 app.use(bodyParser.json());
-                app.use(Auth(getSessionMock, serverSecret));
+                app.use(Auth(getAccountMock, serverSecret));
 
                 const mnemonic =
                     'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
@@ -149,7 +149,7 @@ describe('Auth', () => {
             it('Returns 400 if body is invalid', async () => {
                 const app = express();
                 app.use(bodyParser.json());
-                app.use(Auth(getSessionMock, serverSecret));
+                app.use(Auth(getAccountMock, serverSecret));
 
                 const mnemonic =
                     'announce room limb pattern dry unit scale effort smooth jazz weasel alcohol';
@@ -179,7 +179,7 @@ describe('Auth', () => {
                     spamFilterRules: spamFilter.SpamFilterRules;
                 };
 
-                const getSessionMockLocal = async (ensName: string) =>
+                const getAccountMockLocal = async (ensName: string) =>
                     Promise.resolve<
                         Session & {
                             spamFilterRules: spamFilter.SpamFilterRules;
@@ -196,11 +196,11 @@ describe('Auth', () => {
 
                 const app = express();
                 app.use(bodyParser.json());
-                app.use(Auth(getSessionMockLocal, serverSecret));
+                app.use(Auth(getAccountMockLocal, serverSecret));
 
                 // create the challenge jwt
                 const challengeJwt = await createChallenge(
-                    getSessionMockLocal,
+                    getAccountMockLocal,
                     '0x71CB05EE1b1F506fF321Da3dac38f25c0c9ce6E1',
                     serverSecret,
                 );
