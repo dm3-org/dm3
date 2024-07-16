@@ -14,6 +14,7 @@ import { createClient } from 'redis';
 import Account from './account';
 import { getIdEnsName } from './getIdEnsName';
 import Messages from './messages';
+import { syncAcknowledge } from './messages/syncAcknowledge';
 import Notification from './notification';
 import Otp from './otp';
 
@@ -73,6 +74,7 @@ export async function getDatabase(
         setAccount: Account.setAccount(redis),
         getAccount: Account.getAccount(redis),
         getIdEnsName: getIdEnsName(redis),
+        syncAcknowledge: syncAcknowledge(redis),
         //Notification
         getUsersNotificationChannels:
             Notification.getUsersNotificationChannels(redis),
@@ -118,6 +120,10 @@ export interface IDatabase extends IAccountDatabase {
     ) => Promise<void>;
     deleteExpiredMessages: (time: number) => Promise<void>;
     getIdEnsName: (ensName: string) => Promise<string>;
+    syncAcknowledge: (
+        conversationId: string,
+        syncTime: number,
+    ) => Promise<void>;
     getUsersNotificationChannels: (
         ensName: string,
     ) => Promise<NotificationChannel[]>;
