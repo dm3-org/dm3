@@ -17,7 +17,6 @@ import bodyParser from 'body-parser';
 import { ethers } from 'ethers';
 import express from 'express';
 import request from 'supertest';
-import winston from 'winston';
 import {
     IDatabase,
     Redis,
@@ -44,10 +43,6 @@ const keysA = {
 };
 
 const serverSecret = 'veryImportantSecretToGenerateAndValidateJSONWebTokens';
-
-global.logger = winston.createLogger({
-    transports: [new winston.transports.Console()],
-});
 
 describe('Storage', () => {
     let app;

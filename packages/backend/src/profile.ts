@@ -40,11 +40,11 @@ export default (
             );
 
             if (!schemaIsValid) {
-                global.logger.error({ message: 'invalid schema' });
+                console.error({ message: 'invalid schema' });
                 return res.status(400).send({ error: 'invalid schema' });
             }
             const ensName = normalizeEnsName(req.params.ensName);
-            global.logger.debug({
+            console.debug({
                 method: 'POST',
                 url: req.url,
                 ensName,
@@ -60,7 +60,7 @@ export default (
                 req.body,
                 serverSecret,
             );
-            global.logger.debug({
+            console.debug({
                 message: 'POST profile',
                 ensName,
                 data,
@@ -68,7 +68,7 @@ export default (
 
             res.json(data);
         } catch (e) {
-            global.logger.warn({
+            console.warn({
                 message: 'POST profile',
                 error: JSON.stringify(e),
             });

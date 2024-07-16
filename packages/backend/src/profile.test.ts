@@ -13,14 +13,9 @@ import { ethers } from 'ethers';
 import express from 'express';
 import http from 'http';
 import request from 'supertest';
-import winston from 'winston';
 import { IDatabase } from './persistence/getDatabase';
 import profile from './profile';
 import storage from './storage';
-
-global.logger = winston.createLogger({
-    transports: [new winston.transports.Console()],
-});
 
 const web3ProviderMock: ethers.providers.JsonRpcProvider =
     new ethers.providers.JsonRpcProvider();

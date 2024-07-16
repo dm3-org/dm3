@@ -1,13 +1,8 @@
 import { Redis, IDatabase, getRedisClient, getDatabase } from '../getDatabase';
 import { UserProfile } from '@dm3-org/dm3-lib-profile';
 import { Session } from '@dm3-org/dm3-lib-delivery';
-import winston from 'winston';
 
 const USER_ADDRESS = '0x25A643B6e52864d0eD816F1E43c0CF49C83B8292';
-
-global.logger = winston.createLogger({
-    transports: [new winston.transports.Console()],
-});
 
 describe('Set Session', () => {
     let redisClient: Redis;
