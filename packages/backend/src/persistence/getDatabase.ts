@@ -7,6 +7,7 @@ import Session from './session';
 import Storage from './storage';
 import { ConversationRecord } from './storage/postgres/dto/ConversationRecord';
 import { MessageRecord } from './storage/postgres/dto/MessageRecord';
+import { printAllRedisSessions } from './moveAccounts';
 
 export enum RedisPrefix {
     Conversation = 'conversation:',
@@ -60,6 +61,8 @@ export async function getDatabase(
 ): Promise<IDatabase> {
     const redis = _redis ?? (await getRedisClient());
     const prisma = _prisma ?? (await getPrismaClient());
+
+    printAllRedisSessions(redis);
 
     return {
         //Session
