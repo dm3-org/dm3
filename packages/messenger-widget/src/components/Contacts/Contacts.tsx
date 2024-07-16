@@ -174,7 +174,7 @@ export function Contacts() {
                                         ' ',
                                         selectedContact
                                             ? selectedContact.contactDetails
-                                                .account.ensName !== id
+                                                  .account.ensName !== id
                                                 ? 'highlight-right-border'
                                                 : 'contact-details-container-active'
                                             : '',
@@ -226,9 +226,9 @@ export function Contacts() {
                                                     title={
                                                         data.contactDetails
                                                             ? data
-                                                                .contactDetails
-                                                                .account
-                                                                .ensName
+                                                                  .contactDetails
+                                                                  .account
+                                                                  .ensName
                                                             : ''
                                                     }
                                                 >
@@ -256,7 +256,7 @@ export function Contacts() {
                                                 {/* //TODO add loading state for message */}
                                                 {isContactSelected(id) ? (
                                                     isContactLoading(id) &&
-                                                        !messages[id].length ? (
+                                                    !messages[id].length ? (
                                                         <div className="pe-2">
                                                             <img
                                                                 className="rotating"
@@ -281,13 +281,13 @@ export function Contacts() {
                                                                         }
                                                                         isMenuAlignedAtBottom={
                                                                             isMenuAlignedAtBottom ===
-                                                                                null
+                                                                            null
                                                                                 ? showMenuInBottom(
-                                                                                    selectedContact!
-                                                                                        .contactDetails
-                                                                                        .account
-                                                                                        .ensName,
-                                                                                )
+                                                                                      selectedContact!
+                                                                                          .contactDetails
+                                                                                          .account
+                                                                                          .ensName,
+                                                                                  )
                                                                                 : isMenuAlignedAtBottom
                                                                         }
                                                                     />
