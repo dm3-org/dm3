@@ -106,9 +106,12 @@
     font-weight: bolder;
 }
 
+.last-hidden-contact{
+    flex-grow: 1;
+}
 
-.infinite-scroll-component__outerdiv{
-    height: 100vh;
+.paginated-contacts{
+    height: 100% !important;
 }
 
 /* =================== Mobile Responsive CSS =================== */
